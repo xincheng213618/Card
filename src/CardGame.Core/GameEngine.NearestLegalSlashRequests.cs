@@ -183,7 +183,7 @@ public sealed partial class GameEngine
         HasSlashUseDistanceBySuit(actor, kind, EffectiveSuit(actor, cards[0])) ||
         HasTurnRedSlashPolicy(actor.Seat, kind, EffectiveSuit(actor, cards[0])) ||
         HasPhaseSuitAllowance(actor, cards[0]) || HasCardDistanceExemption(actor, _players[target], kind) ||
-        HasUnlimitedTurnRuleModifier(actor.Seat, SkillRuleQuery.SlashDistanceLimit);
+        IgnoresSlashUseDistance(actor);
 
     private bool IsNearestLegalFactionOrigin(ProgramSkillFrame frame, int actor, int target, string? bind) =>
         ProgramInstructionResolver.Default.Resolve(frame, _contentRegistry.GetSkill(frame.SkillId).Program!).GetPausedInstruction(frame.InstructionIndex).Effect.Op == SkillProgramEffectOp.RequestLegalSlashByNearest &&

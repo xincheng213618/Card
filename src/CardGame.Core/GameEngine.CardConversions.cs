@@ -209,6 +209,20 @@ public sealed partial class GameEngine
             binding.Modifier.Operation == SkillRuleOperation.Unlimited && binding.Modifier.SourceCardIdentityId == source.BindingId &&
             binding.Modifier.Condition.Evaluate(CreateSkillContext(owner)));
 
+    // Skill-wide (identity-free) static slash distance unlimited, e.g. 追猎's
+    // 你使用【杀】无距离限制; identity-bound modifiers stay on the conversion path.
+    private bool HasUnlimitedStaticSlashDistance(CharacterState owner) =>
+        GetSkillBindingShard(owner).GetNumericModifiers(SkillRuleQuery.SlashDistanceLimit).Any(binding =>
+            binding.Modifier is { } modifier &&
+            modifier.SourceCardIdentityId is null &&
+            modifier.Query == SkillRuleQuery.SlashDistanceLimit &&
+            modifier.Operation == SkillRuleOperation.Unlimited &&
+            modifier.Condition.Evaluate(CreateSkillContext(owner)));
+
+    private bool IgnoresSlashUseDistance(CharacterState actor) =>
+        HasUnlimitedTurnRuleModifier(actor.Seat, SkillRuleQuery.SlashDistanceLimit) ||
+        HasUnlimitedStaticSlashDistance(actor);
+
     private IReadOnlyList<CardConversionSource> GetProgramViewAsConversions(
         CharacterState owner,
         Card card,

@@ -86,7 +86,7 @@ public sealed partial class GameEngine
                  HasTurnRedSlashPolicyForColor(actor.Seat, identity.EffectiveKind, color) ||
                  HasPhaseSuitAllowance(actor.Seat, action.EffectiveSuit) || HasCardDistanceExemption(actor, target, identity.EffectiveKind) ||
                  action.ConversionChain.Any(source => IgnoresProgramSlashDistance(actor, source)) ||
-                 IgnoresSpGuanYuWushengDistance(actor, card) || HasUnlimitedTurnRuleModifier(actor.Seat, SkillRuleQuery.SlashDistanceLimit) ||
+                 IgnoresSpGuanYuWushengDistance(actor, card) || IgnoresSlashUseDistance(actor) ||
                  IsWithinSpecificSlashRange(actor, target, identity.EffectiveKind, action.EffectiveRank, use.Id));
         }
         return identity.EffectiveKind switch

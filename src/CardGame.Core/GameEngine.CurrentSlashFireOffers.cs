@@ -70,7 +70,7 @@ public sealed partial class GameEngine
              HasSlashUseDistanceBySuit(actor, CardKind.FireSlash, action.EffectiveSuit) ||
              HasTurnRedSlashPolicyForColor(actor.Seat, CardKind.FireSlash, ActualTargetPolicyColor(action)) ||
              HasPhaseSuitAllowance(actor.Seat, action.EffectiveSuit) || HasCardDistanceExemption(actor, t, CardKind.FireSlash) ||
-             HasUnlimitedTurnRuleModifier(actor.Seat, SkillRuleQuery.SlashDistanceLimit) ||
+             IgnoresSlashUseDistance(actor) ||
              IsWithinSpecificSlashRange(actor, t, CardKind.FireSlash, action.EffectiveRank, use.Id)))
             .Select(t => t.Seat).ToArray();
     }

@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:zhui-lie",
+      "revision": 1,
+      "modifiers": [
+        {
+          "id": "zhui-lie-slash-distance-unlimited",
+          "query": "slashDistanceLimit",
+          "operation": "unlimited",
+          "value": 0,
+          "priority": 0,
+          "condition": { "kind": "always" }
+        }
+      ],
+      "triggers": [
+        {
+          "id": "zhui-lie-outside-range",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "actor",
+          "cardKinds": ["slash", "fireSlash", "thunderSlash"],
+          "optional": false,
+          "priority": 0,
+          "condition": {
+            "kind": "compare",
+            "left": { "kind": "ownerEventTargetDistance" },
+            "operator": "greaterThan",
+            "right": { "kind": "currentAttackRange" }
+          },
+          "effects": [
+            { "op": "refundCardUseDebit", "target": "owner" },
+            {
+              "op": "startJudgment",
+              "target": "owner",
+              "judgmentReason": "skill.ol-zhui-lie",
+              "resultBind": "zhui-lie-judgment",
+              "visibility": "public"
+            },
+            {
+              "op": "zhuiLieEscalateTargetDamage",
+              "target": "owner",
+              "condition": {
+                "kind": "boundCardsMatchKinds",
+                "sourceBind": "zhui-lie-judgment",
+                "cardKinds": [
+                  "generalWeapon", "redBloodBlade", "crossbow", "qinggangSword", "stoneAxe",
+                  "zhangbaSerpentSpear", "cixiongDoubleSwords", "qinglongCrescentBlade", "iceSword",
+                  "qilinBow", "fangtianHalberd", "gudingBlade", "zhuqueFan", "ghostDragonCrescentBlade",
+                  "scarletBloodSword", "xingtianAxe",
+                  "offensiveHorse", "defensiveHorse", "dawan", "zixing", "dilu", "zhaohuangfeidian", "hualiu"
+                ]
+              }
+            },
+            {
+              "op": "loseHp",
+              "target": "owner",
+              "amount": 1,
+              "condition": {
+                "kind": "not",
+                "children": [
+                  {
+                    "kind": "boundCardsMatchKinds",
+                    "sourceBind": "zhui-lie-judgment",
+                    "cardKinds": [
+                      "generalWeapon", "redBloodBlade", "crossbow", "qinggangSword", "stoneAxe",
+                      "zhangbaSerpentSpear", "cixiongDoubleSwords", "qinglongCrescentBlade", "iceSword",
+                      "qilinBow", "fangtianHalberd", "gudingBlade", "zhuqueFan", "ghostDragonCrescentBlade",
+                      "scarletBloodSword", "xingtianAxe",
+                      "offensiveHorse", "defensiveHorse", "dawan", "zixing", "dilu", "zhaohuangfeidian", "hualiu"
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "zhui-lie-judgment",
+              "destination": "discardPile"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

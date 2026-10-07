@@ -4,6 +4,7 @@ public sealed partial class GameEngine
 {
     private static bool HasFinalTargetSlashEffects(IEnumerable<SkillProgramEffect> effects) =>
         effects.Any(effect => effect.Op is SkillProgramEffectOp.PreventCurrentTargetSlashCancellation or SkillProgramEffectOp.AddCurrentTargetSlashDamage or
+            SkillProgramEffectOp.ZhuiLieEscalateTargetDamage or
             SkillProgramEffectOp.ClaimCurrentUsePhysicalCards or SkillProgramEffectOp.PreventCurrentTargetSlashCancellationByRule);
     private static bool MatchesFinalTargetComparison(ProgramFinalTargetComparison comparison, SkillProgramTriggerFacts facts) => comparison switch
     {
@@ -29,7 +30,8 @@ public sealed partial class GameEngine
         if (entries.Any(item => item.ProducerFrameId == frame.Id && item.EffectIndex == index)) return;
         var receipt = new ProgramTargetSlashReceipt(action.ActionId, action.ActorSeat, target, owner.Id, frame.Id, frame.SkillId, frame.SkillInstanceId, frame.GameplayHash, frame.TriggerId!, index,
             effect.Op == SkillProgramEffectOp.PreventCurrentTargetSlashCancellation,
-            effect.Op == SkillProgramEffectOp.AddCurrentTargetSlashDamage ? effect.Amount : 0);
+            effect.Op == SkillProgramEffectOp.AddCurrentTargetSlashDamage ? effect.Amount : 0,
+            effect.Op == SkillProgramEffectOp.ZhuiLieEscalateTargetDamage);
         ReplaceRuntimeFrame(owner.Id, owner with { FinalTargetSlashReceipts = Array.AsReadOnly(entries.Append(receipt).ToArray()) });
         AdvanceEventRulesAndQueueFact(new ProgramTargetSlashReceiptIssuedEvent(owner.Id, receipt));
     }
@@ -39,6 +41,21 @@ public sealed partial class GameEngine
     private int FinalTargetSlashDamage(IDamageAttempt attack) => !attack.IsChainPropagation && attack is CardAttackHandle &&
         IsSlashCard(attack.EffectiveCardKind ?? CardKind.Slash)
             ? FinalTargetSlashReceipts(attack.ResolutionId, attack.TargetSeat).Sum(item => item.DamageBonus) : 0;
+
+    // 追猎 escalation: the raise never lowers damage, so it contributes only the
+    // gap to the target's current hp when the whole attack would land below it.
+    private int FinalTargetSlashEscalationBonus(IDamageAttempt attack, int damageWithoutEscalation)
+    {
+        if (attack.IsChainPropagation || attack is not CardAttackHandle ||
+            !IsSlashCard(attack.EffectiveCardKind ?? CardKind.Slash) ||
+            !IsValidPlayerSeat(attack.TargetSeat) || !_players[attack.TargetSeat].IsAlive)
+            return 0;
+        var escalation = FinalTargetSlashReceipts(attack.ResolutionId, attack.TargetSeat)
+            .FirstOrDefault(item => item.EscalateToTargetHp);
+        if (escalation is null) return 0;
+        var targetHp = _players[attack.TargetSeat].Hp;
+        return Math.Max(0, targetHp - damageWithoutEscalation);
+    }
     private void AssertFinalTargetSlashReceipts()
     {
         foreach (var use in _resolutionStack.OfType<CardUseFrame>().Where(use => use.FinalTargetSlashReceipts is not null))
@@ -49,7 +66,7 @@ public sealed partial class GameEngine
                 entries.Any(item => item.ActionId != action.ActionId || item.CardUseFrameId != use.Id || !ReceiptProducerMatches(item) || !IsValidPlayerSeat(item.ActorSeat) ||
                     !IsValidPlayerSeat(item.TargetSeat) || item.ActorSeat == item.TargetSeat || item.ProducerFrameId <= 0 || item.EffectIndex < 0 ||
                     item.DamageBonus is < 0 or > 20 || item.PreventCancellation && item.DamageBonus != 0 ||
-                    !item.PreventCancellation && item.DamageBonus == 0))
+                    !item.PreventCancellation && !item.EscalateToTargetHp && item.DamageBonus == 0))
                 throw new InvalidOperationException("A final target Slash receipt lost its owning use or producer identity.");
         }
     }
@@ -62,7 +79,9 @@ public sealed partial class GameEngine
         var effect = trigger.Effects[receipt.EffectIndex];
         return receipt.PreventCancellation
             ? effect.Op is SkillProgramEffectOp.PreventCurrentTargetSlashCancellation or SkillProgramEffectOp.PreventCurrentTargetSlashCancellationByRule && receipt.DamageBonus == 0
-            : effect.Op == SkillProgramEffectOp.AddCurrentTargetSlashDamage && effect.Amount == receipt.DamageBonus;
+            : receipt.EscalateToTargetHp
+                ? effect.Op == SkillProgramEffectOp.ZhuiLieEscalateTargetDamage && receipt.DamageBonus == 0
+                : effect.Op == SkillProgramEffectOp.AddCurrentTargetSlashDamage && effect.Amount == receipt.DamageBonus;
     }
     private bool CanOfferFinalTargetSlash(ProgramTriggerCandidate candidate, SkillProgramTrigger trigger, ProgramSkillWindowContext window)
     {
