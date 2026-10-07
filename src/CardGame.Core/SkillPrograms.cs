@@ -207,6 +207,8 @@ public enum SkillProgramEffectOp
     BijingPunishDiscardPhase = 7171,
     DuanfaDiscardAndDraw = 7180, YoudiBaitDiscard = 7181,
     GuanchaoChoosePattern = 7196, GuanchaoRankDraw = 7197, XunxianGiftUsedCard = 7198,
+    QiaoliWeaponDuel = 7260, QiaoliArmorDuel = 7261, QiaoliWeaponDamageDraw = 7262,
+    QiaoliEndingEquipmentGain = 7263, QingliangChooseOption = 7264,
     IssueShownEntityTurnPolicy = 6500,
     PlaceCapturedEquipmentAndDraw = 6200, RestoreActualDiscardBatch = 6201,
     DiscardSuitPreventDamageAndBenefit = 5900, PlaceMatchedJudgmentCard = 5901,

@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:qiaoli",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "qiaoli-weapon",
+          "minCards": 1,
+          "maxCards": 1,
+          "sourceZones": ["hand", "equipment"],
+          "equipmentSlots": ["weapon"],
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "effects": [
+            { "op": "qiaoliWeaponDuel", "target": "owner" }
+          ]
+        },
+        {
+          "id": "qiaoli-armor",
+          "minCards": 1,
+          "maxCards": 1,
+          "sourceZones": ["hand", "equipment"],
+          "equipmentSlots": ["armor", "offensiveHorse", "defensiveHorse", "treasure"],
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "effects": [
+            { "op": "qiaoliArmorDuel", "target": "owner" }
+          ]
+        }
+      ],
+      "triggers": [
+        {
+          "id": "qiaoli-weapon-draw",
+          "window": "damageAppliedBeforeDying",
+          "subject": "damageSource",
+          "damageOccurrence": "perDamage",
+          "optional": false,
+          "effects": [
+            { "op": "qiaoliWeaponDamageDraw", "target": "owner" }
+          ]
+        },
+        {
+          "id": "qiaoli-ending-gain",
+          "window": "turnEnding",
+          "subject": "owner",
+          "turnOwnerScope": "own",
+          "optional": true,
+          "effects": [
+            { "op": "qiaoliEndingEquipmentGain", "target": "owner" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:qingliang",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "qingliang-defense",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "target",
+          "cardKinds": ["slash", "fireSlash", "thunderSlash", "duel", "barbarianAssault", "arrowBarrage", "fireAttack"],
+          "optional": true,
+          "usageScope": "turn",
+          "usageLimit": 1,
+          "condition": {
+            "kind": "all",
+            "children": [
+              { "kind": "not", "children": [ { "kind": "cardActionActorIsOwner" } ] },
+              { "kind": "compare", "left": { "kind": "cardUseDesignatedTargetCount" }, "operator": "equal", "right": { "kind": "integerConstant", "value": 1 } }
+            ]
+          },
+          "effects": [
+            { "op": "qingliangChooseOption", "target": "owner" }
+          ]
+        }
+      ]
+    }
+  ]
+}
