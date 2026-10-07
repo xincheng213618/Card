@@ -3671,6 +3671,7 @@ public sealed partial class GameEngine
         if (action == "yuanzi-draw" || action == "yuanzi-decline" ||
             action == "liejie-count" || action == "liejie-decline")
         { ResolveWeiZiProgramChoice(selected); return; }
+        if (action == "zhuitao-mark") { ResolveZhuitaoMarkChoice(selected); return; }
 
         var (candidate, context) = GetPendingProgramTriggerCandidate();
         if (_resolutionStack.LastOrDefault() is ProgramLifecycleTriggerWindowFrame lifecycle &&
@@ -4474,6 +4475,7 @@ public sealed partial class GameEngine
                 SkillProgramEffectOp.YujueResolve => SelectAiYujueChoice(decision),
                 SkillProgramEffectOp.YuanziDamageDraw => SelectAiYuanziDamageDrawChoice(decision),
                 SkillProgramEffectOp.LiejieSourceDiscard => SelectAiLiejieSourceDiscardChoice(decision),
+                SkillProgramEffectOp.ZhuitaoMarkTarget => SelectAiZhuitaoMarkChoice(decision),
                 _ => throw new InvalidOperationException(
                     $"The AI does not support suspended program instruction '{paused.Op}'.")
             };

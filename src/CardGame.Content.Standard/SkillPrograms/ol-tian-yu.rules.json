@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:saodi",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "saodi-expand",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "actor",
+          "cardKinds": ["slash", "fireSlash", "thunderSlash", "duel", "dismantlement", "snatch", "fireAttack", "ironChain", "borrowedSword"],
+          "optional": true,
+          "condition": {
+            "kind": "compare",
+            "left": { "kind": "cardUseDesignatedTargetCount" },
+            "operator": "equal",
+            "right": { "kind": "integerConstant", "value": 1 }
+          },
+          "effects": [
+            { "op": "saodiExpandTargets", "target": "owner" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:zhuitao",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "zhuitao-mark",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            { "op": "zhuitaoMarkTarget", "target": "owner" }
+          ]
+        },
+        {
+          "id": "zhuitao-revoke",
+          "window": "afterDamageApplied",
+          "subject": "any",
+          "damageOccurrence": "perDamage",
+          "optional": false,
+          "condition": {
+            "kind": "all",
+            "children": [
+              { "kind": "damageSourceIsOwner" },
+              { "kind": "damageTargetIsOther" }
+            ]
+          },
+          "effects": [
+            { "op": "zhuitaoRevoke", "target": "owner" }
+          ]
+        }
+      ]
+    }
+  ]
+}

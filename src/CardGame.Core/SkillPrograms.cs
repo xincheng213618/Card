@@ -230,6 +230,7 @@ public enum SkillProgramEffectOp
     YujueResolve = 7302, ZhihuExpire = 7303, TuxingArmGameDamage = 7304,
     ZhuiLieEscalateTargetDamage = 7308,
     YuanziResolve = 7325, YuanziDamageDraw = 7326, LiejieSourceDiscard = 7327,
+    SaodiExpandTargets = 7316, ZhuitaoMarkTarget = 7317, ZhuitaoRevoke = 7318,
     IssueShownEntityTurnPolicy = 6500,
     PlaceCapturedEquipmentAndDraw = 6200, RestoreActualDiscardBatch = 6201,
     DiscardSuitPreventDamageAndBenefit = 5900, PlaceMatchedJudgmentCard = 5901,

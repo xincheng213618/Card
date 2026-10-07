@@ -212,3 +212,9 @@ OL 杨仪"狷狭"需要"视为依次使用至多三张牌名各不相同的仅�
 
 - **"随机弃置一名其他角色至多N张手牌"的通用节点（未落地，如实记录）**：烈节第二子句"弃置伤害来源至多X张牌（X为红色牌数）"需要"按公开计算量随机弃置指定座位手牌"。既有 `takeRandomHandCardFromSelectedTargets` 是"获得"（进拥有者手牌）而非"弃置"；杨婉追还的随机弃牌与本批烈节各自以 bespoke 流程实现（同一 `_random` 口径）。若后续出现第二个同类技能，建议抽象出"随机弃置指定角色至多N张手牌"的声明式描述符（数量可来自绑定牌集派生值），并可一并考虑"装备区由拥有者挑选 + 手牌随机"的混合弃置口径（OL 客户端同类效果常见形态，本批未表达）。
 - 本批已落地的其余口径全部为既有共享能力复用（其他角色的准备阶段窗口、usageScope round、制衡式弃置摸等量声明式组合、cards-moved 续接、可选触发通用激活与估算路径）；共享扩展仅 `EstimateCompositionForAi` 的回合开始窗口受赠者发布行与 `ProgramAiEstimateContext.AllHandTurnOwnerGift` 估值钩子。
+## 内容程序表达力记录：田豫批（2026-10-08）
+
+- **定向距离减免授予（已落地为共享能力）**：追讨①"令你与一名其他角色的距离-1……当你对其造成伤害后，失去"需要"对特定有序（来源,目标）对、事件驱动授予、条件撤销"的距离表达。此前引擎只有声明式 outgoingDistance modifier（全局条件求值，无对象维度、无撤销生命周期）、回合级 TurnCardUseEffects 距离授予、FixedDistanceOne（出牌阶段发动+回合结束弃牌债）与 FixedDistanceOne/InspectedHand/HpOrdered 三个 Set 型 overlay。本批新增共享通道：通用证据事件 `ProgramDirectedDistanceGrantedEvent`/`ProgramDirectedDistanceRevokedEvent`（committed-history 推导、撤销清除此前同对全部授予）+ `EvaluateDistance` 一处通用串联 `ApplyProgramDirectedDistance`（Add 贡献、下界 1、`HasTriggerOperation` 门控）。后续"令我与某角色的距离±N 直到某条件"技能可复用该事件对与 overlay。
+- **optional 触发的"候选非空"前置（未落地，如实记录）**：扫狄/追讨的发动提示（共享 optional 触发路径）无法表达"仅当存在合法受益对象时才提示"——之间角色为空或全部不合法时仍会提示"是否发动【扫狄】？"，AI 会按正计价接受一次无效果发动。若提供触发级"候选集非空才提示"的条件扩展（如窗口上下文的共享谓词节点），可消除该空转。
+- **CardUseTargetsFinalized 的目标数事实局限（说明）**："仅指定一名其他角色为目标"以 `cardUseDesignatedTargetCount==1` 表达，对借刀杀人按引擎 designated-target 口径判定（若引擎计 2 目标则该牌永不满足），无按牌种细分"有效目标"的维度；本批以 cardKinds 子集选择覆盖（不可能满足条件的普通锦囊不入清单），行为不受影响。
+- 本批已落地的其余口径全部为既有共享能力复用（原始目标追加/卡牌增强的目标变异管线、顺序锦囊与增强杀多目标游标、CurrentCardExtraTargets 同款目标合法性检查、执笏"对其他角色造成伤害后"条件口径、代讨同款准备阶段窗口、共享 optional 提示与 EstimateCompositionForAi/ScoreProgramTarget 计价）。
