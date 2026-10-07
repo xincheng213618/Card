@@ -2085,9 +2085,13 @@ public sealed partial class GameEngine
                     ? NeighborDiscardIndexes(batch, owner.Seat).Length > 0 &&
                       context.TargetSeat == owner.Seat && context.SourceSeat == NeighborDiscardSourceSeat(batch, owner.Seat) &&
                       NeighborDiscardFact(batch, owner.Seat)?.PreviousLivingSeat == context.Facts?.FrozenPreviousLivingSeat
-                    : ProgramMovementSourceCounts(batch, context.Window)
-                        .Any(item => item.Count.Location.OwnerSeat == owner.Seat &&
-                            (!item.DiscardOriginOnly || trigger.MovementDiscardOnly))),
+                    : IsOtherLastHandLossTrigger(trigger)
+                        ? context.SourceSeat is { } loserSeat && IsValidPlayerSeat(loserSeat) && loserSeat != owner.Seat &&
+                          _players[loserSeat].IsAlive && _phase == TurnPhase.Play && _currentSeat == loserSeat &&
+                          LostLastHandCard(batch, loserSeat)
+                        : ProgramMovementSourceCounts(batch, context.Window)
+                            .Any(item => item.Count.Location.OwnerSeat == owner.Seat &&
+                                (!item.DiscardOriginOnly || trigger.MovementDiscardOnly))),
             SkillProgramTriggerWindow.FirstGameDomainCrossing =>
                 context.MovementBatch is { } domainBatch && domainBatch.Id == context.ParentFrameId &&
                 _resolutionStack.OfType<CardsMovedTriggerWindowFrame>().LastOrDefault()?.Id == domainBatch.Id &&

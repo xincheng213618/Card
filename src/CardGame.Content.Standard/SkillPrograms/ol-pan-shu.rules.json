@@ -21,15 +21,26 @@
      "requireNoCardConversion": true,
      "optional": true,
      "condition": {
-      "kind": "any",
+      "kind": "all",
       "children": [
        {
-        "kind": "ownerIsTurnPlayer"
+        "kind": "compare",
+        "left": { "kind": "currentTurnNonConvertedUseCount" },
+        "operator": "equal",
+        "right": { "kind": "integerConstant", "value": 1 }
        },
        {
-        "kind": "booleanState",
-        "stateId": "zhiren-unrestricted",
-        "expectedValue": true
+        "kind": "any",
+        "children": [
+         {
+          "kind": "ownerIsTurnPlayer"
+         },
+         {
+          "kind": "booleanState",
+          "stateId": "zhiren-unrestricted",
+          "expectedValue": true
+         }
+        ]
        }
       ]
      },
