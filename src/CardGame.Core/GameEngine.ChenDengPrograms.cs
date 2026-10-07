@@ -40,19 +40,27 @@ public sealed partial class GameEngine
     }
 
     // Round-scoped 丰积 adjustments for one seat and one public numeric query.
-    // Accepted options swap owner↔recipient per committed 旋回 swap parity;
-    // a declined option's +1 stays with the owner (it has no counterpart).
+    // Every owner's option facts participate: accepted options swap the
+    // owner↔recipient attribution per the option owner's 旋回 swap parity;
+    // a declined option's +1 stays with its owner (it has no counterpart).
     internal int GetFengjiRoundAdjustment(int seat, SkillRuleQuery query)
     {
-        var options = CurrentRoundFengjiOptions(seat);
-        if (options.Count == 0) return 0;
-        var swapCount = CurrentRoundFengjiSwapCount(seat);
+        if (_roundNumber == 0) return 0;
+        var facts = CompleteProgramEventHistory();
+        var options = facts.OfType<ProgramFengjiOptionChosenEvent>()
+            .Where(e => e.RoundNumber == _roundNumber).ToArray();
+        if (options.Length == 0) return 0;
+        var swapsByOwner = facts.OfType<ProgramXuanhuiEffectsSwappedEvent>()
+            .Where(e => e.RoundNumber == _roundNumber)
+            .GroupBy(e => e.OwnerSeat)
+            .ToDictionary(group => group.Key, group => group.Count());
         var total = 0;
         foreach (var option in options)
         {
             if (query == SkillRuleQuery.DrawCount && option.Option != FengjiOptionKind.Draw ||
                 query == SkillRuleQuery.SlashLimit && option.Option != FengjiOptionKind.Slash)
                 continue;
+            var swapCount = swapsByOwner.GetValueOrDefault(option.OwnerSeat);
             if (option.Accepted)
             {
                 if (option.OwnerSeat == seat)
@@ -68,18 +76,13 @@ public sealed partial class GameEngine
         return total;
     }
 
-    private int CurrentRoundFengjiSwapCount(int ownerSeat)
-    {
-        if (_roundNumber == 0) return 0;
-        return CompleteProgramEventHistory().OfType<ProgramXuanhuiEffectsSwappedEvent>()
-            .Count(e => e.RoundNumber == _roundNumber && e.OwnerSeat == ownerSeat);
-    }
-
-    // 旋回 disables from its own swap until any character dies afterwards.
-    private bool IsXuanhuiDisabledByOwnSwap()
+    // 旋回 disables from its own swap until any character dies afterwards;
+    // multiple owners disable only their own instance.
+    private bool IsXuanhuiDisabledByOwnSwap(int ownerSeat)
     {
         var facts = CompleteProgramEventHistory().ToArray();
-        var swapIndex = Array.FindLastIndex(facts, item => item is ProgramXuanhuiEffectsSwappedEvent);
+        var swapIndex = Array.FindLastIndex(facts, item =>
+            item is ProgramXuanhuiEffectsSwappedEvent swapped && swapped.OwnerSeat == ownerSeat);
         if (swapIndex < 0) return false;
         var deathIndex = Array.FindLastIndex(facts, item => item is PlayerDiedEvent);
         return deathIndex < swapIndex;
@@ -87,7 +90,7 @@ public sealed partial class GameEngine
 
     internal bool IsFengjiSwapAvailable(int ownerSeat)
     {
-        if (_winner != Winner.None || IsXuanhuiDisabledByOwnSwap()) return false;
+        if (_winner != Winner.None || IsXuanhuiDisabledByOwnSwap(ownerSeat)) return false;
         return CurrentRoundFengjiOptions(ownerSeat).Any(option => option.Accepted &&
             option.RecipientSeat != ownerSeat && _players[option.RecipientSeat].IsAlive);
     }
@@ -274,7 +277,7 @@ public sealed partial class GameEngine
         var owner = _players[active.OwnerSeat];
         if (!owner.IsAlive || _winner != Winner.None || _roundNumber == 0 ||
             !HasRuntimeSkillInstance(owner, active.SkillId, active.SkillInstanceId) ||
-            IsXuanhuiDisabledByOwnSwap())
+            IsXuanhuiDisabledByOwnSwap(active.OwnerSeat))
             return SkillProgramStepOutcome.Continue;
         var swapped = CurrentRoundFengjiOptions(active.OwnerSeat).Where(option => option.Accepted &&
             option.RecipientSeat != active.OwnerSeat).ToArray();
