@@ -2109,9 +2109,16 @@ public sealed partial class GameEngine
                         ? context.SourceSeat is { } loserSeat && IsValidPlayerSeat(loserSeat) && loserSeat != owner.Seat &&
                           _players[loserSeat].IsAlive && _phase == TurnPhase.Play && _currentSeat == loserSeat &&
                           LostLastHandCard(batch, loserSeat)
-                        : ProgramMovementSourceCounts(batch, context.Window)
-                            .Any(item => item.Count.Location.OwnerSeat == owner.Seat &&
-                                (!item.DiscardOriginOnly || trigger.MovementDiscardOnly))),
+                        // 抗歌 observers are decoupled from both seats: the gate
+                        // re-checks the marked gainer carried by the movement context
+                        // instead of requiring an observer-owned batch destination.
+                        : trigger.Effects.Any(effect => effect.Op == SkillProgramEffectOp.KanggeGainDraw)
+                            ? context.TargetSeat is { } gainerSeat && IsValidPlayerSeat(gainerSeat) &&
+                              gainerSeat != owner.Seat && _players[gainerSeat].IsAlive &&
+                              gainerSeat != _currentSeat && IsKanggeMarkedSeat(gainerSeat, owner.Seat)
+                            : ProgramMovementSourceCounts(batch, context.Window)
+                                .Any(item => item.Count.Location.OwnerSeat == owner.Seat &&
+                                    (!item.DiscardOriginOnly || trigger.MovementDiscardOnly))),
             SkillProgramTriggerWindow.FirstGameDomainCrossing =>
                 context.MovementBatch is { } domainBatch && domainBatch.Id == context.ParentFrameId &&
                 _resolutionStack.OfType<CardsMovedTriggerWindowFrame>().LastOrDefault()?.Id == domainBatch.Id &&
