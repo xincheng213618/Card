@@ -122,6 +122,8 @@ public sealed partial class GameEngine
             return false;
         if (context.CardUse is not { } use || use.DesignatedTargetSeats is not { Count: 1 } designated)
             return false;
+        if (IsTongxieProducedSlash(use.ParentCardUseFrameId))
+            return false;
         var arm = ActiveTongxieArm(ownerSeat);
         if (arm is null || !IsTongxieMember(arm, use.ActorSeat) || !_players[use.ActorSeat].IsAlive)
             return false;
@@ -129,6 +131,20 @@ public sealed partial class GameEngine
         if (!IsValidPlayerSeat(targetSeat) || !_players[targetSeat].IsAlive)
             return false;
         return TongxieFollowUpResponders(arm.MemberSeats, use.ActorSeat, targetSeat).Any();
+    }
+
+    // 不因此技能使用: a slash produced by a 同协 follow-up itself never opens
+    // another chain window; the producing program frame is identified by its
+    // card-attack link, not by any concrete skill id.
+    private bool IsTongxieProducedSlash(long parentCardUseFrameId)
+    {
+        var frame = _resolutionStack.OfType<CardUseFrame>()
+            .LastOrDefault(item => item.Id == parentCardUseFrameId);
+        if (frame?.CardAttack?.ProgramSkillCardUseFrameId is not { } producerId)
+            return false;
+        return _resolutionStack.OfType<ProgramSkillFrame>().Any(item => item.Id == producerId &&
+            _contentRegistry!.GetSkill(item.SkillId).Program!.Triggers.Any(trigger =>
+                trigger.Effects.Any(effect => effect.Op == SkillProgramEffectOp.TongxieFollowUp)));
     }
 
     internal bool CanRunTongxieGuard(int ownerSeat, ProgramSkillWindowContext context)
@@ -283,7 +299,8 @@ public sealed partial class GameEngine
         if (frame.TongxieFollowUp is { } pending)
             return ContinueTongxieFollowUp(active, pending);
         if (frame.WindowContext is not { Window: SkillProgramTriggerWindow.CardUseCompleted, CardUse: { } use } ||
-            use.DesignatedTargetSeats is not { Count: 1 } designated)
+            use.DesignatedTargetSeats is not { Count: 1 } designated ||
+            IsTongxieProducedSlash(use.ParentCardUseFrameId))
             return SkillProgramStepOutcome.Continue;
         var arm = ActiveTongxieArm(active.OwnerSeat);
         if (arm is null || !IsTongxieMember(arm, use.ActorSeat) || !_players[use.ActorSeat].IsAlive)
