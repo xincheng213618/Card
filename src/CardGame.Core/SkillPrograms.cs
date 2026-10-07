@@ -225,6 +225,7 @@ public enum SkillProgramEffectOp
     QiaoliEndingEquipmentGain = 7263, QingliangChooseOption = 7264,
     LuochongResolve = 7276, AichenRemoveOption = 7277,
     TongxieArm = 7292, TongxieFollowUp = 7293, TongxieGuard = 7294,
+    ZhuiLieEscalateTargetDamage = 7308,
     IssueShownEntityTurnPolicy = 6500,
     PlaceCapturedEquipmentAndDraw = 6200, RestoreActualDiscardBatch = 6201,
     DiscardSuitPreventDamageAndBenefit = 5900, PlaceMatchedJudgmentCard = 5901,
@@ -2400,8 +2401,6 @@ public sealed class SkillProgramCatalog
         {
             if (operation != SkillRuleOperation.Unlimited)
                 Fail(path + ".operation", "slashDistanceLimit currently requires unlimited");
-            if (sourceCardIdentityId is null)
-                Fail(path, "slashDistanceLimit requires sourceCardIdentityId");
         }
         else if (sourceCardIdentityId is not null && query != SkillRuleQuery.SlashLimit)
             Fail(path + ".sourceCardIdentityId", "is supported only for slashDistanceLimit");
@@ -3470,7 +3469,7 @@ public sealed class SkillProgramCatalog
                 SkillProgramTriggerValueKind.SourceZoneCountBefore or
                 SkillProgramTriggerValueKind.SourceZoneCountAfter))
             Fail(path + ".condition", "card-movement values are supported only by cardsMoved");
-        var finalTargetSlash = node.TryGetProperty("effects", out var finalEffects) && finalEffects.ValueKind == JsonValueKind.Array && finalEffects.EnumerateArray().Any(effect => effect.ValueKind == JsonValueKind.Object && effect.TryGetProperty("op", out var op) && op.ValueKind == JsonValueKind.String && (string.Equals(op.GetString(), "preventCurrentTargetSlashCancellation", StringComparison.OrdinalIgnoreCase) || string.Equals(op.GetString(), "addCurrentTargetSlashDamage", StringComparison.OrdinalIgnoreCase)));
+        var finalTargetSlash = node.TryGetProperty("effects", out var finalEffects) && finalEffects.ValueKind == JsonValueKind.Array && finalEffects.EnumerateArray().Any(effect => effect.ValueKind == JsonValueKind.Object && effect.TryGetProperty("op", out var op) && op.ValueKind == JsonValueKind.String && (string.Equals(op.GetString(), "preventCurrentTargetSlashCancellation", StringComparison.OrdinalIgnoreCase) || string.Equals(op.GetString(), "addCurrentTargetSlashDamage", StringComparison.OrdinalIgnoreCase) || string.Equals(op.GetString(), "zhuiLieEscalateTargetDamage", StringComparison.OrdinalIgnoreCase)));
         if (finalTargetSlash && (window != SkillProgramTriggerWindow.CardUseTargetsFinalized ||
             ownerRelation != SkillProgramCardActionOwnerRelation.Actor || cardKinds.Count == 0 ||
             cardKinds.Any(card => card is not (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash))))
@@ -3493,7 +3492,7 @@ public sealed class SkillProgramCatalog
         if (EnumerateTriggerValues(condition).Any(value => value.Kind == SkillProgramTriggerValueKind.CurrentAttackRange) &&
             window is not (SkillProgramTriggerWindow.SlashBeforeResponse or
                 SkillProgramTriggerWindow.CardUseCommitted or SkillProgramTriggerWindow.CardResponseAccepted or SkillProgramTriggerWindow.JudgmentPhaseStarting or
-                SkillProgramTriggerWindow.SlashFullyDodged))
+                SkillProgramTriggerWindow.SlashFullyDodged or SkillProgramTriggerWindow.CardUseTargetsFinalized))
             Fail(path + ".condition", "attack-range comparison requires a card-action or Slash response boundary");
         if (EnumerateTriggerValues(condition).Any(value =>
                 value.Kind == SkillProgramTriggerValueKind.OwnerEventTargetDistance) &&

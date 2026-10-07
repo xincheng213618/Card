@@ -13901,7 +13901,7 @@ public sealed partial class GameEngine
         (ignoreDistance || HasIssuedKuangfuDistance(existingUseFrameId, source.Seat) || HasIssuedJudgedRankSlashDistance(existingUseFrameId, source.Seat) || (HasIssuedProvenanceUseDistance(existingUseFrameId, source.Seat) || HasIssuedGrantedPhaseEntityDistance(existingUseFrameId, source.Seat)) || (HasProvenanceUseDistance(source, physicalCardIds ?? (slashCard.Id > 0 ? new[] { slashCard.Id } : [])) || HasGrantedPhaseEntityDistance(source, physicalCardIds ?? (slashCard.Id > 0 ? new[] { slashCard.Id } : []))) || HasSlashUseDistanceBySuit(source,effectiveKind,EffectiveSuit(source,slashCard)) || HasTurnRedSlashPolicy(source.Seat, effectiveKind, EffectiveSuit(source,slashCard)) || HasPhaseSuitAllowance(source,slashCard) || HasCardDistanceExemption(source, target, effectiveKind) ||
          IgnoresProgramSlashDistance(source, conversionSource) ||
          IgnoresSpGuanYuWushengDistance(source, slashCard) ||
-         HasUnlimitedTurnRuleModifier(source.Seat, SkillRuleQuery.SlashDistanceLimit) ||
+         IgnoresSlashUseDistance(source) ||
          IsWithinSpecificSlashRange(source, target, effectiveKind, specificEffectiveRank ?? (noEffectiveRank ? null : SpecificSlashRank(source, slashCard, effectiveKind, existingUseFrameId)), existingUseFrameId)) &&
         !IsDirectedCardTargetProhibited(source.Seat, target.Seat, effectiveKind) &&
         !IsSlashProhibited(source, target, slashCard);
@@ -13915,7 +13915,7 @@ public sealed partial class GameEngine
         target.Seat != source.Seat &&
         CanSpendSlashUse(source, target, ignoresCount: HasPhaseSuitAllowance(source.Seat,physicalSuit), effectiveKind, effectiveRank: effectiveRank) &&
         (ignoreDistance || (HasProvenanceUseDistance(source, physicalCardIds) || HasGrantedPhaseEntityDistance(source, physicalCardIds)) || HasSlashUseDistanceBySuit(source,effectiveKind,physicalSuit) || HasTurnRedSlashPolicyForColor(source.Seat, effectiveKind, effectiveColor ?? SuitColor(physicalSuit)) || HasPhaseSuitAllowance(source.Seat,physicalSuit) || HasCardDistanceExemption(source, target, effectiveKind) ||
-         HasUnlimitedTurnRuleModifier(source.Seat, SkillRuleQuery.SlashDistanceLimit) ||
+         IgnoresSlashUseDistance(source) ||
          IsWithinSpecificSlashRange(source, target, effectiveKind, effectiveRank)) &&
         !IsSlashProhibited(target);
 
@@ -15226,7 +15226,8 @@ public sealed partial class GameEngine
                           (receivesGudingBladeBonus ? 1 : 0) +
                           (receivesYingboBonus ? 1 : 0) +
                           (receivesTengjiaBonus ? 1 : 0);
-        attack.FinalizeDamageAmount(damageBonus,
+        var zhuiLieEscalationBonus = FinalTargetSlashEscalationBonus(attack, baseAmount + damageBonus);
+        attack.FinalizeDamageAmount(damageBonus + zhuiLieEscalationBonus,
             silverLionCapsDamage || passiveDamageCap is not null ? 1 : null);
         var runningAmount = baseAmount;
         foreach (var modifier in programDamageModifiers)
@@ -15291,6 +15292,26 @@ public sealed partial class GameEngine
                 runningAmount,
                 modifiedAmount));
             AddLog("EquipmentEffect", $"{_players[attack.TargetSeat].Name} 的【藤甲】令本次火焰伤害 +1。", attack.TargetSeat, attack.SourceSeat);
+            runningAmount = modifiedAmount;
+        }
+        if (zhuiLieEscalationBonus > 0)
+        {
+            var modifiedAmount = checked(runningAmount + zhuiLieEscalationBonus);
+            var escalation = FinalTargetSlashReceipts(attack.ResolutionId, attack.TargetSeat)
+                .FirstOrDefault(item => item.EscalateToTargetHp);
+            AdvanceEventRulesAndQueueFact(new ProgramTargetSlashDamageEscalatedEvent(
+                attack.ResolutionId,
+                escalation?.SkillId ?? "",
+                attack.SourceSeat,
+                attack.TargetSeat,
+                attack.EffectiveCardKind,
+                runningAmount,
+                modifiedAmount));
+            AddLog(
+                "SkillTriggered",
+                $"{_players[attack.SourceSeat].Name} 的【追猎】令本次伤害增至 {modifiedAmount} 点。",
+                attack.SourceSeat,
+                attack.TargetSeat);
             runningAmount = modifiedAmount;
         }
         if (silverLionCapsDamage)
@@ -16556,7 +16577,7 @@ public sealed partial class GameEngine
               (CanSpendSlashUse(owner, target, ignoresCount: false, kind, effectiveRank: effectiveRank) ||
                allowAnyPhysicalSuit && effectiveRank is null && HasPotentialJudgedRankSlashQuota(owner.Seat, kind)) &&
               (HasSlashUseDistanceBySuit(owner,kind,physicalSuit) || allowAnyPhysicalSuit && HasSlashUseDistanceBySuit(owner,kind,Suit.Diamond) || HasTurnRedSlashPolicyForColor(owner.Seat,kind,effectiveColor ?? SuitColor(physicalSuit)) || allowAnyPhysicalSuit && _turnCardUseEffects.HasRedSlashPolicy(_turnNumber,_currentSeat,owner.Seat) || HasCardDistanceExemption(owner, target, kind) ||
-               HasUnlimitedTurnRuleModifier(owner.Seat, SkillRuleQuery.SlashDistanceLimit) ||
+               IgnoresSlashUseDistance(owner) ||
                IsWithinSpecificSlashRange(owner,target,kind,effectiveRank) || allowAnyPhysicalSuit && HasPotentialRankSlashRange(owner,target,kind)) &&
               !IsSlashProhibited(target)
             : SlashKinds.Any(candidate => CanUseProvidedSlashTarget(owner, target, candidate,physicalSuit,allowAnyPhysicalSuit,effectiveColor,effectiveRank));
