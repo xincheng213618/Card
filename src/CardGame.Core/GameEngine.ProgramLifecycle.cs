@@ -2117,9 +2117,16 @@ public sealed partial class GameEngine
                         ? context.SourceSeat is { } loserSeat && IsValidPlayerSeat(loserSeat) && loserSeat != owner.Seat &&
                           _players[loserSeat].IsAlive && _phase == TurnPhase.Play && _currentSeat == loserSeat &&
                           LostLastHandCard(batch, loserSeat)
-                        : ProgramMovementSourceCounts(batch, context.Window)
-                            .Any(item => item.Count.Location.OwnerSeat == owner.Seat &&
-                                (!item.DiscardOriginOnly || trigger.MovementDiscardOnly))),
+                        // 抗歌 observers are decoupled from both seats: the gate
+                        // re-checks the marked gainer carried by the movement context
+                        // instead of requiring an observer-owned batch destination.
+                        : trigger.Effects.Any(effect => effect.Op == SkillProgramEffectOp.KanggeGainDraw)
+                            ? context.TargetSeat is { } gainerSeat && IsValidPlayerSeat(gainerSeat) &&
+                              gainerSeat != owner.Seat && _players[gainerSeat].IsAlive &&
+                              gainerSeat != _currentSeat && IsKanggeMarkedSeat(gainerSeat, owner.Seat)
+                            : ProgramMovementSourceCounts(batch, context.Window)
+                                .Any(item => item.Count.Location.OwnerSeat == owner.Seat &&
+                                    (!item.DiscardOriginOnly || trigger.MovementDiscardOnly))),
             SkillProgramTriggerWindow.FirstGameDomainCrossing =>
                 context.MovementBatch is { } domainBatch && domainBatch.Id == context.ParentFrameId &&
                 _resolutionStack.OfType<CardsMovedTriggerWindowFrame>().LastOrDefault()?.Id == domainBatch.Id &&
@@ -3650,6 +3657,9 @@ public sealed partial class GameEngine
         { ResolveTongxieFollowUpChoice(selected); return; }
         if (action is "tongxie-guard" or "tongxie-guard-decline")
         { ResolveTongxieGuardChoice(selected); return; }
+        if (action == "kangge-choose") { ResolveKanggeChooseChoice(selected); return; }
+        if (action == "kangge-heal") { ResolveKanggeHealChoice(selected); return; }
+        if (action == "jielie-gift") { ResolveJielieSuitChoice(selected); return; }
         if (action == "ruiji-distribution") { ResolveQiaoliDistributionChoice(selected); return; }
         if (action == "qingliang-option") { ResolveQingliangOptionChoice(selected); return; }
         if (action == "qingliang-suit") { ResolveQingliangSuitChoice(selected); return; }
@@ -4449,6 +4459,9 @@ public sealed partial class GameEngine
                 SkillProgramEffectOp.TongxieArm => SelectAiTongxieArmChoice(decision),
                 SkillProgramEffectOp.TongxieFollowUp => SelectAiTongxieFollowUpChoice(decision),
                 SkillProgramEffectOp.TongxieGuard => SelectAiTongxieGuardChoice(decision),
+                SkillProgramEffectOp.KanggeChooseTarget => SelectAiKanggeChooseChoice(decision),
+                SkillProgramEffectOp.KanggeHealVictim => SelectAiKanggeHealChoice(decision),
+                SkillProgramEffectOp.JieliePreventAndGift => SelectAiJielieSuitChoice(decision, frame),
                 SkillProgramEffectOp.QiaoliWeaponDamageDraw => SelectAiQiaoliDistributionChoice(decision),
                 SkillProgramEffectOp.QingliangChooseOption => SelectAiQingliangChoice(decision),
                 SkillProgramEffectOp.LuochongResolve => SelectAiLuochongResolveChoice(decision),

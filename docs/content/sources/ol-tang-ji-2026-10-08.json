@@ -1,0 +1,78 @@
+{
+  "generalId": "ol:tang-ji",
+  "characterName": "唐姬",
+  "officialId": 504,
+  "sourcePage": "https://www.sanguosha.com/hero/504",
+  "textSource": "https://www.sanguosha.com/hero/504（官网 hero/info 接口 gid=504 交叉核对体力/势力/品质/特点；技能逐字文本取自官网页面 skill-text 节点，并与 OL 专站 wiki.biligame.com/sgsol/唐姬 的现行版逐字交叉验证）",
+  "capturedAt": "2026-10-08",
+  "rulesetId": "sanguosha-ol",
+  "indexFields": {
+    "gid": 504,
+    "name": "唐姬",
+    "extend": "",
+    "hp": 3,
+    "figure": "群",
+    "figure_py": "qun",
+    "gender": "女",
+    "title": "弘农王妃",
+    "quality": "史诗",
+    "package": "璀璨星河-天极",
+    "releaseDate": "2022-07-01",
+    "labels": ["辅助", "回复", "配合神将"],
+    "characteristic": "围绕抗歌对象打出收益。"
+  },
+  "artwork": {
+    "skinId": "50400",
+    "skinName": "默认皮肤",
+    "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/50400.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-tang-ji.png",
+    "sha256": "040892dc3ca83de0367516b2ae8ce24020aa827e3168784ff2503639d9e09322",
+    "byteCount": 1094765,
+    "pixelWidth": 750,
+    "pixelHeight": 950
+  },
+  "skills": [
+    {
+      "name": "抗歌",
+      "text": "你的第一个回合开始时，选择一名其他角色。在本局中：当其于其回合外获得手牌时，你摸等量张牌（每回合至多三张）；当其进入濒死状态时，你可以令其回复至1点体力（每轮限一次）；当其死亡时，你弃置所有牌并失去1点体力。",
+      "textNote": "官网页面 skill-text 节点逐字原文；OL 专站现行版同义原文：“你的第一个回合开始时，你选择一名其他角色：1.当该角色于其回合外获得牌时，你摸等量的牌（每回合至多摸三张）；2.每轮限一次，当该角色进入濒死状态时，你可以令其回复体力至1点；3.当该角色死亡时，你弃置所有牌并失去1点体力。”两来源条款一一对应，仅句式与条款顺序不同；“获得手牌/获得牌”的措辞差异见 observations。",
+      "programId": "ol:kangge",
+      "notes": [
+        "Trigger kangge-choose: turnStartBeforeNormalFlow、subject owner、usageScope game + usageLimit 1（“你的第一个回合开始时”全局一次）强制触发 → 新 op kanggeChooseTarget (7284) 弹出公开目标选择（候选=其他存活角色），确认后经共享归属标记管线 SetAttributedNatureMarker 在所选角色身上放置 PlayerMarkerKind.Kangge=4040（“歌”，归因于拥有者），公开 PlayerMarkerChangedEvent 与日志；“歌”标记随 CharacterState 进快照与 checkpoint。",
+        "Trigger kangge-gain-draw: cardsGained、subject owner、perThirdPartyHandGain、destinationZones hand、强制触发 → 新 op kanggeGainDraw (7285) 校验获得者是自己的“抗歌”对象且其处于回合外（gainer != 当前回合角色），随后摸 1 张（每移动一张一个候选；共享账本“每回合至多三张”由 op 内从已提交 ProgramKanggeGainedDrawEvent 按当前回合号求和执行，超出上限静默跳过）；摸牌走共享 DrawProgramCards（私人手牌），证据事件只记公开标量。",
+        "“获得手牌”的边界：官网正文为“获得手牌”，实现按进手牌的获得计（牌堆摸牌、处理区结算、他人手中交予等一切进 Hand(gainer) 的移动）；OL 专站措辞“获得牌”更宽（可能含非手牌获得），差异记录于 observations，未采用更宽口径。抗歌自身与节烈的赠送若使对象于回合外进手牌，同样计入（一阶联动，无递归：唐姬的摸牌进自己的手牌，不再触发）。",
+        "Trigger kangge-heal: dyingEntering、subject any、强制触发（平台 dyingEntering 允许 any 主语）→ 新 op kanggeHealVictim (7286) 在 op 内过滤：受害者持有自己的“歌”标记且体力≤0，且本轮（_roundNumber，经共享 UsesRoundTracking 依赖开启轮次推进）尚未结算过 → 弹出公开是否回复选择；确认后复用共享 RecoverOtherDyingVictim（回复体力至 1，不超过最大体力，目标已脱离濒死则触发自然落空），“每轮限一次”账本由已提交 ProgramKanggeHealedEvent 的回合号推导，冷恢复确定性重建。",
+        "Trigger kangge-death：window characterDied、subject owner、强制触发 → 新 op kanggeDeathPrice (7287) 在 op 内校验死者持自己的“歌”标记，随后弃置自己 手牌+装备区+判定区 的全部牌（逐张公开移动进弃牌堆）并失去 1 点体力（共享 RecordHpChange 管线，体力归 0 时按平台规则进入濒死）。",
+        "AI 策略：kanggeChooseTarget 挂起选择按目标当前体力降序、座位序稳定（优先存活能力强的对象）；kanggeHealVictim 固定选择“回复”（维持收益引擎）；jieliePreventAndGift 在失去 X 点体力会使自己进入濒死（X ≥ 当前体力）时选择不发动，否则选弃牌堆中该花色牌最多的花色；描述符 AiPolicy 语义分别复用 ChooseOption / GainCards / RecoverTo / LoseHp / PreventCurrentDamage。"
+      ]
+    },
+    {
+      "name": "节烈",
+      "text": "当除“抗歌”角色外的其他角色对你造成伤害时，你可以防止之并选择一种花色，然后你失去X点体力（X为此伤害值），令“抗歌”角色从弃牌堆中随机获得X张此花色的牌。",
+      "textNote": "官网页面 skill-text 节点逐字原文；OL 专站现行版同义原文：“当其他角色对你造成伤害时，若其不是‘抗歌’角色，你可以防止此伤害，失去X点体力并选择一种花色，然后令‘抗歌’角色从弃牌堆中随机获得X张此花色的牌（X为此次伤害的伤害值）。”两来源效果一致，仅“选择花色”与“失去体力”的叙述顺序不同（见 observations）。",
+      "programId": "ol:jielie",
+      "notes": [
+        "Trigger jielie-prevent: beforeDamageApplied、subject damageTarget、强制触发 → 新 op jieliePreventAndGift (7288) 三段状态机（JielieGiftState 随 ProgramSkillFrame 序列化）：首进校验伤害来源为存活的其他角色且不是“抗歌”对象（无来源伤害、自身伤害、对象来源伤害一律静默跳过），弹出公开花色四选一+不发动提示；确认后回绕游标重入同一条指令：先共享 PreventProgramCurrentDamage 防止本次伤害（公开 ProgramDamagePreventedEvent），再失去 X 点体力（X=此次伤害值，共享 RecordHpChange 管线；体力归 0 时按追还同款回绕模式挂起濒死子结算，被救回后重入完成赠送），最后令“抗歌”对象从弃牌堆随机获得 X 张所选花色的牌（不足 X 张时全部获得；进对象手牌，若其处于回合外将按抗歌口径一阶联动摸牌）。",
+        "证据 ProgramJieliePreventedEvent 记录来源、防止数值、所选花色、失去体力与赠送张数等公开标量；赠送的实体牌 id 只在公开移动记录中。",
+        "选择与重入：花色选择的接受路径 ReplaceRuntimeTop 回绕 InstructionIndex 后 AdvanceRuntimeProgram，与追还反伤的子结算重入同一机制；拒绝路径直接推进指令。人类与 AI 共用 program-action 分发（jielie-gift / kangge-choose / kangge-heal）。"
+      ]
+    }
+  ],
+  "observations": [
+    "Official hero/info API (gid=504, 734B) confirms 唐姬 as qun 3HP 史诗 with labels 辅助/回复/配合神将 and the characteristic 围绕抗歌对象打出收益; biography: 弘农怀王刘辩的妃子。刘辩死后，唐姬回归故里，因节烈不愿改嫁他人。官网 hero/504 页面（24855B）与 hero/info 接口无拦截。",
+    "OL 专站 infobox (wiki.biligame.com/sgsol/唐姬, 97574B, oldid=31195, 最后编辑 2025-06-01) gives 性别=女、称号=弘农王妃、武将包=璀璨星河-天极、经典版本=明暗交界、上线时间 2022-07-01、获取方式=充值12800元宝/开启80个唐姬武将宝箱，与官网接口的势力/体力完全一致；官网上线包装与专站一致口径采用专站数据。",
+    "BWIKI 主站 (wiki.biligame.com/sgs/唐姬) 是《三国杀十周年》版本，与 OL 普通版可能不同；本次对照过程中主站持续遭遇 EdgeOne 限流（HTTP 拦截页，响应体约 7351B，无技能正文），先后共 7 次抓取（含约 3 分钟间隔的 5 次重试）全部未取回，其内容未参与实现，主站与 OL 版差异无法逐字记录（如实留空）。OL 专站同样限流（7351B 拦截页），第 8 次重试（约 21 分钟后）取回成功。",
+    "抗歌两来源差异：官网正文“当其于其回合外获得手牌时”与专站“当该角色于其回合外获得牌时”——实现采用官网“获得手牌”口径（进手牌的获得），专站更宽的“获得牌”未采用；“每回合至多三张/至多摸三张”语义一致。条款顺序（专站按 1/2/3 编号且“每轮限一次”前置）不影响实现。",
+    "节烈两来源差异：官网为“防止之并选择一种花色，然后你失去X点体力……令……获得”，专站为“防止此伤害，失去X点体力并选择一种花色，然后令……获得”。实现按官网顺序：防止 → 选花色 → 失去 X 点体力 → 赠送。若失去体力使唐姬体力归 0 进入濒死：被救回后完成赠送；未被救回（死亡）则程序随平台规则取消，赠送不再执行（与专站“先失去体力后选花色”的失败顺序等效，见 benchmark versionBoundary）。",
+    "New bespoke ops 7284-7288（kanggeChooseTarget, kanggeGainDraw, kanggeHealVictim, kanggeDeathPrice, jieliePreventAndGift），只占用分配的 7284-7291 段；新增 PlayerMarkerKind.Kangge=4040（“歌”）；未新增 ConditionKind、触发窗口枚举或 schema 节点；五个 Program* 证据事件均为标量记录。",
+    "共享口径：cardsGained 的既有 perThirdPartyHandGain 观察器只覆盖“他人手牌→另一角色”的转移；抗歌按官网“获得手牌”完整口径新增依赖开关（KanggeGainDraw）控制的全量进手牌候选收集器，并在既有观察器中跳过携带该 op 的触发器以保持单一计数。轮次推进（UsesRoundTracking）按陈登丰积先例把 KanggeHealVictim 加入依赖析取，用于“每轮限一次”账本的 _roundNumber。cardsGained 激活资格门为携带该 op 的触发器增加按标记获得者校验的独立分支（原通用分支要求批次含观察者自有区域，与解耦观察者矛盾）。三处共享开关/分支在未注册唐姬内容的指纹下路径不变。"
+  ],
+  "versionBoundary": [
+    "抗歌每回合摸牌上限：按已提交证据事件对当前回合号求和执行；同一回合内多次获得逐次摸 1（每移动一张一个候选），累计至 3 张后静默跳过，与“每回合至多三张”一致；额外回合按独立回合号计。",
+    "抗歌选择为 usageScope game + usageLimit 1 的强制触发：选择机会在账本占用后才弹出；无其他存活角色的理论场景（实际不可能）机会作废，如实记录。",
+    "抗歌濒死回复：仅在受害者仍处于濒死（体力≤0）时可用；提示与确认之间被桃救回时本次触发无效果落空（不消耗每轮次数，账本只记已确认的回复）。回复至 1 点不超过其最大体力（体力已 ≥1 的场景不会进入濒死窗口）。",
+    "抗歌死亡代价：弃置范围为 手牌+装备区+判定区（“所有牌”的标准三区口径，不含木牛流马等私有延展区）；弃置与失去体力的顺序按原文“弃置所有牌并失去1点体力”；唐姬因此进入濒死或死亡时按平台规则结算。",
+    "节烈：无来源伤害与自身造成的伤害不发动（“其他角色”）；来源为“抗歌”对象时不发动（“除‘抗歌’角色外”）；“抗歌”对象已死亡时不再可发动（无获得主体）；对象在防伤确认与赠送之间死亡时赠送作废并按平台取消路径处理。弃牌堆中所选花色不足 X 张时全部获得（物理上限）。唐姬因失去 X 点体力死亡时，赠送不再执行（平台程序帧取消边界；与专站“失去体力在选花色之前”的顺序在死亡分支等效）。",
+    "节烈赠送使“抗歌”对象于回合外获得手牌时，按抗歌口径一阶联动摸牌（每回合至多三张的共享上限同样约束）；该联动为两技能文本的直接组合，未见官方反例。"
+  ]
+}

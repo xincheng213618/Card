@@ -225,6 +225,8 @@ public enum SkillProgramEffectOp
     QiaoliEndingEquipmentGain = 7263, QingliangChooseOption = 7264,
     LuochongResolve = 7276, AichenRemoveOption = 7277,
     TongxieArm = 7292, TongxieFollowUp = 7293, TongxieGuard = 7294,
+    KanggeChooseTarget = 7284, KanggeGainDraw = 7285, KanggeHealVictim = 7286, KanggeDeathPrice = 7287,
+    JieliePreventAndGift = 7288,
     IssueShownEntityTurnPolicy = 6500,
     PlaceCapturedEquipmentAndDraw = 6200, RestoreActualDiscardBatch = 6201,
     DiscardSuitPreventDamageAndBenefit = 5900, PlaceMatchedJudgmentCard = 5901,

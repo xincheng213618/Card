@@ -131,7 +131,8 @@ public enum PlayerMarkerKind
     XiZhen = 3250,
     Bian = 3500,
     Zi = 3800,
-    ShenJiao = 3900
+    ShenJiao = 3900,
+    Kangge = 4040
 }
 
 public static class PlayerMarkerCatalog
@@ -156,6 +157,7 @@ public static class PlayerMarkerCatalog
         PlayerMarkerKind.Mist => "大雾",
         PlayerMarkerKind.Junlue => "军略",
         PlayerMarkerKind.Camp => "营",
+        PlayerMarkerKind.Kangge => "歌",
         _ => throw new InvalidOperationException($"Unknown public player marker '{marker}'.")
     };
 }

@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:kangge",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "kangge-choose",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "usageScope": "game",
+          "usageLimit": 1,
+          "optional": false,
+          "effects": [
+            { "op": "kanggeChooseTarget", "target": "owner" }
+          ]
+        },
+        {
+          "id": "kangge-gain-draw",
+          "window": "cardsGained",
+          "subject": "owner",
+          "movementOccurrence": "perThirdPartyHandGain",
+          "destinationZones": ["hand"],
+          "optional": false,
+          "effects": [
+            { "op": "kanggeGainDraw", "target": "owner" }
+          ]
+        },
+        {
+          "id": "kangge-heal",
+          "window": "dyingEntering",
+          "subject": "any",
+          "optional": false,
+          "effects": [
+            { "op": "kanggeHealVictim", "target": "owner", "amount": 1 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:jielie",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "jielie-prevent",
+          "window": "beforeDamageApplied",
+          "subject": "damageTarget",
+          "optional": false,
+          "effects": [
+            { "op": "jieliePreventAndGift", "target": "owner" }
+          ]
+        }
+      ]
+    }
+  ]
+}
