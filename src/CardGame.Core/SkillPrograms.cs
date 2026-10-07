@@ -206,6 +206,7 @@ public enum SkillProgramEffectOp
     TunanUseRevealedCard = 7168, BijingMarkHandCards = 7169, BijingRecastMarkedCards = 7170,
     BijingPunishDiscardPhase = 7171,
     DuanfaDiscardAndDraw = 7180, YoudiBaitDiscard = 7181,
+    GuanchaoChoosePattern = 7196, GuanchaoRankDraw = 7197, XunxianGiftUsedCard = 7198,
     IssueShownEntityTurnPolicy = 6500,
     PlaceCapturedEquipmentAndDraw = 6200, RestoreActualDiscardBatch = 6201,
     DiscardSuitPreventDamageAndBenefit = 5900, PlaceMatchedJudgmentCard = 5901,

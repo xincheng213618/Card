@@ -122,6 +122,7 @@ public sealed partial class GameEngine
         CaptureTurnDiscardSuitFact(batch.TurnNumber,movements);
         CaptureTurnRedDiscardCount(batch.TurnNumber,movements);
         CaptureActionDiscardFact(batch.Id,batch.TurnNumber,movements);
+        CaptureSettledActionCards(batch.Id,batch.TurnNumber,movements);
         CaptureFirstGameDomainCrossings(batch.Id,batch.TurnNumber,movements);
         var completed = new CardMovementBatchContext(
             batch.Id,
@@ -309,6 +310,8 @@ public sealed partial class GameEngine
         ProgramTriggerCandidate candidate, SkillProgramTrigger trigger)
     {
         if (IsOtherActualBasicDiscardTrigger(trigger)) return MatchingOtherActualBasicDiscardIndexes(batch, candidate);
+        if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.XunxianGiftUsedCard))
+            return MatchingOwnSettledActionCardIndexes(batch, candidate);
         if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.RestoreActualDiscardBatch))
             return MatchingActualDiscardRecoveryIndexes(batch, candidate);
         if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.ClaimDiscardedEntityWithProvenance))

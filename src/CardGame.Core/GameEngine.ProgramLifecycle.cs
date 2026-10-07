@@ -3516,6 +3516,8 @@ public sealed partial class GameEngine
         if (action == "tunan-target") { ResolveTunanTargetChoice(selected); return; }
         if (action == "bijing-punish-discard") { ResolveBijingPunishChoice(selected); return; }
         if (action == "youdi-bait-discard") { ResolveYoudiBaitChoice(selected); return; }
+        if (action == "guanchao-pattern") { ResolveGuanchaoPatternChoice(selected); return; }
+        if (action == "xunxian-gift") { ResolveXunxianGiftChoice(selected); return; }
 
         var (candidate, context) = GetPendingProgramTriggerCandidate();
         if (_resolutionStack.LastOrDefault() is ProgramLifecycleTriggerWindowFrame lifecycle &&
@@ -4293,6 +4295,8 @@ public sealed partial class GameEngine
                 SkillProgramEffectOp.BijingPunishDiscardPhase => decision.Choices
                     .OrderBy(choice => choice.Id.Value, StringComparer.Ordinal).First(),
                 SkillProgramEffectOp.YoudiBaitDiscard => SelectAiYoudiBaitChoice(decision),
+                SkillProgramEffectOp.GuanchaoChoosePattern => SelectAiGuanchaoPatternChoice(decision),
+                SkillProgramEffectOp.XunxianGiftUsedCard => SelectAiXunxianGiftChoice(decision),
                 _ => throw new InvalidOperationException(
                     $"The AI does not support suspended program instruction '{paused.Op}'.")
             };

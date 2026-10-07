@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:guanchao",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "guanchao-choose-pattern",
+          "window": "playPhaseStarting",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            { "op": "guanchaoChoosePattern", "target": "owner" }
+          ]
+        },
+        {
+          "id": "guanchao-rank-draw",
+          "window": "cardUseCommitted",
+          "ownerRelation": "actor",
+          "optional": false,
+          "condition": {
+            "kind": "all",
+            "children": [
+              { "kind": "cardActionActorIsCurrentTurn" },
+              { "kind": "cardActionPhaseIsPlay" }
+            ]
+          },
+          "effects": [
+            { "op": "guanchaoRankDraw", "target": "owner" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:xunxian",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "xunxian-gift",
+          "window": "discardPileReceived",
+          "subject": "owner",
+          "movementOccurrence": "perCard",
+          "usageScope": "turn",
+          "usageLimit": 1,
+          "optional": true,
+          "effects": [
+            { "op": "xunxianGiftUsedCard", "target": "owner" }
+          ]
+        }
+      ]
+    }
+  ]
+}

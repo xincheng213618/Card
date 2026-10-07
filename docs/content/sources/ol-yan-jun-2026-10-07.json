@@ -1,0 +1,58 @@
+{
+  "generalId": "ol:yan-jun",
+  "characterName": "严畯",
+  "officialId": 473,
+  "sourcePage": "https://www.sanguosha.com/hero/473",
+  "textSource": "https://wiki.biligame.com/sgs/严畯（官网 hero/info 接口 gid=473 交叉核对体力/势力，技能文本取自百科同一武将词条现行版）",
+  "capturedAt": "2026-10-07",
+  "rulesetId": "sanguosha-ol",
+  "indexFields": {
+    "gid": 473,
+    "name": "严畯",
+    "extend": "",
+    "hp": 3,
+    "figure": "吴",
+    "gender": "男",
+    "title": "志存补益"
+  },
+  "artwork": {
+    "skinId": "47300",
+    "skinName": "默认皮肤",
+    "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/47300.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-yan-jun.png",
+    "sha256": "a9442b81d57aead67883572aff4496f3e2c0203be30750b46b13e976da38b577",
+    "pixelWidth": 750,
+    "pixelHeight": 950
+  },
+  "skills": [
+    {
+      "name": "观潮",
+      "text": "出牌阶段开始时，你可以在严格递增与严格递减中选择一项，当你本阶段使用牌时，若你本阶段使用过的所有牌的点数均符合你选择的规律，你摸一张牌。",
+      "programId": "ol:guanchao",
+      "notes": [
+        "Launch guanchao-choose-pattern: playPhaseStarting optional trigger, subject owner; bespoke op guanchaoChoosePattern (7196) presents a public two-way prompt (严格递增/严格递减) and commits ProgramGuanchaoPatternChosenEvent carrying the phase-start PhaseChangedEvent(Play) index.",
+        "Draw guanchao-rank-draw: cardUseCommitted mandatory trigger with ownerRelation actor, gated by cardActionActorIsCurrentTurn + cardActionPhaseIsPlay; bespoke op guanchaoRankDraw (7197) rebuilds this phase's rank ledger from CardActionAcceptedEvent history after the pinned boundary, appends the current use's rank (stack action, same extraction as accumulateCardRank) and draws one when every rank matches the committed strict pattern.",
+        "The pattern is fixed for one play-phase instance: the choice event pins the exact phase boundary index, so an extra play phase in the same turn (e.g., 观微) starts with no pattern until a new choice is committed.",
+        "The ledger is history-derived with no serialized runtime state; cold recovery replays the accepted choice command and rebuilds the same evidence."
+      ]
+    },
+    {
+      "name": "逊贤",
+      "text": "每回合限一次，当你使用或打出的牌置入弃牌堆时，你可以将之交给一名手牌数或体力值大于你的角色。",
+      "programId": "ol:xunxian",
+      "notes": [
+        "Trigger xunxian-gift: discardPileReceived, subject owner, movementOccurrence perCard, optional, usageScope turn + usageLimit 1 (每回合限一次 by the shared usage ledger).",
+        "Matching is a bespoke branch MatchingOwnSettledActionCardIndexes keyed on SettledActionCardDiscardEvent: one scalar fact per Processing→DiscardPile movement with reason card.use-finished / card.response-finished / card.respond.nullification-finished, attributed to the acting action at batch completion (the acting use frame is still live there; the cards-moved window opens later).",
+        "Bespoke op xunxianGiftUsedCard (7198) offers only other living characters with handCount > owner or hp > owner; the chosen recipient receives the exact entity card through a single DiscardPile→Hand move with reason skill-program.ol:xunxian.xunxian-gift, and the standard cards-moved window opens for the resulting movement.",
+        "ProgramXunxianGiftEvent records owner, recipient, card id and the discard movement sequence; the once-per-turn usage is consumed when the trigger binding begins, so a settlement that finds no eligible recipient still spends the turn's allowance (noted boundary)."
+      ]
+    }
+  ],
+  "observations": [
+    "Official hero/info API (gid=473) confirms 严畯 as wu 3HP with label 过牌/辅助; BWIKI gives the title 志存补益 and gender 男, matching the coordinator-locked record.",
+    "BWIKI 现行版 逊贤 is 每回合限一次…手牌数或体力值大于你; the page also lists the historical version 每名其他角色的回合限一次…手牌数大于你 — the implemented rule is the current per-turn wording with the hand-or-hp eligibility; the older wording is recorded here only.",
+    "观潮 BWIKI text matches the locked wording verbatim; the OL-page rendering of both skills was used only for cross-checking.",
+    "New bespoke ops 7196-7198 (guanchaoChoosePattern, guanchaoRankDraw, xunxianGiftUsedCard); no new PlayerMarkerKind, condition kinds, trigger windows or schema nodes. SettledActionCardDiscardEvent and the three Program* evidence events are scalar-only records.",
+    "共享口径：逊贤的置入弃牌堆窗口只认结算完成（card.use-finished / card.response-finished / card.respond.nullification-finished）的实体牌；弃置（GetProgramDiscardSource 语义）不触发。'交给' 通过 Processing 后续窗口按统一移动契约结算。"
+  ]
+}

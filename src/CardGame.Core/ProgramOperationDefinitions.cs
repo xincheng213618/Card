@@ -31,7 +31,8 @@ internal enum ProgramOperationAiSemantic
     RestorePhaseHandDiscards,
     ClaimMovedCards,
     TakeRandomCardFromEveryOtherCharacter,
-    UseVirtualDyingAlcohol
+    UseVirtualDyingAlcohol,
+    GiftSettledUsedCard
 }
 internal sealed record ProgramOperationAiPolicy(
     ProgramOperationAiSemantic Semantic,
