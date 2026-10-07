@@ -232,7 +232,7 @@ public sealed partial class GameEngine
             {
                 var trigger = GetProgramTrigger(candidate);
                 if (IsNeighborDiscardTopTrigger(trigger) || IsThirdPartyHandGainTrigger(trigger) ||
-                    IsOwnerSourceHandGainTrigger(trigger)) continue;
+                    IsOwnerSourceHandGainTrigger(trigger) || IsOtherLastHandLossTrigger(trigger)) continue;
                 if (!IsGainPhaseQualified(trigger, ownerSeat, batch.MovementTiming)) continue;
                 if (discardOriginOnly && !trigger.MovementDiscardOnly) continue;
                 if (!(window == SkillProgramTriggerWindow.CardsMoved ? trigger.SourceZones : trigger.DestinationZones).Contains(count.Location.Zone)) continue;
@@ -273,6 +273,7 @@ public sealed partial class GameEngine
         candidates.AddRange(CollectNeighborDiscardCandidates(batch));
         candidates.AddRange(CollectThirdPartyHandGainCandidates(batch));
         candidates.AddRange(CollectOwnerSourceHandGainCandidates(batch));
+        candidates.AddRange(CollectOtherLastHandLossCandidates(batch));
         return candidates
             .OrderBy(candidate => (candidate.OwnerSeat - _currentSeat + _players.Count) % _players.Count)
             .ThenByDescending(candidate => candidate.Priority)
@@ -462,6 +463,23 @@ public sealed partial class GameEngine
                     new CardMovementSourceCount(counts[0].Location, counts.Sum(item => item.CountBefore), counts.Sum(item => item.CountAfter)), trigger.Window),
                     frame.Batch, candidate, trigger, matching),
                 MovementBatch: frame.Batch);
+        }
+        if (trigger.MovementOccurrence == SkillProgramMovementOccurrence.PerOtherLastHandLoss)
+        {
+            var movement = frame.Batch.Movements[candidate.OccurrenceIndex];
+            var source = movement.From.OwnerSeat
+                ?? throw new InvalidOperationException("A last-hand-loss candidate lost its hand source.");
+            var sourceCount = ProgramMovementSourceCounts(frame.Batch, trigger.Window)
+                .FirstOrDefault(item => item.Count.Location == movement.From).Count;
+            return new ProgramSkillWindowContext(trigger.Window, frame.Id, candidate.OwnerSeat,
+                SourceSeat: source,
+                OccurrenceIndex: candidate.OccurrenceIndex,
+                Facts: CaptureCardsMovedTriggerFacts(_players[candidate.OwnerSeat], 1,
+                    sourceCount is { } matched ? matched
+                        : new CardMovementSourceCount(movement.From, 0, 1), trigger.Window,
+                    frame.Batch.MovementTiming),
+                MovementBatch: frame.Batch,
+                MovementIndex: candidate.OccurrenceIndex);
         }
         if (trigger.MovementOccurrence is SkillProgramMovementOccurrence.PerThirdPartyHandGain
             or SkillProgramMovementOccurrence.PerOwnerSourceHandGain)

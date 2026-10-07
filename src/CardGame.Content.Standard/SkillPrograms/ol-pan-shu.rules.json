@@ -1,0 +1,116 @@
+{
+ "schemaVersion": 62,
+ "skills": [
+  {
+   "id": "ol:zhiren",
+   "revision": 1,
+   "states": [
+    {
+     "id": "zhiren-unrestricted",
+     "initialValue": false,
+     "visibility": "public",
+     "resetScope": "game",
+     "reacquirePolicy": "preserveUntilGameEnd"
+    }
+   ],
+   "triggers": [
+    {
+     "id": "zhiren-tiers",
+     "window": "cardUseTargetsFinalized",
+     "ownerRelation": "actor",
+     "requireNoCardConversion": true,
+     "optional": true,
+     "condition": {
+      "kind": "all",
+      "children": [
+       {
+        "kind": "compare",
+        "left": { "kind": "currentTurnNonConvertedUseCount" },
+        "operator": "equal",
+        "right": { "kind": "integerConstant", "value": 1 }
+       },
+       {
+        "kind": "any",
+        "children": [
+         {
+          "kind": "ownerIsTurnPlayer"
+         },
+         {
+          "kind": "booleanState",
+          "stateId": "zhiren-unrestricted",
+          "expectedValue": true
+         }
+        ]
+       }
+      ]
+     },
+     "effects": [
+      {
+       "op": "zhirenReorderTopByLength",
+       "target": "owner"
+      },
+      {
+       "op": "zhirenResolveFieldTiers",
+       "target": "owner"
+      }
+     ]
+    },
+    {
+     "id": "zhiren-unrestricted-clear",
+     "window": "turnStartBeforeNormalFlow",
+     "subject": "owner",
+     "optional": false,
+     "effects": [
+      {
+       "op": "setBooleanState",
+       "target": "owner",
+       "stateId": "zhiren-unrestricted",
+       "value": false
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "ol:yaner",
+   "revision": 1,
+   "triggers": [
+    {
+     "id": "yaner-last-hand",
+     "window": "cardsMoved",
+     "subject": "owner",
+     "movementOccurrence": "perOtherLastHandLoss",
+     "sourceZones": ["hand"],
+     "optional": true,
+     "usageScope": "turn",
+     "usageLimit": 1,
+     "condition": {
+      "kind": "all",
+      "children": [
+       {
+        "kind": "compare",
+        "left": { "kind": "sourceZoneCountBefore" },
+        "operator": "greaterThanOrEqual",
+        "right": { "kind": "integerConstant", "value": 1 }
+       },
+       {
+        "kind": "compare",
+        "left": { "kind": "sourceZoneCountAfter" },
+        "operator": "equal",
+        "right": { "kind": "integerConstant", "value": 0 }
+       }
+      ]
+     },
+     "effects": [
+      {
+       "op": "yanerResolvePairBenefit",
+       "target": "owner",
+       "skillIds": ["ol:zhiren"],
+       "stateId": "zhiren-unrestricted"
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}
