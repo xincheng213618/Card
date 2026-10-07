@@ -181,3 +181,10 @@ K4 已开放：`ContentModeDefinition` 提供 `DeckId`、候选数量和 `Genera
 - 装备使用通过 `LegalActionKind.Equip` 和精确无目标 Choice 提交；装备实体按 `Hand → Processing → Equipment` 移动，同槽替换按 `Equipment → DiscardPile` 后进入新装备，并发布 `EquipmentChangedEvent`。
 - `GetCombatDistance` 计算存活座位环距离并应用赤兔/绝影及 `standard:mashu` 的出攻距离 modifier；`GetLegalActions` 应用 `standard:qicai` 的锦囊距离豁免；`GetAttackRange` 应用诸葛连弩范围 modifier；玉玺接入回合摸牌数量，死亡清理装备区并保持牌数守恒。
 - K6 基础场景已由 `equipment.replace`、`equipment.distance`、青釭剑无视防具、公开装备目标选择和 Standard Console 自测覆盖；K7 八卦阵基础判定场景以及公开判定区牌目标选择已由独立回归覆盖；装备失效/卸载语义和复杂装备效果留待后续 K6/K7。
+
+## 内容请求：2026-10-08 OL 黄承彦批（择才/隐世）能力缺口
+
+- 轮结束触发窗口：引擎只有回合开始/结束窗口与 `RoundStartedEvent`，没有"一轮游戏结束时"钩子；本批择才以"新一轮开始后的拥有者首个回合开始"近似结算并如实记录。若后续提供 `roundEnded`（或轮边界生命周期窗口），择才可直接改挂而无需定制 op。
+- 伤害颜色维度：`BeforeDamageApplied` 触发只有伤害来源牌存在性等事实，没有"无色牌/牌色"条件或事实字段；本规则集所有游戏牌带花色，本批把"无色牌或非游戏牌"表达为"无来源游戏牌"。若引入无色牌或伤害颜色维度，需要伤害来源牌色的触发事实与条件。
+- `claimJudgmentCard` 的对象限制：既有 op 只允许认领判定对象为技能拥有者本人的判定牌；隐世②需要认领"任意角色"的判定牌，本批以定制 op（7216）绕开。若把对象放宽为触发 subject，可直接改用通用 op。
+- 目标角色技能替换/停用的内容级 op：运行时技能授权已有 `grantSkills`（拥有者），但"替换另一角色全部技能（按标签排除）"没有内容 op；本批以定制 op（7212/7213）+ 引擎内注册表实现。若提供带标签排除的目标级 grant/替换 op 与对应恢复语义，可消除该定制层。
