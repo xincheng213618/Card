@@ -205,6 +205,7 @@ public enum SkillProgramEffectOp
     YanjiaoRevealTopCards = 7165, YanjiaoSplitRevealedCards = 7166, ShenShenDrawAndArmBonus = 7167,
     TunanUseRevealedCard = 7168, BijingMarkHandCards = 7169, BijingRecastMarkedCards = 7170,
     BijingPunishDiscardPhase = 7171,
+    DaoshuGuessAndTake = 7172,
     DuanfaDiscardAndDraw = 7180, YoudiBaitDiscard = 7181,
     GuanchaoChoosePattern = 7196, GuanchaoRankDraw = 7197, XunxianGiftUsedCard = 7198,
     IssueShownEntityTurnPolicy = 6500,

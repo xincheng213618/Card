@@ -1,0 +1,53 @@
+{
+ "schemaVersion": 62,
+ "skills": [
+  {
+   "id": "ol:weicheng",
+   "revision": 1,
+   "triggers": [
+    {
+     "id": "hand-transfer-draw",
+     "window": "cardsMoved",
+     "subject": "owner",
+     "movementOccurrence": "perOwnerSourceHandGain",
+     "sourceZones": ["hand"],
+     "optional": true,
+     "condition": {
+      "kind": "compare",
+      "left": { "kind": "currentHandCount" },
+      "operator": "lessThan",
+      "right": { "kind": "currentHp" }
+     },
+     "effects": [
+      {
+       "op": "draw",
+       "target": "owner",
+       "amount": 1
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "ol:daoshu",
+   "revision": 1,
+   "activations": [
+    {
+     "id": "daoshu-guess",
+     "minCards": 0,
+     "maxCards": 0,
+     "minTargets": 1,
+     "maxTargets": 1,
+     "targetKind": "otherLivingWithHand",
+     "usesPerTurn": 1,
+     "effects": [
+      {
+       "op": "daoshuGuessAndTake",
+       "target": "owner"
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

@@ -3518,6 +3518,8 @@ public sealed partial class GameEngine
         if (action == "youdi-bait-discard") { ResolveYoudiBaitChoice(selected); return; }
         if (action == "guanchao-pattern") { ResolveGuanchaoPatternChoice(selected); return; }
         if (action == "xunxian-gift") { ResolveXunxianGiftChoice(selected); return; }
+        if (action == "daoshu-suit") { ResolveDaoshuSuitChoice(selected); return; }
+        if (action == "daoshu-give-back") { ResolveDaoshuGiveBackChoice(selected); return; }
 
         var (candidate, context) = GetPendingProgramTriggerCandidate();
         if (_resolutionStack.LastOrDefault() is ProgramLifecycleTriggerWindowFrame lifecycle &&
@@ -4292,6 +4294,7 @@ public sealed partial class GameEngine
                 SkillProgramEffectOp.UseOwnPlayHistoryAtEnding => SelectAiHistoricalEndingUse(decision, frame),
                 SkillProgramEffectOp.YanjiaoSplitRevealedCards => SelectAiYanjiaoSplit(decision, frame),
                 SkillProgramEffectOp.TunanUseRevealedCard => SelectAiTunanChoice(decision),
+                SkillProgramEffectOp.DaoshuGuessAndTake => SelectAiDaoshuChoice(decision),
                 SkillProgramEffectOp.BijingPunishDiscardPhase => decision.Choices
                     .OrderBy(choice => choice.Id.Value, StringComparer.Ordinal).First(),
                 SkillProgramEffectOp.YoudiBaitDiscard => SelectAiYoudiBaitChoice(decision),
