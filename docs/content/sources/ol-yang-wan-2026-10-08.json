@@ -1,0 +1,70 @@
+{
+  "generalId": "ol:yang-wan",
+  "characterName": "杨婉",
+  "officialId": 499,
+  "sourcePage": "https://www.sanguosha.com/hero/499",
+  "textSource": "https://www.sanguosha.com/hero/499（官网 hero/info 接口 gid=499 交叉核对体力/势力/特点；技能逐字文本取自官网页面 skill-text 节点，并与 OL 专站 wiki.biligame.com/sgsol/杨婉 及其技能子页 诱言/追还 的现行版交叉验证）",
+  "capturedAt": "2026-10-08",
+  "rulesetId": "sanguosha-ol",
+  "indexFields": {
+    "gid": 499,
+    "name": "杨婉",
+    "extend": "",
+    "hp": 3,
+    "figure": "蜀",
+    "figure_py": "shu",
+    "gender": "女",
+    "title": "融沫之鲡",
+    "quality": "传说",
+    "package": "璀璨星河-女史",
+    "releaseDate": "2022-07-16",
+    "labels": ["进攻", "控制", "过牌"],
+    "characteristic": "可稳可险，需要在稳定牌差致胜和反伤获益中抉择"
+  },
+  "artwork": {
+    "skinId": "49900",
+    "skinName": "默认皮肤",
+    "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/49900.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-yang-wan.png",
+    "sha256": "75645dbe47c2e573542f5a37d8797b08be7f49db3246a1c03b64811489583826",
+    "byteCount": 979590,
+    "pixelWidth": 750,
+    "pixelHeight": 950
+  },
+  "skills": [
+    {
+      "name": "诱言",
+      "text": "出牌和弃牌阶段各限一次，当你的牌因弃置置入弃牌堆后，你可以从牌堆中获得与弃置牌花色不同的牌各一张。",
+      "textNote": "官网页面 skill-text 节点逐字原文；OL 专站同义原文：“出牌阶段和弃牌阶段各限一次，当你的牌因弃置而置入弃牌堆时，你可以从牌堆中获得每种花色的牌各一张（本次弃牌的花色除外）。”",
+      "programId": "ol:youyan",
+      "notes": [
+        "Trigger youyan-gain: discardPileReceived, subject owner, movementDiscardOnly + discardOwnerScope own + sourceZones hand/equipment/judgment（“你的牌因弃置”直接复用共享 GetProgramDiscardSource 语义，经 Processing 的完成式弃置也能归属来源）；usageScope phase + usageLimit 1 表达“出牌和弃牌阶段各限一次”（阶段账本随阶段切换过期，每个出牌阶段与每个弃牌阶段各有一次机会）；optional。",
+        "Bespoke op youyanGainSuitCards (7268) 从窗口批次重扫本批所有“你弃置”的实体牌取花色并集，按 黑桃→红桃→梅花→方块 的固定顺序从牌堆顶为每个其余花色取一张（CardsAt(DrawPile) 逆序第一个匹配，即最靠近牌堆顶的一张）加入手牌；移动原因 skill-program.ol:youyan.youyan-gain，随后统一打开 cards-moved 窗口。",
+        "ProgramYouyanGainEvent 只记录公开的弃置花色掩码与获得张数；获得的牌进入私人手牌，事件不含牌 id（暗手牌 id 不进普通快照的边界）。",
+        "AI 策略：描述符 AiPolicy = GainCards 语义，按期望约 3 张（四花色减弃置花色）计价，走可选触发的通用 EstimateCompositionForAi 路径。"
+      ]
+    },
+    {
+      "name": "追还",
+      "text": "结束阶段，你可以秘密选择一名角色，直到其下个准备阶段，此期间内对其造成过伤害的角色：若体力值大于其，受到其造成的2点伤害；若体力值不大于其，随机弃置两张手牌。",
+      "programId": "ol:zhuihuan",
+      "notes": [
+        "Trigger zhuihuan-arm: turnEnding, subject owner（默认 own）, optional → bespoke op zhuihuanArm (7269) 弹出 IsPrivate 的秘密选择提示，候选为全部存活角色（含自己，“一名角色”未排除自己）；公开日志只写“秘密选择了一名角色”，不泄露所选座位。",
+        "秘密持久化：arm 事件 ProgramZhuihuanArmedEvent 只含拥有者与回合号；所选座位存在运行期映射 _zhuihuanArmChoices（arm 帧号 → 座位），冷恢复按接受的私密选择命令前缀重建（与闭境标记同一机制），私密信息不进任何事件或快照。",
+        "Trigger zhuihuan-resolve-own / zhuihuan-resolve-other: turnStartBeforeNormalFlow 两条强制触发（own / turnOwnerScope otherLiving）→ bespoke op zhuihuanRetaliate (7270) 在“所选角色的下个准备阶段”结算：一次性扫描事件史，每个属于自己、映射座位等于当前回合角色的未决 arm 事件开一个伤害账本（按顺序去重记录 DamageAppliedEvent 的来源座位），随后逐个清算。",
+        "“若体力值大于其，受到其造成的2点伤害”按反伤口径实现：伤害来源 = 被秘密选择的角色（其），目标 = 造成过伤害且当前体力值大于该角色的角色，2 点普通伤害，经共享 BeginProgramSkillDamage 管线（新增显式来源座位参数）。多个清算对象按账本顺序依次结算（与 BWIKI 规则集问答“依次令……执行对应效果”一致）：反伤作为子结算挂起，指令游标回绕重入；弃置分支同步随机弃置至多 2 张手牌（不足则全弃）。",
+        "清算证据 ProgramZhuihuanResolvedEvent 记录所选座位、已决 arm 帧号、反伤座位与随机弃置座位/张数；清算完成后对应 arm 全部关闭，之后的回合开始静默跳过。",
+        "AI 策略：zhuihuanArm 的挂起选择 SelectAiZhuihuanArmChoice 优先选自己（反伤护身），其余按体力值升序、座位序稳定排序；描述符 AiPolicy = ChooseOption 空计价（可选触发的延迟收益不参与估算）。"
+      ]
+    }
+  ],
+  "observations": [
+    "Official hero/info API (gid=499) confirms 杨婉 as shu 3HP 传说 with labels 进攻/控制/过牌 and the characteristic 可稳可险，需要在稳定牌差致胜和反伤获益中抉择; the OL 专站 infobox (wiki.biligame.com/sgsol/杨婉) gives 性别=女、称号=融沫之鲡、武将包=璀璨星河-女史、上线时间 2022-07-16，与官网接口完全一致。",
+    "BWIKI 主站 (wiki.biligame.com/sgs/杨婉) 是《三国杀十周年》版本（武将包=荟萃-章台春望、品质 SSS、上线 2021-08-13、2023-07-27 技能调整），其现行版诱言（“你的回合内限一次……不因使用或打出而置入弃牌堆时”）与 OL 普通版文本不同，未采用；仅借用其规则集问答佐证边界：诱言存在回合内两个主发动时间段且“有时其他阶段也可以触发”，追还为延时结算、准备阶段依次执行。",
+    "追还三个来源逐字一致（OL 官网紧凑变体含“秘密选择”，十周年与 OL 专站为展开句式）；“受到其造成的2点伤害”两处“其”均指被选择的角色，实现为该角色作为伤害来源的反伤（与官网特点“反伤获益”互证）。",
+    "BWIKI 取证过程：主站与 OL 专站均遭遇间歇性 EdgeOne 限流（HTTP 567，响应体为拦截页），按约 3 分钟间隔重试后全部取回（sgs 武将页 1349B、诱言 853B、追还 830B、sgsol 武将页 524B、诱言 492B、追还 543B，action=raw 原始 wikitext）；官网 hero/499 页面（25019B）与 hero/info 接口（836B）无拦截。",
+    "New bespoke ops 7268-7270 (youyanGainSuitCards, zhuihuanArm, zhuihuanRetaliate)，只占用分配的 7268-7275 段；未新增 PlayerMarkerKind、ConditionKind、触发窗口枚举或 schema 节点；三个 Program* 证据事件均为标量记录。",
+    "共享口径：诱言的“因弃置”完全复用 GetProgramDiscardSource/IsProgramDiscardOriginReason 语义（owned source + 弃置型原因，含经 Processing 的完成式），使用/打出/重铸/阵亡清理/五谷余牌等不触发；追还的准备阶段结算通过 turnStartBeforeNormalFlow 触发窗口新增的 turnOwnerScope=otherLiving 支持实现（详见 benchmark 文档共享能力扩展）。",
+    "versionBoundary：诱言若牌堆中某其余花色无牌则跳过该花色（牌堆耗尽的物理上限，如实记录）；同批次内多张弃置牌取花色并集。追还若所选角色在清算中途死亡（如反伤来源被刚烈类技能反制致死），剩余清算取消并记日志；杨婉自身死亡后其未决追还不再结算（程序触发统一要求拥有者存活，平台既有边界）。反伤被防止（护甲等）时仍记为已清算。"
+  ]
+}
