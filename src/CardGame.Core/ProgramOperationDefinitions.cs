@@ -34,7 +34,7 @@ internal enum ProgramOperationAiSemantic
     UseVirtualDyingAlcohol,
     GiftSettledUsedCard,
     JuanxiaTrickUse,
-    JuanxiaRetaliationChoice
+    JuanxiaRetaliationChoice,
     FengjiRoundChoice,
     XuanhuiSwapEffects
 }

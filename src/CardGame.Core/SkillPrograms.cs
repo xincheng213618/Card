@@ -65,9 +65,9 @@ public enum SkillProgramTriggerConditionKind
     PreviousPlayCardIsBasic = 1024,
     PhaseIsPlay = 1025,
     CardActionOpponentIsOwner = 1026,
-    TurnOwnerUsedSameSuitCards,
-    TurnOwnerFactionIs = 1027
-    FengjiRoundChoicePending = 1027, FengjiSwapAvailable = 1028
+    TurnOwnerUsedSameSuitCards = 1030,
+    TurnOwnerFactionIs = 1027,
+    FengjiRoundChoicePending = 1028, FengjiSwapAvailable = 1029
 }
 public enum SkillProgramTriggerValueKind
 {
@@ -896,7 +896,7 @@ public sealed record SkillProgramTriggerFacts(
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] bool? CardActionOpponentIsOwner = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] bool? TurnOwnerUsedSameSuitCards = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] int? CurrentTurnNonConvertedUseCount = null,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? TurnOwnerFactionId = null)
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? TurnOwnerFactionId = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] bool? FengjiRoundChoicePending = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] bool? FengjiSwapAvailable = null)
 {
