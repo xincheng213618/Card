@@ -15307,9 +15307,11 @@ public sealed partial class GameEngine
                 attack.EffectiveCardKind,
                 runningAmount,
                 modifiedAmount));
+            var escalationSkillName = escalation is { } raised
+                ? _contentRegistry!.GetSkill(raised.SkillId).Name : "追猎";
             AddLog(
                 "SkillTriggered",
-                $"{_players[attack.SourceSeat].Name} 的【追猎】令本次伤害增至 {modifiedAmount} 点。",
+                $"{_players[attack.SourceSeat].Name} 的【{escalationSkillName}】令本次伤害增至 {modifiedAmount} 点。",
                 attack.SourceSeat,
                 attack.TargetSeat);
             runningAmount = modifiedAmount;
