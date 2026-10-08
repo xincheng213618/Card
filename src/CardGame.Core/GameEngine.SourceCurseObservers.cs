@@ -104,7 +104,7 @@ public sealed partial class GameEngine
             if (r.CurrentHpTarget is not { } target) return false;
             if (child is DyingFrame dying) return dying.ParentFrameId == root.Id &&
                 dying.Continuation == DyingContinuationKind.ProgramSkill && dying.VictimSeat == target &&
-                (ActiveDying?.FrameId == dying.Id || IsOriginalDyingSuspendedByDyingSuits(dying) ||
+                (ActiveDying?.FrameId == dying.Id || (IsOriginalDyingSuspendedByDyingSuits(dying) || IsOriginalDyingSuspendedByRecipientCategoryMark(dying)) ||
                  IsOriginalDyingSuspendedByOwnedDeathBenefit(dying)) &&
                 CompleteProgramEventHistory().OfType<ProgramSkillHpLostEvent>().Any(e =>
                     e.FrameId == root.Id && e.SkillId == root.SkillId && e.TargetSeat == target && e.RemainingHp == 0);
@@ -137,10 +137,10 @@ public sealed partial class GameEngine
         {
             if (_resolutionStack[i] is not ProgramSkillFrame root || !SourceCurseFirstChild(root, _resolutionStack[i + 1])) continue;
             if (_resolutionStack[i + 1] is DyingFrame original && i + 2 < _resolutionStack.Count &&
-                (IsOriginalDyingSuspendedByDyingSuits(original) ||
+                ((IsOriginalDyingSuspendedByDyingSuits(original) || IsOriginalDyingSuspendedByRecipientCategoryMark(original)) ||
                  IsOriginalDyingSuspendedByOwnedDeathBenefit(original) && OwnedDeathBenefitObserverRoot() is not null ||
                  IsPaidHandRepaymentProgramAlcoholRide(i + 1, original) || IsPaidHandRepaymentRescueRide(i + 1, original) ||
-                 PolicyCounterspellVirtualAlcoholRide(i + 1, original) || TieredRoundZeroDyingRescueRide(i + 1, original))) return root;
+                 PolicyCounterspellVirtualAlcoholRide(i + 1, original) || (TieredRoundZeroDyingRescueRide(i + 1, original) || DrawFundedDistinctBasicDyingRescueRide(i + 1, original)))) return root;
             var exact = true;
             for (var child = i + 2; child < _resolutionStack.Count; child++)
             {
@@ -149,7 +149,7 @@ public sealed partial class GameEngine
                 if (_resolutionStack[child] is DyingFrame dying && child + 1 < _resolutionStack.Count &&
                     (IsPaidHandRepaymentProgramAlcoholRide(child, dying) || IsPaidHandRepaymentRescueRide(child, dying) ||
                      PolicyCounterspellVirtualAlcoholRide(child, dying) || PaidObserverDamageVirtualAlcoholRide(child, dying) ||
-                     TieredRoundZeroDyingRescueRide(child, dying))) break;
+                     (TieredRoundZeroDyingRescueRide(child, dying) || DrawFundedDistinctBasicDyingRescueRide(child, dying)))) break;
             }
             if (exact) return root;
         }

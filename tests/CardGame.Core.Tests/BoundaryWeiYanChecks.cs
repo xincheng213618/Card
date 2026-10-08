@@ -118,7 +118,7 @@ internal static class BoundaryWeiYanChecks
             Require(rejected==(Math.Abs(amount)>20)&&modifier.PaidHpLossOrigin is null&&!JsonSerializer.Serialize(modifier).Contains("PaidHpLossOrigin"),"Legacy null modifier retains the original static +/-20 boundary and omitted JSON field.");
         }
     }
-    private static int Limit(GameEngine g)=>(int)typeof(GameEngine).GetMethod("GetSlashUseLimit",BindingFlags.Instance|BindingFlags.NonPublic)!.Invoke(g,[Players(g)[0]])!;
+    private static int Limit(GameEngine g)=>(int)typeof(GameEngine).GetMethod("GetSlashUseLimit",BindingFlags.Instance|BindingFlags.NonPublic)!.Invoke(g,[Players(g)[0],null])!;
     private static IEnumerable<TurnRuleModifier> Grants(GameEngine g)=>g.Events.Select(e=>e.Payload).OfType<TurnRuleModifierGrantedEvent>().Select(e=>e.Modifier).Where(m=>m.Source.SkillId==Skill);
     private static void AssertBenefits(GameEngine g,int n){var a=Grants(g).ToArray();Require(a.Length==2&&a[0].Amount==-n&&a[0].Query==SkillRuleQuery.OutgoingDistance&&a[1].Amount==n&&a[1].Query==SkillRuleQuery.SlashLimit&&a[0].EffectIndex!=a[1].EffectIndex,"Both actual X grants issue once from distinct effect keys.");Require(Limit(g)==n+1,"Current query uses actual X.");}
     private static IEnumerable<LegalAction> Actions(GameEngine g)=>g.GetHumanLegalActions().Where(a=>a.ProgramSkillId==Skill);

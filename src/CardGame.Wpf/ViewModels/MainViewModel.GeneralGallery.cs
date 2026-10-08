@@ -21,7 +21,7 @@ public sealed partial class MainViewModel
     public IReadOnlyList<GeneralGalleryFactionOption> GeneralGalleryFactions { get; } =
     [
         new("all", "全部势力"), new("wei", "魏"), new("shu", "蜀"),
-        new("wu", "吴"), new("qun", "群"), new("god", "神")
+        new("wu", "吴"), new("qun", "群"), new("jin", "晋"), new("god", "神")
     ];
 
     public IReadOnlyList<GeneralGallerySeriesOption> GeneralGallerySeries { get; } =
@@ -165,7 +165,7 @@ public sealed partial class MainViewModel
                 Kingdom = factionId == "god" ? "神" : FactionName(general.FactionId),
                 HealthText = general.InitialHp is { } initialHp
                     ? $"{initialHp}/{general.BaseHp} 体力" : $"{general.BaseHp} 体力",
-                HealthImages = Enumerable.Repeat($"pack://application:,,,/CardGame.Wpf;component/Assets/gallery-hp-{(factionId is "wei" or "shu" or "wu" ? factionId : "qun")}.png", Math.Clamp(general.BaseHp, 0, 12)).ToArray(),
+                HealthImages = Enumerable.Repeat($"pack://application:,,,/CardGame.Wpf;component/Assets/gallery-hp-{(factionId is "wei" or "shu" or "wu" or "jin" ? factionId : "qun")}.png", Math.Clamp(general.BaseHp, 0, 12)).ToArray(),
                 SkillName = string.Join(" / ", skills.Select(skill => skill.Name)),
                 SkillDescription = string.Join("\n\n", skills.Select(skill => $"{skill.Name}：{GetVisibleSkillDescription(skill)}"))
             });
@@ -216,6 +216,6 @@ public sealed partial class MainViewModel
 
     private static int GalleryFactionOrder(string faction) => faction switch
     {
-        "shu" => 0, "wu" => 1, "wei" => 2, "qun" => 3, "god" => 4, _ => 5
+        "shu" => 0, "wu" => 1, "wei" => 2, "qun" => 3, "jin" => 4, "god" => 5, _ => 6
     };
 }

@@ -76,10 +76,9 @@ internal static class BoundaryWolongZhugeLiangChecks
 
     public static void UnrespondableCounterspellEquipmentPaymentAndCompletedCold()
     {
-        var (game, registry) = Create(black: true);
+        var (game, registry) = Create(black: true, emptyOtherHands: true);
         var armor = Hand(game, 0).First().Id; Play(game, armor, []); ReachPlay(game);
         UseDriver(game, "equip-other", 1); ReachPlay(game);
-        foreach (var seat in new[] { 1, 2, 3 }) { UseDriver(game, "empty-other-hand", seat); ReachPlay(game); }
         var targetArmor = game.CreateSnapshot(0).Players[1].Equipment.Single().Id;
         var trick = Hand(game, 0).First().Id; PlayAs(game, trick, [1], CardKind.Dismantlement);
         Reach(game, prompt => prompt.Kind == DecisionKind.Nullification && prompt.PlayerSeat == 0);
@@ -132,10 +131,9 @@ internal static class BoundaryWolongZhugeLiangChecks
             "The physical counterspell closes its exact node and preserves the real chain parity, including a prior native counterspell.");
         Cold(physical, physicalRegistry);
 
-        var (native, nativeRegistry) = Create(black: true, nativeCounterspell: true);
+        var (native, nativeRegistry) = Create(black: true, nativeCounterspell: true, emptyOtherHands: true);
         UseDriver(native, "equip-other", 1); ReachPlay(native);
         UseDriver(native, "hurt-other", 1); ReachPlay(native);
-        foreach (var seat in new[] { 1, 2, 3 }) { UseDriver(native, "empty-other-hand", seat); ReachPlay(native); }
         var nativeArmor = native.CreateSnapshot(0).Players[1].Equipment.Single().Id;
         Require(Hand(native, 1).Count == 0 && native.State.Players[1].Hp == 7, "Native responder has only one actual black armor material and is wounded.");
         PlayAs(native, Hand(native, 0).First().Id, [1], CardKind.Dismantlement);
@@ -154,11 +152,10 @@ internal static class BoundaryWolongZhugeLiangChecks
 
         // Actual Qingxian is the HP observer; only its resulting real random
         // equipment use supplies the extra child Processing entity.
-        var (nested, nestedRegistry) = Create(black: true, qingxian: true);
+        var (nested, nestedRegistry) = Create(black: true, qingxian: true, emptyOtherHands: true);
         var paidArmor = Hand(nested, 0).First().Id; Play(nested, paidArmor, []); ReachPlay(nested);
         UseDriver(nested, "equip-other", 1); ReachPlay(nested);
         var replacedArmor = nested.CreateSnapshot(0).Players[1].Equipment.Single().Id;
-        foreach (var seat in new[] { 1, 2, 3 }) { UseDriver(nested, "empty-other-hand", seat); ReachPlay(nested); }
         var originalMaterial = Hand(nested, 0).First().Id;
         PlayAs(nested, originalMaterial, [1], CardKind.Dismantlement);
         Reach(nested, prompt => prompt.Kind == DecisionKind.Nullification && prompt.PlayerSeat == 0);
@@ -217,11 +214,10 @@ internal static class BoundaryWolongZhugeLiangChecks
         // A separate real paid node makes its chosen participant dying at one
         // HP. Native Niepan, including its HP/gain children, must return to
         // Qingxian before the real random equipment and original node finish.
-        var (rescued, rescuedRegistry) = Create(black: true, qingxian: true, qingxianDying: true);
+        var (rescued, rescuedRegistry) = Create(black: true, qingxian: true, qingxianDying: true, emptyOtherHands: true);
         var rescueCost = Hand(rescued, 0).First().Id; Play(rescued, rescueCost, []); ReachPlay(rescued);
         UseDriver(rescued, "equip-other", 2); ReachPlay(rescued);
         var protectedArmor = rescued.CreateSnapshot(0).Players[2].Equipment.Single().Id;
-        foreach (var seat in new[] { 1, 2, 3 }) { UseDriver(rescued, "empty-other-hand", seat); ReachPlay(rescued); }
         Require(rescued.State.Players[1].Hp == 8 && rescued.CreateSnapshot(0).Players[1].Equipment.Count == 0,
             "The real chosen rescue participant begins at eight HP with no armor or hand rescue material.");
         UseDriver(rescued, "prepare-one-hp", 1); ReachPlay(rescued);
@@ -299,7 +295,8 @@ internal static class BoundaryWolongZhugeLiangChecks
 
         foreach (var rescueKind in new[] { "virtual", "bound" })
         {
-            var (alcoholGame, alcoholRegistry) = Create(black: true, qingxian: true, otherRescue: rescueKind);
+            var (alcoholGame, alcoholRegistry) = Create(black: true, qingxian: true, otherRescue: rescueKind,
+                emptyOtherHands: rescueKind == "virtual");
             int? chunId = null;
             if (rescueKind == "bound")
             {
@@ -333,7 +330,10 @@ internal static class BoundaryWolongZhugeLiangChecks
             var alcoholArmor = alcoholGame.CreateSnapshot(0).Players[0].Equipment.Single().Id;
             UseDriver(alcoholGame, "equip-other", 2); ReachPlay(alcoholGame);
             var untouchedArmor = alcoholGame.CreateSnapshot(0).Players[2].Equipment.Single().Id;
-            foreach (var seat in new[] { 1, 2, 3 }) { UseDriver(alcoholGame, "empty-other-hand", seat); ReachPlay(alcoholGame); }
+            // Bound Chunlao genuinely crosses a round before this preparation;
+            // those peers have drawn, so retain their real hand-clearing commands.
+            if (rescueKind == "bound")
+                foreach (var seat in new[] { 1, 2, 3 }) { UseDriver(alcoholGame, "empty-other-hand", seat); ReachPlay(alcoholGame); }
             Require(alcoholGame.State.Players[1].Hp == 8, "The real alcohol rescue participant begins its preparation at eight HP.");
             UseDriver(alcoholGame, "prepare-one-hp", 1); ReachPlay(alcoholGame);
             Require(alcoholGame.State.Players[1].Hp == 1 && Hand(alcoholGame, 1).Count == 0,
@@ -535,15 +535,19 @@ internal static class BoundaryWolongZhugeLiangChecks
     private static void Cold(GameEngine game, ContentRegistry registry) => Require(State(game) == State(GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint())), registry)), "Real accepted commands cold-restore four views, RNG, typed payment/response parents and the exact card ledger.");
     private static void Require(bool value, string message) { if (!value) throw new InvalidOperationException(message); }
 
-    private static (GameEngine, ContentRegistry) Create(bool black = false, bool tricks = false, bool nativeFire = false, bool physicalCounterspell = false, bool nativeCounterspell = false, bool qingxian = false, bool qingxianDying = false, string? otherRescue = null)
+    private static (GameEngine, ContentRegistry) Create(bool black = false, bool tricks = false, bool nativeFire = false, bool physicalCounterspell = false, bool nativeCounterspell = false, bool qingxian = false, bool qingxianDying = false, string? otherRescue = null, bool emptyOtherHands = false)
     {
-        var registry = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true), new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage(), new Fixture(black, tricks, nativeFire, physicalCounterspell, nativeCounterspell, qingxian, qingxianDying, otherRescue));
+        var registry = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true), new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage(), new Fixture(black, tricks, nativeFire, physicalCounterspell, nativeCounterspell, qingxian, qingxianDying, otherRescue, emptyOtherHands));
         var game = GameEngine.CreateStandard(new GameOptions { Seed = 31, PlayerCount = 4, HumanSeat = 0, HumanRole = Role.Lord, ModeId = Mode, UseInteractiveSetup = true, UseInteractiveDiscard = true, AdvanceAfterHumanCommands = false, MaxTurns = 8 }, registry);
         Accept(game, new StartGameCommand()); Reach(game, prompt => prompt.Kind == DecisionKind.SelectGeneral && prompt.PlayerSeat == 0);
-        Accept(game, new SelectGeneralCommand(0, "fixture:wolong-owner", game.Revision, P(game)!.PromptId)); ReachPlay(game); return (game, registry);
+        Accept(game, new SelectGeneralCommand(0, "fixture:wolong-owner", game.Revision, P(game)!.PromptId)); ReachPlay(game);
+        if (emptyOtherHands)
+            Require(Hand(game, 0).Count == 6 && Enumerable.Range(1, 3).All(seat => Hand(game, seat).Count == 0),
+                "A legal zero-card base deal and owner-only initial-hand bonus preserve the owner's six real cards while other participants begin without a hand fallback.");
+        return (game, registry);
     }
 
-    private sealed class Fixture(bool black, bool tricks, bool nativeFire, bool physicalCounterspell, bool nativeCounterspell, bool qingxian, bool qingxianDying, string? otherRescue) : IGameContentPackage
+    private sealed class Fixture(bool black, bool tricks, bool nativeFire, bool physicalCounterspell, bool nativeCounterspell, bool qingxian, bool qingxianDying, string? otherRescue, bool emptyOtherHands) : IGameContentPackage
     {
         public PackageManifest Manifest { get; } = new("fixture-current-wolong", new(1, 0, 0), []);
         public void Register(IContentRegistryBuilder builder)
@@ -566,6 +570,9 @@ internal static class BoundaryWolongZhugeLiangChecks
                  {"id":"fixture:wolong-quiet","revision":1,"triggers":[{"id":"quiet-turn","window":"afterNormalDraw","subject":"owner","optional":false,"effects":[{"op":"skipTurnPhases","target":"owner","phases":["play"]}]}]}]}
                 """)!;
             rules["schemaVersion"] = SkillProgramCatalog.RulesSchemaVersion;
+            if (emptyOtherHands)
+                rules["skills"]!.AsArray().Single(skill => skill!["id"]!.GetValue<string>() == Driver)!["modifiers"] =
+                    JsonNode.Parse("""[{"id":"owner-initial-cards","query":"initialHandSize","operation":"add","value":4,"priority":0}]""");
             var presentation = new Dictionary<string, object>();
             foreach (var skill in new[] { Driver, Hp, Gain, Loss, Completed, EquipmentChild, FaceChild, AlcoholCompleted, "fixture:wolong-quiet" })
                 presentation[skill] = skill is Hp or Gain or Loss or Completed or EquipmentChild or FaceChild or AlcoholCompleted ? new { name = skill, description = "真实子窗暂停", optionLabels = new Dictionary<string, string> { ["continue"] = "继续" } } : new { name = skill, description = "固定命令夹具" };
@@ -579,7 +586,7 @@ internal static class BoundaryWolongZhugeLiangChecks
             for (var index = 1; index < 4; index++) builder.AddGeneral(new($"fixture:wolong-other-{index}", "固定其他角色", "supporter", "fixture:wolong-pick", "wei", 8,
                 otherRescue == "virtual" ? ["fixture:wolong-quiet", "boundary:jiushi", FaceChild, EquipmentChild] : otherRescue == "bound" ? ["fixture:wolong-quiet", Hp, Gain, AlcoholCompleted, EquipmentChild] : nativeFire ? ["boundary:huoji-current"] : nativeCounterspell ? ["fixture:wolong-quiet", "boundary:kanpo-current", Hp, Gain, Completed] : qingxianDying ? ["fixture:wolong-quiet", "classic:niepan", Hp, Gain] : qingxian ? ["fixture:wolong-quiet", EquipmentChild] : ["fixture:wolong-quiet"]));
             var kind = tricks ? "standard:draw_two" : physicalCounterspell ? "standard:nullification" : "classic:silver-lion";
-            builder.AddDeck(new("fixture:wolong-deck", "固定小牌组", 4, 2, []) { PhysicalCards = Enumerable.Range(0, 80).Select(index => new ContentDeckPhysicalCard(otherRescue == "bound" && index % 2 == 1 ? "standard:slash" : kind, black ? Suit.Spade : Suit.Diamond, 7)).ToArray() });
+            builder.AddDeck(new("fixture:wolong-deck", "固定小牌组", emptyOtherHands ? 0 : 4, 2, []) { PhysicalCards = Enumerable.Range(0, 80).Select(index => new ContentDeckPhysicalCard(otherRescue == "bound" && index % 2 == 1 ? "standard:slash" : kind, black ? Suit.Spade : Suit.Diamond, 7)).ToArray() });
             builder.AddMode(new(Mode, "当前卧龙公共能力命令检查", 4, 4, new Dictionary<string, int> { [nameof(Role.Lord)] = 1, [nameof(Role.Rebel)] = 3 }, "fixture:wolong-deck", GeneralCandidateCount: 4, GeneralPoolIds: ["fixture:wolong-owner", "fixture:wolong-other-1", "fixture:wolong-other-2", "fixture:wolong-other-3"]));
         }
     }

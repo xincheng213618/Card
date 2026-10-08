@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "ol:yuxu": {
+      "name": "誉虚",
+      "description": "当你于出牌阶段使用牌后，你可以摸一张牌，若如此做，当你本阶段使用下一张牌后，你不能以此法摸牌且须弃置一张牌。",
+      "booleanStates": {
+        "next-use-discard": {
+          "trueText": "本出牌阶段下次使用牌后须弃置一张牌",
+          "falseText": "本出牌阶段使用牌后可发动誉虚摸牌"
+        }
+      }
+    },
+    "ol:shijian": {
+      "name": "实荐",
+      "description": "当其他角色于其回合内使用第二张牌后，你可以弃置一张牌，令其于本回合获得“誉虚”。"
+    }
+  }
+}

@@ -257,7 +257,11 @@ internal static class BoundaryYuJinChecks
             { ConversionSource = action.ConversionSource }); }
     private static void Activate(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate");
     private static void Skip(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "skip");
-    private static void Continue(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
+    private static void Continue(GameEngine g)
+    {
+        if (P(g)!.PlayerSeat == 0) Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
+        else Accept(g, new AdvanceOneStepCommand(g.Revision));
+    }
     private static void Pass(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("response") == "pass");
     private static void Answer(GameEngine g, Func<PromptChoice, bool> predicate)
     { var p = P(g)!; Accept(g, new AnswerPromptCommand(p.PlayerSeat, p.PromptId, p.Choices.First(predicate).Id, g.Revision)); }
@@ -327,14 +331,15 @@ internal static class BoundaryYuJinChecks
                 {"id":"gear","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"useRandomDeckEquipment","target":"owner","resultBind":"gear"}]},
                 {"id":"double-slash","minCards":2,"maxCards":2,"sourceZones":["hand","equipment"],"minTargets":1,"maxTargets":1,"targetKind":"otherLiving","usesPerTurn":null,"effects":[{"op":"useSelectedCardsAs","target":"selectedTarget","sourceBind":"two-slash","outputKind":"slash"}]},
                 {"id":"request-slash","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"otherLiving","usesPerTurn":null,"effects":[{"op":"requestSlashByTarget","target":"selectedTarget","resultBind":"requested"}]},
-                {"id":"lose-prep","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"none","usesPerTurn":null,"effects":[{"op":"loseOwnerSkillsAndGrant","target":"owner","skillIds":["{{Prep}}"],"sourceBind":"standard:none"}]},
-                {"id":"reacquire-prep","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"none","usesPerTurn":null,"effects":[{"op":"grantSkills","target":"owner","skillIds":["{{Prep}}"]}]},
-                {"id":"draw-materials","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"none","usesPerTurn":null,"effects":[{"op":"draw","target":"owner","amount":20},{"op":"draw","target":"owner","amount":20}]}
+                {"id":"lose-prep","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"loseOwnerSkillsAndGrant","target":"owner","skillIds":["{{Prep}}"],"sourceBind":"standard:none"}]},
+                {"id":"reacquire-prep","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"grantSkills","target":"owner","skillIds":["{{Prep}}"]}]},
+                {"id":"draw-materials","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"draw","target":"owner","amount":20},{"op":"draw","target":"owner","amount":20}]}
               ]},
             {"id":"{{Conversion}}","revision":1,"viewAs":[{"id":"single-slash","inputKinds":["dodge"],"inputSuits":["spade"],"sameSuit":false,"outputKind":"slash","forPlay":true,"forResponse":false}]},
             {"id":"{{Observer}}","revision":1,"triggers":[
-              {"id":"paid-discard","window":"cardsMoved","subject":"any","sourceZones":["hand","equipment"],"destinationZones":["discardPile"],"movementReasons":["{{TargetDiscard}}","{{OwnerDiscard}}"],"movementOccurrence":"perBatch","optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"paid-seen","options":[{"id":"continue"}]}]},
-              {"id":"promised-real-draw","window":"cardsMoved","subject":"any","sourceZones":["drawPile"],"destinationZones":["hand"],"movementReasons":["{{EndingDraw}}"],"movementOccurrence":"perBatch","optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"draw-seen","options":[{"id":"continue"}]}]}
+              {"id":"paid-discard","window":"cardsMoved","subject":"owner","sourceZones":["hand","equipment"],"movementReasons":["{{TargetDiscard}}","{{OwnerDiscard}}"],"movementOccurrence":"perOwnerBatch","optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"paid-seen","options":[{"id":"continue"}]}]},
+              {"id":"paid-foreign-discard","window":"discardPileReceived","subject":"owner","discardOwnerScope":"other","sourceZones":["hand","equipment"],"movementReasons":["{{TargetDiscard}}","{{OwnerDiscard}}"],"movementOccurrence":"perBatch","optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"paid-seen","options":[{"id":"continue"}]}]},
+              {"id":"promised-real-draw","window":"cardsGained","subject":"owner","destinationZones":["hand"],"movementReasons":["{{EndingDraw}}"],"movementOccurrence":"perBatch","optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"draw-seen","options":[{"id":"continue"}]}]}
             ]},
             {"id":"{{Gain}}","revision":1,"triggers":[{"id":"real-gain","window":"cardsGained","subject":"owner","destinationZones":["hand"],"movementReasons":["{{EndingDraw}}"],"movementOccurrence":"perSourceOwner","optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"gain-seen","options":[{"id":"continue"}]}{{gainTail}}]}]},
             {"id":"{{Entry}}","revision":1,"triggers":[
@@ -361,9 +366,14 @@ internal static class BoundaryYuJinChecks
             if (gainDying) ownSkills.Add(Entry);
             if (replaceActor) ownSkills.Add(RoleChange);
             b.AddGeneral(new("fixture:yj-owner", "当前于禁真实来源", "supporter", Prep, "wei", 6, ownSkills.ToArray()) { InitialHp = gainDying ? 1 : 4 });
-            for (var i = 1; i < 4; i++) b.AddGeneral(new($"fixture:yj-peer-{i}", "真实对手", "supporter", "fixture:yj-peer-weight", "shu", 8,
-                replaceActor && i == 3 ? [Compared] : [])
-                { InitialHp = replaceActor ? (i == 3 ? 5 : null) : i == 1 && (deck != "slash" || lowerPeerHp) ? 1 : null });
+            for (var i = 1; i < 4; i++)
+            {
+                var peerSkills = new List<string>();
+                if (!native && !gainDying) peerSkills.Add(Observer);
+                if (replaceActor && i == 3) peerSkills.Add(Compared);
+                b.AddGeneral(new($"fixture:yj-peer-{i}", "真实对手", "supporter", "fixture:yj-peer-weight", "shu", 8, peerSkills)
+                    { InitialHp = replaceActor ? (i == 3 ? 5 : null) : i == 1 && (deck != "slash" || lowerPeerHp) ? 1 : null });
+            }
             b.AddDeck(new("fixture:yj-deck", "固定真实实体", 4, 2, []) { PhysicalCards = Enumerable.Range(0, 80).Select(i => new ContentDeckPhysicalCard(
                 armor && i >= 64 ? armorId : "standard:" + deck, mixed && i >= 40 ? Suit.Heart : Suit.Spade, 7)).ToArray() });
             b.AddMode(new(Mode, "当前于禁真实成本与目标响应", 4, 4, new Dictionary<string,int> { [nameof(Role.Lord)] = 1, [nameof(Role.Rebel)] = 3 },

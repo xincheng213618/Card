@@ -69,6 +69,11 @@ public sealed partial class GameEngine
                 if (aid.Use.CardActionId != completed.ActionId || !IsSameTypeAidTargetFact(use, aid) || actual.Contains(aid.RecipientSeat)) return false;
                 designated.Add(aid.RecipientSeat); actual.Add(aid.RecipientSeat);
             }
+            else if (fact is OverflowUseTargetsCanceledEvent canceled && canceled.Receipt.CardUseFrameId == use.Id)
+            {
+                if (canceled.Receipt.Source.OwnerSeat != actor || !IsOverflowTargetCancellationFact(use, canceled, actual)) return false;
+                designated = canceled.Receipt.ResultTargetSeats.ToList(); actual = canceled.Receipt.ResultTargetSeats.ToList();
+            }
             else if (fact is ProgramCardUseTargetAddedEvent added && added.CardUseFrameId == use.Id)
             {
                 // These producers also emit a typed issuance proof; consume that
@@ -78,7 +83,15 @@ public sealed partial class GameEngine
                     history.OfType<SameTypeAidTargetAddedEvent>().Any(e => e.Use.CardUseFrameId == use.Id &&
                         e.ProgramFrameId == added.FrameId && e.RecipientSeat == added.TargetSeat) ||
                     history.OfType<CompletedCategoryCompoundTargetsIssuedEvent>().Any(e => e.CardUseFrameId == use.Id &&
-                        e.ProgramFrameId == added.FrameId && e.Targets.Count == e.OriginalTargets.Count + 2 && e.Targets[^2] == added.TargetSeat)) continue;
+                        e.ProgramFrameId == added.FrameId && e.Targets.Count == e.OriginalTargets.Count + 2 && e.Targets[^2] == added.TargetSeat) ||
+                    history.OfType<DesignatedExtraTargetResolvedEvent>().Any(e => e.CardUseFrameId == use.Id &&
+                        e.ProgramFrameId == added.FrameId && e.AddedTargetSeats.Count > 0 && e.AddedTargetSeats[0] == added.TargetSeat) ||
+                    history.OfType<RoundGainedTrickTargetResolvedEvent>().Any(e => e.Qualification.CardUseFrameId == use.Id &&
+                        e.ProgramFrameId == added.FrameId && e.AddedTargetSeats.Count > 0 && e.AddedTargetSeats[0] == added.TargetSeat) ||
+                    history.OfType<UniqueLeaderTrickTargetResolvedEvent>().Any(e => e.CardUseFrameId == use.Id &&
+                        e.ProgramFrameId == added.FrameId && e.AddedTargetSeats.Count > 0 && e.AddedTargetSeats[0] == added.TargetSeat) ||
+                    history.OfType<RecipientCategorySlashTargetsResolvedEvent>().Any(e => e.CardUseFrameId == use.Id &&
+                        e.FrameId == added.FrameId && e.AddedTargets.Contains(added.TargetSeat))) continue;
                 if (actual.Contains(added.TargetSeat) || !ActualHandGainMutationBinding(added.FrameId, added.SkillId, added.OwnerSeat,
                         SkillProgramTriggerWindow.CardUseTargetsFinalized, SkillProgramEffectOp.AddCurrentCardUseTarget)) return false;
                 designated.Add(added.TargetSeat); actual.Add(added.TargetSeat);
@@ -105,6 +118,43 @@ public sealed partial class GameEngine
                         e.SkillId == compound.Source.SkillId && e.OwnerSeat == compound.Source.OwnerSeat && e.CardUseFrameId == use.Id &&
                         e.TargetSeat == compound.Targets[^2]) != 1) return false;
                 designated = compound.Targets.ToList(); actual = compound.Targets.ToList();
+            }
+            else if (fact is DesignatedExtraTargetResolvedEvent designatedExtra && designatedExtra.CardUseFrameId == use.Id && designatedExtra.AddedTargetSeats.Count > 0)
+            {
+                IReadOnlyList<int> originalTargets = designated;
+                // Only this exact issuance may normalize the old implicit self
+                // DrawTwo acceptance before extending its designated targets.
+                if (kind == CardKind.DrawTwo && designated.Count == 0 && actual.Count == 0 &&
+                    designatedExtra.OriginalTargetSeats is [var self] && self == actor)
+                    originalTargets = [actor];
+                if (designatedExtra.Source.OwnerSeat != actor || !actual.SequenceEqual(designated) ||
+                    !IsDesignatedExtraTargetFact(use, designatedExtra, originalTargets)) return false;
+                designated = designatedExtra.ResultTargetSeats.ToList(); actual = designatedExtra.ResultTargetSeats.ToList();
+            }
+            else if (fact is UniqueLeaderTrickTargetResolvedEvent leaderTarget && leaderTarget.CardUseFrameId == use.Id &&
+                (leaderTarget.AddedTargetSeats.Count > 0 || kind == CardKind.DrawTwo && designated.Count == 0 && actual.Count == 0 &&
+                    leaderTarget.OriginalTargetSeats is [var implicitSelf] && implicitSelf == actor))
+            {
+                IReadOnlyList<int> originalTargets = designated;
+                if (kind == CardKind.DrawTwo && designated.Count == 0 && actual.Count == 0 &&
+                    leaderTarget.OriginalTargetSeats is [var self] && self == actor)
+                    originalTargets = [actor];
+                if (!actual.SequenceEqual(designated) || !IsUniqueLeaderTrickTargetFact(use, leaderTarget, originalTargets)) return false;
+                designated = leaderTarget.ResultTargetSeats.ToList(); actual = leaderTarget.ResultTargetSeats.ToList();
+            }
+            else if (fact is RoundGainedTrickTargetResolvedEvent roundTarget && roundTarget.Qualification.CardUseFrameId == use.Id)
+            {
+                IReadOnlyList<int> originalTargets = designated;
+                if (kind == CardKind.DrawTwo && designated.Count == 0 && actual.Count == 0 &&
+                    roundTarget.OriginalTargetSeats is [var roundSelf] && roundSelf == actor)
+                    originalTargets = [actor];
+                if (!actual.SequenceEqual(designated) || !IsRoundGainedTrickTargetFact(use, roundTarget, originalTargets)) return false;
+                designated = roundTarget.ResultTargetSeats.ToList(); actual = roundTarget.ResultTargetSeats.ToList();
+            }
+            else if (fact is RecipientCategorySlashTargetsResolvedEvent categoryTargets && categoryTargets.CardUseFrameId == use.Id)
+            {
+                if (!actual.SequenceEqual(designated) || !IsRecipientCategorySlashTargetFact(use, categoryTargets, designated)) return false;
+                designated = categoryTargets.ResultTargets.ToList(); actual = categoryTargets.ResultTargets.ToList();
             }
             else if (fact is CurrentCardEnhancedEvent { Enhancement: CurrentCardEnhancement.ExtraTarget, ExtraTargetSeat: { } target } enhanced &&
                 enhanced.CardUseFrameId == use.Id && enhanced.CardActionId == completed.ActionId)
@@ -151,6 +201,11 @@ public sealed partial class GameEngine
             else if (fact is ProgramActualSlashTargetRedirectedEvent redirected && redirected.CardUseFrameId == use.Id)
             {
                 if (!IsShortRangeSlashRedirectFact(use, redirected, actual)) return false;
+                if (history.OfType<DesignatedExtraTargetRedirectedEvent>().Any(e =>
+                        e.ProgramFrameId == redirected.ProgramFrameId && e.CardUseFrameId == redirected.CardUseFrameId &&
+                        e.ActionId == redirected.ActionId && e.Source == redirected.Source && e.GameplayHash == redirected.GameplayHash &&
+                        e.InstructionIndex == redirected.InstructionIndex && e.TargetIndex == redirected.TargetIndex &&
+                        e.OriginalTargetSeat == redirected.OriginalTargetSeat && e.NewTargetSeat == redirected.NewTargetSeat)) continue;
                 actual[redirected.TargetIndex] = redirected.NewTargetSeat;
             }
             else if (fact is ProgramCurrentSlashFireRedirectedEvent fire && fire.CardUseFrameId == use.Id)
@@ -159,7 +214,16 @@ public sealed partial class GameEngine
                     fire.TargetIndex >= actual.Count || actual[fire.TargetIndex] != fire.OriginalTargetSeat ||
                     fire.Source.OwnerSeat != fire.OriginalTargetSeat || !ActualHandGainMutationBinding(fire.ProgramFrameId, fire.Source.SkillId,
                         fire.Source.OwnerSeat, SkillProgramTriggerWindow.SlashTargetRedirecting, SkillProgramEffectOp.RedirectCurrentAttack)) return false;
+                if (history.OfType<DesignatedExtraTargetRedirectedEvent>().Any(e =>
+                        e.ProgramFrameId == fire.ProgramFrameId && e.CardUseFrameId == fire.CardUseFrameId && e.ActionId == fire.ActionId &&
+                        e.Source == fire.Source && e.TargetIndex == fire.TargetIndex && e.OriginalTargetSeat == fire.OriginalTargetSeat &&
+                        e.NewTargetSeat == fire.NewTargetSeat)) continue;
                 actual[fire.TargetIndex] = fire.NewTargetSeat;
+            }
+            else if (fact is DesignatedExtraTargetRedirectedEvent redirectedExtra && redirectedExtra.CardUseFrameId == use.Id)
+            {
+                if (!IsDesignatedExtraTargetRedirectFact(use, redirectedExtra, actual)) return false;
+                actual[redirectedExtra.TargetIndex] = redirectedExtra.NewTargetSeat;
             }
             else if (fact is CardActionAcceptedEvent finalized && finalized.Action.ActionId == completed.ActionId)
             {

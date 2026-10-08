@@ -1,4 +1,4 @@
-﻿namespace CardGame.Core;
+namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
@@ -22,11 +22,28 @@ public sealed partial class GameEngine
         ObserveActualForeignUseTargets(payload);
         ObserveActualTurnDamageEntities(payload);
         ObserveTrueRoundCardNames(payload);
+        ObserveRoundDistinctBasicUse(payload);
+        ObserveRoundGainedRoundBoundary(payload);
+        ObserveTurnDefaultStats(payload);
         ObservePhaseHandSeizureDeath(payload);
         ObserveUnnullifiableOrdinaryTrick(payload);
         ObserveJudgedRankSlashUse(payload);
         ObserveKuangfuAppliedDamage(payload);
+        ObserveSelectedForeignCardSlashAppliedDamage(payload);
+        ObserveLastDamageSourceReciprocity(payload);
         QueueGameEvent(payload);
+        if (payload is TurnEndedEvent ended)
+        {
+            ExpireActorHandLimitPenalties(ended);
+            ExpirePlayPhaseSkillGrantsForEndedTurn(ended.TurnNumber);
+            ExpireActualTurnSkillGrants(ended.TurnNumber, ended.ActorSeat);
+            RestoreOrderedPrintedSkillsAtTurnEnd(ended.TurnNumber, ended.ActorSeat);
+        }
+        if (payload is GameEndedEvent)
+        {
+            ExpireAllPlayPhaseSkillGrants("game-ended");
+            ExpireAllActorHandLimitPenalties("game-ended");
+        }
         if (_started)
         {
             ResolveAutomaticDyingTransitionPrograms(payload);

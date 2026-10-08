@@ -224,6 +224,13 @@ public sealed class StandardContentPackage : IGameContentPackage
                 ["action"] = "slash-damage-boost"
             }));
         builder.AddCard(new ContentCardDefinition(
+            Id: "standard:unexpected_assault",
+            DisplayName: "出其不意",
+            CategoryName: "锦囊牌",
+            Description: "选择一名有手牌的其他角色；你展示其一张手牌，若出其不意有花色且与此牌花色不同，对其造成1点普通伤害。",
+            LegacyKind: CardKind.UnexpectedAssault,
+            AiTags: new Dictionary<string, string> { ["action"] = "opaque-hand-reveal-different-suit-damage" }));
+        builder.AddCard(new ContentCardDefinition(
             Id: "standard:fire_attack",
             DisplayName: "火攻",
             CategoryName: "锦囊牌",

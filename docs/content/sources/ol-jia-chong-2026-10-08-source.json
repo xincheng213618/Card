@@ -1,0 +1,415 @@
+{
+  "sourceRecordSchemaVersion": 1,
+  "documentKind": "Current official OL ordinary Jia Chong full source and portrait evidence",
+  "status": "Integrated current OL Jin Jia Chong; focused and measured routine acceptance passed",
+  "registered": true,
+  "productionImplemented": true,
+  "behaviorValidated": true,
+  "generalIdProposal": "ol:jia-chong",
+  "characterName": "贾充",
+  "officialId": 7019,
+  "rulesetId": "sanguosha-ol",
+  "variantProposal": "ordinary",
+  "capturedAt": "2026-10-08",
+  "sourcePage": "https://www.sanguosha.com/hero/7019",
+  "currentOfficialMetadata": {
+    "gid": 7019,
+    "name": "贾充",
+    "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/7019.png",
+    "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/701900.png",
+    "label": [
+      "进攻",
+      "控制",
+      "卖血"
+    ],
+    "figure": "晋",
+    "figure_py": "jin",
+    "quality": "史诗",
+    "biography": "字公闾，贾逵[kuí]之子，贾南风之父。曹魏大臣，西晋开国元勋。参与镇压淮南二叛和弑杀魏帝曹髦[máo]。",
+    "characteristic": "可以预测他人出牌阶段出的牌，猜对可以造成伤害。需要格外关注上次对你造成伤害的角色。",
+    "hp": 3,
+    "initial_hp": 0,
+    "score": 0
+  },
+  "metadataInterpretation": {
+    "maxHp": 3,
+    "initialHp": 3,
+    "initialHpNote": "API initial_hp=0 means full HP in current hero renderer; ordinary base starts full3 before identity mode modifiers.",
+    "gender": "API has no gender field. Male is historical identity/portrait context, not an API quotation.",
+    "concealment": "Neither current ordinary skill text contains 隐匿; no concealed-general substitute required."
+  },
+  "skills": [
+    {
+      "officialSkillId": 3088,
+      "name": "凶竖",
+      "exactText": "其他角色出牌阶段开始时，你可以：弃置X张牌（X为你本轮此前发动过本技能的次数），展示其一张手牌，你秘密猜测其此阶段是否使用同名牌。此阶段结束时，若你猜对，你对其造成1点伤害；若你猜错，你获得此牌。",
+      "rawOrdinaryText": "其他角色出牌阶段开始时，你可以：弃置X张牌（X为你本轮此前发动过本技能的次数），展示其一张手牌，你秘密猜测其此阶段是否使用同名牌。此阶段结束时，若你猜对，你对其造成1点伤害；若你猜错，你获得此牌。",
+      "origin": "/GameSpells/spell/1444",
+      "acquiredOnly": false,
+      "programIdProposal": "ol:xiongshu"
+    },
+    {
+      "officialSkillId": 3089,
+      "name": "奸回",
+      "exactText": "锁定技，你记录上次对你造成伤害的其他角色。当你对其造成伤害后，你摸一张牌；当其对你造成伤害后，其弃置一张牌。",
+      "rawOrdinaryText": "锁定技，你记录上次对你造成伤害的其他角色。当你对其造成伤害后，你摸一张牌；当其对你造成伤害后，其弃置一张牌。",
+      "origin": "/GameSpells/spell/1445",
+      "acquiredOnly": false,
+      "programIdProposal": "ol:jianhui"
+    }
+  ],
+  "primarySources": [
+    {
+      "role": "current official ordinary OL hero",
+      "url": "https://www.sanguosha.com/hero/7019",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T11:30:45.453581+00:00",
+      "sha256": "1e090e2a00db14fd04d9f2b32197719a284e32064a8a416a52d6e44b62df4b48",
+      "byteCount": 25180,
+      "hashScope": "Exact raw HTTP body bytes (UTF-8)"
+    },
+    {
+      "role": "current official ordinary OL api",
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=7019",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T11:30:31.150870+00:00",
+      "sha256": "20183a4e48c30ec7cb9d581d6196f866f523db9159f1715d451d8fbd8d5d24df",
+      "byteCount": 878,
+      "hashScope": "Exact raw HTTP body bytes (UTF-8)"
+    }
+  ],
+  "currentOfficialClient": {
+    "capturedAtUtc": "2026-10-08T11:31:46.685009+00:00",
+    "bundle": {
+      "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+      "sha256": "6a035389beda8d0dbf31227f57a91b2da14d3d5055503198a227aef54f22bf76",
+      "bytes": 5256312
+    },
+    "fullConfig": {
+      "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+      "sha256": "9e26cb3db90532084579a20c292d5fec0c81dcf3d5eb2abf2009bff0326237bb",
+      "bytes": 4142728
+    },
+    "members": [
+      {
+        "name": "cha_spell.sgs",
+        "encodedSha256": "95cfaa4106a4f6224ebed8948bcf86bd5fc6801a83a1c4162c7e59bc848bef66",
+        "decodedSha256": "39b83f6e2504590e262bb353bddfded546b83f83a7ea9199b67742b1bee68fc0",
+        "rows": [
+          {
+            "path": "/GameSpells/spell/1444",
+            "row": {
+              "a": 3088,
+              "b": "3,5",
+              "c": "凶竖",
+              "d": "XiongShu",
+              "e": 0,
+              "g": 1,
+              "i": 2,
+              "o": "其他角色出牌阶段开始时，你可以：弃置X张牌（X为你本轮此前发动过本技能的次数），展示其一张手牌，你秘密猜测其此阶段是否使用同名牌。此阶段结束时，若你猜对，你对其造成1点伤害；若你猜错，你获得此牌。",
+              "v": "请选择{0}张牌弃置",
+              "ac": "是否弃置{0}张牌对{Source}发动<font color='#FFD800'>凶竖</font>|是否对{Source}发动<font color='#FFD800'>凶竖</font>"
+            }
+          },
+          {
+            "path": "/GameSpells/spell/1445",
+            "row": {
+              "a": 3089,
+              "b": "3,4,5",
+              "c": "奸回",
+              "d": "JianHui",
+              "e": 0,
+              "g": 2,
+              "i": 2,
+              "o": "锁定技，你记录上次对你造成伤害的其他角色。当你对其造成伤害后，你摸一张牌；当其对你造成伤害后，其弃置一张牌。",
+              "w": "请选择一张牌弃置"
+            }
+          }
+        ]
+      },
+      {
+        "name": "character.sgs",
+        "encodedSha256": "e0b6f0188edebb1f502ea402c7171e93b88f4e9d05720948344a1f4f44474aae",
+        "decodedSha256": "b3ef3f1181e7fe667499cb688b7cdce56631d899dbb0eea55d75fbf80636b040",
+        "rows": [
+          {
+            "path": "/GameCharacters/character/1193",
+            "row": {
+              "a": 7019,
+              "b": "贾充",
+              "d": "JiaChong",
+              "e": 40,
+              "f": "39",
+              "g": 6,
+              "h": 1,
+              "i": 3,
+              "j": 3088,
+              "k": 3089,
+              "p": 2,
+              "q": "1",
+              "y": "字公闾，贾逵[kuí]之子，贾南风之父。曹魏大臣，西晋开国元勋。参与镇压淮南二叛和弑杀魏帝曹髦[máo]。",
+              "z": "可以预测他人出牌阶段出的牌，猜对可以造成伤害。需要格外关注上次对你造成伤害的角色。",
+              "aa": 1289,
+              "ab": "911,912",
+              "ac": "荀勖",
+              "ad": "画师:游漫美绘",
+              "x": "天下凶凶，####由我一人！",
+              "al": 1730,
+              "am": "true",
+              "ap": 240,
+              "aq": 70,
+              "LordCardRate1": 26,
+              "LordCardRate2": 51,
+              "cc": 701901,
+              "starMax": 4
+            }
+          }
+        ]
+      }
+    ],
+    "textSelection": "Only ordinary identity 'o' text and character a=7019. Do not use Guozhan/ten-anniversary/Race/team-mode variants."
+  },
+  "officialSupplementalFaq": {
+    "role": "official historical description-normalization FAQ, not current character roster",
+    "url": "https://www.sanguosha.com/news/20220712_2766_0914",
+    "httpStatus": 200,
+    "capturedAtUtc": "2026-10-08T11:36:07.019369+00:00",
+    "sha256": "40206b53fa04866676f0941972e2978f62e323c9449ca22fd0e6682487d38a89",
+    "byteCount": 41319,
+    "hashScope": "Exact raw HTTP body bytes",
+    "title": "技能描述规范化调整",
+    "publishedAt": "2022-07-13 17:43:57",
+    "publicationDateNote": "Date in article and JSON-LD; URL slug 20220712 is not publication date.",
+    "rules": [
+      {
+        "topic": "Non-prerequisite discard, explicitly names Xiongshu",
+        "exactText": "“：”用于选项、判定、拼点等即将出现分支描述之前，或非先决行为之前。例如刘协【天命】和贾充【凶竖】等技能的第一步行为（弃牌）若无法执行并不会阻碍技能发动，用冒号表示",
+        "sourceFormattingNote": "Raw HTML uses literal fullwidth 【】; website text renderer presents 〖〗. Text extracted from article HTML.",
+        "confirmedConsequence": "Cannot require X fully discardable cards as Xiongshu activation prerequisite. Inability to perform discard does not prevent activation."
+      },
+      {
+        "topic": "Slash card-name typography",
+        "exactText": "属性杀描述统一为：雷【杀】、火【杀】、冰【杀】，这是一张牌名字数为1的牌",
+        "confirmedConsequence": "Supports a common Slash card name across elemental forms. Does not itself enumerate every Xiongshu same-name conversion case."
+      }
+    ]
+  },
+  "ruleBoundaryAssessment": [
+    {
+      "id": "xiongshu-non-prerequisite-discard",
+      "evidence": "Direct official description-normalization FAQ explicitly names Xiongshu.",
+      "officiallyConfirmed": true,
+      "engineMapping": "On accepted invocation, X is prior accepted invocations by this owner/method in the actual round. Attempt min(X, currently legally discardable hand/equipment cards); zero or insufficient discard does not prevent reveal and prediction. Accepted count increments once, not again on child resume.",
+      "mappingExtent": "The non-prerequisite property is official. Exact min/eligibility/once-only runtime bookkeeping are explicit engine mappings, not a quoted FAQ."
+    },
+    {
+      "id": "xiongshu-empty-target-hand",
+      "evidence": "Current text does not add '有手牌' to activation condition. No direct FAQ found.",
+      "officiallyConfirmed": false,
+      "engineMapping": "Root-selected mapping: offer optional invocation even when the phase owner currently has no hand cards; commit actual count and executable discard, then re-evaluate hand at reveal step. If still empty, complete with no prediction/settlement. Discard children may have given target a card, so do not apply a premature hand gate."
+    },
+    {
+      "id": "xiongshu-same-name",
+      "evidence": "Current text requires '使用同名牌'; official normalization article treats elemental Slash as Slash name.",
+      "officiallyConfirmed": "Partial: text and Slash typography; no exhaustive Xiongshu-specific FAQ.",
+      "engineMapping": "Observe all native actual card uses by the phase owner within the exact selected actual Play phase, including uses earlier than arming, and compare the effective normalized name (elemental Slash unified). Existing qualified own-phase Nullification/Dodge uses count even if the internal typed action is Response; mere played responses such as Duel Slash do not count. Legacy virtual uses without an Action retain their real CardUseFrame ID and do not invent an Action ID. Exclude recast, discard, physical material names, other actors, earlier phases and extra phases with a different identity."
+    },
+    {
+      "id": "xiongshu-reveal-and-private-guess",
+      "evidence": "Direct current skill text: '展示其一张手牌，你秘密猜测'.",
+      "officiallyConfirmed": true,
+      "engineMapping": "Use source actor opaque target-hand slot selection without hand-content preview, then public reveal exact physical card. Freeze revealed entity and normalized effective revealed-card name. Keep yes/no guess private to skill owner until settlement; trusted resolution diagnostics may contain private data and are not player snapshots."
+    },
+    {
+      "id": "xiongshu-obtain-region",
+      "evidence": "Direct text only says '若你猜错，你获得此牌'; no official zone enumeration found.",
+      "officiallyConfirmed": false,
+      "engineMapping": "Engine mapping: obtain the exact shown entity only from the original phase owner current hand/equipment, or public discard/processing. Skip a card now in draw pile, another private hand, other locations or outside game. This is an explicit conservative current-zone whitelist, not an official exhaustive zone FAQ. Native moves retain equipment-removal children and original armor owner recovery.",
+      "implementationDecisionPending": false,
+      "decisionAuthority": "Explicit engine contract; not claimed as an official FAQ."
+    },
+    {
+      "id": "xiongshu-delayed-settlement",
+      "evidence": "Current text settles at '此阶段结束时'. No direct loss/regrant/target-death FAQ found.",
+      "officiallyConfirmed": "Exact selected phase end is direct text; lifetime corner cases not directly ruled here.",
+      "engineMapping": "Engine mapping: immutable issued policy binds original source/binding/instance/hash, actual turn and exact Play phase. Losing/suppressing/reacquiring the skill does not cancel or duplicate an armed policy. Dead owner or target at collection or immediately before consuming a frozen ending candidate causes no reward/damage. An inserted extra phase has a distinct serial; the suspended original ending parent retains its immutable phase key and resumes its original policy without rewinding the serial. Accepted invocation increments actual-round count once even when the post-cost reveal has no hand and creates no policy.",
+      "implementationDecisionPending": false,
+      "decisionAuthority": "Explicit engine contract; not claimed as an official FAQ."
+    },
+    {
+      "id": "jianhui-memory",
+      "evidence": "Current text says '上次对你造成伤害的其他角色'.",
+      "officiallyConfirmed": true,
+      "engineMapping": "Use actual positive applied damage from a distinct other actor; exclude self damage, source-less damage and HP loss. The remembered seat persists across turns until replaced by another qualifying damage source. Do not substitute last targeted player or attempted/prevented damage."
+    },
+    {
+      "id": "jianhui-first-damage-order",
+      "evidence": "No direct official FAQ found for update-memory versus after-damage trigger order.",
+      "officiallyConfirmed": false,
+      "engineMapping": "Engine mapping: a real positive other-source DamageApplied records the new stable owner/skill/state last source before freezing the same damage incoming discard eligibility. Thus the first other hit already owes discard; a later other source replaces memory. Self/source-less damage and HP loss do not replace it. Physical loss/regrant retains stable memory, and damage during absence does not update it.",
+      "implementationDecisionPending": false,
+      "decisionAuthority": "Explicit engine contract; not claimed as an official FAQ."
+    },
+    {
+      "id": "jianhui-outcomes",
+      "evidence": "Direct text: after owner damages remembered actor draw one; after remembered actor damages owner that actor discards one.",
+      "officiallyConfirmed": true,
+      "engineMapping": "Use real Draw1 and real target-owned discard chooser/actual movement with exact once-only typed returns; one trigger per qualifying damage occurrence, not per lost HP point. Qualify source before binding, freeze accepted receipt for nested children and handle source loss per established trigger completion contract."
+    }
+  ],
+  "mechanismAssessment": {
+    "completeExistingCoverage": false,
+    "decision": "Selected by root for full Xiongshu and Jianhui.",
+    "reusable": [
+      "Native PlayPhaseStarting/PlayEnding windows",
+      "Opaque TargetCardSelectionFrame hand slot selection and public reveal",
+      "Movement and HP/damage typed continuations",
+      "Actual applied-damage facts",
+      "Existing normalized effective card-use identity and round tracking base"
+    ],
+    "newMechanismsRequired": [
+      "Stable owner+method+actual-round accepted-activation count and non-prerequisite partial/zero discard attempt",
+      "Private Boolean guess bound to an exact actual Play-phase instance and the exact revealed entity/name",
+      "Actual use-direction effective-name observation including zero-entity/converted use, excluding mere response/physical costs",
+      "Exact delayed once-only phase settlement that survives nested draws/movement/damage and cold checkpoint restore",
+      "Physical revealed-card obtain at settlement with explicit legal-zone mapping",
+      "Last-other-applied-damager memory and distinct after-dealing/after-receiving typed outcomes"
+    ],
+    "concealmentRequired": false
+  },
+  "liveCapabilityEvidence": [
+    {
+      "path": "src/CardGame.Core/GameEngine.JiangGanPrograms.cs",
+      "line": 13,
+      "finding": "DaoshuGuessState proves a frame-owned private guess mechanism is available, but resolves immediate take/give-back; it does not implement a future exact-Play-phase secret prediction."
+    },
+    {
+      "path": "src/CardGame.Core/SkillProgramDependencies.cs",
+      "line": 50,
+      "finding": "Round tracking is capability-dependent; a round-escalating Xiongshu family needs its own dependency declaration."
+    },
+    {
+      "path": "src/CardGame.Core/SkillPrograms.cs",
+      "line": 533,
+      "finding": "Native PlayEnding and PlayPhaseStarting windows exist; a delayed prediction must bind the exact actual phase rather than whole-turn history."
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.AlternativeViewAsCosts.cs",
+      "line": 7,
+      "finding": "ProgramBasicCardName unifies elemental Slash kinds to Slash, reusable for real effective use-name matching."
+    },
+    {
+      "path": "src/CardGame.Core/Events.cs",
+      "line": 576,
+      "finding": "DamageAppliedEvent carries actual source/target/amount and source-less metadata; ordinary HP loss must not create Jianhui damager memory."
+    }
+  ],
+  "faqResearch": {
+    "searchedAt": "2026-10-08",
+    "primaryDomains": [
+      "sanguosha.com",
+      "web.sanguosha.com"
+    ],
+    "queries": [
+      "site:sanguosha.com 贾充 凶竖 FAQ 获得 此牌 同名",
+      "site:sanguosha.com 凶竖 手牌 弃牌堆 同名牌",
+      "site:sanguosha.com 贾充 奸回 上次 伤害 技能 调整",
+      "site:weixin.qq.com 三国杀OL 贾充 凶竖 FAQ",
+      "site:sanguosha.com \"凶竖\" \"弃牌堆\"",
+      "site:sanguosha.com \"凶竖\" \"同名\" \"杀\"",
+      "site:sanguosha.com \"贾充\" \"FAQ\"",
+      "site:sanguosha.com \"奸回\" \"记录\" \"第一次\"",
+      "\"贾充\" \"凶竖\" 获得 同名 FAQ 三国杀OL",
+      "\"凶竖\" site:sanguosha.com/news",
+      "\"凶竖\" \"牌堆\" 三国杀OL",
+      "\"奸回\" \"第一\" 三国杀OL",
+      "贾充 凶竖 FAQ 同名 获得此牌 -site:baidu.com -site:zh.wikipedia.org",
+      "\"凶竖\" \"FAQ\" \"获得\"",
+      "\"贾充\" site:sanguosha.com/news/2022",
+      "\"凶竖\" \"获得\" site:sgs.qq.com"
+    ],
+    "foundAuthoritativeSpecificFaq": [
+      "Non-prerequisite discard explanation explicitly naming Xiongshu"
+    ],
+    "notFoundInThisSearch": [
+      "Exact obtainable zones for the physical revealed card at phase settlement",
+      "A Xiongshu-specific exhaustive same-name definition for conversions and elemental Slash",
+      "Whether no target hand cards at activation prevents activation",
+      "Jianhui first-other-damage record-vs-after-trigger ordering",
+      "Loss/regrant/target-death delayed prediction settlement ruling"
+    ],
+    "limitation": "No result found is a bounded research result, not proof that no official ruling exists. Community wikis/videos and ten-anniversary/Guozhan sources were excluded as ruling authority."
+  },
+  "portrait": {
+    "path": "src/CardGame.Wpf/Assets/official-ol-jia-chong.png",
+    "url": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/701900.png",
+    "advertisedCoverUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/701900.png",
+    "sha256": "ebd1dfb49ea5d7b07dacf9abfc421bcec4f31f1679e9421ce12a31fd5a1d5bb6",
+    "byteCount": 919601,
+    "width": 750,
+    "height": 950,
+    "officialSkinId": 701900,
+    "existedBefore": false,
+    "httpStatus": 200,
+    "verifiedAtUtc": "2026-10-08T11:37:37.196467+00:00",
+    "exactDownloadMatchesSavedFile": true,
+    "visuallyInspected": true,
+    "visualInspection": "Viewed actual saved PNG: purple-robed crowned bearded male figure, extended arms, bird and background soldiers; image is intact and matches official advertised Jia Chong cover. Identity attribution comes from official gid/API binding, not visual inference.",
+    "artKeyProposal": "ol-jia-chong",
+    "defaultSkinIdProposal": "701900",
+    "registeredInCatalog": true
+  },
+  "catalogEntryProposal": {
+    "generalId": "ol:jia-chong",
+    "artKey": "ol-jia-chong",
+    "officialGeneralId": 7019,
+    "defaultSkinId": "701900",
+    "sourcePage": "https://www.sanguosha.com/hero/7019",
+    "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/701900.png",
+    "path": "src/CardGame.Wpf/Assets/official-ol-jia-chong.png",
+    "sha256": "ebd1dfb49ea5d7b07dacf9abfc421bcec4f31f1679e9421ce12a31fd5a1d5bb6",
+    "width": 750,
+    "height": 950,
+    "artist": "游漫美绘",
+    "artistOrigin": "Current official character.sgs row1193 ad='画师:游漫美绘'"
+  },
+  "researchExecution": {
+    "noBuildOrTestRun": true,
+    "noLargeTemporaryFilesCreated": true,
+    "onlyAuthorizedNewDeliverablesWritten": true,
+    "existingCatalogAndProductionUnmodified": true,
+    "earlierCleanupRejectionNotBypassed": true
+  },
+  "generalId": "ol:jia-chong",
+  "implementationContract": {
+    "stage": "Implemented; focused and measured routine acceptance passed",
+    "definitions": "src/CardGame.Content.Standard/SkillPrograms/ordinary-jia-chong.rules.json",
+    "sharedFamilies": [
+      "BeginPhaseNamePrediction / SettlePhaseNamePrediction",
+      "LastDamageSourceReciprocity"
+    ],
+    "engineDecisions": {
+      "xiongshu-obtain-region": "Engine mapping: obtain the exact shown entity only from the original phase owner current hand/equipment, or public discard/processing. Skip a card now in draw pile, another private hand, other locations or outside game. This is an explicit conservative current-zone whitelist, not an official exhaustive zone FAQ. Native moves retain equipment-removal children and original armor owner recovery.",
+      "xiongshu-delayed-settlement": "Engine mapping: immutable issued policy binds original source/binding/instance/hash, actual turn and exact Play phase. Losing/suppressing/reacquiring the skill does not cancel or duplicate an armed policy. Dead owner or target at collection or immediately before consuming a frozen ending candidate causes no reward/damage. An inserted extra phase has a distinct serial; the suspended original ending parent retains its immutable phase key and resumes its original policy without rewinding the serial. Accepted invocation increments actual-round count once even when the post-cost reveal has no hand and creates no policy.",
+      "jianhui-first-damage-order": "Engine mapping: a real positive other-source DamageApplied records the new stable owner/skill/state last source before freezing the same damage incoming discard eligibility. Thus the first other hit already owes discard; a later other source replaces memory. Self/source-less damage and HP loss do not replace it. Physical loss/regrant retains stable memory, and damage during absence does not update it."
+    },
+    "versionPolicy": "No per-general replay epoch, schema or package bump; development content hash distinguishes new programs.",
+    "verificationReport": "docs/benchmarks/2026-10-08-content-continuation-round16-verification.json",
+    "nativeBoundaryRepairs": [
+      "Exact same-phase uses before arming are replayed into the issued policy from scalar actual-use facts.",
+      "Qualified actual Nullification/Dodge uses retain native Response Action identity; mere played Duel Slash responses remain excluded.",
+      "Frozen phase-ending candidate rechecks target life before issuing any damage or claim receipt.",
+      "Suspended ending parent retains exact actual-turn/owner/phase key across a genuine inserted extra Play without serial reuse."
+    ]
+  },
+  "acceptance": {
+    "report": "docs/benchmarks/2026-10-08-content-continuation-round16-verification.json",
+    "head": "fe90b66788b7d1866fa1e87f02d4993ad7bd0f3e",
+    "buildInputAggregateSha256": "d7dde0759fccb80db9c8f55455229740c62b97aeacea7a0b6675effba258b08a",
+    "focusedCorePassed": 32,
+    "focusedWpfPassed": 2,
+    "routineCorePassed": 388,
+    "routineWpfPassed": 20,
+    "manualFullRun": false
+  }
+}

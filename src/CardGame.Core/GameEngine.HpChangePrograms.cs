@@ -21,7 +21,7 @@ public sealed partial class GameEngine
         if (_pendingDecision is not null || _winner != Winner.None || _status == EngineStatus.Completed ||
             (resumeFrameId is null ? _resolutionStack.Count != 0 : _resolutionStack.LastOrDefault()?.Id != resumeFrameId))
             return false;
-        while (_pendingHpChanges.FirstOrDefault(change => resumeFrameId is null || change.ParentFrameId == resumeFrameId) is { } change)
+        while (_pendingHpChanges.FirstOrDefault(change => resumeFrameId is null || change.ParentFrameId == resumeFrameId || IsSelectedForeignCardSlashHpChange(resumeFrameId.Value, change)) is { } change)
         {
             _pendingHpChanges.Remove(change);
             var owner = _players[change.TargetSeat];
@@ -58,6 +58,8 @@ public sealed partial class GameEngine
                     SelectedCardPayment = payment with { ActiveChildFrameId = change.Id }
                 });
             }
+            if (continuation == PostEventContinuation.DrawFundedDistinctBasic)
+                BeginDrawFundedDistinctBasicChild(resumeFrameId!.Value, change.Id);
             PushRuntimeFrame(new HpChangedTriggerWindowFrame(change.Id, change, candidates, contexts,
                 continuation, resumeFrameId, cardId, cardKind));
             AdvanceRuntimeTop<HpChangedTriggerWindowFrame>();
@@ -73,6 +75,10 @@ public sealed partial class GameEngine
             if (frame.CandidateIndex >= frame.Candidates.Count)
             {
                 PopResolutionFrame(frame.Id, ResolutionFrameKind.HpChangedTriggerWindow);
+                if (ReturnCardResponseCompletionHpChange(frame)) return;
+                if (ReturnCardSupplyCompletionHpChange(frame)) return;
+                if (frame.Continuation == PostEventContinuation.DrawFundedDistinctBasic)
+                { ResumeDrawFundedDistinctBasicHpChange(frame); return; }
                 if (frame.Continuation == PostEventContinuation.AwaitedProgramMovement &&
                     _resolutionStack.LastOrDefault() is ProgramSkillFrame
                         { SelectedCardPayment: { } payment, SelectedCardPaymentResult: null } parent)
@@ -173,7 +179,7 @@ public sealed partial class GameEngine
             if (_resolutionStack[index] is ProgramLifecycleTriggerWindowFrame { ResumeDyingFrameId: { } dyingId } entry &&
                 (entry.Window != SkillProgramTriggerWindow.DyingEntering || entry.Continuation != ProgramLifecycleContinuation.ResumeDyingEntry ||
                  parent is not DyingFrame originalDying || parent.Id != dyingId ||
-                 (ActiveDying?.FrameId != dyingId && !IsOriginalDyingSuspendedByDyingSuits(originalDying)) ||
+                 (ActiveDying?.FrameId != dyingId && !(IsOriginalDyingSuspendedByDyingSuits(originalDying) || IsOriginalDyingSuspendedByRecipientCategoryMark(originalDying))) ||
                  entry.OwnerSeat != originalDying.VictimSeat || entry.CandidateIndex < 0 || entry.CandidateIndex >= entry.Candidates.Count))
                 throw new InvalidOperationException("Dying entry lost its frozen parent or cursor.");
             if (_resolutionStack[index] is not HpChangedTriggerWindowFrame hp) continue;
@@ -190,7 +196,7 @@ public sealed partial class GameEngine
                 PostEventContinuation.Boundary => parent is null,
                 PostEventContinuation.Program => parent is ProgramSkillFrame program && program.Id == hp.ResumeFrameId,
                 PostEventContinuation.AwaitedProgramMovement => parent is ProgramSkillFrame awaited &&
-                    awaited.Id == hp.ResumeFrameId && IsAwaitingProgramMovement(awaited) &&
+                    awaited.Id == hp.ResumeFrameId && (IsAwaitingProgramMovement(awaited) || IsSelectedForeignCardSlashHpChange(awaited.Id, hp.Change)) &&
                     (awaited.SelectedCardPaymentResult is not null ||
                      awaited.SelectedCardPayment is not { } payment || payment.ActiveChildFrameId == hp.Id),
                 PostEventContinuation.CardUse => parent is CardUseFrame use && use.Id == hp.ResumeFrameId && hp.CardId is not null,
@@ -202,6 +208,9 @@ public sealed partial class GameEngine
                 PostEventContinuation.ColorFireAttackPayment => parent is CardUseFrame { ColorFireAttack.PaidCardId: not null } fire && fire.Id == hp.ResumeFrameId && hp.Change.ParentFrameId == fire.Id,
                 PostEventContinuation.EquipmentRecast => parent is EquipmentRecastFrame recast && recast.Id == hp.ResumeFrameId,
                 PostEventContinuation.DrawPhaseObligation => parent is DrawPhaseObligationFrame draw && draw.Id == hp.ResumeFrameId,
+                PostEventContinuation.DrawFundedDistinctBasic => IsDrawFundedDistinctBasicHpParent(parent, hp),
+                PostEventContinuation.ResponseCompletion => parent is ProgramCardTriggerWindowFrame response && IsResponseCompletionHealthChild(response, hp),
+                PostEventContinuation.CardSupplyCompletion => parent is ProgramCardTriggerWindowFrame supply && IsCardSupplyCompletionHealthChild(supply, hp),
                 PostEventContinuation.FactionRequestCost => parent?.PaidFactionRequestCostRecovery is not null && parent.Id == hp.ResumeFrameId,
                 PostEventContinuation.GroupRecovery => parent is CardUseFrame group && group.Id == hp.ResumeFrameId &&
                     ActiveGroupCard is { Effect: GroupCardEffect.Recovery } pending && pending.ResolutionId == group.Id,

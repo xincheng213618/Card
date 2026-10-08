@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using CardGame.Content.Standard;
 using CardGame.Core;
 
@@ -6,6 +7,7 @@ internal static class BoundaryWangYiChecks
 {
     private const string Zhen = "boundary:zhenlie-current", Miji = "boundary:miji-current";
     private const string Driver = "fixture:wy-driver", Entry = "fixture:wy-entry", Hp = "fixture:wy-hp", Loss = "fixture:wy-loss";
+    private const string SourceSuppression = "fixture:wy-source-suppression";
     private const string Mode = "identity:classic-wy-fixture";
 
     public static void PaidOtherUseNullificationOpaqueObtainAndActualSlash()
@@ -29,8 +31,9 @@ internal static class BoundaryWangYiChecks
             Enumerable.Range(1, 3).All(s => g.CreateSnapshot(s).PendingDecision is null),
             "Choosing the original actor's hidden HE hand uses opaque current slots and exposes no identity in other views.");
         Reject(g); g = Restore(g, r); Answer(g, c => c.Parameters.GetValueOrDefault("source-zone") == "Hand"); Play(g);
-        var claim = g.CardMovements.Last(m => m.To == CardLocation.Hand(0) && m.From == CardLocation.Processing);
-        Require(g.CardMovements.Count(m => m.CardId == claim.CardId && m.From == CardLocation.Hand(1) && m.To == CardLocation.Processing) == 1 &&
+        var obtainReason = $"skill-program.{Zhen}.{SkillProgramEffectOp.SelectAndMoveOwnedCard}";
+        var claim = g.CardMovements.Last(m => m.From == CardLocation.Hand(1) && m.To == CardLocation.Hand(0) && m.Reason.Value == obtainReason);
+        Require(g.CardMovements.Count(m => m.CardId == claim.CardId && m.From == CardLocation.Hand(1) && m.To == CardLocation.Hand(0)) == 1 &&
             E<PaidOwnTargetAppliedEvent>(g).Count() == 1 && g.State.Players[0].Hp == before - 1 &&
             E<EarnedActualEndingBenefitIssuedEvent>(g).Count() == 0,
             "The original actor's entity is obtained once; the actual Duel completes without damage and without issuing the unchosen Ending promise.");
@@ -54,6 +57,12 @@ internal static class BoundaryWangYiChecks
 
         var (legacy, legacyRegistry) = CreateLegacySource();
         ReachLegacyHuman(legacy, p => Activation(p, "boundary:shensu"));
+        Require(legacy.CreateSnapshot(0).Players[0] is { Role: Role.Rebel, GeneralId: "fixture:wy-owner" } &&
+            legacy.CreateSnapshot(1).Players[0].Role is null &&
+            legacy.CreateSnapshot(1).Players[1] is { Role: Role.Lord, GeneralId: "fixture:wy-other-1" } &&
+            E<GeneralSelectedEvent>(legacy).Count(e => e.ActorSeat == 0 && e.GeneralId == "fixture:wy-owner") == 1 &&
+            E<GeneralSelectedEvent>(legacy).Count(e => e.ActorSeat == 1 && e.GeneralId == "fixture:wy-other-1") == 1,
+            "The Lord first selects the exact published Shensu producer, then the first Rebel AI selects the exact Zhenlie target through public role weights.");
         var legacyHp = legacy.State.Players[0].Hp;
         Activate(legacy, "boundary:shensu");
         ReachLegacyHuman(legacy, p => p.SkillPrompt?.SkillId == "boundary:shensu" && p.Choices.Any(c => c.Targets.SequenceEqual([0])));
@@ -96,7 +105,10 @@ internal static class BoundaryWangYiChecks
         Require(!loss.CreateSnapshot(0).Players[0].Skills!.Any(s => s.Id == Zhen) && loss.State.Players[0].Hp == hp - 1 &&
             E<PaidOwnTargetAppliedEvent>(loss).Count() == 1 && E<EarnedActualEndingBenefitIssuedEvent>(loss).Count() == 0 &&
             E<ProgramBindingResolvedEvent>(loss).Any(e => e.SkillId == Zhen && !e.Completed),
-            "Actual HP observers remove the original skill instance after payment; the same card remains ineffective and unpaid benefit choices are canceled.");
+            "Actual HP observers suppress the original skill's qualification after payment; the same card remains ineffective and unpaid benefit choices are canceled.");
+        Require(loss.CreateSnapshot(0).Players[0].Skills!.Any(s => s.Id == SourceSuppression) &&
+            E<SkillsAcquiredEvent>(loss).Count(e => e.PlayerSeat == 0 && e.SourceSkillId == Loss && e.SkillIds.Contains(SourceSuppression)) == 1,
+            "The real paid-HP observer acquires one independent suppression source; this is qualification suppression, not physical grant removal.");
         loss = Restore(loss, lr);
 
         var (decline, dr) = Create(observers: false); Play(decline); hp = decline.State.Players[0].Hp;
@@ -168,9 +180,28 @@ internal static class BoundaryWangYiChecks
         Require(E<PaidOwnTargetAppliedEvent>(native).Any() && E<LostHpDrawGiftFrozenEvent>(native).Any() &&
             native.AcceptedCommands.All(c => c is not AnswerPromptCommand),
             "The fixed native source really pays/nullifies and draws via Start/Advance, using public target appearance and own gift cards only."); native = Restore(native, nr);
+    }
+
+    public static void SharedActualTargetLoaderContracts()
+    {
         var assembly = typeof(StandardContentPackage).Assembly;
         string Read(string suffix) { using var s = assembly.GetManifestResourceStream(assembly.GetManifestResourceNames().Single(n => n.EndsWith("boundary-wang-yi." + suffix)))!; using var reader = new StreamReader(s); return reader.ReadToEnd(); }
         var rules = Read("rules.json"); var presentation = Read("presentation.json");
+        const string sharedWindowSkill = "fixture:shared-actual-target-window";
+        var sharedWindowRules = $$"""
+        {"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[{"id":"{{sharedWindowSkill}}","revision":1,
+          "triggers":[{"id":"shared-window","window":"otherActualUseTargeted","subject":"owner","optional":true,
+            "effects":[{"op":"offerShortRangeSlashTarget","target":"owner"}]}]}]}
+        """;
+        var sharedWindowPresentation = JsonSerializer.Serialize(new { schemaVersion = SkillProgramCatalog.PresentationSchemaVersion,
+            skills = new Dictionary<string, object> { [sharedWindowSkill] = new { name = "共享实际目标窗口", description = "共享机制 loader 回归" } } });
+        var sharedWindow = SkillProgramCatalog.Load(sharedWindowRules, sharedWindowPresentation);
+        Require(sharedWindow.Programs[sharedWindowSkill].Triggers.Single().Effects is [{ Op: SkillProgramEffectOp.OfferShortRangeSlashTarget }],
+            "An unrelated actual-target operation keeps its own contract when sharing the paid-target trigger window.");
+        var incompletePaidRejected = false;
+        try { SkillProgramCatalog.Load(sharedWindowRules.Replace("offerShortRangeSlashTarget", "payHpThenNullifyOwnActualUseTarget"), sharedWindowPresentation); }
+        catch (InvalidOperationException) { incompletePaidRejected = true; }
+        Require(incompletePaidRejected, "Restricting validation to paid-target operations still rejects a paid cost without its exact four-step successor contract.");
         foreach (var invalid in new[] { rules.Replace("\"otherActualUseTargeted\"", "\"cardUseBeforeTargetEffects\""),
             rules.Replace("\"zones\": [\"hand\", \"equipment\"]", "\"zones\": [\"hand\", \"judgment\"]"),
             rules.Replace("\"earnedActualEnding\"", "\"otherLiving\"") })
@@ -225,15 +256,29 @@ internal static class BoundaryWangYiChecks
         var r = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true), new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage(), new Fixture(card, observers, sourceLoss, gainDying, native, shortDeck));
         var g = GameEngine.CreateStandard(new GameOptions { Seed = 31, PlayerCount = 4, ModeId = Mode, HumanSeat = native ? -1 : 0, HumanRole = native ? null : Role.Lord,
             UseInteractiveSetup = true, UseInteractiveDiscard = false, AdvanceAfterHumanCommands = false, MaxTurns = 6 }, r);
-        Accept(g, new StartGameCommand()); if (!native) { Reach(g, p => p.Kind == DecisionKind.SelectGeneral && p.PlayerSeat == 0); Accept(g, new SelectGeneralCommand(0, "fixture:wy-owner", g.Revision, P(g)!.PromptId)); } return (g, r);
+        Accept(g, new StartGameCommand()); if (!native) { Reach(g, p => p.Kind == DecisionKind.SelectGeneral && p.PlayerSeat == 0); Accept(g, new SelectGeneralCommand(0, "fixture:wy-owner", g.Revision, P(g)!.PromptId)); }
+        if (sourceLoss)
+        {
+            Play(g);
+            Require(!g.CreateSnapshot(0).Players[0].Skills!.Any(s => s.Id == Zhen),
+                "The source-loss fixture initially has no printed Zhenlie grant.");
+            Use(g, "grant-zhenlie"); Play(g);
+            var owner = g.CreateSnapshot(0).Players[0];
+            Require(owner.Skills!.Any(s => s.Id == Zhen) && owner.SkillRuntimeStates!.Single(s => s.SkillId == Zhen).IsAcquired &&
+                E<SkillsAcquiredEvent>(g).Count(e => e.PlayerSeat == 0 && e.SourceSkillId == Driver && e.SkillIds.Contains(Zhen)) == 1,
+                "One actual activation independently grants Zhenlie before its irreversible HP payment and later qualification suppression.");
+        }
+        return (g, r);
     }
     private static (GameEngine, ContentRegistry) CreateLegacySource()
     {
         var r = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true), new StandardRescueSkillExpansionPackage(),
             new StandardClassicGeneralPackage(), new Fixture("standard:slash", false, false, false, true, false, legacySource: true));
-        var g = GameEngine.CreateStandard(new GameOptions { Seed = 31, PlayerCount = 4, ModeId = Mode, HumanSeat = 1, HumanRole = Role.Rebel,
+        var g = GameEngine.CreateStandard(new GameOptions { Seed = 31, PlayerCount = 4, ModeId = Mode, HumanSeat = 1, HumanRole = Role.Lord,
             UseInteractiveSetup = true, UseInteractiveDiscard = false, AdvanceAfterHumanCommands = false, MaxTurns = 6 }, r);
         Accept(g, new StartGameCommand()); Reach(g, p => p.Kind == DecisionKind.SelectGeneral && p.PlayerSeat == 1);
+        Require(P(g)!.ValidContentIds.Contains("fixture:wy-other-1") && !E<GeneralSelectedEvent>(g).Any(),
+            "The exact registered Shensu general is published to the human Lord before any AI consumes the shared candidate pool.");
         Accept(g, new SelectGeneralCommand(1, "fixture:wy-other-1", g.Revision, P(g)!.PromptId)); return (g, r);
     }
     private sealed class Fixture(string card, bool observers, bool sourceLoss, bool gainDying, bool native, bool shortDeck, bool legacySource = false) : IGameContentPackage
@@ -250,19 +295,27 @@ internal static class BoundaryWangYiChecks
             {"id":"drain","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"draw","target":"owner","amount":20}]}]},
             {"id":"{{Hp}}","revision":1,"triggers":[{"id":"hp-child","window":"afterHealthChanged","subject":"owner","optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},
             {"id":"{{Entry}}","revision":1,"triggers":[{"id":"entry","window":"dyingEntering","subject":"owner","optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},
-            {"id":"{{Loss}}","revision":1,"triggers":[{"id":"loss","window":"afterHpLost","subject":"owner","optional":false,"effects":[{"op":"loseOwnerSkillsAndGrant","target":"owner","skillIds":["{{Zhen}}"],"sourceBind":"standard:none"}]}]},
+            {"id":"{{Loss}}","revision":1,"triggers":[{"id":"loss","window":"afterHpLost","subject":"owner","optional":false,"effects":[{"op":"grantSkills","target":"owner","skillIds":["{{SourceSuppression}}"]}]}]},
             {"id":"fixture:wy-gain","revision":1,"triggers":[{"id":"gift-gain","window":"cardsGained","subject":"owner","destinationZones":["hand"],"movementOccurrence":"perSourceOwner","movementReasons":["program.lost-hp-owned-gift.give"],"optional":false,"effects":[{"op":"loseHp","target":"owner","amount":6}]}]}]}
             """;
+            if (sourceLoss)
+            {
+                var sourceRules = JsonNode.Parse(rules)!;
+                ((JsonArray)sourceRules["skills"]![0]!["activations"]!).Add(JsonNode.Parse("""{"id":"grant-zhenlie","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":1,"effects":[{"op":"grantSkills","target":"owner","skillIds":["boundary:zhenlie-current"]}]}"""));
+                rules = sourceRules.ToJsonString();
+            }
             var labels = new Dictionary<string, object> { [Driver] = new { name = "真实能力驱动", description = "实际对方决斗及体力状态" },
                 [Hp] = new { name = "HP真实子窗", description = "确切体力变化", optionLabels = new Dictionary<string, string> { ["continue"] = "继续" } },
                 [Entry] = new { name = "真实濒死入口", description = "实付后的 typed Dying", optionLabels = new Dictionary<string, string> { ["continue"] = "继续" } },
-                [Loss] = new { name = "真实来源移除", description = "已付后的失技" }, ["fixture:wy-gain"] = new { name = "真实收牌濒死", description = "一次真实收牌" } };
+                [Loss] = new { name = "真实来源资格抑制", description = "已付后的技能资格失效" }, ["fixture:wy-gain"] = new { name = "真实收牌濒死", description = "一次真实收牌" } };
             var c = SkillProgramCatalog.Load(rules, JsonSerializer.Serialize(new { schemaVersion = 3, skills = labels }));
             foreach (var id in c.Programs.Keys) b.AddSkill(new(id, id, "正式通用能力") { Program = c.Programs[id], ProgramPresentation = c.Presentations[id] });
+            b.AddSkill(new(SourceSuppression, "已付来源资格抑制", "真实Lord由4HP支付至3HP时抑制其他武将技能") { SuppressionRule = new(3), Tags = SkillTag.Locked });
+            var ownerRole = legacySource ? Role.Rebel : Role.Lord;
             foreach (var owner in new[] { true, false }) b.AddSkill(new(owner ? "fixture:wy-pick-owner" : "fixture:wy-pick-other", "固定公开选将", "正式角色权重")
-            { SelectionWeights = Enum.GetValues<Role>().ToDictionary(role => role, role => (role == Role.Lord) == owner ? 10000d : -10000d) });
-            var extras = new List<string> { Miji, "fixture:wy-pick-owner" }; if (!native) extras.Add(Driver); if (observers) extras.Add(Hp); if (observers || gainDying) extras.Add(Entry); if (sourceLoss) extras.Add(Loss);
-            b.AddGeneral(new("fixture:wy-owner", "真实界王异来源", "supporter", Zhen, "wei", 3, extras));
+            { SelectionWeights = Enum.GetValues<Role>().ToDictionary(role => role, role => (role == ownerRole) == owner ? 10000d : -10000d) });
+            var extras = new List<string> { Miji }; if (!sourceLoss) extras.Add("fixture:wy-pick-owner"); if (!native) extras.Add(Driver); if (observers) extras.Add(Hp); if (observers || gainDying) extras.Add(Entry); if (sourceLoss) extras.Add(Loss);
+            b.AddGeneral(new("fixture:wy-owner", "真实界王异来源", "supporter", sourceLoss ? "fixture:wy-pick-owner" : Zhen, "wei", 3, extras));
             for (var i = 1; i < 4; i++)
             {
                 var otherSkills = new List<string>();

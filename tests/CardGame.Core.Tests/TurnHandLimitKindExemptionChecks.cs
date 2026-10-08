@@ -131,7 +131,7 @@ internal static class TurnHandLimitKindExemptionChecks
     private static bool HasSource(GameEngine g, SkillGrant grant) =>
         (bool)typeof(GameEngine).GetMethod("HasRuntimeSkillInstance", Flags)!.Invoke(g, [Players(g)[0], grant.SkillId, grant.SkillInstanceId])!;
     private static int SlashLimit(GameEngine g) =>
-        (((RuleQueryEvaluation)typeof(GameEngine).GetMethod("EvaluateSlashUseLimit", Flags)!.Invoke(g, [Players(g)[0]])!).Value as FiniteRuleQueryValue)!.Value;
+        (((RuleQueryEvaluation)typeof(GameEngine).GetMethod("EvaluateSlashUseLimit", Flags)!.Invoke(g, [Players(g)[0], null])!).Value as FiniteRuleQueryValue)!.Value;
     private static bool Expired(GameEngine g, long sequence) => g.Events.Select(envelope => envelope.Payload)
         .OfType<TurnCardUseEffectsExpiredEvent>().Any(envelope => envelope.GrantSequences.Contains(sequence));
     private static void AssertFrozen<T>(IReadOnlyList<T> values)

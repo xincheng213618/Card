@@ -46,7 +46,24 @@ public sealed record GameCheckpoint(
     // Qinglong follow-ups and the recipient's real reuse of the gifted entity.
     // Activation BooleanState gates read their owning runtime instance; pair
     // obtain/gift instructions resume their paid cursor instead of being rejected.
-    public const int CurrentRulesVersion = 196;
+    // 197: AI judgment/replacement decisions carrying SkillPrompt advance through
+    // their typed handler instead of accepting unchanged single-step commands.
+    // 198: Resolved converted DrawTwo, IronChain and Alcohol finish with their
+    // captured effective kind, retaining material identity in accepted event history.
+    // 199: Round-start programs retain their lifecycle boundary and offer the
+    // round choice to every living owner, including owners outside the turn seat.
+    // 200: Tongxie follow-ups use exact settled action provenance: chain-issued
+    // Slashes cannot reopen a chain, reused entities can start a later use,
+    // and a Response cannot borrow an earlier Use of the same physical card.
+    // The same batch repairs Jielie's paid dying continuation and Liu Hong's
+    // real activation, slot choice and source-attributed game damage bonus.
+    // 201: Liejie freezes the damage source's red appearance before its real
+    // discard payment and drains each issued source-card movement once.
+    // 202: Original-opponent target additions also open the existing finalized
+    // window for an ordinary trick declared by its InstantTrick category.
+    // 203: Recognize the actual discard payments of category refund,
+    // last-damage reciprocity and phase-name prediction in movement triggers.
+    public const int CurrentRulesVersion = 204;
     // 187 was consumed by main-side Zhang He / Shen Zhao Yun work.
 
     public int RulesVersion { get; init; }

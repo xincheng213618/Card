@@ -1,0 +1,127 @@
+{
+  "sourceRecordSchemaVersion": 1,
+  "generalId": "ol:sun-qian",
+  "characterName": "孙乾",
+  "officialId": 376,
+  "sourcePage": "https://www.sanguosha.com/hero/376",
+  "capturedAt": "2026-10-07",
+  "capturedAtUtc": "2026-10-07T12:54:28Z",
+  "rulesetId": "sanguosha-ol",
+  "sources": [
+    {
+      "role": "current official OL skill text",
+      "url": "https://www.sanguosha.com/hero/376",
+      "httpStatus": 200,
+      "responseSha256": "1343def66814eaf1010aaaf02166ec6b2ee3a1c34dacf96c476c958ffa4664db",
+      "responseByteCount": 25360,
+      "hashScope": "decoded HTTP response body bytes"
+    },
+    {
+      "role": "current official character metadata and advertised portrait",
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=376",
+      "httpStatus": 200,
+      "responseSha256": "ad24f2c155a814e7e8445d605ec0f7276a674fd06fb67b5d1c6cee1642fdc3fc",
+      "responseByteCount": 972,
+      "hashScope": "decoded HTTP response body bytes"
+    },
+    {
+      "role": "current official OL roster group",
+      "url": "https://www.sanguosha.com/hero",
+      "httpStatus": 200,
+      "responseSha256": "df68e4bb68731cf79e2ab27a2c970b251c75e084c321769d140bb3847e73bb26",
+      "responseByteCount": 1319990,
+      "hashScope": "decoded HTTP response body bytes"
+    },
+    {
+      "role": "official initial_hp rendering semantics",
+      "url": "https://www.sanguosha.com/assets/js/heroDetail.js?1",
+      "httpStatus": 200,
+      "responseSha256": "55617a7de749ff8bf19ecd2b17682b59f35554090d5c1a8cc2101121ea248a59",
+      "responseByteCount": 15166,
+      "hashScope": "decoded HTTP response body bytes"
+    },
+    {
+      "role": "historical official OL skill interaction explanation only",
+      "url": "https://www.sanguosha.com/news/20170726_4788_3315",
+      "httpStatus": 200,
+      "responseSha256": "d4d25bd75c14e627a7d3580e5948fbf9118dc8577d01f86d8f5384e2b54ddea9",
+      "responseByteCount": 30689,
+      "hashScope": "decoded HTTP response body bytes"
+    }
+  ],
+  "indexFields": {
+    "gid": 376,
+    "name": "孙乾",
+    "extend": "其他",
+    "figure": "蜀",
+    "figure_py": "shu",
+    "hp": 3,
+    "initial_hp": 0,
+    "quality": "稀有",
+    "label": [
+      "过牌",
+      "辅助",
+      "配合神将"
+    ],
+    "characteristic": "通过拼点获得较多的牌，成为锦囊牌的目标时可以支援队友。会成为敌人优先限制手牌的目标，需要较多的大点数手牌。",
+    "biography": "为刘备早期的谋臣，陶谦临死时向刘备推荐孙乾，自此孙乾成为刘备的谋士，并随刘备转战天下。刘备兵败汝南时投了刘表，以孙乾为使者。刘备入蜀后，孙乾位居糜[mí]竺之次。"
+  },
+  "genderEvidence": {
+    "implementedGender": "male",
+    "officialApiContainsGender": false,
+    "basis": "Historical identity and the visually inspected current official portrait. Male is an inference, not an explicit current API gender field."
+  },
+  "artwork": {
+    "skinId": "37600",
+    "skinName": "默认皮肤",
+    "advertisedImageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/37600.png",
+    "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/37600.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-sun-qian.png",
+    "sha256": "82df20ce03d3741f718aa46787f0ad9b08a19c0f9b335b023b98db6a0dad9e95",
+    "byteCount": 1175820,
+    "pixelWidth": 750,
+    "pixelHeight": 950,
+    "httpStatus": 200,
+    "visuallyInspected": true,
+    "visualObservation": "Single male figure with moustache and beard, wearing a red robe and ceremonial headdress, with one hand raised in conversation."
+  },
+  "skills": [
+    {
+      "name": "谦雅",
+      "programId": "ol:qianya",
+      "text": "当你成为锦囊牌的目标后，你可以交给一名其他角色任意张手牌。",
+      "mapping": "Target CardUseBeforeTargetEffects for the Trick category, including delayed tricks and self DrawTwo. Select one other living recipient and an arbitrary private subset of owned hand cards, including zero, then transfer exactly that bound set and await movement children.",
+      "notes": [
+        "The current text says trick cards, not ordinary tricks only.",
+        "The selection has minimumCards 0 and maximumCards null; it is neither all-hand transfer nor a fixed count. Declining the optional trigger also gives zero cards.",
+        "The recipient and precise gifted cards remain on the owning frame while movement children suspend it."
+      ]
+    },
+    {
+      "name": "说盟",
+      "programId": "ol:shuomeng",
+      "text": "出牌阶段结束时，你可以拼点：若你赢，你视为使用【无中生有】；若你没赢，被拼点者视为对你使用【过河拆桥】。",
+      "mapping": "Optional owner PlayEnding chooses another living player with a hand, starts real public Pindian, and reads its frozen named result. Won: owner uses a real no-material DrawTwo targeting owner. Not won, including a tie: selected Pindian opponent uses a real no-material Dismantlement targeting owner.",
+      "notes": [
+        "No direct draw/discard substitute is used: card declaration, target, counterspell, effect and completion windows must remain real.",
+        "The virtual trick has no physical materials; only Pindian pays the two real contest cards.",
+        "Won and not-won branches use the same frozen shuomeng-contest result binding."
+      ]
+    }
+  ],
+  "timingInterpretation": {
+    "officialCurrentTextExplicitlyNamesEngineWindow": false,
+    "officialFaqFound": false,
+    "historicalSource": "https://www.sanguosha.com/news/20170726_4788_3315",
+    "historicalInteractionSummary": "The official OL article says Qianya can support teammates after either ShuoMeng Pindian outcome, and that becoming a Dismantlement target can allow Qianya to reduce the loss.",
+    "implementationInference": "The target-trigger offer runs after designation and before target effects, so Qianya gifts precede the real DrawTwo draw or Dismantlement discard. Precise engine window and frozen nested continuation ordering are implementation rule-timing inferences rather than an explicit current official FAQ.",
+    "evidenceBoundary": "Current hero/376 text controls the rules. The 2017 OL article supports the interaction explanation only; no Ten-Year or historical variant text replaces current rules."
+  },
+  "observations": [
+    "The current official page and API were both HTTP 200, and the current roster places gid 376 in Other.",
+    "The official frontend treats initial_hp 0 as no override: base and initial HP use hp 3.",
+    "The current API has no explicit gender field; implemented Male is documented as an inference.",
+    "The downloaded official portrait is a deliverable; no temporary asset tree or source archive was created.",
+    "This source record contains static HTTP/text/art evidence. Build and runtime verification belong to the coordinating goal and are not claimed here."
+  ]
+}

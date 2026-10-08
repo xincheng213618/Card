@@ -8,10 +8,72 @@ namespace CardGame.Core;
 /// </summary>
 internal static class CommittedEventProjection
 {
+    private static RoundGainedUseQualification FreezeRoundQualification(RoundGainedUseQualification value) =>
+        value with { MaterialGains = FreezeList(value.MaterialGains) };
+
     // Keep collection-bearing built-in facts here when adding a mechanism.
     // Rules see the original fact first; only the committed projection is copied.
     public static IGameEvent Freeze(IGameEvent payload) => payload switch
     {
+        OverflowUseTargetsCanceledEvent value => value with
+        {
+            Receipt = value.Receipt with
+            {
+                OriginalTargetSeats = FreezeList(value.Receipt.OriginalTargetSeats),
+                BeforeTargetSeats = FreezeList(value.Receipt.BeforeTargetSeats),
+                CanceledPrimaryTargetSeats = FreezeList(value.Receipt.CanceledPrimaryTargetSeats),
+                ResultTargetSeats = FreezeList(value.Receipt.ResultTargetSeats),
+                MaterialCardIds = FreezeList(value.Receipt.MaterialCardIds)
+            }
+        },
+        RecipientCategorySlashTargetsResolvedEvent value => value with
+        { BeforeTargets = FreezeList(value.BeforeTargets), AddedTargets = FreezeList(value.AddedTargets), ResultTargets = FreezeList(value.ResultTargets) },
+        DrawAdviceDiscardIssuedEvent value => value with { CardIds = FreezeList(value.CardIds) },
+        ProgramYuanziDamageDrawEvent value => value with { DrawnCardIds = FreezeList(value.DrawnCardIds) },
+        ProgramLiejieSourceDiscardEvent value => value with { DiscardedCardIds = FreezeList(value.DiscardedCardIds) },
+        ProgramTongxieArmedEvent value => value with { MemberSeats = FreezeList(value.MemberSeats) },
+        ProgramTongxieFollowUpResolvedEvent value => value with
+        { UsedBy = FreezeList(value.UsedBy), DeclinedBy = FreezeList(value.DeclinedBy), UsedCardIds = FreezeList(value.UsedCardIds) },
+        DesignatedExtraTargetOfferedEvent value => value with
+        { OriginalTargetSeats = FreezeList(value.OriginalTargetSeats), CandidateTargetSeats = FreezeList(value.CandidateTargetSeats) },
+        RoundGainedUseQualifiedEvent value => value with
+        { Qualification = FreezeRoundQualification(value.Qualification) },
+        RoundGainedTrickTargetOfferedEvent value => value with
+        { Qualification = FreezeRoundQualification(value.Qualification), OriginalTargetSeats = FreezeList(value.OriginalTargetSeats),
+            Choices = FreezeList(value.Choices.Select(DesignatedExtraTargetDraft.FreezeChoice).ToArray()) },
+        RoundGainedTrickTargetResolvedEvent value => value with
+        { Qualification = FreezeRoundQualification(value.Qualification), OriginalTargetSeats = FreezeList(value.OriginalTargetSeats),
+            AddedTargetSeats = FreezeList(value.AddedTargetSeats), RemovedTargetSeats = FreezeList(value.RemovedTargetSeats),
+            ResultTargetSeats = FreezeList(value.ResultTargetSeats) },
+        RoundGainedEquipmentDrawIssuedEvent value => value with
+        { Qualification = FreezeRoundQualification(value.Qualification), DrawnCardIds = FreezeList(value.DrawnCardIds) },
+        RoundGainedEquipmentDrawResolvedEvent value => value with
+        { Qualification = FreezeRoundQualification(value.Qualification) },
+        UniqueLeaderTrickTargetOfferedEvent value => value with
+        { OriginalTargetSeats = FreezeList(value.OriginalTargetSeats), CandidateTargetSeats = FreezeList(value.CandidateTargetSeats) },
+        UniqueLeaderTrickTargetResolvedEvent value => value with
+        { OriginalTargetSeats = FreezeList(value.OriginalTargetSeats), AddedTargetSeats = FreezeList(value.AddedTargetSeats),
+            ResultTargetSeats = FreezeList(value.ResultTargetSeats) },
+        DesignatedExtraTargetResolvedEvent value => value with
+        { OriginalTargetSeats = FreezeList(value.OriginalTargetSeats), AddedTargetSeats = FreezeList(value.AddedTargetSeats),
+            ResultTargetSeats = FreezeList(value.ResultTargetSeats) },
+        ProgramJiezhenConvertedEvent value => value with { ReplacedSkillIds = FreezeList(value.ReplacedSkillIds) },
+        ProgramJiezhenRestoredEvent value => value with { RestoredSkillIds = FreezeList(value.RestoredSkillIds) },
+        ProgramDaoshuEvent value => value with { RevealedCardIds = FreezeList(value.RevealedCardIds) },
+        ProgramChangjiEndingEvent value => value with { DiscardedCardIds = FreezeList(value.DiscardedCardIds) },
+        ProgramZhuihuanResolvedEvent value => value with
+        {
+            ArmFrameIds = FreezeList(value.ArmFrameIds),
+            DamagedSeats = FreezeList(value.DamagedSeats),
+            DiscardedSeats = FreezeList(value.DiscardedSeats)
+        },
+        ProgramZhanyiCategoryChosenEvent value => value with { DiscardedCardIds = FreezeList(value.DiscardedCardIds) },
+        ProgramLuochongResolvedEvent value => value with { DiscardedCardIds = FreezeList(value.DiscardedCardIds) },
+        ProgramBijingPunishEvent value => value with
+        {
+            LostCardIds = FreezeList(value.LostCardIds),
+            DiscardedCardIds = FreezeList(value.DiscardedCardIds)
+        },
         ShortRangeSlashTargetResolvedEvent value => value with { Receipt = value.Receipt is { } receipt
             ? receipt with { OriginalTargets = FreezeList(receipt.OriginalTargets) } : null },
         KuangfuHandDiscardPaidEvent value => value with { CardIds = FreezeList(value.CardIds) },
@@ -140,6 +202,7 @@ internal static class CommittedEventProjection
         { Zones = FreezeList(value.Zones) },
         ProgramCardsRevealedEvent value => value with
         { Cards = FreezeList(value.Cards) },
+        ProgramPlayPhaseSkillsGrantedEvent value => value with { Grants = FreezeList(value.Grants) },
         ProgramTurnSkillsGrantedEvent value => value with
         { GrantedSkillIds = FreezeList(value.GrantedSkillIds) },
         ProgramSelectedCardEffectsNullifiedEvent value => value with

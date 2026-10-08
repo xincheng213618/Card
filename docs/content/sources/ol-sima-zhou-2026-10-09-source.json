@@ -1,0 +1,367 @@
+{
+  "sourceRecordSchemaVersion": 1,
+  "documentKind": "Current official ordinary OL Sima Zhou complete two-skill source",
+  "capturedAt": "2026-10-09",
+  "status": "Complete ordinary OL Sima Zhou implementation accepted by the recorded focused and routine checks.",
+  "sourceRegistered": true,
+  "sourceVerified": true,
+  "registered": true,
+  "productionImplemented": true,
+  "behaviorValidated": true,
+  "behaviorAccepted": true,
+  "generalIdProposal": "ol:sima-zhou",
+  "characterId": "character:sima-zhou",
+  "characterName": "司马伷",
+  "officialId": 7011,
+  "rulesetId": "sanguosha-ol",
+  "variantProposal": "ordinary",
+  "sourcePage": "https://www.sanguosha.com/hero/7011",
+  "currentOfficialMetadata": {
+    "gid": 7011,
+    "name": "司马伷",
+    "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/7011.png",
+    "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/701100.png",
+    "label": [
+      "进攻",
+      "防御",
+      "转化大师"
+    ],
+    "figure": "晋",
+    "figure_py": "jin",
+    "quality": "稀有",
+    "biography": "司马伷[zhòu]，司马懿第三子，司马师、司马昭的同父异母弟，晋武帝司马炎的叔父。司马伷少有才气，在曹魏历任宁朔将军、散骑常侍、征虏将军等职，先后受封南安亭侯、东武乡侯，五等爵制建立后，改封南皮伯。西晋建立后，获封东莞郡王，入朝任尚书右仆射、抚军将军，出外拜镇东大将军。后改封琅邪王，加开府仪同三司。西晋伐吴时，率军出涂中，孙皓向他投降并奉上玉玺。战后因功拜大将军，增邑三千户。",
+    "characteristic": "有时候可以通过故意卖血来获取特定敌人的牌。",
+    "hp": 4,
+    "initial_hp": 0,
+    "score": 0
+  },
+  "metadataInterpretation": {
+    "gender": "Male: current character.h=1",
+    "faction": "jin: current API figure_py and character.g=6",
+    "maxHp": 4,
+    "initialHp": 4,
+    "initialHpNote": "API initial_hp=0 denotes no special reduced initial HP; native identity mode may apply Lord bonus. This is an explicit engine interpretation.",
+    "hasConcealment": false,
+    "concealmentBasis": "Complete current assigned ordinary spell slots j=7030/k=7031; neither text has concealment.",
+    "derivedSkills": [],
+    "defaultSkinId": 701100,
+    "artist": "画师:凝聚永恒"
+  },
+  "character": {
+    "origin": "/GameCharacters/character/836",
+    "row": {
+      "a": 7011,
+      "b": "司马伷",
+      "d": "SiMaZhou",
+      "e": 40,
+      "f": "36",
+      "g": 6,
+      "h": 1,
+      "i": 4,
+      "j": 7030,
+      "k": 7031,
+      "p": 1,
+      "q": "1",
+      "r": "9701101",
+      "y": "司马伷[zhòu]，司马懿第三子，司马师、司马昭的同父异母弟，晋武帝司马炎的叔父。司马伷少有才气，在曹魏历任宁朔将军、散骑常侍、征虏将军等职，先后受封南安亭侯、东武乡侯，五等爵制建立后，改封南皮伯。西晋建立后，获封东莞郡王，入朝任尚书右仆射、抚军将军，出外拜镇东大将军。后改封琅邪王，加开府仪同三司。西晋伐吴时，率军出涂中，孙皓向他投降并奉上玉玺。战后因功拜大将军，增邑三千户。",
+      "z": "有时候可以通过故意卖血来获取特定敌人的牌。",
+      "aa": 131,
+      "ab": "827,828",
+      "ad": "画师:凝聚永恒",
+      "x": "自王师南下，贼皆望风而降，####大事即日可成。 ",
+      "al": 1730,
+      "am": "true",
+      "ap": 50,
+      "aq": 15,
+      "bt": "55",
+      "bx": 5200,
+      "LordCardRate1": 19,
+      "LordCardRate2": 42,
+      "cc": 0,
+      "starMax": 4
+    },
+    "printedSkillOrder": [
+      {
+        "slot": "j / spellId1",
+        "id": 7030,
+        "name": "才望"
+      },
+      {
+        "slot": "k / spellId2",
+        "id": 7031,
+        "name": "纳降"
+      }
+    ]
+  },
+  "skills": [
+    {
+      "origin": "/GameSpells/spell/1339",
+      "row": {
+        "a": 7030,
+        "b": "3",
+        "c": "才望",
+        "d": "CaiWang",
+        "g": 4,
+        "h": 1,
+        "i": 2,
+        "o": "当你使用/打出牌响应其他角色使用的牌，或其他角色使用/打出牌响应你使用的牌后，若牌的颜色相同，你可以弃置其一张牌。<br>你可以将：<br>•最后一张手牌当【闪】使用或打出；<br>•最后一张装备区里的牌当【无懈可击】使用；<br>•最后一张判定区的牌当【杀】使用或打出。",
+        "v": "请选择一名目标",
+        "ac": "是否对{0}发动<font color='#FFD800'>才望</font>"
+      },
+      "text": "当你使用/打出牌响应其他角色使用的牌，或其他角色使用/打出牌响应你使用的牌后，若牌的颜色相同，你可以弃置其一张牌。 你可以将： •最后一张手牌当【闪】使用或打出； •最后一张装备区里的牌当【无懈可击】使用； •最后一张判定区的牌当【杀】使用或打出。"
+    },
+    {
+      "origin": "/GameSpells/spell/1340",
+      "row": {
+        "a": 7031,
+        "b": "3,4,5",
+        "c": "纳降",
+        "d": "NaXiang",
+        "g": 6,
+        "i": 2,
+        "o": "锁定技，当其他角色对你造成伤害或受到你的伤害后，你对其发动“才望”的“弃置”修改为“获得”直到你的回合开始。"
+      },
+      "text": "锁定技，当其他角色对你造成伤害或受到你的伤害后，你对其发动“才望”的“弃置”修改为“获得”直到你的回合开始。"
+    }
+  ],
+  "spellTips": [
+    {
+      "origin": "/GameSpells/spell_tips/1334",
+      "row": {
+        "a": 7030
+      }
+    },
+    {
+      "origin": "/GameSpells/spell_tips/1335",
+      "row": {
+        "a": 7031
+      }
+    }
+  ],
+  "primaryResources": [
+    {
+      "role": "Current ordinary identity hero SSR",
+      "url": "https://www.sanguosha.com/hero/7011",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T19:06:05.581386+00:00",
+      "byteCount": 25194,
+      "sha256": "62bf567058d2006fa0187b8e7d75d4fe08d897ca94abb860e7036a393f2d1420",
+      "hashScope": "Exact raw HTTP body bytes"
+    },
+    {
+      "role": "Current official hero metadata API",
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=7011",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T19:06:05.581386+00:00",
+      "byteCount": 1202,
+      "sha256": "25276c3fd0e15d071b2d85adba3607b3e42e2fe0cc16535c0ad13af68685bd6d",
+      "hashScope": "Exact raw HTTP body bytes"
+    },
+    {
+      "role": "Current public OL client bundle",
+      "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T19:06:05.581386+00:00",
+      "byteCount": 5256312,
+      "sha256": "6a035389beda8d0dbf31227f57a91b2da14d3d5055503198a227aef54f22bf76",
+      "hashScope": "Exact raw HTTP body bytes"
+    },
+    {
+      "role": "Current public OL config archive",
+      "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T19:06:05.581386+00:00",
+      "byteCount": 4142728,
+      "sha256": "9e26cb3db90532084579a20c292d5fec0c81dcf3d5eb2abf2009bff0326237bb",
+      "hashScope": "Exact raw HTTP body bytes"
+    },
+    {
+      "role": "Official default skin portrait from current API cover",
+      "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/701100.png",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T19:06:05.581386+00:00",
+      "byteCount": 991602,
+      "sha256": "687ea94151e0735fbf6bc8cbf397e6adb725a3dd30bf3b6697a5a9b23fe40db7",
+      "hashScope": "Exact raw HTTP body bytes"
+    }
+  ],
+  "decodedMembers": [
+    {
+      "member": "character.sgs",
+      "encryptedSha256": "e0b6f0188edebb1f502ea402c7171e93b88f4e9d05720948344a1f4f44474aae",
+      "decodedSha256": "b3ef3f1181e7fe667499cb688b7cdce56631d899dbb0eea55d75fbf80636b040",
+      "decodedByteCount": 1485056,
+      "decoder": "Current aCt.InitOfb/pR.WorkParse: AES-CFB128 then gzip; only in-memory"
+    },
+    {
+      "member": "cha_spell.sgs",
+      "encryptedSha256": "95cfaa4106a4f6224ebed8948bcf86bd5fc6801a83a1c4162c7e59bc848bef66",
+      "decodedSha256": "39b83f6e2504590e262bb353bddfded546b83f83a7ea9199b67742b1bee68fc0",
+      "decodedByteCount": 1166955,
+      "decoder": "Current aCt.InitOfb/pR.WorkParse: AES-CFB128 then gzip; only in-memory"
+    }
+  ],
+  "versionBoundary": {
+    "currentOrdinaryGid": 7011,
+    "excludedNationalWarGid": 2096,
+    "currentCaiwangHasAllThreeLastZoneConversions": true,
+    "excludedOldText": "Do not use the pre-2021-11-24 Caiwang text that contains only paired-color disposition and omits three conversions.",
+    "historicalOfficialCorroboration": {
+      "url": "https://www.sanguosha.com/news/20211119_4598_1017",
+      "kind": "2021-11-24 official update announcement, historical corroboration only; not a current FAQ",
+      "boundedText": "你可以将最后一张手牌当〖闪〗使用/打出，将最后一张你装备区的牌当〖无懈可击〗使用，将最后一张你判定区的牌当〖杀〗使用/打出。"
+    }
+  },
+  "faqAudit": {
+    "status": "No dedicated current official FAQ located in bounded search; absence is not proof of a rule.",
+    "queries": [
+      "site:sanguosha.com 司马伷 才望 纳降 FAQ",
+      "site:sanguosha.com 司马伷 才望 最后一张 判定区"
+    ],
+    "currentClientTipsContainOnlyIds": true,
+    "scope": "Current official hero SSR/API and public current character/spell tables; bounded official-domain search. No authenticated server code or live online match."
+  },
+  "engineMappingsNotOfficialFaq": [
+    {
+      "topic": "Counterpart card selection area",
+      "decision": "Only actual Hand and Equipment, never Judgment. Hidden Hand is an opaque slot; visible Equipment identifies its physical entity.",
+      "basis": "Current hGi/CaiWang sets selectCardTypeWhenResponse=kCt.NORMAL|kCt.EQUIP; generic server selection response passes skill.SelectCardTypeWhenResponse into SelectCardWindow CardType for actual TargetSeat. Dedicated current FAQ was not found."
+    },
+    {
+      "topic": "Response pair identity",
+      "decision": "Only exact native response to another actor real Use. Duel pure Slash responses remain paired to original Duel Use; a prior pure Respond Slash is not a new Use. Nullification is a real Use and pairs to direct previous real counterspell, first to original trick.",
+      "basis": "Literal current text; exact server pair algorithm is an explicit engine mapping, not an official FAQ."
+    },
+    {
+      "topic": "Effective color",
+      "decision": "Freeze each action effective native color at the original response link. Both colored red/red or black/black match; either no-color, including null/null, does not match.",
+      "basis": "Explicit native color classification mapping; no dedicated official FAQ found."
+    },
+    {
+      "topic": "Last source-zone entity",
+      "decision": "Count only real Hand/Equipment/Judgment entities in the declared single source zone and revalidate actual selected source before payment. Wooden Ox stored cards are not Hand.",
+      "basis": "Current hGi reads HandCardCount,EquipCardCount,JudgeCardCount and exact corresponding first entity for three routes."
+    },
+    {
+      "topic": "Native conversion directions",
+      "decision": "Hand to Dodge use/respond; Equipment to Nullification actual Use; Judgment to Slash use/respond. All are single physical material with explicit source identity.",
+      "basis": "Current official complete text and hGi UseCardId/UseSkillId."
+    },
+    {
+      "topic": "Damage counterpart state and expiry",
+      "decision": "Actual positive applied damage involving owner and another records only that counterpart; HP loss is not damage. Issued direction binds owner+targetSkillId+stateId, persists through source loss/regrant and expires only at owner next actual TurnStarted.",
+      "basis": "Current rGi cleanStateWhenSkillRemove=false corroborates source-loss persistence. Exact stable binding/expiry edge remains explicit engine mapping, not official FAQ."
+    }
+  ],
+  "officialPortrait": {
+    "assetPath": "src/CardGame.Wpf/Assets/official-ol-sima-zhou.png",
+    "officialSkinId": 701100,
+    "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/701100.png",
+    "sha256": "687ea94151e0735fbf6bc8cbf397e6adb725a3dd30bf3b6697a5a9b23fe40db7",
+    "bytes": 991602,
+    "width": 750,
+    "height": 950,
+    "metadataVerified": true,
+    "visuallyInspected": true,
+    "behaviorAcceptanceStillPending": false
+  },
+  "acceptance": {
+    "sourceVerified": true,
+    "registered": true,
+    "productionImplemented": true,
+    "behaviorValidated": true,
+    "behaviorAccepted": true,
+    "buildsOrTestsRunBySourceAgent": false,
+    "implemented": true,
+    "targetedPassed": true,
+    "routinePassed": true,
+    "fullVerificationRun": false,
+    "targetedCore": 129,
+    "targetedWpf": 5,
+    "routineCore": 437,
+    "routineWpf": 22,
+    "report": "docs/benchmarks/2026-10-09-content-continuation-round23-verification.json"
+  },
+  "currentClientCodeEvidence": [
+    {
+      "bundleSha256": "6a035389beda8d0dbf31227f57a91b2da14d3d5055503198a227aef54f22bf76",
+      "offsetUnit": "UTF-8 decoded JavaScript character offset",
+      "offset": 16012948,
+      "class": "hGi (registered CaiWang)",
+      "snippet": "this.targetCanBeSelf=!1,this.selectCardTypeWhenResponse=kCt.NORMAL|kCt.EQUIP",
+      "claim": "Counterpart card-picker default type is Hand and Equipment, excluding Judge.",
+      "snippetSha256": "a1af3c742392a10957babacf4ac4b2e04706fabb5e1f24275d0370ed6a4bad15"
+    },
+    {
+      "offset": 8026154,
+      "snippet": "selectCardTypeWhenResponse=0;get SelectCardTypeWhenResponse(){return this.selectCardTypeWhenResponse}",
+      "claim": "Base getter returns configured type.",
+      "snippetSha256": "ede44d8b51cb2f884279a46f1e6ace0f34efab88fc742e77200ce75416529d7a"
+    },
+    {
+      "offset": 9762000,
+      "snippet": "atId=t.TargetSeatID;let i,s=c1t.GetSeat(t.SrcSeatID),e=0;s&&(i=s.GetGeneralSkill(t.SpellID)),i=i||t.Spell,c1t.LastTriggerSpell=i,e=i?i.SelectCardTypeWhenResponse:this.getSelectCardType(t.Type),t.SpellID==FCt.YAJIAO_JIEXIANTUPO||t.SpellID==FCt.ZHONGYUN_JIN||t.SpellID==FCt.CAIWANG_JIN||t.SpellID==FCt.SIJIAN_GUO||JJt.I().CloseCurrentGameWindow();let h=c1t.GetSeat(t.TargetSeatID);h||(h=s);let r=this.WindowName||\"SelectCardWindow\";if(t.SpellID==FCt.KANPO1||t.SpellID==FCt.DULIANG2||t.SpellID==FCt.JUEJI1||t.SpellID==FCt.HUYI)this.Ged.i(r,{TargetSeat:h,CardType:e,Timeout:t.Timeout,Skill:i,needConfirm:this.NeedConfirm,Params:t.Params});else if(c1t.isShow3d){let i=0;t.SpellID==FCt.HANBINGJIAN?i=1e3:t.SpellID==FCt.GUOCHAI&&(i=1200),i>0?Laya.timer.once(i,this,(()=>{this.Ged.i(r,{TargetSeat:h,CardType:e,Timeout:t.Timeout,Skill:t.Spell,needConfirm:this.NeedConfirm,Params:t.Params})})):this.Ged.i(r,{Ta",
+      "claim": "Exact raw client excerpt: known skill SelectCardTypeWhenResponse is passed as CardType to native counterpart TargetSeat selection window.",
+      "snippetSha256": "6851672b6444dcd93ec8fa9b0019e15f80e3d90b21a184aabaa34587460e5580"
+    },
+    {
+      "offset": 16020245,
+      "class": "rGi (registered NaXiang)",
+      "snippet": "constructor(){super(),this.activeMode=vCt.LOCK,this.cleanStateWhenSkillRemove=!1}UpdateRoleDataResponse(t,i,s=!1){super.UpdateRoleDataResponse(t,i,s),i&&!t.IsSpell&&i.UpdateState(Ef.DATA_NAXIANG,s?0:1)}",
+      "claim": "Client lock skill counterpart state is not cleared solely on removal of source skill.",
+      "snippetSha256": "67d44f37343bd54619cd9fb30c62d451a8e539558a5e7c577facb5fdca60662f"
+    }
+  ],
+  "implementationContracts": {
+    "generalId": "ol:sima-zhou",
+    "printedSkillOrder": [
+      "ol:caiwang",
+      "ol:najiang"
+    ],
+    "rulesFile": "src/CardGame.Content.Standard/SkillPrograms/ordinary-sima-zhou.rules.json",
+    "currentCompleteSkills": true,
+    "sharedOperations": [
+      {
+        "opcode": 9080,
+        "op": "offerPairedColorCardDisposition",
+        "window": "cardResponseCompleted",
+        "ownerRelation": "observer",
+        "optional": true,
+        "stateId": "caiwang"
+      },
+      {
+        "opcode": 9081,
+        "op": "recordDamageCounterpartAcquisition",
+        "window": "afterDamageApplied",
+        "subject": "any",
+        "damageOccurrence": "perDamage",
+        "optional": false,
+        "stateId": "caiwang",
+        "skillId": "ol:caiwang"
+      }
+    ],
+    "viewAs": [
+      "real last Hand -> Dodge use/respond",
+      "real last Equipment -> Nullification use-only",
+      "real last Judgment -> Slash use/respond"
+    ],
+    "verificationBoundary": "Source agent performed no build or test; parent integration is accepted only within the recorded focused and routine scopes, with coverage limits in the verification report."
+  },
+  "engineMappingAcceptance": "Root final implementation contract, accepted within the actual recorded behavior scope; engine mappings are not official FAQ.",
+  "conversionBehaviorCheckMethods": [
+    "StrictPolicyAndRealHandCountAreRecheckedAtNativeDodgePayment",
+    "LastEquipmentNullificationOwnsSilverLionRecoveryAndMovementChildren",
+    "LastJudgmentSlashUsesAndPureDuelResponsesRetainPrintedDelayedMaterial"
+  ],
+  "wpfBehaviorCheckMethods": [
+    "RestoredJudgmentMaterialUsesExistingConversionControls"
+  ],
+  "behaviorCheckMethods": [
+    "SameColorPairDiscardsOneRealHandCardAndDeduplicatesGrants",
+    "DifferentAndColorlessPairsNeverOfferDisposition",
+    "ReverseDodgeAndDuelPairsRetainTheRealUsedCard",
+    "CounterpartEquipmentIsLegalButJudgmentAloneIsNot",
+    "PaidAcquisitionSurvivesSourceLossAndNativeChildColdReturn",
+    "DamageCounterpartsPersistAcrossSourceRegrantAndExpireAtOwnerTurnStart"
+  ]
+}

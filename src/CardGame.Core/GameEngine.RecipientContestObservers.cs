@@ -30,7 +30,8 @@ public sealed partial class GameEngine
         { before = gift.SequenceBefore; after = gift.SequenceAfter; actor = f.OwnerSeat; reason = RecipientContestGiftReason(f); draw = false; }
         else return false;
         if (child is CardsMovedTriggerWindowFrame moved)
-            return moved.Batch.ParentFrameId == f.Id && moved.ResumeProgramFrameId == f.Id &&
+            return moved.Batch.ParentFrameId == f.Id &&
+                (moved.ResumeProgramFrameId == f.Id || moved.ResumeProgramFrameId is null && moved.Batch.AwaitingProgramFrameId == f.Id) &&
                 (moved.Batch.AwaitingProgramFrameId is null || moved.Batch.AwaitingProgramFrameId == f.Id) &&
                 moved.Batch.OriginOwnerSeat == f.OwnerSeat && moved.Batch.OriginSkillId == f.SkillId && moved.Batch.OriginSkillInstanceId == f.SkillInstanceId &&
                 moved.Batch.Movements.Count > 0 && moved.Batch.Movements.All(m => _cardMovements.Contains(m) &&

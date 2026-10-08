@@ -189,12 +189,26 @@ internal static class OrdinaryFuWanChecks
 
     private static (GameEngine, ContentRegistry) Create(bool multiple = false, bool prevent = false, bool legacy = false, bool bagua = false, bool gainDying = false, bool sourceLoss = false, bool native = false, bool gainDamage = false)
     {
-        var r = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true), new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage(),
+        IGameContentPackage classicSkills = legacy ? new LegacySlashSkillFixture() : new StandardClassicGeneralPackage();
+        var r = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true), new StandardRescueSkillExpansionPackage(), classicSkills,
             new Fixture(multiple, prevent, legacy, bagua, gainDying, sourceLoss, native, gainDamage));
         var g = GameEngine.CreateStandard(new GameOptions { Seed = 31, PlayerCount = 4, ModeId = Mode, HumanSeat = native ? -1 : 0, HumanRole = native ? null : Role.Lord,
             UseInteractiveSetup = true, UseInteractiveDiscard = true, AdvanceAfterHumanCommands = false, MaxTurns = native ? 2 : 4 }, r);
         Accept(g, new StartGameCommand()); if (!native) { Reach(g, p => p.PlayerSeat == 0 && p.Kind == DecisionKind.SelectGeneral); Accept(g, new SelectGeneralCommand(0, "fixture:fw-owner", g.Revision, P(g)!.PromptId)); }
         return (g, r);
+    }
+    private sealed class LegacySlashSkillFixture : IGameContentPackage
+    {
+        public PackageManifest Manifest { get; } = new("fixture:fw-legacy-skills", new(1, 0, 0), []);
+        public void Register(IContentRegistryBuilder builder)
+        {
+            // This branch checks the old actionless completion contract. The full
+            // current catalog opts completion into category and ordinal tracking.
+            var source = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true),
+                new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage());
+            foreach (var id in new[] { Skill, "boundary:shensu", "classic:fuhun", "classic:mashu", "classic:wusheng", "classic:paoxiao" })
+                builder.AddSkill(source.GetSkill(id));
+        }
     }
     private sealed class Fixture(bool multiple, bool prevent, bool legacy, bool bagua, bool gainDying, bool sourceLoss, bool native, bool gainDamage) : IGameContentPackage
     {
@@ -205,7 +219,7 @@ internal static class OrdinaryFuWanChecks
             {"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[
             {"id":"{{Driver}}","revision":1,"activations":[{"id":"equip","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"useRandomDeckEquipment","target":"owner","resultBind":"gear"}]}]},
             {"id":"{{Gain}}","revision":1,"triggers":[{"id":"gain","window":"cardsGained","subject":"owner","destinationZones":["hand"],"movementOccurrence":"perBatch","movementReasons":["{{DrawReason}}"],"optional":false,"usageScope":"game","usageLimit":1,"effects":[{{(gainDying ? "{\"op\":\"loseHp\",\"target\":\"owner\",\"amount\":7}," : gainDamage ? "{\"op\":\"damage\",\"target\":\"owner\",\"amount\":1}," : "")}}{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},
-            {"id":"{{Entry}}","revision":1,"triggers":[{"id":"entry","window":"dyingEntering","subject":"owner","optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]},{"id":"nested-damage","window":"afterDamageApplied","subject":"owner","optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]},{"id":"peach-completed","window":"cardUseCompleted","ownerRelation":"actor","cardKinds":["peach"],"includeResponseUses":true,"optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},
+            {"id":"{{Entry}}","revision":1,"triggers":[{"id":"entry","window":"dyingEntering","subject":"owner","optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]},{"id":"nested-damage","window":"afterDamageApplied","subject":"owner","damageOccurrence":"perDamage","optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]},{"id":"peach-completed","window":"cardUseCompleted","ownerRelation":"actor","cardKinds":["peach"],"includeResponseUses":true,"optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},
             {"id":"{{Enhance}}","revision":1,"triggers":[{"id":"extra","window":"cardUseCommitted","ownerRelation":"actor","cardKinds":["slash"],"optional":false,"effects":[{"op":"applyCurrentCardEnhancements","target":"owner","amount":1}]}]},
             {"id":"{{Prevent}}","revision":1,"triggers":[{"id":"prevent","window":"cardUseTargetsFinalized","ownerRelation":"actor","cardKinds":["slash"],"optional":false,"effects":[{"op":"preventCurrentTargetSlashCancellationByRule","target":"owner"}]}]},
             {"id":"{{Loss}}","revision":1,"triggers":[{"id":"paid-loss","window":"cardsMoved","subject":"owner","sourceZones":["hand","equipment"],"movementOccurrence":"perOwnerBatch","movementReasons":["{{DiscardReason}}"],"optional":false,"effects":[{"op":"selectTarget","target":"owner","targetKind":"otherLiving"},{"op":"issueCurrentTurnNonLockedSkillSuppression","target":"selectedTarget"}]}]}]}

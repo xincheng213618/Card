@@ -23,8 +23,9 @@ public sealed record ProgramJieliePreventedEvent(long FrameId, string SkillId, s
 
 // One 节烈 resolution: the chosen suit, marked seat and payment stages ride
 // the owning program frame so the dying child (if the loss empties the owner's
-// hp) rewinds into the same instruction and finishes the gift afterwards.
-public sealed record JielieGiftState(Suit Suit, int MarkedSeat, bool Prevented, bool HpLost);
+// hp) resumes the same paid instruction and finishes the gift afterwards.
+public sealed record JielieGiftState(Suit Suit, int MarkedSeat, bool Prevented, bool HpLost,
+    int HpBeforePayment = 0, int PaidHpLost = 0);
 
 public sealed partial record ProgramSkillFrame
 {
@@ -280,7 +281,7 @@ public sealed partial class GameEngine
     }
 
     // 节烈: one before-damage operation. The first entry presents the public
-    // suit choice; the rewound re-entries prevent the damage, charge the hp
+    // suit choice; the typed re-entries prevent the damage, charge the hp
     // loss (suspending as a dying child when it empties the owner) and finish
     // with the marked character's random gift.
     private SkillProgramStepOutcome JielieProgramPreventAndGift(ProgramSkillFrame frame, SkillProgramEffect effect)
@@ -346,38 +347,35 @@ public sealed partial class GameEngine
         }
         if (!state.HpLost)
         {
-            var before = owner.Hp;
-            var lost = Math.Min(before, frame.WindowContext.Amount);
-            owner.Hp = Math.Max(0, before - frame.WindowContext.Amount);
-            RecordHpChange(active.Id, null, owner.Seat, before, owner.Hp, HpChangeKind.Loss);
-            AdvanceEventRulesAndQueueFact(new ProgramSkillHpLostEvent(active.Id, active.SkillId,
-                owner.Seat, lost, owner.Hp));
-            state = state with { HpLost = true };
-            if (owner.Hp == 0)
+            state = state with
             {
-                // The dying child rewinds the cursor: this instruction re-enters
-                // with the state after the owner is saved, and finishes the gift.
-                ReplaceRuntimeTop(GetActiveProgramFrame(frame.Id) with
-                {
-                    InstructionIndex = frame.InstructionIndex - 1,
-                    JielieGift = state
-                });
-                BeginProgramSkillDying(active.Id, owner);
-                return SkillProgramStepOutcome.AwaitChild;
-            }
-            ReplaceRuntimeTop(GetActiveProgramFrame(frame.Id) with { JielieGift = state });
+                HpLost = true,
+                HpBeforePayment = owner.Hp,
+                PaidHpLost = Math.Min(owner.Hp, frame.WindowContext.Amount)
+            };
+            // The paid instruction re-enters only after its native HP/dying
+            // children return. Its receipt keeps the original cost paid once.
+            ReplaceRuntimeTop(GetActiveProgramFrame(frame.Id) with
+            {
+                ReexecuteParticipantInstruction = true,
+                JielieGift = state
+            });
+            if (new ProgramSkillHost(this).LoseHp(active.Id, active.SkillId,
+                    owner.Seat, frame.WindowContext.Amount) == SkillProgramStepOutcome.Continue)
+                AdvanceRuntimeProgram(active.Id);
+            return SkillProgramStepOutcome.AwaitChild;
         }
-        var gifted = GiftJielieSuitCards(active, state, frame.WindowContext.Amount);
+        var gifted = _players[state.MarkedSeat].IsAlive
+            ? GiftJielieSuitCards(active, state, frame.WindowContext.Amount) : 0;
         AddLog("SkillEffect",
-            $"{owner.Name} 的【{_contentRegistry!.GetSkill(active.SkillId).Name}】：防止 {frame.WindowContext.Amount} 点伤害，失去 {frame.WindowContext.Amount} 点体力，令 {_players[state.MarkedSeat].Name} 从弃牌堆随机获得 {gifted} 张{SuitName(state.Suit)}牌。",
+            $"{owner.Name} 的【{_contentRegistry!.GetSkill(active.SkillId).Name}】：防止 {frame.WindowContext.Amount} 点伤害，失去 {state.PaidHpLost} 点体力，令 {_players[state.MarkedSeat].Name} 从弃牌堆随机获得 {gifted} 张{SuitName(state.Suit)}牌。",
             active.OwnerSeat, state.MarkedSeat);
         AdvanceEventRulesAndQueueFact(new ProgramJieliePreventedEvent(active.Id, active.SkillId,
             GetProgramBindingId(active), owner.Seat, source,
-            frame.WindowContext.Amount, state.Suit, frame.WindowContext.Amount, gifted, state.MarkedSeat));
-        ReplaceRuntimeTop(GetActiveProgramFrame(frame.Id) with { JielieGift = null });
-        if (!TryBeginCardsMovedProgramWindow())
-            AdvanceRuntimeProgram(active.Id);
-        return SkillProgramStepOutcome.AwaitChild;
+            frame.WindowContext.Amount, state.Suit, state.PaidHpLost, gifted, state.MarkedSeat));
+        // Keep the paid receipt while native gift children still ride on this
+        // before-damage program. Its completed cursor returns without reissue.
+        return SkillProgramStepOutcome.Continue;
     }
 
     private int GiftJielieSuitCards(ProgramSkillFrame frame, JielieGiftState state, int amount)
@@ -432,11 +430,50 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("The Jielie choice lost its damage window or marked target.");
         ReplaceRuntimeTop(GetActiveProgramFrame(frame.Id) with
         {
-            InstructionIndex = frame.InstructionIndex - 1,
+            ReexecuteParticipantInstruction = true,
             JielieGift = new JielieGiftState(suit, marked, false, false)
         });
         AdvanceRuntimeProgram(active.Id);
     }
+
+    private ProgramSkillFrame? JieliePaidObserverRoot(long beforeDamageId)
+    {
+        var index = _resolutionStack.FindIndex(item => item.Id == beforeDamageId);
+        if (index < 0 || index + 1 >= _resolutionStack.Count ||
+            _resolutionStack[index] is not BeforeDamageProgramWindowFrame { Prevented: true } window ||
+            _resolutionStack[index + 1] is not ProgramSkillFrame
+                { JielieGift: { Prevented: true, HpLost: true } paid } frame ||
+            frame.WindowContext is not { Window: SkillProgramTriggerWindow.BeforeDamageApplied,
+                ParentFrameId: var parent, SourceSeat: { } source, TargetSeat: { } target, Amount: > 0 } context ||
+            parent != window.Id || target != frame.OwnerSeat || source != window.SourceSeat ||
+            target != window.TargetSeat || context.Amount != window.Amount || frame.InstructionIndex < 1 ||
+            paid.HpBeforePayment < 1 || paid.PaidHpLost != Math.Min(paid.HpBeforePayment, window.Amount) ||
+            paid.Suit is not (Suit.Spade or Suit.Heart or Suit.Club or Suit.Diamond) ||
+            !IsValidPlayerSeat(paid.MarkedSeat) || paid.MarkedSeat == frame.OwnerSeat ||
+            _contentRegistry.GetSkill(frame.SkillId).Program is not { } program || program.GameplayHash != frame.GameplayHash ||
+            ProgramInstructionResolver.Default.Resolve(frame, program).GetPausedInstruction(frame.InstructionIndex).Effect.Op !=
+                SkillProgramEffectOp.JieliePreventAndGift ||
+            CompleteProgramEventHistory().OfType<ProgramSkillHpLostEvent>().Count(fact =>
+                fact.FrameId == frame.Id && fact.SkillId == frame.SkillId && fact.TargetSeat == frame.OwnerSeat &&
+                fact.Amount == paid.PaidHpLost && fact.RemainingHp == Math.Max(0, paid.HpBeforePayment - window.Amount)) != 1)
+            return null;
+        return frame;
+    }
+
+    private bool HasJielieGiftDying(long beforeDamageId) =>
+        JieliePaidObserverRoot(beforeDamageId) is { } frame &&
+        ActiveDying is { ResumesProgramSkill: true } dying && dying.ParentFrameId == frame.Id &&
+        dying.VictimSeat == frame.OwnerSeat &&
+        _resolutionStack.FindIndex(item => item.Id == dying.Id) is var dyingIndex && dyingIndex > 0 &&
+        _resolutionStack[dyingIndex] is DyingFrame { KillerSeat: null } child &&
+        child.ParentFrameId == frame.Id && _resolutionStack[dyingIndex - 1].Id == frame.Id;
+
+    private bool IsJielieGiftProgramDying() =>
+        _resolutionStack.OfType<BeforeDamageProgramWindowFrame>().Any(window => HasJielieGiftDying(window.Id));
+
+    private bool HasJielieGiftDamageObserver(long beforeDamageId) =>
+        JieliePaidObserverRoot(beforeDamageId) is { } frame &&
+        (HasJielieGiftDying(beforeDamageId) || DamageCursorEffectiveTop(includeNestedObservers: true)?.Id == frame.Id);
 
     private PromptChoice SelectAiKanggeChooseChoice(PendingDecision decision) =>
         decision.Choices

@@ -63,7 +63,7 @@ public sealed partial class GameEngine
         if (death.Id != old.FrameId || death.ParentFrameId != old.ParentFrameId || death.VictimSeat != old.VictimSeat || death.KillerSeat != old.KillerSeat ||
             death.ReturnKind != old.ReturnKind || death.Step != old.Step || death.OwnerDiedProgramsResolved != old.OwnerDiedProgramsResolved ||
             death.KillerProgramsResolved != old.KillerProgramsResolved || !death.CleanedUpCardIds.SequenceEqual(old.CleanedUpCardIds) ||
-            death.PendingRecoveryAttempts.Count != 0 || death.PaidFactionRequestCostRecovery is not null) return false;
+            death.PendingRecoveryAttempts is { Count: > 0 } || death.PaidFactionRequestCostRecovery is not null) return false;
         if (r.OriginalDying is { } frozen)
         {
             if (death.ReturnKind != DeathReturnKind.Dying || index < 3 || _resolutionStack[index - 3] is not DyingFrame dying ||
@@ -71,7 +71,7 @@ public sealed partial class GameEngine
                 dying.VictimSeat != frozen.VictimSeat || dying.VictimSeat != death.VictimSeat || dying.KillerSeat != frozen.KillerSeat ||
                 dying.Continuation != frozen.Continuation || dying.Step != frozen.Step || dying.ResponderIndex != frozen.ResponderIndex ||
                 !dying.ResponderSeats.SequenceEqual(frozen.ResponderSeats) || !dying.AttemptedSelfDyingBindings.SequenceEqual(frozen.AttemptedSelfDyingBindings) ||
-                dying.PendingRecoveryAttempts.Count != 0 || dying.PaidFactionRequestCostRecovery is not null ||
+                dying.PendingRecoveryAttempts is { Count: > 0 } || dying.PaidFactionRequestCostRecovery is not null ||
                 !CompleteProgramEventHistory().OfType<PlayerDyingEvent>().Any(e => e.ResolutionId == dying.Id && e.VictimSeat == dying.VictimSeat && e.KillerSeat == dying.KillerSeat)) return false;
         }
         else if (death.ReturnKind != DeathReturnKind.ProgramSkill || index < 3 || _resolutionStack[index - 3] is not ProgramSkillFrame parent || parent.Id != death.ParentFrameId) return false;
@@ -106,7 +106,7 @@ public sealed partial class GameEngine
         if (f.OwnedDeathBenefitReturn is not { } r) return;
         if (_resolutionStack.LastOrDefault()?.Id != f.Id || !ExactOwnedDeathBenefitReturn(f) || !ValidFixedRecipientReceipt(f) ||
             f.AttackAttempt is not null || f.AttackReturn is not null || f.PendingMovementContinuation is not null ||
-            f.PendingRecoveryAttempts.Count != 0 || f.PaidFactionRequestCostRecovery is not null ||
+            f.PendingRecoveryAttempts is { Count: > 0 } || f.PaidFactionRequestCostRecovery is not null ||
             CurrentDamageAttempt?.ResolutionId != r.OriginalAttackOwnerFrameId ||
             CompleteProgramEventHistory().OfType<OwnedDeathBenefitReturnedEvent>().Any(e => e.ProgramFrameId == f.Id))
             throw new InvalidOperationException("An owned death benefit cannot return before its exact paid children finish.");

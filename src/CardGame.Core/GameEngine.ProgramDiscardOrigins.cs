@@ -42,6 +42,10 @@ public sealed partial class GameEngine
     private static bool IsProgramDiscardOriginReason(CardMoveReason reason)
     {
         var value = reason.Value;
+        if (value == PairedColorDiscardReason) return true;
+        if (value.StartsWith("skill-program.", StringComparison.Ordinal) &&
+            value.EndsWith(".kangge-death-price", StringComparison.Ordinal) ||
+            value.EndsWith(".liejie-discard", StringComparison.Ordinal)) return true;
         // A cleanup move can resemble a discard suffix but is never the paid discard entry.
         if (value.StartsWith("card.use", StringComparison.Ordinal) || value.StartsWith("card.respond", StringComparison.Ordinal) ||
             value.StartsWith("card.response", StringComparison.Ordinal) || value.StartsWith("card.recast.", StringComparison.Ordinal) ||

@@ -13,7 +13,8 @@ public sealed partial class GameEngine
 
     private bool IsRuntimeAcquiredSkill(CharacterState player, string skillId) =>
         player.AcquiredSkillIds.Contains(skillId) ||
-        player.TurnGrantedSkillIds.Contains(skillId, StringComparer.Ordinal);
+        player.TurnGrantedSkillIds.Contains(skillId, StringComparer.Ordinal) ||
+        player.PhaseGrantedSkillIds.Contains(skillId, StringComparer.Ordinal);
 
     private SkillRuntimeStateSnapshot CreateProgramAwareSkillStateSnapshot(CharacterState owner, string skillId)
     {

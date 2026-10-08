@@ -1,0 +1,390 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:zhongyun",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "equal-hand-hp-after-damage",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "damageOccurrence": "perDamage",
+          "optional": false,
+          "usageScope": "turn",
+          "usageLimit": 1,
+          "namedUsageGroup": "zhongyun-health",
+          "condition": {
+            "kind": "compare",
+            "left": {
+              "kind": "currentHp"
+            },
+            "operator": "equal",
+            "right": {
+              "kind": "currentHandCount"
+            }
+          },
+          "effects": [
+            {
+              "op": "chooseOption",
+              "target": "owner",
+              "resultBind": "zhongyun-health-choice",
+              "options": [
+                {
+                  "id": "recover",
+                  "condition": {
+                    "kind": "wounded"
+                  }
+                },
+                {
+                  "id": "damage",
+                  "requiredTargetKind": "otherLivingInAttackRange",
+                  "condition": {
+                    "kind": "always"
+                  }
+                }
+              ]
+            },
+            {
+              "op": "recover",
+              "target": "owner",
+              "amount": 1,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "zhongyun-health-choice",
+                "optionId": "recover"
+              }
+            },
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "otherLivingInAttackRange",
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "zhongyun-health-choice",
+                "optionId": "damage"
+              }
+            },
+            {
+              "op": "damage",
+              "target": "selectedTarget",
+              "amount": 1,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "zhongyun-health-choice",
+                "optionId": "damage"
+              }
+            }
+          ]
+        },
+        {
+          "id": "equal-hand-hp-after-recovery",
+          "window": "afterHpRecovered",
+          "subject": "owner",
+          "hpChangeOccurrence": "perEvent",
+          "optional": false,
+          "usageScope": "turn",
+          "usageLimit": 1,
+          "namedUsageGroup": "zhongyun-health",
+          "condition": {
+            "kind": "compare",
+            "left": {
+              "kind": "currentHp"
+            },
+            "operator": "equal",
+            "right": {
+              "kind": "currentHandCount"
+            }
+          },
+          "effects": [
+            {
+              "op": "chooseOption",
+              "target": "owner",
+              "resultBind": "zhongyun-health-choice",
+              "options": [
+                {
+                  "id": "recover",
+                  "condition": {
+                    "kind": "wounded"
+                  }
+                },
+                {
+                  "id": "damage",
+                  "requiredTargetKind": "otherLivingInAttackRange",
+                  "condition": {
+                    "kind": "always"
+                  }
+                }
+              ]
+            },
+            {
+              "op": "recover",
+              "target": "owner",
+              "amount": 1,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "zhongyun-health-choice",
+                "optionId": "recover"
+              }
+            },
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "otherLivingInAttackRange",
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "zhongyun-health-choice",
+                "optionId": "damage"
+              }
+            },
+            {
+              "op": "damage",
+              "target": "selectedTarget",
+              "amount": 1,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "zhongyun-health-choice",
+                "optionId": "damage"
+              }
+            }
+          ]
+        },
+        {
+          "id": "equal-hand-hp-after-hand-loss",
+          "window": "cardsMoved",
+          "subject": "owner",
+          "sourceZones": [
+            "hand"
+          ],
+          "movementOccurrence": "perOwnerBatch",
+          "optional": false,
+          "usageScope": "turn",
+          "usageLimit": 1,
+          "namedUsageGroup": "zhongyun-hand",
+          "condition": {
+            "kind": "all",
+            "children": [
+              {
+                "kind": "compare",
+                "left": {
+                  "kind": "currentHp"
+                },
+                "operator": "equal",
+                "right": {
+                  "kind": "currentHandCount"
+                }
+              },
+              {
+                "kind": "compare",
+                "left": {
+                  "kind": "sourceZoneCountBefore"
+                },
+                "operator": "notEqual",
+                "right": {
+                  "kind": "sourceZoneCountAfter"
+                }
+              }
+            ]
+          },
+          "effects": [
+            {
+              "op": "chooseOption",
+              "target": "owner",
+              "resultBind": "zhongyun-hand-choice",
+              "options": [
+                {
+                  "id": "draw",
+                  "condition": {
+                    "kind": "always"
+                  }
+                },
+                {
+                  "id": "discard",
+                  "requiredTargetKind": "otherLivingWithDiscardableHandOrEquipment",
+                  "condition": {
+                    "kind": "always"
+                  }
+                }
+              ]
+            },
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 1,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "zhongyun-hand-choice",
+                "optionId": "draw"
+              }
+            },
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "otherLivingWithDiscardableHandOrEquipment",
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "zhongyun-hand-choice",
+                "optionId": "discard"
+              }
+            },
+            {
+              "op": "selectAndMoveOwnedCard",
+              "target": "owner",
+              "chooserRef": {
+                "kind": "owner"
+              },
+              "cardOwnerRef": {
+                "kind": "selectedTarget"
+              },
+              "zones": [
+                "hand",
+                "equipment"
+              ],
+              "count": 1,
+              "destination": "discardPile",
+              "awaitMovementTriggers": true,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "zhongyun-hand-choice",
+                "optionId": "discard"
+              }
+            }
+          ]
+        },
+        {
+          "id": "equal-hand-hp-after-hand-gain",
+          "window": "cardsGained",
+          "subject": "owner",
+          "destinationZones": [
+            "hand"
+          ],
+          "movementOccurrence": "perBatch",
+          "optional": false,
+          "usageScope": "turn",
+          "usageLimit": 1,
+          "namedUsageGroup": "zhongyun-hand",
+          "condition": {
+            "kind": "all",
+            "children": [
+              {
+                "kind": "compare",
+                "left": {
+                  "kind": "currentHp"
+                },
+                "operator": "equal",
+                "right": {
+                  "kind": "currentHandCount"
+                }
+              },
+              {
+                "kind": "compare",
+                "left": {
+                  "kind": "destinationZoneCountBefore"
+                },
+                "operator": "notEqual",
+                "right": {
+                  "kind": "destinationZoneCountAfter"
+                }
+              }
+            ]
+          },
+          "effects": [
+            {
+              "op": "chooseOption",
+              "target": "owner",
+              "resultBind": "zhongyun-hand-choice",
+              "options": [
+                {
+                  "id": "draw",
+                  "condition": {
+                    "kind": "always"
+                  }
+                },
+                {
+                  "id": "discard",
+                  "requiredTargetKind": "otherLivingWithDiscardableHandOrEquipment",
+                  "condition": {
+                    "kind": "always"
+                  }
+                }
+              ]
+            },
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 1,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "zhongyun-hand-choice",
+                "optionId": "draw"
+              }
+            },
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "otherLivingWithDiscardableHandOrEquipment",
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "zhongyun-hand-choice",
+                "optionId": "discard"
+              }
+            },
+            {
+              "op": "selectAndMoveOwnedCard",
+              "target": "owner",
+              "chooserRef": {
+                "kind": "owner"
+              },
+              "cardOwnerRef": {
+                "kind": "selectedTarget"
+              },
+              "zones": [
+                "hand",
+                "equipment"
+              ],
+              "count": 1,
+              "destination": "discardPile",
+              "awaitMovementTriggers": true,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "zhongyun-hand-choice",
+                "optionId": "discard"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:shenpin",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "different-effective-color-judgment",
+          "window": "judgmentReplacing",
+          "subject": "any",
+          "excludedReasons": [],
+          "optional": true,
+          "effects": [
+            {
+              "op": "replaceJudgment",
+              "target": "owner",
+              "zones": [
+                "hand",
+                "equipment"
+              ],
+              "suits": [
+                "spade",
+                "club",
+                "heart",
+                "diamond"
+              ],
+              "oldCardDestination": "discardPile",
+              "requireDifferentColor": true
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

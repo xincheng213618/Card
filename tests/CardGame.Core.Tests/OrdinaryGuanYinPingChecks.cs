@@ -6,7 +6,7 @@ using CardGame.Core;
 internal static class OrdinaryGuanYinPingChecks
 {
     private const string Mode = "identity:classic-guan-yin-ping-fixture", Driver = "fixture:gyp-driver";
-    private const string Hp = "fixture:gyp-hp", Gain = "fixture:gyp-gain", Chain = "fixture:gyp-chain";
+    private const string Hp = "fixture:gyp-hp", Gain = "fixture:gyp-gain", Chain = "fixture:gyp-chain", SourceGain = "fixture:gyp-source-gain";
     private const string Snow = "ol:xuehen", Roar = "ol:huxiao", Awake = "ol:wuji";
 
     public static void RedEquipmentCostFinishesBeforeLostHpTargetsAndRealFireDraw()
@@ -129,11 +129,17 @@ internal static class OrdinaryGuanYinPingChecks
         Use(g, "fire", [1]); Reach(g, p => p.SkillPrompt?.SkillId == Gain); var root = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.FireTargetBenefit is not null);
         Require(root.FireTargetBenefit!.GrantSequence == 0 && !E<TurnTargetCardQuotaAllowanceGrantedEvent>(g).Any(e => e.Allowance.ParentFrameId == root.Id),
             "The issued draw promise grants no early quota inside its exact gain child.");
-        g = Cold(g, r); Continue(g); g = FinishActualSkillReplacementChild(g, r, Gain, Roar); Play(g);
+        g = Cold(g, r); Continue(g);
+        Reach(g, p => p.SkillPrompt?.SkillId == Gain && p.PlayerSeat == 1 && p.Choices.Any(c => c.Targets.SequenceEqual([0])));
+        g = Cold(g, r); Answer(g, P(g)!.Choices.Single(c => c.Targets.SequenceEqual([0])));
+        Reach(g, p => p.SkillPrompt?.SkillId == SourceGain && p.PlayerSeat == 0);
+        Require(g.CardMovements.Count(m => m.Reason.Value == $"skill-program.{Gain}.Draw" && m.From == CardLocation.DrawPile && m.To == CardLocation.Hand(0)) == 1,
+            "The recipient's actual selected draw enters an independent owner-zero gain child before the original benefit returns.");
+        g = Cold(g, r); Continue(g); g = FinishActualSkillReplacementChild(g, r, SourceGain, Roar); Play(g);
         Require(E<TurnTargetCardQuotaAllowanceGrantedEvent>(g).Count(e => e.Allowance.ParentFrameId == root.Id) == 1 && !g.CreateSnapshot(0).Players[0].Skills!.Any(s => s.ContentId == Roar) &&
             E<ProgramFireTargetDrawIssuedEvent>(g).Count(e => e.ProgramFrameId == root.Id && e.ActualCount == 1) == 1 &&
             !g.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.Id == root.Id),
-            "A real gain child removes the issuer; the already-issued draw still drains and returns without paying twice.");
+            "A real owner-zero gain child physically replaces the original locked issuer; the already-issued draw still drains and returns without paying twice.");
         Slash(g, 1); Play(g); Slash(g, 1); Play(g);
         Require(g.GetHumanLegalActions().Any(a => a.Kind == LegalActionKind.Slash && a.TargetSeats.SequenceEqual([1])),
             "The already-issued actual-turn right remains after Huxiao is suppressed or lost.");
@@ -159,11 +165,11 @@ internal static class OrdinaryGuanYinPingChecks
         return g;
     }
 
-    private static PendingDecision? P(GameEngine g) => g.CreateSnapshot(0).PendingDecision;
+    private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(seat => g.CreateSnapshot(seat).PendingDecision).FirstOrDefault(prompt => prompt is not null);
     private static T[] E<T>(GameEngine g) => g.Events.Select(e => e.Payload).OfType<T>().ToArray();
     private static bool Action(PendingDecision p, string action) => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == action);
     private static void Accept(GameEngine g, GameCommand command) { var result = g.Submit(CommandJson.Deserialize(CommandJson.Serialize([command])).Single()); Require(result.Accepted, result.Error?.Message ?? "Rejected actual command."); }
-    private static void Answer(GameEngine g, PromptChoice c) => Accept(g, new AnswerPromptCommand(0, P(g)!.PromptId, c.Id, g.Revision));
+    private static void Answer(GameEngine g, PromptChoice c) => Accept(g, new AnswerPromptCommand(P(g)!.PlayerSeat, P(g)!.PromptId, c.Id, g.Revision));
     private static void Continue(GameEngine g) => Answer(g, P(g)!.Choices.Single(c => c.Parameters.GetValueOrDefault("option-id") == "continue"));
     private static void Use(GameEngine g, string activation, IReadOnlyList<int>? targets = null, string skill = Driver) =>
         Accept(g, new UseProgramSkillCommand(0, skill, activation, [], targets ?? [], g.Revision, P(g)!.PromptId));
@@ -228,25 +234,36 @@ internal static class OrdinaryGuanYinPingChecks
                 {"id":"normal","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"damage","target":"selectedTarget","amount":1}]}]},
               {"id":"fixture:gyp-quiet","revision":1,"triggers":[{"id":"quiet","window":"afterNormalDraw","subject":"owner","optional":false,"effects":[{"op":"skipTurnPhases","target":"owner","phases":["play"]}]}]},
               {"id":"fixture:gyp-hp","revision":1,"triggers":[{"id":"hp","window":"afterHpRecovered","subject":"owner","optional":false,"usageScope":"game","usageLimit":1,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},
-              {"id":"fixture:gyp-gain","revision":1,"triggers":[{"id":"gain","window":"cardsGained","subject":"any","destinationZones":["hand"],"movementOccurrence":"perBatch","movementReasons":["program.fire-target-benefit.draw"],"optional":false,"usageScope":"game","usageLimit":1,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},
+              {"id":"fixture:gyp-gain","revision":1,"triggers":[{"id":"gain","window":"cardsGained","subject":"owner","destinationZones":["hand"],"movementOccurrence":"perBatch","movementReasons":["program.fire-target-benefit.draw"],"optional":false,"usageScope":"game","usageLimit":1,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},
               {"id":"fixture:gyp-chain","revision":1,"triggers":[{"id":"chain","window":"characterEnteredChain","subject":"any","optional":false,"usageScope":"game","usageLimit":1,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]}
             ]}
             """)!;
             rules["schemaVersion"] = SkillProgramCatalog.RulesSchemaVersion;
             if (weapon) rules["skills"]![3]!["triggers"]![0]!["movementReasons"] = JsonNode.Parse("""["skill-program.ol:wuji.LoseSkillsAndObtainNamedCard"]""");
-            if (sourceLoss || roarLoss) rules["skills"]![3]!["triggers"]![0]!["effects"]!.AsArray().Add(new JsonObject
+            if (sourceLoss) rules["skills"]![3]!["triggers"]![0]!["effects"]!.AsArray().Add(new JsonObject
             { ["op"] = "replaceSkillsOnAwakening", ["target"] = "owner", ["skillIds"] = new JsonArray(JsonValue.Create("fixture:gyp-noop")) });
+            if (roarLoss)
+            {
+                rules["skills"]![3]!["triggers"]![0]!["effects"]!.AsArray().Add(JsonNode.Parse("""{"op":"selectTarget","target":"owner","targetKind":"currentTurnPlayer"}"""));
+                rules["skills"]![3]!["triggers"]![0]!["effects"]!.AsArray().Add(JsonNode.Parse("""{"op":"draw","target":"selectedTarget","amount":1}"""));
+                rules["skills"]!.AsArray().Add(JsonNode.Parse("""
+                {"id":"fixture:gyp-source-gain","revision":1,"triggers":[{"id":"gain","window":"cardsGained","subject":"owner","destinationZones":["hand"],"movementOccurrence":"perBatch","movementReasons":["skill-program.fixture:gyp-gain.Draw"],"optional":false,"usageScope":"game","usageLimit":1,
+                  "effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]},{"op":"replaceSkillsOnAwakening","target":"owner","skillIds":["fixture:gyp-noop"]}]}]}
+                """));
+            }
             if (snowLoss) rules["skills"]![2]!["triggers"]![0]!["effects"]!.AsArray().Add(new JsonObject
             { ["op"] = "replaceSkillsOnAwakening", ["target"] = "owner", ["skillIds"] = new JsonArray(JsonValue.Create("fixture:gyp-noop")) });
             var ids = rules["skills"]!.AsArray().Select(n => n!["id"]!.GetValue<string>()).ToArray();
-            var descriptions = ids.ToDictionary(id => id, id => id is Hp or Gain or Chain ? (object)new { name = id, description = "真实子结算选择", optionLabels = new Dictionary<string, string> { ["continue"] = "继续" } } : new { name = id, description = "固定真实命令" });
+            var descriptions = ids.ToDictionary(id => id, id => id is Hp or Gain or Chain or SourceGain ? (object)new { name = id, description = "真实子结算选择", optionLabels = new Dictionary<string, string> { ["continue"] = "继续" } } : new { name = id, description = "固定真实命令" });
             var catalog = SkillProgramCatalog.Load(rules.ToJsonString(), JsonSerializer.Serialize(new { schemaVersion = SkillProgramCatalog.PresentationSchemaVersion, skills = descriptions }));
             foreach (var id in ids) b.AddSkill(new(id, id, "真实夹具") { Program = catalog.Programs[id], ProgramPresentation = catalog.Presentations[id] });
             b.AddSkill(new("fixture:gyp-noop", "失源后的替换", "No program"));
             b.AddSkill(new("fixture:gyp-pick-owner", "固定主人", "Passive") { SelectionWeights = Enum.GetValues<Role>().ToDictionary(r => r, r => r == Role.Lord ? 10000d : -10000d) });
             b.AddSkill(new("fixture:gyp-pick-other", "固定其他", "Passive") { SelectionWeights = Enum.GetValues<Role>().ToDictionary(r => r, r => r != Role.Lord ? 10000d : -10000d) });
-            b.AddGeneral(new("fixture:gyp-owner", "关银屏共享能力", "supporter", Snow, "shu", 3, [Roar, Awake, Driver, "classic:wusheng", Hp, Gain, Chain, "fixture:gyp-pick-owner"], GeneralGender.Female) { InitialHp = 1 });
-            for (var i = 1; i < 4; i++) b.AddGeneral(new($"fixture:gyp-other-{i}", "其他角色", "supporter", "fixture:gyp-pick-other", "wei", 8, ["fixture:gyp-quiet"], GeneralGender.Male));
+            var ownerSkills = new List<string> { Roar, Awake, Driver, "classic:wusheng", Hp, Gain, Chain, "fixture:gyp-pick-owner" };
+            if (roarLoss) ownerSkills.Add(SourceGain);
+            b.AddGeneral(new("fixture:gyp-owner", "关银屏共享能力", "supporter", Snow, "shu", 3, ownerSkills, GeneralGender.Female) { InitialHp = 1 });
+            for (var i = 1; i < 4; i++) b.AddGeneral(new($"fixture:gyp-other-{i}", "其他角色", "supporter", "fixture:gyp-pick-other", "wei", 8, ["fixture:gyp-quiet", Gain], GeneralGender.Male));
             // Fire Slash permits both a real printed Slash and a distinct normal-Slash Wusheng conversion.
             var kind = equipment ? "classic:silver-lion" : weapon ? "classic:qinglong-crescent-blade" : "standard:fire_slash";
             b.AddDeck(new("fixture:gyp-deck", "固定实体", 4, 2, []) { PhysicalCards = Enumerable.Range(0, 72).Select(_ => new ContentDeckPhysicalCard(kind, Suit.Heart, 7)).ToArray() });

@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:canmou",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "unique-largest-hand-trick-target",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "observer",
+          "singleActionInstance": true,
+          "cardCategories": ["instantTrick"],
+          "optional": true,
+          "effects": [{ "op": "offerUniqueLargestHandTrickTargetAddition", "target": "owner" }]
+        }
+      ]
+    },
+    {
+      "id": "ol:congjian",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "join-unique-largest-hp-trick-target",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "observer",
+          "singleActionInstance": true,
+          "cardCategories": ["instantTrick"],
+          "optional": true,
+          "effects": [{ "op": "joinUniqueLargestHpTrickTargetAndDrawAfterDamage", "target": "owner" }]
+        },
+        {
+          "id": "draw-after-joined-trick-damage",
+          "window": "cardUseCompleted",
+          "ownerRelation": "observer",
+          "singleActionInstance": true,
+          "cardCategories": ["instantTrick"],
+          "optional": false,
+          "effects": [{ "op": "drawAfterJoinedTrickDamage", "target": "owner" }]
+        }
+      ]
+    }
+  ]
+}

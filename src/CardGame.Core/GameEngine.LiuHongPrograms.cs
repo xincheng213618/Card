@@ -6,6 +6,10 @@ namespace CardGame.Core;
 // beyond the given card's public hand-to-hand movement.
 public sealed record ProgramYujueInvokedEvent(long FrameId, string SkillId, string BindingId,
     int OwnerSeat, string AbolishedSlot, int TargetSeat, int GivenCardId) : IGameEvent;
+public sealed record ProgramYujueSlotPaidEvent(long FrameId, CardConversionSource Source,
+    string GameplayHash, int InstructionIndex, string AbolishedSlot) : IGameEvent;
+public sealed record ProgramYujueGiftPaidEvent(long FrameId, CardConversionSource Source,
+    string GameplayHash, int InstructionIndex, int TargetSeat, int GivenCardId, int MovementSequence) : IGameEvent;
 
 // Shared game-long damage bonus: arming evidence for one seat. Any content skill
 // can arm its owner through this generic event; FinalizeAttackDamageAmount adds
@@ -22,7 +26,10 @@ public sealed partial record ProgramSkillFrame
 
 // The suspension receipt of one accepted 鬻爵 invocation. AbolishedSlot is set
 // once the slot prompt resolves; TargetSeat joins for the card-give prompt.
-public sealed record YujuePendingState(string AbolishedSlot, int? TargetSeat);
+public enum YujuePendingStage { SlotPaid, GiftPaid }
+public sealed record YujuePendingState(string AbolishedSlot, int? TargetSeat,
+    CardConversionSource Source, string GameplayHash, int InstructionIndex,
+    YujuePendingStage Stage = YujuePendingStage.SlotPaid, int? GivenCardId = null, int? GiftMovementSequence = null);
 
 public sealed partial class GameEngine
 {
@@ -64,17 +71,21 @@ public sealed partial class GameEngine
     {
         var active = GetActiveProgramFrame(frame.Id);
         var owner = _players[active.OwnerSeat];
-        if (_winner != Winner.None ||
-            !HasRuntimeSkillInstance(owner, active.SkillId, active.SkillInstanceId))
-            return SkillProgramStepOutcome.Continue;
-        if (frame.YujuePending is { } pending)
+        if (active.YujuePending is { } pending)
         {
+            if (pending.Stage == YujuePendingStage.GiftPaid)
+            {
+                CompleteYujueInvocation(active, pending, given: true, pending.TargetSeat, pending.GivenCardId);
+                return SkillProgramStepOutcome.AwaitChild;
+            }
             if (pending.TargetSeat is { } target)
                 return PresentYujueGivePrompt(active, pending with { TargetSeat = target });
             PresentYujueTargetPrompt(active, pending);
             return SkillProgramStepOutcome.AwaitChoice;
         }
-        if (!owner.IsAlive || !CanRunYujueResolve(active.OwnerSeat))
+        if (_winner != Winner.None || !owner.IsAlive ||
+            !HasRuntimeSkillInstance(owner, active.SkillId, active.SkillInstanceId) ||
+            !CanRunYujueResolve(active.OwnerSeat))
             return SkillProgramStepOutcome.Continue;
         return PresentYujueSlotPrompt(active);
     }
@@ -99,7 +110,11 @@ public sealed partial class GameEngine
             new ChoiceId($"yujue-decline.frame-{active.Id}"),
             "不发动【鬻爵】。",
             [], [],
-            new Dictionary<string, string> { ["program-action"] = "yujue-decline" }));
+            new Dictionary<string, string>
+            {
+                ["program-action"] = "yujue-decline",
+                ["frame-id"] = active.Id.ToString(System.Globalization.CultureInfo.InvariantCulture)
+            }));
         _pendingDecision = new PendingDecision(
             DecisionKind.ProgramTrigger, active.OwnerSeat,
             $"【{presentation.Name}】你可以废除一个装备栏，然后令一名有手牌的其他角色交给你一张手牌，其获得“执笏”直到你的下回合开始。",
@@ -144,6 +159,13 @@ public sealed partial class GameEngine
         ClearPendingDecision();
         if (selected.Parameters.GetValueOrDefault("program-action") == "yujue-decline")
         {
+            var activation = _contentRegistry.GetSkill(active.SkillId).Program!.Activations
+                .Single(entry => entry.Id == active.ActivationId);
+            var key = (active.OwnerSeat, active.SkillId, activation.UsageGroup);
+            if (_programUses.GetValueOrDefault(key) <= 0 || _programPhaseUses.GetValueOrDefault(key) <= 0)
+                throw new InvalidOperationException("An unpaid Yujue cancellation lost its exact activation usage.");
+            _programUses[key]--;
+            _programPhaseUses[key]--;
             AdvanceRuntimeProgram(active.Id);
             return;
         }
@@ -153,12 +175,14 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("The Yujue slot is no longer available.");
         if (!CanRunYujueResolve(active.OwnerSeat))
             throw new InvalidOperationException("The Yujue invocation lost its prerequisites.");
-        var pending = new YujuePendingState(slot.ToString(), null);
+        var source = new CardConversionSource(active.SkillId, GetProgramBindingId(active), active.OwnerSeat, active.SkillInstanceId);
+        var pending = new YujuePendingState(slot.ToString(), null, source, active.GameplayHash, active.InstructionIndex);
         AbolishYujueSlot(GetActiveProgramFrame(frame.Id), slot);
         ResolveTuxingAfterSlotAbolish(GetActiveProgramFrame(frame.Id));
-        ReplaceRuntimeTop(GetActiveProgramFrame(frame.Id) with { YujuePending = pending });
-        if (!TryBeginCardsMovedProgramWindow())
-            PresentYujueTargetPrompt(GetActiveProgramFrame(frame.Id), pending);
+        AdvanceEventRulesAndQueueFact(new ProgramYujueSlotPaidEvent(active.Id, source,
+            active.GameplayHash, active.InstructionIndex, slot.ToString()));
+        ReplaceRuntimeTop(GetActiveProgramFrame(frame.Id) with { YujuePending = pending, ReexecuteParticipantInstruction = true });
+        AdvanceRuntimeProgram(active.Id);
     }
 
     // The slot payment: capacity zero plus the public capacity-changed event;
@@ -167,7 +191,7 @@ public sealed partial class GameEngine
     {
         var active = GetActiveProgramFrame(frame.Id);
         var owner = _players[active.OwnerSeat];
-        if (frame.TriggerId is null || _phase != TurnPhase.Play || _currentSeat != owner.Seat ||
+        if (frame.TriggerId is not null || _phase != TurnPhase.Play || _currentSeat != owner.Seat ||
             !owner.IsAlive || owner.EquipmentSlotCapacity(slot) <= 0)
             throw new InvalidOperationException("The Yujue slot payment lost its own Play activation.");
         SetEquipmentSlotCapacity(owner, slot, 0);
@@ -295,7 +319,16 @@ public sealed partial class GameEngine
         AddLog("CardGained",
             $"{_players[targetSeat].Name} 交给 {_players[active.OwnerSeat].Name} 一张手牌。",
             targetSeat, active.OwnerSeat);
-        CompleteYujueInvocation(active, pending, given: true, targetSeat, cardId);
+        var movementSequence = _cardMovements.Last().Sequence;
+        AdvanceEventRulesAndQueueFact(new ProgramYujueGiftPaidEvent(active.Id, pending.Source,
+            active.GameplayHash, active.InstructionIndex, targetSeat, cardId, movementSequence));
+        ReplaceRuntimeTop(GetActiveProgramFrame(frame.Id) with
+        {
+            YujuePending = pending with { Stage = YujuePendingStage.GiftPaid, GivenCardId = cardId,
+                GiftMovementSequence = movementSequence },
+            ReexecuteParticipantInstruction = true
+        });
+        AdvanceRuntimeProgram(active.Id);
     }
 
     // Finalize: grant 执笏 to the recipient until the owner's next turn starts,
@@ -304,7 +337,10 @@ public sealed partial class GameEngine
         bool given, int? targetSeat, int? givenCardId)
     {
         var active = GetActiveProgramFrame(frame.Id);
-        ReplaceRuntimeTop(GetActiveProgramFrame(frame.Id) with { YujuePending = null });
+        AdvanceEventRulesAndQueueFact(new ProgramYujueInvokedEvent(active.Id, active.SkillId,
+            GetProgramBindingId(active), active.OwnerSeat, pending.AbolishedSlot,
+            targetSeat ?? -1, givenCardId ?? -1));
+        ReplaceRuntimeTop(GetActiveProgramFrame(frame.Id) with { YujuePending = null, ReexecuteParticipantInstruction = false });
         if (given && targetSeat is { } seat)
         {
             AcquireRuntimeSkills(_players[seat], $"zhihu:{active.OwnerSeat}:{active.Id}", ["ol:zhihu"]);
@@ -317,11 +353,47 @@ public sealed partial class GameEngine
                 ? $"{_players[active.OwnerSeat].Name} 的【{_contentRegistry!.GetSkill(active.SkillId).Name}】结算完成：废除{YujueSlotDisplayName(System.Enum.Parse<EquipmentSlot>(pending.AbolishedSlot))}，获得一张手牌。"
                 : $"{_players[active.OwnerSeat].Name} 的【{_contentRegistry!.GetSkill(active.SkillId).Name}】结算完成：废除{YujueSlotDisplayName(System.Enum.Parse<EquipmentSlot>(pending.AbolishedSlot))}。",
             active.OwnerSeat, targetSeat);
-        AdvanceEventRulesAndQueueFact(new ProgramYujueInvokedEvent(active.Id, active.SkillId,
-            GetProgramBindingId(active), active.OwnerSeat, pending.AbolishedSlot,
-            targetSeat ?? -1, givenCardId ?? -1));
-        if (!TryBeginCardsMovedProgramWindow())
-            AdvanceRuntimeProgram(active.Id);
+        AdvanceRuntimeProgram(active.Id);
+    }
+
+    private void AssertYujuePending(ProgramSkillFrame frame, SkillProgramEffect paused)
+    {
+        if (frame.YujuePending is null && paused.Op != SkillProgramEffectOp.YujueResolve) return;
+        var history = CompleteProgramEventHistory().ToArray();
+        var payments = history.OfType<ProgramYujueSlotPaidEvent>().Where(fact => fact.FrameId == frame.Id).ToArray();
+        var completed = history.OfType<ProgramYujueInvokedEvent>().Where(fact => fact.FrameId == frame.Id).ToArray();
+        var gifts = history.OfType<ProgramYujueGiftPaidEvent>().Where(fact => fact.FrameId == frame.Id).ToArray();
+        if (frame.YujuePending is not { } pending)
+        {
+            if (payments.Length != 0 && completed.Length != 1)
+                throw new InvalidOperationException("A paid Yujue invocation lost its frame-owned continuation receipt.");
+            return;
+        }
+        var source = new CardConversionSource(frame.SkillId, GetProgramBindingId(frame), frame.OwnerSeat, frame.SkillInstanceId);
+        if (paused.Op != SkillProgramEffectOp.YujueResolve || frame.TriggerId is not null ||
+            frame.InstructionIndex != 1 || frame.SelectedCardIds.Count != 0 || frame.SelectedTargetSeats.Count != 0 ||
+            pending.Source != source || pending.GameplayHash != frame.GameplayHash ||
+            pending.InstructionIndex != frame.InstructionIndex ||
+            !System.Enum.TryParse<EquipmentSlot>(pending.AbolishedSlot, out var slot) || !YujueSlotOrder.Contains(slot) ||
+            pending.Stage is not (YujuePendingStage.SlotPaid or YujuePendingStage.GiftPaid) ||
+            payments is not [var paid] || paid.Source != source || paid.GameplayHash != frame.GameplayHash ||
+            paid.InstructionIndex != frame.InstructionIndex || paid.AbolishedSlot != pending.AbolishedSlot || completed.Length != 0 ||
+            pending.TargetSeat is { } target && (!IsValidPlayerSeat(target) || target == frame.OwnerSeat))
+            throw new InvalidOperationException("A Yujue receipt lost its exact activation, source instance or single paid slot.");
+        if (pending.Stage == YujuePendingStage.SlotPaid)
+        {
+            if (pending.GivenCardId is not null || pending.GiftMovementSequence is not null || gifts.Length != 0)
+                throw new InvalidOperationException("An unpaid Yujue gift contains a completed card invoice.");
+        }
+        else if (pending.TargetSeat is not { } giver || pending.GivenCardId is not { } card ||
+                 pending.GiftMovementSequence is not { } sequence || gifts is not [var gift] ||
+                 gift.Source != source || gift.GameplayHash != frame.GameplayHash ||
+                 gift.InstructionIndex != frame.InstructionIndex || gift.TargetSeat != giver ||
+                 gift.GivenCardId != card || gift.MovementSequence != sequence ||
+                 _cardMovements.Count(move => move.Sequence == sequence && move.CardId == card && move.From == CardLocation.Hand(giver) &&
+                     move.To == CardLocation.Hand(frame.OwnerSeat) &&
+                     move.Reason.Value == $"skill-program.{frame.SkillId}.yujue-give") != 1)
+            throw new InvalidOperationException("A paid Yujue gift lost its exact once-only hand movement.");
     }
 
     // 图兴: the locked companion resolves inside the abolish flow. Clause one
@@ -334,7 +406,7 @@ public sealed partial class GameEngine
         if (!EnabledContentSkillIds(owner).Contains("ol:tuxing", StringComparer.Ordinal))
             return;
         var tuxingPresentation = _contentRegistry!.GetSkill("ol:tuxing");
-        ChangeProgramMaximumHp(GetActiveProgramFrame(frame.Id), 1);
+        ChangeProgramMaximumHp(GetActiveProgramFrame(frame.Id), 1, "ol:tuxing");
         AddLog("SkillTriggered",
             $"{owner.Name} 的【{tuxingPresentation.Name}】生效：增加1点体力上限并回复1点体力。",
             active.OwnerSeat);
@@ -344,7 +416,7 @@ public sealed partial class GameEngine
         AddLog("SkillTriggered",
             $"{owner.Name} 的【{tuxingPresentation.Name}】生效：所有装备栏均已废除，减少4点体力上限，本局游戏接下来造成的伤害+1。",
             active.OwnerSeat);
-        ChangeProgramMaximumHp(GetActiveProgramFrame(frame.Id), -4);
+        ChangeProgramMaximumHp(GetActiveProgramFrame(frame.Id), -4, "ol:tuxing");
         ArmProgramGameDamageBonus(GetActiveProgramFrame(frame.Id), "ol:tuxing", active.OwnerSeat, 1);
     }
 
@@ -382,8 +454,11 @@ public sealed partial class GameEngine
     private void ArmProgramGameDamageBonus(ProgramSkillFrame frame, string skillId, int ownerSeat, int amount)
     {
         var active = GetActiveProgramFrame(frame.Id);
+        var bindingId = skillId == active.SkillId ? GetProgramBindingId(active) :
+            _contentRegistry.GetSkill(skillId).Program!.Triggers.Single(trigger =>
+                trigger.Effects.Any(effect => effect.Op == SkillProgramEffectOp.TuxingArmGameDamage)).Id;
         AdvanceEventRulesAndQueueFact(new ProgramGameDamageBonusArmedEvent(active.Id, skillId,
-            GetProgramBindingId(active), active.SkillInstanceId, ownerSeat, amount));
+            bindingId, GetRuntimeSkillInstanceId(_players[ownerSeat], skillId), ownerSeat, amount));
     }
 
     // Shared consumption: every damage the armed seat deals carries the armed
@@ -392,7 +467,7 @@ public sealed partial class GameEngine
     private IReadOnlyList<(CardUseEffectSource Source, int Amount)> GetArmedGameDamageBonuses(
         IDamageAttempt attack)
     {
-        if (!IsValidPlayerSeat(attack.SourceSeat) || !_players[attack.SourceSeat].IsAlive)
+        if (attack.IsSourceLess || !IsValidPlayerSeat(attack.SourceSeat) || !_players[attack.SourceSeat].IsAlive)
             return [];
         return CompleteProgramEventHistory().OfType<ProgramGameDamageBonusArmedEvent>()
             .Where(fact => fact.OwnerSeat == attack.SourceSeat)
@@ -436,6 +511,7 @@ public sealed partial class GameEngine
     {
         var owner = _players[decision.PlayerSeat];
         var ranked = YujueAiAbolishPreference
+            .Where(slot => owner.EquipmentSlotCapacity(slot) > 0)
             .Select((slot, index) => (Slot: slot, Index: index,
                 Equipped: GetEquipment(owner).Any(card => EquipmentCatalog.Get(card.Kind).Slot == slot)))
             .OrderBy(entry => entry.Equipped ? 1 : 0)

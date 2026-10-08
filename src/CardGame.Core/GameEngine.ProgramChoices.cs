@@ -9,18 +9,7 @@ public sealed partial class GameEngine
         if (active.ChoiceBindings.Any(binding => binding.Name == resultBind))
             throw new InvalidOperationException("A named program choice cannot be answered twice.");
         var chooser = _players[chooserSeat];
-        var context = CreateSkillContext(chooser);
-        var choices = options.Where(option => option.Condition.EvaluateOption(context,
-            () => GetClaimableProgramDamageCards(active).Length > 0,
-            bind => IsProgramAttackRangeCoverageDecreased(active, bind),
-            hasOwnedCardCategory: (zones, categories, kinds) =>
-                HasOwnedProgramCardCategory(chooserSeat, zones, categories, kinds),
-            boundCardCount: bind => CountChooserProgramBoundCards(active, bind, chooserSeat),
-            activationCardCount: active.SelectedCardIds.Count,
-            boundCardSuitMatchesChoice: (cardBind, choiceBind) =>
-                DoesProgramFrozenSuitMatchChoice(active, cardBind, choiceBind),
-            boundCardsMatchCategories: (bind, categories) =>
-                DoProgramBoundCardsMatchCategories(active, bind, categories))).Select(option =>
+        var choices = options.Where(option => IsProgramOptionAvailable(active, chooserSeat, option)).Select(option =>
             new PromptChoice(new ChoiceId($"program-option.frame-{frame.Id}.{resultBind}.{option.Id}"),
                 option.Label, [], [], new Dictionary<string, string>
                 {
@@ -67,17 +56,9 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("The choice does not match its suspended instruction.");
         var option = effect.Options.SingleOrDefault(item => item.Id == selected.Parameters.GetValueOrDefault("option-id")) ??
             throw new InvalidOperationException("The selected program option is unavailable.");
-        var stillAvailable = option.Condition.EvaluateOption(CreateSkillContext(_players[chooserSeat]),
-            () => GetClaimableProgramDamageCards(frame).Length > 0,
-            bind => IsProgramAttackRangeCoverageDecreased(frame, bind),
-            hasOwnedCardCategory: (zones, categories, kinds) =>
-                HasOwnedProgramCardCategory(chooserSeat, zones, categories, kinds),
-            boundCardCount: bind => CountChooserProgramBoundCards(frame, bind, chooserSeat),
-            activationCardCount: frame.SelectedCardIds.Count,
-            boundCardSuitMatchesChoice: (cardBind, choiceBind) =>
-                DoesProgramFrozenSuitMatchChoice(frame, cardBind, choiceBind),
-            boundCardsMatchCategories: (bind, categories) =>
-                DoProgramBoundCardsMatchCategories(frame, bind, categories));
+        var stillAvailable = IsProgramOptionAvailable(frame, chooserSeat, option);
+        if (!stillAvailable && option.RequiredTargetKind is not null)
+            throw new InvalidOperationException("The selected option's required targets are no longer available.");
         if (!stillAvailable && (option.Condition.ContainsHasClaimableDamageCards() ||
             option.Condition.ContainsBoundCardCountAtLeast() || option.Condition.ContainsHasOwnedCardCategory() ||
             option.Condition.ContainsBoundCardsMatchCategories()))
@@ -109,13 +90,20 @@ public sealed partial class GameEngine
             return true;
         var option = effect.Options.SingleOrDefault(item => item.Id == selected.Parameters.GetValueOrDefault("option-id"));
         if (option is null) return true;
-        if (!option.Condition.ContainsHasClaimableDamageCards() &&
+        if (option.RequiredTargetKind is null && !option.Condition.ContainsHasClaimableDamageCards() &&
             !option.Condition.ContainsBoundCardCountAtLeast() && !option.Condition.ContainsHasOwnedCardCategory() &&
             !option.Condition.ContainsBoundCardsMatchCategories()) return true;
         var chooserSeat = effect.ChooserRef is { } chooser
             ? ResolveProgramParticipant(frame, chooser)
             : ResolveProgramEffectTarget(frame, effect.Target);
-        return option.Condition.EvaluateOption(CreateSkillContext(_players[chooserSeat]),
+        return IsProgramOptionAvailable(frame, chooserSeat, option);
+    }
+
+    private bool IsProgramOptionAvailable(ProgramSkillFrame frame, int chooserSeat, SkillProgramChoiceOption option) =>
+        (option.RequiredTargetKind is not { } requiredTargetKind ||
+         chooserSeat == frame.OwnerSeat && GetProgramTargetSeats(chooserSeat, requiredTargetKind, frame.WindowContext)
+             .Any(seat => CanSelectProgramPindianOpponent(frame, seat))) &&
+        option.Condition.EvaluateOption(CreateSkillContext(_players[chooserSeat]),
             () => GetClaimableProgramDamageCards(frame).Length > 0,
             bind => IsProgramAttackRangeCoverageDecreased(frame, bind),
             hasOwnedCardCategory: (zones, categories, kinds) =>
@@ -126,7 +114,6 @@ public sealed partial class GameEngine
                 DoesProgramFrozenSuitMatchChoice(frame, cardBind, choiceBind),
             boundCardsMatchCategories: (bind, categories) =>
                 DoProgramBoundCardsMatchCategories(frame, bind, categories));
-    }
 
     private int CountChooserProgramBoundCards(ProgramSkillFrame frame, string bind, int chooserSeat)
     {
@@ -168,6 +155,7 @@ public sealed partial class GameEngine
             Actor = frame.WindowContext?.CardUse is { } card ? CreateSkillContext(_players[card.ActorSeat]) : null,
             BooleanState = stateId => GetProgramBooleanState(frame.OwnerSeat, frame.SkillId, frame.SkillInstanceId, stateId),
             PindianWon = bind => frame.PindianResultBindings.SingleOrDefault(item => item.Name == bind)?.SourceWon ?? false,
+            PindianOutcome = bind => frame.PindianResultBindings.SingleOrDefault(item => item.Name == bind)?.SourceWon,
             HasClaimableDamageCards = effect.Options.Any(option => option.Condition.ContainsHasClaimableDamageCards()) &&
                 GetClaimableProgramDamageCards(frame).Length > 0,
             HasOwnedCardCategory = (zones, categories, kinds) =>

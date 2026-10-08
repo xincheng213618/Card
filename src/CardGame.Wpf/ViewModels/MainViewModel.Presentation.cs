@@ -621,7 +621,8 @@ public sealed partial class MainViewModel
     {
         if (_snapshot is null) return;
         var card = Hand.FirstOrDefault(item => item.Id == _selectedCardId);
-        var equipment = _snapshot.Players.SingleOrDefault(player => player.IsHuman)?.Equipment
+        var human = _snapshot.Players.SingleOrDefault(player => player.IsHuman);
+        var equipment = human?.Equipment.Concat(human.Judgment)
             .FirstOrDefault(item => item.Id == _selectedCardId);
         var selectedName = card?.Name ?? equipment?.DisplayName;
         var target = Seats.FirstOrDefault(item => item.Seat == _selectedTargetSeat);
@@ -684,7 +685,7 @@ public sealed partial class MainViewModel
         }
 
         var human = _snapshot.Players.Single(player => player.IsHuman);
-        var physicalKind = human.Hand.Concat(human.WoodenOxGrain ?? []).Concat(human.Equipment)
+        var physicalKind = human.Hand.Concat(human.WoodenOxGrain ?? []).Concat(human.Equipment).Concat(human.Judgment)
             .SingleOrDefault(card => card.Id == cardId)?.Kind;
         if (physicalKind is null)
         {

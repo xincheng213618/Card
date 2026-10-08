@@ -9,6 +9,7 @@ public sealed class CardViewModel : ObservableObject
     private bool _isPlayable;
     private string _availabilityText = string.Empty;
     private string _kindLabel = string.Empty;
+    private string _originalHandTag = string.Empty;
 
     public required int Id { get; init; }
     public CardKind? Kind { get; init; }
@@ -27,6 +28,17 @@ public sealed class CardViewModel : ObservableObject
         }
     }
     public bool IsStoredGrain => KindLabel.StartsWith("粮 ·", StringComparison.Ordinal);
+    public string OriginalHandTag
+    {
+        get => _originalHandTag;
+        set
+        {
+            if (!SetProperty(ref _originalHandTag, value)) return;
+            RaisePropertyChanged(nameof(HasOriginalHandTag));
+            RaisePropertyChanged(nameof(CardHint));
+        }
+    }
+    public bool HasOriginalHandTag => !string.IsNullOrWhiteSpace(OriginalHandTag);
     public required string SuitGlyph { get; init; }
     public required string Rank { get; init; }
     public ImageSource? RankArtwork => CardArt.GetRank(Rank, SuitGlyph);
@@ -47,6 +59,7 @@ public sealed class CardViewModel : ObservableObject
         set { if (SetProperty(ref _availabilityText, value)) RaisePropertyChanged(nameof(CardHint)); }
     }
     public string CardHint => $"{Name} · {SuitGlyph}{Rank}\n{KindLabel}\n\n{Description}" +
+        (HasOriginalHandTag ? $"\n\n标记：{OriginalHandTag}" : string.Empty) +
         (string.IsNullOrWhiteSpace(AvailabilityText) ? string.Empty : $"\n\n当前：{AvailabilityText}");
 
     public bool IsSelected

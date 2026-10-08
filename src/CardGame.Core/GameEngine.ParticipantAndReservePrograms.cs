@@ -247,7 +247,9 @@ public sealed partial class GameEngine
                 SkillProgramEffectOp.RevealHandColorDiscardAndTake or SkillProgramEffectOp.DrawThenPutOwnedCardOnTopParticipants or
                 SkillProgramEffectOp.DrawTurnOwnerThenDiscardMaximumHandForDodge or SkillProgramEffectOp.DistributePublicPileIfAllSuits or
                 SkillProgramEffectOp.ObtainOneFromEachSelectedTarget or SkillProgramEffectOp.GiveShownCardToLeastOriginalTarget or
-                SkillProgramEffectOp.TongxieFollowUp or SkillProgramEffectOp.TongxieGuard))
+                SkillProgramEffectOp.TongxieFollowUp or SkillProgramEffectOp.TongxieGuard or
+                SkillProgramEffectOp.YujueResolve or SkillProgramEffectOp.JieliePreventAndGift) &&
+            !HasExactTypedParticipantContinuation(frame, paused))
             throw new InvalidOperationException("A participant cursor must resume its own committed instruction.");
         if (frame.PrivateReserveDraft is not { } draft) return;
         if (!IsValidPlayerSeat(draft.ChooserSeat) || draft.RequiredCount < 1 || draft.RequiredCount > 64 ||
@@ -262,6 +264,38 @@ public sealed partial class GameEngine
         if (ReferenceEquals(frame, _resolutionStack.LastOrDefault()) && (_pendingDecision is not { Kind: DecisionKind.ProgramTrigger, IsPrivate: true } decision || decision.PlayerSeat != draft.ChooserSeat))
             throw new InvalidOperationException("A private reserve selection must retain its chooser's private prompt.");
     }
+    private bool HasExactTypedParticipantContinuation(ProgramSkillFrame frame, SkillProgramEffect paused) =>
+        paused.Op switch
+        {
+            SkillProgramEffectOp.DonateAllEquipmentAndOfferRecipientBenefits =>
+                frame.EquipmentDonation is not null && IsValidAllEquipmentDonation(frame),
+            SkillProgramEffectOp.ChooseEquipmentOrDrawAfterOtherActualTurn =>
+                frame.ActualEndedEquipment is not null && IsValidActualEndedEquipment(frame),
+            SkillProgramEffectOp.OfferSlashTargetBenefit =>
+                frame.SlashTargetBenefitDraft is { Settlement: false } && SlashBenefitProgramParentMatches(frame),
+            SkillProgramEffectOp.SettleDodgeCancelledSlashBenefit =>
+                frame.SlashTargetBenefitDraft is { Settlement: true } && SlashBenefitProgramParentMatches(frame),
+            SkillProgramEffectOp.ResolvePrepDiscardOrEnding =>
+                frame.PrepDiscard is not null && ValidPrepDiscard(frame),
+            SkillProgramEffectOp.PayHpThenNullifyOwnActualUseTarget =>
+                frame.InstructionIndex == 1 && _resolutionStack.FindIndex(item => item.Id == frame.Id) is var paidIndex && paidIndex > 0 &&
+                _resolutionStack[paidIndex - 1] is ActualUseTargetWindowFrame paidParent && PaidOwnTargetMatches(frame, paidParent, true),
+            SkillProgramEffectOp.RequireTargetDiscardOrEquipmentRecast =>
+                frame.InstructionIndex == 1 && frame.SlashTargetPenaltyDraft is { } penalty &&
+                penalty.Identity == frame.WindowContext?.SlashTargetPenalty && SlashTargetPenaltyProgramMatches(frame) &&
+                (penalty.Stage switch
+                {
+                    SlashTargetPenaltyStage.Offered => TargetPenaltyStillMayIssue(frame) && !penalty.Recast &&
+                        penalty.PaidCardIds.Count == 0 && penalty.PaidFrom.Count == 0 && penalty.SequenceBefore == 0 && penalty.SequenceAfter == 0 &&
+                        !penalty.DrawAttempted && penalty.ActualDrawCount == 0 && penalty.RewardBefore == 0 && penalty.RewardAfter == 0 &&
+                        frame.PendingMovementContinuation is null,
+                    SlashTargetPenaltyStage.CostChildren => ValidTargetPenaltyPayment(frame) && !penalty.DrawAttempted &&
+                        penalty.ActualDrawCount == 0 && penalty.RewardBefore == 0 && penalty.RewardAfter == 0,
+                    SlashTargetPenaltyStage.RewardChildren => ValidTargetPenaltyReward(frame),
+                    _ => false
+                }),
+            _ => false
+        };
     private void ExpireAttributedNatureMarkers(int ownerSeat)
     {
         foreach (var player in _players)

@@ -145,6 +145,7 @@ internal static class BoundaryCaiWenJiChecks
                 "A real observer invalidates the original nonLocked source: before payment it cancels, after the real cost its atomic benefit and claims finish without repaying."); Cold(g, r);
         }
         var (legacy, legacyRegistry) = Create(legacyVirtual: true); ActivateToPayment(legacy); var legacyDraft = Root(legacy).DamageJudgmentSuitPayment!;
+        var acceptedBeforePayment = E<CardActionAcceptedEvent>(legacy);
         Require(legacyDraft.CardActionId is null && legacyDraft.LegacyVirtualProducerFrameId is { } producer &&
             legacy.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.Id == producer && f.SkillId == "boundary:shensu") &&
             legacy.ResolutionStack.OfType<CardUseFrame>().Any(f => f.Id == legacyDraft.CardUseFrameId && f.CardId == 0 && f.Action is null && f.PhysicalCardIds is { Count: 0 }),
@@ -152,8 +153,12 @@ internal static class BoundaryCaiWenJiChecks
         Cold(legacy, legacyRegistry); Answer(legacy, c => c.Cards.Count == 1); Finish(legacy);
         Require(Paid(legacy).Length == 1 && E<ProgramJudgmentSuitPaymentCardClaimedEvent>(legacy).Length == 2 && legacy.State.Players[1].Hp == 6 &&
             E<CardUseDeclaredEvent>(legacy).Any(e => e.ResolutionId == legacyDraft.CardUseFrameId && e.CardId == 0 && e.CardKind == CardKind.Slash && e.SourceSeat == 0) &&
-            !E<CardActionAcceptedEvent>(legacy).Any(e => e.Action.ActorSeat == 0 && e.Action.EffectiveKind == CardKind.Slash),
-            "Real legacy virtual Slash damage triggers the new judgment and payment while its historical lack of CardAction remains unchanged."); Cold(legacy, legacyRegistry);
+            E<CardActionAcceptedEvent>(legacy).SequenceEqual(acceptedBeforePayment),
+            "Real legacy virtual Slash damage retains its actionless paid-use identity and payment adds no accepted action to the existing history: " +
+            JsonSerializer.Serialize(new { Paid = Paid(legacy).Length, Claimed = E<ProgramJudgmentSuitPaymentCardClaimedEvent>(legacy).Length,
+                Hp = legacy.State.Players[1].Hp, Uses = E<CardUseDeclaredEvent>(legacy).Select(e => new { e.ResolutionId, e.CardId, e.CardKind, e.SourceSeat }),
+                Actions = E<CardActionAcceptedEvent>(legacy).Select(e => new { e.Action.ActionId, e.Action.Type, e.Action.ActorSeat, e.Action.ProviderSeat,
+                    e.Action.EffectiveKind, e.Action.PhysicalCards, e.Action.ConversionChain }) })); Cold(legacy, legacyRegistry);
         var (other, otherRegistry) = Create(); Use(other, "plain-damage", [1]); Finish(other);
         Require(!E<ProgramBindingStartedEvent>(other).Any(e => e.SkillId == Beige) && !E<JudgmentRequestedEvent>(other).Any(e => e.Reason == Reason),
             "Program damage without an actual Slash use is not the registered opportunity."); Cold(other, otherRegistry);
@@ -216,7 +221,8 @@ internal static class BoundaryCaiWenJiChecks
 
     private static (GameEngine, ContentRegistry) Create(Suit suit = Suit.Heart, bool mixed = false, bool preclaim = false, string? loss = null, bool native = false, bool gainDying = false, bool legacyVirtual = false)
     {
-        var r = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true), new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage(), new Fixture(suit, mixed, preclaim, loss, native, gainDying, legacyVirtual));
+        IGameContentPackage classicSkills = legacyVirtual ? new LegacySlashSkillFixture() : new StandardClassicGeneralPackage();
+        var r = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true), new StandardRescueSkillExpansionPackage(), classicSkills, new Fixture(suit, mixed, preclaim, loss, native, gainDying, legacyVirtual));
         var g = GameEngine.CreateStandard(new GameOptions { Seed = 31, PlayerCount = 4, HumanSeat = native ? -1 : 0, HumanRole = native ? null : Role.Lord,
             ModeId = Mode, UseInteractiveSetup = !native, UseInteractiveDiscard = true, AdvanceAfterHumanCommands = false, MaxTurns = native ? 4 : 6 }, r);
         Accept(g, new StartGameCommand());
@@ -232,6 +238,20 @@ internal static class BoundaryCaiWenJiChecks
             else Finish(g);
         }
         return (g, r);
+    }
+
+    private sealed class LegacySlashSkillFixture : IGameContentPackage
+    {
+        public PackageManifest Manifest { get; } = new("fixture:cwj-legacy-skills", new(1, 0, 0), []);
+        public void Register(IContentRegistryBuilder builder)
+        {
+            // Preserve the old-catalog actionless case. The complete current
+            // catalog opts legacy completion into Ma Liang category normalization.
+            var source = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true),
+                new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage());
+            builder.AddSkill(source.GetSkill(Beige));
+            builder.AddSkill(source.GetSkill("boundary:shensu"));
+        }
     }
 
     private sealed class Fixture(Suit suit, bool mixed, bool preclaim, string? loss, bool native, bool gainDying, bool legacyVirtual) : IGameContentPackage

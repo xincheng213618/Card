@@ -3,7 +3,7 @@ using System.Text.Json.Nodes;
 using CardGame.Content.Standard;
 using CardGame.Core;
 
-// Real-command drafts only. This stage has not run a compiler, loader or check.
+// Real commands exercise the shared conversion and its native child returns.
 internal static class BoundaryGuoHuangHouChecks
 {
     private const string Jiaozhao = "boundary:jiaozhao-round-current", Danxin = "boundary:danxin-capped-current";
@@ -26,11 +26,14 @@ internal static class BoundaryGuoHuangHouChecks
             "A genuine single material DrawTwo use consumes only the actual Play quota, records the declared output name and preserves one real payment.");
         Use(g, "duel", [1]); Reach(g, p => p.Kind == DecisionKind.RespondSlash && p.PlayerSeat == 0);
         var count = F<TrueRoundCardNameUsedEvent>(g).Length;
+        var responseCard = P(g)!.Choices.First(c => c.Cards.Count == 1 && c.Parameters.GetValueOrDefault("response") == "slash").Cards.Single();
+        g = Cold(g, r);
         Answer(g, c => c.Cards.Count == 1 && c.Parameters.GetValueOrDefault("response") == "slash");
-        Reach(g, p => p.Kind == DecisionKind.RespondSlash && p.PlayerSeat == 0);
-        Require(F<TrueRoundCardNameUsedEvent>(g).Length == count && !F<TrueRoundCardNameUsedEvent>(g).Any(e => e.EffectiveKind == CardKind.Slash),
+        Play(g);
+        Require(F<TrueRoundCardNameUsedEvent>(g).Length == count && !F<TrueRoundCardNameUsedEvent>(g).Any(e => e.EffectiveKind == CardKind.Slash) &&
+            g.CardMovements.Count(m => m.CardId == responseCard && m.From == CardLocation.Hand(0) && m.To == CardLocation.Processing) == 1,
             "A real entity Slash played in a Duel response does not become an all-player true-use name.");
-        g = Cold(g, r); Answer(g, c => c.Parameters.GetValueOrDefault("response") == "pass"); Play(g);
+        _ = Cold(g, r);
         NextOwnRound(g, 2);
         Require(g.GetHumanLegalActions().Any(a => a.ConversionSource?.SkillId == Jiaozhao && a.PlayedCardKind == CardKind.DrawTwo) &&
             F<RoundStartedEvent>(g).Length == 2, "A genuine new Round releases the prior Round name and a new actual Play allowance.");
@@ -91,6 +94,7 @@ internal static class BoundaryGuoHuangHouChecks
             "A real regrant and genuine extra turn keep permanent level and owner/skill/state Round quota.");
         NextOwnRound(g, 2);
         var zero = g.GetHumanLegalActions().First(a => a.CardId == 0 && a.ConversionSource?.SkillId == Jiaozhao && a.PlayedCardKind == CardKind.Slash && a.TargetSeats.SequenceEqual([1]));
+        AssertZeroActionPhysicalRestrictionBoundary(g, zero);
         var hand = V(g, 0).HandCount; var before = g.CardMovements.Count;
         Private(g); g = Cold(g, r); SubmitPlay(g, zero); Play(g);
         var issued = F<TieredRoundConversionUseIssuedEvent>(g).Last().Receipt;
@@ -304,6 +308,24 @@ internal static class BoundaryGuoHuangHouChecks
     private static bool IsZero(PromptChoice c) => c.Parameters.GetValueOrDefault("response") == "tiered-round-zero-use";
     private static void SubmitPlay(GameEngine g, LegalAction a) => Accept(g, new PlayCardCommand(0, a.CardId!.Value, a.TargetSeats, g.Revision, P(g)!.PromptId, a.PlayedCardKind, a.TargetCardId)
         { ConversionSource = a.ConversionSource, AdditionalConversionSources = a.AdditionalConversionSources });
+    private static void AssertZeroActionPhysicalRestrictionBoundary(GameEngine g, LegalAction zero)
+    {
+        const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        var actor = ((IReadOnlyList<CharacterState>)typeof(GameEngine).GetField("_players", flags)!.GetValue(g)!)[0];
+        var filter = typeof(GameEngine).GetMethod("FilterTurnCardUseRestrictions", flags)!;
+        var filtered = (IReadOnlyList<LegalAction>)filter.Invoke(g, [actor, new[] { zero }])!;
+        Require(zero.TieredRoundZeroUse is not null && filtered.Count == 1 && ReferenceEquals(filtered[0], zero),
+            "The actual published zero-material action passes the shared restriction filter without a physical-zone lookup.");
+        foreach (var invalidId in new[] { -1, int.MaxValue })
+        {
+            var rejected = false;
+            try { filter.Invoke(g, [actor, new[] { zero with { CardId = invalidId } }]); }
+            catch (System.Reflection.TargetInvocationException exception) when
+                (exception.InnerException is InvalidOperationException error && error.Message == $"Card {invalidId} is not registered in any zone.")
+            { rejected = true; }
+            Require(rejected, "Nonzero invalid entity IDs must still fail the shared physical restriction boundary.");
+        }
+    }
     private static void Use(GameEngine g, string id, IReadOnlyList<int>? targets = null) => Accept(g, new UseProgramSkillCommand(0, Driver, id, [], targets ?? [], g.Revision, P(g)!.PromptId));
     private static void End(GameEngine g) => Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId));
     private static void NextOwnRound(GameEngine g, int round) { End(g); Until(g, e => F<RoundStartedEvent>(e).Length >= round && P(e) is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 }); }
@@ -376,8 +398,8 @@ internal static class BoundaryGuoHuangHouChecks
               {"id":"fixture:ghh-quiet","revision":1,"triggers":[{"id":"quiet","window":"afterNormalDraw","subject":"owner","optional":false,"effects":[{"op":"skipTurnPhases","target":"owner","phases":["play"]}]}]},
               {"id":"fixture:ghh-gain","revision":1,"triggers":[{"id":"gain","window":"cardsGained","subject":"owner","optional":false,"destinationZones":["hand"],"movementOccurrence":"perBatch","movementReasons":["skill-program.boundary:danxin-capped-current.capped-conversion-draw"],"usageScope":"game","usageLimit":1,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]},{"op":"recover","target":"owner","amount":1}]}]},
               {"id":"fixture:ghh-hp","revision":1,"triggers":[{"id":"hp","window":"afterHpRecovered","subject":"owner","optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},
-              {"id":"fixture:ghh-completed","revision":1,"triggers":[{"id":"response","window":"cardUseCompleted","subject":"owner","optional":false,"ownerRelation":"actor","includeResponseUses":true,"cardKinds":["nullification","dodge","fireAttack"],"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},
-              {"id":"fixture:ghh-trick-child","revision":1,"triggers":[{"id":"committed","window":"cardUseCommitted","subject":"owner","optional":false,"ownerRelation":"actor","cardKinds":["drawTwo"],"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},
+              {"id":"fixture:ghh-completed","revision":1,"triggers":[{"id":"response","window":"cardUseCompleted","optional":false,"ownerRelation":"actor","includeResponseUses":true,"cardKinds":["nullification","dodge","fireAttack"],"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},
+              {"id":"fixture:ghh-trick-child","revision":1,"triggers":[{"id":"committed","window":"cardUseCommitted","optional":false,"ownerRelation":"actor","cardKinds":["drawTwo"],"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},
               {"id":"fixture:ghh-fire-damage","revision":1,"triggers":[{"id":"damage","window":"afterDamageApplied","subject":"damageSource","optional":false,"damageOccurrence":"perDamage","effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},
               {"id":"fixture:ghh-fire-color","revision":1,"cardPolicies":[{"id":"color-payment","kind":"randomRevealColorFireAttack","cardKinds":["fireAttack"]}]},
               {"id":"fixture:ghh-foreign-slash","revision":1,"viewAs":[{"id":"real-slash","inputKinds":[],"inputSuits":[],"outputKind":"slash","forPlay":true,"forResponse":false,"useOnly":true}],"triggers":[{"id":"slash","window":"turnEnding","subject":"owner","turnOwnerScope":"otherLiving","optional":false,"effects":[{"op":"useOwnerSlashAgainstTurnOwner","target":"owner","ignoreDistance":true}]}]}

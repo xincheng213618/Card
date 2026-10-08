@@ -1,0 +1,796 @@
+{
+  "sourceRecordSchemaVersion": 1,
+  "documentKind": "Round16 current official OL ordinary Jin candidates and complete-mechanism assessment",
+  "capturedAt": "2026-10-08",
+  "status": "Selected current OL Jia Chong fully integrated; focused and measured routine acceptance passed",
+  "selectedOfficialId": 7019,
+  "selectedCharacterName": "贾充",
+  "registered": true,
+  "productionImplemented": true,
+  "behaviorValidated": true,
+  "workspaceBaseline": {
+    "head": "fe90b66788b7d1866fa1e87f02d4993ad7bd0f3e",
+    "registrationFile": "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+    "registeredJinGenerals": [
+      {
+        "id": "ol:zhang-hu-yue-chen",
+        "name": "张虎乐綝",
+        "gid": 7000
+      },
+      {
+        "id": "ol:wei-guan",
+        "name": "卫瓘",
+        "gid": 7013
+      },
+      {
+        "id": "ol:wang-xiang",
+        "name": "王祥",
+        "gid": 7020
+      },
+      {
+        "id": "ol:du-yu",
+        "name": "杜预",
+        "gid": 7006
+      }
+    ],
+    "candidateNamesAbsentFromCoreAndStandardSourceSearch": true,
+    "noBuildOrTestRunByResearchAgent": true,
+    "concurrentDirtyWorkPreserved": true
+  },
+  "officialRosterReference": {
+    "document": "docs/content/sources/jin-next-candidates-2026-10-08.json",
+    "documentSha256": "9cdff082f032b5c854ebf18c7e08b39ac5c3c365c1111a53b8792779547662ea",
+    "totalJin": 37,
+    "originalCapture": {
+      "role": "current official OL full roster JSON-LD",
+      "url": "https://www.sanguosha.com/hero",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T10:24:26.3228594+00:00",
+      "responseSha256": "df68e4bb68731cf79e2ab27a2c970b251c75e084c321769d140bb3847e73bb26",
+      "responseByteCount": 1319990,
+      "hashScope": "UTF-8 re-encoding of decoded HTTP response body"
+    },
+    "currentRound16CandidateRevalidation": "These three candidates were re-fetched from current hero SSR/API and current official client Config; full 37 roster is linked to the earlier same-day queue, not falsely represented as a fresh full-roster fetch.",
+    "entries": [
+      {
+        "gid": 497,
+        "name": "羊祜",
+        "hp": 4,
+        "genre": "其他",
+        "figure": "晋",
+        "sourcePage": "https://www.sanguosha.com/hero/497",
+        "advertisedPortraitUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/49700.png"
+      },
+      {
+        "gid": 7002,
+        "name": "司马师",
+        "hp": 4,
+        "genre": "其他",
+        "figure": "晋",
+        "sourcePage": "https://www.sanguosha.com/hero/7002",
+        "advertisedPortraitUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/700200.png"
+      },
+      {
+        "gid": 7019,
+        "name": "贾充",
+        "hp": 3,
+        "genre": "其他",
+        "figure": "晋",
+        "sourcePage": "https://www.sanguosha.com/hero/7019",
+        "advertisedPortraitUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/701900.png"
+      }
+    ]
+  },
+  "currentClient": {
+    "capturedAtUtc": "2026-10-08T11:31:46.685009+00:00",
+    "bundle": {
+      "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+      "sha256": "6a035389beda8d0dbf31227f57a91b2da14d3d5055503198a227aef54f22bf76",
+      "bytes": 5256312
+    },
+    "config": {
+      "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+      "sha256": "9e26cb3db90532084579a20c292d5fec0c81dcf3d5eb2abf2009bff0326237bb",
+      "bytes": 4142728
+    },
+    "members": [
+      {
+        "name": "cha_spell.sgs",
+        "encodedSha256": "95cfaa4106a4f6224ebed8948bcf86bd5fc6801a83a1c4162c7e59bc848bef66",
+        "decodedSha256": "39b83f6e2504590e262bb353bddfded546b83f83a7ea9199b67742b1bee68fc0"
+      },
+      {
+        "name": "character.sgs",
+        "encodedSha256": "e0b6f0188edebb1f502ea402c7171e93b88f4e9d05720948344a1f4f44474aae",
+        "decodedSha256": "b3ef3f1181e7fe667499cb688b7cdce56631d899dbb0eea55d75fbf80636b040"
+      }
+    ],
+    "decoding": "Read public official zip member bytes in memory; public client AES-CFB128 initialization and gzip decode through existing importer convention; no raw large bundle output preserved."
+  },
+  "candidates": [
+    {
+      "officialId": 497,
+      "name": "羊祜",
+      "faction": "晋",
+      "ordinaryIdentity": true,
+      "maxHp": 4,
+      "initialHp": 4,
+      "initialHpInterpretation": "Official hero renderer treats initial_hp=0 as full starting HP; preserve mode HP modifiers.",
+      "hasConcealment": false,
+      "currentOfficialMetadata": {
+        "gid": 497,
+        "name": "羊祜",
+        "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/497.png",
+        "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/49700.png",
+        "label": [
+          "防御",
+          "控制",
+          "过牌"
+        ],
+        "figure": "晋",
+        "figure_py": "jin",
+        "quality": "传说",
+        "biography": "字叔子，西晋名将，蔡文姬外甥。坐镇荆州与东吴陆抗对阵，临终前荐杜预接替职务，晋武帝依其计划灭吴。唐宋时期配享武庙。",
+        "characteristic": "使用初始手牌可以提供多功能收益，清空初始手牌后觉醒，觉醒后利用过牌弃牌的共振控场。",
+        "hp": 4,
+        "initial_hp": 0,
+        "score": 0
+      },
+      "currentSources": [
+        {
+          "role": "current official ordinary OL hero",
+          "url": "https://www.sanguosha.com/hero/497",
+          "httpStatus": 200,
+          "capturedAtUtc": "2026-10-08T11:30:45.455595+00:00",
+          "sha256": "73994bea3a7f060871ce89269d1293dc247d3568c9ead5817f8bb0d0c88d30d9",
+          "byteCount": 25472,
+          "hashScope": "Exact raw HTTP body bytes (UTF-8)"
+        },
+        {
+          "role": "current official ordinary OL api",
+          "url": "https://www.sanguosha.com/api/v1/hero/info?gid=497",
+          "httpStatus": 200,
+          "capturedAtUtc": "2026-10-08T11:30:31.127574+00:00",
+          "sha256": "34d75d099478bbdf70bee3bd544456af753c5ec1f36814da5e5cdaab54a5a25d",
+          "byteCount": 905,
+          "hashScope": "Exact raw HTTP body bytes (UTF-8)"
+        }
+      ],
+      "skills": [
+        {
+          "officialSkillId": 3081,
+          "name": "怀远",
+          "exactText": "你的初始手牌称为“绥”。当你失去一张“绥”后，你为一名角色选择一项：1.手牌上限+1；2.攻击范围+1；3.摸一张牌。当你死亡时，你可以令一名其他角色获得你以此法增加的手牌上限和攻击范围。",
+          "rawOrdinaryText": "你的初始手牌称为“绥”。当你失去一张“绥”后，你为一名角色选择一项：<br>&nbsp;1.手牌上限+1；2.攻击范围+1；3.摸一张牌。<br>当你死亡时，你可以令一名其他角色获得你以此法增加的手牌上限和攻击范围。",
+          "origin": "/GameSpells/spell/1438",
+          "acquiredOnly": false
+        },
+        {
+          "officialSkillId": 3082,
+          "name": "崇信",
+          "exactText": "出牌阶段限一次，你可以与一名有手牌的其他角色各重铸一张牌。",
+          "rawOrdinaryText": "出牌阶段限一次，你可以与一名有手牌的其他角色各重铸一张牌。",
+          "origin": "/GameSpells/spell/1439",
+          "acquiredOnly": false
+        },
+        {
+          "officialSkillId": 3083,
+          "name": "德彰",
+          "exactText": "觉醒技，回合开始时，若你没有“绥”，你减少1点体力上限并获得“卫戍”。",
+          "rawOrdinaryText": "觉醒技，回合开始时，若你没有“绥”，你减少1点体力上限并获得“<font href='3084'>卫戍</font>”。",
+          "origin": "/GameSpells/spell/1440",
+          "acquiredOnly": false
+        },
+        {
+          "officialSkillId": 3084,
+          "name": "卫戍",
+          "exactText": "锁定技，你于摸牌阶段外非因本技能摸牌后，你令一名角色摸一张牌；你的牌于弃牌阶段外因弃置置入弃牌堆后，你弃置一名其他角色一张牌。",
+          "rawOrdinaryText": "锁定技，你于摸牌阶段外非因本技能摸牌后，你令一名角色摸一张牌；你的牌于弃牌阶段外因弃置置入弃牌堆后，你弃置一名其他角色一张牌。",
+          "origin": "/GameSpells/spell/1441",
+          "acquiredOnly": true
+        }
+      ],
+      "clientCharacter": {
+        "path": "/GameCharacters/character/1191",
+        "row": {
+          "a": 497,
+          "b": "羊祜",
+          "d": "YangHu",
+          "e": 44,
+          "f": "42",
+          "g": 6,
+          "h": 1,
+          "i": 4,
+          "j": 3081,
+          "k": 3082,
+          "l": 3083,
+          "p": 3,
+          "q": "1",
+          "r": "9049701",
+          "y": "字叔子，西晋名将，蔡文姬外甥。坐镇荆州与东吴陆抗对阵，临终前荐杜预接替职务，晋武帝依其计划灭吴。唐宋时期配享武庙。",
+          "z": "使用初始手牌可以提供多功能收益，清空初始手牌后觉醒，觉醒后利用过牌弃牌的共振控场。",
+          "aa": 190,
+          "ab": "907,908",
+          "ac": "杜预,陆抗,王濬",
+          "ad": "画师:匠人绘 ",
+          "x": "唯以德信，####能经百岁。",
+          "al": 1730,
+          "am": "true",
+          "ap": 800,
+          "aq": 240,
+          "LordCardRate1": 51,
+          "LordCardRate2": 54,
+          "cc": 49701,
+          "starMax": 4,
+          "freetitle": "0,控制强将"
+        }
+      },
+      "clientSpells": [
+        {
+          "path": "/GameSpells/spell/1438",
+          "row": {
+            "a": 3081,
+            "b": "3,5",
+            "c": "怀远",
+            "d": "HuaiYuan",
+            "e": 0,
+            "g": 5,
+            "i": 2,
+            "n": 1,
+            "o": "你的初始手牌称为“绥”。当你失去一张“绥”后，你为一名角色选择一项：<br>&nbsp;1.手牌上限+1；2.攻击范围+1；3.摸一张牌。<br>当你死亡时，你可以令一名其他角色获得你以此法增加的手牌上限和攻击范围。",
+            "v": "请选择一名角色",
+            "w": "请选择一名角色",
+            "k": "1"
+          }
+        },
+        {
+          "path": "/GameSpells/spell/1439",
+          "row": {
+            "a": 3082,
+            "b": "3",
+            "c": "崇信",
+            "d": "ChongXin",
+            "e": 0,
+            "g": 5,
+            "h": 1,
+            "i": 2,
+            "n": 1,
+            "o": "出牌阶段限一次，你可以与一名有手牌的其他角色各重铸一张牌。",
+            "v": "请选择一张牌重铸，并选择一名有手牌的其他角色",
+            "w": "请选择一张牌重铸"
+          }
+        },
+        {
+          "path": "/GameSpells/spell/1440",
+          "row": {
+            "a": 3083,
+            "b": "3,4,5,6,23",
+            "c": "德彰",
+            "d": "DeZhang",
+            "e": 0,
+            "i": 2,
+            "l": "yanghudezhang",
+            "m": "3084",
+            "o": "觉醒技，回合开始时，若你没有“绥”，你减少1点体力上限并获得“<font href='3084'>卫戍</font>”。"
+          }
+        },
+        {
+          "path": "/GameSpells/spell/1441",
+          "row": {
+            "a": 3084,
+            "b": "3,4,5",
+            "c": "卫戍",
+            "d": "WeiShu",
+            "e": 0,
+            "g": 5,
+            "i": 2,
+            "n": 1,
+            "o": "锁定技，你于摸牌阶段外非因本技能摸牌后，你令一名角色摸一张牌；你的牌于弃牌阶段外因弃置置入弃牌堆后，你弃置一名其他角色一张牌。",
+            "v": "请选择一名角色，令其摸1张牌|请选择一名角色，弃置其1张牌",
+            "w": "请选择一名角色，令其摸1张牌|请选择一名角色，弃置其1张牌"
+          }
+        }
+      ],
+      "mechanismAssessment": {
+        "completeExistingCoverage": false,
+        "decision": "Deferred complete four-skill candidate; do not omit acquired Weishu.",
+        "reusable": [
+          "Real initial-deal movement reasons",
+          "Real card recast movement/draw primitives",
+          "Draw/movement/damage/HP/max-HP typed child returns",
+          "Persistent rule modifiers and death windows"
+        ],
+        "newMechanismsRequired": [
+          "Durable physical initial-hand Sui identity through later zone movement, without tagging later draws",
+          "Per-owner permanent hand-limit/attack-range awards with once-per-Sui-loss real choice and death inheritance",
+          "Two independent real recast selections and exact child return for Chongxin",
+          "Awakening on true turn-start Sui emptiness followed by exact acquired Weishu",
+          "Weishu actual-draw provenance, producer-self exclusion, non-Draw-phase gating and non-Discard-phase discard-to-discard-pile gating; not all CardsGained/hand loss"
+        ],
+        "concealmentRequired": false
+      }
+    },
+    {
+      "officialId": 7019,
+      "name": "贾充",
+      "faction": "晋",
+      "ordinaryIdentity": true,
+      "maxHp": 3,
+      "initialHp": 3,
+      "initialHpInterpretation": "Official hero renderer treats initial_hp=0 as full starting HP; preserve mode HP modifiers.",
+      "hasConcealment": false,
+      "currentOfficialMetadata": {
+        "gid": 7019,
+        "name": "贾充",
+        "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/7019.png",
+        "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/701900.png",
+        "label": [
+          "进攻",
+          "控制",
+          "卖血"
+        ],
+        "figure": "晋",
+        "figure_py": "jin",
+        "quality": "史诗",
+        "biography": "字公闾，贾逵[kuí]之子，贾南风之父。曹魏大臣，西晋开国元勋。参与镇压淮南二叛和弑杀魏帝曹髦[máo]。",
+        "characteristic": "可以预测他人出牌阶段出的牌，猜对可以造成伤害。需要格外关注上次对你造成伤害的角色。",
+        "hp": 3,
+        "initial_hp": 0,
+        "score": 0
+      },
+      "currentSources": [
+        {
+          "role": "current official ordinary OL hero",
+          "url": "https://www.sanguosha.com/hero/7019",
+          "httpStatus": 200,
+          "capturedAtUtc": "2026-10-08T11:30:45.453581+00:00",
+          "sha256": "1e090e2a00db14fd04d9f2b32197719a284e32064a8a416a52d6e44b62df4b48",
+          "byteCount": 25180,
+          "hashScope": "Exact raw HTTP body bytes (UTF-8)"
+        },
+        {
+          "role": "current official ordinary OL api",
+          "url": "https://www.sanguosha.com/api/v1/hero/info?gid=7019",
+          "httpStatus": 200,
+          "capturedAtUtc": "2026-10-08T11:30:31.150870+00:00",
+          "sha256": "20183a4e48c30ec7cb9d581d6196f866f523db9159f1715d451d8fbd8d5d24df",
+          "byteCount": 878,
+          "hashScope": "Exact raw HTTP body bytes (UTF-8)"
+        }
+      ],
+      "skills": [
+        {
+          "officialSkillId": 3088,
+          "name": "凶竖",
+          "exactText": "其他角色出牌阶段开始时，你可以：弃置X张牌（X为你本轮此前发动过本技能的次数），展示其一张手牌，你秘密猜测其此阶段是否使用同名牌。此阶段结束时，若你猜对，你对其造成1点伤害；若你猜错，你获得此牌。",
+          "rawOrdinaryText": "其他角色出牌阶段开始时，你可以：弃置X张牌（X为你本轮此前发动过本技能的次数），展示其一张手牌，你秘密猜测其此阶段是否使用同名牌。此阶段结束时，若你猜对，你对其造成1点伤害；若你猜错，你获得此牌。",
+          "origin": "/GameSpells/spell/1444",
+          "acquiredOnly": false
+        },
+        {
+          "officialSkillId": 3089,
+          "name": "奸回",
+          "exactText": "锁定技，你记录上次对你造成伤害的其他角色。当你对其造成伤害后，你摸一张牌；当其对你造成伤害后，其弃置一张牌。",
+          "rawOrdinaryText": "锁定技，你记录上次对你造成伤害的其他角色。当你对其造成伤害后，你摸一张牌；当其对你造成伤害后，其弃置一张牌。",
+          "origin": "/GameSpells/spell/1445",
+          "acquiredOnly": false
+        }
+      ],
+      "clientCharacter": {
+        "path": "/GameCharacters/character/1193",
+        "row": {
+          "a": 7019,
+          "b": "贾充",
+          "d": "JiaChong",
+          "e": 40,
+          "f": "39",
+          "g": 6,
+          "h": 1,
+          "i": 3,
+          "j": 3088,
+          "k": 3089,
+          "p": 2,
+          "q": "1",
+          "y": "字公闾，贾逵[kuí]之子，贾南风之父。曹魏大臣，西晋开国元勋。参与镇压淮南二叛和弑杀魏帝曹髦[máo]。",
+          "z": "可以预测他人出牌阶段出的牌，猜对可以造成伤害。需要格外关注上次对你造成伤害的角色。",
+          "aa": 1289,
+          "ab": "911,912",
+          "ac": "荀勖",
+          "ad": "画师:游漫美绘",
+          "x": "天下凶凶，####由我一人！",
+          "al": 1730,
+          "am": "true",
+          "ap": 240,
+          "aq": 70,
+          "LordCardRate1": 26,
+          "LordCardRate2": 51,
+          "cc": 701901,
+          "starMax": 4
+        }
+      },
+      "clientSpells": [
+        {
+          "path": "/GameSpells/spell/1444",
+          "row": {
+            "a": 3088,
+            "b": "3,5",
+            "c": "凶竖",
+            "d": "XiongShu",
+            "e": 0,
+            "g": 1,
+            "i": 2,
+            "o": "其他角色出牌阶段开始时，你可以：弃置X张牌（X为你本轮此前发动过本技能的次数），展示其一张手牌，你秘密猜测其此阶段是否使用同名牌。此阶段结束时，若你猜对，你对其造成1点伤害；若你猜错，你获得此牌。",
+            "v": "请选择{0}张牌弃置",
+            "ac": "是否弃置{0}张牌对{Source}发动<font color='#FFD800'>凶竖</font>|是否对{Source}发动<font color='#FFD800'>凶竖</font>"
+          }
+        },
+        {
+          "path": "/GameSpells/spell/1445",
+          "row": {
+            "a": 3089,
+            "b": "3,4,5",
+            "c": "奸回",
+            "d": "JianHui",
+            "e": 0,
+            "g": 2,
+            "i": 2,
+            "o": "锁定技，你记录上次对你造成伤害的其他角色。当你对其造成伤害后，你摸一张牌；当其对你造成伤害后，其弃置一张牌。",
+            "w": "请选择一张牌弃置"
+          }
+        }
+      ],
+      "mechanismAssessment": {
+        "completeExistingCoverage": false,
+        "decision": "Selected by root for full Xiongshu and Jianhui.",
+        "reusable": [
+          "Native PlayPhaseStarting/PlayEnding windows",
+          "Opaque TargetCardSelectionFrame hand slot selection and public reveal",
+          "Movement and HP/damage typed continuations",
+          "Actual applied-damage facts",
+          "Existing normalized effective card-use identity and round tracking base"
+        ],
+        "newMechanismsRequired": [
+          "Stable owner+method+actual-round accepted-activation count and non-prerequisite partial/zero discard attempt",
+          "Private Boolean guess bound to an exact actual Play-phase instance and the exact revealed entity/name",
+          "Actual use-direction effective-name observation including zero-entity/converted use, excluding mere response/physical costs",
+          "Exact delayed once-only phase settlement that survives nested draws/movement/damage and cold checkpoint restore",
+          "Physical revealed-card obtain at settlement with explicit legal-zone mapping",
+          "Last-other-applied-damager memory and distinct after-dealing/after-receiving typed outcomes"
+        ],
+        "concealmentRequired": false
+      }
+    },
+    {
+      "officialId": 7002,
+      "name": "司马师",
+      "faction": "晋",
+      "ordinaryIdentity": true,
+      "maxHp": 4,
+      "initialHp": 3,
+      "initialHpInterpretation": "Explicit current API initial_hp and character.af agree.",
+      "hasConcealment": true,
+      "currentOfficialMetadata": {
+        "gid": 7002,
+        "name": "司马师",
+        "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/7002.png",
+        "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/700200.png",
+        "label": [
+          "进攻",
+          "防御",
+          "加伤"
+        ],
+        "figure": "晋",
+        "figure_py": "jin",
+        "quality": "稀有",
+        "biography": "字子元，河内温县（今河南省温县）人。西晋王朝的奠基人之一，晋宣帝司马懿与宣穆皇后张春华的长子，晋文帝司马昭的同母兄，晋武帝司马炎的伯父。",
+        "characteristic": "回合外防御力极强，对敌方是否有回复能力要有自己的判断。",
+        "hp": 4,
+        "initial_hp": 3,
+        "score": 0
+      },
+      "currentSources": [
+        {
+          "role": "current official ordinary OL hero",
+          "url": "https://www.sanguosha.com/hero/7002",
+          "httpStatus": 200,
+          "capturedAtUtc": "2026-10-08T11:30:45.453284+00:00",
+          "sha256": "eafc2f7cc133c68c93be86cd5f5ab45182d2fed931e69a4505d7750cedc58977",
+          "byteCount": 26158,
+          "hashScope": "Exact raw HTTP body bytes (UTF-8)"
+        },
+        {
+          "role": "current official ordinary OL api",
+          "url": "https://www.sanguosha.com/api/v1/hero/info?gid=7002",
+          "httpStatus": 200,
+          "capturedAtUtc": "2026-10-08T11:30:31.170639+00:00",
+          "sha256": "194ca0239d320980e32680acce14c594ba4d2cfe20c08d9c31047c276713ec89",
+          "byteCount": 890,
+          "hashScope": "Exact raw HTTP body bytes (UTF-8)"
+        }
+      ],
+      "skills": [
+        {
+          "officialSkillId": 7004,
+          "name": "韬隐",
+          "exactText": "隐匿。当你于其他角色的回合登场后，你可以令其本回合手牌上限-2。",
+          "rawOrdinaryText": "隐匿。当你于其他角色的回合登场后，你可以令其本回合手牌上限-2。",
+          "origin": "/GameSpells/spell/1313",
+          "acquiredOnly": false
+        },
+        {
+          "officialSkillId": 7005,
+          "name": "夷灭",
+          "exactText": "每回合限一次，当你对其他角色造成伤害时，你可以失去1点体力，令此伤害+X（X为其体力值减本次伤害值），造成伤害后，其回复X点体力。",
+          "rawOrdinaryText": "每回合限一次，当你对其他角色造成伤害时，你可以失去1点体力，令此伤害+X（X为其体力值减本次伤害值），造成伤害后，其回复X点体力。",
+          "origin": "/GameSpells/spell/1314",
+          "acquiredOnly": false
+        },
+        {
+          "officialSkillId": 7006,
+          "name": "睿略",
+          "exactText": "主公技，其他晋势力角色的出牌阶段限一次，其可以交给你一张【杀】或伤害锦囊牌。",
+          "rawOrdinaryText": "主公技，其他晋势力角色的出牌阶段限一次，其可以交给你一张【杀】或伤害锦囊牌。",
+          "origin": "/GameSpells/spell/1315",
+          "acquiredOnly": false
+        },
+        {
+          "officialSkillId": 7007,
+          "name": "泰然",
+          "exactText": "锁定技，结束阶段，你回复所有体力，将手牌摸至体力上限。出牌阶段开始时，你失去以此法回复的体力，弃置你以此法获得的手牌。",
+          "rawOrdinaryText": "锁定技，结束阶段，你回复所有体力，将手牌摸至体力上限。出牌阶段开始时，你失去以此法回复的体力，弃置你以此法获得的手牌。",
+          "origin": "/GameSpells/spell/1316",
+          "acquiredOnly": false
+        }
+      ],
+      "clientCharacter": {
+        "path": "/GameCharacters/character/827",
+        "row": {
+          "a": 7002,
+          "b": "司马师",
+          "d": "SiMaShi",
+          "e": 40,
+          "f": "37",
+          "g": 6,
+          "h": 1,
+          "i": 4,
+          "j": 7004,
+          "k": 7005,
+          "l": 7007,
+          "m": 7006,
+          "p": 1,
+          "q": "1",
+          "r": "9700201",
+          "af": 3,
+          "ag": 1,
+          "y": "字子元，河内温县（今河南省温县）人。西晋王朝的奠基人之一，晋宣帝司马懿与宣穆皇后张春华的长子，晋文帝司马昭的同母兄，晋武帝司马炎的伯父。",
+          "z": "回合外防御力极强，对敌方是否有回复能力要有自己的判断。",
+          "aa": 131,
+          "ab": "805,806",
+          "ad": "画师:拉布拉卡",
+          "x": "哈哈哈哈，####好戏，才刚刚开始！",
+          "al": 1780,
+          "am": "true",
+          "ap": 50,
+          "aq": 15,
+          "bn": "一刀击杀，爱搏者必选",
+          "bt": "60",
+          "bx": 4500,
+          "LordCardRate1": 20,
+          "LordCardRate2": 42,
+          "cb": "1;2;3",
+          "cc": 700204,
+          "starMax": 4
+        }
+      },
+      "clientSpells": [
+        {
+          "path": "/GameSpells/spell/1313",
+          "row": {
+            "a": 7004,
+            "b": "3,5,17",
+            "c": "韬隐",
+            "d": "TaoYin",
+            "g": 2,
+            "i": 2,
+            "o": "隐匿。当你于其他角色的回合登场后，你可以令其本回合手牌上限-2。"
+          }
+        },
+        {
+          "path": "/GameSpells/spell/1314",
+          "row": {
+            "a": 7005,
+            "b": "3,5",
+            "c": "夷灭",
+            "d": "YiMie",
+            "g": 1,
+            "i": 2,
+            "ab": 1,
+            "o": "每回合限一次，当你对其他角色造成伤害时，你可以失去1点体力，令此伤害+X（X为其体力值减本次伤害值），造成伤害后，其回复X点体力。",
+            "au": -5
+          }
+        },
+        {
+          "path": "/GameSpells/spell/1315",
+          "row": {
+            "a": 7006,
+            "b": "3,7",
+            "c": "睿略",
+            "d": "RuiLue",
+            "g": 5,
+            "h": 1,
+            "i": 2,
+            "o": "主公技，其他晋势力角色的出牌阶段限一次，其可以交给你一张【杀】或伤害锦囊牌。",
+            "y": "主公技，其他友方晋势力角色的出牌阶段限一次，其可以交给你一张【杀】或伤害锦囊牌。"
+          }
+        },
+        {
+          "path": "/GameSpells/spell/1316",
+          "row": {
+            "a": 7007,
+            "b": "3,4,5",
+            "c": "泰然",
+            "d": "TaiRan",
+            "g": 2,
+            "i": 2,
+            "ab": 1,
+            "o": "锁定技，结束阶段，你回复所有体力，将手牌摸至体力上限。出牌阶段开始时，你失去以此法回复的体力，弃置你以此法获得的手牌。",
+            "k": "1",
+            "av": -5
+          }
+        }
+      ],
+      "mechanismAssessment": {
+        "completeExistingCoverage": false,
+        "decision": "Deferred until complete ordinary-identity concealment is implemented; no replacement with National War reveal or half character.",
+        "reusable": [
+          "Damage arithmetic",
+          "Lose-HP/dying/recovery native frames",
+          "Hand adjustment and scoped numeric modifiers",
+          "Card transfer"
+        ],
+        "newMechanismsRequired": [
+          "True ordinary-identity concealment/entry, initial HP3/max HP4 and private general/source visibility",
+          "Taoyin entry during another actual turn with turn-scoped hand-limit -2",
+          "Yimie frozen X computed from target HP/current damage, real own HP-loss child including dying, damage addition then exact post-damage target recovery",
+          "Ruilyue other Jin producer-side phase quota and real Slash/damaging-trick gift under lord-skill qualification",
+          "Tairan end-stage recover-all/draw-to-max receipt followed by next actual Play-start loss of exact healed amount and discard of the exact still-owned drawn entities"
+        ],
+        "concealmentRequired": true
+      }
+    }
+  ],
+  "excludedVariants": [
+    "GuoZhanSiMaShi character2085",
+    "New1V1SiMaShi character3046",
+    "YangHuRace character6067",
+    "RuiLue2 spell7034 / team-mode y text",
+    "Ten-anniversary Jia Chong with Beini/Shizong and Wei faction"
+  ],
+  "officialSupplementalFaq": {
+    "role": "official historical description-normalization FAQ, not current character roster",
+    "url": "https://www.sanguosha.com/news/20220712_2766_0914",
+    "httpStatus": 200,
+    "capturedAtUtc": "2026-10-08T11:36:07.019369+00:00",
+    "sha256": "40206b53fa04866676f0941972e2978f62e323c9449ca22fd0e6682487d38a89",
+    "byteCount": 41319,
+    "hashScope": "Exact raw HTTP body bytes",
+    "title": "技能描述规范化调整",
+    "publishedAt": "2022-07-13 17:43:57",
+    "publicationDateNote": "Date in article and JSON-LD; URL slug 20220712 is not publication date.",
+    "rules": [
+      {
+        "topic": "Non-prerequisite discard, explicitly names Xiongshu",
+        "exactText": "“：”用于选项、判定、拼点等即将出现分支描述之前，或非先决行为之前。例如刘协【天命】和贾充【凶竖】等技能的第一步行为（弃牌）若无法执行并不会阻碍技能发动，用冒号表示",
+        "sourceFormattingNote": "Raw HTML uses literal fullwidth 【】; website text renderer presents 〖〗. Text extracted from article HTML.",
+        "confirmedConsequence": "Cannot require X fully discardable cards as Xiongshu activation prerequisite. Inability to perform discard does not prevent activation."
+      },
+      {
+        "topic": "Slash card-name typography",
+        "exactText": "属性杀描述统一为：雷【杀】、火【杀】、冰【杀】，这是一张牌名字数为1的牌",
+        "confirmedConsequence": "Supports a common Slash card name across elemental forms. Does not itself enumerate every Xiongshu same-name conversion case."
+      }
+    ]
+  },
+  "faqResearch": {
+    "searchedAt": "2026-10-08",
+    "primaryDomains": [
+      "sanguosha.com",
+      "web.sanguosha.com"
+    ],
+    "queries": [
+      "site:sanguosha.com 贾充 凶竖 FAQ 获得 此牌 同名",
+      "site:sanguosha.com 凶竖 手牌 弃牌堆 同名牌",
+      "site:sanguosha.com 贾充 奸回 上次 伤害 技能 调整",
+      "site:weixin.qq.com 三国杀OL 贾充 凶竖 FAQ",
+      "site:sanguosha.com \"凶竖\" \"弃牌堆\"",
+      "site:sanguosha.com \"凶竖\" \"同名\" \"杀\"",
+      "site:sanguosha.com \"贾充\" \"FAQ\"",
+      "site:sanguosha.com \"奸回\" \"记录\" \"第一次\"",
+      "\"贾充\" \"凶竖\" 获得 同名 FAQ 三国杀OL",
+      "\"凶竖\" site:sanguosha.com/news",
+      "\"凶竖\" \"牌堆\" 三国杀OL",
+      "\"奸回\" \"第一\" 三国杀OL",
+      "贾充 凶竖 FAQ 同名 获得此牌 -site:baidu.com -site:zh.wikipedia.org",
+      "\"凶竖\" \"FAQ\" \"获得\"",
+      "\"贾充\" site:sanguosha.com/news/2022",
+      "\"凶竖\" \"获得\" site:sgs.qq.com"
+    ],
+    "foundAuthoritativeSpecificFaq": [
+      "Non-prerequisite discard explanation explicitly naming Xiongshu"
+    ],
+    "notFoundInThisSearch": [
+      "Exact obtainable zones for the physical revealed card at phase settlement",
+      "A Xiongshu-specific exhaustive same-name definition for conversions and elemental Slash",
+      "Whether no target hand cards at activation prevents activation",
+      "Jianhui first-other-damage record-vs-after-trigger ordering",
+      "Loss/regrant/target-death delayed prediction settlement ruling"
+    ],
+    "limitation": "No result found is a bounded research result, not proof that no official ruling exists. Community wikis/videos and ten-anniversary/Guozhan sources were excluded as ruling authority."
+  },
+  "liveCapabilityEvidence": [
+    {
+      "path": "src/CardGame.Core/GameEngine.cs",
+      "line": 3329,
+      "finding": "DealInitialHands draws with InitialDeal; inspection found no general-purpose persistent per-physical-card initial-hand tag for Huaiyuan."
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.RevealRecastPrograms.cs",
+      "line": 39,
+      "finding": "Existing RecastProgramSelectedCards is an owner's activation-selected one-hand-card recast; not a full two-player independently chosen Chongxin recast."
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.JiangGanPrograms.cs",
+      "line": 13,
+      "finding": "DaoshuGuessState proves a frame-owned private guess mechanism is available, but resolves immediate take/give-back; it does not implement a future exact-Play-phase secret prediction."
+    },
+    {
+      "path": "src/CardGame.Core/SkillProgramDependencies.cs",
+      "line": 50,
+      "finding": "Round tracking is capability-dependent; a round-escalating Xiongshu family needs its own dependency declaration."
+    },
+    {
+      "path": "src/CardGame.Core/SkillPrograms.cs",
+      "line": 533,
+      "finding": "Native PlayEnding and PlayPhaseStarting windows exist; a delayed prediction must bind the exact actual phase rather than whole-turn history."
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.AlternativeViewAsCosts.cs",
+      "line": 7,
+      "finding": "ProgramBasicCardName unifies elemental Slash kinds to Slash, reusable for real effective use-name matching."
+    },
+    {
+      "path": "src/CardGame.Core/Events.cs",
+      "line": 576,
+      "finding": "DamageAppliedEvent carries actual source/target/amount and source-less metadata; ordinary HP loss must not create Jianhui damager memory."
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.cs",
+      "line": 742,
+      "finding": "RevealGeneralCommand exists for existing hidden-general systems; this does not establish complete ordinary-identity concealment/entry semantics for Sima Shi."
+    }
+  ],
+  "deliveryBoundary": {
+    "authorizedNewFiles": [
+      "docs/content/sources/jin-round16-candidates-2026-10-08.json",
+      "docs/content/sources/ol-jia-chong-2026-10-08-source.json",
+      "src/CardGame.Wpf/Assets/official-ol-jia-chong.png"
+    ],
+    "existingSourcesAndCatalogsUnmodified": true,
+    "noBuildTestsOrLargeTemporaryTree": true,
+    "noCleanupPerformed": true
+  },
+  "round16Integration": {
+    "generalId": "ol:jia-chong",
+    "registeredJinCount": 5,
+    "generalSource": "docs/content/sources/ol-jia-chong-2026-10-08-source.json",
+    "verificationReport": "docs/benchmarks/2026-10-08-content-continuation-round16-verification.json",
+    "behaviorValidated": true,
+    "currentRegisteredJin": [
+      "ol:zhang-hu-yue-chen",
+      "ol:wei-guan",
+      "ol:wang-xiang",
+      "ol:du-yu",
+      "ol:jia-chong"
+    ]
+  }
+}

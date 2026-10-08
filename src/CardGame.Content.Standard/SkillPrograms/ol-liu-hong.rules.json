@@ -4,12 +4,16 @@
     {
       "id": "ol:yujue",
       "revision": 1,
-      "triggers": [
+      "activations": [
         {
           "id": "yujue-launch",
-          "window": "playPhaseStarting",
-          "subject": "owner",
-          "optional": false,
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "otherLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
           "effects": [
             { "op": "yujueResolve", "target": "owner" }
           ]

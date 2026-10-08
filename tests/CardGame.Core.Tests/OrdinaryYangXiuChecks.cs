@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using CardGame.Content.Standard;
 using CardGame.Core;
 
@@ -7,11 +8,25 @@ internal static class OrdinaryYangXiuChecks
     private const string Danlao = "ol:danlao", Jilei = "ol:jilei", Driver = "fixture:yx-driver";
     private const string Gain = "fixture:yx-gain", Entry = "fixture:yx-entry", Pulse = "fixture:yx-pulse", Hp = "fixture:yx-hp";
     private const string AppliedLoss = "fixture:yx-applied-loss";
+    private const string SourceSuppression = "fixture:yx-source-suppression";
     private const string Mode = "identity:classic-ordinary-yang-xiu-fixture";
     public static void ActualMultiTargetTrickWaitsForDrawAndUniqueBorrowedHolderDoesNotOffer()
     {
         var (g, r) = Create(); var before = g.CreateSnapshot(0).Players[0].Hand.Count;
         PlayAction(g, a => a.Kind == LegalActionKind.IronChain && a.TargetSeats.Count == 2 && a.TargetSeats.Contains(0));
+        var offer = g.ResolutionStack.OfType<ActualUseTargetWindowFrame>().Single();
+        var owningUse = g.ResolutionStack.OfType<CardUseFrame>().Single(u => u.Id == offer.ParentFrameId);
+        var paid = owningUse.Action!.PhysicalCards.Single();
+        Require(P(g)?.SkillPrompt?.SkillId == Danlao && offer.ReturnKind == ActualUseTargetReturnKind.OrdinaryTrick &&
+            offer.Step == ResolutionFrameStep.AwaitingResponse && offer.TrickReturn?.EffectCardId == paid.CardId &&
+            !g.ResolutionStack.OfType<ProgramSkillFrame>().Any() &&
+            g.CardMovements.Count(m => m.CardId == paid.CardId && m.From == paid.From && m.To == CardLocation.Processing) == 1 &&
+            g.CardMovements.Last(m => m.CardId == paid.CardId).To == CardLocation.Processing,
+            "The real multi-target offer pauses before activation with its exact owning use and one paid Processing entity.");
+        g = Cold(g, r);
+        Require(g.ResolutionStack.OfType<ActualUseTargetWindowFrame>().Single().Id == offer.Id &&
+            g.ResolutionStack.OfType<CardUseFrame>().Single(u => u.Id == owningUse.Id).Action!.ActionId == owningUse.Action.ActionId,
+            "Cold replay retains the same pre-activation target offer and original paid action without a fabricated program child.");
         Activate(g, Danlao); Reach(g, p => p.SkillPrompt?.SkillId == Gain); Reject(g);
         var root = Root(g); var receipt = root.OwnTrickDraw!;
         Require(receipt.TargetCount == 2 && receipt.ActualDrawCount == 1 && !receipt.Applied &&
@@ -23,10 +38,18 @@ internal static class OrdinaryYangXiuChecks
             !g.State.Players[0].IsChained && Facts<ProgramBindingResolvedEvent>(g).Any(e => e.SkillId == Danlao && e.Completed),
             "The same use is ineffective only for Yang Xiu after its exact draw child returns; other actual targets continue.");
         var (borrowed, br) = Create(borrowedTargets: true); Use(borrowed, "equip", [Peer(borrowed)]); Play(borrowed);
-        PlayAction(borrowed, a => a.Kind == LegalActionKind.BorrowedSword && a.TargetSeats.Count == 2); Play(borrowed);
+        PlayAction(borrowed, a => a.Kind == LegalActionKind.BorrowedSword && a.TargetSeats.Count == 2);
+        Reach(borrowed, p => p.Kind == DecisionKind.RespondDodge && p.PlayerSeat == 0);
+        var dodge = P(borrowed)!.Choices.First(c => c.Parameters.GetValueOrDefault("response") == "dodge");
+        var dodgeCard = dodge.Cards.Single();
+        borrowed = Cold(borrowed, br); Reject(borrowed);
+        Answer(borrowed, c => c.Id == dodge.Id); Play(borrowed);
         Require(!Facts<OwnTrickDrawIssuedEvent>(borrowed).Any() &&
-            Facts<CardUseDeclaredEvent>(borrowed).Any(e => e.CardKind == CardKind.BorrowedSword),
-            "A true borrowed-sword use contains one weapon holder plus a Slash victim, hence only one actual trick target and no multi-target draw offer.");
+            Facts<CardUseDeclaredEvent>(borrowed).Any(e => e.CardKind == CardKind.BorrowedSword) &&
+            Facts<CardActionAcceptedEvent>(borrowed).Count(e => e.Action.Type == CardActionType.Response &&
+                e.Action.ActorSeat == 0 && e.Action.EffectiveKind == CardKind.Dodge &&
+                e.Action.PhysicalCards.Any(c => c.CardId == dodgeCard)) == 1,
+            "A true borrowed-sword use contains one weapon holder plus a Slash victim, hence only one actual trick target and no multi-target draw offer; its genuine requested Slash and cold-restored published Dodge resolve once.");
         borrowed = Cold(borrowed, br); g = Cold(g, r);
     }
     public static void DeclaredCategoryBlocksOwnHandMaterialsButForeignDiscardAndEquipmentRemainLegal()
@@ -93,11 +116,6 @@ internal static class OrdinaryYangXiuChecks
             PlayAction(g, a => a.Kind == LegalActionKind.IronChain && a.TargetSeats.Count == 2 && a.TargetSeats.Contains(0));
             Activate(g, Danlao); Reach(g, p => p.SkillPrompt?.SkillId == Gain); var root = Root(g); var use = root.OwnTrickDraw!.Use.CardUseFrameId;
             g = Cold(g, r); Continue(g);
-            if (sourceLoss)
-            {
-                Reach(g, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "select-target" && c.Targets.SequenceEqual(new[] { 0 })));
-                Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "select-target" && c.Targets.SequenceEqual(new[] { 0 }));
-            }
             if (!sourceLoss)
             {
                 Reach(g, p => p.SkillPrompt?.SkillId == Entry);
@@ -136,10 +154,15 @@ internal static class OrdinaryYangXiuChecks
                 g = Cold(g, r); Continue(g);
             }
             Play(g);
+            if (sourceLoss)
+                Require(!g.CreateSnapshot(0).Players[0].Skills!.Any(s => s.Id == Danlao) &&
+                    g.CreateSnapshot(0).Players[0].Skills!.Any(s => s.Id == SourceSuppression) &&
+                    Facts<SkillsAcquiredEvent>(g).Count(e => e.PlayerSeat == 0 && e.SourceSkillId == Gain && e.SkillIds.Contains(SourceSuppression)) == 1,
+                    "The actual issued-draw gain child acquires one independent suppression source and makes Danlao unqualified without physically removing its grant.");
             Require(Facts<OwnTrickDrawIssuedEvent>(g).Count() == 1 && Facts<OwnTrickTargetNullifiedEvent>(g).Single().CardUseFrameId == use &&
                 Facts<ProgramBindingResolvedEvent>(g).Any(e => e.SkillId == Danlao && e.Completed) &&
                 g.CardMovements.Count(m => m.From == CardLocation.DrawPile && m.To == CardLocation.Hand(0) && m.Reason.Value == "program.own-multi-target-trick.draw") == 1,
-                "Issued draw, all native damage/rescue children and exact original target-nullification finish once, even when a child removes the source skill.");
+                "Issued draw, all native damage/rescue children and exact original target-nullification finish once, even when a child suppresses the source skill's qualification.");
             g = Cold(g, r);
         }
         var (native, nr) = Create(nativeDeclaration: true, ownerHp: 6); Use(native, "damage-peer", [Peer(native)]); Play(native);
@@ -191,7 +214,11 @@ internal static class OrdinaryYangXiuChecks
     private static void Step(GameEngine g)
     {
         var p = P(g);
-        if (p is { PlayerSeat: 0, Kind: DecisionKind.DiscardCards }) Accept(g, new DiscardCardsCommand(0, p.ValidCardIds.Take(p.RequiredCardCount).ToArray(), p.PromptId, g.Revision));
+        if (p is not null && p.PlayerSeat != 0) Accept(g, new AdvanceOneStepCommand(g.Revision));
+        else if (p is { PlayerSeat: 0, Kind: DecisionKind.DiscardCards }) Accept(g, new DiscardCardsCommand(0, p.ValidCardIds.Take(p.RequiredCardCount).ToArray(), p.PromptId, g.Revision));
+        else if (p is { PlayerSeat: 0, Kind: DecisionKind.RespondDodge })
+            Answer(g, c => c.Parameters.GetValueOrDefault("response") ==
+                (p.Choices.Any(choice => choice.Parameters.GetValueOrDefault("response") == "dodge") ? "dodge" : "take-damage"));
         else if (p?.Choices.Any(c => c.Parameters.GetValueOrDefault("option-id") == "continue") == true) Continue(g);
         else if (p is { PlayerSeat: 0 } && p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "skip")) Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "skip");
         else if (p is { PlayerSeat: 0, Kind: DecisionKind.RescueDying }) Answer(g, c => c.Parameters.GetValueOrDefault("response") == "let-die");
@@ -216,7 +243,18 @@ internal static class OrdinaryYangXiuChecks
         var g = GameEngine.CreateStandard(new GameOptions { Seed = 31, PlayerCount = 4, HumanSeat = 0, HumanRole = Role.Renegade, ModeId = Mode,
             UseInteractiveSetup = true, UseInteractiveDiscard = true, AdvanceAfterHumanCommands = false, MaxTurns = 4 }, r);
         Accept(g, new StartGameCommand()); Reach(g, p => p.Kind == DecisionKind.SelectGeneral && p.PlayerSeat == 0);
-        Accept(g, new SelectGeneralCommand(0, "fixture:yx-owner", g.Revision, P(g)!.PromptId)); Play(g); return (g, r);
+        Accept(g, new SelectGeneralCommand(0, "fixture:yx-owner", g.Revision, P(g)!.PromptId)); Play(g);
+        if (sourceLoss)
+        {
+            Require(!g.CreateSnapshot(0).Players[0].Skills!.Any(s => s.Id == Danlao),
+                "The source-loss fixture initially has no printed Danlao grant.");
+            Use(g, "grant-danlao"); Play(g);
+            var owner = g.CreateSnapshot(0).Players[0];
+            Require(owner.Skills!.Any(s => s.Id == Danlao) && owner.SkillRuntimeStates!.Single(s => s.SkillId == Danlao).IsAcquired &&
+                Facts<SkillsAcquiredEvent>(g).Count(e => e.PlayerSeat == 0 && e.SourceSkillId == Driver && e.SkillIds.Contains(Danlao)) == 1,
+                "One real activation independently grants Danlao before its issued draw and subsequent qualification suppression.");
+        }
+        return (g, r);
     }
     private sealed class Fixture(bool allBasic, int ownerHp, bool nested, bool sourceLoss, bool nativeDeclaration, bool borrowedTargets) : IGameContentPackage
     {
@@ -224,7 +262,13 @@ internal static class OrdinaryYangXiuChecks
         public void Register(IContentRegistryBuilder b)
         {
             var rules = FixtureRules.Replace("$SCHEMA$", SkillProgramCatalog.RulesSchemaVersion.ToString(System.Globalization.CultureInfo.InvariantCulture));
-            rules = rules.Replace("$GAIN_TAIL$", sourceLoss ? "{\"op\":\"selectTarget\",\"target\":\"owner\",\"targetKind\":\"anyLiving\"},{\"op\":\"issueCurrentTurnNonLockedSkillSuppression\",\"target\":\"selectedTarget\"}" : nested ? "{\"op\":\"damage\",\"target\":\"owner\",\"amount\":1}" : "{\"op\":\"draw\",\"target\":\"owner\",\"amount\":1}");
+            rules = rules.Replace("$GAIN_TAIL$", sourceLoss ? "{\"op\":\"grantSkills\",\"target\":\"owner\",\"skillIds\":[\"fixture:yx-source-suppression\"]}" : nested ? "{\"op\":\"damage\",\"target\":\"owner\",\"amount\":1}" : "{\"op\":\"draw\",\"target\":\"owner\",\"amount\":1}");
+            if (sourceLoss)
+            {
+                var sourceRules = JsonNode.Parse(rules)!;
+                ((JsonArray)sourceRules["skills"]![0]!["activations"]!).Add(JsonNode.Parse("""{"id":"grant-danlao","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":1,"effects":[{"op":"grantSkills","target":"owner","skillIds":["ol:danlao"]}]}"""));
+                rules = sourceRules.ToJsonString();
+            }
             var names = new Dictionary<string, object>();
             foreach (var id in new[] { Driver, "fixture:yx-quiet", Gain, Entry, Pulse, Hp, AppliedLoss }) names[id] = id is Gain or Entry or Hp
                 ? new { name = id, description = "真正拥有帧子窗口", optionLabels = new Dictionary<string, string> { ["continue"] = "继续" } }
@@ -232,8 +276,9 @@ internal static class OrdinaryYangXiuChecks
             var catalog = SkillProgramCatalog.Load(rules, JsonSerializer.Serialize(new { schemaVersion = SkillProgramCatalog.PresentationSchemaVersion, skills = names }));
             foreach (var (id, program) in catalog.Programs) b.AddSkill(new(id, id, "真正拥有帧小夹具") { Program = program, ProgramPresentation = catalog.Presentations[id],
                 Tags = id is "fixture:yx-quiet" or Entry or AppliedLoss ? SkillTag.Locked : SkillTag.None });
+            b.AddSkill(new(SourceSuppression, "已付摸牌来源资格抑制", "真实固定体力使原摸牌技能来源失去资格") { SuppressionRule = new(ownerHp), Tags = SkillTag.Locked });
             b.AddSkill(new("fixture:yx-selection", "固定其他角色", "公开选将偏好") { SelectionWeights = Enum.GetValues<Role>().ToDictionary(role => role, _ => 100000d) });
-            var owner = new List<string> { Danlao, Jilei, Gain, "classic:longdan" }; if (nested) owner.AddRange([Entry, Pulse, Hp, AppliedLoss]);
+            var owner = new List<string> { Jilei, Gain, "classic:longdan" }; if (!sourceLoss) owner.Insert(0, Danlao); if (nested) owner.AddRange([Entry, Pulse, Hp, AppliedLoss]);
             b.AddGeneral(new("fixture:yx-owner", "实际杨修规则", "supporter", Driver, "wei", 8, owner) { InitialHp = ownerHp });
             for (var i = 1; i < 4; i++) b.AddGeneral(new($"fixture:yx-peer-{i}", "固定真正参与者", "supporter", "fixture:yx-selection", "wei", 8,
                 nativeDeclaration ? ["fixture:yx-quiet", Jilei] : borrowedTargets ? ["fixture:yx-quiet", Danlao] : ["fixture:yx-quiet"]) { InitialHp = 6 });
@@ -255,7 +300,7 @@ internal static class OrdinaryYangXiuChecks
         {"id":"give","minCards":1,"maxCards":1,"minTargets":1,"maxTargets":1,"targetKind":"otherLiving","sourceZones":["hand"],"usesPerTurn":null,"effects":[{"op":"giveSelected","target":"selectedTarget","amount":1}]},
         {"id":"equip","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"useRandomDeckEquipment","target":"owner","resultBind":"gear"}]},
         {"id":"foreign-discard","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"otherLiving","usesPerTurn":null,"effects":[{"op":"selectAndMoveOwnedCard","target":"owner","chooserRef":{"kind":"selectedTarget"},"cardOwnerRef":{"kind":"owner"},"zones":["hand"],"cardKinds":["slash"],"destination":"discardPile","resultBind":"removed","count":1,"awaitMovementTriggers":true}]}]},
-      {"id":"fixture:yx-quiet","revision":1,"triggers":[{"id":"quiet","window":"afterNormalDraw","subject":"owner","optional":false,"effects":[{"op":"skipTurnPhases","target":"owner","phases":["play","discard"]}]}]},
+      {"id":"fixture:yx-quiet","revision":1,"triggers":[{"id":"quiet","window":"afterNormalDraw","subject":"owner","optional":false,"effects":[{"op":"skipTurnPhases","target":"owner","phases":["play"]}]},{"id":"quiet-discard","window":"discardPhaseStarting","subject":"owner","optional":false,"effects":[{"op":"skipTurnPhases","target":"owner","phases":["discard"]}]}]},
       {"id":"fixture:yx-gain","revision":1,"triggers":[{"id":"gain","window":"cardsGained","subject":"owner","destinationZones":["hand"],"movementOccurrence":"perBatch","movementReasons":["program.own-multi-target-trick.draw"],"optional":false,"usageScope":"game","usageLimit":1,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]},$GAIN_TAIL$]}]},
       {"id":"fixture:yx-entry","revision":1,"triggers":[{"id":"entry","window":"dyingEntering","subject":"owner","optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},
       {"id":"fixture:yx-applied-loss","revision":1,"triggers":[{"id":"loss","window":"afterDamageApplied","subject":"owner","damageOccurrence":"perDamage","optional":false,"priority":100,"usageScope":"game","usageLimit":1,"effects":[{"op":"loseHp","target":"owner","amount":2}]}]},

@@ -315,6 +315,11 @@ public sealed partial class GameEngine
 
         public void UseVirtualDyingAlcohol(ProgramSkillFrame frame) =>
             engine.UseProgramVirtualDyingAlcohol(frame);
+        public SkillProgramStepOutcome UseVirtualDyingAlcoholWithCompletion(ProgramSkillFrame frame)
+        {
+            engine.UseProgramVirtualDyingAlcohol(frame);
+            return engine.TracksActualTurnUseOrdinal ? SkillProgramStepOutcome.AwaitChild : SkillProgramStepOutcome.Continue;
+        }
 
         public void ClaimMovedCards(ProgramSkillFrame frame) =>
             engine.ClaimProgramMovedCards(frame);
@@ -347,6 +352,10 @@ public sealed partial class GameEngine
 
         public void GrantTurnSkills(ProgramSkillFrame frame, IReadOnlyList<string> skillIds) =>
             engine.GrantProgramTurnSkills(frame, skillIds);
+
+        public void GrantTurnSkills(ProgramSkillFrame frame, int targetSeat, IReadOnlyList<string> skillIds,
+            SkillProgramTurnSkillExpiry? expiry) =>
+            engine.GrantProgramTurnSkills(frame, targetSeat, skillIds, expiry);
 
         public SkillProgramStepOutcome UseSelectedCardsAs(
             ProgramSkillFrame frame,

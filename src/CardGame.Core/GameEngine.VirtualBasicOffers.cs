@@ -131,6 +131,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("A virtual basic completion lost its paid effect marker.");
         if (TryBeginCharacterStateProgramWindow(id, CharacterStateContinuation.VirtualBasicCardUse, cardKind:use.CardKind)) return;
         if (TryBeginHpChangedProgramWindow(id, PostEventContinuation.VirtualBasicCardUse, cardKind:use.CardKind)) return;
+        if (TryContinueDesignatedVirtualBasicUse(id)) return;
         SetCardUseStep(id, ResolutionFrameStep.Completed);
         AdvanceEventRulesAndQueueFact(new CardUseFinishedEvent(id, 0, use.CardKind));
         if (_winner == Winner.None && TryBeginProgramCardWindow(null, use.Action!, SkillProgramTriggerWindow.CardUseCompleted, use.TargetSeats, ProgramCardContinuation.CompletedCard)) return;

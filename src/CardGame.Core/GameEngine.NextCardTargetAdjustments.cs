@@ -120,6 +120,7 @@ public sealed partial class GameEngine
             LegalActionKind.Alcohol or LegalActionKind.DrawTwo or LegalActionKind.IronChain => true,
             LegalActionKind.Duel => target.Seat != actor.Seat,
             LegalActionKind.FireAttack => GetHand(target).Count > 0,
+            LegalActionKind.UnexpectedAssault => target.Seat != actor.Seat && GetHand(target).Count > 0,
             LegalActionKind.Dismantlement or LegalActionKind.Snatch => target.Seat != actor.Seat &&
                 GetHand(target).Count + GetEquipment(target).Count + GetJudgment(target).Count > 0,
             _ => false

@@ -16,10 +16,11 @@ internal static class BoundaryLiuBiaoChecks
         ActivateExtra(g); Reach(g, p => p.SkillPrompt?.SkillId == Gain);
         var issued = Facts<ProgramExtraDrawIssuedEvent>(g).Single();
         var producer = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.ExtraDrawReceipt is not null);
-        var moved = g.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Single(f => f.ResumeProgramFrameId == producer.Id);
+        var moved = g.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Single(f => f.Batch.ParentFrameId == producer.Id);
         Require(issued.RequestedCount == 4 && issued.ActualCount == 4 && producer.InstructionIndex == 1 &&
             producer.ExtraDrawReceipt is { ActualTurnNumber: 1, TurnOwnerSeat: 0, ActualCount: 4 } cost &&
-            moved.Batch.ParentFrameId == producer.Id && moved.Batch.AwaitingProgramFrameId is null &&
+            producer.PendingMovementContinuation is { SubjectSeat: 0, BeforeCount: 0, CoverageResultBind: null } &&
+            moved.Batch.ParentFrameId == producer.Id && moved.ResumeProgramFrameId is null && moved.Batch.AwaitingProgramFrameId is null &&
             moved.Batch.OriginSkillId == Draw && moved.Batch.OriginSkillInstanceId == producer.SkillInstanceId &&
             moved.Batch.Movements is [var card] && card.From == CardLocation.DrawPile && card.To == CardLocation.Hand(0) &&
             card.Reason.Value == DrawReason && card.Sequence > cost.MovementSequenceBefore && card.Sequence <= cost.MovementSequenceAfter,
@@ -68,6 +69,8 @@ internal static class BoundaryLiuBiaoChecks
         Use(g, "opponent-duel", [1]); Reach(g, p => p.PlayerSeat == 0 && p.Kind == DecisionKind.RespondSlash);
         var response = P(g)!.Choices.First(c => c.Parameters.GetValueOrDefault("response") == "slash");
         Cold(g, r); Answer(g, c => c.Id == response.Id);
+        Play(g);
+        Use(g, "opponent-duel", [1]);
         Reach(g, p => p.PlayerSeat == 0 && p.Kind == DecisionKind.RespondSlash); Pass(g); Play(g);
         Require(Facts<CardActionAcceptedEvent>(g).Any(e => e.Action.ActorSeat == 0 && e.Action.Type == CardActionType.Response &&
             e.Action.EffectiveKind == CardKind.Slash && e.Action.PhysicalCards.Select(c => c.CardId).SequenceEqual(response.Cards)) &&
@@ -107,7 +110,7 @@ internal static class BoundaryLiuBiaoChecks
         Use(g, "clear-hand");
         Play(g); Require(g.State.Players[0].HandCount == 0 && g.State.Players[0].Hp == 2,
             "Real equipment placement and a real whole-hand payment leave only the wounded owner's Silver Lion.");
-        Use(g, "opponent-duel", [1]); Reach(g, p => p.PlayerSeat == 0 && p.Kind == DecisionKind.RespondSlash); Pass(g);
+        Use(g, "opponent-duel", [1]);
         Reach(g, p => p.PlayerSeat == 1 && p.SkillPrompt?.SkillId == Faction);
         Require(P(g)!.Choices is [var only] && only.Cards.SequenceEqual([silver]),
             "The source has one genuine visible equipment entity to select."); Cold(g, r);
@@ -120,11 +123,13 @@ internal static class BoundaryLiuBiaoChecks
             g.State.Players[0].Hp == 3 && g.CardMovements.Count(m => m.CardId == silver && m.From == CardLocation.Equipment(0) && m.To == CardLocation.Processing && m.Reason.Value == YieldReason) == 1,
             "The real Silver Lion recovery pauses above the exact already-prevented damage and already-paid transfer.");
         Cold(g, r); Continue(g); Reach(g, p => p.SkillPrompt?.SkillId == YieldGain);
-        Require(g.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Any(f => f.Batch.ParentFrameId == root.Id && f.ResumeProgramFrameId == root.Id) &&
+        Require(root.PendingMovementContinuation is { SubjectSeat: 0, BeforeCount: 0, CoverageResultBind: null } &&
+            g.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Any(f => f.Batch.ParentFrameId == root.Id && f.ResumeProgramFrameId is null &&
+                (f.Batch.AwaitingProgramFrameId is null || f.Batch.AwaitingProgramFrameId == root.Id)) &&
             g.CardMovements.Count(m => m.CardId == silver && m.From == CardLocation.Processing && m.To == CardLocation.Hand(1) && m.Reason.Value == YieldReason) == 1,
             "The recipient's real gain child follows recovery and keeps the same prevention program return.");
         Private(g, 1); Cold(g, r); Play(g);
-        Use(g, "another-duel", [2]); Reach(g, p => p.PlayerSeat == 0 && p.Kind == DecisionKind.RespondSlash); Pass(g); Play(g);
+        Use(g, "another-duel", [2]); Play(g);
         Require(Facts<ProgramSourceFactionPreventionIssuedEvent>(g).Count() == 2 && g.State.Players[0].Hp == 3 &&
             g.CardMovements.Count(m => m.Reason.Value == YieldReason && m.To.Zone == CardZoneKind.Hand) == 1,
             "A different source faction prevents once even when HEJ is empty, without fabricating another transfer."); Cold(g, r);
@@ -133,8 +138,10 @@ internal static class BoundaryLiuBiaoChecks
     public static void NativeExtraDrawAndEmptyDeckDoNotInventDrawDebt()
     {
         var (native, nr) = Create(native: true);
-        ReachFact(native, () => Facts<ProgramExtraDrawIssuedEvent>(native).Any(e => e.TurnOwnerSeat == 0));
-        Require(Facts<ProgramExtraDrawIssuedEvent>(native).Single() is { ActualTurnNumber: 1, RequestedCount: 4, ActualCount: 4, Source.OwnerSeat: 0 } &&
+        var lord = native.CreateSnapshot(0).Players.Single(p => p.Role == Role.Lord).Seat;
+        ReachFact(native, () => Facts<ProgramExtraDrawIssuedEvent>(native).Any(e => e.TurnOwnerSeat == lord));
+        Require(Facts<ProgramExtraDrawIssuedEvent>(native).Single() is { ActualTurnNumber: 1, RequestedCount: 4, ActualCount: 4 } issued &&
+            issued.TurnOwnerSeat == lord && issued.Source.OwnerSeat == lord &&
             DrawMoves(native).Length == 4, "The native Lord voluntarily issues and pays the actual four-card extra draw."); Cold(native, nr);
         var (empty, er) = Create(faction: false, emptyDeck: true); ActivateExtra(empty); Play(empty);
         Require(Facts<ProgramExtraDrawIssuedEvent>(empty).Single() is { RequestedCount: 4, ActualCount: 0 } && DrawMoves(empty).Length == 0,
@@ -168,7 +175,7 @@ internal static class BoundaryLiuBiaoChecks
     private static void PlaySlash(GameEngine g, int target) { var a = g.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.Slash && a.ConversionSource is null && a.TargetSeats.Contains(target));
         Accept(g, new PlayCardCommand(0, a.CardId!.Value, [target], g.Revision, P(g)!.PromptId, a.PlayedCardKind)); }
     private static void End(GameEngine g) => Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId));
-    private static void Pass(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("response") == "pass");
+    private static void Pass(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("response") == "take-damage");
     private static void Continue(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
     private static void Answer(GameEngine g, Func<PromptChoice, bool> predicate) { var p = P(g)!; Accept(g, new AnswerPromptCommand(p.PlayerSeat, p.PromptId, p.Choices.First(predicate).Id, g.Revision)); }
     private static void Play(GameEngine g) => Reach(g, p => p.PlayerSeat == 0 && p.Kind == DecisionKind.PlayCard);
@@ -180,9 +187,10 @@ internal static class BoundaryLiuBiaoChecks
         var p = P(g);
         if (p is { PlayerSeat: 0 } && p.SkillPrompt?.SkillId is Gain or Hp) Continue(g);
         else if (p is { PlayerSeat: 0, Kind: DecisionKind.DiscardCards }) Accept(g, new DiscardCardsCommand(0, p.ValidCardIds.Take(p.RequiredCardCount).ToArray(), p.PromptId, g.Revision));
+        else if (p is { PlayerSeat: 0 } && Action(p, "select-owned-cards")) Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "select-owned-cards");
         else if (p is { PlayerSeat: 0 } && Action(p, "skip")) Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "skip");
-        else if (p is { PlayerSeat: 0 } && p.Choices.Any(c => c.Parameters.GetValueOrDefault("response") is "pass" or "let-die"))
-            Answer(g, c => c.Parameters.GetValueOrDefault("response") is "pass" or "let-die");
+        else if (p is { PlayerSeat: 0 } && p.Choices.Any(c => c.Parameters.GetValueOrDefault("response") is "take-damage" or "pass" or "let-die"))
+            Answer(g, c => c.Parameters.GetValueOrDefault("response") is "take-damage" or "pass" or "let-die");
         else Accept(g, new AdvanceOneStepCommand(g.Revision));
     }
     private static void Accept(GameEngine g, GameCommand command) { var result = g.Submit(CommandJson.Deserialize(CommandJson.Serialize([command])).Single()); Require(result.Accepted, result.Error?.Message ?? "Rejected real command."); }

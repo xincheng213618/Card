@@ -53,7 +53,7 @@ public sealed partial class GameEngine
             !_cardZones.CardsAt(CardLocation.DrawPile).Reverse().Take(view.CardIds.Count).Select(c=>c.Id).SequenceEqual(view.CardIds) ||
             view.OriginalDecision.PlayerSeat!=r.ActorSeat || view.OriginalDecision.PromptId!=r.OriginalPromptId || view.OriginalDecision.Revision!=r.OriginalRevision ||
             !_players[r.ActorSeat].IsAlive || r.ActorSeat==_currentSeat ||
-            !RequestedDeckBasicSources(_players[r.ActorSeat]).Any(p=>p.Source==r.Source) ||
+            !RequestedDeckBasicSources(_players[r.ActorSeat],RequestedDeckBasicKind(view.OriginalDecision,r.Intent)).Any(p=>p.Source==r.Source) ||
             _contentRegistry.GetSkill(r.Source.SkillId).Program!.GameplayHash!=r.GameplayHash ||
             _resolutionStack.SingleOrDefault(f=>f.Id==view.ParentFrameId) is not { } parent ||
             RequestedDeckBasicContext(view.OriginalDecision,parent) is not { } context || context.Intent!=r.Intent ||

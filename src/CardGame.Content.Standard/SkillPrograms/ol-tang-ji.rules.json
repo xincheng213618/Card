@@ -35,6 +35,15 @@
           "effects": [
             { "op": "kanggeHealVictim", "target": "owner", "amount": 1 }
           ]
+        },
+        {
+          "id": "kangge-death",
+          "window": "characterDied",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            { "op": "kanggeDeathPrice", "target": "owner" }
+          ]
         }
       ]
     },

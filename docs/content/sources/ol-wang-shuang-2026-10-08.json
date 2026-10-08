@@ -18,7 +18,11 @@
     "quality": "史诗",
     "package": "璀璨星河-天柱",
     "releaseDate": "2022-02-12",
-    "labels": ["进攻", "简单", "加伤"],
+    "labels": [
+      "进攻",
+      "简单",
+      "加伤"
+    ],
     "characteristic": "要谨慎的对距离外的目标使用杀"
   },
   "artwork": {
@@ -54,5 +58,39 @@
     "官网紧凑文本“此【杀】无次数限制”与 OL 专站“此【杀】不计入次数”同义；“伤害值等于其体力值”（官网）与“伤害增至该角色的体力值”（OL 专站）按“增至”口径实现：伤害低于目标体力值时抬升至体力值，已不低于则保持不变——不降低既有伤害。目标体力值在伤害结算时读取（目标指定后至伤害结算之间目标体力不会变化）。",
     "New bespoke op 7308 (zhuiLieEscalateTargetDamage)，只占用分配的 7308–7315 段；未新增 PlayerMarkerKind、ConditionKind、触发窗口枚举或 schema 节点；共享能力扩展共两项（详见 benchmark 文档）：①CurrentAttackRange 触发比较值在 cardUseTargetsFinalized 窗口放行（该窗口事实本就冻结攻击范围）；②slashDistanceLimit unlimited 静态修饰符允许无 sourceCardIdentityId 声明，并在杀的使用距离判定处新增 IgnoresSlashUseDistance 消费点（无身份修饰符在既有内容中不存在，既有行为不变）。",
     "versionBoundary：多目标【杀】（方天画戟等）按最终目标逐个触发，每个范围外目标独立判定与结算；“此【杀】伤害增至该角色的体力值”读伤害结算时目标当前体力值；白银狮子/被动伤害上限等既有封顶在抬升后照常收敛；锁定技强制触发，无 AI 选择点；暗手牌 id 不进任何事件或快照。"
-  ]
+  ],
+  "currentOlCorrection": {
+    "recordedAt": "2026-10-08",
+    "authority": "Current OL primary text supersedes the historical community-expanded implementation notes above.",
+    "primarySources": [
+      {
+        "url": "https://www.sanguosha.com/hero/490",
+        "supports": "当前文本为此【杀】无次数限制、伤害值等于其体力值。"
+      },
+      {
+        "url": "https://www.sanguosha.com/news/20211221_8601_1716",
+        "supports": "OL 公告的伤害值等于其体力值。"
+      },
+      {
+        "url": "https://www.sanguosha.com/news/20220207_8129_1718",
+        "supports": "OL 公告的伤害值等于其体力值。"
+      },
+      {
+        "url": "https://www.sanguosha.com/news/20220822_2139_1416",
+        "supports": "明确把追猎由不计入次数修改为无次数限制。"
+      }
+    ],
+    "supersededClaims": [
+      "旧 OL 专站/十周年展开口径不能覆盖当前 OL 官网；等于体力值不能解释为只增不减。",
+      "refundCardUseDebit 只在用牌后返还，不能单独实现杀次数已用尽时仍能指定范围外目标；现已使用目标专属的次数门槛绕过，实际杀次数仍真实记账。",
+      "旧 max(0, targetHp-existingDamage) 已纠正为允许负差值的精确等于；既有伤害防止/上限按原生后续顺序处理。",
+      "目标指定至伤害结算之间体力可以因嵌套技能/伤害窗口改变；BoundaryHuangZhongChecks 已有同窗改变目标体力的真实夹具，不能称不存在变化窗口。",
+      "原 benchmark 按用户指令不增测试只记载 Zcode 原线程历史指令，不约束本线程共享整合验证。"
+    ],
+    "chosenBehavior": [
+      "范围外杀的目标专属次数许可仍真实记录用牌次数，不采用不计次数语义。",
+      "抚蛮等其他伤害加值存在时，追猎伤害读取伤害结算时目标当前体力，差值可为负，从而遵循等于。"
+    ],
+    "evidenceLimit": "此为本轮来源纠正与实现说明；保留原 capturedAt、历史观察及构建记录，不把原静态构建当成本次行为验证。官方未明确另行冻结目标指定时体力值；读取结算时体力是实施时点推断。"
+  }
 }

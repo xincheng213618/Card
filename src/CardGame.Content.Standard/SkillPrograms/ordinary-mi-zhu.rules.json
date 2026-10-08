@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:ziyuan",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "gift-exact-thirteen-and-recover",
+          "minCards": 0,
+          "maxCards": 0,
+          "sourceZones": ["hand"],
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "usesPerGame": null,
+          "effects": [
+            {
+              "op": "selectOwnedHandRankSum",
+              "target": "owner",
+              "exactRankSum": 13,
+              "resultBind": "ziyuan-gift"
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "ziyuan-gift",
+              "destination": "selectedTargetHand",
+              "awaitMovementTriggers": true
+            },
+            { "op": "recover", "target": "selectedTarget", "amount": 1 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:jujia",
+      "revision": 1,
+      "modifiers": [
+        {
+          "id": "maximum-hp-initial-hand-bonus",
+          "query": "initialHandSize",
+          "operation": "add",
+          "valueExpression": "ownerMaxHp",
+          "priority": 0,
+          "condition": { "kind": "always" }
+        },
+        {
+          "id": "maximum-hp-hand-limit-bonus",
+          "query": "handLimit",
+          "operation": "add",
+          "valueExpression": "ownerMaxHp",
+          "priority": 0,
+          "condition": { "kind": "always" }
+        }
+      ]
+    }
+  ]
+}

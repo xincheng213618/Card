@@ -142,6 +142,7 @@ public sealed partial class GameEngine
         ProgramSkillFrame parent, out IReadOnlyList<int> primaryTarget)
     {
         primaryTarget = Array.Empty<int>();
+        if (TryGetDesignatedExtraTargetVirtualPrimaryReturn(use, parent, out primaryTarget)) return true;
         if (TryGetShortRangeVirtualPrimaryReturn(use, parent, out primaryTarget)) return true;
         if (TryGetSameTypeAidVirtualPrimaryReturn(use, parent, out primaryTarget)) return true;
         if (TryGetCurrentSlashFirePrimaryReturn(use, parent, out primaryTarget)) return true;
@@ -210,7 +211,8 @@ public sealed partial class GameEngine
         var use = LifecycleCardUse(multi.ResolutionId);
         // The old group cursor counts completed original targets. Enhanced
         // targets use a last-resolved index, so resume at original count - 1.
-        if (_winner == Winner.None && multi.TargetSeats.Count > 0 && use is not null && (HasSameTypeAidTargetTail(use) || HasShortRangeSlashTail(use)) &&
+        if (_winner == Winner.None && multi.TargetSeats.Count > 0 && use is not null &&
+            (HasSameTypeAidTargetTail(use) || HasShortRangeSlashTail(use) || (HasDesignatedExtraTargetTail(use) || HasRecipientCategorySlashTargetTail(use))) &&
             multi.SourceSeat == use.SourceSeat && multi.EffectiveCardKind == use.CardKind && use.TargetSeats.Count > multi.TargetSeats.Count)
             return multi.TargetSeats.Count - 1;
         if (_winner == Winner.None && multi.TargetSeats.Count > 0 && use is not null && HasIssuedOriginalTargetAdditionTail(use) &&

@@ -3,6 +3,8 @@ namespace CardGame.Core;
 /// <summary>Card and turn rules supplied by an enabled program instance.</summary>
 public enum SkillProgramCardPolicyKind
 {
+    RoundGainedOtherSourceUse = 9085,
+    BypassSlashLimitAgainstOutsideAttackRange = 7308,
     PrivateTopBasicRequest = 7600,
     DistanceOneToNotHigherHp = 7340, SlashExtraTargetsByLostHp = 7341,
     EquipmentSuitHandLimitAtMaxHp = 5900,

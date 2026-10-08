@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:caiwang",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "paired-color-disposition",
+          "window": "cardResponseCompleted",
+          "ownerRelation": "observer",
+          "optional": true,
+          "effects": [
+            {
+              "op": "offerPairedColorCardDisposition",
+              "target": "owner",
+              "stateId": "caiwang"
+            }
+          ]
+        }
+      ],
+      "viewAs": [
+        {
+          "id": "last-hand-dodge",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "dodge",
+          "forPlay": false,
+          "forResponse": true,
+          "lastInSourceZone": true,
+          "allowSameKind": true
+        },
+        {
+          "id": "last-equipment-nullification",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "equipment"
+          ],
+          "outputKind": "nullification",
+          "forPlay": false,
+          "forResponse": true,
+          "lastInSourceZone": true,
+          "allowSameKind": true,
+          "useOnly": true
+        },
+        {
+          "id": "last-judgment-slash",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "judgment"
+          ],
+          "outputKind": "slash",
+          "forPlay": true,
+          "forResponse": true,
+          "lastInSourceZone": true,
+          "allowSameKind": true
+        }
+      ]
+    },
+    {
+      "id": "ol:najiang",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "record-damage-counterpart",
+          "window": "afterDamageApplied",
+          "subject": "any",
+          "damageOccurrence": "perDamage",
+          "optional": false,
+          "effects": [
+            {
+              "op": "recordDamageCounterpartAcquisition",
+              "target": "owner",
+              "stateId": "caiwang",
+              "skillId": "ol:caiwang"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

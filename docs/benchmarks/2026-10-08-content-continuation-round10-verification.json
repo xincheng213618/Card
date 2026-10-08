@@ -1,0 +1,2811 @@
+{
+  "recordedAt": "2026-10-08T03:54:54.6961391+08:00",
+  "baseHead": "aed24e707a9c44f974d5762e132d0833d3a9ff57",
+  "roundStartHead": "aed24e707a9c44f974d5762e132d0833d3a9ff57",
+  "previousRoundEvidence": "docs/benchmarks/2026-10-08-content-continuation-round9-verification.json",
+  "sourceSnapshot": {
+    "capturedAt": "2026-10-08T03:27:32.1621691+08:00",
+    "concurrentHeadAtCapture": "e935fab79116e0088fdce77e63ad485f36e9f096",
+    "testedRoot": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\round10-source",
+    "sourceFileCount": 3341,
+    "finalVerifiedAt": "2026-10-08T03:49:37.2564443+08:00",
+    "canonicalFileDigestSha256": "bb984a1e16db90ccca968bc986114c1367def46d8ccfde63fdb295d153d8a591",
+    "sourceBytes": 848156512.0,
+    "digestDefinition": "SHA256 of UTF-8 file=sha256 lines ordered by PowerShell Sort-Object file and joined by LF, no final LF; includes source, assets, runner and the five referenced content catalogs/source files.",
+    "excludedConcurrentAddedPaths": [
+      "src/CardGame.Content.Standard/OrdinaryChenDengContent.cs",
+      "src/CardGame.Content.Standard/OrdinaryHuangChengYanContent.cs",
+      "src/CardGame.Content.Standard/OrdinaryJiangGanContent.cs",
+      "src/CardGame.Content.Standard/OrdinaryLiuBianContent.cs",
+      "src/CardGame.Content.Standard/OrdinaryPanJunContent.cs",
+      "src/CardGame.Content.Standard/OrdinaryPanShuContent.cs",
+      "src/CardGame.Content.Standard/OrdinaryQingHeGongZhuContent.cs",
+      "src/CardGame.Content.Standard/OrdinaryRuiJiContent.cs",
+      "src/CardGame.Content.Standard/OrdinaryYanJunContent.cs",
+      "src/CardGame.Content.Standard/OrdinaryYangWanContent.cs",
+      "src/CardGame.Content.Standard/OrdinaryYangYiContent.cs",
+      "src/CardGame.Content.Standard/OrdinaryZhuLingContent.cs",
+      "src/CardGame.Content.Standard/SkillPrograms/ol-chen-deng.presentation.json",
+      "src/CardGame.Content.Standard/SkillPrograms/ol-chen-deng.rules.json",
+      "src/CardGame.Content.Standard/SkillPrograms/ol-huang-cheng-yan.presentation.json",
+      "src/CardGame.Content.Standard/SkillPrograms/ol-huang-cheng-yan.rules.json",
+      "src/CardGame.Content.Standard/SkillPrograms/ol-jiang-gan.presentation.json",
+      "src/CardGame.Content.Standard/SkillPrograms/ol-jiang-gan.rules.json",
+      "src/CardGame.Content.Standard/SkillPrograms/ol-liu-bian.presentation.json",
+      "src/CardGame.Content.Standard/SkillPrograms/ol-liu-bian.rules.json",
+      "src/CardGame.Content.Standard/SkillPrograms/ol-pan-jun.presentation.json",
+      "src/CardGame.Content.Standard/SkillPrograms/ol-pan-jun.rules.json",
+      "src/CardGame.Content.Standard/SkillPrograms/ol-pan-shu.presentation.json",
+      "src/CardGame.Content.Standard/SkillPrograms/ol-pan-shu.rules.json",
+      "src/CardGame.Content.Standard/SkillPrograms/ol-qinghe-gongzhu.presentation.json",
+      "src/CardGame.Content.Standard/SkillPrograms/ol-qinghe-gongzhu.rules.json",
+      "src/CardGame.Content.Standard/SkillPrograms/ol-rui-ji.presentation.json",
+      "src/CardGame.Content.Standard/SkillPrograms/ol-rui-ji.rules.json",
+      "src/CardGame.Content.Standard/SkillPrograms/ol-yan-jun.presentation.json",
+      "src/CardGame.Content.Standard/SkillPrograms/ol-yan-jun.rules.json",
+      "src/CardGame.Content.Standard/SkillPrograms/ol-yang-wan.presentation.json",
+      "src/CardGame.Content.Standard/SkillPrograms/ol-yang-wan.rules.json",
+      "src/CardGame.Content.Standard/SkillPrograms/ol-yang-yi.presentation.json",
+      "src/CardGame.Content.Standard/SkillPrograms/ol-yang-yi.rules.json",
+      "src/CardGame.Content.Standard/SkillPrograms/ol-zhu-ling.presentation.json",
+      "src/CardGame.Content.Standard/SkillPrograms/ol-zhu-ling.rules.json",
+      "src/CardGame.Core/GameEngine.ChenDengPrograms.cs",
+      "src/CardGame.Core/GameEngine.HuangChengYanPrograms.cs",
+      "src/CardGame.Core/GameEngine.JiangGanPrograms.cs",
+      "src/CardGame.Core/GameEngine.LiuBianPrograms.cs",
+      "src/CardGame.Core/GameEngine.PanShuPrograms.cs",
+      "src/CardGame.Core/GameEngine.QingHeGongZhuPrograms.cs",
+      "src/CardGame.Core/GameEngine.RuiJiPrograms.cs",
+      "src/CardGame.Core/GameEngine.YanJunPrograms.cs",
+      "src/CardGame.Core/GameEngine.YangWanPrograms.cs",
+      "src/CardGame.Core/GameEngine.YangYiPrograms.cs",
+      "src/CardGame.Core/GameEngine.ZhuLingPrograms.cs",
+      "src/CardGame.Core/ProgramChenDengOperations.cs",
+      "src/CardGame.Core/ProgramHuangChengYanOperations.cs",
+      "src/CardGame.Core/ProgramJiangGanOperations.cs",
+      "src/CardGame.Core/ProgramLiuBianOperations.cs",
+      "src/CardGame.Core/ProgramPanShuOperations.cs",
+      "src/CardGame.Core/ProgramQingHeGongZhuOperations.cs",
+      "src/CardGame.Core/ProgramRuiJiOperations.cs",
+      "src/CardGame.Core/ProgramYanJunOperations.cs",
+      "src/CardGame.Core/ProgramYangWanOperations.cs",
+      "src/CardGame.Core/ProgramYangYiOperations.cs",
+      "src/CardGame.Core/ProgramZhuLingOperations.cs",
+      "src/CardGame.Wpf/Assets/official-ol-chen-deng.png",
+      "src/CardGame.Wpf/Assets/official-ol-huang-cheng-yan.png",
+      "src/CardGame.Wpf/Assets/official-ol-jiang-gan.png",
+      "src/CardGame.Wpf/Assets/official-ol-liu-bian.png",
+      "src/CardGame.Wpf/Assets/official-ol-pan-jun.png",
+      "src/CardGame.Wpf/Assets/official-ol-pan-shu.png",
+      "src/CardGame.Wpf/Assets/official-ol-qinghe-gongzhu.png",
+      "src/CardGame.Wpf/Assets/official-ol-rui-ji.png",
+      "src/CardGame.Wpf/Assets/official-ol-yan-jun.png",
+      "src/CardGame.Wpf/Assets/official-ol-yang-wan.png",
+      "src/CardGame.Wpf/Assets/official-ol-yang-yi.png",
+      "src/CardGame.Wpf/Assets/official-ol-zhu-ling.png",
+      "tests/CardGame.Core.Tests/OrdinaryPanJunChecks.cs"
+    ],
+    "scope": "Fixed cumulative working-source snapshot, excluding files added by concurrent Zcode commits after round start. Shared existing files were copied unchanged; only task-owned production and fixture fixes were recopied.",
+    "liveWorkspaceBuild": "Blocked by 83 then 96 compiler errors during concurrent HEAD changes; integration repair delegated to an explicitly authorized new chat.",
+    "repairThreadId": "01a117d6-8642-7840-a694-d84b35a6aeb0"
+  },
+  "validationBoundary": [
+    "Windows isolated Release development build, existing Core console and offscreen WPF runners; no release, packaging or Git publication.",
+    "Failure comparison is against the previous cumulative continuation round, not pristine HEAD.",
+    "Names and first error prefixes up to 1200 characters are compared; slowest 20 checks retained per scope.",
+    "Two opt-in native-audio checks, manual desktop and current official-client acceptance were not run."
+  ],
+  "newContent": {
+    "generalId": "ol:ma-zhong",
+    "skillId": "ol:fuman",
+    "sourcePage": "https://www.sanguosha.com/hero/370",
+    "capturedAtUtc": "2026-10-07T18:54:45Z",
+    "sourceArchive": "docs/content/sources/ol-ma-zhong-2026-10-08.json",
+    "sourceArchiveSha256": "3397e7e3d49904e7e0d25ed6438fbea10c6056ef33c6131d686994ba97d598fb",
+    "portraitSha256": "90f7794ebe10fb714b29c65349e63438f50db715fda00e50751bcc8bfad1f0e0",
+    "genderEvidence": {
+      "implementedGender": "male",
+      "officialApiContainsGender": false,
+      "basis": "Historical identity and the visually inspected official portrait. Male is an inference, not an explicit current API gender field."
+    },
+    "currentOfficialText": "出牌阶段，每名角色限一次，你可以交给一名其他角色一张手牌令之视为【杀】。当其使用此【杀】后，你摸一张牌，若造成伤害，你改为摸两张牌。",
+    "currentLifetimeSource": "https://www.sanguosha.com/news/20211018_6841_4719",
+    "lifetime": "Until the gifted entity leaves the original recipient Hand; no next-turn deadline.",
+    "galleryUniqueEntryCount": 261,
+    "prior260EntryCanonicalDigest": "bbc6a045815766241cd9610e565ad797b23cb23e89fe4a60c49cc625c3198b3a"
+  },
+  "newSharedCapabilities": [
+    "Strict paired gift/reward operations reuse exact one-private-Hand selection and per-recipient Play ledger; descriptor shared legality requires owner Hand before publishing or accepting.",
+    "A real native one-entity gift issues an immutable exact-source Hand policy; original departure ledger ends its interval permanently, including later transfer or return.",
+    "Central intrinsic identity preserves entity, suit, rank and recipient actor/provider; normal Response issues no Use benefit.",
+    "Before real Use pays into Processing, the exact accepted single-entity policy is frozen on its owning CardUseFrame.",
+    "Completion candidates validate source instance, gameplay fingerprint, original entity, real owning Use and completed parent; frozen actual damage controls Draw1/Draw2 once.",
+    "Own ProgramSkillFrame gift/reward receipts await real native movement and draw children; scalar facts and omitted-null frame fields preserve collection and prior format boundaries.",
+    "Gift AI considers its real immediate cost and a bounded public future opportunity, without private foreign Hand or future deck inspection."
+  ],
+  "newBehaviorCoverage": [
+    "Actual registered ol:fuman gives a printed Dodge; native AI accepts and uses the intrinsic Slash, with actual actor/provider retained as recipient.",
+    "Damage-free and damage-causing real Uses draw exactly one or two; unrelated subsequent damage does not enlarge the original reward.",
+    "Gift, committed Use, response and draw children are cold-restored with original receipts, once-paid material, once-ledger, physical sequences and typed parent returns.",
+    "Original departure by discard, third-holder transfer or returning the same entity prevents old identity/reward resurrection.",
+    "Native Duel Slash response consumes the gifted printed Duel without a Use reward; unrelated Duel damage cannot borrow it.",
+    "Real inserted Play resets per-target quota in the same actual turn; another recipient remains legal in each phase.",
+    "Empty actual Hand hides the gift, rejects command atomically and preserves target quota; real same-phase acquisition restores acceptance for that target.",
+    "A real recipient turn with skipped Play retains continuous Hand policy beyond intervening turn ends and cold restore; the next real Use rewards once.",
+    "Four player views, frozen nested collections and wrong actor/unpublished/stale command rejection retain privacy and input boundaries."
+  ],
+  "coverageLimitations": [
+    "Cross-skill FAQ and current official client were not tested; old 2017 and alternate mobile/X rules are excluded.",
+    "Issued grant persistence after original runtime skill loss and donor death handling are engine interpretations, not a verified current cross-skill FAQ.",
+    "New dedicated positive skill-loss/death, Fan or multi-material Zhangba, assisted-provider and malformed receipt scenarios were not introduced.",
+    "The native recipient Use/Response paths are exercised; giver native-AI tactical quality was not newly measured.",
+    "Routine elapsed time is measured against the approximately one-minute target; existing registrations were retained."
+  ],
+  "focusedCore": {
+    "runner": "Core",
+    "totals": [
+      "14 passed, 7 failed, 0 skipped (21 total)."
+    ],
+    "failures": [
+      {
+        "name": "boundary ma dai shown color hand ban and equipment response",
+        "error": "InvalidOperationException: Shown entity policy lost its exact actual Play start and public single-card reveal.",
+        "errorTruncated": false
+      },
+      {
+        "name": "boundary ma dai full materials damage benefit and cold return",
+        "error": "InvalidOperationException: Shown entity policy lost its exact actual Play start and public single-card reveal.",
+        "errorTruncated": false
+      },
+      {
+        "name": "boundary ma dai extra play cohort and actual turn expiry",
+        "error": "InvalidOperationException: Shown entity policy lost its exact actual Play start and public single-card reveal.",
+        "errorTruncated": false
+      },
+      {
+        "name": "boundary ma dai native reveal and real foreign provider",
+        "error": "InvalidOperationException: Shown entity policy lost its exact actual Play start and public single-card reveal.",
+        "errorTruncated": false
+      },
+      {
+        "name": "Shared Slash actual damage rescue Completed source loss cold",
+        "error": "InvalidOperationException: Chen Gong exact boundary missing: {\"Kind\":1,\"PlayerSeat\":0,\"Prompt\":\"\\u8BF7\\u9009\\u62E9\\u4E00\\u5F20\\u724C\\u548C\\u76EE\\u6807\\uFF0C\\u6216\\u7ED3\\u675F\\u51FA\\u724C\\u9636\\u6BB5\\u3002\",\"ValidCardIds\":[12,60,79,92,54,1],\"ValidTargetSeats\":[1,3],\"SourceSeat\":null,\"IncomingCard\":null,\"PromptId\":{\"Value\":10,\"IsValid\":true},\"Revision\":165,\"RequiredCardCount\":0,\"Choices\":[{\"Id\":{\"Value\":\"play.slash.card-12.target-1\",\"IsValid\":true},\"Description\":\"\\u5BF9 AI 2 \\u4F7F\\u7528\\u3010\\u6740\\u3011\",\"Cards\":[12],\"Targets\":[1],\"Parameters\":{\"action\":\"slash\"},\"Label\":\"\\u5BF9 AI 2 \\u4F7F\\u7528\\u3010\\u6740\\u3011\",\"ContentIds\":[]},{\"Id\":{\"Value\":\"play.slash.card-12.target-3\",\"IsValid\":true},\"Description\":\"\\u5BF9 AI 4 \\u4F7F\\u7528\\u3010\\u6740\\u3011\",\"Cards\":[12],\"Targets\":[3],\"Parameters\":{\"action\":\"slash\"},\"Label\":\"\\u5BF9 AI 4 \\u4F7F\\u7528\\u3010\\u6740\\u3011\",\"ContentIds\":[]},{\"Id\":{\"Value\":\"play.slash.card-60.target-1\",\"IsValid\":true},\"Description\":\"\\u5BF9 AI 2 \\u4F7F\\u7528\\u3010\\u6740\\u3011\",\"Cards\":[60],\"Targets\":[1],\"Parameters\":{\"action\":\"slash\"},\"Label\":\"\\u5BF9 AI 2 \\u4F7F\\u7528\\u3010\\u6740\\u3011\",\"ContentIds\":[]},{\"Id\":{\"Value\":\"play.slash.card-60.target-3\",\"IsValid\":true},\"D",
+        "errorTruncated": true
+      },
+      {
+        "name": "Shared Slash false use cannot borrow prior damage",
+        "error": "InvalidOperationException: The real target has a black-card Dodge conversion, not an injected dodged flag.",
+        "errorTruncated": false
+      },
+      {
+        "name": "Shared Slash identity cancellation native classic defaults",
+        "error": "InvalidOperationException: A fixed four-turn native match chooses, pays and finishes the real new active binding and public option without duplicated costs.",
+        "errorTruncated": false
+      }
+    ],
+    "slowest": [
+      {
+        "name": "Gifted Slash hand policy: actual use damage reward and cold children",
+        "durationMs": 2611.467
+      },
+      {
+        "name": "Public pile cash out: damage points hand equipment and decline",
+        "durationMs": 2530.409
+      },
+      {
+        "name": "Gifted Slash hand policy: target phase quota and continuous hand lifetime",
+        "durationMs": 2042.381
+      },
+      {
+        "name": "Public pile cash out: isolated sources and actual turn expiry",
+        "durationMs": 1981.61
+      },
+      {
+        "name": "Gifted Slash hand policy: departed entities and recipient boundaries",
+        "durationMs": 1685.616
+      },
+      {
+        "name": "Public pile cash out: frozen payment draw and nested deposit",
+        "durationMs": 1479.823
+      },
+      {
+        "name": "Gifted Slash hand policy: response consumes without use reward",
+        "durationMs": 991.565
+      },
+      {
+        "name": "Shared Slash actual damage rescue Completed source loss cold",
+        "durationMs": 817.829
+      },
+      {
+        "name": "Shared Slash gift equipment recovery both gain children cold",
+        "durationMs": 510.697
+      },
+      {
+        "name": "Shared Slash identity cancellation native classic defaults",
+        "durationMs": 484.242
+      },
+      {
+        "name": "Public pile cash out: empty source and strict composition",
+        "durationMs": 119.341
+      },
+      {
+        "name": "boundary ma dai shown color hand ban and equipment response",
+        "durationMs": 86.555
+      },
+      {
+        "name": "boundary ma dai full materials damage benefit and cold return",
+        "durationMs": 82.213
+      },
+      {
+        "name": "Shared Slash false use cannot borrow prior damage",
+        "durationMs": 64.126
+      },
+      {
+        "name": "boundary ma dai extra play cohort and actual turn expiry",
+        "durationMs": 46.964
+      },
+      {
+        "name": "boundary ma dai native reveal and real foreign provider",
+        "durationMs": 38.942
+      },
+      {
+        "name": "completed Slash program window follows finished card use and replays",
+        "durationMs": 21.576
+      },
+      {
+        "name": "completed Slash freezes actual damage for conditional programs",
+        "durationMs": 17.69
+      },
+      {
+        "name": "general content modules preserve roster and registry boundaries",
+        "durationMs": 3.588
+      },
+      {
+        "name": "standard package builds an immutable isolated registry",
+        "durationMs": 3.086
+      }
+    ]
+  },
+  "focusedProcess": {
+    "exitCode": 1,
+    "durationMs": 15891,
+    "filterCount": 8
+  },
+  "previousRoundFullCore": {
+    "totals": [
+      "817 passed, 109 failed, 0 skipped (926 total)."
+    ],
+    "failureNames": [
+      "Discarded provenance outside threshold current maximum and native claims",
+      "Original target addition rights quota armor and cold",
+      "Foreign turn Wine actual actor physical virtual and pile dying",
+      "Original target native AI grant",
+      "Neighbor Ending revealed equipment non-equipment HP typed children",
+      "boundary cheng pu nonfire real use and virtual tail",
+      "boundary cheng pu completion payment recovery and dying",
+      "boundary cheng pu round priced actual alcohol",
+      "boundary cheng pu adjacent discard and native rescue",
+      "boundary wu guo tai paid equipment pair cost and typed return",
+      "boundary wu guo tai free and changed pair frozen payment",
+      "boundary wu guo tai opaque dying basic selection",
+      "boundary wu guo tai nonbasic discard recovery and exact dying",
+      "Paid actual target HP and original use return",
+      "Paid actual target Dying source loss and decline",
+      "Earned actual Ending and lost HP gift budget",
+      "Lost HP owned gift Dying native and strict contract",
+      "boundary li ru sequential discard top cost and typed child return",
+      "boundary li ru sequential shortfall and exact source loss",
+      "boundary li ru chosen start actual discard fire and dying return",
+      "boundary li ru ending public hand and native forced choice",
+      "Whole equipment donation actual X and recovery",
+      "Equipment donation recipient damage and paid children",
+      "Original actual ended turn equipment and draw tiers",
+      "Actual use target history response exclusion and native",
+      "boundary xiao qiao heart judgment exact placement and native prevention",
+      "boundary lu su extra draw half hand gift and cold children",
+      "boundary lu su exchange first frozen ending silver lion debt",
+      "boundary lu su ending debt shortfall and source loss",
+      "boundary lu su actual target recipient support and expiry",
+      "Real color payment Duel back-damage and mandatory Ending claim",
+      "Multiple original materials already moved and empty virtual responses",
+      "Lightning held entity source loss and gain Dying cold return",
+      "Real equipment conversion native and strict operation contracts",
+      "boundary two zhangs return claim phase quota and damage dying cold",
+      "boundary two zhangs extra play and normal discard actual phase",
+      "boundary bu lian shi ordered opaque pair gift and reward",
+      "boundary bu lian shi self hand equipment recovery and source loss",
+      "boundary bu lian shi ending issued recipient death repeat and cold",
+      "Foreign contest original claim private aid rescue return",
+      "Actual use aid damage trick legacy native contracts",
+      "boundary ma dai shown color hand ban and equipment response",
+      "boundary ma dai full materials damage benefit and cold return",
+      "boundary ma dai extra play cohort and actual turn expiry",
+      "boundary ma dai native reveal and real foreign provider",
+      "Ending pair two draws own extra round and cold",
+      "Ending pair final hand true-round suppression and reacquisition",
+      "Actual play Slash use recast loss and cleanup",
+      "Preparation discard actual cost",
+      "Preparation discard promised ending",
+      "Compared black Slash actual target",
+      "Preparation discard native contracts",
+      "Yang Xiu multi-target trick owns draw children and unique Borrowed Sword is excluded",
+      "Yang Xiu categories block own hand uses responses and costs without protecting foreign discards",
+      "Yang Xiu protected hand still counts toward limit and only legal overflow is discarded",
+      "Yang Xiu paid draw returns through real damage dying wine and source loss",
+      "SP Ma Chao HP ordered distance and lost HP extra targets pay each target once",
+      "SP Ma Chao equipment recast drains Silver Lion and paid source loss before draw",
+      "SP Ma Chao selected and spear material Slashes keep typed return and maximum",
+      "SP Ma Chao legacy Slash and target windows keep one visit per target",
+      "Ordinary Cao Hong mount recovery paid source loss and gain Dying",
+      "Ordinary Guan Yin Ping red equipment cost before lost HP targets and real fire draw",
+      "Ordinary Guan Yin Ping fire recipient quota real use debits and actual turn expiry",
+      "Ordinary Guan Yin Ping awakening original weapon and paid gain source loss return",
+      "Ordinary Guan Yin Ping paid fire draw source loss and native actor",
+      "ordinary OL Zhuge Ke empty-hand Dodge private top request and once payment",
+      "ordinary OL Zhuge Ke requested Slash and real Peach original producer cold return",
+      "ordinary OL Zhuge Ke frozen SilverLion discard damage and exact survivor penalty",
+      "ordinary OL Zhuge Ke native failed rescue and paid source loss complete once",
+      "Ordinary SP Cao Ren private whole hand after HP children and real discard",
+      "Ordinary SP Cao Ren forced Slash after finite quota and directed distance expiry",
+      "Ordinary SP Cao Ren paid Dying and source loss continue once",
+      "Ordinary SP Cao Ren Lizhan current wounded draw native and strict composition",
+      "Ordinary Chen Lin deferred private offer next actual start exchange",
+      "Ordinary Chen Lin private removal HP loss rescue typed return",
+      "Ordinary Chen Lin persistent game target draw real gain children",
+      "Ordinary Chen Lin equipment discard recovery paid source loss",
+      "Ordinary SP Pang De two real costs and issued Duel typed return",
+      "Ordinary SP Pang De Slash identity and HP after payment children",
+      "Ordinary SP Pang De paid Dying source loss and issued source loss",
+      "Ordinary SP Pang De native choice and strict standalone composition",
+      "Ordinary Fu Wan same-use benefit and real Dodge settlement",
+      "Ordinary Fu Wan all actual targets and prevented cancellation",
+      "Ordinary Fu Wan legacy virtual Slash and Bagua cancellation",
+      "Ordinary Fu Wan paid gain children source loss native and strict composition",
+      "Ordinary Liu Xie Tianming SilverLion cost and unique current HP peer",
+      "Ordinary Liu Xie Tianming zero HE all targets and real producers",
+      "Ordinary Liu Xie Mizhao atomic gift foreign Pindian winner Slash",
+      "Ordinary Liu Xie Mizhao tie foreign winner and paid source loss",
+      "OL public dead role costs and prior death acquisition",
+      "OL signed equipment cost HP fatal children and once return",
+      "OL recipient chain base native selection and strict contract",
+      "Owner batch loss converted Use and separate single losses",
+      "Shared Slash actual damage rescue Completed source loss cold",
+      "Shared Slash false use cannot borrow prior damage",
+      "Shared Slash identity cancellation native classic defaults",
+      "Turn damage-use draw debt actual gain and frozen ending cost",
+      "Turn damage-use draw debt paid Slash Response excluded",
+      "Source faction prevention quota opaque HEJ equipment children",
+      "Turn damage-use draw debt native and truly empty deck",
+      "Signed Slash modifier parser and prepared collection boundaries",
+      "Paid HP loss quantity and native",
+      "Paid HP loss rescue and gain children",
+      "Paid HP loss source and legacy",
+      "Paid HP loss actual turn lifetime",
+      "boundary Lu Meng opt in usage legacy shape",
+      "Fame 2015 Wei next turn all hand grant replay",
+      "Jiangchi extra draw blocks Slash use and play",
+      "Qianxi red restriction filters same-color hand responses"
+    ]
+  },
+  "routine": {
+    "summary": {
+      "status": "test-failed",
+      "mode": "routine",
+      "startedAt": "2026-10-08T03:42:54.95173+08:00",
+      "durationMs": 154010,
+      "coreFilterCount": 237,
+      "wpfFilterCount": 18,
+      "results": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 2703
+        },
+        {
+          "name": "Core selected checks (237 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 132668
+        },
+        {
+          "name": "WPF selected checks (18 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 18584
+        }
+      ]
+    },
+    "core": {
+      "runner": "Core",
+      "totals": [
+        "327 passed, 28 failed, 0 skipped (355 total)."
+      ],
+      "failures": [
+        {
+          "name": "Original target addition rights quota armor and cold",
+          "error": "InvalidOperationException: Fixed Gao Shun prefix missed its boundary: {\"Kind\":1,\"PlayerSeat\":0,\"Prompt\":\"\\u8BF7\\u9009\\u62E9\\u4E00\\u5F20\\u724C\\u548C\\u76EE\\u6807\\uFF0C\\u6216\\u7ED3\\u675F\\u51FA\\u724C\\u9636\\u6BB5\\u3002\",\"ValidCardIds\":[77,158,89,35,134,17,60,120,93,99,156,126,18,96,21,1,49,19,121,82],\"ValidTargetSeats\":[2],\"SourceSeat\":null,\"IncomingCard\":null,\"PromptId\":{\"Value\":14,\"IsValid\":true},\"Revision\":206,\"RequiredCardCount\":0,\"Choices\":[{\"Id\":{\"Value\":\"play.slash.card-77.target-2.conversion-boundary:jinjiu-current-alcohol-as-slash\",\"IsValid\":true},\"Description\":\"\\u3010\\u7981\\u9152\\u3011\\u5C06\\u3010\\u9152\\u3011\\u89C6\\u4E3A\\u3010\\u6740\\u3011\\u5BF9 AI 3 \\u4F7F\\u7528\",\"Cards\":[77],\"Targets\":[2],\"Parameters\":{\"action\":\"slash\",\"played-card-kind\":\"Slash\",\"conversion-skill-id\":\"boundary:jinjiu-current\",\"conversion-binding-id\":\"alcohol-as-slash\",\"conversion-owner-seat\":\"0\",\"conversion-instance-id\":\"template:primary:boundary:jinjiu-current\"},\"Label\":\"\\u3010\\u7981\\u9152\\u3011\\u5C06\\u3010\\u9152\\u3011\\u89C6\\u4E3A\\u3010\\u6740\\u3011\\u5BF9 AI 3 \\u4F7F\\u7528\",\"ContentIds\":[]},{\"Id\":{\"Value\":\"play.slash.card-158.target-2.conversion-boundary:jinjiu-current-alcohol-as-slash\",\"IsValid\":true},\"Descr",
+          "errorTruncated": true
+        },
+        {
+          "name": "Foreign turn Wine actual actor physical virtual and pile dying",
+          "error": "InvalidOperationException: Fixed Gao Shun prefix missed its boundary: {\"Kind\":1,\"PlayerSeat\":0,\"Prompt\":\"\\u8BF7\\u9009\\u62E9\\u4E00\\u5F20\\u724C\\u548C\\u76EE\\u6807\\uFF0C\\u6216\\u7ED3\\u675F\\u51FA\\u724C\\u9636\\u6BB5\\u3002\",\"ValidCardIds\":[60,56,47,120,99,8,156,19,126,18,158,82,96,35,134,93,1,49,77,121,89,17,21],\"ValidTargetSeats\":[2,3],\"SourceSeat\":null,\"IncomingCard\":null,\"PromptId\":{\"Value\":6,\"IsValid\":true},\"Revision\":194,\"RequiredCardCount\":0,\"Choices\":[{\"Id\":{\"Value\":\"play.slash.card-60.target-2.conversion-boundary:jinjiu-current-alcohol-as-slash\",\"IsValid\":true},\"Description\":\"\\u3010\\u7981\\u9152\\u3011\\u5C06\\u3010\\u9152\\u3011\\u89C6\\u4E3A\\u3010\\u6740\\u3011\\u5BF9 AI 3 \\u4F7F\\u7528\",\"Cards\":[60],\"Targets\":[2],\"Parameters\":{\"action\":\"slash\",\"played-card-kind\":\"Slash\",\"conversion-skill-id\":\"boundary:jinjiu-current\",\"conversion-binding-id\":\"alcohol-as-slash\",\"conversion-owner-seat\":\"0\",\"conversion-instance-id\":\"template:primary:boundary:jinjiu-current\"},\"Label\":\"\\u3010\\u7981\\u9152\\u3011\\u5C06\\u3010\\u9152\\u3011\\u89C6\\u4E3A\\u3010\\u6740\\u3011\\u5BF9 AI 3 \\u4F7F\\u7528\",\"ContentIds\":[]},{\"Id\":{\"Value\":\"play.slash.card-60.target-3.conversion-boundary:jinjiu-current-alcohol-as-slash\",\"IsValid\":true",
+          "errorTruncated": true
+        },
+        {
+          "name": "boundary cheng pu completion payment recovery and dying",
+          "error": "ArgumentException: General 'fixture:cp-owner' must reference distinct non-empty skills. (Parameter 'definition')",
+          "errorTruncated": false
+        },
+        {
+          "name": "boundary wu guo tai paid equipment pair cost and typed return",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:wgt-cost' (rules.skills[2]).triggers[0].sourceZones: cardsMoved requires exactly one owner-scoped source zone.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Paid actual target HP and original use return",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:wy-loss' (rules.skills[3]).triggers[0].effects[0]: Owner skill replacement must terminate an activation..",
+          "errorTruncated": false
+        },
+        {
+          "name": "boundary li ru sequential discard top cost and typed child return",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:lr-cost' (rules.skills[3]).triggers[0].sourceZones: cardsMoved requires exactly one owner-scoped source zone.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Whole equipment donation actual X and recovery",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:cfr-driver' (rules.skills[0]).activations: Selected actor Duel requires one other target, zero cards and exactly two uses per actual Play phase..",
+          "errorTruncated": false
+        },
+        {
+          "name": "boundary lu su extra draw half hand gift and cold children",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:ls-debt' (rules.skills[5]).triggers[0].sourceZones: cardsMoved requires exactly one owner-scoped source zone.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Real color payment Duel back-damage and mandatory Ending claim",
+          "error": "InvalidOperationException: Fixed Yan Liang Wen Chou boundary not reached: {\"Kind\":1,\"PlayerSeat\":0,\"Prompt\":\"\\u8BF7\\u9009\\u62E9\\u4E00\\u5F20\\u724C\\u548C\\u76EE\\u6807\\uFF0C\\u6216\\u7ED3\\u675F\\u51FA\\u724C\\u9636\\u6BB5\\u3002\",\"ValidCardIds\":[31,95],\"ValidTargetSeats\":[1,3],\"SourceSeat\":null,\"IncomingCard\":null,\"PromptId\":{\"Value\":6,\"IsValid\":true},\"Revision\":171,\"RequiredCardCount\":0,\"Choices\":[{\"Id\":{\"Value\":\"play.slash.card-31.target-1\",\"IsValid\":true},\"Description\":\"\\u5BF9 AI 2 \\u4F7F\\u7528\\u3010\\u6740\\u3011\",\"Cards\":[31],\"Targets\":[1],\"Parameters\":{\"action\":\"slash\"},\"Label\":\"\\u5BF9 AI 2 \\u4F7F\\u7528\\u3010\\u6740\\u3011\",\"ContentIds\":[]},{\"Id\":{\"Value\":\"play.slash.card-31.target-3\",\"IsValid\":true},\"Description\":\"\\u5BF9 AI 4 \\u4F7F\\u7528\\u3010\\u6740\\u3011\",\"Cards\":[31],\"Targets\":[3],\"Parameters\":{\"action\":\"slash\"},\"Label\":\"\\u5BF9 AI 4 \\u4F7F\\u7528\\u3010\\u6740\\u3011\",\"ContentIds\":[]},{\"Id\":{\"Value\":\"play.equip.card-95\",\"IsValid\":true},\"Description\":\"\\u88C5\\u5907\\u3010\\u8BF8\\u845B\\u8FDE\\u5F29\\u3011\\u81F3\\u6B66\\u5668\\u69FD\",\"Cards\":[95],\"Targets\":[],\"Parameters\":{\"action\":\"equip\"},\"Label\":\"\\u88C5\\u5907\\u3010\\u8BF8\\u845B\\u8FDE\\u5F29\\u3011\\u81F3\\u6B66\\u5668\\u69FD\",\"ContentIds\":[]},{\"Id\":{\"Valu",
+          "errorTruncated": true
+        },
+        {
+          "name": "boundary bu lian shi ordered opaque pair gift and reward",
+          "error": "InvalidOperationException: The program prompt has no parent trigger candidate.",
+          "errorTruncated": false
+        },
+        {
+          "name": "boundary ma dai shown color hand ban and equipment response",
+          "error": "InvalidOperationException: Shown entity policy lost its exact actual Play start and public single-card reveal.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Ending pair two draws own extra round and cold",
+          "error": "NullReferenceException: Object reference not set to an instance of an object.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Preparation discard actual cost",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:yj-driver' (rules.skills[0]).activations[3].targetKind: unsupported SkillProgramTargetKind value 'none'.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Yang Xiu multi-target trick owns draw children and unique Borrowed Sword is excluded",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:yx-quiet' (rules.skills[1]).triggers[0].effects: phase substitution does not match its lifecycle boundary.",
+          "errorTruncated": false
+        },
+        {
+          "name": "SP Ma Chao HP ordered distance and lost HP extra targets pay each target once",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:smc-cost' (rules.skills[3]).triggers[0].subject: this lifecycle window supports only owner subjects.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Ordinary Guan Yin Ping red equipment cost before lost HP targets and real fire draw",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:gyp-gain' (rules.skills[3]).triggers[0].subject: this lifecycle window supports only owner subjects.",
+          "errorTruncated": false
+        },
+        {
+          "name": "ordinary OL Zhuge Ke empty-hand Dodge private top request and once payment",
+          "error": "InvalidOperationException: Zhuge Ke exact boundary missing: {\"Kind\":1,\"PlayerSeat\":0,\"Prompt\":\"\\u8BF7\\u9009\\u62E9\\u4E00\\u5F20\\u724C\\u548C\\u76EE\\u6807\\uFF0C\\u6216\\u7ED3\\u675F\\u51FA\\u724C\\u9636\\u6BB5\\u3002\",\"ValidCardIds\":[],\"ValidTargetSeats\":[],\"SourceSeat\":null,\"IncomingCard\":null,\"PromptId\":{\"Value\":15,\"IsValid\":true},\"Revision\":207,\"RequiredCardCount\":0,\"Choices\":[{\"Id\":{\"Value\":\"play.program.17:fixture:zk-driver.empty\",\"IsValid\":true},\"Description\":\"\\u53D1\\u52A8\\u3010fixture:zk-driver\\u3011\",\"Cards\":[],\"Targets\":[],\"Parameters\":{\"action\":\"use-program-skill\",\"skill-id\":\"fixture:zk-driver\",\"activation-id\":\"empty\",\"min-card-count\":\"0\",\"max-card-count\":\"0\",\"min-target-count\":\"1\",\"max-target-count\":\"1\"},\"Label\":\"\\u53D1\\u52A8\\u3010fixture:zk-driver\\u3011\",\"ContentIds\":[]},{\"Id\":{\"Value\":\"play.program.17:fixture:zk-driver.request\",\"IsValid\":true},\"Description\":\"\\u53D1\\u52A8\\u3010fixture:zk-driver\\u3011\",\"Cards\":[],\"Targets\":[],\"Parameters\":{\"action\":\"use-program-skill\",\"skill-id\":\"fixture:zk-driver\",\"activation-id\":\"request\",\"min-card-count\":\"0\",\"max-card-count\":\"0\",\"min-target-count\":\"1\",\"max-target-count\":\"1\"},\"Label\":\"\\u53D1\\u52A8\\u3010fixture:zk-driver\\u3011\",\"ContentIds\":[]},{\"Id",
+          "errorTruncated": true
+        },
+        {
+          "name": "Ordinary SP Cao Ren private whole hand after HP children and real discard",
+          "error": "InvalidOperationException: An HP-change window lost its parent continuation.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Ordinary Chen Lin deferred private offer next actual start exchange",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:cl-driver' (rules.skills[0]).activations[0]: missing required property 'targetKind'.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Ordinary SP Pang De two real costs and issued Duel typed return",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:spd-entry' (rules.skills[2]).triggers[1]: missing required property 'damageOccurrence'.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Ordinary Fu Wan same-use benefit and real Dodge settlement",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:fw-entry' (rules.skills[2]).triggers[1]: missing required property 'damageOccurrence'.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Ordinary Liu Xie Tianming SilverLion cost and unique current HP peer",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:lx-driver' (rules.skills[0]).activations[0].effects[0]: missing required property 'resultBind'.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Turn damage-use draw debt actual gain and frozen ending cost",
+          "error": "InvalidOperationException: Sequence contains no matching element",
+          "errorTruncated": false
+        },
+        {
+          "name": "Source faction prevention quota opaque HEJ equipment children",
+          "error": "InvalidOperationException: Sequence contains no matching element",
+          "errorTruncated": false
+        },
+        {
+          "name": "Signed Slash modifier parser and prepared collection boundaries",
+          "error": "TargetParameterCountException: Parameter count mismatch.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Paid HP loss rescue and gain children",
+          "error": "TargetParameterCountException: Parameter count mismatch.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Paid HP loss source and legacy",
+          "error": "TargetParameterCountException: Parameter count mismatch.",
+          "errorTruncated": false
+        },
+        {
+          "name": "boundary Lu Meng opt in usage legacy shape",
+          "error": "InvalidOperationException: A registry without Classic or the new cap/history emits neither new Round nor suit-history events.",
+          "errorTruncated": false
+        }
+      ],
+      "slowest": [
+        {
+          "name": "Unrespondable counterspell equipment payment completed cold",
+          "durationMs": 6421.844
+        },
+        {
+          "name": "Tiered Round shared quota and zero ordinary child",
+          "durationMs": 5594.161
+        },
+        {
+          "name": "Actual second use foreign grants share state and expire on end",
+          "durationMs": 4638.739
+        },
+        {
+          "name": "Discarded provenance real turn all materials no response",
+          "durationMs": 4490.634
+        },
+        {
+          "name": "Feng Lin Yu Ji borrowed sword faction provider declaration",
+          "durationMs": 4422.402
+        },
+        {
+          "name": "Next-use rank bonus per point real consumption public pool and cold replay",
+          "durationMs": 3266.488
+        },
+        {
+          "name": "card inventory is conserved at every public boundary",
+          "durationMs": 2941.456
+        },
+        {
+          "name": "Gifted Slash hand policy: actual use damage reward and cold children",
+          "durationMs": 2473.252
+        },
+        {
+          "name": "Feng Lin Wang Ping first target history independent reward",
+          "durationMs": 2288.398
+        },
+        {
+          "name": "Actual turn use kinds independent hand suits and effective types",
+          "durationMs": 2204.623
+        },
+        {
+          "name": "Actual hand gains and category gifts: CategoryDeckGiftsUseTrueCompletionQuotaAndPrivateTargets",
+          "durationMs": 2195.41
+        },
+        {
+          "name": "Public pile cash out: damage points hand equipment and decline",
+          "durationMs": 2072.119
+        },
+        {
+          "name": "Gifted Slash hand policy: target phase quota and continuous hand lifetime",
+          "durationMs": 1996.666
+        },
+        {
+          "name": "Public pile cash out: isolated sources and actual turn expiry",
+          "durationMs": 1834.087
+        },
+        {
+          "name": "Actual turn use kinds per Play draw child and actual turn expiry",
+          "durationMs": 1821.165
+        },
+        {
+          "name": "Damage judgment suit payment four suits and exact claims",
+          "durationMs": 1797.113
+        },
+        {
+          "name": "Gifted Slash hand policy: departed entities and recipient boundaries",
+          "durationMs": 1671.346
+        },
+        {
+          "name": "Nearest legal Slash paid conversion provider optional finisher",
+          "durationMs": 1583.207
+        },
+        {
+          "name": "Feng Lin Yu Ji actual dodge duel rescue parents",
+          "durationMs": 1581.352
+        },
+        {
+          "name": "Exact owned card count and named targets: insufficient empty effective suits and native AI",
+          "durationMs": 1437.975
+        }
+      ]
+    },
+    "wpf": {
+      "runner": "WPF",
+      "totals": [
+        "18 WPF checks passed, 0 failed. Renders: C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\build\\renders"
+      ],
+      "failures": [],
+      "slowest": [
+        {
+          "name": "hand responses select exact cards and confirm through shared controls",
+          "durationMs": 3208.682
+        },
+        {
+          "name": "playback batches internal steps while preserving human boundaries and replay",
+          "durationMs": 2166.816
+        },
+        {
+          "name": "Program exact top count restores private shared order",
+          "durationMs": 1939.002
+        },
+        {
+          "name": "Program population count private faces restore shared free order",
+          "durationMs": 1753.133
+        },
+        {
+          "name": "overlapping hand cards keep stable pointer targets",
+          "durationMs": 1483.871
+        },
+        {
+          "name": "Program paid choices preserve actor control and opaque slots",
+          "durationMs": 1360.098
+        },
+        {
+          "name": "Program conversion polarity stays visible with active entry and restore",
+          "durationMs": 1044.671
+        },
+        {
+          "name": "saved UI boundaries restore and continue through actual files",
+          "durationMs": 862.011
+        },
+        {
+          "name": "declaration and general library views protect private faces",
+          "durationMs": 840.493
+        },
+        {
+          "name": "opaque target-card slots render privately and commit through WPF commands",
+          "durationMs": 760.637
+        },
+        {
+          "name": "original card artwork preserves physical card identity and interaction",
+          "durationMs": 661.011
+        },
+        {
+          "name": "Program public markers restore actual payment transfer and consumption",
+          "durationMs": 562.071
+        },
+        {
+          "name": "Program Iron Chain guide follows actual target count and submits set",
+          "durationMs": 538.163
+        },
+        {
+          "name": "Program deferred hand alignment restores native private recipient and exact payment",
+          "durationMs": 449.31
+        },
+        {
+          "name": "conversion choices retain exact provenance without leaking trusted action details",
+          "durationMs": 184.46
+        },
+        {
+          "name": "composed skills share the generic WPF draft and submit their stable program identity",
+          "durationMs": 162.961
+        },
+        {
+          "name": "response context distinguishes recipients, opponents and private prompts",
+          "durationMs": 36.156
+        },
+        {
+          "name": "failed writes and incompatible reads preserve the active game",
+          "durationMs": 30.87
+        }
+      ]
+    }
+  },
+  "full": {
+    "summary": {
+      "status": "test-failed",
+      "mode": "full",
+      "startedAt": "2026-10-08T03:46:24.1065895+08:00",
+      "durationMs": 495456,
+      "coreFilterCount": 0,
+      "wpfFilterCount": 0,
+      "results": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 3448
+        },
+        {
+          "name": "Core full checks",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 453690
+        },
+        {
+          "name": "WPF full checks",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 38278
+        }
+      ]
+    },
+    "core": {
+      "runner": "Core",
+      "totals": [
+        "821 passed, 109 failed, 0 skipped (930 total)."
+      ],
+      "failures": [
+        {
+          "name": "Discarded provenance outside threshold current maximum and native claims",
+          "error": "InvalidOperationException: The exact provenance claim contract rejects unsupported cardKinds before runtime.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Original target addition rights quota armor and cold",
+          "error": "InvalidOperationException: Fixed Gao Shun prefix missed its boundary: {\"Kind\":1,\"PlayerSeat\":0,\"Prompt\":\"\\u8BF7\\u9009\\u62E9\\u4E00\\u5F20\\u724C\\u548C\\u76EE\\u6807\\uFF0C\\u6216\\u7ED3\\u675F\\u51FA\\u724C\\u9636\\u6BB5\\u3002\",\"ValidCardIds\":[77,158,89,35,134,17,60,120,93,99,156,126,18,96,21,1,49,19,121,82],\"ValidTargetSeats\":[2],\"SourceSeat\":null,\"IncomingCard\":null,\"PromptId\":{\"Value\":14,\"IsValid\":true},\"Revision\":206,\"RequiredCardCount\":0,\"Choices\":[{\"Id\":{\"Value\":\"play.slash.card-77.target-2.conversion-boundary:jinjiu-current-alcohol-as-slash\",\"IsValid\":true},\"Description\":\"\\u3010\\u7981\\u9152\\u3011\\u5C06\\u3010\\u9152\\u3011\\u89C6\\u4E3A\\u3010\\u6740\\u3011\\u5BF9 AI 3 \\u4F7F\\u7528\",\"Cards\":[77],\"Targets\":[2],\"Parameters\":{\"action\":\"slash\",\"played-card-kind\":\"Slash\",\"conversion-skill-id\":\"boundary:jinjiu-current\",\"conversion-binding-id\":\"alcohol-as-slash\",\"conversion-owner-seat\":\"0\",\"conversion-instance-id\":\"template:primary:boundary:jinjiu-current\"},\"Label\":\"\\u3010\\u7981\\u9152\\u3011\\u5C06\\u3010\\u9152\\u3011\\u89C6\\u4E3A\\u3010\\u6740\\u3011\\u5BF9 AI 3 \\u4F7F\\u7528\",\"ContentIds\":[]},{\"Id\":{\"Value\":\"play.slash.card-158.target-2.conversion-boundary:jinjiu-current-alcohol-as-slash\",\"IsValid\":true},\"Descr",
+          "errorTruncated": true
+        },
+        {
+          "name": "Foreign turn Wine actual actor physical virtual and pile dying",
+          "error": "InvalidOperationException: Fixed Gao Shun prefix missed its boundary: {\"Kind\":1,\"PlayerSeat\":0,\"Prompt\":\"\\u8BF7\\u9009\\u62E9\\u4E00\\u5F20\\u724C\\u548C\\u76EE\\u6807\\uFF0C\\u6216\\u7ED3\\u675F\\u51FA\\u724C\\u9636\\u6BB5\\u3002\",\"ValidCardIds\":[60,56,47,120,99,8,156,19,126,18,158,82,96,35,134,93,1,49,77,121,89,17,21],\"ValidTargetSeats\":[2,3],\"SourceSeat\":null,\"IncomingCard\":null,\"PromptId\":{\"Value\":6,\"IsValid\":true},\"Revision\":194,\"RequiredCardCount\":0,\"Choices\":[{\"Id\":{\"Value\":\"play.slash.card-60.target-2.conversion-boundary:jinjiu-current-alcohol-as-slash\",\"IsValid\":true},\"Description\":\"\\u3010\\u7981\\u9152\\u3011\\u5C06\\u3010\\u9152\\u3011\\u89C6\\u4E3A\\u3010\\u6740\\u3011\\u5BF9 AI 3 \\u4F7F\\u7528\",\"Cards\":[60],\"Targets\":[2],\"Parameters\":{\"action\":\"slash\",\"played-card-kind\":\"Slash\",\"conversion-skill-id\":\"boundary:jinjiu-current\",\"conversion-binding-id\":\"alcohol-as-slash\",\"conversion-owner-seat\":\"0\",\"conversion-instance-id\":\"template:primary:boundary:jinjiu-current\"},\"Label\":\"\\u3010\\u7981\\u9152\\u3011\\u5C06\\u3010\\u9152\\u3011\\u89C6\\u4E3A\\u3010\\u6740\\u3011\\u5BF9 AI 3 \\u4F7F\\u7528\",\"ContentIds\":[]},{\"Id\":{\"Value\":\"play.slash.card-60.target-3.conversion-boundary:jinjiu-current-alcohol-as-slash\",\"IsValid\":true",
+          "errorTruncated": true
+        },
+        {
+          "name": "Original target native AI grant",
+          "error": "InvalidOperationException: A native AI starts the real phase-limited contest, selects the K identity and issues a same-actual-turn original-target grant.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Neighbor Ending revealed equipment non-equipment HP typed children",
+          "error": "InvalidOperationException: Equipment does not take the non-equipment HP branch, even when recovery makes the live HP unequal; the child return never repeats its use.",
+          "errorTruncated": false
+        },
+        {
+          "name": "boundary cheng pu nonfire real use and virtual tail",
+          "error": "ArgumentException: General 'fixture:cp-owner' must reference distinct non-empty skills. (Parameter 'definition')",
+          "errorTruncated": false
+        },
+        {
+          "name": "boundary cheng pu completion payment recovery and dying",
+          "error": "ArgumentException: General 'fixture:cp-owner' must reference distinct non-empty skills. (Parameter 'definition')",
+          "errorTruncated": false
+        },
+        {
+          "name": "boundary cheng pu round priced actual alcohol",
+          "error": "ArgumentException: General 'fixture:cp-owner' must reference distinct non-empty skills. (Parameter 'definition')",
+          "errorTruncated": false
+        },
+        {
+          "name": "boundary cheng pu adjacent discard and native rescue",
+          "error": "ArgumentException: General 'fixture:cp-owner' must reference distinct non-empty skills. (Parameter 'definition')",
+          "errorTruncated": false
+        },
+        {
+          "name": "boundary wu guo tai paid equipment pair cost and typed return",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:wgt-cost' (rules.skills[2]).triggers[0].sourceZones: cardsMoved requires exactly one owner-scoped source zone.",
+          "errorTruncated": false
+        },
+        {
+          "name": "boundary wu guo tai free and changed pair frozen payment",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:wgt-cost' (rules.skills[2]).triggers[0].sourceZones: cardsMoved requires exactly one owner-scoped source zone.",
+          "errorTruncated": false
+        },
+        {
+          "name": "boundary wu guo tai opaque dying basic selection",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:wgt-cost' (rules.skills[2]).triggers[0].sourceZones: cardsMoved requires exactly one owner-scoped source zone.",
+          "errorTruncated": false
+        },
+        {
+          "name": "boundary wu guo tai nonbasic discard recovery and exact dying",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:wgt-cost' (rules.skills[2]).triggers[0].sourceZones: cardsMoved requires exactly one owner-scoped source zone.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Paid actual target HP and original use return",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:wy-loss' (rules.skills[3]).triggers[0].effects[0]: Owner skill replacement must terminate an activation..",
+          "errorTruncated": false
+        },
+        {
+          "name": "Paid actual target Dying source loss and decline",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:wy-loss' (rules.skills[3]).triggers[0].effects[0]: Owner skill replacement must terminate an activation..",
+          "errorTruncated": false
+        },
+        {
+          "name": "Earned actual Ending and lost HP gift budget",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:wy-loss' (rules.skills[3]).triggers[0].effects[0]: Owner skill replacement must terminate an activation..",
+          "errorTruncated": false
+        },
+        {
+          "name": "Lost HP owned gift Dying native and strict contract",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:wy-loss' (rules.skills[3]).triggers[0].effects[0]: Owner skill replacement must terminate an activation..",
+          "errorTruncated": false
+        },
+        {
+          "name": "boundary li ru sequential discard top cost and typed child return",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:lr-cost' (rules.skills[3]).triggers[0].sourceZones: cardsMoved requires exactly one owner-scoped source zone.",
+          "errorTruncated": false
+        },
+        {
+          "name": "boundary li ru sequential shortfall and exact source loss",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:lr-cost' (rules.skills[3]).triggers[0].sourceZones: cardsMoved requires exactly one owner-scoped source zone.",
+          "errorTruncated": false
+        },
+        {
+          "name": "boundary li ru chosen start actual discard fire and dying return",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:lr-cost' (rules.skills[3]).triggers[0].sourceZones: cardsMoved requires exactly one owner-scoped source zone.",
+          "errorTruncated": false
+        },
+        {
+          "name": "boundary li ru ending public hand and native forced choice",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:lr-cost' (rules.skills[3]).triggers[0].sourceZones: cardsMoved requires exactly one owner-scoped source zone.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Whole equipment donation actual X and recovery",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:cfr-driver' (rules.skills[0]).activations: Selected actor Duel requires one other target, zero cards and exactly two uses per actual Play phase..",
+          "errorTruncated": false
+        },
+        {
+          "name": "Equipment donation recipient damage and paid children",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:cfr-driver' (rules.skills[0]).activations: Selected actor Duel requires one other target, zero cards and exactly two uses per actual Play phase..",
+          "errorTruncated": false
+        },
+        {
+          "name": "Original actual ended turn equipment and draw tiers",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:cfr-driver' (rules.skills[0]).activations: Selected actor Duel requires one other target, zero cards and exactly two uses per actual Play phase..",
+          "errorTruncated": false
+        },
+        {
+          "name": "Actual use target history response exclusion and native",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:cfr-driver' (rules.skills[0]).activations: Selected actor Duel requires one other target, zero cards and exactly two uses per actual Play phase..",
+          "errorTruncated": false
+        },
+        {
+          "name": "boundary xiao qiao heart judgment exact placement and native prevention",
+          "error": "InvalidOperationException: The original judgment entity is actually the top draw-pile card.",
+          "errorTruncated": false
+        },
+        {
+          "name": "boundary lu su extra draw half hand gift and cold children",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:ls-debt' (rules.skills[5]).triggers[0].sourceZones: cardsMoved requires exactly one owner-scoped source zone.",
+          "errorTruncated": false
+        },
+        {
+          "name": "boundary lu su exchange first frozen ending silver lion debt",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:ls-debt' (rules.skills[5]).triggers[0].sourceZones: cardsMoved requires exactly one owner-scoped source zone.",
+          "errorTruncated": false
+        },
+        {
+          "name": "boundary lu su ending debt shortfall and source loss",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:ls-debt' (rules.skills[5]).triggers[0].sourceZones: cardsMoved requires exactly one owner-scoped source zone.",
+          "errorTruncated": false
+        },
+        {
+          "name": "boundary lu su actual target recipient support and expiry",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:ls-debt' (rules.skills[5]).triggers[0].sourceZones: cardsMoved requires exactly one owner-scoped source zone.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Real color payment Duel back-damage and mandatory Ending claim",
+          "error": "InvalidOperationException: Fixed Yan Liang Wen Chou boundary not reached: {\"Kind\":1,\"PlayerSeat\":0,\"Prompt\":\"\\u8BF7\\u9009\\u62E9\\u4E00\\u5F20\\u724C\\u548C\\u76EE\\u6807\\uFF0C\\u6216\\u7ED3\\u675F\\u51FA\\u724C\\u9636\\u6BB5\\u3002\",\"ValidCardIds\":[31,95],\"ValidTargetSeats\":[1,3],\"SourceSeat\":null,\"IncomingCard\":null,\"PromptId\":{\"Value\":6,\"IsValid\":true},\"Revision\":171,\"RequiredCardCount\":0,\"Choices\":[{\"Id\":{\"Value\":\"play.slash.card-31.target-1\",\"IsValid\":true},\"Description\":\"\\u5BF9 AI 2 \\u4F7F\\u7528\\u3010\\u6740\\u3011\",\"Cards\":[31],\"Targets\":[1],\"Parameters\":{\"action\":\"slash\"},\"Label\":\"\\u5BF9 AI 2 \\u4F7F\\u7528\\u3010\\u6740\\u3011\",\"ContentIds\":[]},{\"Id\":{\"Value\":\"play.slash.card-31.target-3\",\"IsValid\":true},\"Description\":\"\\u5BF9 AI 4 \\u4F7F\\u7528\\u3010\\u6740\\u3011\",\"Cards\":[31],\"Targets\":[3],\"Parameters\":{\"action\":\"slash\"},\"Label\":\"\\u5BF9 AI 4 \\u4F7F\\u7528\\u3010\\u6740\\u3011\",\"ContentIds\":[]},{\"Id\":{\"Value\":\"play.equip.card-95\",\"IsValid\":true},\"Description\":\"\\u88C5\\u5907\\u3010\\u8BF8\\u845B\\u8FDE\\u5F29\\u3011\\u81F3\\u6B66\\u5668\\u69FD\",\"Cards\":[95],\"Targets\":[],\"Parameters\":{\"action\":\"equip\"},\"Label\":\"\\u88C5\\u5907\\u3010\\u8BF8\\u845B\\u8FDE\\u5F29\\u3011\\u81F3\\u6B66\\u5668\\u69FD\",\"ContentIds\":[]},{\"Id\":{\"Valu",
+          "errorTruncated": true
+        },
+        {
+          "name": "Multiple original materials already moved and empty virtual responses",
+          "error": "InvalidOperationException: Every original material has its own cause; mandatory Ending needs neither the optional payment nor its color source.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Lightning held entity source loss and gain Dying cold return",
+          "error": "InvalidOperationException: An atomic card-movement batch escaped its operation boundary.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Real equipment conversion native and strict operation contracts",
+          "error": "InvalidOperationException: Fixed Yan Liang Wen Chou boundary not reached: {\"Kind\":1,\"PlayerSeat\":0,\"Prompt\":\"\\u8BF7\\u9009\\u62E9\\u4E00\\u5F20\\u724C\\u548C\\u76EE\\u6807\\uFF0C\\u6216\\u7ED3\\u675F\\u51FA\\u724C\\u9636\\u6BB5\\u3002\",\"ValidCardIds\":[61,31,95],\"ValidTargetSeats\":[1,3,2],\"SourceSeat\":null,\"IncomingCard\":null,\"PromptId\":{\"Value\":7,\"IsValid\":true},\"Revision\":173,\"RequiredCardCount\":0,\"Choices\":[{\"Id\":{\"Value\":\"play.slash.card-61.target-1\",\"IsValid\":true},\"Description\":\"\\u5BF9 AI 2 \\u4F7F\\u7528\\u3010\\u6740\\u3011\",\"Cards\":[61],\"Targets\":[1],\"Parameters\":{\"action\":\"slash\"},\"Label\":\"\\u5BF9 AI 2 \\u4F7F\\u7528\\u3010\\u6740\\u3011\",\"ContentIds\":[]},{\"Id\":{\"Value\":\"play.slash.card-61.target-3\",\"IsValid\":true},\"Description\":\"\\u5BF9 AI 4 \\u4F7F\\u7528\\u3010\\u6740\\u3011\",\"Cards\":[61],\"Targets\":[3],\"Parameters\":{\"action\":\"slash\"},\"Label\":\"\\u5BF9 AI 4 \\u4F7F\\u7528\\u3010\\u6740\\u3011\",\"ContentIds\":[]},{\"Id\":{\"Value\":\"play.slash.card-31.target-1\",\"IsValid\":true},\"Description\":\"\\u5BF9 AI 2 \\u4F7F\\u7528\\u3010\\u6740\\u3011\",\"Cards\":[31],\"Targets\":[1],\"Parameters\":{\"action\":\"slash\"},\"Label\":\"\\u5BF9 AI 2 \\u4F7F\\u7528\\u3010\\u6740\\u3011\",\"ContentIds\":[]},{\"Id\":{\"Value\":\"play.slash.card-31.target-3\",\"IsValid\":tr",
+          "errorTruncated": true
+        },
+        {
+          "name": "boundary two zhangs return claim phase quota and damage dying cold",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:zz-fragile' (rules.skills[6]).triggers[0].effects[0].sourceRef: must be Object.",
+          "errorTruncated": false
+        },
+        {
+          "name": "boundary two zhangs extra play and normal discard actual phase",
+          "error": "InvalidOperationException: A requested skill boundary was passed into normal Play.",
+          "errorTruncated": false
+        },
+        {
+          "name": "boundary bu lian shi ordered opaque pair gift and reward",
+          "error": "InvalidOperationException: The program prompt has no parent trigger candidate.",
+          "errorTruncated": false
+        },
+        {
+          "name": "boundary bu lian shi self hand equipment recovery and source loss",
+          "error": "InvalidOperationException: The program prompt has no parent trigger candidate.",
+          "errorTruncated": false
+        },
+        {
+          "name": "boundary bu lian shi ending issued recipient death repeat and cold",
+          "error": "ArgumentOutOfRangeException: Index was out of range. Must be non-negative and less than the size of the collection. (Parameter 'index')",
+          "errorTruncated": false
+        },
+        {
+          "name": "Foreign contest original claim private aid rescue return",
+          "error": "InvalidOperationException: The game is already completed.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Actual use aid damage trick legacy native contracts",
+          "error": "InvalidOperationException: Deck 'fixture:fhh-deck' references unknown card 'standard:fireAttack'.",
+          "errorTruncated": false
+        },
+        {
+          "name": "boundary ma dai shown color hand ban and equipment response",
+          "error": "InvalidOperationException: Shown entity policy lost its exact actual Play start and public single-card reveal.",
+          "errorTruncated": false
+        },
+        {
+          "name": "boundary ma dai full materials damage benefit and cold return",
+          "error": "InvalidOperationException: Shown entity policy lost its exact actual Play start and public single-card reveal.",
+          "errorTruncated": false
+        },
+        {
+          "name": "boundary ma dai extra play cohort and actual turn expiry",
+          "error": "InvalidOperationException: Shown entity policy lost its exact actual Play start and public single-card reveal.",
+          "errorTruncated": false
+        },
+        {
+          "name": "boundary ma dai native reveal and real foreign provider",
+          "error": "InvalidOperationException: Shown entity policy lost its exact actual Play start and public single-card reveal.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Ending pair two draws own extra round and cold",
+          "error": "NullReferenceException: Object reference not set to an instance of an object.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Ending pair final hand true-round suppression and reacquisition",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:xhs-first' (rules.skills[2]).triggers[0].effects[3]: Owner skill replacement must terminate an activation..",
+          "errorTruncated": false
+        },
+        {
+          "name": "Actual play Slash use recast loss and cleanup",
+          "error": "InvalidOperationException: The real single-card batch retains exact original parent, frozen ledger entry and nullable awaiting identity.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Preparation discard actual cost",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:yj-driver' (rules.skills[0]).activations[3].targetKind: unsupported SkillProgramTargetKind value 'none'.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Preparation discard promised ending",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:yj-driver' (rules.skills[0]).activations[3].targetKind: unsupported SkillProgramTargetKind value 'none'.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Compared black Slash actual target",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:yj-driver' (rules.skills[0]).activations[3].targetKind: unsupported SkillProgramTargetKind value 'none'.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Preparation discard native contracts",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:yj-driver' (rules.skills[0]).activations[3].targetKind: unsupported SkillProgramTargetKind value 'none'.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Yang Xiu multi-target trick owns draw children and unique Borrowed Sword is excluded",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:yx-quiet' (rules.skills[1]).triggers[0].effects: phase substitution does not match its lifecycle boundary.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Yang Xiu categories block own hand uses responses and costs without protecting foreign discards",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:yx-quiet' (rules.skills[1]).triggers[0].effects: phase substitution does not match its lifecycle boundary.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Yang Xiu protected hand still counts toward limit and only legal overflow is discarded",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:yx-quiet' (rules.skills[1]).triggers[0].effects: phase substitution does not match its lifecycle boundary.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Yang Xiu paid draw returns through real damage dying wine and source loss",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:yx-quiet' (rules.skills[1]).triggers[0].effects: phase substitution does not match its lifecycle boundary.",
+          "errorTruncated": false
+        },
+        {
+          "name": "SP Ma Chao HP ordered distance and lost HP extra targets pay each target once",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:smc-cost' (rules.skills[3]).triggers[0].subject: this lifecycle window supports only owner subjects.",
+          "errorTruncated": false
+        },
+        {
+          "name": "SP Ma Chao equipment recast drains Silver Lion and paid source loss before draw",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:smc-cost' (rules.skills[3]).triggers[0].subject: this lifecycle window supports only owner subjects.",
+          "errorTruncated": false
+        },
+        {
+          "name": "SP Ma Chao selected and spear material Slashes keep typed return and maximum",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:smc-cost' (rules.skills[3]).triggers[0].subject: this lifecycle window supports only owner subjects.",
+          "errorTruncated": false
+        },
+        {
+          "name": "SP Ma Chao legacy Slash and target windows keep one visit per target",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:smc-cost' (rules.skills[3]).triggers[0].subject: this lifecycle window supports only owner subjects.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Ordinary Cao Hong mount recovery paid source loss and gain Dying",
+          "error": "InvalidOperationException: Suppression requires its actual owned program frame and living other target.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Ordinary Guan Yin Ping red equipment cost before lost HP targets and real fire draw",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:gyp-gain' (rules.skills[3]).triggers[0].subject: this lifecycle window supports only owner subjects.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Ordinary Guan Yin Ping fire recipient quota real use debits and actual turn expiry",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:gyp-gain' (rules.skills[3]).triggers[0].subject: this lifecycle window supports only owner subjects.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Ordinary Guan Yin Ping awakening original weapon and paid gain source loss return",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:gyp-gain' (rules.skills[3]).triggers[0].subject: this lifecycle window supports only owner subjects.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Ordinary Guan Yin Ping paid fire draw source loss and native actor",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:gyp-gain' (rules.skills[3]).triggers[0].subject: this lifecycle window supports only owner subjects.",
+          "errorTruncated": false
+        },
+        {
+          "name": "ordinary OL Zhuge Ke empty-hand Dodge private top request and once payment",
+          "error": "InvalidOperationException: Zhuge Ke exact boundary missing: {\"Kind\":1,\"PlayerSeat\":0,\"Prompt\":\"\\u8BF7\\u9009\\u62E9\\u4E00\\u5F20\\u724C\\u548C\\u76EE\\u6807\\uFF0C\\u6216\\u7ED3\\u675F\\u51FA\\u724C\\u9636\\u6BB5\\u3002\",\"ValidCardIds\":[],\"ValidTargetSeats\":[],\"SourceSeat\":null,\"IncomingCard\":null,\"PromptId\":{\"Value\":15,\"IsValid\":true},\"Revision\":207,\"RequiredCardCount\":0,\"Choices\":[{\"Id\":{\"Value\":\"play.program.17:fixture:zk-driver.empty\",\"IsValid\":true},\"Description\":\"\\u53D1\\u52A8\\u3010fixture:zk-driver\\u3011\",\"Cards\":[],\"Targets\":[],\"Parameters\":{\"action\":\"use-program-skill\",\"skill-id\":\"fixture:zk-driver\",\"activation-id\":\"empty\",\"min-card-count\":\"0\",\"max-card-count\":\"0\",\"min-target-count\":\"1\",\"max-target-count\":\"1\"},\"Label\":\"\\u53D1\\u52A8\\u3010fixture:zk-driver\\u3011\",\"ContentIds\":[]},{\"Id\":{\"Value\":\"play.program.17:fixture:zk-driver.request\",\"IsValid\":true},\"Description\":\"\\u53D1\\u52A8\\u3010fixture:zk-driver\\u3011\",\"Cards\":[],\"Targets\":[],\"Parameters\":{\"action\":\"use-program-skill\",\"skill-id\":\"fixture:zk-driver\",\"activation-id\":\"request\",\"min-card-count\":\"0\",\"max-card-count\":\"0\",\"min-target-count\":\"1\",\"max-target-count\":\"1\"},\"Label\":\"\\u53D1\\u52A8\\u3010fixture:zk-driver\\u3011\",\"ContentIds\":[]},{\"Id",
+          "errorTruncated": true
+        },
+        {
+          "name": "ordinary OL Zhuge Ke requested Slash and real Peach original producer cold return",
+          "error": "InvalidOperationException: Zhuge Ke exact boundary missing: {\"Kind\":1,\"PlayerSeat\":0,\"Prompt\":\"\\u8BF7\\u9009\\u62E9\\u4E00\\u5F20\\u724C\\u548C\\u76EE\\u6807\\uFF0C\\u6216\\u7ED3\\u675F\\u51FA\\u724C\\u9636\\u6BB5\\u3002\",\"ValidCardIds\":[61,80,95,31,56,76,3,19],\"ValidTargetSeats\":[1,2,3],\"SourceSeat\":null,\"IncomingCard\":null,\"PromptId\":{\"Value\":15,\"IsValid\":true},\"Revision\":207,\"RequiredCardCount\":0,\"Choices\":[{\"Id\":{\"Value\":\"play.slash.card-61.target-1\",\"IsValid\":true},\"Description\":\"\\u5BF9 AI 2 \\u4F7F\\u7528\\u3010\\u6740\\u3011\",\"Cards\":[61],\"Targets\":[1],\"Parameters\":{\"action\":\"slash\"},\"Label\":\"\\u5BF9 AI 2 \\u4F7F\\u7528\\u3010\\u6740\\u3011\",\"ContentIds\":[]},{\"Id\":{\"Value\":\"play.slash.card-61.target-2\",\"IsValid\":true},\"Description\":\"\\u5BF9 AI 3 \\u4F7F\\u7528\\u3010\\u6740\\u3011\",\"Cards\":[61],\"Targets\":[2],\"Parameters\":{\"action\":\"slash\"},\"Label\":\"\\u5BF9 AI 3 \\u4F7F\\u7528\\u3010\\u6740\\u3011\",\"ContentIds\":[]},{\"Id\":{\"Value\":\"play.slash.card-61.target-3\",\"IsValid\":true},\"Description\":\"\\u5BF9 AI 4 \\u4F7F\\u7528\\u3010\\u6740\\u3011\",\"Cards\":[61],\"Targets\":[3],\"Parameters\":{\"action\":\"slash\"},\"Label\":\"\\u5BF9 AI 4 \\u4F7F\\u7528\\u3010\\u6740\\u3011\",\"ContentIds\":[]},{\"Id\":{\"Value\":\"play.slash.card-80.target-1\",\"IsValid\":t",
+          "errorTruncated": true
+        },
+        {
+          "name": "ordinary OL Zhuge Ke frozen SilverLion discard damage and exact survivor penalty",
+          "error": "InvalidOperationException: Zhuge Ke exact boundary missing: {\"Kind\":1,\"PlayerSeat\":0,\"Prompt\":\"\\u8BF7\\u9009\\u62E9\\u4E00\\u5F20\\u724C\\u548C\\u76EE\\u6807\\uFF0C\\u6216\\u7ED3\\u675F\\u51FA\\u724C\\u9636\\u6BB5\\u3002\",\"ValidCardIds\":[80,95,31,56,76,3,19],\"ValidTargetSeats\":[],\"SourceSeat\":null,\"IncomingCard\":null,\"PromptId\":{\"Value\":7,\"IsValid\":true},\"Revision\":193,\"RequiredCardCount\":0,\"Choices\":[{\"Id\":{\"Value\":\"play.equip.card-80\",\"IsValid\":true},\"Description\":\"\\u88C5\\u5907\\u3010\\u767D\\u94F6\\u72EE\\u5B50\\u3011\\u81F3\\u9632\\u5177\\u69FD\",\"Cards\":[80],\"Targets\":[],\"Parameters\":{\"action\":\"equip\"},\"Label\":\"\\u88C5\\u5907\\u3010\\u767D\\u94F6\\u72EE\\u5B50\\u3011\\u81F3\\u9632\\u5177\\u69FD\",\"ContentIds\":[]},{\"Id\":{\"Value\":\"play.equip.card-95\",\"IsValid\":true},\"Description\":\"\\u88C5\\u5907\\u3010\\u767D\\u94F6\\u72EE\\u5B50\\u3011\\u81F3\\u9632\\u5177\\u69FD\",\"Cards\":[95],\"Targets\":[],\"Parameters\":{\"action\":\"equip\"},\"Label\":\"\\u88C5\\u5907\\u3010\\u767D\\u94F6\\u72EE\\u5B50\\u3011\\u81F3\\u9632\\u5177\\u69FD\",\"ContentIds\":[]},{\"Id\":{\"Value\":\"play.equip.card-31\",\"IsValid\":true},\"Description\":\"\\u88C5\\u5907\\u3010\\u767D\\u94F6\\u72EE\\u5B50\\u3011\\u81F3\\u9632\\u5177\\u69FD\",\"Cards\":[31],\"Targets\":[],\"Parameters\":{\"action\":\"equip\"},\"Label\":\"\\u88C5",
+          "errorTruncated": true
+        },
+        {
+          "name": "ordinary OL Zhuge Ke native failed rescue and paid source loss complete once",
+          "error": "InvalidOperationException: Zhuge Ke exact boundary missing: {\"Kind\":1,\"PlayerSeat\":0,\"Prompt\":\"\\u8BF7\\u9009\\u62E9\\u4E00\\u5F20\\u724C\\u548C\\u76EE\\u6807\\uFF0C\\u6216\\u7ED3\\u675F\\u51FA\\u724C\\u9636\\u6BB5\\u3002\",\"ValidCardIds\":[80,95,31,56,76,3,19],\"ValidTargetSeats\":[2,3],\"SourceSeat\":null,\"IncomingCard\":null,\"PromptId\":{\"Value\":4,\"IsValid\":true},\"Revision\":190,\"RequiredCardCount\":0,\"Choices\":[{\"Id\":{\"Value\":\"play.slash.card-80.target-2\",\"IsValid\":true},\"Description\":\"\\u5BF9 AI 3 \\u4F7F\\u7528\\u3010\\u6740\\u3011\",\"Cards\":[80],\"Targets\":[2],\"Parameters\":{\"action\":\"slash\"},\"Label\":\"\\u5BF9 AI 3 \\u4F7F\\u7528\\u3010\\u6740\\u3011\",\"ContentIds\":[]},{\"Id\":{\"Value\":\"play.slash.card-80.target-3\",\"IsValid\":true},\"Description\":\"\\u5BF9 AI 4 \\u4F7F\\u7528\\u3010\\u6740\\u3011\",\"Cards\":[80],\"Targets\":[3],\"Parameters\":{\"action\":\"slash\"},\"Label\":\"\\u5BF9 AI 4 \\u4F7F\\u7528\\u3010\\u6740\\u3011\",\"ContentIds\":[]},{\"Id\":{\"Value\":\"play.slash.card-95.target-2\",\"IsValid\":true},\"Description\":\"\\u5BF9 AI 3 \\u4F7F\\u7528\\u3010\\u6740\\u3011\",\"Cards\":[95],\"Targets\":[2],\"Parameters\":{\"action\":\"slash\"},\"Label\":\"\\u5BF9 AI 3 \\u4F7F\\u7528\\u3010\\u6740\\u3011\",\"ContentIds\":[]},{\"Id\":{\"Value\":\"play.slash.card-95.target-3\",\"IsValid\":true},\"",
+          "errorTruncated": true
+        },
+        {
+          "name": "Ordinary SP Cao Ren private whole hand after HP children and real discard",
+          "error": "InvalidOperationException: An HP-change window lost its parent continuation.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Ordinary SP Cao Ren forced Slash after finite quota and directed distance expiry",
+          "error": "InvalidOperationException: An HP-change window lost its parent continuation.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Ordinary SP Cao Ren paid Dying and source loss continue once",
+          "error": "InvalidOperationException: An HP-change window lost its parent continuation.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Ordinary SP Cao Ren Lizhan current wounded draw native and strict composition",
+          "error": "InvalidOperationException: An HP-change window lost its parent continuation.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Ordinary Chen Lin deferred private offer next actual start exchange",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:cl-driver' (rules.skills[0]).activations[0]: missing required property 'targetKind'.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Ordinary Chen Lin private removal HP loss rescue typed return",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:cl-driver' (rules.skills[0]).activations[0]: missing required property 'targetKind'.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Ordinary Chen Lin persistent game target draw real gain children",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:cl-driver' (rules.skills[0]).activations[0]: missing required property 'targetKind'.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Ordinary Chen Lin equipment discard recovery paid source loss",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:cl-driver' (rules.skills[0]).activations[0]: missing required property 'targetKind'.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Ordinary SP Pang De two real costs and issued Duel typed return",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:spd-entry' (rules.skills[2]).triggers[1]: missing required property 'damageOccurrence'.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Ordinary SP Pang De Slash identity and HP after payment children",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:spd-entry' (rules.skills[2]).triggers[1]: missing required property 'damageOccurrence'.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Ordinary SP Pang De paid Dying source loss and issued source loss",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:spd-entry' (rules.skills[2]).triggers[1]: missing required property 'damageOccurrence'.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Ordinary SP Pang De native choice and strict standalone composition",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:spd-entry' (rules.skills[2]).triggers[1]: missing required property 'damageOccurrence'.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Ordinary Fu Wan same-use benefit and real Dodge settlement",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:fw-entry' (rules.skills[2]).triggers[1]: missing required property 'damageOccurrence'.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Ordinary Fu Wan all actual targets and prevented cancellation",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:fw-entry' (rules.skills[2]).triggers[1]: missing required property 'damageOccurrence'.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Ordinary Fu Wan legacy virtual Slash and Bagua cancellation",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:fw-entry' (rules.skills[2]).triggers[1]: missing required property 'damageOccurrence'.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Ordinary Fu Wan paid gain children source loss native and strict composition",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:fw-entry' (rules.skills[2]).triggers[1]: missing required property 'damageOccurrence'.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Ordinary Liu Xie Tianming SilverLion cost and unique current HP peer",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:lx-driver' (rules.skills[0]).activations[0].effects[0]: missing required property 'resultBind'.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Ordinary Liu Xie Tianming zero HE all targets and real producers",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:lx-driver' (rules.skills[0]).activations[0].effects[0]: missing required property 'resultBind'.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Ordinary Liu Xie Mizhao atomic gift foreign Pindian winner Slash",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:lx-driver' (rules.skills[0]).activations[0].effects[0]: missing required property 'resultBind'.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Ordinary Liu Xie Mizhao tie foreign winner and paid source loss",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:lx-driver' (rules.skills[0]).activations[0].effects[0]: missing required property 'resultBind'.",
+          "errorTruncated": false
+        },
+        {
+          "name": "OL public dead role costs and prior death acquisition",
+          "error": "InvalidOperationException: Sequence contains no matching element",
+          "errorTruncated": false
+        },
+        {
+          "name": "OL signed equipment cost HP fatal children and once return",
+          "error": "InvalidOperationException: Sequence contains no matching element",
+          "errorTruncated": false
+        },
+        {
+          "name": "OL recipient chain base native selection and strict contract",
+          "error": "InvalidOperationException: Sequence contains no matching element",
+          "errorTruncated": false
+        },
+        {
+          "name": "Owner batch loss converted Use and separate single losses",
+          "error": "InvalidOperationException: Fixed Ling Tong fixture did not reach its boundary: {\"Kind\":1,\"PlayerSeat\":0,\"Prompt\":\"\\u8BF7\\u9009\\u62E9\\u4E00\\u5F20\\u724C\\u548C\\u76EE\\u6807\\uFF0C\\u6216\\u7ED3\\u675F\\u51FA\\u724C\\u9636\\u6BB5\\u3002\",\"ValidCardIds\":[16,23],\"ValidTargetSeats\":[],\"SourceSeat\":null,\"IncomingCard\":null,\"PromptId\":{\"Value\":3,\"IsValid\":true},\"Revision\":129,\"RequiredCardCount\":0,\"Choices\":[{\"Id\":{\"Value\":\"play.equip.card-16\",\"IsValid\":true},\"Description\":\"\\u88C5\\u5907\\u3010\\u8BF8\\u845B\\u8FDE\\u5F29\\u3011\\u81F3\\u6B66\\u5668\\u69FD\",\"Cards\":[16],\"Targets\":[],\"Parameters\":{\"action\":\"equip\"},\"Label\":\"\\u88C5\\u5907\\u3010\\u8BF8\\u845B\\u8FDE\\u5F29\\u3011\\u81F3\\u6B66\\u5668\\u69FD\",\"ContentIds\":[]},{\"Id\":{\"Value\":\"play.equip.card-23\",\"IsValid\":true},\"Description\":\"\\u88C5\\u5907\\u3010\\u8BF8\\u845B\\u8FDE\\u5F29\\u3011\\u81F3\\u6B66\\u5668\\u69FD\",\"Cards\":[23],\"Targets\":[],\"Parameters\":{\"action\":\"equip\"},\"Label\":\"\\u88C5\\u5907\\u3010\\u8BF8\\u845B\\u8FDE\\u5F29\\u3011\\u81F3\\u6B66\\u5668\\u69FD\",\"ContentIds\":[]},{\"Id\":{\"Value\":\"play.program.13:classic:fuhun.two-hand-cards-as-slash\",\"IsValid\":true},\"Description\":\"\\u53D1\\u52A8\\u3010\\u7236\\u9B42\\u3011\",\"Cards\":[],\"Targets\":[],\"Parameters\":{\"action\":\"use-program-skill\",\"s",
+          "errorTruncated": true
+        },
+        {
+          "name": "Shared Slash actual damage rescue Completed source loss cold",
+          "error": "InvalidOperationException: Chen Gong exact boundary missing: {\"Kind\":1,\"PlayerSeat\":0,\"Prompt\":\"\\u8BF7\\u9009\\u62E9\\u4E00\\u5F20\\u724C\\u548C\\u76EE\\u6807\\uFF0C\\u6216\\u7ED3\\u675F\\u51FA\\u724C\\u9636\\u6BB5\\u3002\",\"ValidCardIds\":[12,60,79,92,54,1],\"ValidTargetSeats\":[1,3],\"SourceSeat\":null,\"IncomingCard\":null,\"PromptId\":{\"Value\":10,\"IsValid\":true},\"Revision\":165,\"RequiredCardCount\":0,\"Choices\":[{\"Id\":{\"Value\":\"play.slash.card-12.target-1\",\"IsValid\":true},\"Description\":\"\\u5BF9 AI 2 \\u4F7F\\u7528\\u3010\\u6740\\u3011\",\"Cards\":[12],\"Targets\":[1],\"Parameters\":{\"action\":\"slash\"},\"Label\":\"\\u5BF9 AI 2 \\u4F7F\\u7528\\u3010\\u6740\\u3011\",\"ContentIds\":[]},{\"Id\":{\"Value\":\"play.slash.card-12.target-3\",\"IsValid\":true},\"Description\":\"\\u5BF9 AI 4 \\u4F7F\\u7528\\u3010\\u6740\\u3011\",\"Cards\":[12],\"Targets\":[3],\"Parameters\":{\"action\":\"slash\"},\"Label\":\"\\u5BF9 AI 4 \\u4F7F\\u7528\\u3010\\u6740\\u3011\",\"ContentIds\":[]},{\"Id\":{\"Value\":\"play.slash.card-60.target-1\",\"IsValid\":true},\"Description\":\"\\u5BF9 AI 2 \\u4F7F\\u7528\\u3010\\u6740\\u3011\",\"Cards\":[60],\"Targets\":[1],\"Parameters\":{\"action\":\"slash\"},\"Label\":\"\\u5BF9 AI 2 \\u4F7F\\u7528\\u3010\\u6740\\u3011\",\"ContentIds\":[]},{\"Id\":{\"Value\":\"play.slash.card-60.target-3\",\"IsValid\":true},\"D",
+          "errorTruncated": true
+        },
+        {
+          "name": "Shared Slash false use cannot borrow prior damage",
+          "error": "InvalidOperationException: The real target has a black-card Dodge conversion, not an injected dodged flag.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Shared Slash identity cancellation native classic defaults",
+          "error": "InvalidOperationException: A fixed four-turn native match chooses, pays and finishes the real new active binding and public option without duplicated costs.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Turn damage-use draw debt actual gain and frozen ending cost",
+          "error": "InvalidOperationException: Sequence contains no matching element",
+          "errorTruncated": false
+        },
+        {
+          "name": "Turn damage-use draw debt paid Slash Response excluded",
+          "error": "InvalidOperationException: Fixed Liu Biao boundary absent: {\"Prompt\":{\"Kind\":1,\"PlayerSeat\":0,\"Prompt\":\"\\u8BF7\\u9009\\u62E9\\u4E00\\u5F20\\u724C\\u548C\\u76EE\\u6807\\uFF0C\\u6216\\u7ED3\\u675F\\u51FA\\u724C\\u9636\\u6BB5\\u3002\",\"ValidCardIds\":[60,16,23,24,34,7,8,56,3],\"ValidTargetSeats\":[1,3],\"SourceSeat\":null,\"IncomingCard\":null,\"PromptId\":{\"Value\":6,\"IsValid\":true},\"Revision\":191,\"RequiredCardCount\":0,\"Choices\":[{\"Id\":{\"Value\":\"play.slash.card-60.target-1\",\"IsValid\":true},\"Description\":\"\\u5BF9 AI 2 \\u4F7F\\u7528\\u3010\\u6740\\u3011\",\"Cards\":[60],\"Targets\":[1],\"Parameters\":{\"action\":\"slash\"},\"Label\":\"\\u5BF9 AI 2 \\u4F7F\\u7528\\u3010\\u6740\\u3011\",\"ContentIds\":[]},{\"Id\":{\"Value\":\"play.slash.card-60.target-3\",\"IsValid\":true},\"Description\":\"\\u5BF9 AI 4 \\u4F7F\\u7528\\u3010\\u6740\\u3011\",\"Cards\":[60],\"Targets\":[3],\"Parameters\":{\"action\":\"slash\"},\"Label\":\"\\u5BF9 AI 4 \\u4F7F\\u7528\\u3010\\u6740\\u3011\",\"ContentIds\":[]},{\"Id\":{\"Value\":\"play.slash.card-16.target-1\",\"IsValid\":true},\"Description\":\"\\u5BF9 AI 2 \\u4F7F\\u7528\\u3010\\u6740\\u3011\",\"Cards\":[16],\"Targets\":[1],\"Parameters\":{\"action\":\"slash\"},\"Label\":\"\\u5BF9 AI 2 \\u4F7F\\u7528\\u3010\\u6740\\u3011\",\"ContentIds\":[]},{\"Id\":{\"Value\":\"play.slash.card-16.target-3\",\"IsV",
+          "errorTruncated": true
+        },
+        {
+          "name": "Source faction prevention quota opaque HEJ equipment children",
+          "error": "InvalidOperationException: Sequence contains no matching element",
+          "errorTruncated": false
+        },
+        {
+          "name": "Turn damage-use draw debt native and truly empty deck",
+          "error": "InvalidOperationException: The game is already completed.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Signed Slash modifier parser and prepared collection boundaries",
+          "error": "TargetParameterCountException: Parameter count mismatch.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Paid HP loss quantity and native",
+          "error": "TargetParameterCountException: Parameter count mismatch.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Paid HP loss rescue and gain children",
+          "error": "TargetParameterCountException: Parameter count mismatch.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Paid HP loss source and legacy",
+          "error": "TargetParameterCountException: Parameter count mismatch.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Paid HP loss actual turn lifetime",
+          "error": "TargetParameterCountException: Parameter count mismatch.",
+          "errorTruncated": false
+        },
+        {
+          "name": "boundary Lu Meng opt in usage legacy shape",
+          "error": "InvalidOperationException: A registry without Classic or the new cap/history emits neither new Round nor suit-history events.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Fame 2015 Wei next turn all hand grant replay",
+          "error": "TargetParameterCountException: Parameter count mismatch.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Jiangchi extra draw blocks Slash use and play",
+          "error": "InvalidOperationException: The engine pending-decision store was not found.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Qianxi red restriction filters same-color hand responses",
+          "error": "InvalidOperationException: The engine pending-decision store was not found.",
+          "errorTruncated": false
+        }
+      ],
+      "slowest": [
+        {
+          "name": "Fame 2017 Wu Xian Borrowed Sword pairs actual use replay",
+          "durationMs": 27436.414
+        },
+        {
+          "name": "Fame 2017 public pile store exchange distribute replay",
+          "durationMs": 16948.839
+        },
+        {
+          "name": "boundary Lu Meng round refresh source regrant",
+          "durationMs": 9241.199
+        },
+        {
+          "name": "Fame 2017 public pile compound targets frozen response suit",
+          "durationMs": 7699.353
+        },
+        {
+          "name": "classic Silver Lion caps damage and recovers after leaving equipment",
+          "durationMs": 7374.874
+        },
+        {
+          "name": "classic Borrowed Sword transfers weapons or nests a real Slash and replays",
+          "durationMs": 7115.467
+        },
+        {
+          "name": "Unrespondable counterspell equipment payment completed cold",
+          "durationMs": 7061.349
+        },
+        {
+          "name": "Fame 2015 hand control maximum hand Dodge real draw cost replay",
+          "durationMs": 6658.347
+        },
+        {
+          "name": "Tiered Round shared quota and zero ordinary child",
+          "durationMs": 5957.25
+        },
+        {
+          "name": "boundary Lu Meng three suits decline round quota",
+          "durationMs": 5662.096
+        },
+        {
+          "name": "Discarded provenance real turn all materials no response",
+          "durationMs": 5254.3
+        },
+        {
+          "name": "Actual second use foreign grants share state and expire on end",
+          "durationMs": 5105.662
+        },
+        {
+          "name": "shared public pile multiple sources isolated replay",
+          "durationMs": 4962.843
+        },
+        {
+          "name": "Feng Lin Wang Ji named count ending and reset",
+          "durationMs": 4911.889
+        },
+        {
+          "name": "Damage judgment suit payment independent matches and foreign claim",
+          "durationMs": 4868.917
+        },
+        {
+          "name": "Feng Lin Yu Ji borrowed sword faction provider declaration",
+          "durationMs": 4647.468
+        },
+        {
+          "name": "Tiered Round zero counterspell Dodge and dying returns",
+          "durationMs": 4595.952
+        },
+        {
+          "name": "Feng Lin Guanqiu Jian gain payment field nested replay",
+          "durationMs": 4228.242
+        },
+        {
+          "name": "FengLin Lu Kang live chain delayed Pindian policies",
+          "durationMs": 3606.644
+        },
+        {
+          "name": "Next-use rank bonus per point real consumption public pool and cold replay",
+          "durationMs": 3513.814
+        }
+      ]
+    },
+    "wpf": {
+      "runner": "WPF",
+      "totals": [
+        "58 WPF checks passed, 0 failed. Renders: C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\build\\renders"
+      ],
+      "failures": [],
+      "slowest": [
+        {
+          "name": "guide modal preserves selection and pauses then resumes the original timer policy",
+          "durationMs": 2899.892
+        },
+        {
+          "name": "hand responses select exact cards and confirm through shared controls",
+          "durationMs": 2269.164
+        },
+        {
+          "name": "table interaction refresh cost and stable presentation",
+          "durationMs": 1920.211
+        },
+        {
+          "name": "Program exact top count restores private shared order",
+          "durationMs": 1493.193
+        },
+        {
+          "name": "Program public pile exchange restores optional count and public faces",
+          "durationMs": 1438.043
+        },
+        {
+          "name": "battle feedback retires answered inquiries without dropping results",
+          "durationMs": 1380.166
+        },
+        {
+          "name": "Program population count private faces restore shared free order",
+          "durationMs": 1359.294
+        },
+        {
+          "name": "autosave coalesces commands and resumes after closing",
+          "durationMs": 1183.051
+        },
+        {
+          "name": "stored grain updates its badge without replacing hand controls",
+          "durationMs": 1149.145
+        },
+        {
+          "name": "device preferences persist before play and survive legacy loads and tutorials",
+          "durationMs": 1086.926
+        },
+        {
+          "name": "reference table layout preserves equipment and skill controls",
+          "durationMs": 1073.332
+        },
+        {
+          "name": "player guide renders current actions, private hand hints and searchable card rules",
+          "durationMs": 1027.061
+        },
+        {
+          "name": "Program conversion tiers restore actual shared skill state",
+          "durationMs": 967.947
+        },
+        {
+          "name": "invalid preferences remain recoverable and slider writes coalesce safely",
+          "durationMs": 923.987
+        },
+        {
+          "name": "zero-entity round conversions use public target drafts and exact PlayCard commands",
+          "durationMs": 868.756
+        },
+        {
+          "name": "Program paid suit allowance restores source loss and phase expiry",
+          "durationMs": 825.684
+        },
+        {
+          "name": "playback batches internal steps while preserving human boundaries and replay",
+          "durationMs": 813.767
+        },
+        {
+          "name": "Program paid choices preserve actor control and opaque slots",
+          "durationMs": 763.543
+        },
+        {
+          "name": "Program response exchange states restore entity restriction and upgrade",
+          "durationMs": 738.828
+        },
+        {
+          "name": "Program conversion polarity stays visible with active entry and restore",
+          "durationMs": 697.02
+        }
+      ]
+    }
+  },
+  "coreFailureComparison": {
+    "newlyObserved": [],
+    "resolvedSincePreviousRound": [],
+    "changedFirstErrorPrefixes": []
+  },
+  "routineCoreFailureComparison": {
+    "newlyObserved": [],
+    "resolvedSincePreviousRound": [],
+    "changedFirstErrorPrefixes": []
+  },
+  "wpfFailureComparison": {
+    "newlyObserved": [],
+    "resolvedSincePreviousRound": [],
+    "changedFirstErrorPrefixes": []
+  },
+  "changedCoreSinceRoundStart": [
+    {
+      "file": "src/CardGame.Core/GameEngine.CardActions.cs",
+      "newFile": false,
+      "sha256": "d521fc591483b235ea41e1430f59dbee390dff9398e63210e9d734cbf3907273"
+    },
+    {
+      "file": "src/CardGame.Core/GameEngine.CardConversions.cs",
+      "newFile": false,
+      "sha256": "e62c3293589bb79dfff8770d941984279dafc707ad76527a9bdd97cc00fb748d"
+    },
+    {
+      "file": "src/CardGame.Core/GameEngine.cs",
+      "newFile": false,
+      "sha256": "8b145b528dbb3d89a1c79dcceac508e4f965ce01106bf80fbc1ed09a16661063"
+    },
+    {
+      "file": "src/CardGame.Core/GameEngine.GiftedSlashUseRewards.cs",
+      "newFile": true,
+      "sha256": "761d2faa8359fd34adacce58594f0fbbe8862e1b827b07d049be39d24491aa5d"
+    },
+    {
+      "file": "src/CardGame.Core/GameEngine.ProgramLifecycle.cs",
+      "newFile": false,
+      "sha256": "deb9d0d413fe1c09107c7c48b217db13b8dc03c7bc150ece091b5b874f0778e7"
+    },
+    {
+      "file": "src/CardGame.Core/GameEngine.Runtime.cs",
+      "newFile": false,
+      "sha256": "c910931cd979250b5d6c2c5381e21a5e7c20381124640558f9343c46acf2a572"
+    },
+    {
+      "file": "src/CardGame.Core/GameEngine.SkillPrograms.cs",
+      "newFile": false,
+      "sha256": "f6704c70e2b832f3df25780cea9f401764115c24a3662cee4498646a1d039acb"
+    },
+    {
+      "file": "src/CardGame.Core/GiftedSlashUseRewardPrograms.cs",
+      "newFile": true,
+      "sha256": "6d768bc3dd963ae3e5106e8569e0d2d9463e653490cd04380c675ce79a702e9c"
+    },
+    {
+      "file": "src/CardGame.Core/ProgramCompositionAi.cs",
+      "newFile": false,
+      "sha256": "9c1bdc27190faf4eabc194ed15c5b1a7887d3083eaadb71a1eb47935c2a18044"
+    },
+    {
+      "file": "src/CardGame.Core/Resolution.cs",
+      "newFile": false,
+      "sha256": "2aa04aa8806292385c612cf266e8361cbfeca572e3abf2c4561c407ecc724380"
+    },
+    {
+      "file": "src/CardGame.Core/SkillProgramExecutor.cs",
+      "newFile": false,
+      "sha256": "8ee193d37e4ae4c0f28c02fca8c46c33d191a662598eb73b53863d62f1e733aa"
+    },
+    {
+      "file": "src/CardGame.Core/SkillPrograms.cs",
+      "newFile": false,
+      "sha256": "4a3e7c52b174194fb597869e3b368625b769e96c5efc850e8171b5a6067e7392"
+    }
+  ],
+  "testedSnapshotFileHashes": [
+    {
+      "file": "docs/content/sources/ol-ma-zhong-2026-10-08.json",
+      "sha256": "3397e7e3d49904e7e0d25ed6438fbea10c6056ef33c6131d686994ba97d598fb"
+    },
+    {
+      "file": "src/CardGame.Content.Standard/OrdinaryMaZhongContent.cs",
+      "sha256": "687e607386a31a92aed615de01bb97c83c5bcad32959d0fffb3b67a9708de510"
+    },
+    {
+      "file": "src/CardGame.Content.Standard/SkillPrograms/ordinary-ma-zhong.rules.json",
+      "sha256": "9a2443e82662bb585dda5257e9ae980cde52dd5759baa795701b1f751eaa45dd"
+    },
+    {
+      "file": "src/CardGame.Content.Standard/SkillPrograms/ordinary-ma-zhong.presentation.json",
+      "sha256": "76de4393fb95bee9c1056cdfbd80d460537f44a39ae85ce4b6f6ca6980cdc203"
+    },
+    {
+      "file": "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+      "sha256": "152b2c4da746179639a6ee15e49bca51d3d5f3e9d01743c6212e2779d2c26d0e"
+    },
+    {
+      "file": "src/CardGame.Wpf/Presentation/GeneralGalleryCatalog.cs",
+      "sha256": "1fe2a1cdec4483fa6da9cd9797a1d42bab57d457d268dacd15e8f28966aed3c1"
+    },
+    {
+      "file": "src/CardGame.Wpf/ViewModels/GeneralArt.cs",
+      "sha256": "ee099f404f372f95a9f804e96af527c1a9b0b1ef87464fda92c2b574b7246a05"
+    },
+    {
+      "file": "docs/content/general-art-catalog.json",
+      "sha256": "38c25df81a9af1cb52ab0f1db88b87b6fba37896791c6c9724fe6c90bade5b64"
+    },
+    {
+      "file": "tests/CardGame.Core.Tests/GiftedSlashHandPolicyChecks.cs",
+      "sha256": "7babd5cf40240900241ccb6c26ae9cb79a4a460c501aff6c0a6c13af8c90a7ad"
+    },
+    {
+      "file": "tests/CardGame.Core.Tests/Program.cs",
+      "sha256": "ddf7b580590bdaa8eda660bb7c3a621349de01c3445cc7e57421c07401862e0a"
+    },
+    {
+      "file": "tools/VerificationScopes.psd1",
+      "sha256": "8cf7d15f4f6904f9ca8d56b5d55be43f6930828d20430db4b80d3e22f762f8e9"
+    }
+  ],
+  "initialFocusedBuildWarnings": [
+    "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\round10-source\\tests\\CardGame.Core.Tests\\BoundaryBuLianShiChecks.cs(302,66): warning CS9113: 参数“deathOwner”未读。 [C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\round10-source\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+    "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\round10-source\\tests\\CardGame.Core.Tests\\BoundaryWangYiChecks.cs(49,56): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\round10-source\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+    "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\round10-source\\tests\\CardGame.Core.Tests\\DelegatedJudgmentAndGainGiftChecks.cs(117,49): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\round10-source\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+    "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\round10-source\\tests\\CardGame.Core.Tests\\DirectedDistanceDebtChecks.cs(40,65): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\round10-source\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+    "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\round10-source\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\round10-source\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+    "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\round10-source\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\round10-source\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+    "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\round10-source\\tests\\CardGame.Core.Tests\\GiftedSlashHandPolicyChecks.cs(158,43): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\round10-source\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+    "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\round10-source\\tests\\CardGame.Core.Tests\\OrdinaryLiuXieChecks.cs(84,20): warning CS8604: “void OrdinaryLiuXieChecks.Freeze<int>(IReadOnlyList<int> list)”中的形参“list”可能传入 null 引用实参。 [C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\round10-source\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+    "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\round10-source\\tests\\CardGame.Core.Tests\\OrdinaryYiJiChecks.cs(11,25): warning CS0169: 从不使用字段“OrdinaryYiJiChecks.hurtSelf” [C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\round10-source\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+    "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\round10-source\\tests\\CardGame.Core.Tests\\PublicPilePreparationChecks.cs(148,55): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\round10-source\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+    "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\round10-source\\tests\\CardGame.Core.Tests\\PublicPilePreparationChecks.cs(17,13): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\round10-source\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+    "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\round10-source\\tests\\CardGame.Core.Tests\\PublicPilePreparationChecks.cs(55,56): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\round10-source\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]"
+  ],
+  "diagnosticHistory": {
+    "firstFocused": {
+      "runner": "Core",
+      "totals": [
+        "5 passed, 16 failed, 0 skipped (21 total)."
+      ],
+      "failures": [
+        {
+          "name": "Gifted Slash hand policy: actual use damage reward and cold children",
+          "error": "TypeInitializationException: The type initializer for 'CardGame.Content.Standard.StandardClassicGeneralPackage' threw an exception.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Gifted Slash hand policy: departed entities and recipient boundaries",
+          "error": "TypeInitializationException: The type initializer for 'CardGame.Content.Standard.StandardClassicGeneralPackage' threw an exception.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Gifted Slash hand policy: response consumes without use reward",
+          "error": "TypeInitializationException: The type initializer for 'CardGame.Content.Standard.StandardClassicGeneralPackage' threw an exception.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Gifted Slash hand policy: target phase quota and continuous hand lifetime",
+          "error": "TypeInitializationException: The type initializer for 'CardGame.Content.Standard.StandardClassicGeneralPackage' threw an exception.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Public pile cash out: damage points hand equipment and decline",
+          "error": "TypeInitializationException: The type initializer for 'CardGame.Content.Standard.StandardClassicGeneralPackage' threw an exception.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Public pile cash out: frozen payment draw and nested deposit",
+          "error": "TypeInitializationException: The type initializer for 'CardGame.Content.Standard.StandardClassicGeneralPackage' threw an exception.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Public pile cash out: isolated sources and actual turn expiry",
+          "error": "TypeInitializationException: The type initializer for 'CardGame.Content.Standard.StandardClassicGeneralPackage' threw an exception.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Public pile cash out: empty source and strict composition",
+          "error": "TypeInitializationException: The type initializer for 'CardGame.Content.Standard.StandardClassicGeneralPackage' threw an exception.",
+          "errorTruncated": false
+        },
+        {
+          "name": "boundary ma dai shown color hand ban and equipment response",
+          "error": "TypeInitializationException: The type initializer for 'CardGame.Content.Standard.StandardClassicGeneralPackage' threw an exception.",
+          "errorTruncated": false
+        },
+        {
+          "name": "boundary ma dai full materials damage benefit and cold return",
+          "error": "TypeInitializationException: The type initializer for 'CardGame.Content.Standard.StandardClassicGeneralPackage' threw an exception.",
+          "errorTruncated": false
+        },
+        {
+          "name": "boundary ma dai extra play cohort and actual turn expiry",
+          "error": "TypeInitializationException: The type initializer for 'CardGame.Content.Standard.StandardClassicGeneralPackage' threw an exception.",
+          "errorTruncated": false
+        },
+        {
+          "name": "boundary ma dai native reveal and real foreign provider",
+          "error": "TypeInitializationException: The type initializer for 'CardGame.Content.Standard.StandardClassicGeneralPackage' threw an exception.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Shared Slash gift equipment recovery both gain children cold",
+          "error": "TypeInitializationException: The type initializer for 'CardGame.Content.Standard.StandardClassicGeneralPackage' threw an exception.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Shared Slash actual damage rescue Completed source loss cold",
+          "error": "TypeInitializationException: The type initializer for 'CardGame.Content.Standard.StandardClassicGeneralPackage' threw an exception.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Shared Slash false use cannot borrow prior damage",
+          "error": "TypeInitializationException: The type initializer for 'CardGame.Content.Standard.StandardClassicGeneralPackage' threw an exception.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Shared Slash identity cancellation native classic defaults",
+          "error": "TypeInitializationException: The type initializer for 'CardGame.Content.Standard.StandardClassicGeneralPackage' threw an exception.",
+          "errorTruncated": false
+        }
+      ],
+      "slowest": [
+        {
+          "name": "Gifted Slash hand policy: actual use damage reward and cold children",
+          "durationMs": 689.675
+        },
+        {
+          "name": "completed Slash program window follows finished card use and replays",
+          "durationMs": 408.942
+        },
+        {
+          "name": "completed Slash freezes actual damage for conditional programs",
+          "durationMs": 41.565
+        },
+        {
+          "name": "general content modules preserve roster and registry boundaries",
+          "durationMs": 28.027
+        },
+        {
+          "name": "Public pile cash out: empty source and strict composition",
+          "durationMs": 24.275
+        },
+        {
+          "name": "standard package builds an immutable isolated registry",
+          "durationMs": 2.959
+        },
+        {
+          "name": "skill program loader separates canonical gameplay from presentation",
+          "durationMs": 2.455
+        },
+        {
+          "name": "Shared Slash actual damage rescue Completed source loss cold",
+          "durationMs": 1.447
+        },
+        {
+          "name": "Gifted Slash hand policy: departed entities and recipient boundaries",
+          "durationMs": 1.409
+        },
+        {
+          "name": "boundary ma dai shown color hand ban and equipment response",
+          "durationMs": 1.339
+        },
+        {
+          "name": "Public pile cash out: damage points hand equipment and decline",
+          "durationMs": 1.315
+        },
+        {
+          "name": "Shared Slash gift equipment recovery both gain children cold",
+          "durationMs": 1.157
+        },
+        {
+          "name": "boundary ma dai native reveal and real foreign provider",
+          "durationMs": 1.145
+        },
+        {
+          "name": "Public pile cash out: frozen payment draw and nested deposit",
+          "durationMs": 1.133
+        },
+        {
+          "name": "Gifted Slash hand policy: target phase quota and continuous hand lifetime",
+          "durationMs": 1.057
+        },
+        {
+          "name": "boundary ma dai full materials damage benefit and cold return",
+          "durationMs": 0.938
+        },
+        {
+          "name": "Public pile cash out: isolated sources and actual turn expiry",
+          "durationMs": 0.922
+        },
+        {
+          "name": "Shared Slash identity cancellation native classic defaults",
+          "durationMs": 0.899
+        },
+        {
+          "name": "boundary ma dai extra play cohort and actual turn expiry",
+          "durationMs": 0.894
+        },
+        {
+          "name": "Gifted Slash hand policy: response consumes without use reward",
+          "durationMs": 0.784
+        }
+      ]
+    },
+    "secondFocused": {
+      "runner": "Core",
+      "totals": [
+        "10 passed, 11 failed, 0 skipped (21 total)."
+      ],
+      "failures": [
+        {
+          "name": "Gifted Slash hand policy: actual use damage reward and cold children",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:gifted-slash-gain' (rules.skills[1]).triggers[0]: missing required property 'movementOccurrence'.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Gifted Slash hand policy: departed entities and recipient boundaries",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:gifted-slash-gain' (rules.skills[1]).triggers[0]: missing required property 'movementOccurrence'.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Gifted Slash hand policy: response consumes without use reward",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:gifted-slash-gain' (rules.skills[1]).triggers[0]: missing required property 'movementOccurrence'.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Gifted Slash hand policy: target phase quota and continuous hand lifetime",
+          "error": "InvalidOperationException: Invalid skill program at skill 'fixture:gifted-slash-gain' (rules.skills[1]).triggers[0]: missing required property 'movementOccurrence'.",
+          "errorTruncated": false
+        },
+        {
+          "name": "boundary ma dai shown color hand ban and equipment response",
+          "error": "InvalidOperationException: Shown entity policy lost its exact actual Play start and public single-card reveal.",
+          "errorTruncated": false
+        },
+        {
+          "name": "boundary ma dai full materials damage benefit and cold return",
+          "error": "InvalidOperationException: Shown entity policy lost its exact actual Play start and public single-card reveal.",
+          "errorTruncated": false
+        },
+        {
+          "name": "boundary ma dai extra play cohort and actual turn expiry",
+          "error": "InvalidOperationException: Shown entity policy lost its exact actual Play start and public single-card reveal.",
+          "errorTruncated": false
+        },
+        {
+          "name": "boundary ma dai native reveal and real foreign provider",
+          "error": "InvalidOperationException: Shown entity policy lost its exact actual Play start and public single-card reveal.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Shared Slash actual damage rescue Completed source loss cold",
+          "error": "InvalidOperationException: Chen Gong exact boundary missing: {\"Kind\":1,\"PlayerSeat\":0,\"Prompt\":\"\\u8BF7\\u9009\\u62E9\\u4E00\\u5F20\\u724C\\u548C\\u76EE\\u6807\\uFF0C\\u6216\\u7ED3\\u675F\\u51FA\\u724C\\u9636\\u6BB5\\u3002\",\"ValidCardIds\":[12,60,79,92,54,1],\"ValidTargetSeats\":[1,3],\"SourceSeat\":null,\"IncomingCard\":null,\"PromptId\":{\"Value\":10,\"IsValid\":true},\"Revision\":165,\"RequiredCardCount\":0,\"Choices\":[{\"Id\":{\"Value\":\"play.slash.card-12.target-1\",\"IsValid\":true},\"Description\":\"\\u5BF9 AI 2 \\u4F7F\\u7528\\u3010\\u6740\\u3011\",\"Cards\":[12],\"Targets\":[1],\"Parameters\":{\"action\":\"slash\"},\"Label\":\"\\u5BF9 AI 2 \\u4F7F\\u7528\\u3010\\u6740\\u3011\",\"ContentIds\":[]},{\"Id\":{\"Value\":\"play.slash.card-12.target-3\",\"IsValid\":true},\"Description\":\"\\u5BF9 AI 4 \\u4F7F\\u7528\\u3010\\u6740\\u3011\",\"Cards\":[12],\"Targets\":[3],\"Parameters\":{\"action\":\"slash\"},\"Label\":\"\\u5BF9 AI 4 \\u4F7F\\u7528\\u3010\\u6740\\u3011\",\"ContentIds\":[]},{\"Id\":{\"Value\":\"play.slash.card-60.target-1\",\"IsValid\":true},\"Description\":\"\\u5BF9 AI 2 \\u4F7F\\u7528\\u3010\\u6740\\u3011\",\"Cards\":[60],\"Targets\":[1],\"Parameters\":{\"action\":\"slash\"},\"Label\":\"\\u5BF9 AI 2 \\u4F7F\\u7528\\u3010\\u6740\\u3011\",\"ContentIds\":[]},{\"Id\":{\"Value\":\"play.slash.card-60.target-3\",\"IsValid\":true},\"D",
+          "errorTruncated": true
+        },
+        {
+          "name": "Shared Slash false use cannot borrow prior damage",
+          "error": "InvalidOperationException: The real target has a black-card Dodge conversion, not an injected dodged flag.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Shared Slash identity cancellation native classic defaults",
+          "error": "InvalidOperationException: A fixed four-turn native match chooses, pays and finishes the real new active binding and public option without duplicated costs.",
+          "errorTruncated": false
+        }
+      ],
+      "slowest": [
+        {
+          "name": "Public pile cash out: damage points hand equipment and decline",
+          "durationMs": 4247.231
+        },
+        {
+          "name": "Public pile cash out: isolated sources and actual turn expiry",
+          "durationMs": 1949.994
+        },
+        {
+          "name": "Public pile cash out: frozen payment draw and nested deposit",
+          "durationMs": 1743.321
+        },
+        {
+          "name": "Shared Slash actual damage rescue Completed source loss cold",
+          "durationMs": 847.427
+        },
+        {
+          "name": "Shared Slash gift equipment recovery both gain children cold",
+          "durationMs": 516.296
+        },
+        {
+          "name": "Shared Slash identity cancellation native classic defaults",
+          "durationMs": 468.524
+        },
+        {
+          "name": "Gifted Slash hand policy: actual use damage reward and cold children",
+          "durationMs": 456.246
+        },
+        {
+          "name": "Public pile cash out: empty source and strict composition",
+          "durationMs": 110.704
+        },
+        {
+          "name": "boundary ma dai shown color hand ban and equipment response",
+          "durationMs": 88.053
+        },
+        {
+          "name": "Shared Slash false use cannot borrow prior damage",
+          "durationMs": 60.712
+        },
+        {
+          "name": "boundary ma dai full materials damage benefit and cold return",
+          "durationMs": 49.568
+        },
+        {
+          "name": "boundary ma dai native reveal and real foreign provider",
+          "durationMs": 48.298
+        },
+        {
+          "name": "boundary ma dai extra play cohort and actual turn expiry",
+          "durationMs": 46.968
+        },
+        {
+          "name": "completed Slash program window follows finished card use and replays",
+          "durationMs": 20.254
+        },
+        {
+          "name": "completed Slash freezes actual damage for conditional programs",
+          "durationMs": 19.105
+        },
+        {
+          "name": "general content modules preserve roster and registry boundaries",
+          "durationMs": 3.24
+        },
+        {
+          "name": "standard package builds an immutable isolated registry",
+          "durationMs": 3.014
+        },
+        {
+          "name": "Gifted Slash hand policy: departed entities and recipient boundaries",
+          "durationMs": 2.266
+        },
+        {
+          "name": "skill program loader separates canonical gameplay from presentation",
+          "durationMs": 2.22
+        },
+        {
+          "name": "Gifted Slash hand policy: target phase quota and continuous hand lifetime",
+          "durationMs": 2.156
+        }
+      ]
+    },
+    "thirdFocused": {
+      "runner": "Core",
+      "totals": [
+        "12 passed, 9 failed, 0 skipped (21 total)."
+      ],
+      "failures": [
+        {
+          "name": "Gifted Slash hand policy: actual use damage reward and cold children",
+          "error": "InvalidOperationException: Sequence contains no matching element",
+          "errorTruncated": false
+        },
+        {
+          "name": "Gifted Slash hand policy: response consumes without use reward",
+          "error": "InvalidOperationException: Unexpected real human gifted-Slash boundary: {\"Prompt\":{\"Kind\":1,\"PlayerSeat\":0,\"Prompt\":\"\\u8BF7\\u9009\\u62E9\\u4E00\\u5F20\\u724C\\u548C\\u76EE\\u6807\\uFF0C\\u6216\\u7ED3\\u675F\\u51FA\\u724C\\u9636\\u6BB5\\u3002\",\"ValidCardIds\":[43,59],\"ValidTargetSeats\":[1,2,3],\"SourceSeat\":null,\"IncomingCard\":null,\"PromptId\":{\"Value\":7,\"IsValid\":true},\"Revision\":15,\"RequiredCardCount\":0,\"Choices\":[{\"Id\":{\"Value\":\"play.duel.card-43.target-1\",\"IsValid\":true},\"Description\":\"\\u5BF9 AI 2 \\u4F7F\\u7528\\u3010\\u51B3\\u6597\\u3011\",\"Cards\":[43],\"Targets\":[1],\"Parameters\":{\"action\":\"duel\"},\"Label\":\"\\u5BF9 AI 2 \\u4F7F\\u7528\\u3010\\u51B3\\u6597\\u3011\",\"ContentIds\":[]},{\"Id\":{\"Value\":\"play.duel.card-43.target-2\",\"IsValid\":true},\"Description\":\"\\u5BF9 AI 3 \\u4F7F\\u7528\\u3010\\u51B3\\u6597\\u3011\",\"Cards\":[43],\"Targets\":[2],\"Parameters\":{\"action\":\"duel\"},\"Label\":\"\\u5BF9 AI 3 \\u4F7F\\u7528\\u3010\\u51B3\\u6597\\u3011\",\"ContentIds\":[]},{\"Id\":{\"Value\":\"play.duel.card-43.target-3\",\"IsValid\":true},\"Description\":\"\\u5BF9 AI 4 \\u4F7F\\u7528\\u3010\\u51B3\\u6597\\u3011\",\"Cards\":[43],\"Targets\":[3],\"Parameters\":{\"action\":\"duel\"},\"Label\":\"\\u5BF9 AI 4 \\u4F7F\\u7528\\u3010\\u51B3\\u6597\\u3011\",\"ContentIds\":[]},{\"Id\":{\"Value\":\"play.du",
+          "errorTruncated": true
+        },
+        {
+          "name": "boundary ma dai shown color hand ban and equipment response",
+          "error": "InvalidOperationException: Shown entity policy lost its exact actual Play start and public single-card reveal.",
+          "errorTruncated": false
+        },
+        {
+          "name": "boundary ma dai full materials damage benefit and cold return",
+          "error": "InvalidOperationException: Shown entity policy lost its exact actual Play start and public single-card reveal.",
+          "errorTruncated": false
+        },
+        {
+          "name": "boundary ma dai extra play cohort and actual turn expiry",
+          "error": "InvalidOperationException: Shown entity policy lost its exact actual Play start and public single-card reveal.",
+          "errorTruncated": false
+        },
+        {
+          "name": "boundary ma dai native reveal and real foreign provider",
+          "error": "InvalidOperationException: Shown entity policy lost its exact actual Play start and public single-card reveal.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Shared Slash actual damage rescue Completed source loss cold",
+          "error": "InvalidOperationException: Chen Gong exact boundary missing: {\"Kind\":1,\"PlayerSeat\":0,\"Prompt\":\"\\u8BF7\\u9009\\u62E9\\u4E00\\u5F20\\u724C\\u548C\\u76EE\\u6807\\uFF0C\\u6216\\u7ED3\\u675F\\u51FA\\u724C\\u9636\\u6BB5\\u3002\",\"ValidCardIds\":[12,60,79,92,54,1],\"ValidTargetSeats\":[1,3],\"SourceSeat\":null,\"IncomingCard\":null,\"PromptId\":{\"Value\":10,\"IsValid\":true},\"Revision\":165,\"RequiredCardCount\":0,\"Choices\":[{\"Id\":{\"Value\":\"play.slash.card-12.target-1\",\"IsValid\":true},\"Description\":\"\\u5BF9 AI 2 \\u4F7F\\u7528\\u3010\\u6740\\u3011\",\"Cards\":[12],\"Targets\":[1],\"Parameters\":{\"action\":\"slash\"},\"Label\":\"\\u5BF9 AI 2 \\u4F7F\\u7528\\u3010\\u6740\\u3011\",\"ContentIds\":[]},{\"Id\":{\"Value\":\"play.slash.card-12.target-3\",\"IsValid\":true},\"Description\":\"\\u5BF9 AI 4 \\u4F7F\\u7528\\u3010\\u6740\\u3011\",\"Cards\":[12],\"Targets\":[3],\"Parameters\":{\"action\":\"slash\"},\"Label\":\"\\u5BF9 AI 4 \\u4F7F\\u7528\\u3010\\u6740\\u3011\",\"ContentIds\":[]},{\"Id\":{\"Value\":\"play.slash.card-60.target-1\",\"IsValid\":true},\"Description\":\"\\u5BF9 AI 2 \\u4F7F\\u7528\\u3010\\u6740\\u3011\",\"Cards\":[60],\"Targets\":[1],\"Parameters\":{\"action\":\"slash\"},\"Label\":\"\\u5BF9 AI 2 \\u4F7F\\u7528\\u3010\\u6740\\u3011\",\"ContentIds\":[]},{\"Id\":{\"Value\":\"play.slash.card-60.target-3\",\"IsValid\":true},\"D",
+          "errorTruncated": true
+        },
+        {
+          "name": "Shared Slash false use cannot borrow prior damage",
+          "error": "InvalidOperationException: The real target has a black-card Dodge conversion, not an injected dodged flag.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Shared Slash identity cancellation native classic defaults",
+          "error": "InvalidOperationException: A fixed four-turn native match chooses, pays and finishes the real new active binding and public option without duplicated costs.",
+          "errorTruncated": false
+        }
+      ],
+      "slowest": [
+        {
+          "name": "Gifted Slash hand policy: actual use damage reward and cold children",
+          "durationMs": 2635.627
+        },
+        {
+          "name": "Public pile cash out: damage points hand equipment and decline",
+          "durationMs": 2249.017
+        },
+        {
+          "name": "Public pile cash out: isolated sources and actual turn expiry",
+          "durationMs": 1906.783
+        },
+        {
+          "name": "Gifted Slash hand policy: target phase quota and continuous hand lifetime",
+          "durationMs": 1834.634
+        },
+        {
+          "name": "Gifted Slash hand policy: departed entities and recipient boundaries",
+          "durationMs": 1745.852
+        },
+        {
+          "name": "Public pile cash out: frozen payment draw and nested deposit",
+          "durationMs": 1435.261
+        },
+        {
+          "name": "Shared Slash actual damage rescue Completed source loss cold",
+          "durationMs": 801.039
+        },
+        {
+          "name": "Shared Slash gift equipment recovery both gain children cold",
+          "durationMs": 510.195
+        },
+        {
+          "name": "Shared Slash identity cancellation native classic defaults",
+          "durationMs": 448.001
+        },
+        {
+          "name": "Gifted Slash hand policy: response consumes without use reward",
+          "durationMs": 231.529
+        },
+        {
+          "name": "Public pile cash out: empty source and strict composition",
+          "durationMs": 107.388
+        },
+        {
+          "name": "boundary ma dai shown color hand ban and equipment response",
+          "durationMs": 77.804
+        },
+        {
+          "name": "Shared Slash false use cannot borrow prior damage",
+          "durationMs": 59.063
+        },
+        {
+          "name": "boundary ma dai full materials damage benefit and cold return",
+          "durationMs": 50.718
+        },
+        {
+          "name": "boundary ma dai extra play cohort and actual turn expiry",
+          "durationMs": 47.06
+        },
+        {
+          "name": "boundary ma dai native reveal and real foreign provider",
+          "durationMs": 40.211
+        },
+        {
+          "name": "completed Slash program window follows finished card use and replays",
+          "durationMs": 18.326
+        },
+        {
+          "name": "completed Slash freezes actual damage for conditional programs",
+          "durationMs": 16.581
+        },
+        {
+          "name": "general content modules preserve roster and registry boundaries",
+          "durationMs": 3.355
+        },
+        {
+          "name": "standard package builds an immutable isolated registry",
+          "durationMs": 2.943
+        }
+      ]
+    },
+    "fourthFocused": {
+      "runner": "Core",
+      "totals": [
+        "13 passed, 8 failed, 0 skipped (21 total)."
+      ],
+      "failures": [
+        {
+          "name": "Gifted Slash hand policy: response consumes without use reward",
+          "error": "InvalidOperationException: Unexpected real human gifted-Slash boundary: {\"Prompt\":{\"Kind\":1,\"PlayerSeat\":0,\"Prompt\":\"\\u8BF7\\u9009\\u62E9\\u4E00\\u5F20\\u724C\\u548C\\u76EE\\u6807\\uFF0C\\u6216\\u7ED3\\u675F\\u51FA\\u724C\\u9636\\u6BB5\\u3002\",\"ValidCardIds\":[43,59],\"ValidTargetSeats\":[1,2,3],\"SourceSeat\":null,\"IncomingCard\":null,\"PromptId\":{\"Value\":7,\"IsValid\":true},\"Revision\":15,\"RequiredCardCount\":0,\"Choices\":[{\"Id\":{\"Value\":\"play.duel.card-43.target-1\",\"IsValid\":true},\"Description\":\"\\u5BF9 AI 2 \\u4F7F\\u7528\\u3010\\u51B3\\u6597\\u3011\",\"Cards\":[43],\"Targets\":[1],\"Parameters\":{\"action\":\"duel\"},\"Label\":\"\\u5BF9 AI 2 \\u4F7F\\u7528\\u3010\\u51B3\\u6597\\u3011\",\"ContentIds\":[]},{\"Id\":{\"Value\":\"play.duel.card-43.target-2\",\"IsValid\":true},\"Description\":\"\\u5BF9 AI 3 \\u4F7F\\u7528\\u3010\\u51B3\\u6597\\u3011\",\"Cards\":[43],\"Targets\":[2],\"Parameters\":{\"action\":\"duel\"},\"Label\":\"\\u5BF9 AI 3 \\u4F7F\\u7528\\u3010\\u51B3\\u6597\\u3011\",\"ContentIds\":[]},{\"Id\":{\"Value\":\"play.duel.card-43.target-3\",\"IsValid\":true},\"Description\":\"\\u5BF9 AI 4 \\u4F7F\\u7528\\u3010\\u51B3\\u6597\\u3011\",\"Cards\":[43],\"Targets\":[3],\"Parameters\":{\"action\":\"duel\"},\"Label\":\"\\u5BF9 AI 4 \\u4F7F\\u7528\\u3010\\u51B3\\u6597\\u3011\",\"ContentIds\":[]},{\"Id\":{\"Value\":\"play.du",
+          "errorTruncated": true
+        },
+        {
+          "name": "boundary ma dai shown color hand ban and equipment response",
+          "error": "InvalidOperationException: Shown entity policy lost its exact actual Play start and public single-card reveal.",
+          "errorTruncated": false
+        },
+        {
+          "name": "boundary ma dai full materials damage benefit and cold return",
+          "error": "InvalidOperationException: Shown entity policy lost its exact actual Play start and public single-card reveal.",
+          "errorTruncated": false
+        },
+        {
+          "name": "boundary ma dai extra play cohort and actual turn expiry",
+          "error": "InvalidOperationException: Shown entity policy lost its exact actual Play start and public single-card reveal.",
+          "errorTruncated": false
+        },
+        {
+          "name": "boundary ma dai native reveal and real foreign provider",
+          "error": "InvalidOperationException: Shown entity policy lost its exact actual Play start and public single-card reveal.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Shared Slash actual damage rescue Completed source loss cold",
+          "error": "InvalidOperationException: Chen Gong exact boundary missing: {\"Kind\":1,\"PlayerSeat\":0,\"Prompt\":\"\\u8BF7\\u9009\\u62E9\\u4E00\\u5F20\\u724C\\u548C\\u76EE\\u6807\\uFF0C\\u6216\\u7ED3\\u675F\\u51FA\\u724C\\u9636\\u6BB5\\u3002\",\"ValidCardIds\":[12,60,79,92,54,1],\"ValidTargetSeats\":[1,3],\"SourceSeat\":null,\"IncomingCard\":null,\"PromptId\":{\"Value\":10,\"IsValid\":true},\"Revision\":165,\"RequiredCardCount\":0,\"Choices\":[{\"Id\":{\"Value\":\"play.slash.card-12.target-1\",\"IsValid\":true},\"Description\":\"\\u5BF9 AI 2 \\u4F7F\\u7528\\u3010\\u6740\\u3011\",\"Cards\":[12],\"Targets\":[1],\"Parameters\":{\"action\":\"slash\"},\"Label\":\"\\u5BF9 AI 2 \\u4F7F\\u7528\\u3010\\u6740\\u3011\",\"ContentIds\":[]},{\"Id\":{\"Value\":\"play.slash.card-12.target-3\",\"IsValid\":true},\"Description\":\"\\u5BF9 AI 4 \\u4F7F\\u7528\\u3010\\u6740\\u3011\",\"Cards\":[12],\"Targets\":[3],\"Parameters\":{\"action\":\"slash\"},\"Label\":\"\\u5BF9 AI 4 \\u4F7F\\u7528\\u3010\\u6740\\u3011\",\"ContentIds\":[]},{\"Id\":{\"Value\":\"play.slash.card-60.target-1\",\"IsValid\":true},\"Description\":\"\\u5BF9 AI 2 \\u4F7F\\u7528\\u3010\\u6740\\u3011\",\"Cards\":[60],\"Targets\":[1],\"Parameters\":{\"action\":\"slash\"},\"Label\":\"\\u5BF9 AI 2 \\u4F7F\\u7528\\u3010\\u6740\\u3011\",\"ContentIds\":[]},{\"Id\":{\"Value\":\"play.slash.card-60.target-3\",\"IsValid\":true},\"D",
+          "errorTruncated": true
+        },
+        {
+          "name": "Shared Slash false use cannot borrow prior damage",
+          "error": "InvalidOperationException: The real target has a black-card Dodge conversion, not an injected dodged flag.",
+          "errorTruncated": false
+        },
+        {
+          "name": "Shared Slash identity cancellation native classic defaults",
+          "error": "InvalidOperationException: A fixed four-turn native match chooses, pays and finishes the real new active binding and public option without duplicated costs.",
+          "errorTruncated": false
+        }
+      ],
+      "slowest": [
+        {
+          "name": "Gifted Slash hand policy: actual use damage reward and cold children",
+          "durationMs": 2642.893
+        },
+        {
+          "name": "Gifted Slash hand policy: target phase quota and continuous hand lifetime",
+          "durationMs": 2481.361
+        },
+        {
+          "name": "Public pile cash out: damage points hand equipment and decline",
+          "durationMs": 2390.075
+        },
+        {
+          "name": "Public pile cash out: isolated sources and actual turn expiry",
+          "durationMs": 1890.978
+        },
+        {
+          "name": "Gifted Slash hand policy: departed entities and recipient boundaries",
+          "durationMs": 1646.938
+        },
+        {
+          "name": "Public pile cash out: frozen payment draw and nested deposit",
+          "durationMs": 1573.53
+        },
+        {
+          "name": "Shared Slash actual damage rescue Completed source loss cold",
+          "durationMs": 810.729
+        },
+        {
+          "name": "Shared Slash gift equipment recovery both gain children cold",
+          "durationMs": 503.163
+        },
+        {
+          "name": "Shared Slash identity cancellation native classic defaults",
+          "durationMs": 459.024
+        },
+        {
+          "name": "Gifted Slash hand policy: response consumes without use reward",
+          "durationMs": 393.921
+        },
+        {
+          "name": "Public pile cash out: empty source and strict composition",
+          "durationMs": 108.006
+        },
+        {
+          "name": "boundary ma dai shown color hand ban and equipment response",
+          "durationMs": 77.861
+        },
+        {
+          "name": "Shared Slash false use cannot borrow prior damage",
+          "durationMs": 61.233
+        },
+        {
+          "name": "boundary ma dai full materials damage benefit and cold return",
+          "durationMs": 52.883
+        },
+        {
+          "name": "boundary ma dai extra play cohort and actual turn expiry",
+          "durationMs": 47.676
+        },
+        {
+          "name": "boundary ma dai native reveal and real foreign provider",
+          "durationMs": 41.967
+        },
+        {
+          "name": "completed Slash program window follows finished card use and replays",
+          "durationMs": 20.846
+        },
+        {
+          "name": "completed Slash freezes actual damage for conditional programs",
+          "durationMs": 16.811
+        },
+        {
+          "name": "standard package builds an immutable isolated registry",
+          "durationMs": 3.841
+        },
+        {
+          "name": "general content modules preserve roster and registry boundaries",
+          "durationMs": 3.657
+        }
+      ]
+    },
+    "correctedDuringDevelopment": [
+      "Added RequiresOwnerHand and ExcludesOwnerAsTarget to the new gift descriptor shared legality; empty-hand entry was checked before consuming target quota.",
+      "Removed the new terminal descriptor redundant participant-kind resource which the existing validator only establishes at an initial target or explicit SelectTarget; strict OtherLiving activation/runtime constraints remain.",
+      "New gain observers specify the existing required perBatch movementOccurrence; Started policy uses zero movement/batch values, Granted receipt uses the real paid values.",
+      "New check selects the actual take-damage response; pure Duel human cards have no Slash and legitimately auto-fail without a response prompt.",
+      "Two real prior Duels injure native AI twice, yielding its existing normal-response score above pass without changing HP, AI response values or human identity; cold points use native AI prompt and accepted-response child.",
+      "Added three referenced WPF resource catalogs to the fixed source snapshot after an initial solution resource-path build error; no production project/resource contract changed.",
+      "After routine compilation, null-forgiving annotation on an already established new test WindowContext removed one new nullable warning without changing IL behavior or assertions; Full compiles and runs that final source."
+    ],
+    "boundedDiagnostics": "Only new fixture errors include the real prompt and at most twelve selected scalar facts, serialized at their actual runtime types."
+  },
+  "cleanup": {
+    "temporaryRoot": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d",
+    "verifiedRemoved": false,
+    "previousPolicyRejectedAttempts": 10,
+    "currentAttemptRejectedBeforeExecution": true,
+    "totalPolicyRejectedAttempts": 11,
+    "rejectionReason": "blocked by policy",
+    "verifiedAt": "2026-10-08T04:48:08.1087835+08:00",
+    "ownershipMatches": true,
+    "strictChildBoundary": true,
+    "reparsePointCount": 0,
+    "activeOwnConsumerCount": 0,
+    "ownConsumerIds": [],
+    "lockAvailableAtPrecheck": true,
+    "retainedFileCount": 6515,
+    "retainedBytes": 3401691010.0,
+    "retainedGiB": 3.168
+  },
+  "headAtEvidenceCapture": "60fe122539152333d33f99cf142dc2d5ad12bcbc",
+  "finalBuildWarnings": [
+    "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\round10-source\\tests\\CardGame.Core.Tests\\BoundaryBuLianShiChecks.cs(302,66): warning CS9113: 参数“deathOwner”未读。 [C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\round10-source\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+    "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\round10-source\\tests\\CardGame.Core.Tests\\BoundaryWangYiChecks.cs(49,56): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\round10-source\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+    "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\round10-source\\tests\\CardGame.Core.Tests\\DelegatedJudgmentAndGainGiftChecks.cs(117,49): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\round10-source\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+    "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\round10-source\\tests\\CardGame.Core.Tests\\DirectedDistanceDebtChecks.cs(40,65): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\round10-source\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+    "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\round10-source\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\round10-source\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+    "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\round10-source\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\round10-source\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+    "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\round10-source\\tests\\CardGame.Core.Tests\\OrdinaryLiuXieChecks.cs(84,20): warning CS8604: “void OrdinaryLiuXieChecks.Freeze<int>(IReadOnlyList<int> list)”中的形参“list”可能传入 null 引用实参。 [C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\round10-source\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+    "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\round10-source\\tests\\CardGame.Core.Tests\\OrdinaryYiJiChecks.cs(11,25): warning CS0169: 从不使用字段“OrdinaryYiJiChecks.hurtSelf” [C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\round10-source\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+    "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\round10-source\\tests\\CardGame.Core.Tests\\PublicPilePreparationChecks.cs(148,55): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\round10-source\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+    "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\round10-source\\tests\\CardGame.Core.Tests\\PublicPilePreparationChecks.cs(17,13): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\round10-source\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+    "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\round10-source\\tests\\CardGame.Core.Tests\\PublicPilePreparationChecks.cs(55,56): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\round10-source\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]"
+  ],
+  "finalDiffCheckExitCode": 0,
+  "repairThreadObservation": {
+    "threadId": "01a117d6-8642-7840-a694-d84b35a6aeb0",
+    "recordedAt": "2026-10-08T04:46:35.6271168+08:00",
+    "priorInterruptedRun": {
+      "observedAt": "2026-10-08T04:10:00.8122531+08:00",
+      "coreLogCompletedCount": 702,
+      "coreLogLastWriteTime": "2026-10-08T04:00:31.5726756+08:00",
+      "coreLogBytes": 612553,
+      "activeNativeTestConsumers": 0,
+      "cause": "Execution wrapper reported exitCode -1 after 303896ms; no native child test process remains; log has no totals.",
+      "totalsProduced": false
+    },
+    "followupMessage": "User explicitly authorized corrective follow-up; successfully sent to thread 01a117d6-8642-7840-a694-d84b35a6aeb0. Final Full must be rerun using a persistent execution session.",
+    "preAdditionalFixCompletedRun": {
+      "verifiedAt": "2026-10-08T04:18:41.8460246+08:00",
+      "processReceipt": {
+        "startedAt": "2026-10-08T04:10:13.9331872+08:00",
+        "endedAt": "2026-10-08T04:17:55.5123443+08:00",
+        "exitCode": 1,
+        "processId": 79728
+      },
+      "summary": {
+        "status": "test-failed",
+        "mode": "full",
+        "repository": "C:\\Users\\17917\\Desktop\\Card",
+        "artifactsPath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\zcode-integration-repair-20261008-9fbe\\build",
+        "coreFilters": [],
+        "wpfFilters": [],
+        "startedAt": "2026-10-08T04:10:14.0608816+08:00",
+        "durationMs": 461431,
+        "message": "One or more selected checks failed.",
+        "results": [
+          {
+            "name": "Build selected scope",
+            "status": "passed",
+            "exitCode": 0,
+            "durationMs": 1437,
+            "log": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\zcode-integration-repair-20261008-9fbe\\build\\logs\\build.log"
+          },
+          {
+            "name": "Core full checks",
+            "status": "failed",
+            "exitCode": 1,
+            "durationMs": 422337,
+            "log": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\zcode-integration-repair-20261008-9fbe\\build\\logs\\core-full.log"
+          },
+          {
+            "name": "WPF full checks",
+            "status": "passed",
+            "exitCode": 0,
+            "durationMs": 37617,
+            "log": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\zcode-integration-repair-20261008-9fbe\\build\\logs\\wpf-full.log"
+          }
+        ]
+      },
+      "coreTotals": "830 passed, 109 failed, 0 skipped (939 total).",
+      "wpfTotals": "58 WPF checks passed, 0 failed.",
+      "comparisonWithRound9": {
+        "routine": {
+          "failureCount": 28,
+          "addedFailureNames": [],
+          "removedFailureNames": [],
+          "changedErrorPrefixes": [],
+          "logSha256": "86316c7d0e607a31293490f08d1ac183b38306965b10acd4f380452a432feaaf",
+          "comparisonMethod": "Same first error line capped at 1200 characters, matching the saved Round9 evidence; full stack traces are not compared."
+        },
+        "full": {
+          "failureCount": 109,
+          "addedFailureNames": [],
+          "removedFailureNames": [],
+          "changedErrorPrefixes": [],
+          "logSha256": "d280d0d0d113d7cb0c52801beb2e244383c69175aca8f8af300b16ab4a504984",
+          "comparisonMethod": "Same first error line capped at 1200 characters, matching the saved Round9 evidence; full stack traces are not compared."
+        }
+      }
+    },
+    "readonlyAudit": {
+      "ConfirmedAdditionalGap": "ProgramBijingPunishEvent exposed native arrays at GameEngine.LvKaiPrograms.cs:294 and :366.",
+      "NoOtherReachableCollectionOrRoundGateGapObserved": true,
+      "MutationRegressionReproducedAndPassedAfterFix": true,
+      "FinalVerificationAfterFix": "Complete: related20/20, routineCore328/28,Wpf18/0 (166226ms); FullCore830/109,Wpf58/0 (507046ms)."
+    },
+    "badBuildArtifactObservation": {
+      "ObservedAt": "2026-10-08T04:30:30.8750193+08:00",
+      "FullDurationMs": 15133,
+      "CoreTotals": "82 passed, 857 failed, 0 skipped (939 total).",
+      "Error": "BadImageFormatException: Bad IL range",
+      "StaticEvidence": "Bad build obj and all six bin copies have the same SHA256; PEReader rejects 25 GameEngine method headers concentrated in PrepDiscard RVAs 1060784-1067644. Two key method headers are 0x00, while passed regression and diagnostic artifacts have identical valid IL. Ref metadata matches, and normalized related source matches HEAD.",
+      "Attribution": "No writer or cause proven; not accepted as final verification.",
+      "NextStep": "Completed final routine and Full on rebuilt isolated artifacts; no Bad IL error in the final run."
+    },
+    "protectedRound10Files": [
+      {
+        "file": "src/CardGame.Core/GiftedSlashUseRewardPrograms.cs",
+        "sha256": "6d768bc3dd963ae3e5106e8569e0d2d9463e653490cd04380c675ce79a702e9c",
+        "matchesTestedSnapshot": true,
+        "testedSnapshotSha256": "6d768bc3dd963ae3e5106e8569e0d2d9463e653490cd04380c675ce79a702e9c"
+      },
+      {
+        "file": "src/CardGame.Core/GameEngine.GiftedSlashUseRewards.cs",
+        "sha256": "761d2faa8359fd34adacce58594f0fbbe8862e1b827b07d049be39d24491aa5d",
+        "matchesTestedSnapshot": true,
+        "testedSnapshotSha256": "761d2faa8359fd34adacce58594f0fbbe8862e1b827b07d049be39d24491aa5d"
+      },
+      {
+        "file": "tests/CardGame.Core.Tests/GiftedSlashHandPolicyChecks.cs",
+        "sha256": "7babd5cf40240900241ccb6c26ae9cb79a4a460c501aff6c0a6c13af8c90a7ad",
+        "matchesTestedSnapshot": true,
+        "testedSnapshotSha256": "7babd5cf40240900241ccb6c26ae9cb79a4a460c501aff6c0a6c13af8c90a7ad"
+      },
+      {
+        "file": "src/CardGame.Content.Standard/OrdinaryMaZhongContent.cs",
+        "sha256": "687e607386a31a92aed615de01bb97c83c5bcad32959d0fffb3b67a9708de510",
+        "matchesTestedSnapshot": true,
+        "testedSnapshotSha256": "687e607386a31a92aed615de01bb97c83c5bcad32959d0fffb3b67a9708de510"
+      },
+      {
+        "file": "src/CardGame.Content.Standard/SkillPrograms/ordinary-ma-zhong.rules.json",
+        "sha256": "9a2443e82662bb585dda5257e9ae980cde52dd5759baa795701b1f751eaa45dd",
+        "matchesTestedSnapshot": true,
+        "testedSnapshotSha256": "9a2443e82662bb585dda5257e9ae980cde52dd5759baa795701b1f751eaa45dd"
+      },
+      {
+        "file": "src/CardGame.Content.Standard/SkillPrograms/ordinary-ma-zhong.presentation.json",
+        "sha256": "76de4393fb95bee9c1056cdfbd80d460537f44a39ae85ce4b6f6ca6980cdc203",
+        "matchesTestedSnapshot": true,
+        "testedSnapshotSha256": "76de4393fb95bee9c1056cdfbd80d460537f44a39ae85ce4b6f6ca6980cdc203"
+      }
+    ],
+    "completedFinalRun": {
+      "verifiedAt": "2026-10-08T04:44:18.3101282+08:00",
+      "processReceipt": {
+        "startedAt": "2026-10-08T04:31:53.7091187+08:00",
+        "endedAt": "2026-10-08T04:43:07.1854041+08:00",
+        "routineExitCode": 1,
+        "fullExitCode": 1,
+        "processId": 69500
+      },
+      "summary": {
+        "status": "test-failed",
+        "mode": "full",
+        "repository": "C:\\Users\\17917\\Desktop\\Card",
+        "artifactsPath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\zcode-integration-repair-20261008-9fbe\\clean-build",
+        "coreFilters": [],
+        "wpfFilters": [],
+        "startedAt": "2026-10-08T04:34:40.1193886+08:00",
+        "durationMs": 507046,
+        "message": "One or more selected checks failed.",
+        "results": [
+          {
+            "name": "Build selected scope",
+            "status": "passed",
+            "exitCode": 0,
+            "durationMs": 1370,
+            "log": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\zcode-integration-repair-20261008-9fbe\\clean-build\\logs\\build.log"
+          },
+          {
+            "name": "Core full checks",
+            "status": "failed",
+            "exitCode": 1,
+            "durationMs": 466646,
+            "log": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\zcode-integration-repair-20261008-9fbe\\clean-build\\logs\\core-full.log"
+          },
+          {
+            "name": "WPF full checks",
+            "status": "passed",
+            "exitCode": 0,
+            "durationMs": 39027,
+            "log": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\zcode-integration-repair-20261008-9fbe\\clean-build\\logs\\wpf-full.log"
+          }
+        ]
+      },
+      "routineSummary": {
+        "status": "test-failed",
+        "mode": "routine",
+        "repository": "C:\\Users\\17917\\Desktop\\Card",
+        "artifactsPath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\zcode-integration-repair-20261008-9fbe\\clean-build",
+        "coreFilters": [
+          "Gifted Slash hand policy:",
+          "Public pile cash out:",
+          "Current turn hand exchange:",
+          "Exact owned card count and named targets:",
+          "Actual target prompt retains the AI-owned attack",
+          "Owned hand exact rank sum actual gift and recovery return",
+          "Owned hand exact rank sum no solution and native AI",
+          "Initial hand modifiers: owner maximum HP controls the real deal and dynamic hand limit",
+          "Owner dying awakening paid HP tail returns once",
+          "Owner dying replacement permanent source and optional ending replay",
+          "Virtual ordinary trick composition frozen branches and public AI",
+          "Ending Pindian win loss tie actual virtual tricks and cold return",
+          "Trick target arbitrary hand gift empty Dismantlement and true counterspell",
+          "Delayed trick target hand gift waits exact movement child",
+          "Ending virtual trick real adjusted target sequence returns once",
+          "Actual turn use ordinal:",
+          "Actual second use foreign grants share state and expire on end",
+          "Actual legacy Wine",
+          "foreign ending owner and equipment costs wait once",
+          "shared actual target loader keeps operation ownership",
+          "public equipment half count draw resumes once",
+          "Short range Slash and directed ending debt:",
+          "Equipment Slash ownership:",
+          "Actual hand gains and category gifts:",
+          "Delegated judgment and gain gifts:",
+          "JudgedRankSlashPolicy.",
+          "skill program public pile preparation",
+          "Phase hand seizure:",
+          "RecipientContestConsequences",
+          "command",
+          "observer",
+          "viewer",
+          "prepared snapshot",
+          "internal failure",
+          "round-start programs include foreign owners and cold returns",
+          "skill program",
+          "lifecycle programs",
+          "shared post-event",
+          "Phase hand extra turn",
+          "Actual draw obligation",
+          "Owned damage point judgment",
+          "Prevented damage draw",
+          "Black trick target policy",
+          "Dying skill qualification",
+          "Nearest legal Slash",
+          "Actual turn target commitment",
+          "Applied damage occurrence",
+          "Applied damage benefit",
+          "Dual private color commitments",
+          "Damage judgment suit payment four suits",
+          "Granted entity extra phase distance",
+          "Frozen faction recovery game damage",
+          "Next actual-use paid wins",
+          "Original target addition rights",
+          "Foreign turn Wine actual actor",
+          "Neighbor discard own first previous",
+          "boundary cheng pu completion payment",
+          "boundary wu guo tai paid equipment pair",
+          "Paid actual target HP and original use return",
+          "boundary li ru sequential discard top cost",
+          "Whole equipment donation actual X and recovery",
+          "boundary xiao qiao suit prevention equipment cost",
+          "boundary lu su extra draw half hand gift",
+          "Real color payment Duel back-damage and mandatory Ending claim",
+          "boundary two zhangs equipment replacement",
+          "boundary bu lian shi ordered opaque pair gift",
+          "Foreign actual turn contest decline win expiry",
+          "boundary ma dai shown color hand ban",
+          "Ending pair two draws own extra round and cold",
+          "Preparation discard actual cost",
+          "Ordinary SP Cao Ren private whole hand",
+          "Ordinary SP Pang De two real costs",
+          "Ordinary Chen Lin deferred private offer next actual start exchange",
+          "Ordinary SP Cai Wen Ji original Dying four suits private cost cold replay",
+          "Ordinary Guan Yin Ping red equipment cost before lost HP targets and real fire draw",
+          "ordinary OL Zhuge Ke empty-hand Dodge private top request and once payment",
+          "Yang Xiu multi-target trick",
+          "SP Ma Chao HP ordered distance and lost HP extra targets pay each target once",
+          "Ordinary Fu Wan same-use benefit",
+          "Ordinary Cao Hong real placement",
+          "Ordinary Liu Xie Tianming SilverLion cost and unique current HP peer",
+          "OL signed damage actual material",
+          "Tiered Round true uses physical conversion and private cold",
+          "Tiered Round shared quota and zero ordinary child",
+          "Same actual use aid extra duel physical slash targets",
+          "shared use lifecycle",
+          "shared card-use",
+          "card movement",
+          "card inventory",
+          "initial deal",
+          "invalid single and batch",
+          "draw and recover",
+          "execution plans",
+          "skill executor",
+          "program gameplay hashes",
+          "physical deck recipes",
+          "structured skill metadata",
+          "content registry",
+          "standard package",
+          "composition kernel",
+          "rule query",
+          "slash resolution",
+          "dying response",
+          "Xingshang",
+          "response use completion",
+          "selected gift",
+          "configured active sequences",
+          "standard active programs",
+          "owned-card set",
+          "turn card-use effects",
+          "active Program contracts",
+          "hand guidance",
+          "actual marker payment",
+          "replacement draw and dying payment",
+          "two dynamic actual ends",
+          "ordered nested native owner",
+          "payment nested comparison",
+          "first target history",
+          "program conversion polarity shared state and replay",
+          "Feng Lin Lu Zhi actual discard entry boundaries",
+          "Ending child gift joins current boundary",
+          "Feng Lin Yuan Shu command loss regrant source suppression",
+          "Feng Lin Yuan Shu qualified awakening persistent local loss",
+          "Feng Lin Zhou Fei first domains and true equipment sequence",
+          "Feng Lin Zhou Fei same-source association freeze",
+          "Feng Lin Congjian Equipment gift nested replay",
+          "after turn ended return movement prelude ordering",
+          "after turn ended due before window nested replay",
+          "Feng Lin Zuo Ci initial privacy and replay",
+          "Feng Lin Zuo Ci layered suppression and local disable",
+          "Feng Lin Zuo Ci same avatar program and actual end",
+          "Feng Lin Yu Ji",
+          "boundary Lu Meng all table printed suits replay",
+          "boundary Lu Meng cross owner skip chain resume death",
+          "boundary Lu Meng Qinxue windows shared usage",
+          "boundary Lu Meng opt in usage legacy shape",
+          "Boundary Huang Gai actual provider color",
+          "Boundary Huang Gai multi card color source lifecycle",
+          "boundary Lu Xun actual trick hold lianying and return",
+          "boundary Lu Xun HE payment exact Hand batch count",
+          "boundary Liu Bei virtual Peach HP child",
+          "boundary Liu Bei native provided use decline once",
+          "boundary Liu Bei gift threshold recipient",
+          "boundary Da Qiao atomic mixed discard replay",
+          "boundary Hua Tuo ordered actual discard effective suit receipts",
+          "participant discard mandatory cost cancellation preserves legal composition",
+          "current turn nonlocked suppression host lifecycle audit",
+          "boundary Guan Yu actual Played and black Hand rejection",
+          "Boundary Zhang Fei actual recovery receipt limited child",
+          "boundary Ma Chao Tieqi Paoxiao exact cancellation integration",
+          "boundary Xiahou Dun real phases skip quota expiry",
+          "boundary Xiahou Dun receipt before gain child source audit",
+          "Exact top count partition normal draw",
+          "Bound draw receipt per point nested gain",
+          "boundary Zhen Ji exact receipt stop red discard",
+          "boundary Zhen Ji receipt before child source loss",
+          "Unconverted Trick draw receipt disposition",
+          "Foreign equipment discard program selections",
+          "Population reorder actual partition and short pile",
+          "Population reorder real Ending Extra Scheduled",
+          "HP pair freezes after payment children before draw children",
+          "Equipment placement slot self equal boundaries",
+          "Final target Slash frozen comparisons actual paid Dodge",
+          "Paid HP loss rescue and gain children",
+          "Paid HP loss source and legacy",
+          "Boundary Deng Ai own turn slash discard judges authority",
+          "Boundary Deng Ai awakening grants snatch and extra turn",
+          "Boundary Jiang Wei declined taunt discards target card",
+          "Boundary Jiang Wei dodged slash still discards",
+          "Boundary Jiang Wei taunt runs twice per phase",
+          "Boundary Jiang Wei awakening wakes once across phases",
+          "Boundary Sun Ce own duel and red slash draw",
+          "Boundary Sun Ce reclaim once per turn",
+          "Boundary Sun Ce hunzi wakes draws and stays silent",
+          "Boundary Sun Ce zhiba declined claim discards both",
+          "Boundary Zhu Rong juxiang immunity claims resolved barbarian",
+          "Boundary Zhu Rong winning pindian takes target card",
+          "Boundary Zhu Rong lost pindian takes nothing",
+          "Boundary Zhu Rong unlimited slash damage draws at phase end",
+          "Boundary Zhu Rong dodged slash skips phase end draw",
+          "Boundary Zhu Rong changbiao runs once per phase",
+          "Boundary Meng Huo definitions and metadata",
+          "Boundary Meng Huo barbarian immunity and attribution",
+          "Boundary Meng Huo zaiqi asks chosen participants in order",
+          "Boundary Meng Huo zaiqi draw only at full owner",
+          "Boundary Meng Huo zaiqi decline leaves everyone alone",
+          "Boundary Meng Huo zaiqi stays silent without red discards",
+          "Boundary Guan Xing Zhang Bao converted slash response follows pair color",
+          "Boundary Guan Xing Zhang Bao turn skills expire with the turn",
+          "Damage target mount paid children source lifetime",
+          "Damage appearance Draw definitions physical colors cardless legacy",
+          "Selected actor Duel actual Use and Nullification",
+          "Damage target obtain nested Duel native cold",
+          "Boundary Yuan Shao population start role marker limit",
+          "Boundary Yuan Shao conversion actual remaining targets",
+          "Recovery replacement Silver Lion Zhiheng HP and reward children",
+          "Recovery replacement paid equipment tail",
+          "Recovery replacement faction request Silver Lion cost before providers",
+          "Program Iron Chain third target owned recast",
+          "Equipment recast Silver Lion recovery and movement children",
+          "BoundaryXuShu fixed target real Slash",
+          "BoundaryXuShu declared deck criterion",
+          "Character turned over Shebian both directions",
+          "Character turned over Shebian occupied equipment slot",
+          "Character turned over actual damage cursor",
+          "Capped hand refresh",
+          "HP paid shield",
+          "Random Pindian",
+          "Maximum Slash Pindian",
+          "Bound card recast dynamic Slash",
+          "Bound card recast Silver Lion",
+          "Turn kind hand exemption",
+          "Signed Slash modifier",
+          "Bound discard Slash frozen suit",
+          "Bound discard Slash equipment",
+          "First round limited refund exact",
+          "Current Slash entity claim basic",
+          "Current Slash entity claim nonbasic",
+          "Participant hand declined private take",
+          "Participant hand mixed HE gift",
+          "Participant hand per point effective red",
+          "Participant hand program bound alcohol",
+          "Next-use rank bonus",
+          "Other dying recovery equipment",
+          "Alternative phase cost actual",
+          "Alternative phase cost equipped",
+          "Ending hand count history",
+          "Random reveal color Fire Attack",
+          "Unrespondable counterspell equipment",
+          "Discarded provenance virtual Alcohol",
+          "Discarded provenance exact discard judgment",
+          "Discarded provenance real turn all materials",
+          "Actual turn use kinds independent hand suits",
+          "Actual turn use kinds per Play draw",
+          "Owner batch loss equipment OR two cards once",
+          "Shared Slash gift equipment recovery both gain children cold",
+          "Turn damage-use draw debt actual gain and frozen ending cost",
+          "Source faction prevention quota opaque HEJ equipment children"
+        ],
+        "wpfFilters": [
+          "original card artwork",
+          "overlapping hand",
+          "composed skills",
+          "conversion choices",
+          "response context",
+          "hand responses",
+          "opaque target-card",
+          "playback batches",
+          "saved UI boundaries",
+          "failed writes",
+          "public markers",
+          "deferred hand alignment",
+          "Program conversion polarity stays visible",
+          "declaration and general library views protect private faces",
+          "Program paid choices",
+          "Program exact top count restores private shared order",
+          "Program population count private faces restore shared free order",
+          "Program Iron Chain guide follows actual target count"
+        ],
+        "startedAt": "2026-10-08T04:31:53.8375666+08:00",
+        "durationMs": 166226,
+        "message": "One or more selected checks failed.",
+        "results": [
+          {
+            "name": "Build selected scope",
+            "status": "passed",
+            "exitCode": 0,
+            "durationMs": 1324,
+            "log": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\zcode-integration-repair-20261008-9fbe\\clean-build\\logs\\build.log"
+          },
+          {
+            "name": "Core selected checks (238 filters, union)",
+            "status": "failed",
+            "exitCode": 1,
+            "durationMs": 146795,
+            "log": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\zcode-integration-repair-20261008-9fbe\\clean-build\\logs\\core-selected.log"
+          },
+          {
+            "name": "WPF selected checks (18 filters, union)",
+            "status": "passed",
+            "exitCode": 0,
+            "durationMs": 18049,
+            "log": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\zcode-integration-repair-20261008-9fbe\\clean-build\\logs\\wpf-selected.log"
+          }
+        ]
+      },
+      "coreTotals": "830 passed, 109 failed, 0 skipped (939 total).",
+      "wpfTotals": "58 WPF checks passed, 0 failed.",
+      "focusedCore": "20 passed, 0 failed.",
+      "comparisonWithRound9": {
+        "routine": {
+          "failureCount": 28,
+          "addedFailureNames": [],
+          "removedFailureNames": [],
+          "changedErrorPrefixes": [],
+          "comparisonMethod": "First error line capped at 1200 characters, matching saved Round9 evidence.",
+          "logSha256": "eae4275da8789eadfc29bd1c766caf8f3ce93ab07766db84629d4545c201c580"
+        },
+        "full": {
+          "failureCount": 109,
+          "addedFailureNames": [],
+          "removedFailureNames": [],
+          "changedErrorPrefixes": [],
+          "comparisonMethod": "First error line capped at 1200 characters, matching saved Round9 evidence.",
+          "logSha256": "27cb4db02be4912614d6c10f631fb460aa6bd6bc7610a34f4e7908065abb2c49"
+        }
+      }
+    },
+    "finalSourceIntegrity": {
+      "sourceFileCount": 3407,
+      "changedSinceFinalRunsStarted": [],
+      "postAuditChangedPaths": [
+        "src/CardGame.Core/Projection/CommittedEventProjection.cs",
+        "tests/CardGame.Core.Tests/CommandSessionChecks.cs"
+      ],
+      "headUnchangedSinceFinalRunsStarted": true,
+      "sourceManifestSha256": "a30266cdbdfd85c2f67ce4d4839a751b35ed15feadba835838789520b16ece68",
+      "taskTouchedFileHashes": {
+        "docs/content/CORE_API_REQUESTS.md": "ffba5cc51239fe776e1ef137d2a646aaf1e2bdeaadfbebdd882241d07e080a0f",
+        "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs": "316bd9b86d5f200ffa19e837f7a43eb2ae5c87df4df715c8db6af70ccae62f79",
+        "src/CardGame.Core/CardUseModules.cs": "7e79b352d485e59129b031efa281acdae342ba3fb675a560c6f367427d07cb31",
+        "src/CardGame.Core/GameEngine.ActualHandGainPrograms.cs": "f9e48c8385a14463b3d80108da44680c60c595de88dd181c72e7b95d323e622b",
+        "src/CardGame.Core/GameEngine.CardMovementPrograms.cs": "00a9e4c674ec6b2c34b1325b798d1c8a7d7ee3b73567c0d241569de909f57cef",
+        "src/CardGame.Core/GameEngine.CardUseModules.cs": "2dc2ea5545cca9922d3ca0a6d1a3096141960d989eb54801810bcff82d0d2b2e",
+        "src/CardGame.Core/GameEngine.ChenDengPrograms.cs": "a58707c77bfaada513c7871f87dad03696de63d47d8be320d4a8294bcc86ab11",
+        "src/CardGame.Core/GameEngine.CurrentTurnUseKinds.cs": "a15636485b7cd91fd9bc5d4f17d02110af286ce84143e1157450fdedebda2e6a",
+        "src/CardGame.Core/GameEngine.DirectedCardPolicyQueries.cs": "bb0128882fe4a73d0d420f04dd5022672b852f724eb5f52cc90d3a2756d4b4f1",
+        "src/CardGame.Core/GameEngine.FixedDistanceOneDebt.cs": "786b28b614bc7830b445d3cffa93da4e58e8d64a69114de99b2674f6137fbed6",
+        "src/CardGame.Core/GameEngine.ProgramLifecycle.cs": "8440a88f48374f7fed13acc938bb9a53ec4a9d89901407f0e053ce950589bfb2",
+        "src/CardGame.Core/GameEngine.ProgramTopReorder.cs": "bde6afd29c78d6384cb7cbceb958325b93abced8a7a2ca563e37baba29af9231",
+        "src/CardGame.Core/GameEngine.RuleProgression.cs": "564732f4711e6526a8f219a8632d15c56103d611e04225db1cb00d8984c0a575",
+        "src/CardGame.Core/GameEngine.RuleQueries.cs": "557bfc3fe9af8616375845948ae7d47cbc4e562aa798b659dd38b13e23fa2134",
+        "src/CardGame.Core/GameEngine.Runtime.cs": "a94db0a0a9183e593b8317764c21946da4f6d4facb7d3b71b8cad204ad6b7401",
+        "src/CardGame.Core/GameEngine.SkillProgramHost.cs": "c18872645c7020dcf1f8c0c8611019ca083087f9e969f1e94e119dd4b60f3c3e",
+        "src/CardGame.Core/GameEngine.SkillPrograms.cs": "cd1953ba0c7a6373dd23f02b12813d5f11914fb0e70a66029036acefb42da6d5",
+        "src/CardGame.Core/GameEngine.cs": "5b5126f33c81cfa977366dbd9bac4c3588e4e42982f07278287923b84a4dd9d4",
+        "src/CardGame.Core/ProgramAllHandBonusOperation.cs": "881496b7c4eefcefcee48e9f5e97f30e4394d3ee9c95e5f13113b1b71e7c7d29",
+        "src/CardGame.Core/ProgramEntryCapabilities.cs": "9c2e5d04ccf4810006577b7a27b63574d27dde684efb0d0ce1b1fe7ba178a09c",
+        "src/CardGame.Core/ProgramLifecycle.cs": "41866c52b71cd1f1959b501c2240e3c6adf0840b43f837a8949ca64b007db2fc",
+        "src/CardGame.Core/ProgramLifecycleOperationDefinitions.cs": "3f4d0ffb85673e8ba73c9fd32a96b22026cca74f6f307fdadfbd47c9a647f369",
+        "src/CardGame.Core/ProgramOperationDefinitions.cs": "d42bd02d9d24a7a5a5f45187036c746abe540dc5f36805ba1ea636d2b654f6c8",
+        "src/CardGame.Core/ProgramPaidTargetEndingOperations.cs": "764c9ceaee9a70f0f9059327fba52f3d0918446606049d6db6c8e82248496783",
+        "src/CardGame.Core/Projection/CommittedEventProjection.cs": "8ab196b678b85bc60715dccee63c87f01a3bd874480c3bd17a8b98896d6b1d07",
+        "src/CardGame.Core/Replay.cs": "594de6360643fab5584f3901de2a5220952ca412ab1fb71ae38cd6bba35255ff",
+        "src/CardGame.Core/SkillProgramCardPolicies.cs": "e1018a9648d3d218a8dff63302d2e3ec2bd95dc1296f63eb82e503c40b462462",
+        "src/CardGame.Core/SkillProgramDependencies.cs": "8771e7d4edc9749f91553edb86f213cc6b5514d2720dd9f07f6e6883f71fdf59",
+        "src/CardGame.Core/SkillProgramExecutor.cs": "798f78f8f9631f898799c4712120638452ed45eb0a7893be41641a0a5abdca49",
+        "src/CardGame.Core/SkillPrograms.cs": "4bfa6155f8d877e9a851819d0a9bdea5c2949b149e79e4d5eead3f2f459618f3",
+        "src/CardGame.Wpf/Presentation/GeneralGalleryCatalog.cs": "4d1d0e12abf5ac32c49eb8c444e3680464b07653eee5c949cab1159fba7d2afb",
+        "src/CardGame.Wpf/ViewModels/GeneralArt.cs": "dddaff814c423c5319317ac0ca34949e80cc1c18a70d1a77c8eae32123c09e28",
+        "tests/CardGame.Core.Tests/CommandSessionChecks.cs": "394a4368af6c806ba38d46719cc49386db9e4ab73ee1a4c1c558181e73bde720",
+        "tests/CardGame.Core.Tests/Program.cs": "e688fff3141b6652c33b731a5426a198488718c3eea8525be2c7260de68b704e",
+        "tests/CardGame.Core.Tests/ProgramCompositionContextChecks.cs": "ba73c4211570af45c4f0e800eb692df659f675079952d780471f1909b64bcb55",
+        "tests/CardGame.Core.Tests/RoundStartingParticipantChecks.cs": "db5626384f10e9b52c5fd6e64164f435f9447a10306bba54105fbbc0122911fa",
+        "tests/CardGame.Core.Tests/SkillProgramExecutorChecks.cs": "28ba0029430d8f3831207d807e8799963a51dcf32d405543fb3038a6434a8c82",
+        "tools/VerificationScopes.psd1": "d96febda5540ad87f43282c2e582bceb1de2c052acc8a7f60e3a898bdbf78610"
+      },
+      "protectedProductionHashes": {
+        "src/CardGame.Core/GiftedSlashUseRewardPrograms.cs": "6d768bc3dd963ae3e5106e8569e0d2d9463e653490cd04380c675ce79a702e9c",
+        "src/CardGame.Core/GameEngine.GiftedSlashUseRewards.cs": "761d2faa8359fd34adacce58594f0fbbe8862e1b827b07d049be39d24491aa5d",
+        "src/CardGame.Core/Resolution.cs": "2aa04aa8806292385c612cf266e8361cbfeca572e3abf2c4561c407ecc724380",
+        "src/CardGame.Core/GameEngine.CardConversions.cs": "e62c3293589bb79dfff8770d941984279dafc707ad76527a9bdd97cc00fb748d",
+        "src/CardGame.Core/GameEngine.CardActions.cs": "d521fc591483b235ea41e1430f59dbee390dff9398e63210e9d734cbf3907273",
+        "src/CardGame.Core/ProgramCompositionAi.cs": "9c1bdc27190faf4eabc194ed15c5b1a7887d3083eaadb71a1eb47935c2a18044"
+      }
+    },
+    "integrationEvidence": "docs/benchmarks/2026-10-08-zcode-integration-repair.json",
+    "finalStatus": "Integration repairs and final verification complete; both task-owned temporary roots remain after cleanup rejected before execution with blocked by policy.",
+    "cleanup": {
+      "taskRoot": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\zcode-integration-repair-20261008-9fbe",
+      "status": "blocked-by-policy",
+      "ownedPaths": [
+        "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\zcode-integration-repair-20261008-9fbe"
+      ],
+      "consumersBeforeCleanup": 0,
+      "ownedBytesBeforeCleanup": 5369059186.0,
+      "ownedFileCountBeforeCleanup": 7514,
+      "reason": "Automatic approval review rejected the verified task-owned recursive Remove-Item command: blocked by policy. The delete command did not execute.",
+      "stillExists": true,
+      "remainingPaths": [
+        "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\zcode-integration-repair-20261008-9fbe"
+      ],
+      "deletedPaths": [],
+      "lastCheckedAt": "2026-10-08T04:46:36.4697071+08:00"
+    }
+  }
+}

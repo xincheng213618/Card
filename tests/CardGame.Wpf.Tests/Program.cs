@@ -73,6 +73,8 @@ internal static class Program
             Check("table interaction refresh cost and stable presentation", () => TableInteractionChecks.SelectionCost(output));
             Check("overlapping hand cards keep stable pointer targets", () => HandPointerChecks.OverlapAndPointer(output));
             Check("stored grain updates its badge without replacing hand controls", () => HandGrainChecks.StoredCardKeepsItsControlAndUpdatesItsZone(output));
+            Check("Last zone conversion presentation: restored judgment material uses central controls", () => LastZoneConversionUiChecks.RestoredJudgmentMaterialUsesExistingConversionControls(output));
+            Check("Original hand tag presentation: real entity refresh and cold restore", () => OriginalHandTagUiChecks.RefreshAndColdRestore(output));
             Check("original card artwork preserves physical card identity and interaction", () => CardArtworkChecks.FacesAndInteractions(output));
             Check("Program Iron Chain guide follows actual target count and submits set", ProgramIronChainUiChecks.TargetCountGuideAndSubmission);
             Check("reference table layout preserves equipment and skill controls", () => TableSurfaceChecks.EquipmentAndSkillControls(output));
@@ -89,9 +91,12 @@ internal static class Program
             Check("Program named choice renders shared labels and resumes parent", () => ProgramChoiceUiChecks.NamedChoiceUsesSharedSurfaceAndCommand(output));
             Check("Program paid choices preserve actor control and opaque slots", () => ProgramPaidChoiceUiChecks.SharedChoiceSurfaces(output));
             Check("declaration and general library views protect private faces", () => RuleInformationUiChecks.PrivateFacesAndPublicDeclarations(output));
+            Check("Jin faction presentation: gallery names filters colors and embedded images", JinFactionPresentationChecks.GalleryNamesFiltersColorsAndEmbeddedImages);
             Check("Program deferred cards preserve private views and public pile ownership", () => DeferredCardsUiChecks.PrivateViewAndPublicPileRestoreThroughSharedControls(output));
             Check("Program conversion tiers restore actual shared skill state", () => ConfiguredConversionsUiChecks.TierRestoresWithActualUpgrade(output));
             Check("zero-entity round conversions use public target drafts and exact PlayCard commands", TieredRoundZeroUseUiChecks.PublicZeroUseTargetsAndRealCardSubmission);
+            Check("Draw-funded zero Use exact source private draw child and stale action", TieredRoundZeroUseUiChecks.DrawFundedZeroUseSubmitsExactSourceAndPrivateDrawChild);
+            Check("chained state basic UI: false marker selects exact source", ChainedStateBasicUiChecks.FalseMarkerSelectsAndConfirmsExactSource);
             Check("Program conversion polarity stays visible with active entry and restore", () => ProgramConversionPolarityUiChecks.PolarityRemainsVisibleWithActiveEntryAndRestore(output));
             Check("Program private damage offers restore exact shared faces", () => ConfiguredConversionsUiChecks.PrivateOfferRestoresThroughSharedFaces(output));
             Check("Program public card choices restore exact faces and submit current choices", () => PublicProgramCardsUiChecks.RevealedChoicesRestoreAndSubmit(output));

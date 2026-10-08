@@ -671,6 +671,18 @@
       },
       "sha256": "2AFA148B482FEDF1F473E871421E089937A2BA30A560979DC526C65AA0659FA9",
       "notes": "Existing project-generated artwork from the frozen main snapshot. Metadata registration only; do not redraw or replace during official artwork import."
+    },
+    {
+      "kind": "UnexpectedAssault",
+      "frame": "ChuQiBuYi_png.png",
+      "file": "UnexpectedAssault.png",
+      "rectangle": [
+        198,
+        1222,
+        186,
+        260
+      ],
+      "sha256": "141a4601b4a722a4579d4cec3a5945ae5d84b370d5ecb47c493be79ddd66fd4b"
     }
   ],
   "components": [

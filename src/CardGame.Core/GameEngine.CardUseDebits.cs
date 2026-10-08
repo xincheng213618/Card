@@ -11,6 +11,9 @@ public sealed partial class GameEngine
 
     private void ResetCardUseDebitPhase()
     {
+        // An inserted Play can start inside the previous PlayEnding window.
+        // Its skill sources must expire before a new phase identity is issued.
+        CloseCurrentPlayPhaseSkillGrants("next-play-phase-started");
         _cardUseDebitPhaseInstanceId = checked(_cardUseDebitPhaseInstanceId + 1);
         _cardUseDebits.Clear();
         _actualPlayPhaseUseActions.Clear();
@@ -24,7 +27,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("A counted Slash has no frozen card-action identity.");
         var identity = new CardUseDebitIdentity(action.ActionId, actorSeat, SkillRuleQuery.SlashLimit,
             _turnNumber, _phase, _cardUseDebitPhaseInstanceId);
-        if (HasIssuedJudgedRankSlashQuota(cardUseFrameId, actorSeat)) return;
+        if (HasIssuedJudgedRankSlashQuota(cardUseFrameId, actorSeat) || HasIssuedRoundGainedBasicBonus(cardUseFrameId, actorSeat)) return;
         var suit = action.EffectiveSuit;
         if (suit is null && action.PhysicalCards.Count == 1)
         {

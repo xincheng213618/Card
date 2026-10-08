@@ -76,7 +76,7 @@ internal sealed class GrantTurnSkillsProgramOperationDescriptor : ProgramOperati
 
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
     {
-        r.AllowOnly("op", "target", "skillIds", "condition");
+        r.AllowOnly("op", "target", "targetRef", "skillIds", "expiry", "condition");
         var target = r.RequiredEnum<SkillProgramEffectTarget>("target");
         if (target != SkillProgramEffectTarget.Owner)
             throw new InvalidOperationException(
@@ -85,10 +85,17 @@ internal sealed class GrantTurnSkillsProgramOperationDescriptor : ProgramOperati
         if (ids.Count == 0)
             throw new InvalidOperationException(
                 $"Invalid skill program at {r.Path}.skillIds: must not be empty.");
-        return new SkillProgramEffect(Op, target, 0, r.Condition(), skillIds: ids);
+        var targetRef = r.Has("targetRef") ? r.RequiredParticipantReference("targetRef") : null;
+        if (targetRef is not null && targetRef.Kind != ProgramParticipantRef.Actor)
+            throw new InvalidOperationException(
+                $"Invalid skill program at {r.Path}.targetRef: turn skill grants support only the actual card-action actor.");
+        var expiry = r.Has("expiry") ? r.RequiredEnum<SkillProgramTurnSkillExpiry>("expiry") : (SkillProgramTurnSkillExpiry?)null;
+        return new SkillProgramEffect(Op, target, 0, r.Condition(), skillIds: ids,
+            targetReference: targetRef, turnSkillExpiry: expiry);
     }
 
-    public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) => [];
+    public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
+        ParticipantResources(effect.TargetReference);
 }
 
 internal sealed class UseAllHandCardsAsOrdinaryTrickProgramOperationDescriptor : ProgramOperationDescriptorBase

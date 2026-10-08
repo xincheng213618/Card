@@ -8,6 +8,7 @@ internal static class BoundaryGaoShunChecks
     private const string Identity = "boundary:jinjiu-current";
     private const string Driver = "fixture:gs-driver";
     private const string Committed = "fixture:gs-committed";
+    private const string Finalized = "fixture:gs-finalized";
     private const string Hp = "fixture:gs-hp";
     private const string Wine = "fixture:gs-wine";
     private const string Mode = "identity:classic-current-gao-shun";
@@ -44,7 +45,7 @@ internal static class BoundaryGaoShunChecks
             owning.Action!.TargetSeats.SequenceEqual([1]) && Facts<CardUseDebitRecordedEvent>(g).Count(d => d.Debit.ActorSeat == 0) == 1,
             "The true finalized action still has its original ordinary target, and only the exact won opponent is offered for +1.");
         Prepared(g); Cold(g, registry); Answer(g, c => c.Targets.SequenceEqual([2]));
-        Reach(g, p => p.SkillPrompt?.SkillId == Committed);
+        Reach(g, p => p.SkillPrompt?.SkillId == Finalized);
         owning = g.ResolutionStack.OfType<CardUseFrame>().Single(f => f.Id == owning.Id);
         Require(owning.TargetSeats.SequenceEqual([1, 2]) && owning.Action!.EffectiveDesignatedTargetSeats.SequenceEqual([1, 2]) &&
             owning.OriginalTargetAddition is { Added: true } && Facts<OriginalTargetAdditionResolvedEvent>(g).Last() is { TargetSeat: 2, Added: true },
@@ -114,13 +115,16 @@ internal static class BoundaryGaoShunChecks
         Answer(g, c => c.Cards.Count == 1 && Hand(g, 0).Single(card => card.Id == c.Cards[0]).Kind == CardKind.Slash); ReachPlay(g);
         var stored = g.CreateSnapshot(0).Players[0].ChunlaoCount;
         Require(stored == 1, "A genuine owned Slash movement prepares one bound-pile Wine rescue material.");
-        Use(g, Driver, "hurt", [1]); Reach(g, p => p.Kind == DecisionKind.RescueDying && p.PlayerSeat == 0);
+        Use(g, Driver, "hurt", [1]);
+        ReachUntil(g, () => g.ResolutionStack.OfType<DyingFrame>().Any(f => f.VictimSeat == 1 &&
+            f.ResponderIndex < f.ResponderSeats.Count && f.ResponderSeat == 0));
         var dying = g.ResolutionStack.OfType<DyingFrame>().Single();
-        Require(dying.VictimSeat == 1 && g.State.Players[1].Hp == 0 &&
-            !P(g)!.Choices.Any(c => c.Parameters.GetValueOrDefault("skill-id") == "fixture:gs-pile-rescue") &&
+        Require(dying.VictimSeat == 1 && dying.ResponderSeat == 0 && g.State.CurrentSeat == 0 && g.State.Players[1].Hp == 0 &&
+            P(g) is null &&
+            !Facts<ProgramBindingStartedEvent>(g).Any(f => f.SkillId == "fixture:gs-pile-rescue") &&
             !Facts<ProgramBindingStartedEvent>(g).Any(f => f.SkillId == Wine && f.OwnerSeat == 1) &&
             !Facts<ProgramDyingRescueEvent>(g).Any(f => f.DyingFrameId == dying.Id),
-            "On the policy owner's actual turn, a different exact victim cannot use physical Wine, its SelfDying Wine, or a third-party pile Wine; no cost is paid.");
+            "At the original Dying frame's real human responder cursor, the policy owner's turn prohibits the foreign victim's physical/SelfDying Wine and third-party pile Wine; no usable rescue prompt or paid source is invented.");
         Cold(g, registry); ReachPlay(g);
         Require(!g.State.Players[1].IsAlive && g.CreateSnapshot(0).Players[0].ChunlaoCount == stored &&
             !g.CardMovements.Any(m => m.From == CardLocation.Chunlao(0) && m.To == CardLocation.Processing),
@@ -147,19 +151,24 @@ internal static class BoundaryGaoShunChecks
         ReachUntil(g, () => Facts<OriginalTargetAdditionGrantedEvent>(g).Length > 0);
         var granted = Facts<OriginalTargetAdditionGrantedEvent>(g).First().Grant;
         Require(granted.Source.SkillId == Contest && granted.Source.OwnerSeat == g.State.CurrentSeat && granted.TargetSeat != granted.Source.OwnerSeat &&
+            g.AcceptedCommands.All(command => command is not AnswerPromptCommand) &&
             Facts<PindianResultDeterminedEvent>(g).Any(f => f.Result.SourceSeat == granted.Source.OwnerSeat && f.Result.SourceRank == 13 && f.Result.SourceWon),
-            "A native AI starts the real phase-limited contest, selects the K identity and issues a same-actual-turn original-target grant.");
+            "A native AI starts the real phase-limited contest, selects the K identity and issues a same-actual-turn original-target grant: " +
+            JsonSerializer.Serialize(new { g.State.CurrentSeat, g.State.TurnNumber, Grant = granted, Pindian = Facts<PindianResultDeterminedEvent>(g), Prompt = P(g) }));
         Cold(g, registry);
     }
 
     private static (GameEngine, ContentRegistry) Create(bool wine = false, bool native = false)
     {
         var registry = ContentRegistry.Build(new StandardContentPackage(), new Fixture(wine, native));
-        var g = GameEngine.CreateStandard(new GameOptions { Seed = 31, PlayerCount = 4, HumanSeat = native ? -1 : 0,
-            HumanRole = native ? null : Role.Lord, ModeId = Mode, UseInteractiveSetup = true, UseInteractiveDiscard = true,
+        var g = GameEngine.CreateStandard(new GameOptions { Seed = 31, PlayerCount = 4, HumanSeat = 0,
+            HumanRole = Role.Lord, ModeId = Mode, UseInteractiveSetup = true, UseInteractiveDiscard = true,
             AdvanceAfterHumanCommands = false, MaxTurns = 12 }, registry);
         Accept(g, new StartGameCommand());
-        if (!native) { Reach(g, p => p.Kind == DecisionKind.SelectGeneral && p.PlayerSeat == 0); Accept(g, new SelectGeneralCommand(0, "fixture:gs-owner", g.Revision, P(g)!.PromptId)); ReachPlay(g); }
+        // A quiet human setup boundary prevents Start from running the whole all-AI match.
+        Reach(g, p => p.Kind == DecisionKind.SelectGeneral && p.PlayerSeat == 0);
+        Accept(g, new SelectGeneralCommand(0, native ? "fixture:gs-other-1" : "fixture:gs-owner", g.Revision, P(g)!.PromptId));
+        if (!native) ReachPlay(g);
         return (g, registry);
     }
     private static CardSnapshot[] Hand(GameEngine g, int seat) => g.CreateSnapshot(seat).Players[seat].Hand.ToArray();
@@ -192,7 +201,7 @@ internal static class BoundaryGaoShunChecks
     {
         var p = P(g);
         if (p is { PlayerSeat: 0, Kind: DecisionKind.DiscardCards }) Accept(g, new DiscardCardsCommand(0, p.ValidCardIds.Take(p.RequiredCardCount).ToArray(), p.PromptId, g.Revision));
-        else if (p is { PlayerSeat: 0 } && p.SkillPrompt?.SkillId is Committed or Hp) Continue(g);
+        else if (p is { PlayerSeat: 0 } && p.SkillPrompt?.SkillId is Committed or Finalized or Hp) Continue(g);
         else if (p is { PlayerSeat: 0 } && Action(p, "original-target-addition")) Answer(g, c => c.Targets.Count == 0);
         else if (p is { PlayerSeat: 0, Kind: DecisionKind.RescueDying }) Answer(g, c => c.Parameters.GetValueOrDefault("response") == "let-die");
         else if (p is { PlayerSeat: 0 } && Action(p, "skip")) Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "skip");
@@ -227,13 +236,14 @@ internal static class BoundaryGaoShunChecks
                 skills = new Dictionary<string, object> { [Driver] = new { name = "真实驱动", description = "固定实体、装备和失血" }, ["fixture:gs-quiet"] = new { name = "安静", description = "真实跳过出牌" },
                 ["fixture:gs-hit"] = new { name = "真实自失血", description = "首个实际回合濒死" }, ["fixture:gs-pile-rescue"] = new { name = "真实醇醪型救援", description = "实体公共pile付款" },
                 [Committed] = new { name = "用牌冷锚点", description = "已接受Slash", optionLabels = new Dictionary<string, string> { ["continue"] = "继续", ["suppress"] = "真实失血抑制" } },
+                [Finalized] = new { name = "实际目标冷锚点", description = "原增目标窗口完成后的Slash", optionLabels = new Dictionary<string, string> { ["continue"] = "继续" } },
                 [Wine] = new { name = "原生濒死酒", description = "真实SelfDying生产者", optionLabels = new Dictionary<string, string> { ["continue"] = "继续" } },
                 [Hp] = new { name = "回复冷锚点", description = "真实HP观察", optionLabels = new Dictionary<string, string> { ["continue"] = "继续" } } } }));
             foreach (var program in catalog.Programs.Values) b.AddSkill(new(program.Id, catalog.Presentations[program.Id].Name, "机制夹具") { Program = program, ProgramPresentation = catalog.Presentations[program.Id] });
             b.AddSkill(new("fixture:gs-selection", "固定选择", "没有运行逻辑") { SelectionWeights = Enum.GetValues<Role>().ToDictionary(role => role, _ => 100d) });
             b.AddSkill(new("fixture:gs-suppression", "真实抑制", "HP1抑制非锁定技能") { SuppressionRule = new(1) });
             b.AddGeneral(new("fixture:gs-owner", "高顺机制", "supporter", Contest, "qun", 4,
-                native ? [Identity, Committed] : [Identity, Driver, Committed, "fixture:gs-pile-rescue", Hp, "fixture:gs-suppression"]));
+                native ? [Identity, Committed, Finalized] : [Identity, Driver, Committed, Finalized, "fixture:gs-pile-rescue", Hp, "fixture:gs-suppression"]));
             for (var i = 1; i < 4; i++) b.AddGeneral(new($"fixture:gs-other-{i}", "固定目标", "supporter", "fixture:gs-selection", "wei", wine ? 1 : 12,
                 wine ? ["fixture:gs-quiet", "fixture:gs-hit", Wine, Hp] : ["fixture:gs-quiet"]));
             b.AddCard(new("fixture:gs-alcohol", "酒", "基本牌", "实体点数保持1", CardKind.Alcohol));
@@ -256,6 +266,7 @@ internal static class BoundaryGaoShunChecks
      {"id":"fixture:gs-quiet","revision":1,"triggers":[{"id":"quiet","window":"afterNormalDraw","subject":"owner","optional":false,"effects":[{"op":"skipTurnPhases","target":"owner","phases":["play"]}]}]},
      {"id":"fixture:gs-hit","revision":1,"triggers":[{"id":"real-dying","window":"afterNormalDraw","subject":"owner","optional":false,"usageScope":"game","usageLimit":1,"effects":[{"op":"loseHp","target":"owner","amount":1}]}]},
      {"id":"fixture:gs-committed","revision":1,"triggers":[{"id":"accepted","window":"cardUseCommitted","ownerRelation":"actor","cardKinds":["slash"],"optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"},{"id":"suppress"}]},{"op":"loseHp","target":"owner","amount":4,"condition":{"kind":"choiceIs","sourceBind":"seen","optionId":"suppress"}}]}]},
+     {"id":"fixture:gs-finalized","revision":1,"triggers":[{"id":"finalized","window":"cardUseTargetsFinalized","ownerRelation":"actor","cardKinds":["slash"],"optional":false,"priority":-100,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},
      {"id":"fixture:gs-hp","revision":1,"triggers":[{"id":"recovered","window":"afterHpRecovered","subject":"owner","optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},
      {"id":"fixture:gs-wine","revision":1,"triggers":[{"id":"wine","window":"selfDyingResponse","subject":"owner","optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"accept","options":[{"id":"continue"}]},{"op":"useVirtualDyingAlcohol","target":"owner"}]}]},
      {"id":"fixture:gs-pile-rescue","revision":1,"triggers":[{"id":"rescue","window":"dyingResponse","subject":"owner","optional":true,"condition":{"kind":"compare","left":{"kind":"currentOwnedZoneCount","zone":"chunlao"},"operator":"greaterThan","right":{"kind":"integerConstant","value":0}},"effects":[{"op":"selectSourceCard","target":"owner","cardSource":"owner","zones":["chunlao"],"resultBind":"rescue"},{"op":"useBoundCardAsDyingAlcohol","target":"owner","sourceBind":"rescue"}]}]}]}

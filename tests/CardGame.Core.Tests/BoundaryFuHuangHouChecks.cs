@@ -120,6 +120,7 @@ internal static class BoundaryFuHuangHouChecks
         Require(added.RecipientSeat == 2 && use.TargetSeats.SequenceEqual([0, 2]) && use.CardId == 0 &&
             use.PhysicalCardIds!.Count == 0 && use.SequentialTrick is not null &&
             !E<SameTypeAidGiftPaidEvent>(g).Any(), "The native recipient without a different-name Trick becomes a real additional target of the same zero-entity Duel.");
+        AssertSequentialZeroUseBoundary(g, r, use.Id);
         g = Restore(g, r); Pass(g); Play(g);
         Require(E<CardUsedEvent>(g).Where(e => e.CardId == 0 && e.CardKind == CardKind.Duel && e.SourceSeat == 1)
             .Select(e => e.TargetSeat).Distinct().Order().SequenceEqual([0, 2]) &&
@@ -220,7 +221,9 @@ internal static class BoundaryFuHuangHouChecks
     private static void Activate(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate");
     private static void Skip(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "skip");
     private static void Continue(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
-    private static void Pass(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("response") == "pass");
+    private static bool IsDecline(PendingDecision p, PromptChoice c) =>
+        c.Parameters.GetValueOrDefault("response") == (p.Kind is DecisionKind.RespondDodge or DecisionKind.RespondSlash ? "take-damage" : "pass");
+    private static void Pass(GameEngine g) => Answer(g, c => IsDecline(P(g)!, c));
     private static void Answer(GameEngine g, Func<PromptChoice, bool> predicate)
     { var p = P(g)!; Accept(g, new AnswerPromptCommand(p.PlayerSeat, p.PromptId, p.Choices.First(predicate).Id, g.Revision)); }
     private static void Reach(GameEngine g, Func<PendingDecision, bool> done)
@@ -234,7 +237,7 @@ internal static class BoundaryFuHuangHouChecks
         else if (p is { PlayerSeat: 0 } && p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "skip")) Skip(g);
         else if (p is { PlayerSeat: 0 } && p.Kind == DecisionKind.RescueDying && p.Choices.Any(c => c.Parameters.GetValueOrDefault("response") == "peach"))
             Answer(g, c => c.Parameters.GetValueOrDefault("response") == "peach");
-        else if (p is { PlayerSeat: 0 } && p.Choices.Any(c => c.Parameters.GetValueOrDefault("response") == "pass")) Pass(g);
+        else if (p is { PlayerSeat: 0 } && p.Choices.Any(c => IsDecline(p, c))) Pass(g);
         else if (p is { PlayerSeat: 0 } && p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "select-target"))
             Answer(g, c => c.Targets.Count == 1);
         else if (p is { PlayerSeat: 0, Kind: DecisionKind.PlayCard }) End(g);
@@ -253,6 +256,30 @@ internal static class BoundaryFuHuangHouChecks
     { var p = P(g)!; var state = State(g); Require(!g.Submit(new AnswerPromptCommand(p.PlayerSeat, p.PromptId, new("unpublished"), g.Revision)).Accepted && state == State(g),
         "Unpublished input leaves all private views, payments, facts and accepted commands unchanged."); }
     private static void Require(bool result, string text) { if (!result) throw new InvalidOperationException(text); }
+
+    private static void AssertSequentialZeroUseBoundary(GameEngine game, ContentRegistry registry, long useId)
+    {
+        const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        var validate = typeof(GameEngine).GetMethod("AssertSequentialTrickTargets", flags)!;
+        validate.Invoke(game, null);
+        var use = game.ResolutionStack.OfType<CardUseFrame>().Single(frame => frame.Id == useId);
+        Require(use.SelectedActorDuelOrigin is not null, "The actual zero-entity Duel retains its issued native producer.");
+        foreach (var (bad, expected) in new[] {
+            (use with { SelectedActorDuelOrigin = null }, "Card 0 is not registered in any zone."),
+            (use with { CardId = int.MaxValue }, $"Card {int.MaxValue} is not registered in any zone."),
+            (use with { TargetIndex = use.TargetSeats.Count }, "A sequential trick lost its targets, cursor or physical card.") })
+        {
+            var invalid = Restore(game, registry);
+            var stack = (FrameStore)typeof(GameEngine).GetField("_resolutionStack", flags)!.GetValue(invalid)!;
+            stack.Replace(bad);
+            var rejected = false;
+            try { validate.Invoke(invalid, null); }
+            catch (System.Reflection.TargetInvocationException exception) when
+                (exception.InnerException is InvalidOperationException failure && failure.Message == expected)
+            { rejected = true; }
+            Require(rejected, "The sequential trick invariant rejects a forged zero producer, absent physical entity and invalid target cursor on restored clones.");
+        }
+    }
 
     private static (GameEngine, ContentRegistry) Create(string deck = "dodge", bool win = false, bool aid = false, bool sourceLoss = false,
         bool claimDying = false, bool fragileRecipients = false, bool peerAid = false, bool gear = false, bool native = false,

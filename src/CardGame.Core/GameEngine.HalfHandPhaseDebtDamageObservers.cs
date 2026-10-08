@@ -7,6 +7,9 @@ public sealed partial class GameEngine
     private bool HalfHandPaidDamageObserverEdge(int index)
     {
         var child = _resolutionStack[index]; var parent = _resolutionStack[index - 1];
+        if (ChainedStateBasicStructuralEdge(parent, child) || ForeignSelectedCardSlashStructuralEdge(parent, child) || RoundGainedEquipmentDrawStructuralEdge(parent, child) || JoinedTrickDamageRewardStructuralEdge(parent, child) || PairedColorDispositionStructuralEdge(parent, child) || RecipientCategoryMarkStructuralEdge(parent, child) || OffTurnUsedCardGiftStructuralEdge(parent, child) ||
+            OrderedPrintedSkillLossStructuralEdge(parent, child) || MatchingRecastStructuralEdge(parent, child) ||
+            OverflowTargetCancellationStructuralEdge(parent, child)) return true;
         if (PaidObserverDamageDyingFaceEdge(index)) return true;
         if (parent is ProgramSkillFrame attack && child is DyingFrame { Continuation: DyingContinuationKind.AttackHpLoss } replaced)
             return PaidObserverAttackHpLossDyingMatches(attack, replaced);

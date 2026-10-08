@@ -1,0 +1,540 @@
+{
+  "sourceRecordSchemaVersion": 1,
+  "documentKind": "Current official ordinary OL Zhang Hua full three-skill source",
+  "capturedAt": "2026-10-09",
+  "status": "Complete ordinary OL Zhang Hua implementation accepted by the recorded focused and routine checks.",
+  "sourceRegistered": true,
+  "registered": true,
+  "productionImplemented": true,
+  "behaviorValidated": true,
+  "behaviorAccepted": true,
+  "generalIdProposal": "ol:zhang-hua",
+  "characterName": "张华",
+  "officialId": 544,
+  "rulesetId": "sanguosha-ol",
+  "variantProposal": "ordinary",
+  "sourcePage": "https://www.sanguosha.com/hero/544",
+  "currentOfficialMetadata": {
+    "gid": 544,
+    "name": "张华",
+    "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/544.png",
+    "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/54400.png",
+    "label": [
+      "进攻",
+      "过牌",
+      "卖血"
+    ],
+    "figure": "晋",
+    "figure_py": "jin",
+    "quality": "传说",
+    "biography": "西晋贤相，张良的十六世孙，贾南风时辅政。与羊祜[hù]善。司马炎与羊祜谋划伐吴时，群臣唯张华、杜预赞成其计。羊祜临终将伐吴之遗志托付于张华、杜预。贾充曾在伐吴半进时进谏退兵并奏斩张华，司马炎护之。斩蛇剑穿屋而飞、干将莫邪双剑化龙、龙光射牛斗之墟皆出自其典。",
+    "characteristic": "通过不断重铸牌造成伤害，需注意在牌多时不能正常用牌。",
+    "hp": 3,
+    "initial_hp": 0,
+    "score": 0
+  },
+  "metadataInterpretation": {
+    "gender": "Male: character.h=1",
+    "maxHp": 3,
+    "initialHp": 3,
+    "initialHpNote": "API initial_hp=0 means ordinary full initial HP before native mode modifiers.",
+    "faction": "jin",
+    "hasConcealment": false,
+    "concealmentBasis": "Complete currently assigned ordinary spell slots captured; none contains concealment.",
+    "derivedSkills": [],
+    "defaultSkinId": 54400,
+    "artist": "画师:匠人绘"
+  },
+  "character": {
+    "origin": "/GameCharacters/character/1244",
+    "row": {
+      "a": 544,
+      "b": "张华",
+      "d": "ZhangHua",
+      "e": 44,
+      "f": "42",
+      "g": 6,
+      "h": 1,
+      "i": 3,
+      "j": 3251,
+      "k": 3253,
+      "l": 3252,
+      "p": 3,
+      "q": "1",
+      "r": "9054401",
+      "y": "西晋贤相，张良的十六世孙，贾南风时辅政，与羊祜交好。司马炎与羊祜谋划伐吴时，群臣唯张华、杜预赞成其计。羊祜临终将伐吴之遗志托付于张华、杜预。贾充曾在伐吴半进时进谏退兵并奏斩张华，司马炎护之。斩蛇剑穿屋而飞、干将莫邪双剑化龙、龙光射牛斗之墟皆出自其典。",
+      "z": "通过不断重铸牌造成伤害，需注意在牌多时不能正常用牌。",
+      "aa": 1285,
+      "ab": "1013,1014",
+      "ad": "画师:匠人绘",
+      "x": "天生神物，####终当合耳！",
+      "al": 1730,
+      "am": "true",
+      "ap": 800,
+      "aq": 240,
+      "ar": "20230529T235958",
+      "LordCardRate1": 57,
+      "LordCardRate2": 49,
+      "cc": 0,
+      "starMax": 4
+    }
+  },
+  "skills": [
+    {
+      "officialSkillId": 3251,
+      "id": "ol:bihun",
+      "name": "弼昏",
+      "exactText": "锁定技，当你使用牌指定其他角色为目标时，若你的手牌数大于手牌上限，你取消之并令唯一目标获得此牌。",
+      "rawClientText": "锁定技，当你使用牌指定其他角色为目标时，若你的手牌数大于手牌上限，你取消之并令唯一目标获得此牌。",
+      "origin": "/GameSpells/spell/1614",
+      "row": {
+        "a": 3251,
+        "b": "3,4,5",
+        "c": "弼昏",
+        "d": "BiHun",
+        "e": 0,
+        "g": 8,
+        "i": 2,
+        "o": "锁定技，当你使用牌指定其他角色为目标时，若你的手牌数大于手牌上限，你取消之并令唯一目标获得此牌。",
+        "k": "1"
+      }
+    },
+    {
+      "officialSkillId": 3253,
+      "id": "ol:jianhe",
+      "name": "剑合",
+      "exactText": "出牌阶段，每名角色限一次，你可以重铸至少两张同名牌或装备牌，令一名角色选择一项：  1.重铸等量张与之类型相同的牌；  2.受到你的1点雷电伤害。",
+      "rawClientText": "出牌阶段，每名角色限一次，你可以重铸至少两张同名牌或装备牌，令一名角色选择一项：<br>&nbsp;1.重铸等量张与之类型相同的牌；<br>&nbsp;2.受到你的1点雷电伤害。",
+      "origin": "/GameSpells/spell/1616",
+      "row": {
+        "a": 3253,
+        "b": "3",
+        "c": "剑合",
+        "d": "JianHe",
+        "e": 0,
+        "g": 1,
+        "h": 1,
+        "i": 2,
+        "n": 0,
+        "o": "出牌阶段，每名角色限一次，你可以重铸至少两张同名牌或装备牌，令一名角色选择一项：<br>&nbsp;1.重铸等量张与之类型相同的牌；<br>&nbsp;2.受到你的1点雷电伤害。",
+        "v": "请选择要重铸的牌与一名角色",
+        "w": "请选择重铸{0}张{1}，或点击取消受到1点雷电伤害"
+      }
+    },
+    {
+      "officialSkillId": 3252,
+      "id": "ol:chuanwu",
+      "name": "穿屋",
+      "exactText": "锁定技，当你造成或受到伤害后，你失去武将牌上前X个技能直到回合结束（X为你的攻击范围），然后摸与失去技能数等量张牌。",
+      "rawClientText": "锁定技，当你造成或受到伤害后，你失去武将牌上前X个技能直到回合结束（X为你的攻击范围），然后摸与失去技能数等量张牌。",
+      "origin": "/GameSpells/spell/1615",
+      "row": {
+        "a": 3252,
+        "b": "3,4,5",
+        "c": "穿屋",
+        "d": "ChuanWu",
+        "e": 0,
+        "g": 6,
+        "i": 2,
+        "o": "锁定技，当你造成或受到伤害后，你失去武将牌上前X个技能直到回合结束（X为你的攻击范围），然后摸与失去技能数等量张牌。"
+      }
+    }
+  ],
+  "spellTips": [
+    {
+      "origin": "/GameSpells/spell_tips/1621",
+      "row": {
+        "a": 3251
+      }
+    },
+    {
+      "origin": "/GameSpells/spell_tips/1622",
+      "row": {
+        "a": 3252
+      }
+    },
+    {
+      "origin": "/GameSpells/spell_tips/1623",
+      "row": {
+        "a": 3253
+      }
+    }
+  ],
+  "officialSources": [
+    {
+      "name": "hero",
+      "url": "https://www.sanguosha.com/hero/544",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-09T02:15:05.674061+08:00",
+      "byteCount": 25219,
+      "sha256": "c0196f46cfdcd1151c4b2a18ab9a475a68a3fdd30854a791c5df71d4b05c6878",
+      "hashScope": "Exact raw HTTP response body bytes; heavy bundle/config retained in memory only."
+    },
+    {
+      "name": "api",
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=544",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-09T02:15:05.801203+08:00",
+      "byteCount": 1055,
+      "sha256": "2fd7bda19cc143ce36fd579df8e042c139d56732890438da3dc73e4cb4682df7",
+      "hashScope": "Exact raw HTTP response body bytes; heavy bundle/config retained in memory only."
+    },
+    {
+      "name": "bundle",
+      "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-09T02:15:05.874841+08:00",
+      "byteCount": 5256312,
+      "sha256": "6a035389beda8d0dbf31227f57a91b2da14d3d5055503198a227aef54f22bf76",
+      "hashScope": "Exact raw HTTP response body bytes; heavy bundle/config retained in memory only."
+    },
+    {
+      "name": "config",
+      "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-09T02:15:05.95774+08:00",
+      "byteCount": 4142728,
+      "sha256": "9e26cb3db90532084579a20c292d5fec0c81dcf3d5eb2abf2009bff0326237bb",
+      "hashScope": "Exact raw HTTP response body bytes; heavy bundle/config retained in memory only."
+    },
+    {
+      "name": "historicalLaunch",
+      "url": "https://www.sanguosha.com/news/20230423_6804_4114",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-09T02:15:06.248233+08:00",
+      "byteCount": 783405,
+      "sha256": "09a7b99621784918e085d6352b35af95e560d8d25fe4d7885a0f286e44ec14d7",
+      "hashScope": "Exact raw HTTP response body bytes; heavy bundle/config retained in memory only."
+    }
+  ],
+  "currentSsrSkillText": "锁定技，当你使用牌指定其他角色为目标时，若你的手牌数大于手牌上限，你取消之并令唯一目标获得此牌。 锁定技，当你造成或受到伤害后，你失去武将牌上前X个技能直到回合结束（X为你的攻击范围），然后摸与失去技能数等量张牌。 出牌阶段，每名角色限一次，你可以重铸至少两张同名牌或装备牌，令一名角色选择一项：1.重铸等量张与之类型相同的牌；2.受到你的1点雷电伤害。",
+  "historicalOfficialLaunch": {
+    "url": "https://www.sanguosha.com/news/20230423_6804_4114",
+    "publishedAt": "2023-04-28 17:05:11",
+    "sourceType": "Historical official launch, corroborates current text and order; not a current FAQ.",
+    "rawRelevantHtml": "时进谏退兵并奏斩张华，司马炎护之。斩蛇剑穿屋而飞、干将莫邪双剑化龙、龙光射牛斗之墟皆出自其典。</td>\r\n</tr>\r\n<tr style=\"height: 70pt;\">\r\n<td style=\"border-width: 1px; padding: 0px; text-align: center; height: 10px; width: 9.70971%;\"><strong>技能</strong></td>\r\n<td style=\"width: 89.7897%; border-width: 1px; padding: 0px; height: 10px;\" colspan=\"3\">【弼昏】：锁定技，当你使用牌指定其他角色为目标时，若你的手牌数大于手牌上限，你取消之并令唯一目标获得此牌。<br /><br />【剑合】：出牌阶段，每名角色限一次，你可以重铸至少两张同名牌或装备牌，令一名角色选择一项：1.重铸等量张与之类型相同的牌；2.受到你的1点雷电伤害。&nbsp;<br /><br />【穿屋】：锁定技，当你造成或受到伤害后，你失去武将牌上前X个技能直到回合结束（X为你的攻击范围），然后摸与失去技能数等量张牌。</td>\r\n</tr>\r\n<tr style=\"height: 14.25pt;\">\r\n<td style=\"border-width: 1px; padding: 0px; text-align: center; height: 10px; width: 9.70971%;\"><strong>获取</strong></td>\r\n<td style=\"width: 89.7897%; border-width: 1px; padding: 0px; height: 10px;\" colspan=\"3\">2023-4-29 00:15:00~2023-5-6 23:59:59，幸运翻翻乐活动随机获取，或翻翻乐积分*4800<strong><span style=\"color: #e03e2d;\">(首周八折)</span></strong>兑换。</td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n<p>注：张华后续上线恢复原价翻翻乐积分*6000。</p>\r\n<p>&nbsp;</p>\r\n<h3>武将福利</h3>\r\n<p>活动时间：<span style=\"color: #e03e2d;\">2023-4-29 00:00:00~2023-5-6 23:59:59<span style=\"color: #000000;\">，完成相应任务，即可获得奖励，累计限完成1次。</span></span></p>\r\n<table style=\"border-collapse: collapse; width: 60%; height: 111px; border-width: 1px; border-spacing: 0px; margin-left: auto; margin-right: auto;\" border=\"1\" cellspacing=\"0\" cellpadding=\"0\">\r\n<tbody>\r\n<tr style=\"height: 15pt;\">\r\n<td style=\"width: 35.0552%; border-width: 1px; padding: 0px; text-align: center; height: 19px;\"><strong>任务</strong></td>\r\n<td style=\"width: 43.1244%; border-width: 1px; padding: 0px; text-align: center; height: 19px;\"><strong>奖励</strong></td>\r\n<td style=\"width: 21.5432%; border-width: 1px; padding: 0px; text-align: center; height: 19px;\"><strong>限制条件</strong></td>\r\n</tr>\r\n<tr style=\"height: 15pt;\">\r\n<td style=\"border-width: 1px; padding: 0px; text-align: center; height: 19px; width: 35.0552%;\">拥有杜夫人</td>\r\n<td style=\"border-width: 1px; padding: 0px; text-align: center; height: 19px; width: 43.1244%;\">经典版杜夫人</td>\r\n<td style=\"border-width: 1px; padding: 0px; text-align: center; width: 21.5432%; height: 92px;\" rowspan=\"5\">累计限完成1次</td>\r\n</tr>\r\n<tr style=\"height: 15pt;\">\r\n<td style=\"border-width: 1px; padding: 0px; text-align: center; height: 19px; width: 35.0552%;\">使用杜夫人完成3局游戏</td>\r\n<td style=\"border-width: 1px; padding: 0px; text-align: center; height: 19px; width: 43.1244%;\">功勋*100</td>\r\n</tr>\r\n<tr style=\"height: 15pt;\">\r\n<td style=\"border-width: 1px; padding: 0px; text-align: center; height: 19px; width: 35.0552%;\">使用杜夫人获胜5局游戏</td>\r\n<td style=\"border-width: 1px; padding: 0px; text-align: center; height: 19px; width: 43.1244%;\">普通将印宝箱*1</td>\r\n</tr>\r\n<tr style=\"height: 15pt;\">\r\n<td style=\"border-width: 1px; padding: 0px; text-align: center; height: 16px; width: 35.0552%;\">使用杜夫人完成9局游戏</td>\r\n<td style=\"border-wid"
+  },
+  "clientEvidence": {
+    "decoder": "Current public script InitOfb CFB128 resource decoder then gzip; binary key/IV used transiently, no private resources or server logic.",
+    "decodedScriptUtf8Sha256": "f62c194174dd2ff4531bc44a795616b6a51f449a3c7c2bec5270f390da55f245",
+    "members": [
+      {
+        "name": "character.sgs",
+        "encodedByteCount": 352776,
+        "encodedSha256": "e0b6f0188edebb1f502ea402c7171e93b88f4e9d05720948344a1f4f44474aae",
+        "decodedByteCount": 1485056,
+        "decodedSha256": "b3ef3f1181e7fe667499cb688b7cdce56631d899dbb0eea55d75fbf80636b040"
+      },
+      {
+        "name": "cha_spell.sgs",
+        "encodedByteCount": 246031,
+        "encodedSha256": "95cfaa4106a4f6224ebed8948bcf86bd5fc6801a83a1c4162c7e59bc848bef66",
+        "decodedByteCount": 1166955,
+        "decodedSha256": "39b83f6e2504590e262bb353bddfded546b83f83a7ea9199b67742b1bee68fc0"
+      },
+      {
+        "name": "sys_playcard.sgs",
+        "encodedByteCount": 85190,
+        "encodedSha256": "9a1a02006f8e02fe2b36561030e843005c3b0a433be3d5cc1efeb9008d219ab5",
+        "decodedByteCount": 1000189,
+        "decodedSha256": "5b0d29825cd5afadf5c41c70eb566ab17533ba3255d3110824078069e3132b13"
+      }
+    ],
+    "characterSlotAbbreviations": [
+      {
+        "Long": "spellId1",
+        "Short": "j"
+      },
+      {
+        "Long": "spellId2",
+        "Short": "k"
+      },
+      {
+        "Long": "spellId3",
+        "Short": "l"
+      },
+      {
+        "Long": "spellId4",
+        "Short": "m"
+      }
+    ],
+    "assignedPrintedSkillOrder": [
+      3251,
+      3253,
+      3252
+    ],
+    "heroHeadingOrder": [
+      3251,
+      3252,
+      3253
+    ],
+    "slotOrderConclusion": "spellId1/2/3 and General.Skills construction directly establish BiHun/JianHe/ChuanWu; historical official launch independently prints the same order.",
+    "snippets": [
+      {
+        "label": "iIi",
+        "decodedScriptCharacterOffset": 15475630,
+        "exactText": "class iIi extends $Kt{hasTouchIds=[];cardSpecial=-1;minCardNum=0;constructor(){super(),this.activeMode=vCt.ACTIVE,this.requestCardType=kCt.NORMAL|kCt.EQUIP,this.cardUseType=UCt.RESET,this.timeLimitRound=30,this.targetCountMin=1,this.targetCountMax=1,this.targetSelector=new VFt(this),this.cardSelector=new YFt(this)}get Activated(){let t=Laya.superGetter(iIi,this,\"Activated\");if(t&&c1t.Seats){let i=!1;c1t.Seats.breakForEach((t=>{if(t&&t.IsLegalOperable&&-1==this.hasTouchIds.indexOf(t.Index))return i=!0,!0})),t=i}if(t&&this.Seat){if(this.Seat.GetCardCountByType(kCt.EQUIP|kCt.EQUIP_NORMAL)>=2)return!0;let t=!1,i=this.Seat.HandCards;for(let s=0;s<i.length;s++){for(let e=s+1;e<i.length;e++)if(i[s].CardName==i[e].CardName){t=!0;break}if(t)break}return t}return!1}BeforeTouchSkillItem(){return this.minCardNum=0,this.cardSpecial=-1,this.flag=0,!1}get CardCountMin(){return this.flag==IWi.OPT_SKILL_FLAG1?this.minCardNum:2}get CardCountMax(){return this.flag==IWi.OPT_SKILL_FLAG1?this.minCardNum:Number.MAX_VALUE}GetDefensiveSelectCardContext(t,i=null){if(!i)return null;if(this.flag=i.Type,i.Type==IWi.OPT_SKILL_FLAG1){let t=new RIt;if(t.Purpose=AIt.DISCARD,t.Skill=this,i.Params){let s=i.Params[0];this.minCardNum=i.Params[1];let e=OCt.CardBaseTypeName(1<<s);t.Message=ks.F(this.defensiveTip,this.minCardNum,e),t.CardSelector=new YFt(this,s)}return t}return null}UpdateRoleDataResponse(t,i,s=!1){super.UpdateRoleDataResponse(t,i,s),t&&t.Datas&&t.IsSpell&&(t.data_count>=2?this.hasTouchIds=t.Datas.splice(0,t.data_count-1):this.hasTouchIds.length=0)}get RetainRoleDataExLastParams(){return!1}}",
+        "utf8Sha256": "11c9eb3771ca279918fbbdb12ec9e1f8b482f05e4e55dde0a94987f1f420de33",
+        "supports": "JianHe client: Hand+Equipment real recast; >=2; one target; unlimited numerical maximum; server-maintained per-recipient used list; counterpart single category/count request."
+      },
+      {
+        "label": "YFt",
+        "decodedScriptCharacterOffset": 7877782,
+        "exactText": "class YFt extends yP{selectType=0;constructor(t,i){super(t),this.selectType=i,this.needUpdateCardAfterChange=!0}IsAllowCard(t){var i=super.IsAllowCard(t);if(i){if(this.selectType)return!(!t||t.CardBaseTypeWithAvatar!=1<<this.selectType);var s;if(this.selectedCards.length>0){if(!(s=this.selectedCards[0]))return!0;if(s.CardBaseTypeWithAvatar&OCt.EQUIP)return!!(t&&t.CardBaseTypeWithAvatar&OCt.EQUIP);if(t)if(t.AvatarSkill){if(s.AvatarSkill){if(t.AvatarSkill.ID==s.AvatarSkill.ID)return!0}else if(t.AvatarSkill.ID==(s.Skills[0]&&s.Skills[0].ID))return!0}else if(t.Skills[0])if(s.AvatarSkill){if(t.Skills[0].ID==s.AvatarSkill.ID)return!0}else if(t.Skills[0].ID==(s.Skills[0]&&s.Skills[0].ID))return!0;return!1}}return i}}",
+        "utf8Sha256": "bc29613f0d2b008f4eed9dd7405d94a144f15006c7a9909b600402d28ffb5870",
+        "supports": "Owner initial group is all Equipment or same native first skill/name; counterpart uses one exact CardBaseType; no mixed basic/trick histogram."
+      },
+      {
+        "label": "VFt",
+        "decodedScriptCharacterOffset": 7877536,
+        "exactText": "class VFt extends df{constructor(t){super(t),this.skillbase=t}IsAllowSeat(t){let i=super.IsAllowSeat(t);return i&&this.skillbase&&this.skillbase.hasTouchIds&&this.skillbase.hasTouchIds.length&&(i=this.skillbase.hasTouchIds.indexOf(t.Index)<0),i}}",
+        "utf8Sha256": "89b386ca5b42cde5ef332505a64ebbee28bb16f5997800d2dbe1437da18db4f1",
+        "supports": "Only additional target restriction is absence from hasTouchIds; no other-only restriction."
+      },
+      {
+        "label": "$Ti",
+        "decodedScriptCharacterOffset": 15473391,
+        "exactText": "class $Ti extends $Kt{cardSpecial=-1;constructor(){super(),this.activeMode=vCt.LOCK}get RetainRoleDataExLastParams(){return!1}}",
+        "utf8Sha256": "e7e3cfeb484a89f255cc7ad8df475ae6d2aaa96591614d3dc3977059df2d4980",
+        "supports": "ChuanWu public client is LOCK-only; no server first-X/lost-count algorithm is exposed here."
+      },
+      {
+        "label": "kCt",
+        "decodedScriptCharacterOffset": 4128695,
+        "exactText": "class kCt{static DEFAULT=-1;static NONE=0;static NORMAL=1;static NORMAL_BASIC=256;static NORMAL_JINGNANG=512;static GENERAL=2;static DECIDE=8;static EQUIP=4;static EQUIP_MA=32;static EQUIP_NORMAL=16;static EQUIP_WEAPON=64;static EQUIP_WEAPON_NORMAL=128;static TREASURE=1024;static EQUIP_AMOR=2048;static OUTSIDE=4096;static MUNIULIUMA=8192;static MUNIULIUMA_BASIC=16384;static MUNIULIUMA_JINGNANG=32768;static MUNIULIUMA_EQUIP=65536;static MUNIULIUMA_WEAPON=131072;static MUNIULIUMA_AMOR=262144;static SCENE=524288;static REGION=1048576;static EQUIP_TREASURE=2097152;static AMOR=4194304;constructor(){}static GetHandTypeByBaseType(t){switch(t){case OCt.BASIC:return this.NORMAL_BASIC;case OCt.JINNANG:return this.NORMAL_JINGNANG;case OCt.EQUIP:return this.EQUIP_NORMAL}return 0}}class OCt{static get NONE(){return 1<<this.NONE_BIT}static get BASIC(){return 1<<this.BASIC_BIT}static get JINNANG(){return 1<<this.JINNANG_BIT}static get EQUIP(){return 1<<this.EQUIP_BIT}static get GENERAL(){return 1<<this.GENERAL_BIT}static get SCENE(){return 1<<this.SCENE_BIT}static NONE_BIT=0;static BASIC_BIT=1;static JINNANG_BIT=2;static EQUIP_BIT=3;static GENERAL_BIT=4;static SCENE_BIT=5;static UNDEFINED=0;static WEAPON=1;static AMOR=2;static FANGYUMA=3;static JINGONGMA=4;static YANSHI_JINNANG=5;static BAOWU=9;static ROGUE_BAOWU=9;constructor(){}static CardBaseTypeName(t){let i=\"\";switch(t){case OCt.BASIC:i=\"基本牌\";break;case OCt.JINNANG:i=\"锦囊牌\";break;case OCt.EQUIP:i=\"装备牌\";break;case OCt.GENERAL:i=\"武将牌\"}return i}static NumberToCardTypeName(t){let i=\"\";switch(t){case OCt.BASIC_BIT:i=\"基本\";break;case OCt.JINNANG_BIT:i=\"锦囊\";break;case OCt.EQUIP_BIT:i=\"装备\";break;case OCt.GENERAL_BIT:i=\"武将\"}return i}static NumberToCardTypeNameSimple(t){let i=\"\";switch(t){case OCt.BASIC_BIT:i=\"基\";break;case OCt.JINNANG_BIT:i=\"锦\";break;case OCt.EQUIP_BIT:i=\"装\";break;case OCt.GENERAL_BIT:i=\"武\"}return i}}",
+        "utf8Sha256": "49e2ad71cb18a2945eefac6eb822c3ea6bb717c9fde90df9229263656f0eba84",
+        "supports": "NORMAL=Hand, EQUIP=equipment-zone; EQUIP_NORMAL=equipment cards in Hand."
+      },
+      {
+        "label": "JHi",
+        "decodedScriptCharacterOffset": 16880774,
+        "exactText": "class JHi extends Nxi{GetDescripts(t,i){var s=super.GetDescripts(t,i);return 1==t?s=ks.F(s,i.Data[1],OCt.NumberToCardTypeName(i.Data[2])):2==t?s=ks.F(s,this.SeatName(i.Data[1])):3==t&&(s=ks.F(s,i.Data[1],this.CardTypeName(i.Data[2]),this.SeatName(i.Data[3]))),s}}",
+        "utf8Sha256": "04d7fbd4fcf68d64d1fe78428ea8bc016b086b1b765e91724327416a6376159b",
+        "supports": "JianHe log renders one count and one card category; no mixed-category vector."
+      },
+      {
+        "label": "zHi",
+        "decodedScriptCharacterOffset": 16881629,
+        "exactText": "class zHi extends Nxi{GetDescripts(t,i){var s=super.GetDescripts(t,i);return 1==t&&(s=ks.F(s,i.Data[1])),s}}",
+        "utf8Sha256": "420c6ecc54f685dd8da03a72ac7ead3e959c03eb4b13b5d8b64fae9335108ecf",
+        "supports": "ChuanWu log accepts a single count supplied by server."
+      },
+      {
+        "label": "Base skill permits self unless overridden",
+        "decodedScriptCharacterOffset": 8009250,
+        "exactText": "targetCanBeSelf=!0;get TargetCanBeSelf(){return this.targetCanBeSelf}",
+        "utf8Sha256": "47a04224174f8cb0b4320e09f0d60865abba7cf917bf3a23201b4bad94d403d5",
+        "supports": "JianHe and its VFt target selector do not override this true default; self is selectable subject to normal legality."
+      },
+      {
+        "label": "Printed skill slot construction",
+        "decodedScriptCharacterOffset": 338581,
+        "exactText": "this.SpellId1=t.spellId1||0,this.SpellId2=t.spellId2||0,this.SpellId3=t.spellId3||0,this.SpellId4=t.spellId4||0,this.SpellId5=t.spellId5||0,this.SpellId6=t.spellId6||0,this.Skills=[],this.SpellId1&&this.Skills.push(this.SpellId1),this.SpellId2&&this.Skills.push(this.SpellId2),this.SpellId3&&this.Skills.push(this.SpellId3),this.SpellId4&&this.Skills.push(this.SpellId4),this.SpellId5&&this.Skills.push(this.SpellId5),this.SpellId6&&this.Skills.push(this.SpellId6),",
+        "utf8Sha256": "e4263da03d750dd84a87ae948d6c5d4f05cec79376e511025e9f9e58ba8daaf9",
+        "supports": "General.Skills is initialized by spellId1,2,3,... order, not hero SSR heading order."
+      },
+      {
+        "label": "Native skill removal mutates owned skill list",
+        "decodedScriptCharacterOffset": 3106817,
+        "exactText": "removeSkill(t){let i,s=0;for(;s<this.skills.length;s++)if(this.skills[s].ID==t){i=this.skills[s],this.skills.splice(s,1),i.UpdateState(!0);break}return i}removeAllSkill(){let t=0;for(;t<this.skills.length;t++)this.skills[t].UpdateState(!0);this.skills.length=0}Init(){this.avatarSkill=null,this.Seat=null,this.selected=!1,this.isReflectEquip=!1,this.cardZoneType=0,this.needRecountAttDistance=!0,this.tagArr1.length=0}Clear(){this.avatarSkill=null,this.isReflectEquip=!1,this.cardZoneType=0,this.Seat=null,this.selected=!1,this.needRecountAttDistance=!0,this.skills.length=0,this.MoveType=0,this.tagArr1.length=0}get FirstIndexSkill(){return this.skills&&this.skills.length?this.skills[0]:null}get SkillIds(){return this.skillIds}get FirstSkill(){let t=null;return null==t&&this.AvatarSkill&&(t=this.AvatarSkill,this.AvatarSkill.AvatarSkillOriginId&&(this.AvatarSkill.NeedUseAvatarSkill||(t=null))),null==t&&this.skills.length&&(t=this.skills[0]),t}get FirstSkillId(){let t=this.FirstSkill;return t?t.ID:0}get FirstIndexSkillID(){return this.FirstIndexSkill?this.FirstIndexSkill.ID:0}get DeclaredSkill(){if(this.seat){let t=this.seat.GetGeneralSkill(FCt.JIAOZHAO_WUJIANG);if(t&&t.DeclaredCardId==this",
+        "utf8Sha256": "a07e7748e7c644b005d44c6ed627572e3129dd2ea5da918404e815c7b45f9b9d",
+        "supports": "Client owned skill array is physically reduced; this does not prove server ChuanWu prefix selection semantics."
+      }
+    ],
+    "sameNameSlashRows": [
+      {
+        "origin": "/GamePlayCards/card/5",
+        "row": {
+          "a": 6,
+          "b": "杀",
+          "c": 1,
+          "d": 0,
+          "e": 43,
+          "f": 6,
+          "g": 2,
+          "h": 0,
+          "i": 0,
+          "j": 0,
+          "m": 1,
+          "n": 1,
+          "p": "Sha",
+          "q": "23,25",
+          "r": "8,12",
+          "s": "4,7",
+          "t": "1,3",
+          "u": "22,6_3,7_105,5_39,5_26,5_6,5_107,5_153,5_158,5_152,5_23,5_19,5_5,3_13,8_54,6"
+        }
+      },
+      {
+        "origin": "/GamePlayCards/card/111",
+        "row": {
+          "a": 112,
+          "b": "杀",
+          "c": 1,
+          "d": 6,
+          "e": 3,
+          "f": 4,
+          "g": 1,
+          "h": 0,
+          "i": 0,
+          "j": 0,
+          "m": 1,
+          "o": "HuoShaNCard",
+          "p": "HuoSha",
+          "q": "23,25",
+          "r": "8,12",
+          "s": "4,7",
+          "t": "1,3",
+          "u": "22,6,5,7_105,5_39,5_26,5_6,2_107,5_153,5_158,5_152,5_23,5_19,5_5,3_30,5_33,7_154,7_54,6"
+        }
+      },
+      {
+        "origin": "/GamePlayCards/card/137",
+        "row": {
+          "a": 138,
+          "b": "杀",
+          "c": 1,
+          "d": 7,
+          "e": 3,
+          "f": 4,
+          "g": 3,
+          "h": 0,
+          "i": 0,
+          "j": 0,
+          "m": 1,
+          "o": "LeiShaNCard",
+          "p": "LeiSha",
+          "q": "23,25",
+          "r": "8,12",
+          "s": "4,7",
+          "t": "1,3",
+          "u": "3,7_105,5_39,5_26,5_6,5_107,5_153,5_158,5_152,5_23,5_19,5_5,3_21,5_9,7_30,5_32,5_45,7_42,6"
+        }
+      }
+    ],
+    "sameNameSlashConclusion": "Ordinary/Fire/Thunder Slash physical rows all have name 杀 and spellId1; YFt compares native first-skill ID. Three variants form one same-name material group."
+  },
+  "faqAudit": {
+    "status": "No dedicated current official FAQ located in this bounded audit; absence is not proof of a rule.",
+    "queries": [
+      "site:sanguosha.com 张华 剑合 穿屋 弼昏 FAQ",
+      "site:sanguosha.com 剑合 同名 重铸",
+      "site:club.sanguosha.com 张华 穿屋",
+      "site:sanguosha.com 弼昏 唯一",
+      "site:sanguosha.com 剑合 重铸 自己"
+    ],
+    "officialResults": [
+      "https://www.sanguosha.com/hero/544",
+      "https://www.sanguosha.com/news/20230423_6804_4114"
+    ],
+    "currentSpellTipsHaveDedicatedRuleText": false,
+    "scope": "Current hero SSR/API, public current character/spell/card tables and associated public client classes; bounded official-domain search. No authenticated server rule code or observed online match."
+  },
+  "engineMappingsExplicitlyNotOfficialFAQ": [
+    {
+      "subject": "BiHun unique target and cancellation",
+      "decision": "At declaration freeze original primary target list; cancel other-role primary targets when post-cost actual Hand exceeds current HandLimit. Transfer all still-valid real use materials only if the original primary list had exactly one other-role target. Never infer unique from the count remaining after cancellation. Self-only effects remain native.",
+      "basis": "Current text establishes cancellation and unique target; original-list timing is explicit root mapping."
+    },
+    {
+      "subject": "JianHe materials and peer matching",
+      "decision": "Both sides use native real Hand/Equipment recast. Owner group >=2 is all Equipment or one native canonical name; ordinary/Fire/Thunder Slash share name. No mixed Basic+Trick or Basic+Equipment group and no mixed-category histogram. Peer pays equal count of the single group category or takes Thunder1. Self selectable.",
+      "basis": "Direct current iIi/YFt/VFt/base target and card-row evidence."
+    },
+    {
+      "subject": "JianHe per-recipient usage",
+      "decision": "Each living recipient, including owner, may be selected once in each real Play phase; extra Play phase has a new phase key. No global once-per-phase or per-turn cap. Freeze accepted target and obligation through native cost/draw children.",
+      "basis": "Current text says 出牌阶段，每名角色限一次; client hasTouchIds proves per-target set but exact server reset is not public."
+    },
+    {
+      "subject": "ChuanWu ordered prefix after prior loss",
+      "decision": "Take first X of currently owned printed skill IDs, preserving original printed slot order; previously lost entries do not occupy prefix positions. Remove all currently owned grants matching those selected IDs and count distinct IDs actually removed.",
+      "basis": "Root explicitly selected mapping after correction; current public client proves slot order and physical removal, not the server prefix algorithm. Unverified external channel guide describes default range1 first losing BiHun then JianHe, retained only as secondary conflict signal."
+    },
+    {
+      "subject": "ChuanWu damage count and self damage",
+      "decision": "Once per positive actually applied damage event whose source or recipient is owner; self damage does not double-dispatch the same native damage. Repeated real damage may remove subsequent currently owned printed skills. LoseHp is not damage.",
+      "basis": "Text 造成或受到伤害后; exact self-event deduplication is root engine mapping, not located official FAQ."
+    },
+    {
+      "subject": "ChuanWu freeze and restore",
+      "decision": "Freeze X from actual attack range before any selected skill removal, and freeze actual distinct removed count before native Draw. Issued Draw survives source loss. Restore exact removed grant identities at end of that actual turn; death or incompatible template skips restoration, and later source regrant must not duplicate original identities.",
+      "basis": "Text until turn end and draw lost skill count; precise lifecycle/identity semantics are engine mapping."
+    }
+  ],
+  "secondaryNonAuthoritativeEvidence": {
+    "url": "https://my.4399.com/yxsgs/ziliao/51328/",
+    "role": "Search-discovered channel guide only; not treated as an official FAQ or sole rule authority.",
+    "boundedSignal": "Description says range1 first loss BiHun and second loss JianHe; used only to flag fixed-original-prefix ambiguity to root. No full page copied."
+  },
+  "acceptance": {
+    "sourceVerified": true,
+    "registered": true,
+    "productionImplemented": true,
+    "behaviorValidated": true,
+    "behaviorAccepted": true,
+    "buildsOrTestsRunBySourceAgent": false,
+    "implemented": true,
+    "targetedPassed": true,
+    "routinePassed": true,
+    "fullVerificationRun": false,
+    "targetedCore": 120,
+    "targetedWpf": 4,
+    "routineCore": 428,
+    "routineWpf": 21,
+    "report": "docs/benchmarks/2026-10-09-content-continuation-round22-verification.json"
+  },
+  "officialPortrait": {
+    "assetPath": "src/CardGame.Wpf/Assets/official-ol-zhang-hua.png",
+    "officialSkinId": 54400,
+    "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/54400.png",
+    "sha256": "88a3f89fd0254e488e6bd58c74c4fb387c0f515ab8b0d4acf6e7dba52c3b89f6",
+    "bytes": 1035860,
+    "width": 750,
+    "height": 950,
+    "metadataVerified": true,
+    "visuallyInspectedByParent": true,
+    "behaviorAcceptanceStillPending": false
+  },
+  "engineMappingsNotOfficialFaq": [
+    {
+      "subject": "BiHun unique target and cancellation",
+      "decision": "At declaration freeze original primary target list; cancel other-role primary targets when post-cost actual Hand exceeds current HandLimit. Transfer all still-valid real use materials only if the original primary list had exactly one other-role target. Never infer unique from the count remaining after cancellation. Self-only effects remain native.",
+      "basis": "Current text establishes cancellation and unique target; original-list timing is explicit root mapping."
+    },
+    {
+      "subject": "JianHe materials and peer matching",
+      "decision": "Both sides use native real Hand/Equipment recast. Owner group >=2 is all Equipment or one native canonical name; ordinary/Fire/Thunder Slash share name. No mixed Basic+Trick or Basic+Equipment group and no mixed-category histogram. Peer pays equal count of the single group category or takes Thunder1. Self selectable.",
+      "basis": "Direct current iIi/YFt/VFt/base target and card-row evidence."
+    },
+    {
+      "subject": "JianHe per-recipient usage",
+      "decision": "Each living recipient, including owner, may be selected once in each real Play phase; extra Play phase has a new phase key. No global once-per-phase or per-turn cap. Freeze accepted target and obligation through native cost/draw children.",
+      "basis": "Current text says 出牌阶段，每名角色限一次; client hasTouchIds proves per-target set but exact server reset is not public."
+    },
+    {
+      "subject": "ChuanWu ordered prefix after prior loss",
+      "decision": "Take first X of currently owned printed skill IDs, preserving original printed slot order; previously lost entries do not occupy prefix positions. Remove all currently owned grants matching those selected IDs and count distinct IDs actually removed.",
+      "basis": "Root explicitly selected mapping after correction; current public client proves slot order and physical removal, not the server prefix algorithm. Unverified external channel guide describes default range1 first losing BiHun then JianHe, retained only as secondary conflict signal."
+    },
+    {
+      "subject": "ChuanWu damage count and self damage",
+      "decision": "Once per positive actually applied damage event whose source or recipient is owner; self damage does not double-dispatch the same native damage. Repeated real damage may remove subsequent currently owned printed skills. LoseHp is not damage.",
+      "basis": "Text 造成或受到伤害后; exact self-event deduplication is root engine mapping, not located official FAQ."
+    },
+    {
+      "subject": "ChuanWu freeze and restore",
+      "decision": "Freeze X from actual attack range before any selected skill removal, and freeze actual distinct removed count before native Draw. Issued Draw survives source loss. Restore exact removed grant identities at end of that actual turn; death or incompatible template skips restoration, and later source regrant must not duplicate original identities.",
+      "basis": "Text until turn end and draw lost skill count; precise lifecycle/identity semantics are engine mapping."
+    }
+  ],
+  "engineMappingAcceptance": "Root final implementation contract, accepted within the actual recorded behavior scope; engine mappings are not official FAQ.",
+  "behaviorCheckMethods": [
+    "OverflowUniquePhysicalAndPairMaterialsReturnThroughNativeGain",
+    "OverflowMultipleTargetsSelfUseAndExactHandLimitStayDistinct",
+    "MatchingRecastCanonicalNamesSelfQuotaAndExtraPhase",
+    "EquipmentRecastRecoveryAndDamageRemainNative",
+    "CurrentPrintedPrefixConsumesRepeatedAndSelfDamageOnce",
+    "FrozenPrintedLossDrawAndExactTurnRestoreSurviveSourceLoss"
+  ]
+}

@@ -150,7 +150,7 @@ internal static class OrdinaryZhugeKeChecks
     }
     private static RequestedDeckBasicFrame View(GameEngine g)=>g.ResolutionStack.OfType<RequestedDeckBasicFrame>().Single();
     private static ProgramSkillFrame Root(GameEngine g)=>g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f=>f.DynamicDiscardDamage is not null);
-    private static PendingDecision? P(GameEngine g)=>g.State.PendingDecision;
+    private static PendingDecision? P(GameEngine g)=>Enumerable.Range(0,4).Select(s=>g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p=>p is not null);
     private static IEnumerable<T> Facts<T>(GameEngine g)where T:IGameEvent=>g.Events.Select(e=>e.Payload).OfType<T>();
     private static int Peer(GameEngine g)=>g.State.Players.First(p=>p.Seat!=0 && p.IsAlive && p.Seat is 1 or 3).Seat;
     private static bool DeckActivate(PendingDecision p)=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("deck-basic-source")=="activate");

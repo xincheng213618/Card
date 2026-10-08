@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:xiongshu", "revision": 1,
+      "triggers": [
+        { "id": "secret-phase-forecast", "window": "playPhaseStarting", "subject": "owner",
+          "turnOwnerScope": "otherLiving", "optional": true,
+          "effects": [{ "op": "beginPhaseNamePrediction", "target": "owner", "stateId": "forecast" }] },
+        { "id": "settle-issued-forecast", "window": "playEnding", "subject": "owner",
+          "turnOwnerScope": "otherLiving", "optional": false,
+          "effects": [{ "op": "settlePhaseNamePrediction", "target": "owner", "stateId": "forecast" }] }
+      ]
+    },
+    {
+      "id": "ol:jianhui", "revision": 1,
+      "triggers": [
+        { "id": "record-source-and-discard", "window": "afterDamageApplied", "subject": "owner", "damageOccurrence": "perDamage", "optional": false,
+          "effects": [{ "op": "lastDamageSourceReciprocity", "target": "owner", "stateId": "last-source" }] },
+        { "id": "draw-after-recorded-source-damage", "window": "afterDamageApplied", "subject": "damageSource", "damageOccurrence": "perDamage", "optional": false,
+          "effects": [{ "op": "lastDamageSourceReciprocity", "target": "owner", "stateId": "last-source" }] }
+      ]
+    }
+  ]
+}

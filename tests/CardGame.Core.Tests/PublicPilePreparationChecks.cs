@@ -210,7 +210,16 @@ internal static class PublicPilePreparationChecks
             var ending = "skill-program.ol:juedi.public-pile-preparation.draw";
             var gift = "skill-program.ol:juedi.public-pile-preparation.payment";
             var tail = "{\"op\":\"draw\",\"target\":\"owner\",\"amount\":1},{\"op\":\"loseHp\",\"target\":\"owner\",\"amount\":1}";
-            var rules = $$"""{"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[{"id":"{{Observe}}","revision":1,"triggers":[{"id":"paid-gain","window":"cardsGained","subject":"owner","destinationZones":["hand"],"movementOccurrence":"perBatch","movementReasons":["{{(fillObserver ? ending : gift)}}"],"optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"pause","options":[{"id":"continue"}]},{{tail}}]}]},{"id":"{{Attack}}","revision":1,"triggers":[{"id":"actual-slash","window":"turnStartBeforeNormalFlow","subject":"owner","optional":false,"effects":[{"op":"selectTarget","target":"owner","targetKind":"otherLivingVirtualSlashTarget"},{"op":"useVirtualCard","target":"selectedTarget","outputKind":"slash","useCardActionWindows":true,"targetRestriction":"distanceUnlimitedAgainstTarget"}]}]}]}""";
+            // Native DrawCards creates one real movement batch per card; this fixture issues its extra tail only once.
+            var rules = $$"""
+            {"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[
+              {"id":"{{Observe}}","revision":1,
+                "states":[{"id":"paid-child-issued","initialValue":false,"visibility":"private","resetScope":"game","reacquirePolicy":"preserveUntilGameEnd"}],
+                "triggers":[{"id":"paid-gain","window":"cardsGained","subject":"owner","destinationZones":["hand"],"movementOccurrence":"perBatch","movementReasons":["{{(fillObserver ? ending : gift)}}"],"optional":false,
+                  "condition":{"kind":"booleanState","stateId":"paid-child-issued","expectedValue":false},
+                  "effects":[{"op":"setBooleanState","target":"owner","stateId":"paid-child-issued","value":true},{"op":"chooseOption","target":"owner","resultBind":"pause","options":[{"id":"continue"}]},{{tail}}]}]},
+              {"id":"{{Attack}}","revision":1,"triggers":[{"id":"actual-slash","window":"turnStartBeforeNormalFlow","subject":"owner","optional":false,"effects":[{"op":"selectTarget","target":"owner","targetKind":"otherLivingVirtualSlashTarget"},{"op":"useVirtualCard","target":"selectedTarget","outputKind":"slash","useCardActionWindows":true,"targetRestriction":"distanceUnlimitedAgainstTarget"}]}]}]}
+            """;
             var catalog = SkillProgramCatalog.Load(rules, $$"""{"schemaVersion":3,"skills":{"{{Observe}}":{"name":"付款观察","description":"子流程返回后再推进","optionLabels":{"continue":"继续"} },"{{Attack}}":{"name":"真实杀伤","description":"真实准备阶段对选定目标使用杀"} } }""");
             foreach (var skill in catalog.Programs) builder.AddSkill(new(skill.Key, skill.Key, skill.Key) { Program = skill.Value });
             builder.AddGeneral(new(Owner, "公开牌区拥有者", "supporter", empty ? "ol:juedi" : "ol:yinbing", "wu", 4,

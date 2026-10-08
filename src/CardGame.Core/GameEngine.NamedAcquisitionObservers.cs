@@ -47,7 +47,7 @@ public sealed partial class GameEngine
                 if (!HalfHandPaidDamageObserverEdge(child)) { aligned = false; break; }
                 if (_resolutionStack[child] is DyingFrame dying &&
                     (IsPaidHandRepaymentRescueRide(child, dying) || IsPaidHandRepaymentProgramAlcoholRide(child, dying) ||
-                     PaidObserverDamageVirtualAlcoholRide(child, dying) || TieredRoundZeroDyingRescueRide(child, dying))) break;
+                     PaidObserverDamageVirtualAlcoholRide(child, dying) || (TieredRoundZeroDyingRescueRide(child, dying) || DrawFundedDistinctBasicDyingRescueRide(child, dying)))) break;
             }
             if (aligned) return root;
         }

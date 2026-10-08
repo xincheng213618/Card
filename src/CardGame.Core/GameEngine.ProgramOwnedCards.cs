@@ -28,6 +28,7 @@ public sealed partial class GameEngine
                 .Where(card => CanSelectSelfDiscardBinding(active, resultBind, cardOwnerSeat, card, location))
                 .Where(card => MatchesEquipmentPairOwnedCost(active, resultBind, card, location))
                 .Where(card => MatchesDeferredHandDebtCost(active, resultBind, card, location))
+                .Where(card => MatchesPublicPileStorageSelection(active, resultBind, card, location))
                 .Where(card => MatchesProgramOwnedSelectionKind(active, resultBind, _players[cardOwnerSeat], card, location, cardKinds))
                 .Where(card => suits.Count == 0 || suits.Contains(GetProgramEffectiveSuit(_players[cardOwnerSeat], card)))
                 .Select(card => (card.Id, Location: location));
@@ -49,7 +50,13 @@ public sealed partial class GameEngine
                     "A selected-pair hand difference requires two resolved program targets."),
             _ => throw new InvalidOperationException("Unsupported owned-card selection amount.")
         };
-        var count = Math.Min(requested, candidates.Length);
+        var exact = GetOwnedSelectionEffect(active).RequireExactCount == true;
+        if (exact && requested > candidates.Length)
+        {
+            CancelProgramBindingAndCleanup(active, "没有足额的合法区域牌，未支付缩水费用。");
+            return SkillProgramStepOutcome.AwaitChild;
+        }
+        var count = exact ? requested : Math.Min(requested, candidates.Length);
         if (minimumCards > count)
         {
             CancelProgramBindingAndCleanup(active, "没有足够的合法区域牌，技能结算已取消。");
@@ -58,6 +65,7 @@ public sealed partial class GameEngine
         if (count <= 0)
         {
             SetProgramCardSet(frame.Id, resultBind, [], SkillProgramCardSetVisibility.Private, []);
+            FreezeExactOwnedSelectionSuits(frame.Id, GetOwnedSelectionEffect(active), [], []);
             return SkillProgramStepOutcome.Continue;
         }
         if (expression == SkillProgramNumberExpression.AllOwnedZoneCards)
@@ -181,6 +189,7 @@ public sealed partial class GameEngine
         SetProgramCardSet(frame.Id, draft.ResultBind, ids, SkillProgramCardSetVisibility.Private, locations,
             ids.Length == 1 ? EffectiveSuit(_players[draft.CardOwnerSeat], _cardZones.CardsAt(locations[0]).Single(c => c.Id == ids[0])) : null,
             selectionActorSeat: draft.CardOwnerSeat);
+        FreezeExactOwnedSelectionSuits(frame.Id, effect, ids, locations);
         AdvanceRuntimeProgram(frame.Id);
     }
 

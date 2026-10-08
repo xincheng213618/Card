@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:bizheng",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "draw-ended-support-and-discard",
+          "window": "drawPhaseEnded",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "selectTargets",
+              "target": "owner",
+              "targetKind": "otherLiving",
+              "minimumTargets": 1,
+              "maximumTargets": 1,
+              "targetAiOrder": "supportDraw"
+            },
+            {
+              "op": "drawTwoThenDiscardTwoIfOverMaxHp",
+              "target": "selectedTarget"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:yidian",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "add-distance-free-target",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "actor",
+          "cardCategories": ["basic", "instantTrick"],
+          "singleActionInstance": true,
+          "optional": true,
+          "effects": [
+            {
+              "op": "addOneDistanceFreeCurrentUseTarget",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

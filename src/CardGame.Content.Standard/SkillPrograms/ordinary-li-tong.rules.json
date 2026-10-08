@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:tuifeng",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "store-feng-per-damage-point",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "damageOccurrence": "perDamagePoint",
+          "optional": true,
+          "effects": [
+            {
+              "op": "selectOwnedCards",
+              "target": "owner",
+              "minimumCards": 1,
+              "maximumCards": 1,
+              "zones": ["hand", "equipment"],
+              "resultBind": "tuifeng-cost"
+            },
+            {
+              "op": "storeBoundCardsInPublicPile",
+              "target": "owner",
+              "sourceBind": "tuifeng-cost"
+            }
+          ]
+        },
+        {
+          "id": "cash-out-feng-at-preparation",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "condition": {
+            "kind": "compare",
+            "left": { "kind": "currentOwnedZoneCount", "zone": "publicPersistentPile" },
+            "operator": "greaterThan",
+            "right": { "kind": "integerConstant", "value": 0 }
+          },
+          "effects": [
+            { "op": "cashOutPublicPile", "target": "owner", "drawMultiplier": 2 }
+          ]
+        }
+      ]
+    }
+  ]
+}

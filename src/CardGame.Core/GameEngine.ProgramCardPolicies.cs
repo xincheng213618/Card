@@ -32,6 +32,11 @@ public sealed partial class GameEngine
         CardKind? effectiveKind = null) =>
         CardPolicies(owner, kind, effectiveKind).Any();
 
+    private bool HasOutsideAttackRangeSlashQuota(CharacterState owner, CharacterState target, CardKind kind) =>
+        owner.IsAlive && target.IsAlive && owner.Seat != target.Seat && IsSlashCard(kind) &&
+        HasCardPolicy(owner, SkillProgramCardPolicyKind.BypassSlashLimitAgainstOutsideAttackRange, kind) &&
+        GetCombatDistance(owner.Seat, target.Seat) > GetAttackRange(owner.Seat);
+
     private bool IsNearbyTargetResponseProhibited(int sourceSeat, int responderSeat,
         CardKind incomingKind, IReadOnlyList<int> targetSeats)
     {

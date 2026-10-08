@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:shanduan",
+      "revision": 1,
+      "triggers": [
+        { "id": "draw-default", "window": "drawPhaseStarting", "subject": "owner", "optional": false, "effects": [{ "op": "allocateCurrentTurnDefaultStats", "target": "owner", "stateId": "default-stats", "condition": { "kind": "always" } }] },
+        { "id": "play-defaults", "window": "playPhaseStarting", "subject": "owner", "optional": false, "effects": [{ "op": "allocateCurrentTurnDefaultStats", "target": "owner", "stateId": "default-stats", "condition": { "kind": "always" } }] },
+        { "id": "discard-default", "window": "discardPhaseStarting", "subject": "owner", "optional": false, "effects": [{ "op": "allocateCurrentTurnDefaultStats", "target": "owner", "stateId": "default-stats", "condition": { "kind": "always" } }] },
+        { "id": "next-turn-minimum", "window": "afterDamageApplied", "subject": "owner", "damageOccurrence": "perDamage", "optional": false, "effects": [{ "op": "increaseNextTurnDefaultStatMinimum", "target": "owner", "stateId": "default-stats", "condition": { "kind": "always" } }] }
+      ]
+    },
+    {
+      "id": "ol:yilie",
+      "revision": 1,
+      "viewAs": [
+        { "id": "pair-slash", "inputCount": 2, "sourceZones": ["hand"], "inputKinds": [], "inputSuits": [], "outputKind": "slash", "forPlay": true, "forResponse": false, "allowSameKind": true, "useOnly": true, "extendedUse": true, "roundDistinctBasicUse": { "stateId": "yilie", "ledgerId": "round-basic" } },
+        { "id": "pair-fire-slash", "inputCount": 2, "sourceZones": ["hand"], "inputKinds": [], "inputSuits": [], "outputKind": "fireSlash", "forPlay": true, "forResponse": false, "allowSameKind": true, "useOnly": true, "extendedUse": true, "roundDistinctBasicUse": { "stateId": "yilie", "ledgerId": "round-basic" } },
+        { "id": "pair-thunder-slash", "inputCount": 2, "sourceZones": ["hand"], "inputKinds": [], "inputSuits": [], "outputKind": "thunderSlash", "forPlay": true, "forResponse": false, "allowSameKind": true, "useOnly": true, "extendedUse": true, "roundDistinctBasicUse": { "stateId": "yilie", "ledgerId": "round-basic" } },
+        { "id": "pair-dodge", "inputCount": 2, "sourceZones": ["hand"], "inputKinds": [], "inputSuits": [], "outputKind": "dodge", "forPlay": false, "forResponse": true, "allowSameKind": true, "useOnly": true, "extendedUse": true, "roundDistinctBasicUse": { "stateId": "yilie", "ledgerId": "round-basic" } },
+        { "id": "pair-peach", "inputCount": 2, "sourceZones": ["hand"], "inputKinds": [], "inputSuits": [], "outputKind": "peach", "forPlay": true, "forResponse": false, "allowSameKind": true, "useOnly": true, "extendedUse": true, "roundDistinctBasicUse": { "stateId": "yilie", "ledgerId": "round-basic" } },
+        { "id": "pair-alcohol", "inputCount": 2, "sourceZones": ["hand"], "inputKinds": [], "inputSuits": [], "outputKind": "alcohol", "forPlay": true, "forResponse": false, "allowSameKind": true, "useOnly": true, "extendedUse": true, "roundDistinctBasicUse": { "stateId": "yilie", "ledgerId": "round-basic" } }
+      ]
+    }
+  ]
+}

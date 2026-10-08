@@ -74,6 +74,8 @@ public sealed partial class GameEngine
         CardConversionSource? conversion;
         if (explicitConversion is not null)
         {
+            ValidateLastZoneConversionCommit(explicitConversion, _players[provider],
+                physicalIds.Select(id => _cardZones.CardsAt(_cardZones.GetLocation(id)).Single(c => c.Id == id)).ToArray(), forResponse: false);
             var selectedConversion = _selectedUseConversion ?? _selectedResponseConversion;
             _selectedUseConversion = null;
             _selectedResponseConversion = null;
@@ -104,7 +106,7 @@ public sealed partial class GameEngine
             conversionChain.AddRange(additionalConversions);
         }
         ConsumeProgramViewAsUsage(conversionChain);
-        var trackAppearance = HasSourceCurseActionColors || TracksOwnPlayHistory || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.OfferOriginalTargetAddition) || HasBlackTrickTargetPolicy || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DrawByDamageCardColor) || HasShownCardTurnCapability || HasTurnRedSlashCapability || TracksPlayCardHistory || TracksCurrentTurnUseKinds || _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.AlternatingSuitDrawDiscard) || TracksPaidColorUseAppearance(actorSeat, effectiveKind, conversionChain) || HasSameTypeActualUseAid && IsSameTypeAidEffectiveCard(effectiveKind) || HasComparedBlackSlashPolicies && IsSlashCard(effectiveKind);
+        var trackAppearance = effectiveKind == CardKind.UnexpectedAssault || (TracksUniqueLeaderTrickTargets || TracksRoundGainedSourceUses) && IsOrdinaryTrick(effectiveKind) || HasSourceCurseActionColors || TracksOwnPlayHistory || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.OfferOriginalTargetAddition) || HasBlackTrickTargetPolicy || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DrawByDamageCardColor) || HasShownCardTurnCapability || HasTurnRedSlashCapability || TracksPlayCardHistory || TracksCurrentTurnUseKinds || _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.AlternatingSuitDrawDiscard) || TracksPaidColorUseAppearance(actorSeat, effectiveKind, conversionChain) || HasSameTypeActualUseAid && IsSameTypeAidEffectiveCard(effectiveKind) || HasComparedBlackSlashPolicies && IsSlashCard(effectiveKind);
         return CaptureFactionAction(new CardActionContext(++_cardActionSequence,
             _resolutionStack.OfType<CardUseFrame>().LastOrDefault()?.Action?.ActionId,
             CardActionType.Use, actorSeat, provider, provider == actorSeat ? null : actorSeat,
@@ -135,10 +137,11 @@ public sealed partial class GameEngine
             RecordActualPlayPhaseUse(action);
         }
         AdvanceEventRulesAndQueueFact(new CardActionAcceptedEvent(action));
+        CaptureOffTurnResponseUseOrigin(attack.ResolutionId, action);
         if (TryBeginCommittedResponseUsePrograms(attack, action, continuation)) return true;
         if (TryBeginProgramCardWindow(attack, action, SkillProgramTriggerWindow.CardResponseAccepted,
                 [opponentSeat], continuation)) return true;
-        if (!HasResponseUseCompletionObserver(action, continuation)) return false;
+        if (!HasResponseUseCompletionObserver(action, continuation) && !HasCardResponseCompletedObserver(action, continuation)) return false;
         ContinueAcceptedCardResponse(attack, action, continuation);
         return true;
     }
@@ -195,6 +198,7 @@ public sealed partial class GameEngine
         if ((continuation is null) != (completedResponseReturn is not null))
             throw new InvalidOperationException("A card trigger window needs exactly one return continuation.");
         RegisterFirstTurnTargetActions(action, window);
+        CaptureUniqueLeaderTrickQualification(action, window);
         var candidates = CollectSharedCardActionCandidates(action, window, opponents,
             cardUseCausedDamage, continuation).ToList();
         candidates = candidates
@@ -204,6 +208,7 @@ public sealed partial class GameEngine
             .ThenBy(candidate => candidate.SkillInstanceId, StringComparer.Ordinal)
             .ThenBy(candidate => candidate.TriggerId, StringComparer.Ordinal)
             .ToList();
+        RecordActorHandLimitTargetAnnouncements(action, window);
         if (candidates.Count == 0) return false;
         RecordFactionRewardOffers(action, candidates);
         var frameId = ++_resolutionSequence;
@@ -348,6 +353,9 @@ public sealed partial class GameEngine
                 };
                 var context = CreateCardActionProgramContext(action, window, parentFrameId: 0,
                     owner.Seat, eventTarget, facts) with { OptionalChooserSeat = rewardChooser };
+                if (trigger.Effects.Any(effect => effect.Op == SkillProgramEffectOp.GrantActorHandLimitPenalty) &&
+                    !ShouldCollectActorHandLimitPenalty(action, owner.Seat, window)) continue;
+                if (!CanOfferCompletedUndamagedTargetReveal(owner.Seat, trigger, context)) continue;
                 if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.DrawForSourceCurseUse))
                 {
                     var curse = EligibleSourceCurseUse(owner.Seat, binding.SkillId, binding.SkillInstanceId, action, trigger.Effects.Single());
@@ -359,10 +367,17 @@ public sealed partial class GameEngine
             }
         }
         CollectIssuedOriginalTargetCandidates(action, window, result);
+        CollectIssuedGiftedSlashRewardCandidates(action, window, result);
+        CollectIssuedJoinedTrickDamageRewardCandidates(action, window, result);
+        CollectIssuedRoundGainedUseCandidates(action, window, result);
         string GrantIdentity(ProgramCardTriggerCandidate candidate)
         {
             var trigger=_contentRegistry.GetSkill(candidate.SkillId).Program!.Triggers.Single(t=>t.Id==candidate.TriggerId);
             return ProgramInstructionResolver.Default.Features(trigger).HasOperation(SkillProgramEffectOp.GiveOwnedCardToOtherFinalTargetAndDraw)
+                || trigger.Effects.Any(e => e.Op is SkillProgramEffectOp.OfferUniqueLargestHandTrickTargetAddition or
+                    SkillProgramEffectOp.JoinUniqueLargestHpTrickTargetAndDrawAfterDamage or SkillProgramEffectOp.DrawAfterJoinedTrickDamage or
+                    SkillProgramEffectOp.AdjustOneRoundGainedOrdinaryTrickTarget or SkillProgramEffectOp.DrawForRoundGainedEquipmentUse)
+                || trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.GrantActorHandLimitPenalty)
                 || trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.RewardOutOfTurnFactionSlash) ? "" : candidate.SkillInstanceId;
         }
         return result.DistinctBy(candidate => (action.ActionId, candidate.OwnerSeat, candidate.SkillId,
@@ -400,6 +415,8 @@ public sealed partial class GameEngine
     }
 
     private static SkillProgramTriggerWindow GetCardActionWindow(ProgramCardTriggerWindowFrame frame) =>
+        frame.CardSupplyCompletion is not null ? SkillProgramTriggerWindow.CardSupplyCompleted :
+        frame.ResponseCompletion is not null ? SkillProgramTriggerWindow.CardResponseCompleted :
         frame.CompletedResponseReturn is { IsCommitted: true } ? SkillProgramTriggerWindow.CardUseCommitted :
         frame.CompletedResponseReturn is not null ||
         frame.Continuation is ProgramCardContinuation.CompletedSlash or ProgramCardContinuation.CompletedCard
@@ -424,11 +441,21 @@ public sealed partial class GameEngine
     {
         while (_resolutionStack.LastOrDefault() is ProgramCardTriggerWindowFrame frame)
         {
+            if (TryDrainCardSupplyCompletionCosts(frame)) return;
+            frame = (ProgramCardTriggerWindowFrame)_resolutionStack[^1];
+            if (TryDrainCardResponseCompletionCosts(frame)) return;
+            frame = (ProgramCardTriggerWindowFrame)_resolutionStack[^1];
+            frame = AppendActorHandLimitTargetCandidates(frame);
             if (frame.CandidateIndex == frame.Candidates.Count)
             {
                 var attack = frame.AttackOwnerFrameId is { } attackId ? new CardAttackHandle(this, attackId) : null;
                 PopResolutionFrame(frame.Id, ResolutionFrameKind.ProgramCardTriggerWindow);
-                if (frame.Continuation is ProgramCardContinuation.CommittedSimpleCard or ProgramCardContinuation.FinalizedSimpleCard)
+                if (TryCompleteOverflowCanceledUse(frame)) return;
+                if (frame.CardSupplyCompletion is not null)
+                    ContinueCardSupplyAfterCompletion(attack ?? throw new InvalidOperationException("A supplied card lost its native Slash."), frame);
+                else if (frame.ResponseCompletion is not null)
+                    ContinueCardResponseAfterCompletion(attack, frame);
+                else if (frame.Continuation is ProgramCardContinuation.CommittedSimpleCard or ProgramCardContinuation.FinalizedSimpleCard)
                     ContinueSimpleCardUse(frame.ParentFrameId, frame.SimpleContinuation ??
                         throw new InvalidOperationException("The simple card use lost its continuation."));
                 else if (frame.Continuation == ProgramCardContinuation.CommittedTrick)
@@ -548,6 +575,7 @@ public sealed partial class GameEngine
             CardCatalog.Get(action.EffectiveKind).CategoryName != "锦囊牌" ||
             action.PhysicalCards.All(cost => cost.CardId != continuation.EffectCardId) &&
                 !MatchesSelectedActorDuelAction(frame.ParentFrameId, action, continuation.EffectCardId) &&
+                !MatchesVirtualOrdinaryTrickUseAction(frame.ParentFrameId, action, continuation.EffectCardId) &&
                 !MatchesTieredRoundZeroUseAction(frame.ParentFrameId, action, continuation.EffectCardId))
             throw new InvalidOperationException("The trick trigger continuation does not match its card action.");
         var card = GetTrickRepresentation(frame.ParentFrameId, continuation.EffectCardId, requireProcessing: true);
@@ -589,6 +617,76 @@ public sealed partial class GameEngine
         });
     }
 
+    // The original completed-card prompt is frozen on the native Qinglong
+    // continuation while this exact paid follow-up owns the live stack.
+    private bool IsDrawFundedQinglongCompletedWindowRide(ProgramCardTriggerWindowFrame window)
+    {
+        var index = _resolutionStack.FindIndex(item => item.Id == window.Id);
+        if (index < 1 || index + 1 >= _resolutionStack.Count ||
+            _resolutionStack[index - 1] is not CardUseFrame original ||
+            window.Continuation != ProgramCardContinuation.CompletedSlash ||
+            window.ParentFrameId != original.Id || window.AttackOwnerFrameId != original.Id ||
+            original.Step != ResolutionFrameStep.Completed || original.Action is not { Type: CardActionType.Use } action ||
+            window.Action.ActionId != action.ActionId || !IsSlashCard(original.CardKind) ||
+            original.CardAttack is not { } oldAttack || oldAttack.SuccessfulDodgeResponses != oldAttack.RequiredDodgeResponses ||
+            original.Continuations.QinglongFollowup is not { Active: true, Decision: { } saved } suspension ||
+            suspension.NextAttackOwnerId != original.Id || suspension.FangtianOwnerId is not null ||
+            window.CandidateIndex < 0 || window.CandidateIndex >= window.Candidates.Count) return false;
+        var bound = _resolutionStack[index + 1] as ProgramSkillFrame;
+        var followupIndex = index + (bound is null ? 1 : 2);
+        if (followupIndex >= _resolutionStack.Count || _resolutionStack[followupIndex] is not CardUseFrame followup ||
+            window.Activated != (bound is not null) ||
+            !IsIssuedDrawFundedDistinctBasicUse(followup) || followup.DrawFundedDistinctBasicUse!.Payment is not
+                { Intent: DrawFundedDistinctBasicIntent.Qinglong, Cursor: 0 } payment ||
+            payment.ParentFrameId != original.Id || payment.RequestFrameId != original.Id || payment.ParentActionId != action.ActionId ||
+            payment.Source.OwnerSeat != original.SourceSeat || payment.TargetSeat != oldAttack.TargetSeat ||
+            followup.SourceSeat != original.SourceSeat || followup.Action!.ParentActionId != action.ActionId ||
+            !followup.TargetSeats.SequenceEqual([oldAttack.TargetSeat]) ||
+            !followup.Action.TargetSeats.SequenceEqual(followup.TargetSeats) || !IsSlashCard(followup.CardKind)) return false;
+        var candidate = window.Candidates[window.CandidateIndex];
+        var context = candidate.FrozenContext;
+        if (context is not { Window: SkillProgramTriggerWindow.CardUseCompleted, CardUse: { } useContext } ||
+            context.ParentFrameId != window.Id || useContext.ParentCardUseFrameId != original.Id ||
+            useContext.CardActionId != action.ActionId || CreateCardActionProgramContext(window, candidate) != context ||
+            saved.Kind != DecisionKind.ProgramTrigger || !saved.IsPrivate || saved.SkillPrompt?.SkillId != candidate.SkillId ||
+            saved.Choices.Count == 0) return false;
+        if (bound is null)
+        {
+            if (!GetProgramTrigger(ToSharedCandidate(candidate)).Optional ||
+                saved.PlayerSeat != (context.OptionalChooserSeat ?? candidate.OwnerSeat) ||
+                saved.SourceSeat != (context.OptionalChooserSeat is not null ? candidate.OwnerSeat : context.SourceSeat) ||
+                saved.TargetSeat != (context.OptionalChooserSeat ?? context.TargetSeat ?? candidate.OwnerSeat) ||
+                saved.Choices.Count != 2 ||
+                !saved.Choices.Select(choice => choice.Parameters.GetValueOrDefault("program-action")).Order().SequenceEqual(["activate", "skip"]) ||
+                saved.Choices.Any(choice => choice.Cards.Count != 0 || choice.Targets.Count != 0 ||
+                    choice.Parameters.GetValueOrDefault("skill-id") != candidate.SkillId ||
+                    choice.Parameters.GetValueOrDefault("binding-id") != candidate.TriggerId ||
+                    choice.Parameters.GetValueOrDefault("skill-instance-id") != candidate.SkillInstanceId)) return false;
+        }
+        else
+        {
+            if (bound.WindowContext != context || bound.OwnerSeat != candidate.OwnerSeat || bound.SkillId != candidate.SkillId ||
+                bound.SkillInstanceId != candidate.SkillInstanceId || bound.TriggerId != candidate.TriggerId ||
+                bound.GameplayHash != candidate.GameplayHash || bound.InstructionIndex < 1) return false;
+            var effect = ProgramInstructionResolver.Default.Resolve(bound, _contentRegistry.GetSkill(bound.SkillId).Program!)
+                .GetPausedInstruction(bound.InstructionIndex).Effect;
+            if (effect.Op != SkillProgramEffectOp.ChooseOption || bound.ChoiceBindings.Any(binding => binding.Name == effect.ResultBind) ||
+                saved.PlayerSeat != (effect.ChooserRef is { } chooser ? ResolveProgramParticipant(bound, chooser) : ResolveProgramEffectTarget(bound, effect.Target)) ||
+                saved.SourceSeat != bound.OwnerSeat || saved.TargetSeat != saved.PlayerSeat ||
+                saved.Choices.Select(choice => choice.Id).Distinct().Count() != saved.Choices.Count ||
+                saved.Choices.Any(choice => choice.Cards.Count != 0 || choice.Targets.Count != 0 ||
+                    choice.Parameters.GetValueOrDefault("program-action") != "choose-option" ||
+                    choice.Parameters.GetValueOrDefault("frame-id") != bound.Id.ToString(System.Globalization.CultureInfo.InvariantCulture) ||
+                    choice.Parameters.GetValueOrDefault("result-bind") != effect.ResultBind ||
+                    !effect.Options.Any(option => option.Id == choice.Parameters.GetValueOrDefault("option-id") &&
+                        choice.Id.Value == $"program-option.frame-{bound.Id}.{effect.ResultBind}.{option.Id}"))) return false;
+        }
+        return CompleteProgramEventHistory().OfType<QinglongCrescentBladeResolvedEvent>().LastOrDefault(fact => fact.ResolutionId == original.Id) is
+            { Used: true, SlashCardIds.Count: 0 } issued && issued.SourceSeat == payment.Source.OwnerSeat &&
+            issued.TargetSeat == payment.TargetSeat && issued.EffectiveSlashKind == payment.EffectiveKind &&
+            CompleteProgramEventHistory().OfType<CardUseDeclaredEvent>().Where(fact => fact.ResolutionId == followup.Id).ToArray() is [var declared] &&
+            declared.SourceSeat == payment.Source.OwnerSeat && declared.CardId == 0 && declared.CardKind == payment.EffectiveKind;
+    }
     private void AssertProgramCardWindowState()
     {
         var frames = _resolutionStack.OfType<ProgramCardTriggerWindowFrame>().ToArray();
@@ -599,6 +697,22 @@ public sealed partial class GameEngine
         foreach (var frame in frames)
         {
             var frameIndex = _resolutionStack.FindLastIndex(item => ReferenceEquals(item, frame));
+            if (frame.CardSupplyCompletion is { CostsDrained: false })
+            {
+                if (!ValidCardSupplyCompletionWindow(frame) || frameIndex < 1 ||
+                    _resolutionStack[frameIndex - 1].Id != frame.ParentFrameId ||
+                    frameIndex + 1 < _resolutionStack.Count && !CardSupplyCompletionFirstChild(frame, _resolutionStack[frameIndex + 1]))
+                    throw new InvalidOperationException("A supplied card lost its exact native cost prelude.");
+                continue;
+            }
+            if (frame.ResponseCompletion is { CostsDrained: false })
+            {
+                if (!ValidResponseCompletionWindow(frame) || frameIndex < 1 ||
+                    _resolutionStack[frameIndex - 1].Id != frame.ParentFrameId ||
+                    frameIndex + 1 < _resolutionStack.Count && !ResponseCompletionFirstChild(frame, _resolutionStack[frameIndex + 1]))
+                    throw new InvalidOperationException("A response completion lost its exact native cost movement prelude.");
+                continue;
+            }
             var resolvingProgramJudgmentDamage =
                 ActiveCardAttack is { IsProgramJudgmentDamage: true } &&
                 ActiveJudgment?.Continuation == JudgmentContinuationKind.ProgramSkill;
@@ -606,7 +720,11 @@ public sealed partial class GameEngine
                 _resolutionStack[frameIndex + 1] is ProgramSkillFrame gift &&
                 gift.WindowContext?.ParentFrameId == frame.Id && IsUnselectedCompletedGiftQinglongRide(gift);
             var completedGiftRecipientFollowup = TryGetCompletedGiftRecipientSlashRide(frame, out var recipientUse);
-            var attackMatches = HasSameTypeAidTargetObserver(frame.ParentFrameId) || frame != frames[^1] || resolvingProgramJudgmentDamage || suspendedCompletedGiftFollowup || completedGiftRecipientFollowup ||
+            var drawFundedQinglongFollowup = IsDrawFundedQinglongCompletedWindowRide(frame) || IsChainedStateQinglongCompletedWindowRide(frame);
+            var attackMatches = frame.CardSupplyCompletion is not null && ValidCardSupplyCompletionWindow(frame) || HasPairedColorDispositionCardObserver(frame.ParentFrameId) || HasJoinedTrickDamageRewardCardObserver(frame.ParentFrameId) || HasRoundGainedEquipmentDrawCardObserver(frame.ParentFrameId) || HasSameNameHandCardObserver(frame.ParentFrameId) ||
+                CompletedUndamagedTargetRevealObserverRoot()?.CompletedUndamagedTargetReveal?.CardUseFrameId == frame.ParentFrameId ||
+                OverflowTargetCancellationObserverRoot()?.OverflowTargetCancellation?.CardUseFrameId == frame.ParentFrameId ||
+                frame.ResponseCompletion is not null && ValidResponseCompletionWindow(frame) || HasSameTypeAidTargetObserver(frame.ParentFrameId) || frame != frames[^1] || resolvingProgramJudgmentDamage || suspendedCompletedGiftFollowup || completedGiftRecipientFollowup || drawFundedQinglongFollowup ||
                 (frame.Continuation is ProgramCardContinuation.DelayedCard or
                         ProgramCardContinuation.BeforeTrickTargetEffects or ProgramCardContinuation.FinalizedTrick or
                         ProgramCardContinuation.NullificationResponse or ProgramCardContinuation.CommittedTrick or
@@ -635,9 +753,10 @@ public sealed partial class GameEngine
                   frame.Action.Type == CardActionType.Use &&
                   (frame.Action.PhysicalCards.Any(cost => cost.CardId == trick.EffectCardId) ||
                    MatchesSelectedActorDuelAction(frame.ParentFrameId, frame.Action, trick.EffectCardId) ||
+                   MatchesVirtualOrdinaryTrickUseAction(frame.ParentFrameId, frame.Action, trick.EffectCardId) ||
                    MatchesTieredRoundZeroUseAction(frame.ParentFrameId, frame.Action, trick.EffectCardId))
                 : frame.TrickContinuation is null;
-            var completedResponseMatches = frame.CompletedResponseReturn is { } completedResponse
+            var completedResponseMatches = frame.CardSupplyCompletion is not null ? ValidCardSupplyCompletionWindow(frame) : frame.ResponseCompletion is not null ? ValidResponseCompletionWindow(frame) : frame.CompletedResponseReturn is { } completedResponse
                 ? frame.Continuation is null && IsCompletedResponseUse(frame.Action, completedResponse.Kind) &&
                   IsCompletedResponseParentConsistent(frame)
                 : frame.Continuation is not null;
@@ -645,11 +764,17 @@ public sealed partial class GameEngine
                 frameIndex < 1 || _resolutionStack[frameIndex - 1].Id != frame.ParentFrameId ||
                 !trickContinuationMatches || !completedResponseMatches ||
                 !candidateCursorValid ||
-                !sharedPromptMatches && !sharedChildMatches && !HasSameTypeAidTargetObserver(frame.ParentFrameId) ||
+                !sharedPromptMatches && !sharedChildMatches && !HasSameTypeAidTargetObserver(frame.ParentFrameId) && !drawFundedQinglongFollowup ||
                  frame.Action.PhysicalCards.Where(cost =>
+                     !(frame.CardSupplyCompletion is not null && ValidCardSupplyCompletionWindow(frame) && IsCardSupplyCompletionCostPaid(frame, cost)) &&
+                     !(frame.ResponseCompletion is not null && ValidResponseCompletionWindow(frame) && IsResponseCompletionCostFinished(frame, cost)) &&
                      !(completedGiftRecipientFollowup && _cardZones.GetLocation(cost.CardId) == CardLocation.Processing &&
                        recipientUse.Action!.PhysicalCards.Any(payment => payment.CardId == cost.CardId)) &&
                      !IsExchangedCardClaim(frame.Action.ActionId,cost.CardId) &&
+                     !(frame.Action.Type == CardActionType.Use &&
+                       LifecycleCardUse(frame.ParentFrameId)?.Action is { } nativeAction &&
+                       nativeAction.ActionId == frame.Action.ActionId && nativeAction.PhysicalCards.Contains(cost) &&
+                       IsSelectedForeignCardSlashRemovedMaterial(frame.ParentFrameId, cost.CardId)) &&
                      !(frame.Action.Type == CardActionType.Use &&
                        _resolutionStack.OfType<CardUseFrame>().Any(use => use.Id == frame.ParentFrameId && use.Action?.ActionId == frame.Action.ActionId) &&
                        IsCurrentUsePhysicalCardClaim(frame.ParentFrameId, cost.CardId))).Any(cost =>

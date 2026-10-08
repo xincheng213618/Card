@@ -1,0 +1,109 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:kunfen",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "ending-lose-hp-then-draw",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            { "op": "loseHp", "target": "owner", "amount": 1 },
+            { "op": "draw", "target": "owner", "amount": 2 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:fengliang",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "awaken-on-own-dying-entry",
+          "window": "dyingEntering",
+          "subject": "owner",
+          "optional": false,
+          "usageScope": "game",
+          "usageLimit": 1,
+          "effects": [
+            { "op": "changeMaximumHp", "target": "owner", "amount": -1 },
+            {
+              "op": "recoverTo",
+              "target": "owner",
+              "numberExpression": "integerConstant",
+              "minimumValue": 2,
+              "clampToMaxHp": true
+            },
+            { "op": "grantSkills", "target": "owner", "skillIds": ["ol:sp-jiang-wei-tiaoxin"] },
+            {
+              "op": "loseOwnerSkillsAndGrant",
+              "target": "owner",
+              "skillIds": ["ol:kunfen"],
+              "sourceBind": "ol:kunfen-awakened"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:kunfen-awakened",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "optional-ending-lose-hp-then-draw",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            { "op": "loseHp", "target": "owner", "amount": 1 },
+            { "op": "draw", "target": "owner", "amount": 2 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:sp-jiang-wei-tiaoxin",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "taunt",
+          "minCards": 0,
+          "maxCards": 0,
+          "sourceZones": ["hand"],
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLivingWhoseAttackRangeIncludesOwner",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "usesPerGame": null,
+          "effects": [
+            {
+              "op": "requestSlashByTarget",
+              "target": "selectedTarget",
+              "resultBind": "tiaoxin-answer"
+            },
+            {
+              "op": "selectAndMoveOwnedCard",
+              "target": "owner",
+              "chooserRef": { "kind": "owner" },
+              "cardOwnerRef": { "kind": "selectedTarget" },
+              "zones": ["hand", "equipment"],
+              "count": 1,
+              "destination": "discardPile",
+              "skipIfNoCards": true,
+              "awaitMovementTriggers": true,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "tiaoxin-answer",
+                "optionId": "declined"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

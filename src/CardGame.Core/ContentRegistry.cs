@@ -558,10 +558,10 @@ public sealed class ContentRegistry
                 }
                 foreach (var grantedSkillId in skill.Program!.Triggers
                              .SelectMany(trigger => trigger.Effects)
-                             .Where(effect => effect.Op is SkillProgramEffectOp.DiscardHandToNamedTurnCount or SkillProgramEffectOp.GrantSkills or SkillProgramEffectOp.GrantRandomSkillAndSuitShield or SkillProgramEffectOp.ExchangePublicPileHand or SkillProgramEffectOp.ObtainPublicPileCard or SkillProgramEffectOp.ExchangePublicPile or SkillProgramEffectOp.DistributePublicPileIfAllSuits or SkillProgramEffectOp.DrawPublicSuitThenEscalatingDiscard)
+                             .Where(effect => effect.Op is SkillProgramEffectOp.AwakenAfterGameActivations or SkillProgramEffectOp.DiscardHandToNamedTurnCount or SkillProgramEffectOp.GrantSkills or SkillProgramEffectOp.GrantPlayPhaseSkills or SkillProgramEffectOp.GrantRandomSkillAndSuitShield or SkillProgramEffectOp.ExchangePublicPileHand or SkillProgramEffectOp.ObtainPublicPileCard or SkillProgramEffectOp.ExchangePublicPile or SkillProgramEffectOp.DistributePublicPileIfAllSuits or SkillProgramEffectOp.DrawPublicSuitThenEscalatingDiscard)
                              .SelectMany(effect => effect.SkillIds)
                              .Concat(skill.Program.Activations.SelectMany(activation => activation.Effects)
-                                 .Where(effect => effect.Op == SkillProgramEffectOp.ObtainPublicPileCard)
+                                 .Where(effect => effect.Op is SkillProgramEffectOp.ObtainPublicPileCard or SkillProgramEffectOp.GrantPlayPhaseSkills)
                                  .SelectMany(effect => effect.SkillIds)))
                 {
                     if (!_skills.ContainsKey(grantedSkillId))
@@ -570,6 +570,11 @@ public sealed class ContentRegistry
                             $"Skill '{skill.Id}' grants unknown skill '{grantedSkillId}'.");
                     }
                 }
+                foreach (var awakening in skill.Program.Triggers.SelectMany(t => t.Effects)
+                    .Where(e => e.Op == SkillProgramEffectOp.AwakenAfterGameActivations))
+                    if (!_skills.TryGetValue(awakening.SourceBind!, out var counted) ||
+                        counted.Program?.Activations.Any(a => a.Id == awakening.StateId) != true)
+                        throw new InvalidOperationException($"Skill '{skill.Id}' counts an unknown activation for awakening.");
                 foreach (var suppressedSkillId in skill.Program.Triggers.SelectMany(t => t.Effects)
                     .Where(e => e.Op == SkillProgramEffectOp.SuppressOwnSkillAfterAlcoholSlashDamage).SelectMany(e => e.SkillIds))
                     if (!_skills.ContainsKey(suppressedSkillId))

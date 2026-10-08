@@ -106,12 +106,15 @@ internal static class BoundaryBuLianShiChecks
         Reach(lost, p => p.SkillPrompt?.SkillId == Gain && p.PlayerSeat == 0);
         var lostRootId = PairRoot(lost).Id; var retained = PairRoot(lost).PairObtain!.FirstPayment!.CardId;
         lost = RestoreAfterCold(lost, lr); Continue(lost); Play(lost);
+        Require(!V(lost, 0).Skills!.Any(s => s.Id == Anxu) && V(lost, 0).Skills!.Any(s => s.Id == "fixture:bls-noop") &&
+            F<SkillsAcquiredEvent>(lost).Count(e => e.PlayerSeat == 0 && e.SourceSkillId == Gain && e.SkillIds.Contains("fixture:bls-noop")) == 1,
+            "The real first-gain child acquires one independent suppression source and removes Anxu from the qualified snapshot; this does not physically remove its grant.");
         Require(Moves(lost, ObtainReason) is [var retainedMove] && retainedMove.CardId == retained && retainedMove.To == CardLocation.Hand(0) &&
             V(lost, 0).Hand.Any(c => c.Id == retained) && V(lost, 2).HandCount == untouched &&
             F<SkillsAcquiredEvent>(lost).Any(e => e.PlayerSeat == 0 && e.SourceSkillId == Gain && e.SkillIds.Contains("fixture:bls-noop")) &&
             !F<ProgramCardsRevealedEvent>(lost).Any(e => e.FrameId == lostRootId) && !F<ShownPairGiftCommittedEvent>(lost).Any() &&
             !lost.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.Id == lostRootId) && !lost.GetHumanLegalActions().Any(a => a.SkillId == Anxu),
-            "The genuine first-gain program removes the original source after payment: the paid entity remains, while no second obtain, reveal or gift is invented."); Cold(lost, lr);
+            "The genuine first-gain program suppresses the original source's qualification after payment: the paid entity remains, while no second obtain, reveal or gift is invented."); Cold(lost, lr);
     }
 
     public static void EndingIssuanceAndOwnerDeathRepeatOnlyOriginalRecipient()
@@ -252,7 +255,18 @@ internal static class BoundaryBuLianShiChecks
         Accept(g, new StartGameCommand()); Reach(g, p => p.PlayerSeat == 0 && p.Kind == DecisionKind.SelectGeneral);
         Require(P(g)!.ValidContentIds.Contains("fixture:bls-owner"),
             "The fixed published general selection actually retains the owner.");
-        Accept(g, new SelectGeneralCommand(0, "fixture:bls-owner", g.Revision, P(g)!.PromptId)); return (g, r);
+        Accept(g, new SelectGeneralCommand(0, "fixture:bls-owner", g.Revision, P(g)!.PromptId));
+        if (removePaidSource)
+        {
+            Play(g);
+            Require(!V(g, 0).Skills!.Any(s => s.Id == Anxu), "The source-loss fixture does not print the skill whose acquired qualification will be suppressed.");
+            Use(g, "grant-anxu", []); Play(g);
+            Require(V(g, 0).Skills!.Any(s => s.Id == Anxu) &&
+                V(g, 0).SkillRuntimeStates!.Single(s => s.SkillId == Anxu).IsAcquired &&
+                F<SkillsAcquiredEvent>(g).Count(e => e.PlayerSeat == 0 && e.SourceSkillId == Driver && e.SkillIds.Contains(Anxu)) == 1,
+                "One actual activation independently grants Anxu before its real pair payment and later qualification suppression.");
+        }
+        return (g, r);
     }
     private static void AnxuPair(GameEngine g, int a, int b) => Accept(g, new UseProgramSkillCommand(0, Anxu, "pair-obtain-show-give", [], [a, b], g.Revision, P(g)!.PromptId));
     private static void ActivateZhuiyi(GameEngine g) { Reach(g, p => p.SkillPrompt?.SkillId == Zhuiyi && Action(p, "activate")); Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate" && c.Parameters.GetValueOrDefault("skill-id") == Zhuiyi); }
@@ -317,7 +331,11 @@ internal static class BoundaryBuLianShiChecks
                 ]}
                 """)!;
             rules["schemaVersion"] = SkillProgramCatalog.RulesSchemaVersion;
-            if (removePaidSource) ((JsonArray)rules["skills"]![2]!["triggers"]![0]!["effects"]!).Add(JsonNode.Parse("""{"op":"loseOwnerSkillsAndGrant","target":"owner","skillIds":["boundary:anxu-current"],"sourceBind":"fixture:bls-noop"}"""));
+            if (removePaidSource)
+            {
+                ((JsonArray)rules["skills"]![0]!["activations"]!).Add(JsonNode.Parse("""{"id":"grant-anxu","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":1,"effects":[{"op":"grantSkills","target":"owner","skillIds":["boundary:anxu-current"]}]}"""));
+                ((JsonArray)rules["skills"]![2]!["triggers"]![0]!["effects"]!).Add(JsonNode.Parse("""{"op":"grantSkills","target":"owner","skillIds":["fixture:bls-noop"]}"""));
+            }
 
             if (deathNesting is not null)
             {
@@ -354,9 +372,9 @@ internal static class BoundaryBuLianShiChecks
             var catalog = SkillProgramCatalog.Load(rules.ToJsonString(), presentation);
             foreach (var id in new[] { Driver, "fixture:bls-quiet", Gain, Gift, Hp, Reward }) b.AddSkill(new(id, id, "真实程序夹具") { Program = catalog.Programs[id] });
             if (deathNesting is not null) foreach (var id in new[] { NestedGain, NestedHp, NestedEntry, NestedRescue, NestedCommitted }) b.AddSkill(new(id, id, "死亡收益实际子链") { Program = catalog.Programs[id] });
-            b.AddSkill(new("fixture:bls-noop", "已替换来源", "无运行能力"));
+            b.AddSkill(new("fixture:bls-noop", "已付来源资格抑制", "真实Lord的2HP使原来源失去资格") { SuppressionRule = new(2), Tags = SkillTag.Locked });
             b.AddSkill(new("fixture:bls-selection", "固定选将", "无运行能力") { SelectionWeights = Enum.GetValues<Role>().ToDictionary(role => role, _ => 100d) });
-            b.AddGeneral(new("fixture:bls-owner", "界步练师机制", "supporter", Anxu, "wu", 3, [Zhuiyi, Driver, Gain, Gift, Hp, Reward], Gender: GeneralGender.Female) { InitialHp = 1 });
+            b.AddGeneral(new("fixture:bls-owner", "界步练师机制", "supporter", removePaidSource ? "fixture:bls-selection" : Anxu, "wu", 3, [Zhuiyi, Driver, Gain, Gift, Hp, Reward], Gender: GeneralGender.Female) { InitialHp = 1 });
             for (var i = 1; i < 4; i++) b.AddGeneral(new($"fixture:bls-target-{i}", "固定受益者", "supporter", "fixture:bls-selection", "qun", 6,
                 ["fixture:bls-quiet", Gain, Gift, Hp], Gender: GeneralGender.Male) { InitialHp = 5 });
             b.AddDeck(new("fixture:bls-deck", "固定合法实体", 4, 2, []) { PhysicalCards = Enumerable.Range(0, 64).Select(i =>

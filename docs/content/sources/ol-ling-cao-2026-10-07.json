@@ -1,0 +1,81 @@
+{
+  "generalId": "ol:ling-cao",
+  "characterName": "凌操",
+  "officialId": 598,
+  "sourcePage": "https://www.sanguosha.com/hero/598",
+  "capturedAt": "2026-10-07",
+  "capturedAtUtc": "2026-10-07T08:32:17Z",
+  "rulesetId": "sanguosha-ol",
+  "sources": [
+    {
+      "role": "current official skill text and portrait",
+      "url": "https://www.sanguosha.com/hero/598",
+      "httpStatus": 200,
+      "responseSha256": "8f85346d50d4158549a09c82a53cb79f344c69d929cb95181ff081eb27acd4ae"
+    },
+    {
+      "role": "current official character metadata",
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=598",
+      "httpStatus": 200,
+      "responseSha256": "7451ef26f128bb14119c44b3b2d4d22cadf7338cd5991211e9769b921010feca"
+    },
+    {
+      "role": "official male gender and corroborating skill text",
+      "url": "https://www.sanguosha.com/news/20231227_4982_0415",
+      "publishedAt": "2023-12-29",
+      "httpStatus": 200,
+      "responseSha256": "4ba47e2b9ea6da96134aa59cf179674d196c0ac3a8b38909317fe9eea9b2b222"
+    },
+    {
+      "role": "official initial_hp rendering semantics",
+      "url": "https://www.sanguosha.com/assets/js/heroDetail.js?1",
+      "httpStatus": 200,
+      "responseSha256": "55617a7de749ff8bf19ecd2b17682b59f35554090d5c1a8cc2101121ea248a59"
+    }
+  ],
+  "indexFields": {
+    "gid": 598,
+    "name": "凌操",
+    "figure": "吴",
+    "figure_py": "wu",
+    "hp": 4,
+    "initial_hp": 0,
+    "gender": "男",
+    "quality": "史诗",
+    "label": ["过牌", "装备大师", "区域控制者"],
+    "characteristic": "简单发育后就能具有独当一面的实力。",
+    "biography": "凌操，凌统之父，其人“轻便有胆气”。早年跟随孙策转战江东。每从征伐，常奋勇当先。驻守永平（今江苏溧阳），平治山越，百姓威服，迁为破贼校尉。建安八年（203年）十一月，从孙权西伐江夏黄祖，凌操轻舟当先，杀入夏口，破敌前锋，却不幸被甘宁射杀"
+  },
+  "artwork": {
+    "skinId": "59800",
+    "skinName": "默认皮肤",
+    "advertisedImageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/59800.png",
+    "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/59800.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-ling-cao.png",
+    "sha256": "87d9a70d4c10c3ab6d6c78570bcd45ffaf36b55cb6b10bf32b042f662027e2b0",
+    "byteCount": 1155497,
+    "pixelWidth": 750,
+    "pixelHeight": 950,
+    "httpStatus": 200,
+    "visuallyInspected": true
+  },
+  "skills": [
+    {
+      "name": "独进",
+      "programId": "ol:dujin",
+      "text": "摸牌阶段，你可以多摸X+1张牌（X为装备区里的牌数的一半且向上取整）。",
+      "mapping": "optional drawPhaseStarting owner trigger; one owner draw using equipmentHalfCeilingPlusOne",
+      "extraDrawCount": "(equipmentCardCount + 1) / 2 + 1 using integer division",
+      "notes": [
+        "Count actual public cards in the owner's equipment zone, including expanded equipment slots. Zero equipment still grants one extra card.",
+        "Compute the count once before one DrawCards call. A gained-card child changing equipment cannot reevaluate another threshold and duplicate the completed instruction.",
+        "The AI uses the same public equipment card count; no opponent hand identities or counts are added to the context."
+      ]
+    }
+  ],
+  "observations": [
+    "The official frontend uses initial_hp only when nonzero and otherwise renders hp filled hearts. initial_hp 0 therefore means no initial-health override; the page's og:description '0体力' is an inconsistent metadata rendering, not the game health.",
+    "The 2023-12-29 official announcement explicitly lists 吴, 4, 男 and the same 独进 text.",
+    "The independent 一将成名 凌操 at https://x.sanguosha.com/hero/1225.html and the 2024-10-22 announcement at https://www.sanguosha.com/news/20241022_6356_4017 use 独锋 and are excluded from this current OL hero/598 record."
+  ]
+}

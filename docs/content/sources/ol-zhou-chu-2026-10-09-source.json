@@ -1,0 +1,130 @@
+{
+  "sourceRecordSchemaVersion": 1,
+  "capturedAt": "2026-10-09",
+  "generalId": "ol:zhou-chu",
+  "name": "周处",
+  "officialGid": 518,
+  "faction": "jin",
+  "gender": "Male",
+  "maxHp": 4,
+  "initialHp": 4,
+  "completeAssignedSkillIds": [
+    3154,
+    3155
+  ],
+  "skills": [
+    {
+      "officialSkillId": 3154,
+      "name": "善断",
+      "exactOrdinaryClientText": "锁定技，摸牌/出牌/弃牌阶段开始时，你将本回合摸牌阶段摸牌数/攻击范围/使用【杀】的限制次数/手牌上限的默认值分配数值1、2、3、4。当你于回合外受到伤害后，你下回合以此法分配数值中的最小值+1。",
+      "rawTextPreservedAt": "/GameSpells/spell/1515/o"
+    },
+    {
+      "officialSkillId": 3155,
+      "name": "义烈",
+      "exactOrdinaryClientText": "你可以将两张颜色相同的手牌当与本轮以此法使用过的牌牌名不同的基本牌使用。",
+      "rawTextPreservedAt": "/GameSpells/spell/1516/o"
+    }
+  ],
+  "primarySourcePage": "https://www.sanguosha.com/hero/518",
+  "officialApi": "https://www.sanguosha.com/api/v1/hero/info?gid=518",
+  "researchRecord": {
+    "path": "docs/content/sources/jin-round20-candidates-2026-10-09.json",
+    "sha256": "7b9815862cc3c8b84b2ba9b27ddbc95b5833eb3f3eb6e459ff3dc500e251399c",
+    "primaryResources": [
+      {
+        "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "httpStatus": 200,
+        "capturedAtUtc": "2026-10-08T16:06:39.997678+00:00",
+        "sha256": "6a035389beda8d0dbf31227f57a91b2da14d3d5055503198a227aef54f22bf76",
+        "byteCount": 5256312,
+        "hashScope": "Exact raw HTTP body bytes"
+      },
+      {
+        "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "httpStatus": 200,
+        "capturedAtUtc": "2026-10-08T16:06:39.930967+00:00",
+        "sha256": "9e26cb3db90532084579a20c292d5fec0c81dcf3d5eb2abf2009bff0326237bb",
+        "byteCount": 4142728,
+        "hashScope": "Exact raw HTTP body bytes"
+      },
+      {
+        "url": "https://www.sanguosha.com/hero/518",
+        "httpStatus": 200,
+        "capturedAtUtc": "2026-10-08T16:06:39.886626+00:00",
+        "sha256": "ad9612f57023b857dbb33a6633888025340457f61823c922b7a5abec4871c4b2",
+        "byteCount": 25087,
+        "hashScope": "Exact raw HTTP body bytes"
+      },
+      {
+        "url": "https://www.sanguosha.com/api/v1/hero/info?gid=518",
+        "httpStatus": 200,
+        "capturedAtUtc": "2026-10-08T16:06:39.944166+00:00",
+        "sha256": "815aa89f8947b0abf55c3c232870db2a0b209f84f8a5267c49b84a015dcf87c4",
+        "byteCount": 987,
+        "hashScope": "Exact raw HTTP body bytes"
+      }
+    ],
+    "currentOfficialClient": {
+      "decoding": "In-memory public InitOfb AES-CFB128 followed by gzip; no raw bundles retained",
+      "members": [
+        {
+          "name": "character.sgs",
+          "encodedSha256": "e0b6f0188edebb1f502ea402c7171e93b88f4e9d05720948344a1f4f44474aae",
+          "encodedByteCount": 352776,
+          "decodedSha256": "b3ef3f1181e7fe667499cb688b7cdce56631d899dbb0eea55d75fbf80636b040",
+          "decodedByteCount": 1485056
+        },
+        {
+          "name": "cha_spell.sgs",
+          "encodedSha256": "95cfaa4106a4f6224ebed8948bcf86bd5fc6801a83a1c4162c7e59bc848bef66",
+          "encodedByteCount": 246031,
+          "decodedSha256": "39b83f6e2504590e262bb353bddfded546b83f83a7ea9199b67742b1bee68fc0",
+          "decodedByteCount": 1166955
+        }
+      ]
+    }
+  },
+  "engineMappingsExplicitlyNotOfficialFAQ": {
+    "approvalState": "Implemented engine contract; official client facts and bounded FAQ gaps remain separately identified.",
+    "allocation": "Initialize one fresh actual-owner-turn pool[1,2,3,4], with queued off-turn damage adjustments. Draw-start selects one remaining entry for normal Draw baseline; Play-start selects distinct remaining entries for attack-range baseline and Slash-use baseline; Discard-start selects the remaining entry for hand-limit baseline. No phase reinitializes the whole pool.",
+    "minimumIncrease": "One increment per separate positive applied out-turn damage occurrence, regardless of damage amount. Repeatedly increment one currently minimum entry in the pending next-turn pool using a stable tie slot; do not increment every tied minimum at once. This tie/cumulative rule is not established by an officialFAQ.",
+    "expiry": "Consume queued pending next-turn increments on the next actual owner turn, including an extra actual turn; unused or skipped slots expire with that turn. This is not a permanent pool upgrade.",
+    "skippedAndExtraPhases": "Skipped stages do not consume their allocation slots. An extra same-turn Play uses the existing assigned defaults and cannot rebuild or double-consume the pool. Final detailed behavior when skipped stages leave extra choices is a root implementation mapping.",
+    "range": "Verified client behavior: max(native weapon-or-base range, assigned default range), followed by normal additive range modifiers.",
+    "nameQuota": "Sameowner+stablemethodledgerId+actualRoundNumber+normalizedName, only accepted real method uses consume; Slash variants share Slash. Physical source loss/regrant and extra phase/extra turn do not reset the same actual round quota.",
+    "useDirections": "Actual Play basic uses, native own Slash-Dodge Use, real forced actual Slash Use, healthy rescue Peach and own Dying Peach/Alcohol are eligible. Pure response-only Duel/Barbarian Slash, Arrow Dodge and faction supply do not become YiLie Use. Public client directly distinguishes USE/DEAL; exact native mapping follows engine boundaries.",
+    "roundBoundary": "Reuse established native actual RoundStarted lifecycle; this policy is an explicit engine mapping because no new officialFAQ defining round boundaries was found.",
+    "woodenOx": "Current public client recognizes WoodenOx stored grain in normal hand-like card selection. Existing native grain producer must be retained where already supported, not silently reclassified as arbitrary equipment or omitted without reporting.",
+    "handLimitPriority": "Assigned HandLimit replaces the ordinary current-HP baseline. Existing Buqu wound-count baseline retains its prior special precedence, then existing Add/Set/Unlimited reduction order remains unchanged. No public official client or FAQ establishes their relative priority; the current client receives final hand limit from the server.",
+    "attackRangeDirectClientEvidence": "The current official client takes max(native weapon-or-base attack range, DATA_SHANDUAN_RANGE) before seat/general range increments. This order is directly evidenced in the candidate research record."
+  },
+  "artwork": {
+    "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/51800.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-zhou-chu.png",
+    "sha256": "a2e956bb2d86f1ed16eb7593f17c0f0b247837a558d59a9b6ef3f807131bf5d9",
+    "bytes": 1152363,
+    "width": 750,
+    "height": 950,
+    "visuallyInspected": true
+  },
+  "acceptance": {
+    "implemented": true,
+    "targetedPassed": true,
+    "routinePassed": true,
+    "fullVerificationRun": false,
+    "targetedCore": 108,
+    "targetedWpf": 4,
+    "routineCore": 416,
+    "routineWpf": 21,
+    "report": "docs/benchmarks/2026-10-09-content-continuation-round20-verification.json"
+  },
+  "behaviorCheckMethods": [
+    "PhaseDefaultsRemainSeparateFromNormalModifiersAndRepeatedPlay",
+    "OutOfTurnDamageAccumulatesForOnlyNextActualTurn",
+    "RealPairUsePaysOnceAndSharesRoundNameAcrossRegrant",
+    "DodgeUseAndPureProvisionStayDistinct",
+    "PeachAndSelfAlcoholKeepRealDyingReturns",
+    "ForcedSlashAndHandLikeMaterialsUseNativeParents"
+  ]
+}

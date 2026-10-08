@@ -142,15 +142,19 @@ internal static class OrdinaryChenLinChecks
         }
     }
     private static int[] SongciTargets(GameEngine g) => g.GetHumanLegalActions().Where(a => a.ProgramSkillId == Songci).SelectMany(a => a.SelectableTargetSeats).Distinct().ToArray();
-    private static PendingDecision? P(GameEngine g) => g.CreateSnapshot(0).PendingDecision;
+    private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(seat => g.CreateSnapshot(seat).PendingDecision).FirstOrDefault(p => p is not null);
     private static T[] E<T>(GameEngine g) => g.Events.Select(e => e.Payload).OfType<T>().ToArray();
     private static bool Has(PendingDecision p, string action) => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == action);
     private static void Accept(GameEngine g, GameCommand c) { var result = g.Submit(CommandJson.Deserialize(CommandJson.Serialize([c])).Single()); Require(result.Accepted, result.Error?.Message ?? "Rejected actual command."); }
     private static void Answer(GameEngine g, PromptChoice c) => Accept(g, new AnswerPromptCommand(0, P(g)!.PromptId, c.Id, g.Revision));
-    private static void Continue(GameEngine g) => Answer(g, P(g)!.Choices.Single(c => c.Parameters.GetValueOrDefault("option-id") == "continue"));
+    private static void Continue(GameEngine g)
+    {
+        if (P(g)!.PlayerSeat == 0) Answer(g, P(g)!.Choices.Single(c => c.Parameters.GetValueOrDefault("option-id") == "continue"));
+        else Accept(g, new AdvanceOneStepCommand(g.Revision));
+    }
     private static void Use(GameEngine g, string activation, IReadOnlyList<int>? targets = null, string skill = Driver) => Accept(g, new UseProgramSkillCommand(0, skill, activation, [], targets ?? [], g.Revision, P(g)!.PromptId));
     private static void End(GameEngine g) => Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId));
-    private static void Play(GameEngine g) => Reach(g, p => p.Kind == DecisionKind.PlayCard);
+    private static void Play(GameEngine g) => Reach(g, p => p.PlayerSeat == 0 && p.Kind == DecisionKind.PlayCard);
     private static void Reach(GameEngine g, Func<PendingDecision, bool> condition) => ReachCondition(g, () => P(g) is { } p && condition(p));
     private static void ReachFrame(GameEngine g, Func<ProgramSkillFrame, bool> condition) => ReachCondition(g, () => g.ResolutionStack.OfType<ProgramSkillFrame>().Any(condition));
     private static void ReachCondition(GameEngine g, Func<bool> condition)
@@ -159,7 +163,8 @@ internal static class OrdinaryChenLinChecks
     {
         if (P(g) is { } p)
         {
-            if (p.Kind == DecisionKind.PlayCard) End(g);
+            if (p.PlayerSeat != 0) Accept(g, new AdvanceOneStepCommand(g.Revision));
+            else if (p.Kind == DecisionKind.PlayCard) End(g);
             else if (p.Kind == DecisionKind.DiscardCards) Accept(g, new DiscardCardsCommand(0, p.ValidCardIds.Take(p.RequiredCardCount).ToArray(), p.PromptId, g.Revision));
             else if (Has(p, "skip")) Answer(g, p.Choices.Single(c => c.Parameters.GetValueOrDefault("program-action") == "skip"));
             else if (p.Choices.Any(c => c.Parameters.GetValueOrDefault("option-id") == "continue")) Continue(g);
@@ -201,7 +206,7 @@ internal static class OrdinaryChenLinChecks
             var skills = new List<string> { Driver, Songci, Gain, Hp, "fixture:cl-skip-discard", "fixture:cl-pick-owner" }; if (!foreign) skills.Add(Bifa); else skills.Add(Pulse);
             b.AddGeneral(new("fixture:cl-owner", "陈琳共享真实命令", "supporter", Driver, "wei", 6, skills.Where(s => s != Driver).ToArray(), GeneralGender.Male) { InitialHp = foreign || equipment ? 1 : null });
             for (var i = 1; i < 4; i++)
-            { var peer = new List<string> { "fixture:cl-quiet" }; if (foreign && i == 1) peer.Add(Foreign);
+            { var peer = new List<string> { "fixture:cl-quiet", Gain }; if (foreign && i == 1) peer.Add(Foreign);
               b.AddGeneral(new($"fixture:cl-peer-{i}", "原参与角色", "supporter", "fixture:cl-pick-peer", "wei", 8, peer, GeneralGender.Female)); }
             var kind = equipment ? "classic:silver-lion" : "standard:slash";
             b.AddDeck(new("fixture:cl-deck", "固定实体", 4, 2, []) { PhysicalCards = Enumerable.Range(0, 72).Select(_ => new ContentDeckPhysicalCard(kind, Suit.Heart, 7)).ToArray() });
@@ -212,10 +217,10 @@ internal static class OrdinaryChenLinChecks
     private const string FixtureRules = """
     {"skills":[
       {"id":"fixture:cl-driver","revision":1,"activations":[
-        {"id":"lose-one","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"usesPerTurn":null,"effects":[{"op":"loseHp","target":"owner","amount":1}]},
+        {"id":"lose-one","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"loseHp","target":"owner","amount":1}]},
         {"id":"equip","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"useRandomDeckEquipment","target":"owner","resultBind":"equipment"}]}]},
       {"id":"fixture:cl-quiet","revision":1,"triggers":[{"id":"quiet","window":"afterNormalDraw","subject":"owner","optional":false,"effects":[{"op":"skipTurnPhases","target":"owner","phases":["play"]}]}]},
-      {"id":"fixture:cl-gain","revision":1,"triggers":[{"id":"gain","window":"cardsGained","subject":"any","destinationZones":["hand"],"movementOccurrence":"perBatch","movementReasons":["skill-program.ol:songci.ResolveGameTargetHandHpChoice","skill-program.ol:bifa.ResolveDeferredPrivateCardOffer.exchange","skill-program.ol:bifa.ResolveDeferredPrivateCardOffer.obtain"],"optional":false,"usageScope":"game","usageLimit":1,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},
+      {"id":"fixture:cl-gain","revision":1,"triggers":[{"id":"gain","window":"cardsGained","subject":"owner","destinationZones":["hand"],"movementOccurrence":"perBatch","movementReasons":["skill-program.ol:songci.ResolveGameTargetHandHpChoice","skill-program.ol:bifa.ResolveDeferredPrivateCardOffer.exchange","skill-program.ol:bifa.ResolveDeferredPrivateCardOffer.obtain"],"optional":false,"usageScope":"game","usageLimit":1,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},
       {"id":"fixture:cl-hp","revision":1,"triggers":[{"id":"hp","window":"afterHpRecovered","subject":"owner","optional":false,"usageScope":"game","usageLimit":1,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},
       {"id":"fixture:cl-pulse","revision":1,"triggers":[{"id":"pulse","window":"selfDyingResponse","subject":"owner","optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]},{"op":"recover","target":"owner","amount":1}]}]},
       {"id":"fixture:cl-skip-discard","revision":1,"triggers":[{"id":"skip","window":"discardPhaseStarting","subject":"owner","optional":false,"effects":[{"op":"skipTurnPhases","target":"owner","phases":["discard"]}]}]},

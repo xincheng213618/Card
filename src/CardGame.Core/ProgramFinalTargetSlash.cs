@@ -3,7 +3,9 @@ namespace CardGame.Core;
 public enum ProgramFinalTargetComparison { TargetHandAtMostActor, TargetHpAtLeastActor, Always }
 public sealed record ProgramTargetSlashReceipt(long ActionId, int ActorSeat, int TargetSeat,
     long CardUseFrameId, long ProducerFrameId, string SkillId, string SkillInstanceId, string GameplayHash, string TriggerId,
-    int EffectIndex, bool PreventCancellation, int DamageBonus, bool EscalateToTargetHp = false);
+    int EffectIndex, bool PreventCancellation, int DamageBonus,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    bool EscalateToTargetHp = false);
 public sealed record ProgramTargetSlashReceiptIssuedEvent(long CardUseFrameId, ProgramTargetSlashReceipt Receipt) : IGameEvent;
 
 // 追猎 escalation evidence: one scalar record per escalated attack; the raise

@@ -203,18 +203,39 @@ OL 杨仪"狷狭"需要"视为依次使用至多三张牌名各不相同的仅�
 - 轮级、跨座位、随事件账本变动的公共数值规则调整（如丰积的"本轮 摸牌阶段摸牌数 -1 / 出牌阶段使用【杀】的次数上限 -1，对应其他角色 +2，选择否 +1"）目前没有内容侧声明通道：rules.json 无法表达"作用于任意座位、按轮号生效、由技能事件推导数值"的规则查询贡献。本批以 bespoke op（7244）+ 引擎侧门控贡献（EvaluateDrawCount / EvaluateSlashUseLimit 内按依赖开关读取事件账本）实现；若后续出现第二个同类技能，建议抽象出"事件账本驱动的轮级规则修改器"共享描述符。
 - "此技能失效直到<条件>"（旋回：失效直到一名角色死亡）没有通用失效/恢复原语。本批以"失效事件与 PlayerDiedEvent 的历史顺序比较"推导（无序列化运行时状态）；通用化需要内容可声明的失效条件与自动恢复账本。
 - "每轮开始时"触发窗口为本批新增共享能力（roundStarting，复用 ProgramLifecycleTriggerWindowFrame 与续接枚举尾部值），非缺口；列出仅为说明该窗口自此可用。
+
+## 2026-10-08 孙邵批共享能力与同协整合边界
+
+- `drawTwoThenDiscardTwoIfOverMaxHp`：严格拥有者摸牌结束入口，先选择一名其他存活角色、真实摸两张并排空子结算，在同一时点冻结双方手牌/体力上限资格，再依次支付各自至多两张合法 HE 牌。付款与资格保存在拥有帧收据中，复用原生回复、濒死和移动返回；不是重复执行的普通 draw/discard 宏。
+- `addOneDistanceFreeCurrentUseTarget`：严格实际使用人指定目标入口，保留同一 Use 的费用、ActionId 与完整目标前缀；追加一个目标，借刀追加一个完整配对。弃牌堆按有效同名牌判断，只忽略距离，保留其他合法性、隐私、牌移动和完成证明。
+- 同协整合修复的 `TongxieSettledSlashUseEvent` 在真实完成捕获点绑定本次动作与移动，区分链内使用、回收后的新使用和响应；不按实体 ID 设永久黑名单。赵俨现有弃牌完成入口仍要求单实体，零实体虚拟杀和多材料杀的完整使用完成合同尚未在本批补齐；不得把该修复报告为这些分支的验收。
+- 来源解释、相关检查与常规测量记录在 [第十一轮记录](../benchmarks/2026-10-08-content-continuation-round11.md)。
+
 ## 内容程序表达力记录：刘宏批（2026-10-08）
 
 - **全局时长伤害加成（已落地为共享能力）**：图兴②"你本局造成的伤害+1"需要"本局剩余时间对来源座位一切伤害 +N"的表达。此前引擎只有回合级 `grantTurnCardDamageModifier`（`CurrentTurnEnd`/`NextOwnerTurnStart` 两种过期）与声明式 `damageModifiers`（OwnerUsed 路径排除传导伤害且要求具体牌种；空牌种条件都是受击侧 `damageParticipant` 语义），没有全局时长条目。本批新增共享武装通道：通用证据事件 `ProgramGameDamageBonusArmedEvent`（内容技能经 bespoke 流程发布，committed-history 推导、幂等防重）+ `FinalizeAttackDamageAmount` 一处通用接入 `GetArmedGameDamageBonuses`（含传导、不限牌种、`ProgramCardDamageModifiedEvent` 照常发布）。后续"至游戏结束/至某条件为止"的全局数值修正可复用该事件通道或抽象为声明式描述符。
 - **"装备栏被废除"触发窗口（未落地，如实记录）**：图兴①"当你废除一个装备栏时"没有对应触发窗口，当前由鬻爵的废除流程内联结算（当前内容中刘宏装备栏废除仅来自鬻爵，覆盖全部可观察行为），并为武装子句留了回合开始幂等补账。若后续出现第二个"当你废除装备栏时"或"其他角色的装备栏被废除时"技能，需要共享的 equipment-slot-abolished 触发窗口（窗口枚举尾部新值 + `EquipmentSlotCapacityChangedEvent`/`PlayerAreasAbolishedEvent` 的窗口发布点），届时图兴①即可改为纯内容触发。
 - 本批已落地的其余口径全部为既有共享能力复用（装备栏容量废除、`ChangeProgramMaximumHp`、共享 Recover、`AcquireRuntimeSkills` 自定义源前缀授予与择时清除、耀冥"对其他角色造成伤害后"条件口径、usageScope/usageLimit 限次）。
-## 内容程序表达力记录：卫兹批（2026-10-08）
 
-- **"随机弃置一名其他角色至多N张手牌"的通用节点（未落地，如实记录）**：烈节第二子句"弃置伤害来源至多X张牌（X为红色牌数）"需要"按公开计算量随机弃置指定座位手牌"。既有 `takeRandomHandCardFromSelectedTargets` 是"获得"（进拥有者手牌）而非"弃置"；杨婉追还的随机弃牌与本批烈节各自以 bespoke 流程实现（同一 `_random` 口径）。若后续出现第二个同类技能，建议抽象出"随机弃置指定角色至多N张手牌"的声明式描述符（数量可来自绑定牌集派生值），并可一并考虑"装备区由拥有者挑选 + 手牌随机"的混合弃置口径（OL 客户端同类效果常见形态，本批未表达）。
-- 本批已落地的其余口径全部为既有共享能力复用（其他角色的准备阶段窗口、usageScope round、制衡式弃置摸等量声明式组合、cards-moved 续接、可选触发通用激活与估算路径）；共享扩展仅 `EstimateCompositionForAi` 的回合开始窗口受赠者发布行与 `ProgramAiEstimateContext.AllHandTurnOwnerGift` 估值钩子。
-## 内容程序表达力记录：田豫批（2026-10-08）
+## 2026-10-08 协同合入修复边界
 
-- **定向距离减免授予（已落地为共享能力）**：追讨①"令你与一名其他角色的距离-1……当你对其造成伤害后，失去"需要"对特定有序（来源,目标）对、事件驱动授予、条件撤销"的距离表达。此前引擎只有声明式 outgoingDistance modifier（全局条件求值，无对象维度、无撤销生命周期）、回合级 TurnCardUseEffects 距离授予、FixedDistanceOne（出牌阶段发动+回合结束弃牌债）与 FixedDistanceOne/InspectedHand/HpOrdered 三个 Set 型 overlay。本批新增共享通道：通用证据事件 `ProgramDirectedDistanceGrantedEvent`/`ProgramDirectedDistanceRevokedEvent`（committed-history 推导、撤销清除此前同对全部授予）+ `EvaluateDistance` 一处通用串联 `ApplyProgramDirectedDistance`（Add 贡献、下界 1、`HasTriggerOperation` 门控）。后续"令我与某角色的距离±N 直到某条件"技能可复用该事件对与 overlay。
-- **optional 触发的"候选非空"前置（未落地，如实记录）**：扫狄/追讨的发动提示（共享 optional 触发路径）无法表达"仅当存在合法受益对象时才提示"——之间角色为空或全部不合法时仍会提示"是否发动【扫狄】？"，AI 会按正计价接受一次无效果发动。若提供触发级"候选集非空才提示"的条件扩展（如窗口上下文的共享谓词节点），可消除该空转。
-- **CardUseTargetsFinalized 的目标数事实局限（说明）**："仅指定一名其他角色为目标"以 `cardUseDesignatedTargetCount==1` 表达，对借刀杀人按引擎 designated-target 口径判定（若引擎计 2 目标则该牌永不满足），无按牌种细分"有效目标"的维度；本批以 cardKinds 子集选择覆盖（不可能满足条件的普通锦囊不入清单），行为不受影响。
-- 本批已落地的其余口径全部为既有共享能力复用（原始目标追加/卡牌增强的目标变异管线、顺序锦囊与增强杀多目标游标、CurrentCardExtraTargets 同款目标合法性检查、执笏"对其他角色造成伤害后"条件口径、代讨同款准备阶段窗口、共享 optional 提示与 EstimateCompositionForAi/ScoreProgramTarget 计价）。
+- 抗歌全量进手牌收集器限制为专用、必选的拥有者 `cardsGained` / `perThirdPartyHandGain` / `hand` 目标单操作；未实现的 `ignoreOwnSkillMovements` 不再接受。濒死回复节点精确限定现行回复至 1。抗歌死亡代价为真正弃牌生产来源，节烈致命代价通过拥有帧已付收据与精确 before-damage / own-dying 关系返回，不泛允许任意程序子窗。
+- 鬻爵改为真正出牌阶段零输入主动入口，未付款取消保留次数，装备栏付款与赠牌移动的后续子结算在同一拥有收据内排空；AI 只选择实际可用栏。图兴上限变化及全局加伤标注实际图兴来源，真实无来源伤害不计为拥有者造成的伤害。鬻爵以外的废栏即时图兴合同仍保留为上述共享触发窗口缺口。
+
+## 2026-10-08 第十三轮烈节来源付款修复
+
+- 原分支将“弃置伤害来源至多 X 张牌”收缩为随机弃来源手牌。本轮复用私有 HE 付款选项：拥有者可选不超过冻结红色费用数的来源手牌槽位和公开装备，也可完成零张；手牌身份不进入发布选项，外来防具／宝物保护在发布及提交时重验。
+- 首笔混合 HE 费用和来源侧选择各沿真实原子移动结算；有效红色在首笔移动前冻结，将灵武器按既有规则离场到场外仍记作实际弃牌。帧收据与精确父窗支持装备移除、摸牌和付款引起的原生子结算，已付尾部不重复支付。验收范围以[第十三轮记录](../benchmarks/2026-10-08-content-continuation-round13.md)为准。
+
+## 2026-10-08 第十七轮双人真实手牌重铸
+
+- `pairedHandRecast` 是可选启用的通用主动单操作：真实出牌阶段每阶段一次，拥有者一张真实 Hand 牌及一名有手牌的其他存活目标；另一方私下选择其真实 Hand 实体。双方材料先冻结，再按拥有者 cost／draw、另一方 cost／draw 的顺序排空精确原生移动子窗。该顺序与 Hand 区限制是此通用操作的明确合同，尚不作为崇信完整官方 FAQ 验收。
+- `ProgramPairedHandRecastReceipt` 留在原 ProgramSkillFrame，各参与者分别记成本／摸牌发票、序列区间和原批次。已付后失源不能撤销摸牌；后续原材料失效或参与者死亡只跳过原付款，不替换其他牌。重铸走真实 RecastDiscard／RecastDraw，不能冒充弃置；公开开始／跳过事实没有私有牌 ID，新摸牌实体不公开。
+- 四项共享 focused 检查已经通过；相关回归与常规验收以[第十七轮记录](../benchmarks/2026-10-08-content-continuation-round17.md)为准。羊祜仍是完整候选，本轮没有注册缺技能的武将；怀远初始实体与继承、德彰门槛、卫戍真实摸／弃来源仍待补齐。[原生来源审计](../benchmarks/2026-10-08-native-draw-discard-provenance-audit.md)仅为静态证据，其三项旧弃置分类缺口尚未修复。
+
+### R18：初始物理手牌、永久收益与真实阶段外摸弃牌
+
+- 新增 `initializeOriginalHandEntities` / `offerOriginalHandLossBenefit` / `inheritOriginalHandBonuses` / `awakenWhenOriginalHandEmpty`。初始牌只来自原生 InitialDeal，物理实体第一次离开本人 Hand 后耗尽，重复返回不重建；未耗尽牌号仅在本人安全快照可见。收益、继承和觉醒各用所属类型帧与精确原生父窗，不增加 pending sidecar。
+- 新增 `drawAfterActualOutsideDraw` / `discardAfterActualOutsideDiscard`。前者以正数真实 DrawCards 调用证明，一次调用只在末次实际移动批次上触发，排除 InitialDeal、普通获得与本技能直接生产的摸牌；后者只认本人 HEJ 实际弃置进入 DiscardPile。阶段判断使用实际阶段 token，包含插入阶段与返回；玩家选择为强制目标／暗置手牌牌位。
+- 初始牌快照集合和嵌套牌号防御冻结；公开摸牌证明仅含标量，不携带私有摸牌牌号。手牌角标使用内容展示名，和现有粮角标独立。
+- 修复三陈、奸回和凶竖的既有真实弃置支付漏分类。这些修复改变相同内容指纹下既有观察技能的行为，故提升 Replay 规则版本；新增角色本身不提升技能 JSON 格式或内容包版本。实际验证范围和结果以 R18 benchmark 为准。

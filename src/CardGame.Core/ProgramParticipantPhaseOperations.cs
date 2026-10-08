@@ -49,7 +49,7 @@ public sealed partial class GameEngine
     private readonly List<Suit> _fullDiscardPhaseSuits=[];
     private int _fullDiscardPhaseSuitTurn=-1;
     private bool HasActuallyUsableHandCard(CharacterState owner) => BuildLegalActions(owner,includeProgramActions:false)
-        .Any(action => action.CardId is { } id && _cardZones.GetLocation(id) == CardLocation.Hand(owner.Seat) &&
+        .Any(action => action.CardId is { } id && id != 0 && _cardZones.GetLocation(id) == CardLocation.Hand(owner.Seat) &&
             action.Kind is not (LegalActionKind.UseEquipmentEffect or LegalActionKind.UseProgramSkill or LegalActionKind.EndPlay or LegalActionKind.Recast) ||
             action.ConversionSource is not null && action.MinCardCount > 1 && action.SelectableCardIds.Any(id => _cardZones.GetLocation(id) == CardLocation.Hand(owner.Seat)) ||
             action.Kind == LegalActionKind.UseEquipmentEffect && action.EquipmentKind == CardKind.ZhangbaSerpentSpear &&

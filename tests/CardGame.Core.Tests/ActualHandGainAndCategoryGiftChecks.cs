@@ -5,18 +5,23 @@ using CardGame.Core;
 
 internal static class ActualHandGainAndCategoryGiftChecks
 {
-    private const string Driver = "fixture:actual-gain-driver", Watch = "fixture:actual-gain-watch", Mode = "identity:actual-hand-gains-4";
+    private const string Driver = "fixture:actual-gain-driver", Watch = "fixture:actual-gain-watch", Mode = "identity:classic-actual-hand-gains-4";
     private const BindingFlags Flags = BindingFlags.Instance | BindingFlags.NonPublic;
     public static void ActualHandGainsPreserveBatchIdentityAndExcludeSelfRecursion()
     {
         var (g, registry) = Start(holdInitialDraw: true);
         var f = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == "ol:zishu");
-        Require(f.ActualHandGain is { Operation: SkillProgramEffectOp.DrawAfterActualOwnHandGain, PaidIds.Count: 1, Gains.Count: 2 } &&
+        Require(f.ActualHandGain is { Operation: SkillProgramEffectOp.DrawAfterActualOwnHandGain, PaidIds.Count: 1, Gains.Count: 1 } &&
             E<ActualHandGainDrawPaidEvent>(g).Length == 1 && E<ForeignTurnHandGainsRecordedEvent>(g).Length == 0,
-            "The original normal-Draw batch of two issues one real bonus, with original entity identity on its paid frame.");
+            "The original one-card normal-Draw batch issues one real bonus, with original entity identity on its paid frame.");
         Reject(g); Cold(g, registry); Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue"); ReachPlay(g);
         var before = E<ActualHandGainDrawPaidEvent>(g).Length;
-        Use(g, "draw-two", [], []); Reach(g, p => p.SkillPrompt?.SkillId == Watch); Cold(g, registry); Continue(g); ReachPlay(g);
+        Use(g, "gain-two", [], [1]); Reach(g, p => p.SkillPrompt?.SkillId == Watch);
+        Require(g.ResolutionStack.OfType<ProgramSkillFrame>().Single(p => p.SkillId == "ol:zishu").ActualHandGain is
+            { Operation: SkillProgramEffectOp.DrawAfterActualOwnHandGain, PaidIds.Count: 1, Gains.Count: 2 } &&
+            E<ActualHandGainDrawPaidEvent>(g).Length == before + 1,
+            "One real atomic two-card acquisition issues one bonus and preserves both original acquisition identities.");
+        Cold(g, registry); Continue(g); ReachPlay(g);
         Use(g, "two-singles", [], []); Reach(g, p => p.SkillPrompt?.SkillId == Watch); Continue(g);
         Reach(g, p => p.SkillPrompt?.SkillId == Watch); Continue(g); ReachPlay(g);
         var draws = E<ActualHandGainDrawPaidEvent>(g).Skip(before).ToArray();
@@ -44,7 +49,8 @@ internal static class ActualHandGainAndCategoryGiftChecks
             Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId));
             Reach(g, p => p.SkillPrompt?.SkillId == Driver && p.Choices.Any(c => c.Parameters.GetValueOrDefault("option-id") == "continue"));
             var recorded = E<ForeignTurnHandGainsRecordedEvent>(g).Where(e => e.ActualTurnOwner != 0).Last();
-            var gained = recorded.Gains.Select(e => e.CardId).ToArray();
+            var gained = E<ForeignTurnHandGainsRecordedEvent>(g).Where(e => e.ActualTurn == recorded.ActualTurn && e.ActualTurnOwner == recorded.ActualTurnOwner)
+                .SelectMany(e => e.Gains).OrderBy(e => e.GainSequence).Select(e => e.CardId).ToArray();
             Require(gained.Length == 2 && gained.All(id => V(g).Hand.Any(c => c.Id == id)) &&
                 E<ForeignTurnHandGainsCleanupPaidEvent>(g).Length == 0 && E<ActualHandGainDrawPaidEvent>(g).Length == 1,
                 "Actual foreign gains remain usable in hand, without immediate discard or own-turn bonus.");
@@ -135,7 +141,7 @@ internal static class ActualHandGainAndCategoryGiftChecks
     {
         var (g, registry) = Start(compoundTargets: true);
         foreach (var target in new[] { 1, 3 }) { Use(g, "fixture-equipment", [], [target]); ReachPlay(g); }
-        Use(g, "fixture-many", [], []); Reach(g, p => p.SkillPrompt?.SkillId == Watch); Continue(g); ReachPlay(g);
+        Use(g, "fixture-many", [], []); Reach(g, p => p.SkillPrompt?.SkillId == Watch); Continue(g); ReachPlay(g, completeHandGainChildren: true);
         var borrowed = g.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.BorrowedSword && a.TargetSeats.SequenceEqual([1, 2]));
         Accept(g, new PlayCardCommand(0, borrowed.CardId!.Value, borrowed.TargetSeats, g.Revision, P(g)!.PromptId));
         Reach(g, p => p.SkillPrompt?.SkillId == "fixture:gain-compound");
@@ -183,10 +189,31 @@ internal static class ActualHandGainAndCategoryGiftChecks
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
     private static void Use(GameEngine g, string id, IReadOnlyList<int> cards, IReadOnlyList<int> targets) => Accept(g, new UseProgramSkillCommand(0, Driver, id, cards, targets, g.Revision, P(g)!.PromptId));
     private static void Answer(GameEngine g, Func<PromptChoice, bool> predicate) { var p = P(g)!; Accept(g, new AnswerPromptCommand(p.PlayerSeat, p.PromptId, p.Choices.First(predicate).Id, g.Revision)); }
-    private static void Continue(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
-    private static void ReachPlay(GameEngine g) => Reach(g, p => p.Kind == DecisionKind.PlayCard && p.PlayerSeat == 0);
-    private static void Reach(GameEngine g, Func<PendingDecision, bool> predicate)
-    { for (var i = 0; i < 128; i++) { var p = P(g); if (p is not null && predicate(p)) return; Advance(g); } throw new InvalidOperationException("Fixed actual-gain fixture did not reach its boundary."); }
+    private static void Continue(GameEngine g)
+    {
+        var prompt = P(g)!;
+        if (prompt.PlayerSeat == 0) Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
+        else
+        {
+            Require(prompt.Kind == DecisionKind.ProgramTrigger && prompt.SkillPrompt?.SkillId == Watch &&
+                prompt.Choices.Count == 1 && prompt.Choices[0].Parameters.GetValueOrDefault("option-id") == "continue",
+                "Only the recipient's exact single-choice movement child advances through its AI command boundary.");
+            Accept(g, new AdvanceOneStepCommand(g.Revision));
+        }
+    }
+    private static void ReachPlay(GameEngine g, bool completeHandGainChildren = false) => Reach(g, p => p.Kind == DecisionKind.PlayCard && p.PlayerSeat == 0, completeHandGainChildren);
+    private static void Reach(GameEngine g, Func<PendingDecision, bool> predicate, bool completeHandGainChildren = false)
+    {
+        for (var i = 0; i < 128; i++)
+        {
+            var p = P(g); if (p is not null && predicate(p)) return;
+            if (completeHandGainChildren && p is { Kind: DecisionKind.ProgramTrigger, PlayerSeat: 0 } && p.SkillPrompt?.SkillId == Watch &&
+                p.Choices.Count == 1 && p.Choices[0].Parameters.GetValueOrDefault("option-id") == "continue") Continue(g);
+            else Advance(g);
+        }
+        var prompt = P(g);
+        throw new InvalidOperationException($"Fixed actual-gain fixture did not reach its boundary: turn={g.State.TurnNumber}, phase={g.State.Phase}, status={g.State.Status}, prompt={prompt?.Kind}/{prompt?.PlayerSeat}/{prompt?.SkillPrompt?.SkillId}, frames={string.Join(',', g.ResolutionStack.Select(f => f.GetType().Name + ':' + f.Id))}.");
+    }
     private static void Advance(GameEngine g)
     {
         var p = P(g);
@@ -225,9 +252,9 @@ internal static class ActualHandGainAndCategoryGiftChecks
             var rules = $$"""
             {"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[
               {"id":"{{Driver}}","revision":1,"activations":[
-                {"id":"draw-two","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"draw","target":"owner","amount":2}]},
+                {"id":"gain-two","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"otherLiving","usesPerTurn":null,"effects":[{"op":"selectOwnedCards","target":"selectedTarget","minimumCards":2,"maximumCards":2,"zones":["hand"],"resultBind":"acquired"},{"op":"moveBoundCards","target":"owner","sourceBind":"acquired","destination":"ownerHand","awaitMovementTriggers":true}]},
                 {"id":"two-singles","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"draw","target":"owner","amount":1},{"op":"draw","target":"owner","amount":1}]},
-                {"id":"fixture-many","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"draw","target":"owner","amount":20}]},
+                {"id":"fixture-many","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"draw","target":"owner","amount":3}]},
                 {"id":"fixture-equipment","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"useRandomDeckEquipment","target":"owner","resultBind":"gear"}]},
                 {"id":"virtual","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"otherLiving","usesPerTurn":null,"effects":[{"op":"useVirtualSlash","target":"selectedTarget"}]}]{{foreignTrigger}}},
               {"id":"{{Watch}}","revision":1,"triggers":[
@@ -236,8 +263,9 @@ internal static class ActualHandGainAndCategoryGiftChecks
             """;
             var names = new[] { Driver, Watch }.Concat(completedTargets ? ["fixture:gain-short", "fixture:gain-fire"] : Array.Empty<string>())
                 .Concat(compoundTargets ? ["fixture:gain-compound"] : Array.Empty<string>())
-                .ToDictionary(id => id, id => (object)new { name = id, description = "真实取得与原生使用完结", optionLabels = new Dictionary<string, string> { ["continue"] = "继续" } });
-            var catalog = SkillProgramCatalog.Load(rules, JsonSerializer.Serialize(new { schemaVersion = 3, skills = names }));
+                .ToDictionary(id => id, id => (object)new { name = id, description = "真实取得与原生使用完结", optionLabels =
+                    id == Watch || id == Driver && foreign ? new Dictionary<string, string> { ["continue"] = "继续" } : new Dictionary<string, string>() });
+            var catalog = SkillProgramCatalog.Load(rules, JsonSerializer.Serialize(new { schemaVersion = SkillProgramCatalog.PresentationSchemaVersion, skills = names }));
             foreach (var pair in catalog.Programs) b.AddSkill(new(pair.Key, pair.Key, "固定共享边界") { Program = pair.Value });
             b.AddSkill(new("fixture:actual-gain-idle", "无技能", "固定对照"));
             var skills = new List<string> { "ol:yingyuan", Driver, Watch };
@@ -245,7 +273,7 @@ internal static class ActualHandGainAndCategoryGiftChecks
             if (compoundTargets) skills.Add("fixture:gain-compound");
             b.AddGeneral(new("fixture:actual-gain-owner", "固定拥有者", "supporter", "ol:zishu", "shu", 4, skills, GeneralGender.Male));
             for (var i = 1; i < 4; i++) b.AddGeneral(new($"fixture:actual-gain-peer-{i}", "固定其他角色", "supporter", "fixture:actual-gain-idle", "wei", 4, [Watch], GeneralGender.Male));
-            b.AddDeck(new("fixture:actual-gain-deck", "固定装备实体", 4, 2, []) { PhysicalCards = compoundTargets
+            b.AddDeck(new("fixture:actual-gain-deck", "固定装备实体", 4, 1, []) { PhysicalCards = compoundTargets
                 ? Enumerable.Range(0, 96).Select(i => new ContentDeckPhysicalCard(i % 3 == 0 ? "standard:crossbow" : i % 3 == 1 ? "classic:borrowed-sword" : "standard:nullification", Suit.Spade, 7)).ToArray()
                 : Enumerable.Range(0, 48).Select(_ => new ContentDeckPhysicalCard("classic:silver-lion", Suit.Spade, 7)).ToArray() });
             b.AddMode(new(Mode, "固定取得与赠牌边界", 4, 4, new Dictionary<string, int> { [nameof(Role.Lord)] = 1, [nameof(Role.Renegade)] = 3 },

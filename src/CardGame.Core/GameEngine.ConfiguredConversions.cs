@@ -21,6 +21,7 @@ public sealed partial class GameEngine
     private bool IsConfiguredConversionAvailable(CharacterState owner, Card card,
         IndexedSkillProgramInstance instance, SkillProgramViewAs rule, bool dyingUse)
     {
+        if (!MatchesLastSourceZoneConversion(owner, card, rule)) return false;
         if (rule.ExcludeOwnerEffects &&
             (dyingUse ? ActiveDying?.VictimSeat == owner.Seat :
              rule.OutputKind is CardKind.Peach or CardKind.Alcohol)) return false;

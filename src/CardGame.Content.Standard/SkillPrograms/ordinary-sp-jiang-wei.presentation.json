@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "ol:kunfen": {
+      "name": "困奋",
+      "description": "锁定技，结束阶段，你失去1点体力，然后摸两张牌。"
+    },
+    "ol:fengliang": {
+      "name": "逢亮",
+      "description": "觉醒技，当你进入濒死状态时，你减少1点体力上限并回复至2点体力，获得“挑衅”并修改“困奋”。"
+    },
+    "ol:kunfen-awakened": {
+      "name": "困奋",
+      "description": "结束阶段，你可以失去1点体力，然后摸两张牌。"
+    },
+    "ol:sp-jiang-wei-tiaoxin": {
+      "name": "挑衅",
+      "description": "出牌阶段限一次，你可以令一名攻击范围内包含你的角色对你使用一张【杀】，否则你弃置其一张牌。"
+    }
+  }
+}

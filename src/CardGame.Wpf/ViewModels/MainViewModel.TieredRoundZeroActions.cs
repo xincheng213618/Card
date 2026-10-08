@@ -9,7 +9,7 @@ public sealed partial class MainViewModel
     private LegalAction? _selectedTieredRoundZeroAction;
 
     private static bool IsTieredRoundZeroAction(LegalAction action) =>
-        action.CardId == 0 && action.TieredRoundZeroUse is not null;
+        action.CardId == 0 && (action.TieredRoundZeroUse is not null || action.DrawFundedDistinctBasicUse is not null || action.ChainedStateBasicUse.HasValue);
 
     private LegalAction? SelectedTieredRoundZeroAction() =>
         _selectedTieredRoundZeroAction is { } selected
@@ -21,6 +21,8 @@ public sealed partial class MainViewModel
         left.Kind == right.Kind && left.TargetSeat == right.TargetSeat && left.PlayedCardKind == right.PlayedCardKind &&
         left.TargetCardId == right.TargetCardId && left.TargetSeats.SequenceEqual(right.TargetSeats) &&
         left.ConversionSource == right.ConversionSource && left.TieredRoundZeroUse == right.TieredRoundZeroUse &&
+        left.DrawFundedDistinctBasicUse == right.DrawFundedDistinctBasicUse &&
+        left.ChainedStateBasicUse == right.ChainedStateBasicUse &&
         (left.AdditionalConversionSources ?? []).SequenceEqual(right.AdditionalConversionSources ?? []);
 
     private static int ActiveSkillMaximumTargets(LegalAction action) =>

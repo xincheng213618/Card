@@ -45,14 +45,14 @@ public sealed partial class GameEngine
             if (_resolutionStack[index] is not ProgramSkillFrame root || !PrivateOfferFirstChild(root, _resolutionStack[index + 1])) continue;
             if (_resolutionStack[index + 1] is DyingFrame original && index + 2 < _resolutionStack.Count &&
                 (IsPaidHandRepaymentProgramAlcoholRide(index + 1, original) || IsPaidHandRepaymentRescueRide(index + 1, original) ||
-                 PolicyCounterspellVirtualAlcoholRide(index + 1, original) || TieredRoundZeroDyingRescueRide(index + 1, original))) return root;
+                 PolicyCounterspellVirtualAlcoholRide(index + 1, original) || (TieredRoundZeroDyingRescueRide(index + 1, original) || DrawFundedDistinctBasicDyingRescueRide(index + 1, original)))) return root;
             var exact = true;
             for (var child = index + 2; child < _resolutionStack.Count; child++)
             {
                 if (!(HalfHandPaidDamageObserverEdge(child) || PaidTargetObserverEdge(child))) { exact = false; break; }
                 if (_resolutionStack[child] is DyingFrame dying && child + 1 < _resolutionStack.Count &&
                     (IsPaidHandRepaymentProgramAlcoholRide(child, dying) || IsPaidHandRepaymentRescueRide(child, dying) ||
-                     PolicyCounterspellVirtualAlcoholRide(child, dying) || PaidObserverDamageVirtualAlcoholRide(child, dying) || TieredRoundZeroDyingRescueRide(child, dying))) break;
+                     PolicyCounterspellVirtualAlcoholRide(child, dying) || PaidObserverDamageVirtualAlcoholRide(child, dying) || (TieredRoundZeroDyingRescueRide(child, dying) || DrawFundedDistinctBasicDyingRescueRide(child, dying)))) break;
             }
             if (exact) return root;
         }

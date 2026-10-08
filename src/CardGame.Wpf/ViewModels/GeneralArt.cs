@@ -254,6 +254,17 @@ public static class GeneralArt
             ["ol-ding-feng"] = "official-ol-ding-feng.png",
             ["ol-pan-feng"] = "official-ol-pan-feng.png",
             ["ol-ma-liang"] = "official-ol-ma-liang.png",
+            ["ol-ling-cao"] = "official-ol-ling-cao.png",
+            ["ol-yue-jin"] = "official-ol-yue-jin.png",
+            ["ol-xu-jing"] = "official-ol-xu-jing.png",
+            ["ol-sun-qian"] = "official-ol-sun-qian.png",
+            ["ol-sp-jiang-wei"] = "official-ol-sp-jiang-wei.png",
+            ["ol-mi-zhu"] = "official-ol-mi-zhu.png",
+            ["ol-sima-lang"] = "official-ol-sima-lang.png",
+            ["ol-li-tong"] = "official-ol-li-tong.png",
+            ["ol-ma-zhong"] = "official-ol-ma-zhong.png",
+            // Official artwork URL and hash: docs/content/sources/ol-sun-shao-2026-10-08.json.
+            ["ol-sun-shao"] = "official-ol-sun-shao.png",
             // Official artwork URL and hash: docs/content/sources/ol-huang-cheng-yan-2026-10-08.json.
             ["ol-huang-cheng-yan"] = "official-ol-huang-cheng-yan.png",
             ["ol-yi-ji"] = "official-ol-yi-ji.png",
@@ -311,6 +322,23 @@ public static class GeneralArt
             ["ol-wei-zi"] = "official-ol-wei-zi.png",
             // Official artwork URL and hash: docs/content/sources/ol-tian-yu-2026-10-08.json.
             ["ol-tian-yu"] = "official-ol-tian-yu.png",
+            // Current OL Jin artwork: docs/content/sources/ol-zhang-hu-yue-chen-2026-10-08.json.
+            ["ol-zhang-hu-yue-chen"] = "official-ol-zhang-hu-yue-chen.png",
+            // Current OL Jin artwork: docs/content/sources/ol-wei-guan-2026-10-08.json.
+            ["ol-wei-guan"] = "official-ol-wei-guan.png",
+            // Current OL Jin artwork: docs/content/sources/ol-wang-xiang-2026-10-08.json.
+            ["ol-wang-xiang"] = "official-ol-wang-xiang.png",
+            ["ol-du-yu"] = "official-ol-du-yu.png",
+            ["ol-jia-chong"] = "official-ol-jia-chong.png",
+            ["ol-yang-hu"] = "official-ol-yang-hu.png",
+            ["ol-guo-huai"] = "official-ol-guo-huai.png",
+            ["ol-zhou-chu"] = "official-ol-zhou-chu.png",
+            ["ol-zuo-fen"] = "official-ol-zuo-fen.png",
+            ["ol-zhang-hua"] = "official-ol-zhang-hua.png",
+            ["ol-sima-zhou"] = "official-ol-sima-zhou.png",
+            ["ol-xin-chang"] = "official-ol-xin-chang.png",
+            ["ol-shi-bao"] = "official-ol-shi-bao.png",
+            ["ol-yang-yan"] = "official-ol-yang-yan.png",
             // Official artwork URL and hash: docs/content/sources/bu-lian-shi-a63-2026-09-21.json.
             ["bu-lian-shi"] = "official-bu-lian-shi.png",
             // Official artwork URL and hash: docs/content/sources/cheng-pu-a64b-2026-09-21.json.

@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "ol:ziyuan": {
+      "name": "资援",
+      "description": "出牌阶段限一次，你可以交给一名其他角色任意张点数和为13的手牌，然后令其回复1点体力。"
+    },
+    "ol:jujia": {
+      "name": "巨贾",
+      "description": "锁定技，你的初始手牌和手牌上限+X（X为你的体力上限）。"
+    }
+  }
+}

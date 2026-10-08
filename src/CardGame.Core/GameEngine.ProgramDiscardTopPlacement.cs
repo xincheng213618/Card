@@ -29,14 +29,25 @@ public sealed partial class GameEngine
     internal static bool IsDiscardMovementReason(CardMoveReason reason)
     {
         var value = reason.Value;
+        if (value == PairedColorDiscardReason) return true;
         if (value is "card.effect.dismantlement" or "card.effect.dismantlement-judgment" or
-            "mode.identity.lord-killed-loyalist" or "skill.gongqi.cost") return true;
+            "mode.identity.lord-killed-loyalist" or "skill.gongqi.cost" or
+            "program.phase-name-prediction.cost") return true;
         if (value.StartsWith("skill-program.", StringComparison.Ordinal))
         {
             // Only these exact paid producer suffixes are discards.
             if (value.EndsWith($".{nameof(SkillProgramEffectOp.DiscardTurnOverAndTakeHand)}.payment", StringComparison.Ordinal)) return true;
             if (value.EndsWith($".{nameof(SkillProgramEffectOp.DrawThenDiscardSuitsForDyingPeach)}.discard", StringComparison.Ordinal) ||
-                value.EndsWith($".{nameof(SkillProgramEffectOp.GiveBlackHandAndResolveRecipientContest)}.discard", StringComparison.Ordinal)) return true;
+                value.EndsWith($".{nameof(SkillProgramEffectOp.GiveBlackHandAndResolveRecipientContest)}.discard", StringComparison.Ordinal) ||
+                value.EndsWith($".{nameof(SkillProgramEffectOp.DrawTwoThenDiscardTwoIfOverMaxHp)}.discard", StringComparison.Ordinal) ||
+                value.EndsWith(".draw-discard-category.discard", StringComparison.Ordinal) ||
+                value.EndsWith(".recipient-category.discard", StringComparison.Ordinal) ||
+                value.EndsWith(".last-damage-source.discard", StringComparison.Ordinal) ||
+                value.EndsWith(".outside-phase-discard", StringComparison.Ordinal) ||
+                value.EndsWith(".same-name-hand.discard", StringComparison.Ordinal) ||
+                value.EndsWith(".completed-undamaged-target.discard", StringComparison.Ordinal) ||
+                value.EndsWith(".kangge-death-price", StringComparison.Ordinal) ||
+                value.EndsWith(".liejie-discard", StringComparison.Ordinal)) return true;
             var operation = value[(value.LastIndexOf('.') + 1)..];
             return operation is nameof(SkillProgramEffectOp.ResolveGameTargetHandHpChoice) or nameof(SkillProgramEffectOp.DiscardSelected) or nameof(SkillProgramEffectOp.MoveBoundCards) or
                 nameof(SkillProgramEffectOp.DiscardOwnedZoneCards) or nameof(SkillProgramEffectOp.SelectAndMoveOwnedCard) or

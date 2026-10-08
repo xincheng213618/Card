@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace CardGame.Core;
 
 // A scalar fact about one actual use. It holds no hand entities or mutable
@@ -5,11 +7,16 @@ namespace CardGame.Core;
 public sealed record CurrentTurnCardUseKindsRecordedEvent(
     int TurnNumber, int TurnOwnerSeat, int ActorSeat, long OriginFrameId,
     long? CardActionId, int HandSuitMask, int CardCategoryMask,
-    bool IsNullificationUse = false) : IGameEvent;
+    bool IsNullificationUse = false,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    int? ActualTurnActorUseOrdinal = null) : IGameEvent;
 
 public sealed partial class GameEngine
 {
     private bool TracksCurrentTurnUseKinds => _contentRegistry?.ProgramDependencies.TracksCurrentTurnUseKinds == true;
+    private bool TracksActualTurnUseOrdinal => _contentRegistry?.ProgramDependencies.TracksActualTurnUseOrdinal == true;
+    private bool HasOngoingActualUseTurn => _turnNumber > 0 && _turnProgression.TurnNumber == _turnNumber &&
+        _turnProgression.OwnerSeat == _currentSeat && _phase is not (TurnPhase.NotStarted or TurnPhase.Finished);
 
     private void ObserveCurrentTurnUseKinds(IGameEvent payload)
     {
@@ -17,6 +24,20 @@ public sealed partial class GameEngine
         if (payload is CardActionAcceptedEvent accepted)
         {
             var response = accepted.Action;
+            if (TracksActualTurnUseOrdinal && response.Type == CardActionType.Response && response.EffectiveKind == CardKind.Dodge &&
+                response.ActorSeat == response.ProviderSeat && response.ResponderSeat == response.ActorSeat && response.RequesterSeat is null)
+            {
+                // Defending against a Slash is a use of Dodge. Arrow Barrage and
+                // supplied cards remain responses, with no actual-use ordinal.
+                var defendingUse = _resolutionStack.OfType<CardUseFrame>().SingleOrDefault(use =>
+                    use.Action?.ActionId == response.ParentActionId && use.CardAttack?.TargetSeat == response.ActorSeat);
+                if (defendingUse?.CardAttack is not { EffectiveCardKind: { } incoming } attack || !IsSlashCard(incoming) ||
+                    response.OpponentSeat != attack.SourceSeat || !IsValidPlayerSeat(response.ActorSeat)) return;
+                if (EventsSinceLastBoundary(e => e is TurnStartedEvent or TurnEndedEvent)
+                    .OfType<CurrentTurnCardUseKindsRecordedEvent>().Any(e => e.CardActionId == response.ActionId)) return;
+                RecordCurrentTurnUseKinds(defendingUse.Id, response.ActorSeat, response, CardKind.Dodge, false);
+                return;
+            }
             if (response.Type != CardActionType.Response || response.EffectiveKind != CardKind.Nullification ||
                 response.ActorSeat != response.ProviderSeat || response.ResponderSeat != response.ActorSeat ||
                 response.RequesterSeat is not null) return;
@@ -52,7 +73,7 @@ public sealed partial class GameEngine
     {
         var index = _resolutionStack.FindIndex(f => f.Id == use.Id);
         if (index <= 0 || _resolutionStack[index - 1] is not ProgramSkillFrame producer ||
-            producer.OwnerSeat != use.SourceSeat || producer.TriggerId is null) return false;
+            producer.OwnerSeat != use.SourceSeat || producer.TriggerId is null && !TracksActualTurnUseOrdinal) return false;
         var program = _contentRegistry.GetSkill(producer.SkillId).Program;
         if (program is null || program.GameplayHash != producer.GameplayHash) return false;
         var paused = ProgramInstructionResolver.Default.Resolve(producer, program)
@@ -76,9 +97,34 @@ public sealed partial class GameEngine
             action.PhysicalCards.Count > 0 && action.PhysicalCards.All(c => c.From == CardLocation.Hand(action.ActorSeat))
                 ? ActualTurnSuitBit(action.EffectiveSuit) : 0;
         var category = GetProgramCardCategory(effectiveKind);
+        // Freeze declaration order, not completion order: nested uses may complete
+        // before this one, and Action-null legacy virtual uses still occupy a slot.
+        var ordinal = TracksActualTurnUseOrdinal && HasOngoingActualUseTurn
+            ? checked(EventsSinceLastBoundary(e => e is TurnStartedEvent or TurnEndedEvent)
+                .OfType<CurrentTurnCardUseKindsRecordedEvent>().Count(e =>
+                    e.TurnNumber == _turnNumber && e.TurnOwnerSeat == _currentSeat && e.ActorSeat == actorSeat) + 1)
+            : (int?)null;
         AdvanceEventRulesAndQueueFact(new CurrentTurnCardUseKindsRecordedEvent(
             _turnNumber, _currentSeat, actorSeat, frameId, action?.ActionId,
-            handSuit, 1 << (int)category, nullificationUse));
+            handSuit, 1 << (int)category, nullificationUse, ordinal));
+    }
+
+    private int? CapturedActualTurnActorUseOrdinal(CardActionContext action)
+    {
+        if (!TracksActualTurnUseOrdinal || !HasOngoingActualUseTurn || action.ActionId <= 0 ||
+            action.Type == CardActionType.Response &&
+            (action.EffectiveKind is not (CardKind.Nullification or CardKind.Dodge) || action.ActorSeat != action.ProviderSeat ||
+             action.ResponderSeat != action.ActorSeat || action.RequesterSeat is not null)) return null;
+        var facts = EventsSinceLastBoundary(e => e is TurnStartedEvent or TurnEndedEvent)
+            .OfType<CurrentTurnCardUseKindsRecordedEvent>().Where(e => e.CardActionId == action.ActionId).ToArray();
+        if (facts.Length == 0) return CapturedNormalizedLegacyActualTurnOrdinal(action);
+        if (facts is not [var fact] || fact.ActualTurnActorUseOrdinal is not > 0)
+            throw new InvalidOperationException("An actual-turn use ordinal requires one positive declaration fact.");
+        // Replacing the card-use actor must not lend the original actor's count
+        // to the replacement. The turn and actor are part of the issued identity.
+        return fact.TurnNumber == _turnNumber && fact.TurnOwnerSeat == _currentSeat &&
+            fact.ActorSeat == action.ActorSeat && fact.IsNullificationUse == (action.Type == CardActionType.Response && action.EffectiveKind == CardKind.Nullification)
+                ? fact.ActualTurnActorUseOrdinal : null;
     }
 
     private static int ActualTurnSuitBit(Suit? suit) => suit switch

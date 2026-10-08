@@ -59,6 +59,7 @@ internal sealed record DeriveCardSet(
     IReadOnlyList<EquipmentSlot>? EquipmentSlots = null,
     IReadOnlyList<CardKind>? CardKinds = null, string? MatchSuitOfBind = null) : ProgramResourceOperation;
 internal sealed record RequireOwnedCardSet(string Name, SkillProgramEffectTarget Owner, int? MaximumCount, IReadOnlyList<CardZoneKind> Zones) : ProgramResourceOperation;
+internal sealed record RequireBoundParticipantGiftEntry(string Name) : ProgramResourceOperation;
 internal sealed record RequirePublicOwnedGiftSet(string Name) : ProgramResourceOperation;
 internal sealed record ReadCardSet(string Name) : ProgramResourceOperation;
 internal sealed record RetainOwnedCardSet(string Name) : ProgramResourceOperation;
@@ -272,8 +273,16 @@ internal sealed class ProgramOperationNodeReader
         var options = array.EnumerateArray().Select((node, index) =>
         {
             var reader = new ProgramOperationNodeReader(node, $"{Path}.options[{index}]", _conditionParser);
-            reader.AllowOnly("id", "condition");
-            return new SkillProgramChoiceOption(reader.RequiredIdentifier("id"), reader.Condition());
+            reader.AllowOnly("id", "condition", "requiredTargetKind");
+            var requiredTargetKind = reader.Has("requiredTargetKind")
+                ? reader.RequiredEnum<SkillProgramTargetKind>("requiredTargetKind") : (SkillProgramTargetKind?)null;
+            if (requiredTargetKind is not null and not
+                (SkillProgramTargetKind.OtherLivingInAttackRange or SkillProgramTargetKind.OtherLivingWithDiscardableHandOrEquipment))
+                Fail(reader.Path + ".requiredTargetKind", "requires otherLivingInAttackRange or otherLivingWithDiscardableHandOrEquipment");
+            return new SkillProgramChoiceOption(reader.RequiredIdentifier("id"), reader.Condition())
+            {
+                RequiredTargetKind = requiredTargetKind
+            };
         }).ToArray();
         if (options.Select(option => option.Id).Distinct(StringComparer.Ordinal).Count() != options.Length)
             Fail(Path + ".options", "option ids must be distinct");
@@ -415,7 +424,9 @@ internal sealed class DrawProgramOperationDescriptor : ProgramOperationDescripto
                  SkillProgramNumberExpression.CurrentAttackRange or SkillProgramNumberExpression.HandLimitMinusHandCount or
                  SkillProgramNumberExpression.LostHpMinusHandCount or SkillProgramNumberExpression.SelectedTargetsHandGreaterThanLord or
                  SkillProgramNumberExpression.PhaseSkillUsage or SkillProgramNumberExpression.CurrentTurnUsedCardCategoryCount or
-                 SkillProgramNumberExpression.TurnOwnerDiscardPhaseHandDiscardCount or SkillProgramNumberExpression.CurrentHandEmptyTwoOtherwiseOne)))            throw new InvalidOperationException($"Invalid skill program at {r.Path}: draw accepts a constant or a supported public-state expression.");
+                 SkillProgramNumberExpression.TurnOwnerDiscardPhaseHandDiscardCount or SkillProgramNumberExpression.CurrentHandEmptyTwoOtherwiseOne or
+                 SkillProgramNumberExpression.EquipmentHalfCeilingPlusOne)))
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}: draw accepts a constant or a supported public-state expression.");
         var source = r.OptionalIdentifier("sourceBind");
         if ((expression is SkillProgramNumberExpression.BoundCardCount or SkillProgramNumberExpression.PhaseSkillUsage) != (source is not null))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}: sourceBind is required only for boundCardCount and phaseSkillUsage draws.");
@@ -441,6 +452,9 @@ internal sealed class DrawProgramOperationDescriptor : ProgramOperationDescripto
         if (expression == SkillProgramNumberExpression.CurrentHandEmptyTwoOtherwiseOne &&
             (target != SkillProgramEffectTarget.Owner || bind is not null || targetRef is not null || replacementSuits.Count != 0))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}: empty-hand draw requires the owner and no binding or replacement filter.");
+        if (expression == SkillProgramNumberExpression.EquipmentHalfCeilingPlusOne &&
+            (target != SkillProgramEffectTarget.Owner || bind is not null || targetRef is not null || replacementSuits.Count != 0))
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}: equipment half-count draw requires the owner and no binding or replacement filter.");
         if (expression == SkillProgramNumberExpression.CurrentTurnUsedCardCategoryCount &&
             (target != SkillProgramEffectTarget.Owner || bind is not null || targetRef is not null || replacementSuits.Count != 0))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}: actual turn type-count draw requires the owner and no card binding or replacement filter.");
@@ -525,9 +539,11 @@ internal sealed class RecoverProgramOperationDescriptor : ProgramOperationDescri
         return effect;
     }
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
-        WithSelectedTarget(effect, effect.NumberExpression == SkillProgramNumberExpression.BoundCardCount
+        (effect.Target == SkillProgramEffectTarget.SelectedTargets
+            ? new ProgramResourceOperation[] { new ReadTargetSet(0) }
+            : WithSelectedTarget(effect, effect.NumberExpression == SkillProgramNumberExpression.BoundCardCount
             ? new ProgramResourceOperation[] { new ReadCardSet(effect.SourceBind!) }
-            : Array.Empty<ProgramResourceOperation>())
+            : Array.Empty<ProgramResourceOperation>()))
             .Concat(ParticipantResources(effect.TargetReference)).ToArray();
 }
 
@@ -702,7 +718,7 @@ internal sealed class MoveBoundCardsProgramOperationDescriptor : ProgramOperatio
     }
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
         effect is { Destination: SkillProgramCardDestination.SelectedTargetHand, AwaitMovementTriggers: true }
-            ? [new RequireTriggerWindow(SkillProgramTriggerWindow.DrawPhaseEnded), new ReadSelectedTarget(),
+            ? [new RequireBoundParticipantGiftEntry(effect.SourceBind!), new ReadSelectedTarget(),
                 new RequireOwnedCardSet(effect.SourceBind!, SkillProgramEffectTarget.Owner, null, [CardZoneKind.Hand, CardZoneKind.Equipment]),
                 new MoveCardSet(effect.SourceBind!, effect.ExceptBind, SkillProgramCardDestination.SelectedTargetHand)] :
         effect.Destination == SkillProgramCardDestination.PhaseOwnerHand
@@ -826,7 +842,13 @@ internal sealed class SelectTargetProgramOperationDescriptor : ProgramOperationD
         var effect = new SkillProgramEffect(Op, FilterBoundCardsProgramOperationDescriptor.Owner(r), 0,
             r.Condition(), zones: zones, targetKind: targetKind, marker: marker,
             actorReference: actorRef, skipIfNoTarget: skipIfNoTarget);
+        if (effect.Condition.Kind == SkillProgramConditionKind.ChoiceIs &&
+            (targetKind is not (SkillProgramTargetKind.OtherLivingInAttackRange or
+                SkillProgramTargetKind.OtherLivingWithDiscardableHandOrEquipment) ||
+             zones.Count != 0 || actorRef is not null || skipIfNoTarget))
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}: choice-guarded target selection requires a matching requiredTargetKind and no additional selection filters.");
         if (effect.Condition.Kind != SkillProgramConditionKind.Always &&
+            effect.Condition.Kind != SkillProgramConditionKind.ChoiceIs &&
             !(skipIfNoTarget && (effect.Condition.Kind == SkillProgramConditionKind.PindianWon ||
                 IsCardActionCategoryBranch(effect.Condition))))
             RequireAlways(effect, r.Path);

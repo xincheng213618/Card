@@ -99,7 +99,8 @@ public sealed partial class GameEngine
             }
             foreach (var target in CompletedGiftSlashTargets(frame, actor.Seat))
             foreach (var kind in SlashKinds)
-            foreach (var selection in GetProgramMultiCardViewAsSelections(actor, kind, false))
+            foreach (var selection in GetProgramMultiCardViewAsSelections(actor, kind, false)
+                     .Where(item => ViewAsRule(item.Source)?.RoundDistinctBasicUse is null || item.OutputKind == kind))
             {
                 if (!CanUseSlashTarget(actor, _players[target], selection.Cards[0], selection.Source, kind, ignoreDistance: true)) continue;
                 var parameters = Parameters("slash"); parameters["effective-kind"] = kind.ToString(); AddConversionParameters(parameters, selection.Source);

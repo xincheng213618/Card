@@ -46,7 +46,8 @@ public sealed partial class GameEngine
             if (!TryGetLegalActionEffectiveCardKind(actor, action, out var effectiveKind)) return true;
             if (IsSelfTargetForbiddenAction(actor, effectiveKind, action.Kind == LegalActionKind.BorrowedSword
                     ? action.TargetSeats : GetSelfProhibitionPolicyTargets(actor, action))) return false;
-            return !(action.CardId is { } id && IsPlayPhasePhysicalCardRestricted(actor,
+            // Zero identifies a genuine material-free action, so only real entities have a physical color.
+            return !(action.CardId is { } id && id != 0 && IsPlayPhasePhysicalCardRestricted(actor,
                 _cardZones.CardsAt(_cardZones.GetLocation(id)).Single(card => card.Id == id))) &&
                 !IsCardUseForbidden(actor.Seat, effectiveKind, CardActionType.Use) &&
                 GetSelfProhibitionPolicyTargets(actor, action).All(targetSeat =>
@@ -87,7 +88,7 @@ public sealed partial class GameEngine
             action.Kind is not (LegalActionKind.Slash or LegalActionKind.Peach or
                 LegalActionKind.Duel or LegalActionKind.DrawTwo or LegalActionKind.BarbarianAssault or
                 LegalActionKind.ArrowBarrage or LegalActionKind.PeachGarden or LegalActionKind.FiveGrains or
-                LegalActionKind.Dismantlement or LegalActionKind.Snatch or LegalActionKind.FireAttack or
+                LegalActionKind.Dismantlement or LegalActionKind.Snatch or LegalActionKind.FireAttack or LegalActionKind.UnexpectedAssault or
                 LegalActionKind.Alcohol or LegalActionKind.Equip or LegalActionKind.IronChain or
                 LegalActionKind.Indulgence or LegalActionKind.SupplyShortage or LegalActionKind.Lightning or
                 LegalActionKind.BorrowedSword))

@@ -63,7 +63,7 @@ public sealed partial class GameEngine
             CardKind.Snatch => HasTargetCard(target) && (HasIssuedProvenanceUseDistance(use.Id, actor.Seat) || HasCardDistanceExemption(actor, target, kind, use.Id) ||
                 HasCardPolicy(actor, SkillProgramCardPolicyKind.IgnoreUseDistance, kind) || GetCombatDistance(actor.Seat, target.Seat) == 1),
             CardKind.Dismantlement => HasTargetCard(target),
-            CardKind.FireAttack => GetHand(target).Count > 0,
+            CardKind.FireAttack or CardKind.UnexpectedAssault => GetHand(target).Count > 0,
             CardKind.IronChain => true,
             CardKind.BorrowedSword => GetWeapon(target) is not null && _players.Any(victim => IsLegalBorrowedSwordSlashTarget(target, victim)),
             _ => false

@@ -32,6 +32,7 @@ public sealed partial class MainViewModel
         "ambitious" => "野心家",
         "wu" => "吴",
         "qun" => "群",
+        "jin" => "晋",
         _ => "未明势力"
     };
     private string NationalSelectionSubtitle => _snapshot?.PendingDecision?.Prompt ?? "依次选择两名同势力武将";

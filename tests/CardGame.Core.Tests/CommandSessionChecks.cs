@@ -72,11 +72,25 @@ internal static class CommandSessionChecks
         var actions = new[] { CardActionType.Use };
         var suits = new[] { Suit.Spade };
         var ids = new[] { 1, 2 };
+        var skillIds = new[] { "fixture:original" };
+        var armIds = new[] { 7L, 8L };
         IGameEvent[] nested =
         [
             new CardActionProhibitionGrantedEvent(new TurnCardActionProhibition(1, 1, 0, 1, 0,
                 new CardUseEffectSource("fixture", "binding", 0, "instance"), kinds, actions) { Suits = suits }),
-            new DeferredPublicPileDepositedEvent(new DeferredPublicPileDeposit(1, 0, 1, "fixture", "instance", ids, 1))
+            new DeferredPublicPileDepositedEvent(new DeferredPublicPileDeposit(1, 0, 1, "fixture", "instance", ids, 1)),
+            new ProgramJiezhenConvertedEvent(1, "fixture", "binding", 0, 1, skillIds),
+            new ProgramJiezhenRestoredEvent(1, "fixture", "binding", 0, 1, skillIds, 2),
+            new ProgramDaoshuEvent(1, "fixture", "binding", 0, 1, Suit.Spade, true, false, 2, ids),
+            new ProgramChangjiEndingEvent(1, "fixture", "binding", 0, 1, "discard", ids, 0),
+            new ProgramZhuihuanResolvedEvent(1, "fixture", "binding", 0, 1, armIds, ids, ids, 2),
+            new ProgramZhanyiCategoryChosenEvent(1, "fixture", "binding", 0, "trick", ids),
+            new ProgramLuochongResolvedEvent(1, "fixture", "binding", 0, 1, "discardTwo", 1, 0, 0, ids, 0),
+            new ProgramBijingPunishEvent(1, "fixture", 0, 1, ids, ids),
+            new ProgramTongxieArmedEvent(1, "fixture", "binding", 0, 1, ids),
+            new ProgramYuanziDamageDrawEvent(1, "fixture", "binding", 0, 1, 2, ids),
+            new ProgramLiejieSourceDiscardEvent(1, "fixture", "binding", 0, 1, 2, ids),
+            new ProgramTongxieFollowUpResolvedEvent(1, "fixture", "binding", 0, 1, 2, ids, ids, ids)
         ];
         var bytes = nested.Select(item => JsonSerializer.Serialize(item, item.GetType())).ToArray();
         var frozen = nested.Select(CommittedEventProjection.Freeze).ToArray();
@@ -84,6 +98,8 @@ internal static class CommandSessionChecks
         actions[0] = CardActionType.Response;
         suits[0] = Suit.Club;
         ids[0] = -1;
+        skillIds[0] = "fixture:rewritten";
+        armIds[0] = -1;
         foreach (var item in frozen)
             AttemptCollectionMutation(item, new HashSet<object>(ReferenceEqualityComparer.Instance), ref attempts, ref rejected);
         Require(rejected == attempts && bytes.SequenceEqual(frozen.Select(item => JsonSerializer.Serialize(item, item.GetType()))),

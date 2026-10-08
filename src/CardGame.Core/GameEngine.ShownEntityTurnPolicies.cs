@@ -7,6 +7,25 @@ public sealed partial class GameEngine
         context.Window==SkillProgramTriggerWindow.PlayPhaseStarting &&candidate.OwnerSeat==_turnProgression.OwnerSeat &&
         candidate.OwnerSeat==_currentSeat &&_phase==TurnPhase.Play &&GetHand(_players[candidate.OwnerSeat]).Count>0;
 
+    private bool HasShownEntityPlayStartParent(ProgramSkillFrame frame, ProgramSkillWindowContext context)
+    {
+        var index = _resolutionStack.FindIndex(item => item.Id == frame.Id);
+        if (index < 1 || _resolutionStack[index - 1].Id != context.ParentFrameId)
+            return false;
+        return _resolutionStack[index - 1] switch
+        {
+            PlayPhaseStartingBoundaryFrame parent when parent.OwnerSeat == frame.OwnerSeat &&
+                parent.ItemIndex >= 0 && parent.ItemIndex < parent.Items.Count &&
+                parent.Items[parent.ItemIndex].Candidate is { } candidate =>
+                MountObserverCandidateMatches(frame, candidate),
+            ProgramLifecycleTriggerWindowFrame parent when
+                parent.Window == SkillProgramTriggerWindow.PlayPhaseStarting && parent.OwnerSeat == frame.OwnerSeat &&
+                parent.CandidateIndex >= 0 && parent.CandidateIndex < parent.Candidates.Count =>
+                MountObserverCandidateMatches(frame, parent.Candidates[parent.CandidateIndex]),
+            _ => false
+        };
+    }
+
     private void IssueShownEntityTurnPolicy(ProgramSkillFrame frame,string bind,string stateId)
     {
         ValidateProgramTurnEffectGrant(frame);
@@ -15,9 +34,7 @@ public sealed partial class GameEngine
             context.OwnerSeat!=owner.Seat ||_currentSeat!=owner.Seat ||_turnProgression.OwnerSeat!=owner.Seat ||_phase!=TurnPhase.Play ||
             set.CardIds is not [var id] ||set.SourceLocations is not [var from] ||from!=CardLocation.Hand(owner.Seat) ||
             set.Visibility!=SkillProgramCardSetVisibility.Public ||set.FrozenRevealedSuit is not { } suit ||
-            _resolutionStack.OfType<ProgramLifecycleTriggerWindowFrame>().SingleOrDefault(w=>w.Id==context.ParentFrameId) is not {Window:SkillProgramTriggerWindow.PlayPhaseStarting} parent ||
-            parent.OwnerSeat!=owner.Seat ||parent.CandidateIndex<0 ||parent.CandidateIndex>=parent.Candidates.Count ||
-            !MountObserverCandidateMatches(frame,parent.Candidates[parent.CandidateIndex]))
+            !HasShownEntityPlayStartParent(frame,context))
             throw new InvalidOperationException("Shown entity policy lost its exact actual Play start and public single-card reveal.");
         if(!owner.IsAlive ||_winner!=Winner.None ||_cardZones.GetLocation(id)!=from ||!HasRuntimeSkillInstance(owner,frame.SkillId,frame.SkillInstanceId))return;
         if(CompleteProgramEventHistory().OfType<ProgramCardsRevealedEvent>().Count(e=>e.FrameId==frame.Id &&e.OwnerSeat==owner.Seat &&e.SkillId==frame.SkillId &&
@@ -37,7 +54,7 @@ public sealed partial class GameEngine
                 AdvanceEventRulesAndQueueFact(new HandCardColorRestrictionGrantedEvent(restriction));
             }
         var policy=new ShownEntityTurnPolicy(frame.Id,frame.InstructionIndex-1,source,frame.GameplayHash,stateId,_turnNumber,
-            _turnProgression.OwnerSeat,parent.Id,id,from,suit,affected,sequences);
+            _turnProgression.OwnerSeat,context.ParentFrameId,id,from,suit,affected,sequences);
         AdvanceEventRulesAndQueueFact(new ShownEntityTurnPolicyGrantedEvent(policy));
     }
 

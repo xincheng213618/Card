@@ -866,8 +866,11 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 var kindLabel = grainIds.Contains(card.Id)
                     ? $"粮 · {CardCatalog.Get(card.Kind).CategoryName}"
                     : CardCatalog.Get(card.Kind).CategoryName;
+                var originalHandTag = string.Join(" / ", (human.OriginalHandEntities ?? [])
+                    .Where(item => item.CardIds?.Contains(card.Id) == true).Select(item => item.Name).Distinct());
                 if (existing.TryGetValue(card.Id, out var displayed))
                 {
+                    displayed.OriginalHandTag = originalHandTag;
                     displayed.KindLabel = kindLabel;
                     displayed.IsPlayable = selectable;
                     displayed.AvailabilityText = availability;
@@ -884,6 +887,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                     Kind = card.Kind,
                     Name = card.DisplayName,
                     KindLabel = kindLabel,
+                    OriginalHandTag = originalHandTag,
                     SuitGlyph = GetSuitGlyph(card.Suit),
                     Rank = card.RankText,
                     Description = GetCardDescription(card.Kind),
@@ -1101,9 +1105,9 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             return;
         }
 
-        var equipment = _snapshot.Players.Single(player => player.IsHuman).Equipment
-            .SingleOrDefault(card => card.Id == cardId);
-        if (equipment is null)
+        var human = _snapshot.Players.Single(player => player.IsHuman);
+        var regionalCard = human.Equipment.Concat(human.Judgment).SingleOrDefault(card => card.Id == cardId);
+        if (regionalCard is null)
         {
             return;
         }
@@ -1113,8 +1117,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         _selectedTargetSeat = null;
         _selectedCardTargetSeats.Clear();
         SelectedCardText = _selectedCardId is null
-            ? "未选择手牌或装备"
-            : $"已选择装备：{equipment.DisplayName}";
+            ? "未选择手牌、装备或判定牌"
+            : $"已选择{(human.Judgment.Any(card => card.Id == cardId) ? "判定牌" : "装备")}：{regionalCard.DisplayName}";
         RebuildEquipmentPlayChoices(
             _snapshot.Players.Single(player => player.IsHuman),
             GetViewLegalActions());
@@ -1136,19 +1140,21 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             .Where(action => action.CardId.HasValue && action.PlayedCardKind is not null)
             .Select(action => action.CardId!.Value)
             .ToHashSet();
-        foreach (var equipment in human.Equipment.Where(card => playableEquipmentIds.Contains(card.Id)))
+        foreach (var equipment in human.Equipment.Concat(human.Judgment).Where(card => playableEquipmentIds.Contains(card.Id)))
         {
+            var isJudgment = human.Judgment.Any(card => card.Id == equipment.Id);
+            var zoneName = isJudgment ? "判定牌" : "装备";
             var selected = _selectedCardId == equipment.Id;
             EquipmentPlayChoices.Add(new PromptChoice(
-                new ChoiceId($"equipment-play.card-{equipment.Id}"),
+                new ChoiceId($"{(isJudgment ? "judgment" : "equipment")}-play.card-{equipment.Id}"),
                 selected
-                    ? $"✓ 已选择装备【{equipment.DisplayName}】；点击取消"
-                    : $"将装备【{equipment.DisplayName}】用于牌型转化",
+                    ? $"✓ 已选择{zoneName}【{equipment.DisplayName}】；点击取消"
+                    : $"将{zoneName}【{equipment.DisplayName}】用于牌型转化",
                 [equipment.Id],
                 [],
                 new Dictionary<string, string>
                 {
-                    ["action"] = "select-equipment-play-card"
+                    ["action"] = isJudgment ? "select-judgment-play-card" : "select-equipment-play-card"
                 }));
         }
 
@@ -1686,7 +1692,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         }
 
         var human = _snapshot.Players.FirstOrDefault(player => player.IsHuman);
-        var physicalCard = human?.Hand.Concat(human.WoodenOxGrain ?? []).Concat(human.Equipment).FirstOrDefault(card => card.Id == _selectedCardId);
+        var physicalCard = human?.Hand.Concat(human.WoodenOxGrain ?? []).Concat(human.Equipment).Concat(human.Judgment).FirstOrDefault(card => card.Id == _selectedCardId);
         CanPlaySelected = selectedActions.Any(action => action.TargetSeats.SequenceEqual(selectedTargets)
             && action.TargetCardId is null && (action.PlayedCardKind is null || action.PlayedCardKind == physicalCard?.Kind));
         var conversionActions = selectedActions.Where(action =>
@@ -1704,7 +1710,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     {
         if (_selectedCardId is not { } cardId || _snapshot.PendingDecision is not { Kind: DecisionKind.PlayCard } prompt) return;
         var human = _snapshot.Players.Single(player => player.IsHuman);
-        var physicalKind = human.Hand.Concat(human.WoodenOxGrain ?? []).Concat(human.Equipment).Single(card => card.Id == cardId).Kind;
+        var physicalKind = human.Hand.Concat(human.WoodenOxGrain ?? []).Concat(human.Equipment).Concat(human.Judgment).Single(card => card.Id == cardId).Kind;
         var targets = SelectedPlayTargets();
         var action = SelectPlayAction(GetViewLegalActions(), cardId, targets, physicalKind,
             asSlash, _selectedConversionSource);

@@ -280,7 +280,7 @@ internal static class BoundaryChengPuChecks
             var programs = SkillProgramCatalog.Load(FixtureRules.Replace("$SCHEMA$", SkillProgramCatalog.RulesSchemaVersion.ToString(System.Globalization.CultureInfo.InvariantCulture)), JsonSerializer.Serialize(new { schemaVersion = 3, skills = labels })).Programs;
             foreach (var (id, program) in programs) b.AddSkill(new(id, id, "实际 owning 子链夹具") { Program = program, Tags = id == "fixture:cp-quiet" ? SkillTag.Locked : SkillTag.None });
             b.AddSkill(new("fixture:cp-pick-other", "固定既有角色", "公开选将评分") { SelectionWeights = Enum.GetValues<Role>().ToDictionary(role => role, _ => 100000d) });
-            var skills = new List<string> { Driver, "boundary:lihuo" };
+            var skills = new List<string> { "boundary:lihuo" };
             if (!nativeRescuer) skills.Add("boundary:chunlao");
             if (kind == CardKind.Alcohol) skills.Add("boundary:jinjiu-current");
             if (kind == CardKind.SilverLion) skills.Add("classic:wusheng");

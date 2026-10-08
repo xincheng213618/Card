@@ -12,7 +12,7 @@ internal sealed class SelectOwnedCardsProgramOperationDescriptor : ProgramOperat
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
     {
         r.AllowOnly("op", "target", "amount", "numberExpression", "minimumCards", "maximumCards",
-            "cardKinds", "suits", "zones", "resultBind", "targetRef", "allowDecline", "condition");
+            "cardKinds", "suits", "zones", "resultBind", "targetRef", "allowDecline", "requireExactCount", "freezeSelectedCardSuits", "condition");
         var variable = r.Has("minimumCards") || r.Has("maximumCards");
         if (variable != (r.Has("minimumCards") && r.Has("maximumCards")) ||
             variable && (r.Has("amount") || r.Has("numberExpression") && r.RequiredEnum<SkillProgramNumberExpression>("numberExpression") != SkillProgramNumberExpression.LivingPlayerCount))
@@ -53,7 +53,24 @@ internal sealed class SelectOwnedCardsProgramOperationDescriptor : ProgramOperat
             variable || expression is not null ? 0 : DrawProgramOperationDescriptor.Amount(r, 20), r.Condition(),
             numberExpression: expression, zones: zones, resultBind: r.RequiredIdentifier("resultBind"),
             minimumCards: minimum, maximumCards: maximum, cardKinds: cardKinds, suits: suits,
-            targetReference: targetRef, allowDecline: r.Has("allowDecline") && r.RequiredBool("allowDecline"));
+            targetReference: targetRef, allowDecline: r.Has("allowDecline") && r.RequiredBool("allowDecline"))
+        {
+            RequireExactCount = r.Has("requireExactCount") ? r.RequiredBool("requireExactCount") : null,
+            FreezeSelectedCardSuits = r.Has("freezeSelectedCardSuits") ? r.RequiredBool("freezeSelectedCardSuits") : null
+        };
+        if (r.Has("requireExactCount"))
+        {
+            if (!r.RequiredBool("requireExactCount") || variable || target != SkillProgramEffectTarget.Owner ||
+                targetRef is not null || expression != SkillProgramNumberExpression.OwnerLostHp ||
+                effect.AllowDecline || zones.Any(zone => zone is not (CardZoneKind.Hand or CardZoneKind.Equipment)))
+                throw new InvalidOperationException($"Invalid skill program at {r.Path}: requireExactCount requires an owner lost-HP hand/equipment selection without variable bounds or decline.");
+            RequireAlways(effect, r.Path);
+        }
+        if (r.Has("freezeSelectedCardSuits"))
+        {
+            if (!r.RequiredBool("freezeSelectedCardSuits") || effect.RequireExactCount != true)
+                throw new InvalidOperationException($"Invalid skill program at {r.Path}: freezeSelectedCardSuits requires the exact owner selection opt-in.");
+        }
         return effect;
     }
 
@@ -63,7 +80,8 @@ internal sealed class SelectOwnedCardsProgramOperationDescriptor : ProgramOperat
                 effect.NumberExpression is null ? effect.Amount : int.MaxValue,
             effect.Target == SkillProgramEffectTarget.Owner && effect.Zones.SequenceEqual([CardZoneKind.Hand]),
             effect.Target)])
-            .Concat(ParticipantResources(effect.TargetReference)).ToArray();
+            .Concat(ParticipantResources(effect.TargetReference))
+            .Concat(effect.RequireExactCount == true ? [new RequireActivationEntry()] : Array.Empty<ProgramResourceOperation>()).ToArray();
 }
 
 public sealed class SelectOwnedCardsSkillProgramEffectHandler : ISkillProgramEffectHandler

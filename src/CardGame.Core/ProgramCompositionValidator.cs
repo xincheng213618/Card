@@ -40,6 +40,8 @@ internal static class ProgramCompositionValidator
             initialSelectedTarget, activationTargetKind, initialTargetSetMaximum);
         ChoosePrivateColorsDiscardAndDuelDescriptor.ValidateComposition(path, effects, window, selectedCardCount, initialSelectedTarget, initialTargetSetMaximum);
         PaidHpLossProgram.ValidateComposition(path, effects, window, selectedCardCount, initialSelectedTarget, initialTargetSetMaximum);
+        YujueResolveDescriptor.ValidateComposition(path, effects, window, selectedCardCount,
+            initialSelectedTarget, initialTargetSetMaximum, activationMinimumCards);
         PayHpToGrantOneUseDamageShieldDescriptor.ValidateComposition(path, effects, window, initialSelectedTarget, initialTargetSetMaximum);
         if (effects.Any(effect => effect.Op == SkillProgramEffectOp.UseOwnerSlashAgainstTurnOwner) &&
             (window != SkillProgramTriggerWindow.TurnEnding || turnOwnerScope != SkillProgramTurnOwnerScope.OtherLiving ||
@@ -63,6 +65,8 @@ internal static class ProgramCompositionValidator
         var targetSetConsumed = false;
         var pindianResults = new HashSet<string>(StringComparer.Ordinal);
         var choiceResults = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal);
+        var choiceRequiredTargets = new Dictionary<(string Bind, string Option), SkillProgramTargetKind>();
+        var choiceTargetSelections = new Dictionary<(string Bind, string Option), SkillProgramEffect>();
         var frozenSuitBindings = new HashSet<string>(StringComparer.Ordinal);
         var typedCardAtoms = effects.Any(effect => effect.Op == SkillProgramEffectOp.FilterBoundCards &&
             (effect.CardCategories.Count > 0 || effect.EquipmentSlots.Count > 0 || effect.CardKinds.Count > 0));
@@ -86,8 +90,13 @@ internal static class ProgramCompositionValidator
                  activationCardCategories is null || !activationCardCategories.SequenceEqual([SkillProgramCardCategory.Equipment])))
                 throw Error(nodePath, "Equipment placement requires one captured owner HE equipment and one initial target.");
             if (effect.Op == SkillProgramEffectOp.LoseOwnerSkillsAndGrant &&
-                (window is not null || index != effects.Count - 1))
+                (window is not null and not SkillProgramTriggerWindow.DyingEntering || index != effects.Count - 1))
                 throw Error(nodePath, "Owner skill replacement must terminate an activation.");
+            if (effect.Op == SkillProgramEffectOp.LoseOwnerSkillsAndGrant &&
+                window == SkillProgramTriggerWindow.DyingEntering &&
+                (effect.Condition.Kind != SkillProgramConditionKind.Always ||
+                 effect.SkillIds.Contains(effect.SourceBind!, StringComparer.Ordinal)))
+                throw Error(nodePath, "Dying-entry owner skill replacement must be unconditional and grant a skill outside its loss set.");
             if (effect.Op == SkillProgramEffectOp.DrawTurnOwnerThenDiscardMaximumHandForDodge &&
                 (window is not null || effects.Count != 1 || selectedCardCount != 0 || initialSelectedTarget ||
                  initialTargetSetCount != 0 || initialTargetSetMaximum != 0))
@@ -156,6 +165,11 @@ internal static class ProgramCompositionValidator
                 throw Error(nodePath, "card bindings cannot cross an independently interactive inserted phase");
             foreach (var resource in descriptor.Resources(effect))
             {
+                if (choiceTargetSelections.Count > 0 &&
+                    resource is (ReadSelectedTarget or RequireSelectedTargetKind or ReadVirtualDuelPair or
+                        ReadTargetSet or ReplaceSingleTarget or NarrowTargetSetToSingle or ConsumeTargetSet) &&
+                    !choiceTargetSelections.Values.Any(producer => ImpliesChoiceBranch(effect.Condition, producer.Condition)))
+                    Fail("conditional selectedTarget requires its matching choice branch");
                 if (hpPairProduced && resource is SelectSingleTarget or ReplaceSingleTarget or SelectTargetSet or
                     NarrowTargetSetToSingle or ConsumeTargetSet)
                     Fail("A frozen HP pair cannot rebuild its selected participants.");
@@ -293,7 +307,8 @@ internal static class ProgramCompositionValidator
                     case RequireOwnedCardSet owned:
                     {
                         var source = Get(owned.Name);
-                        var producer = effects.Take(index).SingleOrDefault(prior => prior.ResultBind == owned.Name && prior.Op == SkillProgramEffectOp.SelectOwnedCards);
+                        var producer = effects.Take(index).SingleOrDefault(prior => prior.ResultBind == owned.Name &&
+                            prior.Op is SkillProgramEffectOp.SelectOwnedCards or SkillProgramEffectOp.SelectOwnedHandRankSum);
                         if (producer is null || producer.Target != owned.Owner || producer.TargetReference is not null ||
                             producer.Condition.Kind != SkillProgramConditionKind.Always || producer.NumberExpression is not null ||
                             source.CardOwner != owned.Owner || owned.MaximumCount is { } cap && source.MaximumCount > cap ||
@@ -425,6 +440,25 @@ internal static class ProgramCompositionValidator
                     case RequireActivationEntry:
                         if (window is not null || selectedCardCount != 0 || initialSelectedTarget) Fail("operation requires a zero-input activation");
                         break;
+                    case RequireSelectedForeignCardSlashActivation:
+                        if (window is not null || selectedCardCount != 0 || index != 0 || effects.Count != 1 ||
+                            !initialSelectedTarget || initialTargetSetMaximum != 0 ||
+                            activationTargetKind != SkillProgramTargetKind.OtherLiving || activationMinimumCards != 0)
+                            Fail("selected foreign-card Slash requires one zero-card, one-other-living-target activation instruction");
+                        break;
+                    case RequireOwnedHandRankSumActivation:
+                        if (window is not null || selectedCardCount != 0 || index != 0 || !initialSelectedTarget ||
+                            initialTargetSetMaximum != 0 || activationTargetKind != SkillProgramTargetKind.OtherLiving)
+                            Fail("owned hand rank sum requires the first instruction of a zero-card one-other-living-target activation");
+                        break;
+                    case RequireBoundParticipantGiftEntry gift:
+                        if (window is SkillProgramTriggerWindow.DrawPhaseEnded or SkillProgramTriggerWindow.CardUseBeforeTargetEffects) break;
+                        if (window is not null || selectedCardCount != 0 || !initialSelectedTarget ||
+                            initialTargetSetMaximum != 0 || activationTargetKind != SkillProgramTargetKind.OtherLiving || index != 1 ||
+                            effects[0] is not { Op: SkillProgramEffectOp.SelectOwnedHandRankSum, ResultBind: { } rankBind } ||
+                            rankBind != gift.Name || effect.ExceptBind is not null || effect.Condition.Kind != SkillProgramConditionKind.Always)
+                            Fail("awaited activation gift requires the exact preceding owned-hand rank-sum selection and original one other target");
+                        break;
                     case RequireActivationHandComparison:
                         if (window is not null || selectedCardCount != 1 || activationMinimumCards != 1 || cardsConsumed || !initialSelectedTarget || activationTargetKind != SkillProgramTargetKind.OtherLiving || activationSourceZones is null || !activationSourceZones.SequenceEqual([CardZoneKind.Hand])) Fail("hand comparison needs exactly one unconsumed activation input");
                         cardsConsumed = true; // The instruction claims its selected input for reveal, without moving it.
@@ -473,6 +507,11 @@ internal static class ProgramCompositionValidator
                             bindings.ContainsKey(choice.Name) || pindianResults.Contains(choice.Name) ||
                             coverageResults.Contains(choice.Name))
                             Fail($"duplicate result binding '{choice.Name}'");
+                        if (effect is { Op: SkillProgramEffectOp.ChooseOption, Target: SkillProgramEffectTarget.Owner,
+                                Condition.Kind: SkillProgramConditionKind.Always } &&
+                            effect.ChooserRef is null or { Kind: ProgramParticipantRef.Owner })
+                            foreach (var option in effect.Options.Where(option => option.RequiredTargetKind is not null))
+                                choiceRequiredTargets.Add((choice.Name, option.Id), option.RequiredTargetKind!.Value);
                         break;
                     case CreateCoverageResult coverage:
                         if (!coverageResults.Add(coverage.Name) || bindings.ContainsKey(coverage.Name) ||
@@ -481,6 +520,8 @@ internal static class ProgramCompositionValidator
                         break;
                     case RequireSelectedTargetKind requiredTarget:
                     {
+                        if (choiceTargetSelections.Values.Any(branchProducer => branchProducer.TargetKind == requiredTarget.Kind &&
+                            ImpliesChoiceBranch(effect.Condition, branchProducer.Condition))) break;
                         var producer = effects.Take(index).LastOrDefault(item => item.Op == SkillProgramEffectOp.SelectTarget);
                         if (producer is null && index == 0 && initialSelectedTarget && activationTargetKind == requiredTarget.Kind)
                             break; // The activation's own target selection provides the declared participant kind.
@@ -489,7 +530,9 @@ internal static class ProgramCompositionValidator
                         break;
                     }
                     case ReadSelectedTarget:
-                        if (!selectedTarget) Fail("selectedTarget must be produced before it is read");
+                        if (!selectedTarget && !choiceTargetSelections.Values.Any(producer =>
+                            ImpliesChoiceBranch(effect.Condition, producer.Condition)))
+                            Fail("selectedTarget must be produced before it is read");
                         break;
                     case CreateHpPairSnapshot:
                         if (hpPairProduced) Fail("An HP pair may have only one unconditional producer.");
@@ -574,6 +617,10 @@ internal static class ProgramCompositionValidator
                         if (cardActionRelation != requiredRelation.Relation || cardKinds is not { Count: > 0 } || cardKinds.Any(kind => !requiredRelation.Kinds.Contains(kind)))
                             Fail("operation requires its declared card-action participant relation and supported card kinds");
                         break;
+                    case RequireActorHandLimitPenaltyTarget:
+                        if (cardActionRelation != SkillProgramCardActionOwnerRelation.Target)
+                            Fail("actor hand-limit penalty requires its declared card-action target relation");
+                        break;
                     case RequireContext required:
                         if ((capabilities & required.Capability) != required.Capability)
                             Fail($"operation requires context {required.Capability}, supplied {capabilities}");
@@ -584,6 +631,17 @@ internal static class ProgramCompositionValidator
                         break;
                     case SelectSingleTarget:
                         if (selectedTarget || targetSetAvailable) Fail("a composition may select its target only once");
+                        if (effect.Condition.Kind == SkillProgramConditionKind.ChoiceIs)
+                        {
+                            var branch = (Bind: effect.Condition.SourceBind!, Option: effect.Condition.OptionId!);
+                            if (!choiceRequiredTargets.TryGetValue(branch, out var requiredKind) || requiredKind != effect.TargetKind)
+                                Fail("choice-guarded target selection requires a prior owner option with matching requiredTargetKind");
+                            if (choiceTargetSelections.Keys.Any(key => key.Bind != branch.Bind) ||
+                                !choiceTargetSelections.TryAdd(branch, effect))
+                                Fail("a choice branch may select its target only once");
+                            break;
+                        }
+                        if (choiceTargetSelections.Count > 0) Fail("a composition may select its target only once");
                         selectedTarget = true;
                         break;
                     case NarrowTargetSetToSingle:
@@ -596,7 +654,8 @@ internal static class ProgramCompositionValidator
                             Fail("a replacement target requires one existing single target");
                         break;
                     case SelectTargetSet:
-                        if (selectedTarget || targetSetAvailable) Fail("a composition may select its targets only once");
+                        if (selectedTarget || targetSetAvailable || choiceTargetSelections.Count > 0)
+                            Fail("a composition may select its targets only once");
                         targetSetAvailable = true;
                         break;
                     case ConsumeTargetSet:

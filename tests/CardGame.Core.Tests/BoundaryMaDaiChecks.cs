@@ -54,7 +54,7 @@ internal static class BoundaryMaDaiChecks
         var use=BenefitUse(g);var useId=use.Id;var b=use.ShownEntityBenefits!.Single();
         var input=b.PhysicalMaterials.ToList();var clone=b with{PhysicalMaterials=input};input.Clear();
         Require(use.Action is {Type:CardActionType.Use,EffectiveKind:CardKind.FireSlash,PhysicalCards.Count:2} action &&
-            action.PhysicalCards.Select(c=>c.CardId).SequenceEqual([shown,other]) &&b.PhysicalMaterials.SequenceEqual(action.PhysicalCards) &&
+            action.PhysicalCards.Select(c=>c.CardId).SequenceEqual(new[]{shown,other}.Order()) &&b.PhysicalMaterials.SequenceEqual(action.PhysicalCards) &&
             clone.PhysicalMaterials.Count==2 &&clone.PhysicalMaterials is System.Collections.IList{IsReadOnly:true},
             "The owning Use freezes the complete two-material conversion, including the undisplayed private material, and explicit init detaches caller lists.");
         Require(Facts<ShownEntityUseBenefitIssuedEvent>(g).Single(e=>e.CardUseFrameId==useId).Policy.CardId==shown,

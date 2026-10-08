@@ -1,0 +1,224 @@
+{
+  "sourceRecordSchemaVersion": 1,
+  "generalId": "ol:sima-lang",
+  "characterName": "司马朗",
+  "officialId": 360,
+  "sourcePage": "https://www.sanguosha.com/hero/360",
+  "capturedAt": "2026-10-08",
+  "capturedAtUtc": "2026-10-07T16:49:17Z",
+  "captureTimeZone": "Asia/Shanghai",
+  "rulesetId": "sanguosha-ol",
+  "sources": [
+    {
+      "role": "current official OL skill text",
+      "url": "https://www.sanguosha.com/hero/360",
+      "httpStatus": 200,
+      "responseSha256": "2cb3844b9ec8fb596b5c5a3f7717a4628e45ff411c56ef46c29ebf38ecd34a27",
+      "responseByteCount": 26595,
+      "hashScope": "decoded HTTP response body bytes"
+    },
+    {
+      "role": "current official OL skill text",
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=360",
+      "httpStatus": 200,
+      "responseSha256": "39ebb9ee353bf1199c70bd6fd11a630d7417c4cd7050b2d37e982ab5a9a12592",
+      "responseByteCount": 1096,
+      "hashScope": "decoded HTTP response body bytes"
+    },
+    {
+      "role": "historical official OL explanation, separate from current printed text",
+      "url": "https://www.sanguosha.com/news/20180315_7754_1716",
+      "httpStatus": 200,
+      "responseSha256": "f4c44f4118c5dd161fd827913ac2cfe569bb852e8b5b52a35efa0fb9783d2fbc",
+      "responseByteCount": 48083,
+      "hashScope": "decoded HTTP response body bytes"
+    },
+    {
+      "role": "official initial_hp rendering semantics",
+      "url": "https://www.sanguosha.com/assets/js/heroDetail.js?1",
+      "httpStatus": 200,
+      "responseSha256": "55617a7de749ff8bf19ecd2b17682b59f35554090d5c1a8cc2101121ea248a59",
+      "responseByteCount": 15166,
+      "hashScope": "decoded HTTP response body bytes"
+    },
+    {
+      "role": "current official OL roster group",
+      "url": "https://www.sanguosha.com/hero",
+      "httpStatus": 200,
+      "responseSha256": "df68e4bb68731cf79e2ab27a2c970b251c75e084c321769d140bb3847e73bb26",
+      "responseByteCount": 1319990,
+      "hashScope": "decoded HTTP response body bytes"
+    }
+  ],
+  "indexFields": {
+    "gid": 360,
+    "name": "司马朗",
+    "extend": "其他",
+    "extendOrigin": "current official roster, not hero/info API",
+    "figure": "魏",
+    "figure_py": "wei",
+    "hp": 3,
+    "initial_hp": 0,
+    "quality": "稀有",
+    "label": [
+      "辅助",
+      "保核能力",
+      "奶爸"
+    ],
+    "characteristic": "能够为队友回复体力值，能够为队友补充并调整手牌。自身很脆弱，会成为敌人优先攻击的目标。",
+    "biography": "字伯达，“司马八达”之一。曹操任司空后，司马朗被辟为司空属官，又历任成皋[gāo]令、堂阳长、元城令、丞相主簿、兖[yǎn]州刺史等职，所在皆有政绩，深受百姓爱戴。后司马朗与夏侯惇[dūn]、臧霸等征讨吴国，到达居巢。军队中流行瘟疫，司马朗亲自去视察，派送医药，因此染病去世。"
+  },
+  "genderEvidence": {
+    "implementedGender": "male",
+    "officialApiContainsGender": false,
+    "basis": "Historical identity and the visually inspected official portrait. Male is an inference, not an explicit current API gender field."
+  },
+  "artwork": {
+    "skinId": "36000",
+    "skinName": "经典形象",
+    "skinNameOrigin": "catalog label for the default portrait; the current API advertises the image without a skin-name field",
+    "advertisedImageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/36000.png",
+    "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/36000.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-sima-lang.png",
+    "sha256": "6269b51b79ec11d26980a94e15a14f4a37a903a1ffc7ae025e8a41e414adb4ab",
+    "byteCount": 1184367,
+    "pixelWidth": 750,
+    "pixelHeight": 950,
+    "httpStatus": 200,
+    "visuallyInspected": true,
+    "visualObservation": "A male figure wearing blue winter robes and a tall blue cap, with a pale fur collar, holds a red flowering branch in one hand and a scroll or book near the other, surrounded by snowy trees."
+  },
+  "skills": [
+    {
+      "name": "郡兵",
+      "programId": "ol:junbing",
+      "text": "每名角色的结束阶段，若其手牌数不大于1，其可以摸一张牌并交给你所有手牌，然后你交给其等量张牌。",
+      "textOrigin": "current hero/360 exact text",
+      "mapping": "Two disjoint owner Ending and foreign living Ending entries offer the actual turn player a private choice if its frozen event-target hand count is at most one. On acceptance the participant draws one real card. For a foreign participant its entire actual hand is then transferred to the skill owner, with the given count N frozen once, followed by a required owner HE return through real card movements and continuations. Normally the return is exactly N; if intervening real children leave fewer transferable HE cards, all remaining transferable HE cards are required. For the owner's own Ending only the one-card draw and its children occur.",
+      "notes": [
+        "The lifecycle entry is mandatory so the owner does not make the foreign player's optional decision; the shared operation owns the actual turn player's choice.",
+        "The self-use draw and foreign-first-transfer-then-return order are retained. Self-use does not let the owner move equipped cards into its own hand."
+      ]
+    },
+    {
+      "name": "去疾",
+      "programId": "ol:quji",
+      "text": "出牌阶段限一次，你可以弃置X张牌令至多X名角色各回复1点体力（X为你已损失体力值），若弃置牌中有黑色牌，你失去1点体力。",
+      "textOrigin": "current hero/360 exact text",
+      "mapping": "An active owner Play-phase entry, once per Play, is gated by Wounded. Freeze X as lost HP and select exactly X owner hand/equipment cards, without accepting an insufficient partial cost. Freeze each selected card's owner-effective suit before discarding or resolving children. Discard the exact bound set and await movement children, reveal the already discarded bound cards, select zero through X distinct living recipients, apply one genuine recovery to each, then lose one real owner HP if the frozen selected suits include club or spade. The non-black set is heart, diamond and none, so a colorless entity alone does not incur HP loss.",
+      "notes": [
+        "The activation has no initial card or target inputs; the running program owns the exact cost and bounded target choices.",
+        "X is frozen before cost movements. The recipient limit reads the explicitly named quji-cost binding rather than whichever binding happened to be produced last.",
+        "Self, zero recipients and full-HP recipients are allowed by the selected literal interpretation of current role text; a full-HP recipient receives the engine's ordinary no-op recovery.",
+        "The black-cost branch uses the same frozen owner-effective suits for one or several selected cards, after the real discard and public reveal. A mixed red/black cost still loses one HP; a colorless None suit is not black."
+      ]
+    }
+  ],
+  "historicalInterpretation": {
+    "url": "https://www.sanguosha.com/news/20180315_7754_1716",
+    "title": "4月17日蒋琬费祎 李严 司马朗 界陆逊特惠",
+    "currentFormalFaq": false,
+    "printedSkillTexts": [
+      {
+        "name": "郡兵",
+        "text": "一名角色的结束阶段，若其手牌数小于等于1，其可以摸一张牌并将所有手牌交给你，然后你将等量的牌交给该角色。"
+      },
+      {
+        "name": "去疾",
+        "text": "出牌阶段限一次，你可以弃置X张牌，令最多X名（X为你已损失的体力值）角色各回复1点体力。若你弃置过黑色牌，你失去1点体力。"
+      }
+    ],
+    "officialExplanationQuotes": [
+      "值得注意的是这个技能可以由司马朗自己发动为自己补充手牌。",
+      "需要注意的是这个技能必须在司马朗已受伤的情况下发动",
+      "你可以弃置等同于已损失体力值张数的牌并选择至多等量的已受伤角色"
+    ],
+    "interpretationOnly": "The historical official analysis explicitly supports self-triggered Junbing and requiring a wounded owner for Quji. Its injured-recipient wording differs from the accompanying shortened skill text and current hero/360 text. That disagreement is retained, rather than presenting the older recipient restriction as current printed text. No community-authored FAQ is used as a formal current ruling."
+  },
+  "implementationInterpretations": [
+    {
+      "boundary": "Junbing self-use",
+      "currentTextBasis": "Every character includes the owner; the 2018 official analysis explicitly confirms the owner can trigger the skill to gain a card.",
+      "chosenBehavior": "Draw one only, with no self-gift or self-equipment transfer.",
+      "evidenceLimit": "The draw-only shortcut is an engine interpretation of self-transfer semantics, not an explicit current formal official FAQ."
+    },
+    {
+      "boundary": "Junbing return zones",
+      "currentTextBasis": "The first transfer explicitly says hand cards; the return says cards without the hand qualifier.",
+      "chosenBehavior": "The owner may return hand or equipped cards, including real equipment-loss effects; cards stored under equipment or in other piles are excluded.",
+      "evidenceLimit": "HE is a rule interpretation of the zone wording. The searched formal current role page and official announcements do not enumerate each return zone."
+    },
+    {
+      "boundary": "Junbing movement order",
+      "currentTextBasis": "Draw one and give all hand cards, then return the same number.",
+      "chosenBehavior": "Actual draw children finish before the complete foreign hand is bound; the outgoing transfer and its movement/gain children finish before the owner return continues. Freeze GivenCount N once and never recompute it after children. Normal return requires exactly N with no early finish. If intervening gain/loss children leave fewer than N transferable HE cards, require min(N, available) and create no later-turn debt. Self-use drains real draw children before completing.",
+      "evidenceLimit": "The textual order is explicit. The engine's exact pause, typed child completion, cold-resume and resource-shortage fallback boundaries are implementation contracts, not confirmed current official FAQ rulings."
+    },
+    {
+      "boundary": "Quji at zero lost HP",
+      "currentTextBasis": "X is lost HP; current hero/360 does not separately spell out the zero case. The 2018 official analysis explicitly says the owner must be wounded.",
+      "chosenBehavior": "A Wounded activation guard excludes X equal to zero.",
+      "evidenceLimit": "Supported by historical official explanation; not represented as a newly confirmed current FAQ."
+    },
+    {
+      "boundary": "Quji recipient set",
+      "currentTextBasis": "Current text says up to X characters without other or wounded qualifiers.",
+      "chosenBehavior": "Allow zero recipients, self and full-HP living recipients. The same named cost count limits the set.",
+      "evidenceLimit": "Zero is a literal interpretation of up to; self is not excluded. Allowing full-HP recipients is a deliberate current-text interpretation despite the older official analysis's wounded-recipient wording. No explicit current ruling resolving that disagreement was found."
+    },
+    {
+      "boundary": "Quji black-cost test",
+      "currentTextBasis": "Current text asks whether the discarded cards include black cards.",
+      "chosenBehavior": "Freeze all selected entities' owner-effective suits in a read-only binding before real discard or movement children, then reveal only the discarded bound set. One and multiple selected cards use that same frozen list. Not-all-heart-or-diamond-or-none represents the presence of a club or spade suit, without treating a colorless entity as black.",
+      "evidenceLimit": "No official Quji/Hongyan interaction ruling was found. Freezing the pre-discard owner-effective suits is an inference that applies the engine's existing effective-suit contract consistently to one and multiple entities; it is not verified official behavior for a character combining these skills."
+    }
+  ],
+  "timingInterpretation": {
+    "officialCurrentTextExplicitlyNamesEngineWindow": false,
+    "officialCurrentFaqFound": false,
+    "implementationInference": "TurnEnding maps each actual Ending boundary. The event target is the actual turn participant, and its hand count is frozen at the candidate window. Owner and foreign scopes are disjoint. Payment, card movement, ordered recipient recovery, optional participant control and cold-resume contracts are engine mappings of the current printed rule.",
+    "evidenceBoundary": "Current hero/360 and hero/info metadata control the printed skills and attributes. The current roster supplies the Other group and official frontend code supplies initial_hp-zero semantics. The 2018 official OL analysis is historical explanation with its recipient-text conflict documented. Community repost FAQ and Ten-Year variants are not treated as formal current rules."
+  },
+  "observations": [
+    "All five listed primary HTTP sources returned 200 when this record was captured.",
+    "The local capture date is 2026-10-08 in Asia/Shanghai; the UTC capture timestamp is on 2026-10-07.",
+    "Official frontend initial_hp zero means no override; base and initial HP are three.",
+    "The API has no explicit gender or expansion-group field; Male is an inference and Other comes from the official roster.",
+    "Only the deliverable official portrait was downloaded; no temporary asset tree or source archive was created.",
+    "This record contains static HTTP/text/portrait evidence. Build and runtime verification belong to the coordinating goal and are not claimed here."
+  ],
+  "implementedMetadata": {
+    "bundleResourceName": "ordinary-sima-lang",
+    "characterId": "character:sima-lang",
+    "variantId": "ordinary",
+    "generalInitialSkillIds": [
+      "ol:junbing",
+      "ol:quji"
+    ],
+    "skillMetadata": [
+      {
+        "id": "ol:junbing",
+        "displayName": "郡兵",
+        "tags": [],
+        "executionForms": [
+          "trigger"
+        ],
+        "triggerIds": [
+          "ending-self-hand-exchange",
+          "ending-foreign-hand-exchange"
+        ]
+      },
+      {
+        "id": "ol:quji",
+        "displayName": "去疾",
+        "tags": [],
+        "actionForms": [
+          "active"
+        ],
+        "activationIds": [
+          "discard-lost-hp-and-recover"
+        ]
+      }
+    ]
+  }
+}

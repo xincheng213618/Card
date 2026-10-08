@@ -31,3 +31,7 @@
 - 内容静态校验：`tools/Inspect-SkillProgram.ps1` 对 ol-liu-hong.rules.json + presentation.json 解析通过——ol:yujue（yujue-launch=PlayPhaseStarting）、ol:tuxing（tuxing-arm-catchup=TurnStartBeforeNormalFlow）、ol:zhihu（zhihu-draw=AfterDamageApplied、zhihu-expire-own/-other=TurnStartBeforeNormalFlow）均按描述符目录解析成功（load-and-resource-contracts-only，非行为测试）。
 - 开发期临时诊断（已删除，非测试套件）：临时控制台工程以 ContentRegistry.Build 完整注册验证 ol:liu-hong（qun/4/Male/character:liu-hong）与三技能全部加载、playable=true；并以受限自建模式驱动 2–4 人身份局实际对局（种子 1/2/3/5/7/11）：鬻爵五段提示链（选栏→选目标→目标交牌）、装备栏废除、执笏授予与"下回合开始"失效、图兴 +1 体力上限并回复、五栏全废后 -4 与全局伤害 +1（`ProgramGameDamageBonusArmedEvent` 恰一次、`【图兴】令本次伤害 +1` 伤害日志、含传导）均按预期发生；执笏"对其他角色造成伤害后摸两张牌"出现 reason=skill-program.ol:zhihu.Draw 的公开移动。该诊断据此修掉两处缺陷：图兴门控误用鬻爵帧的实例 id（改为 EnabledContentSkillIds 存在性检查）、武装事件技能归属误记鬻爵（改为显式 ol:tuxing）。
 - 本批在独立 worktree（batch/ol-liu-hong）开发，与另两路 OL 普通版批次并行；本批不写任何测试、合并流程不跑测试套件为用户/协调者指令。
+
+## 后续协同整合修正
+
+以上是原开发分支的历史实现与验证记录。本工作区后续修复了被累积改动遮蔽的接线、鬻爵主动入口及拒绝和可用装备栏选择、付款子窗与图兴来源归因，并增加针对缺陷的真实命令检查；当前实现和实际验证边界见[第十一轮协同整合记录](2026-10-08-content-continuation-round11.md)。原分支的阶段开始入口与构建记录不代表新行为已经验收。

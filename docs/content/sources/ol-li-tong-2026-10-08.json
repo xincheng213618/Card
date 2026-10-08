@@ -1,0 +1,179 @@
+{
+  "sourceRecordSchemaVersion": 1,
+  "generalId": "ol:li-tong",
+  "characterName": "李通",
+  "officialId": 364,
+  "sourcePage": "https://www.sanguosha.com/hero/364",
+  "capturedAt": "2026-10-08",
+  "capturedAtUtc": "2026-10-07T17:54:24Z",
+  "captureTimeZone": "Asia/Shanghai",
+  "rulesetId": "sanguosha-ol",
+  "sources": [
+    {
+      "role": "current official OL printed skill text",
+      "url": "https://www.sanguosha.com/hero/364",
+      "httpStatus": 200,
+      "responseByteCount": 25995,
+      "responseSha256": "4eecfaac35080cc3064fa6fc90a7fbe07e530503af88752edd8633787d45c8fc",
+      "hashScope": "UTF-8 encoding of decoded HTTP response text"
+    },
+    {
+      "role": "current official OL character metadata; no skill text or gender field",
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=364",
+      "httpStatus": 200,
+      "responseByteCount": 982,
+      "responseSha256": "f1cc46e285ce710913fe617acf1e9239963f27b3f415f9f02055254bdba63c51",
+      "hashScope": "UTF-8 encoding of decoded HTTP response text"
+    },
+    {
+      "role": "historical official OL 2.80 rules, explicit discarded-pile destination and benefit order",
+      "url": "https://www.sanguosha.com/news/20160909_6466_5110",
+      "httpStatus": 200,
+      "responseByteCount": 62491,
+      "responseSha256": "7e18eee8a6ca9ae0da505847e36cedd036da12559377b9b34ed53a01ea03fa65",
+      "hashScope": "UTF-8 encoding of decoded HTTP response text"
+    },
+    {
+      "role": "historical official OL release introduction; separate from current printed text",
+      "url": "https://www.sanguosha.com/news/20170214_6432_3411",
+      "httpStatus": 200,
+      "responseByteCount": 32391,
+      "responseSha256": "1fb51e1c5921ed474d6aced5a14f49a89633d3faca076539f5b8d0e713952e15",
+      "hashScope": "UTF-8 encoding of decoded HTTP response text"
+    },
+    {
+      "role": "official initial_hp rendering semantics",
+      "url": "https://www.sanguosha.com/assets/js/heroDetail.js?1",
+      "httpStatus": 200,
+      "responseByteCount": 15166,
+      "responseSha256": "55617a7de749ff8bf19ecd2b17682b59f35554090d5c1a8cc2101121ea248a59",
+      "hashScope": "UTF-8 encoding of decoded HTTP response text"
+    },
+    {
+      "role": "current official OL roster classification",
+      "url": "https://www.sanguosha.com/hero",
+      "httpStatus": 200,
+      "responseSha256": "df68e4bb68731cf79e2ab27a2c970b251c75e084c321769d140bb3847e73bb26",
+      "responseByteCount": 1319990,
+      "hashScope": "UTF-8 encoding of decoded HTTP response text"
+    }
+  ],
+  "indexFields": {
+    "gid": 364,
+    "name": "李通",
+    "extend": "其他",
+    "extendOrigin": "current official roster, not hero/info API",
+    "figure": "魏",
+    "figure_py": "wei",
+    "hp": 4,
+    "initial_hp": 0,
+    "quality": "普通",
+    "label": [
+      "防御",
+      "过牌",
+      "卖血"
+    ],
+    "characteristic": "受伤后在下一轮获得大量的牌对敌人进行报复。没有牌时被攻击无法发动技能。",
+    "biography": "字文达，小字万亿。江夏平春（今河南信阳）人，汝南太守。早年以游侠闻名于江汝，在率众补充曹操兵源有功拜为阳安都尉，其间不因私而忘公，不因其妻子的求请而过问执法者。后来在曹操讨伐马超时出阵挑战，死于马超枪下。"
+  },
+  "metadataEvidence": {
+    "skillsOrigin": "current hero/364 HTML body; the API returns metadata, radar and deeds, not skill rules",
+    "initialHpInterpretation": "The official renderer treats initial_hp=0 as the ordinary full-health display, so native maximum and initial HP are both 4.",
+    "ordinaryQuality": "The current official roster and hero/info API both label the character 普通; historical SP naming is not substituted for the current roster's 其他 group."
+  },
+  "genderEvidence": {
+    "implementedGender": "male",
+    "officialApiContainsGender": false,
+    "basis": "Historical identity and the visually inspected official portrait. Male is an inference, not an explicit current API gender field."
+  },
+  "artwork": {
+    "skinId": "36400",
+    "skinName": "经典形象",
+    "skinNameOrigin": "catalog label for the advertised default portrait; the API does not provide a skin-name field",
+    "advertisedImageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/36400.png",
+    "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/36400.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-li-tong.png",
+    "sha256": "ff38a7d8fabb0c59e9cbf3e0bb21236c1cad202f48b9bbeaa0112d73dbf900e6",
+    "byteCount": 1030792,
+    "pixelWidth": 750,
+    "pixelHeight": 950,
+    "httpStatus": 200,
+    "visuallyInspected": true,
+    "visualObservation": "A male warrior with a high dark topknot, purple tunic, metallic shoulder armor and a long blue cloak rides a dark horse through a blue forest stream while holding a long pole weapon."
+  },
+  "skills": [
+    {
+      "name": "推锋",
+      "programId": "ol:tuifeng",
+      "text": "当你受到1点伤害后，你可以将一张牌置于你的武将牌上，称为“锋”。准备阶段，你移去所有“锋”，摸两倍数量的牌，你本回合使用【杀】的限制次数+X（X为你本回合移去“锋”的数量）。",
+      "textOrigin": "current hero/364 exact text",
+      "mapping": "For each applied owner damage point, offer one optional owner hand/equipment card storage into the source skill instance's own face-up persistent 锋 pile. At actual owner Preparation, mandatorily remove every card from that exact source pile, freezing the removed identities and N once. Resolve the real discard and movement/equipment children before drawing 2N genuine cards; after draw children, add N to the owner's Slash-use quota for the actual turn. The store and cash-out steps use typed owning-frame receipts so replay and cold continuation cannot pay or grant the same step twice.",
+      "notes": [
+        "One damage event of several points offers separately per point; there is no turn or phase storage limit.",
+        "The cash-out is compulsory when that exact pile is nonempty, while the damage-point storage choice is optional. The current skill name has no Locked tag.",
+        "The public pile is isolated by owner, skill ID and skill instance. It is not the legacy Authority zone and does not collect another character's cards."
+      ]
+    }
+  ],
+  "historicalInterpretation": [
+    {
+      "url": "https://www.sanguosha.com/news/20160909_6466_5110",
+      "title": "《三国杀OL》9月22日2.80版本更新公告",
+      "currentFormalFaq": false,
+      "printedSkillText": "【推锋】1.当你受到1点伤害后，你可以将一张牌置于武将牌上，称为“锋”。2.准备阶段开始时，若你的武将牌上有“锋”，你将所有“锋”置入弃牌堆，摸2X张牌，然后你于此回合的出牌阶段内使用【杀】的次数上限+X（X为你此次置入弃牌堆的“锋”数）。",
+      "interpretationOnly": "This historical OL announcement explicitly expands removed 锋 to the discard pile and orders the draw before the quota increase. It defines X for this removal, whereas current hero/364 defines X using removal during this turn."
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20170214_6432_3411",
+      "title": "武将李通上架商城 特典送皮送秀超值奉献",
+      "currentFormalFaq": false,
+      "printedSkillText": "【推锋】当你受到1点伤害后，你可以将一张牌置于武将牌上，称为“锋”。准备阶段开始时，若你有“锋”，你移去所有“锋”，摸两倍数量的牌，然后本回合你可以多使用X张【杀】。（X为你本回合移去“锋”的数量）",
+      "interpretationOnly": "The introduction supports the current per-point storage and draw-then-Slash benefit sequence. Its prose mentions planning hand cards but does not formally restrict the printed generic card cost to hand only."
+    }
+  ],
+  "implementationInterpretations": [
+    {
+      "boundary": "storage source zones",
+      "currentTextBasis": "The current text says one card without a hand-only qualifier.",
+      "chosenBehavior": "Select exactly one transferable owner hand or equipped card. Hidden cards under equipment and other persistent piles are not eligible.",
+      "evidenceLimit": "HE follows the engine's existing owned-card payment convention. No current formal official FAQ enumerating every zone was found."
+    },
+    {
+      "boundary": "removed pile destination and order",
+      "currentTextBasis": "Current text says remove all 锋 and draw twice their count; the 2016 official OL announcement explicitly says move to the discard pile, draw 2X, then increase Slash quota.",
+      "chosenBehavior": "Use real discard movement, drain movement/equipment children, draw 2N and its children, then grant N extra uses until actual TurnEnded.",
+      "evidenceLimit": "The explicit discard destination is from historical official OL rules. Exact child timing, typed return and cold-resume behavior are engine implementation contracts rather than newly confirmed current FAQ."
+    },
+    {
+      "boundary": "frozen count",
+      "currentTextBasis": "All 锋 are removed before the benefit is computed.",
+      "chosenBehavior": "Freeze the complete source pile and N once; intervening children cannot increase, reduce or repeat this removal's draw or quota grant.",
+      "evidenceLimit": "Receipt ownership and freezing are replay implementation contracts."
+    },
+    {
+      "boundary": "multiple Preparation phases in one actual turn",
+      "currentTextBasis": "Current text defines X using removal in this turn; the 2016 announcement defines X for this removal.",
+      "chosenBehavior": "Each real removal grants N extra Slash uses from that removal, so successive removals naturally total the turn's removed count. Draw 2N for each real removal; do not add a cumulative total again.",
+      "evidenceLimit": "This reconciles the ordinary one-Preparation reading and avoids double-counting an inserted Preparation. No current formal official multiple-Preparation FAQ was found."
+    },
+    {
+      "boundary": "empty source pile",
+      "currentTextBasis": "Current abbreviated text says remove all 锋; the older official rules explicitly require existing 锋.",
+      "chosenBehavior": "An empty exact source pile creates no card movement, draw or quota benefit.",
+      "evidenceLimit": "No effect at zero is the shared operation's implementation boundary."
+    }
+  ],
+  "contentFiles": {
+    "bundle": "ordinary-li-tong",
+    "module": "src/CardGame.Content.Standard/OrdinaryLiTongContent.cs",
+    "rules": "src/CardGame.Content.Standard/SkillPrograms/ordinary-li-tong.rules.json",
+    "presentation": "src/CardGame.Content.Standard/SkillPrograms/ordinary-li-tong.presentation.json",
+    "embeddedRulesResource": "CardGame.Content.Standard.SkillPrograms.ordinary-li-tong.rules.json",
+    "embeddedPresentationResource": "CardGame.Content.Standard.SkillPrograms.ordinary-li-tong.presentation.json"
+  },
+  "evidenceLimitations": [
+    "No current formal official FAQ establishing a narrower hand-only storage source, inserted-Preparation accumulation policy, or exact engine suspension semantics was found.",
+    "The biography and artwork are official source material; inferred gender is not presented as a current API field.",
+    "Runtime acceptance, focused behavior checks and batch verification are coordinated separately by the root agent. This source archive records HTTP, text and visual evidence and does not claim those checks have run."
+  ]
+}

@@ -1,0 +1,268 @@
+{
+  "sourceRecordSchemaVersion": 1,
+  "documentKind": "Current official ordinary OL Zuo Fen full two-skill source",
+  "capturedAt": "2026-10-09",
+  "status": "Complete ordinary OL Zuo Fen implementation accepted by the recorded focused and routine checks.",
+  "sourceRegistered": true,
+  "registered": true,
+  "productionImplemented": true,
+  "behaviorValidated": true,
+  "behaviorAccepted": true,
+  "generalIdProposal": "ol:zuo-fen",
+  "characterName": "左棻",
+  "officialId": 354,
+  "rulesetId": "sanguosha-ol",
+  "variantProposal": "ordinary",
+  "sourcePage": "https://www.sanguosha.com/hero/354",
+  "currentOfficialMetadata": {
+    "gid": 354,
+    "name": "左棻",
+    "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/354.png",
+    "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/35400.png",
+    "label": [
+      "防御",
+      "过牌",
+      "辅助"
+    ],
+    "figure": "晋",
+    "figure_py": "jin",
+    "quality": "传说",
+    "biography": "左棻[fēn]，字兰芝，齐国临淄（今山东临淄）人，少好学，善属文。为晋武帝司马炎的贵人。今存诗、赋、颂、赞、诔[lěi]等20余篇，大都为应诏而作，《离思赋》最著名。",
+    "characteristic": "诏颂对敌方使用时要慎重，莫要因小失大。",
+    "hp": 3,
+    "initial_hp": 0,
+    "score": 0
+  },
+  "metadataInterpretation": {
+    "gender": "Female: character.h=2",
+    "maxHp": 3,
+    "initialHp": 3,
+    "initialHpNote": "Official API initial_hp=0 means ordinary full starting HP before native mode modifiers.",
+    "hasConcealment": false,
+    "concealmentBasis": "All assigned current ordinary skill slots and complete texts captured; no concealment wording.",
+    "derivedSkills": [],
+    "defaultSkinId": 35400,
+    "artist": "画师:福州明暗"
+  },
+  "character": {
+    "path": "/GameCharacters/character/255",
+    "row": {
+      "a": 354,
+      "b": "左棻",
+      "d": "ZuoFen",
+      "e": 44,
+      "f": "41",
+      "g": 6,
+      "h": 2,
+      "i": 3,
+      "j": 3043,
+      "k": 3042,
+      "p": 3,
+      "q": "1",
+      "r": "935401",
+      "y": "左棻[fēn]，字兰芝，齐国临淄（今山东临淄）人，少好学，善属文。为晋武帝司马炎的贵人。今存诗、赋、颂、赞、诔[lěi]等20余篇，大都为应诏而作，《离思赋》最著名。",
+      "z": "诏颂对敌方使用时要慎重，莫要因小失大。",
+      "aa": 150,
+      "ab": "875,876",
+      "ad": "画师:福州明暗",
+      "x": "侍尊之荣，####如何比得上离亲之恨？",
+      "am": "true",
+      "ap": 800,
+      "aq": 240,
+      "bx": 200000,
+      "LordCardRate1": 0,
+      "LordCardRate2": 34,
+      "cc": 35403,
+      "starMax": 4
+    }
+  },
+  "skills": [
+    {
+      "officialSkillId": 3042,
+      "id": "ol:zhaosong",
+      "name": "诏颂",
+      "exactText": "其他角色摸牌阶段结束时，若其没有本技能的标记，你可以令其正面朝上交给你一张手牌，其根据此牌类型获得对应标记：•锦囊牌(\"诔\")：进入濒死时，回复至1点体力并摸一张牌；•装备牌(\"赋\")：出牌阶段开始时，弃置一名角色区域里至多两张牌；•基本牌(\"颂\")：使用【杀】指定唯一目标时，多指定至多两个目标。",
+      "rawClientText": "其他角色摸牌阶段结束时，若其没有本技能的标记，你可以令其正面朝上交给你一张手牌，其根据此牌类型获得对应标记：<br>•锦囊牌(\"诔\")：进入濒死时，回复至1点体力并摸一张牌；<br>•装备牌(\"赋\")：出牌阶段开始时，弃置一名角色区域里至多两张牌；<br>•基本牌(\"颂\")：使用【杀】指定唯一目标时，多指定至多两个目标。",
+      "origin": "/GameSpells/spell/1397",
+      "row": {
+        "a": 3042,
+        "b": "3,5",
+        "c": "诏颂",
+        "d": "ZhaoSong",
+        "g": 5,
+        "i": 2,
+        "n": 0,
+        "o": "其他角色摸牌阶段结束时，若其没有本技能的标记，你可以令其正面朝上交给你一张手牌，其根据此牌类型获得对应标记：<br>•锦囊牌(\"诔\")：进入濒死时，回复至1点体力并摸一张牌；<br>•装备牌(\"赋\")：出牌阶段开始时，弃置一名角色区域里至多两张牌；<br>•基本牌(\"颂\")：使用【杀】指定唯一目标时，多指定至多两个目标。",
+        "v": "请选择一名角色，弃置其区域内至多两张牌|请选择至多两个角色目标",
+        "w": "请选择一张手牌交给{0}|是否令{0}摸一张牌",
+        "ac": "是否对{0}发动<font color='#FFD800'>诏颂</font>|是否弃置“诔”回复至1点体力并摸1张牌？|是否弃置“赋”弃置一名角色区域内的至多两张牌？ |是否弃置“颂”多选至多两个目标？"
+      }
+    },
+    {
+      "officialSkillId": 3043,
+      "id": "ol:lisi",
+      "name": "离思",
+      "exactText": "当你于回合外使用牌置入弃牌堆时，你可以令一名手牌数小于等于你的其他角色获得之。",
+      "rawClientText": "当你于回合外使用牌置入弃牌堆时，你可以令一名手牌数小于等于你的其他角色获得之。",
+      "origin": "/GameSpells/spell/1398",
+      "row": {
+        "a": 3043,
+        "b": "3,5",
+        "c": "离思",
+        "d": "LiSi",
+        "g": 5,
+        "h": 1,
+        "i": 2,
+        "n": 1,
+        "o": "当你于回合外使用牌置入弃牌堆时，你可以令一名手牌数小于等于你的其他角色获得之。",
+        "v": "请将{0}交给一名手牌数小于等于你的其他角色"
+      }
+    }
+  ],
+  "primaryResources": [
+    {
+      "name": "hero",
+      "url": "https://www.sanguosha.com/hero/354",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T17:17:41.699680+00:00",
+      "byteCount": 25412,
+      "sha256": "4d9cb723539855930372017eeb28419e5c0b7954b626b30ca5941049bb2f9509",
+      "hashScope": "Exact raw HTTP body bytes"
+    },
+    {
+      "name": "api",
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=354",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T17:17:42.137039+00:00",
+      "byteCount": 855,
+      "sha256": "8b3ed9e72f03ca06f17e319f66be497fafb70c368c97583d16b376e9dd43a2c4",
+      "hashScope": "Exact raw HTTP body bytes"
+    },
+    {
+      "name": "bundle",
+      "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T17:17:42.748369+00:00",
+      "byteCount": 5256312,
+      "sha256": "6a035389beda8d0dbf31227f57a91b2da14d3d5055503198a227aef54f22bf76",
+      "hashScope": "Exact raw HTTP body bytes"
+    },
+    {
+      "name": "config",
+      "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T17:17:43.206848+00:00",
+      "byteCount": 4142728,
+      "sha256": "9e26cb3db90532084579a20c292d5fec0c81dcf3d5eb2abf2009bff0326237bb",
+      "hashScope": "Exact raw HTTP body bytes"
+    }
+  ],
+  "currentOfficialClient": {
+    "decoding": "Public InitOfb AES-CFB128 then gzip; raw heavy bundles processed in memory only.",
+    "scriptDecodedSha256": "f62c194174dd2ff4531bc44a795616b6a51f449a3c7c2bec5270f390da55f245",
+    "members": [
+      {
+        "name": "character.sgs",
+        "encodedByteCount": 352776,
+        "encodedSha256": "e0b6f0188edebb1f502ea402c7171e93b88f4e9d05720948344a1f4f44474aae",
+        "decodedByteCount": 1485056,
+        "decodedSha256": "b3ef3f1181e7fe667499cb688b7cdce56631d899dbb0eea55d75fbf80636b040"
+      },
+      {
+        "name": "cha_spell.sgs",
+        "encodedByteCount": 246031,
+        "encodedSha256": "95cfaa4106a4f6224ebed8948bcf86bd5fc6801a83a1c4162c7e59bc848bef66",
+        "decodedByteCount": 1166955,
+        "decodedSha256": "39b83f6e2504590e262bb353bddfded546b83f83a7ea9199b67742b1bee68fc0"
+      }
+    ],
+    "spellTips": [
+      {
+        "path": "/GameSpells/spell_tips/1392",
+        "row": {
+          "a": 3042
+        }
+      },
+      {
+        "path": "/GameSpells/spell_tips/1393",
+        "row": {
+          "a": 3043
+        }
+      }
+    ]
+  },
+  "officialFaqAudit": {
+    "checkedAt": "2026-10-09",
+    "boundedSearchQueries": [
+      "site.sanguosha.com 左棻 诏颂 离思 FAQ",
+      "site.sanguosha.com 左棻 诔 赋 颂 濒死",
+      "site.sanguosha.com 2022 5月31日 左棻 调整",
+      "site.sanguosha.com 左棻 诏颂 离思 FAQ 装备"
+    ],
+    "result": "No primary专项FAQ resolving token persistence after source loss, face-up category timing or multi-material used-card recovery was found in this bounded search. Current spell_tips rows contain no explanatory text. This is not a claim that no official FAQ exists anywhere.",
+    "historicalSourceExcluded": {
+      "url": "https://www.sanguosha.com/news/20211208_6937_2011",
+      "publishedAt": "2021-12-09 17:07:19",
+      "reason": "Old 2021 penalties and one-card Fu branch conflict with current hero and current Config; not used as current rules."
+    }
+  },
+  "engineMappingsNotOfficialFaq": {
+    "approvalState": "Root final implementation contract, accepted within the actual recorded behavior scope; engine mappings are not official FAQ.",
+    "tokenEligibility": "No holder may gain another of this skill family's three tokens while already holding any one, across original sources. Grant only after actual face-up original Hand material delivery.",
+    "tokenLifetime": "Tokens own frozen original source and remain holder-executable when original giver loses the skill; no live qualification recheck of original giver after issuance.",
+    "lei": "Optional holder-native Dying activation consumes token once, recovers to HP1 then draws1 through real native children; no old maxHP penalty.",
+    "fu": "Optional holder Play-start activation consumes once and discards0..2 legal cards from one living target HEJ, with blind slots for Hand; no old extra draw.",
+    "song": "Optional holder unique actual Slash declaration consumes once to add0..2 distinct legal targets preserving native use and card restrictions; no old damage-total penalty.",
+    "lisi": "Only actual out-of-turn uses qualify, including native own-Slash Dodge and actual counterspell/rescue uses. Pure Duel/Barbarian Slash and Arrow Dodge provision does not qualify. Recover all still-valid original physical materials actually arriving in public DiscardPile to one other living target whose current Hand count is <= owner. No replacement or fake entity for zero-material uses.",
+    "materialCategory": "Category follows native card-category classification; exact appearance/payment timing remains implementation mapping, not verified FAQ.",
+    "derivedPresentationSkills": {
+      "ol:zhaosong-lei": "诏颂·诔",
+      "ol:zhaosong-fu": "诏颂·赋",
+      "ol:zhaosong-song": "诏颂·颂",
+      "note": "Engine-granted holder capabilities for the three official token effects; these are not extra assigned official spell IDs."
+    }
+  },
+  "delivery": {
+    "sourceFile": "docs/content/sources/ol-zuo-fen-2026-10-09-source.json",
+    "portraitManagedByRoot": true,
+    "rawBundleOrConfigSaved": false,
+    "buildOrTestRunBySourceAgent": false,
+    "noCleanupAttempted": true,
+    "contentFiles": [
+      "src/CardGame.Content.Standard/OrdinaryZuoFenContent.cs",
+      "src/CardGame.Content.Standard/SkillPrograms/ordinary-zuo-fen.rules.json",
+      "src/CardGame.Content.Standard/SkillPrograms/ordinary-zuo-fen.presentation.json"
+    ]
+  },
+  "portrait": {
+    "officialDefaultSkinId": 35400,
+    "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/35400.png",
+    "path": "src/CardGame.Wpf/Assets/official-ol-zuo-fen.png",
+    "sha256": "e48d21d5ef6baba4cb82ca82bbf26fa2ff5cf8c753200dd0d587c0b688914c1d",
+    "byteCount": 914292,
+    "width": 750,
+    "height": 950,
+    "downloadedAndVisuallyInspectedByRoot": true,
+    "registeredByRoot": true,
+    "behaviorAcceptanceStillPending": false
+  },
+  "acceptance": {
+    "implemented": true,
+    "targetedPassed": true,
+    "routinePassed": true,
+    "fullVerificationRun": false,
+    "targetedCore": 114,
+    "targetedWpf": 4,
+    "routineCore": 422,
+    "routineWpf": 21,
+    "report": "docs/benchmarks/2026-10-09-content-continuation-round21-verification.json"
+  },
+  "behaviorCheckMethods": [
+    "FaceUpGiftIssuesOnePublicTokenAndRetainsItAfterSourceLoss",
+    "LeiRecoversNativeDyingToOneAndDrawsOnce",
+    "FuBlindlyDiscardsUpToTwoFromOneArea",
+    "SongAddsLegalTargetsToOriginalSlash",
+    "ActualSingleAndPairDodgeUsesGiveEveryNativeMaterialOnce",
+    "OwnTurnAndPureResponsesNeverBecomeOffTurnUsedGifts"
+  ]
+}

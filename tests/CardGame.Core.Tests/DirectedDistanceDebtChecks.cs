@@ -104,7 +104,7 @@ internal static class DirectedDistanceDebtChecks
             "A forged tail redirect index fails without mutating the authentic cursor or paid facts.");
         var rejected=false;
         InvokeHost(plain,"ReplaceRuntimeFrame",current.Id,current with {TargetIndex=current.TargetSeats.Count});
-        try { InvokeHost(plain,"RedirectCardUseTarget",current.Id,current.TargetSeats[current.TargetIndex],1); }
+        try { InvokeHost(plain,"RedirectCardUseTarget",current.Id,current.TargetSeats[0],1); }
         catch(TargetInvocationException e) when(e.InnerException is InvalidOperationException error && error.Message.Contains("redirected Slash target",StringComparison.Ordinal)) { rejected=true; }
         finally { InvokeHost(plain,"ReplaceRuntimeFrame",current.Id,current); }
         Require(rejected && State(plain)==unchanged,"A bad native cursor throws the exact redirect error and preserves the authentic state.");
@@ -159,7 +159,8 @@ internal static class DirectedDistanceDebtChecks
                     "The true converted-fire finish writes the original producer singleton before its real mandatory payment.");
                 Choose(g,c=>c.Parameters.GetValueOrDefault("program-action")=="completed-use-payment" && c.Parameters.GetValueOrDefault("branch")=="lose-hp");
             }
-            Reach(g,p=>p.SkillPrompt?.SkillId==Driver && p.Choices.Any(c=>c.Parameters.GetValueOrDefault("option-id")=="continue"));
+            Reach(g,p=>p.SkillPrompt?.SkillId==Driver && p.Choices.Any(c=>c.Parameters.GetValueOrDefault("option-id")=="continue" &&
+                c.Parameters.GetValueOrDefault("result-bind")=="virtual-return"));
             Require(g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f=>f.Id==originalParent).SelectedTargetSeats.SequenceEqual([1]) &&
                 Facts<CardUseFinishedEvent>(g).Count(e=>e.ResolutionId==use.Id && e.CardKind==(fire?CardKind.FireSlash:CardKind.Slash))==1,
                 "The native whole-use return reaches its actual next producer instruction once with the original selected singleton.");
@@ -185,6 +186,9 @@ internal static class DirectedDistanceDebtChecks
         // opt-in scalar fact. Wait on the exact owning actual cursor instead.
         ReachState(g,()=>g.ResolutionStack.OfType<CardUseFrame>().Any(u=>u.Id==use.Id && u.TargetIndex==index &&
             index>=0 && index<u.TargetSeats.Count && u.TargetSeats[index]==target));
+        // Host answers queue facts outside Submit; commit them at the held
+        // human boundary before reading the committed event history.
+        Accept(g,new AdvanceOneStepCommand(g.Revision));
     }
     private static void HostAnswer(GameEngine g,Func<PromptChoice,bool> predicate)
     { InvokeHost(g,"ResolveProgramTriggerChoice",P(g)!.Choices.First(predicate)); InvokeHost(g,"AdvanceRulesAndPublishState"); }
@@ -210,11 +214,12 @@ internal static class DirectedDistanceDebtChecks
     private static void ReachTurnDeparture(GameEngine g)=>ReachState(g,()=>Facts<TurnStartedEvent>(g).Any(e=>e.ActorSeat==1));
     private static void Reach(GameEngine g,Func<PendingDecision,bool> predicate)=>ReachState(g,()=>P(g) is {} p && predicate(p));
     private static void ReachState(GameEngine g,Func<bool> predicate)
-    { for(var n=0;n<128;n++){if(predicate())return; Advance(g);} throw new InvalidOperationException("Fixed distance fixture missed its named boundary."); }
+    { for(var n=0;n<128;n++){if(predicate())return; Advance(g);} throw new InvalidOperationException($"Fixed distance fixture missed its named boundary: turn={g.State.TurnNumber}, phase={g.State.Phase}, prompt={P(g)?.Kind}/{P(g)?.PlayerSeat}/{P(g)?.SkillPrompt?.SkillId}, uses={JsonSerializer.Serialize(g.ResolutionStack.OfType<CardUseFrame>())}, redirects={JsonSerializer.Serialize(Facts<ProgramActualSlashTargetRedirectedEvent>(g))}."); }
     private static void Advance(GameEngine g)
     {
         var p=P(g);
         if(p is {PlayerSeat:0,Kind:DecisionKind.DiscardCards}) Accept(g,new DiscardCardsCommand(0,p.ValidCardIds.Take(p.RequiredCardCount).ToArray(),p.PromptId,g.Revision));
+        else if(p is {PlayerSeat:0} && p.SkillPrompt?.SkillId==Driver && p.Choices.Any(c=>c.Parameters.GetValueOrDefault("option-id")=="continue")) Choose(g,c=>c.Parameters.GetValueOrDefault("option-id")=="continue");
         else if(p is {PlayerSeat:0} && p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="skip")) Choose(g,c=>c.Parameters.GetValueOrDefault("program-action")=="skip");
         else Accept(g,new AdvanceOneStepCommand(g.Revision));
     }
@@ -236,7 +241,9 @@ internal static class DirectedDistanceDebtChecks
               "activations":[{"id":"damage","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"otherLiving","usesPerTurn":null,"usesPerPhase":1,
                 "effects":[{"op":"damage","target":"selectedTarget","amount":1}]},
                 {"id":"virtual","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"otherLiving","usesPerTurn":null,
-                "effects":[{"op":"useVirtualSlash","target":"selectedTarget"},{"op":"chooseOption","target":"owner","resultBind":"virtual-return","options":[{"id":"continue"}]}]}]}]}
+                "effects":[{"op":"useVirtualSlash","target":"selectedTarget"},{"op":"chooseOption","target":"owner","resultBind":"virtual-return","options":[{"id":"continue"}]}]}],
+              "triggers":[{"id":"hold-damage-cursor","window":"afterDamageApplied","subject":"damageSource","damageOccurrence":"perDamage","optional":false,
+                "effects":[{"op":"chooseOption","target":"owner","resultBind":"damage-return","options":[{"id":"continue"}]}]}]}]}
             """;
             var c=SkillProgramCatalog.Load(rules,JsonSerializer.Serialize(new{schemaVersion=3,skills=new Dictionary<string,object>{[Driver]=new{name=Driver,description="实际回合伤害",optionLabels=new Dictionary<string,string>{{"continue","继续"}}}}}));
             foreach(var p in c.Programs)b.AddSkill(new(p.Key,p.Key,"实际回合伤害"){Program=p.Value});

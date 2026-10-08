@@ -5,7 +5,7 @@ using CardGame.Core;
 
 internal static class KuangfuChecks
 {
-    private const string Mode = "identity:kuangfu-fixture", Driver = "fixture:kf-driver", Clone = "fixture:kf-clone";
+    private const string Mode = "identity:classic-kuangfu-fixture", Driver = "fixture:kf-driver", Clone = "fixture:kf-clone";
     private const string Hp = "fixture:kf-hp", Cost = "fixture:kf-cost", Changed = "fixture:kf-changed", Pulse = "fixture:kf-pulse";
     private const string Gain = "fixture:kf-gain", Completed = "fixture:kf-completed", Skill = "ol:kuangfu";
     private const string GearReason = "skill-program.kuangfu.equipment-cost", HandReason = "skill-program.kuangfu.no-damage-hand-cost";
@@ -56,7 +56,9 @@ internal static class KuangfuChecks
             g.ResolutionStack.OfType<ProgramLifecycleTriggerWindowFrame>().Any(w => w.Window == SkillProgramTriggerWindow.SkillsChanged) &&
             !g.CreateSnapshot(0).Players[0].Skills!.Any(s => s.ContentId == Skill), "The paid foreign entity persists while a real source-removal SkillsChanged child is suspended.");
         g = Cold(g, r); Continue(g); Reach(g, p => p.SkillPrompt?.SkillId == Pulse);
-        Require(g.ResolutionStack.OfType<DyingFrame>().Any(d => d.VictimSeat == 0 && d.Continuation == DyingContinuationKind.Damage && d.ResumesProgramSkill) &&
+        Require(g.ResolutionStack.OfType<DyingFrame>().Any(d => d.VictimSeat == 0 && d.Continuation == DyingContinuationKind.Damage &&
+            g.ResolutionStack.OfType<DamageFrame>().Any(damage => damage.Id == d.ParentFrameId && damage.TargetSeat == 0 && damage.Amount == 2 &&
+                g.ResolutionStack.OfType<ProgramSkillFrame>().Any(observer => observer.Id == damage.ParentFrameId && observer.SkillId == Changed))) &&
             E<KuangfuSlashIssuedEvent>(g).Length == 0 && E<KuangfuActualDamageObservedEvent>(g).Length == 0,
             "Collateral paid observer damage enters actual Dying without becoming damage of an unissued Slash.");
         g = Cold(g, r); Continue(g); Reach(g, p => p.SkillPrompt?.SkillId == Hp); g = Cold(g, r); Continue(g);
@@ -137,11 +139,15 @@ internal static class KuangfuChecks
     private static void Start(GameEngine g, string skill = Skill) { Use(g, skill, "equipment-slash"); Reach(g, p => p.SkillPrompt?.SkillId == skill && Has(p, "kuangfu")); }
     private static void Trim(GameEngine g)
     {
-        while (g.State.Players[0].HandCount > 1)
+        var remaining = g.State.Players[0].HandCount;
+        for (var step = 0; step < remaining - 1; step++)
         {
             var id = g.CreateSnapshot(0).Players[0].Hand[0].Id;
             Accept(g, new UseProgramSkillCommand(0, Driver, "trim-hand", [id], [], g.Revision, P(g)!.PromptId)); Play(g);
+            Require(g.State.Players[0].HandCount == remaining - step - 1,
+                "Each actual trim command discards exactly one Hand entity and returns to the original Play boundary.");
         }
+        Require(g.State.Players[0].HandCount == 1, "The bounded trim leaves exactly one actual Hand entity.");
     }
     private static void Play(GameEngine g) => Reach(g, p => p.Kind == DecisionKind.PlayCard);
     private static void Reach(GameEngine g, Func<PendingDecision, bool> predicate)
@@ -178,7 +184,12 @@ internal static class KuangfuChecks
             if (nested) rules["skills"]![3]!["triggers"]![0]!["effects"]!.AsArray().Add(JsonNode.Parse("""{"op":"replaceSkillsOnAwakening","target":"owner","skillIds":["fixture:kf-noop"]}"""));
             else rules["skills"]!.AsArray().RemoveAt(4);
             var ids = rules["skills"]!.AsArray().Select(n => n!["id"]!.GetValue<string>()).ToArray();
-            var presentation = ids.ToDictionary(id => id, id => (object)new { name = id, description = "真实子选择固定夹具", optionLabels = new Dictionary<string, string> { ["continue"] = "继续" } });
+            var presentation = ids.ToDictionary(id => id, id => (object)new
+            {
+                name = id, description = "真实子选择固定夹具",
+                optionLabels = id is Hp or Cost or Changed or Pulse or Gain or Completed
+                    ? new Dictionary<string, string> { ["continue"] = "继续" } : new Dictionary<string, string>()
+            });
             var catalog = SkillProgramCatalog.Load(rules.ToJsonString(), JsonSerializer.Serialize(new { schemaVersion = SkillProgramCatalog.PresentationSchemaVersion, skills = presentation }));
             foreach (var id in ids) b.AddSkill(new(id, id, "实际命令夹具") { Program = catalog.Programs[id], ProgramPresentation = catalog.Presentations[id] });
             b.AddSkill(new("fixture:kf-noop", "替换后的实际来源", "No program"));
@@ -198,10 +209,10 @@ internal static class KuangfuChecks
     {"skills":[
       {"id":"fixture:kf-driver","revision":1,"activations":[
         {"id":"equip","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"useRandomDeckEquipment","target":"owner","resultBind":"gear"}]},
-        {"id":"trim-hand","minCards":1,"maxCards":1,"sourceZones":["hand"],"minTargets":0,"maxTargets":0,"usesPerTurn":null,"effects":[{"op":"discardSelected","target":"owner","amount":1}]}]},
+        {"id":"trim-hand","minCards":1,"maxCards":1,"sourceZones":["hand"],"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"discardSelected","target":"owner","amount":1}]}]},
       {"id":"fixture:kf-clone","revision":1,"activations":[{"id":"equipment-slash","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":null,"usesPerPhase":1,"effects":[{"op":"discardEquipmentThenSlashAndOwnershipOutcome","target":"owner"}]}]},
       {"id":"fixture:kf-hp","revision":1,"triggers":[{"id":"hp","window":"afterHpRecovered","subject":"owner","optional":false,"usageScope":"game","usageLimit":1,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},
-      {"id":"fixture:kf-cost","revision":1,"triggers":[{"id":"cost","window":"discardPileReceived","subject":"any","destinationZones":["discardPile"],"movementOccurrence":"perBatch","movementReasons":["skill-program.kuangfu.equipment-cost"],"optional":false,"usageScope":"game","usageLimit":1,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},
+      {"id":"fixture:kf-cost","revision":1,"triggers":[{"id":"cost","window":"discardPileReceived","subject":"owner","sourceZones":["equipment"],"discardOwnerScope":"other","movementOccurrence":"perBatch","movementReasons":["skill-program.kuangfu.equipment-cost"],"optional":false,"usageScope":"game","usageLimit":1,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},
       {"id":"fixture:kf-changed","revision":1,"triggers":[{"id":"changed","window":"skillsChanged","subject":"owner","optional":false,"usageScope":"game","usageLimit":1,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]},{"op":"damage","target":"owner","amount":2}]}]},
       {"id":"fixture:kf-pulse","revision":1,"triggers":[{"id":"rescue","window":"selfDyingResponse","subject":"owner","optional":false,"usageScope":"game","usageLimit":1,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]},{"op":"recover","target":"owner","amount":1}]}]},
       {"id":"fixture:kf-gain","revision":1,"triggers":[{"id":"gain","window":"cardsGained","subject":"owner","destinationZones":["hand"],"movementOccurrence":"perBatch","movementReasons":["skill-program.kuangfu.own-equipment-draw"],"optional":false,"usageScope":"game","usageLimit":1,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},

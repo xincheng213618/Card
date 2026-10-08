@@ -123,7 +123,7 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new CardActionAcceptedEvent(action));
         if (TryBeginCommittedResponseUsePrograms(attack, action, ProgramCardContinuation.Dodge)) return;
         if (TryBeginProgramCardWindow(attack, action, SkillProgramTriggerWindow.CardResponseAccepted, [attack.SourceSeat], ProgramCardContinuation.Dodge)) return;
-        if (HasResponseUseCompletionObserver(action, ProgramCardContinuation.Dodge)) ContinueAcceptedCardResponse(attack, action, ProgramCardContinuation.Dodge);
+        if (HasResponseUseCompletionObserver(action, ProgramCardContinuation.Dodge) || HasCardResponseCompletedObserver(action, ProgramCardContinuation.Dodge)) ContinueAcceptedCardResponse(attack, action, ProgramCardContinuation.Dodge);
         else CompleteSuccessfulDodgeResponse(attack);
     }
 

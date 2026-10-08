@@ -39,7 +39,7 @@ public sealed partial class GameEngine
     // advanced the round ledger; extra turns never re-open it.
     internal bool IsFengjiRoundChoicePending(int ownerSeat)
     {
-        if (_winner != Winner.None || _roundNumber == 0 || ownerSeat != _currentSeat ||
+        if (_winner != Winner.None || _roundNumber == 0 || !IsValidPlayerSeat(ownerSeat) || !_players[ownerSeat].IsAlive ||
             _turnProgression.Kind == ActualTurnKind.Extra)
             return false;
         var latestRound = CompleteProgramEventHistory().OfType<RoundStartedEvent>().LastOrDefault();

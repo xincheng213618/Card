@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:zhuosheng",
+      "revision": 1,
+      "cardPolicies": [
+        {
+          "id": "zhuosheng",
+          "kind": "roundGainedOtherSourceUse",
+          "cardKinds": [],
+          "condition": { "kind": "always" }
+        }
+      ],
+      "triggers": [
+        {
+          "id": "adjust-round-gained-trick-target",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "actor",
+          "singleActionInstance": true,
+          "cardCategories": ["instantTrick"],
+          "optional": true,
+          "effects": [{ "op": "adjustOneRoundGainedOrdinaryTrickTarget", "target": "owner" }]
+        },
+        {
+          "id": "draw-for-round-gained-equipment",
+          "window": "cardUseCommitted",
+          "ownerRelation": "actor",
+          "cardCategories": ["equipment"],
+          "optional": true,
+          "effects": [{ "op": "drawForRoundGainedEquipmentUse", "target": "owner" }]
+        }
+      ]
+    }
+  ]
+}

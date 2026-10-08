@@ -22,6 +22,7 @@ internal static class BoundaryDongZhuoChecks
             "The fixed eighteen-card deck gives the real Lord one initial card plus nine real draws and the formal eight-plus-one HP.");
         var physicalWine = game.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.Alcohol && a.ConversionSource is null);
         Play(game, physicalWine); ReachPlay(game);
+        AssertWineCompleted(game, registry, physicalWine);
         Require(game.CreateSnapshot(0).Players[0].HasAlcoholEffect && !game.GetHumanLegalActions().Any(a => a.Kind == LegalActionKind.Alcohol),
             "Unlimited Alcohol keeps the existing gate against stacking an unconsumed wine effect.");
         SlashAndPause(game, registry, true, expectedDamage: 2); Continue(game); ReachPlay(game);
@@ -29,7 +30,8 @@ internal static class BoundaryDongZhuoChecks
             "The consumed first physical wine permits a second real Alcohol use in the same play phase.");
         var convertedWine = game.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.Alcohol && a.ConversionSource?.SkillId == Jiuchi &&
             game.CreateSnapshot(0).Players[0].Hand.Single(c => c.Id == a.CardId).Kind == CardKind.Slash);
-        Play(game, convertedWine); ReachPlay(game); SlashAndPause(game, registry, true, expectedDamage: 2); Continue(game); ReachPlay(game);
+        Play(game, convertedWine); ReachPlay(game); AssertWineCompleted(game, registry, convertedWine);
+        SlashAndPause(game, registry, true, expectedDamage: 2); Continue(game); ReachPlay(game);
         var issued = Suppressions(game);
         Require(issued.Length == 2 && issued.All(s => s.Source.OwnerSeat == 0 && s.Source.SkillId == Jiuchi &&
                 s.Source.BindingId == "alcohol-slash-disables-own-decay" && !string.IsNullOrWhiteSpace(s.Source.SkillInstanceId) &&
@@ -196,8 +198,20 @@ internal static class BoundaryDongZhuoChecks
     private static bool Option(PendingDecision prompt, string option) => prompt.Choices.Any(c => c.Parameters.GetValueOrDefault("option-id") == option);
     private static bool Activation(PendingDecision prompt, string skill, string binding) => prompt.Choices.Any(c =>
         c.Parameters.GetValueOrDefault("program-action") == "activate" && c.Parameters.GetValueOrDefault("skill-id") == skill && c.Parameters.GetValueOrDefault("binding-id") == binding);
+    private static void AssertWineCompleted(GameEngine game, ContentRegistry registry, LegalAction action)
+    {
+        var declared = game.Events.Select(e => e.Payload).OfType<CardUseDeclaredEvent>().Single(e => e.CardId == action.CardId);
+        var finished = game.Events.Select(e => e.Payload).OfType<CardUseFinishedEvent>().Where(e => e.ResolutionId == declared.ResolutionId).ToArray();
+        Require(declared.SourceSeat == 0 && declared.CardKind == CardKind.Alcohol &&
+            finished is [{ CardKind: CardKind.Alcohol } completion] && completion.CardId == action.CardId &&
+            game.Events.Select(e => e.Payload).OfType<AlcoholAppliedEvent>().Count(e => e.ResolutionId == declared.ResolutionId && e.SourceSeat == 0) == 1 &&
+            game.CardMovements.Count(m => m.CardId == action.CardId && m.From == CardLocation.Hand(0) && m.To == CardLocation.Processing) == 1 &&
+            game.CardMovements.Count(m => m.CardId == action.CardId && m.From == CardLocation.Processing && m.To == CardLocation.DiscardPile) == 1,
+            "Physical Alcohol and real Jiuchi conversion each apply and finish once as Alcohol with the exact same-use entity payment.");
+        Replay(game, registry);
+    }
     private static void Play(GameEngine game, LegalAction action) => Accept(game, new PlayCardCommand(0, action.CardId!.Value, action.TargetSeats,
-        game.Revision, Prompt(game)!.PromptId, action.PlayedCardKind) { ConversionSource = action.ConversionSource, AdditionalConversionSources = action.AdditionalConversionSources });
+        game.Revision, Prompt(game)!.PromptId, action.PlayedCardKind, action.TargetCardId) { ConversionSource = action.ConversionSource, AdditionalConversionSources = action.AdditionalConversionSources });
     private static void Use(GameEngine game, string activation, IReadOnlyList<int>? targets = null) => Accept(game,
         new UseProgramSkillCommand(0, Driver, activation, [], targets ?? [], game.Revision, Prompt(game)!.PromptId));
     private static void Continue(GameEngine game) => Answer(game, c => c.Parameters.GetValueOrDefault("option-id") == "continue");

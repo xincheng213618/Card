@@ -29,3 +29,11 @@
 - 静态自证（构建产物层面）：`CardGame.Content.Standard.dll` 内嵌资源含 `ol-wang-shuang.rules.json` / `ol-wang-shuang.presentation.json`，`ol:zhui-lie` 与 `zhuiLieEscalateTargetDamage` 均已编入。JSON 形状逐节点对照既有内容（trigger 属性集、compare 条件对照清河公主-增苟、boundCardsMatchKinds 对照朱桓/刚烈、startJudgment/moveBoundCards 对照刚烈、modifiers 对照武神）静态核对。
 - 内容语义与既有机制的等价性核对：抬升回执复用赵俨/黄祖批已验收的 final-target 回执链路（签发去重、生产者身份、断言、事件），静态杀距离修饰符复用武神已验收的 `slashDistanceLimit unlimited` 形态（去身份绑定）。
 - 本批在独立 worktree（batch/ol-wang-shuang）开发，与刘宏、田豫等批次并行。
+
+## 2026-10-08 当前 OL 来源纠正（覆盖上文旧解释）
+
+上文保留 Zcode 原批历史记录；本节为当前 OL 实施口径。当前[官网武将页](https://www.sanguosha.com/hero/490)、[2021 OL 公告](https://www.sanguosha.com/news/20211221_8601_1716)和[2022 OL 公告](https://www.sanguosha.com/news/20220207_8129_1718)均使用“伤害值等于其体力值”。社区或十周年“增至、不降低”的解释不能覆盖这些当前 OL 主来源。[2022-08-22 更新](https://www.sanguosha.com/news/20220822_2139_1416)明确将追猎从“不计入次数”修改为“无次数限制”，两者不能视为同义。
+
+根线程现已纠正两项共享行为：伤害差值允许为负，按目标当前体力精确调整至相等；范围外目标获得专属的杀次数许可，实际用杀仍真实记账，不再靠完成指定后的额度返还近似替代。伤害防止、白银狮子等后续上限保持原生结算顺序。目标指定至伤害间可以存在改变体力的子窗口，已有 `BoundaryHuangZhongChecks` 同窗改变目标体力的真实夹具；上文“不会变化”断言作废。结算时读取体力是实施时点推断，未宣称官网有该交互 FAQ。
+
+上文“按用户指令不增测试”仅是 Zcode 原开发线程的历史要求，不约束本线程此次共享整合。旧构建结果和 capturedAt 保留，不能充当当前修正的专项行为验证；本线程实际检查结果由本轮集中验证证据记录。

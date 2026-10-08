@@ -163,6 +163,7 @@ public sealed partial class GameEngine
                 facts = facts with { EventTargetMarkerCounts = new Dictionary<PlayerMarkerKind, int>(owner.Markers) };
             candidates = CollectEligibleProgramTriggerCandidates(owner, window, facts);
             if (window == SkillProgramTriggerWindow.DrawPhaseStarting) candidates = IncludeAttributedDrawObservers(owner, candidates);
+            if (window == SkillProgramTriggerWindow.DrawPhaseEnded) candidates = IncludeRecipientCategoryGiftObservers(owner, candidates);
         }
         if (candidates.Count == 0) return false;
         var continuation = window switch

@@ -8,9 +8,8 @@ public sealed record ProgramTongxieArmedEvent(long FrameId, string SkillId, stri
     int OwnerSeat, int TurnNumber, IReadOnlyList<int> MemberSeats) : IGameEvent;
 
 // 同协 follow-up evidence: one record per completed chain window. Used and
-// declined responder seats are public; UsedCardIds marks the physical slashes
-// the chain consumed so later completed uses of those same cards never reopen
-// the chain (不因此技能使用), derivable after a cold restart.
+// declined responder seats and the consumed physical Slashes are public.
+// Chain exclusion uses the exact issued-action facts rather than these IDs.
 public sealed record ProgramTongxieFollowUpResolvedEvent(long FrameId, string SkillId, string BindingId,
     int OwnerSeat, int ActorSeat, int TargetSeat, IReadOnlyList<int> UsedBy, IReadOnlyList<int> DeclinedBy,
     IReadOnlyList<int> UsedCardIds) : IGameEvent;
@@ -19,6 +18,12 @@ public sealed record ProgramTongxieFollowUpResolvedEvent(long FrameId, string Sk
 // mirrors the frozen before-damage window.
 public sealed record ProgramTongxieGuardedEvent(long FrameId, string SkillId, string BindingId,
     int OwnerSeat, int ProtectedSeat, int PreventerSeat, int PreventedAmount) : IGameEvent;
+
+// Captured while the exact native use is still live, before its movement
+// observers run. A reused entity or a later Response cannot borrow this use.
+public sealed record TongxieSettledSlashUseEvent(long CardUseFrameId, long ActionId, int CardId,
+    int ActorSeat, int TargetSeat, CardKind EffectiveKind, long BatchId, int MovementSequence,
+    long? ParentProgramFrameId) : IGameEvent;
 
 public sealed partial record ProgramSkillFrame
 {
@@ -31,7 +36,7 @@ public sealed partial record ProgramSkillFrame
 // One responder at a time: the pending list holds the remaining 同协 members in
 // seat order after the slash user; used/declined evidence and the consumed
 // slash card ids accumulate on the owning frame across slash children. The
-// chain card id dedupes the twin member/own trigger bindings on one batch.
+// trigger action id dedupes the twin member/own trigger bindings on one batch.
 public sealed record TongxieFollowUpState(int ActorSeat, int TargetSeat, int CardId,
     IReadOnlyList<int> PendingResponders,
     IReadOnlyList<int>? UsedBy = null, IReadOnlyList<int>? DeclinedBy = null,
@@ -40,6 +45,7 @@ public sealed record TongxieFollowUpState(int ActorSeat, int TargetSeat, int Car
     public IReadOnlyList<int> Used { get; init; } = UsedBy ?? [];
     public IReadOnlyList<int> Declined { get; init; } = DeclinedBy ?? [];
     public IReadOnlyList<int> UsedCards { get; init; } = UsedCardIds ?? [];
+    public long TriggerActionId { get; init; }
 }
 
 // One prevention candidate at a time; a nonzero accepted preventer marks the
@@ -47,10 +53,9 @@ public sealed record TongxieFollowUpState(int ActorSeat, int TargetSeat, int Car
 public sealed record TongxieGuardState(int ProtectedSeat, int PreventedAmount,
     IReadOnlyList<int> PendingPreventers, int? AcceptedPreventer = null);
 
-// One completed single-target slash use recovered from this batch: the actor
-// and target come from the frozen accepted card action of the same physical
-// card, so replay rebuilds the identical chain window.
-public sealed record TongxieChainUse(int ActorSeat, int TargetSeat, int CardId);
+// One completed single-target Slash action recovered from the exact settled
+// movement fact, so replay rebuilds the identical actor, target and chain.
+public sealed record TongxieChainUse(int ActorSeat, int TargetSeat, int CardId, long ActionId);
 
 public sealed partial class GameEngine
 {
@@ -133,7 +138,7 @@ public sealed partial class GameEngine
         if (context is not { MovementBatch: { } batch, MovementIndex: { } movementIndex } ||
             FindTongxieChainUse(batch, movementIndex) is not { } use)
             return false;
-        if (IsTongxieProducedCard(use.CardId))
+        if (IsTongxieProducedUse(use.ActionId))
             return false;
         var arm = ActiveTongxieArm(ownerSeat);
         if (arm is null || !IsTongxieMember(arm, use.ActorSeat) || !_players[use.ActorSeat].IsAlive)
@@ -143,42 +148,60 @@ public sealed partial class GameEngine
         return TongxieFollowUpResponders(arm.MemberSeats, use.ActorSeat, use.TargetSeat).Any();
     }
 
-    // 不因此技能使用: a slash consumed by an earlier 同协 chain never reopens
-    // one; the consumed card ids live on the chain resolution records.
-    private bool IsTongxieProducedCard(int cardId) =>
-        CompleteProgramEventHistory().OfType<ProgramTongxieFollowUpResolvedEvent>()
-            .Any(resolution => resolution.UsedCardIds.Contains(cardId));
+    // 不因此技能使用 applies to the issued action, not the physical entity's
+    // lifetime. Its provenance is frozen before any child movement window.
+    private bool IsTongxieProducedUse(long actionId) =>
+        CompleteProgramEventHistory().OfType<TongxieSettledSlashUseEvent>()
+            .Any(use => use.ActionId == actionId && use.ParentProgramFrameId is not null);
 
-    // The settled fact at the candidate's movement index pins one used slash;
-    // the frozen accepted action of that exact physical card recovers the use.
-    // The settled facts are the shared completed-use ledger (逊贤), so both
-    // member and own uses match.
+    private void CaptureTongxieSettledSlashUse(long batchId, CardMovementRecord movement)
+    {
+        if (_contentRegistry?.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.TongxieFollowUp) != true ||
+            movement.Reason != CardMoveReasons.UseFinished || movement.From != CardLocation.Processing ||
+            movement.To != CardLocation.DiscardPile) return;
+        var use = _resolutionStack.OfType<CardUseFrame>().LastOrDefault(frame =>
+            frame.Action is { Type: CardActionType.Use } action &&
+            action.PhysicalCards is [var cost] && cost.CardId == movement.CardId);
+        if (use?.Action is not { } accepted || !IsSlashCard(accepted.EffectiveKind) ||
+            use.TargetSeats is not [var target] || !IsValidPlayerSeat(target)) return;
+        if (!_players.Any(owner => owner.IsAlive && ActiveTongxieArm(owner.Seat) is { } arm &&
+                IsTongxieMember(arm, accepted.ActorSeat))) return;
+        long? parentId = null;
+        if (use.CardAttack?.ProgramSkillCardUseFrameId is { } candidateId &&
+            _resolutionStack.OfType<ProgramSkillFrame>().SingleOrDefault(frame => frame.Id == candidateId) is
+                { ReexecuteParticipantInstruction: true, TongxieFollowUp: { } pending } parent &&
+            pending.UsedCards.LastOrDefault() == movement.CardId && pending.Used.LastOrDefault() == accepted.ProviderSeat &&
+            accepted.PhysicalCards[0].From == CardLocation.Hand(accepted.ProviderSeat) &&
+            _contentRegistry.GetSkill(parent.SkillId).Program is { } program &&
+            program.GameplayHash == parent.GameplayHash && parent.InstructionIndex > 0 &&
+            ProgramInstructionResolver.Default.Resolve(parent, program).GetPausedInstruction(parent.InstructionIndex).Effect.Op ==
+                SkillProgramEffectOp.TongxieFollowUp)
+            parentId = parent.Id;
+        AdvanceEventRulesAndQueueFact(new TongxieSettledSlashUseEvent(use.Id, accepted.ActionId, movement.CardId,
+            accepted.ActorSeat, target, accepted.EffectiveKind, batchId, movement.Sequence, parentId));
+    }
+
+    // The exact movement fact pins this completed Slash action, including
+    // its final target and issuing parent, before later movement windows run.
     private TongxieChainUse? FindTongxieChainUse(CardMovementBatchContext batch, int movementIndex)
     {
         if (movementIndex < 0 || movementIndex >= batch.Movements.Count) return null;
         var movement = batch.Movements[movementIndex];
-        var settled = CompleteProgramEventHistory().OfType<SettledActionCardDiscardEvent>()
-            .Any(entry => entry.BatchId == batch.Id && entry.MovementSequence == movement.Sequence);
-        if (!settled || movement.To != CardLocation.DiscardPile || !IsSlashCard(movement.CardKind))
-            return null;
-        var accepted = CompleteProgramEventHistory().OfType<CardActionAcceptedEvent>()
-            .LastOrDefault(candidate => candidate.Action.Type == CardActionType.Use &&
-                candidate.Action.EffectiveKind == movement.CardKind &&
-                candidate.Action.TargetSeats.Count == 1 &&
-                candidate.Action.PhysicalCards.Count == 1 &&
-                candidate.Action.PhysicalCards[0].CardId == movement.CardId);
-        return accepted is null ? null
-            : new TongxieChainUse(accepted.Action.ActorSeat, accepted.Action.TargetSeats[0], movement.CardId);
+        var settled = CompleteProgramEventHistory().OfType<TongxieSettledSlashUseEvent>()
+            .SingleOrDefault(entry => entry.BatchId == batch.Id && entry.MovementSequence == movement.Sequence &&
+                entry.CardId == movement.CardId);
+        return settled is null ? null
+            : new TongxieChainUse(settled.ActorSeat, settled.TargetSeat, settled.CardId, settled.ActionId);
     }
 
     private int[] MatchingTongxieSettledSlashIndexes(CardMovementBatchContext batch)
     {
         if (!TracksSettledActionCards) return [];
-        var settled = CompleteProgramEventHistory().OfType<SettledActionCardDiscardEvent>()
+        var settled = CompleteProgramEventHistory().OfType<TongxieSettledSlashUseEvent>()
             .Where(entry => entry.BatchId == batch.Id).Select(entry => entry.MovementSequence).ToHashSet();
         return batch.Movements.Select((movement, index) => (movement, index))
             .Where(item => settled.Contains(item.movement.Sequence) &&
-                item.movement.To == CardLocation.DiscardPile && IsSlashCard(item.movement.CardKind) &&
+                item.movement.To == CardLocation.DiscardPile &&
                 _cardZones.GetLocation(item.movement.CardId) == CardLocation.DiscardPile)
             .Select(item => item.index).Order().ToArray();
     }
@@ -336,11 +359,11 @@ public sealed partial class GameEngine
             return ContinueTongxieFollowUp(active, pending);
         if (frame.WindowContext is not { Window: SkillProgramTriggerWindow.DiscardPileReceived,
                 MovementBatch: { } batch, MovementIndex: { } movementIndex } ||
-            FindTongxieChainUse(batch, movementIndex) is not { } use || IsTongxieProducedCard(use.CardId))
+            FindTongxieChainUse(batch, movementIndex) is not { } use || IsTongxieProducedUse(use.ActionId))
             return SkillProgramStepOutcome.Continue;
         // A second binding for the same batch card never reopens the chain.
         if (_resolutionStack.OfType<ProgramSkillFrame>().Any(other => other.Id != active.Id &&
-                other.TongxieFollowUp is { } running && running.CardId == use.CardId))
+                other.TongxieFollowUp is { } running && running.TriggerActionId == use.ActionId))
             return SkillProgramStepOutcome.Continue;
         var arm = ActiveTongxieArm(active.OwnerSeat);
         if (arm is null || !IsTongxieMember(arm, use.ActorSeat) || !_players[use.ActorSeat].IsAlive)
@@ -352,7 +375,7 @@ public sealed partial class GameEngine
         ReplaceRuntimeTop(GetActiveProgramFrame(frame.Id) with
         {
             TongxieFollowUp = new TongxieFollowUpState(use.ActorSeat, use.TargetSeat, use.CardId,
-                Array.AsReadOnly(responders))
+                Array.AsReadOnly(responders)) { TriggerActionId = use.ActionId }
         });
         return PresentTongxieFollowUpPrompt(GetActiveProgramFrame(frame.Id));
     }

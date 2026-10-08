@@ -4,7 +4,7 @@ public sealed partial class GameEngine
 {
     private static bool UsesSequentialTrickTargets(LegalActionKind kind) => kind is
         LegalActionKind.DrawTwo or LegalActionKind.Dismantlement or LegalActionKind.Snatch or
-        LegalActionKind.FireAttack or LegalActionKind.Duel;
+        LegalActionKind.FireAttack or LegalActionKind.Duel or LegalActionKind.UnexpectedAssault;
 
     private IReadOnlyList<int> FreezeSequentialTrickTarget(long frameId, IReadOnlyList<int> targets,
         LegalActionKind kind, int? firstTargetCardId, CardKind? requiredCardKind)
@@ -28,6 +28,7 @@ public sealed partial class GameEngine
     private void MoveFinishedTrickCard(long frameId, Card card)
     {
         if (SkipTieredRoundZeroFinishedMovement(frameId, card)) return;
+        if (card.Id == 0 && IsProgramVirtualOrdinaryTrickUse(frameId)) return;
         if (IsClaimedUseCardEntity(frameId,card.Id) || HasRemainingSequentialTrickTargets(frameId) || HasRemainingAdjustedBorrowedSwordTargets(frameId)) return;
         MoveCard(card, CardLocation.Processing, CardLocation.DiscardPile, CardMoveReasons.UseFinished);
     }
@@ -47,7 +48,8 @@ public sealed partial class GameEngine
         if (!ReferenceEquals(use, _resolutionStack.LastOrDefault()))
             throw new InvalidOperationException("A trick must finish its child before the next target.");
         var card = IsTieredRoundZeroUse(use.Id) ? TieredRoundZeroRepresentation(use.Id) :
-            HasSameTypeAidTargetTail(use) && use.CardId == 0 && IsIssuedZeroEntityDuel(use.Id)
+            IsProgramVirtualOrdinaryTrickUse(use.Id) ? GetTrickRepresentation(use.Id, use.CardId, requireProcessing: true) :
+            (HasSameTypeAidTargetTail(use) || HasUniqueLeaderTrickTargetTail(use)) && use.CardId == 0 && IsIssuedZeroEntityDuel(use.Id)
             ? GetTrickRepresentation(use.Id, use.CardId, requireProcessing: true)
             : _cardZones.CardsAt(CardLocation.Processing).Single(card => card.Id == use.CardId);
         ReplaceRuntimeFrame(_resolutionStack[index].Id, use with { TargetIndex = next, Step = ResolutionFrameStep.ResolvingEffect });
@@ -70,8 +72,11 @@ public sealed partial class GameEngine
                 use.TargetSeats.Distinct().Count() != use.TargetSeats.Count ||
                 use.TargetSeats.Any(seat => !IsValidPlayerSeat(seat)) ||
                 use.TargetIndex < 0 || use.TargetIndex >= use.TargetSeats.Count ||
-                !IsTieredRoundZeroUse(use.Id) && _cardZones.GetLocation(use.CardId) != CardLocation.Processing &&
-                !(use.CardId == 0 && use.PhysicalCardIds is { Count: 0 } && IsIssuedZeroEntityDuel(use.Id) && HasSameTypeAidTargetTail(use)))
+                !IsTieredRoundZeroUse(use.Id) &&
+                !IsProgramVirtualOrdinaryTrickUse(use.Id) &&
+                !(use.CardId == 0 && use.PhysicalCardIds is { Count: 0 } && IsIssuedZeroEntityDuel(use.Id) &&
+                    (HasSameTypeAidTargetTail(use) || HasUniqueLeaderTrickTargetTail(use))) &&
+                _cardZones.GetLocation(use.CardId) != CardLocation.Processing)
                 throw new InvalidOperationException("A sequential trick lost its targets, cursor or physical card.");
         }
     }

@@ -440,6 +440,10 @@ public sealed partial class GameEngine
     {
         var death = GetCurrentDeathFrame(deathFrameId);
 
+        // Death-trigger skills remain available through their original native
+        // windows. End the interrupted phase only after those children return.
+        if (death.VictimSeat == _currentSeat && _phase == TurnPhase.Play)
+            CloseCurrentPlayPhaseSkillGrants("phase-actor-died");
         ClearAttributedMarkerSources(_players[death.VictimSeat], death.Id);
         PopResolutionFrame(death.Id, ResolutionFrameKind.Death);
 

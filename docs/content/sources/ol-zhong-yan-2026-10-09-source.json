@@ -1,0 +1,239 @@
+{
+  "sourceRecordSchemaVersion": 1,
+  "documentKind": "ordinary-ol-general-research-source",
+  "capturedAt": "2026-10-08T21:27:26Z",
+  "localCaptureDate": "2026-10-09",
+  "status": "research-only; current server pool and production contract unresolved",
+  "sourceVerified": true,
+  "sourceRegistered": false,
+  "registered": false,
+  "productionImplemented": false,
+  "behaviorValidated": false,
+  "behaviorAccepted": false,
+  "generalIdProposal": "ol:zhong-yan",
+  "characterName": "钟琰",
+  "officialId": 7014,
+  "rulesetId": "sanguosha-ol",
+  "variantProposal": "ordinary",
+  "sourcePage": "https://www.sanguosha.com/hero/7014",
+  "currentOfficialMetadata": {
+    "gid": 7014,
+    "name": "钟琰",
+    "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/7014.png",
+    "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/701400.png",
+    "label": ["防御", "辅助", "回复"],
+    "figure": "晋",
+    "figure_py": "jin",
+    "quality": "稀有",
+    "biography": "王浑之妻，钟繇[yáo]的曾孙女。 她平时广泛阅读各种书籍，因此几岁的时候就能撰写文章。她聪慧弘雅，善于啸咏，她的礼仪法度，为中表所推崇，她写有文集五卷。",
+    "characteristic": "在体力充沛的情况下，队友可以更积极的找钟琰要技能",
+    "hp": 3,
+    "initial_hp": 0,
+    "score": 0,
+    "radar": [
+      {"name": "地主", "value": 6},
+      {"name": "农民", "value": 7},
+      {"name": "主公", "value": 6},
+      {"name": "忠臣", "value": 6},
+      {"name": "反贼", "value": 7}
+    ],
+    "deeds": []
+  },
+  "metadataInterpretation": {
+    "ordinaryMeans": "ordinary identity version; not clan Zhong Yan gid548. Official quality is 稀有, not 普通.",
+    "faction": "jin",
+    "maxHp": 3,
+    "initialHp": "API initial_hp 0 is the full-HP sentinel used by current ordinary content mapping, not a zero-HP start.",
+    "gender": "female; biography explicitly says 王浑之妻 and 曾孙女, consistent with Config h=2.",
+    "hasPrintedConcealment": false,
+    "concealmentEvidence": "Current hero text and Config j=989/k=990 list only 博览/仪法; no 隐匿 or 登场 skill. This does not establish any general rule for all Jin generals.",
+    "artist": "福州明暗, from current character.ad"
+  },
+  "character": {
+    "configMember": "character.sgs",
+    "recordPath": "GameCharacters.character[a=7014]",
+    "rawRecord": {
+      "a": 7014, "b": "钟琰", "d": "ZhongYan", "e": 40, "f": "39",
+      "g": 6, "h": 2, "i": 3, "j": 989, "k": 990, "p": 1, "q": "1",
+      "r": "9701401", "aa": 274, "ab": "843,844", "ad": "画师:福州明暗",
+      "x": "只要你看的书够多，####这世上就没有什么新鲜事。 ",
+      "al": 1730, "am": "true", "ap": 50, "aq": 15, "bx": 5200,
+      "LordCardRate1": 26, "LordCardRate2": 50, "cc": 0, "starMax": 4
+    },
+    "rawRecordOmissions": "Biography y and characteristic z duplicate currentOfficialMetadata; all other inspected fields are retained above.",
+    "distinctClanVariant": {"gid": 548, "prefix": "族", "series": 50, "skillIds": [3266, 3267, 3265], "page": "https://www.sanguosha.com/hero/548"}
+  },
+  "skills": [
+    {
+      "numericId": 989,
+      "name": "博览",
+      "key": "BoLan",
+      "currentOfficialText": "出牌阶段开始时，你可以从随机三个“出牌阶段限一次”的技能中选择一个获得直到本阶段结束；其他角色的出牌阶段限一次，其可以失去1点体力，令你从随机三个“出牌阶段限一次”的技能中选择一个，其获得之直到此阶段结束。",
+      "configRecord": {"a": 989, "b": "3", "c": "博览", "d": "BoLan", "e": 0, "g": 5, "h": 1, "i": 2}
+    },
+    {
+      "numericId": 990,
+      "name": "仪法",
+      "key": "YiFa",
+      "currentOfficialText": "锁定技，当其他角色使用【杀】或黑色普通锦囊牌指定你为目标后，其手牌上限-1直到其回合结束。",
+      "configRecord": {"a": 990, "b": "3,4,5", "c": "仪法", "d": "YiFa", "e": 0, "g": 2, "i": 2}
+    }
+  ],
+  "officialSources": [
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=7014",
+      "httpStatus": 200, "rawBytes": 894,
+      "rawSha256": "bb77331fcfed2b66cacc18d2d47f5f08e96ce49859157e3b6bbe6521f577e15c",
+      "decodedUtf8Sha256": "bb77331fcfed2b66cacc18d2d47f5f08e96ce49859157e3b6bbe6521f577e15c",
+      "role": "current official metadata"
+    },
+    {
+      "url": "https://www.sanguosha.com/hero/7014",
+      "httpStatus": 200, "rawBytes": 24865,
+      "rawSha256": "dc9206ded7749ede24240787cdc2d6a28dd58078519e45d5f333f4194a8d6633",
+      "decodedUtf8Sha256": "dc9206ded7749ede24240787cdc2d6a28dd58078519e45d5f333f4194a8d6633",
+      "role": "current official skill text; agrees with current Config"
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20210714_4943_2117",
+      "title": "7月16日《三国杀OL》版本更新公告",
+      "publishedAt": "2021-07-15 14:23:46",
+      "httpStatus": 200, "rawBytes": 71833,
+      "rawSha256": "a268643cdc5f182386c84ac6afd877808e39ddc72444c98a796bb2afac2e2ce0",
+      "decodedUtf8Sha256": "a268643cdc5f182386c84ac6afd877808e39ddc72444c98a796bb2afac2e2ce0",
+      "quote": "注：博览可选技能库如下，后续该技能库可能更新修改。",
+      "role": "historical ordinary OL launch; explicitly warns the pool may change"
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20210903_6756_2218",
+      "title": "9月15日《三国杀OL》版本更新公告",
+      "publishedAt": "2021-09-14 15:52:45",
+      "effectiveDate": "2021-09-15",
+      "httpStatus": 200, "rawBytes": 107337,
+      "rawSha256": "ea507031f65b5511c665504534d95e328353d2752be086a0491d838dde51d1c5",
+      "decodedUtf8Sha256": "ea507031f65b5511c665504534d95e328353d2752be086a0491d838dde51d1c5",
+      "quote": "3、钟琰博览技能库增加",
+      "listedPoolCount": 18,
+      "role": "latest located official pool list; not proof that the current server pool remains unchanged"
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20211119_4598_1017",
+      "title": "11月24日《三国杀OL》版本更新公告",
+      "httpStatus": 200, "rawBytes": 40909,
+      "rawSha256": "758e1dd1e990656e48c11cd9c049534ef2b610caaf251ed12873b4d3185ca59b",
+      "decodedUtf8Sha256": "758e1dd1e990656e48c11cd9c049534ef2b610caaf251ed12873b4d3185ca59b",
+      "quote": "5、钟琰【博览】与廖化【当先】技能交互问题的修复。",
+      "role": "official acknowledgment of an interaction fix; gives no detailed before/after timing ruling"
+    }
+  ],
+  "clientEvidence": {
+    "bundle": {
+      "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+      "httpStatus": 200, "rawBytes": 5256312,
+      "rawSha256": "6a035389beda8d0dbf31227f57a91b2da14d3d5055503198a227aef54f22bf76",
+      "decodedScriptUtf8Sha256": "f62c194174dd2ff4531bc44a795616b6a51f449a3c7c2bec5270f390da55f245"
+    },
+    "config": {
+      "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+      "httpStatus": 200, "rawBytes": 4142728,
+      "rawSha256": "9e26cb3db90532084579a20c292d5fec0c81dcf3d5eb2abf2009bff0326237bb",
+      "members": [
+        {"member": "character.sgs", "decodedUtf8Bytes": 1485056, "decodedUtf8Sha256": "b3ef3f1181e7fe667499cb688b7cdce56631d899dbb0eea55d75fbf80636b040"},
+        {"member": "cha_spell.sgs", "decodedUtf8Bytes": 1166955, "decodedUtf8Sha256": "39b83f6e2504590e262bb353bddfded546b83f83a7ea9199b67742b1bee68fc0"},
+        {"member": "cha_spellextend.sgs", "decodedUtf8Bytes": 142008, "decodedUtf8Sha256": "c1590878c67a5782b0526153223ea33fc0ca69e60bf863320d21dba6e590935e"}
+      ]
+    },
+    "decoder": "Existing tools/import_game_audio.py documents the public ZIP/AES-CFB/gzip decoder. Research requests and decoding stayed in memory; no importer write workflow was invoked and no key bytes are archived.",
+    "bolanClass": "PAi",
+    "bolanClassCharacterOffset": 15826809,
+    "bolanConstructorSource": "constructor(){super(),this.activeMode=vCt.ACTIVE|vCt.ASK,this.timeLimitRound=1}",
+    "foreignInvocationSource": "get UseOnlyByOthers(){return!0} ... OtherGeneralCanUse(t){if(this.Seat&&t){if(this.Seat.IsSelf)return!1;if(this.Seat.IsLegalOperable&&t.IsLegalOperable)return!0}return!1}",
+    "poolSelectionSource": "t.Params.slice(1).forEach((t=>{let e=_Xt.GetInstance(t);e&&(i=new DIt,i.label=e.Name,i.enabled=!0,i.sendData=t,i.sendType=Y$t.OPP_SELECT_SPELL,s.push(i))}))",
+    "foreignUseSource": "Use(t,i,s=null,e=0){0==this.isSkillOwner&&s&&this.Seat&&this.skillCard?JQt.SendUseSpell(s.Index,this.ID,[this.Seat.Index],t,this.Seat.Index,this.skillCard.CardId):super.Use(t,i,s)}",
+    "foreignSelectionPrompt": "请选择一个技能令{0}获得",
+    "poolObservation": "The current client reads offered numeric IDs from server-supplied t.Params.slice(1). No authoritative local BoLan pool was found by decoding and searching the current public Config members. Therefore this inspection does not prove the current server pool has exactly 18 entries or these exact member IDs.",
+    "foreignInvocationObservation": "The client supports a foreign actor invoking the owner skill and choosing a server-supplied response. It does not independently prove server-side payment, sample probabilities, phase expiry or death interactions.",
+    "yifaClass": "MAi",
+    "yifaConstructorSource": "constructor(){super(),this.activeMode=vCt.ASK}",
+    "yifaStateLabel": "仪法[-{0}]",
+    "faqObservation": "cha_spell GameSpells.spell_tips records for989 and990 contain only {a:989}/{a:990}; no textual FAQ is provided there. No later official pool/FAQ source was located in the bounded official-only search."
+  },
+  "historicalPoolAudit": {
+    "latestLocatedOfficialPoolAnnouncement": "https://www.sanguosha.com/news/20210903_6756_2218",
+    "listedCount": 18,
+    "currentPoolCountVerified": false,
+    "currentNumericIdMembershipVerified": false,
+    "mappingAuthority": "The names below are confirmed members of the 2021-09-15 official pool. Candidate numeric IDs are inferred by matching that historical rule text to current Config; they are not server-observed BoLan pool IDs.",
+    "candidateMappings": [
+      {"name": "青囊", "candidateIds": [65], "key": "QingNang", "contentCandidate": "classic:qingnang"},
+      {"name": "离间", "candidateIds": [68, 475], "keys": ["LiJian", "LiJianNew"], "contentCandidate": "classic:lijian / boundary:lijian", "limit": "Historical table has no numeric ID or no-nullification clause; numeric variant is not uniquely established."},
+      {"name": "驱虎", "candidateIds": [92], "key": "QuHu", "contentCandidate": "boundary:quhu-current"},
+      {"name": "天义", "candidateIds": [99], "key": "TianYi", "contentCandidate": "classic:tianyi"},
+      {"name": "离魂", "candidateIds": [209], "key": "LiHun", "contentCandidate": "ol:lihun"},
+      {"name": "枪舞", "candidateIds": [227], "key": "QiangWu", "contentCandidate": "ol:qiangwu"},
+      {"name": "攻心", "candidateIds": [304], "key": "GongXin", "contentCandidate": "classic:gongxin"},
+      {"name": "明策", "candidateIds": [405], "key": "MingCe", "contentCandidate": "classic:mingce", "limit": "Do not replace with MingCe2 id3413 / boundary:mingce-current, which changes Slash target/damage and draw behavior."},
+      {"name": "奇策", "candidateIds": [423], "key": "QiCe", "contentCandidate": "classic:qice", "limit": "Not GuoZhanQiCe2150 or rogue/race versions."},
+      {"name": "密诏", "candidateIds": [605], "key": "MiZhao", "contentCandidate": "ol:mizhao"},
+      {"name": "国色", "candidateIds": [714], "key": "GuoSePo", "contentCandidate": "boundary:guose", "limit": "Historical pool uses upgraded phase-once two-option/draw text, not basic GuoShe60."},
+      {"name": "制衡", "candidateIds": [872], "key": "ZhiHengPo", "contentCandidate": "boundary:zhiheng", "limit": "Historical pool includes all-hand extra draw, unlike53 or3979."},
+      {"name": "结姻", "candidateIds": [874], "key": "JieYinPo", "contentCandidate": "boundary:jieyin-current", "limit": "Historical pool uses hand-discard/equipment-placement and unequal-HP pair effects, not basic69."},
+      {"name": "强袭", "candidateIds": [91], "key": "QiangXi", "contentCandidate": "classic:qiangxi", "limit": "Historical pool is phase-once LoseHp, not phase-twice886 or3186; current content uses turn quota and needs exact audit before borrowing."},
+      {"name": "挑衅", "candidateIds": [985], "key": "TiaoXinPo", "contentCandidate": "boundary:tiaoxin-current", "limit": "Historical985 table says modification until turn end; current985 says this phase. Not ordinary125. Selected version requires an explicit contract."},
+      {"name": "三陈", "candidateIds": [7018], "key": "SanChen", "contentCandidate": "ol:sanchen"},
+      {"name": "除疠", "candidateIds": [727], "key": "ChuLi", "contentCandidate": "boundary:chuli"},
+      {"name": "盗书", "candidateIds": [952], "key": "DaoShu", "contentCandidate": "ol:daoshu", "limit": "Current content uses turn quota; phase quota and successful-use reset require exact audit before borrowing."}
+    ],
+    "notPermittedInference": "Do not claim all skills containing 出牌阶段限一次 enter the current pool. Do not reduce the pool to only implemented skills or silently substitute a same-name boundary/clan/rogue version."
+  },
+  "officialRuleFacts": {
+    "ownBolan": "At owner play-phase start, optionally choose one of three random skills, retained until that exact play phase ends.",
+    "foreignBolan": "The other role may invoke once in its play phase and lose1HP; Zhong Yan selects the offered skill and the payer obtains it until that same play phase ends. The payment is HP loss, not damage.",
+    "yifa": "After another role designates Zhong Yan with Slash or a black ordinary trick, that actor hand limit decreases by1 until that actor turn ends. No once-per-turn limit is printed.",
+    "dangxianFix": "Official2021-11-24 update acknowledges a BoLan/DangXian interaction repair but gives no detailed timing ruling."
+  },
+  "existingCapabilityAudit": {
+    "asReadOnlyAt": "2026-10-08T21:27:26Z",
+    "temporaryGrantPath": "src/CardGame.Core/GameEngine.ActualTurnSkillGrants.cs",
+    "temporaryGrantLimit": "GrantProgramTurnSkills validates owner/exact card-action actor recipients and optional ActualTurnEnd. It does not directly express arbitrary foreign active invocation or exact play-phase expiry.",
+    "expiryEnum": "src/CardGame.Core/SkillPrograms.cs: SkillProgramTurnSkillExpiry currently has ActualTurnEnd=1 only.",
+    "contentPresence": "All18 historical member names have current content candidates; existence does not prove exact historical/current version, per-phase usage, or temporary-source compatibility.",
+    "unresolvedMechanisms": [
+      "A true foreign-role active invocation of another owner skill, with exact actor/owner identity and once-per-originating-play-phase ledger.",
+      "Pay real LoseHp1, drain HP/dying/skill children once, retain payer and Zhong Yan selector through cold recovery.",
+      "Deterministic command/replay-backed sampling of three distinct IDs from an explicit full pool, then owner selection and a phase-scoped multi-source grant.",
+      "Exact originating play-phase expiry, including inserted/forced-ended phases, death/skill loss and preservation of permanent copies.",
+      "Complete member semantic/version mapping and correct phase-limited activations; current turn-limited classic:qiangxi/ol:daoshu cannot silently stand for phase-limited versions."
+    ]
+  },
+  "engineMappingsNotOfficialFaq": [
+    "Exclusion of already-owned skills and coexistence of multiple Zhong Yan grants are unresolved by the inspected current public text/client.",
+    "Random distribution/order and the current complete server pool IDs are not established by these sources.",
+    "Death from foreign payment, owner death/invalidation during children, interrupted phases and multiple owners require explicit engine contracts rather than invented official rulings.",
+    "Yifa outside the actor turn, target redirection and effective-black-color freeze require an exact owning turn/color mapping; source text alone does not define internal frame timing."
+  ],
+  "suggestedFocusedValidation": [
+    "Own play-start distinct-three choice deterministic across checkpoint/replay; decline creates no grant.",
+    "Foreign payer loses1HP once, Zhong Yan rather than payer chooses; wrong actor rejected; HP/dying cold children resume once.",
+    "Grant usable only in exact originating play phase; normal/extra/forced phase end expires it and permanent copies survive.",
+    "All chosen pool IDs use their documented versions and phase quotas, without arbitrary same-name substitution or a reduced subset.",
+    "Yifa real Slash/black instant trick, foreign actor, repeated stacking, effective color and exact actor-turn expiry."
+  ],
+  "officialPortrait": {
+    "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/701400.png",
+    "httpStatus": 200,
+    "rawBytes": 1186883,
+    "sha256": "317aa03846a3a13a78ced66c0a52c7f2124564cba628f704fbfba27a0d6f44d0",
+    "format": "PNG", "width": 750, "height": 950,
+    "downloadedToRepository": false,
+    "visuallyInspected": false,
+    "note": "HTTP body and image metadata inspected in memory; no asset file downloaded and no visual acceptance claimed."
+  },
+  "acceptance": {
+    "researchOnly": true, "registered": false, "productionImplemented": false,
+    "behaviorValidated": false, "targetedPassed": false, "routinePassed": false,
+    "fullVerificationRun": false,
+    "note": "This is source research, not a delivered general or runtime acceptance."
+  },
+  "temporaryArtifacts": {"created": [], "consumers": []}
+}

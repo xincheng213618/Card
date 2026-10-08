@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:zhaosong", "revision": 1,
+      "triggers": [{
+        "id": "give-hand-category-mark", "window": "drawPhaseEnded", "subject": "owner", "turnOwnerScope": "otherLiving", "optional": true,
+        "effects": [{ "op": "giveHandAndGrantCategoryMark", "target": "owner", "stateId": "zhaosong",
+          "skillIds": ["ol:zhaosong-lei", "ol:zhaosong-fu", "ol:zhaosong-song"] }]
+      }]
+    },
+    {
+      "id": "ol:zhaosong-lei", "revision": 1,
+      "triggers": [{
+        "id": "spend-lei-dying", "window": "dyingEntering", "subject": "owner", "optional": true,
+        "effects": [{ "op": "spendCategoryMarkForDyingRecovery", "target": "owner", "stateId": "zhaosong", "sourceSkillId": "ol:zhaosong" }]
+      }]
+    },
+    {
+      "id": "ol:zhaosong-fu", "revision": 1,
+      "triggers": [{
+        "id": "spend-fu-area", "window": "playPhaseStarting", "subject": "owner", "turnOwnerScope": "own", "optional": true,
+        "effects": [{ "op": "spendCategoryMarkForAreaDiscard", "target": "owner", "stateId": "zhaosong", "sourceSkillId": "ol:zhaosong" }]
+      }]
+    },
+    {
+      "id": "ol:zhaosong-song", "revision": 1,
+      "triggers": [{
+        "id": "spend-song-targets", "window": "cardUseTargetsFinalized", "ownerRelation": "actor",
+        "singleActionInstance": true, "optional": true,
+        "effects": [{ "op": "spendCategoryMarkForSlashTargets", "target": "owner", "stateId": "zhaosong", "sourceSkillId": "ol:zhaosong" }]
+      }]
+    },
+    {
+      "id": "ol:lisi", "revision": 1,
+      "triggers": [{
+        "id": "give-outside-turn-used-cards", "window": "discardPileReceived", "subject": "owner",
+        "optional": true, "discardOwnerScope": "own", "movementOccurrence": "perBatch",
+        "effects": [{ "op": "giveOffTurnUsedCards", "target": "owner" }]
+      }]
+    }
+  ]
+}

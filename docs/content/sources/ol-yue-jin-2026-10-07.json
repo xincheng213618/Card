@@ -1,0 +1,90 @@
+{
+  "generalId": "ol:yue-jin",
+  "characterName": "乐进",
+  "officialId": 121,
+  "sourcePage": "https://www.sanguosha.com/hero/121",
+  "capturedAt": "2026-10-07",
+  "capturedAtUtc": "2026-10-07T09:51:38Z",
+  "rulesetId": "sanguosha-ol",
+  "sources": [
+    {
+      "role": "current official skill text and portrait",
+      "url": "https://www.sanguosha.com/hero/121",
+      "httpStatus": 200,
+      "responseSha256": "8abd4e7610f98f0d38e956b4a5aeaf3dcfddf1d4431594a28dd3bf54613f5513",
+      "responseByteCount": 25796
+    },
+    {
+      "role": "current official character metadata",
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=121",
+      "httpStatus": 200,
+      "responseSha256": "6b59a645f5fa36fad87ef2ce504dc9335f11ad70e00b19f5d2c33ea7a65e101a",
+      "responseByteCount": 1204
+    },
+    {
+      "role": "official gender corroboration; separate anniversary rules excluded",
+      "url": "https://www.sanguosha.com/news/20240125_9079_2315",
+      "publishedAt": "2024-01-31",
+      "httpStatus": 200,
+      "responseSha256": "0d7cdc76a38cfcb7c6b59f27e4631b84315e38f4d9fb9b4335e207619c77d764",
+      "responseByteCount": 49687
+    },
+    {
+      "role": "official initial_hp rendering semantics",
+      "url": "https://www.sanguosha.com/assets/js/heroDetail.js?1",
+      "httpStatus": 200,
+      "responseSha256": "55617a7de749ff8bf19ecd2b17682b59f35554090d5c1a8cc2101121ea248a59",
+      "responseByteCount": 15166
+    }
+  ],
+  "indexFields": {
+    "gid": 121,
+    "name": "乐进",
+    "figure": "魏",
+    "figure_py": "wei",
+    "hp": 4,
+    "initial_hp": 0,
+    "gender": "男",
+    "quality": "稀有",
+    "label": [
+      "进攻",
+      "控制",
+      "简单"
+    ],
+    "characteristic": "通过弃牌使敌人变得脆弱。基本牌越多越好，没有牌时很脆弱。",
+    "biography": "字文谦，魏“五子良将”之一。容貌短小，以胆烈跟从曹操，南征北讨，战功无数。从击袁绍于官渡，奋勇力战，斩袁绍部将淳于琼。又从击袁绍子谭、尚于黎阳，斩其大将严敬。从平荆州，留屯襄阳，进击关羽、苏非等人，击退其众，南郡诸郡的山谷蛮夷都前往乐进处投降。后来从曹操征孙权，假进节。曹操回师后，留乐进与张辽、李典屯于合肥。又以乐进数有军功，迁右将军。建安二十三年逝世，谥曰威侯。"
+  },
+  "artwork": {
+    "skinId": "12100",
+    "skinName": "默认皮肤",
+    "advertisedImageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/12100.png",
+    "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/12100.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-yue-jin.png",
+    "sha256": "a9bd56eb8c819798bde278c642adf565d71fc7e57bfa4ecbfaf28747f1257b7f",
+    "byteCount": 1191341,
+    "pixelWidth": 750,
+    "pixelHeight": 950,
+    "httpStatus": 200,
+    "visuallyInspected": true
+  },
+  "skills": [
+    {
+      "name": "骁果",
+      "programId": "ol:xiaoguo",
+      "text": "其他角色的结束阶段，你可以弃置一张基本牌，令其选择一项：1.弃置一张装备牌，你摸一张牌；2.你对其造成1点伤害。",
+      "mapping": "optional turnEnding owner trigger with otherLiving turnOwnerScope; basic owner payment, actual turn owner choice, equipment payment or damage",
+      "notes": [
+        "Both payments use existing cardCategories filters, including all basic card forms and all equipment subtypes without a hardcoded CardKind list.",
+        "The actual turn owner chooses the response and selects their equipment from hand or equipment zone. Without equipment, only the damage response is available.",
+        "Both discard movements await their child windows; a completed payment is not paid again on continuation.",
+        "Initial owner basic payment is the FirstNonTargetSelection availability prerequisite, so a hand without basic cards cannot offer the skill."
+      ]
+    }
+  ],
+  "observations": [
+    "The current OL hero/121 page requires a basic-card cost and is the sole source for implemented rules and presentation.",
+    "The 2024-01-31 anniversary announcement lists 乐进 as 魏, 4, 男, but its different any-hand-card cost is explicitly excluded. It is used only to corroborate the same character gender.",
+    "The official frontend treats initial_hp 0 as no override and renders all hp hearts filled. The page og:description 0体力 is an inconsistent metadata renderer.",
+    "孙茹 hero/632 currently uses 持室/慰勉; the earlier 影箭/释衅 candidate was excluded."
+  ]
+}

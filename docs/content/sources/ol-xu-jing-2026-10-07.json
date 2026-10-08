@@ -1,0 +1,113 @@
+{
+  "generalId": "ol:xu-jing",
+  "characterName": "许靖",
+  "officialId": 427,
+  "sourcePage": "https://www.sanguosha.com/hero/427",
+  "capturedAt": "2026-10-07",
+  "capturedAtUtc": "2026-10-07T11:19:38Z",
+  "rulesetId": "sanguosha-ol",
+  "sources": [
+    {
+      "role": "current official skill text and portrait",
+      "url": "https://www.sanguosha.com/hero/427",
+      "httpStatus": 200,
+      "responseSha256": "0b83e7fc048633f92f2958ece4277a92814689db42f1fc28469dfbddf6d54b4d",
+      "responseByteCount": 25313
+    },
+    {
+      "role": "current official character metadata",
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=427",
+      "httpStatus": 200,
+      "responseSha256": "f82654f85e8f0a7f1997d3696422b2f0c3c7926f9da4ecaf4773a2283aa056de",
+      "responseByteCount": 1232
+    },
+    {
+      "role": "official initial_hp rendering semantics",
+      "url": "https://www.sanguosha.com/assets/js/heroDetail.js?1",
+      "httpStatus": 200,
+      "responseSha256": "55617a7de749ff8bf19ecd2b17682b59f35554090d5c1a8cc2101121ea248a59",
+      "responseByteCount": 15166
+    },
+    {
+      "role": "historical official completion timing wording; earlier phase-only eligibility excluded",
+      "url": "https://www.sanguosha.com/news/20211227_3684_4310",
+      "httpStatus": 200,
+      "responseSha256": "4377b45f05b8c4428fca3c1aafff0ffbeb9a0cb44aab633ca06fe59496a086ba",
+      "responseByteCount": 75167
+    }
+  ],
+  "indexFields": {
+    "gid": 427,
+    "name": "许靖",
+    "figure": "蜀",
+    "figure_py": "shu",
+    "hp": 3,
+    "initial_hp": 0,
+    "quality": "稀有",
+    "label": [
+      "辅助",
+      "配合神将",
+      "上限超高"
+    ],
+    "characteristic": "回合内有爆发能力，回合外防御较弱",
+    "biography": "字文休。汝南郡平舆县人。汉末至三国蜀汉时期重臣、名士、评论家。许靖因与从弟许邵俱以品评人物而闻名于世。后被刘翊推举为孝廉，任尚书郎。曾先后投奔孔伷[zhòu]、陈祎[yī]、许贡、王朗等人，于孙策攻王朗前与家属俱避难交州，受到交趾太守士燮[xiè]礼待。其后受益州牧刘璋邀请，相继为巴郡、广汉、蜀郡太守。于刘备包围成都时欲越墙叛逃，为刘璋所获。刘备定蜀后欲将其弃用，在法正的建议下方以其为左将军长史。"
+  },
+  "genderEvidence": {
+    "implementedGender": "male",
+    "officialApiContainsGender": false,
+    "basis": "Historical identity and the visually inspected official portrait; this is an inference, not an explicit current API gender field."
+  },
+  "artwork": {
+    "skinId": "42700",
+    "skinName": "默认皮肤",
+    "advertisedImageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/42700.png",
+    "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/42700.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-xu-jing.png",
+    "sha256": "c9a835eae473c2cb036ab2a67961fe5650c3540f8d9b012e3c523874fb94a62f",
+    "byteCount": 890702,
+    "pixelWidth": 750,
+    "pixelHeight": 950,
+    "httpStatus": 200,
+    "visuallyInspected": true
+  },
+  "skills": [
+    {
+      "name": "誉虚",
+      "programId": "ol:yuxu",
+      "text": "当你于出牌阶段使用牌后，你可以摸一张牌，若如此做，当你本阶段使用下一张牌后，你不能以此法摸牌且须弃置一张牌。",
+      "mapping": "Actor CardUseCompleted in actual Play: optional draw commits the phase debt before its draw child; the next use has a mandatory discard and cannot draw through this skill.",
+      "notes": [
+        "The next-use payment is mandatory, not an optional offer that can be declined.",
+        "The debt is scoped to the same actual Play phase; an extra Play phase starts with no prior debt.",
+        "The payment may discard an owned hand or equipment card and waits for physical movement children."
+      ]
+    },
+    {
+      "name": "实荐",
+      "programId": "ol:shijian",
+      "text": "当其他角色于其回合内使用第二张牌后，你可以弃置一张牌，令其于本回合获得“誉虚”。",
+      "mapping": "Observer CardUseCompleted with includeResponseUses and cardActionActualTurnUseOrdinalIs value 2 for another actor who is the actual turn owner; one owned HE discard precedes grantTurnSkills with targetRef actor and expiry actualTurnEnd.",
+      "notes": [
+        "Current eligibility is the second use in the actual turn, not the second use in a Play phase.",
+        "The original action use ordinal must survive nested later card uses and cold continuation.",
+        "The grant expires at the actual end of that turn, including before AfterTurnEnded children."
+      ]
+    }
+  ],
+  "timingInterpretation": {
+    "question": "Can newly acquired Yuxu retroactively trigger from the same second card completion window?",
+    "officialCurrentTextExplicitlyAnswers": false,
+    "officialFaqFound": false,
+    "historicalSource": "https://www.sanguosha.com/news/20211227_3684_4310",
+    "historicalWording": "该角色在本阶段使用的第二张牌结算后，你可以弃置一张牌，令其获得“誉虚”",
+    "implementationInference": "The completed second action's already frozen candidate window does not retroactively discover Yuxu. The next qualifying use completed after the grant may trigger it; normally this is the third card, but a nested third use may already have finished before the grant.",
+    "evidenceBoundary": "This is a rule-timing inference supported by official completion wording, not a confirmed current official FAQ ruling."
+  },
+  "observations": [
+    "The current OL hero/427 page is the sole authority for implemented rules and presentation.",
+    "The 2021-12-27 official OL announcement is retained only as historical completion-timing wording. Its second-use-in-Play eligibility is excluded from current rules.",
+    "The official frontend treats initial_hp 0 as no override and renders hp filled hearts; the page og:description 0体力 is an inconsistent metadata renderer.",
+    "The official API supplies no gender field; Male is an explicitly documented historical-identity and portrait inference.",
+    "No Ten-Year Anniversary or One-General Fame character skill text is mixed into this current OL record."
+  ]
+}

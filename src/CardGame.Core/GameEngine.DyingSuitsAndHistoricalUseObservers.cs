@@ -88,7 +88,10 @@ public sealed partial class GameEngine
         if (index == _resolutionStack.Count - 1) return true;
         if (!DyingSuitsFirstChild(root, _resolutionStack[index + 1])) return false;
         for (var i = index + 2; i < _resolutionStack.Count; i++)
-            if (!DyingSuitsStructuralEdge(_resolutionStack[i - 1], _resolutionStack[i])) return false;
+            if (!DyingSuitsStructuralEdge(_resolutionStack[i - 1], _resolutionStack[i]) &&
+                !OrderedPrintedSkillLossStructuralEdge(_resolutionStack[i - 1], _resolutionStack[i]) &&
+                !OverflowTargetCancellationStructuralEdge(_resolutionStack[i - 1], _resolutionStack[i]) &&
+                !OrderedPrintedSkillLossSkillsChangedEdge(_resolutionStack[i - 1], _resolutionStack[i])) return false;
         return true;
     }
     // The filter's complete ancestry proof is deliberately separate from the
@@ -193,7 +196,8 @@ public sealed partial class GameEngine
         if(r.Stage==DyingSuitsStage.PeachIssued)return child is CardUseFrame use && use.Id==r.PeachReturn!.CardUseFrameId && ValidDyingSuitsPeachUse(use,r.PeachReturn);
         if(r.Stage is not (DyingSuitsStage.Drawing or DyingSuitsStage.Discarding))return false;
         var drawing=r.Stage==DyingSuitsStage.Drawing;var before=drawing?r.DrawBefore:r.DiscardBefore;var after=drawing?r.DrawAfter:r.DiscardAfter;var reason=drawing?DyingSuitsDrawReason(f):DyingSuitsDiscardReason(f);
-        if(child is CardsMovedTriggerWindowFrame moved)return moved.ResumeProgramFrameId==f.Id && moved.Batch.ParentFrameId==f.Id &&
+        if(child is CardsMovedTriggerWindowFrame moved)return
+            (moved.ResumeProgramFrameId==f.Id || moved.ResumeProgramFrameId is null && moved.Batch.AwaitingProgramFrameId==f.Id) && moved.Batch.ParentFrameId==f.Id &&
             (moved.Batch.AwaitingProgramFrameId is null || moved.Batch.AwaitingProgramFrameId==f.Id) && moved.Batch.OriginOwnerSeat==f.OwnerSeat && moved.Batch.OriginSkillId==f.SkillId && moved.Batch.OriginSkillInstanceId==f.SkillInstanceId &&
             moved.Batch.Movements.Count>0 && moved.Batch.Movements.All(m=>_cardMovements.Contains(m) &&
                 (m.Sequence>before && m.Sequence<=after && m.Reason.Value==reason && (drawing?m.From==CardLocation.DrawPile && m.To==CardLocation.Hand(seat):
@@ -275,7 +279,12 @@ public sealed partial class GameEngine
     }
     private void AssertHistoricalEndingUse(CardUseFrame use)
     {
-        if(use.EndingHistoricalUseReturn is not {} ret)return;var f=GetActiveProgramFrame(ret.ProgramFrameId);AssertEndingHistoricalUses(f);
+        if(use.EndingHistoricalUseReturn is not {} ret)return;
+        var index=_resolutionStack.FindIndex(frame=>frame.Id==use.Id);
+        if(index<1 || _resolutionStack[index-1] is not ProgramSkillFrame f || f.Id!=ret.ProgramFrameId ||
+            f.EndingHistoricalUses?.UseReturn!=ret)
+            throw new InvalidOperationException("Historical Ending lost its exact suspended program owner.");
+        AssertEndingHistoricalUses(f);
         if(use.Id!=ret.CardUseFrameId || use.CardId!=ret.PhysicalCardId || use.PhysicalCardIds is not [var id] || id!=ret.PhysicalCardId ||
             (use.CurrentSlashFirePolicy?.OriginalAction ?? use.Action)is not {Type:CardActionType.Use} original || original.ActionId!=ret.CardActionId || original.ActorSeat!=f.OwnerSeat || original.ProviderSeat!=f.OwnerSeat ||
             original.EffectiveKind!=ret.EffectiveKind || original.PhysicalCards is not [var cost] || cost.CardId!=id || cost.From!=CardLocation.Hand(f.OwnerSeat) || !original.ConversionChain.SequenceEqual([ret.Source]) ||

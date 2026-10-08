@@ -66,7 +66,7 @@ public sealed partial class GameEngine
             // Prove the incoming Dying edge before delegating its complete suffix.
             if (_resolutionStack[i] is DyingFrame dying &&
                 (IsPaidHandRepaymentRescueRide(i, dying) || IsPaidHandRepaymentProgramAlcoholRide(i, dying) ||
-                 PaidObserverDamageVirtualAlcoholRide(i, dying) || TieredRoundZeroDyingRescueRide(i, dying))) break;
+                 PaidObserverDamageVirtualAlcoholRide(i, dying) || (TieredRoundZeroDyingRescueRide(i, dying) || DrawFundedDistinctBasicDyingRescueRide(i, dying)))) break;
         }
         if (aligned) return root;
         }

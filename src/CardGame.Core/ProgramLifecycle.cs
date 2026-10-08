@@ -154,6 +154,13 @@ public sealed record ProgramSkillCardSetBinding(
 {
     /// <summary>Public suit frozen before a single-card transfer; remains readable if the card moves again.</summary>
     public Suit? FrozenRevealedSuit { get; init; }
+    private IReadOnlyList<Suit>? _frozenSelectedSuits;
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<Suit>? FrozenSelectedSuits
+    {
+        get => _frozenSelectedSuits;
+        init => _frozenSelectedSuits = value is null ? null : Array.AsReadOnly(value.ToArray());
+    }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public int? SelectionActorSeat { get; init; }
 }
@@ -386,6 +393,8 @@ public sealed record ProgramLifecycleTriggerWindowFrame(
     : ResolutionFrame(Id, ResolutionFrameKind.ProgramLifecycleTriggerWindow, Step)
 {
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public PhaseNamePredictionPhaseKey? PhaseNamePredictionPhase { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public DeferredPrivateOfferDue? DeferredPrivateOffers { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public int? FrozenBaseDrawCount { get; init; }
@@ -483,7 +492,18 @@ public sealed record ProgramTurnSkillsGrantedEvent(
     string SkillId,
     string BindingId,
     int OwnerSeat,
-    IReadOnlyList<string> GrantedSkillIds) : IGameEvent;
+    IReadOnlyList<string> GrantedSkillIds) : IGameEvent
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public int? RecipientSeat { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public string? GrantSourceId { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public SkillGrantTurnExpiry? TurnExpiry { get; init; }
+}
+
+public sealed record ProgramTurnSkillGrantExpiredEvent(int RecipientSeat, string GrantId, string SkillId,
+    string SkillInstanceId, string SourceId, SkillGrantTurnExpiry TurnExpiry) : IGameEvent;
 
 public sealed record ProgramCardEffectNullifiedEvent(
     long FrameId,

@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:xiaoguo",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "foreign-ending-basic-payment",
+          "window": "turnEnding",
+          "subject": "owner",
+          "turnOwnerScope": "otherLiving",
+          "optional": true,
+          "effects": [
+            {
+              "op": "selectAndMoveOwnedCard",
+              "target": "owner",
+              "chooserRef": { "kind": "owner" },
+              "cardOwnerRef": { "kind": "owner" },
+              "zones": ["hand"],
+              "cardCategories": ["basic"],
+              "count": 1,
+              "destination": "discardPile",
+              "awaitMovementTriggers": true
+            },
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "currentTurnPlayer"
+            },
+            {
+              "op": "chooseOption",
+              "target": "selectedTarget",
+              "resultBind": "xiaoguo-response",
+              "options": [
+                {
+                  "id": "discard-equipment",
+                  "condition": {
+                    "kind": "hasOwnedCardCategory",
+                    "zones": ["hand", "equipment"],
+                    "cardCategories": ["equipment"]
+                  }
+                },
+                { "id": "take-damage", "condition": { "kind": "always" } }
+              ]
+            },
+            {
+              "op": "selectAndMoveOwnedCard",
+              "target": "owner",
+              "chooserRef": { "kind": "selectedTarget" },
+              "cardOwnerRef": { "kind": "selectedTarget" },
+              "zones": ["hand", "equipment"],
+              "cardCategories": ["equipment"],
+              "count": 1,
+              "destination": "discardPile",
+              "awaitMovementTriggers": true,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "xiaoguo-response",
+                "optionId": "discard-equipment"
+              }
+            },
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 1,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "xiaoguo-response",
+                "optionId": "discard-equipment"
+              }
+            },
+            {
+              "op": "damage",
+              "target": "selectedTarget",
+              "amount": 1,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "xiaoguo-response",
+                "optionId": "take-damage"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

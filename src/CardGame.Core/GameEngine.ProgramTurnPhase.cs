@@ -72,6 +72,8 @@ public sealed partial class GameEngine
         PushRuntimeFrame(new CardUseFrame(resolutionId, source.Seat, 0, cardKind,
             Array.AsReadOnly(new[] { targetSeat }),
             PhysicalCardIds: Array.AsReadOnly(Array.Empty<int>())) { Action = action });
+        if (action is not null) ObservePhaseNamePredictionUse(action);
+        else RecordPredictionNativeCardUse(resolutionId, source.Seat, cardKind);
         if ((instruction.Op == SkillProgramEffectOp.OfferUnlimitedVirtualSlash ||
              instruction.TargetRestriction == SkillProgramCardTargetRestriction.NormalSlashTarget ||
              HasCommittedSlashFireCapability(source)) && action is not null)

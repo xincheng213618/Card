@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:dujin",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "equipment-extra-draw",
+          "window": "drawPhaseStarting",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "numberExpression": "equipmentHalfCeilingPlusOne"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

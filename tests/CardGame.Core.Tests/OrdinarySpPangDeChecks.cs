@@ -15,7 +15,7 @@ internal static class OrdinarySpPangDeChecks
         Private(g); Reject(g); g = Cold(g, r); var ownerCard = PaySlash(g);
         Reach(g, p => Cost(p, "target")); Require(P(g)!.PlayerSeat == 1, "The other character chooses its own real HE card.");
         Private(g); Reject(g); g = Cold(g, r); var targetCard = PayEquipment(g);
-        Reach(g, p => p.Kind == DecisionKind.RespondSlash); g = Cold(g, r); Answer(g, c => c.Parameters.GetValueOrDefault("response") == "pass");
+        Reach(g, p => p.Kind == DecisionKind.RespondSlash); g = Cold(g, r); Advance(g);
         Reach(g, p => p.SkillPrompt?.SkillId == Entry); g = Cold(g, r); Continue(g);
         Reach(g, p => p.SkillPrompt?.SkillId == Entry); g = Cold(g, r); Continue(g); Play(g);
         var issued = E<ConditionalDiscardDuelIssuedEvent>(g).Single().Origin;
@@ -119,7 +119,7 @@ internal static class OrdinarySpPangDeChecks
             Reach(loss, p => Cost(p, "target")); var targetCard = PayEquipment(loss);
             Reach(loss, p => p.SkillPrompt?.SkillId == Loss && p.Choices.Any(c => c.Targets.SequenceEqual([0]))); loss = Cold(loss, lr);
             Answer(loss, c => c.Targets.SequenceEqual([0]));
-            if (issuedLoss) { Reach(loss, p => p.Kind == DecisionKind.RespondSlash); Answer(loss, c => c.Parameters.GetValueOrDefault("response") == "pass");
+            if (issuedLoss) { Reach(loss, p => p.Kind == DecisionKind.RespondSlash); Advance(loss);
                 Reach(loss, p => p.SkillPrompt?.SkillId == Entry); Continue(loss); Reach(loss, p => p.SkillPrompt?.SkillId == Entry); loss = Cold(loss, lr); Continue(loss); }
             Play(loss);
             Require(E<CurrentTurnNonLockedSkillSuppressionIssuedEvent>(loss).Any(e => e.Suppression.TargetSeat == 0) &&
@@ -161,9 +161,17 @@ internal static class OrdinarySpPangDeChecks
       var c = p.Choices.First(c => c.Cards is [var id] && ids.Contains(id)); Answer(g, choice => choice.Id == c.Id); return c.Cards.Single(); }
     private static int PayEquipment(GameEngine g)
     { var c = P(g)!.Choices.First(c => c.Parameters.GetValueOrDefault("source-zone") == nameof(CardZoneKind.Equipment)); Answer(g, x => x.Id == c.Id); return c.Cards.Single(); }
-    private static void PaidOnce(GameEngine g, int own, int other) => Require(new[] { (own, OwnerReason), (other, TargetReason) }.All(pair =>
-        g.CardMovements.Count(m => m.CardId == pair.Item1 && m.Reason.Value == pair.Item2 && m.To == CardLocation.DiscardPile) == 1 &&
-        !g.CardMovements.Any(m => m.CardId == pair.Item1 && m.To == CardLocation.Processing)), "Each original cost is really discarded once and is never reused as Duel material.");
+    private static void PaidOnce(GameEngine g, int own, int other)
+    {
+        foreach (var (cardId, reason) in new[] { (own, OwnerReason), (other, TargetReason) })
+        {
+            var payments = g.CardMovements.Where(m => m.CardId == cardId && m.Reason.Value == reason &&
+                m.To == CardLocation.DiscardPile).ToArray();
+            Require(payments.Length == 1, "Each original cost is really discarded once and is never reused as Duel material.");
+            Require(!g.CardMovements.Any(m => m.Sequence > payments[0].Sequence && m.CardId == cardId &&
+                m.To == CardLocation.Processing), "Each original cost is really discarded once and is never reused as Duel material.");
+        }
+    }
     private static void Begin(GameEngine g) => Accept(g, new UseProgramSkillCommand(0, Skill, Binding, [], [1], g.Revision, P(g)!.PromptId));
     private static void Use(GameEngine g, string id, int[] targets) => Accept(g, new UseProgramSkillCommand(0, Driver, id, [], targets, g.Revision, P(g)!.PromptId));
     private static void Prepare(GameEngine g) { Play(g); Use(g, "draw", []); Play(g); Use(g, "equip", [1]); Play(g); }
@@ -174,7 +182,7 @@ internal static class OrdinarySpPangDeChecks
     { for (var i = 0; i < 160; i++) { var p = P(g); if (p is not null && match(p)) return; Advance(g); }
       throw new InvalidOperationException("Fixed SP Pang De fixture did not reach its real boundary: " + JsonSerializer.Serialize(P(g))); }
     private static void Advance(GameEngine g)
-    { var p = P(g); if (p is not null && p.Choices.Any(c => c.Parameters.GetValueOrDefault("response") == "pass")) Answer(g, c => c.Parameters.GetValueOrDefault("response") == "pass");
+    { var p = P(g); if (p is { PlayerSeat: 0 } && p.Choices.Any(c => c.Parameters.GetValueOrDefault("response") is "pass" or "take-damage")) Answer(g, c => c.Parameters.GetValueOrDefault("response") is "pass" or "take-damage");
       else Accept(g, new AdvanceOneStepCommand(g.Revision)); }
     private static void Accept(GameEngine g, GameCommand command)
     { var result = g.Submit(CommandJson.Deserialize(CommandJson.Serialize([command])).Single()); Require(result.Accepted, result.Error?.Message ?? "Rejected real command."); }
@@ -204,7 +212,7 @@ internal static class OrdinarySpPangDeChecks
             {"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[
             {"id":"{{Driver}}","revision":1,"activations":[{"id":"draw","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":null,"usesPerPhase":1,"effects":[{"op":"draw","target":"owner","amount":20}]},{"id":"equip","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"useRandomDeckEquipment","target":"owner","resultBind":"gear"}]}]},
             {"id":"{{Observer}}","revision":1,"triggers":[{"id":"paid","window":"cardsMoved","subject":"owner","sourceZones":["hand","equipment"],"movementOccurrence":"perOwnerBatch","movementReasons":["{{(ownerDying || ownerDamageDying ? OwnerReason : TargetReason)}}"],"optional":false,"usageScope":"game","usageLimit":1,"effects":[{"op":"{{(ownerDamageDying ? "damage" : "loseHp")}}","target":"owner","amount":{{(ownerDamageDying ? 1 : ownerDying ? 7 : 3)}}},{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},
-            {"id":"{{Entry}}","revision":1,"triggers":[{"id":"entry","window":"dyingEntering","subject":"owner","optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]},{"id":"damage","window":"afterDamageApplied","subject":"owner","optional":false,"effects":[{{(ownerDamageDying ? "{\"op\":\"loseHp\",\"target\":\"owner\",\"amount\":1}," : string.Empty)}}{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]},{"id":"completed","window":"cardUseCompleted","ownerRelation":"actor","cardKinds":["duel","peach"],"includeResponseUses":true,"optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},
+            {"id":"{{Entry}}","revision":1,"triggers":[{"id":"entry","window":"dyingEntering","subject":"owner","optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]},{"id":"damage","window":"afterDamageApplied","subject":"owner","damageOccurrence":"perDamage","optional":false,"effects":[{{(ownerDamageDying ? "{\"op\":\"loseHp\",\"target\":\"owner\",\"amount\":1}," : string.Empty)}}{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]},{"id":"completed","window":"cardUseCompleted","ownerRelation":"actor","cardKinds":["duel","peach"],"includeResponseUses":true,"optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},
             {"id":"{{Loss}}","revision":1,"triggers":[{"id":"loss",{{(issuedSourceLoss ? "\"window\":\"cardUseBeforeTargetEffects\",\"ownerRelation\":\"target\",\"cardKinds\":[\"duel\"]" : "\"window\":\"cardsMoved\",\"subject\":\"owner\",\"sourceZones\":[\"hand\",\"equipment\"],\"movementOccurrence\":\"perOwnerBatch\",\"movementReasons\":[\"" + TargetReason + "\"]")}},"optional":false,"usageScope":"game","usageLimit":1,"effects":[{"op":"selectTarget","target":"owner","targetKind":"otherLiving"},{"op":"issueCurrentTurnNonLockedSkillSuppression","target":"selectedTarget"}]}]}]}
             """;
             var descriptions = new Dictionary<string, object> { [Driver] = new { name = "材料准备", description = "真实摸牌与装备" },
@@ -221,7 +229,8 @@ internal static class OrdinarySpPangDeChecks
             for (var i = 1; i < 4; i++) { var other = new List<string>(); if (!native) other.Add(Entry); if (i == 1 && targetLoss) other.Add(Observer); if (i == 1 && (sourceLoss || issuedSourceLoss)) other.Add(Loss);
                 b.AddGeneral(new($"fixture:spd-other-{i}", "其他角色", "supporter", "fixture:spd-pick-other", "qun", 8, other.ToArray())); }
             b.AddDeck(new("fixture:spd-deck", "固定混合真实材料", 4, 2, []) { PhysicalCards = Enumerable.Range(0, 80).Select(i =>
-                new ContentDeckPhysicalCard(i % 5 == 0 ? "standard:slash" : i % 5 == 1 ? "standard:silver-lion" : "standard:peach", Suit.Heart, 7)).ToArray() });
+                // Native scoring needs a real payable Slash after the ordinary once-per-turn Slash.
+                new ContentDeckPhysicalCard(native ? "standard:slash" : i % 5 == 0 ? "standard:slash" : i % 5 == 1 ? "classic:silver-lion" : "standard:peach", Suit.Heart, 7)).ToArray() });
             b.AddMode(new(Mode, "决死真实两费", 4, 4, new Dictionary<string, int> { [nameof(Role.Lord)] = 1, [nameof(Role.Rebel)] = 3 }, "fixture:spd-deck", GeneralCandidateCount: 4,
                 GeneralPoolIds: ["fixture:spd-owner", "fixture:spd-other-1", "fixture:spd-other-2", "fixture:spd-other-3"]));
         }

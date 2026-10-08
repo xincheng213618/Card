@@ -123,7 +123,7 @@ public sealed record ProgramCardTriggerCandidate(
     string SkillInstanceId = "", int Priority = 0,
     ProgramSkillWindowContext? FrozenContext = null);
 
-public sealed record ProgramCardTriggerWindowFrame(
+public sealed partial record ProgramCardTriggerWindowFrame(
     long Id, long ParentFrameId, CardActionContext Action,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] ProgramCardContinuation? Continuation,
     IReadOnlyList<ProgramCardTriggerCandidate> Candidates,

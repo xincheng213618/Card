@@ -1,0 +1,225 @@
+{
+  "sourceRecordSchemaVersion": 1,
+  "generalId": "ol:sp-jiang-wei",
+  "characterName": "SP姜维",
+  "officialId": 139,
+  "sourcePage": "https://www.sanguosha.com/hero/139",
+  "capturedAt": "2026-10-07",
+  "capturedAtUtc": "2026-10-07T13:57:34Z",
+  "rulesetId": "sanguosha-ol",
+  "sources": [
+    {
+      "role": "current official OL skill text",
+      "url": "https://www.sanguosha.com/hero/139",
+      "httpStatus": 200,
+      "responseSha256": "a2b8d90675751b19f7a98b85b2860e374f66a151ba99e0b9536f19636a2ad8c0",
+      "responseByteCount": 25766,
+      "hashScope": "decoded HTTP response body bytes"
+    },
+    {
+      "role": "current official character metadata and advertised portrait",
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=139",
+      "httpStatus": 200,
+      "responseSha256": "73bfd8b1e311a521fa85a89e4b10b7a00d6df336dd6ec9a2c5c633cf90634375",
+      "responseByteCount": 994,
+      "hashScope": "decoded HTTP response body bytes"
+    },
+    {
+      "role": "current ordinary Jiang Wei Tiaoxin expansion referenced by the SP skill",
+      "url": "https://www.sanguosha.com/hero/52",
+      "httpStatus": 200,
+      "responseSha256": "0180cac57391805f33adecfbdbef112d8f1d08353533a46b68b6911e11bb0fdf",
+      "responseByteCount": 26329,
+      "hashScope": "decoded HTTP response body bytes"
+    },
+    {
+      "role": "historical official OL release explaining modified Kunfen and acquired Tiaoxin",
+      "url": "https://www.sanguosha.com/news/20150617_9109_5713",
+      "httpStatus": 200,
+      "responseSha256": "32f702a3d18abee9474c1666c0cbd5a5538d3f8fc316d2ecdbdd08aa0ac5e0b7",
+      "responseByteCount": 24369,
+      "hashScope": "decoded HTTP response body bytes"
+    },
+    {
+      "role": "historical official OL explanation of non-locked modified Kunfen",
+      "url": "https://www.sanguosha.com/news/20180716_7042_1316",
+      "httpStatus": 200,
+      "responseSha256": "2c0c86c43b5e7292f7d2b4f4b84f75f1aee1c090cf6d5343e554071d9d1a4a76",
+      "responseByteCount": 43207,
+      "hashScope": "decoded HTTP response body bytes"
+    },
+    {
+      "role": "current official OL roster group",
+      "url": "https://www.sanguosha.com/hero",
+      "httpStatus": 200,
+      "responseSha256": "df68e4bb68731cf79e2ab27a2c970b251c75e084c321769d140bb3847e73bb26",
+      "responseByteCount": 1319990,
+      "hashScope": "decoded HTTP response body bytes"
+    },
+    {
+      "role": "official initial_hp rendering semantics",
+      "url": "https://www.sanguosha.com/assets/js/heroDetail.js?1",
+      "httpStatus": 200,
+      "responseSha256": "55617a7de749ff8bf19ecd2b17682b59f35554090d5c1a8cc2101121ea248a59",
+      "responseByteCount": 15166,
+      "hashScope": "decoded HTTP response body bytes"
+    }
+  ],
+  "indexFields": {
+    "gid": 139,
+    "name": "SP姜维",
+    "extend": "其他",
+    "figure": "魏",
+    "figure_py": "wei",
+    "hp": 4,
+    "initial_hp": 0,
+    "quality": "稀有",
+    "label": [
+      "防御",
+      "过牌",
+      "回复"
+    ],
+    "characteristic": "稳定失去体力并获得大量的手牌，觉醒后可以控制自己的技能。输出能力较弱。",
+    "biography": "字伯约，天水冀人。蜀汉著名将领、军事统帅。原为曹魏天水郡的中郎将，后降蜀汉，官至凉州刺史、大将军。诸葛亮去世后继承诸葛亮的遗志，继续率领蜀汉军队北伐曹魏，与曹魏名将陈泰、郭淮、邓艾等多次交手。"
+  },
+  "genderEvidence": {
+    "implementedGender": "male",
+    "officialApiContainsGender": false,
+    "basis": "Historical identity and the visually inspected official portrait. Male is an inference, not an explicit current API gender field."
+  },
+  "artwork": {
+    "skinId": "13900",
+    "skinName": "默认皮肤",
+    "advertisedImageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/13900.png",
+    "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/13900.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-sp-jiang-wei.png",
+    "sha256": "70b1d484cf31a38fbb45db9e0c6e439f34ba04256bf014c634b371ea6c96c825",
+    "byteCount": 1049459,
+    "pixelWidth": 750,
+    "pixelHeight": 950,
+    "httpStatus": 200,
+    "visuallyInspected": true,
+    "visualObservation": "Young male figure in blue armor holding a sword, with one hand against his chest; banners and soldiers behind him, with another figure and papers in the foreground."
+  },
+  "skills": [
+    {
+      "name": "困奋",
+      "programId": "ol:kunfen",
+      "text": "锁定技，结束阶段，你失去1点体力，然后摸两张牌。",
+      "textOrigin": "current hero/139 exact text",
+      "mapping": "Mandatory owner TurnEnding loses one real HP, awaits HP and possible Dying children, then draws two real cards. A paid parent continues once after its original skill is replaced during Fengliang."
+    },
+    {
+      "name": "逢亮",
+      "programId": "ol:fengliang",
+      "text": "觉醒技，当你进入濒死状态时，你减少1点体力上限并回复至2点体力，获得“挑衅”并修改“困奋”。",
+      "textOrigin": "current hero/139 exact text",
+      "mapping": "Once per game, mandatory owner DyingEntering reduces maximum HP by one, applies genuine recovery to two HP clamped to the current maximum, acquires the ordinary per-Play Tiaoxin, then replaces original locked Kunfen with the optional non-locked version."
+    },
+    {
+      "name": "困奋",
+      "programId": "ol:kunfen-awakened",
+      "text": "结束阶段，你可以失去1点体力，然后摸两张牌。",
+      "textOrigin": "implementation paraphrase of non-locked Kunfen, expanded using historical official OL explanations",
+      "mapping": "Optional owner TurnEnding retains real lose-HP-before-draw ordering and no Locked tag.",
+      "historicalQuotes": [
+        {
+          "url": "https://www.sanguosha.com/news/20150617_9109_5713",
+          "text": "觉醒技，当你进入濒死状态时，你减1点体力上限并将体力值回复至2点，然后获得技能\"挑衅\"，并将技能\"困奋\"改为非锁定技。"
+        },
+        {
+          "url": "https://www.sanguosha.com/news/20180716_7042_1316",
+          "text": "在“逢亮”发动后，“困奋”将从锁定技变为非锁定技"
+        }
+      ],
+      "notes": [
+        "The current hero/139 page says modify Kunfen without expanding the modified description. The two historical official OL pages clarify that Kunfen becomes non-locked.",
+        "The displayed optional modified text is an implementation paraphrase, not a quotation presented as current hero/139 text.",
+        "Original Kunfen and acquired Kunfen have separate identities and tags; a Boolean gate on an always-Locked definition would not represent the modified skill correctly."
+      ]
+    },
+    {
+      "name": "挑衅",
+      "programId": "ol:sp-jiang-wei-tiaoxin",
+      "text": "出牌阶段限一次，你可以令一名攻击范围内包含你的角色对你使用一张【杀】，否则你弃置其一张牌。",
+      "textOrigin": "current ordinary Jiang Wei hero/52 exact text",
+      "mapping": "One activation per actual Play phase, selects another living player whose attack range includes the owner, requests a real Slash from that player, and only on declined request lets the owner discard one actual target HE card while awaiting movement children.",
+      "historicalQuotes": [
+        {
+          "url": "https://www.sanguosha.com/news/20150617_9109_5713",
+          "text": "出牌阶段限一次，你可以选择一名攻击范围内含有你的其他角色，该角色需对你使用一张【杀】，否则你弃置其一张牌。"
+        },
+        {
+          "url": "https://www.sanguosha.com/news/20180716_7042_1316",
+          "text": "出牌阶段限一次，你可以选择一名攻击范围内含有你的角色，然后除非该角色对你使用一张【杀】，否则你弃置其一张牌。"
+        }
+      ],
+      "notes": [
+        "Current hero/139 names Tiaoxin but does not expand it. The expansion uses current ordinary hero/52 plus the two historical official OL SP announcements.",
+        "Existing classic:tiaoxin has a once-per-turn quota; this independent binding reuses the same actions but preserves the official once-per-Play-phase quota, including inserted Play phases. The existing classic binding is not edited.",
+        "Boundary/current Jie Tiaoxin is not reused. Self-targeting is excluded by request-Slash legality and the 2015 SP announcement explicitly says another player."
+      ]
+    }
+  ],
+  "timingInterpretation": {
+    "officialCurrentTextExplicitlyNamesEngineWindow": false,
+    "officialCurrentFaqFound": false,
+    "implementationInference": "DyingEntering is the engine owner-victim entry boundary before rescue continuation. It maps the official enters-Dying timing. TurnEnding maps the owner Ending phase skill offer. Exact frame boundaries, typed child ordering, once-only parent continuation after source replacement and permanent-grant preservation are implementation contracts, not explicit current official FAQ assertions.",
+    "evidenceBoundary": "Current hero/139 controls the two printed skills and metadata. Current hero/52 expands ordinary Tiaoxin; the 2015 and 2018 official OL announcements clarify the acquired skill and modified Kunfen. Historical news prose saying recover 2 is not used to replace the current and formal recover-to-2 rule. No Ten-Year sources or Jie Tiaoxin replace current SP rules."
+  },
+  "observations": [
+    "All seven listed primary HTTP sources returned 200 when this record was captured.",
+    "Official roster group Other and API Wei/4 HP are used even though the biography describes later service to Shu.",
+    "Official frontend initial_hp 0 means no override; base and initial HP are four.",
+    "The current API has no explicit gender field; Male is documented as an inference.",
+    "Only the deliverable official portrait was downloaded; no temporary asset tree or source archive was created.",
+    "This record contains static HTTP/text/portrait evidence. Build and runtime verification belong to the coordinating goal and are not claimed here."
+  ],
+  "implementedMetadata": {
+    "bundleResourceName": "ordinary-sp-jiang-wei",
+    "characterId": "character:jiang-wei",
+    "variantId": "sp",
+    "generalInitialSkillIds": [
+      "ol:kunfen",
+      "ol:fengliang"
+    ],
+    "skillMetadata": [
+      {
+        "id": "ol:kunfen",
+        "displayName": "困奋",
+        "tags": [
+          "locked"
+        ],
+        "executionForms": [
+          "trigger"
+        ]
+      },
+      {
+        "id": "ol:fengliang",
+        "displayName": "逢亮",
+        "tags": [
+          "awakening"
+        ],
+        "executionForms": [
+          "trigger"
+        ]
+      },
+      {
+        "id": "ol:kunfen-awakened",
+        "displayName": "困奋",
+        "tags": [],
+        "executionForms": [
+          "trigger"
+        ]
+      },
+      {
+        "id": "ol:sp-jiang-wei-tiaoxin",
+        "displayName": "挑衅",
+        "tags": [],
+        "actionForms": [
+          "active"
+        ]
+      }
+    ]
+  }
+}

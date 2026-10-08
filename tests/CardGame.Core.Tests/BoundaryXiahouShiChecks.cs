@@ -9,12 +9,13 @@ internal static class BoundaryXiahouShiChecks
     private const string Qiaoshi = "boundary:qiaoshi-current", Yanyu = "boundary:yanyu-current";
     private const string Driver = "fixture:xhs-driver", First = "fixture:xhs-first", Second = "fixture:xhs-second";
     private const string Hp = "fixture:xhs-hp", Cost = "fixture:xhs-cost", Reward = "fixture:xhs-reward";
+    private const string SourceSuppression = "fixture:xhs-source-suppression", RecastSuppression = "fixture:xhs-recast-suppression";
     private const string Mode = "identity:classic-xiahou-shi-fixture";
     private const string FirstReason = "skill-program." + Qiaoshi + ".ending-pair.0", SecondReason = "skill-program." + Qiaoshi + ".ending-pair.1";
 
     public static void OwnAndExtraEndingKeepTwoSeparateDrawsAndColdChildren()
     {
-        var (g, r) = Create(); Play(g); Use(g, "extra"); End(g); Activate(g, Qiaoshi);
+        var (g, r) = Create(); Play(g); Use(g, "extra"); Play(g); End(g); Activate(g, Qiaoshi);
         Reach(g, p => p.SkillPrompt?.SkillId == First); var id = Pair(g).Id; var first = Pair(g).EndingPairDraw!;
         Require(first is { Cursor: 0, AwaitingMovement: true, CurrentActorSeat: 0, FirstDraw.ActualCount: 1, SecondDraw: null } &&
             first.RoundNumber == 1 && Draws(g, FirstReason).Length == 1 && Draws(g, SecondReason).Length == 0 &&
@@ -55,13 +56,23 @@ internal static class BoundaryXiahouShiChecks
         g = RestoreAfterCold(g, r); Continue(g); Reach(g, p => p.SkillPrompt?.SkillId == Hp); g = RestoreAfterCold(g, r); Continue(g);
         Reach(g, p => p.SkillPrompt?.SkillId == Second);
         Require(Pair(g).Id == parent && Pair(g).EndingPairDraw!.Source == original &&
-            F<SkillsAcquiredEvent>(g).Any(e => e.SourceSkillId == First && e.SkillIds.Contains("fixture:xhs-noop")),
-            "The first gain child truly removes the source; the already issued second benefit retains the original instance and still runs.");
+            g.State.Players[0].Hp == 3 &&
+            F<SkillsAcquiredEvent>(g).Any(e => e.PlayerSeat == 0 && e.SourceSkillId == First && e.SkillIds.Contains(SourceSuppression)) &&
+            !F<ProgramOwnerSkillsReplacedEvent>(g).Any(e => e.OwnerSeat == 0 && e.LostSkillIds.Contains(Qiaoshi)),
+            "The first gain child's actual HP3 suppressor only invalidates source qualification; the already issued second benefit retains the original instance and still runs before any physical replacement.");
         g = RestoreAfterCold(g, r); Continue(g); Play(g);
         var blocked = F<EndingPairDrawComparedEvent>(g).Single(e => e.ProgramFrameId == parent);
         Require(blocked.BlockedForRound && blocked.RoundNumber == 1 && blocked.OwnerHandCount != blocked.CurrentActorHandCount && F<RoundStartedEvent>(g).Length == 1,
             "Only after both real draw and HP children return are final unequal public hand counts queried and the true Round blocked.");
-        Use(g, "regain"); Play(g); End(g);
+        Accept(g, new UseProgramSkillCommand(0, SourceSuppression, "replace-original-source", [], [], g.Revision, P(g)!.PromptId)); Play(g);
+        Require(F<ProgramOwnerSkillsReplacedEvent>(g) is [{ OwnerSeat: 0, SkillId: SourceSuppression, GrantedSkillId: "fixture:xhs-noop" } replacement] &&
+            replacement.LostSkillIds.SequenceEqual([Qiaoshi, SourceSuppression]) &&
+            F<SkillsAcquiredEvent>(g).Any(e => e.PlayerSeat == 0 && e.SourceSkillId == SourceSuppression && e.SkillIds.Contains("fixture:xhs-noop")),
+            "A separate real zero-cost activation physically replaces the old Qiaoshi grant and its suppressor only after both paid Ending children return.");
+        Use(g, "regain"); Play(g);
+        Require(F<SkillsAcquiredEvent>(g).Any(e => e.PlayerSeat == 0 && e.SourceSkillId == Driver && e.SkillIds.Contains(Qiaoshi)),
+            "The actual Driver activation acquires Qiaoshi after physical removal, rather than merely revealing the suppressed original grant.");
+        End(g);
         Until(g, e => F<TurnStartedEvent>(e).Count(t => t.ActorSeat == 0) >= 3 && P(e) is { PlayerSeat: 0, Kind: DecisionKind.PlayCard });
         Require(F<EndingPairDrawStartedEvent>(g).Length == 2 && F<RoundStartedEvent>(g).Length == 2,
             "The genuinely reacquired instance cannot evade the same-round block in the queued extra turn or other Endings; the next natural visit starts Round2.");
@@ -105,8 +116,10 @@ internal static class BoundaryXiahouShiChecks
             Draws(g, CardMoveReasons.RecastDraw.Value).Length == 0 &&
             F<CardRecastEvent>(g) is [{ CardId: var paidId, DrawCount: 0 }] && paidId == id &&
             F<ProgramSkillResolvedEvent>(g).Any(e => e.FrameId == cancelledRoot && !e.Completed) &&
-            !g.ResolutionStack.Any(f => f.Id == cancelledRoot) && Losses(g) is [var paidLoss] && paidLoss.CardId == id,
-            "A real cost observer removes the source: its paid loss and recast fact survive, while no unattempted draw invoice, reward movement or stale frame is fabricated.");
+            !g.ResolutionStack.Any(f => f.Id == cancelledRoot) && Losses(g) is [var paidLoss] && paidLoss.CardId == id &&
+            g.State.Players[0].Hp == 2 && F<SkillsAcquiredEvent>(g).Any(e => e.PlayerSeat == 0 && e.SourceSkillId == Cost && e.SkillIds.Contains(RecastSuppression)) &&
+            !F<ProgramOwnerSkillsReplacedEvent>(g).Any(e => e.OwnerSeat == 0 && e.LostSkillIds.Contains(Yanyu)),
+            "A real cost observer suppresses the source's qualification at actual HP2: its paid loss and recast fact survive, while no physical replacement, unattempted draw invoice, reward movement or stale frame is fabricated.");
         Cold(g, r);
     }
 
@@ -153,9 +166,11 @@ internal static class BoundaryXiahouShiChecks
     private static ProgramSkillFrame RecastRoot(GameEngine g) => g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.PlaySlashRecast is not null);
     private static CardMovementRecord[] Draws(GameEngine g, string reason) => g.CardMovements.Where(m => m.Reason.Value == reason && m.From == CardLocation.DrawPile).ToArray();
     private static CardMovementRecord[] Losses(GameEngine g) => g.CardMovements.Where(m => m.ActualPlaySlashLoss is not null && m.From.OwnerSeat == 0).ToArray();
-    private static void CheckMovement(GameEngine g, long parent, string reason) => Require(g.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Any(w =>
-        w.Batch.ParentFrameId == parent && w.ResumeProgramFrameId == parent && (w.Batch.AwaitingProgramFrameId is null || w.Batch.AwaitingProgramFrameId == parent) && w.Batch.Movements.Count == 1 &&
-        w.Batch.Movements.Single().Reason.Value == reason && g.CardMovements.Contains(w.Batch.Movements.Single())), "The real single-card batch retains exact original parent, frozen ledger entry and nullable awaiting identity.");
+    private static void CheckMovement(GameEngine g, long parent, string reason) => Require(g.ResolutionStack.OfType<ProgramSkillFrame>().Any(f =>
+        f.Id == parent && f.PendingMovementContinuation is { BeforeCount: 0, CoverageResultBind: null } pending && pending.SubjectSeat == f.OwnerSeat) &&
+        g.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Any(w =>
+            w.Batch.ParentFrameId == parent && w.ResumeProgramFrameId is null && (w.Batch.AwaitingProgramFrameId is null || w.Batch.AwaitingProgramFrameId == parent) && w.Batch.Movements.Count == 1 &&
+            w.Batch.Movements.Single().Reason.Value == reason && g.CardMovements.Contains(w.Batch.Movements.Single())), "The real single-card batch retains its exact waiting owner, original parent, frozen ledger entry and nullable awaiting identity without a second direct program return.");
     private static void Activate(GameEngine g, string skill) { Reach(g, p => p.SkillPrompt?.SkillId == skill && Action(p, "activate")); Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate"); }
     private static void Recast(GameEngine g, int id) => Accept(g, new UseProgramSkillCommand(0, Yanyu, "recast-physical-slash", [id], [], g.Revision, P(g)!.PromptId));
     private static void Use(GameEngine g, string id) => Accept(g, new UseProgramSkillCommand(0, Driver, id, [], [], g.Revision, P(g)!.PromptId));
@@ -211,7 +226,8 @@ internal static class BoundaryXiahouShiChecks
               {"id":"fixture:xhs-second","revision":1,"triggers":[{"id":"second","window":"cardsGained","subject":"owner","optional":false,"destinationZones":["hand"],"movementOccurrence":"perBatch","movementReasons":["skill-program.boundary:qiaoshi-current.ending-pair.1"],"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},
               {"id":"fixture:xhs-hp","revision":1,"triggers":[{"id":"hp","window":"afterHpRecovered","subject":"owner","optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},
               {"id":"fixture:xhs-cost","revision":1,"triggers":[{"id":"cost","window":"cardsMoved","subject":"owner","optional":false,"sourceZones":["hand"],"movementOccurrence":"perCard","movementReasons":["card.recast.discard"],"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},
-              {"id":"fixture:xhs-reward","revision":1,"triggers":[{"id":"reward","window":"cardsGained","subject":"owner","optional":false,"destinationZones":["hand"],"movementOccurrence":"perBatch","movementReasons":["card.recast.draw","skill-program.boundary:yanyu-current.Draw"],"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]}
+              {"id":"fixture:xhs-reward","revision":1,"triggers":[{"id":"reward","window":"cardsGained","subject":"owner","optional":false,"destinationZones":["hand"],"movementOccurrence":"perBatch","movementReasons":["card.recast.draw","skill-program.boundary:yanyu-current.Draw"],"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},
+              {"id":"fixture:xhs-source-suppression","revision":1,"activations":[{"id":"replace-original-source","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"loseOwnerSkillsAndGrant","target":"owner","skillIds":["boundary:qiaoshi-current","fixture:xhs-source-suppression"],"sourceBind":"fixture:xhs-noop"}]}]}
             ]}
             """)!;
             rules["schemaVersion"] = SkillProgramCatalog.RulesSchemaVersion;
@@ -221,14 +237,17 @@ internal static class BoundaryXiahouShiChecks
                 trigger["usageScope"] = "game"; trigger["usageLimit"] = 1;
                 trigger["condition"] = JsonNode.Parse("""{"kind":"not","children":[{"kind":"ownerIsTurnPlayer"}]}""");
                 ((JsonArray)trigger["effects"]!).Add(JsonNode.Parse("""{"op":"pendExtraTurn","target":"owner"}"""));
-                ((JsonArray)trigger["effects"]!).Add(JsonNode.Parse("""{"op":"loseOwnerSkillsAndGrant","target":"owner","skillIds":["boundary:qiaoshi-current"],"sourceBind":"fixture:xhs-noop"}"""));
+                ((JsonArray)trigger["effects"]!).Add(JsonNode.Parse("""{"op":"grantSkills","target":"owner","skillIds":["fixture:xhs-source-suppression"]}"""));
             }
             if (removeRecastSource)
-                ((JsonArray)rules["skills"]![5]!["triggers"]![0]!["effects"]!).Add(JsonNode.Parse("""{"op":"loseOwnerSkillsAndGrant","target":"owner","skillIds":["boundary:yanyu-current"],"sourceBind":"fixture:xhs-noop"}"""));
+                ((JsonArray)rules["skills"]![5]!["triggers"]![0]!["effects"]!).Add(JsonNode.Parse("""{"op":"grantSkills","target":"owner","skillIds":["fixture:xhs-recast-suppression"]}"""));
             var catalog = SkillProgramCatalog.Load(rules.ToJsonString(), JsonSerializer.Serialize(new { schemaVersion = 3, skills = new Dictionary<string, object> {
                 [Driver] = new { name = "真实命令", description = "额外回合、真实给牌及重获技能" }, ["fixture:xhs-quiet"] = new { name = "安静回合", description = "真实跳过出牌" },
-                [First] = Pause("第一份摸牌"), [Second] = Pause("第二份摸牌"), [Hp] = Pause("真实HP孩子"), [Cost] = Pause("真实重铸成本"), [Reward] = Pause("真实重铸及男性收益") } }));
-            foreach (var id in new[] { Driver, "fixture:xhs-quiet", First, Second, Hp, Cost, Reward }) b.AddSkill(new(id, id, "真实子程序") { Program = catalog.Programs[id] });
+                [First] = Pause("第一份摸牌"), [Second] = Pause("第二份摸牌"), [Hp] = Pause("真实HP孩子"), [Cost] = Pause("真实重铸成本"), [Reward] = Pause("真实重铸及男性收益"),
+                [SourceSuppression] = new { name = "原来源资格抑制及独立替换", description = "HP3抑制资格；后续独立主动技真实删除旧实例" } } }));
+            foreach (var id in new[] { Driver, "fixture:xhs-quiet", First, Second, Hp, Cost, Reward, SourceSuppression }) b.AddSkill(new(id, id, "真实子程序")
+                { Program = catalog.Programs[id], SuppressionRule = id == SourceSuppression ? new SkillSuppressionRule(3) : null });
+            b.AddSkill(new(RecastSuppression, "重铸成本来源资格抑制", "HP2只抑制资格，不删除原技能实例") { SuppressionRule = new(2) });
             b.AddSkill(new("fixture:xhs-noop", "旧来源替换", "无运行能力"));
             b.AddSkill(new("fixture:xhs-selection", "固定选将", "无运行能力") { SelectionWeights = Enum.GetValues<Role>().ToDictionary(role => role, _ => 100d) });
             b.AddGeneral(new("fixture:xhs-owner", "界夏侯氏机制", "supporter", Qiaoshi, "shu", 3, [Yanyu, Driver, First, Second, Hp, Cost, Reward], Gender: GeneralGender.Female) { InitialHp = 1 });

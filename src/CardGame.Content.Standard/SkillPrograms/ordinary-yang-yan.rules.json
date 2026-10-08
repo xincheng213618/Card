@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:xianwan",
+      "revision": 1,
+      "viewAs": [
+        {
+          "id": "unchain-slash",
+          "inputCount": 0,
+          "sourceZones": [],
+          "inputKinds": [],
+          "inputSuits": [],
+          "outputKind": "slash",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "chainedStateCost": false,
+          "condition": { "kind": "always" }
+        },
+        {
+          "id": "chain-dodge",
+          "inputCount": 0,
+          "sourceZones": [],
+          "inputKinds": [],
+          "inputSuits": [],
+          "outputKind": "dodge",
+          "forPlay": false,
+          "forResponse": true,
+          "useOnly": true,
+          "chainedStateCost": true,
+          "condition": { "kind": "always" }
+        }
+      ]
+    },
+    {
+      "id": "ol:xuanbei-current",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "xuanbei",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "condition": { "kind": "always" },
+          "effects": [
+            {
+              "op": "useSelectedForeignCardAsSlash",
+              "target": "selectedTarget",
+              "condition": { "kind": "always" }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

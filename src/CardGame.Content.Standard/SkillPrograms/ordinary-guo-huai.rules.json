@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:zhefu", "revision": 1,
+      "triggers": [
+        {
+          "id": "after-outside-turn-use", "window": "cardUseCompleted", "ownerRelation": "actor",
+          "includeResponseUses": false, "optional": true,
+          "effects": [{ "op": "offerSameNameHandDiscardOrDamage", "target": "owner", "amount": 1 }]
+        },
+        {
+          "id": "after-outside-turn-response", "window": "cardResponseCompleted", "ownerRelation": "actor",
+          "optional": true,
+          "effects": [{ "op": "offerSameNameHandDiscardOrDamage", "target": "owner", "amount": 1 }]
+        },
+        {
+          "id": "after-outside-turn-supply", "window": "cardSupplyCompleted", "ownerRelation": "actor",
+          "optional": true,
+          "effects": [{ "op": "offerSameNameHandDiscardOrDamage", "target": "owner", "amount": 1 }]
+        }
+      ]
+    },
+    {
+      "id": "ol:yidu", "revision": 1,
+      "triggers": [
+        {
+          "id": "reveal-undamaged-use-target", "window": "cardUseCompleted", "ownerRelation": "actor",
+          "includeResponseUses": false, "optional": true,
+          "effects": [{ "op": "revealUndamagedUseTargetHandAndDiscardSameColor", "target": "owner", "amount": 3 }]
+        }
+      ]
+    }
+  ]
+}

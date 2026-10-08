@@ -39,6 +39,7 @@ internal static class BoundaryYanLiangWenChouChecks
         var root = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == Skill);
         Require(root.TriggerId == "ending-causal-damage-entities" && root.ActualTurnDamageClaim!.CardIds.SequenceEqual([duel.CardId!.Value]) &&
             g.CreateSnapshot(0).Players[0].Hand.Any(c => c.Id == duel.CardId), "The independent mandatory Ending claim pauses only after actual gain.");
+        AssertClaimBatch(g, root);
         var frozen = root.ActualTurnDamageClaim!.CardIds as IList<int>;
         var blocked = false; try { frozen![0] = -1; } catch (NotSupportedException) { blocked = true; }
         Require(blocked, "The frame collection is copied and immutable before public ResolutionStack exposure.");
@@ -57,7 +58,9 @@ internal static class BoundaryYanLiangWenChouChecks
         Require(originals.Length >= 2 && damage.Length == originals.Length && damage.Select(e => e.CardId).SequenceEqual(originals) &&
             damage.All(e => e.MaterialCount == originals.Length) && !E<ProgramPaidColorConversionPaidEvent>(g).Any(),
             "Every original material has its own cause; mandatory Ending needs neither the optional payment nor its color source.");
-        End(g); Reach(g, p => p.SkillPrompt?.SkillId == Gain); g = Restore(g, r); Continue(g); Until(g, () => Ended(g, 0));
+        End(g); Reach(g, p => p.SkillPrompt?.SkillId == Gain);
+        AssertClaimBatch(g, g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == Skill));
+        g = Restore(g, r); Continue(g); Until(g, () => Ended(g, 0));
         Require(originals.All(id => E<ActualTurnDamageEntityClaimedEvent>(g).Count(e => e.CardId == id) == 1), "All original Duel materials are obtained once.");
 
         var (taken, tr) = Create(preclaim: true); DrawOffer(taken); Skip(taken); Play(taken);
@@ -97,10 +100,17 @@ internal static class BoundaryYanLiangWenChouChecks
         var (lost, lr) = Create(sourceLoss: true); DrawOffer(lost); Activate(lost);
         Reach(lost, p => p.SkillPrompt?.SkillId == Skill && p.Choices.Any(c => c.Cards.Count == 1));
         var card = P(lost)!.Choices.First(c => c.Cards.Count == 1).Cards.Single(); Answer(lost, c => c.Cards.SequenceEqual([card]));
-        Reach(lost, p => p.SkillPrompt?.SkillId == Moved); Reject(lost); lost = Restore(lost, lr); Continue(lost); Play(lost);
+        Reach(lost, p => p.SkillPrompt?.SkillId == Moved); Reject(lost); lost = Restore(lost, lr);
+        var paidRoot = lost.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.PaidColorConversion is not null).Id;
+        Continue(lost); Reach(lost, p => p.SkillPrompt?.SkillId == Moved &&
+            p.Choices.Any(c => c.Parameters.GetValueOrDefault("choice") == Skill));
+        lost = Restore(lost, lr); Answer(lost, c => c.Parameters.GetValueOrDefault("choice") == Skill);
+        Until(lost, () => E<ProgramBindingResolvedEvent>(lost).Any(e => e.FrameId == paidRoot));
         Require(!lost.CreateSnapshot(0).Players[0].Skills!.Any(s => s.Id == Skill) && lost.CardMovements.Count(m => m.CardId == card && m.Reason.Value == Cost) == 1 &&
-            !E<CardConversionGrantedEvent>(lost).Any(e => e.Conversion.PaidColorOrigin is not null),
-            "Source loss in the restored discard child cancels only the unissued conversion and preserves its paid entity.");
+            !E<CardConversionGrantedEvent>(lost).Any(e => e.Conversion.PaidColorOrigin is not null) &&
+            E<ProgramSkillSuppressedEvent>(lost).Single(e => e.SkillId == Skill && e.Suppressed) is { OwnerSeat: 0, TargetSeat: 0 } &&
+            !E<ProgramBindingResolvedEvent>(lost).Single(e => e.FrameId == paidRoot).Completed,
+            "Actual selected source suppression in the restored discard child cancels the unissued conversion and preserves its paid entity and exact return.");
 
         var (dying, dr) = Create(gainDying: true); DrawOffer(dying); Skip(dying); Play(dying);
         var materials = dying.CreateSnapshot(0).Players[0].Hand.Select(c => c.Id).ToArray(); AllHandDuel(dying, materials); Play(dying); End(dying);
@@ -167,10 +177,27 @@ internal static class BoundaryYanLiangWenChouChecks
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
     private static bool Ended(GameEngine g, int seat) => E<TurnEndedEvent>(g).Any(e => e.ActorSeat == seat);
     private static bool ActivateChoice(PendingDecision p) => p.SkillPrompt?.SkillId == Skill && p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "activate");
+    private static void AssertClaimBatch(GameEngine g, ProgramSkillFrame root)
+    {
+        var claim = root.ActualTurnDamageClaim!;
+        var window = g.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Single(frame => frame.Batch.ParentFrameId == root.Id);
+        var moves = window.Batch.Movements;
+        Require(window.Batch.AwaitingProgramFrameId == root.Id && window.ResumeProgramFrameId is null &&
+            moves.Select(move => move.CardId).SequenceEqual(claim.CardIds) &&
+            moves.All(move => move.From == CardLocation.DiscardPile && move.To == CardLocation.Hand(root.OwnerSeat) && move.Reason.Value == Claim) &&
+            window.Batch.SourceCounts.Single(count => count.Location == CardLocation.DiscardPile) is { } source &&
+            source.CountBefore - source.CountAfter == claim.CardIds.Count &&
+            window.Batch.DestinationCounts!.Single(count => count.Location == CardLocation.Hand(root.OwnerSeat)) is { } target &&
+            target.CountAfter - target.CountBefore == claim.CardIds.Count &&
+            moves.All(move => E<ActualTurnDamageEntityClaimedEvent>(g).Count(fact => fact.ProgramFrameId == root.Id &&
+                fact.CardId == move.CardId && fact.MovementSequence == move.Sequence) == 1),
+            "All frozen damage entities share one real awaited movement batch, exact before/after counts and one causal claim fact per ledger entry.");
+    }
+
     private static void DrawOffer(GameEngine g) => Reach(g, p => p.PlayerSeat == 0 && ActivateChoice(p));
     private static void Activate(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate");
     private static void Skip(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "skip");
-    private static void Pass(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("response") == "pass");
+    private static void Pass(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("response") is "take-damage" or "pass");
     private static void Continue(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
     private static void Play(GameEngine g) => Reach(g, p => p.PlayerSeat == 0 && p.Kind == DecisionKind.PlayCard);
     private static void Use(GameEngine g, string activation, IReadOnlyList<int> targets) => Accept(g, new UseProgramSkillCommand(0, Driver, activation, [], targets, g.Revision, P(g)!.PromptId));
@@ -193,7 +220,7 @@ internal static class BoundaryYanLiangWenChouChecks
         if (p is { PlayerSeat: 0 } && ActivateChoice(p)) Skip(g);
         else if (p is { PlayerSeat: 0 } && p.Choices.Any(c => c.Parameters.GetValueOrDefault("option-id") == "continue")) Continue(g);
         else if (p is { PlayerSeat: 0 } && p.Choices.Any(c => c.Parameters.GetValueOrDefault("option-id") == "pass")) Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "pass");
-        else if (p is { PlayerSeat: 0 } && p.Choices.Any(c => c.Parameters.GetValueOrDefault("response") == "pass")) Pass(g);
+        else if (p is { PlayerSeat: 0 } && p.Choices.Any(c => c.Parameters.GetValueOrDefault("response") is "take-damage" or "pass")) Pass(g);
         else Accept(g, new AdvanceOneStepCommand(g.Revision));
     }
     private static void Accept(GameEngine g, GameCommand command)
@@ -223,7 +250,7 @@ internal static class BoundaryYanLiangWenChouChecks
         public PackageManifest Manifest { get; } = new("fixture-boundary-yan-liang-wen-chou", new(1, 0, 0), []);
         public void Register(IContentRegistryBuilder b)
         {
-            var terminal = sourceLoss ? ",{\"op\":\"loseOwnerSkillsAndGrant\",\"target\":\"owner\",\"skillIds\":[\"" + Skill + "\"],\"sourceBind\":\"standard:none\"}" : "";
+            var terminal = sourceLoss ? ",{\"op\":\"suppressGeneralSkill\",\"target\":\"owner\"}" : "";
             var gain = gainDying ? gainDamage ? """{"op":"damage","target":"owner","amount":7}""" :
                 """{"op":"loseHp","target":"owner","amount":7}""" : """{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}""";
             var rules = $$"""
@@ -233,7 +260,7 @@ internal static class BoundaryYanLiangWenChouChecks
               {"id":"enemy-duel","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"otherLiving","usesPerTurn":null,"usesPerPhase":2,"effects":[{"op":"useSelectedActorDuel","target":"owner"}]},
               {"id":"all-hand-duel","minCards":1,"maxCards":64,"sourceZones":["hand"],"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"useAllHandCardsAsOrdinaryTrick","target":"owner","viewAsId":"all-hand-duel","outputKind":"duel"}]}]},
             {"id":"{{Moved}}","revision":1,"triggers":[{"id":"paid","window":"cardsMoved","subject":"owner","sourceZones":["hand","equipment"],"movementReasons":["{{Cost}}"],"movementOccurrence":"perOwnerBatch","optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}{{terminal}}]}]},
-            {"id":"{{Gain}}","revision":1,"triggers":[{"id":"claim","window":"cardsGained","subject":"owner","destinationZones":["hand"],"movementReasons":["{{Claim}}"],"movementOccurrence":"perSourceOwner","optional":false,"effects":[{{gain}}]}]},
+            {"id":"{{Gain}}","revision":1,"triggers":[{"id":"claim","window":"cardsGained","subject":"owner","destinationZones":["hand"],"movementReasons":["{{Claim}}"],"movementOccurrence":"perBatch","optional":false,"effects":[{{gain}}]}]},
             {"id":"{{Entry}}","revision":1,"triggers":[{"id":"entry","window":"dyingEntering","subject":"owner","optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},
             {"id":"{{Face}}","revision":1,"triggers":[{"id":"face","window":"characterTurnedOver","subject":"owner","optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]}]}
             """;
@@ -251,7 +278,9 @@ internal static class BoundaryYanLiangWenChouChecks
             if (!native) { extra.Add(Driver); extra.Add(Gain); } if (sourceLoss) extra.Add(Moved); if (preclaim) extra.Add("classic:jianxiong"); if (gainDying) extra.Add(Entry);
             if (gainDamage) { extra.Add("classic:jiushi"); extra.Add(Face); }
             b.AddGeneral(new("fixture:ylwc-owner", "当前双雄来源", "supporter", Skill, "qun", 6, extra));
-            for (var i = 1; i < 4; i++) b.AddGeneral(new($"fixture:ylwc-other-{i}", "真实对手", "supporter", "fixture:ylwc-other-weight", "wei", 8, []));
+            // Two points of existing injury make the native Duel policy use
+            // its real Slash, exposing the original user's back-damage turn.
+            for (var i = 1; i < 4; i++) b.AddGeneral(new($"fixture:ylwc-other-{i}", "真实对手", "supporter", "fixture:ylwc-other-weight", "wei", 8, []) { InitialHp = 6 });
             b.AddDeck(new("fixture:ylwc-deck", "固定真实双色实体", 4, 0, []) {
                 PhysicalCards = Enumerable.Range(0, 96).Select(i => new ContentDeckPhysicalCard(lightning ? "standard:lightning" :
                     i >= 80 ? "standard:crossbow" : "standard:slash", lightning ? Suit.Spade : i >= 80 || i % 2 == 0 ? Suit.Club : Suit.Heart, lightning ? 5 : 7)).ToArray() });

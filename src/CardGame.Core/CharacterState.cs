@@ -67,6 +67,9 @@ public sealed class CharacterState
     public IReadOnlyList<string> TurnGrantedSkillIds => SkillGrants.Grants
         .Where(grant => grant.IsEnabled && grant.SourceId.StartsWith("turn:", StringComparison.Ordinal))
         .Select(grant => grant.SkillId).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray();
+    public IReadOnlyList<string> PhaseGrantedSkillIds => SkillGrants.Grants
+        .Where(grant => grant.IsEnabled && grant.PhaseExpiry is not null)
+        .Select(grant => grant.SkillId).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray();
     public bool IsFaceDown { get; set; }
 
     private void BindTemplateSkills(string sourceId, GeneralDefinition? template)

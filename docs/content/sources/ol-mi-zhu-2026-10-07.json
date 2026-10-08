@@ -1,0 +1,173 @@
+{
+  "sourceRecordSchemaVersion": 1,
+  "generalId": "ol:mi-zhu",
+  "characterName": "糜竺",
+  "officialId": 365,
+  "sourcePage": "https://www.sanguosha.com/hero/365",
+  "capturedAt": "2026-10-07",
+  "capturedAtUtc": "2026-10-07T14:54:40Z",
+  "rulesetId": "sanguosha-ol",
+  "sources": [
+    {
+      "role": "current official OL skill text",
+      "url": "https://www.sanguosha.com/hero/365",
+      "httpStatus": 200,
+      "responseSha256": "84eaa8f5eb6bf5fe1e71cd96522218194a80932df0f2e49b5a458b193a8fd510",
+      "responseByteCount": 26850,
+      "hashScope": "decoded HTTP response body bytes"
+    },
+    {
+      "role": "current official character metadata and advertised portrait",
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=365",
+      "httpStatus": 200,
+      "responseSha256": "93adbad447caa94d86f3384bd1a6a2b2dda0cecab747d4279b03e879472fc887",
+      "responseByteCount": 1262,
+      "hashScope": "decoded HTTP response body bytes"
+    },
+    {
+      "role": "historical official OL repost containing the author's self-authored FAQ",
+      "url": "https://www.sanguosha.com/news/20161122_4701_4615",
+      "httpStatus": 200,
+      "responseSha256": "8c7334406c135e1beb11f2b0f31e14ae8a2b1611948c724bbd1bff49732bb527",
+      "responseByteCount": 49647,
+      "hashScope": "decoded HTTP response body bytes"
+    },
+    {
+      "role": "official initial_hp rendering semantics",
+      "url": "https://www.sanguosha.com/assets/js/heroDetail.js?1",
+      "httpStatus": 200,
+      "responseSha256": "55617a7de749ff8bf19ecd2b17682b59f35554090d5c1a8cc2101121ea248a59",
+      "responseByteCount": 15166,
+      "hashScope": "decoded HTTP response body bytes"
+    },
+    {
+      "role": "current official OL roster group",
+      "url": "https://www.sanguosha.com/hero",
+      "httpStatus": 200,
+      "responseSha256": "df68e4bb68731cf79e2ab27a2c970b251c75e084c321769d140bb3847e73bb26",
+      "responseByteCount": 1319990,
+      "hashScope": "decoded HTTP response body bytes"
+    }
+  ],
+  "indexFields": {
+    "gid": 365,
+    "name": "糜竺",
+    "extend": "其他",
+    "extendOrigin": "current official roster, not hero/info API",
+    "figure": "蜀",
+    "figure_py": "shu",
+    "hp": 3,
+    "initial_hp": 0,
+    "quality": "稀有",
+    "label": [
+      "过牌",
+      "辅助",
+      "回复"
+    ],
+    "characteristic": "将手牌分配给队友并使其回复生命值，拥有大量手牌。需要大量手牌，会成为敌人优先攻击的目标。",
+    "biography": "糜[mí]竺，原为徐州富商，后被徐州牧陶谦辟为别驾从事。陶谦病死后，奉其遗命迎接刘备。与其弟麋芳拒绝曹操的任命而跟随刘备，在刘备最潦倒之时给予刘备很大的帮助，使他重新振作。214年[建安十九年），刘备入主益州后，拜麋竺为安汉将军，地位在诸葛亮之上，为刘备手下众臣之最。吕蒙袭取荆州，麋芳举城投降，导致关羽兵败身亡，麋竺面缚请罪，刘备劝慰麋竺，对他待遇如初。"
+  },
+  "genderEvidence": {
+    "implementedGender": "male",
+    "officialApiContainsGender": false,
+    "basis": "Historical identity and the visually inspected official portrait. Male is an inference, not an explicit current API gender field."
+  },
+  "artwork": {
+    "skinId": "36500",
+    "skinName": "经典形象",
+    "skinNameOrigin": "catalog label for the default portrait; the current API advertises the image without a skin-name field",
+    "advertisedImageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/36500.png",
+    "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/36500.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-mi-zhu.png",
+    "sha256": "820c139d74928e20d28cf531b84be333b71efd3791f55ec6d7225b2da6b96de3",
+    "byteCount": 1107195,
+    "pixelWidth": 750,
+    "pixelHeight": 950,
+    "httpStatus": 200,
+    "visuallyInspected": true,
+    "visualObservation": "A bearded male figure wearing gold-trimmed white and red robes, extending one hand and holding a sheathed sword with the other; a woman, attendants and banners stand behind him."
+  },
+  "skills": [
+    {
+      "name": "资援",
+      "programId": "ol:ziyuan",
+      "text": "出牌阶段限一次，你可以交给一名其他角色任意张点数和为13的手牌，然后令其回复1点体力。",
+      "textOrigin": "current hero/365 exact text",
+      "mapping": "One activation per actual Play phase. Select another living player and any positive number of the owner's actual hand cards with rank sum exactly thirteen. Gift that precise bound set, await real movement children, then apply one genuine recovery to the selected recipient.",
+      "notes": [
+        "No card-category restriction, eight-card candidate truncation, rank-sum upper-bound substitution or full-hand substitution is used.",
+        "The gifted set is privately selected from the complete hand. Public/recipient visibility follows the existing committed card-movement boundary."
+      ]
+    },
+    {
+      "name": "巨贾",
+      "programId": "ol:jujia",
+      "text": "锁定技，你的初始手牌和手牌上限+X（X为你的体力上限）。",
+      "textOrigin": "current hero/365 exact text",
+      "mapping": "Locked state modifiers add the owner's maximum HP to the initial-hand-size query at actual initial deal and to the hand-limit query whenever evaluated.",
+      "notes": [
+        "The added amount is the owner's current maximum HP, not a fixed three or the current HP. A lord's increased maximum HP is included.",
+        "Initial cards use the real initial-deal path; this skill does not substitute a GameStarting extra-Draw trigger."
+      ]
+    }
+  ],
+  "historicalInterpretation": {
+    "url": "https://www.sanguosha.com/news/20161122_4701_4615",
+    "title": "[攻略] SP武将：糜竺攻略文",
+    "faqLabel": "自编FAQ",
+    "currentFormalFaq": false,
+    "olderSkillTexts": [
+      {
+        "name": "资援",
+        "text": "资援：出牌阶段限一次，你可以将任意张点数之和为13的手牌交给一名其他角色，然后该角色回复1点体力。"
+      },
+      {
+        "name": "巨贾",
+        "text": "巨贾：锁定技，你的手牌上限+X；游戏开始时，你多摸X张牌。（X为你的体力上限数）"
+      }
+    ],
+    "interpretationOnly": "The repost describes OL stepwise rank-sum selection and a changing hand-limit bonus when maximum HP changes. Its explicitly self-authored FAQ is historical supporting explanation, not a current formal official rules FAQ; current hero/365 controls the implemented text."
+  },
+  "timingInterpretation": {
+    "officialCurrentTextExplicitlyNamesEngineWindow": false,
+    "officialCurrentFaqFound": false,
+    "implementationInference": "An active once-per-Play-phase entry represents Ziyuan. Real gift movement finishes, including its nested children, before genuine recipient recovery. Jujia is queried during actual initial dealing and during hand-limit evaluation. These engine boundaries and cold-continuation contracts are implementation interpretations of the current text, not separately confirmed by a current official FAQ.",
+    "evidenceBoundary": "Current hero/365 and hero/info API control skills and attributes. The current roster confirms the Other group, and official heroDetail.js interprets initial_hp zero as no HP override. Historical OL repost prose is retained separately. No Ten-Year or other variant supplies the rules."
+  },
+  "observations": [
+    "All five listed primary HTTP sources returned 200 when this record was captured.",
+    "Official frontend initial_hp 0 means no override; base and initial HP are three.",
+    "The API has no explicit gender or expansion-group field; Male is an inference, and the Other group comes from the official roster.",
+    "Only the deliverable official portrait was downloaded; no temporary asset tree or source archive was created.",
+    "This record contains static HTTP/text/portrait evidence. Build and runtime verification belong to the coordinating goal and are not claimed here."
+  ],
+  "implementedMetadata": {
+    "bundleResourceName": "ordinary-mi-zhu",
+    "characterId": "character:mi-zhu",
+    "variantId": "ordinary",
+    "generalInitialSkillIds": [
+      "ol:ziyuan",
+      "ol:jujia"
+    ],
+    "skillMetadata": [
+      {
+        "id": "ol:ziyuan",
+        "displayName": "资援",
+        "tags": [],
+        "actionForms": [
+          "active"
+        ]
+      },
+      {
+        "id": "ol:jujia",
+        "displayName": "巨贾",
+        "tags": [
+          "locked"
+        ],
+        "executionForms": [
+          "state"
+        ]
+      }
+    ]
+  }
+}

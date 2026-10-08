@@ -15,6 +15,15 @@ public sealed partial class GameEngine
             _ => false
         };
 
+    private static bool PaidDodgeRecoveryHpFrameRidesOn(ResolutionFrame ride, ResolutionFrame beneath) =>
+        beneath is CardUseFrame { RecoveryPaidContinuation.Kind: RecoveryPaidCardUseKind.DodgeCompletion } use &&
+        ride is HpChangedTriggerWindowFrame hp && hp.Change.ParentFrameId == use.Id &&
+        hp.ResumeFrameId == use.Id && hp.Continuation == PostEventContinuation.RecoveryPaidCardUse;
+
+    private bool IsPaidDodgeRecoveryProgramDying() => ActiveCardAttack is { } attack &&
+        LifecycleCardUse(attack.ResolutionId)?.RecoveryPaidContinuation?.Kind == RecoveryPaidCardUseKind.DodgeCompletion &&
+        IsRecoveryReplacementProgramDying(attack.ResolutionId);
+
     private bool RecoveryReplacementDamageObserverRidesOn(int index)
     {
         if (!DamageObserverRidesOn(_resolutionStack[index], _resolutionStack[index - 1])) return false;
@@ -24,7 +33,7 @@ public sealed partial class GameEngine
         {
             var frame = _resolutionStack[parentIndex];
             var parent = _resolutionStack[parentIndex - 1];
-            if (RecoveryReplacementFrameRidesOn(frame, parent)) return true;
+            if (RecoveryReplacementFrameRidesOn(frame, parent) || PaidDodgeRecoveryHpFrameRidesOn(frame, parent)) return true;
             if (!DamageFrameRidesOn(frame, parent) && !DamageObserverRidesOn(frame, parent) &&
                 !PileEquipmentFrameRidesOn(frame, parent) && !RandomEquipmentFrameRidesOn(frame, parent)) return false;
         }
@@ -57,7 +66,8 @@ public sealed partial class GameEngine
                 return true;
             if (index == 0) return false;
             var parent = _resolutionStack[index - 1];
-            if (RecoveryReplacementFrameRidesOn(frame, parent)) { hasRecovery = true; continue; }
+            if (RecoveryReplacementFrameRidesOn(frame, parent) || PaidDodgeRecoveryHpFrameRidesOn(frame, parent))
+            { hasRecovery = true; continue; }
             if (!DamageFrameRidesOn(frame, parent) && !DamageObserverRidesOn(frame, parent) &&
                 !PileEquipmentFrameRidesOn(frame, parent) && !RandomEquipmentFrameRidesOn(frame, parent)) return false;
         }

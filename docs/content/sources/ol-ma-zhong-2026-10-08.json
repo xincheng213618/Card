@@ -1,0 +1,191 @@
+{
+  "sourceRecordSchemaVersion": 1,
+  "generalId": "ol:ma-zhong",
+  "characterName": "马忠",
+  "officialId": 370,
+  "sourcePage": "https://www.sanguosha.com/hero/370",
+  "capturedAt": "2026-10-08",
+  "capturedAtUtc": "2026-10-07T18:54:45Z",
+  "captureTimeZone": "Asia/Shanghai",
+  "rulesetId": "sanguosha-ol",
+  "sources": [
+    {
+      "role": "current official OL printed skill text",
+      "url": "https://www.sanguosha.com/hero/370",
+      "httpStatus": 200,
+      "responseByteCount": 25031,
+      "responseSha256": "705b1912926b026ec1490ab082bb5715f99aafa1d99ebd84dea18e8f6a222a22",
+      "hashScope": "UTF-8 encoding of decoded HTTP response text"
+    },
+    {
+      "role": "current official OL character metadata; no skill text or gender field",
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=370",
+      "httpStatus": 200,
+      "responseByteCount": 1064,
+      "responseSha256": "ed5d385f165a6d29a5426725b6e21397c8f9b7793245125e530cdc857432d347",
+      "hashScope": "UTF-8 encoding of decoded HTTP response text"
+    },
+    {
+      "role": "official OL 2021 skill adjustment expanding the current hand-departure and settlement boundaries",
+      "url": "https://www.sanguosha.com/news/20211018_6841_4719",
+      "httpStatus": 200,
+      "responseByteCount": 41891,
+      "responseSha256": "dd82c288087f2eb3721ed9e7e25be89be46fa5bcfab2798df818c650e86f9726",
+      "hashScope": "UTF-8 encoding of decoded HTTP response text"
+    },
+    {
+      "role": "historical official OL original 2017 release; distinct superseded rule",
+      "url": "https://www.sanguosha.com/news/20170424_1665_1016",
+      "httpStatus": 200,
+      "responseByteCount": 31179,
+      "responseSha256": "8c5cc6448c2532b26cc98563cc65140a5752a22f98160e2f54c9fa57c545166c",
+      "hashScope": "UTF-8 encoding of decoded HTTP response text"
+    },
+    {
+      "role": "current official OL roster classification",
+      "url": "https://www.sanguosha.com/hero",
+      "httpStatus": 200,
+      "responseByteCount": 1319990,
+      "responseSha256": "df68e4bb68731cf79e2ab27a2c970b251c75e084c321769d140bb3847e73bb26",
+      "hashScope": "UTF-8 encoding of decoded HTTP response text"
+    },
+    {
+      "role": "official initial_hp rendering semantics",
+      "url": "https://www.sanguosha.com/assets/js/heroDetail.js?1",
+      "httpStatus": 200,
+      "responseByteCount": 15166,
+      "responseSha256": "55617a7de749ff8bf19ecd2b17682b59f35554090d5c1a8cc2101121ea248a59",
+      "hashScope": "UTF-8 encoding of decoded HTTP response text"
+    }
+  ],
+  "indexFields": {
+    "gid": 370,
+    "name": "马忠",
+    "extend": "其他",
+    "extendOrigin": "current official roster, not hero/info API",
+    "figure": "蜀",
+    "figure_py": "shu",
+    "hp": 4,
+    "initial_hp": 0,
+    "quality": "普通",
+    "label": [
+      "过牌",
+      "辅助",
+      "简单"
+    ],
+    "characteristic": "能够转化【杀】交给队友，使其能够持续进攻。通过队友使用【杀】来获得大量的牌。",
+    "biography": "本名狐笃，字德信，巴西阆[làng]中人，初次出场时随丞相诸葛亮南征孟获，诸葛亮遣马忠与赵云两路夹攻，大败蛮将阿会喃。孟获派弟孟优赴汉军处假投降，欲内应外合，诸葛亮将计就计，埋伏擒获孟获和诸洞酋长，马忠亦于此战立下战功。后诸葛亮北伐时亦数次出阵，立下汗马功劳。"
+  },
+  "metadataEvidence": {
+    "skillsOrigin": "current hero/370 HTML body; the API returns character metadata, radar and deeds, not skill rules",
+    "initialHpInterpretation": "The official renderer treats initial_hp=0 as the ordinary full-health display, so native maximum and initial HP are both 4.",
+    "ordinaryQuality": "The current official roster and hero/info API both label the character 普通 and the roster classifies it as 其他. This is the standalone Shu 马忠, not Wu 潘璋马忠."
+  },
+  "genderEvidence": {
+    "implementedGender": "male",
+    "officialApiContainsGender": false,
+    "basis": "Historical identity and the visually inspected official portrait. Male is an inference, not an explicit current API gender field."
+  },
+  "artwork": {
+    "skinId": "37000",
+    "skinName": "经典形象",
+    "skinNameOrigin": "Catalog label for the advertised default portrait; the API does not provide a skin-name field",
+    "advertisedImageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/37000.png",
+    "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/37000.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-ma-zhong.png",
+    "sha256": "90f7794ebe10fb714b29c65349e63438f50db715fda00e50751bcc8bfad1f0e0",
+    "byteCount": 1251248,
+    "pixelWidth": 750,
+    "pixelHeight": 950,
+    "httpStatus": 200,
+    "visuallyInspected": true,
+    "visualObservation": "A male warrior wearing blue metal armor, a sculpted bronze animal shoulder guard and a red cloak holds a sword at his waist. White birds, red banners and soldiers appear behind him."
+  },
+  "skills": [
+    {
+      "name": "抚蛮",
+      "programId": "ol:fuman",
+      "embeddedBundle": "ordinary-ma-zhong",
+      "activationId": "give-slash",
+      "completionTriggerId": "reward-used-gift",
+      "bindingId": "fuman-gift",
+      "sharedOperations": [
+        "consumeTargetPhaseLedger",
+        "selectOwnedCards",
+        "giveBoundHandAsSlashWithUseReward",
+        "rewardGiftedSlashUse"
+      ],
+      "text": "出牌阶段，每名角色限一次，你可以交给一名其他角色一张手牌令之视为【杀】。当其使用此【杀】后，你摸一张牌，若造成伤害，你改为摸两张牌。",
+      "textOrigin": "current hero/370 exact text",
+      "mapping": "During the owner's Play phase, pay one real owner hand card to one other living recipient, once for that recipient in that Play phase. Track the exact gifted physical entity, recipient, provider and issuing skill instance. While that entity remains in the original recipient's hand, its kind is Slash. Freeze matching real use provenance before hand departure and reward the provider once after that recipient's actual Slash use settles: draw one if it caused no damage, otherwise draw two. Any other departure ends the hand policy without a completion reward.",
+      "notes": [
+        "The activation accepts any one hand card, not only a printed Slash, and does not spend equipment or cards in other zones.",
+        "The 2021 OL update supplies the precise policy lifetime omitted by the abbreviated current character page: until the card leaves the recipient's hand. No actual-turn or next-turn expiry is added.",
+        "Reward timing is completed Use settlement. Merely giving, losing, discarding or playing a Slash response does not itself qualify as using this Slash.",
+        "Each recipient may be selected once per Play phase; no global per-turn or single-recipient-only activation limit is substituted."
+      ]
+    }
+  ],
+  "historicalInterpretation": [
+    {
+      "url": "https://www.sanguosha.com/news/20211018_6841_4719",
+      "title": "10月20日《三国杀OL》版本更新公告",
+      "publishedAt": "2021-10-19 13:57:58",
+      "effectiveUpdateDate": "2021-10-20",
+      "currentFormalFaq": false,
+      "matchesCurrentRule": true,
+      "printedSkillText": "出牌阶段每名角色限一次，你可以将一张手牌交给一名其他角色，此牌视为【杀】直到离开其手牌区。然后其使用此【杀】结算后，你摸一张牌；若此【杀】造成了伤害，你改为摸两张牌。",
+      "interpretationOnly": "This official OL skill-adjustment announcement expands the same current rule with hand-departure lifetime and post-settlement reward timing. HTML formatting spaces are normalized in this expanded quotation."
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20170424_1665_1016",
+      "title": "入武将—马忠 送热血马忠三国秀",
+      "publishedAt": "2017-04-27 19:06:26",
+      "currentFormalFaq": false,
+      "matchesCurrentRule": false,
+      "printedSkillText": "出牌阶段，你可以将一张【杀】交给一名本回合未获得过“抚蛮”牌的其他角色，然后其于下个回合结束之前使用“抚蛮”牌时，你摸一张牌。",
+      "interpretationOnly": "The superseded original OL rule gives a printed Slash, has a next-turn boundary and awards one card. Its accompanying commentary permits converted uses such as 龙胆、奇策、奇袭, but that older explanation is not imported into the revised 2021/current 'this Slash' reward contract."
+    }
+  ],
+  "implementationInterpretations": [
+    {
+      "boundary": "departure, transfer and return",
+      "currentTextBasis": "The current text names the particular other recipient; the matching 2021 official expansion ends the policy when the entity leaves that recipient's hand.",
+      "chosenBehavior": "Do not transfer the policy or reward eligibility to a third holder. Do not resurrect the old policy if the same entity later returns to the original recipient. A fresh accepted gift may issue a new policy.",
+      "evidenceLimit": "These consequences follow the explicit hand-departure boundary; no separate current formal transfer-and-return FAQ was found."
+    },
+    {
+      "boundary": "actual Use versus played response",
+      "currentTextBasis": "Both current and 2021 rules say 使用此【杀】, and the latter says 使用此【杀】结算后.",
+      "chosenBehavior": "Freeze the accepted recipient's actual Use provenance before the material leaves hand, retain it on the exact card-use lineage, and reward only at its completed settlement. A played response, discard, give, recast or non-Slash conversion does not issue this reward.",
+      "evidenceLimit": "The official sources do not provide a revised interaction FAQ for every conversion or assisted-use skill. The engine's actual actor, action type and effective Slash identity determine the implementation boundary; the 2017 arbitrary-conversion explanation is not current evidence."
+    },
+    {
+      "boundary": "damage reward",
+      "currentTextBasis": "若造成伤害，你改为摸两张牌",
+      "chosenBehavior": "The exact completed card use's caused-damage result selects two instead of one, regardless of the number of damage points or targets. Real draws and their children resume once from typed owning-frame state.",
+      "evidenceLimit": "Once-only provenance and cold continuation are implementation contracts, not claims of an official replay FAQ."
+    },
+    {
+      "boundary": "hand identity and privacy",
+      "currentTextBasis": "Give one real hand card and make this entity count as Slash until it leaves the recipient's hand.",
+      "chosenBehavior": "Keep its physical identity and ordinary suit/rank rules while overriding its effective kind. The gift and policy do not publicly reveal unrelated hand cards or the original printed kind to other viewers.",
+      "evidenceLimit": "Privacy projections and collection freezing follow the engine's existing hand-card contract; no current formal OL viewer-specific policy FAQ was found."
+    }
+  ],
+  "excludedVariants": [
+    {
+      "url": "https://x.sanguosha.com/hero/434.html",
+      "reason": "Ten-year rules give an actual Slash and specify until the recipient's next turn ends. This separate ruleset is not used for current OL content or lifetime."
+    },
+    {
+      "url": "https://www.sanguosha.cn/pc/hero-detail-211.html",
+      "reason": "Mobile rules give an actual Slash and use a different reward contract; they are not current OL rules."
+    }
+  ],
+  "evidenceLimitations": [
+    "Official current page/API and the matching 2021 OL adjustment are the implemented rule sources. The 2017 OL introduction is retained only to document the historical difference.",
+    "The API and roster have no explicit gender field. Male is separately identified as an inference.",
+    "No new official FAQ proving every converted-use, provider-death or skill-loss interaction was found. Exact runtime provenance, source loss and cold restoration require focused shared mechanism validation. No build or runtime acceptance is claimed by this source record."
+  ]
+}

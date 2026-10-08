@@ -59,7 +59,10 @@ public sealed partial class GameEngine
 
     private void FinishSingleBasicCardUseCost(CardUseFrame use, Card card)
     {
+        if (TryFinishRoundDistinctBasicAlcoholCost(use, card)) return;
         if (SkipTieredRoundZeroFinishedMovement(use.Id, card)) return;
+        if (SkipChainedStateBasicFinishedMovement(use.Id, card)) return;
+        if (SkipDrawFundedDistinctBasicFinishedMovement(use.Id, card)) return;
         if (IsProgramAlternativeCost(use.Action, card.Id))
         {
             if (_cardZones.GetLocation(card.Id) == CardLocation.Processing)

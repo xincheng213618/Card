@@ -2,6 +2,8 @@
 
 public sealed record LordSkillProjectionSource(int LordSeat, string LordGrantId, string LordSkillInstanceId,
     string CapabilityGrantId, string CapabilitySkillInstanceId);
+public sealed record SkillGrantTurnExpiry(int TurnNumber, int TurnOwnerSeat);
+public sealed record SkillGrantPhaseExpiry(int TurnNumber, int PhaseActorSeat, int PhaseInstanceId);
 public sealed record SkillGrant(
     string GrantId, string SkillId, string SkillInstanceId, string SourceId, bool IsEnabled = true,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
@@ -9,7 +11,11 @@ public sealed record SkillGrant(
     [property: System.Text.Json.Serialization.JsonIgnore(Condition=System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     GeneralLibraryProjectionSource? GeneralLibraryProjection = null,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
-    PrintedLordSkillQualification? PrintedLordQualification = null);
+    PrintedLordSkillQualification? PrintedLordQualification = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    SkillGrantTurnExpiry? TurnExpiry = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    SkillGrantPhaseExpiry? PhaseExpiry = null);
 
 /// <summary>
 /// Source-aware skill ownership for one character. Definitions and execution
@@ -35,6 +41,14 @@ public sealed class CharacterSkillSet
         ArgumentException.ThrowIfNullOrWhiteSpace(grant.SkillInstanceId);
         ArgumentException.ThrowIfNullOrWhiteSpace(grant.SourceId);
         _ = new ContentId(grant.SkillId);
+        if (grant.TurnExpiry is { } expiry &&
+            (expiry.TurnNumber <= 0 || expiry.TurnOwnerSeat < 0 ||
+             !grant.SourceId.StartsWith("turn:", StringComparison.Ordinal)))
+            throw new InvalidOperationException("An actual-turn skill expiry requires an exact positive turn and a turn grant source.");
+        if (grant.PhaseExpiry is { } phaseExpiry &&
+            (phaseExpiry.TurnNumber <= 0 || phaseExpiry.PhaseActorSeat < 0 || phaseExpiry.PhaseInstanceId <= 0 ||
+             grant.TurnExpiry is not null || !grant.SourceId.StartsWith("phase:", StringComparison.Ordinal)))
+            throw new InvalidOperationException("A play-phase skill expiry requires one exact positive phase and its own phase grant source.");
         if (_grants.TryGetValue(grant.GrantId, out var existing))
         {
             if (existing == grant) return false;

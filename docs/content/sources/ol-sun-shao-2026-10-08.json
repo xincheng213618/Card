@@ -1,0 +1,247 @@
+{
+  "sourceRecordSchemaVersion": 1,
+  "generalId": "ol:sun-shao",
+  "characterName": "孙邵",
+  "officialId": 433,
+  "sourcePage": "https://www.sanguosha.com/hero/433",
+  "capturedAt": "2026-10-08",
+  "capturedAtUtc": "2026-10-07T20:58:53Z",
+  "captureTimeZone": "Asia/Shanghai",
+  "rulesetId": "sanguosha-ol",
+  "sources": [
+    {
+      "role": "current official OL printed skill text",
+      "url": "https://www.sanguosha.com/hero/433",
+      "httpStatus": 200,
+      "responseByteCount": 24610,
+      "responseSha256": "b9ff6e21a97185bfca7b6ce9c64e1f1c5bc1f6dbba05f003d0d147e0cba0c083",
+      "hashScope": "UTF-8 encoding of decoded HTTP response text"
+    },
+    {
+      "role": "current official OL character metadata; no skill text or gender field",
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=433",
+      "httpStatus": 200,
+      "responseByteCount": 957,
+      "responseSha256": "5078de568aea7607cdf5e067392494d949513945dd5631a642ee5fdf1c076434",
+      "hashScope": "UTF-8 encoding of decoded HTTP response text"
+    },
+    {
+      "role": "current official OL roster classification",
+      "url": "https://www.sanguosha.com/hero",
+      "httpStatus": 200,
+      "responseByteCount": 1319990,
+      "responseSha256": "df68e4bb68731cf79e2ab27a2c970b251c75e084c321769d140bb3847e73bb26",
+      "hashScope": "UTF-8 encoding of decoded HTTP response text"
+    },
+    {
+      "role": "official initial_hp rendering semantics",
+      "url": "https://www.sanguosha.com/assets/js/heroDetail.js?1",
+      "httpStatus": 200,
+      "responseByteCount": 15166,
+      "responseSha256": "55617a7de749ff8bf19ecd2b17682b59f35554090d5c1a8cc2101121ea248a59",
+      "hashScope": "UTF-8 encoding of decoded HTTP response text"
+    },
+    {
+      "role": "historical official OL original 2020 introduction with BorrowedSword exception",
+      "url": "https://www.sanguosha.com/news/20201222_6163_0916",
+      "httpStatus": 200,
+      "responseByteCount": 370567,
+      "responseSha256": "debbfdee84be937c0be8f4355029c838eccd1fffae102479ca1b1c341c77bc2e",
+      "hashScope": "UTF-8 encoding of decoded HTTP response text"
+    },
+    {
+      "role": "official OL repaired-problems announcement with Slash-family same-name correction",
+      "url": "https://www.sanguosha.com/news/20210520_7540_0019",
+      "httpStatus": 200,
+      "responseByteCount": 94497,
+      "responseSha256": "8eb0f89be9d25d76cd2f72426e3f7c875dce455acad2a3ce01c12e283fdef53b",
+      "hashScope": "UTF-8 encoding of decoded HTTP response text"
+    },
+    {
+      "role": "official OL description normalization; attributes are outside the Slash card name",
+      "url": "https://www.sanguosha.com/news/20220712_2766_0914",
+      "httpStatus": 200,
+      "responseByteCount": 41319,
+      "responseSha256": "40206b53fa04866676f0941972e2978f62e323c9449ca22fd0e6682487d38a89",
+      "hashScope": "UTF-8 encoding of decoded HTTP response text"
+    },
+    {
+      "role": "historical official OL JianYong introduction; extra Alcohol target analogy only",
+      "url": "https://www.sanguosha.com/news/20161011_5208_1109",
+      "httpStatus": 200,
+      "responseByteCount": 41039,
+      "responseSha256": "844b0b8fb2a02f0ff5d61bf8ccdee923c6e2446ce046a9c18e603b67f3c63a43",
+      "hashScope": "UTF-8 encoding of decoded HTTP response text"
+    },
+    {
+      "role": "official-site republication of a community JianYong guide; historical FAQ analogy only",
+      "url": "https://www.sanguosha.com/news/20161102_6141_0912",
+      "httpStatus": 200,
+      "responseByteCount": 79287,
+      "responseSha256": "d3f5f210de85ac3aca1bbb74fa07b2e05cdb62ad7c54aab2458e9303d90c9d67",
+      "hashScope": "UTF-8 encoding of decoded HTTP response text"
+    }
+  ],
+  "indexFields": {
+    "gid": 433,
+    "name": "孙邵",
+    "extend": "其他",
+    "extendOrigin": "current official roster, not hero/info API",
+    "figure": "吴",
+    "figure_py": "wu",
+    "hp": 3,
+    "initial_hp": 0,
+    "quality": "普通",
+    "label": [
+      "辅助",
+      "减目标",
+      "拆迁办"
+    ],
+    "characteristic": "队友合理规划手牌可令孙邵无损补牌。关键牌需要记牌。",
+    "biography": "孙邵（163年－225年），字长绪，青州北海国人（今山东潍坊市昌乐县西）。原为北海相孔融的功曹，被孔融称赞为可任朝廷要职的人才，后随刘繇[yáo]到达江东，继而辅佐孙权。孙权称吴王后，孙邵成为吴国首任丞相，数年后病逝。"
+  },
+  "metadataEvidence": {
+    "skillsOrigin": "current hero/433 HTML body; the API returns character metadata, radar and deeds, not skill rules",
+    "initialHpInterpretation": "The official renderer treats initial_hp=0 as an ordinary full-health display, so native maximum and initial HP are both 3.",
+    "ordinaryQuality": "The current official roster and hero/info API identify SunShao as ordinary-quality Wu, and the roster classifies him as 其他."
+  },
+  "genderEvidence": {
+    "implementedGender": "male",
+    "officialApiContainsGender": false,
+    "basis": "Historical identity and the visually inspected official portrait. Male is an inference, not an explicit current API gender field."
+  },
+  "artwork": {
+    "skinId": "43300",
+    "skinName": "经典形象",
+    "skinNameOrigin": "Catalog label for the advertised default portrait; the API does not provide a skin-name field",
+    "advertisedImageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/43300.png",
+    "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/43300.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-sun-shao.png",
+    "sha256": "595376a30741d5e63f38193af169a81d4b33e41f9070d890055b6ac56ff87ca7",
+    "byteCount": 1111872,
+    "pixelWidth": 750,
+    "pixelHeight": 950,
+    "httpStatus": 200,
+    "visuallyInspected": true,
+    "visualObservation": "A bearded male official wears a green robe, ornate gold-edged shoulder pieces and a tall black-and-gold crown. He holds a long green jade tablet; two older officials stand behind him inside a decorated hall."
+  },
+  "skills": [
+    {
+      "name": "弼政",
+      "programId": "ol:bizheng",
+      "embeddedBundle": "ordinary-sun-shao",
+      "triggerId": "draw-ended-support-and-discard",
+      "sharedOperations": [
+        "selectTargets",
+        "drawTwoThenDiscardTwoIfOverMaxHp"
+      ],
+      "text": "摸牌阶段结束时，你可以令一名其他角色摸两张牌，然后你与其之中手牌数大于体力上限的角色弃置两张牌。",
+      "textOrigin": "current hero/433 exact text",
+      "mapping": "At the owner DrawPhaseEnded window, optionally select exactly one other living recipient publicly, ordered by the existing SupportDraw AI policy. Run a real fixed two-card Draw for that recipient and await all native children. Freeze both participants' eligibility once after that return, comparing their hand count with their own maximum HP. In owner-then-recipient order, each qualified participant discards two real hand/equipment cards under their own chooser, or all currently legally discardable cards if fewer than two remain; wait for every cost child and return once.",
+      "notes": [
+        "The comparison uses maximum HP, not current HP.",
+        "Discard two is a fixed cost, not discard down to the hand limit.",
+        "The new shared terminal operation fixes both amounts at two; the content does not pass a mutable Amount field."
+      ]
+    },
+    {
+      "name": "佚典",
+      "programId": "ol:yidian",
+      "embeddedBundle": "ordinary-sun-shao",
+      "triggerId": "add-distance-free-target",
+      "sharedOperations": [
+        "addOneDistanceFreeCurrentUseTarget"
+      ],
+      "text": "当你使用基本牌或普通锦囊牌指定目标时，若此牌在弃牌堆中没有同名牌，你可以为此牌多指定一个目标（无距离限制）。",
+      "textOrigin": "current hero/433 exact text",
+      "mapping": "At the exact actual actor CardUseTargetsFinalized window for a Basic or ordinary instantaneous Trick, optionally add one legal extra primary target if the public discard pile has no card of the same canonical name. The shared operation owns the public same-name gate, selection, exact CardUse lineage and native continuation; only distance to the extra primary target is waived. Keep the original ordered target prefix, card-specific prohibitions, effective suit/color policies and all actual card effects.",
+      "notes": [
+        "No BorrowedSword exclusion is copied from the superseded 2020 introduction.",
+        "Slash, FireSlash and ThunderSlash share canonical name Slash, following the official OL same-name correction and description normalization; their distinct effective card kind and damage nature remain intact.",
+        "The trigger is actor-only, optional, once per actual action instance, and does not include ordinary played responses.",
+        "The node selects its target internally; no generic targetKind, usage limit, response-use flag or duplicate JSON condition is added."
+      ]
+    }
+  ],
+  "historicalInterpretation": [
+    {
+      "url": "https://www.sanguosha.com/news/20201222_6163_0916",
+      "title": "12.25-12.31 年终盛典 中流砥柱2020收官 秒杀活动限时开启",
+      "publishedAt": "2020-12-24 16:53:04",
+      "currentFormalFaq": false,
+      "matchesCurrentRule": false,
+      "printedYidianText": "若你使用的基本牌或普通锦囊在弃牌堆中没有同名牌（借刀除外），你可以为此牌指定一个额外目标（无视距离）。",
+      "interpretationOnly": "This old official release excludes BorrowedSword. The current official character body omits that exception. No explicit later removal announcement or current SunShao compound-target FAQ was found; the old exception is not restored."
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20210520_7540_0019",
+      "title": "《三国杀OL》已修复问题公告-更新至8月23日",
+      "publishedAt": "2021-06-01 17:13:59",
+      "currentFormalFaq": false,
+      "supportsGeneralNameSemantics": true,
+      "sourceExcerpt": "程昱设伏杀应当为同一牌名，不应出现属性杀选项",
+      "interpretationOnly": "This official OL fix supports canonical Slash-family name equality. It is a general name precedent, not a SunShao-specific interaction ruling."
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20220712_2766_0914",
+      "title": "技能描述规范化调整",
+      "publishedAt": "2022-07-13 17:43:57",
+      "currentFormalFaq": false,
+      "supportsGeneralNameSemantics": true,
+      "sourceExcerpt": "属性杀描述统一为：雷【杀】、火【杀】、冰【杀】，这是一张牌名字数为1的牌",
+      "interpretationOnly": "The OL notice says only wording is adjusted and settlement does not change. Attribute descriptors sit outside the Slash card name; the notice also normalizes extra-target wording. It does not announce a SunShao BorrowedSword rule change."
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20161011_5208_1109",
+      "title": "10月18日简雍 孙鲁班 界华佗 刘禅特惠",
+      "publishedAt": "2016-10-17 16:00:00",
+      "currentFormalFaq": false,
+      "analogyOnly": true,
+      "interpretationOnly": "This old official OL JianYong introduction explicitly discusses an extra Alcohol target under Qiaoshui. It supports the existing native extra-basic-target precedent, not current Yidian-specific adjudication."
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20161102_6141_0912",
+      "title": "[攻略] 一将成名2013武将：简雍攻略文",
+      "publishedAt": "2016-11-02 12:01:21",
+      "currentFormalFaq": false,
+      "analogyOnly": true,
+      "communityOriginDeclared": true,
+      "declaredOriginalUrl": "http://club.sanguosha.com/thread-78158-1-1.html",
+      "interpretationOnly": "The official site republishes a community guide with a section labelled 官方FAQ. That section says extra targets still pass ordinary target legality and describes extra DrawTwo/Peach/Alcohol beneficiaries, with both Peach recipients wounded. This historical republication is not an independently verified current SunShao FAQ and is not used to override the current official rule body."
+    }
+  ],
+  "implementationInterpretations": [
+    {
+      "boundary": "Bizheng post-draw eligibility and payment order",
+      "currentTextBasis": "Draw two, then participants over their own maximum HP discard two.",
+      "chosenBehavior": "After the real two-card Draw and all its native children finish, freeze both participants' eligibility once. Settle qualified participants in the text's owner-then-recipient order. Each pays two real hand/equipment cards, or all currently legally discardable cards when fewer than two remain; await movement children and never repeat a completed payment. Do not create a later debt for a resource shortfall.",
+      "evidenceLimit": "The current text gives Draw-then-discard and names the owner before the recipient, but does not explicitly specify simultaneous eligibility snapshots, resource-shortfall handling or typed replay continuations. These are shared engine implementation inferences; no current formal ordering or replay FAQ was found."
+    },
+    {
+      "boundary": "BorrowedSword extra primary target",
+      "currentTextBasis": "The current Yidian body includes ordinary instantaneous Tricks and omits the historical BorrowedSword exception.",
+      "chosenBehavior": "Use one public combined choice [extra weapon owner, legal Slash victim]. Append this pair after the frozen original ordered prefix. The new weapon owner must not already be a primary designated target; a victim reused by another pair remains legal if the native BorrowedSword Slash rules allow it.",
+      "evidenceLimit": "Compound pair selection, repeated victim handling and native Slash range preservation follow the existing engine compound-target contract. No current official SunShao double-BorrowedSword adjudication or explicit exception-removal notice was found."
+    },
+    {
+      "boundary": "Basic beneficiaries and card-specific legality",
+      "currentTextBasis": "The current rule covers Basic cards and waives distance only for the extra target.",
+      "chosenBehavior": "Preserve the original legal targets; exclude already designated extra targets and prohibited or dead candidates. Peach adds an otherwise legal wounded beneficiary; Alcohol applies its actual bonus to the selected beneficiary rather than drawing or recovering in its place. Global cards add no duplicate targets. Card-specific restrictions remain enforced.",
+      "evidenceLimit": "Extra Peach/Alcohol behavior has a historical Qiaoshui precedent and existing native engine support, but no current Yidian-specific Basic-card FAQ was found. Applying that common legality contract to current Yidian is an implementation inference."
+    },
+    {
+      "boundary": "Single actual use and cold continuation",
+      "currentTextBasis": "Add one target to this actual card use when its actor designates targets.",
+      "chosenBehavior": "Retain the exact actor, action identity, ordered target prefix and physical cost. Store selection and simple-card continuation on their owning frames, await children, settle every actual target and clean the material once. No parallel use is manufactured.",
+      "evidenceLimit": "Exact provenance, internal same-name gate and cold replay are shared engine contracts requiring behavior validation, not claims of an official replay FAQ."
+    }
+  ],
+  "evidenceLimitations": [
+    "Current official skill wording comes from hero/433 HTML, while the current API supplies metadata only.",
+    "The 2020 BorrowedSword exclusion is historical and conflicts with the current abbreviated body; an explicit removal announcement/current compound-target FAQ remains unverified.",
+    "Official OL 2021/2022 sources support generic Slash-family same-name semantics; current Yidian interaction details beyond that remain implementation interpretations.",
+    "The official-site JianYong community republication is recorded as historical analogy only, not current formal Yidian authority.",
+    "The API has no gender field. Male is separately recorded as an inference.",
+    "No build, runtime acceptance or cold-replay result is claimed by this source record."
+  ]
+}

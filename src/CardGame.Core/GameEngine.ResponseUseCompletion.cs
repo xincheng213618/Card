@@ -95,13 +95,14 @@ public sealed partial class GameEngine
     {
         if (kind is not (CardKind.Dodge or CardKind.Nullification) ||
             !(_contentRegistry.ProgramDependencies.CapturesCompletedResponseSuit ||
-              TracksCurrentTurnUseKinds && kind == CardKind.Nullification)) return null;
+              TracksCurrentTurnUseKinds && kind == CardKind.Nullification || TracksActualTurnUseOrdinal && kind == CardKind.Dodge)) return null;
         var suits = cards.Select(card => EffectiveSuit(owner, card)).Distinct().ToArray();
         return suits.Length == 1 ? suits[0] : null;
     }
 
     private void ContinueNullificationAfterResponseUse(CardActionContext action)
     {
+        if (TryBeginCardResponseCompleted(null, action, ProgramCardContinuation.NullificationResponse)) return;
         if (!TryBeginCompletedResponseUsePrograms(null, action, ProgramCardContinuation.NullificationResponse))
             ContinueNullificationWindow(ClearTieredRoundCounterspellResponse(ActiveNullificationWindow ??
                 throw new InvalidOperationException("The completed counterspell lost its original chain.")));

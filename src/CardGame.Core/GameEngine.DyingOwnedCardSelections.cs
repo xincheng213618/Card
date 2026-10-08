@@ -92,6 +92,40 @@ public sealed partial class GameEngine
                 : bound.CardIds.Count != 0 || bound.SourceLocations.Count != 0))
             throw new InvalidOperationException("The dying selected card binding lost its original identity or empty Basic result.");
     }
+    private bool IsValidDyingOwnedCardProgramSelection(ProgramSkillFrame frame, bool awaitingSelection)
+    {
+        if (!IsValidPlayerSeat(frame.OwnerSeat) || !ExactDyingOwnedCardEntry(frame, out var dying, out _) ||
+            !IsValidPlayerSeat(dying.VictimSeat)) return false;
+        var program = _contentRegistry.Skills.GetValueOrDefault(frame.SkillId)?.Program;
+        if (program is null || program.GameplayHash != frame.GameplayHash) return false;
+        var plan = ProgramInstructionResolver.Default.Resolve(frame, program);
+        if (plan.Instructions.Count != 4 || plan.Instructions[0].Op != SkillProgramEffectOp.SelectDyingOwnedCard)
+            return false;
+        if (frame.DyingOwnedCard is not null)
+        {
+            // Payment children may already have recovered this original victim.
+            // The issued receipt retains the entry and selection without repricing HP.
+            AssertDyingOwnedCardReceipt(frame);
+            return true;
+        }
+        if (!awaitingSelection || frame.InstructionIndex != 1 || frame.SelectedCardIds.Count != 0 ||
+            frame.SelectedTargetSeats.Count != 0 || !ReferenceEquals(frame, _resolutionStack.LastOrDefault()) ||
+            _winner != Winner.None || !_players[frame.OwnerSeat].IsAlive || !_players[dying.VictimSeat].IsAlive ||
+            _players[dying.VictimSeat].Hp > 0 ||
+            !HasRuntimeSkillInstance(_players[frame.OwnerSeat], frame.SkillId, frame.SkillInstanceId) ||
+            _pendingDecision is not { Kind: DecisionKind.ProgramTrigger, IsPrivate: true } prompt ||
+            prompt.PlayerSeat != frame.OwnerSeat || prompt.SourceSeat != frame.OwnerSeat || prompt.TargetSeat != dying.VictimSeat ||
+            prompt.SkillPrompt?.SkillId != frame.SkillId || prompt.ValidTargetSeats.Count != 0)
+            return false;
+        var choices = DyingOwnedCardChoices(frame, plan.Instructions[0], dying.VictimSeat);
+        return choices.Count > 0 && prompt.Choices.Count == choices.Count &&
+            prompt.ValidCardIds.SequenceEqual(choices.SelectMany(choice => choice.Cards).Distinct().Order()) &&
+            prompt.Choices.Zip(choices).All(pair => pair.First.Id == pair.Second.Id &&
+                pair.First.Description == pair.Second.Description && pair.First.Cards.SequenceEqual(pair.Second.Cards) &&
+                pair.First.Targets.SequenceEqual(pair.Second.Targets) && pair.First.ContentIds.SequenceEqual(pair.Second.ContentIds) &&
+                pair.First.Parameters.Count == pair.Second.Parameters.Count &&
+                pair.Second.Parameters.All(parameter => pair.First.Parameters.GetValueOrDefault(parameter.Key) == parameter.Value));
+    }
     private PromptChoice SelectAiDyingOwnedCard(PendingDecision decision) => decision.Choices
         .OrderBy(c => c.Cards.Count == 1 && _cardZones.CardsAt(_cardZones.GetLocation(c.Cards[0])).Any(card => card.Id == c.Cards[0] &&
             !MatchesProgramCardCategory(card.Kind, [SkillProgramCardCategory.Basic])) ? 0 : 1)

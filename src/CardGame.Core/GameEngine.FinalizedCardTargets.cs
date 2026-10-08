@@ -13,7 +13,19 @@ public sealed partial class GameEngine
             "装备牌" => SkillProgramCardCategory.Equipment,
             _ => SkillProgramCardCategory.Trick
         };
-        return _contentRegistry.ProgramDependencies.HasFinalizedCardTrigger(kind, category);
+        // Paired responses need the original trick's accepted Use identity even
+        // when no target-changing skill subscribes to its finalized window.
+        return _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.OfferPairedColorCardDisposition) &&
+            category == SkillProgramCardCategory.Trick ||
+            TracksCompletedUndamagedUseDamage && IsCompletedUndamagedDamageUse(kind) && IsOrdinaryTrick(kind) ||
+            _contentRegistry.ProgramDependencies.HasFinalizedCardTrigger(kind, category) ||
+            ((_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.AddOneDistanceFreeCurrentUseTarget) ||
+              _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.OfferOriginalTargetAddition) ||
+              _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.OfferUniqueLargestHandTrickTargetAddition) ||
+              _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.JoinUniqueLargestHpTrickTargetAndDrawAfterDamage) ||
+              _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.AdjustOneRoundGainedOrdinaryTrickTarget) ||
+              _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.GrantActorHandLimitPenalty)) &&
+                IsOrdinaryTrick(kind) && _contentRegistry.ProgramDependencies.HasFinalizedCardTrigger(kind, SkillProgramCardCategory.InstantTrick));
     }
 
     private IReadOnlyList<int> GetImplicitSelfCardUseTargets(CardKind kind, int sourceSeat,

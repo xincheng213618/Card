@@ -1,0 +1,173 @@
+{
+  "sourceRecordSchemaVersion": 1,
+  "generalId": "ol:wei-guan",
+  "characterName": "卫瓘",
+  "officialId": 7013,
+  "sourcePage": "https://www.sanguosha.com/hero/7013",
+  "capturedAt": "2026-10-08",
+  "capturedAtUtc": "2026-10-07T23:06:17Z",
+  "rulesetId": "sanguosha-ol",
+  "sources": [
+    {
+      "role": "current official OL exact skill text",
+      "url": "https://www.sanguosha.com/hero/7013",
+      "httpStatus": 200,
+      "responseSha256": "22959792051f189af3b4961c70f22be1340785cf7378b1458c886dd938f1d24d",
+      "responseByteCount": 24386,
+      "hashScope": "UTF-8 re-encoding of decoded HTTP response body"
+    },
+    {
+      "role": "current official OL character metadata and advertised portrait",
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=7013",
+      "httpStatus": 200,
+      "responseSha256": "30d33b3958bed2730fdefba98fd5f95e96bb77c9aa13bd3e8ab5fe80b949337e",
+      "responseByteCount": 897,
+      "hashScope": "UTF-8 re-encoding of decoded HTTP response body"
+    },
+    {
+      "role": "historical official OL release text; does not override current hero text",
+      "url": "https://www.sanguosha.com/news/20210601_2439_3417",
+      "httpStatus": 200,
+      "responseSha256": "a409bca3e15af99453ada324fd80c44275a0feb643b0d81aab9f54470184fb39",
+      "responseByteCount": 73343,
+      "hashScope": "UTF-8 re-encoding of decoded HTTP response body"
+    },
+    {
+      "role": "current official OL roster JSON-LD classification",
+      "url": "https://www.sanguosha.com/hero",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T05:01:48Z",
+      "responseSha256": "df68e4bb68731cf79e2ab27a2c970b251c75e084c321769d140bb3847e73bb26",
+      "responseByteCount": 1319990,
+      "hashScope": "UTF-8 re-encoding of decoded HTTP response body"
+    }
+  ],
+  "indexFields": {
+    "gid": 7013,
+    "name": "卫瓘",
+    "extend": "其他",
+    "extendOrigin": "current official OL roster JSON-LD; not hero/info API",
+    "figure": "晋",
+    "figure_py": "jin",
+    "hp": 3,
+    "initial_hp": 0,
+    "quality": "稀有",
+    "label": [
+      "进攻",
+      "防御",
+      "控制"
+    ],
+    "characteristic": "控制手牌数与血量至关重要",
+    "biography": "卫瓘[guàn]，字伯玉。河东郡安邑县（今山西省夏县）人。三国曹魏后期至西晋初年重臣、书法家，曹魏尚书卫觊之子。卫瓘善隶书及章草。不仅兼工各体，还能学古人之长，是颇有创意的书法家。"
+  },
+  "genderEvidence": {
+    "implementedGender": "male",
+    "officialApiContainsGender": false,
+    "basis": "Historical identity in the official biography; portrait inspection recorded below. This is an inference, not an explicit API gender field."
+  },
+  "identifierEvidence": {
+    "chosenGeneralId": "ol:wei-guan",
+    "officialStableIdentifier": 7013,
+    "romanizedKeyIsOfficial": false,
+    "note": "Romanized content key is a local stable identifier; the official API advertises only numeric gid and Chinese name."
+  },
+  "artwork": {
+    "skinId": "701300",
+    "skinName": "经典形象",
+    "skinNameOrigin": "local catalog label for advertised default portrait",
+    "advertisedImageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/701300.png",
+    "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/701300.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-wei-guan.png",
+    "sha256": "d1d8f7bb2e2a7c2872d75b3385f0c412e86945d246356631555e17929b293680",
+    "byteCount": 973487,
+    "pixelWidth": 750,
+    "pixelHeight": 950,
+    "httpStatus": 200,
+    "visuallyInspected": true,
+    "visuallyInspectedAt": "2026-10-08",
+    "visualObservation": "A male scholar with long dark hair, a purple and white robe and green jade ornaments holds a writing brush; books and blue-purple banners are visible."
+  },
+  "skills": [
+    {
+      "name": "忠允",
+      "programId": "ol:zhongyun",
+      "text": "锁定技，每回合各限一次，当你受到伤害或回复体力/手牌数变化后，若你的体力值与手牌数相等，你回复1点体力或对你攻击范围内的一名角色造成1点伤害/你摸一张牌或弃置一名其他角色一张牌。",
+      "textOrigin": "current hero/7013 exact SSR skill-text span"
+    },
+    {
+      "name": "神品",
+      "programId": "ol:shenpin",
+      "text": "当一张判定牌生效前，你可以用一张颜色不同的牌代替之。",
+      "textOrigin": "current hero/7013 exact SSR skill-text span"
+    }
+  ],
+  "implementationStatus": "Content and final shared-contract rules source-ready; runtime verification is performed separately by the coordinating agent.",
+  "evidenceLimit": [
+    "The API advertises initial_hp=0 alongside positive hp. The local ordinary identity definition starts at advertised maximum HP; that zero is not imported as zero starting HP. This is a local interpretation, not an explicit API rule.",
+    "The current official ordinary identity version is used. National-war reveal/half-HP text and ten-year variants do not substitute its rules.",
+    "The archive retains primary URLs, HTTP status, decoded-body hashes and exact current skill text. Static source readiness does not claim runtime acceptance or an official cross-skill FAQ for inferred implementation details.",
+    "Both official API quality values are 稀有. Ordinary here identifies the current identity variant, rather than claiming the website quality is 普通.",
+    "The slash-separated current 忠允 text is mapped to two independently shared per-turn groups: damage/recovery and hand count changes. This follows the historical official expanded two-part release wording; damage is not broadened to all HP loss.",
+    "Current 忠允 damage says 一名角色 rather than 其他角色. The engine existing attack-range definition supplies other living participants as legal damage targets. Treating self as outside one own attack range is an implementation interpretation; no separate official self-target FAQ is claimed.",
+    "Hand qualification uses complete source/destination batch before and after counts, rather than card movement alone; a same-count atomic hand exchange does not qualify.",
+    "The forced choice only offers branches with actual legal targets. Foreign discard observes the existing protected-card legality and does not offer a decline. These are engine legality mappings, not extra restrictions claimed as quoted official text.",
+    "Current 神品 does not explicitly enumerate card zones or explain cross-skill effective-color cases. Hand/Equipment replacement and current effective-color comparisons reuse the shared judgment replacement contract. No official 红颜/神品 or suit-less-card cross FAQ is claimed."
+  ],
+  "finalRuleMapping": [
+    {
+      "skillId": "ol:zhongyun",
+      "namedUsageGroup": "zhongyun-health",
+      "usageScope": "turn",
+      "usageLimit": 1,
+      "triggerIds": [
+        "equal-hand-hp-after-damage",
+        "equal-hand-hp-after-recovery"
+      ],
+      "windows": [
+        "afterDamageApplied",
+        "afterHpRecovered"
+      ],
+      "qualification": "Owner current HP equals current hand count. Damage and actual recovery share one turn allowance; plain non-damage HP loss does not qualify.",
+      "options": [
+        "recover when wounded",
+        "damage when an other living target is currently in attack range"
+      ],
+      "damageTargetKind": "otherLivingInAttackRange"
+    },
+    {
+      "skillId": "ol:zhongyun",
+      "namedUsageGroup": "zhongyun-hand",
+      "usageScope": "turn",
+      "usageLimit": 1,
+      "triggerIds": [
+        "equal-hand-hp-after-hand-loss",
+        "equal-hand-hp-after-hand-gain"
+      ],
+      "windows": [
+        "cardsMoved perOwnerBatch source Hand",
+        "cardsGained perBatch destination Hand"
+      ],
+      "qualification": "Owner current HP equals hand count and the corresponding complete batch hand-zone before count differs from after count.",
+      "options": [
+        "draw",
+        "discard only when another living owner has an actually discardable HE card"
+      ],
+      "discardTargetKind": "otherLivingWithDiscardableHandOrEquipment",
+      "discardExecution": "Owner chooses exactly one legal Hand or Equipment card of the selected target; discard and all movement children complete before continuation. There is no decline option after choosing this branch."
+    },
+    {
+      "skillId": "ol:shenpin",
+      "window": "judgmentReplacing",
+      "subject": "any",
+      "optional": true,
+      "operation": "replaceJudgment",
+      "zones": [
+        "hand",
+        "equipment"
+      ],
+      "oldCardDestination": "discardPile",
+      "requireDifferentColor": true,
+      "qualification": "Candidate owner effective color differs from current judgment subject effective judgment color; both must be real red or black. Re-evaluate against the current judgment after earlier replacement children."
+    }
+  ]
+}

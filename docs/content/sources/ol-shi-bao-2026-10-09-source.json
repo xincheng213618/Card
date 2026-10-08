@@ -1,0 +1,374 @@
+{
+  "sourceRecordSchemaVersion": 1,
+  "documentKind": "Current official ordinary OL Shi Bao complete Zhuosheng source and implementation mapping",
+  "capturedAt": "2026-10-09",
+  "status": "Complete ordinary OL Shi Bao implementation accepted by the recorded focused and routine checks.",
+  "sourceVerified": true,
+  "sourceRegistered": true,
+  "registered": true,
+  "productionImplemented": true,
+  "behaviorValidated": true,
+  "behaviorAccepted": true,
+  "generalIdProposal": "ol:shi-bao",
+  "characterName": "石苞",
+  "officialId": 7009,
+  "rulesetId": "sanguosha-ol",
+  "variantProposal": "ordinary",
+  "sourcePage": "https://www.sanguosha.com/hero/7009",
+  "currentOfficialMetadata": {
+    "gid": 7009,
+    "name": "石苞",
+    "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/7009.png",
+    "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/700900.png",
+    "label": [
+      "进攻",
+      "过牌",
+      "多刀"
+    ],
+    "figure": "晋",
+    "figure_py": "jin",
+    "quality": "稀有",
+    "biography": "字仲容，渤海南皮（今河北南皮东北）人。汉末晋初官员，三国时曹魏和西晋重要将领，为晋开国八公之一，官至西晋司徒。",
+    "characteristic": "有队友支援能最大化发挥他的技能",
+    "hp": 4,
+    "initial_hp": 0,
+    "score": 0
+  },
+  "metadataInterpretation": {
+    "gender": "Male: current character.h=1; no explicit API gender field. Numeric client-config convention, not portrait-only inference.",
+    "maxHp": 4,
+    "initialHp": 4,
+    "initialHpNote": "API initial_hp=0 and no assigned character.af special initial-HP override; ordinary full HP before native mode modifiers.",
+    "faction": "jin",
+    "ordinaryRoster": "Current character.e=40 identity/ordinary roster. API quality is 稀有; ordinary variant does not mean 普通 rarity.",
+    "hasConcealment": false,
+    "concealmentBasis": "The sole assigned ordinary printed spell7027 contains no 隐匿; no other assigned printed skill slot.",
+    "derivedSkills": [],
+    "defaultSkinId": 700900,
+    "artist": "画师:凝聚永恒"
+  },
+  "character": {
+    "origin": "/GameCharacters/character/834",
+    "row": {
+      "a": 7009,
+      "b": "石苞",
+      "d": "ShiBao",
+      "e": 40,
+      "f": "37",
+      "g": 6,
+      "h": 1,
+      "i": 4,
+      "j": 7027,
+      "p": 1,
+      "q": "1",
+      "r": "9700901",
+      "y": "字仲容，渤海南皮（今河北南皮东北）人。汉末晋初官员，三国时曹魏和西晋重要将领，为晋开国八公之一，官至西晋司徒。",
+      "z": "有队友支援能最大化发挥他的技能",
+      "aa": 133,
+      "ab": "823,824",
+      "ad": "画师:凝聚永恒",
+      "x": "曹魏历数已尽，####吾主当行天道！ ",
+      "al": 1730,
+      "am": "true",
+      "ap": 50,
+      "aq": 15,
+      "bn": "有队友配合时爆发力很强",
+      "bx": 5200,
+      "LordCardRate1": 20,
+      "LordCardRate2": 38,
+      "cc": 0,
+      "starMax": 4
+    }
+  },
+  "skills": [
+    {
+      "officialSkillId": 7027,
+      "id": "ol:zhuosheng",
+      "name": "擢升",
+      "exactText": "当你于出牌阶段使用本轮获得的牌时（不因此技能获得），根据类型执行以下效果：•基本牌，无距离和次数限制；•普通锦囊牌，可以令此牌目标+1或-1；•装备牌，你可以摸一张牌。",
+      "rawClientText": "当你于出牌阶段使用本轮获得的牌时（不因此技能获得），根据类型执行以下效果：<br>•基本牌，无距离和次数限制；<br>•普通锦囊牌，可以令此牌目标+1或-1；<br>•装备牌，你可以摸一张牌。",
+      "origin": "/GameSpells/spell/1336",
+      "row": {
+        "a": 7027,
+        "b": "3,5",
+        "c": "擢升",
+        "d": "ZhuoSheng",
+        "g": 3,
+        "i": 2,
+        "o": "当你于出牌阶段使用本轮获得的牌时（不因此技能获得），根据类型执行以下效果：<br>•基本牌，无距离和次数限制；<br>•普通锦囊牌，可以令此牌目标+1或-1；<br>•装备牌，你可以摸一张牌。",
+        "v": "请为<font color='#FFD800'>{0}</font>多选一名目标;请为<font color='#FFD800'>{0}</font>多选或少选一名目标",
+        "ac": "是否摸一张牌",
+        "j": 1
+      }
+    }
+  ],
+  "currentHeroRule": {
+    "exactText": "出牌阶段，当你使用本轮非以本技能获得的牌时，根据类型执行以下效果：1.基本牌，无距离和次数限制；2.普通锦囊牌，可以令此牌目标+1或-1；3.装备牌，你可以摸一张牌。",
+    "relationshipToConfig": "The hero wording 本轮非以本技能获得 is compressed and syntactically ambiguous; current Config explicitly requires a card acquired this round and excludes acquisition by this skill. Do not interpret it as every card merely absent from a negative list."
+  },
+  "officialSources": [
+    {
+      "name": "hero",
+      "url": "https://www.sanguosha.com/hero/7009",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T20:41:16.373822+00:00",
+      "byteCount": 23836,
+      "sha256": "203fa2bc3ead2fd4e1c51355bbd4300a47e65cda4cdb102ed8dbb35cdb97ee51",
+      "hashScope": "Exact requests response.content bytes after HTTP transport decoding; source bodies and heavy client/config resources retained in memory only."
+    },
+    {
+      "name": "api",
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=7009",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T20:41:16.403529+00:00",
+      "byteCount": 812,
+      "sha256": "92d0d71f766fe5f5fb9acf3e74a17dc07078bd75a023869b0bc432d5c3b03ff5",
+      "hashScope": "Exact requests response.content bytes after HTTP transport decoding; source bodies and heavy client/config resources retained in memory only."
+    },
+    {
+      "name": "bundle",
+      "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T20:41:16.327650+00:00",
+      "byteCount": 5256312,
+      "sha256": "6a035389beda8d0dbf31227f57a91b2da14d3d5055503198a227aef54f22bf76",
+      "hashScope": "Exact requests response.content bytes after HTTP transport decoding; source bodies and heavy client/config resources retained in memory only."
+    },
+    {
+      "name": "config",
+      "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T20:41:16.313021+00:00",
+      "byteCount": 4142728,
+      "sha256": "9e26cb3db90532084579a20c292d5fec0c81dcf3d5eb2abf2009bff0326237bb",
+      "hashScope": "Exact requests response.content bytes after HTTP transport decoding; source bodies and heavy client/config resources retained in memory only."
+    },
+    {
+      "name": "historicalLaunch",
+      "url": "https://www.sanguosha.com/news/20210601_2439_3417",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T20:41:16.408546+00:00",
+      "byteCount": 73343,
+      "sha256": "a409bca3e15af99453ada324fd80c44275a0feb643b0d81aab9f54470184fb39",
+      "hashScope": "Exact requests response.content bytes after HTTP transport decoding; source bodies and heavy client/config resources retained in memory only."
+    },
+    {
+      "name": "countNormalization",
+      "url": "https://www.sanguosha.com/news/20220822_7692_0517",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T20:41:16.374446+00:00",
+      "byteCount": 25845,
+      "sha256": "3a26ea395bf0b9d0388926cebd610ae0fb1edb59a30541ac219c8c55920d2dd6",
+      "hashScope": "Exact requests response.content bytes after HTTP transport decoding; source bodies and heavy client/config resources retained in memory only."
+    }
+  ],
+  "historicalOfficialLaunch": {
+    "url": "https://www.sanguosha.com/news/20210601_2439_3417",
+    "publishedAt": "2021-06-08 17:07:00",
+    "sourceType": "Historical OL launch; corroborates positive current-round acquisition, not the final post-2022 quota wording or a current interaction FAQ.",
+    "exactRelevantText": "擢升 出牌阶段，你使用本轮获得的牌时（以此技能获得的牌除外），根据类型执行以下效果：1.基本牌，不计入次数且无距离限制；2.普通锦囊牌，此牌目标可+1或-1；3.装备牌，可摸1张牌。"
+  },
+  "officialCountNormalization": {
+    "url": "https://www.sanguosha.com/news/20220822_7692_0517",
+    "publishedAt": "2022-08-23 17:06:06",
+    "exactRelevantText": "当特指某张或某类〖杀〗的特性时，将以往描述中使用的“无次数限制”（已达到杀的限制次数后依然可以使用，但会计入次数）和“不计入次数”（使用时不会消耗一次杀的限制次数，但在已达到杀的限制次数后不可使用）合并为“无次数限制”（既能在达到限制次数后使用，也不会消耗使用次数），如枪舞、怒斩、龙怒、成略、武神、奋钺、缮甲、流矢、挽弓、擢升、龙吟、追猎等。",
+    "supports": "Qualifying Slash bypasses an exhausted quota and does not debit quota. This direct primary clarification explicitly lists Zhuosheng; old no-debit-only wording is superseded."
+  },
+  "clientEvidence": {
+    "bundleUrl": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+    "configUrl": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+    "decoder": "Public InitOfb/pR.WorkParse AES-CFB128 then gzip. Public binary key/IV transient; no private or server resources.",
+    "decodedScriptUtf8Sha256": "f62c194174dd2ff4531bc44a795616b6a51f449a3c7c2bec5270f390da55f245",
+    "members": [
+      {
+        "name": "character.sgs",
+        "encodedByteCount": 352776,
+        "encodedSha256": "e0b6f0188edebb1f502ea402c7171e93b88f4e9d05720948344a1f4f44474aae",
+        "decodedByteCount": 1485056,
+        "decodedSha256": "b3ef3f1181e7fe667499cb688b7cdce56631d899dbb0eea55d75fbf80636b040"
+      },
+      {
+        "name": "cha_spell.sgs",
+        "encodedByteCount": 246031,
+        "encodedSha256": "95cfaa4106a4f6224ebed8948bcf86bd5fc6801a83a1c4162c7e59bc848bef66",
+        "decodedByteCount": 1166955,
+        "decodedSha256": "39b83f6e2504590e262bb353bddfded546b83f83a7ea9199b67742b1bee68fc0"
+      },
+      {
+        "name": "cha_spellextend.sgs",
+        "encodedByteCount": 31872,
+        "encodedSha256": "93200e9c2c284faea0d149c49a9ce2c2c5ad467d0e840e87d0716657de611671",
+        "decodedByteCount": 142008,
+        "decodedSha256": "c1590878c67a5782b0526153223ea33fc0ca69e60bf863320d21dba6e590935e"
+      }
+    ],
+    "assignedPrintedSkillOrder": [
+      7027
+    ],
+    "ordinarySkillRegistration": "this.r(\"ZhuoSheng\",Xyi); ZHUOSHENG_JIN=7027. National-war GuoZhanZhuoSheng/9007 is a distinct binding and is not used.",
+    "snippets": [
+      {
+        "label": "Xyi ordinary Zhuosheng",
+        "decodedScriptCharacterOffset": 15997911,
+        "exactText": "class Xyi extends $Kt{constructor(){super(),this.activeMode=vCt.ASK,this.targetCanBeSelf=!0,this.allowFixedTarget=!1,this.needTargetTips=!0}static CARD_BASE=2;static CARD_JINGNANG=3;static CARD_EQUIP=4;static USE_TYEE_GET_CARD=0;static USE_TYEE_ADD_TARGET=1;static USE_TYEE_DEL_TARGET=2;get AutoSelectTargetWhenOnlyOne(){return!1}UpdateRoleDataResponse(t,i,s=!1){if(super.UpdateRoleDataResponse(t,i,s),t.DataID==this.ID&&t.Datas&&t.Datas.length>=1){let i=c1t.GetSeat(t.SeatID);if(i){i.ClearSkillOutsideCards(this.ID),i.addCardTag(i.HandCardIDs,\"\");let s=t.Datas[0];if(s>0){let e=1+s>t.Datas.length?t.Datas.length:1+s,h=t.Datas.slice(1,e);i.AddSkillOutsideCards(h,h.length,this.ID),i.addCardTag(h,this.skillName)}}}}get TouchSkillWhenApplyActive(){return this.flag==Xyi.CARD_JINGNANG}get TargetCountMax(){return this.flag==Xyi.CARD_JINGNANG?1:0}get TargetCountMin(){return this.TargetCountMax}isAddTarget=!1;BeforeTriggerSkill(t){t&&t.FirstTriggerParam&&t.FirstTriggerParam.Datas&&t.FirstTriggerParam.Datas.length&&(this.canDelList=null,this.flag=t.FirstTriggerParam.Datas[t.FirstTriggerParam.Datas.length-1],this.flag==Xyi.CARD_JINGNANG&&(t.FirstTriggerParam.Datas.length<=1||t.TargetSeats&&t.TargetSeats.length&&-1==t.TargetSeats.indexOf(t.FirstTriggerParam.Datas[0])?this.isAddTarget=!0:(this.canDelList=t.FirstTriggerParam.Datas.slice(0,t.FirstTriggerParam.Datas.length-1),this.isAddTarget=!1),this.lastUseTargetFromServer=t.TargetSeats,this.srcSpellID=t.SrcSpellID,c1t.LastTriggerSpell=this))}get AskTip(){return Laya.superGetter(Xyi,this,\"AskTip\")}get ActiveTip(){let t=Laya.superGetter(Xyi,this,\"ActiveTip\"),i=_Xt.GetInstance(this.srcSpellID);return this.isAddTarget?ks.F(t.split(\";\")[0],i?i.Name:\"\"):ks.F(t.split(\";\")[1],i?i.Name:\"\")}get TargetSelector(){return this.targetSelector||(this.targetSelector=new wHt(this)),this.targetSelector}Use(t,i,s=null,e=0){this.flag==Xyi.CARD_EQUIP?this.params=[Xyi.USE_TYEE_GET_CARD]:this.flag==Xyi.CARD_JINGNANG&&i&&i.length&&(this.canDelList&&this.canDelList.indexOf(i[0])>-1?this.params=[Xyi.USE_TYEE_DEL_TARGET,this.srcSpellID]:this.params=[Xyi.USE_TYEE_ADD_TARGET,this.srcSpellID]),super.Use(t,i,s,e)}GetSkillTipsColorBeforUse(t){return!this.isAddTarget&&this.canDelList&&this.canDelList.indexOf(t.Index)>-1?\"#B1FC7F\":\"#FFBF12\"}GetSkillTipsBeforUse(t){return c1t.IsApp||this.flag!=Xyi.CARD_JINGNANG?\"\":t&&this.targetSelector.IsAllowSeat(t)?this.isAddTarget?ewt.ZHUOSHENG_CANADD:this.canDelList&&this.canDelList.indexOf(t.Index)>-1?ewt.ZHUOSHENG_CANDEL:ewt.ZHUOSHENG_CANADD:\"\"}GetSkillTipsImgBeforUse(t){return\"\"}Clear(){this.canDelList=null,super.Clear()}GetUseRecord(t,i,s,e,h=null){let r=c1t.GetSeat(t);if(!r)return;let n=WZ.I(),a=n.GetSeatHtmlName(r.SeatName);if(e&&e.length){let t=e[0],s=ewt[\"ZHUOSHENG_USETIP\"+t],h=\"\";e.length>1&&(h=n.GetSkillHtmlName(e[1]));let r=i&&i.length?n.GetSeatHtmlNames(i):\"\";return ks.F(s,a,h,r)}return super.GetUseRecord(t,i,s,e,h)}AddReduceTarget(t,i,s=\"\",e=!1){if(this.needTargetTips&&(s=s||\"\",i&&i.datas&&i.datas.length>1&&(1==i.datas[0]||2==i.datas[0]))){let h=_Xt.GetInstance(i.datas[1]);h&&(s=h.Name),this.isAddTargetTips=1==i.datas[0],WZ.I().AddReduceTarget(t,i,s,this.IsAddTargetTips,e)}}get NeedShowSkillTipsBeforUse(){return!0}get RetainRoleDataExLastParams(){return!1}}",
+        "utf8Sha256": "92a7896a665ac270a0a628cbe178ecfc6d40744bc2f3aecd0a2bc8870a71108a",
+        "supports": "Server DataID7027 replaces the exact tagged physical entity list; ordinary-trick UI receives add/remove target candidates and selects one seat; equipment mode asks whether to draw. This does not expose server eligibility or full interaction timing."
+      }
+    ],
+    "basicEntityEvidence": "The current client IsOutsideCard(card.CardId,ZHUOSHENG_JIN) branches in basic-use quota and range checks; GetSkillOutsideCards reads the server-supplied specific entity list.",
+    "spellExtend": "No dedicated 7027 or ZhuoSheng record found in current cha_spellextend.sgs. This is a bounded current-resource observation, not an exhaustive FAQ absence claim."
+  },
+  "boundedOfficialFaqAudit": {
+    "queries": [
+      "site:sanguosha.com 石苞 擢升 零 虚拟",
+      "site:sanguosha.com 石苞 擢升 借刀",
+      "site:sanguosha.com \"擢升\" \"修改\"",
+      "site:sanguosha.com \"擢升\" \"转化\"",
+      "site:sanguosha.com \"石苞\" \"FAQ\""
+    ],
+    "result": "Located current hero/Config, historical official launch and explicit 2022 count normalization. No dedicated primary ruling for zero-entity or mixed-material use, transfer/reacquisition, BorrowedSword paired targets or equipment child timing located in this bounded search.",
+    "notAnExhaustiveAbsenceClaim": true
+  },
+  "engineMappingsNotOfficialFaq": [
+    {
+      "topic": "Positive round acquisition and stable excluded source",
+      "status": "Coordinator implementation contract; no dedicated official interaction FAQ located",
+      "mapping": "A material requires a genuine acquisition by this owner during the exact actual round, with matching movement provenance. Exclude entities acquired by this skill using stable owner/skill/policy/round identity. Source loss and regrant, leaving hand, or transfer/reacquisition do not erase an already-recorded same-round exclusion. Round boundaries reset round qualification. Initial deal alone is not acquisition in an actual started round."
+    },
+    {
+      "topic": "Physical, converted and zero-entity uses",
+      "status": "Engine inference from positive physical-entity qualification; no direct official zero/mixed-material FAQ",
+      "mapping": "Require at least one real physical material; every material must satisfy the positive round-acquisition predicate and none may carry the same-round skill exclusion. A pure zero-entity virtual use does not receive Zhuosheng benefits. A mixed set containing one unqualified or excluded entity does not qualify; ordinary single-material conversions are tested against their real entity. This batch admits only actual actor-provided materials (ActorSeat equals ProviderSeat). Preflight requires every material currently in a genuine location owned by that actor; historical acquisition alone cannot borrow a card now held by a foreign provider. Once native Use qualification is issued before payment, its paid continuation validates the exact frozen acquisition/Use proof without requiring those already-paid cards or the original skill instance to remain owned/live."
+    },
+    {
+      "topic": "Basic use policy",
+      "status": "Unlimited Slash quota semantics officially clarified; exact engine issuance is an implementation mapping",
+      "mapping": "During the actual actor Play phase, issue the qualifying-use benefit before physical materials depart. Basic-card native distance and applicable use-count limits are bypassed, including exhausted quota, and no quota is debited. Preserve target prohibitions and native effect semantics; a Response is not a qualifying Play-phase Use."
+    },
+    {
+      "topic": "Ordinary-trick plus/minus one primary target",
+      "status": "Engine target model mapping; no direct official BorrowedSword interaction FAQ",
+      "mapping": "Offer one optional addition or removal at exact native finalized targets after physical cost. Preserve native target legality and existing target order. BorrowedSword counts weapon owners as primary targets and adds/removes the complete weapon-owner/victim pair; do not treat the victim as a second primary or silently exclude BorrowedSword. Existing legal pair rules permit repeated victim seats when appropriate."
+    },
+    {
+      "topic": "Equipment commitment and self-skill drawn entities",
+      "status": "Engine timing/source mapping; no direct official committed-window FAQ",
+      "mapping": "Observe the real actor equipment Use commitment after native equipment placement, then draw exactly one through the owning typed native continuation and drain movement/HP children. Freeze exact accepted use and producer before suspension, prevent duplicate rewards after cold restore, and record the actual drawn entities as this skill acquisition so they cannot recursively benefit this round."
+    }
+  ],
+  "implementationContracts": {
+    "bundle": "ordinary-shi-bao",
+    "generalId": "ol:shi-bao",
+    "skillId": "ol:zhuosheng",
+    "cardPolicy": {
+      "id": "zhuosheng",
+      "kind": "roundGainedOtherSourceUse",
+      "cardKinds": [],
+      "condition": {
+        "kind": "always"
+      }
+    },
+    "targetTrigger": {
+      "id": "adjust-round-gained-trick-target",
+      "window": "cardUseTargetsFinalized",
+      "ownerRelation": "actor",
+      "singleActionInstance": true,
+      "cardCategories": [
+        "instantTrick"
+      ],
+      "optional": true,
+      "effect": {
+        "opcode": 9085,
+        "op": "adjustOneRoundGainedOrdinaryTrickTarget",
+        "target": "owner"
+      }
+    },
+    "equipmentTrigger": {
+      "id": "draw-for-round-gained-equipment",
+      "window": "cardUseCommitted",
+      "ownerRelation": "actor",
+      "singleActionInstance": "omitted; existing default false",
+      "cardCategories": [
+        "equipment"
+      ],
+      "optional": true,
+      "effect": {
+        "opcode": 9086,
+        "op": "drawForRoundGainedEquipmentUse",
+        "target": "owner"
+      }
+    },
+    "strictPairing": "Exactly one matching policy, target operation and equipment operation in the same program; no additional costs, usage limits or response filters.",
+    "versionPolicy": "No rules/schema/package version increase for this content. Shared additive runtime and retained fingerprints are coordinator-owned."
+  },
+  "officialPortrait": {
+    "sourcePage": "https://www.sanguosha.com/hero/7009",
+    "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/700900.png",
+    "defaultSkinId": "700900",
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-shi-bao.png",
+    "httpStatus": 200,
+    "capturedAtUtc": "2026-10-08T20:41:17.024502+00:00",
+    "sha256": "3df776fbe57c8aec7f095603b0e4aed60067de8bcb8ce093a207b7eb3189ace2",
+    "byteCount": 1024494,
+    "pixelWidth": 750,
+    "pixelHeight": 950,
+    "format": "PNG",
+    "visualVerified": true,
+    "metadataVerified": true,
+    "behaviorAcceptanceStillPending": false,
+    "visualInspection": "Actually viewed the saved 750x950 PNG: male warrior in purple garments riding a white horse, holding an oversized hammer. Official static cover composition is readable and uncropped."
+  },
+  "acceptance": {
+    "sourceVerified": true,
+    "sourceRegistered": true,
+    "registered": true,
+    "productionImplemented": true,
+    "implemented": true,
+    "behaviorValidated": true,
+    "behaviorAccepted": true,
+    "targetedPassed": true,
+    "routinePassed": true,
+    "fullVerificationRun": false,
+    "note": "Parent recorded focused and routine verification passed; full verification was not run.",
+    "targetedCore": 148,
+    "targetedWpf": 5,
+    "routineCore": 445,
+    "routineWpf": 22,
+    "report": "docs/benchmarks/2026-10-09-content-continuation-round25-verification.json"
+  },
+  "catalogAppendProof": {
+    "path": "docs/content/general-art-catalog.json",
+    "originalEntries": 280,
+    "resultEntries": 281,
+    "resultUniqueKeys": 281,
+    "canonicalization": "UTF-8 JSON of entries with sorted object keys, compact separators, ensure_ascii=false; entry and nested-array order retained.",
+    "originalEntriesCanonicalSha256": "6c681c86e496ef232cb3df6756b9a275dd0bea5bf3e377b89212bfce899e46ab",
+    "preservedOriginalEntriesCanonicalSha256": "6c681c86e496ef232cb3df6756b9a275dd0bea5bf3e377b89212bfce899e46ab",
+    "originalEntryValuesUnchanged": true,
+    "onlyAddedKey": "ol-shi-bao"
+  },
+  "contentFiles": [
+    {
+      "path": "src/CardGame.Content.Standard/OrdinaryShiBaoContent.cs",
+      "byteCount": 499,
+      "sha256": "a41e7489e2e306dd2d8062c54b6bd1cb20bb4274dc33f6a68bed5529e00c9e36"
+    },
+    {
+      "path": "src/CardGame.Content.Standard/SkillPrograms/ordinary-shi-bao.rules.json",
+      "byteCount": 1001,
+      "sha256": "599bee46e04b55606764dce93e2c43ea37f695d575fe80223d3ce734185a8d56"
+    },
+    {
+      "path": "src/CardGame.Content.Standard/SkillPrograms/ordinary-shi-bao.presentation.json",
+      "byteCount": 355,
+      "sha256": "7dc651daec3004141a109e180a853621ce5c1d05ddfcefcee0762f0cd84158b3"
+    }
+  ],
+  "engineMappingAcceptance": "Root final implementation contract, accepted within the actual recorded behavior scope; engine mappings are not official FAQ.",
+  "behaviorCheckMethods": [
+    "BasicUsesRequireEveryCurrentRoundMaterialAndRespectSourceQualification",
+    "OrdinaryTrickTargetAdditionRemovalAndImplicitSelfFinishOnce",
+    "BorrowedSwordAdjustsWholePairsWithoutSplittingNativePayments",
+    "EquipmentDrawnEntitiesRemainExcludedAcrossReturnAndRegrantUntilNewGain"
+  ]
+}

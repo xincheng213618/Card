@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:bihun", "revision": 1,
+      "triggers": [{
+        "id": "cancel-other-overflow-targets", "window": "cardUseTargetsFinalized",
+        "ownerRelation": "actor", "singleActionInstance": true, "optional": false,
+        "effects": [{ "op": "cancelOtherCurrentUseTargetsIfOverHandLimit", "target": "owner" }]
+      }]
+    },
+    {
+      "id": "ol:jianhe", "revision": 1,
+      "activations": [{
+        "id": "jianhe", "minCards": 2, "maxCards": null,
+        "sourceZones": ["hand", "equipment"],
+        "minTargets": 1, "maxTargets": 1, "targetKind": "anyLiving",
+        "usesPerTurn": null, "targetPhaseLedgerId": "jianhe",
+        "effects": [{ "op": "recastMatchingCardsThenPeerChoice", "target": "selectedTarget", "stateId": "jianhe" }]
+      }]
+    },
+    {
+      "id": "ol:chuanwu", "revision": 1,
+      "triggers": [{
+        "id": "lose-current-printed-prefix-after-damage", "window": "afterDamageApplied",
+        "subject": "any", "damageOccurrence": "perDamage", "optional": false,
+        "effects": [{ "op": "loseFirstPrintedSkillsUntilTurnEndAndDraw", "target": "owner" }]
+      }]
+    }
+  ]
+}

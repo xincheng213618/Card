@@ -92,7 +92,8 @@ public sealed partial class GameEngine
             if (!(root.HalfHandSupport is { Paid: true } || root.OwnTrickDraw is not null ? HalfHandPaidDamageObserverEdge(i) : PaidTargetObserverEdge(i))) return null;
             if (_resolutionStack[i] is DyingFrame d &&
                 (IsPaidHandRepaymentProgramAlcoholRide(i, d) || IsPaidHandRepaymentRescueRide(i, d) || PolicyCounterspellVirtualAlcoholRide(i, d) ||
-                 (root.HalfHandSupport is { Paid: true } || root.OwnTrickDraw is not null) && PaidObserverDamageVirtualAlcoholRide(i, d))) break;
+                 (root.HalfHandSupport is { Paid: true } || root.OwnTrickDraw is not null) && PaidObserverDamageVirtualAlcoholRide(i, d) ||
+                 root.OwnTrickDraw is not null && OwnTrickDrawLegacyAlcoholRide(root, window, i, d))) break;
         }
         return root;
     }

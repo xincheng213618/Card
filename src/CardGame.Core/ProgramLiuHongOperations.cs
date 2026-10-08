@@ -25,7 +25,18 @@ internal sealed class YujueResolveDescriptor : ProgramOperationDescriptorBase
         RequireAlways(effect, r.Path); return effect;
     }
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
-        [new RequireTriggerWindow(SkillProgramTriggerWindow.PlayPhaseStarting)];
+        [new RequireActivationEntry()];
+
+    internal static void ValidateComposition(string path, IReadOnlyList<SkillProgramEffect> effects,
+        SkillProgramTriggerWindow? window, int selectedCardCount, bool initialSelectedTarget,
+        int initialTargetSetMaximum, int? activationMinimumCards)
+    {
+        if (!effects.Any(effect => effect.Op == SkillProgramEffectOp.YujueResolve)) return;
+        if (window is not null || selectedCardCount != 0 || activationMinimumCards != 0 ||
+            initialSelectedTarget || initialTargetSetMaximum != 0 ||
+            effects is not [{ Op: SkillProgramEffectOp.YujueResolve }])
+            throw new InvalidOperationException($"Invalid skill program at {path}: Yujue requires one standalone zero-card zero-target activation.");
+    }
 }
 
 public sealed class YujueResolveHandler : ISkillProgramEffectHandler

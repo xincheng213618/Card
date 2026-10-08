@@ -42,8 +42,13 @@ public sealed partial class GameEngine
         IsSlashCard(attack.EffectiveCardKind ?? CardKind.Slash)
             ? FinalTargetSlashReceipts(attack.ResolutionId, attack.TargetSeat).Sum(item => item.DamageBonus) : 0;
 
-    // 追猎 escalation: the raise never lowers damage, so it contributes only the
-    // gap to the target's current hp when the whole attack would land below it.
+    private bool HasFinalTargetSlashHpDamage(IDamageAttempt attack) =>
+        !attack.IsChainPropagation && attack is CardAttackHandle &&
+        IsSlashCard(attack.EffectiveCardKind ?? CardKind.Slash) &&
+        IsValidPlayerSeat(attack.TargetSeat) && _players[attack.TargetSeat].IsAlive &&
+        FinalTargetSlashReceipts(attack.ResolutionId, attack.TargetSeat).Any(item => item.EscalateToTargetHp);
+
+    // Current OL specifies equality, including when the original damage is higher.
     private int FinalTargetSlashEscalationBonus(IDamageAttempt attack, int damageWithoutEscalation)
     {
         if (attack.IsChainPropagation || attack is not CardAttackHandle ||
@@ -54,7 +59,7 @@ public sealed partial class GameEngine
             .FirstOrDefault(item => item.EscalateToTargetHp);
         if (escalation is null) return 0;
         var targetHp = _players[attack.TargetSeat].Hp;
-        return Math.Max(0, targetHp - damageWithoutEscalation);
+        return targetHp - damageWithoutEscalation;
     }
     private void AssertFinalTargetSlashReceipts()
     {

@@ -1,0 +1,458 @@
+{
+  "sourceRecordSchemaVersion": 1,
+  "documentKind": "Current official ordinary OL Guo Huai (郭槐) complete two-skill source",
+  "status": "Complete current two-skill general registered; focused and measured routine scopes passed. Explicit engine mappings remain distinguished from official FAQ.",
+  "sourceRegistered": true,
+  "registered": true,
+  "productionImplemented": true,
+  "behaviorValidated": true,
+  "behaviorAccepted": true,
+  "generalIdProposal": "ol:guo-huai",
+  "characterName": "郭槐",
+  "officialId": 508,
+  "rulesetId": "sanguosha-ol",
+  "variantProposal": "ordinary",
+  "capturedAt": "2026-10-08",
+  "sourcePage": "https://www.sanguosha.com/hero/508",
+  "currentOfficialMetadata": {
+    "gid": 508,
+    "name": "郭槐",
+    "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/508.png",
+    "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/50800.png",
+    "label": [
+      "进攻",
+      "控制",
+      "简单"
+    ],
+    "figure": "晋",
+    "figure_py": "jin",
+    "quality": "史诗",
+    "biography": "贾充之妻，贾南风之母，其伯父为郭淮。为人恶毒妒忌，因怀疑乳母私情两度杀死乳母，间接使其二子夭亡。",
+    "characteristic": "回合外使用基本牌能造成可观的伤害。",
+    "hp": 3,
+    "initial_hp": 0,
+    "score": 0
+  },
+  "metadataInterpretation": {
+    "maxHp": 3,
+    "initialHp": 3,
+    "initialHpNote": "Official API initial_hp=0 means full starting HP; normal mode HP modifiers remain applicable.",
+    "gender": "Female; current character h=2 and official historical launch table explicitly says 女. API has no sex field.",
+    "hasConcealment": false,
+    "concealmentBasis": "The complete two current ordinary skill texts contain no 隐匿. Current character assigns 3262 and 3263.",
+    "identityDisambiguation": "郭槐 gid508 is distinct from existing 郭淮 classic:guo-huai and 界郭淮 boundary:guo-huai.",
+    "artist": "凝聚永恒"
+  },
+  "skills": [
+    {
+      "officialSkillId": 3262,
+      "name": "哲妇",
+      "exactText": "当你于回合外使用或打出牌后，你可以令一名有手牌的其他角色选择弃置一张同名牌或受到1点伤害。",
+      "rawOrdinaryText": "当你于回合外使用或打出牌后，你可以令一名有手牌的其他角色选择弃置一张同名牌或受到1点伤害。 ",
+      "origin": "/GameSpells/spell/1625",
+      "row": {
+        "a": 3262,
+        "b": "3,5",
+        "c": "哲妇",
+        "d": "ZheFu2",
+        "e": 0,
+        "g": 1,
+        "i": 2,
+        "n": 0,
+        "o": "当你于回合外使用或打出牌后，你可以令一名有手牌的其他角色选择弃置一张同名牌或受到1点伤害。 ",
+        "v": "请选择一名其他角色，令其弃置一张{0}",
+        "w": "请弃置一张{0}，或点取消受到1点伤害",
+        "autoCancel": 1
+      },
+      "acquiredOnly": false
+    },
+    {
+      "officialSkillId": 3263,
+      "name": "遗毒",
+      "exactText": "当你使用【杀】或伤害锦囊牌后，你可以展示一名未受到此牌伤害的目标角色至多三张手牌，若颜色皆相同，你弃置这些牌。",
+      "rawOrdinaryText": "当你使用【杀】或伤害锦囊牌后，你可以展示一名未受到此牌伤害的目标角色至多三张手牌，若颜色皆相同，你弃置这些牌。",
+      "origin": "/GameSpells/spell/1626",
+      "row": {
+        "a": 3263,
+        "b": "3,5",
+        "c": "遗毒",
+        "d": "YiDu2",
+        "e": 0,
+        "g": 4,
+        "i": 2,
+        "n": 0,
+        "o": "当你使用【杀】或伤害锦囊牌后，你可以展示一名未受到此牌伤害的目标角色至多三张手牌，若颜色皆相同，你弃置这些牌。",
+        "w": "是否对{Source}发动<font color='#FFD800'>遗毒</font>|请选择一名角色，对其发动<font color='#FFD800'>遗毒</font>"
+      },
+      "acquiredOnly": false
+    }
+  ],
+  "primarySources": [
+    {
+      "url": "https://www.sanguosha.com/hero/508",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T14:15:29.627400+00:00",
+      "sha256": "acec4daeab13ffb1d81b372b2e540ff9a3ac435907c3c641fbca6a2cf9d1c401",
+      "byteCount": 24810,
+      "hashScope": "Exact raw HTTP body bytes",
+      "role": "hero"
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=508",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T14:15:29.670473+00:00",
+      "sha256": "4d61b5819c7bda18b861fb8dadb50ef5254e7b187cdf63a3fe50f5f7da052e17",
+      "byteCount": 794,
+      "hashScope": "Exact raw HTTP body bytes",
+      "role": "api"
+    }
+  ],
+  "currentOfficialClient": {
+    "bundle": {
+      "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T14:15:29.618347+00:00",
+      "sha256": "6a035389beda8d0dbf31227f57a91b2da14d3d5055503198a227aef54f22bf76",
+      "byteCount": 5256312,
+      "hashScope": "Exact raw HTTP body bytes"
+    },
+    "fullConfig": {
+      "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T14:15:29.589819+00:00",
+      "sha256": "9e26cb3db90532084579a20c292d5fec0c81dcf3d5eb2abf2009bff0326237bb",
+      "byteCount": 4142728,
+      "hashScope": "Exact raw HTTP body bytes"
+    },
+    "members": [
+      {
+        "name": "character.sgs",
+        "encodedSha256": "e0b6f0188edebb1f502ea402c7171e93b88f4e9d05720948344a1f4f44474aae",
+        "encodedByteCount": 352776,
+        "decodedSha256": "b3ef3f1181e7fe667499cb688b7cdce56631d899dbb0eea55d75fbf80636b040",
+        "decodedByteCount": 1485056
+      },
+      {
+        "name": "cha_spell.sgs",
+        "encodedSha256": "95cfaa4106a4f6224ebed8948bcf86bd5fc6801a83a1c4162c7e59bc848bef66",
+        "encodedByteCount": 246031,
+        "decodedSha256": "39b83f6e2504590e262bb353bddfded546b83f83a7ea9199b67742b1bee68fc0",
+        "decodedByteCount": 1166955
+      },
+      {
+        "name": "cha_gs_dbs_fs_skininfo.sgs",
+        "encodedSha256": "dcf599976725e3ba80d7c0e465ab5e25f8d790b5f6e04c73dda8c7a55ac81136",
+        "encodedByteCount": 170561,
+        "decodedSha256": "3101af9abac96b7b9685f6b5a4a4c68eaed511d0c58ade8b1099e7db2639caa0",
+        "decodedByteCount": 1248402
+      }
+    ],
+    "decoding": "Public official ZIP resources fetched only in memory; public client InitOfb AES-CFB128 then gzip, following tools/import_game_audio.py convention without invoking its writer.",
+    "character": {
+      "path": "/GameCharacters/character/1205",
+      "row": {
+        "a": 508,
+        "b": "郭槐",
+        "d": "GuoHuai",
+        "e": 44,
+        "f": "44",
+        "g": 6,
+        "h": 2,
+        "i": 3,
+        "j": 3262,
+        "k": 3263,
+        "p": 2,
+        "q": "1",
+        "r": "9050801",
+        "y": "贾充之妻，贾南风之母，其伯父为郭淮。为人恶毒妒忌，因怀疑乳母私情两度杀死乳母，间接使其二子夭亡。",
+        "z": "回合外使用基本牌能造成可观的伤害。",
+        "aa": 73,
+        "ab": "935,936",
+        "ad": "画师:凝聚永恒",
+        "x": "惹恼了我，####休想置身事外。",
+        "al": 1730,
+        "am": "true",
+        "ap": 240,
+        "aq": 70,
+        "ar": "20220730T235959",
+        "LordCardRate1": 9,
+        "LordCardRate2": 43,
+        "cc": 50801,
+        "starMax": 4
+      }
+    },
+    "spellTips": [
+      {
+        "path": "/GameSpells/spell_tips/1632",
+        "row": {
+          "a": 3262
+        }
+      },
+      {
+        "path": "/GameSpells/spell_tips/1633",
+        "row": {
+          "a": 3263
+        }
+      }
+    ]
+  },
+  "ssrVerification": {
+    "allSkillTextsAgreeWithCurrentConfig": true,
+    "texts": [
+      "当你于回合外使用或打出牌后，你可以令一名有手牌的其他角色选择弃置一张同名牌或受到1点伤害。",
+      "当你使用【杀】或伤害锦囊牌后，你可以展示一名未受到此牌伤害的目标角色至多三张手牌，若颜色皆相同，你弃置这些牌。"
+    ]
+  },
+  "historicalSources": [
+    {
+      "url": "https://www.sanguosha.com/news/20220719_1012_3510",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T14:15:29.651144+00:00",
+      "sha256": "cb565aaf779f2c268435263b8f188d1fefa1bdf8eb594486c3f06f030c4faabd",
+      "byteCount": 295847,
+      "hashScope": "Exact raw HTTP body bytes",
+      "publishedAt": "2022-07-22 17:45:31",
+      "use": "Identity/gender/artist and version history only. Its basic-only Zhefu and sole-target Yidu are outdated; do not constrain current skills."
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20230602_2277_3814",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T14:15:29.625527+00:00",
+      "sha256": "40c318df59e380c8d18561c1358445fa41fd1abfd37c400ba112c3f66929f081",
+      "byteCount": 22751,
+      "hashScope": "Exact raw HTTP body bytes",
+      "publishedAt": "2023-06-05 15:38:48",
+      "use": "Confirms Guo Huai skill adjustment in official version 3.5.6 on 2023-06-06; supplies no targeted detailed FAQ."
+    }
+  ],
+  "faqAudit": {
+    "targetedFaqFound": false,
+    "absenceMeaning": "Bounded official search and current client spell_tips found no targeted ruling; this does not prove none exists.",
+    "clientTips": "The two selected spell_tips rows contain only skill IDs, without explanatory text.",
+    "queries": [
+      "site:sanguosha.com 郭槐 哲妇 遗毒 技能调整",
+      "site:sanguosha.com 郭槐 哲妇 FAQ",
+      "site:sanguosha.com 遗毒 同名 FAQ",
+      "site:sanguosha.com 遗毒 无色",
+      "site:sanguosha.com 遗毒 三张 展示"
+    ],
+    "versionDrift": "2022 launch limits Zhefu to basic cards and Yidu to sole-target uses. Current SSR and Config agree on all cards, any eligible undamaged target, and you discard the revealed entities."
+  },
+  "ruleBoundaries": [
+    {
+      "id": "zhefu-use-and-response",
+      "officialBasis": "Current text covers all 使用或打出牌 after completion, outside owner actual turn; another target must have Hand cards.",
+      "targetedFaqFound": false,
+      "engineMapping": "Exactly one optional candidate per genuinely completed use or finished response; genuine response-use is observed once, not again through the normal use window. Canonical Slash unifies normal/fire/thunder. Required discard is one true same-name Hand entity, not a view-as output. Decline means one native normal damage attributed to skill owner. Freeze accepted source and action provenance; pay or damage only once through exact native child returns.",
+      "mappingStatus": "Explicit R19 engine mapping implemented; registered focused and measured routine scopes passed. No targeted official FAQ found in bounded research."
+    },
+    {
+      "id": "yidu-per-target-whole-use",
+      "officialBasis": "Current text permits one target of the completed Slash or damage-trick use who did not receive damage from that card; it does not require a sole target.",
+      "targetedFaqFound": false,
+      "engineMapping": "Observe exact completed whole-use final targets and per-target actual native damage history; damage to a different target does not exclude an undamaged candidate. Source selects one eligible living original target, then 0..min(3,frozen target Hand count) opaque slots. Zero selection completes without reveal or empty discard. Publicly reveal selected entities still in the original Hand without moving them solely to reveal; compare the target original owner native effective suit/color, not the source appearance. Same-color revealed entities still in that original Hand and legally discardable are moved in one real native batch; never replace a departed selection. Different colors cause no discard.",
+      "mappingStatus": "Explicit R19 engine mapping implemented; registered focused and measured routine scopes passed. No targeted official FAQ found in bounded research."
+    },
+    {
+      "id": "yidu-zero-color-material-lifetime",
+      "officialBasis": "At most three Hand cards; discard these cards if colors all equal. No targeted official FAQ was found for zero/colorless/selection interruption.",
+      "unverified": [
+        "Zero-card selection versus declining optional invocation.",
+        "Effective versus printed color and colorless entities.",
+        "Target death or material movement during nested reveal/discard observers."
+      ],
+      "mappingStatus": "Explicit R19 engine mapping implemented; registered focused and measured routine scopes passed. No targeted official FAQ found in bounded research.",
+      "engineMapping": "Zero is allowed after invocation and yields no effect. Effective red and black follow ordinary suit classes; Suit.None is represented by a separate nullable color, so all-None is same color while None and a real color differ. Protected entities may be selected for display; real discard legality is checked with the skill owner as actual discard actor, retaining only original selected entities. Exact native movement and child returns finish accepted issued receipts despite later source loss."
+    }
+  ],
+  "portrait": {
+    "url": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/50800.png",
+    "httpStatus": 200,
+    "capturedAtUtc": "2026-10-08T14:15:29.951674+00:00",
+    "sha256": "56995e6d8a087825cc66b26b06957e79a8f8dfde99351e13bc88da5896813cdd",
+    "byteCount": 965320,
+    "hashScope": "Exact raw HTTP body bytes",
+    "path": "src/CardGame.Wpf/Assets/official-ol-guo-huai.png",
+    "advertisedCoverUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/50800.png",
+    "width": 750,
+    "height": 950,
+    "officialSkinId": 50800,
+    "existedBefore": false,
+    "exactDownloadMatchesSavedFile": true,
+    "visuallyInspected": true,
+    "visualInspection": "Actually viewed saved 750x950 PNG: intact dark-haired female in purple and white clothing with a gold headdress and dark fan, seated indoors beside a black furry animal. Identity attribution comes from current gid508 API cover binding, not visual recognition.",
+    "artKeyProposal": "ol-guo-huai",
+    "defaultSkinIdProposal": "50800",
+    "registeredInCatalog": true
+  },
+  "catalogEntryProposal": {
+    "generalId": "ol:guo-huai",
+    "artKey": "ol-guo-huai",
+    "officialGeneralId": 508,
+    "defaultSkinId": "50800",
+    "sourcePage": "https://www.sanguosha.com/hero/508",
+    "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/50800.png",
+    "path": "src/CardGame.Wpf/Assets/official-ol-guo-huai.png",
+    "sha256": "56995e6d8a087825cc66b26b06957e79a8f8dfde99351e13bc88da5896813cdd",
+    "width": 750,
+    "height": 950,
+    "artist": "凝聚永恒",
+    "artistOrigin": "Current character.sgs /GameCharacters/character/1205 ad and historical official launch table"
+  },
+  "researchExecution": {
+    "noBuildOrTestRun": true,
+    "noLargeTemporaryFilesCreated": true,
+    "rawResources": "In-memory network fetch and decode only; no raw bundles or temporary tree retained.",
+    "existingCatalogAndProductionUnmodified": true,
+    "earlierCleanupRejectionNotRetriedOrBypassed": true,
+    "appliesTo": "Historical initial source-research phase only; root subsequently implemented and executed the registered focused and routine checks."
+  },
+  "implementationContract": {
+    "status": "Complete two-skill content, eight general behavior checks and three shared regressions passed under root-run focused and measured routine scopes.",
+    "skillIds": [
+      "ol:zhefu",
+      "ol:yidu"
+    ],
+    "definitionFiles": [
+      "src/CardGame.Content.Standard/OrdinaryGuoHuaiContent.cs",
+      "src/CardGame.Content.Standard/SkillPrograms/ordinary-guo-huai.rules.json",
+      "src/CardGame.Content.Standard/SkillPrograms/ordinary-guo-huai.presentation.json"
+    ],
+    "versionPolicy": "Ordinary general and opt-in capabilities require no per-character version bump. Replay 203 to 204 covers genuine existing mandatory actual-target trigger dispatch and frozen phase-debt selection receipt fixes; schema and package remain unchanged from R18.",
+    "zhefu": {
+      "op": "offerSameNameHandDiscardOrDamage",
+      "opcode": 9050,
+      "amount": 1,
+      "target": "owner",
+      "optional": true,
+      "triggers": [
+        {
+          "window": "cardUseCompleted",
+          "ownerRelation": "actor",
+          "includeResponseUses": false
+        },
+        {
+          "window": "cardResponseCompleted",
+          "ownerRelation": "actor"
+        },
+        {
+          "window": "cardSupplyCompleted",
+          "ownerRelation": "actor"
+        }
+      ],
+      "actualTurnGate": "Runtime exact actual turn owner differs from skill owner; no speculative turnOwnerScope field."
+    },
+    "yidu": {
+      "op": "revealUndamagedUseTargetHandAndDiscardSameColor",
+      "opcode": 9060,
+      "amount": 3,
+      "target": "owner",
+      "optional": true,
+      "triggers": [
+        {
+          "window": "cardUseCompleted",
+          "ownerRelation": "actor",
+          "includeResponseUses": false
+        }
+      ],
+      "qualification": "Runtime exact Slash/damage-trick and completed-use target damage provenance."
+    },
+    "focusedBehaviorChecks": "tests/CardGame.Core.Tests/OrdinaryGuoHuaiChecks.cs",
+    "publicCheckEntries": [
+      "OutsideTurnActualUseAndOwnTurnExclusion",
+      "PureResponsesCompleteOnTheirNativeParents",
+      "ResponseUsesCompleteOnlyOnce",
+      "FactionProvidersOwnTheirCompletedResponseExactlyOnce",
+      "ActiveFactionSupplyCompletesBeforePrincipalUseWithoutFakeResponse",
+      "PaidDiscardAndNativeDamageDyingSurviveSourceLoss",
+      "UndamagedGroupTargetRevealSameColorAndColdReturn",
+      "OptionalZeroMixedAndTargetEffectiveColorReveals"
+    ],
+    "sharedRegressionChecks": [
+      {
+        "file": "tests/CardGame.Core.Tests/CardResponseCompletionCostChecks.cs",
+        "entries": [
+          "SilverLionEquipmentDodgeDrainsHealthBeforeCompletion",
+          "PublicPileSlashPaymentRemainsSeparateFromNativeMaterials"
+        ]
+      },
+      {
+        "file": "tests/CardGame.Core.Tests/CardResponseCompletionNativeChecks.cs",
+        "entries": [
+          "NativeZhangbaDuelResponseCompletesTwoEntitiesOnceAndColdReturns"
+        ]
+      }
+    ],
+    "coverageLimitations": "No independent protected-Hand, all-None, faction Zhangba, Juanxia-produced Duel or combined Huoshou/Yidu dynamic scenario is claimed. Active Jijiang supply, native Zhangba pair response, equipped SilverLion response-cost HP-child ordering, declared program-produced Duel response and foreign public-pile payment/material separation with cold recovery were actually exercised. Native whole-use damage ledger covers exact use identity; indirect chain/redirect mappings retain explicit engine status."
+  },
+  "currentClientDamageTrickIdentityEvidence": {
+    "freshVerifiedBy": "Collaborating runtime reviewer, official bytes decoded in memory during R19",
+    "configUrl": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs#cha_spell.sgs",
+    "configSha256": "9e26cb3db90532084579a20c292d5fec0c81dcf3d5eb2abf2009bff0326237bb",
+    "decodedSpellSha256": "39b83f6e2504590e262bb353bddfded546b83f83a7ea9199b67742b1bee68fc0",
+    "abbreviation": {
+      "Long": "dmgSpell",
+      "Short": "am"
+    },
+    "flaggedSpellRows": [
+      {
+        "a": 8,
+        "d": "JueDou",
+        "am": "1"
+      },
+      {
+        "a": 9,
+        "d": "NanManRuQin",
+        "am": "1"
+      },
+      {
+        "a": 10,
+        "d": "WanJianQiFa",
+        "am": "1"
+      },
+      {
+        "a": 83,
+        "d": "HuoGong",
+        "am": "1"
+      },
+      {
+        "a": 6000,
+        "d": "ChuQiBuYi",
+        "am": "1"
+      }
+    ],
+    "unflaggedSpellRows": [
+      {
+        "a": 11,
+        "d": "ShanDian"
+      },
+      {
+        "a": 14,
+        "d": "JieDaoShaRen"
+      }
+    ],
+    "clientUrl": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+    "clientSha256": "6a035389beda8d0dbf31227f57a91b2da14d3d5055503198a227aef54f22bf76",
+    "exactClientGetters": [
+      "get IsDmgSpell(){return 1==this.dmgSpell}",
+      "get HurtCard(){return this.FirstSkillId==FCt.SHA||this.FirstSkill.IsDmgSpell}"
+    ],
+    "interpretation": "The official current client explicitly marks these five damage tricks, and does not mark Lightning or Borrowed Sword. This is client metadata evidence, not an invented FAQ or a claim about server implementation details.",
+    "decodedPlaycardSha256": "5b0d29825cd5afadf5c41c70eb566ab17533ba3255d3110824078069e3132b13"
+  },
+  "generalId": "ol:guo-huai",
+  "variantId": "ordinary",
+  "currentClientSupplyIdentityEvidence": {
+    "clientUrl": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+    "clientSha256": "6a035389beda8d0dbf31227f57a91b2da14d3d5055503198a227aef54f22bf76",
+    "basis": "Fresh official client JiJiang 32 and Boundary JiJiang 3045 descriptions explicitly say the provider uses or plays Slash for the requester; current defensive selection context uses actual SHA/DEAL.",
+    "engineMapping": "A distinct completed-supply event projects the actual provider for skill observation while the original native action remains requester Type.Use. No artificial accepted Response is issued. Paid provider cost children drain before completion; the original principal Use then accepts and resolves once.",
+    "targetedFaqFound": false
+  },
+  "round19Acceptance": {
+    "report": "docs/benchmarks/2026-10-08-content-continuation-round19-verification.json",
+    "head": "fe90b66788b7d1866fa1e87f02d4993ad7bd0f3e",
+    "inputSha256": "ad2d1743c22a27b587b8f3de67c8c41ab60d691c8252b12e5dfef20607e04827",
+    "manualFullRun": false
+  }
+}

@@ -59,6 +59,7 @@ internal static class OrdinaryZhangBaoChecks
 
     public static void LockedOriginalRewardSurvivesZhoufuLossAndPaidYingbingLoss()
     {
+        BoundEquipmentSynchronousReturnPreservesOptionTail();
         var (game, registry) = Start(replaceJudgment: false);
         var curse = Deposit(game);
         Activate(game, "lose-zhoufu"); ReachPlay(game);
@@ -82,21 +83,33 @@ internal static class OrdinaryZhangBaoChecks
                     moved.Batch.OriginSkillInstanceId == root.SkillInstanceId && moved.Batch.Movements.All(m =>
                         m.Sequence > root.SourceCurseReceipt!.Before && m.Sequence <= root.SourceCurseReceipt.After),
                 "The actual paid movement uses its unique awaited return, original producer and exact real invoice.");
-            Cold(game, registry);
+            var restored = Cold(game, registry);
+            if (draw == 1) AssertBoundEquipmentWaitBoundary(game, registry);
+            if (draw == 2)
+            {
+                // Skill replacement is intentionally activation-only. Audit a
+                // trusted host loss at this real, command-restored paid boundary.
+                RemovePaidYingbingHost(game, root.SkillInstanceId);
+                RemovePaidYingbingHost(restored, root.SkillInstanceId);
+                Answer(restored, restored.PendingDecision!.Choices.Single());
+                ReachPlay(restored);
+            }
             Answer(game, game.PendingDecision!.Choices.Single());
             ReachPlay(game);
+            if (draw == 2) Require(Equivalent(game, restored),
+                "The same host loss after a cold-restored paid prefix returns identically without paying or obtaining twice.");
         }
         var rewards = Facts<SourceCurseDrawIssuedEvent>(game).ToArray();
         Require(rewards.Length == 2 && rewards.All(e => e.Deposit.DepositFrameId == curse.DepositFrameId && e.ActualDrawCount == 1) &&
                 rewards.Select(e => e.ActionId).Distinct().Count() == 2 &&
-                Facts<ProgramOwnerSkillsReplacedEvent>(game).Any(e => e.LostSkillIds.Contains("ol:yingbing")) &&
+                !HostPlayers(game)[0].SkillGrants.Grants.Any(g => g.IsEnabled && g.SkillId == "ol:yingbing") &&
                 game.CreateSnapshot(0).Players[0].Hand.Any(c => c.Id == curse.CardId) &&
                 game.CreateSnapshot(0).Players[1].SourceCurses is null &&
                 Facts<SourceCurseObtainedEvent>(game).Count() == 1 &&
                 game.CardMovements.Count(m => m.CardId == curse.CardId && m.From == curse.Location &&
                     m.To == CardLocation.Hand(0) && m.Reason.Value == "program.source-curse.obtain") == 1,
-            "The second draw's child removes Yingbing, then the paid return still obtains the original curse exactly once.");
-        Cold(game, registry);
+            "The host removes the exact Yingbing source during the second paid draw child; its return still obtains the original curse once.");
+        // The continuation above includes an explicit host mutation, not a replay command.
         EndPlay(game);
         Reach(game, () => Facts<TurnEndedEvent>(game).Any());
         Require(!Facts<SourceCurseLossRosterIssuedEvent>(game).Any(),
@@ -154,7 +167,8 @@ internal static class OrdinaryZhangBaoChecks
 
     private static (GameEngine Game, ContentRegistry Registry) Start(bool replaceJudgment)
     {
-        var registry = ContentRegistry.Build(new StandardContentPackage(), new StandardClassicGeneralPackage(), new Fixture(replaceJudgment));
+        var registry = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(includeJijiu: true),
+            new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage(), new Fixture(replaceJudgment));
         var game = GameEngine.CreateStandard(new GameOptions
         {
             Seed = 31, PlayerCount = 4, HumanSeat = 0, HumanRole = Role.Lord, ModeId = Mode,
@@ -203,14 +217,88 @@ internal static class OrdinaryZhangBaoChecks
         Accept(game, new AnswerPromptCommand(p.PlayerSeat, p.PromptId, choice.Id, game.Revision));
     }
     private static IEnumerable<T> Facts<T>(GameEngine game) => game.Events.Select(e => e.Payload).OfType<T>();
-    private static void Cold(GameEngine game, ContentRegistry registry)
+    private static GameEngine Cold(GameEngine game, ContentRegistry registry)
     {
         var copy = GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint())), registry);
         Require(Enumerable.Range(0, 4).All(s => SnapshotJson.Serialize(game.CreateSnapshot(s)) == SnapshotJson.Serialize(copy.CreateSnapshot(s))) &&
+                JsonSerializer.Serialize(game.ResolutionStack) == JsonSerializer.Serialize(copy.ResolutionStack) &&
                 game.CardMovements.SequenceEqual(copy.CardMovements) &&
                 game.Events.Select(e => JsonSerializer.Serialize(e.Payload, e.Payload.GetType())).SequenceEqual(
                     copy.Events.Select(e => JsonSerializer.Serialize(e.Payload, e.Payload.GetType()))),
-            "Accepted-command cold restoration reproduces each viewer, real movements and canonical facts.");
+            "Accepted-command cold restoration reproduces each viewer, typed frame stack, real movements and canonical facts.");
+        return copy;
+    }
+    private static IReadOnlyList<CharacterState> HostPlayers(GameEngine game) => (IReadOnlyList<CharacterState>)typeof(GameEngine)
+        .GetField("_players", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(game)!;
+    private static void RemovePaidYingbingHost(GameEngine game, string skillInstanceId)
+    {
+        var parent = game.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == "ol:yingbing");
+        Require(parent.SkillInstanceId == skillInstanceId && parent.SourceCurseReceipt is
+                { Stage: SourceCurseStage.DrawChildren, Deposit.ActualDrawCount: 2 } && parent.PendingMovementContinuation is not null,
+            "Host source loss is limited to the second genuine paid draw child of the exact original instance.");
+        var owner = HostPlayers(game)[0];
+        var grant = owner.SkillGrants.Grants.Single(g => g.IsEnabled && g.SkillId == "ol:yingbing" && g.SkillInstanceId == skillInstanceId);
+        var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        typeof(GameEngine).GetMethod("ExecuteExclusive", flags)!.Invoke(game, [(Action)(() => {
+            Require(owner.SkillGrants.RemoveGrant(grant.GrantId), "The exact locked source grant must actually be removed.");
+            typeof(GameEngine).GetMethod("AdvanceRulesAndPublishState", flags)!.Invoke(game, null);
+        })]);
+    }
+    private static bool Equivalent(GameEngine game, GameEngine copy) =>
+        Enumerable.Range(0, 4).All(s => SnapshotJson.Serialize(game.CreateSnapshot(s)) == SnapshotJson.Serialize(copy.CreateSnapshot(s))) &&
+        JsonSerializer.Serialize(game.ResolutionStack) == JsonSerializer.Serialize(copy.ResolutionStack) &&
+        game.CardMovements.SequenceEqual(copy.CardMovements) &&
+        game.Events.Select(e => JsonSerializer.Serialize(e.Payload, e.Payload.GetType())).SequenceEqual(
+            copy.Events.Select(e => JsonSerializer.Serialize(e.Payload, e.Payload.GetType()))) &&
+        CommandJson.Serialize(game.AcceptedCommands) == CommandJson.Serialize(copy.AcceptedCommands);
+    private static void BoundEquipmentSynchronousReturnPreservesOptionTail()
+    {
+        var (game, registry) = Start(replaceJudgment: false);
+        Activate(game, "equip-user", 1);
+        Reach(game, () => game.PendingDecision is { Kind: DecisionKind.ProgramTrigger, PlayerSeat: 0 } &&
+            game.PendingDecision.Choices.Any(c => c.Parameters.GetValueOrDefault("result-bind") == "equip-tail") &&
+            game.ResolutionStack.LastOrDefault() is ProgramSkillFrame { SkillId: Driver });
+        Require(!game.ResolutionStack.OfType<CardUseFrame>().Any() &&
+            !game.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.PendingMovementContinuation is not null) &&
+            !Facts<SourceCurseDrawIssuedEvent>(game).Any(),
+            "A synchronous bound equipment completion advances exactly once to its real option tail.");
+        var use = Facts<CardUseDeclaredEvent>(game).Single();
+        Require(Facts<CardUseFinishedEvent>(game).Count(f => f.ResolutionId == use.ResolutionId && f.CardId == use.CardId) == 1 &&
+            game.CardMovements.Count(m => m.CardId == use.CardId && m.From == CardLocation.Processing &&
+                m.To == CardLocation.Equipment(1)) == 1,
+            "The real foreign equipment use completes and equips its exact material once before the tail.");
+        var copy = Cold(game, registry);
+        Answer(game, game.PendingDecision!.Choices.Single()); ReachPlay(game);
+        Answer(copy, copy.PendingDecision!.Choices.Single()); ReachPlay(copy);
+        Require(Equivalent(game, copy), "Cold restoration preserves the exact synchronous return and unpaid option tail.");
+    }
+    private static void AssertBoundEquipmentWaitBoundary(GameEngine game, ContentRegistry registry)
+    {
+        var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        var validate = typeof(GameEngine).GetMethod("AssertProgramSkillState", flags)!;
+        validate.Invoke(game, null);
+        var driver = game.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == Driver);
+        var use = game.ResolutionStack.OfType<CardUseFrame>().Single();
+        var binding = driver.CardSetBindings.Single(b => b.Name == "equipment");
+        Require(driver.PendingMovementContinuation is { SubjectSeat: 1 } && use.SourceSeat == 1 &&
+            use.CardId == binding.CardIds.Single(), "The live bound equipment return names the actual foreign user and material.");
+        ResolutionFrame[] corruptions = [
+            driver with { PendingMovementContinuation = driver.PendingMovementContinuation! with { SubjectSeat = 0 } },
+            driver with { CardSetBindings = driver.CardSetBindings.Select(b => b.Name == "equipment" ? b with { CardIds = [int.MaxValue] } : b).ToArray() },
+            use with { SourceSeat = 2 }
+        ];
+        foreach (var corrupted in corruptions)
+        {
+            var copy = Cold(game, registry);
+            var stack = (FrameStore)typeof(GameEngine).GetField("_resolutionStack", flags)!.GetValue(copy)!;
+            stack.Replace(corrupted);
+            var rejected = false;
+            try { validate.Invoke(copy, null); }
+            catch (System.Reflection.TargetInvocationException exception) when
+                (exception.InnerException is InvalidOperationException failure && failure.Message == "A movement continuation lost its paid instruction.")
+            { rejected = true; }
+            Require(rejected, "A restored bound use rejects the wrong return participant, material and card-use actor.");
+        }
     }
     private static void RequireFrozen<T>(IReadOnlyList<T> values)
     {
@@ -234,7 +322,7 @@ internal static class OrdinaryZhangBaoChecks
         public void Register(IContentRegistryBuilder b)
         {
             var catalog = SkillProgramCatalog.Load(Rules.Replace("$SCHEMA$", SkillProgramCatalog.RulesSchemaVersion.ToString()),
-                """{"schemaVersion":3,"skills":{"fixture:source-curse-driver":{"name":"咒实体驱动","description":"真实移动与判定"},"fixture:source-curse-gain":{"name":"已付款摸牌观察","description":"第二次摸牌子流程中移除原影兵","optionLabels":{"continue":"继续"}}}}""");
+                """{"schemaVersion":3,"skills":{"fixture:source-curse-driver":{"name":"咒实体驱动","description":"真实移动与判定","optionLabels":{"continue":"继续"}},"fixture:source-curse-gain":{"name":"已付款摸牌观察","description":"摸牌子流程的精确暂停边界","optionLabels":{"continue":"继续"}}}}""");
             foreach (var p in catalog.Programs) b.AddSkill(new(p.Key, p.Key, p.Key) { Program = p.Value });
             b.AddGeneral(new(Owner, "咒机制拥有者", "supporter", "ol:zhoufu", "qun", 8,
                 replacement ? ["ol:yingbing", Driver, Observer, "classic:guidao"] : ["ol:yingbing", Driver, Observer]));
@@ -253,13 +341,13 @@ internal static class OrdinaryZhangBaoChecks
     {"schemaVersion":$SCHEMA$,"skills":[
      {"id":"fixture:source-curse-driver","revision":1,"activations":[
       {"id":"judge","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"otherLiving","usesPerTurn":null,"effects":[{"op":"startJudgment","target":"selectedTarget","judgmentReason":"fixture.source-curse-judgment","resultBind":"judged","visibility":"public"},{"op":"moveBoundCards","target":"owner","sourceBind":"judged","destination":"discardPile"}]},
-      {"id":"equip-user","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"otherLiving","usesPerTurn":null,"effects":[{"op":"selectAndMoveOwnedCard","target":"owner","chooserRef":{"kind":"owner"},"cardOwnerRef":{"kind":"owner"},"zones":["hand"],"cardCategories":["equipment"],"count":1,"destination":"selectedTargetHand","targetRef":{"kind":"selectedTarget"},"resultBind":"equipment","revealBeforeMove":true,"awaitMovementTriggers":true},{"op":"useBoundCardByTarget","target":"selectedTarget","sourceBind":"equipment"}]},
+      {"id":"equip-user","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"otherLiving","usesPerTurn":null,"effects":[{"op":"selectAndMoveOwnedCard","target":"owner","chooserRef":{"kind":"owner"},"cardOwnerRef":{"kind":"owner"},"zones":["hand"],"cardCategories":["equipment"],"count":1,"destination":"selectedTargetHand","targetRef":{"kind":"selectedTarget"},"resultBind":"equipment","revealBeforeMove":true,"awaitMovementTriggers":true},{"op":"useBoundCardByTarget","target":"selectedTarget","sourceBind":"equipment"},{"op":"chooseOption","target":"owner","resultBind":"equip-tail","options":[{"id":"continue"}]}]},
       {"id":"lose-zhoufu","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"loseOwnerSkillsAndGrant","target":"owner","skillIds":["ol:zhoufu"],"sourceBind":"standard:none"}]},
       {"id":"weaken","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"otherLiving","usesPerTurn":null,"effects":[{"op":"loseHp","target":"selectedTarget","amount":7}]},
       {"id":"kill-target","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"otherLiving","usesPerTurn":null,"effects":[{"op":"loseHp","target":"selectedTarget","amount":20}]},
       {"id":"kill-owner","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"loseHp","target":"owner","amount":20}]}
      ]},
-     {"id":"fixture:source-curse-gain","revision":1,"states":[{"id":"first-draw-returned","initialValue":false,"visibility":"public","resetScope":"game","reacquirePolicy":"preserveUntilGameEnd"}],"triggers":[{"id":"paid-draw-child","window":"cardsGained","subject":"owner","destinationZones":["hand"],"movementOccurrence":"perBatch","movementReasons":["program.source-curse.draw"],"optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]},{"op":"loseOwnerSkillsAndGrant","target":"owner","skillIds":["ol:yingbing"],"sourceBind":"standard:none","condition":{"kind":"booleanState","stateId":"first-draw-returned","expectedValue":true}},{"op":"setBooleanState","target":"owner","stateId":"first-draw-returned","value":true}]}]}
+     {"id":"fixture:source-curse-gain","revision":1,"triggers":[{"id":"paid-draw-child","window":"cardsGained","subject":"owner","destinationZones":["hand"],"movementOccurrence":"perBatch","movementReasons":["program.source-curse.draw"],"optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]}
     ]}
     """;
 }

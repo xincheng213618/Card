@@ -24,14 +24,17 @@ internal sealed class SkillProgramDependencies
         var programs = definitions.Select(skill => skill.Program).OfType<SkillProgram>().ToArray();
         var triggers = programs.SelectMany(program => program.Triggers).ToArray();
         UsesOwnerMarkerCount = programs.Any(program => program.Modifiers.Any(modifier => modifier.ValueExpression == SkillRuleValueExpression.OwnerMarkerCount));
-        TracksCurrentTurnUseKinds = programs.Any(program =>
-            program.Modifiers.Any(modifier => modifier.ValueExpression == SkillRuleValueExpression.CurrentTurnUsedHandSuitCount) ||
-            program.Triggers.SelectMany(trigger => trigger.Effects).Any(effect => effect.NumberExpression == SkillProgramNumberExpression.CurrentTurnUsedCardCategoryCount)) ||
-            triggers.Any(trigger => ProgramInstructionResolver.Default.Features(trigger).ConditionKinds.Contains(
-                SkillProgramTriggerConditionKind.TurnOwnerUsedSameSuitCards));
         var resolver = ProgramInstructionResolver.Default;
         _conditions = triggers.SelectMany(trigger => resolver.Features(trigger).ConditionKinds).ToFrozenSet();
-        _values = triggers.SelectMany(trigger => resolver.Features(trigger).ValueKinds).ToFrozenSet();
+        TracksActualTurnUseOrdinal = UsesTriggerCondition(SkillProgramTriggerConditionKind.CardActionActualTurnUseOrdinalIs);
+        TracksCurrentTurnUseKinds = TracksActualTurnUseOrdinal || programs.Any(program =>
+            program.Modifiers.Any(modifier => modifier.ValueExpression == SkillRuleValueExpression.CurrentTurnUsedHandSuitCount) ||
+            program.Triggers.SelectMany(trigger => trigger.Effects).Any(effect => effect.NumberExpression == SkillProgramNumberExpression.CurrentTurnUsedCardCategoryCount)) ||
+            UsesTriggerCondition(SkillProgramTriggerConditionKind.TurnOwnerUsedSameSuitCards);
+        _values = triggers.SelectMany(trigger => resolver.Features(trigger).ValueKinds)
+            .Concat(triggers.Any(trigger => trigger.Effects.Any(effect => effect.Op == SkillProgramEffectOp.AddEndingTurnDamageMarker))
+                ? new[] { SkillProgramTriggerValueKind.TurnOwnerDamageDealtThisTurn }
+                : Array.Empty<SkillProgramTriggerValueKind>()).ToFrozenSet();
         _triggerOperations = triggers.SelectMany(trigger => trigger.Effects).Select(effect => effect.Op).ToFrozenSet();
         _activationOperations = programs.SelectMany(program => program.Activations)
             .SelectMany(activation => activation.Effects).Select(effect => effect.Op).ToFrozenSet();
@@ -43,8 +46,9 @@ internal sealed class SkillProgramDependencies
                     .Distinct(StringComparer.Ordinal).ToArray()));
         _windows = triggers.Select(trigger => trigger.Window).ToFrozenSet();
         UsesTieredRoundConversions = programs.Any(program => program.ViewAs.Any(rule => rule.TieredRoundConversion is not null));
+        UsesRoundDistinctBasicUse = programs.Any(program => program.ViewAs.Any(rule => rule.RoundDistinctBasicUse is not null));
         UsesDynamicRoundUsage = triggers.Any(trigger => trigger.DynamicUsageLimit is not null);
-        UsesRoundTracking = HasTriggerOperation(SkillProgramEffectOp.DrawThenDiscardSuitsForDyingPeach) || UsesTieredRoundConversions || UsesDynamicRoundUsage || HasActivationOperation(SkillProgramEffectOp.ScheduleFirstRoundGameUsageRefund) || HasTriggerOperation(SkillProgramEffectOp.UseRoundPricedPileDyingAlcohol) || HasTriggerOperation(SkillProgramEffectOp.DrawEndingPairThenBlockRoundIfUnequal) || HasTriggerOperation(SkillProgramEffectOp.ZecaiRoundSettlement) || HasTriggerOperation(SkillProgramEffectOp.FengjiRoundChoice) || HasTriggerOperation(SkillProgramEffectOp.KanggeHealVictim);
+        UsesRoundTracking = HasTriggerOperation(SkillProgramEffectOp.AdjustOneRoundGainedOrdinaryTrickTarget) || HasTriggerOperation(SkillProgramEffectOp.BeginPhaseNamePrediction) || HasTriggerOperation(SkillProgramEffectOp.DrawThenDiscardSuitsForDyingPeach) || UsesTieredRoundConversions || UsesRoundDistinctBasicUse || UsesDynamicRoundUsage || HasActivationOperation(SkillProgramEffectOp.ScheduleFirstRoundGameUsageRefund) || HasTriggerOperation(SkillProgramEffectOp.UseRoundPricedPileDyingAlcohol) || HasTriggerOperation(SkillProgramEffectOp.DrawEndingPairThenBlockRoundIfUnequal) || HasTriggerOperation(SkillProgramEffectOp.ZecaiRoundSettlement) || HasTriggerOperation(SkillProgramEffectOp.FengjiRoundChoice) || HasTriggerOperation(SkillProgramEffectOp.KanggeHealVictim);
         _maximumCardPolicyKind = programs.SelectMany(program => program.CardPolicies)
             .Select(policy => (int?)policy.Kind).Max();
         var finalized = triggers.Where(trigger => trigger.Window == SkillProgramTriggerWindow.CardUseTargetsFinalized).ToArray();
@@ -57,7 +61,7 @@ internal sealed class SkillProgramDependencies
         CapturesCompletedResponseSuit = triggers.Any(trigger =>
             trigger.Window == SkillProgramTriggerWindow.CardUseCompleted && trigger.IncludeResponseUses &&
             resolver.Features(trigger).UsesCondition(SkillProgramTriggerConditionKind.CardActionSuitIs));
-        TracksPlayCardHistory = HasTriggerOperation(SkillProgramEffectOp.ReplaceAllSlashTargets) ||
+        TracksPlayCardHistory = HasTriggerOperation(SkillProgramEffectOp.BeginPhaseNamePrediction) || HasTriggerOperation(SkillProgramEffectOp.ReplaceAllSlashTargets) ||
             HasTriggerOperation(SkillProgramEffectOp.GrantRandomSkillAndSuitShield) ||
             programs.Any(program => program.ViewAs.Any(rule => rule.InheritPreviousPlaySuit)) ||
             UsesTriggerCondition(SkillProgramTriggerConditionKind.CardActionMatchesPreviousPlayCard) ||
@@ -69,8 +73,10 @@ internal sealed class SkillProgramDependencies
 
     internal bool UsesOwnerMarkerCount { get; }
     internal bool TracksCurrentTurnUseKinds { get; }
+    internal bool TracksActualTurnUseOrdinal { get; }
     internal bool UsesDynamicRoundUsage { get; }
     internal bool UsesTieredRoundConversions { get; }
+    internal bool UsesRoundDistinctBasicUse { get; }
     internal bool UsesRoundTracking { get; }
     internal bool CapturesCompletedResponseSuit { get; }
     internal bool TracksPlayCardHistory { get; }

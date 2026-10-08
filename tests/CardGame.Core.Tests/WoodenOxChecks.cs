@@ -100,7 +100,7 @@ internal static class WoodenOxChecks
                 .Equipment.Single(card => card.Kind == CardKind.WoodenOx).Id])!;
             typeof(GameEngine).GetMethod("MoveCard", BindingFlags.Instance | BindingFlags.NonPublic)!
                 .Invoke(transferred,
-                [woodenOx, CardLocation.Equipment(targetSeat), CardLocation.DiscardPile, CardMoveReasons.DismantlementFinished, null]);
+                [woodenOx, CardLocation.Equipment(targetSeat), CardLocation.DiscardPile, CardMoveReasons.DismantlementFinished, null, true]);
             Require(transferred.CardMovements.Any(move =>
                     move.CardId == storedId &&
                     move.From == CardLocation.WoodenOxGrain(targetSeat) &&

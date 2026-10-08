@@ -8,13 +8,14 @@ internal static class OrdinaryLiuXieChecks
 {
     private const string Tianming = "ol:tianming", Mizhao = "ol:mizhao", Driver = "fixture:lx-driver";
     private const string Hp = "fixture:lx-hp", Cost = "fixture:lx-cost", Gain = "fixture:lx-gain", Gift = "fixture:lx-gift", Done = "fixture:lx-done", Dying = "fixture:lx-dying";
+    private const string GiftSuppression = "fixture:lx-noop", TargetSuppression = "fixture:lx-target-suppression";
     private const string Mode = "identity:classic-liu-xie-fixture";
     private const string CostReason = "skill-program." + Tianming + ".DiscardDrawAndOfferUniqueHpPeer";
     private const string GiftReason = "skill-program." + Mizhao + ".GiveAllHandAndStartRecipientPindian";
 
     public static void TianmingSilverLionPaymentAndUniqueCurrentHpPeerOwnColdChildren()
     {
-        var (g, r) = Create(equipment: true); Play(g); Use(g, "equip"); Play(g);
+        var (g, r) = Create(equipment: true); Play(g); Use(g, "equip", [0]); Play(g);
         var armor = g.CreateCardZoneDiagnostics().Single(c => c.Location == CardLocation.Equipment(0)).CardId;
         Require(V(g, 0).Hp == 2, "The classic identity Lord starts at actual 2 HP before the real injured SilverLion payment.");
         Incoming(g); Activate(g, Tianming); Reach(g, p => Branch(p, "card"));
@@ -31,7 +32,8 @@ internal static class OrdinaryLiuXieChecks
             "The genuine equipment loss recovers first and pauses under the exact already-paid parent, before any Draw2 invoice.");
         Freeze(paid.CardIds); Freeze(paid.SourceLocations); g = ColdRestore(g, r); Continue(g);
         Reach(g, p => p.SkillPrompt?.SkillId == Cost);
-        var movement = g.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Single(w => w.ResumeProgramFrameId == id);
+        var movement = g.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Single(w => w.Batch.ParentFrameId == id &&
+            (w.ResumeProgramFrameId == id || w.ResumeProgramFrameId is null && w.Batch.AwaitingProgramFrameId == id));
         Require(movement.Batch.ParentFrameId == id && (movement.Batch.AwaitingProgramFrameId is null || movement.Batch.AwaitingProgramFrameId == id) &&
             movement.Batch.Movements.Count == 2 && movement.Batch.Movements.Select(m => m.CardId).Order().SequenceEqual(paid.CardIds.Order()) &&
             movement.Batch.Movements.All(m => m.Reason.Value == CostReason && g.CardMovements.Contains(m)),
@@ -153,23 +155,29 @@ internal static class OrdinaryLiuXieChecks
             var (g, r) = Create(removeGiftSource: true); Play(g); var recipient = Seat(g, "fixture:lx-target-1"); var ids = V(g, 0).Hand.Select(c => c.Id).ToArray();
             MizhaoUse(g, recipient); Reach(g, p => p.SkillPrompt?.SkillId == "fixture:lx-gift-source-loss"); var root = ContestRoot(g).Id;
             g = ColdRestore(g, r); Continue(g); Play(g);
+            Require(!V(g, 0).Skills!.Any(s => s.Id == Mizhao) && V(g, 0).Skills!.Any(s => s.Id == GiftSuppression) &&
+                F<SkillsAcquiredEvent>(g).Count(e => e.PlayerSeat == 0 && e.SourceSkillId == "fixture:lx-gift-source-loss" && e.SkillIds.Contains(GiftSuppression)) == 1,
+                "The real paid-gift movement child acquires one suppression source and removes Mizhao from the qualified snapshot without physically removing its grant.");
             Require(F<RecipientContestGiftPaidEvent>(g).Length == 1 && ids.All(id => g.CardMovements.Count(m => m.CardId == id && m.Reason.Value == GiftReason) == 1) &&
                 !F<RecipientContestStartedEvent>(g).Any() && !F<PindianWinnerSlashIssuedEvent>(g).Any() &&
                 F<ProgramSkillResolvedEvent>(g).Any(e => e.FrameId == root && !e.Completed) && !g.ResolutionStack.Any(f => f.Id == root),
-                "A real owner movement child removes Mizhao: already-paid gift and gain children remain, unissued Pindian/Slash cancel, and the original frame is cleaned.");
+                "A real owner movement child suppresses Mizhao's qualification: already-paid gift and gain children remain, unissued Pindian/Slash cancel, and the original frame is cleaned.");
             Require(!g.GetHumanLegalActions().Any(a => a.ProgramSkillId == Mizhao), "The empty-Hand, lost-source activation is not republished after cost completion."); ColdRestore(g, r);
         }
         {
-            var (g, r) = Create(equipment: true, removeTargetSource: true); Play(g); Use(g, "equip"); Play(g);
+            var (g, r) = Create(equipment: true, removeTargetSource: true); Play(g); Use(g, "equip", [0]); Play(g);
             var armor = g.CreateCardZoneDiagnostics().Single(c => c.Location == CardLocation.Equipment(0)).CardId;
             Incoming(g); Activate(g, Tianming); Reach(g, p => Branch(p, "card")); Answer(g, c => c.Cards.SequenceEqual([armor]));
             Reach(g, p => Branch(p, "card")); Answer(g, c => c.Cards.Count == 1); Reach(g, p => p.SkillPrompt?.SkillId == Hp);
             var root = PeerRoot(g).Id; g = ColdRestore(g, r); Continue(g); Reach(g, p => p.SkillPrompt?.SkillId == Cost);
             g = ColdRestore(g, r); Continue(g); Play(g);
+            Require(!V(g, 0).Skills!.Any(s => s.Id == Tianming) && V(g, 0).Skills!.Any(s => s.Id == TargetSuppression) &&
+                F<SkillsAcquiredEvent>(g).Count(e => e.PlayerSeat == 0 && e.SourceSkillId == Cost && e.SkillIds.Contains(TargetSuppression)) == 1,
+                "The actual cost child acquires one independent suppression source after the recovery, so Tianming is genuinely unqualified rather than merely unavailable by usage.");
             Require(F<UniqueHpPeerCostPaidEvent>(g).Count(e => e.FrameId == root) == 1 && !F<UniqueHpPeerDrawIssuedEvent>(g).Any(e => e.FrameId == root) &&
                 !F<UniqueHpPeerOfferedEvent>(g).Any(e => e.FrameId == root) && F<ProgramBindingResolvedEvent>(g).Any(e => e.FrameId == root && e.SkillId == Tianming && e.Window == SkillProgramTriggerWindow.OtherActualUseTargeted && !e.Completed) &&
                 !g.ResolutionStack.Any(f => f.Id == root) && g.CardMovements.Count(m => m.CardId == armor && m.Reason.Value == CostReason) == 1,
-                "The real cost child removes Tianming only after the SilverLion recovery; paid entities remain, no unattempted Draw invoice or peer is fabricated, and the original Slash resumes.");
+                "The real cost child suppresses Tianming's qualification only after the SilverLion recovery; paid entities remain, no unattempted Draw invoice or peer is fabricated, and the original Slash resumes.");
             ColdRestore(g, r);
         }
     }
@@ -246,32 +254,33 @@ internal static class OrdinaryLiuXieChecks
             var rules = JsonNode.Parse("""
             {"skills":[
               {"id":"fixture:lx-driver","revision":1,"activations":[
-                {"id":"equip","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":1,"effects":[{"op":"useRandomDeckEquipment","target":"owner"}]},
+                {"id":"equip","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"anyLiving","usesPerTurn":1,"effects":[{"op":"useRandomDeckEquipment","target":"owner","resultBind":"equipment"}]},
                 {"id":"incoming","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"otherLiving","usesPerTurn":1,"effects":[{"op":"offerVirtualSlashOrDraw","target":"selectedTarget"}]},
-                {"id":"clear","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":1,"effects":[{"op":"selectOwnedCards","target":"owner","zones":["hand","equipment"],"numberExpression":"allOwnedZoneCards","resultBind":"all-he"},{"op":"moveBoundCards","target":"owner","sourceBind":"all-he","destination":"discardPile"},{"op":"awaitBoundCardMovements","target":"owner","sourceBind":"all-he"}]},
+                {"id":"clear","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":1,"effects":[{"op":"selectOwnedCards","target":"owner","zones":["hand","equipment"],"numberExpression":"allOwnedZoneCards","resultBind":"all-he"},{"op":"moveBoundCards","target":"owner","sourceBind":"all-he","destination":"discardPile"},{"op":"awaitBoundCardMovements","target":"owner"}]},
                 {"id":"draw-one","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":1,"effects":[{"op":"draw","target":"owner","amount":1}]}]},
               {"id":"fixture:lx-quiet","revision":1,"triggers":[{"id":"quiet","window":"afterNormalDraw","subject":"owner","optional":false,"effects":[{"op":"skipTurnPhases","target":"owner","phases":["play"]}]}]},
               {"id":"fixture:lx-hp","revision":1,"triggers":[{"id":"hp","window":"afterHpRecovered","subject":"owner","optional":false,"usageScope":"game","usageLimit":1,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},
-              {"id":"fixture:lx-cost","revision":1,"triggers":[{"id":"cost","window":"cardsMoved","subject":"owner","optional":false,"sourceZones":["hand","equipment"],"movementOccurrence":"perBatch","movementReasons":["skill-program.ol:tianming.DiscardDrawAndOfferUniqueHpPeer"],"usageScope":"game","usageLimit":1,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},
+              {"id":"fixture:lx-cost","revision":1,"triggers":[{"id":"cost","window":"cardsMoved","subject":"owner","optional":false,"sourceZones":["hand","equipment"],"movementOccurrence":"perOwnerBatch","movementReasons":["skill-program.ol:tianming.DiscardDrawAndOfferUniqueHpPeer"],"usageScope":"game","usageLimit":1,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},
               {"id":"fixture:lx-gain","revision":1,"triggers":[{"id":"gain","window":"cardsGained","subject":"owner","optional":false,"destinationZones":["hand"],"movementOccurrence":"perBatch","movementReasons":["skill-program.ol:tianming.unique-hp-peer.draw.0"],"usageScope":"game","usageLimit":1,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},
               {"id":"fixture:lx-gift","revision":1,"triggers":[{"id":"gift","window":"cardsGained","subject":"owner","optional":false,"destinationZones":["hand"],"movementOccurrence":"perBatch","movementReasons":["skill-program.ol:mizhao.GiveAllHandAndStartRecipientPindian"],"usageScope":"game","usageLimit":1,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},
-              {"id":"fixture:lx-done","revision":1,"triggers":[{"id":"done","window":"cardUseCompleted","subject":"owner","cardKinds":["slash"],"optional":false,"usageScope":"game","usageLimit":1,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},
+              {"id":"fixture:lx-done","revision":1,"triggers":[{"id":"done","window":"cardUseCompleted","ownerRelation":"actor","cardKinds":["slash"],"optional":false,"usageScope":"game","usageLimit":1,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},
               {"id":"fixture:lx-dying","revision":1,"triggers":[{"id":"dying","window":"dyingEntering","subject":"owner","optional":false,"usageScope":"game","usageLimit":1,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},
-              {"id":"fixture:lx-gift-source-loss","revision":1,"triggers":[{"id":"loss","window":"cardsMoved","subject":"owner","optional":false,"sourceZones":["hand"],"movementOccurrence":"perBatch","movementReasons":["skill-program.ol:mizhao.GiveAllHandAndStartRecipientPindian"],"usageScope":"game","usageLimit":1,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]},{"op":"loseOwnerSkillsAndGrant","target":"owner","skillIds":["ol:mizhao"],"sourceBind":"fixture:lx-noop"}]}]},
+              {"id":"fixture:lx-gift-source-loss","revision":1,"triggers":[{"id":"loss","window":"cardsMoved","subject":"owner","optional":false,"sourceZones":["hand"],"movementOccurrence":"perBatch","movementReasons":["skill-program.ol:mizhao.GiveAllHandAndStartRecipientPindian"],"usageScope":"game","usageLimit":1,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]},{"op":"grantSkills","target":"owner","skillIds":["fixture:lx-noop"]}]}]},
               {"id":"fixture:lx-multi","revision":1,"modifiers":[{"id":"two","query":"cardTargetCount","operation":"add","value":1,"priority":0,"cardKinds":["slash"]}]},
               {"id":"fixture:lx-legacy","revision":1,"triggers":[{"id":"legacy","window":"turnStartBeforeNormalFlow","subject":"owner","optional":false,"effects":[{"op":"selectTarget","target":"owner","targetKind":"otherLivingVirtualSlashTarget"},{"op":"skipTurnPhases","target":"owner","phases":["judgment","draw"]},{"op":"useVirtualCard","target":"selectedTarget","outputKind":"slash","targetRestriction":"distanceUnlimitedAgainstTarget"}]}]}
             ]}
             """)!;
             rules["schemaVersion"] = SkillProgramCatalog.RulesSchemaVersion;
             if (gainDying) ((JsonArray)rules["skills"]![5]!["triggers"]![0]!["effects"]!).Add(JsonNode.Parse("""{"op":"loseHp","target":"owner","amount":6}"""));
-            if (removeTargetSource) ((JsonArray)rules["skills"]![3]!["triggers"]![0]!["effects"]!).Add(JsonNode.Parse("""{"op":"loseOwnerSkillsAndGrant","target":"owner","skillIds":["ol:tianming"],"sourceBind":"fixture:lx-noop"}"""));
+            if (removeTargetSource) ((JsonArray)rules["skills"]![3]!["triggers"]![0]!["effects"]!).Add(JsonNode.Parse("""{"op":"grantSkills","target":"owner","skillIds":["fixture:lx-target-suppression"]}"""));
             var names = rules["skills"]!.AsArray().Select(n => n!["id"]!.GetValue<string>()).ToArray();
             var presentation = names.ToDictionary(id => id, id => id is Driver or "fixture:lx-quiet" or "fixture:lx-multi" or "fixture:lx-legacy"
                 ? (object)new { name = id, description = "Real fixed commands and mature policies" }
                 : new { name = id, description = "Real child pause", optionLabels = new Dictionary<string, string> { ["continue"] = "继续" } });
             var catalog = SkillProgramCatalog.Load(rules.ToJsonString(), JsonSerializer.Serialize(new { schemaVersion = SkillProgramCatalog.PresentationSchemaVersion, skills = presentation }));
             foreach (var id in names) b.AddSkill(new(id, id, "Real command fixture") { Program = catalog.Programs[id] });
-            b.AddSkill(new("fixture:lx-noop", "旧来源替换", "No program"));
+            b.AddSkill(new(GiftSuppression, "已付赠牌来源资格抑制", "真实Lord的2HP使原赠牌来源失去资格") { SuppressionRule = new(2), Tags = SkillTag.Locked });
+            b.AddSkill(new(TargetSuppression, "已付目标来源资格抑制", "真实白银狮子回复至3HP后使原目标来源失去资格") { SuppressionRule = new(3), Tags = SkillTag.Locked });
             b.AddSkill(new("fixture:lx-selection", "Fixed published setup", "Passive selection preference") { SelectionWeights = Enum.GetValues<Role>().ToDictionary(role => role, _ => 100d) });
             var owner = new List<string> { Mizhao, Driver, Hp, Cost, Gain };
             if (legacy) owner.Add("fixture:lx-legacy"); else owner.Add(Tianming);

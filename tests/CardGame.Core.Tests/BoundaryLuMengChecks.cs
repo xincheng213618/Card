@@ -258,14 +258,27 @@ internal static class BoundaryLuMengChecks
             foreach(var s in source.Skills.Values)
             {
                 var optsIntoRound = s.Program is { } program &&
-                    (program.Triggers.Any(t=>t.DynamicUsageLimit is not null) ||
-                     program.Activations.SelectMany(a=>a.Effects).Any(e=>e.Op==SkillProgramEffectOp.ScheduleFirstRoundGameUsageRefund));
+                    (program.Triggers.Any(t=>t.DynamicUsageLimit is not null || UsesDiscardSuitHistory(t.Condition)) ||
+                     program.ViewAs.Any(rule=>rule.TieredRoundConversion is not null || rule.RoundDistinctBasicUse is not null) ||
+                     program.Activations.SelectMany(a=>a.Effects).Any(e=>e.Op==SkillProgramEffectOp.ScheduleFirstRoundGameUsageRefund) ||
+                     program.Triggers.SelectMany(t=>t.Effects).Any(e=>e.Op is
+                         SkillProgramEffectOp.BeginPhaseNamePrediction or
+                         SkillProgramEffectOp.DrawThenDiscardSuitsForDyingPeach or
+                         SkillProgramEffectOp.UseRoundPricedPileDyingAlcohol or
+                         SkillProgramEffectOp.DrawEndingPairThenBlockRoundIfUnequal or
+                         SkillProgramEffectOp.ZecaiRoundSettlement or
+                         SkillProgramEffectOp.FengjiRoundChoice or
+                         SkillProgramEffectOp.AdjustOneRoundGainedOrdinaryTrickTarget or
+                         SkillProgramEffectOp.KanggeHealVictim));
                 b.AddSkill(removeOptIn&&optsIntoRound?s with{Program=null}:s);
             }
             foreach(var g in source.Generals.Values)b.AddGeneral(g);
             foreach(var d in source.Decks.Values)b.AddDeck(d);
             foreach(var m in source.Modes.Values)b.AddMode(m);
         }
+        private static bool UsesDiscardSuitHistory(SkillProgramTriggerCondition condition) =>
+            condition.Kind==SkillProgramTriggerConditionKind.TurnDiscardIncludesAllSuits ||
+            condition.Children.Any(UsesDiscardSuitHistory);
     }
     private sealed class Fixture(string mode):IGameContentPackage
     {

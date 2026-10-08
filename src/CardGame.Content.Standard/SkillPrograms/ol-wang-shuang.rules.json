@@ -14,6 +14,13 @@
           "condition": { "kind": "always" }
         }
       ],
+      "cardPolicies": [
+        {
+          "id": "zhui-lie-outside-range-unlimited",
+          "kind": "bypassSlashLimitAgainstOutsideAttackRange",
+          "cardKinds": ["slash", "fireSlash", "thunderSlash"]
+        }
+      ],
       "triggers": [
         {
           "id": "zhui-lie-outside-range",
@@ -29,7 +36,6 @@
             "right": { "kind": "currentAttackRange" }
           },
           "effects": [
-            { "op": "refundCardUseDebit", "target": "owner" },
             {
               "op": "startJudgment",
               "target": "owner",

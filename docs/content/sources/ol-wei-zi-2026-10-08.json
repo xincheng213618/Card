@@ -1,4 +1,15 @@
 {
+  "initialImplementationIsHistorical": true,
+  "implementationUpdate": {
+    "batch": "content-continuation-round13",
+    "reference": "../../benchmarks/2026-10-08-content-continuation-round13.md",
+    "changes": [
+      "烈节来源侧改为拥有者私有选择真实手牌槽位与公开装备，可完成零张，发布和提交重验外来装备保护。",
+      "首笔费用按拥有者有效花色在实际移动前冻结红色数量，混合 HE 费用与来源侧付款分别沿原子移动；将灵武器沿原生规则去场外。",
+      "拥有帧发票与精确原生子窗支持装备移除、摸牌、子伤害、濒死及冷恢复，已付款尾部不重复付款。"
+    ],
+    "validation": "Actual targeted and routine results are recorded separately in the referenced round13 benchmark; historical initial notes below are retained."
+  },
   "generalId": "ol:wei-zi",
   "characterName": "卫兹",
   "officialId": 501,

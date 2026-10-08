@@ -55,7 +55,8 @@ internal static class DyingSuitsAndEndingHistoryChecks
             var (g, registry) = Start(nestedOp: nestedOp); Prepare(g, 2); EnterOriginal(g);
             var original = g.ResolutionStack.OfType<DyingFrame>().Single();
             Activate(g, Chenqing, "round-original-dying-suits"); Answer(g, c => c.Targets.SequenceEqual([2]));
-            Reach(g, p => p.SkillPrompt?.SkillId == Gain); Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
+            Reach(g, p => p.SkillPrompt?.SkillId == Gain); Cold(g, registry); AssertDyingMovementOwnerBoundary(g, registry);
+            Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
             Reach(g, p => p.SkillPrompt?.SkillId == Entry && p.PlayerSeat == 2);
             var nested = g.ResolutionStack.OfType<DyingFrame>().Single(f => f.Id != original.Id);
             Require(nested.VictimSeat == 2 && g.State.Players[1].Hp == 0 && g.State.Players[2].Hp == 0 &&
@@ -88,7 +89,7 @@ internal static class DyingSuitsAndEndingHistoryChecks
             "The targetless first Use must finish its whole native producer before the second choice is published."); Cold(g, registry);
         var choice = P(g)!.Choices.First(c => c.Cards.Count == 1 && c.Targets.Count == 2); var targets = choice.Targets.ToArray();
         var beforeHp = targets.ToDictionary(s => s, s => g.State.Players[s].Hp); Answer(g, c => c.Id == choice.Id);
-        Reach(g, p => p.Kind == DecisionKind.PlayCard && p.PlayerSeat == 0);
+        DrainHistorical(g, expectedCount: 2);
         var second = Events<EndingHistoricalUseIssuedEvent>(g).Last().Return;
         Require(second.SlotIndex == 1 && second.EffectiveKind == CardKind.Slash && targets.All(s => g.State.Players[s].Hp == beforeHp[s] - 1) &&
             Events<EndingHistoricalUseReturnedEvent>(g).Count(e => e.Return == second) == 1 &&
@@ -151,7 +152,10 @@ internal static class DyingSuitsAndEndingHistoryChecks
     public static void MoshiMultiDuelLastNullifiedTargetReturnsAfterPriorAttack()
     {
         var (g, registry) = Start(ending: true, scenario: "duel"); Prepare(g, 0); Play(g, LegalActionKind.Duel, [1]);
-        UseDriver(g, "multi", []); ReachPlay(g); BeginEnding(g);
+        var cost = g.CreateSnapshot(0).Players[0].Hand.First().Id;
+        Accept(g, new UseProgramSkillCommand(0, "boundary:qiaoshui-current", "contest", [cost], [1], g.Revision, P(g)!.PromptId)); ReachPlay(g);
+        Require(Events<NextActualUseTargetAdjustmentGrantedEvent>(g).Length == 1, "The real paid Pindian producer grants the historical Duel's additional native target.");
+        BeginEnding(g);
         var hp1 = g.State.Players[1].Hp; var hp2 = g.State.Players[2].Hp;
         Answer(g, c => c.Cards.Count == 1 && c.Targets.SequenceEqual([1, 2]));
         for (var step = 0; step < 140; step++)
@@ -167,7 +171,8 @@ internal static class DyingSuitsAndEndingHistoryChecks
             g.ResolutionStack.OfType<CardUseFrame>().Any(f => f.Id == liveReturn.CardUseFrameId) &&
             g.CardMovements.Last(m => m.CardId == liveReturn.PhysicalCardId).To == CardLocation.Processing,
             "The final target's Nullification pauses the live whole-Use owner with its paid material still Processing.");
-        Cold(g, registry); Answer(g, c => c.Parameters.GetValueOrDefault("response") == "nullification"); DrainHistorical(g);
+        Cold(g, registry); AssertHistoricalOwnerBoundary(g, registry, liveReturn);
+        Answer(g, c => c.Parameters.GetValueOrDefault("response") == "nullification"); DrainHistorical(g);
         var ret = Events<EndingHistoricalUseIssuedEvent>(g).Single().Return;
         Require(g.State.Players[2].Hp == hp2 && Events<EndingHistoricalUseReturnedEvent>(g).Count(e => e.Return == ret) == 1 &&
             Events<CardUseFinishedEvent>(g).Count(e => e.ResolutionId == ret.CardUseFrameId) == 1,
@@ -207,12 +212,60 @@ internal static class DyingSuitsAndEndingHistoryChecks
 
     private static void BeginEnding(GameEngine g)
     { Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId)); Reach(g, p => Activation(p, Moshi, "own-ending-first-two-uses")); Activate(g, Moshi, "own-ending-first-two-uses"); Reach(g, p => Action(p, "historical-ending")); }
-    private static void DrainHistorical(GameEngine g)
-    { for (var step = 0; step < 160; step++) { if (Events<EndingHistoricalUseReturnedEvent>(g).Length > 0) return; Advance(g); } throw new InvalidOperationException("Exact historical whole-Use did not return."); }
+    private static void DrainHistorical(GameEngine g, int expectedCount = 1)
+    { for (var step = 0; step < 160; step++) { if (Events<EndingHistoricalUseReturnedEvent>(g).Length >= expectedCount) return; Advance(g); } throw new InvalidOperationException("Exact historical whole-Use did not return."); }
+
+    private static void AssertDyingMovementOwnerBoundary(GameEngine g, ContentRegistry registry)
+    {
+        const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        var assertion = typeof(GameEngine).GetMethod("AssertDyingSuitsSubtree", flags)!;
+        Require(assertion.Invoke(g, null) is true, "The real awaited draw's suspended original owner remains valid while its native gain child is active.");
+        // Corrupt a journal-restored diagnostic clone only; the accepted command game remains intact.
+        var invalid = GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(g.CreateCheckpoint())), registry);
+        var stack = (FrameStore)typeof(GameEngine).GetField("_resolutionStack", flags)!.GetValue(invalid)!;
+        var root = stack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == Chenqing);
+        var movement = (CardsMovedTriggerWindowFrame)stack[stack.FindIndex(f => f.Id == root.Id) + 1];
+        stack.Replace(movement with { Batch = movement.Batch with { AwaitingProgramFrameId = long.MaxValue } });
+        var rejected = false;
+        try { assertion.Invoke(invalid, null); }
+        catch (System.Reflection.TargetInvocationException exception) when
+            (exception.InnerException is InvalidOperationException { Message: "Original Dying suits lost its exact paid subtree and original entry token." })
+        { rejected = true; }
+        Require(rejected, "An awaited movement cannot substitute another program owner for the original Dying receipt.");
+    }
+
+    private static void AssertHistoricalOwnerBoundary(GameEngine g, ContentRegistry registry, EndingHistoricalUseReturn receipt)
+    {
+        const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        var assertion = typeof(GameEngine).GetMethod("AssertHistoricalEndingUse", flags)!;
+        var actual = g.ResolutionStack.OfType<CardUseFrame>().Single(f => f.Id == receipt.CardUseFrameId);
+        assertion.Invoke(g, [actual]);
+        foreach (var boundary in new[] { "missing", "other-same-seat", "missing-receipt" })
+        {
+            // Each host invariant audit starts from the exact real cold prefix and never enters its command history.
+            var invalid = GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(g.CreateCheckpoint())), registry);
+            var stack = (FrameStore)typeof(GameEngine).GetField("_resolutionStack", flags)!.GetValue(invalid)!;
+            var use = stack.OfType<CardUseFrame>().Single(f => f.Id == receipt.CardUseFrameId);
+            var parent = stack.OfType<ProgramSkillFrame>().Single(f => f.Id == receipt.ProgramFrameId);
+            if (boundary == "missing-receipt") stack.Replace(parent with { EndingHistoricalUses = null });
+            else
+            {
+                if (boundary == "other-same-seat") stack.Push(parent with { Id = long.MaxValue });
+                use = use with { EndingHistoricalUseReturn = receipt with { ProgramFrameId = long.MaxValue } };
+            }
+            var rejected = false;
+            try { assertion.Invoke(invalid, [use]); }
+            catch (System.Reflection.TargetInvocationException exception) when
+                (exception.InnerException is InvalidOperationException { Message: "Historical Ending lost its exact suspended program owner." })
+            { rejected = true; }
+            Require(rejected, "A whole historical Use rejects a missing owner, an unrelated same-seat program or an owner without its exact receipt.");
+        }
+    }
 
     private static (GameEngine, ContentRegistry) Start(bool duplicateSuits = false, string? nestedOp = null, bool ending = false, string? scenario = null)
     {
-        var registry = ContentRegistry.Build(new StandardContentPackage(), new StandardClassicGeneralPackage(), new Fixture(duplicateSuits, nestedOp, ending, scenario));
+        var registry = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(includeJijiu: true),
+            new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage(), new Fixture(duplicateSuits, nestedOp, ending, scenario));
         var g = GameEngine.CreateStandard(new GameOptions { Seed = 31, PlayerCount = 4, HumanSeat = 0, HumanRole = Role.Lord,
             ModeId = Mode, UseInteractiveSetup = true, UseInteractiveDiscard = true, AdvanceAfterHumanCommands = false, MaxTurns = 5 }, registry);
         Accept(g, new StartGameCommand()); Reach(g, p => p.Kind == DecisionKind.SelectGeneral && p.PlayerSeat == 0);
@@ -261,13 +314,12 @@ internal static class DyingSuitsAndEndingHistoryChecks
             if (nestedOp is not null) { names[Gain] = Observer("实际摸牌中濒死"); names[Entry] = Observer("嵌套原生濒死入口"); }
             var tree = JsonNode.Parse(rules)!;
             tree["skills"]![0]!["activations"]!.AsArray().Add(JsonNode.Parse("""{"id":"trim","minCards":1,"maxCards":1,"sourceZones":["hand"],"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"discardSelected","target":"owner","amount":1}]}"""));
-            tree["skills"]![0]!["activations"]![2]!["effects"]![0]!["cardKinds"] = JsonSerializer.SerializeToNode(new[] { "slash", "duel" });
             var catalog = SkillProgramCatalog.Load(tree.ToJsonString(), JsonSerializer.Serialize(new { schemaVersion = 3, skills = names }));
             foreach (var pair in catalog.Programs) b.AddSkill(new(pair.Key, pair.Key, "真实共享能力夹具") { Program = pair.Value });
             foreach (var owner in new[] { false, true }) b.AddSkill(new(owner ? "fixture:dseh-owner-pick" : "fixture:dseh-peer-pick", "固定选将", "公开选将评分")
                 { SelectionWeights = Enum.GetValues<Role>().ToDictionary(role => role, role => (role == Role.Lord) == owner ? 10000d : -10000d) });
             b.AddGeneral(new("fixture:dseh-owner", "原始濒死与历史用牌", "supporter", "fixture:dseh-owner-pick", "wei", 6,
-                scenario == "next" ? [Chenqing, Moshi, Driver, "boundary:qiaoshui-current", "classic:tianbian"] : [Chenqing, Moshi, Driver]));
+                scenario is "next" or "duel" ? [Chenqing, Moshi, Driver, "boundary:qiaoshui-current", "classic:tianbian"] : [Chenqing, Moshi, Driver]));
             for (var i = 1; i < 4; i++) b.AddGeneral(new($"fixture:dseh-peer-{i}", "真实其他角色", "supporter", "fixture:dseh-peer-pick", "wei", 8,
                 nestedOp is null ? ["fixture:dseh-quiet"] : ["fixture:dseh-quiet", Gain]) { InitialHp = ending ? 8 : 1 });
             // Dying needs one real HP loss from HP1 in every variant.

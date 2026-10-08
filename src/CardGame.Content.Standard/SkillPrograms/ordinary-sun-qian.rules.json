@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:qianya",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "give-hand-before-trick-target-effect",
+          "window": "cardUseBeforeTargetEffects",
+          "ownerRelation": "target",
+          "cardCategories": ["trick"],
+          "optional": true,
+          "effects": [
+            { "op": "selectTarget", "target": "owner", "targetKind": "otherLiving" },
+            {
+              "op": "selectOwnedCards",
+              "target": "owner",
+              "zones": ["hand"],
+              "minimumCards": 0,
+              "maximumCards": null,
+              "resultBind": "qianya-gift"
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "qianya-gift",
+              "destination": "selectedTargetHand",
+              "awaitMovementTriggers": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:shuomeng",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "play-ending-contest-and-virtual-trick",
+          "window": "playEnding",
+          "subject": "owner",
+          "optional": true,
+          "condition": {
+            "kind": "compare",
+            "left": { "kind": "currentHandCount" },
+            "operator": "greaterThan",
+            "right": { "kind": "integerConstant", "value": 0 }
+          },
+          "effects": [
+            { "op": "selectTarget", "target": "owner", "targetKind": "otherLivingWithHand" },
+            {
+              "op": "startPindian",
+              "target": "owner",
+              "opponentRef": { "kind": "selectedTarget" },
+              "resultBind": "shuomeng-contest",
+              "visibility": "public"
+            },
+            {
+              "op": "useVirtualOrdinaryTrick",
+              "target": "owner",
+              "actorRef": { "kind": "owner" },
+              "targetRef": { "kind": "owner" },
+              "outputKind": "drawTwo",
+              "condition": { "kind": "pindianWon", "sourceBind": "shuomeng-contest" }
+            },
+            {
+              "op": "useVirtualOrdinaryTrick",
+              "target": "owner",
+              "actorRef": { "kind": "selectedTarget" },
+              "targetRef": { "kind": "owner" },
+              "outputKind": "dismantlement",
+              "condition": { "kind": "pindianNotWon", "sourceBind": "shuomeng-contest" }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

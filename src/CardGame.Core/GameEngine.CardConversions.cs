@@ -142,6 +142,7 @@ public sealed partial class GameEngine
     {
         var identityHand = _cardZones.GetLocation(card.Id) == CardLocation.Hand(owner.Seat);
         if (!identityHand && !IsAlcoholIdentityOwnedLocation(owner, card)) return [];
+        if (identityHand && GetGiftedSlashIdentityMatch(owner, card) is { } gifted) return [gifted];
 
         var context = CreateSkillContext(owner);
         return GetSkillBindingShard(owner).ProgramInstances
@@ -244,7 +245,8 @@ public sealed partial class GameEngine
                 ? CardZoneKind.Equipment
                 : location == CardLocation.Authority(owner.Seat)
                     ? CardZoneKind.Authority
-                    : location == CardLocation.WoodenOxGrain(owner.Seat) ? CardZoneKind.WoodenOxGrain : (CardZoneKind?)null;
+                    : location == CardLocation.WoodenOxGrain(owner.Seat) ? CardZoneKind.WoodenOxGrain
+                    : location == CardLocation.Judgment(owner.Seat) ? CardZoneKind.Judgment : (CardZoneKind?)null;
         if (zone is null) return [];
         var context = CreateSkillContext(owner);
         var configured = GetSkillBindingShard(owner).ProgramInstances
@@ -252,7 +254,8 @@ public sealed partial class GameEngine
                 .Where(rule => rule.InputCount == 1 &&
                                (rule.OutputKind == outputKind || forResponse && rule.ExtendedUse && outputKind == CardKind.Slash && rule.OutputKind == CardKind.FireSlash || forResponse && rule.DeclarationValidation is not null && outputKind == CardKind.Slash && IsSlashCard(rule.OutputKind)) &&
                                rule.SourceZones.Contains(zone.Value) &&
-                               (dyingUse ? rule.ForResponse || rule.UseOnly && rule.ForPlay : forResponse ? rule.ForResponse && (!rule.UseOnly || IsProgramResponseCardUse(owner, outputKind) || (rule.ConversionStateId is not null || rule.UnusedOutputNameThisGame) && outputKind == CardKind.Nullification) : rule.ForPlay) &&
+                               (zone != CardZoneKind.Judgment || rule.LastInSourceZone == true) &&
+                               (dyingUse ? rule.ForResponse || rule.UseOnly && rule.ForPlay : forResponse ? rule.ForResponse && (!rule.UseOnly || IsProgramResponseCardUse(owner, outputKind) || (rule.ConversionStateId is not null || rule.UnusedOutputNameThisGame || rule.LastInSourceZone == true) && outputKind == CardKind.Nullification) : rule.ForPlay) &&
                                (rule.DeclarationValidation is null || CanDeclareCard(owner, instance.SkillId)) &&
                                IsNamedUseConversionAvailable(owner, instance, rule) &&
                                (rule.TieredRoundConversion is null || !card.IsGeneralWeapon) &&
@@ -305,13 +308,13 @@ public sealed partial class GameEngine
         CardKind outputKind,
         bool forResponse, bool ignoreSuitUseProhibition = false)
     {
-        if (!owner.IsAlive ||
-            IsCardUseForbidden(owner.Seat, outputKind,
-                forResponse ? CardActionType.Response : CardActionType.Use))
-            return [];
+        if (!owner.IsAlive) return [];
 
         var context = CreateSkillContext(owner);
+        var dyingUse = forResponse && outputKind is CardKind.Peach or CardKind.Alcohol &&
+            ActiveDying is { } dying && dying.ResponderSeat == owner.Seat;
         var eligibleHand = GetHand(owner).Concat(GetEquipment(owner))
+            .Concat(_cardZones.CardsAt(CardLocation.WoodenOxGrain(owner.Seat)))
             .Where(card => !IsTurnHandCardRestricted(owner, card) && !HasProgramCardIdentity(owner, card))
             .OrderBy(card => card.Id)
             .ToArray();
@@ -320,12 +323,17 @@ public sealed partial class GameEngine
                      instance.Program.ViewAs.Count != 0))
         foreach (var rule in instance.Program.ViewAs.Where(rule =>
                      rule.InputCount > 1 && !rule.VariableInputCount &&
-                     (rule.OutputKind == outputKind || forResponse && rule.ExtendedUse && outputKind == CardKind.Slash && rule.OutputKind == CardKind.FireSlash) &&
-                     (forResponse ? rule.ForResponse : rule.ForPlay) &&
+                     (rule.OutputKind == outputKind || forResponse && rule.ExtendedUse && outputKind == CardKind.Slash && rule.OutputKind == CardKind.FireSlash ||
+                         !forResponse && rule.RoundDistinctBasicUse is not null && outputKind == CardKind.Slash && IsSlashCard(rule.OutputKind)) &&
+                     (forResponse ? rule.ForResponse || rule.RoundDistinctBasicUse is not null && dyingUse && rule.ForPlay : rule.ForPlay) &&
+                     (rule.RoundDistinctBasicUse is not null || !IsCardUseForbidden(owner.Seat, outputKind,
+                         forResponse ? CardActionType.Response : CardActionType.Use)) &&
+                     CanUseRoundDistinctBasicConversion(owner, instance, rule, forResponse, dyingUse) &&
                      rule.Condition.Evaluate(context)))
         {
             var candidates = eligibleHand.Where(card =>
-                rule.SourceZones.Contains(_cardZones.GetLocation(card.Id).Zone) &&
+                (rule.SourceZones.Contains(_cardZones.GetLocation(card.Id).Zone) ||
+                    rule.RoundDistinctBasicUse is not null && IsRoundDistinctBasicMaterial(owner, card)) &&
                 (rule.InputKinds.Count == 0 || rule.InputKinds.Contains(card.Kind)) &&
                 (rule.InputSuits.Count == 0 || rule.InputSuits.Contains(rule.UseEffectiveInputSuit == true ? EffectiveSuit(owner,card) : card.Suit))).ToArray();
             if (candidates.Length < rule.InputCount) continue;
@@ -335,8 +343,9 @@ public sealed partial class GameEngine
                 owner.Seat,
                 instance.SkillInstanceId);
             foreach (var cards in EnumerateCardCombinations(candidates, rule.InputCount))
-                if (!rule.SameSuit || cards.Select(card => card.Suit).Distinct().Count() == 1)
-                    selections.Add(new(cards, source, outputKind));
+                if ((!rule.SameSuit || cards.Select(card => card.Suit).Distinct().Count() == 1) &&
+                    MatchesRoundDistinctBasicMaterials(owner, rule, cards))
+                    selections.Add(new(cards, source, rule.RoundDistinctBasicUse is null ? outputKind : rule.OutputKind));
         }
         return selections
             .Where(item => forResponse || ignoreSuitUseProhibition || !IsTurnPhysicalUseForbidden(owner.Seat,item.Cards.Select(c=>c.Id).ToArray()))
@@ -438,22 +447,24 @@ public sealed partial class GameEngine
         BorrowedSwordHandle? borrowedSword = null,
         bool enforceOwnTurnSlashLimit = true)
     {
+        var effectiveKind = ViewAsRule(selection.Source)?.RoundDistinctBasicUse is not null
+            ? selection.OutputKind : CardKind.Slash;
         var current = FindProgramMultiCardViewAsSelection(
             source,
             selection.Cards.Select(card => card.Id).ToArray(),
-            CardKind.Slash,
+            effectiveKind,
             forResponse: false,
             selection.Source);
         if (current is null || !(borrowedSword is null
-                ? CanUseVirtualSlashTarget(source, target, physicalSuit: PhysicalGroupSuit(source,current.Cards), effectiveColor:PhysicalGroupColor(source,current.Cards), physicalCardIds:current.Cards.Select(c=>c.Id).ToArray())
-                : IsLegalBorrowedSwordSlashTarget(source, target, physicalSuit:PhysicalGroupSuit(source,current.Cards), allowAnyPhysicalSuit:false, effectiveColor:PhysicalGroupColor(source,current.Cards), physicalCardIds:current.Cards.Select(c=>c.Id).ToArray())))
+                ? CanUseVirtualSlashTarget(source, target, effectiveKind, physicalSuit: PhysicalGroupSuit(source,current.Cards), effectiveColor:PhysicalGroupColor(source,current.Cards), physicalCardIds:current.Cards.Select(c=>c.Id).ToArray())
+                : IsLegalBorrowedSwordSlashTarget(source, target, effectiveKind, physicalSuit:PhysicalGroupSuit(source,current.Cards), allowAnyPhysicalSuit:false, effectiveColor:PhysicalGroupColor(source,current.Cards), physicalCardIds:current.Cards.Select(c=>c.Id).ToArray())))
             throw new InvalidOperationException("The configured multi-card Slash is no longer legal.");
 
         ResolveSlashCore(
             source,
             target,
             current.Cards[0],
-            CardKind.Slash,
+            effectiveKind,
             source.Seat,
             borrowedSword: borrowedSword,
             physicalCards: current.Cards,
@@ -510,6 +521,7 @@ public sealed partial class GameEngine
             (selection.OutputKind == CardKind.Nullification || IsProgramResponseCardUse(responder, selection.OutputKind)))
             RecordActualPlayPhaseUse(action);
         AdvanceEventRulesAndQueueFact(new CardActionAcceptedEvent(action));
+        CaptureOffTurnResponseUseOrigin(resolutionId, action);
         AdvanceEventRulesAndQueueFact(new ProgramViewAsConvertedEvent(
             resolutionId,
             selection.Source.SkillId,
@@ -544,6 +556,8 @@ public sealed partial class GameEngine
             duel.ResolutionId, responder.Seat, UsedSlash: true,
             SlashCardId: selection.Cards[0].Id, ResponseCardKind: CardKind.Slash));
         if (HasResponseEntityExchangeObservers() && TryBeginProgramCardWindow(duel.Attack,responseAction,SkillProgramTriggerWindow.CardResponseAccepted,[duel.OpponentSeat],ProgramCardContinuation.DuelSlash)) return;
+        if (HasCardResponseCompletedObserver(responseAction, ProgramCardContinuation.DuelSlash))
+        { ContinueAcceptedCardResponse(duel.Attack, responseAction, ProgramCardContinuation.DuelSlash); return; }
         FinishProgramMultiCardResponse(selection);
         ContinueDuelAfterSuccessfulSlash(duel, responder.Seat);
     }
@@ -569,6 +583,8 @@ public sealed partial class GameEngine
             UsedResponse: true, ResponseCardId: selection.Cards[0].Id,
             ResponseCardKind: CardKind.Slash));
         if (HasResponseEntityExchangeObservers() && TryBeginProgramCardWindow(attack,responseAction,SkillProgramTriggerWindow.CardResponseAccepted,[group.SourceSeat],ProgramCardContinuation.GroupResponse)) return;
+        if (HasCardResponseCompletedObserver(responseAction, ProgramCardContinuation.GroupResponse))
+        { ContinueAcceptedCardResponse(attack, responseAction, ProgramCardContinuation.GroupResponse); return; }
         FinishProgramMultiCardResponse(selection);
         CompleteAttack(attack);
     }
@@ -587,6 +603,7 @@ public sealed partial class GameEngine
         });
         cards = cards.Concat(GetEquipment(owner).Where(card =>
             GetProgramViewAsConversions(owner, card, CardKind.Slash, forResponse: false).Count != 0));
+        cards = cards.Concat(GetLastZoneJudgmentConversionCards(owner, forResponse: false));
         return cards.Where(card => ignoreSuitUseProhibition || !IsTurnSuitUseForbidden(owner.Seat,EffectiveSuit(owner,card))).DistinctBy(card => card.Id).ToArray();
     }
 
@@ -637,7 +654,7 @@ public sealed partial class GameEngine
         var hasIdentity = HasProgramCardIdentity(owner, card);
         var identitySources = GetProgramCardIdentitySources(owner, card, effectiveKind, forResponse);
         var programSources = GetProgramViewAsConversions(owner, card, effectiveKind, forResponse, dyingUse);
-        var includeUnspecified = !hasIdentity &&
+        var includeUnspecified = !hasIdentity && !IsLastZoneJudgmentCard(owner, card) &&
             (card.Kind == effectiveKind || programSources.Count == 0);
         var sources = new List<CardConversionSource?>();
         if (includeUnspecified) sources.Add(null);
@@ -730,7 +747,8 @@ public sealed partial class GameEngine
         _hasSelectedResponseConversionChoice = false;
         if (selectedChoice)
         {
-            if (selected is null && !hasIdentity && IsNativeResponseCard(responseCard, effectiveKind))
+            if (selected is null && !hasIdentity && !IsLastZoneJudgmentCard(provider, responseCard) &&
+                IsNativeResponseCard(responseCard, effectiveKind))
                 return null;
             if (selected is not null && candidates.Contains(selected)) return selected;
             throw new InvalidOperationException("The selected response conversion is no longer legal.");
@@ -775,7 +793,7 @@ public sealed partial class GameEngine
                 : throw new InvalidOperationException("The selected use conversion is no longer legal.");
         }
 
-        if (!hasIdentity &&
+        if (!hasIdentity && !IsLastZoneJudgmentCard(provider, card) &&
             (card.Kind == effectiveKind || fanConvertsSlash && card.Kind == CardKind.Slash) &&
             (selectedChoice || candidates.Length == 0)) return null;
         throw new InvalidOperationException("A converted card use requires its published source choice.");

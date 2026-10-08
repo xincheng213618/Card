@@ -6,7 +6,7 @@ using CardGame.Core;
 internal static class OrdinarySpMaChaoChecks
 {
     private const string Mode = "identity:classic-sp-ma-chao-fixture", Driver = "fixture:smc-driver";
-    private const string Hp = "fixture:smc-hp", Cost = "fixture:smc-cost", Gain = "fixture:smc-gain";
+    private const string Hp = "fixture:smc-hp", Cost = "fixture:smc-cost", Gain = "fixture:smc-gain", Loss = "fixture:smc-loss";
     private const string Zhuiji = "ol:zhuiji", Shichou = "ol:shichou";
     private const string Discard = "skill-program.ol:zhuiji.RequireTargetDiscardOrEquipmentRecast";
 
@@ -53,14 +53,26 @@ internal static class OrdinarySpMaChaoChecks
                     h.Continuation == PostEventContinuation.AwaitedProgramMovement),
                 "Silver Lion cost recovery is a real exact awaited child before any recast reward.");
             Freeze(draft.PaidCardIds); Freeze(draft.PaidFrom); g = Cold(g, r);
+            if (sourceLoss)
+            {
+                Continue(g); Reach(g, p => p.SkillPrompt?.SkillId == Loss && p.PlayerSeat == 0 && p.Choices.Any(c => c.Targets.SequenceEqual([2])));
+                Require(g.State.Players[1].Hp == before + 1 && E<SlashTargetPenaltyDrawIssuedEvent>(g).Length == 0 &&
+                    E<ProgramSkillHpLostEvent>(g).Any(e => e.SkillId == Hp && e.TargetSeat == 0 && e.Amount == 1),
+                    "The paid recovery child causes a real issuer HP loss before its owner chooses a separate wounded victim; the payer remains alive before reward.");
+                g = Cold(g, r); Answer(g, c => c.Targets.SequenceEqual([2]));
+            }
             Reach(g, p => p.SkillPrompt?.SkillId == Cost);
             var movement = g.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Last();
             Require(movement.Batch.ParentFrameId == root.Id && (movement.Batch.AwaitingProgramFrameId is null || movement.Batch.AwaitingProgramFrameId == root.Id) &&
-                movement.ResumeProgramFrameId == root.Id && movement.Batch.Movements.Select(m => m.CardId).SequenceEqual(draft.PaidCardIds),
+                root.PendingMovementContinuation is not null && movement.ResumeProgramFrameId is null &&
+                movement.Batch.Movements.Select(m => m.CardId).SequenceEqual(draft.PaidCardIds),
                 "The original atomic equipment discard retains its real exact program parent and material IDs.");
             g = Cold(g, r); Continue(g); Reach(g, p => p.SkillPrompt?.SkillId == Gain);
-            Require(!sourceLoss || E<CharacterSkillsLostEvent>(g).Any(e => e.Seat == 0 && e.SkillIds.Contains(Zhuiji)),
-                "The source-loss branch truly removes the original issuer after actual cost, rather than mutating host state.");
+            Require(!sourceLoss || E<CharacterSkillsLostEvent>(g).Any(e => e.Seat == 0 && e.SourceSeat == 2 && e.SkillIds.Contains(Zhuiji)) &&
+                E<DamageAppliedEvent>(g).Any(e => e.SourceSeat == 0 && e.TargetSeat == 2 && e.Amount == 1) &&
+                E<PlayerDiedEvent>(g).Any(e => e.VictimSeat == 2 && e.KillerSeat == 0) && g.State.Players[1].IsAlive &&
+                !g.CreateSnapshot(0).Players[0].Skills!.Any(s => s.ContentId == Zhuiji),
+                "The real nested victim death invokes Duanchang and disables the original issuer's grants after actual payment; the recast payer survives.");
             Require(E<SlashTargetPenaltyDrawIssuedEvent>(g).Single().ActualCount == 1,
                 "Paid recast belongs to the target and draws even after its original attacker's source is lost.");
             g = Cold(g, r); Play(g);
@@ -186,12 +198,20 @@ internal static class OrdinarySpMaChaoChecks
                 {"id":"hurt","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":1,"effects":[{"op":"loseHp","target":"owner","amount":1}]}]},
               {"id":"fixture:smc-quiet","revision":1,"triggers":[{"id":"quiet","window":"afterNormalDraw","subject":"owner","optional":false,"effects":[{"op":"skipTurnPhases","target":"owner","phases":["play"]}]}]},
               {"id":"fixture:smc-hp","revision":1,"triggers":[{"id":"hp","window":"afterHpRecovered","subject":"owner","optional":false,"usageScope":"game","usageLimit":1,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},
-              {"id":"fixture:smc-cost","revision":1,"triggers":[{"id":"cost","window":"cardsMoved","subject":"any","sourceZones":["equipment"],"movementOccurrence":"perBatch","movementReasons":["card.recast.discard"],"optional":false,"usageScope":"game","usageLimit":1,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},
+              {"id":"fixture:smc-cost","revision":1,"triggers":[{"id":"cost","window":"cardsMoved","subject":"owner","sourceZones":["equipment"],"movementOccurrence":"perBatch","movementReasons":["card.recast.discard"],"optional":false,"usageScope":"game","usageLimit":1,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},
               {"id":"fixture:smc-gain","revision":1,"triggers":[{"id":"gain","window":"cardsGained","subject":"owner","destinationZones":["hand"],"movementOccurrence":"perBatch","movementReasons":["card.recast.draw"],"optional":false,"usageScope":"game","usageLimit":1,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]}
             ]}
             """)!;
             rules["schemaVersion"] = SkillProgramCatalog.RulesSchemaVersion;
-            if (sourceLoss) rules["skills"]![3]!["triggers"]![0]!["effects"]!.AsArray().Add(JsonNode.Parse("""{"op":"loseOwnerSkillsAndGrant","target":"owner","skillIds":["ol:zhuiji"],"sourceBind":"fixture:smc-noop"}"""));
+            if (sourceLoss)
+            {
+                rules["skills"]![2]!["triggers"]![0]!["effects"]!.AsArray().Add(JsonNode.Parse("""{"op":"selectTarget","target":"owner","targetKind":"currentTurnPlayer"}"""));
+                rules["skills"]![2]!["triggers"]![0]!["effects"]!.AsArray().Add(JsonNode.Parse("""{"op":"loseHp","target":"selectedTarget","amount":1}"""));
+                rules["skills"]!.AsArray().Add(JsonNode.Parse("""
+                {"id":"fixture:smc-loss","revision":1,"triggers":[{"id":"loss","window":"afterHpLost","subject":"owner","optional":false,"usageScope":"game","usageLimit":1,
+                  "effects":[{"op":"selectTarget","target":"owner","targetKind":"otherWoundedMale"},{"op":"damage","target":"selectedTarget","amount":1}]}]}
+                """));
+            }
             var ids = rules["skills"]!.AsArray().Select(n => n!["id"]!.GetValue<string>()).ToArray();
             var descriptions = ids.ToDictionary(id => id, id => id is Hp or Cost or Gain ? (object)new { name = id, description = "真实付款子窗", optionLabels = new Dictionary<string, string> { ["continue"] = "继续" } }
                 : new { name = id, description = "固定小型真实命令" });
@@ -201,10 +221,10 @@ internal static class OrdinarySpMaChaoChecks
             b.AddSkill(new("fixture:smc-pick-owner", "固定真人候选", "Passive") { SelectionWeights = Enum.GetValues<Role>().ToDictionary(r => r, r => r == Role.Lord ? 10000d : -10000d) });
             b.AddSkill(new("fixture:smc-pick-other", "固定其他候选", "Passive") { SelectionWeights = Enum.GetValues<Role>().ToDictionary(r => r, r => r != Role.Lord ? 10000d : -10000d) });
             var owner = new List<string> { Shichou, Driver, "classic:fuhun", "fixture:smc-pick-owner" };
-            if (equipment) owner.Add(Cost); if (legacy) owner.Add("boundary:shensu"); if (coexist) owner.Add("ol:moukui");
+            if (legacy) owner.Add("boundary:shensu"); if (coexist) owner.Add("ol:moukui"); if (sourceLoss) owner.Add(Loss);
             b.AddGeneral(new("fixture:smc-owner", "SP马超真实共享能力", "supporter", Zhuiji, "qun", 4, owner, GeneralGender.Male));
             for (var i = 1; i < 4; i++) b.AddGeneral(new($"fixture:smc-other-{i}", "其他角色", "supporter", "fixture:smc-pick-other", "wei", highHp ? 6 : 4,
-                coexist ? ["fixture:smc-quiet", "ol:tianming"] : equipment ? ["fixture:smc-quiet", Hp, Gain] : ["fixture:smc-quiet"], GeneralGender.Male) { InitialHp = equipment ? 1 : null });
+                coexist ? ["fixture:smc-quiet", "ol:tianming"] : equipment ? sourceLoss ? ["fixture:smc-quiet", Hp, Cost, Gain, "classic:duanchang"] : ["fixture:smc-quiet", Hp, Cost, Gain] : ["fixture:smc-quiet"], GeneralGender.Male) { InitialHp = equipment ? 1 : null });
             b.AddDeck(new("fixture:smc-deck", "固定真实实体", 4, 2, []) { PhysicalCards = Enumerable.Range(0, 72).Select(_ => new ContentDeckPhysicalCard(
                 equipment ? "classic:silver-lion" : spear ? "classic:zhangba-serpent-spear" : "standard:slash", Suit.Spade, 7)).ToArray() });
             b.AddMode(new(Mode, "SP马超完整真实命令草稿", 4, 4, new Dictionary<string, int> { [nameof(Role.Lord)] = 1, [nameof(Role.Rebel)] = 3 }, "fixture:smc-deck", GeneralCandidateCount: 4,

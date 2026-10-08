@@ -35,7 +35,10 @@ internal sealed record ProgramAiPublicContext(
     IReadOnlyDictionary<PlayerMarkerKind,int>? AttributedMarkerPaymentCounts = null,
     int? TurnCriterionQuota = null, SkillProgramTriggerFacts? FinalTargetFacts = null,
     double? HpDamageShieldTargetValue = null,
-    bool PricePhaseHandExtraTurnTarget = false, int? CurrentTurnUsedCardCategoryCount = null, int? PublicLivingFactionCount = null);
+    bool PricePhaseHandExtraTurnTarget = false, int? CurrentTurnUsedCardCategoryCount = null, int? PublicLivingFactionCount = null,
+    int EquipmentCardCount = 0,
+    Func<string, bool?>? PindianOutcome = null,
+    double PairedColorDispositionScore = 0d);
 
 /// <summary>
 /// Pure, public-state estimate for schema-23 program compositions. Unknown cards use a
@@ -72,6 +75,18 @@ internal static class ProgramCompositionAi
         for (var index = 0; index < instructions.Length; index++)
         {
             var effect = instructions[index];
+            if (effect.Op == SkillProgramEffectOp.UseVirtualOrdinaryTrick &&
+                effect.Condition.Kind is SkillProgramConditionKind.PindianWon or SkillProgramConditionKind.PindianNotWon)
+            {
+                var outcome = facts.PindianOutcome is { } frozenOutcome
+                    ? frozenOutcome(effect.Condition.SourceBind!)
+                    : facts.PindianWon?.Invoke(effect.Condition.SourceBind!);
+                if (outcome is null)
+                    context.UseVirtualOrdinaryTrick(effect, 0.5d);
+                else if (outcome.Value == (effect.Condition.Kind == SkillProgramConditionKind.PindianWon))
+                    context.UseVirtualOrdinaryTrick(effect);
+                continue;
+            }
             if (!EvaluateCondition(effect.Condition, player, facts)) continue;
             if (effect.Op == SkillProgramEffectOp.AccumulateSelectedCardCount)
             {
@@ -204,6 +219,17 @@ internal sealed partial class ProgramAiEstimateContext
             effect.Op == SkillProgramEffectOp.ExchangePublicPile ? 1d : 0d;
     }
 
+    internal void PublicPileCashOut(SkillProgramEffect effect)
+    {
+        if (effect.Op != SkillProgramEffectOp.StoreBoundCardsInPublicPile) return;
+        var count = Binding(effect.SourceBind).Count;
+        _ownerDraw -= count;
+        _estimatedHandCount = Math.Max(0d, _estimatedHandCount - count);
+        // Price a bounded future draw/use opportunity; the stored card is paid now.
+        // Neither the next deck identities nor another player's private hand is known.
+        _otherAdjustment += Math.Min(1d, count) * 10d;
+    }
+
     internal void PriceTurnQuotaPeek(SkillProgramEffect effect)
     {
         var quota = _publicContext.TurnCriterionQuota ?? effect.Amount;
@@ -219,6 +245,7 @@ internal sealed partial class ProgramAiEstimateContext
         var amount = effect.NumberExpression switch
         {
             SkillProgramNumberExpression.CurrentHandEmptyTwoOtherwiseOne => _estimatedHandCount == 0 ? 2 : 1,
+            SkillProgramNumberExpression.EquipmentHalfCeilingPlusOne => (_publicContext.EquipmentCardCount + 1) / 2 + 1,
             SkillProgramNumberExpression.CurrentTurnUsedCardCategoryCount => _publicContext.CurrentTurnUsedCardCategoryCount ?? 0,
             SkillProgramNumberExpression.OwnerLostHp => Math.Max(0, _player.MaxHp - _player.Hp),
               SkillProgramNumberExpression.LostHpMinusHandCount => Math.Max(0, _player.MaxHp - Math.Max(0, _player.Hp) - _estimatedHandCount),
@@ -415,6 +442,15 @@ internal sealed partial class ProgramAiEstimateContext
         _otherAdjustment += Math.Min(3, count);
     }
 
+    internal void GiftedSlashUseReward(SkillProgramEffect effect)
+    {
+        if (effect.Op != SkillProgramEffectOp.GiveBoundHandAsSlashWithUseReward) return;
+        ShownBoundGift(effect);
+        // The real owner pays now; later use and its one/two-card reward are only
+        // a bounded public opportunity, with no recipient hand or deck inspection.
+        _otherAdjustment += Math.Min(1d, Binding(effect.SourceBind).Count) * 8d;
+    }
+
     internal void Gift(SkillProgramEffect effect)
     {
         _ = Binding(effect.SourceBind); // The owner may keep the card, so the choice has no forced cost.
@@ -434,6 +470,13 @@ internal sealed partial class ProgramAiEstimateContext
 
     internal void SelectTargets(SkillProgramEffect effect)
     {
+        if (effect.SourceBind is not null)
+        {
+            var cap = (int)Math.Floor(Math.Min(effect.MaximumTargets, Math.Max(0d, Binding(effect.SourceBind).Count)));
+            _estimatedSelectedTargetCount = Math.Min(cap, Math.Max(0,
+                _publicContext.EligibleTargetCount ?? 1));
+            return;
+        }
         var expressionLimit = effect.NumberExpression switch
         {
             SkillProgramNumberExpression.EventMovedCardCount => Math.Max(0, _publicContext.EventMovedCardCount ?? 0),
@@ -474,8 +517,18 @@ internal sealed partial class ProgramAiEstimateContext
             : (_publicContext.SelectedTarget?.HandCount ?? 1) + _targetDraw;
         var available = (effect.Zones.Contains(CardZoneKind.Hand) ? Math.Max(0, knownHand) : 0) +
             effect.Zones.Count(zone => zone is CardZoneKind.Equipment or CardZoneKind.Judgment);
-        var selected = Math.Min(count, available);
+        var selected = effect.RequireExactCount == true && available < count ? 0 : Math.Min(count, available);
         _bindings[effect.ResultBind!] = UnknownCards(selected, ownedByActor) with { TargetHeld = !ownedByActor };
+    }
+
+    internal void SelectOwnedHandRankSum(SkillProgramEffect effect)
+    {
+        // Public composition estimates have hand counts, never the owner's private ranks.
+        // Actual feasibility and the private native chooser use the complete physical hand.
+        var rankSum = effect.ExactRankSum!.Value;
+        var selected = Math.Min(Math.Max(0d, _estimatedHandCount),
+            Math.Max(Math.Ceiling(rankSum / 13d), rankSum / 7d));
+        _bindings[effect.ResultBind!] = UnknownCards(selected, ownerHeld: true);
     }
 
     internal void CaptureSelectedCards(SkillProgramEffect effect) =>
@@ -625,6 +678,11 @@ internal sealed partial class ProgramAiEstimateContext
         if (allowance) _otherAdjustment += 4d;
     }
     internal void PublicControlValue(double value) => _otherAdjustment += value;
+    internal void RoundGainedSourceUseValue(SkillProgramEffect effect)
+    {
+        if (effect.Op == SkillProgramEffectOp.DrawForRoundGainedEquipmentUse) _ownerDraw += 1d;
+        else _otherAdjustment += 8d;
+    }
     internal double? HpDamageShieldTargetValue => _publicContext.HpDamageShieldTargetValue;
     internal void FinalTargetSlashValue(SkillProgramEffect effect)
     {
@@ -846,8 +904,12 @@ internal sealed partial class ProgramAiEstimateContext
         _otherAdjustment += effect.Amount * 18d;
     internal void GrantSkills(SkillProgramEffect effect) =>
         _otherAdjustment += effect.SkillIds.Count * 12d;
-    internal void GrantTurnSkills(SkillProgramEffect effect) =>
-        _otherAdjustment += effect.SkillIds.Count * 8d;
+    internal void GrantTurnSkills(SkillProgramEffect effect)
+    {
+        if (effect.TargetReference?.Kind == ProgramParticipantRef.Actor && !_publicContext.CardActionActorIsOwner)
+            _targetAdjustment += effect.SkillIds.Count * 8d;
+        else _otherAdjustment += effect.SkillIds.Count * 8d;
+    }
     internal void UseSelectedCardsAs(SkillProgramEffect effect) =>
         _targetHpLoss += effect.OutputKind switch
         {
@@ -855,6 +917,34 @@ internal sealed partial class ProgramAiEstimateContext
             CardKind.ArrowBarrage => Math.Max(1d, _publicContext.EligibleTargetCount ?? 2),
             _ => 0d
         };
+
+    internal void UseVirtualOrdinaryTrick(SkillProgramEffect effect, double probability = 1d)
+    {
+        // A pending contest is unknown, rather than an already lost contest.
+        // The prior uses public counts only; the rule engine executes the real card use.
+        var ownerTarget = effect.TargetReference?.Kind == ProgramParticipantRef.Owner;
+        if (!ownerTarget && _publicContext.SelectedTarget is null) return;
+        if (effect.OutputKind == CardKind.DrawTwo)
+        {
+            if (ownerTarget)
+            {
+                _ownerDraw += 2d * probability;
+                if (probability == 1d) _estimatedHandCount += 2d;
+            }
+            else _targetDraw += 2d * probability;
+        }
+        else if (effect.OutputKind == CardKind.Dismantlement)
+        {
+            if (ownerTarget)
+            {
+                // Public equipment is eligible even when the owner's hand is empty.
+                if (_estimatedHandCount > 0 || _publicContext.EquipmentCardCount > 0)
+                    _otherAdjustment -= 8d * probability;
+            }
+            else if (_publicContext.SelectedTarget!.HandCount > 0)
+                _targetAdjustment -= 8d * probability;
+        }
+    }
     internal ProgramAiEstimate Build()
     {
         var ownerDraw = Rounded(Math.Max(0, _ownerDraw));

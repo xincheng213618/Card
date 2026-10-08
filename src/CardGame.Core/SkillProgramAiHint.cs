@@ -16,6 +16,8 @@ public sealed record SkillProgramAiHint(
 {
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
     public bool PreferPindianInputOrder { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public bool MatchingNameOrEquipmentRecastInput { get; init; }
     public double ValueAdjustment { get; init; }
     public double TargetValueAdjustment { get; init; }
 }

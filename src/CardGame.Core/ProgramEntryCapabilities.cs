@@ -65,6 +65,7 @@ internal static class ProgramEntryCapabilities
         SkillProgramTriggerWindow.CardUseBeforeTargetEffects or
         SkillProgramTriggerWindow.CardUseTargetsFinalized or
         SkillProgramTriggerWindow.CardResponseAccepted or
+        SkillProgramTriggerWindow.CardResponseCompleted or SkillProgramTriggerWindow.CardSupplyCompleted or
         SkillProgramTriggerWindow.CardUseCompleted or
         SkillProgramTriggerWindow.SlashTargetRedirecting or
         SkillProgramTriggerWindow.SlashBeforeResponse or
@@ -89,7 +90,7 @@ internal static class ProgramEntryCapabilities
         SkillProgramTriggerWindow.DiscardPhaseStarting => Common | ProgramContextCapability.PhaseSubstitution | ProgramContextCapability.Judgment,
         SkillProgramTriggerWindow.DiscardPhaseEnded => Common | ProgramContextCapability.Judgment,
         SkillProgramTriggerWindow.PlayEnding => Common | ProgramContextCapability.Judgment | ProgramContextCapability.PhaseOwner |
-            ProgramContextCapability.PhaseInsertion,
+            ProgramContextCapability.Pindian | ProgramContextCapability.PhaseInsertion,
         SkillProgramTriggerWindow.TurnEnding => Common | ProgramContextCapability.Judgment,
         SkillProgramTriggerWindow.PlayPhaseStarting =>
             Common | ProgramContextCapability.Judgment | ProgramContextCapability.PhaseOwner | ProgramContextCapability.PhaseSubstitution | ProgramContextCapability.Pindian,
@@ -115,6 +116,7 @@ internal static class ProgramEntryCapabilities
             Common | ProgramContextCapability.Dying,
         SkillProgramTriggerWindow.CardUseCommitted or SkillProgramTriggerWindow.CardUseBeforeTargetEffects or
         SkillProgramTriggerWindow.CardUseTargetsFinalized or SkillProgramTriggerWindow.CardResponseAccepted or
+        SkillProgramTriggerWindow.CardResponseCompleted or SkillProgramTriggerWindow.CardSupplyCompleted or
         SkillProgramTriggerWindow.CardUseCompleted or
         SkillProgramTriggerWindow.SlashTargetRedirecting or
         SkillProgramTriggerWindow.SlashBeforeResponse or

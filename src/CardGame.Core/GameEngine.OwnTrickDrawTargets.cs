@@ -10,6 +10,37 @@ public sealed partial class GameEngine
     private bool HasOwnMultiTargetTrickSelfTarget(CardUseFrame use, int seat) => HasOwnMultiTargetTrickDraw &&
         use.SourceSeat == seat && ActualTrickTargetCount(use) > 1 && IsOrdinaryTrick(use.CardKind) &&
         EnabledSkillPrograms(_players[seat]).Any(p => p.Triggers.Any(t => t.Effects.Any(e => e.Op == SkillProgramEffectOp.DrawThenNullifyOwnMultiTargetTrick)));
+    private bool HasOwnTrickDrawOfferProcessing(IReadOnlyList<Card> processing)
+    {
+        if (processing.Count == 0 || !HasOwnMultiTargetTrickDraw || _resolutionStack.Count < 2 ||
+            _resolutionStack[^1] is not ActualUseTargetWindowFrame
+                { ReturnKind: ActualUseTargetReturnKind.OrdinaryTrick, Step: ResolutionFrameStep.AwaitingResponse, TrickReturn: { } ret } parent ||
+            _resolutionStack[^2] is not CardUseFrame { Action.Type: CardActionType.Use } use || use.Id != parent.ParentFrameId ||
+            parent.Candidates.Count != parent.Contexts.Count || parent.CandidateIndex < 0 || parent.CandidateIndex >= parent.Candidates.Count)
+            return false;
+        var candidate = parent.Candidates[parent.CandidateIndex];
+        var context = parent.Contexts[parent.CandidateIndex];
+        var action = use.Action!;
+        if (!OwnMultiTargetTrickCandidate(candidate) || !CanRunActualUseTarget(candidate, context) ||
+            !CanOfferOwnTrickOrHandCategory(candidate, GetProgramTrigger(candidate), context) ||
+            action.ActorSeat != use.SourceSeat || action.EffectiveKind != use.CardKind ||
+            !action.TargetSeats.SequenceEqual(use.TargetSeats) ||
+            _pendingDecision is not { Kind: DecisionKind.ProgramTrigger } decision ||
+            decision.PlayerSeat != candidate.OwnerSeat || decision.SkillPrompt?.SkillId != candidate.SkillId ||
+            decision.Choices.Count != 2 || !decision.Choices.All(choice =>
+                choice.Parameters.GetValueOrDefault("skill-id") == candidate.SkillId &&
+                choice.Parameters.GetValueOrDefault("binding-id") == candidate.BindingId &&
+                choice.Parameters.GetValueOrDefault("skill-instance-id") == candidate.SkillInstanceId) ||
+            !decision.Choices.Select(choice => choice.Parameters.GetValueOrDefault("program-action")).Order()
+                .SequenceEqual(new[] { "activate", "skip" })) return false;
+        // The offer has not pushed a program child yet. Its directly owning use must
+        // account for every Processing entity, rather than admitting an arbitrary use frame.
+        var physicalIds = action.PhysicalCards.Select(cost => cost.CardId).ToArray();
+        return physicalIds.Length > 0 && physicalIds.All(id => id > 0) &&
+            physicalIds.Distinct().Count() == physicalIds.Length && physicalIds.Contains(ret.EffectCardId) &&
+            physicalIds.Order().SequenceEqual((use.PhysicalCardIds ?? [use.CardId]).Order()) &&
+            physicalIds.Order().SequenceEqual(processing.Select(card => card.Id).Order());
+    }
     private bool CanOfferOwnTrickOrHandCategory(ProgramTriggerCandidate c, SkillProgramTrigger trigger, ProgramSkillWindowContext context)
     {
         if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.DrawThenNullifyOwnMultiTargetTrick))
@@ -80,6 +111,18 @@ public sealed partial class GameEngine
         }
         FinishProgramSkill(GetActiveProgramFrame(id), completed: true); return true;
     }
+    private bool ReturnOwnTrickDrawMovement(ProgramSkillFrame frame)
+    {
+        if (frame.OwnTrickDraw is null) return false;
+        var effect = ProgramInstructionResolver.Default.Resolve(frame, _contentRegistry.GetSkill(frame.SkillId).Program!)
+            .GetPausedInstruction(frame.InstructionIndex).Effect;
+        if (frame.PendingMovementContinuation is not { } pending || !IsOwnTrickDrawMovement(frame, effect, pending))
+            throw new InvalidOperationException("The issued own-trick draw lost its exact paid movement return.");
+        ReplaceRuntimeTop(frame with { PendingMovementContinuation = null });
+        AdvanceRuntimeProgram(frame.Id);
+        return true;
+    }
+
     private bool IsOwnTrickDrawMovement(ProgramSkillFrame f, SkillProgramEffect? e, ProgramMovementContinuation m) =>
         e?.Op == SkillProgramEffectOp.DrawThenNullifyOwnMultiTargetTrick && f.OwnTrickDraw is not null &&
         m.SubjectSeat == f.OwnerSeat && m.BeforeCount == 0 && m.CoverageResultBind is null &&

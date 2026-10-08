@@ -94,6 +94,35 @@ public static class GeneralGalleryCatalog
         groups.Add("ol:ding-feng", "other");
         groups.Add("ol:pan-feng", "other");
         groups.Add("ol:ma-liang", "other");
+        groups.Add("ol:ling-cao", "other");
+        groups.Add("ol:yue-jin", "other");
+        groups.Add("ol:xu-jing", "other");
+        groups.Add("ol:sun-qian", "other");
+        groups.Add("ol:sp-jiang-wei", "other");
+        groups.Add("ol:mi-zhu", "other");
+        groups.Add("ol:sima-lang", "other");
+        groups.Add("ol:li-tong", "other");
+        groups.Add("ol:ma-zhong", "other");
+        groups.Add("ol:sun-shao", "other");
+        groups.Add("ol:zhao-yan", "other");
+        groups.Add("ol:tang-ji", "other");
+        groups.Add("ol:liu-hong", "other");
+        groups.Add("ol:wang-shuang", "other");
+        groups.Add("ol:wei-zi", "other");
+        groups.Add("ol:tian-yu", "other");
+        groups.Add("ol:zhang-hu-yue-chen", "other");
+        groups.Add("ol:wei-guan", "other");
+        groups.Add("ol:wang-xiang", "other");
+        groups.Add("ol:du-yu", "other");
+        groups.Add("ol:jia-chong", "other");
+        groups.Add("ol:yang-hu", "other");
+        groups.Add("ol:guo-huai", "other");
+        groups.Add("ol:zhou-chu", "other");
+        groups.Add("ol:zuo-fen", "other");
+        groups.Add("ol:zhang-hua", "other");
+        groups.Add("ol:sima-zhou", "other");
+        groups.Add("ol:xin-chang", "other");
+        groups.Add("ol:shi-bao", "other");
         groups.Add("ol:huang-cheng-yan", "other");
         groups.Add("ol:chen-lin", "other");
         groups.Add("ol:sp-cai-wen-ji", "other");
@@ -194,12 +223,6 @@ public static class GeneralGalleryCatalog
         groups.Add("ol:yang-wan", "other");
         groups.Add("ol:rui-ji", "other");
         groups.Add("ol:teng-fang-lan", "other");
-        groups.Add("ol:zhao-yan", "other");
-        groups.Add("ol:tang-ji", "other");
-        groups.Add("ol:liu-hong", "other");
-        groups.Add("ol:wang-shuang", "other");
-        groups.Add("ol:wei-zi", "other");
-        groups.Add("ol:tian-yu", "other");
         return groups;
 
         void Add(string group, string ids)

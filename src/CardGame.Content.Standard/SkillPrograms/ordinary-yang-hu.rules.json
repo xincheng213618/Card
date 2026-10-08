@@ -1,0 +1,148 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:huaiyuan",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "initialize-sui",
+          "window": "gameStarting",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "initializeOriginalHandEntities",
+              "target": "owner",
+              "stateId": "sui"
+            }
+          ]
+        },
+        {
+          "id": "benefit-after-original-hand-loss",
+          "window": "cardsMoved",
+          "subject": "owner",
+          "sourceZones": [
+            "hand"
+          ],
+          "movementOccurrence": "perCard",
+          "optional": false,
+          "effects": [
+            {
+              "op": "offerOriginalHandLossBenefit",
+              "target": "owner",
+              "stateId": "sui"
+            }
+          ]
+        },
+        {
+          "id": "inherit-own-original-hand-bonuses",
+          "window": "ownerDied",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "inheritOriginalHandBonuses",
+              "target": "owner",
+              "stateId": "sui"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:chongxin",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "paired-hand-recast",
+          "minCards": 1,
+          "maxCards": 1,
+          "sourceZones": [
+            "hand"
+          ],
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLivingWithHand",
+          "usesPerPhase": 1,
+          "usesPerTurn": null,
+          "usesPerGame": null,
+          "effects": [
+            {
+              "op": "pairedHandRecast",
+              "target": "selectedTarget"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:dezhang",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "awaken-without-sui",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "turnOwnerScope": "own",
+          "optional": false,
+          "usageScope": "game",
+          "usageLimit": 1,
+          "effects": [
+            {
+              "op": "awakenWhenOriginalHandEmpty",
+              "target": "owner",
+              "sourceSkillId": "ol:huaiyuan",
+              "stateId": "sui",
+              "skillIds": [
+                "ol:weishu"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:weishu",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "after-actual-outside-draw",
+          "window": "cardsGained",
+          "subject": "owner",
+          "destinationZones": [
+            "hand"
+          ],
+          "movementOccurrence": "perBatch",
+          "optional": false,
+          "effects": [
+            {
+              "op": "drawAfterActualOutsideDraw",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "after-actual-outside-discard",
+          "window": "discardPileReceived",
+          "subject": "owner",
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "judgment"
+          ],
+          "movementOccurrence": "perBatch",
+          "movementDiscardOnly": true,
+          "discardOwnerScope": "own",
+          "optional": false,
+          "effects": [
+            {
+              "op": "discardAfterActualOutsideDiscard",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

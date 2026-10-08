@@ -36,11 +36,19 @@ internal static class DelegatedJudgmentAndGainGiftChecks
         var (foreign, fr) = Start(Kind.Judgment); var ownerHand = V(foreign).Hand.Select(c => c.Id).ToArray();
         Use(foreign, "judge", [], [1]); Reach(foreign, p => p.Kind == DecisionKind.ProgramJudgmentReplacement);
         Answer(foreign, c => c.Parameters.GetValueOrDefault("action") == "delegated-judgment-accept");
-        Require(P(foreign) is { PlayerSeat: 1, SourceSeat: 0, TargetSeat: 1, IsPrivate: true } &&
+        Require(P(foreign) is { Kind: DecisionKind.ProgramJudgmentReplacement, PlayerSeat: 1, SourceSeat: 0, TargetSeat: 1, IsPrivate: true, SkillPrompt: not null } &&
             foreign.CreateSnapshot(1).PrivateRevealedCards!.Select(c => c.Id).SequenceEqual(ownerHand) &&
             Enumerable.Range(0, 4).Where(s => s != 1).All(s => foreign.CreateSnapshot(s).PrivateRevealedCards is null && foreign.CreateSnapshot(s).PendingDecision is null),
             "The foreign actual subject alone receives the private hand material and mandatory choices; the owner no longer chooses the card.");
-        Cold(foreign, fr); Accept(foreign, new AdvanceOneStepCommand(foreign.Revision)); ReachPlay(foreign);
+        Cold(foreign, fr);
+        var aiPrompt = P(foreign)!.PromptId; var judgmentId = foreign.ResolutionStack.OfType<JudgmentFrame>().Single().Id;
+        var commandCount = foreign.AcceptedCommands.Count;
+        Accept(foreign, new AdvanceOneStepCommand(foreign.Revision));
+        Require(foreign.AcceptedCommands.Count == commandCount + 1 && P(foreign)?.PromptId != aiPrompt &&
+            !foreign.ResolutionStack.OfType<JudgmentFrame>().Any(f => f.Id == judgmentId &&
+                f.DelegatedReplacement is { Stage: DelegatedJudgmentStage.Choosing }),
+            "One real AI advance consumes the skill-labelled delegated prompt and leaves its choosing stage instead of committing a no-op.");
+        Cold(foreign, fr); ReachPlay(foreign);
         Require(E<ProgramJudgmentReplacementResolvedEvent>(foreign).Single(e => e.SkillId == "ol:huanshi") is { SubjectSeat: 1, Activated: true } &&
             Enumerable.Range(0, 4).All(s => foreign.CreateSnapshot(s).PrivateRevealedCards is null), "The subject AI uses its own authorized view and private access ends after payment.");
         Cold(foreign, fr);
@@ -50,11 +58,11 @@ internal static class DelegatedJudgmentAndGainGiftChecks
     {
         var (g, r) = Start(Kind.Gain, finishInitialGift: false);
         Require(P(g)!.SkillPrompt?.SkillId == "ol:hongyuan" && E<GainGiftPhaseIssuedEvent>(g).Length == 0,
-            "One actual normal Draw batch of two permits optional gifting without subtracting its planned draw.");
+            "One real atomic two-card gain in Draw permits optional gifting without subtracting its planned draw.");
         Cold(g, r); Answer(g, c => c.Cards.Count == 0); ReachPlay(g);
         Use(g, "two-singles", [], []); ReachPlay(g);
         Require(E<GainGiftPhaseIssuedEvent>(g).Length == 0, "Two independent one-card gain batches do not form one two-card gain.");
-        Use(g, "draw-two", [], []); Reach(g, p => p.SkillPrompt?.SkillId == "ol:hongyuan"); Reject(g); Cold(g, r);
+        Use(g, "gain-two", [], [1]); Reach(g, p => p.SkillPrompt?.SkillId == "ol:hongyuan"); Reject(g); Cold(g, r);
         var first = P(g)!.Choices.First(c => c.Targets.SequenceEqual([1])); Answer(g, c => c.Id == first.Id);
         Reach(g, p => p.SkillPrompt?.SkillId == Gain);
         Require(g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == "ol:hongyuan").GainGiftReceipt is
@@ -65,7 +73,7 @@ internal static class DelegatedJudgmentAndGainGiftChecks
         Require(P(g)!.Choices.All(c => !c.Targets.Contains(1)) && P(g)!.Choices.Any(c => c.Cards.Count == 0),
             "After paid children, the first recipient is excluded and giving only one remains legal.");
         Answer(g, c => c.Targets.SequenceEqual([2])); Reach(g, p => p.SkillPrompt?.SkillId == Gain); Cold(g, r); Advance(g); ReachPlay(g);
-        Use(g, "draw-two", [], []); ReachPlay(g);
+        Use(g, "gain-two", [], [1]); ReachPlay(g);
         Require(E<GainGiftPaidEvent>(g).Length == 2 && E<GainGiftPhaseIssuedEvent>(g).Length == 1 &&
             E<GainGiftPaidEvent>(g).Select(e => e.TargetSeat).SequenceEqual([1, 2]), "A later two-card batch cannot reopen an already spent actual phase.");
         Cold(g, r);
@@ -73,7 +81,7 @@ internal static class DelegatedJudgmentAndGainGiftChecks
         var owner = HostPlayers(g)[0]; var grant = owner.SkillGrants.Grants.Single(s => s.SkillId == "ol:hongyuan");
         owner.SkillGrants.RemoveGrant(grant.GrantId); owner.SkillGrants.Grant(new("fixture:gg-later", grant.SkillId, grant.SkillInstanceId + ":later", "acquired:host-audit"));
         ((SkillRuntimeStateStore)typeof(GameEngine).GetField("_skillRuntimeState", Flags)!.GetValue(g)!).ResetSkill(0, grant.SkillId);
-        Use(g, "draw-two", [], []); ReachPlay(g); Require(E<GainGiftPhaseIssuedEvent>(g).Length == 1, "A new skill instance still shares the owner/skill/actual-phase quota.");
+        Use(g, "gain-two", [], [1]); ReachPlay(g); Require(E<GainGiftPhaseIssuedEvent>(g).Length == 1, "A new skill instance still shares the owner/skill/actual-phase quota.");
     }
 
     public static void RedLossFreezesOriginalEffectiveColorInForeignPlay()
@@ -123,7 +131,12 @@ internal static class DelegatedJudgmentAndGainGiftChecks
             ModeId = Mode, UseInteractiveSetup = true, UseInteractiveDiscard = true, AdvanceAfterHumanCommands = false, MaxTurns = 3 }, r);
         Accept(g, new StartGameCommand()); Reach(g, p => p.Kind == DecisionKind.SelectGeneral && p.PlayerSeat == 0);
         Accept(g, new SelectGeneralCommand(0, "fixture:gg-owner", g.Revision, P(g)!.PromptId));
-        if (kind == Kind.Gain) { Reach(g, p => p.SkillPrompt?.SkillId == "ol:hongyuan"); if (!finishInitialGift) return (g, r); Answer(g, c => c.Cards.Count == 0); }
+        if (kind == Kind.Gain)
+        {
+            Reach(g, p => p.SkillPrompt?.SkillId == Driver && p.Choices.Any(c => c.Targets.SequenceEqual([1])));
+            Answer(g, c => c.Targets.SequenceEqual([1]));
+            Reach(g, p => p.SkillPrompt?.SkillId == "ol:hongyuan"); if (!finishInitialGift) return (g, r); Answer(g, c => c.Cards.Count == 0);
+        }
         ReachPlay(g); return (g, r);
     }
     private static void Equip(GameEngine g) { var a = g.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.Equip); Accept(g, new PlayCardCommand(0, a.CardId!.Value, a.TargetSeats, g.Revision, P(g)!.PromptId, a.PlayedCardKind)); ReachPlay(g); }
@@ -134,7 +147,7 @@ internal static class DelegatedJudgmentAndGainGiftChecks
     private static void Answer(GameEngine g, Func<PromptChoice, bool> pick) { var p = P(g)!; Accept(g, new AnswerPromptCommand(p.PlayerSeat, p.PromptId, p.Choices.First(pick).Id, g.Revision)); }
     private static void Continue(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
     private static void ReachPlay(GameEngine g) => Reach(g, p => p.Kind == DecisionKind.PlayCard && p.PlayerSeat == 0);
-    private static void Reach(GameEngine g, Func<PendingDecision, bool> predicate) { for (var step = 0; step < 128; step++) { var p = P(g); if (p is not null && predicate(p)) return; Advance(g); } throw new InvalidOperationException("Fixed gain/loss fixture did not reach its boundary."); }
+    private static void Reach(GameEngine g, Func<PendingDecision, bool> predicate) { for (var step = 0; step < 128; step++) { var p = P(g); if (p is not null && predicate(p)) return; Advance(g); } throw new InvalidOperationException($"Fixed gain/loss fixture did not reach its boundary: phase={g.State.Phase}, prompt={P(g)?.Kind}/{P(g)?.PlayerSeat}/{P(g)?.SkillPrompt?.SkillId}, frames={string.Join(',', g.ResolutionStack.Select(f => f.GetType().Name + ':' + f.Id))}."); }
     private static void Advance(GameEngine g)
     {
         var p = P(g);
@@ -159,13 +172,18 @@ internal static class DelegatedJudgmentAndGainGiftChecks
               ,"triggers":[{"id":"ending-discard-two","window":"turnEnding","subject":"owner","optional":false,"effects":[
                 {"op":"selectOwnedCards","target":"owner","minimumCards":2,"maximumCards":2,"zones":["hand"],"resultBind":"lost-two"},
                 {"op":"moveBoundCards","target":"owner","sourceBind":"lost-two","destination":"discardPile","awaitMovementTriggers":true}]}]
+              """ : kind == Kind.Gain ? """
+              ,"triggers":[{"id":"draw-phase-atomic-gain","window":"drawPhaseStarting","subject":"owner","optional":false,"effects":[
+                {"op":"selectTarget","target":"owner","targetKind":"otherLiving"},
+                {"op":"selectOwnedCards","target":"selectedTarget","minimumCards":2,"maximumCards":2,"zones":["hand"],"resultBind":"original-two"},
+                {"op":"moveBoundCards","target":"owner","sourceBind":"original-two","destination":"ownerHand","awaitMovementTriggers":true}]}]
               """ : "";
             var rules = $$"""
             {"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[
               {"id":"{{Driver}}","revision":1,"activations":[
                 {"id":"hurt","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"loseHp","target":"owner","amount":1}]},
                 {"id":"judge","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"startJudgment","target":"selectedTarget","judgmentReason":"skill.fixture.gain-gift","resultBind":"judged","visibility":"public"},{"op":"moveBoundCards","target":"owner","sourceBind":"judged","destination":"discardPile"}]},
-                {"id":"draw-two","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"draw","target":"owner","amount":2}]},
+                {"id":"gain-two","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"otherLiving","usesPerTurn":null,"effects":[{"op":"draw","target":"selectedTarget","amount":2},{"op":"selectOwnedCards","target":"selectedTarget","minimumCards":2,"maximumCards":2,"zones":["hand"],"resultBind":"original-two"},{"op":"moveBoundCards","target":"owner","sourceBind":"original-two","destination":"ownerHand","awaitMovementTriggers":true}]},
                 {"id":"two-singles","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"draw","target":"owner","amount":1},{"op":"draw","target":"owner","amount":1}]},
                 {"id":"trim","minCards":1,"maxCards":1,"sourceZones":["hand"],"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"discardSelected","target":"owner","amount":1}]}]{{ending}}},
               {"id":"{{Gain}}","revision":1,"triggers":[{"id":"paid-gain","window":"cardsGained","subject":"owner","destinationZones":["hand"],"movementOccurrence":"perBatch","movementReasons":["program.batch-gain.gift","program.red-owned-loss.draw"],"optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"gain-seen","options":[{"id":"continue"}]}]}]},
@@ -174,8 +192,9 @@ internal static class DelegatedJudgmentAndGainGiftChecks
               {"id":"{{Peer}}","revision":1,"triggers":[{"id":"foreign-play-take","window":"playPhaseStarting","subject":"owner","optional":false,"effects":[{"op":"takeRandomCardFromEveryOtherCharacter","target":"owner","zones":["hand"]}]}]}
             ]}
             """;
-            var names = new[] { Driver, Gain, Hp, Red, Peer }.ToDictionary(id => id, id => (object)new { name = id, description = "实际判定和实体移动", optionLabels = new Dictionary<string, string> { ["continue"] = "继续" } });
-            var c = SkillProgramCatalog.Load(rules, JsonSerializer.Serialize(new { schemaVersion = 3, skills = names }));
+            var names = new[] { Driver, Gain, Hp, Red, Peer }.ToDictionary(id => id, id => (object)new { name = id, description = "实际判定和实体移动", optionLabels =
+                id is Gain or Hp ? new Dictionary<string, string> { ["continue"] = "继续" } : new Dictionary<string, string>() });
+            var c = SkillProgramCatalog.Load(rules, JsonSerializer.Serialize(new { schemaVersion = SkillProgramCatalog.PresentationSchemaVersion, skills = names }));
             foreach (var p in c.Programs) b.AddSkill(new(p.Key, p.Key, "固定共享能力") { Program = p.Value });
             b.AddSkill(new("fixture:gg-idle", "无技能", "固定对照"));
             var primary = kind == Kind.Judgment ? "ol:huanshi" : kind == Kind.Gain ? "ol:hongyuan" : "ol:mingzhe";

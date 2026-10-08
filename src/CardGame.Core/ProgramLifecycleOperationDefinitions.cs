@@ -168,25 +168,32 @@ internal sealed class SelectTargetsProgramOperationDescriptor : ProgramOperation
         static (effect, context) => context.SelectTargets(effect));
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
     {
-        r.AllowOnly("op", "target", "targetKind", "minimumTargets", "maximumTargets", "numberExpression", "targetAiOrder", "condition");
+        r.AllowOnly("op", "target", "targetKind", "minimumTargets", "maximumTargets", "numberExpression", "sourceBind", "targetAiOrder", "condition");
         var target = FilterBoundCardsProgramOperationDescriptor.Owner(r);
         var kind = r.RequiredEnum<SkillProgramTargetKind>("targetKind");
-        if (kind is not (SkillProgramTargetKind.OtherLivingWithHand or SkillProgramTargetKind.OtherLivingUnequalHandPair or
+        var sourceBind = r.Has("sourceBind") ? r.RequiredIdentifier("sourceBind") : null;
+        var named = sourceBind is not null;
+        if (kind is not (SkillProgramTargetKind.OtherLiving or SkillProgramTargetKind.OtherLivingWithHand or SkillProgramTargetKind.OtherLivingUnequalHandPair or
             SkillProgramTargetKind.AnyLiving or SkillProgramTargetKind.LivingWhoseAttackRangeIncludesLord or SkillProgramTargetKind.OtherLivingHandAtLeastOwner or
             SkillProgramTargetKind.CurrentCardUseTargets or SkillProgramTargetKind.CurrentArrowBarrageTargets or SkillProgramTargetKind.OtherLivingMale or
             SkillProgramTargetKind.AnyWounded or SkillProgramTargetKind.OtherLivingPair or
-            SkillProgramTargetKind.LivingPairDistinct or SkillProgramTargetKind.EquipmentExchangePair))
+            SkillProgramTargetKind.LivingPairDistinct or SkillProgramTargetKind.EquipmentExchangePair) &&
+            !(named && kind is SkillProgramTargetKind.OtherLiving or SkillProgramTargetKind.OtherWounded))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.targetKind: unsupported target set.");
         var minimum = r.RequiredInt("minimumTargets");
         var maximum = r.RequiredInt("maximumTargets");
         var numberExpression = r.Has("numberExpression")
             ? r.RequiredEnum<SkillProgramNumberExpression>("numberExpression") : (SkillProgramNumberExpression?)null;
+        if (named && (numberExpression != SkillProgramNumberExpression.BoundCardCount ||
+            kind is not (SkillProgramTargetKind.AnyLiving or SkillProgramTargetKind.OtherLiving or
+                SkillProgramTargetKind.AnyWounded or SkillProgramTargetKind.OtherWounded) || minimum < 0 || maximum > 8))
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}: named target counts require boundCardCount, a living/wounded target set and bounds within zero through eight.");
         if (numberExpression is not null and not (SkillProgramNumberExpression.EventMovedCardCount or SkillProgramNumberExpression.CurrentHandCount or
             SkillProgramNumberExpression.PlannedNormalDrawCount or SkillProgramNumberExpression.BoundCardCount or SkillProgramNumberExpression.CurrentHp or SkillProgramNumberExpression.OwnerLostHpAtLeastOne))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}: unsupported target maximum expression.");
         if (numberExpression == SkillProgramNumberExpression.OwnerLostHpAtLeastOne && (kind != SkillProgramTargetKind.AnyLiving || minimum != 1))
             throw new InvalidOperationException("Lost-HP-at-least-one targets require anyLiving and minimum one.");
-        if ((minimum < 1 && !(minimum == 0 && kind == SkillProgramTargetKind.OtherLivingWithHand)) || maximum < minimum || maximum > (kind == SkillProgramTargetKind.CurrentCardUseTargets
+        if ((minimum < 1 && !(minimum == 0 && (named || kind == SkillProgramTargetKind.OtherLivingWithHand))) || maximum < minimum || maximum > (named ? 8 : kind == SkillProgramTargetKind.CurrentCardUseTargets
             ? 64 : kind is SkillProgramTargetKind.AnyLiving or SkillProgramTargetKind.LivingWhoseAttackRangeIncludesLord or SkillProgramTargetKind.AnyWounded or
                 SkillProgramTargetKind.OtherLivingHandAtLeastOwner ? 8 : 2))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}: target bounds exceed the supported participant count.");
@@ -201,6 +208,13 @@ internal sealed class SelectTargetsProgramOperationDescriptor : ProgramOperation
         if (kind == SkillProgramTargetKind.EquipmentExchangePair && (minimum != 2 || maximum != 2))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}: equipment exchange requires exactly two targets.");
         var aiOrder = r.RequiredEnum<SkillProgramTargetAiOrder>("targetAiOrder");
+        if (!named && kind == SkillProgramTargetKind.OtherLiving &&
+            (minimum != 1 || maximum != 1 || numberExpression is not null || aiOrder != SkillProgramTargetAiOrder.SupportDraw))
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}: otherLiving support targets require exactly one target, supportDraw and no count expression.");
+        if (aiOrder == SkillProgramTargetAiOrder.SupportRecovery && !named)
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}: supportRecovery requires a named bound-card target range.");
+        if (named && aiOrder is not (SkillProgramTargetAiOrder.SupportRecovery or SkillProgramTargetAiOrder.Stable))
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}: named target ranges require an empty-safe stable or supportRecovery order.");
         if (aiOrder == SkillProgramTargetAiOrder.CardEffectIntervention &&
             kind is not (SkillProgramTargetKind.CurrentCardUseTargets or SkillProgramTargetKind.CurrentArrowBarrageTargets))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}: card-effect intervention requires current card-use targets.");
@@ -210,12 +224,14 @@ internal sealed class SelectTargetsProgramOperationDescriptor : ProgramOperation
             throw new InvalidOperationException($"Invalid skill program at {r.Path}: support-first order requires an eligible pair.");
         var effect = new SkillProgramEffect(Op, target, 0, r.Condition(), numberExpression: numberExpression, targetKind: kind,
             minimumTargets: minimum, maximumTargets: maximum,
-            targetAiOrder: aiOrder);
+            targetAiOrder: aiOrder, sourceBind: sourceBind);
         RequireAlways(effect, r.Path);
         return effect;
     }
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
-        effect.NumberExpression == SkillProgramNumberExpression.EventMovedCardCount
+        effect.SourceBind is not null
+            ? [new ReadCardSet(effect.SourceBind), new SelectTargetSet(effect.MinimumTargets, effect.MaximumTargets)]
+            : effect.NumberExpression == SkillProgramNumberExpression.EventMovedCardCount
             ? [new RequireTriggerWindow(SkillProgramTriggerWindow.CardsMoved), new SelectTargetSet(effect.MinimumTargets,effect.MaximumTargets)]
             : (effect.TargetKind is SkillProgramTargetKind.CurrentCardUseTargets or SkillProgramTargetKind.CurrentArrowBarrageTargets)
             ? [new RequireContext(ProgramContextCapability.CardAction),

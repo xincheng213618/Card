@@ -72,7 +72,6 @@ public sealed class UseVirtualDyingAlcoholSkillProgramEffectHandler : ISkillProg
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,
         int targetSeat, ISkillProgramEffectHost host)
     {
-        host.UseVirtualDyingAlcohol(frame);
-        return SkillProgramStepOutcome.Continue;
+        return host.UseVirtualDyingAlcoholWithCompletion(frame);
     }
 }

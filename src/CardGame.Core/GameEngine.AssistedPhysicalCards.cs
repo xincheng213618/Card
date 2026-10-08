@@ -14,7 +14,7 @@ public sealed partial class GameEngine
                 request.TargetSeat is { } target && !AssistedPhysicalSlashTargets(actor).Contains(target) || frame.ChoiceBindings.Any(binding => binding.Name == paused.ResultBind) || request.ActorChoosesTarget != (paused.ChooserRef?.Kind == ProgramParticipantRef.SelectedTarget))
                 throw new InvalidOperationException("An assisted physical Slash draft lost its frozen instruction or participants.");
             if (ReferenceEquals(frame, _resolutionStack.LastOrDefault()) && (_pendingDecision is not { Kind: DecisionKind.ProgramTrigger } prompt ||
-                prompt.PlayerSeat != (request.TargetSeat is null && !request.ActorChoosesTarget ? frame.OwnerSeat : actor) || !AssistedChoicesEqual(RequestedDeckBasicNativeDecision(prompt).Choices, AssistedPhysicalSlashChoices(frame))))
+                prompt.PlayerSeat != (request.TargetSeat is null && !request.ActorChoosesTarget ? frame.OwnerSeat : actor) || !AssistedChoicesEqual(ChainedStateBasicNativeDecision(DrawFundedDistinctBasicNativeDecision(RequestedDeckBasicNativeDecision(prompt))).Choices, AssistedPhysicalSlashChoices(frame))))
                 throw new InvalidOperationException("An assisted physical Slash prompt changed while suspended.");
         }
         if (frame.OtherCardSelection is { } draft)
@@ -99,7 +99,8 @@ public sealed partial class GameEngine
             choices.Add(new PromptChoice(new ChoiceId($"assisted-slash.{frame.Id}.zhangba.{string.Join('-', ids)}"), "使用丈八蛇矛：将两张手牌当【杀】使用", ids, [targetSeat], parameters));
         }
         foreach (var kind in SlashKinds)
-        foreach (var selection in GetProgramMultiCardViewAsSelections(actor, kind, false))
+        foreach (var selection in GetProgramMultiCardViewAsSelections(actor, kind, false)
+                     .Where(item => ViewAsRule(item.Source)?.RoundDistinctBasicUse is null || item.OutputKind == kind))
         {
             if (!AssistedSlashPaymentHasRange(actor, targetSeat, selection.Cards) || !CanUseSlashTarget(actor, _players[targetSeat], selection.Cards[0], selection.Source, kind, noEffectiveRank: selection.Cards.Count > 1, physicalCardIds:selection.Cards.Select(c=>c.Id).ToArray())) continue;
             var parameters = Parameters("use");

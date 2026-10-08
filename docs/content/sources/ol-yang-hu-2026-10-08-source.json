@@ -1,0 +1,600 @@
+{
+  "sourceRecordSchemaVersion": 1,
+  "documentKind": "Current official OL ordinary Yang Hu four-skill source and accepted engine mapping",
+  "status": "Complete general registered; focused and measured routine scopes passed. Engine mappings remain distinguished from official FAQ.",
+  "sourceRegistered": true,
+  "registered": true,
+  "productionImplemented": true,
+  "behaviorValidated": true,
+  "behaviorAccepted": true,
+  "generalIdProposal": "ol:yang-hu",
+  "characterName": "羊祜",
+  "officialId": 497,
+  "rulesetId": "sanguosha-ol",
+  "variantProposal": "ordinary",
+  "capturedAt": "2026-10-08",
+  "sourcePage": "https://www.sanguosha.com/hero/497",
+  "currentOfficialMetadata": {
+    "gid": 497,
+    "name": "羊祜",
+    "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/497.png",
+    "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/49700.png",
+    "label": [
+      "防御",
+      "控制",
+      "过牌"
+    ],
+    "figure": "晋",
+    "figure_py": "jin",
+    "quality": "传说",
+    "biography": "字叔子，西晋名将，蔡文姬外甥。坐镇荆州与东吴陆抗对阵，临终前荐杜预接替职务，晋武帝依其计划灭吴。唐宋时期配享武庙。",
+    "characteristic": "使用初始手牌可以提供多功能收益，清空初始手牌后觉醒，觉醒后利用过牌弃牌的共振控场。",
+    "hp": 4,
+    "initial_hp": 0,
+    "score": 0
+  },
+  "metadataInterpretation": {
+    "maxHp": 4,
+    "initialHp": 4,
+    "initialHpNote": "Official hero renderer treats initial_hp=0 as full starting HP; preserve mode HP modifiers.",
+    "hasConcealment": false,
+    "concealmentBasis": "None of the four current ordinary skill texts contains concealment. This is not the Wei3 ten-anniversary Deshao/Mingfa character.",
+    "gender": "Current character h=1 plus official historical ordinary OL sale page states male; API has no gender field.",
+    "artist": "Current character row ad identifies Jiangrenhui; preserve exact client artist string in row."
+  },
+  "skills": [
+    {
+      "officialSkillId": 3081,
+      "name": "怀远",
+      "exactText": "你的初始手牌称为“绥”。当你失去一张“绥”后，你为一名角色选择一项：1.手牌上限+1；2.攻击范围+1；3.摸一张牌。当你死亡时，你可以令一名其他角色获得你以此法增加的手牌上限和攻击范围。",
+      "rawOrdinaryText": "你的初始手牌称为“绥”。当你失去一张“绥”后，你为一名角色选择一项：<br>&nbsp;1.手牌上限+1；2.攻击范围+1；3.摸一张牌。<br>当你死亡时，你可以令一名其他角色获得你以此法增加的手牌上限和攻击范围。",
+      "origin": "/GameSpells/spell/1438",
+      "acquiredOnly": false
+    },
+    {
+      "officialSkillId": 3082,
+      "name": "崇信",
+      "exactText": "出牌阶段限一次，你可以与一名有手牌的其他角色各重铸一张牌。",
+      "rawOrdinaryText": "出牌阶段限一次，你可以与一名有手牌的其他角色各重铸一张牌。",
+      "origin": "/GameSpells/spell/1439",
+      "acquiredOnly": false
+    },
+    {
+      "officialSkillId": 3083,
+      "name": "德彰",
+      "exactText": "觉醒技，回合开始时，若你没有“绥”，你减少1点体力上限并获得“卫戍”。",
+      "rawOrdinaryText": "觉醒技，回合开始时，若你没有“绥”，你减少1点体力上限并获得“<font href='3084'>卫戍</font>”。",
+      "origin": "/GameSpells/spell/1440",
+      "acquiredOnly": false
+    },
+    {
+      "officialSkillId": 3084,
+      "name": "卫戍",
+      "exactText": "锁定技，你于摸牌阶段外非因本技能摸牌后，你令一名角色摸一张牌；你的牌于弃牌阶段外因弃置置入弃牌堆后，你弃置一名其他角色一张牌。",
+      "rawOrdinaryText": "锁定技，你于摸牌阶段外非因本技能摸牌后，你令一名角色摸一张牌；你的牌于弃牌阶段外因弃置置入弃牌堆后，你弃置一名其他角色一张牌。",
+      "origin": "/GameSpells/spell/1441",
+      "acquiredOnly": true
+    }
+  ],
+  "primarySources": [
+    {
+      "role": "current official ordinary OL hero",
+      "url": "https://www.sanguosha.com/hero/497",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T12:50:21.589403+00:00",
+      "sha256": "73994bea3a7f060871ce89269d1293dc247d3568c9ead5817f8bb0d0c88d30d9",
+      "byteCount": 25472,
+      "hashScope": "Exact raw HTTP body bytes"
+    },
+    {
+      "role": "current official ordinary OL API",
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=497",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T12:50:22.061705+00:00",
+      "sha256": "34d75d099478bbdf70bee3bd544456af753c5ec1f36814da5e5cdaab54a5a25d",
+      "byteCount": 905,
+      "hashScope": "Exact raw HTTP body bytes"
+    }
+  ],
+  "currentOfficialClient": {
+    "bundle": {
+      "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T12:50:21.539728+00:00",
+      "sha256": "6a035389beda8d0dbf31227f57a91b2da14d3d5055503198a227aef54f22bf76",
+      "byteCount": 5256312,
+      "hashScope": "Exact raw HTTP body bytes"
+    },
+    "fullConfig": {
+      "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T12:50:21.517210+00:00",
+      "sha256": "9e26cb3db90532084579a20c292d5fec0c81dcf3d5eb2abf2009bff0326237bb",
+      "byteCount": 4142728,
+      "hashScope": "Exact raw HTTP body bytes"
+    },
+    "members": [
+      {
+        "name": "character.sgs",
+        "encodedSha256": "e0b6f0188edebb1f502ea402c7171e93b88f4e9d05720948344a1f4f44474aae",
+        "encodedByteCount": 352776,
+        "decodedSha256": "b3ef3f1181e7fe667499cb688b7cdce56631d899dbb0eea55d75fbf80636b040",
+        "decodedByteCount": 1485056
+      },
+      {
+        "name": "cha_spell.sgs",
+        "encodedSha256": "95cfaa4106a4f6224ebed8948bcf86bd5fc6801a83a1c4162c7e59bc848bef66",
+        "encodedByteCount": 246031,
+        "decodedSha256": "39b83f6e2504590e262bb353bddfded546b83f83a7ea9199b67742b1bee68fc0",
+        "decodedByteCount": 1166955
+      },
+      {
+        "name": "cha_gs_dbs_fs_skininfo.sgs",
+        "encodedSha256": "dcf599976725e3ba80d7c0e465ab5e25f8d790b5f6e04c73dda8c7a55ac81136",
+        "encodedByteCount": 170561,
+        "decodedSha256": "3101af9abac96b7b9685f6b5a4a4c68eaed511d0c58ade8b1099e7db2639caa0",
+        "decodedByteCount": 1248402
+      }
+    ],
+    "decoding": "Read public official ZIP bytes entirely in memory; public client InitOfb AES-CFB128 then gzip, following tools/import_game_audio.py decoder convention without invoking its writer.",
+    "character": {
+      "path": "/GameCharacters/character/1191",
+      "row": {
+        "a": 497,
+        "b": "羊祜",
+        "d": "YangHu",
+        "e": 44,
+        "f": "42",
+        "g": 6,
+        "h": 1,
+        "i": 4,
+        "j": 3081,
+        "k": 3082,
+        "l": 3083,
+        "p": 3,
+        "q": "1",
+        "r": "9049701",
+        "y": "字叔子，西晋名将，蔡文姬外甥。坐镇荆州与东吴陆抗对阵，临终前荐杜预接替职务，晋武帝依其计划灭吴。唐宋时期配享武庙。",
+        "z": "使用初始手牌可以提供多功能收益，清空初始手牌后觉醒，觉醒后利用过牌弃牌的共振控场。",
+        "aa": 190,
+        "ab": "907,908",
+        "ac": "杜预,陆抗,王濬",
+        "ad": "画师:匠人绘 ",
+        "x": "唯以德信，####能经百岁。",
+        "al": 1730,
+        "am": "true",
+        "ap": 800,
+        "aq": 240,
+        "LordCardRate1": 51,
+        "LordCardRate2": 54,
+        "cc": 49701,
+        "starMax": 4,
+        "freetitle": "0,控制强将"
+      }
+    },
+    "spells": [
+      {
+        "path": "/GameSpells/spell/1438",
+        "row": {
+          "a": 3081,
+          "b": "3,5",
+          "c": "怀远",
+          "d": "HuaiYuan",
+          "e": 0,
+          "g": 5,
+          "i": 2,
+          "n": 1,
+          "o": "你的初始手牌称为“绥”。当你失去一张“绥”后，你为一名角色选择一项：<br>&nbsp;1.手牌上限+1；2.攻击范围+1；3.摸一张牌。<br>当你死亡时，你可以令一名其他角色获得你以此法增加的手牌上限和攻击范围。",
+          "v": "请选择一名角色",
+          "w": "请选择一名角色",
+          "k": "1"
+        }
+      },
+      {
+        "path": "/GameSpells/spell/1439",
+        "row": {
+          "a": 3082,
+          "b": "3",
+          "c": "崇信",
+          "d": "ChongXin",
+          "e": 0,
+          "g": 5,
+          "h": 1,
+          "i": 2,
+          "n": 1,
+          "o": "出牌阶段限一次，你可以与一名有手牌的其他角色各重铸一张牌。",
+          "v": "请选择一张牌重铸，并选择一名有手牌的其他角色",
+          "w": "请选择一张牌重铸"
+        }
+      },
+      {
+        "path": "/GameSpells/spell/1440",
+        "row": {
+          "a": 3083,
+          "b": "3,4,5,6,23",
+          "c": "德彰",
+          "d": "DeZhang",
+          "e": 0,
+          "i": 2,
+          "l": "yanghudezhang",
+          "m": "3084",
+          "o": "觉醒技，回合开始时，若你没有“绥”，你减少1点体力上限并获得“<font href='3084'>卫戍</font>”。"
+        }
+      },
+      {
+        "path": "/GameSpells/spell/1441",
+        "row": {
+          "a": 3084,
+          "b": "3,4,5",
+          "c": "卫戍",
+          "d": "WeiShu",
+          "e": 0,
+          "g": 5,
+          "i": 2,
+          "n": 1,
+          "o": "锁定技，你于摸牌阶段外非因本技能摸牌后，你令一名角色摸一张牌；你的牌于弃牌阶段外因弃置置入弃牌堆后，你弃置一名其他角色一张牌。",
+          "v": "请选择一名角色，令其摸1张牌|请选择一名角色，弃置其1张牌",
+          "w": "请选择一名角色，令其摸1张牌|请选择一名角色，弃置其1张牌"
+        }
+      }
+    ],
+    "spellTips": [
+      {
+        "path": "/GameSpells/spell_tips/1433",
+        "row": {
+          "a": 3081
+        }
+      },
+      {
+        "path": "/GameSpells/spell_tips/1434",
+        "row": {
+          "a": 3082
+        }
+      },
+      {
+        "path": "/GameSpells/spell_tips/1435",
+        "row": {
+          "a": 3083
+        }
+      },
+      {
+        "path": "/GameSpells/spell_tips/1436",
+        "row": {
+          "a": 3084
+        }
+      }
+    ],
+    "spellTipsFinding": "Current matching spell_tips rows carry only the skill ID and no detailed FAQ text.",
+    "freshMatchesRound16": true,
+    "matchScope": "Hero, API, bundle and full Config exact raw hashes plus four parsed spell rows and character row freshly match R16 evidence. Earlier R16 mechanism proposals are not promoted to official rulings."
+  },
+  "historicalOfficialSources": [
+    {
+      "role": "release",
+      "url": "https://www.sanguosha.com/news/20220510_6582_4915",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T12:50:21.617585+00:00",
+      "sha256": "557378f441317209ae2e381f1cdd45912cc819d5a191c46483e4dcba57debc38",
+      "byteCount": 40555,
+      "hashScope": "Exact raw HTTP body bytes",
+      "title": "《三国杀OL》3.2.0版本更新公告 - 三国杀OL官网",
+      "publishedDateTimeTextCandidates": [
+        "2022-05-11 16:14:57"
+      ],
+      "selectedRelevantExcerpts": [],
+      "authorityScope": "Historical OL release/sale/fix evidence only. Current hero/client text supersedes older timing/wording; a fix headline does not identify its detailed ruling."
+    },
+    {
+      "role": "sale",
+      "url": "https://www.sanguosha.com/news/20220614_7041_4810",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T12:50:23.321792+00:00",
+      "sha256": "e397efde827bca1f957eaf6e805506da6cb8d849219c003d01a59dc68703b5fc",
+      "byteCount": 241201,
+      "hashScope": "Exact raw HTTP body bytes",
+      "title": "6.18-6.24 年中钜惠 新将羊祜占星秘宝 限时双倍返利 - 三国杀OL官网",
+      "publishedDateTimeTextCandidates": [
+        "2022-06-17 17:41:19",
+        "2022-06-29 23:59:59",
+        "2022-06-18 00:30:00",
+        "2022-06-24 23:59:59",
+        "2022-06-18 00:00:00",
+        "2022-06-25 23:59:59",
+        "2022-06-18 10:00:00",
+        "2022-06-24 00:00:00"
+      ],
+      "selectedRelevantExcerpts": [
+        "色与你各重铸一张牌。 【德彰】：觉醒技，准备阶段开始时，若你没有“绥”，你减少1点体力上限并获得“卫戍”。 「卫戍」：锁定技，你于摸牌阶段外非因“卫戍”摸牌后，你令一名角色摸1张牌；你于弃牌阶段外弃置牌后，你弃置一名其他角色的1张牌。 获取 2022-06-18 00:30:00~2022-06-24 23:59:59，占星秘宝中星石币*1600（ 首周八折"
+      ],
+      "authorityScope": "Historical OL release/sale/fix evidence only. Current hero/client text supersedes older timing/wording; a fix headline does not identify its detailed ruling."
+    },
+    {
+      "role": "huaiyuanFix",
+      "url": "https://www.sanguosha.com/news/20220619_6179_4016",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T12:50:21.889902+00:00",
+      "sha256": "c8e376aea1adb2cc102e2deffe9624865f8d13698b96cf8966b4c51400bc64da",
+      "byteCount": 79407,
+      "hashScope": "Exact raw HTTP body bytes",
+      "title": "6月23日《三国杀OL》版本更新公告 - 三国杀OL官网",
+      "publishedDateTimeTextCandidates": [
+        "2022-06-22 15:15:32"
+      ],
+      "selectedRelevantExcerpts": [
+        " 2、国战自动换皮肤功能修复。 3、羊祜怀远技能问题修复。 客服电话：0571-88133227 (9:00-21:00) 来访接待：杭州市滨江区拓森科技园 （周一至周五 9:00-17:00,法定假日除外）【预约上访请点击： 预约上访 】 抵制不良游戏 | 拒绝盗版游戏 | 注意自我保护 | 谨防受骗上当 适度游戏益脑 | 沉迷游戏伤身 | 合理安排时间 "
+      ],
+      "authorityScope": "Historical OL release/sale/fix evidence only. Current hero/client text supersedes older timing/wording; a fix headline does not identify its detailed ruling."
+    },
+    {
+      "role": "chongxinFix",
+      "url": "https://www.sanguosha.com/news/20220913_8450_4211",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T12:50:21.730267+00:00",
+      "sha256": "437ba261eae2f7bc3ce1b0a0bbab65e1d9f057840b542f286373607f929f8a36",
+      "byteCount": 32705,
+      "hashScope": "Exact raw HTTP body bytes",
+      "title": "9月14日《三国杀OL》3.3.3版本更新公告 - 三国杀OL官网",
+      "publishedDateTimeTextCandidates": [
+        "2022-09-13 17:35:05"
+      ],
+      "selectedRelevantExcerpts": [
+        "交给的问题 7、修复【崇信】在特定条件下使用次数被恢复的问题 8、修复【援资】使用后可以整轮生效的问题 9、修复【清冷】使用时无法使用方天画戟的问题 10、修复【天机图】超时弃牌会不断弃牌的问题 11、优化了【鸩毒】询问逻辑：在无法使用酒时不会再询问 客服电话：0571-88133227 (9:00-21:00) 来访接待：杭州市滨江区拓森科技园 （周一至周"
+      ],
+      "authorityScope": "Historical OL release/sale/fix evidence only. Current hero/client text supersedes older timing/wording; a fix headline does not identify its detailed ruling."
+    },
+    {
+      "role": "genericOwnershipAnalogy",
+      "url": "https://www.sanguosha.com/news/20161128_7163_2815",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T12:50:21.786689+00:00",
+      "sha256": "4abcfb95e696ff2791d04c1c578833d839f64b0e99741aabcae2f175f4c04b91",
+      "byteCount": 52793,
+      "hashScope": "Exact raw HTTP body bytes",
+      "title": "[攻略] SP武将：步骘攻略文  - 三国杀OL官网",
+      "publishedDateTimeTextCandidates": [
+        "2016-11-28 15:23:50"
+      ],
+      "selectedRelevantExcerpts": [
+        "如果步骘没有队友了，步骘也废了； 07.定叛的效果2收回装备，不算失去牌，算获得手牌，所以无法发动邓艾“屯田”，但是可以发动弘德（同理朱治“安国”也无法令邓艾发动“屯田”）； 08.这一条是写给步骘队友的。有步骘在的情况下，步骘的队友基本上可以可以无脑装备藤甲、张角无脑装备红色+1马，仁王盾等等之类的，等待步骘在回合内通过定叛把这些“垃圾”制衡掉； 09.定"
+      ],
+      "authorityScope": "Historical official-hosted generic guide analogy only; not Yang Hu-specific FAQ and not binding proof of Sui identity or lifetime."
+    }
+  ],
+  "variantExclusions": [
+    {
+      "url": "https://x.sanguosha.com/hero/1301.html",
+      "reason": "Ten-anniversary YiJiangChengMing Wei3 Deshao/Mingfa version; excluded from current ordinary OL Jin4 gid497 rules."
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20220816_1442_3417",
+      "reason": "Title explicitly ten-anniversary; Wei3 alternate character. Not an ordinary OL ruling source."
+    }
+  ],
+  "faqResearch": {
+    "searchedAt": "2026-10-08",
+    "domains": "Official sanguosha.com current hero/news and public official OL client Config; variant pages excluded as target authority.",
+    "queries": [
+      "site:sanguosha.com 羊祜 怀远 崇信 德彰 卫戍 FAQ",
+      "site:sanguosha.com 羊祜 怀远 绥 重铸 继承 FAQ",
+      "site:sanguosha.com \"羊祜\" \"FAQ\"",
+      "site:sanguosha.com \"怀远\" \"初始\" \"失去\"",
+      "site:sanguosha.com \"崇信\" \"装备\"",
+      "site:sanguosha.com \"崇信\" \"依次\"",
+      "site:sanguosha.com \"卫戍\" \"摸两张\"",
+      "site:sanguosha.com \"羊祜\" \"手牌区\"",
+      "site:sanguosha.com \"怀远\" \"继承\"",
+      "site:sanguosha.com \"绥\" \"装备区\"",
+      "site:sanguosha.com \"羊祜\" \"绥\" \"返回\"",
+      "site:sanguosha.com \"怀远\" \"增加的\"",
+      "site:sanguosha.com \"卫戍\" \"批次\""
+    ],
+    "found": "Current four-skill text, historical release/sale text and two nonspecific bug-fix announcements. No targeted official Sui life/death inheritance/Chongxin order or zone/Weishu batch FAQ was found in these bounded searches.",
+    "limitations": "A search miss is not proof that no official FAQ exists. Historical generic strategy examples are not character-specific rulings. Current text and explicit engine decisions must stay distinguishable.",
+    "rootDecision": "R18 proceeds with complete Huaiyuan, Chongxin, Dezhang and acquired Weishu. No missing specific FAQ is fabricated; precise engine mappings below are explicit implementation choices, not quoted official rulings.",
+    "round18AdditionalQueries": [
+      "site:sanguosha.com \"羊祜\" \"怀远\" \"绥\" \"装备\"",
+      "site:sanguosha.com \"羊祜\" \"怀远\" \"增加\" \"死亡\"",
+      "site:sanguosha.com \"羊祜\" \"卫戍\" \"一次\"",
+      "site:club.sanguosha.com 羊祜 怀远 FAQ",
+      "site:sanguosha.com \"怀远\" \"手牌区\"",
+      "site:sanguosha.com \"怀远\" \"返\" \"绥\"",
+      "site:sanguosha.com \"卫戍\" \"摸牌\" \"张牌\" \"FAQ\""
+    ]
+  },
+  "boundaryAssessment": [
+    {
+      "id": "sui-entity-set-and-lifetime",
+      "officialBasis": "Huaiyuan identifies initial hand cards as Sui; current characteristic describes using/clearing initial hand cards. Neither specifies removal of the identity mark or a re-entry rule.",
+      "confidence": "Initial hand entity origin is explicit; identity lifetime is unresolved.",
+      "unresolved": [
+        "Whether first loss clears the Sui mark permanently or the original entity remains Sui after return.",
+        "Whether owner hand to own equipment counts as loss for this skill, and whether a Sui in own equipment prevents Dezhang.",
+        "Whether a stolen original Sui triggers again after reacquisition and another qualifying loss."
+      ],
+      "engineMappingStatus": "R18 explicit engine mapping implemented; focused and measured routine scopes passed. No targeted official FAQ was found in the bounded search.",
+      "candidateMappings": [
+        "Immutable initial entity set plus explicit owner possession/loss predicate; original identity can survive a return.",
+        "Consumed per-original-card Sui identity at first qualifying loss; later return is ordinary."
+      ],
+      "caution": "A historical official Buzhi guide says own equipment returned to own hand is gain but not loss. This is a generic analogy, not a ruling for the opposite move or Huaiyuan. No hand-exit shortcut may be labelled official.",
+      "round18EngineDecision": "At genuine GameStarting initialize exact InitialDeal owner-Hand entities once. First actual movement from that own Hand consumes each original mark, including ownHand to ownEquipment. Return/reacquisition does not restore a consumed mark and its later loss cannot reward again. This is a deliberate engine mapping, not a verified FAQ."
+    },
+    {
+      "id": "sui-batch-multiplicity",
+      "officialBasis": "The trigger says when you lose one Sui, unlike a generic batch loss phrase.",
+      "confidence": "Per-entity interpretation is a strong textual inference; exact batch/candidate sequencing is not a quoted FAQ.",
+      "proposedMapping": "One issued choice per qualifying original Sui entity in the real movement batch, with immutable event/source/card identity; a paid/native child cannot duplicate or erase a later owed choice.",
+      "engineMappingStatus": "R18 explicit engine mapping implemented; focused and measured routine scopes passed. No targeted official FAQ was found in the bounded search.",
+      "round18EngineDecision": "One mandatory exact loss-benefit candidate per distinct consumed original entity, including multiple entities in one actual batch; repeated benefit options are allowed. A typed child resumes each invoice exactly once."
+    },
+    {
+      "id": "huaiyuan-death-inheritance",
+      "officialBasis": "The death clause says a different character obtains the hand limit and attack range you increased by this method.",
+      "unresolved": [
+        "Whether the inherited quantity is the deceased owner own received increments or all increments that owner granted to any recipient.",
+        "Whether obtain copies the frozen quantity or transfers it by deducting an existing recipient bonus.",
+        "Whether increments granted by a different Huaiyuan owner are included when the deceased received them."
+      ],
+      "engineMappingStatus": "R18 explicit engine mapping implemented; focused and measured routine scopes passed. No targeted official FAQ was found in the bounded search.",
+      "implementationNeed": "Track each actual recipient, granting source owner and modifier kind so later decision does not require conflating totals; do not silently remove other recipients modifiers.",
+      "round18EngineDecision": "At optional native OwnerDied invocation, freeze only the dying owner currently received hand-limit and attack-range increments belonging to this original-hand bonus family. Move those own increments to one other living recipient; do not aggregate all awards the dead owner gave other recipients, and keep those recipients existing awards unchanged. Origin provenance distinguishes other mechanisms. This is an explicit engine choice without a targeted official FAQ."
+    },
+    {
+      "id": "chongxin-order-and-zones",
+      "officialBasis": "Once in Play phase, owner and another character with hand each recast one card. Client owner prompt requests a recast card and an other-with-hand target; partner prompt requests one recast card.",
+      "confirmed": "Other target has hand cards at selection; owner selects a material and target; no client tooltip gives ordering or a region ruling.",
+      "unresolved": [
+        "Whether owner or partner finishes recast first or the pair is simultaneous.",
+        "Whether equipment is an eligible recast material.",
+        "Whether partner material is chosen before owner discard/draw children or afterward."
+      ],
+      "engineMappingStatus": "R18 explicit engine mapping implemented; focused and measured routine scopes passed. No targeted official FAQ was found in the bounded search.",
+      "r17AgreedGenericContract": "Selected owner one Hand card plus OtherLivingWithHand target, then partner privately chooses one Hand card. Freeze both materials before payment. Ordered owner recast movement and Draw1, then partner recast movement and Draw1. Later-invalid material is not replaced; completed payment and owed Draw/return survive child pauses and source loss exactly once.",
+      "officialFaqStatus": "No Chongxin-specific order/zone FAQ found in bounded search.",
+      "round18EngineDecision": "R17 accepted generic PairedHandRecast: exact one owner Hand material plus OtherLivingWithHand, private forced one partner Hand material; freeze both before payment; owner complete recast movement and Draw1 children before partner does likewise. Later-invalid unpaid material is skipped without substitution; completed payment and draw obligation survive source loss. Hand-only and ordering are engine mappings, not verified character-specific FAQ."
+    },
+    {
+      "id": "dezhang-current-timing-and-sui-emptiness",
+      "officialBasis": "Current spell3083 says turn start, no Sui, reduce max HP1 and acquire Weishu; acquired skill id3084 is explicit.",
+      "currentVsHistorical": "Current turn-start text takes precedence over 2022 preparation-start release text.",
+      "unresolved": [
+        "No Sui definition depends on the unresolved mark lifetime and eligible own zones above."
+      ],
+      "engineMappingStatus": "R18 explicit engine mapping implemented; focused and measured routine scopes passed. No targeted official FAQ was found in the bounded search.",
+      "round18EngineDecision": "Own actual turn-start before normal flow, once per game, when no unconsumed original marks remain; reduce maxHP1 through native children then acquire Weishu once. This uses current official turn-start timing rather than old preparation wording, with emptiness based on the explicit first-loss mark mapping."
+    },
+    {
+      "id": "weishu-draw-batch-and-provenance",
+      "officialBasis": "After drawing outside Draw phase not due to this skill, make one character draw1. This is actual drawing, not every gain.",
+      "unresolved": [
+        "One invocation per real draw batch versus per actual card.",
+        "Producer-exclusion details when another rule is triggered by a Weishu draw and itself draws.",
+        "Whether outside Draw phase refers to the current global phase when the owner draws during another actor Draw phase."
+      ],
+      "proposedMapping": "A positive native Draw batch yields one owed choice; direct draws produced by this exact Weishu effect are excluded, while unrelated CardsGained and zero-actual-card draw attempts are not treated as draws. Freeze direct producer identity and actual phase. Blanket ancestor-chain exclusion requires a separate explicit decision.",
+      "engineMappingStatus": "R18 explicit engine mapping implemented; focused and measured routine scopes passed. No targeted official FAQ was found in the bounded search.",
+      "round18EngineDecision": "One mandatory trigger per completed native DrawCards invocation with positive actual count, attached to its final native draw batch. Exclude any actual global Draw phase and direct draws whose stable owner+skill producer is this Weishu. InitialDeal, gifts/other gains, flipped/obtained cards and actual-zero draw attempts do not count. This batch interpretation is an engine mapping, not a verified FAQ."
+    },
+    {
+      "id": "weishu-discard-batch-and-phase",
+      "officialBasis": "Current text requires your cards to enter discard pile due to discard outside Discard phase; it does not say every loss.",
+      "unresolved": [
+        "One invocation per real discard batch versus per discarded entity.",
+        "Global actual Discard phase versus only the skill owner own Discard phase.",
+        "Exact regions allowed when discarding one other character card under ordinary generic discard rules."
+      ],
+      "proposedMapping": "Observe committed owner-card discard-to-DiscardPile movement with real Discard reason, not recast/use/give/transfer. Use actual phase identity rather than only current owner turn, subject to explicit final mapping. Preserve native protected-card selection and equipment removal children.",
+      "engineMappingStatus": "R18 explicit engine mapping implemented; focused and measured routine scopes passed. No targeted official FAQ was found in the bounded search.",
+      "round18EngineDecision": "One mandatory trigger per actual native batch of this owner HEJ cards entering DiscardPile for true Discard, outside the actual global Discard phase. Use native discard classification, never recast/use/death/transfer merely ending in discard. Owner must select one other living discardable HEJ entity, using native opaque Hand slot and equipment child rules; no legal target means no effect. Batch/global-phase interpretation is explicit engine mapping."
+    }
+  ],
+  "portrait": {
+    "path": "src/CardGame.Wpf/Assets/official-ol-yang-hu.png",
+    "url": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/49700.png",
+    "advertisedCoverUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/49700.png",
+    "sha256": "755ad93e75dd94ca832811cfba101743ea3e377187f672c26ff37d563e36c63c",
+    "byteCount": 898824,
+    "width": 750,
+    "height": 950,
+    "officialSkinId": 49700,
+    "existedBefore": false,
+    "httpStatus": 200,
+    "downloadedAtUtc": "2026-10-08T12:45:08.195786+00:00",
+    "exactDownloadMatchesSavedFile": true,
+    "visuallyInspected": true,
+    "visualInspection": "Actually viewed saved PNG: intact long-haired male in blue and purple robes holding a sword, waves and blue sky. Identity attribution comes from the fresh official gid497 API cover binding, not visual identification.",
+    "artKeyProposal": "ol-yang-hu",
+    "defaultSkinIdProposal": "49700",
+    "registeredInCatalog": true
+  },
+  "catalogEntryProposal": {
+    "generalId": "ol:yang-hu",
+    "artKey": "ol-yang-hu",
+    "officialGeneralId": 497,
+    "defaultSkinId": "49700",
+    "sourcePage": "https://www.sanguosha.com/hero/497",
+    "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/49700.png",
+    "path": "src/CardGame.Wpf/Assets/official-ol-yang-hu.png",
+    "sha256": "755ad93e75dd94ca832811cfba101743ea3e377187f672c26ff37d563e36c63c",
+    "width": 750,
+    "height": 950,
+    "artist": "匠人绘",
+    "artistOrigin": "Current official character.sgs /GameCharacters/character/1191 ad"
+  },
+  "researchExecution": {
+    "noBuildOrTestRun": true,
+    "noLargeTemporaryFilesCreated": true,
+    "onlyAuthorizedNewSourceAndPortraitWritten": true,
+    "existingCatalogAndProductionUnmodified": true,
+    "earlierCleanupRejectionNotRetriedOrBypassed": true,
+    "rawResources": "Fetched and decoded in memory; no large raw bundles or temporary download tree retained.",
+    "appliesTo": "Historical initial source-research phase only, before R18 production changes and root-run validation."
+  },
+  "round18Audit": {
+    "verifiedAtUtc": "2026-10-08T13:25:16.791046+00:00",
+    "freshPrimaryByteChecks": [
+      {
+        "url": "https://www.sanguosha.com/hero/497",
+        "httpStatus": 200,
+        "capturedAtUtc": "2026-10-08T13:25:16.721334+00:00",
+        "sha256": "73994bea3a7f060871ce89269d1293dc247d3568c9ead5817f8bb0d0c88d30d9",
+        "byteCount": 25472,
+        "matchesPriorExactBytes": true
+      },
+      {
+        "url": "https://www.sanguosha.com/api/v1/hero/info?gid=497",
+        "httpStatus": 200,
+        "capturedAtUtc": "2026-10-08T13:25:16.790634+00:00",
+        "sha256": "34d75d099478bbdf70bee3bd544456af753c5ec1f36814da5e5cdaab54a5a25d",
+        "byteCount": 905,
+        "matchesPriorExactBytes": true
+      },
+      {
+        "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "httpStatus": 200,
+        "capturedAtUtc": "2026-10-08T13:25:16.707028+00:00",
+        "sha256": "6a035389beda8d0dbf31227f57a91b2da14d3d5055503198a227aef54f22bf76",
+        "byteCount": 5256312,
+        "matchesPriorExactBytes": true
+      },
+      {
+        "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+        "httpStatus": 200,
+        "capturedAtUtc": "2026-10-08T13:25:16.678191+00:00",
+        "sha256": "9e26cb3db90532084579a20c292d5fec0c81dcf3d5eb2abf2009bff0326237bb",
+        "byteCount": 4142728,
+        "matchesPriorExactBytes": true
+      }
+    ],
+    "targetedFaqFound": false,
+    "absenceMeaning": "Bounded current official search found no targeted ruling; this does not prove no such ruling exists.",
+    "officialOptionality": "Huaiyuan original-card loss benefit mandatory (no can/may); its death inheritance optional. Weishu locked/mandatory.",
+    "assets": "Existing official49700 portrait was actually viewed during source research; R18 fresh API body matched. The existing asset is now registered in the general gallery and art catalog."
+  },
+  "round18ImplementationContract": {
+    "generalId": "ol:yang-hu",
+    "skills": [
+      "ol:huaiyuan",
+      "ol:chongxin",
+      "ol:dezhang",
+      "ol:weishu"
+    ],
+    "acquiredOnly": [
+      "ol:weishu"
+    ],
+    "definitionFiles": [
+      "src/CardGame.Content.Standard/SkillPrograms/ordinary-yang-hu.rules.json",
+      "src/CardGame.Content.Standard/SkillPrograms/ordinary-yang-hu.presentation.json",
+      "src/CardGame.Content.Standard/OrdinaryYangHuContent.cs"
+    ],
+    "focusedBehaviorChecks": "tests/CardGame.Core.Tests/OrdinaryYangHuChecks.cs",
+    "status": "Implemented and registered; focused and measured routine scopes passed; see R18 verification evidence.",
+    "versionPolicy": "No per-character global replay/schema/package bump. Root separately controls justified shared old-behavior version changes."
+  },
+  "round18Acceptance": {
+    "report": "docs/benchmarks/2026-10-08-content-continuation-round18-verification.json",
+    "head": "fe90b66788b7d1866fa1e87f02d4993ad7bd0f3e",
+    "inputSha256": "32724d709449707aa5636e75af43dc99b390702e915d23985a4e41b7fa77e5bf",
+    "manualFullRun": false
+  }
+}

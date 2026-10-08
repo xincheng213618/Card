@@ -105,7 +105,10 @@ public sealed partial class GameEngine
             var context = parent.Contexts[parent.CandidateIndex];
             if (!CanRunProgramTrigger(candidate, context)) { AdvanceActualUseTargetCandidate(parent, false, false); continue; }
             ReplaceRuntimeTop(parent with { Step = ResolutionFrameStep.AwaitingResponse });
-            ExposeProgramTriggerDecision(candidate, context);
+            if (GetProgramTrigger(candidate).Optional)
+                ExposeProgramTriggerDecision(candidate, context);
+            else
+                BeginProgramBinding(candidate, context);
             return;
         }
     }

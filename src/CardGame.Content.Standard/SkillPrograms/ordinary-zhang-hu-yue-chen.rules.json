@@ -1,0 +1,174 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:xijue",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "initial-four-jue",
+          "window": "gameStarting",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "changeParticipantMarker",
+              "target": "owner",
+              "marker": "jue",
+              "amount": 4
+            }
+          ]
+        },
+        {
+          "id": "ending-actual-damage-jue",
+          "window": "turnEnding",
+          "subject": "owner",
+          "turnOwnerScope": "own",
+          "optional": false,
+          "effects": [
+            {
+              "op": "addEndingTurnDamageMarker",
+              "target": "owner",
+              "marker": "jue"
+            }
+          ]
+        },
+        {
+          "id": "jue-funded-tuxi",
+          "window": "drawPhaseStarting",
+          "subject": "owner",
+          "optional": true,
+          "priority": 100,
+          "drawPhaseMode": "replacement",
+          "effects": [
+            {
+              "op": "selectTargets",
+              "target": "owner",
+              "targetKind": "otherLivingWithHand",
+              "minimumTargets": 1,
+              "maximumTargets": 2,
+              "targetAiOrder": "hostileThenHandCount"
+            },
+            {
+              "op": "takeRandomHandCardFromSelectedTargets",
+              "target": "owner",
+              "amount": 1
+            }
+          ],
+          "markerCost": {
+            "marker": "jue",
+            "amount": 1
+          }
+        },
+        {
+          "id": "jue-funded-xiaoguo",
+          "window": "turnEnding",
+          "subject": "owner",
+          "turnOwnerScope": "otherLiving",
+          "optional": true,
+          "effects": [
+            {
+              "op": "selectAndMoveOwnedCard",
+              "target": "owner",
+              "chooserRef": {
+                "kind": "owner"
+              },
+              "cardOwnerRef": {
+                "kind": "owner"
+              },
+              "zones": [
+                "hand"
+              ],
+              "cardCategories": [
+                "basic"
+              ],
+              "count": 1,
+              "destination": "discardPile",
+              "awaitMovementTriggers": true
+            },
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "currentTurnPlayer"
+            },
+            {
+              "op": "chooseOption",
+              "target": "selectedTarget",
+              "resultBind": "xiaoguo-response",
+              "options": [
+                {
+                  "id": "discard-equipment",
+                  "condition": {
+                    "kind": "hasOwnedCardCategory",
+                    "zones": [
+                      "hand",
+                      "equipment"
+                    ],
+                    "cardCategories": [
+                      "equipment"
+                    ]
+                  }
+                },
+                {
+                  "id": "take-damage",
+                  "condition": {
+                    "kind": "always"
+                  }
+                }
+              ]
+            },
+            {
+              "op": "selectAndMoveOwnedCard",
+              "target": "owner",
+              "chooserRef": {
+                "kind": "selectedTarget"
+              },
+              "cardOwnerRef": {
+                "kind": "selectedTarget"
+              },
+              "zones": [
+                "hand",
+                "equipment"
+              ],
+              "cardCategories": [
+                "equipment"
+              ],
+              "count": 1,
+              "destination": "discardPile",
+              "awaitMovementTriggers": true,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "xiaoguo-response",
+                "optionId": "discard-equipment"
+              }
+            },
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 1,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "xiaoguo-response",
+                "optionId": "discard-equipment"
+              }
+            },
+            {
+              "op": "damage",
+              "target": "selectedTarget",
+              "amount": 1,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "xiaoguo-response",
+                "optionId": "take-damage"
+              }
+            }
+          ],
+          "markerCost": {
+            "marker": "jue",
+            "amount": 1
+          }
+        }
+      ]
+    }
+  ]
+}

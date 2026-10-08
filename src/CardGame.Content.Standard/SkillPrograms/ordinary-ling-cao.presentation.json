@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "ol:dujin": {
+      "name": "独进",
+      "description": "摸牌阶段，你可以多摸X+1张牌（X为装备区里的牌数的一半且向上取整）。"
+    }
+  }
+}

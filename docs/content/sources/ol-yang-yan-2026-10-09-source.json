@@ -1,0 +1,757 @@
+{
+  "sourceRecordSchemaVersion": 1,
+  "documentKind": "ordinary-ol-general-research-source",
+  "capturedAt": "2026-10-08T22:45:07.496713+00:00",
+  "localCaptureDate": "2026-10-09",
+  "status": "source verified; R28 implementation contracts being integrated; not registered or behavior accepted",
+  "sourceVerified": true,
+  "sourceRegistered": false,
+  "registered": false,
+  "productionImplemented": false,
+  "behaviorValidated": false,
+  "behaviorAccepted": false,
+  "generalIdProposal": "ol:yang-yan",
+  "characterName": "杨艳",
+  "officialId": 7016,
+  "rulesetId": "sanguosha-ol",
+  "variantProposal": "ordinary",
+  "sourcePage": "https://www.sanguosha.com/hero/7016",
+  "currentOfficialMetadata": {
+    "gid": 7016,
+    "name": "杨艳",
+    "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/7016.png",
+    "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/701600.png",
+    "label": [
+      "进攻",
+      "防御",
+      "辅助"
+    ],
+    "figure": "晋",
+    "figure_py": "jin",
+    "quality": "史诗",
+    "biography": "字琼芝，弘农郡华阴县（今陕西省华阴市）人，晋武帝司马炎第一任皇后，曹魏通事郎杨炳之女。泰始二年（266年），杨艳受册为皇后，深得晋武帝宠幸，生下三子三女，包括晋惠帝司马衷。",
+    "characteristic": "队友的铁锁连环使用时最好考虑上杨艳的状态。",
+    "hp": 3,
+    "initial_hp": 0,
+    "score": 0
+  },
+  "metadataInterpretation": {
+    "ordinaryMeans": "ordinary identity roster genre Other; quality is Epic, not common rarity",
+    "faction": "jin",
+    "maxHp": 3,
+    "initialHp": "API initial_hp 0 is the current full-HP sentinel, not a zero-HP start",
+    "gender": "female; current API biography explicitly identifies Empress and daughter, consistent with Config h=2",
+    "artist": "画师:游漫美绘",
+    "hasPrintedConcealment": false,
+    "concealmentEvidence": "Current hero and Config list only XianWan3039/XuanBei2 3095; neither skill has concealment or appearance text"
+  },
+  "character": {
+    "configMember": "character.sgs",
+    "recordPath": "GameCharacters.character[a=7016]",
+    "rawRecord": {
+      "a": 7016,
+      "b": "杨艳",
+      "d": "YangYan",
+      "e": 40,
+      "f": "40",
+      "g": 6,
+      "h": 2,
+      "i": 3,
+      "j": 3039,
+      "k": 3095,
+      "p": 2,
+      "q": "1",
+      "r": "9701601",
+      "y": "字琼芝，弘农郡华阴县（今陕西省华阴市）人，晋武帝司马炎第一任皇后，曹魏通事郎杨炳之女。泰始二年（266年），杨艳受册为皇后，深得晋武帝宠幸，生下三子三女，包括晋惠帝司马衷。",
+      "z": "队友的铁锁连环使用时最好考虑上杨艳的状态。",
+      "aa": 147,
+      "ab": "871,872",
+      "ad": "画师:游漫美绘",
+      "x": "陛下殊宠，####妾身何以为报？",
+      "am": "true",
+      "ap": 240,
+      "aq": 70,
+      "bx": 5200,
+      "LordCardRate1": 50,
+      "LordCardRate2": 49,
+      "cc": 0,
+      "starMax": 4
+    }
+  },
+  "skills": [
+    {
+      "numericId": 3039,
+      "key": "XianWan",
+      "name": "娴婉",
+      "currentOfficialText": "你可以进入连环状态，视为使用一张【闪】；你可以解除连环状态，视为使用一张【杀】。",
+      "configRecord": {
+        "a": 3039,
+        "b": "3",
+        "c": "娴婉",
+        "d": "XianWan",
+        "g": 6,
+        "h": 1,
+        "i": 2,
+        "o": "你可以进入连环状态，视为使用一张【闪】；你可以解除连环状态，视为使用一张【杀】。",
+        "v": "请选择杀的目标"
+      }
+    },
+    {
+      "numericId": 3095,
+      "key": "XuanBei2",
+      "name": "选备",
+      "currentOfficialText": "出牌阶段限一次，你可以选择一名其他角色区域内的一张牌，令其将此牌当无距离限制的【杀】对你使用，若此【杀】未对你造成伤害，你摸一张牌，否则你摸两张牌。",
+      "configRecord": {
+        "a": 3095,
+        "b": "3",
+        "c": "选备",
+        "d": "XuanBei2",
+        "e": 0,
+        "g": 5,
+        "h": 1,
+        "i": 2,
+        "n": 0,
+        "o": "出牌阶段限一次，你可以选择一名其他角色区域内的一张牌，令其将此牌当无距离限制的【杀】对你使用，若此【杀】未对你造成伤害，你摸一张牌，否则你摸两张牌。",
+        "v": "请选择一名目标",
+        "ae": "{0}将{1}的{2}当{3}对{4}使用"
+      }
+    }
+  ],
+  "officialSources": [
+    {
+      "url": "https://www.sanguosha.com/hero/7016",
+      "role": "current ordinary OL skill text",
+      "httpStatus": 200,
+      "rawBytes": 24838,
+      "rawSha256": "ca86b14a4a7d080956ffd2c9a4f7b12cfff0854f77e6a78479e79bde77f8f42f",
+      "decodedUtf8Sha256": "ca86b14a4a7d080956ffd2c9a4f7b12cfff0854f77e6a78479e79bde77f8f42f"
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=7016",
+      "role": "current metadata and official portrait URL",
+      "httpStatus": 200,
+      "rawBytes": 917,
+      "rawSha256": "e9bb657c74e64b5499e68521b703845783bc4ec191b361e26e76c6d9bef23d01",
+      "decodedUtf8Sha256": "e9bb657c74e64b5499e68521b703845783bc4ec191b361e26e76c6d9bef23d01"
+    },
+    {
+      "url": "https://www.sanguosha.com/hero",
+      "role": "current official roster; identity versus national-war and clan variants",
+      "httpStatus": 200,
+      "rawBytes": 1319990,
+      "rawSha256": "df68e4bb68731cf79e2ab27a2c970b251c75e084c321769d140bb3847e73bb26",
+      "decodedUtf8Sha256": "df68e4bb68731cf79e2ab27a2c970b251c75e084c321769d140bb3847e73bb26"
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20220104_3093_0715",
+      "role": "historical initial release; superseded XuanBei",
+      "httpStatus": 200,
+      "rawBytes": 391919,
+      "rawSha256": "9bf174206ba7e2f8fc34ccd468808be7ca88575131c3fdce258eabac68c88a76",
+      "decodedUtf8Sha256": "9bf174206ba7e2f8fc34ccd468808be7ca88575131c3fdce258eabac68c88a76"
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20220619_6179_4016",
+      "role": "formal June 23 2022 OL update replacing XuanBei; XianWan unchanged",
+      "httpStatus": 200,
+      "rawBytes": 79407,
+      "rawSha256": "c8e376aea1adb2cc102e2deffe9624865f8d13698b96cf8966b4c51400bc64da",
+      "decodedUtf8Sha256": "c8e376aea1adb2cc102e2deffe9624865f8d13698b96cf8966b4c51400bc64da"
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20220822_2139_1416",
+      "role": "later fix acknowledgement; no detailed XuanBei ruling",
+      "httpStatus": 200,
+      "rawBytes": 38167,
+      "rawSha256": "6c35ee23714a7e451e3488dfa9267b9ead0365674740d3a31a9c90923b1f0ca1",
+      "decodedUtf8Sha256": "6c35ee23714a7e451e3488dfa9267b9ead0365674740d3a31a9c90923b1f0ca1"
+    }
+  ],
+  "historicalVersionEvidence": [
+    {
+      "url": "https://www.sanguosha.com/news/20220104_3093_0715",
+      "role": "historical initial release; superseded XuanBei",
+      "bodyExcerpt": "杨艳 晋 3体力 选备 游戏开始时，你额外获得两张带强化效果的牌。每回合限一次，你使用带强化效果的牌后，你可将其交给一名其他角色。 娴婉 你可横置视为使用一张【闪】，或重置视为使用一张【杀】。 获得方式 获得方式1 充值返利可以获得 获得方式2 限时商城购买银色升阶礼包 获得方式3 限时商城购买五阶武将礼包 获得方式4 武将商城直接购买 获得方式5 开启杨艳新品宝箱随机获得 获得方式6 累计开启杨艳新品宝箱获得 2022-01-16 10:00:00起，杨艳上架武将商城 ，定价：5200元宝 商城上架 活动时间： 2022-01-10 10:00:00~2022-01-15 23:59:59 杨艳新品礼包 售价：300元宝 礼包内容： 购买后可得手气卡*1，并赠送杨艳新品宝箱*1；打开杨艳新品宝箱，可以获得武将杨艳（获得重复武将返还腊八粥），大将军印，史诗将印宝箱，枭雄金印，夺宝券等丰富道具其中之一 杨艳银色升阶礼包 售价：12500元宝（ 累计限购1个，不可赠送） 礼包内容： 杨艳+校尉将印*1+中郎将印*1+大将军印*1+拈针绣帕*杨艳 杨艳五阶武将升阶礼包 售价：22800元宝（ 累计限购1个，不可赠送） 礼包内容： 杨艳+校尉将印*1+中郎将印*1+大将军印*1+枭雄金印*1 枪出波涛礼包 售价：500元宝（ 枪出波涛折扣礼包：100通用元宝，每日限购2个，不可赠送，不可使用抵价券） 礼包内容： 购买后可得手气卡*1，并赠送枪出波涛宝箱*1； 打开宝箱可随机获得苏飞，唐咨"
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20220619_6179_4016",
+      "role": "formal June 23 2022 OL update replacing XuanBei; XianWan unchanged",
+      "bodyExcerpt": "杨艳 晋 3体力 技能 修改前 修改后 选备 游戏开始时，你额外获得两张带强化效果的牌。每回合限一次，你使用带强化效果的牌后，你可将其交给一名其他角色。 出牌阶段限一次，你可选择一名其他角色区域内的一张牌，令其将此牌当作无距离限制的【杀】对你使用。然后若此【杀】未对你造成伤害，你摸1张牌；否则你摸2张牌。 娴婉 你可横置视为使用一张【闪】，或重置视为使用一张【杀】。 不变 杨芷 晋 3体力 技能 修改前 修改后 婉嫕 出牌阶段，你可将一张带有强化效果的手牌当逐近弃远/出其不意/水淹七军/洞烛先机使用（每种牌名每回合限一次） 你使用【杀】或普通锦囊牌指定唯一其他角色为目标后，你可将其一张牌置于你的武将牌上，你不能使用/打出/弃置与你武将牌上的牌花色相同的牌。结束阶段或你受到伤害后，你令一名角色获得一张你武将牌上的牌。 埋祸 其他角色非因\"埋祸\"使用(实体非转化的)【杀】仅指定你为目标后，若其武将牌上没有牌，你可令此牌对你无效并将其置于其武将牌上，称为\"祸\"。其于下个出牌阶段开始时，对你使用此【杀】（需计算距离和合法性，计入牌的使用次数，若无法合法对你使用则置入弃牌堆）。你对其他角色造成伤害后，移除其武将牌上的“祸”。 不变 其他修改与优化 1、新增武将唐姬、界蔡文姬、SP孟获、贾充。 2、国战自动换皮肤功能修复。 3、羊祜怀远技能问题修复。 客服电话：0571-88133227 (9:00-21:00) 来访接待：杭州市滨江区拓森科技园 （周一至周五 9:00-17:00,法定假日"
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20220822_2139_1416",
+      "role": "later fix acknowledgement; no detailed XuanBei ruling",
+      "bodyExcerpt": "使用牌的问题。 8、选备、急援、机捷、草诏、据守、平寇、结营、节烈、抗歌、涯角、持节、奉迎、卫戍等技能问题修复。 9、修复描述中存在“交给”的部分技能交给行为设定错误而无法被【急援】【空城(国)】【奋激】识别的问题。 10、修复所有无距离限制的杀在新增目标时无"
+    }
+  ],
+  "clientEvidence": {
+    "bundle": {
+      "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+      "httpStatus": 200,
+      "rawBytes": 5256312,
+      "rawSha256": "6a035389beda8d0dbf31227f57a91b2da14d3d5055503198a227aef54f22bf76",
+      "decodedScriptUtf8Sha256": "f62c194174dd2ff4531bc44a795616b6a51f449a3c7c2bec5270f390da55f245"
+    },
+    "config": {
+      "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+      "httpStatus": 200,
+      "rawBytes": 4142728,
+      "rawSha256": "9e26cb3db90532084579a20c292d5fec0c81dcf3d5eb2abf2009bff0326237bb",
+      "members": [
+        {
+          "member": "character.sgs",
+          "decodedUtf8Bytes": 1485056,
+          "decodedUtf8Sha256": "b3ef3f1181e7fe667499cb688b7cdce56631d899dbb0eea55d75fbf80636b040"
+        },
+        {
+          "member": "cha_spell.sgs",
+          "decodedUtf8Bytes": 1166955,
+          "decodedUtf8Sha256": "39b83f6e2504590e262bb353bddfded546b83f83a7ea9199b67742b1bee68fc0"
+        },
+        {
+          "member": "cha_spellextend.sgs",
+          "decodedUtf8Bytes": 142008,
+          "decodedUtf8Sha256": "c1590878c67a5782b0526153223ea33fc0ca69e60bf863320d21dba6e590935e"
+        }
+      ]
+    },
+    "decoder": "Public InitOfb/pR.WorkParse AES-CFB128 then gzip; fetched and decoded only in memory. No importer write workflow, private/server resource or key bytes archived.",
+    "skillClasses": [
+      {
+        "skillKey": "XianWan",
+        "class": "PRi",
+        "decodedScriptCharacterOffset": 15769315,
+        "classUtf8Sha256": "3ef35925e885432d045e1b8988d1c02dee8946a7905f06b283ffa299b17c9175",
+        "classSource": "class PRi extends $Kt{constructor(){super(),this.activeMode=vCt.ACTIVE|vCt.PASSIVE|vCt.ASK,this.targetCountMin=1,this.targetCountMax=1,this.targetCanBeSelf=!1,this.timeLimitRound=Number.MAX_VALUE,this.allowMaxTargetWhenFixed=!0,this.avatarSkills.push(FCt.SHA,FCt.SHAN,FCt.QINGLONG,FCt.FANGONG_BOSS),this.requestSkill.push(FCt.SHA,FCt.SHAN),this.cardUseType=UCt.USE,this.areRangeLimit=!0,this.enableCancel=!0,this.touchSkillUseImmediately=!0,this.avatarSkillCardBaseType=OCt.BASIC}TouchSkillUseImmediately(t){return!!(t&&t.TargetSeatIDs&&t.TargetSeatIDs.length>0&&t.TargetSeatIDs.length==this.TargetCountMax)&&this.touchSkillUseImmediately}get AreRangeLimit(){return!(!this.Seat||!this.Seat.InActiveState)&&this.areRangeLimit}get TargetCountMax(){return this.IsRequestSkill(_Xt.GetInstance(FCt.SHA))?gf.I().UseShaTargetMax(this.Seat):0}IsRequestSkill(t){let i=super.IsRequestSkill(t);if(i){let s=this.Seat;if(s)if(s.InActiveState&&null==s.LastAttackByTheSkill)i=FCt.SHA==t.ID;else{if(s.LastAskSkill)return t.ID==s.LastAskSkill.ID;if(s.LastAttackByTheSkill){let e=_Xt.GetInstance(FCt.SHA);e&&e.IsOffsetSkill(s.LastAttackByTheSkill)&&(i=FCt.SHA==t.ID),e=_Xt.GetInstance(FCt.SHAN),e&&e.IsOffsetSkill(s.LastAttackByTheSkill)&&(i=FCt.SHAN==t.ID)}}}return i}get Activated(){let t=Laya.superGetter(PRi,this,\"Activated\");if(t&&(t=!this.IsNotAllowByShouFu),t){t=!1;var i=c1t.LastTriggerSpell;let s=this.Seat;if(s){if(s.GetStateValue(Ef.DATA_IS_CHARCARD_TAP)>0)this.IsRequestSkill(_Xt.GetInstance(FCt.SHA))&&(s.InActiveStateNew?t=gf.I().CanUseSha(s):!i||i.ID!=FCt.NANMAN&&i.ID!=FCt.JUEDOU?s.LastAskSkill?t=this.IsThis(s.LastAskSkill.ID):s.LastAttackByTheSkill&&(t=this.IsOffsetSkill(s.LastAttackByTheSkill)):t=!1);else if(this.IsRequestSkill(_Xt.GetInstance(FCt.SHAN))&&(0==s.InActiveState&&(!i||i.ID!=FCt.WANJIAN&&i.ID!=FCt.HUJIA?s.LastAskSkill?t=this.IsThis(s.LastAskSkill.ID):s.LastAttackByTheSkill&&(t=this.IsOffsetSkill(s.LastAttackByTheSkill)):t=!1),t)){let i=s.GetSeatState(Ef.DATA_FENDI);i&&i.Opened&&(t=!1)}}}if(t){let i=this.Seat.GetSeatState(Ef.DATA_FUHUNPO);i&&i.Opened&&(t=!1)}return t&&this.Seat&&this.Seat.CannotUseCardBySeatState&&(t=!1),t}get TargetSelector(){return this.targetSelector||(this.targetSelector=new IXt(this)),this.targetSelector}get AvatarSkillType(){return kCt.NORMAL_BASIC}Use(t,i,s=null,e=0){if(this.Seat){this.IsRequestSkill(_Xt.GetInstance(FCt.SHA))?this.params=[FCt.SHA]:this.params=[FCt.SHAN];let s=this.skillCard?this.skillCard.CardId:0;this.Seat.UseSkill(this.SkillId,s,i,t,this.SkillOnOtherSeatID,s,this.params),this.params=null}}get RetainRoleDataExLastParams(){return!1}}"
+      },
+      {
+        "skillKey": "XuanBei2",
+        "class": "eLi",
+        "decodedScriptCharacterOffset": 15669682,
+        "classUtf8Sha256": "a03c3d3248cd626f133503fe4cc8e73a0cce10694397fc38dd4fa25f922e7dca",
+        "classSource": "class eLi extends $Kt{constructor(){super(),this.activeMode=vCt.ACTIVE,this.targetCountMin=1,this.targetCountMax=1,this.targetCanBeSelf=!1,this.selectCardTypeWhenResponse=kCt.NORMAL|kCt.EQUIP|kCt.DECIDE|kCt.REGION,this.targetSelector=new mS(this,this.selectCardTypeWhenResponse)}GetSkillWindowDesc(t){let i=ewt.Select_Player_Card_In_Window;return ks.F(i,this.skillName,t.SeatName)}GetResponser(t){return t&&t.Type==IWi.OPT_SEL_CARD_TARGET?(this.responser||(this.responser=new NQt),this.responser):null}GetUseRecord(t,i,s,e,h=null){let r=c1t.GetSeat(t);if(!r&&!h)return;if(0==h.effectIndex)return super.GetUseRecord(t,i,s,e,h);let n=WZ.I(),a=n.GetSeatHtmlName(h&&h.SrcName||r.SeatName),l=h&&h.RealDestNames()||n.GetSeatHtmlNames(i);return ks.F(this.useTip,a,l,n.GetCardsHtmlNames(s),n.GetSkillHtmlName(FCt.SHA),a)}get RetainRoleDataExLastParams(){return!1}}"
+      }
+    ],
+    "helpers": {
+      "foreignAreaTargetSelector": {
+        "characterOffset": 1047413,
+        "source": "class mS extends df{constructor(t,i=0){super(t),this.type=i,kCt.NONE==i&&(this.type=kCt.NORMAL|kCt.EQUIP|kCt.DECIDE)}type=0;IsAllowSeat(t){let i=super.IsAllowSeat(t);return i&&(i=0==this.type,this.type&kCt.NORMAL&&0<t.HandCardCount||this.type&kCt.EQUIP&&0<t.EquipCardCount||this.type&kCt.DECIDE&&0<t.JudgeCardCount?i=!0:i||this.CheckTargetSelectByCardType(this.type,t),i&&(i=!t.IsInvisibleRelativeTo(this.skill,this))),i}InitSelect(){super.InitSelect(),this.type=this.skill.SelectCardTypeWhenResponse}EndSelect(){super.EndSelect()}}class NS extends df{effectId=0;constructor(t){super(t),this.needRelayoutAfterChange=!0}set EffectId(t){this.effectId=t}IsAllowSeat(t){let "
+      },
+      "genericForeignCardSelection": {
+        "characterOffset": 9761900,
+        "source": "class NQt extends NIt{constructor(){super()}NeedConfirm=!0;Response(t){if(t){c1t.LastTriggerTargetSeatId=t.TargetSeatID;let i,s=c1t.GetSeat(t.SrcSeatID),e=0;s&&(i=s.GetGeneralSkill(t.SpellID)),i=i||t.Spell,c1t.LastTriggerSpell=i,e=i?i.SelectCardTypeWhenResponse:this.getSelectCardType(t.Type),t.SpellID==FCt.YAJIAO_JIEXIANTUPO||t.SpellID==FCt.ZHONGYUN_JIN||t.SpellID==FCt.CAIWANG_JIN||t.SpellID==FCt.SIJIAN_GUO||JJt.I().CloseCurrentGameWindow();let h=c1t.GetSeat(t.TargetSeatID);h||(h=s);let r=this.WindowName||\"SelectCardWindow\";if(t.SpellID==FCt.KANPO1||t.SpellID==FCt.DULIANG2||t.SpellID==FCt.JUEJI1||t.SpellID==FCt.HUYI)this.Ged.i(r,{TargetSeat:h,CardType:e,Timeout:t.Timeout,Skill:i,needConfirm:this.NeedConfirm,Params:t.Params});else if(c1t.isShow3d){let i=0;t.SpellID==FCt.HANBINGJIAN?i=1e3:t.SpellID==FCt.GUOCHAI&&(i=1200),i>0?Laya.timer.once(i,this,(()=>{this.Ged.i(r,{TargetSeat:h,CardType:e,Timeout:t.Timeout,Skill:t.Spell,needCo"
+      },
+      "nativeSlashAvailability": {
+        "characterOffset": 925512,
+        "source": "CanUseSha(t,i){return!gf.I().CheckShaIsdisabledByStates(t)&&(!!gf.I().CanUseShaToAll(t)||!!gf.I().CheckShaIsUnlimitRound(t,i))}CanUseEquipAsSha(t,i){if(!t||!i)return!1;if(t.Equipped){if(gf.I().CanUseShaToAllWithGeneralSkill(i))ret"
+      }
+    },
+    "limits": "Client input/selection code is direct primary evidence for public client entry gates, not a live server match or proof of all downstream interaction rulings."
+  },
+  "artwork": {
+    "sourceUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/701600.png",
+    "downloaded": true,
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-yang-yan.png",
+    "sha256": "27836a4535f5946935dd36dfc20e3306105c7840828933c08b03c1c4bf4414d2",
+    "byteCount": 1151768,
+    "pixelWidth": 750,
+    "pixelHeight": 950,
+    "visuallyInspected": true,
+    "status": "current official portrait downloaded by root implementation task and visually inspected without editing"
+  },
+  "implementationMapping": {
+    "xianwan": {
+      "status": "proposed shared capability; ABI and runtime pending",
+      "input": "zero physical cards; use-only normal Slash or own Slash-defense Dodge; never generic response-only conversion",
+      "cost": "actual unchained to chained for Dodge, actual chained to unchained for Slash; freeze typed payment on owning frame and drain native character-state children before issuing the requested use",
+      "entryEvidence": "PRi.activeMode ACTIVE|PASSIVE|ASK; cardUseType UCt.USE; tap>0 selects SHA, tap==0 selects SHAN. Active Slash checks gf.CanUseSha; ordinary IXt target selector retains native distance and target legality",
+      "excludedResponseEvidence": "PRi excludes NANMAN/JUEDOU for SHA and WANJIAN/HUJIA for SHAN; use-only requested Slash such as BorrowedSword remains distinct from pure Response",
+      "additionalClientGates": "IsNotAllowByShouFu (also WangShi2020), DATA_FUHUNPO, CannotUseCardBySeatState; Dodge additionally checks DATA_FENDI",
+      "inference": "A prevented entry or forced-chain refusal to unchain cannot pay the stated real state-change cost. Refuse before issuing a card; do not make a no-op state mutation count as payment. No dedicated official XianWan/QianJie/JieYing cross-FAQ located."
+    },
+    "xuanbei": {
+      "status": "proposed shared capability; exact descriptor pending",
+      "activation": "owner own Play once per phase; choose one other living participant with an eligible region entity",
+      "selection": "owner selects exactly one foreign owned physical entity; current eLi declares NORMAL|EQUIP|DECIDE|REGION and mS explicitly checks Hand/Equipment/Judgment counts. Preserve hidden-hand privacy",
+      "actorAndDirection": "the selected foreign participant is the real ordinary Slash actor/provider; chosen entity is its sole physical material from original location; initial target and Draw beneficiary are the skill owner",
+      "forcedUse": "current text says command them to use, not they may use. eLi presents owner card selection and has no foreign decline path; do not introduce an optional refusal",
+      "distanceAndQuota": "only distance is explicitly unlimited; retain native prohibition/target legality and actual use/quota rules. Foreign out-of-turn instructed Use is not an own-Play quota opportunity. No text authorizes unlimited-use or quota refund",
+      "completion": "wait for exact native Use and all material/equipment/response/HP/Dying/completed children; then Draw2 if that exact Use caused real DamageApplied to the owner, otherwise Draw1. Rewards do not depend on unrelated concurrent damage or total match damage",
+      "inference": "exact owning-use damage proof, once receipt and post-child reward are engine mappings of the current wording and June 2022 then-clause, not independently verified live server rulings"
+    }
+  },
+  "openQuestions": [
+    {
+      "topic": "XianWan chain-prevention or force-chain interactions",
+      "status": "engine-mapping inference",
+      "detail": "No dedicated primary FAQ found. Client PRi reads tap state but has no explicit QianJie/JieYing payment-success branch. Require the actual requested state transition to succeed; retain exact once cost across children."
+    },
+    {
+      "topic": "XuanBei illegal instructed Use after payment or target loss",
+      "status": "not officially adjudicated in bounded research",
+      "detail": "No detailed primary ruling found for actor/target dying, use prohibition or material loss during equipment-leave children. Implement a documented native legality boundary and one final reward decision; do not invent foreign decline or retry payment."
+    },
+    {
+      "topic": "XuanBei unusual REGION cards and movement protection",
+      "status": "not fully adjudicated",
+      "detail": "NORMAL/EQUIP/DECIDE directly prove HEJ; REGION is also set. Whether every special region/pile entity is selectable depends on generic client region filtering/server permissions; do not silently equate it to all public persistent piles."
+    },
+    {
+      "topic": "XuanBei per-use quota under extra Play or instructed use",
+      "status": "engine mapping pending final root contract",
+      "detail": "Only distance exemption is printed. Preserve native real Use semantics; do not import the old requestedSlash helper quota bypass without justification."
+    },
+    {
+      "topic": "XianWan state-child changes or source loss after real cost",
+      "status": "engine mapping pending typed receipt",
+      "detail": "Once paid, no second chain mutation on cold resume. Whether a source lost before issuance should cancel or continue must follow a single explicit paid-continuation contract."
+    }
+  ],
+  "existingCapabilityAudit": [
+    {
+      "file": "src/CardGame.Core/GameEngine.ProgramLifecycle.cs",
+      "symbol": "SetProgramChainedState",
+      "reusable": "native state mutation/event; alone does not provide zero-card response payment receipt"
+    },
+    {
+      "file": "src/CardGame.Core/GameEngine.EquipmentSlotGroupPrograms.cs",
+      "symbol": "ResolveEnteringChain",
+      "reusable": "prevent-entering-chain policy; ForceChained checked by normal producer"
+    },
+    {
+      "file": "src/CardGame.Core/GameEngine.TieredRoundZeroResponses.cs",
+      "symbol": "ResolveTieredRoundZeroDodge",
+      "reusable": "real own Slash-defense zero-Dodge continuation; tiered payment contract itself must not be reused as XianWan"
+    },
+    {
+      "file": "src/CardGame.Core/GameEngine.VirtualBasicOffers.cs",
+      "symbol": "VirtualBasicOptions",
+      "limit": "own Play Slash/Peach/Alcohol only; no Dodge entry"
+    },
+    {
+      "file": "src/CardGame.Core/GameEngine.SkillPrograms.cs",
+      "symbol": "UseProgramBoundCardByTarget",
+      "limit": "one public hand equipment self-use only, not foreign HEJ converted Slash"
+    },
+    {
+      "file": "src/CardGame.Core/GameEngine.InspectedHandSlashReturns.cs",
+      "symbol": "IssueInspectedHandSlash",
+      "limit": "fixed owner actor and zero physical material, not XuanBei"
+    },
+    {
+      "file": "src/CardGame.Core/SkillPrograms.cs",
+      "symbol": "RequestedSlashDamagedOwner parse gate",
+      "limit": "currently requires requestedSlash composition; no free generic proof for any new foreign entity use"
+    }
+  ],
+  "nextBehaviorScope": [
+    "XianWan unchained Dodge and chained Slash, real request/use-only versus pure Response exclusions, ordinary distance/quota/prohibition",
+    "PreventEnteringChain and ForceChained cannot pay; native character-state child then cold recovery without second cost or issuance",
+    "XuanBei real foreign Hand/Equipment/Judgment sole entity use, owner-controlled private selection and no foreign decline",
+    "Equipment departure recovery/Dying and card/skill loss children retain exact owning continuation; cold replay cost once",
+    "Exact-use DamageApplied to owner yields Draw2; Dodge/armor prevention/redirect-away yields Draw1; unrelated or source-less damage does not substitute",
+    "Activation per-phase once, extra phase reset, missing/tampered receipt and wrong-owner commands rejected"
+  ],
+  "rosterAudit": {
+    "currentOrdinaryJinCount": 24,
+    "currentOrdinaryJin": [
+      {
+        "gid": 354,
+        "name": "左棻",
+        "sourcePage": "https://www.sanguosha.com/hero/354",
+        "genre": "其他"
+      },
+      {
+        "gid": 358,
+        "name": "宣公主",
+        "sourcePage": "https://www.sanguosha.com/hero/358",
+        "genre": "其他"
+      },
+      {
+        "gid": 497,
+        "name": "羊祜",
+        "sourcePage": "https://www.sanguosha.com/hero/497",
+        "genre": "其他"
+      },
+      {
+        "gid": 508,
+        "name": "郭槐",
+        "sourcePage": "https://www.sanguosha.com/hero/508",
+        "genre": "其他"
+      },
+      {
+        "gid": 518,
+        "name": "周处",
+        "sourcePage": "https://www.sanguosha.com/hero/518",
+        "genre": "其他"
+      },
+      {
+        "gid": 544,
+        "name": "张华",
+        "sourcePage": "https://www.sanguosha.com/hero/544",
+        "genre": "其他"
+      },
+      {
+        "gid": 7000,
+        "name": "张虎乐綝",
+        "sourcePage": "https://www.sanguosha.com/hero/7000",
+        "genre": "其他"
+      },
+      {
+        "gid": 7001,
+        "name": "夏侯徽",
+        "sourcePage": "https://www.sanguosha.com/hero/7001",
+        "genre": "其他"
+      },
+      {
+        "gid": 7002,
+        "name": "司马师",
+        "sourcePage": "https://www.sanguosha.com/hero/7002",
+        "genre": "其他"
+      },
+      {
+        "gid": 7003,
+        "name": "晋司马懿",
+        "sourcePage": "https://www.sanguosha.com/hero/7003",
+        "genre": "其他"
+      },
+      {
+        "gid": 7004,
+        "name": "司马昭",
+        "sourcePage": "https://www.sanguosha.com/hero/7004",
+        "genre": "其他"
+      },
+      {
+        "gid": 7005,
+        "name": "王元姬",
+        "sourcePage": "https://www.sanguosha.com/hero/7005",
+        "genre": "其他"
+      },
+      {
+        "gid": 7006,
+        "name": "杜预",
+        "sourcePage": "https://www.sanguosha.com/hero/7006",
+        "genre": "其他"
+      },
+      {
+        "gid": 7007,
+        "name": "晋张春华",
+        "sourcePage": "https://www.sanguosha.com/hero/7007",
+        "genre": "其他"
+      },
+      {
+        "gid": 7008,
+        "name": "羊徽瑜",
+        "sourcePage": "https://www.sanguosha.com/hero/7008",
+        "genre": "其他"
+      },
+      {
+        "gid": 7009,
+        "name": "石苞",
+        "sourcePage": "https://www.sanguosha.com/hero/7009",
+        "genre": "其他"
+      },
+      {
+        "gid": 7011,
+        "name": "司马伷",
+        "sourcePage": "https://www.sanguosha.com/hero/7011",
+        "genre": "其他"
+      },
+      {
+        "gid": 7013,
+        "name": "卫瓘",
+        "sourcePage": "https://www.sanguosha.com/hero/7013",
+        "genre": "其他"
+      },
+      {
+        "gid": 7014,
+        "name": "钟琰",
+        "sourcePage": "https://www.sanguosha.com/hero/7014",
+        "genre": "其他"
+      },
+      {
+        "gid": 7016,
+        "name": "杨艳",
+        "sourcePage": "https://www.sanguosha.com/hero/7016",
+        "genre": "其他"
+      },
+      {
+        "gid": 7017,
+        "name": "杨芷",
+        "sourcePage": "https://www.sanguosha.com/hero/7017",
+        "genre": "其他"
+      },
+      {
+        "gid": 7018,
+        "name": "辛敞",
+        "sourcePage": "https://www.sanguosha.com/hero/7018",
+        "genre": "其他"
+      },
+      {
+        "gid": 7019,
+        "name": "贾充",
+        "sourcePage": "https://www.sanguosha.com/hero/7019",
+        "genre": "其他"
+      },
+      {
+        "gid": 7020,
+        "name": "王祥",
+        "sourcePage": "https://www.sanguosha.com/hero/7020",
+        "genre": "其他"
+      }
+    ],
+    "liveRegisteredJin": [
+      {
+        "generalId": "ol:zhang-hu-yue-chen",
+        "name": "张虎乐綝",
+        "module": "OrdinaryZhangHuYueChenContent"
+      },
+      {
+        "generalId": "ol:wei-guan",
+        "name": "卫瓘",
+        "module": "OrdinaryWeiGuanContent"
+      },
+      {
+        "generalId": "ol:wang-xiang",
+        "name": "王祥",
+        "module": "OrdinaryWangXiangContent"
+      },
+      {
+        "generalId": "ol:du-yu",
+        "name": "杜预",
+        "module": "OrdinaryDuYuContent"
+      },
+      {
+        "generalId": "ol:jia-chong",
+        "name": "贾充",
+        "module": "OrdinaryJiaChongContent"
+      },
+      {
+        "generalId": "ol:yang-hu",
+        "name": "羊祜",
+        "module": "OrdinaryYangHuContent"
+      },
+      {
+        "generalId": "ol:guo-huai",
+        "name": "郭槐",
+        "module": "OrdinaryGuoHuaiContent"
+      },
+      {
+        "generalId": "ol:zhou-chu",
+        "name": "周处",
+        "module": "OrdinaryZhouChuContent"
+      },
+      {
+        "generalId": "ol:zuo-fen",
+        "name": "左棻",
+        "module": "OrdinaryZuoFenContent"
+      },
+      {
+        "generalId": "ol:zhang-hua",
+        "name": "张华",
+        "module": "OrdinaryZhangHuaContent"
+      },
+      {
+        "generalId": "ol:sima-zhou",
+        "name": "司马伷",
+        "module": "OrdinarySimaZhouContent"
+      },
+      {
+        "generalId": "ol:xin-chang",
+        "name": "辛敞",
+        "module": "OrdinaryXinChangContent"
+      },
+      {
+        "generalId": "ol:shi-bao",
+        "name": "石苞",
+        "module": "OrdinaryShiBaoContent"
+      }
+    ],
+    "liveRegisteredJinCount": 13,
+    "remainingAtCapture": [
+      {
+        "gid": 358,
+        "name": "宣公主",
+        "sourcePage": "https://www.sanguosha.com/hero/358",
+        "genre": "其他"
+      },
+      {
+        "gid": 7001,
+        "name": "夏侯徽",
+        "sourcePage": "https://www.sanguosha.com/hero/7001",
+        "genre": "其他"
+      },
+      {
+        "gid": 7002,
+        "name": "司马师",
+        "sourcePage": "https://www.sanguosha.com/hero/7002",
+        "genre": "其他"
+      },
+      {
+        "gid": 7003,
+        "name": "晋司马懿",
+        "sourcePage": "https://www.sanguosha.com/hero/7003",
+        "genre": "其他"
+      },
+      {
+        "gid": 7004,
+        "name": "司马昭",
+        "sourcePage": "https://www.sanguosha.com/hero/7004",
+        "genre": "其他"
+      },
+      {
+        "gid": 7005,
+        "name": "王元姬",
+        "sourcePage": "https://www.sanguosha.com/hero/7005",
+        "genre": "其他"
+      },
+      {
+        "gid": 7007,
+        "name": "晋张春华",
+        "sourcePage": "https://www.sanguosha.com/hero/7007",
+        "genre": "其他"
+      },
+      {
+        "gid": 7008,
+        "name": "羊徽瑜",
+        "sourcePage": "https://www.sanguosha.com/hero/7008",
+        "genre": "其他"
+      },
+      {
+        "gid": 7014,
+        "name": "钟琰",
+        "sourcePage": "https://www.sanguosha.com/hero/7014",
+        "genre": "其他"
+      },
+      {
+        "gid": 7016,
+        "name": "杨艳",
+        "sourcePage": "https://www.sanguosha.com/hero/7016",
+        "genre": "其他"
+      },
+      {
+        "gid": 7017,
+        "name": "杨芷",
+        "sourcePage": "https://www.sanguosha.com/hero/7017",
+        "genre": "其他"
+      }
+    ],
+    "finding": "All remaining except ZhongYan7014/YangYan7016/YangZhi7017 have explicit concealment in current Config. XuanGongZhu358 has all three GaoLing3069/QiMei3070/ZhuiJiTJ3071 and cannot be fully delivered by dropping GaoLing. No other zero-gap nonconcealed candidate found in the current ordinary24 set.",
+    "remainingConcealmentEvidence": [
+      {
+        "gid": 358,
+        "name": "宣公主",
+        "concealmentSkills": [
+          {
+            "numericId": 3069,
+            "key": "GaoLing",
+            "name": "高陵",
+            "currentOfficialText": "隐匿。当你于其他角色回合登场时，你可以令一名角色回复1点体力。"
+          }
+        ]
+      },
+      {
+        "gid": 7001,
+        "name": "夏侯徽",
+        "concealmentSkills": [
+          {
+            "numericId": 7001,
+            "key": "BaoQie",
+            "name": "宝箧",
+            "currentOfficialText": "隐匿。锁定技，你获得牌堆或弃牌堆中的一张宝物牌，然后选择是否使用之。"
+          }
+        ]
+      },
+      {
+        "gid": 7002,
+        "name": "司马师",
+        "concealmentSkills": [
+          {
+            "numericId": 7004,
+            "key": "TaoYin",
+            "name": "韬隐",
+            "currentOfficialText": "隐匿。当你于其他角色的回合登场后，你可以令其本回合手牌上限-2。"
+          }
+        ]
+      },
+      {
+        "gid": 7003,
+        "name": "司马懿",
+        "concealmentSkills": [
+          {
+            "numericId": 7008,
+            "key": "BuChen",
+            "name": "不臣",
+            "currentOfficialText": "隐匿。当你于其他角色的回合登场后，你可以获得其一张牌。"
+          }
+        ]
+      },
+      {
+        "gid": 7004,
+        "name": "司马昭",
+        "concealmentSkills": [
+          {
+            "numericId": 7012,
+            "key": "TuiShi",
+            "name": "推弑",
+            "currentOfficialText": "隐匿。若你于其他角色的回合登场，此回合结束阶段，你可以令其选择一项：<br>&nbsp;1.对其攻击范围内你选择的一名角色使用【杀】；<br>&nbsp;2.你对其造成1点伤害。"
+          }
+        ]
+      },
+      {
+        "gid": 7005,
+        "name": "王元姬",
+        "concealmentSkills": [
+          {
+            "numericId": 7016,
+            "key": "ShiRen",
+            "name": "识人",
+            "currentOfficialText": "隐匿。当你于其他角色的回合登场后，若其有手牌，你可以对其发动“宴戏”。"
+          }
+        ]
+      },
+      {
+        "gid": 7007,
+        "name": "张春华",
+        "concealmentSkills": [
+          {
+            "numericId": 7023,
+            "key": "XuanMu",
+            "name": "宣穆",
+            "currentOfficialText": "隐匿。锁定技，当你于其他角色的回合登场时，你本回合防止你受到的伤害。"
+          }
+        ]
+      },
+      {
+        "gid": 7008,
+        "name": "羊徽瑜",
+        "concealmentSkills": [
+          {
+            "numericId": 7024,
+            "key": "HuiRong",
+            "name": "慧容",
+            "currentOfficialText": "隐匿。锁定技，当你登场时，你令一名角色将手牌调整至体力值（至多摸至五张）。"
+          }
+        ]
+      }
+    ]
+  },
+  "workBoundary": {
+    "onlyNewOwnedSourceFile": "docs/content/sources/ol-yang-yan-2026-10-09-source.json",
+    "downloadedPortrait": false,
+    "createdTemporaryOutputs": false,
+    "buildRun": false,
+    "testsRun": false,
+    "researchDoesNotAcceptCharacter": true,
+    "phase": "initial source research only; implementation task is recorded separately below"
+  },
+  "implementation": {
+    "generalId": "ol:yang-yan",
+    "skillIds": [
+      "ol:xianwan",
+      "ol:xuanbei-current"
+    ],
+    "artworkDelivered": true,
+    "status": "content and portrait integrated; runtime verification pending"
+  }
+}

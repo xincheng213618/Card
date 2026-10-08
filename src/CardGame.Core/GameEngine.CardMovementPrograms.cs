@@ -25,18 +25,8 @@ public sealed partial class GameEngine
         int turnNumber,
         IReadOnlyDictionary<CardLocation, int> sourceCountsBefore,
         IReadOnlyDictionary<CardLocation, int> destinationCountsBefore,
-        ProgramSkillFrame? originProgram,
-        Action? finalize = null) : IDisposable
+        ProgramSkillFrame? originProgram)
     {
-        private bool _completed;
-
-        public void Dispose()
-        {
-            if (_completed) return;
-            _completed = true;
-            finalize?.Invoke();
-        }
-
         public long Id { get; } = id;
         public long? ParentFrameId { get; } = parentFrameId;
         public long? ParentBatchId { get; } = parentBatchId;
@@ -58,6 +48,7 @@ public sealed partial class GameEngine
             ++_resolutionSequence,
             _resolutionStack.LastOrDefault()?.Id,
             _activeCardMovementBatchIds.TryPeek(out var parentBatchId) ? parentBatchId : null,
+            _resolutionStack.LastOrDefault() is not DrawFundedDistinctBasicFrame &&
             _resolutionStack.OfType<ProgramSkillFrame>().LastOrDefault() is
                 { } awaited && IsAwaitingProgramMovement(awaited)
                     ? awaited.Id : null,
@@ -68,37 +59,6 @@ public sealed partial class GameEngine
         _activeCardMovementBatchIds.Push(batch.Id);
         return batch;
     }
-    // Scope for callers that perform their own per-move fact emission: the
-    // movements still join one atomic batch and its completion facts, but the
-    // per-move CardMoved events stay suppressed until the scope disposes.
-    private CardMovementBatchBuilder BeginCardMovementBatch(bool emitCardMovedEvents = true)
-    {
-        var batch = new CardMovementBatchBuilder(
-            ++_resolutionSequence,
-            _resolutionStack.LastOrDefault()?.Id,
-            _activeCardMovementBatchIds.TryPeek(out var parentBatchId) ? parentBatchId : null,
-            _resolutionStack.OfType<ProgramSkillFrame>().LastOrDefault() is
-                { } awaited && IsAwaitingProgramMovement(awaited)
-                    ? awaited.Id : null,
-            _turnNumber,
-            new Dictionary<CardLocation, int>(),
-            new Dictionary<CardLocation, int>(),
-            _resolutionStack.OfType<ProgramSkillFrame>().LastOrDefault()) { MovementTiming = CaptureMovementTiming(), DiscardRecoveryPhase = CurrentActualDiscardRecoveryPhase() };
-        _activeCardMovementBatchIds.Push(batch.Id);
-        if (!emitCardMovedEvents) _suppressedCardMovedEventBatchIds.Push(batch.Id);
-        return batch;
-    }
-
-    private void CompleteScopedCardMovementBatch(CardMovementBatchBuilder batch)
-    {
-        if (_suppressedCardMovedEventBatchIds.TryPop(out var suppressed) || true)
-        {
-            if (_activeCardMovementBatchIds.TryPeek(out var active) && active == batch.Id)
-                _activeCardMovementBatchIds.Pop();
-        }
-        CompleteCardMovementBatch(batch, Array.Empty<CardMovementRecord>(), committed: true);
-    }
-
     private void CompleteCardMovementBatch(
         CardMovementBatchBuilder batch,
         IReadOnlyList<CardMovementRecord> movements,
@@ -123,6 +83,7 @@ public sealed partial class GameEngine
         CaptureTurnRedDiscardCount(batch.TurnNumber,movements);
         CaptureActionDiscardFact(batch.Id,batch.TurnNumber,movements);
         CaptureSettledActionCards(batch.Id,batch.TurnNumber,movements);
+        CaptureOffTurnUsedCards(batch.Id,batch.TurnNumber,movements);
         CaptureFirstGameDomainCrossings(batch.Id,batch.TurnNumber,movements);
         var completed = new CardMovementBatchContext(
             batch.Id,
@@ -155,6 +116,8 @@ public sealed partial class GameEngine
 
     private bool TryBeginCardsMovedProgramWindow(long? instructionFrameId = null, int? subjectSeat = null)
     {
+        var drawFunded = _resolutionStack.LastOrDefault() is DrawFundedDistinctBasicFrame funded &&
+            funded.Id == instructionFrameId ? funded : null;
         var factionRequestCost = _resolutionStack.LastOrDefault() is { PaidFactionRequestCostRecovery: not null } paidRequest &&
             paidRequest.Id == instructionFrameId ? paidRequest : null;
         var awaitingFrame = factionRequestCost is null && _resolutionStack.LastOrDefault() is ProgramSkillFrame program &&
@@ -168,12 +131,12 @@ public sealed partial class GameEngine
         var counterspellPayment = _resolutionStack.LastOrDefault() is NullificationWindowFrame { CounterspellPayment: not null } counter && counter.Id == instructionFrameId ? counter : null;
         var historicalEnding = _resolutionStack.LastOrDefault() is CardUseFrame { EndingHistoricalUseReturn: not null, EndingHistoricalCostDrained: false } history && history.Id == instructionFrameId ? history : null;
         var roundPileAlcohol = _resolutionStack.LastOrDefault() is CardUseFrame { RoundPileAlcoholReturn: not null, RoundPileAlcoholCostDrained: false } wine && wine.Id == instructionFrameId ? wine : null;
-        bool Eligible(CardMovementBatchContext batch) => historicalEnding is not null ? batch.ParentFrameId == historicalEnding.Id && batch.AwaitingProgramFrameId is null : roundPileAlcohol is not null ? batch.ParentFrameId == roundPileAlcohol.Id && batch.AwaitingProgramFrameId is null : counterspellPayment is not null ? batch.ParentFrameId == counterspellPayment.Id && batch.AwaitingProgramFrameId is null : colorFireAttack is not null ? batch.ParentFrameId == colorFireAttack.Id && batch.AwaitingProgramFrameId is null : drawPhase is not null ? batch.ParentFrameId == drawPhase.Id || drawPhase.InheritedMovementBatchIds?.Contains(batch.Id) == true : factionRequestCost is not null ? batch.ParentFrameId == factionRequestCost.Id : equipmentRecast is not null ? batch.ParentFrameId == equipmentRecast.Id : recoveryReplacement is not null ? batch.ParentFrameId == recoveryReplacement.Id : declaration is not null ? batch.ParentFrameId == declaration.Id : awaitingFrame is null
+        bool Eligible(CardMovementBatchContext batch) => awaitingFrame is not null && IsSelectedForeignCardSlashMovementBatch(awaitingFrame, batch) || (drawFunded is not null ? batch.ParentFrameId == drawFunded.Id && batch.AwaitingProgramFrameId is null : historicalEnding is not null ? batch.ParentFrameId == historicalEnding.Id && batch.AwaitingProgramFrameId is null : roundPileAlcohol is not null ? batch.ParentFrameId == roundPileAlcohol.Id && batch.AwaitingProgramFrameId is null : counterspellPayment is not null ? batch.ParentFrameId == counterspellPayment.Id && batch.AwaitingProgramFrameId is null : colorFireAttack is not null ? batch.ParentFrameId == colorFireAttack.Id && batch.AwaitingProgramFrameId is null : drawPhase is not null ? batch.ParentFrameId == drawPhase.Id || drawPhase.InheritedMovementBatchIds?.Contains(batch.Id) == true : factionRequestCost is not null ? batch.ParentFrameId == factionRequestCost.Id : equipmentRecast is not null ? batch.ParentFrameId == equipmentRecast.Id : recoveryReplacement is not null ? batch.ParentFrameId == recoveryReplacement.Id : declaration is not null ? batch.ParentFrameId == declaration.Id : awaitingFrame is null
             ? batch.AwaitingProgramFrameId is null
             : batch.AwaitingProgramFrameId == awaitingFrame.Id ||
-              batch.AwaitingProgramFrameId is null && batch.ParentFrameId == awaitingFrame.Id;
+              batch.AwaitingProgramFrameId is null && batch.ParentFrameId == awaitingFrame.Id);
         if (_pendingDecision is not null ||
-            (_resolutionStack.Count != 0 && awaitingFrame is null && declaration is null && recoveryReplacement is null && equipmentRecast is null && factionRequestCost is null && drawPhase is null && colorFireAttack is null && counterspellPayment is null && roundPileAlcohol is null && historicalEnding is null) ||
+            (_resolutionStack.Count != 0 && awaitingFrame is null && declaration is null && recoveryReplacement is null && equipmentRecast is null && factionRequestCost is null && drawPhase is null && colorFireAttack is null && counterspellPayment is null && roundPileAlcohol is null && historicalEnding is null && drawFunded is null) ||
             _winner != Winner.None || _status == EngineStatus.Completed)
             return false;
 
@@ -189,6 +152,8 @@ public sealed partial class GameEngine
             var window = CreateCardsMovedProgramWindow(batch,
                 awaitingFrame is not null && !IsAwaitingProgramMovement(awaitingFrame) ? awaitingFrame.Id : null);
             if (window is null) continue;
+            if (awaitingFrame is not null && IsSelectedForeignCardSlashMovementBatch(awaitingFrame, batch))
+                window = window with { ResumeProgramFrameId = awaitingFrame.Id };
             if (recoveryReplacement is not null) window = window with { ResumeRecoveryReplacementFrameId = recoveryReplacement.Id };
             if (equipmentRecast is not null) window = window with { ResumeEquipmentRecastFrameId = equipmentRecast.Id };
             if (drawPhase is not null) window = window with { ResumeDrawPhaseObligationFrameId = drawPhase.Id };
@@ -197,6 +162,11 @@ public sealed partial class GameEngine
             if (historicalEnding is not null) window = window with { ResumeHistoricalEndingUseFrameId = historicalEnding.Id };
             if (roundPileAlcohol is not null) window = window with { ResumeRoundPileAlcoholUseFrameId = roundPileAlcohol.Id };
             if (factionRequestCost is not null) window = window with { ResumeFactionRequestCostFrameId = factionRequestCost.Id, ResumeProgramFrameId = null };
+            if (drawFunded is not null)
+            {
+                window = window with { ResumeDrawFundedDistinctBasicFrameId = drawFunded.Id, ResumeProgramFrameId = null };
+                BeginDrawFundedDistinctBasicChild(drawFunded.Id, window.Id);
+            }
             if (declaration is not null)
             {
                 window = window with { ResumeDeclarationFrameId = declaration.Id };
@@ -311,6 +281,10 @@ public sealed partial class GameEngine
     private int[] MatchingDiscardPileIndexes(CardMovementBatchContext batch,
         ProgramTriggerCandidate candidate, SkillProgramTrigger trigger)
     {
+        if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.GiveOffTurnUsedCards))
+            return MatchingOffTurnUsedCardIndexes(batch, candidate);
+        if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.DiscardAfterActualOutsideDiscard))
+            return MatchingOutsideDiscardIndexes(batch, candidate);
         if (IsOtherActualBasicDiscardTrigger(trigger)) return MatchingOtherActualBasicDiscardIndexes(batch, candidate);
         if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.XunxianGiftUsedCard))
             return MatchingOwnSettledActionCardIndexes(batch, candidate);
@@ -381,6 +355,8 @@ public sealed partial class GameEngine
     private int[] MatchingMovementIndexes(CardMovementBatchContext batch, ProgramTriggerCandidate candidate,
         SkillProgramTrigger trigger, CardLocation location)
     {
+        if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.DrawAfterActualOutsideDraw))
+            return MatchingOutsideDrawIndexes(batch, candidate);
         if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.GiveAfterBatchGain))
             return MatchingActualGainGiftIndexes(batch, candidate.OwnerSeat, location);
         if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.RevealRedLossAndDraw))
@@ -437,6 +413,8 @@ public sealed partial class GameEngine
     {
         if (frame.Contexts is { } contexts) return contexts[frame.CandidateIndex];
         var trigger = GetProgramTrigger(candidate);
+        if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.DiscardAfterActualOutsideDiscard))
+            return CreateOutsideDiscardContext(frame, candidate);
         if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.RestoreActualDiscardBatch)) return CreateActualDiscardRecoveryContext(frame, candidate);
         if (trigger.Window == SkillProgramTriggerWindow.FirstGameDomainCrossing) return CreateFirstDomainContext(frame,candidate);
         if (IsNeighborDiscardTopTrigger(trigger)) return CreateNeighborDiscardContext(frame, candidate);
@@ -532,6 +510,8 @@ public sealed partial class GameEngine
             if (frame.CandidateIndex >= frame.Candidates.Count)
             {
                 PopResolutionFrame(frame.Id, ResolutionFrameKind.CardsMovedTriggerWindow);
+                if (ReturnCardResponseCompletionMovement(frame)) return;
+                if (ReturnCardSupplyCompletionMovement(frame)) return;
                 if (frame.DeferredTurnEndReturn is not null)
                 {
                     ReturnDeferredTurnEndPrelude(frame);
@@ -558,6 +538,8 @@ public sealed partial class GameEngine
                     ReplaceRuntimeTop(declarationParent with { ActiveChildFrameId = null });
                     AdvanceRuntimeFrame(declarationId); return;
                 }
+                if (frame.ResumeDrawFundedDistinctBasicFrameId is not null)
+                { ResumeDrawFundedDistinctBasicMovement(frame); return; }
                 if (frame.ResumeRecoveryReplacementFrameId is { } recoveryId)
                 { AdvanceRuntimeFrame(recoveryId); return; }
                 if (frame.ResumeDrawPhaseObligationFrameId is { } drawId)

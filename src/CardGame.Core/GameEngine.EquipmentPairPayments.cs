@@ -84,6 +84,32 @@ public sealed partial class GameEngine
                 zones: [CardZoneKind.Hand, CardZoneKind.Equipment], resultBind: paid.ResultBind, minimumCards: paid.RequiredPaymentCount)
             : effect;
 
+    private bool IsValidEquipmentPairProgramSelection(ProgramSkillFrame frame, bool awaitingSelection)
+    {
+        // This instruction replaces the activation's initially empty target set.
+        // Its later private cost choices and native children retain the same pair.
+        if (frame.EquipmentPairPayment is not null) return IsIssuedEquipmentPairPayment(frame);
+        if (!awaitingSelection || frame.TriggerId is not null || frame.WindowContext is not null ||
+            frame.InstructionIndex != 1 || frame.SelectedCardIds.Count != 0 || frame.SelectedTargetSeats.Count != 0 ||
+            frame.OwnerSeat != _currentSeat || !_players[frame.OwnerSeat].IsAlive ||
+            !HasRuntimeSkillInstance(_players[frame.OwnerSeat], frame.SkillId, frame.SkillInstanceId) ||
+            _pendingDecision is not { Kind: DecisionKind.ProgramTrigger } prompt || prompt.PlayerSeat != frame.OwnerSeat)
+            return false;
+        var program = _contentRegistry.GetSkill(frame.SkillId).Program;
+        if (program is null || program.GameplayHash != frame.GameplayHash) return false;
+        var plan = ProgramInstructionResolver.Default.Resolve(frame, program);
+        if (plan.Instructions.Count != 4 || plan.Instructions[0].Op != SkillProgramEffectOp.SelectEquipmentPairAndPayment)
+            return false;
+        var pairs = PayableEquipmentPairs(frame.OwnerSeat, frame.SkillId, frame.SkillInstanceId);
+        return pairs.Count > 0 && prompt.Choices.Count == pairs.Count &&
+            prompt.ValidTargetSeats.SequenceEqual(pairs.SelectMany(p => new[] { p.First, p.Second }).Distinct().Order()) &&
+            prompt.Choices.Select(c => c.Id.Value).SequenceEqual(pairs.Select(p =>
+                $"equipment-pair.frame-{frame.Id}.first-{p.First}.second-{p.Second}")) &&
+            prompt.Choices.All(c => c.Cards.Count == 0 && c.Targets is [var first, var second] &&
+                pairs.Contains((first, second)) && c.Parameters.GetValueOrDefault("program-action") == "equipment-pair-payment" &&
+                c.Parameters.GetValueOrDefault("frame-id") == frame.Id.ToString(System.Globalization.CultureInfo.InvariantCulture));
+    }
+
     private bool IsIssuedEquipmentPairPayment(ProgramSkillFrame frame)
     {
         if (frame.EquipmentPairPayment is not { InstructionIndex: 0 } p || frame.TriggerId is not null || frame.WindowContext is not null ||

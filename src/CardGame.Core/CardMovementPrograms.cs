@@ -23,6 +23,8 @@ public sealed record CardMovementBatchContext(
     public CardMovementTiming? MovementTiming { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public ActualDiscardRecoveryPhaseKey? DiscardRecoveryPhase { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public NativeDrawInvocationProof? NativeDrawInvocation { get; init; }
 }
 
 public sealed record CardMovementSourceCount(
@@ -35,7 +37,7 @@ public sealed record CardMovementSourceCount(
 /// The physical batch is already committed; this frame only coordinates the
 /// resulting optional program bindings at the next safe rules boundary.
 /// </summary>
-public sealed record CardsMovedTriggerWindowFrame(
+public sealed partial record CardsMovedTriggerWindowFrame(
     long Id,
     CardMovementBatchContext Batch,
     IReadOnlyList<ProgramTriggerCandidate> Candidates,
@@ -47,6 +49,8 @@ public sealed record CardsMovedTriggerWindowFrame(
 {
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public long? ResumeDeclarationFrameId { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public long? ResumeDrawFundedDistinctBasicFrameId { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public long? ResumeRecoveryReplacementFrameId { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]

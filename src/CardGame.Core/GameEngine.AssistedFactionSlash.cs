@@ -7,14 +7,14 @@ public sealed partial class GameEngine
     private IReadOnlyList<AssistedFactionSlashCard> GetAssistedFactionSlashCards(FactionCardRequestHandle pending, CharacterState provider)
     {
         var variants = new List<AssistedFactionSlashCard>();
-        foreach (var card in GetPlayableCards(provider).Concat(GetEquipment(provider)).DistinctBy(card => card.Id))
+        foreach (var card in GetPlayableCards(provider).Concat(GetEquipment(provider)).Concat(GetLastZoneJudgmentConversionCards(provider, forResponse: false)).DistinctBy(card => card.Id))
         {
             if (IsTurnHandCardRestricted(provider, card)) continue;
             var hasIdentity = HasProgramCardIdentity(provider, card);
             foreach (var kind in SlashKinds)
             {
                 if (!CanSupplyAssistedFactionSlash(pending, kind, [card])) continue;
-                if (!hasIdentity && card.Kind == kind) variants.Add(new(card, kind, null));
+                if (!hasIdentity && !IsLastZoneJudgmentCard(provider, card) && card.Kind == kind) variants.Add(new(card, kind, null));
                 var sources = hasIdentity
                     ? GetProgramCardIdentitySources(provider, card, kind, forResponse: false)
                     : GetProgramViewAsConversions(provider, card, kind, forResponse: false);
@@ -121,9 +121,11 @@ public sealed partial class GameEngine
 
     private IReadOnlyList<ProgramMultiCardViewAsSelection> GetFactionRequestMultiCardSelections(FactionCardRequestHandle pending, CharacterState provider) =>
         (pending.IsAssistedProgramUse
-            ? SlashKinds.SelectMany(kind => GetProgramMultiCardViewAsSelections(provider, kind, false,ignoreSuitUseProhibition:true))
+            ? SlashKinds.SelectMany(kind => GetProgramMultiCardViewAsSelections(provider, kind, false,ignoreSuitUseProhibition:true)
+                .Where(item => ViewAsRule(item.Source)?.RoundDistinctBasicUse is null || item.OutputKind == kind))
             : GetProgramMultiCardViewAsSelections(provider, pending.RequiredKind, !IsFactionSlashUse(pending),ignoreSuitUseProhibition:true))
-            .Where(selection => CanSupplyAssistedFactionSlash(pending, selection.OutputKind, selection.Cards)).ToArray();
+            .Where(selection => ViewAsRule(selection.Source)?.RoundDistinctBasicUse is null &&
+                CanSupplyAssistedFactionSlash(pending, selection.OutputKind, selection.Cards)).ToArray();
 
     private bool CanRequestAssistedProgramFactionSlash(int actorSeat, int targetSeat) =>
         IsValidPlayerSeat(actorSeat) && IsValidPlayerSeat(targetSeat) &&

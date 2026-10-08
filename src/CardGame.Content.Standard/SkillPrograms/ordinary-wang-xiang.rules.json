@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 62,
+  "skills": [{
+    "id": "ol:bingxin", "revision": 1,
+    "viewAs": [
+      { "id": "draw-funded-slash", "inputCount": 0, "sourceZones": [], "inputKinds": [], "inputSuits": [], "outputKind": "slash", "forPlay": true, "forResponse": false, "useOnly": true, "drawFundedDistinctBasic": { "methodLedgerId": "ol:bingxin" } },
+      { "id": "draw-funded-fire-slash", "inputCount": 0, "sourceZones": [], "inputKinds": [], "inputSuits": [], "outputKind": "fireSlash", "forPlay": true, "forResponse": false, "useOnly": true, "drawFundedDistinctBasic": { "methodLedgerId": "ol:bingxin" } },
+      { "id": "draw-funded-thunder-slash", "inputCount": 0, "sourceZones": [], "inputKinds": [], "inputSuits": [], "outputKind": "thunderSlash", "forPlay": true, "forResponse": false, "useOnly": true, "drawFundedDistinctBasic": { "methodLedgerId": "ol:bingxin" } },
+      { "id": "draw-funded-dodge", "inputCount": 0, "sourceZones": [], "inputKinds": [], "inputSuits": [], "outputKind": "dodge", "forPlay": false, "forResponse": true, "useOnly": true, "drawFundedDistinctBasic": { "methodLedgerId": "ol:bingxin" } },
+      { "id": "draw-funded-peach", "inputCount": 0, "sourceZones": [], "inputKinds": [], "inputSuits": [], "outputKind": "peach", "forPlay": true, "forResponse": false, "useOnly": true, "drawFundedDistinctBasic": { "methodLedgerId": "ol:bingxin" } },
+      { "id": "draw-funded-alcohol", "inputCount": 0, "sourceZones": [], "inputKinds": [], "inputSuits": [], "outputKind": "alcohol", "forPlay": true, "forResponse": false, "useOnly": true, "drawFundedDistinctBasic": { "methodLedgerId": "ol:bingxin" } }
+    ]
+  }]
+}

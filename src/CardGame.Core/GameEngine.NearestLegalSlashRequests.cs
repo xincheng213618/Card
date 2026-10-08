@@ -44,7 +44,9 @@ public sealed partial class GameEngine
         };
         ReplaceRuntimeTop(active);
         var choices = NearestLegalSlashChoices(active);
-        if (choices.All(choice => choice.Parameters["request-option"] == "decline"))
+        if (choices.All(choice => choice.Parameters["request-option"] == "decline") &&
+            !HasChainedStateBasicProgramSlash(_players[actorSeat], nearest) &&
+            !HasDrawFundedDistinctBasicProgramSlash(_players[actorSeat], nearest))
         {
             ReplaceRuntimeTop(active with { NearestLegalSlashRequest = null });
             return new ProgramSkillHost(this).LoseHp(active.Id, active.SkillId, actorSeat, hpAmount);
@@ -279,7 +281,7 @@ public sealed partial class GameEngine
                 throw new InvalidOperationException("Nearest legal Slash owning draft lost its exact cursor or frozen actors.");
             if (ReferenceEquals(frame, _resolutionStack.LastOrDefault()) && !draft.AwaitingFaction &&
                 (_pendingDecision is not { Kind: DecisionKind.ProgramTrigger } decision || decision.PlayerSeat != draft.ActorSeat ||
-                 !AssistedChoicesEqual(RequestedDeckBasicNativeDecision(decision).Choices, NearestLegalSlashChoices(frame))))
+                 !AssistedChoicesEqual(ChainedStateBasicNativeDecision(DrawFundedDistinctBasicNativeDecision(RequestedDeckBasicNativeDecision(decision))).Choices, NearestLegalSlashChoices(frame))))
                 throw new InvalidOperationException("Nearest legal Slash prompt changed its actual material choices.");
         }
         if (paused.Op == SkillProgramEffectOp.OfferUnlimitedVirtualSlash && ReferenceEquals(frame, _resolutionStack.LastOrDefault()) &&
@@ -304,6 +306,8 @@ public sealed partial class GameEngine
             if (frame.NearestLegalSlashRequest is { } draft) return draft.ActorSeat == actor;
             return child switch
             {
+                ChainedStateBasicFrame paid => IsChainedStateBasicProgramSelection(frame, effect, paid),
+                DrawFundedDistinctBasicFrame paid => IsDrawFundedDistinctBasicProgramSelection(frame, effect, paid),
                 CardUseFrame use => use.SourceSeat == actor && use.CardAttack?.ProgramSkillCardUseFrameId == frame.Id &&
                     use.Action is { Type: CardActionType.Use } action && action.ActorSeat == actor && IsSlashCard(use.CardKind),
                 DyingFrame dying => dying.ParentFrameId == frame.Id && dying.Continuation == DyingContinuationKind.ProgramSkill && dying.VictimSeat == actor,

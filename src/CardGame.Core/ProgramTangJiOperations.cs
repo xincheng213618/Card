@@ -74,7 +74,7 @@ internal sealed class KanggeHealVictimDescriptor : ProgramOperationDescriptorBas
     {
         r.AllowOnly("op", "target", "amount", "condition");
         var hp = r.RequiredInt("amount");
-        if (hp is < 1 or > 20) throw new InvalidOperationException($"Invalid skill program at {r.Path}: dying recovery HP must be 1..20.");
+        if (hp != 1) throw new InvalidOperationException($"Invalid skill program at {r.Path}: kangge dying recovery HP must be exactly 1.");
         var effect = new SkillProgramEffect(Op, FilterBoundCardsProgramOperationDescriptor.Owner(r), hp, r.Condition());
         RequireAlways(effect, r.Path); return effect;
     }

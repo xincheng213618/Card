@@ -122,17 +122,17 @@ public sealed partial class GameEngine
         if (ids.Length == 0) return SkillProgramStepOutcome.Continue;
         // All entities move in one batch; both the frozen claim and the original
         // damage facts are committed before any gain observer can pause.
-        using (BeginCardMovementBatch(emitCardMovedEvents: false))
-        {
-            for (var index = 0; index < facts.Count; index++)
+        var cards = facts.Select(fact => _cardZones.CardsAt(CardLocation.DiscardPile).Single(card => card.Id == fact.CardId)).ToArray();
+        var claimIndex = 0;
+        MoveCards(cards, CardLocation.DiscardPile, CardLocation.Hand(frame.OwnerSeat), new(ActualTurnDamageClaimReason),
+            beforeFact: movement =>
             {
-                var fact = facts[index]; var card = _cardZones.CardsAt(CardLocation.DiscardPile).Single(c => c.Id == fact.CardId);
-                MoveCard(card, CardLocation.DiscardPile, CardLocation.Hand(frame.OwnerSeat), new(ActualTurnDamageClaimReason));
+                var index = claimIndex++; var fact = facts[index];
+                if (movement.CardId != fact.CardId) throw new InvalidOperationException("The claimed damage entities changed their frozen movement order.");
                 AdvanceEventRulesAndQueueFact(new ActualTurnDamageEntityClaimedEvent(frame.Id,
                     new(frame.SkillId, GetProgramBindingId(frame), frame.OwnerSeat, frame.SkillInstanceId), frame.GameplayHash,
-                    _turnNumber, _currentSeat, card.Id, index, fact.DamageFrameId, before + index + 1));
-            }
-        }
+                    _turnNumber, _currentSeat, movement.CardId, index, fact.DamageFrameId, movement.Sequence));
+            }, emitCardMovedEvents: false);
         // Preserve any native queue added to the real owning frame by movement.
         frame = GetActiveProgramFrame(frame.Id);
         var after = _cardMovements[^1].Sequence;

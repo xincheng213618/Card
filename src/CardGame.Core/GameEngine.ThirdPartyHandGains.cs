@@ -9,8 +9,6 @@ public sealed partial class GameEngine
     // Offers one candidate per observed movement: a living character's hand card
     // passing to a different character's zone. The observing owner is decoupled
     // from both seats, so the skill holder sees transfers they took no part in.
-    // 抗歌 observes the same boundary through its own wider collector below, so
-    // triggers carrying that operation are skipped here to stay single-count.
     private IEnumerable<ProgramTriggerCandidate> CollectThirdPartyHandGainCandidates(CardMovementBatchContext batch)
     {
         foreach (var owner in _players.Where(player => player.IsAlive))
@@ -77,10 +75,8 @@ public sealed partial class GameEngine
         }
     }
 
-    // 抗歌 observes every hand-card gain of its marked character - draws from
-    // the pile, processing-zone settlements and hand transfers alike - instead
-    // of only the narrower hand-to-hand third-party boundary above. One
-    // candidate per observed movement keeps the per-turn draw cap meaningful.
+    // 抗歌 includes draws and processing settlements as well as hand transfers.
+    // Its own collector keeps the wider boundary from being counted twice.
     private IEnumerable<ProgramTriggerCandidate> CollectKanggeHandGainCandidates(CardMovementBatchContext batch)
     {
         foreach (var owner in _players.Where(player => player.IsAlive))

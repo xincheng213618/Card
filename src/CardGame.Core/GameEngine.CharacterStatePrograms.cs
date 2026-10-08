@@ -1,6 +1,6 @@
 namespace CardGame.Core;
 
-public enum CharacterStateContinuation { Boundary, Program, CardUse, SkippedTurn, VirtualBasicCardUse }
+public enum CharacterStateContinuation { Boundary, Program, CardUse, SkippedTurn, VirtualBasicCardUse, ChainedStateBasic }
 public sealed record CharacterStateChangeContext(long Id, long? ParentFrameId, int TargetSeat, SkillProgramTriggerWindow Window)
 {
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
@@ -43,6 +43,8 @@ public sealed partial class GameEngine
                 .ThenByDescending(candidate => candidate.Priority).ThenBy(candidate => candidate.SkillId, StringComparer.Ordinal)
                 .ThenBy(candidate => candidate.BindingId, StringComparer.Ordinal).ToArray();
             if (candidates.Length == 0) continue;
+            if (continuation == CharacterStateContinuation.ChainedStateBasic)
+                BeginChainedStateBasicChild(resumeFrameId!.Value, change.Id);
             PushRuntimeFrame(new ProgramLifecycleTriggerWindowFrame(change.Id, change.TargetSeat, change.Window,
                 candidates, ProgramLifecycleContinuation.ResumeCharacterStateChange, facts[change.TargetSeat])
             {
@@ -58,6 +60,8 @@ public sealed partial class GameEngine
     private void ResumeCharacterStateChange(ProgramLifecycleTriggerWindowFrame frame)
     {
         var continuation = frame.CharacterStateContinuation ?? throw new InvalidOperationException("A character-state window lost its continuation.");
+        if (continuation == CharacterStateContinuation.ChainedStateBasic)
+        { ResumeChainedStateBasicState(frame); return; }
         if (TryBeginCharacterStateProgramWindow(frame.ResumeProgramFrameId, continuation, frame.ResumeCardId, frame.ResumeCardKind)) return;
         switch (continuation)
         {

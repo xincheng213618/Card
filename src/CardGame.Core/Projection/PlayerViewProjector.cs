@@ -68,6 +68,7 @@ public sealed partial class GameEngine
                 player.HasAlcoholEffect)
             {
                 IsFaceDown = player.IsFaceDown,
+                OriginalHandEntities = ProjectOriginalHandEntities(player.Seat, viewerSeat, revealAll),
                 TeamId = IsTeamMode && player.TeamRevealed ? player.TeamId : null,
                 IsTeamRevealed = IsTeamMode && player.TeamRevealed,
                 Equipment = Array.AsReadOnly(equipment),
@@ -252,6 +253,8 @@ public sealed partial class GameEngine
 
     private static PlayerSnapshot FreezePlayer(PlayerSnapshot player) => player with
     {
+        OriginalHandEntities = player.OriginalHandEntities is { } originalHand
+            ? Array.AsReadOnly(originalHand.Select(item => item with { CardIds = FreezeViewList(item.CardIds) }).ToArray()) : null,
         SourceCurses = FreezeViewList(player.SourceCurses),
         Hand = FreezeViewList(player.Hand)!,
         Equipment = FreezeViewList(player.Equipment)!,

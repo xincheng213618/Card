@@ -18,7 +18,10 @@ public sealed partial class GameEngine
             return SkillProgramStepOutcome.AwaitChild;
         }
         var slashes = GetHand(user).Concat(SelectedRequestedDeckBasicCards(user)).Where(card => IsSlashCard(card.Kind) && !IsTurnHandCategoryRestricted(user, card)).ToArray();
-        if (slashes.Length == 0 && !HasRequestedDeckBasicSource(user, CardKind.Slash))
+        var pairChoices = RoundDistinctBasicRequestedSlashChoices(active, user.Seat, [frame.OwnerSeat], resultBind);
+        if (slashes.Length == 0 && pairChoices.Count == 0 && !HasRequestedDeckBasicSource(user, CardKind.Slash) &&
+            !HasChainedStateBasicProgramSlash(user, [frame.OwnerSeat]) &&
+            !HasDrawFundedDistinctBasicProgramSlash(user, [frame.OwnerSeat]))
         {
             CommitProgramChoiceResult(frame.Id, resultBind,
                 RequestSlashByTargetProgramOperationDescriptor.DeclinedOption,
@@ -39,6 +42,7 @@ public sealed partial class GameEngine
                 ["result-bind"] = resultBind,
                 ["card-id"] = card.Id.ToString(System.Globalization.CultureInfo.InvariantCulture)
             })).ToList();
+        choices.AddRange(pairChoices);
         choices.Add(new PromptChoice(
             new ChoiceId($"program-request-slash.frame-{active.Id}.decline"),
             $"不使用【杀】。",
@@ -54,7 +58,8 @@ public sealed partial class GameEngine
             DecisionKind.ProgramTrigger,
             user.Seat,
             $"【{skill.Name}】需对 {owner.Name} 使用一张【杀】，否则其弃置你的一张牌。",
-            slashes.Select(card => card.Id).Order().ToArray(),
+            pairChoices.Count == 0 ? slashes.Select(card => card.Id).Order().ToArray() :
+                slashes.Select(card => card.Id).Concat(pairChoices.SelectMany(choice => choice.Cards)).Distinct().Order().ToArray(),
             [frame.OwnerSeat],
             frame.OwnerSeat)
         {
@@ -94,6 +99,18 @@ public sealed partial class GameEngine
         }
 
         var action = selected.Parameters.GetValueOrDefault("program-action");
+        if (selected.Parameters.ContainsKey(RoundDistinctBasicRequestMarker))
+        {
+            var selection = RequireRoundDistinctBasicRequestedSlash(frame, decision, selected, userSeat, [frame.OwnerSeat], resultBind);
+            ClearPendingDecision();
+            CommitProgramChoiceResult(frame.Id, resultBind,
+                RequestSlashByTargetProgramOperationDescriptor.UsedSlashOption,
+                userSeat, $"使用【{CardCatalog.Get(selection.OutputKind).DisplayName}】。");
+            ResolveSlashCore(_players[userSeat], _players[frame.OwnerSeat], selection.Cards[0], selection.OutputKind, userSeat,
+                physicalCards: selection.Cards, countsTowardSlashLimit: false, conversionSource: selection.Source,
+                programSkillCardUseFrameId: frame.Id);
+            return;
+        }
         ClearPendingDecision();
         if (action == "request-slash-decline")
         {
@@ -165,7 +182,10 @@ public sealed partial class GameEngine
             .Where(card => IsSlashCard(card.Kind))
             .OrderBy(card => card.Id)
             .ToArray();
-        if (nearest.Length == 0 || slashes.Length == 0 && !HasRequestedDeckBasicSource(participant, CardKind.Slash))
+        var pairChoices = RoundDistinctBasicRequestedSlashChoices(active, participantSeat, nearest);
+        if (nearest.Length == 0 || slashes.Length == 0 && pairChoices.Count == 0 && !HasRequestedDeckBasicSource(participant, CardKind.Slash) &&
+            !HasChainedStateBasicProgramSlash(participant, nearest) &&
+            !HasDrawFundedDistinctBasicProgramSlash(participant, nearest))
             return new ProgramSkillHost(this).LoseHp(active.Id, active.SkillId, participantSeat, hpAmount);
 
         var skill = _contentRegistry!.GetSkill(frame.SkillId);
@@ -185,6 +205,7 @@ public sealed partial class GameEngine
                         ["card-id"] = card.Id.ToString(System.Globalization.CultureInfo.InvariantCulture),
                         ["target-seat"] = seat.ToString(System.Globalization.CultureInfo.InvariantCulture)
                     }));
+        choices.AddRange(pairChoices);
         choices.Add(new PromptChoice(
             new ChoiceId($"program-request-slash-nearest.frame-{active.Id}.decline"),
             $"不使用【杀】，失去{hpAmount}点体力。",
@@ -200,7 +221,8 @@ public sealed partial class GameEngine
             DecisionKind.ProgramTrigger,
             participant.Seat,
             $"【{skill.Name}】需对距离最近的角色使用一张【杀】，否则失去{hpAmount}点体力。",
-            slashes.Select(card => card.Id).Order().ToArray(),
+            pairChoices.Count == 0 ? slashes.Select(card => card.Id).Order().ToArray() :
+                slashes.Select(card => card.Id).Concat(pairChoices.SelectMany(choice => choice.Cards)).Distinct().Order().ToArray(),
             nearest,
             frame.OwnerSeat)
         {
@@ -240,6 +262,17 @@ public sealed partial class GameEngine
             return;
         }
 
+        if (selected.Parameters.ContainsKey(RoundDistinctBasicRequestMarker))
+        {
+            var selection = RequireRoundDistinctBasicRequestedSlash(frame, decision, selected, participantSeat,
+                GetNearestLivingCharacterSeats(participantSeat));
+            var pairTargetSeat = selected.Targets[0];
+            ClearPendingDecision();
+            ResolveSlashCore(_players[participantSeat], _players[pairTargetSeat], selection.Cards[0], selection.OutputKind, participantSeat,
+                physicalCards: selection.Cards, countsTowardSlashLimit: false, conversionSource: selection.Source,
+                programSkillCardUseFrameId: frame.Id);
+            return;
+        }
         ClearPendingDecision();
         if (action == "request-slash-nearest-decline")
         {

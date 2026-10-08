@@ -7,9 +7,11 @@ internal static partial class FengLinYuJiChecks
     public static void BorrowedSwordFactionProviderDeclaration()
     {
         NativeBorrowedSwordProviderOldRegistry();
+        ContentRegistry? declarationRegistry = null;
         foreach(var challenge in new[]{false,true})
         {
-            var(g,r)=Start("mixed-borrowed");
+            var(g,r)=Start("mixed-borrowed",registry:declarationRegistry);
+            declarationRegistry = r;
             var flags=BindingFlags.NonPublic|BindingFlags.Instance;
             var players=(IReadOnlyList<CharacterState>)typeof(GameEngine).GetField("_players",flags)!.GetValue(g)!;
             var physical=players[0].Seat;var face=g.State.Players[0].Hand.First();var cost=new Card(face.Id,face.Kind,face.Suit,face.Rank);

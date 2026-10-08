@@ -35,7 +35,7 @@ public sealed record RecoveryReplacementChosenEvent(long RecoveryFrameId, int Re
     int BeneficiarySeat, string SkillId, string SkillInstanceId, string PolicyId,
     int ReplacedAmount, int RecoveryAmount) : IGameEvent;
 
-public enum RecoveryPaidCardUseKind { Trick, Simple, CommittedSlash, SlashTarget, AttackDamage, EquipmentUse }
+public enum RecoveryPaidCardUseKind { Trick, Simple, CommittedSlash, SlashTarget, AttackDamage, EquipmentUse, DodgeCompletion = 6 }
 
 public sealed record RecoveryPaidCardUseContinuation(RecoveryPaidCardUseKind Kind, int SourceSeat,
     int? CardId = null, IReadOnlyList<int>? TargetSeats = null, LegalActionKind? ActionKind = null,
@@ -57,7 +57,9 @@ public sealed partial class GameEngine
     private bool TryPauseRecoveryPaidCardUse(long useId, RecoveryPaidCardUseContinuation continuation)
     {
         var use = LifecycleCardUse(useId);
-        if (use?.PendingRecoveryAttempts is not { Count: > 0 }) return false;
+        if (use is null || use.PendingRecoveryAttempts is not { Count: > 0 } &&
+            !(continuation.Kind == RecoveryPaidCardUseKind.DodgeCompletion &&
+              _pendingHpChanges.Any(change => change.ParentFrameId == useId))) return false;
         if (_resolutionStack.LastOrDefault()?.Id != useId || use.RecoveryPaidContinuation is not null)
             throw new InvalidOperationException("Paid card use recovery lost its exact fresh parent boundary.");
         continuation = continuation with
@@ -67,6 +69,14 @@ public sealed partial class GameEngine
             { RecoveryPolicySources = simple.RecoveryPolicySources is { } policies ? Array.AsReadOnly(policies.ToArray()) : null } : null
         };
         ReplaceRuntimeTop(use with { RecoveryPaidContinuation = continuation, Step = ResolutionFrameStep.ResolvingEffect });
+        if (continuation.Kind == RecoveryPaidCardUseKind.DodgeCompletion)
+        {
+            if (TryBeginHpChangedProgramWindow(useId, PostEventContinuation.RecoveryPaidCardUse)) return true;
+            // No observer qualified. Keep the already paid response on its ordinary tail.
+            var current = LifecycleCardUse(useId) ?? throw new InvalidOperationException("The paid response lost its card-use parent.");
+            ReplaceRuntimeTop(current with { RecoveryPaidContinuation = null, Step = use.Step });
+            return false;
+        }
         return TryBeginQueuedRecoveryReplacement(useId, PostEventContinuation.RecoveryPaidCardUse);
     }
 
@@ -74,7 +84,11 @@ public sealed partial class GameEngine
     {
         var use = LifecycleCardUse(useId) ?? throw new InvalidOperationException("Paid recovery lost its card-use producer.");
         var continuation = use.RecoveryPaidContinuation ?? throw new InvalidOperationException("Paid recovery lost its exact continuation.");
-        if (_resolutionStack.LastOrDefault()?.Id != useId || use.PendingRecoveryAttempts is { Count: > 0 })
+        if (_resolutionStack.LastOrDefault()?.Id != useId)
+            throw new InvalidOperationException("Paid card use cannot advance before its recovery children return.");
+        if (continuation.Kind == RecoveryPaidCardUseKind.DodgeCompletion &&
+            TryBeginHpChangedProgramWindow(useId, PostEventContinuation.RecoveryPaidCardUse)) return;
+        if (use.PendingRecoveryAttempts is { Count: > 0 })
             throw new InvalidOperationException("Paid card use cannot advance before its recovery children return.");
         ReplaceRuntimeTop(use with { RecoveryPaidContinuation = null });
         if (_winner != Winner.None)
@@ -110,13 +124,17 @@ public sealed partial class GameEngine
             case RecoveryPaidCardUseKind.SlashTarget: BeginSlashTargetResolution(attack); break;
             case RecoveryPaidCardUseKind.AttackDamage:
                 if (!ApplyAttackDamage(attack)) CompleteAttack(attack); break;
+            case RecoveryPaidCardUseKind.DodgeCompletion: CompleteSuccessfulDodgeResponse(attack); break;
             default: throw new InvalidOperationException("Paid card use recovery has an unsupported continuation.");
         }
     }
 
     private bool HasRecoveryPaidCardUseObserver(long useId) => LifecycleCardUse(useId)?.RecoveryPaidContinuation is not null &&
-        _resolutionStack.OfType<RecoveryReplacementFrame>().Any(frame => frame.ParentFrameId == useId &&
-            frame.Return.ResumeFrameId == useId && frame.Return.Continuation == PostEventContinuation.RecoveryPaidCardUse);
+        (_resolutionStack.OfType<RecoveryReplacementFrame>().Any(frame => frame.ParentFrameId == useId &&
+            frame.Return.ResumeFrameId == useId && frame.Return.Continuation == PostEventContinuation.RecoveryPaidCardUse) ||
+         _resolutionStack.OfType<HpChangedTriggerWindowFrame>().Any(frame => frame.Change.ParentFrameId == useId &&
+            frame.ResumeFrameId == useId && frame.Continuation == PostEventContinuation.RecoveryPaidCardUse &&
+            LifecycleCardUse(useId)?.RecoveryPaidContinuation?.Kind == RecoveryPaidCardUseKind.DodgeCompletion));
 
     private void CompletePaidEquipmentEntry(CharacterState source, Card equipment, long useId,
         EquipmentSlot slot, int? replacedCardId)
@@ -184,6 +202,8 @@ public sealed partial class GameEngine
         var request = requests[0];
         ReplaceRuntimeTop(parent with { PendingRecoveryAttempts = requests.Count == 1 ? null :
             Array.AsReadOnly(requests.Skip(1).ToArray()) });
+        if (continuation == PostEventContinuation.DrawFundedDistinctBasic)
+            BeginDrawFundedDistinctBasicChild(parent.Id, request.Id);
         PushRuntimeFrame(new RecoveryReplacementFrame(request.Id, parent.Id, request,
             new(continuation, parent.Id, cardId, cardKind)));
         AdvanceRuntimeFrame(request.Id);
@@ -325,6 +345,10 @@ public sealed partial class GameEngine
 
     private void ResumeRecoveryReplacementProducer(RecoveryReplacementFrame completed)
     {
+        if (ReturnCardResponseCompletionRecovery(completed)) return;
+        if (ReturnCardSupplyCompletionRecovery(completed)) return;
+        if (completed.Return.Continuation == PostEventContinuation.DrawFundedDistinctBasic)
+        { ResumeDrawFundedDistinctBasicRecovery(completed); return; }
         var attempt = completed.Attempt;
         var continuation = completed.Return;
         if (continuation.Continuation == PostEventContinuation.RecoveryProducer)
@@ -373,6 +397,7 @@ public sealed partial class GameEngine
             MoveCard(card, CardLocation.Processing, CardLocation.DiscardPile, c.MoveReason!.Value);
             FinishCardUse(parentId, card, CardKind.Alcohol);
         }
+        else if (FinishActualTurnLegacyDyingAlcohol(parentId, c.ProgramFrameId!.Value)) return;
         else PopFinishedCardUse(parentId);
         AdvanceRuntimeProgram(c.ProgramFrameId!.Value);
     }
@@ -391,6 +416,17 @@ public sealed partial class GameEngine
                 throw new InvalidOperationException("A recovery reward movement lost its exact completed-reward producer.");
         foreach (var frame in _resolutionStack.OfType<RecoveryReplacementFrame>())
         {
+            if (frame.Return.Continuation == PostEventContinuation.CardSupplyCompletion &&
+                (_resolutionStack.SingleOrDefault(parent => parent.Id == frame.ParentFrameId) is not ProgramCardTriggerWindowFrame supply ||
+                 !IsCardSupplyCompletionHealthChild(supply, frame)))
+                throw new InvalidOperationException("A supplied card lost its exact recovery child.");
+            if (frame.Return.Continuation == PostEventContinuation.ResponseCompletion &&
+                (_resolutionStack.SingleOrDefault(parent => parent.Id == frame.ParentFrameId) is not ProgramCardTriggerWindowFrame response ||
+                 !IsResponseCompletionHealthChild(response, frame)))
+                throw new InvalidOperationException("A response payment lost its exact recovery child.");
+            if (frame.Return.Continuation == PostEventContinuation.DrawFundedDistinctBasic &&
+                !IsDrawFundedDistinctBasicRecoveryParent(_resolutionStack.SingleOrDefault(parent => parent.Id == frame.ParentFrameId), frame))
+                throw new InvalidOperationException("A draw-funded payment lost its exact recovery child.");
             if (frame.Id != frame.Attempt.Id || frame.Attempt.Amount <= 0 ||
                 frame.CandidateIndex is { } index && (index < 0 || index >= frame.Attempt.Candidates.Count) ||
                 frame.ParentFrameId > 0 && !_resolutionStack.Any(p => p.Id == frame.ParentFrameId) ||

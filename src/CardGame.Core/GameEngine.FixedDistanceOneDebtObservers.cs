@@ -42,7 +42,7 @@ public sealed partial class GameEngine
                 { exact = false; break; }
                 if (_resolutionStack[j] is DyingFrame dying && j + 1 < _resolutionStack.Count &&
                     (IsPaidHandRepaymentProgramAlcoholRide(j, dying) || IsPaidHandRepaymentRescueRide(j, dying) ||
-                     PolicyCounterspellVirtualAlcoholRide(j, dying) || PaidObserverDamageVirtualAlcoholRide(j, dying) || TieredRoundZeroDyingRescueRide(j, dying))) break;
+                     PolicyCounterspellVirtualAlcoholRide(j, dying) || PaidObserverDamageVirtualAlcoholRide(j, dying) || (TieredRoundZeroDyingRescueRide(j, dying) || DrawFundedDistinctBasicDyingRescueRide(j, dying)))) break;
             }
             if (exact) return root;
         }

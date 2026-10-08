@@ -1,0 +1,2073 @@
+{
+  "round": 22,
+  "recordedAt": "2026-10-08T19:01:20.519171+00:00",
+  "head": "fe90b66788b7d1866fa1e87f02d4993ad7bd0f3e",
+  "sourceBeforeAfter": {
+    "count": 3596,
+    "aggregateSha256": "273e5f6de4810811f2846777b61299d5504aa21ec8593a4e6b3831f5bc3254ff",
+    "headUnchanged": true,
+    "filesUnchanged": true
+  },
+  "versions": {
+    "replay": 204,
+    "schema": 62,
+    "classic": "1.164.0",
+    "standard": "1.15.0"
+  },
+  "targeted": {
+    "summary": {
+      "status": "passed",
+      "mode": "targeted",
+      "repository": "C:\\Users\\17917\\Desktop\\Card",
+      "artifactsPath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\build",
+      "coreFilters": [
+        "Activation-count awakening:",
+        "boundary Lu Meng opt in usage legacy shape",
+        "boundary lu su",
+        "Boundary Meng Huo barbarian immunity and attribution",
+        "card inventory is conserved at every public boundary",
+        "card movement programs compose atomic per-card and per-batch triggers with replay",
+        "Card response completion cost:",
+        "Card response completion:",
+        "Category discard refund:",
+        "committed event collections reject observer mutation",
+        "Completed undamaged target reveal:",
+        "composition kernel resource graph safety",
+        "content registry compiles whole catalog dependencies",
+        "Draw-funded distinct basic:",
+        "Ending pair two draws own extra round and cold",
+        "Faction request",
+        "Fame 2015 Shu alternative basic cost source dying boundaries",
+        "Fame 2016 conversion declaration entity privacy replay",
+        "Fame 2016 conversion shared phase allowance",
+        "Feng Lin Yu Ji",
+        "Foreign turn Wine actual actor physical virtual and pile dying",
+        "Last damage source reciprocity:",
+        "Matching recast:",
+        "Native discard classification:",
+        "Off-turn used card gift:",
+        "Ol Lü Kai tunan",
+        "Ordered printed skill loss:",
+        "Ordinary Guan Yin Ping red equipment cost before lost HP targets and real fire draw",
+        "Ordinary Liu Xie Tianming SilverLion cost and unique current HP peer",
+        "ordinary OL Zhuge Ke empty-hand Dodge private top request and once payment",
+        "Ordinary SP Pang De two real costs and issued Duel typed return",
+        "Original hand entities:",
+        "Original target addition rights quota armor and cold",
+        "Outside phase draw discard:",
+        "Overflow target cancellation:",
+        "Paid actual target HP and original use return",
+        "Paired hand recast:",
+        "Phase name prediction:",
+        "prepared snapshot rejects observer collection mutation",
+        "Real color payment Duel back-damage and mandatory Ending claim",
+        "Recipient category mark:",
+        "Recovery replacement",
+        "response use completion",
+        "Round distinct basic use:",
+        "Same name hand demand:",
+        "Silver Lion",
+        "skill program loader",
+        "Source faction prevention quota opaque HEJ equipment children",
+        "SP Ma Chao HP ordered distance and lost HP extra targets pay each target once",
+        "standard package builds an immutable isolated registry",
+        "Tiered Round",
+        "Turn damage-use draw debt actual gain and frozen ending cost",
+        "Turn default allocation:",
+        "Unexpected Assault:"
+      ],
+      "wpfFilters": [
+        "Original hand tag presentation:",
+        "Jin faction presentation:",
+        "stored grain updates its badge without replacing hand controls",
+        "original card artwork preserves physical card identity and interaction"
+      ],
+      "startedAt": "2026-10-09T02:54:10.1322806+08:00",
+      "durationMs": 106720,
+      "message": null,
+      "results": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 1554,
+          "log": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\build\\logs\\build.log"
+        },
+        {
+          "name": "Core selected checks (54 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 101100,
+          "log": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\build\\logs\\core-selected.log"
+        },
+        {
+          "name": "WPF selected checks (4 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 4004,
+          "log": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\build\\logs\\wpf-selected.log"
+        }
+      ],
+      "runnerExitCode": 0,
+      "runnerInvokedAt": "2026-10-09T02:54:10.0765020+08:00",
+      "runnerFinishedAt": "2026-10-09T02:55:56.8699818+08:00"
+    },
+    "executedStepLogs": [
+      {
+        "path": ".artifacts/goal-20261007-01a1156d/round22-targeted-final-build.log",
+        "sha256": "4a1a858902e266c111df68b73322ed797243a5d5d60aa996ecf80314ec9b9411",
+        "lastWriteTimeUtc": "2026-10-08T18:54:11.666622+00:00"
+      },
+      {
+        "path": ".artifacts/goal-20261007-01a1156d/round22-targeted-final-core-selected.log",
+        "sha256": "c17422d0185d76799bb82119b6460f69a9e1dc72e9c098bf23d44c4f5ae4bcb2",
+        "lastWriteTimeUtc": "2026-10-08T18:55:52.815408+00:00"
+      },
+      {
+        "path": ".artifacts/goal-20261007-01a1156d/round22-targeted-final-wpf-selected.log",
+        "sha256": "4218a5fe816e4659f28a91d4bb200d3e9cbbb7b803bdb2f65c14db650b26df5f",
+        "lastWriteTimeUtc": "2026-10-08T18:55:56.507604+00:00"
+      }
+    ],
+    "core": {
+      "passed": 120,
+      "failed": 0,
+      "passedNames": [
+        "Recipient category mark: face-up gift issues one public token and survives source loss",
+        "Recipient category mark: Lei recovers native dying to one and draws once",
+        "Recipient category mark: Fu blindly discards up to two from one area",
+        "Recipient category mark: Song adds legal targets to the original Slash",
+        "Off-turn used card gift: actual single and pair Dodge give every material once",
+        "Off-turn used card gift: own turn and pure responses stay excluded",
+        "Overflow target cancellation: unique physical and pair materials return through native gain",
+        "Overflow target cancellation: multiple targets self use and exact hand limit stay distinct",
+        "Matching recast: canonical names self quota and extra Play phase",
+        "Matching recast: equipment recovery and Thunder damage remain native",
+        "Ordered printed skill loss: current prefix repeated and self damage once",
+        "Ordered printed skill loss: frozen draw and exact turn restoration survive source loss",
+        "Turn default allocation: phase defaults preserve modifiers and repeated Play",
+        "Turn default allocation: outside-turn damage applies only to next actual turn",
+        "Round distinct basic use: real pair pays once and shares round name across regrant",
+        "Round distinct basic use: own Dodge use and pure provision stay distinct",
+        "Round distinct basic use: Peach and self Alcohol retain native dying returns",
+        "Round distinct basic use: forced Slash and hand-like materials keep native parents",
+        "Card response completion cost: Silver Lion equipment Dodge drains health before completion",
+        "Completed undamaged target reveal: public pile payment stays separate from native materials",
+        "Card response completion: native Zhangba pair and cold return",
+        "Same name hand demand: outside-turn actual use and own-turn exclusion",
+        "Same name hand demand: pure responses complete on their native parents",
+        "Same name hand demand: response uses complete only once",
+        "Same name hand demand: actual faction providers own completion exactly once",
+        "Same name hand demand: active faction supply completes before principal use without a fake response",
+        "Same name hand demand: paid discard and native damage dying survive source loss",
+        "Completed undamaged target reveal: whole-use group target same-color discard and cold return",
+        "Completed undamaged target reveal: optional zero, mixed colors and target effective colors",
+        "Original hand entities: initial physical loss, returned card and real paired recast",
+        "Original hand entities: paid benefit draw survives nested source qualification loss",
+        "Original hand entities: empty originals awaken at real turn start once",
+        "Original hand entities: optional death transfers only personally received permanent bonuses",
+        "Outside phase draw discard: actual draw invocation excludes gifts, initial deal, Draw phase and empty deck",
+        "Outside phase draw discard: actual category discard excludes recast and Discard phase",
+        "Paired hand recast: real Hand private selection, phase quota and cold native return",
+        "Native discard classification: exact paid producers exclude adjacent gain and cleanup",
+        "Paired hand recast: paid source suppression preserves both owed draws",
+        "Paired hand recast: moved frozen partner material cannot be replaced",
+        "Paired hand recast: native partner death skips only the unpaid participant",
+        "Phase name prediction: secret actual phase, escalating round cost and native settlement",
+        "Phase name prediction: stolen armor native owner recovery and collateral return",
+        "Phase name prediction: frozen ending death, early native uses and inserted phase boundaries",
+        "Last damage source reciprocity: latest actual source, native HE payment and physical regrant memory",
+        "Unexpected Assault: opaque reveal native damage counterspell and conversion lifetime",
+        "Activation-count awakening: actual refunded activations preparation quota and source loss",
+        "Category discard refund: distinct payment phase refund and actual turn target ban",
+        "Category discard refund: repeated categories and small actual payments",
+        "Category discard refund: equipment child and lost source",
+        "Category discard refund: protected hand and payable own armor",
+        "Draw-funded distinct basic: qualification ledger and paid children",
+        "Draw-funded distinct basic: native Dodge Dying and program returns",
+        "Original target addition rights quota armor and cold",
+        "Foreign turn Wine actual actor physical virtual and pile dying",
+        "Paid actual target HP and original use return",
+        "boundary lu su extra draw half hand gift and cold children",
+        "boundary lu su exchange first frozen ending silver lion debt",
+        "boundary lu su ending debt shortfall and source loss",
+        "boundary lu su actual target recipient support and expiry",
+        "Real color payment Duel back-damage and mandatory Ending claim",
+        "Ending pair two draws own extra round and cold",
+        "SP Ma Chao HP ordered distance and lost HP extra targets pay each target once",
+        "SP Ma Chao equipment recast drains Silver Lion and paid source loss before draw",
+        "Ol Lü Kai tunan converts dodge into slash",
+        "Ol Lü Kai tunan uses revealed slash without distance limit",
+        "Ol Lü Kai tunan peach use heals wounded counterpart",
+        "Ordinary Guan Yin Ping red equipment cost before lost HP targets and real fire draw",
+        "ordinary OL Zhuge Ke empty-hand Dodge private top request and once payment",
+        "Ordinary SP Pang De two real costs and issued Duel typed return",
+        "Ordinary Liu Xie Tianming SilverLion cost and unique current HP peer",
+        "Tiered Round true uses physical conversion and private cold",
+        "Tiered Round shared quota and zero ordinary child",
+        "Tiered Round zero counterspell Dodge and dying returns",
+        "Turn damage-use draw debt actual gain and frozen ending cost",
+        "Source faction prevention quota opaque HEJ equipment children",
+        "Recovery replacement Zhiheng selection and phase quota",
+        "Bound card recast Silver Lion recovery movement before grants",
+        "Recovery replacement program amount and recover-to cold replay",
+        "Recovery replacement paid Peach acceptance decline cold replay",
+        "Recovery replacement Silver Lion Zhiheng HP and reward children",
+        "Recovery replacement equipment-only selection and qualification",
+        "Recovery replacement lost exact source keeps original recovery",
+        "Recovery replacement paid equipment tail Qixi and replaced ID",
+        "Recovery replacement paid equipment tail Stone Axe before damage",
+        "Recovery replacement Qingxian damage HP reward observer chain",
+        "Recovery replacement projected sources full beneficiary",
+        "Recovery replacement paid Qixi stops after observer victory",
+        "Recovery replacement faction request Silver Lion cost before providers",
+        "Equipment recast Silver Lion recovery and movement children",
+        "Program equipment recast Silver Lion recovery and movement children",
+        "Final target Slash escalation: judgment quota and Silver Lion",
+        "Boundary Meng Huo barbarian immunity and attribution",
+        "boundary Lu Meng opt in usage legacy shape",
+        "prepared snapshot rejects observer collection mutation",
+        "committed event collections reject observer mutation",
+        "content registry compiles whole catalog dependencies",
+        "response use completion Dodge timing parent and replay",
+        "response use completion counterspell chain and replay",
+        "response use completion counterspell dying rescue exact parent",
+        "response use completion Dodge dying rescue exact parent",
+        "response use completion excludes group response and wrong loader window",
+        "Fame 2016 Taoluan response use completion",
+        "Fame 2016 conversion declaration entity privacy replay",
+        "Fame 2016 conversion shared phase allowance",
+        "Fame 2015 Shu faction request cost reward replay",
+        "Fame 2015 Shu alternative basic cost source dying boundaries",
+        "composition kernel resource graph safety",
+        "card movement programs compose atomic per-card and per-batch triggers with replay",
+        "Feng Lin Yu Ji actual dodge duel rescue parents",
+        "Feng Lin Yu Ji actual counterspell provider parents",
+        "Feng Lin Yu Ji borrowed sword faction provider declaration",
+        "Feng Lin Yu Ji old registry virtual duel native continuation",
+        "Feng Lin Yu Ji cost child atomic privacy restore",
+        "Feng Lin Yu Ji all pass privacy quota replay",
+        "Feng Lin Yu Ji first challenge true false",
+        "standard package builds an immutable isolated registry",
+        "skill program loader separates canonical gameplay from presentation",
+        "skill program loader rejects malformed and unsupported definitions",
+        "classic Silver Lion caps damage and recovers after leaving equipment",
+        "card inventory is conserved at every public boundary"
+      ],
+      "failures": [],
+      "slowest": [
+        {
+          "name": "classic Silver Lion caps damage and recovers after leaving equipment",
+          "durationMs": 9238.417
+        },
+        {
+          "name": "Tiered Round shared quota and zero ordinary child",
+          "durationMs": 6134.057
+        },
+        {
+          "name": "Feng Lin Yu Ji borrowed sword faction provider declaration",
+          "durationMs": 4916.435
+        },
+        {
+          "name": "Tiered Round zero counterspell Dodge and dying returns",
+          "durationMs": 4291.723
+        },
+        {
+          "name": "Original target addition rights quota armor and cold",
+          "durationMs": 3843.243
+        },
+        {
+          "name": "Fame 2015 Shu alternative basic cost source dying boundaries",
+          "durationMs": 3705.998
+        },
+        {
+          "name": "card inventory is conserved at every public boundary",
+          "durationMs": 3325.011
+        },
+        {
+          "name": "Round distinct basic use: forced Slash and hand-like materials keep native parents",
+          "durationMs": 2942.911
+        },
+        {
+          "name": "boundary lu su exchange first frozen ending silver lion debt",
+          "durationMs": 2420.059
+        },
+        {
+          "name": "boundary lu su actual target recipient support and expiry",
+          "durationMs": 2255.183
+        },
+        {
+          "name": "Turn default allocation: phase defaults preserve modifiers and repeated Play",
+          "durationMs": 2147.029
+        },
+        {
+          "name": "Draw-funded distinct basic: native Dodge Dying and program returns",
+          "durationMs": 1916.009
+        }
+      ],
+      "log": ".artifacts/goal-20261007-01a1156d/round22-targeted-final-core-selected.log",
+      "sha256": "c17422d0185d76799bb82119b6460f69a9e1dc72e9c098bf23d44c4f5ae4bcb2"
+    },
+    "wpf": {
+      "passed": 4,
+      "failed": 0,
+      "passedNames": [
+        "stored grain updates its badge without replacing hand controls",
+        "Original hand tag presentation: real entity refresh and cold restore",
+        "original card artwork preserves physical card identity and interaction",
+        "Jin faction presentation: gallery names filters colors and embedded images"
+      ],
+      "failures": [],
+      "slowest": [
+        {
+          "name": "stored grain updates its badge without replacing hand controls",
+          "durationMs": 2621.999
+        },
+        {
+          "name": "original card artwork preserves physical card identity and interaction",
+          "durationMs": 680.285
+        },
+        {
+          "name": "Original hand tag presentation: real entity refresh and cold restore",
+          "durationMs": 192.703
+        },
+        {
+          "name": "Jin faction presentation: gallery names filters colors and embedded images",
+          "durationMs": 9.387
+        }
+      ],
+      "log": ".artifacts/goal-20261007-01a1156d/round22-targeted-final-wpf-selected.log",
+      "sha256": "4218a5fe816e4659f28a91d4bb200d3e9cbbb7b803bdb2f65c14db650b26df5f"
+    }
+  },
+  "routine": {
+    "summary": {
+      "status": "passed",
+      "mode": "routine",
+      "repository": "C:\\Users\\17917\\Desktop\\Card",
+      "artifactsPath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\build",
+      "coreFilters": [
+        "Overflow target cancellation:",
+        "Matching recast:",
+        "Ordered printed skill loss:",
+        "Recipient category mark:",
+        "Off-turn used card gift:",
+        "Turn default allocation:",
+        "Round distinct basic use:",
+        "Card response completion cost:",
+        "Card response completion:",
+        "Same name hand demand:",
+        "Completed undamaged target reveal:",
+        "Paired hand recast:",
+        "Original hand entities:",
+        "Outside phase draw discard:",
+        "Native discard classification:",
+        "Phase name prediction:",
+        "Last damage source reciprocity:",
+        "Category discard refund:",
+        "Activation-count awakening:",
+        "Unexpected Assault:",
+        "Draw-funded distinct basic:",
+        "Multiple original materials already moved and empty virtual responses",
+        "Liejie source discard:",
+        "Choice target prerequisite:",
+        "Different color judgment replacement:",
+        "Ending damage marker:",
+        "Tongxie use provenance:",
+        "Tang Ji paid continuation:",
+        "Liu Hong activation:",
+        "Draw advice and designated extra target:",
+        "Gifted Slash hand policy:",
+        "Public pile cash out:",
+        "Current turn hand exchange:",
+        "Exact owned card count and named targets:",
+        "Actual target prompt retains the AI-owned attack",
+        "Owned hand exact rank sum actual gift and recovery return",
+        "Owned hand exact rank sum no solution and native AI",
+        "Initial hand modifiers: owner maximum HP controls the real deal and dynamic hand limit",
+        "Owner dying awakening paid HP tail returns once",
+        "Owner dying replacement permanent source and optional ending replay",
+        "Virtual ordinary trick composition frozen branches and public AI",
+        "Ending Pindian win loss tie actual virtual tricks and cold return",
+        "Trick target arbitrary hand gift empty Dismantlement and true counterspell",
+        "Delayed trick target hand gift waits exact movement child",
+        "Ending virtual trick real adjusted target sequence returns once",
+        "Actual turn use ordinal:",
+        "Actual second use foreign grants share state and expire on end",
+        "Actual legacy Wine",
+        "foreign ending owner and equipment costs wait once",
+        "shared actual target loader keeps operation ownership",
+        "public equipment half count draw resumes once",
+        "Short range Slash and directed ending debt:",
+        "Equipment Slash ownership:",
+        "Actual hand gains and category gifts:",
+        "Delegated judgment and gain gifts:",
+        "JudgedRankSlashPolicy.",
+        "skill program public pile preparation",
+        "Phase hand seizure:",
+        "RecipientContestConsequences",
+        "command",
+        "observer",
+        "viewer",
+        "prepared snapshot",
+        "internal failure",
+        "round-start programs include foreign owners and cold returns",
+        "skill program",
+        "lifecycle programs",
+        "shared post-event",
+        "Phase hand extra turn",
+        "Actual draw obligation",
+        "Owned damage point judgment",
+        "Prevented damage draw",
+        "Black trick target policy",
+        "Dying skill qualification",
+        "Nearest legal Slash",
+        "Actual turn target commitment",
+        "Applied damage occurrence",
+        "Applied damage benefit",
+        "Dual private color commitments",
+        "Damage judgment suit payment four suits",
+        "Granted entity extra phase distance",
+        "Frozen faction recovery game damage",
+        "Next actual-use paid wins",
+        "Original target addition rights",
+        "Foreign turn Wine actual actor",
+        "Neighbor discard own first previous",
+        "boundary cheng pu completion payment",
+        "boundary wu guo tai paid equipment pair",
+        "Paid actual target HP and original use return",
+        "boundary li ru sequential discard top cost",
+        "Whole equipment donation actual X and recovery",
+        "boundary xiao qiao suit prevention equipment cost",
+        "boundary lu su extra draw half hand gift",
+        "Real color payment Duel back-damage and mandatory Ending claim",
+        "boundary two zhangs equipment replacement",
+        "boundary bu lian shi ordered opaque pair gift",
+        "Foreign actual turn contest decline win expiry",
+        "boundary ma dai shown color hand ban",
+        "Ending pair two draws own extra round and cold",
+        "Preparation discard actual cost",
+        "Ordinary SP Cao Ren private whole hand",
+        "Ordinary SP Pang De two real costs",
+        "Ordinary Chen Lin deferred private offer next actual start exchange",
+        "Ordinary SP Cai Wen Ji original Dying four suits private cost cold replay",
+        "Ordinary Guan Yin Ping red equipment cost before lost HP targets and real fire draw",
+        "ordinary OL Zhuge Ke empty-hand Dodge private top request and once payment",
+        "Yang Xiu multi-target trick",
+        "SP Ma Chao HP ordered distance and lost HP extra targets pay each target once",
+        "Ordinary Fu Wan same-use benefit",
+        "Ordinary Cao Hong real placement",
+        "Ordinary Liu Xie Tianming SilverLion cost and unique current HP peer",
+        "OL signed damage actual material",
+        "Tiered Round true uses physical conversion and private cold",
+        "Tiered Round shared quota and zero ordinary child",
+        "Same actual use aid extra duel physical slash targets",
+        "shared use lifecycle",
+        "shared card-use",
+        "card movement",
+        "card inventory",
+        "initial deal",
+        "invalid single and batch",
+        "draw and recover",
+        "execution plans",
+        "skill executor",
+        "program gameplay hashes",
+        "physical deck recipes",
+        "structured skill metadata",
+        "content registry",
+        "standard package",
+        "composition kernel",
+        "rule query",
+        "slash resolution",
+        "dying response",
+        "Xingshang",
+        "response use completion",
+        "selected gift",
+        "configured active sequences",
+        "standard active programs",
+        "owned-card set",
+        "turn card-use effects",
+        "active Program contracts",
+        "hand guidance",
+        "actual marker payment",
+        "replacement draw and dying payment",
+        "two dynamic actual ends",
+        "ordered nested native owner",
+        "payment nested comparison",
+        "first target history",
+        "program conversion polarity shared state and replay",
+        "Feng Lin Lu Zhi actual discard entry boundaries",
+        "Ending child gift joins current boundary",
+        "Feng Lin Yuan Shu command loss regrant source suppression",
+        "Feng Lin Yuan Shu qualified awakening persistent local loss",
+        "Feng Lin Zhou Fei first domains and true equipment sequence",
+        "Feng Lin Zhou Fei same-source association freeze",
+        "Feng Lin Congjian Equipment gift nested replay",
+        "after turn ended return movement prelude ordering",
+        "after turn ended due before window nested replay",
+        "Feng Lin Zuo Ci initial privacy and replay",
+        "Feng Lin Zuo Ci layered suppression and local disable",
+        "Feng Lin Zuo Ci same avatar program and actual end",
+        "Feng Lin Yu Ji",
+        "boundary Lu Meng all table printed suits replay",
+        "boundary Lu Meng cross owner skip chain resume death",
+        "boundary Lu Meng Qinxue windows shared usage",
+        "boundary Lu Meng opt in usage legacy shape",
+        "Boundary Huang Gai actual provider color",
+        "Boundary Huang Gai multi card color source lifecycle",
+        "boundary Lu Xun actual trick hold lianying and return",
+        "boundary Lu Xun HE payment exact Hand batch count",
+        "boundary Liu Bei virtual Peach HP child",
+        "boundary Liu Bei native provided use decline once",
+        "boundary Liu Bei gift threshold recipient",
+        "boundary Da Qiao atomic mixed discard replay",
+        "boundary Hua Tuo ordered actual discard effective suit receipts",
+        "participant discard mandatory cost cancellation preserves legal composition",
+        "current turn nonlocked suppression host lifecycle audit",
+        "boundary Guan Yu actual Played and black Hand rejection",
+        "Boundary Zhang Fei actual recovery receipt limited child",
+        "boundary Ma Chao Tieqi Paoxiao exact cancellation integration",
+        "boundary Xiahou Dun real phases skip quota expiry",
+        "boundary Xiahou Dun receipt before gain child source audit",
+        "Exact top count partition normal draw",
+        "Bound draw receipt per point nested gain",
+        "boundary Zhen Ji exact receipt stop red discard",
+        "boundary Zhen Ji receipt before child source loss",
+        "Unconverted Trick draw receipt disposition",
+        "Foreign equipment discard program selections",
+        "Population reorder actual partition and short pile",
+        "Population reorder real Ending Extra Scheduled",
+        "HP pair freezes after payment children before draw children",
+        "Equipment placement slot self equal boundaries",
+        "Final target Slash frozen comparisons actual paid Dodge",
+        "Final target Slash escalation:",
+        "Paid HP loss rescue and gain children",
+        "Paid HP loss source and legacy",
+        "Boundary Deng Ai own turn slash discard judges authority",
+        "Boundary Deng Ai awakening grants snatch and extra turn",
+        "Boundary Jiang Wei declined taunt discards target card",
+        "Boundary Jiang Wei dodged slash still discards",
+        "Boundary Jiang Wei taunt runs twice per phase",
+        "Boundary Jiang Wei awakening wakes once across phases",
+        "Boundary Sun Ce own duel and red slash draw",
+        "Boundary Sun Ce reclaim once per turn",
+        "Boundary Sun Ce hunzi wakes draws and stays silent",
+        "Boundary Sun Ce zhiba declined claim discards both",
+        "Boundary Zhu Rong juxiang immunity claims resolved barbarian",
+        "Boundary Zhu Rong winning pindian takes target card",
+        "Boundary Zhu Rong lost pindian takes nothing",
+        "Boundary Zhu Rong unlimited slash damage draws at phase end",
+        "Boundary Zhu Rong dodged slash skips phase end draw",
+        "Boundary Zhu Rong changbiao runs once per phase",
+        "Boundary Meng Huo definitions and metadata",
+        "Boundary Meng Huo barbarian immunity and attribution",
+        "Boundary Meng Huo zaiqi asks chosen participants in order",
+        "Boundary Meng Huo zaiqi draw only at full owner",
+        "Boundary Meng Huo zaiqi decline leaves everyone alone",
+        "Boundary Meng Huo zaiqi stays silent without red discards",
+        "Boundary Guan Xing Zhang Bao converted slash response follows pair color",
+        "Boundary Guan Xing Zhang Bao turn skills expire with the turn",
+        "Damage target mount paid children source lifetime",
+        "Damage appearance Draw definitions physical colors cardless legacy",
+        "Selected actor Duel actual Use and Nullification",
+        "Damage target obtain nested Duel native cold",
+        "Boundary Yuan Shao population start role marker limit",
+        "Boundary Yuan Shao conversion actual remaining targets",
+        "Recovery replacement Silver Lion Zhiheng HP and reward children",
+        "Recovery replacement paid equipment tail",
+        "Recovery replacement faction request Silver Lion cost before providers",
+        "Program Iron Chain third target owned recast",
+        "Equipment recast Silver Lion recovery and movement children",
+        "BoundaryXuShu fixed target real Slash",
+        "BoundaryXuShu declared deck criterion",
+        "Character turned over Shebian both directions",
+        "Character turned over Shebian occupied equipment slot",
+        "Character turned over actual damage cursor",
+        "Capped hand refresh",
+        "HP paid shield",
+        "Random Pindian",
+        "Maximum Slash Pindian",
+        "Bound card recast dynamic Slash",
+        "Bound card recast Silver Lion",
+        "Turn kind hand exemption",
+        "Signed Slash modifier",
+        "Bound discard Slash frozen suit",
+        "Bound discard Slash equipment",
+        "First round limited refund exact",
+        "Current Slash entity claim basic",
+        "Current Slash entity claim nonbasic",
+        "Participant hand declined private take",
+        "Participant hand mixed HE gift",
+        "Participant hand per point effective red",
+        "Participant hand program bound alcohol",
+        "Next-use rank bonus",
+        "Other dying recovery equipment",
+        "Alternative phase cost actual",
+        "Alternative phase cost equipped",
+        "Ending hand count history",
+        "Random reveal color Fire Attack",
+        "Unrespondable counterspell equipment",
+        "Discarded provenance virtual Alcohol",
+        "Discarded provenance exact discard judgment",
+        "Discarded provenance real turn all materials",
+        "Actual turn use kinds independent hand suits",
+        "Actual turn use kinds per Play draw",
+        "Owner batch loss equipment OR two cards once",
+        "Shared Slash gift equipment recovery both gain children cold",
+        "Turn damage-use draw debt actual gain and frozen ending cost",
+        "Source faction prevention quota opaque HEJ equipment children"
+      ],
+      "wpfFilters": [
+        "Original hand tag presentation:",
+        "Draw-funded zero Use",
+        "original card artwork",
+        "overlapping hand",
+        "composed skills",
+        "conversion choices",
+        "response context",
+        "hand responses",
+        "opaque target-card",
+        "playback batches",
+        "saved UI boundaries",
+        "failed writes",
+        "public markers",
+        "deferred hand alignment",
+        "Program conversion polarity stays visible",
+        "declaration and general library views protect private faces",
+        "Jin faction presentation:",
+        "Program paid choices",
+        "Program exact top count restores private shared order",
+        "Program population count private faces restore shared free order",
+        "Program Iron Chain guide follows actual target count"
+      ],
+      "startedAt": "2026-10-09T02:56:05.0300117+08:00",
+      "durationMs": 242352,
+      "message": null,
+      "results": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 1323,
+          "log": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\build\\logs\\build.log"
+        },
+        {
+          "name": "Core selected checks (269 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 221229,
+          "log": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\build\\logs\\core-selected.log"
+        },
+        {
+          "name": "WPF selected checks (21 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 19727,
+          "log": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\build\\logs\\wpf-selected.log"
+        }
+      ],
+      "runnerExitCode": 0,
+      "runnerInvokedAt": "2026-10-09T02:56:04.9888994+08:00",
+      "runnerFinishedAt": "2026-10-09T03:00:07.4017742+08:00"
+    },
+    "executedStepLogs": [
+      {
+        "path": ".artifacts/goal-20261007-01a1156d/round22-routine-final-build.log",
+        "sha256": "3f7213dea2c125ca0811fc737568da7d1ba278011462e067c61af6e3dba36a72",
+        "lastWriteTimeUtc": "2026-10-08T18:56:06.345455+00:00"
+      },
+      {
+        "path": ".artifacts/goal-20261007-01a1156d/round22-routine-final-core-selected.log",
+        "sha256": "3b4d6cab4108a79b1e5beb0b317881e3921ac06821c5814dc2a08127ba2f764c",
+        "lastWriteTimeUtc": "2026-10-08T18:59:47.614321+00:00"
+      },
+      {
+        "path": ".artifacts/goal-20261007-01a1156d/round22-routine-final-wpf-selected.log",
+        "sha256": "d272f56a60afc111467814d66e793845c4c9e24fb2d570123cf2df6efc562ad6",
+        "lastWriteTimeUtc": "2026-10-08T19:00:07.015107+00:00"
+      }
+    ],
+    "core": {
+      "passed": 428,
+      "failed": 0,
+      "passedNames": [
+        "Recipient category mark: face-up gift issues one public token and survives source loss",
+        "Recipient category mark: Lei recovers native dying to one and draws once",
+        "Recipient category mark: Fu blindly discards up to two from one area",
+        "Recipient category mark: Song adds legal targets to the original Slash",
+        "Off-turn used card gift: actual single and pair Dodge give every material once",
+        "Off-turn used card gift: own turn and pure responses stay excluded",
+        "Overflow target cancellation: unique physical and pair materials return through native gain",
+        "Overflow target cancellation: multiple targets self use and exact hand limit stay distinct",
+        "Matching recast: canonical names self quota and extra Play phase",
+        "Matching recast: equipment recovery and Thunder damage remain native",
+        "Ordered printed skill loss: current prefix repeated and self damage once",
+        "Ordered printed skill loss: frozen draw and exact turn restoration survive source loss",
+        "Turn default allocation: phase defaults preserve modifiers and repeated Play",
+        "Turn default allocation: outside-turn damage applies only to next actual turn",
+        "Round distinct basic use: real pair pays once and shares round name across regrant",
+        "Round distinct basic use: own Dodge use and pure provision stay distinct",
+        "Round distinct basic use: Peach and self Alcohol retain native dying returns",
+        "Round distinct basic use: forced Slash and hand-like materials keep native parents",
+        "Card response completion cost: Silver Lion equipment Dodge drains health before completion",
+        "Completed undamaged target reveal: public pile payment stays separate from native materials",
+        "Card response completion: native Zhangba pair and cold return",
+        "Same name hand demand: outside-turn actual use and own-turn exclusion",
+        "Same name hand demand: pure responses complete on their native parents",
+        "Same name hand demand: response uses complete only once",
+        "Same name hand demand: actual faction providers own completion exactly once",
+        "Same name hand demand: active faction supply completes before principal use without a fake response",
+        "Same name hand demand: paid discard and native damage dying survive source loss",
+        "Completed undamaged target reveal: whole-use group target same-color discard and cold return",
+        "Completed undamaged target reveal: optional zero, mixed colors and target effective colors",
+        "Original hand entities: initial physical loss, returned card and real paired recast",
+        "Original hand entities: paid benefit draw survives nested source qualification loss",
+        "Original hand entities: empty originals awaken at real turn start once",
+        "Original hand entities: optional death transfers only personally received permanent bonuses",
+        "Outside phase draw discard: actual draw invocation excludes gifts, initial deal, Draw phase and empty deck",
+        "Outside phase draw discard: actual category discard excludes recast and Discard phase",
+        "Paired hand recast: real Hand private selection, phase quota and cold native return",
+        "Native discard classification: exact paid producers exclude adjacent gain and cleanup",
+        "Paired hand recast: paid source suppression preserves both owed draws",
+        "Paired hand recast: moved frozen partner material cannot be replaced",
+        "Paired hand recast: native partner death skips only the unpaid participant",
+        "Phase name prediction: secret actual phase, escalating round cost and native settlement",
+        "Phase name prediction: stolen armor native owner recovery and collateral return",
+        "Phase name prediction: frozen ending death, early native uses and inserted phase boundaries",
+        "Last damage source reciprocity: latest actual source, native HE payment and physical regrant memory",
+        "Unexpected Assault: opaque reveal native damage counterspell and conversion lifetime",
+        "Activation-count awakening: actual refunded activations preparation quota and source loss",
+        "Category discard refund: distinct payment phase refund and actual turn target ban",
+        "Category discard refund: repeated categories and small actual payments",
+        "Category discard refund: equipment child and lost source",
+        "Category discard refund: protected hand and payable own armor",
+        "Draw-funded distinct basic: qualification ledger and paid children",
+        "Draw-funded distinct basic: native Dodge Dying and program returns",
+        "Liejie source discard: effective red quota mixed HE and native children",
+        "Liejie source discard: zero decline protected and general weapon payments",
+        "Choice target prerequisite: missing targets retain mandatory draw recovery and consume group once",
+        "Choice target prerequisite: available targets keep exact choice through damage and private discard children",
+        "Different color judgment replacement: effective owner and subject colors pay hand equipment and replay once",
+        "Different color judgment replacement: same color none and legacy defaults keep private native choices",
+        "Ending damage marker: frozen actual damage settles once",
+        "Liu Hong activation: decline and paid children return once",
+        "Liu Hong activation: native AI available slots and source-less damage",
+        "Tang Ji paid continuation: marked death discards and returns once",
+        "Tang Ji paid continuation: lethal prevention rescues and gifts once",
+        "Tongxie use provenance: live child and returned entity use response",
+        "Draw advice and designated extra target: frozen draw qualifications and HE payment",
+        "Draw advice and designated extra target: canonical Slash name and distance",
+        "Draw advice and designated extra target: multiple Iron Chain targets",
+        "Draw advice and designated extra target: native Peach and Alcohol effects",
+        "Draw advice and designated extra target: Borrowed Sword compound pair",
+        "Draw advice and designated extra target: response recast and unsupported boundaries",
+        "Gifted Slash hand policy: actual use damage reward and cold children",
+        "Gifted Slash hand policy: departed entities and recipient boundaries",
+        "Gifted Slash hand policy: response consumes without use reward",
+        "Gifted Slash hand policy: target phase quota and continuous hand lifetime",
+        "Public pile cash out: damage points hand equipment and decline",
+        "Public pile cash out: frozen payment draw and nested deposit",
+        "Public pile cash out: isolated sources and actual turn expiry",
+        "Public pile cash out: empty source and strict composition",
+        "Current turn hand exchange: frozen foreign quantity and native HE returns",
+        "Current turn hand exchange: self draw and decline",
+        "Current turn hand exchange: gift child resource exhaustion",
+        "Exact owned card count and named targets: frozen payment recovery children",
+        "Exact owned card count and named targets: insufficient empty effective suits and native AI",
+        "Actual target prompt retains the AI-owned attack",
+        "Owned hand exact rank sum actual gift and recovery return",
+        "Owned hand exact rank sum no solution and native AI",
+        "Initial hand modifiers: owner maximum HP controls the real deal and dynamic hand limit",
+        "Owner dying awakening paid HP tail returns once",
+        "Owner dying replacement permanent source and optional ending replay",
+        "Virtual ordinary trick composition frozen branches and public AI",
+        "Ending Pindian win loss tie actual virtual tricks and cold return",
+        "Trick target arbitrary hand gift empty Dismantlement and true counterspell",
+        "Delayed trick target hand gift waits exact movement child",
+        "Ending virtual trick real adjusted target sequence returns once",
+        "Actual turn use ordinal: frozen declaration order and true uses",
+        "Actual second use foreign grants share state and expire on end",
+        "Actual legacy Wine synchronous HP and completion child return",
+        "foreign ending owner and equipment costs wait once",
+        "Short range Slash and directed ending debt: FixedOneActualTurnZeroCostEndingPhysicalOnce",
+        "Short range Slash and directed ending debt: ShortRangeOneTailActualSlashAndNativeDoubleDodge",
+        "Short range Slash and directed ending debt: WholeActualTurnPriorDamageAndIssuedSourceLossHostBoundary",
+        "Short range Slash and directed ending debt: ShortRangeNativeRedirectCursorAndFireOrdering",
+        "Equipment Slash ownership: KuangfuOwnEquipmentRecoveryAndWholeUseCompletionReturnOnce",
+        "Equipment Slash ownership: KuangfuForeignPreventionIgnoresPaidSkillsChangedDyingDamage",
+        "Equipment Slash ownership: KuangfuOwnershipDamageMatrixAndPartialHandPenalty",
+        "Equipment Slash ownership: KuangfuSpentQuotaRejectsDiscardingItsOwnCrossbow",
+        "Actual hand gains and category gifts: ActualHandGainsPreserveBatchIdentityAndExcludeSelfRecursion",
+        "Actual hand gains and category gifts: ForeignHandGainsWaitForActualEndAndKeepOnlySurvivingAcquisitions",
+        "Actual hand gains and category gifts: CategoryDeckGiftsUseTrueCompletionQuotaAndPrivateTargets",
+        "Delegated judgment and gain gifts: actual private judgment and paid HE children",
+        "Delegated judgment and gain gifts: single gain batch and actual phase quota",
+        "Delegated judgment and gain gifts: foreign Play and frozen effective red loss",
+        "Delegated judgment and gain gifts: sequential red materials and frozen collections",
+        "JudgedRankSlashPolicy.QiangwuActualJudgmentFrozenRankDistanceAndSeparateQuota",
+        "JudgedRankSlashPolicy.QiangwuReplacementEmptyDeckAndIssuedSourceLossHostBoundary",
+        "JudgedRankSlashPolicy.ShenxianSkipThenRealDrawOnceWithFrozenGainChild",
+        "JudgedRankSlashPolicy.ShenxianOriginalMovedEntityResetAndActualTurnPredicateHostBoundary",
+        "skill program public pile preparation empty independent source and real damage",
+        "skill program public pile preparation whole fill paid child",
+        "skill program public pile preparation gift recovery original quantity",
+        "Phase hand seizure: LihunRealCostFlipTakeAndFrozenHpReturnColdReplay",
+        "Phase hand seizure: LihunMaleSelfEquipmentTransferCountsOnlyPhysicalCards",
+        "Phase hand seizure: LihunSourceLossInsufficientAndForcedEndHostBoundaries",
+        "Phase hand seizure: BiyueCurrentHandBranchesSingleDrawInstruction",
+        "Phase hand seizure: LihunDeathTerminalClosureAndFrozenReceiptCollections",
+        "RecipientContestConsequencesActualBlackGiftSelfSecondAndTie",
+        "RecipientContestConsequencesActualWinnerDiscardPaidChildAndReturn",
+        "RecipientContestConsequencesActualPrintedLordQualificationNativeAndPersistent",
+        "RecipientContestConsequencesPrintedQualificationExactGrantAndReplacement",
+        "RecipientContestConsequencesActualOrdinaryTrickProtectionAndDelayedBoundary",
+        "RecipientContestConsequencesReceiptCollectionsAndLegacyGrantAbi",
+        "skill program source curse physical initial judgment replacement and actual turn loss",
+        "skill program source curse locked reward and second paid source loss return",
+        "skill program source curse HP Dying parent and physical death cleanup",
+        "skill program activation BooleanState nested gates and current instance isolation",
+        "Damage judgment suit payment four suits and exact claims",
+        "Random reveal color Fire Attack HE payment and children cold",
+        "Unrespondable counterspell equipment payment completed cold",
+        "Actual turn use kinds independent hand suits and effective types",
+        "Actual turn use kinds per Play draw child and actual turn expiry",
+        "Discarded provenance virtual Alcohol face children and zero entity",
+        "Discarded provenance exact discard judgment origins and gain children",
+        "Discarded provenance real turn all materials no response",
+        "Granted entity extra phase distance claim children and cold",
+        "Frozen faction recovery game damage points benefit children",
+        "Next actual-use paid wins refresh one target token and original claims",
+        "Original target addition rights quota armor and cold",
+        "Foreign turn Wine actual actor physical virtual and pile dying",
+        "Neighbor discard own first previous actual entities order privacy",
+        "boundary cheng pu completion payment recovery and dying",
+        "boundary wu guo tai paid equipment pair cost and typed return",
+        "Paid actual target HP and original use return",
+        "shared actual target loader keeps operation ownership and paid contracts",
+        "public equipment half count draw resumes once",
+        "boundary li ru sequential discard top cost and typed child return",
+        "Whole equipment donation actual X and recovery",
+        "boundary xiao qiao suit prevention equipment cost and capped draw",
+        "boundary lu su extra draw half hand gift and cold children",
+        "Real color payment Duel back-damage and mandatory Ending claim",
+        "Multiple original materials already moved and empty virtual responses",
+        "boundary two zhangs equipment replacement paid children and cold draw",
+        "boundary bu lian shi ordered opaque pair gift and reward",
+        "Foreign actual turn contest decline win expiry",
+        "Same actual use aid extra duel physical slash targets",
+        "boundary ma dai shown color hand ban and equipment response",
+        "Ending pair two draws own extra round and cold",
+        "Preparation discard actual cost",
+        "Yang Xiu multi-target trick owns draw children and unique Borrowed Sword is excluded",
+        "SP Ma Chao HP ordered distance and lost HP extra targets pay each target once",
+        "Ordinary Cao Hong real placement replacement and armor draw",
+        "Ordinary Guan Yin Ping red equipment cost before lost HP targets and real fire draw",
+        "ordinary OL Zhuge Ke empty-hand Dodge private top request and once payment",
+        "Ordinary SP Cao Ren private whole hand after HP children and real discard",
+        "Ordinary Chen Lin deferred private offer next actual start exchange",
+        "Ordinary SP Cai Wen Ji original Dying four suits private cost cold replay",
+        "Ordinary SP Pang De two real costs and issued Duel typed return",
+        "Ordinary Fu Wan same-use benefit and real Dodge settlement",
+        "Ordinary Liu Xie Tianming SilverLion cost and unique current HP peer",
+        "OL signed damage actual material effective color and amount",
+        "Tiered Round true uses physical conversion and private cold",
+        "Tiered Round shared quota and zero ordinary child",
+        "Owner batch loss equipment OR two cards once",
+        "Shared Slash gift equipment recovery both gain children cold",
+        "Turn damage-use draw debt actual gain and frozen ending cost",
+        "Source faction prevention quota opaque HEJ equipment children",
+        "Dual private color commitments atomic payment real Duel and cold",
+        "Actual turn target commitment damage weapon shared quota",
+        "Applied damage occurrence frozen victim and real source",
+        "Applied damage benefit gain field recovery source death",
+        "Owned damage point judgment actual alcohol suppression expiry",
+        "Owned damage point judgment bonus and dodged virtual no suppression",
+        "Owned damage point judgment per point recovery claim children native",
+        "Owned damage point judgment claimed gain bound Alcohol rescue and cold replay",
+        "Prevented damage draw exact amount owning children",
+        "Black trick target policy actual color and lightning",
+        "Dying skill qualification current source foreign grants",
+        "Nearest legal Slash paid conversion provider optional finisher",
+        "Nearest legal Slash paid source loss native start history",
+        "Actual draw obligation distance whole turn paid equipment",
+        "Actual draw obligation least hand marker end observers",
+        "Actual draw obligation existing marker nonminimum awaited gain",
+        "Actual draw obligation skipped extra reissued marker source death",
+        "Phase hand extra turn native public declaration paid selected beneficiary",
+        "Phase hand extra turn owner only native legacy value",
+        "Next-use rank bonus per point real consumption public pool and cold replay",
+        "Other dying recovery equipment payment turnover exact victim and cold replay",
+        "Alternative phase cost actual Judgment Draw zero to two targets cold",
+        "Alternative phase cost equipped payment HP movement children",
+        "Ending hand count history Extra turns face down native AI",
+        "Participant hand declined private take two cards atomic source reward",
+        "Participant hand mixed HE gift atomic recovery and reward children",
+        "Participant hand per point effective red and HP loss damage cursor",
+        "Participant hand program bound alcohol rescue typed return and cold",
+        "Current Slash entity claim basic payment original damage and multiple materials",
+        "Current Slash entity claim nonbasic receipt real allowance and armor boundaries",
+        "Bound discard Slash frozen suit quota prepared privacy and expiry",
+        "Bound discard Slash equipment frozen suit recovery and movement children",
+        "First round limited refund exact usage and second round consumption",
+        "Character turned over Shebian both directions movement children cold replay",
+        "Character turned over Shebian occupied equipment slot no replacement cold replay",
+        "Character turned over actual damage cursor and movement child cold replay",
+        "Turn kind hand exemption survives source suppression actual turn expiry",
+        "Signed Slash modifier parser and prepared collection boundaries",
+        "Random Pindian both strategies exact RNG tied Slash claims cold replay",
+        "Random Pindian source decline opponent forces source cold replay",
+        "Maximum Slash Pindian claim effective ranks deferred top cold replay",
+        "Bound card recast dynamic Slash hand exemption actual expiry",
+        "Bound card recast Silver Lion recovery movement before grants",
+        "Capped hand refresh real damage private discard and cold replay",
+        "Capped hand refresh dead owner exact parent and cold replay",
+        "HP paid shield source death full damage prevention and once payment",
+        "HP paid shield lethal payment exact dying return cold replay",
+        "HP paid shield winner HP child cancels tail",
+        "HP paid shield native AI affordable protection",
+        "Recovery replacement Silver Lion Zhiheng HP and reward children",
+        "Recovery replacement paid equipment tail Qixi and replaced ID",
+        "Recovery replacement paid equipment tail Stone Axe before damage",
+        "Recovery replacement Qingxian damage HP reward observer chain",
+        "Recovery replacement paid Qixi stops after observer victory",
+        "Recovery replacement faction request Silver Lion cost before providers",
+        "Equipment recast Silver Lion recovery and movement children",
+        "Program equipment recast Silver Lion recovery and movement children",
+        "BoundaryXuShu fixed target real Slash cold replay",
+        "BoundaryXuShu declared deck criterion male give",
+        "Program Iron Chain third target owned recast cold replay",
+        "boundary Ma Chao Tieqi Paoxiao exact cancellation integration",
+        "program conversion polarity shared state and replay",
+        "Population reorder actual partition and short pile",
+        "Population reorder real Ending Extra Scheduled",
+        "Unconverted Trick draw receipt disposition",
+        "Foreign equipment discard program selections",
+        "Damage target obtain nested Duel native cold",
+        "Damage target mount paid children source lifetime",
+        "Final target Slash frozen comparisons actual paid Dodge",
+        "Final target Slash escalation: judgment quota and Silver Lion",
+        "Boundary Yuan Shao population start role marker limit",
+        "Boundary Yuan Shao conversion actual remaining targets",
+        "Damage appearance Draw definitions physical colors cardless legacy",
+        "Selected actor Duel actual Use and Nullification",
+        "Paid HP loss rescue and gain children",
+        "Paid HP loss source and legacy",
+        "Boundary Deng Ai own turn slash discard judges authority",
+        "Boundary Deng Ai awakening grants snatch and extra turn",
+        "Boundary Jiang Wei declined taunt discards target card",
+        "Boundary Jiang Wei dodged slash still discards",
+        "Boundary Jiang Wei taunt runs twice per phase",
+        "Boundary Jiang Wei awakening wakes once across phases",
+        "Boundary Sun Ce own duel and red slash draw",
+        "Boundary Sun Ce reclaim once per turn",
+        "Boundary Sun Ce hunzi wakes draws and stays silent",
+        "Boundary Sun Ce zhiba declined claim discards both",
+        "Boundary Zhu Rong juxiang immunity claims resolved barbarian",
+        "Boundary Zhu Rong winning pindian takes target card",
+        "Boundary Zhu Rong lost pindian takes nothing",
+        "Boundary Zhu Rong unlimited slash damage draws at phase end",
+        "Boundary Zhu Rong dodged slash skips phase end draw",
+        "Boundary Zhu Rong changbiao runs once per phase",
+        "Boundary Meng Huo definitions and metadata",
+        "Boundary Meng Huo barbarian immunity and attribution",
+        "Boundary Meng Huo zaiqi asks chosen participants in order",
+        "Boundary Meng Huo zaiqi draw only at full owner",
+        "Boundary Meng Huo zaiqi decline leaves everyone alone",
+        "Boundary Meng Huo zaiqi stays silent without red discards",
+        "Boundary Guan Xing Zhang Bao converted slash response follows pair color",
+        "Boundary Guan Xing Zhang Bao turn skills expire with the turn",
+        "HP pair freezes after payment children before draw children",
+        "Equipment placement slot self equal boundaries",
+        "Exact top count partition normal draw",
+        "Bound draw receipt per point nested gain",
+        "Boundary Zhang Fei actual recovery receipt limited child",
+        "Feng Lin Kuai Ending child gift joins current boundary",
+        "participant discard mandatory cost cancellation preserves legal composition",
+        "boundary Hua Tuo ordered actual discard effective suit receipts",
+        "boundary Lu Xun HE payment exact Hand batch count",
+        "boundary Lu Xun actual trick hold lianying and return",
+        "Feng Lin Zuo Ci initial privacy and replay",
+        "Feng Lin Zuo Ci layered suppression and local disable",
+        "Feng Lin Zuo Ci same avatar program and actual end",
+        "Feng Lin Zhou Fei first domains and true equipment sequence",
+        "Feng Lin Zhou Fei same-source association freeze",
+        "Feng Lin Lu Zhi actual discard entry boundaries",
+        "Feng Lin Lu Ji actual marker payment and damage",
+        "Feng Lin Lu Ji replacement draw and dying payment",
+        "boundary Liu Bei native provided use decline once",
+        "boundary Liu Bei virtual Peach HP child",
+        "boundary Liu Bei gift threshold recipient",
+        "boundary Da Qiao atomic mixed discard replay",
+        "boundary Lu Meng all table printed suits replay",
+        "boundary Lu Meng cross owner skip chain resume death",
+        "boundary Lu Meng Qinxue windows shared usage",
+        "boundary Lu Meng opt in usage legacy shape",
+        "after turn ended return movement prelude ordering",
+        "after turn ended due before window nested replay",
+        "FengLin Hao Zhao two dynamic actual ends native discard",
+        "FengLin Hao Zhao ordered nested native owner",
+        "Feng Lin Wang Ping payment nested comparison empty",
+        "Feng Lin Wang Ping first target history independent reward",
+        "committed events see the accepted command",
+        "command projection preparation failure preserves prior commit",
+        "command delivery failure preserves visible commit",
+        "command observer exception preserves commit and result",
+        "prepared snapshot rejects observer collection mutation",
+        "committed event collections reject observer mutation",
+        "round-start programs include foreign owners and cold returns",
+        "selected gift continues after recipient death",
+        "internal failure stops the session and preserves its trusted prefix",
+        "draw and recover compile typed instructions",
+        "commands share prepared projection across result and reentry",
+        "content registry compiles whole catalog dependencies",
+        "execution plans reuse source bindings without order collisions",
+        "active Program contracts share legality with public AI",
+        "skill executor retires strategic damage batches",
+        "lifecycle programs retire deferred provider rewards after owner death",
+        "response use completion Dodge timing parent and replay",
+        "response use completion counterspell chain and replay",
+        "response use completion counterspell dying rescue exact parent",
+        "response use completion Dodge dying rescue exact parent",
+        "response use completion excludes group response and wrong loader window",
+        "shared post-event recipient batch counts and reason filters",
+        "shared post-event gained cards pause and replay",
+        "shared post-event dying recovery ordering and replay",
+        "shared post-event definition context validation",
+        "shared use lifecycle nests rescue inside a suspended card window",
+        "shared card-use phase-owner movement context validation",
+        "Fame 2016 Taoluan response use completion",
+        "Fame 2015 Wei observer Spade damage gate replay",
+        "Fame 2013 discard movement origin native Dismantlement and replay",
+        "turn-ending Xiaoguo Tianxiang game over stops later observers",
+        "Feng Lin Congjian Equipment gift nested replay",
+        "owned-card set private draft movement and replay",
+        "owned-card set shortfall empty sources and invalidation",
+        "shared use lifecycle preserves dying rescue and replay",
+        "composition kernel resource graph safety",
+        "composition kernel malformed nodes",
+        "composition kernel boundary capabilities",
+        "composition kernel target-set consumption",
+        "execution plans freeze instructions and reject ambiguous bindings",
+        "rule query reduction is input-order independent",
+        "rule query reduction rejects invalid mutable inputs",
+        "rule query distance runs both directions before clamping",
+        "rule query registry rejects future Set conflicts",
+        "boundary Zhen Ji exact receipt stop red discard",
+        "boundary Zhen Ji receipt before child source loss",
+        "boundary Xiahou Dun real phases skip quota expiry",
+        "boundary Xiahou Dun receipt before gain child source audit",
+        "boundary Guan Yu actual Played and black Hand rejection",
+        "current turn nonlocked suppression host lifecycle audit",
+        "skill executor resumes child resolution without repeating paid effects",
+        "skill executor cancels remaining effects after an invalid selected cost",
+        "skill executor rejects changed programs and missing or duplicate handlers",
+        "active Program contracts reject invalid selections and preserve target order",
+        "lifecycle programs reject live card bindings across inserted phases",
+        "lifecycle programs cancel missing conditional bindings without leaks",
+        "cancelled lifecycle programs preserve parent attack cards",
+        "card movement programs compose atomic per-card and per-batch triggers with replay",
+        "nested card movement batches retain immediate parent identity",
+        "structured skill metadata normalizes explicitly and fingerprints content",
+        "Boundary Huang Gai actual provider color",
+        "Boundary Huang Gai multi card color source lifecycle",
+        "Feng Lin Yu Ji actual dodge duel rescue parents",
+        "Feng Lin Yu Ji actual counterspell provider parents",
+        "Feng Lin Yu Ji borrowed sword faction provider declaration",
+        "Feng Lin Yu Ji old registry virtual duel native continuation",
+        "Feng Lin Yu Ji cost child atomic privacy restore",
+        "Feng Lin Yu Ji all pass privacy quota replay",
+        "Feng Lin Yu Ji first challenge true false",
+        "Feng Lin Yuan Shu qualified awakening persistent local loss",
+        "Feng Lin Yuan Shu command loss regrant source suppression",
+        "skill program v2 trigger definitions validate and freeze",
+        "skill program card triggers require exact conversion sources and replay",
+        "skill program multi-target triggers wait for every Liuli redirection",
+        "skill program final judgment triggers resume recovery, drawing and replay",
+        "skill program judgment replacement commits both old-card destinations and replays",
+        "skill program judgment damage resumes through dying, death and replay",
+        "skill program direct Dodge and Lightning judgments resume and replay",
+        "skill program contributions bind owner filters, phase ledger and replay",
+        "skill program selected judgment subjects damage and replay",
+        "turn card-use effects union order consume and expire by action semantics",
+        "Chunlao spends one public Chun as virtual Alcohol in a dying response",
+        "Xingshang claims nested direct death cleanup cards and replays",
+        "recast is an independent validated card movement and replays exactly",
+        "viewer snapshot hides private roles and hands",
+        "viewer snapshot hides seed and other players' decisions",
+        "viewer cannot mutate the engine pending decision",
+        "commands publish a revision and reject stale input atomically",
+        "play commands use one exact published card and target choice",
+        "command reentry is a typed rejection",
+        "manual discard checkpoints and commands replay exactly",
+        "standard package builds an immutable isolated registry",
+        "skill program loader separates canonical gameplay from presentation",
+        "skill program loader rejects malformed and unsupported definitions",
+        "configured active sequences reject forged input and replay exact moves",
+        "program gameplay hashes control checkpoint compatibility independently of presentation",
+        "physical deck recipes preserve exact suit, rank and content hashing",
+        "standard active programs use typed selections and deterministic replay",
+        "content registry rejects duplicate ids and bad references",
+        "hand guidance is private, read-only and agrees with legal actions",
+        "accepted command journals serialize and replay deterministically",
+        "command checkpoints restore a paused private prompt deterministically",
+        "command checkpoints reject same-version content drift",
+        "initial deal registers every physical card in one zone",
+        "invalid single and batch moves are atomic",
+        "card inventory is conserved at every public boundary",
+        "observers run only after the public operation commits",
+        "slash resolution exposes a serializable frame stack",
+        "dying response can pause and recover with a private Peach",
+        "throwing observers are isolated after commit",
+        "synchronous observers cannot advance the engine reentrantly"
+      ],
+      "failures": [],
+      "slowest": [
+        {
+          "name": "Unrespondable counterspell equipment payment completed cold",
+          "durationMs": 8747.965
+        },
+        {
+          "name": "Tongxie use provenance: live child and returned entity use response",
+          "durationMs": 7145.899
+        },
+        {
+          "name": "Tiered Round shared quota and zero ordinary child",
+          "durationMs": 5980.5
+        },
+        {
+          "name": "Feng Lin Yu Ji borrowed sword faction provider declaration",
+          "durationMs": 5953.554
+        },
+        {
+          "name": "Discarded provenance real turn all materials no response",
+          "durationMs": 5551.041
+        },
+        {
+          "name": "Actual second use foreign grants share state and expire on end",
+          "durationMs": 4685.849
+        },
+        {
+          "name": "Next-use rank bonus per point real consumption public pool and cold replay",
+          "durationMs": 4471.41
+        },
+        {
+          "name": "Feng Lin Wang Ping first target history independent reward",
+          "durationMs": 3495.621
+        },
+        {
+          "name": "Original target addition rights quota armor and cold",
+          "durationMs": 3447.024
+        },
+        {
+          "name": "card inventory is conserved at every public boundary",
+          "durationMs": 3314.202
+        },
+        {
+          "name": "Round distinct basic use: forced Slash and hand-like materials keep native parents",
+          "durationMs": 3208.771
+        },
+        {
+          "name": "Actual turn use kinds independent hand suits and effective types",
+          "durationMs": 3139.677
+        }
+      ],
+      "log": ".artifacts/goal-20261007-01a1156d/round22-routine-final-core-selected.log",
+      "sha256": "3b4d6cab4108a79b1e5beb0b317881e3921ac06821c5814dc2a08127ba2f764c"
+    },
+    "wpf": {
+      "passed": 21,
+      "failed": 0,
+      "passedNames": [
+        "overlapping hand cards keep stable pointer targets",
+        "Original hand tag presentation: real entity refresh and cold restore",
+        "original card artwork preserves physical card identity and interaction",
+        "Program Iron Chain guide follows actual target count and submits set",
+        "conversion choices retain exact provenance without leaking trusted action details",
+        "composed skills share the generic WPF draft and submit their stable program identity",
+        "Program paid choices preserve actor control and opaque slots",
+        "declaration and general library views protect private faces",
+        "Jin faction presentation: gallery names filters colors and embedded images",
+        "Draw-funded zero Use exact source private draw child and stale action",
+        "Program conversion polarity stays visible with active entry and restore",
+        "Program public markers restore actual payment transfer and consumption",
+        "Program deferred hand alignment restores native private recipient and exact payment",
+        "Program exact top count restores private shared order",
+        "Program population count private faces restore shared free order",
+        "hand responses select exact cards and confirm through shared controls",
+        "response context distinguishes recipients, opponents and private prompts",
+        "playback batches internal steps while preserving human boundaries and replay",
+        "opaque target-card slots render privately and commit through WPF commands",
+        "saved UI boundaries restore and continue through actual files",
+        "failed writes and incompatible reads preserve the active game"
+      ],
+      "failures": [],
+      "slowest": [
+        {
+          "name": "hand responses select exact cards and confirm through shared controls",
+          "durationMs": 3636.151
+        },
+        {
+          "name": "Program exact top count restores private shared order",
+          "durationMs": 2168.032
+        },
+        {
+          "name": "Program population count private faces restore shared free order",
+          "durationMs": 1983.597
+        },
+        {
+          "name": "playback batches internal steps while preserving human boundaries and replay",
+          "durationMs": 1797.073
+        },
+        {
+          "name": "overlapping hand cards keep stable pointer targets",
+          "durationMs": 1645.932
+        },
+        {
+          "name": "Program conversion polarity stays visible with active entry and restore",
+          "durationMs": 1099.362
+        },
+        {
+          "name": "saved UI boundaries restore and continue through actual files",
+          "durationMs": 969.845
+        },
+        {
+          "name": "Program paid choices preserve actor control and opaque slots",
+          "durationMs": 963.234
+        },
+        {
+          "name": "opaque target-card slots render privately and commit through WPF commands",
+          "durationMs": 837.977
+        },
+        {
+          "name": "declaration and general library views protect private faces",
+          "durationMs": 804.739
+        },
+        {
+          "name": "Original hand tag presentation: real entity refresh and cold restore",
+          "durationMs": 684.508
+        },
+        {
+          "name": "Program public markers restore actual payment transfer and consumption",
+          "durationMs": 657.935
+        }
+      ],
+      "log": ".artifacts/goal-20261007-01a1156d/round22-routine-final-wpf-selected.log",
+      "sha256": "d272f56a60afc111467814d66e793845c4c9e24fb2d570123cf2df6efc562ad6"
+    }
+  },
+  "developmentAttempts": {
+    "development-classic-mode": {
+      "summary": {
+        "status": "test-failed",
+        "mode": "targeted",
+        "repository": "C:\\Users\\17917\\Desktop\\Card",
+        "artifactsPath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\build",
+        "coreFilters": [
+          "Overflow target cancellation:",
+          "Matching recast:",
+          "Ordered printed skill loss:"
+        ],
+        "wpfFilters": [],
+        "startedAt": "2026-10-09T02:43:16.6055541+08:00",
+        "durationMs": 10442,
+        "message": "One or more selected checks failed.",
+        "results": [
+          {
+            "name": "Build selected scope",
+            "status": "passed",
+            "exitCode": 0,
+            "durationMs": 4330,
+            "log": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\build\\logs\\build.log"
+          },
+          {
+            "name": "Core selected checks (3 filters, union)",
+            "status": "failed",
+            "exitCode": 1,
+            "durationMs": 6066,
+            "log": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\build\\logs\\core-selected.log"
+          }
+        ],
+        "runnerExitCode": 1,
+        "runnerInvokedAt": "2026-10-09T02:43:16.5631921+08:00",
+        "runnerFinishedAt": "2026-10-09T02:43:27.0695978+08:00"
+      },
+      "executedStepLogs": [
+        {
+          "path": ".artifacts/goal-20261007-01a1156d/round22-development-classic-mode-build.log",
+          "sha256": "04a47722b3d7a4715aea92e251eaf960ceb4dfd3e7aa6d1504f4e758914d047d",
+          "lastWriteTimeUtc": "2026-10-08T18:43:20.914516+00:00"
+        },
+        {
+          "path": ".artifacts/goal-20261007-01a1156d/round22-development-classic-mode-core-selected.log",
+          "sha256": "e81f9bf38c2e28d41efc359088b6adc6551770b2174b3d1ca01936f6ef42251d",
+          "lastWriteTimeUtc": "2026-10-08T18:43:27.025266+00:00",
+          "errorLines": [
+            "[FAIL] Matching recast: canonical names self quota and extra Play phase",
+            "       InvalidOperationException: The fixed native Zhang Hua boundary was not reached: {\"Views\":[\"{\\r\\n  \\u0022Seed\\u0022: null,\\r\\n  \\u0022HumanSeat\\u0022: 0,\\r\\n  \\u0022Status\\u0022: \\u0022AwaitingHumanResponse\\u0022,\\r\\n  \\u0022Winner\\u0022: \\u0022None\\u0022,\\r\\n  \\u0022TurnNumber\\u0022: 1,\\r\\n  \\u0022CurrentSeat\\u0022: 0,\\r\\n  \\u0022Phase\\u0022: \\u0022Play\\u0022,\\r\\n  \\u0022DrawPileCount\\u0022: 4,\\r\\n  \\u0022DiscardPileCount\\u0022: 0,\\r\\n  \\u0022Players\\u0022: [\\r\\n    {\\r\\n      \\u0022Seat\\u0022: 0,\\r\\n      \\u0022Name\\u0022: \\u0022\\\\u4F60\\u0022,\\r\\n      \\u0022IsHuman\\u0022: true,\\r\\n      \\u0022Role\\u0022: \\u0022Lord\\u0022,\\r\\n      \\u0022IsRoleRevealed\\u0022: true,\\r\\n      \\u0022GeneralId\\u0022: \\u0022fixture:zhang-hua-owner\\u0022,\\r\\n      \\u0022GeneralName\\u0022: \\u0022\\\\u5B8C\\\\u6574\\\\u6B63\\\\u5F0F\\\\u5F20\\\\u534E\\\\u80FD\\\\u529B\\u0022,\\r\\n      \\u0022PortraitKey\\u0022: \\u0022supporter\\u0022,\\r\\n      \\u0022Hp\\u0022: 4,\\r\\n      \\u0022MaxHp\\u0022: 4,\\r\\n      \\u0022IsAlive\\u0022: true,\\r\\n      \\u0022HandCount\\u0022: 17,\\r\\n      \\u0022Hand\\u0022: [\\r\\n        {\\r\\n          \\u0022Id\\u0022: 19,\\r\\n          \\u0022Kind\\u0022: \\u0022ThunderSlash\\u0022,\\r\\n          \\u0022Suit\\u0022: \\u0022Spade\\u0022,\\r\\n          \\u0022Rank\\u0022: 6,\\r\\n          \\u0022DisplayName\\u0022: \\u0022\\\\u96F7\\\\u6740\\u0022,\\r\\n          \\u0022RankText\\u0022: \\u00226\\u0022\\r\\n        },\\r\\n        {\\r\\n          \\u0022Id\\u0022: 21,\\r\\n          \\u0022Kind\\u0022: \\u0022ThunderSlash\\u0022,\\r\\n          \\u0022Suit\\u0022: \\u0022Spade\\u0022,\\r\\n          \\u0022Rank\\u0022: 8,\\r\\n          \\u0022DisplayName\\u0022: \\u0022\\\\u96F7\\\\u6740\\u0022,\\r\\n          \\u0022RankText\\u0022: \\u00228\\u0022\\r\\n        },\\r\\n        {\\r\\n          \\u0022Id\\u0022: 17,\\r\\n          \\u0022Kind\\u0022: \\u0022ThunderSlash\\u0022,\\r\\n          \\u0022Suit\\u0022: \\u0022Spade\\u0022,\\r\\n          \\u0022Rank\\u0022: 4,\\r\\n          \\u0022DisplayName\\u0022: \\u0022\\\\u96F7\\\\u6740\\u0022,\\r\\n          \\u0022RankText\\u0022: \\u00224\\ ... [truncated; 147084 chars; full text in archived log]",
+            "System.InvalidOperationException: The fixed native Zhang Hua boundary was not reached: {\"Views\":[\"{\\r\\n  \\u0022Seed\\u0022: null,\\r\\n  \\u0022HumanSeat\\u0022: 0,\\r\\n  \\u0022Status\\u0022: \\u0022AwaitingHumanResponse\\u0022,\\r\\n  \\u0022Winner\\u0022: \\u0022None\\u0022,\\r\\n  \\u0022TurnNumber\\u0022: 1,\\r\\n  \\u0022CurrentSeat\\u0022: 0,\\r\\n  \\u0022Phase\\u0022: \\u0022Play\\u0022,\\r\\n  \\u0022DrawPileCount\\u0022: 4,\\r\\n  \\u0022DiscardPileCount\\u0022: 0,\\r\\n  \\u0022Players\\u0022: [\\r\\n    {\\r\\n      \\u0022Seat\\u0022: 0,\\r\\n      \\u0022Name\\u0022: \\u0022\\\\u4F60\\u0022,\\r\\n      \\u0022IsHuman\\u0022: true,\\r\\n      \\u0022Role\\u0022: \\u0022Lord\\u0022,\\r\\n      \\u0022IsRoleRevealed\\u0022: true,\\r\\n      \\u0022GeneralId\\u0022: \\u0022fixture:zhang-hua-owner\\u0022,\\r\\n      \\u0022GeneralName\\u0022: \\u0022\\\\u5B8C\\\\u6574\\\\u6B63\\\\u5F0F\\\\u5F20\\\\u534E\\\\u80FD\\\\u529B\\u0022,\\r\\n      \\u0022PortraitKey\\u0022: \\u0022supporter\\u0022,\\r\\n      \\u0022Hp\\u0022: 4,\\r\\n      \\u0022MaxHp\\u0022: 4,\\r\\n      \\u0022IsAlive\\u0022: true,\\r\\n      \\u0022HandCount\\u0022: 17,\\r\\n      \\u0022Hand\\u0022: [\\r\\n        {\\r\\n          \\u0022Id\\u0022: 19,\\r\\n          \\u0022Kind\\u0022: \\u0022ThunderSlash\\u0022,\\r\\n          \\u0022Suit\\u0022: \\u0022Spade\\u0022,\\r\\n          \\u0022Rank\\u0022: 6,\\r\\n          \\u0022DisplayName\\u0022: \\u0022\\\\u96F7\\\\u6740\\u0022,\\r\\n          \\u0022RankText\\u0022: \\u00226\\u0022\\r\\n        },\\r\\n        {\\r\\n          \\u0022Id\\u0022: 21,\\r\\n          \\u0022Kind\\u0022: \\u0022ThunderSlash\\u0022,\\r\\n          \\u0022Suit\\u0022: \\u0022Spade\\u0022,\\r\\n          \\u0022Rank\\u0022: 8,\\r\\n          \\u0022DisplayName\\u0022: \\u0022\\\\u96F7\\\\u6740\\u0022,\\r\\n          \\u0022RankText\\u0022: \\u00228\\u0022\\r\\n        },\\r\\n        {\\r\\n          \\u0022Id\\u0022: 17,\\r\\n          \\u0022Kind\\u0022: \\u0022ThunderSlash\\u0022,\\r\\n          \\u0022Suit\\u0022: \\u0022Spade\\u0022,\\r\\n          \\u0022Rank\\u0022: 4,\\r\\n          \\u0022DisplayName\\u0022: \\u0022\\\\u96F7\\\\u6740\\u0022,\\r\\n          \\u0022RankText\\u0022: \\u00224\\ ... [truncated; 147084 chars; full text in archived log]",
+            "[FAIL] Ordered printed skill loss: frozen draw and exact turn restoration survive source loss",
+            "       InvalidOperationException: A damage trigger continuation must retain its window or skill frame at the stack top.",
+            "System.InvalidOperationException: A damage trigger continuation must retain its window or skill frame at the stack top."
+          ]
+        }
+      ],
+      "core": {
+        "passed": 4,
+        "failed": 2,
+        "passedNames": [
+          "Overflow target cancellation: unique physical and pair materials return through native gain",
+          "Overflow target cancellation: multiple targets self use and exact hand limit stay distinct",
+          "Matching recast: equipment recovery and Thunder damage remain native",
+          "Ordered printed skill loss: current prefix repeated and self damage once"
+        ],
+        "failures": [
+          "Matching recast: canonical names self quota and extra Play phase",
+          "Ordered printed skill loss: frozen draw and exact turn restoration survive source loss"
+        ],
+        "slowest": [
+          {
+            "name": "Overflow target cancellation: unique physical and pair materials return through native gain",
+            "durationMs": 1931.389
+          },
+          {
+            "name": "Matching recast: canonical names self quota and extra Play phase",
+            "durationMs": 1376.303
+          },
+          {
+            "name": "Ordered printed skill loss: current prefix repeated and self damage once",
+            "durationMs": 1117.871
+          },
+          {
+            "name": "Matching recast: equipment recovery and Thunder damage remain native",
+            "durationMs": 604.001
+          },
+          {
+            "name": "Overflow target cancellation: multiple targets self use and exact hand limit stay distinct",
+            "durationMs": 538.438
+          },
+          {
+            "name": "Ordered printed skill loss: frozen draw and exact turn restoration survive source loss",
+            "durationMs": 334.63
+          }
+        ],
+        "log": ".artifacts/goal-20261007-01a1156d/round22-development-classic-mode-core-selected.log",
+        "sha256": "e81f9bf38c2e28d41efc359088b6adc6551770b2174b3d1ca01936f6ef42251d"
+      },
+      "wpf": null
+    },
+    "development-first": {
+      "summary": {
+        "status": "test-failed",
+        "mode": "targeted",
+        "repository": "C:\\Users\\17917\\Desktop\\Card",
+        "artifactsPath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\build",
+        "coreFilters": [
+          "Overflow target cancellation:",
+          "Matching recast:",
+          "Ordered printed skill loss:"
+        ],
+        "wpfFilters": [],
+        "startedAt": "2026-10-09T02:35:36.0513675+08:00",
+        "durationMs": 31166,
+        "message": "One or more selected checks failed.",
+        "results": [
+          {
+            "name": "Build selected scope",
+            "status": "passed",
+            "exitCode": 0,
+            "durationMs": 29899,
+            "log": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\build\\logs\\build.log"
+          },
+          {
+            "name": "Core selected checks (3 filters, union)",
+            "status": "failed",
+            "exitCode": 1,
+            "durationMs": 1213,
+            "log": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\build\\logs\\core-selected.log"
+          }
+        ],
+        "runnerExitCode": 1,
+        "runnerInvokedAt": "2026-10-09T02:35:35.9912384+08:00",
+        "runnerFinishedAt": "2026-10-09T02:36:07.2463015+08:00"
+      },
+      "executedStepLogs": [
+        {
+          "path": ".artifacts/goal-20261007-01a1156d/round22-development-first-build.log",
+          "sha256": "fe7516ffae3940b24bedb6a350597661f27d678428d55de85844f00dbc93fc2a",
+          "lastWriteTimeUtc": "2026-10-08T18:36:05.933869+00:00"
+        },
+        {
+          "path": ".artifacts/goal-20261007-01a1156d/round22-development-first-core-selected.log",
+          "sha256": "278c98b16b570c081e854e7fecbc0a123411d3b562260c73586efe47507d62a2",
+          "lastWriteTimeUtc": "2026-10-08T18:36:07.203827+00:00",
+          "errorLines": [
+            "[FAIL] Overflow target cancellation: unique physical and pair materials return through native gain",
+            "       InvalidOperationException: Native selection weights place the fixed peer at seat1 and ordinary base3 plus the real Lord mode produces initial HP4.",
+            "System.InvalidOperationException: Native selection weights place the fixed peer at seat1 and ordinary base3 plus the real Lord mode produces initial HP4.",
+            "[FAIL] Overflow target cancellation: multiple targets self use and exact hand limit stay distinct",
+            "       InvalidOperationException: Native selection weights place the fixed peer at seat1 and ordinary base3 plus the real Lord mode produces initial HP4.",
+            "System.InvalidOperationException: Native selection weights place the fixed peer at seat1 and ordinary base3 plus the real Lord mode produces initial HP4.",
+            "[FAIL] Matching recast: canonical names self quota and extra Play phase",
+            "       InvalidOperationException: Native selection weights place the fixed peer at seat1 and ordinary base3 plus the real Lord mode produces initial HP4.",
+            "System.InvalidOperationException: Native selection weights place the fixed peer at seat1 and ordinary base3 plus the real Lord mode produces initial HP4.",
+            "[FAIL] Matching recast: equipment recovery and Thunder damage remain native",
+            "       InvalidOperationException: Native selection weights place the fixed peer at seat1 and ordinary base3 plus the real Lord mode produces initial HP4.",
+            "System.InvalidOperationException: Native selection weights place the fixed peer at seat1 and ordinary base3 plus the real Lord mode produces initial HP4.",
+            "[FAIL] Ordered printed skill loss: current prefix repeated and self damage once",
+            "       InvalidOperationException: Native selection weights place the fixed peer at seat1 and ordinary base3 plus the real Lord mode produces initial HP4.",
+            "System.InvalidOperationException: Native selection weights place the fixed peer at seat1 and ordinary base3 plus the real Lord mode produces initial HP4.",
+            "[FAIL] Ordered printed skill loss: frozen draw and exact turn restoration survive source loss",
+            "       InvalidOperationException: Native selection weights place the fixed peer at seat1 and ordinary base3 plus the real Lord mode produces initial HP4.",
+            "System.InvalidOperationException: Native selection weights place the fixed peer at seat1 and ordinary base3 plus the real Lord mode produces initial HP4."
+          ]
+        }
+      ],
+      "core": {
+        "passed": 0,
+        "failed": 6,
+        "passedNames": [],
+        "failures": [
+          "Overflow target cancellation: unique physical and pair materials return through native gain",
+          "Overflow target cancellation: multiple targets self use and exact hand limit stay distinct",
+          "Matching recast: canonical names self quota and extra Play phase",
+          "Matching recast: equipment recovery and Thunder damage remain native",
+          "Ordered printed skill loss: current prefix repeated and self damage once",
+          "Ordered printed skill loss: frozen draw and exact turn restoration survive source loss"
+        ],
+        "slowest": [
+          {
+            "name": "Overflow target cancellation: unique physical and pair materials return through native gain",
+            "durationMs": 772.514
+          },
+          {
+            "name": "Ordered printed skill loss: frozen draw and exact turn restoration survive source loss",
+            "durationMs": 89.187
+          },
+          {
+            "name": "Matching recast: canonical names self quota and extra Play phase",
+            "durationMs": 75.484
+          },
+          {
+            "name": "Matching recast: equipment recovery and Thunder damage remain native",
+            "durationMs": 46.72
+          },
+          {
+            "name": "Overflow target cancellation: multiple targets self use and exact hand limit stay distinct",
+            "durationMs": 45.393
+          },
+          {
+            "name": "Ordered printed skill loss: current prefix repeated and self damage once",
+            "durationMs": 35.342
+          }
+        ],
+        "log": ".artifacts/goal-20261007-01a1156d/round22-development-first-core-selected.log",
+        "sha256": "278c98b16b570c081e854e7fecbc0a123411d3b562260c73586efe47507d62a2"
+      },
+      "wpf": null
+    },
+    "development-native-returns": {
+      "summary": {
+        "status": "passed",
+        "mode": "targeted",
+        "repository": "C:\\Users\\17917\\Desktop\\Card",
+        "artifactsPath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\build",
+        "coreFilters": [
+          "Overflow target cancellation:",
+          "Matching recast:",
+          "Ordered printed skill loss:"
+        ],
+        "wpfFilters": [],
+        "startedAt": "2026-10-09T02:46:51.5667952+08:00",
+        "durationMs": 18860,
+        "message": null,
+        "results": [
+          {
+            "name": "Build selected scope",
+            "status": "passed",
+            "exitCode": 0,
+            "durationMs": 12553,
+            "log": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\build\\logs\\build.log"
+          },
+          {
+            "name": "Core selected checks (3 filters, union)",
+            "status": "passed",
+            "exitCode": 0,
+            "durationMs": 6265,
+            "log": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\build\\logs\\core-selected.log"
+          }
+        ],
+        "runnerExitCode": 0,
+        "runnerInvokedAt": "2026-10-09T02:46:51.5175634+08:00",
+        "runnerFinishedAt": "2026-10-09T02:47:10.4488765+08:00"
+      },
+      "executedStepLogs": [
+        {
+          "path": ".artifacts/goal-20261007-01a1156d/round22-development-native-returns-build.log",
+          "sha256": "8591af963f99c8d489cbb1d48231abfa38c4284a8f976579f0cb40775473b606",
+          "lastWriteTimeUtc": "2026-10-08T18:47:04.100760+00:00"
+        },
+        {
+          "path": ".artifacts/goal-20261007-01a1156d/round22-development-native-returns-core-selected.log",
+          "sha256": "b8a7a5df5dac3d664cdc7aa1ac9b2744ab591a9b3cbfaca36c0431c23eaa9e60",
+          "lastWriteTimeUtc": "2026-10-08T18:47:10.407500+00:00"
+        }
+      ],
+      "core": {
+        "passed": 6,
+        "failed": 0,
+        "passedNames": [
+          "Overflow target cancellation: unique physical and pair materials return through native gain",
+          "Overflow target cancellation: multiple targets self use and exact hand limit stay distinct",
+          "Matching recast: canonical names self quota and extra Play phase",
+          "Matching recast: equipment recovery and Thunder damage remain native",
+          "Ordered printed skill loss: current prefix repeated and self damage once",
+          "Ordered printed skill loss: frozen draw and exact turn restoration survive source loss"
+        ],
+        "failures": [],
+        "slowest": [
+          {
+            "name": "Overflow target cancellation: unique physical and pair materials return through native gain",
+            "durationMs": 1712.232
+          },
+          {
+            "name": "Ordered printed skill loss: frozen draw and exact turn restoration survive source loss",
+            "durationMs": 1609.471
+          },
+          {
+            "name": "Ordered printed skill loss: current prefix repeated and self damage once",
+            "durationMs": 917.897
+          },
+          {
+            "name": "Matching recast: canonical names self quota and extra Play phase",
+            "durationMs": 869.649
+          },
+          {
+            "name": "Matching recast: equipment recovery and Thunder damage remain native",
+            "durationMs": 564.384
+          },
+          {
+            "name": "Overflow target cancellation: multiple targets self use and exact hand limit stay distinct",
+            "durationMs": 451.361
+          }
+        ],
+        "log": ".artifacts/goal-20261007-01a1156d/round22-development-native-returns-core-selected.log",
+        "sha256": "b8a7a5df5dac3d664cdc7aa1ac9b2744ab591a9b3cbfaca36c0431c23eaa9e60"
+      },
+      "wpf": null
+    },
+    "targeted-before-copy": {
+      "summary": {
+        "status": "passed",
+        "mode": "targeted",
+        "repository": "C:\\Users\\17917\\Desktop\\Card",
+        "artifactsPath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\build",
+        "coreFilters": [
+          "Activation-count awakening:",
+          "boundary Lu Meng opt in usage legacy shape",
+          "boundary lu su",
+          "Boundary Meng Huo barbarian immunity and attribution",
+          "card inventory is conserved at every public boundary",
+          "card movement programs compose atomic per-card and per-batch triggers with replay",
+          "Card response completion cost:",
+          "Card response completion:",
+          "Category discard refund:",
+          "committed event collections reject observer mutation",
+          "Completed undamaged target reveal:",
+          "composition kernel resource graph safety",
+          "content registry compiles whole catalog dependencies",
+          "Draw-funded distinct basic:",
+          "Ending pair two draws own extra round and cold",
+          "Faction request",
+          "Fame 2015 Shu alternative basic cost source dying boundaries",
+          "Fame 2016 conversion declaration entity privacy replay",
+          "Fame 2016 conversion shared phase allowance",
+          "Feng Lin Yu Ji",
+          "Foreign turn Wine actual actor physical virtual and pile dying",
+          "Last damage source reciprocity:",
+          "Matching recast:",
+          "Native discard classification:",
+          "Off-turn used card gift:",
+          "Ol Lü Kai tunan",
+          "Ordered printed skill loss:",
+          "Ordinary Guan Yin Ping red equipment cost before lost HP targets and real fire draw",
+          "Ordinary Liu Xie Tianming SilverLion cost and unique current HP peer",
+          "ordinary OL Zhuge Ke empty-hand Dodge private top request and once payment",
+          "Ordinary SP Pang De two real costs and issued Duel typed return",
+          "Original hand entities:",
+          "Original target addition rights quota armor and cold",
+          "Outside phase draw discard:",
+          "Overflow target cancellation:",
+          "Paid actual target HP and original use return",
+          "Paired hand recast:",
+          "Phase name prediction:",
+          "prepared snapshot rejects observer collection mutation",
+          "Real color payment Duel back-damage and mandatory Ending claim",
+          "Recipient category mark:",
+          "Recovery replacement",
+          "response use completion",
+          "Round distinct basic use:",
+          "Same name hand demand:",
+          "Silver Lion",
+          "skill program loader",
+          "Source faction prevention quota opaque HEJ equipment children",
+          "SP Ma Chao HP ordered distance and lost HP extra targets pay each target once",
+          "standard package builds an immutable isolated registry",
+          "Tiered Round",
+          "Turn damage-use draw debt actual gain and frozen ending cost",
+          "Turn default allocation:",
+          "Unexpected Assault:"
+        ],
+        "wpfFilters": [
+          "Original hand tag presentation:",
+          "Jin faction presentation:",
+          "stored grain updates its badge without replacing hand controls",
+          "original card artwork preserves physical card identity and interaction"
+        ],
+        "startedAt": "2026-10-09T02:47:25.9474556+08:00",
+        "durationMs": 112525,
+        "message": null,
+        "results": [
+          {
+            "name": "Build selected scope",
+            "status": "passed",
+            "exitCode": 0,
+            "durationMs": 6428,
+            "log": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\build\\logs\\build.log"
+          },
+          {
+            "name": "Core selected checks (54 filters, union)",
+            "status": "passed",
+            "exitCode": 0,
+            "durationMs": 101719,
+            "log": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\build\\logs\\core-selected.log"
+          },
+          {
+            "name": "WPF selected checks (4 filters, union)",
+            "status": "passed",
+            "exitCode": 0,
+            "durationMs": 4320,
+            "log": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\build\\logs\\wpf-selected.log"
+          }
+        ],
+        "runnerExitCode": 0,
+        "runnerInvokedAt": "2026-10-09T02:47:25.8925616+08:00",
+        "runnerFinishedAt": "2026-10-09T02:49:18.4894511+08:00"
+      },
+      "executedStepLogs": [
+        {
+          "path": ".artifacts/goal-20261007-01a1156d/round22-targeted-before-copy-build.log",
+          "sha256": "591babace08c53085d71bea33e28d17c2135b182afc12bb694e79dda9839b0d2",
+          "lastWriteTimeUtc": "2026-10-08T18:47:32.351820+00:00"
+        },
+        {
+          "path": ".artifacts/goal-20261007-01a1156d/round22-targeted-before-copy-core-selected.log",
+          "sha256": "0e0119534fcb8f0655a573394039bb0844a808eec17d46f83c94e9bbf27e08fb",
+          "lastWriteTimeUtc": "2026-10-08T18:49:14.117908+00:00"
+        },
+        {
+          "path": ".artifacts/goal-20261007-01a1156d/round22-targeted-before-copy-wpf-selected.log",
+          "sha256": "f4aa2fe80ecf17cc84cb947c5515d810dae8dcdbdafd6948f66d3ed8c1ad5895",
+          "lastWriteTimeUtc": "2026-10-08T18:49:18.125177+00:00"
+        }
+      ],
+      "core": {
+        "passed": 120,
+        "failed": 0,
+        "passedNames": [
+          "Recipient category mark: face-up gift issues one public token and survives source loss",
+          "Recipient category mark: Lei recovers native dying to one and draws once",
+          "Recipient category mark: Fu blindly discards up to two from one area",
+          "Recipient category mark: Song adds legal targets to the original Slash",
+          "Off-turn used card gift: actual single and pair Dodge give every material once",
+          "Off-turn used card gift: own turn and pure responses stay excluded",
+          "Overflow target cancellation: unique physical and pair materials return through native gain",
+          "Overflow target cancellation: multiple targets self use and exact hand limit stay distinct",
+          "Matching recast: canonical names self quota and extra Play phase",
+          "Matching recast: equipment recovery and Thunder damage remain native",
+          "Ordered printed skill loss: current prefix repeated and self damage once",
+          "Ordered printed skill loss: frozen draw and exact turn restoration survive source loss",
+          "Turn default allocation: phase defaults preserve modifiers and repeated Play",
+          "Turn default allocation: outside-turn damage applies only to next actual turn",
+          "Round distinct basic use: real pair pays once and shares round name across regrant",
+          "Round distinct basic use: own Dodge use and pure provision stay distinct",
+          "Round distinct basic use: Peach and self Alcohol retain native dying returns",
+          "Round distinct basic use: forced Slash and hand-like materials keep native parents",
+          "Card response completion cost: Silver Lion equipment Dodge drains health before completion",
+          "Completed undamaged target reveal: public pile payment stays separate from native materials",
+          "Card response completion: native Zhangba pair and cold return",
+          "Same name hand demand: outside-turn actual use and own-turn exclusion",
+          "Same name hand demand: pure responses complete on their native parents",
+          "Same name hand demand: response uses complete only once",
+          "Same name hand demand: actual faction providers own completion exactly once",
+          "Same name hand demand: active faction supply completes before principal use without a fake response",
+          "Same name hand demand: paid discard and native damage dying survive source loss",
+          "Completed undamaged target reveal: whole-use group target same-color discard and cold return",
+          "Completed undamaged target reveal: optional zero, mixed colors and target effective colors",
+          "Original hand entities: initial physical loss, returned card and real paired recast",
+          "Original hand entities: paid benefit draw survives nested source qualification loss",
+          "Original hand entities: empty originals awaken at real turn start once",
+          "Original hand entities: optional death transfers only personally received permanent bonuses",
+          "Outside phase draw discard: actual draw invocation excludes gifts, initial deal, Draw phase and empty deck",
+          "Outside phase draw discard: actual category discard excludes recast and Discard phase",
+          "Paired hand recast: real Hand private selection, phase quota and cold native return",
+          "Native discard classification: exact paid producers exclude adjacent gain and cleanup",
+          "Paired hand recast: paid source suppression preserves both owed draws",
+          "Paired hand recast: moved frozen partner material cannot be replaced",
+          "Paired hand recast: native partner death skips only the unpaid participant",
+          "Phase name prediction: secret actual phase, escalating round cost and native settlement",
+          "Phase name prediction: stolen armor native owner recovery and collateral return",
+          "Phase name prediction: frozen ending death, early native uses and inserted phase boundaries",
+          "Last damage source reciprocity: latest actual source, native HE payment and physical regrant memory",
+          "Unexpected Assault: opaque reveal native damage counterspell and conversion lifetime",
+          "Activation-count awakening: actual refunded activations preparation quota and source loss",
+          "Category discard refund: distinct payment phase refund and actual turn target ban",
+          "Category discard refund: repeated categories and small actual payments",
+          "Category discard refund: equipment child and lost source",
+          "Category discard refund: protected hand and payable own armor",
+          "Draw-funded distinct basic: qualification ledger and paid children",
+          "Draw-funded distinct basic: native Dodge Dying and program returns",
+          "Original target addition rights quota armor and cold",
+          "Foreign turn Wine actual actor physical virtual and pile dying",
+          "Paid actual target HP and original use return",
+          "boundary lu su extra draw half hand gift and cold children",
+          "boundary lu su exchange first frozen ending silver lion debt",
+          "boundary lu su ending debt shortfall and source loss",
+          "boundary lu su actual target recipient support and expiry",
+          "Real color payment Duel back-damage and mandatory Ending claim",
+          "Ending pair two draws own extra round and cold",
+          "SP Ma Chao HP ordered distance and lost HP extra targets pay each target once",
+          "SP Ma Chao equipment recast drains Silver Lion and paid source loss before draw",
+          "Ol Lü Kai tunan converts dodge into slash",
+          "Ol Lü Kai tunan uses revealed slash without distance limit",
+          "Ol Lü Kai tunan peach use heals wounded counterpart",
+          "Ordinary Guan Yin Ping red equipment cost before lost HP targets and real fire draw",
+          "ordinary OL Zhuge Ke empty-hand Dodge private top request and once payment",
+          "Ordinary SP Pang De two real costs and issued Duel typed return",
+          "Ordinary Liu Xie Tianming SilverLion cost and unique current HP peer",
+          "Tiered Round true uses physical conversion and private cold",
+          "Tiered Round shared quota and zero ordinary child",
+          "Tiered Round zero counterspell Dodge and dying returns",
+          "Turn damage-use draw debt actual gain and frozen ending cost",
+          "Source faction prevention quota opaque HEJ equipment children",
+          "Recovery replacement Zhiheng selection and phase quota",
+          "Bound card recast Silver Lion recovery movement before grants",
+          "Recovery replacement program amount and recover-to cold replay",
+          "Recovery replacement paid Peach acceptance decline cold replay",
+          "Recovery replacement Silver Lion Zhiheng HP and reward children",
+          "Recovery replacement equipment-only selection and qualification",
+          "Recovery replacement lost exact source keeps original recovery",
+          "Recovery replacement paid equipment tail Qixi and replaced ID",
+          "Recovery replacement paid equipment tail Stone Axe before damage",
+          "Recovery replacement Qingxian damage HP reward observer chain",
+          "Recovery replacement projected sources full beneficiary",
+          "Recovery replacement paid Qixi stops after observer victory",
+          "Recovery replacement faction request Silver Lion cost before providers",
+          "Equipment recast Silver Lion recovery and movement children",
+          "Program equipment recast Silver Lion recovery and movement children",
+          "Final target Slash escalation: judgment quota and Silver Lion",
+          "Boundary Meng Huo barbarian immunity and attribution",
+          "boundary Lu Meng opt in usage legacy shape",
+          "prepared snapshot rejects observer collection mutation",
+          "committed event collections reject observer mutation",
+          "content registry compiles whole catalog dependencies",
+          "response use completion Dodge timing parent and replay",
+          "response use completion counterspell chain and replay",
+          "response use completion counterspell dying rescue exact parent",
+          "response use completion Dodge dying rescue exact parent",
+          "response use completion excludes group response and wrong loader window",
+          "Fame 2016 Taoluan response use completion",
+          "Fame 2016 conversion declaration entity privacy replay",
+          "Fame 2016 conversion shared phase allowance",
+          "Fame 2015 Shu faction request cost reward replay",
+          "Fame 2015 Shu alternative basic cost source dying boundaries",
+          "composition kernel resource graph safety",
+          "card movement programs compose atomic per-card and per-batch triggers with replay",
+          "Feng Lin Yu Ji actual dodge duel rescue parents",
+          "Feng Lin Yu Ji actual counterspell provider parents",
+          "Feng Lin Yu Ji borrowed sword faction provider declaration",
+          "Feng Lin Yu Ji old registry virtual duel native continuation",
+          "Feng Lin Yu Ji cost child atomic privacy restore",
+          "Feng Lin Yu Ji all pass privacy quota replay",
+          "Feng Lin Yu Ji first challenge true false",
+          "standard package builds an immutable isolated registry",
+          "skill program loader separates canonical gameplay from presentation",
+          "skill program loader rejects malformed and unsupported definitions",
+          "classic Silver Lion caps damage and recovers after leaving equipment",
+          "card inventory is conserved at every public boundary"
+        ],
+        "failures": [],
+        "slowest": [
+          {
+            "name": "classic Silver Lion caps damage and recovers after leaving equipment",
+            "durationMs": 9659.846
+          },
+          {
+            "name": "Tiered Round shared quota and zero ordinary child",
+            "durationMs": 6335.385
+          },
+          {
+            "name": "Feng Lin Yu Ji borrowed sword faction provider declaration",
+            "durationMs": 5120.294
+          },
+          {
+            "name": "Tiered Round zero counterspell Dodge and dying returns",
+            "durationMs": 4420.003
+          },
+          {
+            "name": "Original target addition rights quota armor and cold",
+            "durationMs": 4030.178
+          },
+          {
+            "name": "Fame 2015 Shu alternative basic cost source dying boundaries",
+            "durationMs": 3693.134
+          },
+          {
+            "name": "card inventory is conserved at every public boundary",
+            "durationMs": 3098.139
+          },
+          {
+            "name": "Round distinct basic use: forced Slash and hand-like materials keep native parents",
+            "durationMs": 2992.071
+          },
+          {
+            "name": "boundary lu su exchange first frozen ending silver lion debt",
+            "durationMs": 2555.219
+          },
+          {
+            "name": "boundary lu su actual target recipient support and expiry",
+            "durationMs": 2252.834
+          },
+          {
+            "name": "Draw-funded distinct basic: native Dodge Dying and program returns",
+            "durationMs": 2066.166
+          },
+          {
+            "name": "Feng Lin Yu Ji actual dodge duel rescue parents",
+            "durationMs": 1987.607
+          }
+        ],
+        "log": ".artifacts/goal-20261007-01a1156d/round22-targeted-before-copy-core-selected.log",
+        "sha256": "0e0119534fcb8f0655a573394039bb0844a808eec17d46f83c94e9bbf27e08fb"
+      },
+      "wpf": {
+        "passed": 4,
+        "failed": 0,
+        "passedNames": [
+          "stored grain updates its badge without replacing hand controls",
+          "Original hand tag presentation: real entity refresh and cold restore",
+          "original card artwork preserves physical card identity and interaction",
+          "Jin faction presentation: gallery names filters colors and embedded images"
+        ],
+        "failures": [],
+        "slowest": [
+          {
+            "name": "stored grain updates its badge without replacing hand controls",
+            "durationMs": 2691.602
+          },
+          {
+            "name": "original card artwork preserves physical card identity and interaction",
+            "durationMs": 845.821
+          },
+          {
+            "name": "Original hand tag presentation: real entity refresh and cold restore",
+            "durationMs": 269.1
+          },
+          {
+            "name": "Jin faction presentation: gallery names filters colors and embedded images",
+            "durationMs": 11.975
+          }
+        ],
+        "log": ".artifacts/goal-20261007-01a1156d/round22-targeted-before-copy-wpf-selected.log",
+        "sha256": "f4aa2fe80ecf17cc84cb947c5515d810dae8dcdbdafd6948f66d3ed8c1ad5895"
+      }
+    }
+  },
+  "assemblies": [
+    {
+      "name": "Core",
+      "files": [
+        {
+          "path": "bin/CardGame.Core/release/CardGame.Core.dll",
+          "sha256": "a45286c24942728e2a4c03a5e2dc2236e6e8c48c97d2d2a27cf791d33dd1fe14"
+        },
+        {
+          "path": "bin/CardGame.Core.Tests/release/CardGame.Core.dll",
+          "sha256": "a45286c24942728e2a4c03a5e2dc2236e6e8c48c97d2d2a27cf791d33dd1fe14"
+        },
+        {
+          "path": "bin/CardGame.Wpf.Tests/release/CardGame.Core.dll",
+          "sha256": "a45286c24942728e2a4c03a5e2dc2236e6e8c48c97d2d2a27cf791d33dd1fe14"
+        }
+      ],
+      "copiesMatch": true
+    },
+    {
+      "name": "Content.Standard",
+      "files": [
+        {
+          "path": "bin/CardGame.Content.Standard/release/CardGame.Content.Standard.dll",
+          "sha256": "abcfd55519d4f408210c38a62db4e4a624c871d637bc47ccb1f9e0944c039af0"
+        },
+        {
+          "path": "bin/CardGame.Core.Tests/release/CardGame.Content.Standard.dll",
+          "sha256": "abcfd55519d4f408210c38a62db4e4a624c871d637bc47ccb1f9e0944c039af0"
+        },
+        {
+          "path": "bin/CardGame.Wpf.Tests/release/CardGame.Content.Standard.dll",
+          "sha256": "abcfd55519d4f408210c38a62db4e4a624c871d637bc47ccb1f9e0944c039af0"
+        }
+      ],
+      "copiesMatch": true
+    },
+    {
+      "name": "Wpf",
+      "files": [
+        {
+          "path": "bin/CardGame.Wpf/release/CardGame.Wpf.dll",
+          "sha256": "3a5f0655388fa321b480f4d8dd38c505754dd1870b847510e498ea2e058f2125"
+        },
+        {
+          "path": "bin/CardGame.Wpf.Tests/release/CardGame.Wpf.dll",
+          "sha256": "3a5f0655388fa321b480f4d8dd38c505754dd1870b847510e498ea2e058f2125"
+        }
+      ],
+      "copiesMatch": true
+    },
+    {
+      "name": "Core.Tests",
+      "files": [
+        {
+          "path": "bin/CardGame.Core.Tests/release/CardGame.Core.Tests.dll",
+          "sha256": "9ccde8d21f6aacbdaaaed7487e85d5c057afb51145eb8ec903d537e85ac74fe8"
+        }
+      ],
+      "copiesMatch": true
+    },
+    {
+      "name": "Wpf.Tests",
+      "files": [
+        {
+          "path": "bin/CardGame.Wpf.Tests/release/CardGame.Wpf.Tests.dll",
+          "sha256": "8441d1a9fe9678e6f26cb2f3f964271eb666c78331431ae82d8b16f7345aeea8"
+        }
+      ],
+      "copiesMatch": true
+    }
+  ],
+  "manualFullRun": false,
+  "routineOneMinuteTargetMet": false,
+  "routineComparison": {
+    "round21Ms": 234045,
+    "round22Ms": 242352,
+    "note": "Measured routine including incremental build; no isolated optimization attribution."
+  },
+  "implementationNotes": [
+    "Full ordinary OL Zhang Hua, official male Jin identity and all three printed skills in the verified client and official launch order.",
+    "Current official hero, API, configuration and public client facts are retained with hashes; unique-target timing and current-owned printed prefix remain explicit root engine mappings, not official FAQ.",
+    "New unfinished execution belongs to typed owning ProgramSkillFrame receipts; durable temporary lost grants keep their exact original grant and skill-instance identities until the matching actual TurnEnded.",
+    "Recast performs real atomic physical movement and separately drains equipment removal, recovery, ownership, draw and damage children; paid operations cannot pay or draw twice after source loss.",
+    "An optional published AI hint selects a complete same-name or all-equipment recast group; the focused check verifies the cheapest legal group without consuming the target ledger during selection.",
+    "No per-character rules/schema/package version increase; manual-only full verification and current test pruning remain in force."
+  ],
+  "coverageLimits": [
+    "尚未穷举每种被取消的普通锦囊、延时锦囊、借刀双目标、无实体虚拟用牌及目标转移交互",
+    "木牛流马存牌清理、国战武将牌武器、已禁用的武将技能授予、无来源伤害、过期授予、阵亡角色、武将模板改变及身份冲突仅做精确守卫静态审查，本轮未新增对应运行夹具",
+    "六项专注检查覆盖代表性的原生返回、回放、隐私与状态变化，尚未证明嵌套伤害、濒死、替换及获得技能来源的所有组合"
+  ],
+  "sourceRecord": {
+    "path": "docs/content/sources/ol-zhang-hua-2026-10-09-source.json",
+    "sha256": "2c136e9713e9cd5324d142aa34a72c0b5a1c0440149dfdf46451fc76edb7c721"
+  },
+  "cleanup": {
+    "recordedAt": "2026-10-09T03:01:16.4245061+08:00",
+    "status": "blocked by earlier automatic approval review",
+    "roots": [
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d",
+        "fileCount": 10754,
+        "bytes": 4432880890
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\zcode-integration-repair-20261008-9fbe",
+        "fileCount": 7514,
+        "bytes": 5369059186
+      }
+    ],
+    "activeConsumers": [],
+    "reason": "Earlier exact-path recursive cleanup was rejected as blocked by policy. No alternate deletion workaround or repeat attempt; existing build outputs reused."
+  },
+  "artifactIntegrity": {
+    "path": "docs/benchmarks/2026-10-09-content-continuation-round22-artifact-integrity.json",
+    "sha256": "391e62716e7c31a0772e285d01f93d2e08c251ada5f1df340bc00a25d87f52c2",
+    "details": {
+      "recordedAt": "2026-10-09T02:53:38.8386592+08:00",
+      "kind": "Verification artifact reference-copy integrity repair",
+      "sourceInputsChanged": false,
+      "sourceInputsProof": "round22 source manifest compared before and after final scopes",
+      "before": [
+        {
+          "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\build\\obj\\CardGame.Wpf\\release\\CardGame.Wpf.dll",
+          "bytes": 353588224,
+          "lastWriteTime": "2026-10-09T02:47:31.2063642+08:00",
+          "sha256": "3a5f0655388fa321b480f4d8dd38c505754dd1870b847510e498ea2e058f2125"
+        },
+        {
+          "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\build\\bin\\CardGame.Wpf\\release\\CardGame.Wpf.dll",
+          "bytes": 353588224,
+          "lastWriteTime": "2026-10-09T02:47:31.2063642+08:00",
+          "sha256": "3a5f0655388fa321b480f4d8dd38c505754dd1870b847510e498ea2e058f2125"
+        },
+        {
+          "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\build\\bin\\CardGame.Wpf.Tests\\release\\CardGame.Wpf.dll",
+          "bytes": 353588224,
+          "lastWriteTime": "2026-10-09T02:47:31.2063642+08:00",
+          "sha256": "2a9677ae79d104d96878048f3bb1be22ef365330b409b8f5875fe66539d8ae8e"
+        }
+      ],
+      "difference": {
+        "bytes": 8161,
+        "blockStartOffset": 2293760,
+        "moduleVersionId": "3959b93f-7290-4a8e-9e55-ad2886afc799",
+        "resource": "assets/custom-gao-da-yi-hao.png",
+        "resourcePayloadOffset": 679306,
+        "resourcePayloadBytes": 2981701,
+        "sourceAndMainResourceSha256": "899c36849e63c38f5d9f774d817bb409a6763e89ce22821b1a5c0a743071c8ad",
+        "testCopyResourceSha256": "eb3a9d7ffababe329ece01349a2583fdf2264c0df21b9896778440beb28de631",
+        "cause": "Unknown. Static evidence establishes the affected reference copy, without attribution to hardware or a writer."
+      },
+      "repair": {
+        "command": "dotnet build tests/CardGame.Wpf.Tests/CardGame.Wpf.Tests.csproj -c Release --artifacts-path \"C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\build\" -p:SkipCopyUnchangedFiles=false",
+        "startedAt": "2026-10-09T02:53:36.8402511+08:00",
+        "finishedAt": "2026-10-09T02:53:38.8386592+08:00",
+        "exitCode": 0,
+        "log": ".artifacts/goal-20261007-01a1156d/round22-reference-copy-repair.log",
+        "sdkCopyTarget": "C:/Program Files/dotnet/sdk/8.0.408/Microsoft.Common.CurrentVersion.targets:5024",
+        "cleanInvoked": false,
+        "artifactsPath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\build",
+        "logSha256": "00b6702d04e01ada8f5789e2ce5782ecac226c619cdfc7d6130011351c894f3b"
+      },
+      "after": [
+        {
+          "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\build\\obj\\CardGame.Wpf\\release\\CardGame.Wpf.dll",
+          "bytes": 353588224,
+          "lastWriteTime": "2026-10-09T02:47:31.2063642+08:00",
+          "sha256": "3a5f0655388fa321b480f4d8dd38c505754dd1870b847510e498ea2e058f2125"
+        },
+        {
+          "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\build\\bin\\CardGame.Wpf\\release\\CardGame.Wpf.dll",
+          "bytes": 353588224,
+          "lastWriteTime": "2026-10-09T02:47:31.2063642+08:00",
+          "sha256": "3a5f0655388fa321b480f4d8dd38c505754dd1870b847510e498ea2e058f2125"
+        },
+        {
+          "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\build\\bin\\CardGame.Wpf.Tests\\release\\CardGame.Wpf.dll",
+          "bytes": 353588224,
+          "lastWriteTime": "2026-10-09T02:47:31.2063642+08:00",
+          "sha256": "3a5f0655388fa321b480f4d8dd38c505754dd1870b847510e498ea2e058f2125"
+        }
+      ],
+      "copiesMatch": true,
+      "priorTargetedRun": "targeted-before-copy retained with all executed logs; the prior passing WPF checks do not establish validation of the correct main DLL"
+    }
+  }
+}

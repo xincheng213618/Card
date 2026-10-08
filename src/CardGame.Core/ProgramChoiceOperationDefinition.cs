@@ -20,6 +20,10 @@ internal sealed class ChooseOptionProgramOperationDescriptor : ProgramOperationD
         var effect = new SkillProgramEffect(Op, reader.RequiredEnum<SkillProgramEffectTarget>("target"),
             0, reader.Condition(), resultBind: reader.RequiredIdentifier("resultBind"),
             options: reader.ChoiceOptions(), chooserRef: chooserRef);
+        if (effect.Options.Any(option => option.RequiredTargetKind is not null) &&
+            (effect.Target != SkillProgramEffectTarget.Owner ||
+             chooserRef is not null and not { Kind: ProgramParticipantRef.Owner }))
+            throw new InvalidOperationException($"Invalid skill program at {reader.Path}: requiredTargetKind options require the owner chooser.");
         foreach (var option in effect.Options)
             ValidateOptionCondition(option.Condition, reader.Path);
         return effect;

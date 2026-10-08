@@ -73,7 +73,7 @@ internal static class PhaseHandSeizureChecks
         owner.SkillGrants.RemoveGrant(original.GrantId); owner.SkillGrants.Grant(new("fixture:phs-regrant", Lihun, original.SkillInstanceId + ":later", "acquired:host-audit"));
         ((SkillRuntimeStateStore)typeof(GameEngine).GetField("_skillRuntimeState", Flags)!.GetValue(g)!).ResetSkill(0, Lihun);
         Require(!g.GetHumanLegalActions().Any(a => a.ProgramSkillId == Lihun), "Reacquisition and ResetSkill cannot erase this actual phase's issued paid-use fact.");
-        while (V(g).Hand.Count > 1) { DriverUse(g, "trim", [V(g).Hand.First().Id], []); ReachPlay(g); }
+        TrimHandTo(g, 1);
         Invoke(g, "ClearPendingDecision"); Invoke(g, "EndTurn"); Reach(g, p => Action(p, "phase-hand-debt-return"));
         Require(Root(g).SkillInstanceId == original.SkillInstanceId && Root(g).PhaseHandDebtReturn is { FrozenHp: 3, RequiredCount: 2 } &&
             g.ResolutionStack.OfType<ProgramLifecycleTriggerWindowFrame>().Any(f => f.Continuation == ProgramLifecycleContinuation.CompletePhaseHandDebtForcedEnd),
@@ -84,18 +84,43 @@ internal static class PhaseHandSeizureChecks
             "Original issued identity pays once through real equipment children before forced Ending, despite current grant replacement.");
     }
 
-    public static void BiyueCurrentHandBranchesSingleActualDrawBatch()
+    public static void BiyueCurrentHandBranchesSingleDrawInstruction()
     {
         foreach (var branch in new[] { "empty", "nonempty", "earlier-ending-gain" })
         {
             var (g, r) = Start(earlier: branch == "earlier-ending-gain");
-            if (branch != "nonempty") while (V(g).Hand.Count > 0) { DriverUse(g, "trim", [V(g).Hand.First().Id], []); ReachPlay(g); }
+            if (branch != "nonempty") TrimHandTo(g, 0);
             EndPlay(g); Reach(g, p => ActivationChoice(p, Biyue)); var handAtAcceptance = V(g).Hand.Count;
             Require(branch != "earlier-ending-gain" || handAtAcceptance == 1, "An earlier real Ending producer gains one card after the window's originally empty hand capture.");
-            Cold(g, r); Activate(g, Biyue); Reach(g, p => p.SkillPrompt?.SkillId == Gain); var actual = Moves(g, "skill-program.ol:biyue.Draw");
-            Require(actual.Length == (handAtAcceptance == 0 ? 2 : 1) && actual.All(m => m.From == CardLocation.DrawPile && m.To == CardLocation.Hand(0)) &&
-                g.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Single(f => f.Batch.Movements.Any(m => m.Reason.Value == "skill-program.ol:biyue.Draw")).Batch.Movements.Count == actual.Length,
-                "One Draw instruction reads current Hand once and issues exactly one physical 2/1 batch; neither stale window facts nor post-draw reevaluation creates a third card."); Cold(g, r);
+            var expectedCount = handAtAcceptance == 0 ? 2 : 1;
+            var sequenceBefore = g.CardMovements.Count == 0 ? 0 : g.CardMovements[^1].Sequence;
+            Cold(g, r); Activate(g, Biyue); Reach(g, p => p.SkillPrompt?.SkillId == Gain);
+            var root = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == Biyue);
+            var actual = Moves(g, "skill-program.ol:biyue.Draw");
+            Require(root.InstructionIndex == 1 && E<ProgramBindingStartedEvent>(g).Count(e => e.FrameId == root.Id) == 1 &&
+                actual.Length == expectedCount && actual.Select(m => m.CardId).Distinct().Count() == expectedCount &&
+                actual.All(m => m.CardId > 0 && m.Sequence > sequenceBefore && m.From == CardLocation.DrawPile && m.To == CardLocation.Hand(0)),
+                "One Draw instruction reads the current Hand once and completes exactly 2/1 real entity draws before its first gain child; no first card can change the frozen count.");
+            var sequenceAfter = actual.Max(m => m.Sequence);
+            var seen = new HashSet<int>();
+            for (var child = 0; child < expectedCount; child++)
+            {
+                Reach(g, p => p.SkillPrompt?.SkillId == Gain);
+                var window = g.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Single(f => f.Batch.ParentFrameId == root.Id);
+                var observer = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == Gain);
+                Require(window.ResumeProgramFrameId == root.Id && window.Batch.AwaitingProgramFrameId is null &&
+                    window.Batch.OriginOwnerSeat == root.OwnerSeat && window.Batch.OriginSkillId == root.SkillId && window.Batch.OriginSkillInstanceId == root.SkillInstanceId &&
+                    window.Batch.Movements is [var movement] && actual.Contains(movement) && movement.Sequence > sequenceBefore && movement.Sequence <= sequenceAfter &&
+                    seen.Add(movement.CardId) && observer.WindowContext?.ParentFrameId == window.Id && observer.WindowContext.MovementBatch?.Id == window.Batch.Id &&
+                    Moves(g, "skill-program.ol:biyue.Draw").Length == expectedCount,
+                    "Each native single-card draw batch belongs to the exact original program, origin and frozen sequence interval, and publishes one distinct gain child.");
+                Cold(g, r); Reject(g); Continue(g);
+            }
+            for (var step = 0; step < 128 && g.ResolutionStack.Any(f => f.Id == root.Id); step++) Advance(g);
+            Require(g.ResolutionStack.All(f => f.Id != root.Id) && seen.Count == expectedCount &&
+                Moves(g, "skill-program.ol:biyue.Draw").SequenceEqual(actual) && V(g).Hand.Count == handAtAcceptance + expectedCount,
+                "All original draw children finish without repeating the Draw instruction, adding a third card or reevaluating the 2/1 count after a child.");
+            Cold(g, r);
         }
     }
 
@@ -108,7 +133,8 @@ internal static class PhaseHandSeizureChecks
         Reach(terminal, p => Action(p, "phase-hand-debt-return")); Answer(terminal, c => c.Cards.Count == 1); Cold(terminal, tr);
         var before = V(terminal).Hand.Select(c => c.Id).ToArray();
         // Producer-specific terminal host audit: it deliberately bypasses no command replay claim.
-        Invoke(terminal, "EndAsDraw", "explicit phase-hand terminal audit"); Invoke(terminal, "AssertPhaseHandSeizurePrograms"); Invoke(terminal, "AssertCoreInvariants");
+        Invoke(terminal, "ExecuteExclusive", (Action)(() => Invoke(terminal, "EndAsDraw", "explicit phase-hand terminal audit")));
+        Invoke(terminal, "AssertPhaseHandSeizurePrograms"); Invoke(terminal, "AssertCoreInvariants");
         Require(terminal.State.Status == EngineStatus.Completed && E<GameEndedEvent>(terminal).Single().Winner == Winner.Draw &&
             E<PhaseHandDebtSettledEvent>(terminal).Single() is { Reason: "game-end", ReturnFrameId: 0, RequiredCount: 0, ActualCount: 0 } &&
             Root(terminal).PhaseHandDebtReturn is { Stage: PhaseHandDebtReturnStage.Choosing } && Moves(terminal, Return).Length == 0 &&
@@ -129,7 +155,8 @@ internal static class PhaseHandSeizureChecks
 
     private static (GameEngine, ContentRegistry) Start(bool male = false, bool earlier = false)
     {
-        var r = ContentRegistry.Build(new StandardContentPackage(), new StandardClassicGeneralPackage(), new Fixture(male, earlier));
+        var r = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(includeJijiu: true),
+            new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage(), new Fixture(male, earlier));
         var g = GameEngine.CreateStandard(new GameOptions { Seed = 31, PlayerCount = 4, HumanSeat = 0, HumanRole = Role.Lord, ModeId = Mode,
             UseInteractiveSetup = true, UseInteractiveDiscard = true, AdvanceAfterHumanCommands = false, MaxTurns = 4 }, r);
         Accept(g, new StartGameCommand()); Reach(g, p => p.Kind == DecisionKind.SelectGeneral && p.PlayerSeat == 0);
@@ -138,6 +165,15 @@ internal static class PhaseHandSeizureChecks
     private static void Equip(GameEngine g) { var a = g.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.Equip); Accept(g, new PlayCardCommand(0, a.CardId!.Value, a.TargetSeats, g.Revision, P(g)!.PromptId, a.PlayedCardKind)); ReachPlay(g); }
     private static void UseLihun(GameEngine g, int cost, int target) => Accept(g, new UseProgramSkillCommand(0, Lihun, Activation, [cost], [target], g.Revision, P(g)!.PromptId));
     private static void DriverUse(GameEngine g, string id, IReadOnlyList<int> cards, IReadOnlyList<int> targets) => Accept(g, new UseProgramSkillCommand(0, Driver, id, cards, targets, g.Revision, P(g)!.PromptId));
+    private static void TrimHandTo(GameEngine g, int count)
+    {
+        for (var remaining = V(g).Hand.Count; remaining > count; remaining--)
+        {
+            DriverUse(g, "trim", [V(g).Hand.First().Id], []); ReachPlay(g);
+            Require(V(g).Hand.Count == remaining - 1, "Each real trim command must discard exactly one held entity before the bounded driver continues.");
+        }
+        Require(V(g).Hand.Count == count, "The physical trim driver reaches the requested actual hand count.");
+    }
     private static void FinishSeizure(GameEngine g) { Reach(g, p => p.SkillPrompt?.SkillId == Cost); Continue(g); Reach(g, p => p.SkillPrompt?.SkillId == Flip); Continue(g); Reach(g, p => p.SkillPrompt?.SkillId == Gain); Continue(g); ReachPlay(g); }
     private static void EndPlay(GameEngine g) => Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId));
     private static ProgramSkillFrame Root(GameEngine g) => g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == Lihun);
@@ -186,7 +222,8 @@ internal static class PhaseHandSeizureChecks
               {"id":"{{Earlier}}","revision":1,"triggers":[{"id":"earlier-current-gain","window":"turnEnding","subject":"owner","optional":false,"priority":100,"effects":[{"op":"draw","target":"owner","amount":1}]}]}
             ]}
             """;
-            var names = new[] { Driver, Hp, Cost, Flip, Gain, Earlier }.ToDictionary(id => id, id => (object)new { name = id, description = "真实实体、事件和原始帧边界", optionLabels = new Dictionary<string, string> { ["continue"] = "继续" } });
+            var names = new[] { Driver, Hp, Cost, Flip, Gain, Earlier }.ToDictionary(id => id, id => (object)new { name = id, description = "真实实体、事件和原始帧边界",
+                optionLabels = id is Hp or Cost or Flip or Gain ? new Dictionary<string, string> { ["continue"] = "继续" } : new Dictionary<string, string>() });
             var catalog = SkillProgramCatalog.Load(rules, JsonSerializer.Serialize(new { schemaVersion = 3, skills = names }));
             foreach (var pair in catalog.Programs) b.AddSkill(new(pair.Key, pair.Key, "真实共享边界") { Program = pair.Value });
             b.AddSkill(new("fixture:phs-idle", "固定其他候选", "无运行技能"));

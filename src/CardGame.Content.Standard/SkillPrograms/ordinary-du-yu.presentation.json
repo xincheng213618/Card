@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "ol:sanchen": {
+      "name": "三陈",
+      "description": "出牌阶段限一次，你可以令一名角色摸三张牌，然后弃置三张牌。若其以此法弃置的牌类型均不同，其摸一张牌，本技能视为未发动且本回合不能指定其为目标。",
+      "activationLabels": { "draw-three-discard-three": "三陈：令一名角色摸三张牌，然后弃置三张牌" }
+    },
+    "ol:zhaotao": { "name": "昭讨", "description": "觉醒技，准备阶段，若你本局发动过至少3次“三陈”，你减少1点体力上限，并获得“破竹”。" },
+    "ol:pozhu": { "name": "破竹", "description": "出牌阶段，你可将一张手牌当【出其不意】使用，若此【出其不意】未造成伤害，此技能无效直到回合结束。" }
+  }
+}

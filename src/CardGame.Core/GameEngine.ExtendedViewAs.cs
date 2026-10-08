@@ -15,7 +15,9 @@ public sealed partial class GameEngine
     private IReadOnlyList<PromptChoice> ExtendedViewAsResponseChoices(CharacterState owner, CardKind kind)
     {
         if (kind == CardKind.Peach && ActiveDying is { } dying && !CanUsePeachToRescue(owner.Seat, dying.VictimSeat)) return [];
-        return GetProgramMultiCardViewAsSelections(owner, kind, true).Where(selection => kind != CardKind.Peach || !IsShieldedRescueSelection(owner, selection)).Select(selection =>
+        return GetProgramMultiCardViewAsSelections(owner, kind, true).Where(selection =>
+            (kind != CardKind.Peach || !IsShieldedRescueSelection(owner, selection)) &&
+            (kind != CardKind.Alcohol || ViewAsRule(selection.Source)?.RoundDistinctBasicUse is not null)).Select(selection =>
         {
             var parameters = new Dictionary<string, string> { ["response"] = "extended-view-as", ["output-kind"] = kind.ToString() };
             AddConversionParameters(parameters, selection.Source);
@@ -41,6 +43,7 @@ public sealed partial class GameEngine
     private void ResolveExtendedViewAsResponse(CharacterState owner, ProgramMultiCardViewAsSelection selection)
     {
         var kind = selection.OutputKind;
+        if (TryResolveRoundDistinctBasicDyingResponse(owner, selection)) return;
         if (kind == CardKind.Peach)
         {
             var dying = ActiveDying ?? throw new InvalidOperationException("Missing dying response.");
@@ -88,7 +91,9 @@ public sealed partial class GameEngine
         ClearPendingDecision();
         SetCardUseStep(attack.ResolutionId, ResolutionFrameStep.ResolvingEffect);
         var responseAction = MoveProgramMultiCardResponse(owner, selection, attack.ResolutionId, attack.SourceSeat);
-        var continuation = ActiveGroupCard is { } ? ProgramCardContinuation.GroupResponse : ProgramCardContinuation.Dodge;
+        var continuation = ViewAsRule(selection.Source)?.RoundDistinctBasicUse is not null
+            ? ProgramCardContinuation.Dodge
+            : ActiveGroupCard is { } ? ProgramCardContinuation.GroupResponse : ProgramCardContinuation.Dodge;
         if (TryBeginCommittedResponseUsePrograms(attack, responseAction, continuation)) return;
         if (!TryBeginProgramCardWindow(attack, responseAction, SkillProgramTriggerWindow.CardResponseAccepted, [], continuation))
             ContinueAcceptedCardResponse(attack, responseAction, continuation);

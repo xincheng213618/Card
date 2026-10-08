@@ -1,0 +1,328 @@
+{
+  "sourceRecordSchemaVersion": 1,
+  "documentKind": "Current official ordinary OL Xin Chang full two-skill source",
+  "capturedAt": "2026-10-09",
+  "status": "Complete ordinary OL Xin Chang implementation accepted by the recorded focused and routine checks.",
+  "sourceRegistered": true,
+  "registered": true,
+  "productionImplemented": true,
+  "behaviorValidated": true,
+  "behaviorAccepted": true,
+  "generalIdProposal": "ol:xin-chang",
+  "characterName": "辛敞",
+  "officialId": 7018,
+  "rulesetId": "sanguosha-ol",
+  "variantProposal": "ordinary",
+  "sourcePage": "https://www.sanguosha.com/hero/7018",
+  "currentOfficialMetadata": {
+    "gid": 7018,
+    "name": "辛敞",
+    "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/7018.png",
+    "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/701800.png",
+    "label": [
+      "控制",
+      "卖血",
+      "配合神将"
+    ],
+    "figure": "晋",
+    "figure_py": "jin",
+    "quality": "稀有",
+    "biography": "字泰雍，陇西人氏。卫尉辛毗之子，辛宪英之弟。司马懿诛曹爽时因听从姐姐之言免除了灾祸。",
+    "characteristic": "有回复能力的情况下可以考虑适当卖血获得牌。",
+    "hp": 3,
+    "initial_hp": 0,
+    "score": 0
+  },
+  "metadataInterpretation": {
+    "gender": "Male: character.h=1",
+    "maxHp": 3,
+    "initialHp": 3,
+    "initialHpNote": "API initial_hp=0 and missing character.af provide no special reduced initial HP; ordinary full HP before native mode modifiers.",
+    "faction": "jin",
+    "hasConcealment": false,
+    "concealmentBasis": "Both currently assigned ordinary spell slots are captured; neither contains concealment. No extra or derived printed slot assigned.",
+    "derivedSkills": [],
+    "defaultSkinId": 701800,
+    "artist": "画师:君恒文化"
+  },
+  "character": {
+    "origin": "/GameCharacters/character/843",
+    "row": {
+      "a": 7018,
+      "b": "辛敞",
+      "d": "XinChang",
+      "e": 40,
+      "f": "39",
+      "g": 6,
+      "h": 1,
+      "i": 3,
+      "j": 3067,
+      "k": 3068,
+      "p": 1,
+      "q": "1",
+      "r": "9701801",
+      "y": "字泰雍，陇西人氏。卫尉辛毗之子，辛宪英之弟。司马懿诛曹爽时因听从姐姐之言免除了灾祸。",
+      "z": "有回复能力的情况下可以考虑适当卖血获得牌。",
+      "aa": 1160,
+      "ab": "895,896",
+      "ad": "画师:君恒文化",
+      "x": "吾不谋於姊，####几不获於义。 ",
+      "al": 1730,
+      "am": "true",
+      "ap": 50,
+      "aq": 15,
+      "bx": 5800,
+      "cc": 701801,
+      "starMax": 4
+    }
+  },
+  "skills": [
+    {
+      "officialSkillId": 3067,
+      "id": "ol:canmou",
+      "name": "参谋",
+      "exactText": "当手牌数全场唯一最多的角色使用普通锦囊牌指定目标时，你可以为此锦囊牌多指定一个目标。",
+      "rawClientText": "当手牌数全场唯一最多的角色使用普通锦囊牌指定目标时，你可以为此锦囊牌多指定一个目标。 ",
+      "origin": "/GameSpells/spell/1422",
+      "row": {
+        "a": 3067,
+        "b": "3,5",
+        "c": "参谋",
+        "d": "CanMou",
+        "g": 4,
+        "i": 2,
+        "o": "当手牌数全场唯一最多的角色使用普通锦囊牌指定目标时，你可以为此锦囊牌多指定一个目标。 ",
+        "v": "请选择一个额外目标"
+      }
+    },
+    {
+      "officialSkillId": 3068,
+      "id": "ol:congjian",
+      "name": "从鉴",
+      "exactText": "当体力值全场唯一最大的其他角色成为普通锦囊牌的唯一目标时，你可以也成为此牌目标，此牌结算后，若此牌对你造成伤害，你摸两张牌。",
+      "rawClientText": "当体力值全场唯一最大的其他角色成为普通锦囊牌的唯一目标时，你可以也成为此牌目标，此牌结算后，若此牌对你造成伤害，你摸两张牌。 ",
+      "origin": "/GameSpells/spell/1423",
+      "row": {
+        "a": 3068,
+        "b": "3,5",
+        "c": "从鉴",
+        "d": "CongJianXC",
+        "g": 6,
+        "i": 2,
+        "o": "当体力值全场唯一最大的其他角色成为普通锦囊牌的唯一目标时，你可以也成为此牌目标，此牌结算后，若此牌对你造成伤害，你摸两张牌。 ",
+        "v": "是否发动<font color='#FFD800'>从鉴</font>，成为{0}的目标"
+      }
+    }
+  ],
+  "spellTips": [
+    {
+      "origin": "/GameSpells/spell_tips/1417",
+      "row": {
+        "a": 3067
+      }
+    },
+    {
+      "origin": "/GameSpells/spell_tips/1418",
+      "row": {
+        "a": 3068
+      }
+    }
+  ],
+  "officialSources": [
+    {
+      "name": "hero",
+      "url": "https://www.sanguosha.com/hero/7018",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T19:47:32.063713+00:00",
+      "byteCount": 24051,
+      "sha256": "25a6d45645a849d5e5ad298b314a2429fb097de43839274054c254b88a2c2fc2",
+      "hashScope": "Exact raw HTTP response body bytes; heavy bundle/config retained in memory only."
+    },
+    {
+      "name": "api",
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=7018",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T19:47:32.086133+00:00",
+      "byteCount": 769,
+      "sha256": "ebba152cb5b3c3a7048c456973b268232d0ba73d4c6910122f1fc43cda74e8c6",
+      "hashScope": "Exact raw HTTP response body bytes; heavy bundle/config retained in memory only."
+    },
+    {
+      "name": "bundle",
+      "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T19:47:31.982147+00:00",
+      "byteCount": 5256312,
+      "sha256": "6a035389beda8d0dbf31227f57a91b2da14d3d5055503198a227aef54f22bf76",
+      "hashScope": "Exact raw HTTP response body bytes; heavy bundle/config retained in memory only."
+    },
+    {
+      "name": "config",
+      "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T19:47:31.992112+00:00",
+      "byteCount": 4142728,
+      "sha256": "9e26cb3db90532084579a20c292d5fec0c81dcf3d5eb2abf2009bff0326237bb",
+      "hashScope": "Exact raw HTTP response body bytes; heavy bundle/config retained in memory only."
+    },
+    {
+      "name": "historicalLaunch",
+      "url": "https://www.sanguosha.com/news/20220315_2699_1113",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T19:47:32.177225+00:00",
+      "byteCount": 435235,
+      "sha256": "2825fb2d654776afc34f585952a73e6527aec8f178602a616916083d53f86306",
+      "hashScope": "Exact raw HTTP response body bytes; heavy bundle/config retained in memory only."
+    }
+  ],
+  "historicalOfficialLaunch": {
+    "url": "https://www.sanguosha.com/news/20220315_2699_1113",
+    "publishedAt": "2022-03-18 17:59:00",
+    "sourceType": "Historical official launch; corroborates both current skills and metadata, not a current FAQ.",
+    "relevantSkillText": "〖参谋〗当一名角色使用普通锦囊牌指定目标时，若其手牌数为全场唯一最多，你可以为此锦囊牌选择一个额外目标。〖从鉴〗当一名其他角色成为普通锦囊牌的唯一目标时，若其体力值是全场唯一最多的，你可以也成为此牌目标，此牌结算后，若此牌对你造成伤害，你摸两张牌。"
+  },
+  "clientEvidence": {
+    "decoder": "Public InitOfb/pR.WorkParse AES-CFB128 followed by gzip; binary key/IV transient, no private/server resources.",
+    "decodedScriptUtf8Sha256": "f62c194174dd2ff4531bc44a795616b6a51f449a3c7c2bec5270f390da55f245",
+    "members": [
+      {
+        "name": "character.sgs",
+        "encodedByteCount": 352776,
+        "encodedSha256": "e0b6f0188edebb1f502ea402c7171e93b88f4e9d05720948344a1f4f44474aae",
+        "decodedByteCount": 1485056,
+        "decodedSha256": "b3ef3f1181e7fe667499cb688b7cdce56631d899dbb0eea55d75fbf80636b040"
+      },
+      {
+        "name": "cha_spell.sgs",
+        "encodedByteCount": 246031,
+        "encodedSha256": "95cfaa4106a4f6224ebed8948bcf86bd5fc6801a83a1c4162c7e59bc848bef66",
+        "decodedByteCount": 1166955,
+        "decodedSha256": "39b83f6e2504590e262bb353bddfded546b83f83a7ea9199b67742b1bee68fc0"
+      }
+    ],
+    "assignedPrintedSkillOrder": [
+      3067,
+      3068
+    ],
+    "snippets": [
+      {
+        "label": "yLi",
+        "decodedScriptCharacterOffset": 15713113,
+        "exactText": "class yLi extends $Kt{constructor(){super(),this.activeMode=vCt.ASK,this.targetCountMax=1,this.targetCountMin=1,this.targetSelector=new kk(this)}getServerTargetSeatIds(){let t=[];if(this.LastUseParamsFromServer&&this.LastUseParamsFromServer.length>0){let i=this.LastUseParamsFromServer[0];if(i)for(let s=0;s<i;s++)null!=this.LastUseParamsFromServer[s+1]&&t.push(this.LastUseParamsFromServer[s+1])}return t}GetUseRecord(t,i,s,e,h=null){let r=c1t.GetSeat(t);if(!r)return;let n=WZ.I(),a=n.GetSeatHtmlName(h&&h.SrcName||r.SeatName);return a+=ewt.RECORD_USE+n.GetSkillHtmlName(this.ID),a+=ks.F(ewt.RECORD_CANMOU,n.GetSeatHtmlNames(i)),a}get RetainRoleDataExLastParams(){return!1}}",
+        "utf8Sha256": "34f7f7d4c6744f9c99f1a21a7f9f115f4cc89ec2b9ff435126c21fa40c4cfd2b",
+        "supports": "Current client skill-specific selection/locked-state presentation; server target eligibility and post-use damage attribution are not exposed."
+      },
+      {
+        "label": "GLi",
+        "decodedScriptCharacterOffset": 15713788,
+        "exactText": "class GLi extends $Kt{constructor(){super(),this.activeMode=vCt.ASK}get AskTip(){let t=this.askTip,i=\"\";return c1t.LastTriggerSpell&&(i=c1t.LastTriggerSpell.Name),ks.F(t,i)}get RetainRoleDataExLastParams(){return!1}}",
+        "utf8Sha256": "85176763a2a02454b6bfc7a0f866417a617d53afecb4b3484398731bb4fe18e9",
+        "supports": "Current client skill-specific selection/locked-state presentation; server target eligibility and post-use damage attribution are not exposed."
+      }
+    ]
+  },
+  "boundedOfficialFaqAudit": {
+    "queries": [
+      "site:sanguosha.com 辛敞 参谋 从鉴 FAQ",
+      "site:sanguosha.com \"从鉴\" \"辛敞\"",
+      "site:sanguosha.com \"参谋\" \"辛敞\" \"FAQ\"",
+      "site:sanguosha.com \"辛敞\" \"目标\" \"结算\""
+    ],
+    "result": "Current hero and 2022 official launch/update restate the two skills; no dedicated official FAQ answering target mutation order, BorrowedSword pairs, source-loss continuation or redirected/chained damage was located in this bounded search.",
+    "notAnExhaustiveAbsenceClaim": true
+  },
+  "engineMappingsNotOfficialFaq": [
+    {
+      "topic": "Finalized opportunity and unique maxima",
+      "status": "Confirmed root implementation mapping; no dedicated official FAQ located",
+      "mapping": "For each exact native finalized-target event, after its real card cost is paid and before observer target mutations, freeze the living participants, unique largest Hand actor, unique highest HP target, and original primary target count. A target added by another skill earlier in that same window does not revoke an already-issued originally-single opportunity. Current selection still rechecks native target legality."
+    },
+    {
+      "topic": "Ordinary trick scope and BorrowedSword target structure",
+      "status": "Confirmed root implementation mapping; no dedicated official FAQ located",
+      "mapping": "Use the native InstantTrick domain, excluding delayed tricks. BorrowedSword counts weapon owners as primary targets, not their paired victims. Adding a primary target keeps a genuine legal weapon-owner/victim pair. A Congjian owner joining as weapon owner must currently own a weapon and have a legal victim; selecting oneself does not bypass those native requirements."
+    },
+    {
+      "topic": "Whole-use damage reward",
+      "status": "Confirmed root implementation mapping; no dedicated official FAQ located",
+      "mapping": "The accepted joining source and promised reward belong to the exact owning native CardUse. The completed-use branch rewards once only if positive damage from that same native Use was actually applied to the joining owner. Damage requested or prevented, HP loss and unrelated descendant ProgramDamage do not qualify. Native source-loss continuation and any redirected/chained damage are resolved using exact typed use/damage provenance rather than the nearest ancestor or original damage-source seat."
+    }
+  ],
+  "officialPortrait": {
+    "sourcePage": "https://www.sanguosha.com/hero/7018",
+    "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/701800.png",
+    "defaultSkinId": "701800",
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-xin-chang.png",
+    "sha256": "7f77c84447dc31e3b38f6d7da5b313cfb8da63cc8c4e95e37bfe2a01a785db98",
+    "byteCount": 1068468,
+    "pixelWidth": 750,
+    "pixelHeight": 950,
+    "format": "PNG",
+    "visualVerified": true,
+    "metadataVerified": true,
+    "behaviorAcceptanceStillPending": false,
+    "visualInspection": "Viewed the saved 750x950 PNG: purple-robed male in an interior, female attendant at right; actual official cover image is readable and uncropped."
+  },
+  "acceptance": {
+    "sourceRegistered": true,
+    "registered": true,
+    "productionImplemented": true,
+    "behaviorValidated": true,
+    "behaviorAccepted": true,
+    "sourceVerified": true,
+    "implemented": true,
+    "targetedPassed": true,
+    "routinePassed": true,
+    "fullVerificationRun": false,
+    "targetedCore": 140,
+    "targetedWpf": 5,
+    "routineCore": 441,
+    "routineWpf": 22,
+    "report": "docs/benchmarks/2026-10-09-content-continuation-round24-verification.json"
+  },
+  "implementationContracts": {
+    "finalizedTriggers": {
+      "window": "cardUseTargetsFinalized",
+      "ownerRelation": "observer",
+      "optional": true,
+      "singleActionInstance": true,
+      "cardCategories": [
+        "instantTrick"
+      ],
+      "effects": "sole owner node; no amount/cost/usage/response field"
+    },
+    "operations": [
+      {
+        "opcode": 9082,
+        "name": "offerUniqueLargestHandTrickTargetAddition",
+        "skillId": "ol:canmou"
+      },
+      {
+        "opcode": 9083,
+        "name": "joinUniqueLargestHpTrickTargetAndDrawAfterDamage",
+        "skillId": "ol:congjian"
+      },
+      {
+        "opcode": 9084,
+        "name": "drawAfterJoinedTrickDamage",
+        "skillId": "ol:congjian",
+        "window": "cardUseCompleted",
+        "optional": false,
+        "ownerRelation": "observer",
+        "singleActionInstance": true,
+        "cardCategories": [
+          "instantTrick"
+        ]
+      }
+    ],
+    "wholeUse": "Freeze the accepted joining commitment on its exact native CardUse. Resolve its once-only completed-use reward after that same use actually applied positive damage to the joining owner; preserve native child returns and accepted-source provenance."
+  },
+  "sourceVerified": true,
+  "engineMappingAcceptance": "Root final implementation contract, accepted within the actual recorded behavior scope; engine mappings are not official FAQ.",
+  "behaviorCheckMethods": [
+    "LargestHandTrickAdditionUsesActualActorAndRejectsTies",
+    "LargestHandBorrowedSwordAppendsOneCompleteLegalPair",
+    "JoinedTrickDamageRewardOwnsExactUseAndSurvivesSourceLoss",
+    "JoinedTrickQualificationsAndNullificationCannotBorrowOtherDamage"
+  ]
+}

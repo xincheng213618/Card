@@ -1,0 +1,99 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:junbing",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "ending-self-hand-exchange",
+          "window": "turnEnding",
+          "subject": "owner",
+          "turnOwnerScope": "own",
+          "optional": false,
+          "condition": {
+            "kind": "compare",
+            "left": { "kind": "eventTargetHandCount" },
+            "operator": "lessThanOrEqual",
+            "right": { "kind": "integerConstant", "value": 1 }
+          },
+          "effects": [{ "op": "offerCurrentTurnHandExchange", "target": "owner" }]
+        },
+        {
+          "id": "ending-foreign-hand-exchange",
+          "window": "turnEnding",
+          "subject": "owner",
+          "turnOwnerScope": "otherLiving",
+          "optional": false,
+          "condition": {
+            "kind": "compare",
+            "left": { "kind": "eventTargetHandCount" },
+            "operator": "lessThanOrEqual",
+            "right": { "kind": "integerConstant", "value": 1 }
+          },
+          "effects": [{ "op": "offerCurrentTurnHandExchange", "target": "owner" }]
+        }
+      ]
+    },
+    {
+      "id": "ol:quji",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "discard-lost-hp-and-recover",
+          "minCards": 0,
+          "maxCards": 0,
+          "sourceZones": ["hand", "equipment"],
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "usesPerGame": null,
+          "condition": { "kind": "wounded" },
+          "effects": [
+            {
+              "op": "selectOwnedCards",
+              "target": "owner",
+              "numberExpression": "ownerLostHp",
+              "zones": ["hand", "equipment"],
+              "resultBind": "quji-cost",
+              "requireExactCount": true,
+              "freezeSelectedCardSuits": true
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "quji-cost",
+              "destination": "discardPile",
+              "awaitMovementTriggers": true
+            },
+            { "op": "revealBoundCards", "target": "owner", "sourceBind": "quji-cost" },
+            {
+              "op": "selectTargets",
+              "target": "owner",
+              "targetKind": "anyLiving",
+              "minimumTargets": 0,
+              "maximumTargets": 8,
+              "numberExpression": "boundCardCount",
+              "sourceBind": "quji-cost",
+              "targetAiOrder": "supportRecovery"
+            },
+            { "op": "recover", "target": "selectedTargets", "amount": 1 },
+            {
+              "op": "loseHp",
+              "target": "owner",
+              "amount": 1,
+              "condition": {
+                "kind": "not",
+                "children": [
+                  { "kind": "boundCardsMatchSuits", "sourceBind": "quji-cost", "suits": ["heart", "diamond", "none"] }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -135,6 +135,7 @@ public sealed partial class GameEngine
         AddLog("SkillTriggered",
             $"{_players[active.OwnerSeat].Name} 发动【{skill.Name}】，视为使用【酒】并回复1点体力。",
             active.OwnerSeat, victim.Seat);
-        PopFinishedCardUse(resolutionId);
+        if (!FinishActualTurnLegacyDyingAlcohol(resolutionId, active.Id))
+            PopFinishedCardUse(resolutionId);
     }
 }

@@ -1,0 +1,291 @@
+{
+  "sourceRecordSchemaVersion": 1,
+  "documentKind": "implementation research plan",
+  "status": "research-only",
+  "registered": false,
+  "productionImplemented": false,
+  "behaviorValidated": false,
+  "generalIdProposal": "ol:wang-xiang",
+  "characterName": "王祥",
+  "officialId": 7020,
+  "rulesetId": "sanguosha-ol",
+  "variantProposal": "ordinary",
+  "capturedAt": "2026-10-08",
+  "capturedAtUtc": "2026-10-08T05:23:39Z",
+  "workspace": {
+    "headAtInspection": "fe90b66788b7d1866fa1e87f02d4993ad7bd0f3e",
+    "concurrentDirtyWorkPreserved": true,
+    "registeredJinGeneralsObserved": [
+      "ol:zhang-hu-yue-chen",
+      "ol:wei-guan"
+    ],
+    "absenceCheck": "Exact general keys, Chinese names, content module and proposed bundle were searched in live Standard content/module registration. No 王祥 or ol:wang-xiang registration or bundle was found.",
+    "registrationFile": "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+    "baselineMeaning": "HEAD alone does not describe the concurrent dirty source. Source positions below were inspected in the live working tree; no build or test was run for this plan."
+  },
+  "sourcePage": "https://www.sanguosha.com/hero/7020",
+  "sources": [
+    {
+      "role": "current official OL exact skill text",
+      "url": "https://www.sanguosha.com/hero/7020",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T05:23:39Z",
+      "responseSha256": "beda7b4ec55e9eebb7ce6524120d70a82309e18a720ee2a32a6704e7adc1f5cb",
+      "responseByteCount": 23196,
+      "hashScope": "UTF-8 re-encoding of decoded HTTP response body"
+    },
+    {
+      "role": "current official OL character metadata and advertised portrait",
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=7020",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T05:23:39Z",
+      "responseSha256": "909fdc5828383dac464709ede021d85bd97e6dfef1d726d588da5a6022cc7da4",
+      "responseByteCount": 752,
+      "hashScope": "UTF-8 re-encoding of decoded HTTP response body"
+    },
+    {
+      "role": "historical official ordinary OL identity availability; not an expanded skill ruling",
+      "url": "https://www.sanguosha.com/news/20220930_4938_2010",
+      "title": "10.1-10.31新赛季 进阶军典得稀有武将王祥！",
+      "publishedAt": "2022-09-30 17:57:45",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T05:23:39Z",
+      "responseSha256": "b06276c424640de06437a4d3630e41e6acaab4e3f25fb6e88cb584c62c69b2cb",
+      "responseByteCount": 96261,
+      "hashScope": "UTF-8 re-encoding of decoded HTTP response body",
+      "evidence": "The ordinary OL announcement names 王祥 and discusses identity-room selection privileges. It does not resolve the draw-then-use or use-versus-played-card edge cases."
+    }
+  ],
+  "currentOfficialMetadata": {
+    "gid": 7020,
+    "name": "王祥",
+    "figure": "晋",
+    "figure_py": "jin",
+    "hp": 3,
+    "initial_hp": 0,
+    "quality": "稀有",
+    "label": [
+      "防御",
+      "过牌",
+      "困难"
+    ],
+    "biography": "三国曹魏及西晋时大臣，事母极孝，其卧冰求鲤的故事被收录于二十四孝中。",
+    "characteristic": "调节好手牌的数量和花色至关重要。",
+    "genderFieldPresent": false,
+    "proposedGender": "male",
+    "genderEvidence": "Historical identity inference only; the current API contains no gender field. No portrait visual inspection was completed in this research-only pass.",
+    "initialHpInterpretation": "For a later ordinary definition, interpret initial_hp=0 using the existing ordinary default-to-max-HP convention, rather than start the character at zero HP. This convention is not an explicit skill rule in the API."
+  },
+  "skills": [
+    {
+      "name": "冰心",
+      "programIdProposal": "ol:bingxin",
+      "exactText": "若你手牌的数量等于体力值且颜色相同，你可以摸一张牌视为使用一张与本回合以此法使用过的牌牌名不同的基本牌。",
+      "textOrigin": "Current hero/7020 SSR skill-text span",
+      "lockedTag": false,
+      "interpretation": "Current text says 使用, not 使用或打出. An ordinary native Response action is not automatically a qualifying Use; the existing use-only classification must be retained."
+    }
+  ],
+  "artwork": {
+    "advertisedImageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/702000.png",
+    "normalizedImageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/702000.png",
+    "skinId": "702000",
+    "httpStatus": 200,
+    "capturedAtUtc": "2026-10-08T05:23:39Z",
+    "sha256": "173ed7e9a872cddee87cbf09ed5784d87392dc0a248528efa15466f3577f9045",
+    "byteCount": 897343,
+    "pixelWidth": 750,
+    "pixelHeight": 950,
+    "inspection": "HTTP bytes and PNG IHDR checked in memory only.",
+    "savedToDisk": false,
+    "registered": false,
+    "visuallyInspected": false,
+    "laterAcceptance": "If implementation is authorized later, download only the final deliverable and actually view it before marking visual acceptance."
+  },
+  "versionBoundary": {
+    "selectedVersion": "Current ordinary 三国杀OL hero7020; no 十周年/mobile/national-war replacement is used.",
+    "historicalAnnouncementRole": "Supports ordinary OL availability, not cross-skill mechanics.",
+    "currentSkillPageAvailable": true,
+    "explicitOfficialBingxinCrossSkillFaqFound": false,
+    "evidenceLimit": "No verified official supplemental ruling was found here for empty hand equality, effective color interactions, interruption after Draw1, reacquisition, or the detailed response matrix. These remain explicit implementation decisions to confirm; community FAQ is not promoted to an official source."
+  },
+  "existingCapabilities": [
+    {
+      "path": "src/CardGame.Core/GameEngine.AlternativeViewAsCosts.cs",
+      "line": 7,
+      "symbols": [
+        "ProgramBasicCardName",
+        "RecordProgramUsedBasicCard",
+        "HasProgramUsedBasicCardThisTurn",
+        "IsProgramResponseCardUse"
+      ],
+      "reusable": "Slash/FireSlash/ThunderSlash name normalization and mature distinction between own Slash-defense Dodge use and response-only group/faction or Duel Slash responses.",
+      "notEquivalent": "The existing used-basic-name map records all of this actor basic uses during the turn. 冰心 restricts only names used by this method; ordinary physical uses or another skill must not consume its name."
+    },
+    {
+      "path": "src/CardGame.Core/ProgramTieredRoundConversion.cs",
+      "line": 15,
+      "symbols": [
+        "TrueRoundCardNameUsedEvent",
+        "TrueRoundHasUsedName",
+        "ObserveTrueRoundCardNames",
+        "TryRecordTrueRoundDodgeUse"
+      ],
+      "reusable": "Exact accepted/declaration identity validation and real semantic-use observation patterns.",
+      "notEquivalent": "This opt-in ledger is all actors and all qualifying uses in the current round, not this owner and this ability in the current actual turn. Its round quota, tier state and name predicate must not be borrowed as a Bingxin approximation."
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.VirtualBasicOffers.cs",
+      "line": 28,
+      "symbols": [
+        "VirtualBasicOptions",
+        "OfferVirtualBasicCard",
+        "ResolveVirtualBasicChoice",
+        "FinishVirtualBasicUse",
+        "ReturnVirtualBasicUse"
+      ],
+      "reusable": "Real zero-entity Play basic use and exact typed ProgramSkillFrame child return.",
+      "notEquivalent": "Options are own Play Slash/Peach/Alcohol only and include skip. Draw1 followed by this optional chooser would allow a free draw without the required actual use; it lacks the response/dying paths and by-method name ledger."
+    },
+    {
+      "path": "src/CardGame.Core/TieredRoundConversionSchema.cs",
+      "line": 24,
+      "symbols": [
+        "TieredRoundConversionSchema.Validate"
+      ],
+      "reusable": "Example of additive optional policy with preserved old null/default behavior and strict zero-material validation.",
+      "notEquivalent": "Zero material is admitted only by its exact tier2 round-conversion contract. It does not provide a generic draw cost or a same-color entire-hand qualification."
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.TieredRoundZeroUses.cs",
+      "line": 55,
+      "symbols": [
+        "TrySubmitTieredRoundZeroPlay",
+        "TryResolveTieredRoundZeroForcedSlash",
+        "ExecuteTieredRoundZeroPlay",
+        "IssueTieredRoundConversionUse"
+      ],
+      "reusable": "Mature real Play/forced-Slash producer identity, target legality, zero physical materials and native card-use windows.",
+      "notEquivalent": "These helpers require an issued tiered-round conversion. Reuse their structural approach or carefully extract a generic producer; do not fake a tiered receipt."
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.TieredRoundZeroResponses.cs",
+      "line": 110,
+      "symbols": [
+        "ResolveTieredRoundZeroDodge",
+        "IssueTieredRoundResponse",
+        "TryResolveTieredRoundZeroAiDying"
+      ],
+      "reusable": "Own Slash-defense zero-material Dodge and dying rescue are genuine native paths with original response/dying owner receipts.",
+      "notEquivalent": "A response action can represent a semantic Use or a mere played response. Bingxin needs the former and a Draw1 cost before acceptance continues; no fake CardResponded or synthetic material should be inserted."
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.TieredRoundZeroReturns.cs",
+      "line": 5,
+      "symbols": [
+        "TieredRoundZeroDyingRescueRide",
+        "IsTieredRoundZeroAttackConsistent",
+        "SkipTieredRoundZeroFinishedMovement"
+      ],
+      "reusable": "Exact ancestor physical Processing proof, native dying return, genuine zero-material appearance and no synthetic movement of card0.",
+      "notEquivalent": "A new Bingxin producer must have its own exact issuance/typed return proof; simply satisfying global Processing-empty checks is insufficient when a physical parent Slash or borrowed use remains active."
+    }
+  ],
+  "preciseMissingCapability": {
+    "description": "One coherent opt-in draw-funded distinct-basic-use capability family covering all real basic Use entry points, with a by-method actual-turn name ledger and exact native payment/return.",
+    "proposedPolicyName": "drawThenUseDistinctBasic",
+    "policyNameStatus": "Design proposal only; not accepted loader JSON, not an opcode, and not a source-ready production contract.",
+    "qualification": "At the published acceptance boundary, owner is alive, hand count equals HP, the entire current hand has one real effective red or black color, and the desired basic name has not already been actually used by this method in this actual turn.",
+    "cost": "Exactly one native Draw1 for the owner, with its real movement/gain/HP/dying children drained once before the selected basic use/semantic-use response continues. A decline must occur before paying this cost; there is no free-draw skip after payment.",
+    "names": "Normalize the three Slash kinds to one Slash name using ProgramBasicCardName. Keep Dodge, Peach and Alcohol separate. The existing current Basic kinds are Slash, FireSlash, ThunderSlash, Dodge, Peach and Alcohol.",
+    "nameHistory": "Emit a dedicated immutable scalar fact at the exact real issuance boundary, with owner, semantic ability ledger ID, actual turn number, normalized name, exact action/origin ID and exact source skill/binding/instance/hash. Only issued Bingxin uses populate this ledger; all ordinary and foreign uses are irrelevant.",
+    "ledgerScope": "Owner + stable by-method ledger + actual actual-turn number + normalized name; exact instance is issuance provenance. Whether regrant/reacquisition shares the same semantic ledger must be explicitly decided, rather than inheriting an accidental per-instance reset.",
+    "pendingReservation": "Before Draw1 children can re-enter the same ability, retain the chosen name and original use purpose on the owning frame. An in-flight reservation prevents paying the same method/name twice while final real-use history remains distinct from a merely offered or interrupted attempt.",
+    "physicalIdentity": "The resulting use has zero physical cards, genuine declared effective Basic kind, and neutral suit/rank where the shared no-material convention applies. The drawn physical card is a draw benefit/cost receipt, never synthetic use material.",
+    "exactParent": "Persist the original Play/forced-Slash/own-Dodge/Dying parent kind and frame/action/target/responder tuple. Resume only that parent after the drawn-card children, and preserve a paid receipt if the source is subsequently lost.",
+    "requiredNativeDirections": [
+      "Own Play: real Slash variants, self Peach when legal, self Alcohol with normal quota/forbidden-card checks.",
+      "Forced actual Slash Use: BorrowedSword and Qinglong follow-up where the native route classifies the action as Use; ordinary Duel/Barbarian response-only Slash is excluded.",
+      "Own Slash-defense Dodge semantic Use: retain exact incoming Slash owner/target proof; ArrowBarrage, Hujia/Jijiang provision and response-only routes do not gain an offer merely because CardActionType is Response.",
+      "Dying: real Peach rescue for a legal victim, and Alcohol for owner self-rescue, returning to the original dying frame.",
+      "Native modifiers: genuine finalized target, cancellation/prohibition, no-response, armor, Slash/Alcohol quotas and completion observers remain active."
+    ],
+    "parserAndReplay": "Use an additive optional policy whose omitted/null value preserves every old accepted JSON body and canonical hash. Strictly constrain Basic output, genuine zero input, semantic-use-only direction and one exact draw cost; do not relax the tiered policy or route all old virtual uses through changed behavior.",
+    "aiAndPrivacy": "Generate published legal actions from the actor own private hand; no other player view may expose hand identities or effective colors. AI must select only published source/targets and draw at most once; it must not bypass the command actor or payment boundary.",
+    "eventProjection": "Prefer scalar source/name/payment facts. Any new collection-bearing fact, receipt or prepared view must freeze nested collections and receive CommittedEventProjection coverage; pending state stays on its owning resolution frame, not a use-ID sidecar."
+  },
+  "implementationSequence": [
+    "Agree the final additive policy, ledger scope and interruption/reacquisition semantics before writing the ordinary content bundle.",
+    "Implement a strict new shared descriptor/legality dependency and typed draw-funded producer receipt, preserving old optional-null parsing/hash behavior.",
+    "Wire real Play and forced-Use entry points, then own Slash-defense Dodge and actual dying uses; do not ship a Play-only partial character.",
+    "Record exact by-method issuance/name facts and pending reservations; add exact-parent assertions, cold restore/tamper rejection and native child returns.",
+    "Reuse existing native card effects/target legality, accepted action/commit/completion windows, quotas and AI command paths.",
+    "Only after shared source-ready, add OrdinaryWangXiangContent, the exact current skill presentation/rules, final officially inspected portrait, independent permanent source evidence and normal package/gallery/art registrations.",
+    "Run focused mechanism checks and measured routine verification through the existing runner. Full remains manual-only and is not authorized by this research plan."
+  ],
+  "focusedBehaviorPlan": [
+    {
+      "entryProposal": "draw-funded distinct basic: real play payment and by-method names",
+      "fixture": "Four-player classic-prefix small package plus actual prospective Bingxin bundle; one verified fixed seed, fixed all-red/all-black hand/deck setup through public setup and commands; no reflection or state injection.",
+      "assertions": [
+        "Hand-count/HP mismatch, mixed effective colors, illegal output or prohibited target publishes no ability action and pays no draw.",
+        "Choose a legal Slash/Peach/Alcohol, then exactly one real draw/gain movement occurs; a movement/HP child pauses before real use. Wrong actor/stale choice is rejected and preserves state.",
+        "Cold restore at unpaid, paid-child and returned-use boundaries resumes the same source and exact parent; no second Draw1, no physical card0 move and no invented material.",
+        "A physical ordinary use of a name does not consume the by-method allowance; a real Bingxin use blocks that same normalized name, including elemental Slash variants.",
+        "Distinct names remain available only when current qualification is true again. Extra Play within the same actual turn does not reset names; the next actual turn does.",
+        "Source loss after accepted payment does not pay again or attach the return to another source/instance."
+      ]
+    },
+    {
+      "entryProposal": "draw-funded distinct basic: real use responses and dying returns",
+      "fixture": "Reuse mature BoundaryGuoHuangHouChecks and Fame2015ShuChecks small producers for physical Slash, actual BorrowedSword/Qinglong Use and real dying; retain exact physical ancestor Processing cards.",
+      "assertions": [
+        "Own Slash-defense Dodge pays Draw1 once, creates one genuine accepted semantic Use response and cancels the original Slash; its Bingxin Dodge name is then unavailable.",
+        "Actual ArrowBarrage/Hujia provision and Duel/Barbarian Slash played responses never gain Bingxin offers or consume its names.",
+        "Forced actual Slash Use preserves original target/source and normal quota/distance semantics; declined or illegal choices do not pay.",
+        "Actual Peach rescue and self Alcohol rescue pay once, keep correct actor/provider/victim and return to the original dying resolution across cold restore.",
+        "The entire drawn-card child stack drains before return; exact missing/tampered receipt, parent/action/name or source mismatch is rejected.",
+        "Prepared player views do not reveal private hand/color evidence to foreign viewers; any new event collections and receipts cannot be mutated through observers."
+      ]
+    }
+  ],
+  "existingRepresentativeChecks": [
+    {
+      "path": "tests/CardGame.Core.Tests/BoundaryGuoHuangHouChecks.cs",
+      "methods": [
+        "TrueRoundNamesPhysicalConversionAndPrivateCold",
+        "CappedDrawBeforeModificationOwnsChildrenAndCold",
+        "SharedRoundQuotaSurvivesTierRegrantAndExtraTurn",
+        "ZeroCounterspellDodgeAndDyingTypedReturns"
+      ],
+      "reuse": "Patterns for real issuance, genuine zero material, draw children, source provenance, actual-round use classification and cold exact-parent validation. Their round/tier assertions do not substitute the new by-method actual-turn assertions."
+    },
+    {
+      "path": "tests/CardGame.Core.Tests/Fame2015ShuChecks.cs",
+      "methods": [
+        "AlternativeBasicCostSourceUseAndDyingBoundaries"
+      ],
+      "reuse": "Existing use-only basic classification: own Slash Dodge versus group/faction/played responses; real dying and physical cost boundaries."
+    },
+    {
+      "path": "tests/CardGame.Core.Tests/ActualTurnTemporarySkillChecks.cs",
+      "methods": [
+        "ActualSecondUseForeignGrantsShareStateAndExpireOnEnd"
+      ],
+      "reuse": "Actual turn versus extra Play/end barriers and exact cold continuation; no new character definition snapshot needed."
+    }
+  ],
+  "unresolvedOfficialSemantics": [
+    "Current page only says 使用. Applying native semantic-use classification to Dodge and forced/rescue directions is a documented implementation mapping, not a verified Bingxin-specific official FAQ.",
+    "Use owner effective hand colors consistently with the existing engine, but no official Bingxin/Hongyan or suit-less-card cross FAQ was verified. Empty hand at nonpositive HP and None color need explicit legality decisions.",
+    "After accepting the method, Draw1 may trigger loss of qualification, source loss, target death or another dying child. Exact paid continuation and any cancellation/no-final-use name handling require a fixed contract and behavior checks; do not silently re-evaluate and draw again.",
+    "Whether a skill removed and reacquired in the same actual turn shares by-method name history must be explicitly decided. The current text does not grant a reset merely because an instance changes.",
+    "Slash/elemental Slash same-name normalization follows the established engine convention; no newly verified Bingxin-specific primary cross FAQ is claimed."
+  ],
+  "exclusions": [
+    "No production code, content module, skill bundle, registration, catalog entry, portrait asset, test runner or version was changed by this research plan.",
+    "No current round ledger, all-basic-use ledger, Play-only basic chooser, draw-only effect, ordinary played response or fabricated material is accepted as a replacement for the exact rule.",
+    "No behavior check, build, full verification or release was run. Existing tests are reusable patterns, not evidence that Bingxin works.",
+    "Only this permanent plan JSON is created; no temporary output tree, portrait file or consumer is created, and previously policy-blocked directories are untouched."
+  ]
+}

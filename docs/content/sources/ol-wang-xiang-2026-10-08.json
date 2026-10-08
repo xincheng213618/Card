@@ -1,0 +1,109 @@
+{
+  "sourceRecordSchemaVersion": 1,
+  "generalId": "ol:wang-xiang",
+  "characterName": "王祥",
+  "officialId": 7020,
+  "rulesetId": "sanguosha-ol",
+  "variantId": "ordinary",
+  "capturedAt": "2026-10-08",
+  "capturedAtUtc": "2026-10-08T06:54:26Z",
+  "captureTimeZone": "Asia/Shanghai",
+  "status": "registered; targeted and routine local verification passed",
+  "registered": true,
+  "productionImplemented": true,
+  "behaviorValidated": true,
+  "verificationRecord": "docs/benchmarks/2026-10-08-content-continuation-round14-verification.json",
+  "sourcePage": "https://www.sanguosha.com/hero/7020",
+  "sources": [
+    {
+      "hashScope": "UTF-8 encoding of decoded HTTP response text",
+      "role": "current official OL printed skill text",
+      "responseSha256": "beda7b4ec55e9eebb7ce6524120d70a82309e18a720ee2a32a6704e7adc1f5cb",
+      "responseByteCount": 23196,
+      "url": "https://www.sanguosha.com/hero/7020",
+      "httpStatus": 200
+    },
+    {
+      "hashScope": "UTF-8 encoding of decoded HTTP response text",
+      "role": "current official OL character metadata and advertised default portrait",
+      "responseSha256": "909fdc5828383dac464709ede021d85bd97e6dfef1d726d588da5a6022cc7da4",
+      "responseByteCount": 752,
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=7020",
+      "httpStatus": 200
+    },
+    {
+      "hashScope": "UTF-8 encoding of decoded HTTP response text",
+      "role": "official initial_hp rendering semantics",
+      "responseSha256": "55617a7de749ff8bf19ecd2b17682b59f35554090d5c1a8cc2101121ea248a59",
+      "responseByteCount": 15166,
+      "url": "https://www.sanguosha.com/assets/js/heroDetail.js?1",
+      "httpStatus": 200
+    }
+  ],
+  "currentOfficialMetadata": {
+    "gid": 7020,
+    "name": "王祥",
+    "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/7020.png",
+    "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/702000.png",
+    "label": [
+      "防御",
+      "过牌",
+      "困难"
+    ],
+    "figure": "晋",
+    "figure_py": "jin",
+    "quality": "稀有",
+    "biography": "三国曹魏及西晋时大臣，事母极孝，其卧冰求鲤的故事被收录于二十四孝中。",
+    "characteristic": "调节好手牌的数量和花色至关重要。",
+    "hp": 3,
+    "initial_hp": 0,
+    "score": 0
+  },
+  "metadataEvidence": {
+    "skillsOrigin": "Exact current hero/7020 SSR span; the API contains metadata rather than skill rules.",
+    "initialHpInterpretation": "The official heroDetail.js renderer branches on truthy initial_hp and otherwise displays all hp as filled. initial_hp=0 therefore uses ordinary full initial HP: 3/3."
+  },
+  "genderEvidence": {
+    "proposedGender": "male",
+    "basis": "Historical identity and actually viewed official default portrait. Male is an inference, not an API gender field.",
+    "officialApiContainsGender": false
+  },
+  "artwork": {
+    "byteCount": 897343,
+    "visualObservation": "A long-haired male official in purple and grey robes with a tall purple-and-gold headpiece holds a sheathed straight sword inside a curtained green garden pavilion. The full portrait is intact, with the official Sanguosha mark in its lower right corner.",
+    "registered": true,
+    "visuallyInspected": true,
+    "httpStatus": 200,
+    "advertisedImageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/702000.png",
+    "sha256": "173ed7e9a872cddee87cbf09ed5784d87392dc0a248528efa15466f3577f9045",
+    "pixelWidth": 750,
+    "skinId": "702000",
+    "pixelHeight": 950,
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-wang-xiang.png",
+    "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/702000.png"
+  },
+  "skills": [
+    {
+      "implementationMapping": "A coherent draw-funded distinct-basic semantic-use policy: accept only currently qualified legal own Play, actual forced Slash Use, own Slash-defense Dodge Use, and legal Dying Peach/self Alcohol Use; never generic played responses.",
+      "programId": "ol:bingxin",
+      "name": "冰心",
+      "text": "若你手牌的数量等于体力值且颜色相同，你可以摸一张牌视为使用一张与本回合以此法使用过的牌牌名不同的基本牌。",
+      "locked": false,
+      "textOrigin": "Current official hero/7020 SSR skill-text span"
+    }
+  ],
+  "acceptedImplementationDecisions": [
+    "Qualification is checked at publication and unpaid acceptance: living owner, nonempty entire hand, hand count equal to current HP, and exactly one effective real red or black color. Empty or colorless hands do not qualify.",
+    "Use allowance is owner plus stable methodLedgerId plus actual turn number plus normalized basic name; all three Slash kinds share Slash. Ordinary physical uses and uses by other methods are irrelevant. Regrant and extra Play do not reset the allowance.",
+    "One native Draw1 attempt is paid before issuance. Its real movement/gain/HP/dying children drain once from a typed owning frame; changed hand qualification or lost source after payment does not trigger a second payment.",
+    "A paid attempt whose original parent or legal target has become invalid cancels without a later skip choice and without recording an unissued basic name. Only genuine issuance records the by-method name.",
+    "Actual emitted Use/own-Slash-Dodge identity, original parent/action/target/responder and payment sequence are retained on typed frame receipts. No drawn card is used as material and card0 has no physical movement.",
+    "Every stored original private decision freezes its nested card/target/content arrays and choice parameter maps. Public method/payment facts contain no private hand identities or color evidence."
+  ],
+  "evidenceLimits": [
+    "The current primary page says 使用. Semantic-use response classification and interruption/regrant behavior are explicit engine mappings, not a claimed Bingxin-specific official supplemental FAQ.",
+    "At zero HP, a nonempty hand cannot meet unpaid Bingxin qualification. The tested self-Alcohol rescue in a paid draw child is issued by an independent registered legacy ability before returning to the original Bingxin payment; it is not a positive unpaid Bingxin self-rescue test.",
+    "Implementation and verification evidence are tracked separately in docs/benchmarks/2026-10-08-content-continuation-round14-verification.json. Primary capture alone does not establish behavioral correctness or official-client acceptance."
+  ],
+  "priorResearchPlan": "docs/content/sources/ol-wang-xiang-2026-10-08-plan.json"
+}

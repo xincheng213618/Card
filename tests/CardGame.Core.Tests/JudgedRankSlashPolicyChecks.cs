@@ -85,7 +85,7 @@ internal static class JudgedRankSlashPolicyChecks
         // A narrow host audit exercises the frozen-fact selector after a legitimate real card move.
         // No checkpoint/replay claim is made for the following host mutations.
         var card = (Card)Invoke(g, "GetAttackCard", original.CardId)!;
-        Invoke(g, "MoveCard", card, CardLocation.DiscardPile, CardLocation.Hand(0), new CardMoveReason("fixture.host.original-claim"), null!);
+        Invoke(g, "MoveCard", card, CardLocation.DiscardPile, CardLocation.Hand(0), new CardMoveReason("fixture.host.original-claim"), null!, true);
         Require(Indexes(g, batch, candidate).Contains(candidate.OccurrenceIndex) &&
             Indexes(g, batch with { MovementTiming = new(1, TurnPhase.Play, 0) }, candidate).Contains(candidate.OccurrenceIndex) &&
             Indexes(g, batch with { MovementTiming = new(0, TurnPhase.Play, 1) }, candidate).Length == 0,
@@ -122,7 +122,7 @@ internal static class JudgedRankSlashPolicyChecks
     private static void Answer(GameEngine g, Func<PromptChoice, bool> predicate) { var p = P(g)!; Accept(g, new AnswerPromptCommand(p.PlayerSeat, p.PromptId, p.Choices.First(predicate).Id, g.Revision)); }
     private static void ReachPlay(GameEngine g) => Reach(g, p => p.Kind == DecisionKind.PlayCard && p.PlayerSeat == 0);
     private static void ReachState(GameEngine g, Func<bool> predicate) { for (var n = 0; n < 128; n++) { if (predicate()) return; Advance(g); } throw new InvalidOperationException("Fixed rank/discard state boundary was not reached."); }
-    private static void Reach(GameEngine g, Func<PendingDecision, bool> predicate) { for (var n = 0; n < 128; n++) { var p = P(g); if (p is not null && predicate(p)) return; Advance(g); } throw new InvalidOperationException("Fixed rank/discard fixture missed its named boundary."); }
+    private static void Reach(GameEngine g, Func<PendingDecision, bool> predicate) { for (var n = 0; n < 128; n++) { var p = P(g); if (p is not null && predicate(p)) return; Advance(g); } throw new InvalidOperationException($"Fixed rank/discard fixture missed its named boundary: phase={g.State.Phase}, prompt={P(g)?.Kind}/{P(g)?.PlayerSeat}/{P(g)?.SkillPrompt?.SkillId}, frames={string.Join(',', g.ResolutionStack.Select(f => f.GetType().Name + ':' + f.Id))}."); }
     private static void Advance(GameEngine g)
     {
         var p = P(g);
@@ -146,7 +146,7 @@ internal static class JudgedRankSlashPolicyChecks
         {
             var replacementNode = replacement ? """
               ,{"id":"replace","window":"judgmentReplacing","subject":"owner","excludedReasons":[],"optional":true,
-                "effects":[{"op":"replaceJudgment","target":"owner","zones":["hand"],"oldCardDestination":"discardPile"}]}
+                "effects":[{"op":"replaceJudgment","target":"owner","zones":["hand"],"suits":["spade","club","heart","diamond"],"oldCardDestination":"discardPile"}]}
               """ : "";
             var rules = $$"""
             {"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[
@@ -161,8 +161,9 @@ internal static class JudgedRankSlashPolicyChecks
                 {"op":"discardOwnedZoneCards","target":"owner","zones":["hand"]},{"op":"draw","target":"owner","amount":1},
                 {"op":"discardOwnedZoneCards","target":"owner","zones":["hand"]}]}]}]}
             """;
-            var names = new[] { Driver, Final, Gain, Peer }.ToDictionary(id => id, id => (object)new { name = id, description = "实际判定、实体和共享返口", optionLabels = new Dictionary<string, string> { ["continue"] = "继续" } });
-            var catalog = SkillProgramCatalog.Load(rules, JsonSerializer.Serialize(new { schemaVersion = 3, skills = names }));
+            var names = new[] { Driver, Final, Gain, Peer }.ToDictionary(id => id, id => (object)new { name = id, description = "实际判定、实体和共享返口", optionLabels =
+                id is Final or Gain ? new Dictionary<string, string> { ["continue"] = "继续" } : new Dictionary<string, string>() });
+            var catalog = SkillProgramCatalog.Load(rules, JsonSerializer.Serialize(new { schemaVersion = SkillProgramCatalog.PresentationSchemaVersion, skills = names }));
             foreach (var pair in catalog.Programs) b.AddSkill(new(pair.Key, pair.Key, "实际共享边界") { Program = pair.Value });
             b.AddSkill(new("fixture:rank-idle", "固定其他角色", "无运行技能"));
             b.AddGeneral(new("fixture:rank-owner", "公开阈值", "supporter", Qiangwu, "shu", 3, shen ? [Shenxian, Driver, Final, Gain] : [Driver, Final, Gain], GeneralGender.Female));

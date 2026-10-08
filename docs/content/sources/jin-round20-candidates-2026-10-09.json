@@ -1,0 +1,902 @@
+{
+  "sourceRecordSchemaVersion": 1,
+  "documentKind": "Round20 current official ordinary OL Jin full candidate audit",
+  "capturedAt": "2026-10-09",
+  "status": "Candidate primary-source and full-mechanism audit complete; root selected complete ordinary Zhou Chu gid518. Production and behavior acceptance remain false.",
+  "sourceRegistered": false,
+  "registered": false,
+  "productionImplemented": false,
+  "behaviorAccepted": false,
+  "primaryResources": [
+    {
+      "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T16:06:39.997678+00:00",
+      "sha256": "6a035389beda8d0dbf31227f57a91b2da14d3d5055503198a227aef54f22bf76",
+      "byteCount": 5256312,
+      "hashScope": "Exact raw HTTP body bytes"
+    },
+    {
+      "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T16:06:39.930967+00:00",
+      "sha256": "9e26cb3db90532084579a20c292d5fec0c81dcf3d5eb2abf2009bff0326237bb",
+      "byteCount": 4142728,
+      "hashScope": "Exact raw HTTP body bytes"
+    },
+    {
+      "url": "https://www.sanguosha.com/hero/518",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T16:06:39.886626+00:00",
+      "sha256": "ad9612f57023b857dbb33a6633888025340457f61823c922b7a5abec4871c4b2",
+      "byteCount": 25087,
+      "hashScope": "Exact raw HTTP body bytes"
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=518",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T16:06:39.944166+00:00",
+      "sha256": "815aa89f8947b0abf55c3c232870db2a0b209f84f8a5267c49b84a015dcf87c4",
+      "byteCount": 987,
+      "hashScope": "Exact raw HTTP body bytes"
+    },
+    {
+      "url": "https://www.sanguosha.com/hero/354",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T16:06:39.895911+00:00",
+      "sha256": "4d9cb723539855930372017eeb28419e5c0b7954b626b30ca5941049bb2f9509",
+      "byteCount": 25412,
+      "hashScope": "Exact raw HTTP body bytes"
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=354",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T16:06:40.617858+00:00",
+      "sha256": "8b3ed9e72f03ca06f17e319f66be497fafb70c368c97583d16b376e9dd43a2c4",
+      "byteCount": 855,
+      "hashScope": "Exact raw HTTP body bytes"
+    },
+    {
+      "url": "https://www.sanguosha.com/hero/544",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T16:06:40.612877+00:00",
+      "sha256": "c0196f46cfdcd1151c4b2a18ab9a475a68a3fdd30854a791c5df71d4b05c6878",
+      "byteCount": 25219,
+      "hashScope": "Exact raw HTTP body bytes"
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=544",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T16:06:40.650415+00:00",
+      "sha256": "2fd7bda19cc143ce36fd579df8e042c139d56732890438da3dc73e4cb4682df7",
+      "byteCount": 1055,
+      "hashScope": "Exact raw HTTP body bytes"
+    }
+  ],
+  "currentOfficialClient": {
+    "decoding": "In-memory public InitOfb AES-CFB128 followed by gzip; no raw bundles retained",
+    "members": [
+      {
+        "name": "character.sgs",
+        "encodedSha256": "e0b6f0188edebb1f502ea402c7171e93b88f4e9d05720948344a1f4f44474aae",
+        "encodedByteCount": 352776,
+        "decodedSha256": "b3ef3f1181e7fe667499cb688b7cdce56631d899dbb0eea55d75fbf80636b040",
+        "decodedByteCount": 1485056
+      },
+      {
+        "name": "cha_spell.sgs",
+        "encodedSha256": "95cfaa4106a4f6224ebed8948bcf86bd5fc6801a83a1c4162c7e59bc848bef66",
+        "encodedByteCount": 246031,
+        "decodedSha256": "39b83f6e2504590e262bb353bddfded546b83f83a7ea9199b67742b1bee68fc0",
+        "decodedByteCount": 1166955
+      }
+    ]
+  },
+  "candidates": [
+    {
+      "gid": 518,
+      "character": {
+        "path": "/GameCharacters/character/1217",
+        "row": {
+          "a": 518,
+          "b": "周处",
+          "d": "ZhouChu",
+          "e": 46,
+          "f": "25",
+          "g": 6,
+          "h": 1,
+          "i": 4,
+          "j": 3154,
+          "k": 3155,
+          "p": 4,
+          "q": "1",
+          "r": "9051801",
+          "y": "字子隐，西晋大臣、将领，东吴鄱阳太守周鲂[fáng]之子。少时纵情肆欲，为祸乡里。后来改过自新，拜访名人陆机和陆云，浪子回头，发奋读书，留下“周处除三害”的传说。在史学、文学等方面也有建树，著有《默语》30篇、 《吴书》及《风土记》。",
+          "z": "通过分配能力值来打出爆发收益或蓄爆。",
+          "aa": 5,
+          "ab": "959,960",
+          "ad": "画师:游漫美绘",
+          "x": "古者良将受命，####盖有进无退也。 ",
+          "al": 1730,
+          "am": "true",
+          "ap": 1500,
+          "aq": 450,
+          "ar": "20221101T235959",
+          "LordCardRate1": 38,
+          "LordCardRate2": 54,
+          "cc": 0,
+          "starMax": 4
+        }
+      },
+      "apiResponse": {
+        "code": 0,
+        "message": "OK",
+        "data": {
+          "info": [
+            {
+              "gid": 518,
+              "name": "周处",
+              "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/518.png",
+              "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/51800.png",
+              "label": [
+                "进攻",
+                "过牌",
+                "发育"
+              ],
+              "figure": "晋",
+              "figure_py": "jin",
+              "quality": "限定",
+              "biography": "字子隐，西晋大臣、将领，东吴鄱阳太守周鲂[fáng]之子。少时纵情肆欲，为祸乡里。后来改过自新，拜访名人陆机和陆云，浪子回头，发奋读书，留下“周处除三害”的传说。在史学、文学等方面也有建树，著有《默语》30篇、 《吴书》及《风土记》。",
+              "characteristic": "通过分配能力值来打出爆发收益或蓄爆。",
+              "hp": 4,
+              "initial_hp": 0,
+              "score": 0
+            }
+          ],
+          "radar": [
+            {
+              "name": "地主",
+              "value": 7
+            },
+            {
+              "name": "农民",
+              "value": 9
+            },
+            {
+              "name": "主公",
+              "value": 8
+            },
+            {
+              "name": "反贼",
+              "value": 8
+            },
+            {
+              "name": "内奸",
+              "value": 8
+            }
+          ],
+          "deeds": []
+        }
+      },
+      "skillIds": [
+        3154,
+        3155
+      ],
+      "skills": [
+        {
+          "path": "/GameSpells/spell/1515",
+          "row": {
+            "a": 3154,
+            "b": "3,4,5",
+            "c": "善断",
+            "d": "ShanDuan",
+            "e": 0,
+            "g": 1,
+            "i": 2,
+            "o": "锁定技，摸牌/出牌/弃牌阶段开始时，你将本回合摸牌阶段摸牌数/攻击范围/使用【杀】的限制次数/手牌上限的默认值分配数值1、2、3、4。当你于回合外受到伤害后，你下回合以此法分配数值中的最小值+1。",
+            "w": "请选择摸牌阶段摸牌数;请选择攻击范围;请选择使用<font color='#FFD800'>杀</font>次数;请选择手牌上限",
+            "ae": "{0}发动<font color='#FFD800'>善断</font>，令摸牌数为{1};{0}发动<font color='#FFD800'>善断</font>，令攻击范围为{1};{0}发动<font color='#FFD800'>善断</font>，令<font color='#FFD800'>杀</font>使用次数为{1};{0}发动<font color='#FFD800'>善断</font>，手牌上限为{1}"
+          }
+        },
+        {
+          "path": "/GameSpells/spell/1516",
+          "row": {
+            "a": 3155,
+            "b": "3",
+            "c": "义烈",
+            "d": "YiLie",
+            "e": 0,
+            "g": 7,
+            "h": 1,
+            "i": 2,
+            "n": 0,
+            "o": "你可以将两张颜色相同的手牌当与本轮以此法使用过的牌牌名不同的基本牌使用。",
+            "v": "请选择两张颜色相同的手牌",
+            "u": "请选择一张基本牌",
+            "ae": "<br>已使用：",
+            "noAI": 1
+          }
+        }
+      ],
+      "relatedDerivedSkills": [],
+      "spellTips": [
+        {
+          "path": "/GameSpells/spell_tips/1515",
+          "row": {
+            "a": 3154
+          }
+        },
+        {
+          "path": "/GameSpells/spell_tips/1516",
+          "row": {
+            "a": 3155
+          }
+        }
+      ],
+      "ssrSkillFragments": [],
+      "name": "周处",
+      "currentOfficialMetadata": {
+        "gid": 518,
+        "name": "周处",
+        "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/518.png",
+        "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/51800.png",
+        "label": [
+          "进攻",
+          "过牌",
+          "发育"
+        ],
+        "figure": "晋",
+        "figure_py": "jin",
+        "quality": "限定",
+        "biography": "字子隐，西晋大臣、将领，东吴鄱阳太守周鲂[fáng]之子。少时纵情肆欲，为祸乡里。后来改过自新，拜访名人陆机和陆云，浪子回头，发奋读书，留下“周处除三害”的传说。在史学、文学等方面也有建树，著有《默语》30篇、 《吴书》及《风土记》。",
+        "characteristic": "通过分配能力值来打出爆发收益或蓄爆。",
+        "hp": 4,
+        "initial_hp": 0,
+        "score": 0
+      },
+      "gender": "Male",
+      "maxHp": 4,
+      "initialHp": 4,
+      "initialHpInterpretation": "API initial_hp=0 means ordinary full maxHP start, before native mode modifiers.",
+      "faction": "jin",
+      "registeredInCurrentRepo": false,
+      "hasConcealment": false,
+      "concealmentBasis": "No concealment wording in the complete current assigned ordinary spell texts. All assigned j/k/l/m skill slots are captured.",
+      "assignedSkillSlotOrder": [
+        3154,
+        3155
+      ],
+      "fullCurrentSkills": [
+        {
+          "officialSkillId": 3154,
+          "name": "善断",
+          "exactOrdinaryClientText": "锁定技，摸牌/出牌/弃牌阶段开始时，你将本回合摸牌阶段摸牌数/攻击范围/使用【杀】的限制次数/手牌上限的默认值分配数值1、2、3、4。当你于回合外受到伤害后，你下回合以此法分配数值中的最小值+1。",
+          "rawTextPreservedAt": "/GameSpells/spell/1515/o"
+        },
+        {
+          "officialSkillId": 3155,
+          "name": "义烈",
+          "exactOrdinaryClientText": "你可以将两张颜色相同的手牌当与本轮以此法使用过的牌牌名不同的基本牌使用。",
+          "rawTextPreservedAt": "/GameSpells/spell/1516/o"
+        }
+      ],
+      "mechanismAssessment": {
+        "ranking": 1,
+        "recommendation": "Implement the complete two-skill ordinary general next; do not omit allocation or off-turn basic use directions.",
+        "reusable": [
+          "GameEngine.MouLuMeng.cs BeginRoundForTurn: actual round lifecycle, excluding extra turns; ProgramBasicCardName supplies Slash canonicalization.",
+          "Positive-input native hand conversion supports material payment and use-qualified Dodge/Peach/Alcohol/forced true Slash paths; retain native Use versus pure Response classification.",
+          "GameEngine.RuleQueries.cs uses base rule candidates separately from additive contributions, suitable for a new assigned-default baseline.",
+          "Existing native DamageFrame and completed positive applied facts can establish distinct off-turn damage occurrences."
+        ],
+        "newRequired": [
+          "A turn-owned four-item numeric multiset and four assigned default slots, selected at Draw/Play/Discard stage boundaries, with skipped/extra phase behavior and cold typed continuations.",
+          "A pending-next-actual-turn minimum-increment ledger tied to actual damage occurrences and stable owning source/state.",
+          "An additive two-same-color-basic conversion family with owner+stable method+actual round+normalized name issuance ledger; existing tieredRoundConversion schema requires one/zero input and cannot represent two inputs.",
+          "Input acceptance, legal prompt publication, true Use-only response and dying rescues, unique material payment, cold restore and source-loss semantics must be verified."
+        ],
+        "notReusableAsIs": [
+          "TieredRoundConversionSchema.cs requires InputCount=1 at tiers0/1 or0 at tier2 and coupled tier-specific phase/round quotas.",
+          "ProgramTieredRoundConversion.TrueRoundHasUsedName is global all-use history, whereas YiLie excludes only this owner-method issued names.",
+          "DrawFundedDistinctBasicPolicy charges Draw1 and uses actual-turn quota; YiLie is physical pair cost and actual-round name quota."
+        ]
+      },
+      "directClientBehaviorEvidence": {
+        "allocationChoices": "awi.GetResponser sets flag=server.Param-1. GetMultiSelectDatas enumerates positive values supplied in server.Params and sends the chosen numeric value. Four prompt indexes CARD/ATTACK/SHA/LIMIT are0/1/2/3. This demonstrates one property selection per request, not the hidden server phase scheduling algorithm.",
+        "rangeBaseline": "Client range recomputation offset20301350 compares DATA_SHANDUAN_RANGE with weapon/native baseline using u>i&&(i=u), then applies other state and character additive range contributions. Assigned range is a baseline floor, not replacement of weapon range or additive +value.",
+        "useOnly": "GBi sets cardUseType=UCt.USE; off-turn Activated rejects current TriggerCardUseType=UCt.DEAL. Pure Duel/Barbarian Slash and Arrow Dodge responses are excluded.",
+        "rescue": "GBi.Activated explicitly checks Peach ask targets and self Alcohol availability; rescue uses remain part of the skill.",
+        "normalizedSlash": "GBi.UpdateRoleDataResponse suppresses Slash and all fire/thunder/ice/Qinglong variants together when server used-name data contains SHA. Dodge, Peach and Alcohol have separate names.",
+        "woodenOx": "GBi.requestCardType=NORMAL|MUNIULIUMA and eligibility scans own HandCards plus GetSkillOutsideCards(MUNIULIUMA_JIEXIANTUPO). This is native stored-grain hand-like use behavior, not arbitrary Equipment permission."
+      }
+    },
+    {
+      "gid": 354,
+      "character": {
+        "path": "/GameCharacters/character/255",
+        "row": {
+          "a": 354,
+          "b": "左棻",
+          "d": "ZuoFen",
+          "e": 44,
+          "f": "41",
+          "g": 6,
+          "h": 2,
+          "i": 3,
+          "j": 3043,
+          "k": 3042,
+          "p": 3,
+          "q": "1",
+          "r": "935401",
+          "y": "左棻[fēn]，字兰芝，齐国临淄（今山东临淄）人，少好学，善属文。为晋武帝司马炎的贵人。今存诗、赋、颂、赞、诔[lěi]等20余篇，大都为应诏而作，《离思赋》最著名。",
+          "z": "诏颂对敌方使用时要慎重，莫要因小失大。",
+          "aa": 150,
+          "ab": "875,876",
+          "ad": "画师:福州明暗",
+          "x": "侍尊之荣，####如何比得上离亲之恨？",
+          "am": "true",
+          "ap": 800,
+          "aq": 240,
+          "bx": 200000,
+          "LordCardRate1": 0,
+          "LordCardRate2": 34,
+          "cc": 35403,
+          "starMax": 4
+        }
+      },
+      "apiResponse": {
+        "code": 0,
+        "message": "OK",
+        "data": {
+          "info": [
+            {
+              "gid": 354,
+              "name": "左棻",
+              "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/354.png",
+              "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/35400.png",
+              "label": [
+                "防御",
+                "过牌",
+                "辅助"
+              ],
+              "figure": "晋",
+              "figure_py": "jin",
+              "quality": "传说",
+              "biography": "左棻[fēn]，字兰芝，齐国临淄（今山东临淄）人，少好学，善属文。为晋武帝司马炎的贵人。今存诗、赋、颂、赞、诔[lěi]等20余篇，大都为应诏而作，《离思赋》最著名。",
+              "characteristic": "诏颂对敌方使用时要慎重，莫要因小失大。",
+              "hp": 3,
+              "initial_hp": 0,
+              "score": 0
+            }
+          ],
+          "radar": [
+            {
+              "name": "农民",
+              "value": 5
+            },
+            {
+              "name": "主公",
+              "value": 5
+            },
+            {
+              "name": "忠臣",
+              "value": 7
+            },
+            {
+              "name": "反贼",
+              "value": 7
+            }
+          ],
+          "deeds": []
+        }
+      },
+      "skillIds": [
+        3043,
+        3042
+      ],
+      "skills": [
+        {
+          "path": "/GameSpells/spell/1397",
+          "row": {
+            "a": 3042,
+            "b": "3,5",
+            "c": "诏颂",
+            "d": "ZhaoSong",
+            "g": 5,
+            "i": 2,
+            "n": 0,
+            "o": "其他角色摸牌阶段结束时，若其没有本技能的标记，你可以令其正面朝上交给你一张手牌，其根据此牌类型获得对应标记：<br>•锦囊牌(\"诔\")：进入濒死时，回复至1点体力并摸一张牌；<br>•装备牌(\"赋\")：出牌阶段开始时，弃置一名角色区域里至多两张牌；<br>•基本牌(\"颂\")：使用【杀】指定唯一目标时，多指定至多两个目标。",
+            "v": "请选择一名角色，弃置其区域内至多两张牌|请选择至多两个角色目标",
+            "w": "请选择一张手牌交给{0}|是否令{0}摸一张牌",
+            "ac": "是否对{0}发动<font color='#FFD800'>诏颂</font>|是否弃置“诔”回复至1点体力并摸1张牌？|是否弃置“赋”弃置一名角色区域内的至多两张牌？ |是否弃置“颂”多选至多两个目标？"
+          }
+        },
+        {
+          "path": "/GameSpells/spell/1398",
+          "row": {
+            "a": 3043,
+            "b": "3,5",
+            "c": "离思",
+            "d": "LiSi",
+            "g": 5,
+            "h": 1,
+            "i": 2,
+            "n": 1,
+            "o": "当你于回合外使用牌置入弃牌堆时，你可以令一名手牌数小于等于你的其他角色获得之。",
+            "v": "请将{0}交给一名手牌数小于等于你的其他角色"
+          }
+        }
+      ],
+      "relatedDerivedSkills": [],
+      "spellTips": [
+        {
+          "path": "/GameSpells/spell_tips/1392",
+          "row": {
+            "a": 3042
+          }
+        },
+        {
+          "path": "/GameSpells/spell_tips/1393",
+          "row": {
+            "a": 3043
+          }
+        }
+      ],
+      "ssrSkillFragments": [],
+      "name": "左棻",
+      "currentOfficialMetadata": {
+        "gid": 354,
+        "name": "左棻",
+        "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/354.png",
+        "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/35400.png",
+        "label": [
+          "防御",
+          "过牌",
+          "辅助"
+        ],
+        "figure": "晋",
+        "figure_py": "jin",
+        "quality": "传说",
+        "biography": "左棻[fēn]，字兰芝，齐国临淄（今山东临淄）人，少好学，善属文。为晋武帝司马炎的贵人。今存诗、赋、颂、赞、诔[lěi]等20余篇，大都为应诏而作，《离思赋》最著名。",
+        "characteristic": "诏颂对敌方使用时要慎重，莫要因小失大。",
+        "hp": 3,
+        "initial_hp": 0,
+        "score": 0
+      },
+      "gender": "Female",
+      "maxHp": 3,
+      "initialHp": 3,
+      "initialHpInterpretation": "API initial_hp=0 means ordinary full maxHP start, before native mode modifiers.",
+      "faction": "jin",
+      "registeredInCurrentRepo": false,
+      "hasConcealment": false,
+      "concealmentBasis": "No concealment wording in the complete current assigned ordinary spell texts. All assigned j/k/l/m skill slots are captured.",
+      "assignedSkillSlotOrder": [
+        3043,
+        3042
+      ],
+      "fullCurrentSkills": [
+        {
+          "officialSkillId": 3042,
+          "name": "诏颂",
+          "exactOrdinaryClientText": "其他角色摸牌阶段结束时，若其没有本技能的标记，你可以令其正面朝上交给你一张手牌，其根据此牌类型获得对应标记：•锦囊牌(\"诔\")：进入濒死时，回复至1点体力并摸一张牌；•装备牌(\"赋\")：出牌阶段开始时，弃置一名角色区域里至多两张牌；•基本牌(\"颂\")：使用【杀】指定唯一目标时，多指定至多两个目标。",
+          "rawTextPreservedAt": "/GameSpells/spell/1397/o"
+        },
+        {
+          "officialSkillId": 3043,
+          "name": "离思",
+          "exactOrdinaryClientText": "当你于回合外使用牌置入弃牌堆时，你可以令一名手牌数小于等于你的其他角色获得之。",
+          "rawTextPreservedAt": "/GameSpells/spell/1398/o"
+        }
+      ],
+      "mechanismAssessment": {
+        "ranking": 2,
+        "recommendation": "Retain complete current token-holder semantics and Lisi recovery; no old2021 drawbacks.",
+        "reusable": [
+          "Native per-owner card movements/gains and disclosed gift invoices, frozen source identities, true Dying recovery, native selected owned-card discard and extra Slash target windows.",
+          "Whole-use native Action classification and exact source-to-discard records are useful for Lisi actual used-material claims."
+        ],
+        "newRequired": [
+          "Recipient-owned persistent typed token issuance/consumption with optional trigger ownership independent of original ZuoFen source; no new mark when any same-method token exists.",
+          "All three token branches: Dying recoverTo1+Draw1, Play-start up-to2 HEJ discard, unique original Slash target plus up-to2 legal targets.",
+          "Out-of-turn actual used card material discard ownership, eligibility hand-count comparison, reveal/processing/native cleanup ordering, multi-material conversion and source-loss returns."
+        ],
+        "derivedEffects": "Current3042 contains all three token effects under one official spell ID; Config contains no separate ZhaoSong-derived skill rows. The client ac text explicitly asks to consume each corresponding mark.",
+        "versionDrift": "Official2021 launch has maxHP loss after Lei, one-card Fu plus optional Draw, and Song damage-under2 HP penalty. These are absent from both current hero and current Config and must not be reintroduced."
+      }
+    },
+    {
+      "gid": 544,
+      "character": {
+        "path": "/GameCharacters/character/1244",
+        "row": {
+          "a": 544,
+          "b": "张华",
+          "d": "ZhangHua",
+          "e": 44,
+          "f": "42",
+          "g": 6,
+          "h": 1,
+          "i": 3,
+          "j": 3251,
+          "k": 3253,
+          "l": 3252,
+          "p": 3,
+          "q": "1",
+          "r": "9054401",
+          "y": "西晋贤相，张良的十六世孙，贾南风时辅政，与羊祜交好。司马炎与羊祜谋划伐吴时，群臣唯张华、杜预赞成其计。羊祜临终将伐吴之遗志托付于张华、杜预。贾充曾在伐吴半进时进谏退兵并奏斩张华，司马炎护之。斩蛇剑穿屋而飞、干将莫邪双剑化龙、龙光射牛斗之墟皆出自其典。",
+          "z": "通过不断重铸牌造成伤害，需注意在牌多时不能正常用牌。",
+          "aa": 1285,
+          "ab": "1013,1014",
+          "ad": "画师:匠人绘",
+          "x": "天生神物，####终当合耳！",
+          "al": 1730,
+          "am": "true",
+          "ap": 800,
+          "aq": 240,
+          "ar": "20230529T235958",
+          "LordCardRate1": 57,
+          "LordCardRate2": 49,
+          "cc": 0,
+          "starMax": 4
+        }
+      },
+      "apiResponse": {
+        "code": 0,
+        "message": "OK",
+        "data": {
+          "info": [
+            {
+              "gid": 544,
+              "name": "张华",
+              "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/544.png",
+              "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/54400.png",
+              "label": [
+                "进攻",
+                "过牌",
+                "卖血"
+              ],
+              "figure": "晋",
+              "figure_py": "jin",
+              "quality": "传说",
+              "biography": "西晋贤相，张良的十六世孙，贾南风时辅政。与羊祜[hù]善。司马炎与羊祜谋划伐吴时，群臣唯张华、杜预赞成其计。羊祜临终将伐吴之遗志托付于张华、杜预。贾充曾在伐吴半进时进谏退兵并奏斩张华，司马炎护之。斩蛇剑穿屋而飞、干将莫邪双剑化龙、龙光射牛斗之墟皆出自其典。",
+              "characteristic": "通过不断重铸牌造成伤害，需注意在牌多时不能正常用牌。",
+              "hp": 3,
+              "initial_hp": 0,
+              "score": 0
+            }
+          ],
+          "radar": [
+            {
+              "name": "地主",
+              "value": 9
+            },
+            {
+              "name": "农民",
+              "value": 8
+            },
+            {
+              "name": "主公",
+              "value": 10
+            },
+            {
+              "name": "忠臣",
+              "value": 8
+            },
+            {
+              "name": "内奸",
+              "value": 9
+            }
+          ],
+          "deeds": []
+        }
+      },
+      "skillIds": [
+        3251,
+        3253,
+        3252
+      ],
+      "skills": [
+        {
+          "path": "/GameSpells/spell/1614",
+          "row": {
+            "a": 3251,
+            "b": "3,4,5",
+            "c": "弼昏",
+            "d": "BiHun",
+            "e": 0,
+            "g": 8,
+            "i": 2,
+            "o": "锁定技，当你使用牌指定其他角色为目标时，若你的手牌数大于手牌上限，你取消之并令唯一目标获得此牌。",
+            "k": "1"
+          }
+        },
+        {
+          "path": "/GameSpells/spell/1615",
+          "row": {
+            "a": 3252,
+            "b": "3,4,5",
+            "c": "穿屋",
+            "d": "ChuanWu",
+            "e": 0,
+            "g": 6,
+            "i": 2,
+            "o": "锁定技，当你造成或受到伤害后，你失去武将牌上前X个技能直到回合结束（X为你的攻击范围），然后摸与失去技能数等量张牌。"
+          }
+        },
+        {
+          "path": "/GameSpells/spell/1616",
+          "row": {
+            "a": 3253,
+            "b": "3",
+            "c": "剑合",
+            "d": "JianHe",
+            "e": 0,
+            "g": 1,
+            "h": 1,
+            "i": 2,
+            "n": 0,
+            "o": "出牌阶段，每名角色限一次，你可以重铸至少两张同名牌或装备牌，令一名角色选择一项：<br>&nbsp;1.重铸等量张与之类型相同的牌；<br>&nbsp;2.受到你的1点雷电伤害。",
+            "v": "请选择要重铸的牌与一名角色",
+            "w": "请选择重铸{0}张{1}，或点击取消受到1点雷电伤害"
+          }
+        }
+      ],
+      "relatedDerivedSkills": [],
+      "spellTips": [
+        {
+          "path": "/GameSpells/spell_tips/1621",
+          "row": {
+            "a": 3251
+          }
+        },
+        {
+          "path": "/GameSpells/spell_tips/1622",
+          "row": {
+            "a": 3252
+          }
+        },
+        {
+          "path": "/GameSpells/spell_tips/1623",
+          "row": {
+            "a": 3253
+          }
+        }
+      ],
+      "ssrSkillFragments": [],
+      "name": "张华",
+      "currentOfficialMetadata": {
+        "gid": 544,
+        "name": "张华",
+        "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/544.png",
+        "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/54400.png",
+        "label": [
+          "进攻",
+          "过牌",
+          "卖血"
+        ],
+        "figure": "晋",
+        "figure_py": "jin",
+        "quality": "传说",
+        "biography": "西晋贤相，张良的十六世孙，贾南风时辅政。与羊祜[hù]善。司马炎与羊祜谋划伐吴时，群臣唯张华、杜预赞成其计。羊祜临终将伐吴之遗志托付于张华、杜预。贾充曾在伐吴半进时进谏退兵并奏斩张华，司马炎护之。斩蛇剑穿屋而飞、干将莫邪双剑化龙、龙光射牛斗之墟皆出自其典。",
+        "characteristic": "通过不断重铸牌造成伤害，需注意在牌多时不能正常用牌。",
+        "hp": 3,
+        "initial_hp": 0,
+        "score": 0
+      },
+      "gender": "Male",
+      "maxHp": 3,
+      "initialHp": 3,
+      "initialHpInterpretation": "API initial_hp=0 means ordinary full maxHP start, before native mode modifiers.",
+      "faction": "jin",
+      "registeredInCurrentRepo": false,
+      "hasConcealment": false,
+      "concealmentBasis": "No concealment wording in the complete current assigned ordinary spell texts. All assigned j/k/l/m skill slots are captured.",
+      "assignedSkillSlotOrder": [
+        3251,
+        3253,
+        3252
+      ],
+      "fullCurrentSkills": [
+        {
+          "officialSkillId": 3251,
+          "name": "弼昏",
+          "exactOrdinaryClientText": "锁定技，当你使用牌指定其他角色为目标时，若你的手牌数大于手牌上限，你取消之并令唯一目标获得此牌。",
+          "rawTextPreservedAt": "/GameSpells/spell/1614/o"
+        },
+        {
+          "officialSkillId": 3252,
+          "name": "穿屋",
+          "exactOrdinaryClientText": "锁定技，当你造成或受到伤害后，你失去武将牌上前X个技能直到回合结束（X为你的攻击范围），然后摸与失去技能数等量张牌。",
+          "rawTextPreservedAt": "/GameSpells/spell/1615/o"
+        },
+        {
+          "officialSkillId": 3253,
+          "name": "剑合",
+          "exactOrdinaryClientText": "出牌阶段，每名角色限一次，你可以重铸至少两张同名牌或装备牌，令一名角色选择一项： 1.重铸等量张与之类型相同的牌； 2.受到你的1点雷电伤害。",
+          "rawTextPreservedAt": "/GameSpells/spell/1616/o"
+        }
+      ],
+      "mechanismAssessment": {
+        "ranking": 3,
+        "recommendation": "Retain all three complete skills and ordered printed-skill semantics.",
+        "reusable": [
+          "Exact native actual-use target windows, public material movement claim, whole-use target list and native recast/damage children.",
+          "Current temporary turn suppression lifecycle and physically acquired skill bookkeeping provide only a base, not equivalent ordered temporary skill loss."
+        ],
+        "newRequired": [
+          "Cancel each qualifying other target at exact native use target declaration; if the original required unique target applies, transfer the actual use materials without changing accepted provenance.",
+          "Ordered first-X printed-general skill loss through current actual turn, regrant/return and source-independent frozen lost-count Draw; preserve exact client slot order and reconcile official display order.",
+          "Variable >=2 physical same-name or Equipment recast with actual chosen material type histogram; per-target phase quota, counterpart equal-count category recast or true Thunder1 damage; source-loss children."
+        ],
+        "skillOrderWarning": "Raw character order is j3251(BiHun),k3253(JianHe),l3252(ChuanWu). Hero headings list BiHun/ChuanWu/JianHe. Ordered first-X semantics must use the verified in-game ordering contract rather than assuming SSR heading order."
+      }
+    }
+  ],
+  "clientCodeResearch": {
+    "bundleSha256": "6a035389beda8d0dbf31227f57a91b2da14d3d5055503198a227aef54f22bf76",
+    "scriptByteCount": 22561844,
+    "exactClasses": [
+      {
+        "class": "awi",
+        "offset": 15590317,
+        "sha256": "9a4e634d5ecd65530908d9dbda82a0f419e0e7b61ef539d1b66dd16c912a1946",
+        "fragment": "class awi extends $Kt{static CARD=0;static ATTACK=1;static SHA=2;static LIMIT=3;constructor(){super(),this.activeMode=vCt.LOCK|vCt.ASK}GetResponser(t){return t?(this.flag=t.Param-1,this.lastUseParamsFromServer=t.Params):(this.flag=0,this.lastUseParamsFromServer=null),this.responser||(this.responser=new Hqt),this.responser}get DefensiveTip(){let t=this.defensiveTip.split(\";\");return t&&t.length>this.flag?t[this.flag]:\"\"}GetMultiSelectDatas(t){let i,s=[],e=this.DefensiveTip;return this.lastUseParamsFromServer&&this.lastUseParamsFromServer.length&&this.lastUseParamsFromServer.forEach((t=>{t>0&&(i=new DIt,i.label=\"【\"+t.toString()+\"】\",i.thisObject=this,i.enabled=!0,i.sendData=t,s.push(i))})),{btnDatas:s,optMsg:e}}GetUseRecord(t,i,s,e,h=null){if(!h||!e||!e.length)return;let r=c1t.GetSeat(t);if(!r)return;let n=this.useTip.split(\";\");if(h.effectIndex>0&&n&&n.length>h.effectIndex-1){let t=WZ.I().GetSeatHtmlName(h&&h.SrcName||r.SeatName);return ks.F(n[h.effectIndex-1],t,e[0].toString())}return super.GetUseRecord(t,i,s,e,h)}UpdateRoleDataResponse(t,i,s=!1){super.UpdateRoleDataResponse(t,i,s),i&&t&&(t.IsSpell?!s&&t.Datas&&t.Datas.length?i.UpdateState(Ef.DATA_SHANDUAN,1,t.Datas.slice(0,t.Datas.length)):i.UpdateState(Ef.DATA_SHANDUAN,0):s||!t.Datas||t.Datas.length<2?i.UpdateState(Ef.DATA_SHANDUAN_RANGE,0):i.UpdateState(Ef.DATA_SHANDUAN_RANGE,t.Datas[1]))}DealSkinSkillEffect(t){return{ignoreStep2:!0}}get RetainRoleDataExLastParams(){return!1}}"
+      },
+      {
+        "class": "GBi",
+        "offset": 16518445,
+        "sha256": "3a18fe7c4d133f5711ec2b9b35a8b2a37d31f37bb082fdcde9072440665f134f",
+        "fragment": "class GBi extends $Kt{constructor(){super(),this.activeMode=vCt.ACTIVE|vCt.PASSIVE,this.cardUseType=UCt.USE,this.cardCountMin=this.cardCountMax=2,this.timeLimitRound=Number.MAX_VALUE,this.enableCancel=!0,this.requestCardType=kCt.NORMAL|kCt.MUNIULIUMA,this.avatarSkillCardBaseType=OCt.BASIC,this.cardSelector=new pXt(this)}get AvatarSkillType(){return kCt.NORMAL_BASIC}get TouchCardNeedRefreshTip(){return!0}get CardCountMin(){return this.Seat&&this.Seat.IsShowVirtualCard?1:2}get CardCountMax(){return this.CardCountMin}get IsTwoCardFromHand(){let t=this.Seat;return!(!t||0==this.selectCardId0||0==this.selectCardId1)&&!(!t.IsHandCard(this.selectCardId0)||!t.IsHandCard(this.selectCardId1))}get NeedShowVirtualCard(){return this.CardSelector.SelectedCount>=2&&(this.Seat.IsShowVirtualCard||(this.selectCardId0=this.CardSelector.SelectedCardIds[0],this.selectCardId1=this.CardSelector.SelectedCardIds[1]),!0)}get Activated(){let t=Laya.superGetter(GBi,this,\"Activated\"),i=this.Seat;if(t&&i){if(t){let i=[],s=this.Seat.HandCards,e=this.Seat.GetSkillOutsideCards(FCt.MUNIULIUMA_JIEXIANTUPO);s&&(i=i.concat(s)),e&&(i=i.concat(e));let h=!1;if(i&&i.length){let t=0,s=0;for(let e=0,r=i.length;e<r;e++){let r=i[e];if(r)if(_q.GetColorByFlower(r.FlowerOnSeat)==_q.Black){if(t++,t>=2){h=!0;break}}else if(_q.GetColorByFlower(r.FlowerOnSeat)==_q.Red&&(s++,s>=2)){h=!0;break}}}t=h}if(t){let i=this.virtualSkills,s=!1;if(i&&i.length&&c1t.BaseSpellWithProEx)for(let t=0,e=c1t.BaseSpellWithProEx.length;t<e;t++){let e=c1t.BaseSpellWithProEx[t];if(e&&i.indexOf(e)>=0){s=!0;break}}t=s}}return t&&i&&(i.HandCardCount>=2||(i.HandCardCount+i.GetSkillOutsideCardsCount(FCt.MUNIULIUMA_JIEXIANTUPO)<2?t=!1:this.avatarSkills&&0!=this.avatarSkills.length||(t=!1))),t&&i&&!i.InActiveState?c1t.LastActivateSpell&&c1t.LastActivateSpell.ID===FCt.TAO?!!(c1t.NextSpellTargets&&c1t.NextSpellTargets.length&&c1t.NextSpellTargets[0]==i.Index&&this.avatarSkills&&this.avatarSkills.indexOf(FCt.JIU)>-1)||this.avatarSkills&&this.avatarSkills.indexOf(FCt.TAO)>-1:(!c1t.LastTriggerSpell||c1t.LastTriggerSpell.TriggerCardUseType!=UCt.DEAL)&&t:t}get ActiveTip(){return this.Seat&&this.Seat.IsShowVirtualCard||this.cardSelector&&this.cardSelector.SelectedCount>=2?this.cardSelector&&1==this.cardSelector.SelectedCount&&this.cardSelector.FirstSelectedCard&&this.cardSelector.FirstSelectedCard.FirstSkill&&this.cardSelector.FirstSelectedCard.FirstSkill.TargetCountMax>0?this.cardSelector.FirstSelectedCard.FirstSkill.ActiveTip:this.passiveTip:this.activeTip}get VirtualRemoveSelectCard(){return!0}get VirtualCardColor(){let t=_q.None;return this.cardSelector.SelectedCards&&this.cardSelector.SelectedCards.length&&(t=_q.GetColorByFlower(this.cardSelector.SelectedCards[0].CardFlower)),t}get VirtualSkillIds(){return this.virtualSkills}get NeedRecordUsedCard(){return!0}GetUseRecord(t,i,s,e,h=null){let r=super.GetUseRecord(t,null,s,e,h);if(e){let h=WZ.I();!i||!i.length||1==i.length&&t==i[0]?r+=\",\"+ks.F(ewt.RECORD_USE_CARD_AS,h.GetCardsHtmlNames(s),h.GetSkillHtmlName(e[0],e[1])):r+=\",\"+ks.F(ewt.RECORD_USE_CARD_AS_TO,h.GetCardsHtmlNames(s),h.GetSkillHtmlName(e[0],e[1]),h.GetSeatHtmlNames(i))}return r}SkillChangeCardRes(t,i,s,e){if(e&&t){let i=_Xt.GetInstance(t[0],null,t[1]);if(i)return i.ClassName}return\"\"}Use(t,i,s=null,e=0){let h=c1t.SelfSeatIndex;this.CardSelector&&this.CardSelector.SelectedCards&&this.CardSelector.SelectedCards.length&&this.CardSelector.SelectedCards[0]&&(i&&i.length||(i=[h]),JQt.SendUseSpell(s.Index,this.ID,i,[this.selectCardId0,this.selectCardId1],h,this.CardSelector.Skill.SkillCard.CardId,[this.CardSelector.SelectedCards[0].FirstSkillId,this.CardSelector.SelectedCards[0].FirstSkill.Property]))}MoveCardToStackZoneDesc(t){if(c1t.LastUseSpellMsg&&t&&this.Seat){let t=this.Seat.SeatName+this.Name;return c1t.LastUseSpellMsg.DestSeatIDs&&c1t.LastUseSpellMsg.DestSeatIDs.length&&(t+=ewt.SKILL_TO,c1t.LastUseSpellMsg.DestSeatIDs.forEach((i=>{let s=c1t.GetSeat(i);t+=s.SeatName}))),t}return this.Name}IsThis(t){let i=!1;return i=this.SkillId==t,i||0==i&&(i=t==FCt.TAO?this.avatarSkills&&(-1<this.avatarSkills.indexOf(t)||-1<this.avatarSkills.indexOf(FCt.JIU)):this.avatarSkills&&-1<this.avatarSkills.indexOf(t)),i}get Describe(){let t=Laya.superGetter(GBi,this,\"Describe\"),i=this.virtualSkills,s=!1,e=this.UseTip,h=i&&i.length;if(c1t.BaseSpellWithProEx)for(let t=0,r=c1t.BaseSpellWithProEx.length;t<r;t++){let r=c1t.BaseSpellWithProEx[t];if(r&&(h&&i.indexOf(r)<0||!h)){let t=_Xt.GetInstance(r);t&&(s=!0,e+=ks.F(ewt.BTN_SKILL_TIP_5,t.Name))}}return s&&(t+=e),t}UpdateRoleDataResponse(t,i,s=!1){if(super.UpdateRoleDataResponse(t,i,s),t&&t.IsSpell)if(!s&&t.Datas&&t.Datas.length&&0!=t.Datas[0]){this.avatarSkills?this.avatarSkills.length=0:this.avatarSkills=[],this.virtualSkills?this.virtualSkills.length=0:this.virtualSkills=[];let i=t.Datas;-1==i.indexOf(FCt.SHA)&&(this.avatarSkills.push(FCt.SHA),this.avatarSkills.push(FCt.HUOSHA),this.avatarSkills.push(FCt.LEISHA),this.avatarSkills.push(FCt.BINGSHA),this.avatarSkills.push(FCt.QINGLONG)),-1==i.indexOf(FCt.JIU)&&this.avatarSkills.push(FCt.JIU),-1==i.indexOf(FCt.TAO)&&this.avatarSkills.push(FCt.TAO),-1==i.indexOf(FCt.SHAN)&&this.avatarSkills.push(FCt.SHAN);let s=c1t.BaseSpellWithPro;if(s&&s.length>=2){let t=0,e=s.length;for(;t<e;t+=2)-1==i.indexOf(s[t])&&e>t+1&&(this.virtualSkills.push(s[t]),this.virtualSkills.push(s[t+1]))}}else this.avatarSkills?this.avatarSkills.length=0:this.avatarSkills=[],this.virtualSkills&&(this.virtualSkills.length=0),this.avatarSkills.push(FCt.SHA),this.avatarSkills.push(FCt.HUOSHA),this.avatarSkills.push(FCt.LEISHA),this.avatarSkills.push(FCt.BINGSHA),this.avatarSkills.push(FCt.JIU),this.avatarSkills.push(FCt.SHAN),this.avatarSkills.push(FCt.TAO),this.avatarSkills.push(FCt.QINGLONG),this.virtualSkills=c1t.BaseSpellWithPro.concat()}get RetainRoleDataExLastParams(){return!1}}"
+      },
+      {
+        "class": "tC",
+        "offset": 1077393,
+        "sha256": "e7a2fad558d743c952c7885131eac5480045e8f0f5c3aaaa77b52b80070583b9",
+        "fragment": "class tC extends Ef{constructor(t){super(t),this.stateId=Ef.DATA_SHANDUAN,this.needShow=!0}get ShowText(){let t=\"\";return this.targets&&this.targets.length&&this.targets.forEach((i=>{i>0&&(t+=i.toString())})),ks.F(ewt.SeatState_SHANDUAN_Label,t)}}"
+      },
+      {
+        "class": "$I",
+        "offset": 1077270,
+        "sha256": "2e70d651a63738b4aa609ddb9f4d2277dfd3df86542ac96b7cc5831d2292bfc5",
+        "fragment": "class $I extends Ef{constructor(t){super(t),this.stateId=Ef.DATA_SHANDUAN_RANGE,this.needShow=!1,this.needRecountRange=!0}}"
+      }
+    ],
+    "rangeReferences": [
+      {
+        "offset": 945791,
+        "fragment": "atic DATA_SHENGZHI=339;static DATA_CHIGANG=340;static DATA_QIONGLAN=341;static DATA_QUANDAO=342;static DATA_JIAOHUI=343;static DATA_YUANLV=344;static DATA_FEIBAI=345;static DATA_BIXIN=346;static DATA_SHANDUAN=347;static DATA_SHANDUAN_RANGE=348;static DATA_ZEYUE=349;static DATA_LUNZHAN=350;static DATA_BINGJIE=351;static DATA_DIANZHAN=352;static DATA_FENCHAI=353;static DATA_QIANGXI_PO=354;static DATA_SHENGZHI2=355;static DATA_POJUNFU=356;static DATA_ZHUBI=357;static DATA_ZENRUN=358;static DATA_FENCHAI2_SELF=359;static DATA_FENCHAI2_OTHER=360;static DATA_KANGRUI=361;static DATA_HUNZI=362;static DATA_XINGBU=363;static DATA_FANGZHEN=364;static DATA_TIANHOU=365;stati"
+      },
+      {
+        "offset": 972604,
+        "fragment": "AN,Ef),this.addStateMap(this.DATA_QUANDAO,sC),this.addStateMap(this.DATA_JIAOHUI,iC),this.addStateMap(this.DATA_YUANLV,Ef),this.addStateMap(this.DATA_BIXIN,Ef),this.addStateMap(this.DATA_FEIBAI,Ef),this.addStateMap(this.DATA_SHANDUAN_RANGE,$I),this.addStateMap(this.DATA_SHANDUAN,tC),this.addStateMap(this.DATA_ZEYUE,jI),this.addStateMap(this.DATA_STATE_LIANHE,vI),this.addStateMap(this.DATA_LUNZHAN,YXt),this.addStateMap(this.DATA_BINGJIE,zI),this.addStateMap(this.DATA_STATE_SANKUANG,VXt),this.addStateMap(this.DATA_STATE_SANKUANG2,QI),this.addStateMap(this.DATA_ZONGZU,qI),this.addStateMap(this.DATA_DIANZHAN,ZI),this.addStateMap(this.DATA_FENCHAI,WXt),this.addState"
+      },
+      {
+        "offset": 1077330,
+        "fragment": "s.stateId=Ef.DATA_ZEYUE,this.needShow=!0}get ShowText(){let t=this.value-2;return t>0?ewt.SeatState_ZeYue_Label+\"[\"+t.toString()+\"]\":ewt.SeatState_ZeYue_Label}}class $I extends Ef{constructor(t){super(t),this.stateId=Ef.DATA_SHANDUAN_RANGE,this.needShow=!1,this.needRecountRange=!0}}class tC extends Ef{constructor(t){super(t),this.stateId=Ef.DATA_SHANDUAN,this.needShow=!0}get ShowText(){let t=\"\";return this.targets&&this.targets.length&&this.targets.forEach((i=>{i>0&&(t+=i.toString())})),ks.F(ewt.SeatState_SHANDUAN_Label,t)}}class iC extends Ef{constructor(t){super(t),this.stateId=Ef.DATA_JIAOHUI}HasStateCardChange(){return!0}HasCardMultiSkillChange(){return!0}A"
+      },
+      {
+        "offset": 15591607,
+        "fragment": "dateRoleDataResponse(t,i,s),i&&t&&(t.IsSpell?!s&&t.Datas&&t.Datas.length?i.UpdateState(Ef.DATA_SHANDUAN,1,t.Datas.slice(0,t.Datas.length)):i.UpdateState(Ef.DATA_SHANDUAN,0):s||!t.Datas||t.Datas.length<2?i.UpdateState(Ef.DATA_SHANDUAN_RANGE,0):i.UpdateState(Ef.DATA_SHANDUAN_RANGE,t.Datas[1]))}DealSkinSkillEffect(t){return{ignoreStep2:!0}}get RetainRoleDataExLastParams(){return!1}}class lwi extends $Kt{constructor(){super(),this.activeMode=vCt.ASK}get RetainRoleDataExLastParams(){return!1}}class owi extends $Kt{opFlag1=0;opFlag2=0;constructor(){super(),this.activeMode=vCt.ASK,this.timeLimitRound=1,this.targetCountMax=1,this.targetCountMin=1,this.targetCanBeSelf=!"
+      },
+      {
+        "offset": 15591647,
+        "fragment": "pell?!s&&t.Datas&&t.Datas.length?i.UpdateState(Ef.DATA_SHANDUAN,1,t.Datas.slice(0,t.Datas.length)):i.UpdateState(Ef.DATA_SHANDUAN,0):s||!t.Datas||t.Datas.length<2?i.UpdateState(Ef.DATA_SHANDUAN_RANGE,0):i.UpdateState(Ef.DATA_SHANDUAN_RANGE,t.Datas[1]))}DealSkinSkillEffect(t){return{ignoreStep2:!0}}get RetainRoleDataExLastParams(){return!1}}class lwi extends $Kt{constructor(){super(),this.activeMode=vCt.ASK}get RetainRoleDataExLastParams(){return!1}}class owi extends $Kt{opFlag1=0;opFlag2=0;constructor(){super(),this.activeMode=vCt.ASK,this.timeLimitRound=1,this.targetCountMax=1,this.targetCountMin=1,this.targetCanBeSelf=!0}BeforeTouchSkillItem(){if(0==this.flag"
+      },
+      {
+        "offset": 20301350,
+        "fragment": "ackRangeAsEquiped;o=o>t?o:t}if(this.general2&&this.IsFaceUp(Gts.FUJIANG_GUO)){l=l||this.general2.HasAttackRangeAsEquiped;let t=this.general2.AttackRangeAsEquiped;o=o>t?o:t}(r||l)&&(i=n>o?n:o);let u=this.GetStateValue(Ef.DATA_SHANDUAN_RANGE);u>i&&(i=u);let c=this.GetStateValue(Ef.DATA_QINGYAN);c>i&&(i=c),this.seatStateDic.forEach(((t,s)=>{s&&(s.ID==Ef.DATA_FENJIAN||(i+=s.Attakrange))})),this.general&&this.IsFaceUp(Gts.ZHUJIANG_GUO)&&(i+=this.general.AttackRange,s+=this.general.AttackDistance,e+=this.general.DefensiveDistance),this.general2&&this.IsFaceUp(Gts.FUJIANG_GUO)&&(i+=this.general2.AttackRange,s+=this.general2.AttackDistance,e+=this.general2.DefensiveDis"
+      }
+    ]
+  },
+  "historicalOfficialCrossChecks": [
+    {
+      "url": "https://www.sanguosha.com/news/20220926_1317_4315",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T16:10:13.138585+00:00",
+      "sha256": "a0441643e5589181e642101a5524bb026839f64cdcbc94d4e90900e6a63ee9b9",
+      "byteCount": 476743,
+      "hashScope": "Exact raw HTTP body bytes",
+      "historicalOnly": true,
+      "fragments": [
+        {
+          "term": "善断",
+          "text": "uo;周处除三害&rdquo;的传说。在史学、文学等方面也有建树，著有《默语》30篇、 《吴书》及《风土记》。 技能 【善断】：锁定技，摸牌/出牌/弃牌阶段开始时，你将本回合摸牌阶段摸牌数/攻击范围、使用【杀】的限制次数/手牌上限的默认值分配数值1、2、3、4。当你于回合外受到伤害后，你下回合以此法分配数值中的最小值+1。 【义烈】：你可以将两张颜色相同的手牌当任意基本牌使用（与本轮以此法使用过的牌牌名相同的基本牌除外）。"
+        },
+        {
+          "term": "义烈",
+          "text": "】的限制次数/手牌上限的默认值分配数值1、2、3、4。当你于回合外受到伤害后，你下回合以此法分配数值中的最小值+1。 【义烈】：你可以将两张颜色相同的手牌当任意基本牌使用（与本轮以此法使用过的牌牌名相同的基本牌除外）。"
+        }
+      ],
+      "purpose": "Historical cross-check only; current hero and Config remain authoritative."
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20220905_3323_0715",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T16:10:13.561145+00:00",
+      "sha256": "b066a51b072e8364a17b6f84b6a3ab5796b83069c1043c3ac740a94bbfcffb81",
+      "byteCount": 39655,
+      "hashScope": "Exact raw HTTP body bytes",
+      "historicalOnly": true,
+      "fragments": [
+        {
+          "term": "善断",
+          "text": "天5次调整为10次 4、违规检测优化：优化了长时间托管/离开、恶意消耗比赛时间的检测判断 新武将 1、周处 晋 4体力 善断 锁定技，摸牌/出牌/弃牌阶段开始时，你将本回合摸牌阶段摸牌数/攻击范围、使用【杀】的限制次数/手牌上限的默认值分配数值1、2、3、4。当你于回合外受到伤害后，你下回合以此法分配数值中的最小值+1。 义烈 你可以将两张颜色相同的手牌当一张本轮未以此法使用过的基本牌使用。"
+        },
+        {
+          "term": "义烈",
+          "text": "杀】的限制次数/手牌上限的默认值分配数值1、2、3、4。当你于回合外受到伤害后，你下回合以此法分配数值中的最小值+1。 义烈 你可以将两张颜色相同的手牌当一张本轮未以此法使用过的基本牌使用。"
+        }
+      ],
+      "purpose": "Historical cross-check only; current hero and Config remain authoritative."
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20211208_6937_2011",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T16:10:14.061057+00:00",
+      "sha256": "89337a54910b5ae3d5f6f140e042db4772440762f20c4aed1e751cb9fcab6437",
+      "byteCount": 859475,
+      "hashScope": "Exact raw HTTP body bytes",
+      "historicalOnly": true,
+      "fragments": [
+        {
+          "term": "诏颂",
+          "text": "，少好学，善属文。为晋武帝司马炎的贵人。今存诗、赋、颂、赞、诔等20余篇，大都为应诏而作，《离思赋》最著名。 武将技能 诏颂 一名其他角色于其摸牌阶段结束时，若其没有标记，你可令其正面向上交给你一张手牌，然后根据此牌的类型，令该角色获得对应的标记：锦囊牌，\"诔\"标记；装备牌，\"赋\"标记；基本牌，\"颂\"标记。拥有标记的角色：进入濒死时，可弃置\"诔\"，回复至1体力，摸1张牌并减少一点体力上限；出牌阶段开始时，可弃置\"赋\"，弃置一名角色区域内的一张牌，然后可令其摸一张牌；使用仅指定一个目标的【杀】时，可弃置\"颂\"为此【杀】额外选择至多两个目标，然后若此【杀】造成的伤害小于2，其失去1点体力。 离思 每当你于回合外使用牌的置入弃牌堆时，你可将其交给一名手牌数不大于你的其他角色。"
+        },
+        {
+          "term": "离思",
+          "text": "芝，齐国临淄（今山东临淄）人，少好学，善属文。为晋武帝司马炎的贵人。今存诗、赋、颂、赞、诔等20余篇，大都为应诏而作，《离思赋》最著名。 武将技能 诏颂 一名其他角色于其摸牌阶段结束时，若其没有标记，你可令其正面向上交给你一张手牌，然后根据此牌的类型，令该角色获得对应的标记：锦囊牌，\"诔\"标记；装备牌，\"赋\"标记；基本牌，\"颂\"标记。拥有标记的角色：进入濒死时，可弃置\"诔\"，回复至1体力，摸1张牌并减少一点体力上限；出牌阶段开始时，可弃置\"赋\"，弃置一名角色区域内的一张牌，然后可令其摸一张牌；使用仅指定一个目标的【杀】时，可弃置\"颂\"为此【杀】额外选择至多两个目标，然后若此【杀】造成的伤害小于2，其失去1点体力。 离思 每当你于回合外使用牌的置入弃牌堆时，你可将其交给一名手牌数不大于你的其他角色。"
+        }
+      ],
+      "purpose": "Historical cross-check only; current hero and Config remain authoritative."
+    }
+  ],
+  "selectedOfficialId": 518,
+  "selectedCharacterName": "周处",
+  "selectionBasis": "Smallest coherent complete new family among the three current candidates; all difficult branches retained.",
+  "workspaceAudit": {
+    "readOnlyCodeAudit": true,
+    "registeredJinGeneralIds": [
+      "ol:zhang-hu-yue-chen",
+      "ol:wei-guan",
+      "ol:wang-xiang",
+      "ol:du-yu",
+      "ol:jia-chong",
+      "ol:yang-hu",
+      "ol:guo-huai"
+    ],
+    "registrationEvidence": "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs module array lines150-152 and183-186",
+    "candidateSearch": "rg ZhouChu/ZuoFen/ZhangHua slugs and Chinese names over current Standard content and general-art-catalog found no candidate match",
+    "buildOrTestRunByResearchAgent": false,
+    "rawBundleOrConfigSaved": false,
+    "onlyOwnedSourceFileWritten": "docs/content/sources/jin-round20-candidates-2026-10-09.json",
+    "noCleanupAttempted": true
+  },
+  "officialFaqAudit": {
+    "checkedAt": "2026-10-09",
+    "boundedSearchQueries": [
+      "site:sanguosha.com 周处 善断 最小值",
+      "site:sanguosha.com 周处 善断 FAQ 分配",
+      "site:sanguosha.com 善断 两次",
+      "site:sanguosha.com 善断 跳过",
+      "site:sanguosha.com 善断 最小 相同",
+      "site:www.sanguosha.com 周处 技能解析",
+      "site:club.sanguosha.com 善断 FAQ"
+    ],
+    "currentClientSpellTips": "3154/3155 contain only their IDs; noFAQ text.",
+    "result": "No primary official专项FAQ resolving repeated minimum increases, ties, skipped stages or exact round boundary was located in this bounded search. Official current hero and two2022 posts repeat the same skill rule. Public client presents server-provided choices and does not implement the hidden allocation/increase scheduler.",
+    "absenceScope": "A bounded negative result, not a claim that no officialFAQ exists anywhere. Other candidates were not given an exhaustiveFAQ audit."
+  },
+  "engineMappingProposalsNotOfficialQuotes": {
+    "approvalState": "Proposed complete engine mapping, pending final root capability contract; direct public-client facts are separately identified above.",
+    "allocation": "Initialize one fresh actual-owner-turn pool[1,2,3,4], with queued off-turn damage adjustments. Draw-start selects one remaining entry for normal Draw baseline; Play-start selects distinct remaining entries for attack-range baseline and Slash-use baseline; Discard-start selects the remaining entry for hand-limit baseline. No phase reinitializes the whole pool.",
+    "minimumIncrease": "One increment per separate positive applied out-turn damage occurrence, regardless of damage amount. Repeatedly increment one currently minimum entry in the pending next-turn pool using a stable tie slot; do not increment every tied minimum at once. This tie/cumulative rule is not established by an officialFAQ.",
+    "expiry": "Consume queued pending next-turn increments on the next actual owner turn, including an extra actual turn; unused or skipped slots expire with that turn. This is not a permanent pool upgrade.",
+    "skippedAndExtraPhases": "Skipped stages do not consume their allocation slots. An extra same-turn Play uses the existing assigned defaults and cannot rebuild or double-consume the pool. Final detailed behavior when skipped stages leave extra choices is a root implementation mapping.",
+    "range": "Verified client behavior: max(native weapon-or-base range, assigned default range), followed by normal additive range modifiers.",
+    "nameQuota": "Sameowner+stablemethodledgerId+actualRoundNumber+normalizedName, only accepted real method uses consume; Slash variants share Slash. Physical source loss/regrant and extra phase/extra turn do not reset the same actual round quota.",
+    "useDirections": "Actual Play basic uses, native own Slash-Dodge Use, real forced actual Slash Use, healthy rescue Peach and own Dying Peach/Alcohol are eligible. Pure response-only Duel/Barbarian Slash, Arrow Dodge and faction supply do not become YiLie Use. Public client directly distinguishes USE/DEAL; exact native mapping follows engine boundaries.",
+    "roundBoundary": "Reuse established native actual RoundStarted lifecycle; this policy is an explicit engine mapping because no new officialFAQ defining round boundaries was found.",
+    "woodenOx": "Current public client recognizes WoodenOx stored grain in normal hand-like card selection. Existing native grain producer must be retained where already supported, not silently reclassified as arbitrary equipment or omitted without reporting."
+  }
+}

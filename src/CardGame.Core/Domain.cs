@@ -89,7 +89,8 @@ public enum CardKind
     ScarletBloodSword,
     XingtianAxe,
     RedBloodBlade = 500,
-    GeneralWeapon
+    GeneralWeapon,
+    UnexpectedAssault = 502
 }
 
 public enum Suit
@@ -132,7 +133,11 @@ public enum PlayerMarkerKind
     Bian = 3500,
     Zi = 3800,
     ShenJiao = 3900,
-    Kangge = 4040
+    Kangge = 4040,
+    Jue = 4050,
+    CategoryLei = 4060,
+    CategoryFu = 4061,
+    CategorySong = 4062
 }
 
 public static class PlayerMarkerCatalog
@@ -158,6 +163,10 @@ public static class PlayerMarkerCatalog
         PlayerMarkerKind.Junlue => "军略",
         PlayerMarkerKind.Camp => "营",
         PlayerMarkerKind.Kangge => "歌",
+        PlayerMarkerKind.Jue => "爵",
+        PlayerMarkerKind.CategoryLei => "诔",
+        PlayerMarkerKind.CategoryFu => "赋",
+        PlayerMarkerKind.CategorySong => "颂",
         _ => throw new InvalidOperationException($"Unknown public player marker '{marker}'.")
     };
 }
@@ -316,7 +325,8 @@ public enum LegalActionKind
     Recast,
     BorrowedSword,
     UseEquipmentEffect,
-    UseProgramSkill
+    UseProgramSkill,
+    UnexpectedAssault = 502
 }
 
 public sealed record GameOptions
@@ -797,6 +807,10 @@ public sealed record LegalAction
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramTieredRoundConversionPolicy? TieredRoundZeroUse { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public DrawFundedDistinctBasicPolicy? DrawFundedDistinctBasicUse { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public bool? ChainedStateBasicUse { get; init; }
 
     /// <summary>
     /// Ordered public conversions applied after <see cref="ConversionSource"/>.

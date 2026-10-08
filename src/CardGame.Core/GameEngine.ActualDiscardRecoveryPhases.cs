@@ -6,7 +6,9 @@ public sealed partial class GameEngine
 {
     private bool TracksActualDiscardRecoveryPhases =>
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.RestoreActualDiscardBatch) ||
-        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.GiveAfterBatchGain);
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.GiveAfterBatchGain) ||
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DrawAfterActualOutsideDraw) ||
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DiscardAfterActualOutsideDiscard);
 
     private ActualDiscardRecoveryPhaseKey? CurrentActualDiscardRecoveryPhase()
     {

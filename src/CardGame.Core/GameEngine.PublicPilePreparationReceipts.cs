@@ -119,7 +119,7 @@ public sealed partial class GameEngine
                 if (!DyingSuitsStructuralEdge(_resolutionStack[n - 1], _resolutionStack[n]) && !HalfHandPaidDamageObserverEdge(n) && !PaidTargetObserverEdge(n))
                 { exact = false; break; }
                 if (_resolutionStack[n] is DyingFrame dying && n + 1 < _resolutionStack.Count &&
-                    (IsOriginalDyingSuspendedByDyingSuits(dying) || IsOriginalDyingSuspendedByOwnedDeathBenefit(dying) ||
+                    ((IsOriginalDyingSuspendedByDyingSuits(dying) || IsOriginalDyingSuspendedByRecipientCategoryMark(dying)) || IsOriginalDyingSuspendedByOwnedDeathBenefit(dying) ||
                      IsPaidHandRepaymentProgramAlcoholRide(n, dying) || IsPaidHandRepaymentRescueRide(n, dying) ||
                      PolicyCounterspellVirtualAlcoholRide(n, dying) || PaidObserverDamageVirtualAlcoholRide(n, dying))) break;
             }

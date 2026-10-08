@@ -495,14 +495,22 @@ internal static class ProgramCompositionDefinitionChecks
             "[{\"op\":\"revealTopCards\"", "[{\"op\":\"equipSampledGenerals\",\"target\":\"owner\",\"amount\":1},{\"op\":\"revealTopCards\"", StringComparison.Ordinal);
         Reject(() => Load("fixture:local-generated-domain", Rules("fixture:local-generated-domain", sameProgramGeneration, Entries(sameProgramGeneration, false))), "more than once");
 
+        // This fixture preserves the historical physical-card proof domain.
+        // Explicit newer kinds opt into the expanded domain, covered separately below.
         var oldNonSlashKinds = JsonSerializer.Serialize(Enum.GetValues<CardKind>()
-            .Where(kind => kind is not (CardKind.Slash or CardKind.RedBloodBlade or CardKind.GeneralWeapon))
+            .Where(kind => kind <= CardKind.XingtianAxe && kind != CardKind.Slash)
             .Select(kind => JsonNamingPolicy.CamelCase.ConvertName(kind.ToString())).ToArray());
         var oldKindPartition = fourSuitPartition.Replace("\"suits\":[\"heart\"]", "\"cardKinds\":[\"slash\"]", StringComparison.Ordinal)
             .Replace("\"suits\":[\"spade\",\"club\",\"diamond\"]", "\"cardKinds\":" + oldNonSlashKinds, StringComparison.Ordinal);
         var kindPartition = Load("fixture:ordinary-kind-domain", Rules("fixture:ordinary-kind-domain", oldKindPartition, Entries(oldKindPartition, false)));
         _ = ContentRegistry.Build(new CardDomainPackage([kindPartition]));
         Reject(() => ContentRegistry.Build(new CardDomainPackage([kindPartition, generator])), "more than once");
+        var nativeExpandedNonSlashKinds = JsonSerializer.Serialize(Enum.GetValues<CardKind>()
+            .Where(kind => kind != CardKind.Slash && (kind <= CardKind.XingtianAxe || kind == CardKind.UnexpectedAssault))
+            .Select(kind => JsonNamingPolicy.CamelCase.ConvertName(kind.ToString())).ToArray());
+        var incompleteNativePartition = oldKindPartition.Replace(oldNonSlashKinds, nativeExpandedNonSlashKinds, StringComparison.Ordinal);
+        Reject(() => Load("fixture:incomplete-native-kind-domain", Rules("fixture:incomplete-native-kind-domain", incompleteNativePartition,
+            Entries(incompleteNativePartition, false))), "more than once");
         var expandedNonSlashKinds = JsonSerializer.Serialize(Enum.GetValues<CardKind>().Where(kind => kind != CardKind.Slash)
             .Select(kind => JsonNamingPolicy.CamelCase.ConvertName(kind.ToString())).ToArray());
         var completeKindPartition = oldKindPartition.Replace(oldNonSlashKinds, expandedNonSlashKinds, StringComparison.Ordinal);

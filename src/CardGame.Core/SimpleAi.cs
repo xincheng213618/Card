@@ -306,6 +306,19 @@ public sealed partial class SimpleAiBrain
         var selectableCards = GetActiveSkillSelectableCards(self, action);
         if (action.ProgramAiHint?.PreferPindianInputOrder == true)
             return action.SelectableCardIds.Take(action.MinCardCount).ToArray();
+        if (action.ProgramAiHint?.MatchingNameOrEquipmentRecastInput == true)
+        {
+            var groups = selectableCards.Where(card => !EquipmentCatalog.IsEquipment(card.Kind))
+                .GroupBy(card => card.Kind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash ? CardKind.Slash : card.Kind)
+                .Select(group => group.ToArray())
+                .Append(selectableCards.Where(card => EquipmentCatalog.IsEquipment(card.Kind)).ToArray());
+            return groups.Where(group => group.Length >= action.MinCardCount)
+                .Select(group => group.OrderBy(card => CardCatalog.Get(card.Kind).HandKeepValue).ThenBy(card => card.Id)
+                    .Take(action.MinCardCount).ToArray())
+                .OrderBy(cards => cards.Sum(card => CardCatalog.Get(card.Kind).HandKeepValue))
+                .ThenBy(cards => cards.FirstOrDefault()?.Id ?? -1)
+                .FirstOrDefault()?.Select(card => card.Id).ToArray() ?? [];
+        }
         if (action.SelectedCardsDistinctSuits)
             return selectableCards.GroupBy(card => card.Suit)
                 .Select(group => group.OrderBy(card => CardCatalog.Get(card.Kind).HandKeepValue).ThenBy(card => card.Id).First())
@@ -2070,6 +2083,8 @@ public sealed partial class SimpleAiBrain
         LegalAction action)
     {
         if (action.TieredRoundZeroUse is not null) return ScoreTieredRoundZeroAction(view, self, selfRole, action);
+        if (action.ChainedStateBasicUse.HasValue) return ScoreChainedStateBasicAction(view, self, selfRole, action);
+        if (action.DrawFundedDistinctBasicUse is not null) return ScoreDrawFundedDistinctBasicAction(view, self, selfRole, action);
         if (action.Kind == LegalActionKind.UseProgramSkill)
             return ScoreProgramAction(view, self, selfRole, action);
 
@@ -2357,6 +2372,10 @@ public sealed partial class SimpleAiBrain
                     ? $"从距离 1 的目标选择一张不透明牌位；只使用公开手牌数量 {target.HandCount} 和身份敌对值，不读取目标暗牌。"
                     : $"从距离 1 的目标获得公开{publicTargetZone}【{publicTarget.DisplayName}】；只读取公开{publicTargetZone}和身份敌对值，不读取目标暗牌。");
         }
+
+        if (action.Kind == LegalActionKind.UnexpectedAssault)
+            return (cardProfile.AiPlayValue + hostility + (target.Hp <= 1 ? 20d : 0d),
+                "选择目标不透明手牌位展示，按不同花色评估普通伤害；只使用公开体力和手牌数量。");
 
         if (action.Kind == LegalActionKind.FireAttack)
         {

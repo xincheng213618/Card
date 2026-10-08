@@ -77,7 +77,8 @@ public sealed partial class GameEngine
             choices.Add(new(new($"fixed-slash.{frame.Id}.zhangba.{string.Join('-', ids)}"), "使用丈八蛇矛：将两张手牌当【杀】使用", ids, [target.Seat], p));
         }
         foreach (var kind in SlashKinds)
-        foreach (var selection in GetProgramMultiCardViewAsSelections(actor, kind, false))
+        foreach (var selection in GetProgramMultiCardViewAsSelections(actor, kind, false)
+                     .Where(item => ViewAsRule(item.Source)?.RoundDistinctBasicUse is null || item.OutputKind == kind))
         {
             if (!PaymentRange(selection.Cards) || !Legal(selection.Cards[0], kind, selection.Source, selection.Cards.Count > 1, materials:selection.Cards.Select(c=>c.Id).ToArray())) continue;
             var p = Parameters("use"); p["effective-kind"] = kind.ToString(); AddConversionParameters(p, selection.Source);

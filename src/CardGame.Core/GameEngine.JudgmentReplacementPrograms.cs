@@ -17,13 +17,27 @@ public sealed partial class GameEngine
         CharacterState owner,
         SkillProgramTrigger trigger,
         int judgmentSubjectSeat,
-        string judgmentReason)
+        string judgmentReason,
+        bool ignoreCurrentColor = false)
     {
         if (trigger.Window != SkillProgramTriggerWindow.JudgmentReplacing ||
             trigger.Effects.Count == 0 ||
             trigger.Effects[0] is not { Op: SkillProgramEffectOp.ReplaceJudgment or SkillProgramEffectOp.DelegateJudgmentReplacement } replacement ||
             !replacement.Condition.Evaluate(CreateSkillContext(owner)))
             return [];
+        // Collection preserves the opportunity: an earlier replacement can change
+        // the current color. Published choices and payment always recheck it.
+        bool? currentColor = null;
+        if (replacement.RequireDifferentColor == true && !ignoreCurrentColor)
+        {
+            if (ActiveJudgment is not { } current ||
+                current.TargetSeat != judgmentSubjectSeat ||
+                !string.Equals(current.Reason, judgmentReason, StringComparison.Ordinal) ||
+                GetJudgmentCard(current) is not { } currentCard)
+                return [];
+            currentColor = SuitColor(EffectiveSuit(_players[judgmentSubjectSeat], currentCard));
+            if (currentColor is null) return [];
+        }
         var cards = new List<Card>();
         if (replacement.Zones.Contains(CardZoneKind.Hand)) cards.AddRange(GetHand(owner));
         if (replacement.Zones.Contains(CardZoneKind.Equipment)) cards.AddRange(GetEquipment(owner));
@@ -32,6 +46,9 @@ public sealed partial class GameEngine
             .Where(card => !IsProtectedJudgmentSourceEquipment(
                 owner, card, judgmentSubjectSeat, judgmentReason))
             .Where(card => replacement.Suits.Contains(EffectiveSuit(owner, card)))
+            .Where(card => replacement.RequireDifferentColor != true ||
+                SuitColor(EffectiveSuit(owner, card)) is { } candidateColor &&
+                (ignoreCurrentColor || candidateColor != currentColor))
             .OrderBy(card => card.Id)
             .ToArray();
     }

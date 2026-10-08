@@ -46,7 +46,7 @@ public sealed class GeneralGalleryEntryViewModel
     public required string SkillDescription { get; init; }
     public string VerticalName => string.Join("\n", Name.Replace("SP", string.Empty, StringComparison.Ordinal).Trim().ToCharArray());
     public string AccessibilityText => $"{Name}，{Kingdom}，{GroupName}，{HealthText}，{SkillName}";
-    public string FactionImage => $"pack://application:,,,/CardGame.Wpf;component/Assets/gallery-faction-{(FactionId == "god" ? "shen" : FactionId is "wei" or "shu" or "wu" ? FactionId : "qun")}.png";
+    public string FactionImage => $"pack://application:,,,/CardGame.Wpf;component/Assets/gallery-faction-{(FactionId == "god" ? "shen" : FactionId is "wei" or "shu" or "wu" or "jin" ? FactionId : "qun")}.png";
     public IReadOnlyList<string> HealthImages { get; init; } = [];
     public bool HasPortrait => GeneralArt.HasPortrait(GeneralId);
     public Brush FactionBrush => FactionId switch
@@ -54,6 +54,7 @@ public sealed class GeneralGalleryEntryViewModel
         "wei" => Brushes.LightSkyBlue,
         "shu" => Brushes.Coral,
         "wu" => Brushes.LightGreen,
+        "jin" => Brushes.Plum,
         "god" => Brushes.Gold,
         _ => Brushes.Wheat
     };

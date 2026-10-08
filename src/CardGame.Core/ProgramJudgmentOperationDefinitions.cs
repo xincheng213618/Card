@@ -11,7 +11,7 @@ internal sealed class ReplaceJudgmentProgramOperationDescriptor : ProgramOperati
 
     public override SkillProgramEffect Parse(ProgramOperationNodeReader reader)
     {
-        reader.AllowOnly("op", "target", "zones", "suits", "oldCardDestination", "condition");
+        reader.AllowOnly("op", "target", "zones", "suits", "oldCardDestination", "condition", "requireDifferentColor");
         var target = reader.RequiredEnum<SkillProgramEffectTarget>("target");
         if (target != SkillProgramEffectTarget.Owner)
             throw new InvalidOperationException($"Invalid skill program at {reader.Path}.target: judgment replacement requires owner.");
@@ -23,7 +23,11 @@ internal sealed class ReplaceJudgmentProgramOperationDescriptor : ProgramOperati
             throw new InvalidOperationException($"Invalid skill program at {reader.Path}.suits: replacement requires at least one suit.");
         var destination = reader.RequiredEnum<SkillProgramOldJudgmentCardDestination>("oldCardDestination");
         var effect = new SkillProgramEffect(Op, target, 0, reader.Condition(), zones: zones, suits: suits,
-            oldCardDestination: destination);
+            oldCardDestination: destination)
+        {
+            RequireDifferentColor = reader.Has("requireDifferentColor")
+                ? reader.RequiredBool("requireDifferentColor") : null
+        };
         RequireAlways(effect, reader.Path);
         return effect;
     }

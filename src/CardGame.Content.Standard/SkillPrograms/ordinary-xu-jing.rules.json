@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:yuxu",
+      "revision": 1,
+      "states": [
+        {
+          "id": "next-use-discard",
+          "initialValue": false,
+          "visibility": "public",
+          "resetScope": "playPhase",
+          "reacquirePolicy": "preserveUntilGameEnd"
+        }
+      ],
+      "triggers": [
+        {
+          "id": "draw-and-arm-next-use-discard",
+          "window": "cardUseCompleted",
+          "ownerRelation": "actor",
+          "includeResponseUses": true,
+          "optional": true,
+          "condition": {
+            "kind": "all",
+            "children": [
+              { "kind": "cardActionActorIsCurrentTurn" },
+              { "kind": "cardActionPhaseIsPlay" },
+              { "kind": "booleanState", "stateId": "next-use-discard", "expectedValue": false }
+            ]
+          },
+          "effects": [
+            { "op": "setBooleanState", "target": "owner", "stateId": "next-use-discard", "value": true },
+            { "op": "draw", "target": "owner", "amount": 1 }
+          ]
+        },
+        {
+          "id": "settle-next-use-discard",
+          "window": "cardUseCompleted",
+          "ownerRelation": "actor",
+          "includeResponseUses": true,
+          "optional": false,
+          "condition": {
+            "kind": "all",
+            "children": [
+              { "kind": "cardActionActorIsCurrentTurn" },
+              { "kind": "cardActionPhaseIsPlay" },
+              { "kind": "booleanState", "stateId": "next-use-discard", "expectedValue": true }
+            ]
+          },
+          "effects": [
+            { "op": "setBooleanState", "target": "owner", "stateId": "next-use-discard", "value": false },
+            {
+              "op": "selectAndMoveOwnedCard",
+              "target": "owner",
+              "chooserRef": { "kind": "owner" },
+              "cardOwnerRef": { "kind": "owner" },
+              "zones": ["hand", "equipment"],
+              "count": 1,
+              "destination": "discardPile",
+              "skipIfNoCards": true,
+              "awaitMovementTriggers": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:shijian",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "grant-after-foreign-second-actual-use",
+          "window": "cardUseCompleted",
+          "ownerRelation": "observer",
+          "includeResponseUses": true,
+          "optional": true,
+          "condition": {
+            "kind": "all",
+            "children": [
+              { "kind": "cardActionActorIsCurrentTurn" },
+              { "kind": "not", "children": [{ "kind": "cardActionActorIsOwner" }] },
+              { "kind": "cardActionActualTurnUseOrdinalIs", "value": 2 }
+            ]
+          },
+          "effects": [
+            {
+              "op": "selectAndMoveOwnedCard",
+              "target": "owner",
+              "chooserRef": { "kind": "owner" },
+              "cardOwnerRef": { "kind": "owner" },
+              "zones": ["hand", "equipment"],
+              "count": 1,
+              "destination": "discardPile",
+              "awaitMovementTriggers": true
+            },
+            {
+              "op": "grantTurnSkills",
+              "target": "owner",
+              "targetRef": { "kind": "actor" },
+              "skillIds": ["ol:yuxu"],
+              "expiry": "actualTurnEnd"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

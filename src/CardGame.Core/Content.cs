@@ -134,6 +134,14 @@ public static class CardCatalog
                 AiPlayValue: 30,
                 AiResponseValue: 0,
                 HandKeepValue: 42),
+            [CardKind.UnexpectedAssault] = new(
+                CardKind.UnexpectedAssault,
+                "出其不意",
+                "锦囊牌",
+                "选择一名有手牌的其他角色；你展示其一张手牌，若出其不意有花色且与此牌花色不同，对其造成1点普通伤害。",
+                AiPlayValue: 34,
+                AiResponseValue: 0,
+                HandKeepValue: 44),
             [CardKind.FireAttack] = new(
                 CardKind.FireAttack,
                 "火攻",

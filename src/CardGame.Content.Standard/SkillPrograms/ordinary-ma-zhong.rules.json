@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:fuman",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "give-slash",
+          "minCards": 0,
+          "maxCards": 0,
+          "sourceZones": [
+            "hand"
+          ],
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLiving",
+          "usesPerTurn": null,
+          "targetPhaseLedgerId": "give-slash",
+          "effects": [
+            {
+              "op": "consumeTargetPhaseLedger",
+              "target": "owner",
+              "usageId": "give-slash"
+            },
+            {
+              "op": "selectOwnedCards",
+              "target": "owner",
+              "minimumCards": 1,
+              "maximumCards": 1,
+              "zones": [
+                "hand"
+              ],
+              "resultBind": "fuman-gift"
+            },
+            {
+              "op": "giveBoundHandAsSlashWithUseReward",
+              "target": "selectedTarget",
+              "sourceBind": "fuman-gift"
+            }
+          ]
+        }
+      ],
+      "triggers": [
+        {
+          "id": "reward-used-gift",
+          "window": "cardUseCompleted",
+          "ownerRelation": "observer",
+          "cardKinds": [
+            "slash",
+            "fireSlash",
+            "thunderSlash"
+          ],
+          "singleActionInstance": true,
+          "optional": false,
+          "effects": [
+            {
+              "op": "rewardGiftedSlashUse",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

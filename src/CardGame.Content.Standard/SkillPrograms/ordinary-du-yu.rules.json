@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:sanchen", "revision": 1,
+      "activations": [{
+        "id": "draw-three-discard-three", "minCards": 0, "maxCards": 0,
+        "minTargets": 1, "maxTargets": 1, "targetKind": "anyLiving",
+        "usesPerTurn": null, "usesPerPhase": 1,
+        "effects": [{ "op": "drawThenDiscardDistinctCategories", "target": "selectedTarget", "amount": 3, "stateId": "ol:sanchen" }]
+      }]
+    },
+    {
+      "id": "ol:zhaotao", "revision": 1,
+      "triggers": [{
+        "id": "awaken-after-three-sanchen", "window": "turnStartBeforeNormalFlow", "subject": "owner",
+        "optional": false, "usageScope": "game", "usageLimit": 1,
+        "effects": [{ "op": "awakenAfterGameActivations", "target": "owner", "sourceSkillId": "ol:sanchen",
+          "activationId": "draw-three-discard-three", "minimumValue": 3, "skillIds": ["ol:pozhu"] }]
+      }]
+    },
+    {
+      "id": "ol:pozhu", "revision": 1,
+      "viewAs": [{ "id": "hand-as-unexpected-assault", "inputKinds": [], "inputSuits": [],
+        "sourceZones": ["hand"], "outputKind": "unexpectedAssault", "forPlay": true, "forResponse": false,
+        "allowSameKind": true, "useEffectiveInputSuit": true, "disableSkillUntilTurnEndIfNoDamage": true }]
+    }
+  ]
+}

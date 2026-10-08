@@ -43,6 +43,7 @@ public sealed partial class GameEngine
         CaptureProgramAlcoholConsumption(resolutionId, source);
         source.HasAlcoholEffect = false;
         ActiveCardAttack = attack;
+        ObservePhaseNamePredictionUse(action);
         AdvanceEventRulesAndQueueFact(new CardUsedEvent(0, CardKind.Slash, source.Seat, targetSeat));
         TryMarkProgramUseCommitted(resolutionId);
         if (!TryBeginProgramCardWindow(attack, action, SkillProgramTriggerWindow.CardUseCommitted, action.TargetSeats, ProgramCardContinuation.CommittedSlash))

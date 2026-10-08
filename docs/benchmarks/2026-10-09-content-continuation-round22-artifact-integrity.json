@@ -1,0 +1,70 @@
+{
+  "recordedAt": "2026-10-09T02:53:38.8386592+08:00",
+  "kind": "Verification artifact reference-copy integrity repair",
+  "sourceInputsChanged": false,
+  "sourceInputsProof": "round22 source manifest compared before and after final scopes",
+  "before": [
+    {
+      "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\build\\obj\\CardGame.Wpf\\release\\CardGame.Wpf.dll",
+      "bytes": 353588224,
+      "lastWriteTime": "2026-10-09T02:47:31.2063642+08:00",
+      "sha256": "3a5f0655388fa321b480f4d8dd38c505754dd1870b847510e498ea2e058f2125"
+    },
+    {
+      "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\build\\bin\\CardGame.Wpf\\release\\CardGame.Wpf.dll",
+      "bytes": 353588224,
+      "lastWriteTime": "2026-10-09T02:47:31.2063642+08:00",
+      "sha256": "3a5f0655388fa321b480f4d8dd38c505754dd1870b847510e498ea2e058f2125"
+    },
+    {
+      "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\build\\bin\\CardGame.Wpf.Tests\\release\\CardGame.Wpf.dll",
+      "bytes": 353588224,
+      "lastWriteTime": "2026-10-09T02:47:31.2063642+08:00",
+      "sha256": "2a9677ae79d104d96878048f3bb1be22ef365330b409b8f5875fe66539d8ae8e"
+    }
+  ],
+  "difference": {
+    "bytes": 8161,
+    "blockStartOffset": 2293760,
+    "moduleVersionId": "3959b93f-7290-4a8e-9e55-ad2886afc799",
+    "resource": "assets/custom-gao-da-yi-hao.png",
+    "resourcePayloadOffset": 679306,
+    "resourcePayloadBytes": 2981701,
+    "sourceAndMainResourceSha256": "899c36849e63c38f5d9f774d817bb409a6763e89ce22821b1a5c0a743071c8ad",
+    "testCopyResourceSha256": "eb3a9d7ffababe329ece01349a2583fdf2264c0df21b9896778440beb28de631",
+    "cause": "Unknown. Static evidence establishes the affected reference copy, without attribution to hardware or a writer."
+  },
+  "repair": {
+    "command": "dotnet build tests/CardGame.Wpf.Tests/CardGame.Wpf.Tests.csproj -c Release --artifacts-path \"C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\build\" -p:SkipCopyUnchangedFiles=false",
+    "startedAt": "2026-10-09T02:53:36.8402511+08:00",
+    "finishedAt": "2026-10-09T02:53:38.8386592+08:00",
+    "exitCode": 0,
+    "log": ".artifacts/goal-20261007-01a1156d/round22-reference-copy-repair.log",
+    "sdkCopyTarget": "C:/Program Files/dotnet/sdk/8.0.408/Microsoft.Common.CurrentVersion.targets:5024",
+    "cleanInvoked": false,
+    "artifactsPath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\build",
+    "logSha256": "00b6702d04e01ada8f5789e2ce5782ecac226c619cdfc7d6130011351c894f3b"
+  },
+  "after": [
+    {
+      "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\build\\obj\\CardGame.Wpf\\release\\CardGame.Wpf.dll",
+      "bytes": 353588224,
+      "lastWriteTime": "2026-10-09T02:47:31.2063642+08:00",
+      "sha256": "3a5f0655388fa321b480f4d8dd38c505754dd1870b847510e498ea2e058f2125"
+    },
+    {
+      "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\build\\bin\\CardGame.Wpf\\release\\CardGame.Wpf.dll",
+      "bytes": 353588224,
+      "lastWriteTime": "2026-10-09T02:47:31.2063642+08:00",
+      "sha256": "3a5f0655388fa321b480f4d8dd38c505754dd1870b847510e498ea2e058f2125"
+    },
+    {
+      "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\build\\bin\\CardGame.Wpf.Tests\\release\\CardGame.Wpf.dll",
+      "bytes": 353588224,
+      "lastWriteTime": "2026-10-09T02:47:31.2063642+08:00",
+      "sha256": "3a5f0655388fa321b480f4d8dd38c505754dd1870b847510e498ea2e058f2125"
+    }
+  ],
+  "copiesMatch": true,
+  "priorTargetedRun": "targeted-before-copy retained with all executed logs; the prior passing WPF checks do not establish validation of the correct main DLL"
+}

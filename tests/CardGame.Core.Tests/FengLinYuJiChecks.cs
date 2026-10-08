@@ -75,9 +75,9 @@ internal static partial class FengLinYuJiChecks
         }
         Require(g.Log.Where(l=>l.Type is "CardUsed" or "CardResponded" or "SkillTriggered").All(l=>!l.Message.Contains("【闪】")),"Public declaration logs hide unrevealed physical name.");
     }
-    private static (GameEngine,ContentRegistry) Start(string card,bool providers=false,bool declarations=true,bool costChild=false)
+    private static (GameEngine,ContentRegistry) Start(string card,bool providers=false,bool declarations=true,bool costChild=false,ContentRegistry? registry=null)
     {
-        var r=declarations?ContentRegistry.Build(new StandardContentPackage(),new StandardActiveSkillExpansionPackage(true),new StandardRescueSkillExpansionPackage(),new StandardClassicGeneralPackage(),new Fixture(card,providers,declarations,costChild)):ContentRegistry.Build(new StandardContentPackage(),new Fixture(card,providers,declarations,costChild));
+        var r=registry??(declarations?ContentRegistry.Build(new StandardContentPackage(),new StandardActiveSkillExpansionPackage(true),new StandardRescueSkillExpansionPackage(),new StandardClassicGeneralPackage(),new Fixture(card,providers,declarations,costChild)):ContentRegistry.Build(new StandardContentPackage(),new Fixture(card,providers,declarations,costChild)));
         var g=GameEngine.CreateStandard(new GameOptions{Seed=31,PlayerCount=4,HumanSeat=0,HumanRole=Role.Lord,ModeId=card=="mixed-borrowed"?"identity:classic-yuji-borrowed":"identity:yuji-check",UseInteractiveSetup=true,UseInteractiveDiscard=true,AdvanceAfterHumanCommands=false,MaxTurns=12},r);
         Accept(g,new StartGameCommand());Reach(g,p=>p.Kind==DecisionKind.SelectGeneral);Accept(g,new SelectGeneralCommand(0,"fixture:yuji",g.Revision,P(g)!.PromptId));Reach(g,p=>p.Kind==DecisionKind.PlayCard&&p.PlayerSeat==0);return(g,r);
     }

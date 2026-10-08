@@ -53,12 +53,12 @@ internal static class OrdinarySpCaoRenChecks
             E<CardUseDeclaredEvent>(g).Count(e => e.ResolutionId == issued.CardUseFrameId && e.CardId == 0 && e.CardKind == CardKind.Slash) == 1 &&
             E<CardUseDebitRecordedEvent>(g).All(e => e.Debit.CardActionId != issued.ActionId),
             "The mature forced-skill contract creates a real zero-material Use and exact directed distance1 while ignoring, without refunding or debiting, ordinary quota.");
-        g = Cold(g, r); Answer(g, c => c.Parameters.GetValueOrDefault("response") == "pass");
+        g = Cold(g, r); Accept(g, new AdvanceOneStepCommand(g.Revision));
         Reach(g, p => p.SkillPrompt?.SkillId == Entry && g.ResolutionStack.OfType<ProgramSkillFrame>().Last().WindowContext?.Window == SkillProgramTriggerWindow.CardUseCompleted);
         g = Cold(g, r); Continue(g); Play(g);
         Require(E<InspectedHandFinishedEvent>(g).Single().IssuedSlash && E<CardUseFinishedEvent>(g).Count(e => e.ResolutionId == issued.CardUseFrameId) == 1 &&
             E<CardUseDebitRecordedEvent>(g).Length == 1 && !g.GetHumanLegalActions().Any(a => a.Kind == LegalActionKind.Slash) &&
-            !g.CardMovements.Any(m => m.CardId == 0), "The real skill Slash completes its Damage/Completed children once and leaves ordinary quota exhausted without fabricated material cleanup.");
+            !g.CardMovements.Any(m => m.CardId == 0), "The real skill Slash completes its response/Completed children once and leaves ordinary quota exhausted without fabricated material cleanup.");
         var turn = g.State.TurnNumber; Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId));
         Until(g, () => g.State.TurnNumber > turn); Require(g.GetCombatDistance(0, 2) == 2,
             "The issued distance right expires with the original actual turn, rather than carrying into the next actor's turn."); g = Cold(g, r);
@@ -92,7 +92,7 @@ internal static class OrdinarySpCaoRenChecks
             if (!issuedLoss) { Reach(g, View); PrivateWholeHand(g, 2); g = Cold(g, r); Answer(g, c => c.Parameters.GetValueOrDefault("option") == "discard"); }
             else { Reach(g, p => p.Kind == DecisionKind.RespondDodge && p.PlayerSeat == 2);
                 Require(g.GetCombatDistance(0, 2) == 1, "An already issued directed right survives real source disabling before the original Slash response.");
-                g = Cold(g, r); Answer(g, c => c.Parameters.GetValueOrDefault("response") == "pass"); }
+                g = Cold(g, r); Accept(g, new AdvanceOneStepCommand(g.Revision)); }
             Until(g, () => E<InspectedHandFinishedEvent>(g).Length == 1);
             Require(E<ProgramSkillSuppressedEvent>(g).Any(e => e.SkillId == Skill && e.TargetSeat == 0 && e.Suppressed) &&
                 E<InspectedHandHpPaidEvent>(g).Length == 1 && E<InspectedHandViewedEvent>(g).Length == 1 &&
@@ -206,7 +206,7 @@ internal static class OrdinarySpCaoRenChecks
             { SelectionWeights = Enum.GetValues<Role>().ToDictionary(role => role, role => (role == Role.Lord) == lord ? 10000d : -10000d) });
             var own = new List<string> { "fixture:scr-pick-owner", EndingSkill }; if (dodge) own.Add("classic:longdan"); if (!native) own.AddRange([Driver, Hp, Entry]); if (paidLoss || issuedLoss) own.Add(Loss);
             b.AddGeneral(new("fixture:scr-owner", "伪溃真实来源", "supporter", Skill, "wei", dying ? 2 : 6, own.ToArray()));
-            for (var i = 1; i < 4; i++) b.AddGeneral(new($"fixture:scr-other-{i}", "其他角色", "supporter", "fixture:scr-pick-other", "qun", 8, i == 2 && !native ? [Move] : []));
+             for (var i = 1; i < 4; i++) b.AddGeneral(new($"fixture:scr-other-{i}", "其他角色", "supporter", "fixture:scr-pick-other", "qun", 8, !native ? [Move] : []));
             b.AddDeck(new("fixture:scr-deck", "固定同类真实材料", 4, 2, []) { PhysicalCards = Enumerable.Range(0, 72).Select(i =>
                 new ContentDeckPhysicalCard(dodge ? "standard:dodge" : "standard:peach", Suit.Heart, 7)).ToArray() });
             b.AddMode(new(Mode, "SP曹仁当前真实流程", 4, 4, new Dictionary<string, int> { [nameof(Role.Lord)] = 1, [nameof(Role.Rebel)] = 3 }, "fixture:scr-deck", GeneralCandidateCount: 4,

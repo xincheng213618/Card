@@ -3,12 +3,12 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private IEnumerable<(CardConversionSource Source,SkillProgramCardPolicy Policy)> RequestedDeckBasicSources(CharacterState actor) =>
+    private IEnumerable<(CardConversionSource Source,SkillProgramCardPolicy Policy)> RequestedDeckBasicSources(CharacterState actor,CardKind required) =>
         actor.IsAlive && actor.Seat!=_currentSeat && _winner==Winner.None
-            ? CardPolicies(actor,SkillProgramCardPolicyKind.PrivateTopBasicRequest)
+            ? CardPolicies(actor,SkillProgramCardPolicyKind.PrivateTopBasicRequest,IsSlashCard(required)?CardKind.Slash:required)
                 .Select(p=>(new CardConversionSource(p.Source.SkillId,p.Policy.Id,actor.Seat,p.Source.SkillInstanceId),p.Policy))
             : [];
-    private bool HasRequestedDeckBasicSource(CharacterState actor,CardKind required) => RequestedDeckBasicSources(actor)
+    private bool HasRequestedDeckBasicSource(CharacterState actor,CardKind required) => RequestedDeckBasicSources(actor,required)
         .Any(p=>p.Policy.CardKinds.Contains(required) || IsSlashCard(required)&&p.Policy.CardKinds.Contains(CardKind.Slash));
 
     private (RequestedDeckBasicIntent Intent,long OwnerId,long RequestId,int Cursor)? RequestedDeckBasicContext(PendingDecision p,ResolutionFrame? suppliedTop=null)
@@ -67,7 +67,7 @@ public sealed partial class GameEngine
             IsCardUseForbidden(actor.Seat,required,RequestedDeckBasicActionType(context.Intent)))return p;
         var owner=_resolutionStack.Single(f=>f.Id==context.OwnerId);
         if(owner.RequestedDeckBasicMaterial is { } seen && seen.OriginalPromptId==p.PromptId && seen.RequestFrameId==context.RequestId && seen.ActorSeat==actor.Seat && seen.Cursor==context.Cursor)return p;
-        var sources=RequestedDeckBasicSources(actor).Where(s=>s.Policy.CardKinds.Contains(required)).ToArray();
+        var sources=RequestedDeckBasicSources(actor,required).Where(s=>s.Policy.CardKinds.Contains(required)).ToArray();
         if(sources.Length==0)return p;
         // Older AI producers use PromptId zero. Only this opt-in real need gets
         // an issued prompt token, so a later need is not confused with a refusal.
@@ -107,6 +107,8 @@ public sealed partial class GameEngine
                 _players[r.ActorSeat].IsHuman?EngineStatus.AwaitingHumanResponse:EngineStatus.Running;return;
         }
         var card=_cardZones.CardsAt(CardLocation.DrawPile).Single(x=>x.Id==c.Cards.Single());
+        if(RequestedDeckBasicActionType(r.Intent)==CardActionType.Response)
+            CaptureSelectedResponseConversion(c);
         PopResolutionFrame(view.Id,ResolutionFrameKind.RequestedDeckBasic);
         var original=_resolutionStack.Single(f=>f.Id==r.OwnerFrameId);
         ReplaceRuntimeFrame(original.Id,original with {RequestedDeckBasicMaterial=r with {SelectedCardId=card.Id,SelectedKind=card.Kind,Claiming=true}});
@@ -117,7 +119,7 @@ public sealed partial class GameEngine
     {
         var original=_pendingDecision??throw new InvalidOperationException("A deck-basic offer requires a current real need.");
         var source=RequireConversionSource(choice);var context=RequestedDeckBasicContext(original)??throw new InvalidOperationException("The basic need no longer has its original producer.");
-        var actor=_players[original.PlayerSeat];var policy=RequestedDeckBasicSources(actor).SingleOrDefault(s=>s.Source==source).Policy;
+        var actor=_players[original.PlayerSeat];var policy=RequestedDeckBasicSources(actor,RequestedDeckBasicKind(original,context.Intent)).SingleOrDefault(s=>s.Source==source).Policy;
         if(policy is null || !original.Choices.Any(c=>c.Id==choice.Id && AssistedChoicesEqual([c],[choice])))throw new InvalidOperationException("The optional top view source lost current qualification.");
         var count=GetHand(actor).Count==0?policy.Value*2:policy.Value;
         // This is the same bounded refresh used by actual draws. Never fill a short nonempty pile by moving looked-at cards.
@@ -169,13 +171,29 @@ public sealed partial class GameEngine
     {
         var list=new List<PromptChoice>();
         Dictionary<string,string> Parameters(string branch)=>new(){["deck-basic-source"]=branch,["deck-frame-id"]=view.Id.ToString(CultureInfo.InvariantCulture)};
+        Dictionary<string,string> CardParameters()
+        {
+            var parameters=Parameters("card");
+            if(RequestedDeckBasicActionType(view.Receipt.Intent)==CardActionType.Response)
+            {
+                var required=RequestedDeckBasicKind(view.OriginalDecision,view.Receipt.Intent);
+                parameters["response-card-kind"]=required.ToString();
+                parameters["response"]=view.Receipt.Intent switch
+                {
+                    RequestedDeckBasicIntent.FactionDodge=>"faction-defense-dodge",
+                    RequestedDeckBasicIntent.FactionSlash=>"faction-slash-slash",
+                    _=>required==CardKind.Dodge?"dodge":"slash"
+                };
+            }
+            return parameters;
+        }
         foreach(var id in view.CardIds)
         {
             var card=_cardZones.CardsAt(CardLocation.DrawPile).Single(c=>c.Id==id);
             if(!RequestedDeckBasicCardMatches(view,card))continue;
             var targets=RequestedDeckBasicTargets(view,card);
-            if(targets.Length==0)list.Add(new(new($"deck-basic.{view.Id}.{id}"),$"使用或打出【{card.DisplayName}】",[id],[],Parameters("card")));
-            else foreach(var target in targets)list.Add(new(new($"deck-basic.{view.Id}.{id}.{target}"),$"对 {_players[target].Name} 使用【{card.DisplayName}】",[id],[target],Parameters("card")));
+            if(targets.Length==0)list.Add(new(new($"deck-basic.{view.Id}.{id}"),$"使用或打出【{card.DisplayName}】",[id],[],CardParameters()));
+            else foreach(var target in targets)list.Add(new(new($"deck-basic.{view.Id}.{id}.{target}"),$"对 {_players[target].Name} 使用【{card.DisplayName}】",[id],[target],CardParameters()));
         }
         list.Add(new(new($"deck-basic.{view.Id}.decline"),"不使用或打出顶牌",[],[],Parameters("decline")));
         return Array.AsReadOnly(list.ToArray());

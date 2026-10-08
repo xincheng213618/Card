@@ -186,6 +186,7 @@ public sealed partial class GameEngine
     private SkillProgramStepOutcome BeginBoundParticipantGift(ProgramSkillFrame frame, string bind, IReadOnlyList<int> ids, CardLocation target, CardMoveReason reason)
     {
         frame = GetActiveProgramFrame(frame.Id);
+        ValidateBoundParticipantGiftWindow(frame);
         var source = GetProgramCardSet(frame, bind);
         if (_winner != Winner.None || !_players[frame.OwnerSeat].IsAlive || target.OwnerSeat is not { } recipient ||
             !_players[recipient].IsAlive || !HasRuntimeSkillInstance(_players[frame.OwnerSeat], frame.SkillId, frame.SkillInstanceId) ||
@@ -198,6 +199,43 @@ public sealed partial class GameEngine
         ReplaceRuntimeTop(frame with { BoundParticipantGift = new(frame.InstructionIndex, bind, target.OwnerSeat!.Value) });
         MoveProgramCardsFromMultipleSources(ids, target, reason);
         AdvanceRuntimeProgram(frame.Id); return SkillProgramStepOutcome.AwaitChild;
+    }
+
+    private void ValidateBoundParticipantGiftWindow(ProgramSkillFrame frame)
+    {
+        if (frame.WindowContext is null && frame.TriggerId is null)
+        {
+            ValidateOwnedHandRankSumGiftActivation(frame);
+            return;
+        }
+        // The original DrawPhaseEnded producer retains its existing contract.
+        // The added action window must keep the exact live parent and candidate
+        // throughout all gift movement children; no material use is reissued.
+        if (frame.WindowContext?.Window == SkillProgramTriggerWindow.DrawPhaseEnded) return;
+        var index = _resolutionStack.FindIndex(item => item.Id == frame.Id);
+        if (index < 2 || frame.WindowContext is not
+                { Window: SkillProgramTriggerWindow.CardUseBeforeTargetEffects, CardUse: { } cardContext } context ||
+            _resolutionStack[index - 1] is not ProgramCardTriggerWindowFrame window ||
+            window.Id != context.ParentFrameId || GetCardActionWindow(window) != context.Window ||
+            window.Continuation is not (ProgramCardContinuation.BeforeTargetEffects or ProgramCardContinuation.BeforeTrickTargetEffects) ||
+            _resolutionStack[index - 2] is not CardUseFrame use || use.Id != window.ParentFrameId ||
+            window.Action.Type != CardActionType.Use || use.Action is not { Type: CardActionType.Use } action ||
+            action.ActionId != window.Action.ActionId || action.ActorSeat != window.Action.ActorSeat ||
+            action.ProviderSeat != window.Action.ProviderSeat || action.RequesterSeat != window.Action.RequesterSeat ||
+            action.EffectiveKind != window.Action.EffectiveKind ||
+            !action.PhysicalCards.SequenceEqual(window.Action.PhysicalCards) ||
+            cardContext.CardActionId != action.ActionId || cardContext.ActorSeat != action.ActorSeat ||
+            context.SourceSeat != action.ActorSeat || context.OwnerSeat != frame.OwnerSeat ||
+            window.CandidateIndex < 0 || window.CandidateIndex >= window.Candidates.Count)
+            throw new InvalidOperationException("An awaited bound gift lost its exact card-use window and owning action.");
+        var candidate = window.Candidates[window.CandidateIndex];
+        var effect = ParticipantHandPaused(frame);
+        if (candidate.OwnerSeat != frame.OwnerSeat || candidate.SkillId != frame.SkillId ||
+            candidate.TriggerId != frame.TriggerId || frame.ActivationId != frame.TriggerId ||
+            candidate.SkillInstanceId != frame.SkillInstanceId || candidate.GameplayHash != frame.GameplayHash ||
+            effect is not { Op: SkillProgramEffectOp.MoveBoundCards, AwaitMovementTriggers: true,
+                Destination: SkillProgramCardDestination.SelectedTargetHand })
+            throw new InvalidOperationException("An awaited bound gift lost its exact candidate or movement instruction.");
     }
 
     private bool ResumeParticipantHandPayment(long frameId)
@@ -229,6 +267,7 @@ public sealed partial class GameEngine
             paused.Destination != SkillProgramCardDestination.SelectedTargetHand || gift.InstructionIndex != frame.InstructionIndex ||
             paused.SourceBind != gift.SourceBind || frame.SelectedTargetSeats is not [var recipient] || recipient != gift.RecipientSeat))
             throw new InvalidOperationException("A bound participant gift lost its exact paid instruction.");
+        if (frame.BoundParticipantGift is not null) ValidateBoundParticipantGiftWindow(frame);
         if (!ReferenceEquals(frame, _resolutionStack.LastOrDefault())) return;
         if (frame.PrivateHandTake is { Paid: false } view && (_pendingDecision?.PlayerSeat != frame.OwnerSeat ||
             !AssistedChoicesEqual(_pendingDecision.Choices, PrivateHandTakeChoices(frame)) ||

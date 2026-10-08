@@ -36,6 +36,7 @@ public sealed partial class GameEngine
             if (action is null) continue;
             AdvanceEventRulesAndQueueFact(new SettledActionCardDiscardEvent(batchId, movement.Sequence,
                 movement.CardId, action.ActorSeat, turnNumber));
+            CaptureTongxieSettledSlashUse(batchId, movement);
         }
     }
 

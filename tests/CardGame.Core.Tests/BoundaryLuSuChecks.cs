@@ -8,6 +8,7 @@ internal static class BoundaryLuSuChecks
     private const string Haoshi = "boundary:haoshi-current", Dimeng = "boundary:dimeng-current", Driver = "fixture:ls-driver";
     private const string Extra = "fixture:ls-extra", Gift = "fixture:ls-gift", Exchange = "fixture:ls-exchange", Debt = "fixture:ls-debt", Support = "fixture:ls-support";
     private const string Gain = "fixture:ls-gain", Hp = "fixture:ls-hp", Mode = "identity:classic-lu-su-fixture";
+    private const string InitialDimeng = "fixture:ls-initial-dimeng", PaidSuppressor = "fixture:ls-paid-suppressor";
     private const string DrawReason = "skill-program." + Haoshi + ".DrawExtraAndArmHalfHandSupport";
     private const string GiftReason = "skill-program." + Haoshi + ".GiveHalfHandAndIssueTargetSupport";
     private const string SupportReason = "skill-program." + Haoshi + ".OfferHalfHandRecipientSupport";
@@ -107,14 +108,29 @@ internal static class BoundaryLuSuChecks
             "Real loss of the exact source before Ending cancels its unpaid debt and preserves the completed pair exchange."); Cold(lost, lr);
 
         var (paid, pr) = Create(observers: true, removePaidSource: true); Play(paid); SetHand(paid, 1, 1); SetHand(paid, 2, 3);
+        Require(V(paid, 0).Skills!.Any(s => s.Id == Dimeng) &&
+            F<SkillsAcquiredEvent>(paid).Count(e => e.PlayerSeat == 0 && e.SourceSkillId == InitialDimeng && e.SkillIds.Contains(Dimeng)) == 1,
+            "The paid-loss scenario starts with a genuinely acquired effective Dimeng instance, so native qualification suppression is observable.");
         Use(paid, "equip", [0]); Play(paid); Use(paid, "hurt", [0]); Play(paid); var sl = V(paid, 0).Equipment.Single(c => c.Kind == CardKind.SilverLion).Id;
+        Require(V(paid, 0).Hp == 1 && V(paid, 0).MaxHp == 4, "The real initial-HP Lord loses one HP before paying its equipped Silver Lion.");
         StartExchange(paid, 1, 2); Play(paid); End(paid); Reach(paid, IsOwned); var h = P(paid)!.Choices.First(c => c.Cards.Count == 1 && c.Cards[0] != sl).Cards[0];
         Answer(paid, c => c.Cards.SequenceEqual([h])); Answer(paid, c => c.Cards.SequenceEqual([sl])); Reach(paid, p => p.SkillPrompt?.SkillId == Hp);
-        var paymentId = paid.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.PhaseHandDebtPayment is not null).Id;
+        var paidFrame = paid.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.PhaseHandDebtPayment is not null);
+        var paymentId = paidFrame.Id;
+        Require(V(paid, 0).Hp == 2 && V(paid, 0).Skills!.Any(s => s.Id == Dimeng) &&
+            paid.ResolutionStack.OfType<HpChangedTriggerWindowFrame>().Any(w => w.Change.ParentFrameId == paymentId && w.ResumeFrameId == paymentId &&
+                w.Continuation == PostEventContinuation.AwaitedProgramMovement && w.Change.Kind == HpChangeKind.Recovery && w.Change.Amount == 1 && w.Change.TargetSeat == 0),
+            "Both debt entities are paid before the original Silver Lion recovery reaches its actual HP2 child and the source-loss observer pauses.");
         paid = RestoreAfterCold(paid, pr); Continue(paid); Finish(paid, paymentId);
         Require(Moves(paid, DebtReason).Length == 2 && F<PhaseHandExchangeDebtPaymentStartedEvent>(paid).Length == 1 &&
-            F<ProgramSkillResolvedEvent>(paid).Any(e => e.FrameId == paymentId && !e.Completed),
+            F<ProgramBindingResolvedEvent>(paid).Count(e => e.FrameId == paymentId && e.SkillId == Dimeng &&
+                e.BindingId == paidFrame.TriggerId && e.SkillInstanceId == paidFrame.SkillInstanceId && e.OwnerSeat == paidFrame.OwnerSeat &&
+                e.Window == SkillProgramTriggerWindow.PlayEnding && e.Activated && !e.Completed) == 1,
             "Source loss inside a real paid recovery child retains both original costs, drains their children, and cancels only the now unpaid program tail."); Cold(paid, pr);
+        Require(V(paid, 0).Hp == 2 && !V(paid, 0).Skills!.Any(s => s.Id == Dimeng) &&
+            F<SkillsAcquiredEvent>(paid).Count(e => e.PlayerSeat == 0 && e.SourceSkillId == Hp && e.SkillIds.Contains(PaidSuppressor)) == 1 &&
+            V(paid, 1).HandCount == 3 && V(paid, 2).HandCount == 1 && Moves(paid, ExchangeReason).Length == 8,
+            "A real owner-side grant suppresses the acquired source at its exact recovered HP; the already exchanged hands remain exchanged exactly once.");
     }
 
     public static void HalfHandSupportUsesRealTargetsAndExpiresAtNextActualStart()
@@ -150,10 +166,25 @@ internal static class BoundaryLuSuChecks
 
         GiveTrick(g, 0); trick = g.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.DrawTwo); var before = F<HalfHandSupportPaymentEvent>(g).Length;
         Accept(g, new PlayCardCommand(0, trick.CardId ?? throw new InvalidOperationException("The real trick action lost its entity."), [], g.Revision, P(g)!.PromptId, trick.PlayedCardKind, trick.TargetCardId) { ConversionSource = trick.ConversionSource, AdditionalConversionSources = trick.AdditionalConversionSources }); Reach(g, IsSupport);
-        Require(P(g)!.PlayerSeat == 1, "The published current donor owns the native decision."); var prefix = g.AcceptedCommands.Count;
-        for (var i = 0; i < 90 && !(P(g) is { PlayerSeat: 0, Kind: DecisionKind.PlayCard }); i++) Accept(g, new AdvanceOneStepCommand(g.Revision));
-        Require(P(g) is { PlayerSeat: 0, Kind: DecisionKind.PlayCard } && F<HalfHandSupportPaymentEvent>(g).Length == before + 1 &&
-            g.AcceptedCommands.Skip(prefix).All(c => c is AdvanceOneStepCommand), "Native AI resolves its real current donor choice without reading another player's private hand."); Cold(g, r);
+        Require(P(g)!.PlayerSeat == 1, "The published current donor owns the native decision."); Private(g, 1);
+        var aiAidFrame = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.HalfHandSupport is not null);
+        var aiAid = aiAidFrame.HalfHandSupport!; var prefix = g.AcceptedCommands.Count;
+        for (var i = 0; i < 90 && F<HalfHandSupportPaymentEvent>(g).Length == before; i++) Accept(g, new AdvanceOneStepCommand(g.Revision));
+        var aiPayments = F<HalfHandSupportPaymentEvent>(g).Skip(before).ToArray();
+        Require(aiPayments.Length == 1 && aiPayments[0].ProgramFrameId == aiAidFrame.Id &&
+            aiPayments[0].SupportProgramFrameId == qualification.ProgramFrameId && aiPayments[0].CardUseFrameId == aiAid.Use.CardUseFrameId &&
+            aiPayments[0].CardActionId == aiAid.Use.ActionId && aiPayments[0].Source == aiAid.Source &&
+            aiPayments[0].OwnerSeat == 0 && aiPayments[0].RecipientSeat == 1 && aiPayments[0].Paid != aiPayments[0].Declined &&
+            g.AcceptedCommands.Skip(prefix).All(c => c is AdvanceOneStepCommand), "Native AI resolves its real current donor choice without reading another player's private hand.");
+        if (aiPayments[0].Paid)
+            Require(P(g) is { PlayerSeat: 0 } pause && pause.SkillPrompt?.SkillId == Support &&
+                g.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.Id == aiAidFrame.Id && f.HalfHandSupport is { Paid: true } &&
+                    f.PendingMovementContinuation is { SubjectSeat: 0, BeforeCount: 0 }),
+                "The AI's real payment pauses in the human-owned gain observer, while its original aid invoice awaits that native child.");
+        Play(g);
+        Require(F<HalfHandSupportPaymentEvent>(g).Length == before + 1 &&
+            F<CardUseFinishedEvent>(g).Count(e => e.ResolutionId == aiAid.Use.CardUseFrameId) == 1,
+            "Draining only the fixture's owner-side children finishes the original actual use once, without another native donor choice."); Cold(g, r);
         End(g); Reach(g, p => p.SkillPrompt?.SkillId == Haoshi && p.Choices.Any(c => c.Parameters.GetValueOrDefault("binding-id") == "extra-draw"));
         Require(F<TurnStartedEvent>(g).Any(e => e.ActorSeat == 0 && e.TurnNumber > qualification.ActualTurnNumber), "Expiry is a real next owner TurnStarted, rather than a guessed round.");
         Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "skip"); Play(g); GiveTrick(g, 0); trick = g.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.DrawTwo);
@@ -234,7 +265,17 @@ internal static class BoundaryLuSuChecks
     private static void SetHand(GameEngine g, int seat, int count)
     { Clear(g, seat); for (var i = 0; i < count; i++) { Use(g, "draw", [seat]); Play(g); } }
     private static void Clear(GameEngine g, int seat)
-    { if (V(g, seat).HandCount + V(g, seat).Equipment.Count == 0) return; Use(g, "clear", [seat]); Reach(g, IsOwned); while (P(g) is { } p && IsOwned(p)) Answer(g, c => c.Cards.Count == 1); Play(g); }
+    {
+        var original = V(g, seat).Hand.Select(c => (c.Id, From: CardLocation.Hand(seat)))
+            .Concat(V(g, seat).Equipment.Select(c => (c.Id, From: CardLocation.Equipment(seat)))).ToArray();
+        if (original.Length == 0) return;
+        var before = g.CardMovements.LastOrDefault()?.Sequence ?? 0;
+        Use(g, "clear", [seat]); Play(g);
+        Require(V(g, seat).HandCount + V(g, seat).Equipment.Count == 0 && original.All(cost =>
+            g.CardMovements.Count(m => m.Sequence > before && m.CardId == cost.Id && m.From == cost.From &&
+                m.To == CardLocation.DiscardPile) == 1),
+            "The native all-owned selection freezes every original HE entity, drains its movement children and clears each entity exactly once.");
+    }
     private static void StartExchange(GameEngine g, int a, int b) => Accept(g, new UseProgramSkillCommand(0, Dimeng, "swap-first", [], [a, b], g.Revision, P(g)!.PromptId));
     private static void Use(GameEngine g, string id, IReadOnlyList<int>? targets = null) => Accept(g, new UseProgramSkillCommand(0, Driver, id, [], targets ?? [], g.Revision, P(g)!.PromptId));
     private static void ActivateExtra(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate" && c.Parameters.GetValueOrDefault("binding-id") == "extra-draw");
@@ -310,8 +351,8 @@ internal static class BoundaryLuSuChecks
                   {"id":"fixture:ls-extra","revision":1,"triggers":[{"id":"extra","window":"cardsGained","subject":"owner","optional":false,"usageScope":"game","usageLimit":1,"destinationZones":["hand"],"movementOccurrence":"perBatch","movementReasons":["skill-program.boundary:haoshi-current.DrawExtraAndArmHalfHandSupport"],"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},
                   {"id":"fixture:ls-gift","revision":1,"triggers":[{"id":"gift","window":"cardsMoved","subject":"owner","optional":false,"priority":100,"sourceZones":["hand"],"movementOccurrence":"perBatch","movementReasons":["skill-program.boundary:haoshi-current.GiveHalfHandAndIssueTargetSupport"],"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},
                   {"id":"fixture:ls-exchange","revision":1,"triggers":[{"id":"exchange","window":"cardsMoved","subject":"owner","optional":false,"usageScope":"game","usageLimit":1,"sourceZones":["hand"],"movementOccurrence":"perBatch","movementReasons":["skill-program.boundary:dimeng-current.exchange"],"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},
-                  {"id":"fixture:ls-debt","revision":1,"triggers":[{"id":"debt","window":"cardsMoved","subject":"owner","optional":false,"sourceZones":["hand","equipment"],"movementOccurrence":"perBatch","movementReasons":["skill-program.boundary:dimeng-current.MoveBoundCards"],"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},
-                  {"id":"fixture:ls-support","revision":1,"triggers":[{"id":"support","window":"cardsMoved","subject":"owner","optional":false,"priority":100,"sourceZones":["hand"],"movementOccurrence":"perBatch","movementReasons":["skill-program.boundary:haoshi-current.OfferHalfHandRecipientSupport"],"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},
+                  {"id":"fixture:ls-debt","revision":1,"triggers":[{"id":"debt","window":"cardsMoved","subject":"owner","optional":false,"sourceZones":["hand","equipment"],"movementOccurrence":"perOwnerBatch","movementReasons":["skill-program.boundary:dimeng-current.MoveBoundCards"],"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},
+                  {"id":"fixture:ls-support","revision":1,"triggers":[{"id":"support","window":"cardsGained","subject":"owner","optional":false,"priority":100,"destinationZones":["hand"],"movementOccurrence":"perBatch","movementReasons":["skill-program.boundary:haoshi-current.OfferHalfHandRecipientSupport"],"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},
                   {"id":"fixture:ls-gain","revision":1,"triggers":[{"id":"gain","window":"cardsGained","subject":"owner","optional":false,"usageScope":"game","usageLimit":1,"destinationZones":["hand"],"movementOccurrence":"perBatch","movementReasons":["skill-program.boundary:haoshi-current.GiveHalfHandAndIssueTargetSupport","skill-program.boundary:haoshi-current.OfferHalfHandRecipientSupport"],"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]},{"op":"recover","target":"owner","amount":1}]}]},
                   {"id":"fixture:ls-hp","revision":1,"triggers":[{"id":"hp","window":"afterHpRecovered","subject":"owner","optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]}
                 ]}
@@ -325,17 +366,33 @@ internal static class BoundaryLuSuChecks
                 """));
             if (supportDamage) ((JsonArray)rules["skills"]!).Single(n => n!["id"]!.GetValue<string>() == Gain)!["triggers"]![0]!["movementReasons"] =
                 JsonNode.Parse("""["skill-program.boundary:haoshi-current.GiveHalfHandAndIssueTargetSupport"]""");
-            if (removePaidSource) ((JsonArray)rules["skills"]![8]!["triggers"]![0]!["effects"]!).Add(JsonNode.Parse("""{"op":"loseOwnerSkillsAndGrant","target":"owner","skillIds":["boundary:dimeng-current"],"sourceBind":"fixture:ls-noop"}"""));
+            if (removePaidSource)
+            {
+                ((JsonArray)rules["skills"]!).Add(JsonNode.Parse($$"""{"id":"{{InitialDimeng}}","revision":1,"triggers":[{"id":"acquire-dimeng","window":"gameStarting","subject":"owner","optional":false,"effects":[{"op":"grantSkills","target":"owner","skillIds":["{{Dimeng}}"]}]}]}"""));
+                ((JsonArray)((JsonArray)rules["skills"]!).Single(n => n!["id"]!.GetValue<string>() == Hp)!["triggers"]![0]!["effects"]!).Add(
+                    JsonNode.Parse($$"""{"op":"grantSkills","target":"owner","skillIds":["{{PaidSuppressor}}"]}"""));
+            }
             var presentation = JsonSerializer.Serialize(new { schemaVersion = 3, skills = new Dictionary<string, object>
                 { [Driver] = new { name = "真实命令", description = "小固定夹具" }, ["fixture:ls-quiet"] = new { name = "安静回合", description = "实际跳过出牌" },
                   [Extra] = Pause("额外摸牌孩子"), [Gift] = Pause("半手付款孩子"), [Exchange] = Pause("实际换手孩子"), [Debt] = Pause("Ending成本孩子"),
                   [Support] = Pause("受赠者援助孩子"), [Gain] = Pause("真实得牌"), [Hp] = Pause("真实回复"),
                   ["fixture:ls-support-damage"] = Pause("已付援助得牌伤害"), ["fixture:ls-source-pulse"] = Pause("真实伤害濒死返回") } });
+            if (removePaidSource)
+            {
+                var labels = JsonNode.Parse(presentation)!;
+                labels["skills"]![InitialDimeng] = JsonSerializer.SerializeToNode(new { name = "真实取得缔盟", description = "游戏开始由owner实际取得唯一缔盟实例" });
+                presentation = labels.ToJsonString();
+            }
             var catalog = SkillProgramCatalog.Load(rules.ToJsonString(), presentation);
             foreach (var id in new[] { Driver, "fixture:ls-quiet", Extra, Gift, Exchange, Debt, Support, Gain, Hp, "fixture:ls-support-damage", "fixture:ls-source-pulse" }) b.AddSkill(new(id, id, "真实程序夹具") { Program = catalog.Programs[id] });
+            if (removePaidSource)
+            {
+                b.AddSkill(new(InitialDimeng, "真实取得缔盟", "仅付款失源夹具") { Program = catalog.Programs[InitialDimeng] });
+                b.AddSkill(new(PaidSuppressor, "真实回复HP2资格抑制", "原生白银狮子回复后的owner资格") { SuppressionRule = new(2) });
+            }
             b.AddSkill(new("fixture:ls-noop", "已替换来源", "无运行能力"));
             b.AddSkill(new("fixture:ls-selection", "固定选将", "无运行能力") { SelectionWeights = Enum.GetValues<Role>().ToDictionary(role => role, _ => 100d) });
-            var owner = new List<string> { Dimeng, Driver }; if (observers) owner.AddRange([Extra, Gift, Exchange, Debt, Support, Gain, Hp]);
+            var owner = new List<string> { removePaidSource ? InitialDimeng : Dimeng, Driver }; if (observers) owner.AddRange([Extra, Gift, Exchange, Debt, Support, Gain, Hp]);
             if (supportDamage) owner.AddRange(["fixture:ls-support-damage", "fixture:ls-source-pulse"]);
             b.AddGeneral(new("fixture:ls-owner", "界鲁肃机制", "supporter", Haoshi, "wu", 3, owner, Gender: GeneralGender.Male) { InitialHp = 1 });
             for (var i = 1; i < 4; i++) b.AddGeneral(new($"fixture:ls-target-{i}", "固定目标", "supporter", "fixture:ls-selection", "wu", 6,

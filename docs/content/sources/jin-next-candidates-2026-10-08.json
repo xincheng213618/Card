@@ -1,0 +1,974 @@
+{
+  "sourceRecordSchemaVersion": 1,
+  "documentKind": "Current official OL Jin candidate queue and full-mechanism assessment",
+  "capturedAt": "2026-10-08",
+  "status": "Research complete; selected current OL Duyu fully integrated and behavior validated by root.",
+  "selectedOfficialId": 7006,
+  "selectedCharacterName": "杜预",
+  "workspaceBaseline": {
+    "observedBeforeRound15Registration": true,
+    "registeredJinGenerals": [
+      {
+        "id": "ol:zhang-hu-yue-chen",
+        "name": "张虎乐綝",
+        "hp": 4,
+        "gid": 7000
+      },
+      {
+        "id": "ol:wei-guan",
+        "name": "卫瓘",
+        "hp": 3,
+        "gid": 7013
+      },
+      {
+        "id": "ol:wang-xiang",
+        "name": "王祥",
+        "hp": 3,
+        "gid": 7020
+      }
+    ],
+    "registrationFile": "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+    "noBuildOrTestRunByResearchAgent": true,
+    "concurrentDirtyWorkPreserved": true
+  },
+  "officialRoster": {
+    "source": {
+      "role": "current official OL full roster JSON-LD",
+      "url": "https://www.sanguosha.com/hero",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T10:24:26.3228594+00:00",
+      "responseSha256": "df68e4bb68731cf79e2ab27a2c970b251c75e084c321769d140bb3847e73bb26",
+      "responseByteCount": 1319990,
+      "hashScope": "UTF-8 re-encoding of decoded HTTP response body"
+    },
+    "totalAllFactions": 692,
+    "totalJin": 37,
+    "classificationNote": "OTHER is the website's ordinary identity section, not a claim of common rarity. NATIONAL and CLAN entries remain distinct variants.",
+    "entries": [
+      {
+        "gid": 354,
+        "name": "左棻",
+        "hp": 3,
+        "genre": "其他",
+        "figure": "晋",
+        "sourcePage": "https://www.sanguosha.com/hero/354",
+        "advertisedPortraitUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/35400.png"
+      },
+      {
+        "gid": 358,
+        "name": "宣公主",
+        "hp": 3,
+        "genre": "其他",
+        "figure": "晋",
+        "sourcePage": "https://www.sanguosha.com/hero/358",
+        "advertisedPortraitUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/35800.png"
+      },
+      {
+        "gid": 497,
+        "name": "羊祜",
+        "hp": 4,
+        "genre": "其他",
+        "figure": "晋",
+        "sourcePage": "https://www.sanguosha.com/hero/497",
+        "advertisedPortraitUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/49700.png"
+      },
+      {
+        "gid": 508,
+        "name": "郭槐",
+        "hp": 3,
+        "genre": "其他",
+        "figure": "晋",
+        "sourcePage": "https://www.sanguosha.com/hero/508",
+        "advertisedPortraitUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/50800.png"
+      },
+      {
+        "gid": 518,
+        "name": "周处",
+        "hp": 4,
+        "genre": "其他",
+        "figure": "晋",
+        "sourcePage": "https://www.sanguosha.com/hero/518",
+        "advertisedPortraitUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/51800.png"
+      },
+      {
+        "gid": 544,
+        "name": "张华",
+        "hp": 3,
+        "genre": "其他",
+        "figure": "晋",
+        "sourcePage": "https://www.sanguosha.com/hero/544",
+        "advertisedPortraitUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/54400.png"
+      },
+      {
+        "gid": 7000,
+        "name": "张虎乐綝",
+        "hp": 4,
+        "genre": "其他",
+        "figure": "晋",
+        "sourcePage": "https://www.sanguosha.com/hero/7000",
+        "advertisedPortraitUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/700000.png"
+      },
+      {
+        "gid": 7001,
+        "name": "夏侯徽",
+        "hp": 3,
+        "genre": "其他",
+        "figure": "晋",
+        "sourcePage": "https://www.sanguosha.com/hero/7001",
+        "advertisedPortraitUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/700100.png"
+      },
+      {
+        "gid": 7002,
+        "name": "司马师",
+        "hp": 4,
+        "genre": "其他",
+        "figure": "晋",
+        "sourcePage": "https://www.sanguosha.com/hero/7002",
+        "advertisedPortraitUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/700200.png"
+      },
+      {
+        "gid": 7003,
+        "name": "晋司马懿",
+        "hp": 3,
+        "genre": "其他",
+        "figure": "晋",
+        "sourcePage": "https://www.sanguosha.com/hero/7003",
+        "advertisedPortraitUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/700300.png"
+      },
+      {
+        "gid": 7004,
+        "name": "司马昭",
+        "hp": 3,
+        "genre": "其他",
+        "figure": "晋",
+        "sourcePage": "https://www.sanguosha.com/hero/7004",
+        "advertisedPortraitUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/700400.png"
+      },
+      {
+        "gid": 7005,
+        "name": "王元姬",
+        "hp": 3,
+        "genre": "其他",
+        "figure": "晋",
+        "sourcePage": "https://www.sanguosha.com/hero/7005",
+        "advertisedPortraitUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/700500.png"
+      },
+      {
+        "gid": 7006,
+        "name": "杜预",
+        "hp": 4,
+        "genre": "其他",
+        "figure": "晋",
+        "sourcePage": "https://www.sanguosha.com/hero/7006",
+        "advertisedPortraitUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/700600.png"
+      },
+      {
+        "gid": 7007,
+        "name": "晋张春华",
+        "hp": 3,
+        "genre": "其他",
+        "figure": "晋",
+        "sourcePage": "https://www.sanguosha.com/hero/7007",
+        "advertisedPortraitUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/700700.png"
+      },
+      {
+        "gid": 7008,
+        "name": "羊徽瑜",
+        "hp": 3,
+        "genre": "其他",
+        "figure": "晋",
+        "sourcePage": "https://www.sanguosha.com/hero/7008",
+        "advertisedPortraitUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/700800.png"
+      },
+      {
+        "gid": 7009,
+        "name": "石苞",
+        "hp": 4,
+        "genre": "其他",
+        "figure": "晋",
+        "sourcePage": "https://www.sanguosha.com/hero/7009",
+        "advertisedPortraitUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/700900.png"
+      },
+      {
+        "gid": 7011,
+        "name": "司马伷",
+        "hp": 4,
+        "genre": "其他",
+        "figure": "晋",
+        "sourcePage": "https://www.sanguosha.com/hero/7011",
+        "advertisedPortraitUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/701100.png"
+      },
+      {
+        "gid": 7013,
+        "name": "卫瓘",
+        "hp": 3,
+        "genre": "其他",
+        "figure": "晋",
+        "sourcePage": "https://www.sanguosha.com/hero/7013",
+        "advertisedPortraitUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/701300.png"
+      },
+      {
+        "gid": 7014,
+        "name": "钟琰",
+        "hp": 3,
+        "genre": "其他",
+        "figure": "晋",
+        "sourcePage": "https://www.sanguosha.com/hero/7014",
+        "advertisedPortraitUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/701400.png"
+      },
+      {
+        "gid": 7016,
+        "name": "杨艳",
+        "hp": 3,
+        "genre": "其他",
+        "figure": "晋",
+        "sourcePage": "https://www.sanguosha.com/hero/7016",
+        "advertisedPortraitUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/701600.png"
+      },
+      {
+        "gid": 7017,
+        "name": "杨芷",
+        "hp": 3,
+        "genre": "其他",
+        "figure": "晋",
+        "sourcePage": "https://www.sanguosha.com/hero/7017",
+        "advertisedPortraitUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/701700.png"
+      },
+      {
+        "gid": 7018,
+        "name": "辛敞",
+        "hp": 3,
+        "genre": "其他",
+        "figure": "晋",
+        "sourcePage": "https://www.sanguosha.com/hero/7018",
+        "advertisedPortraitUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/701800.png"
+      },
+      {
+        "gid": 7019,
+        "name": "贾充",
+        "hp": 3,
+        "genre": "其他",
+        "figure": "晋",
+        "sourcePage": "https://www.sanguosha.com/hero/7019",
+        "advertisedPortraitUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/701900.png"
+      },
+      {
+        "gid": 7020,
+        "name": "王祥",
+        "hp": 3,
+        "genre": "其他",
+        "figure": "晋",
+        "sourcePage": "https://www.sanguosha.com/hero/7020",
+        "advertisedPortraitUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/702000.png"
+      },
+      {
+        "gid": 2083,
+        "name": "国战张虎乐綝",
+        "hp": 2,
+        "genre": "国战",
+        "figure": "晋",
+        "sourcePage": "https://www.sanguosha.com/hero/2083",
+        "advertisedPortraitUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/700000.png"
+      },
+      {
+        "gid": 2084,
+        "name": "国战夏侯徽",
+        "hp": 1.5,
+        "genre": "国战",
+        "figure": "晋",
+        "sourcePage": "https://www.sanguosha.com/hero/2084",
+        "advertisedPortraitUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/700100.png"
+      },
+      {
+        "gid": 2085,
+        "name": "国战司马师",
+        "hp": 1.5,
+        "genre": "国战",
+        "figure": "晋",
+        "sourcePage": "https://www.sanguosha.com/hero/2085",
+        "advertisedPortraitUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/700200.png"
+      },
+      {
+        "gid": 2086,
+        "name": "国战晋司马懿",
+        "hp": 1.5,
+        "genre": "国战",
+        "figure": "晋",
+        "sourcePage": "https://www.sanguosha.com/hero/2086",
+        "advertisedPortraitUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/700300.png"
+      },
+      {
+        "gid": 2087,
+        "name": "国战司马昭",
+        "hp": 1.5,
+        "genre": "国战",
+        "figure": "晋",
+        "sourcePage": "https://www.sanguosha.com/hero/2087",
+        "advertisedPortraitUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/700400.png"
+      },
+      {
+        "gid": 2088,
+        "name": "国战王元姬",
+        "hp": 1.5,
+        "genre": "国战",
+        "figure": "晋",
+        "sourcePage": "https://www.sanguosha.com/hero/2088",
+        "advertisedPortraitUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/700500.png"
+      },
+      {
+        "gid": 2089,
+        "name": "国战杜预",
+        "hp": 2,
+        "genre": "国战",
+        "figure": "晋",
+        "sourcePage": "https://www.sanguosha.com/hero/2089",
+        "advertisedPortraitUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/700600.png"
+      },
+      {
+        "gid": 2090,
+        "name": "国战张春华",
+        "hp": 1.5,
+        "genre": "国战",
+        "figure": "晋",
+        "sourcePage": "https://www.sanguosha.com/hero/2090",
+        "advertisedPortraitUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/700700.png"
+      },
+      {
+        "gid": 2091,
+        "name": "国战羊徽瑜",
+        "hp": 1.5,
+        "genre": "国战",
+        "figure": "晋",
+        "sourcePage": "https://www.sanguosha.com/hero/2091",
+        "advertisedPortraitUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/700800.png"
+      },
+      {
+        "gid": 2095,
+        "name": "国战石苞",
+        "hp": 2,
+        "genre": "国战",
+        "figure": "晋",
+        "sourcePage": "https://www.sanguosha.com/hero/2095",
+        "advertisedPortraitUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/700900.png"
+      },
+      {
+        "gid": 2096,
+        "name": "国战司马伷",
+        "hp": 2,
+        "genre": "国战",
+        "figure": "晋",
+        "sourcePage": "https://www.sanguosha.com/hero/2096",
+        "advertisedPortraitUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/701100.png"
+      },
+      {
+        "gid": 548,
+        "name": "族钟琰",
+        "hp": 3,
+        "genre": "门阀士族",
+        "figure": "晋",
+        "sourcePage": "https://www.sanguosha.com/hero/548",
+        "advertisedPortraitUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/54800.png"
+      },
+      {
+        "gid": 574,
+        "name": "族王浑",
+        "hp": 3,
+        "genre": "门阀士族",
+        "figure": "晋",
+        "sourcePage": "https://www.sanguosha.com/hero/574",
+        "advertisedPortraitUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/57400.png"
+      }
+    ]
+  },
+  "candidates": [
+    {
+      "officialId": 7005,
+      "gid": 7005,
+      "name": "王元姬",
+      "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/7005.png",
+      "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/700500.png",
+      "label": [
+        "控制",
+        "过牌",
+        "储蓄家"
+      ],
+      "figure": "晋",
+      "figure_py": "jin",
+      "quality": "史诗",
+      "biography": "东海郡郯[tán]县（今山东省郯城县）人。西晋时期皇后，曹魏司徒王朗的孙女、中领军王肃的女儿，晋文帝司马昭妻子。",
+      "characteristic": "要特别关注其他角色的留牌信息。",
+      "hp": 3,
+      "initial_hp": 0,
+      "score": 0,
+      "skills": [
+        {
+          "name": "识人",
+          "text": "隐匿。当你于其他角色的回合登场后，若其有手牌，你可以对其发动“宴戏”。",
+          "textOrigin": "current exact hero SSR character-tab / skill-text span"
+        },
+        {
+          "name": "宴戏",
+          "text": "出牌阶段限一次，你可以令一名其他角色的随机一张手牌与牌堆顶的两张牌混合，你猜测来自其手牌的牌：若猜对，你获得全部三张牌；若猜错，你获得选中的牌。你以此法获得的牌本回合不计入手牌上限。",
+          "textOrigin": "current exact hero SSR character-tab / skill-text span"
+        }
+      ],
+      "borrowedSkillReferences": [],
+      "sources": [
+        {
+          "role": "current official OL exact SSR skill text",
+          "url": "https://www.sanguosha.com/hero/7005",
+          "httpStatus": 200,
+          "capturedAtUtc": "2026-10-08T10:24:26.5610348+00:00",
+          "responseSha256": "f0ab23ecb4e64d84ebc40d89ab0e366e5f08f11ecfaa7ee4b0f16a443cdfce37",
+          "responseByteCount": 25354,
+          "hashScope": "UTF-8 re-encoding of decoded HTTP response body"
+        },
+        {
+          "role": "current official OL hero metadata",
+          "url": "https://www.sanguosha.com/api/v1/hero/info?gid=7005",
+          "httpStatus": 200,
+          "capturedAtUtc": "2026-10-08T10:24:26.7221582+00:00",
+          "responseSha256": "80b77085ced16c62032e1138ab7725a8bd6430d440737fec2a38813efeeb69e5",
+          "responseByteCount": 812,
+          "hashScope": "UTF-8 re-encoding of decoded HTTP response body"
+        }
+      ],
+      "capabilityAssessmentAtResearch": {
+        "completeExistingCoverage": false,
+        "reusable": [
+          "Real private card movement and deck-top inspection",
+          "Actual-turn hand-limit exemptions exist for other producers"
+        ],
+        "missing": [
+          "Ordinary identity concealment and exact entry event",
+          "Provenance-hidden mixing of one randomly taken target-hand card with two deck-top cards; guess versus origin must survive restore without leaking origin",
+          "Exactly gained Yanxi entity exemption through the actual turn; generic all-turn-gained exemption is broader than this text"
+        ],
+        "whyNotSimplify": "Dropping concealment, revealing original provenance in choices, or exempting every gained card would change the official rule."
+      }
+    },
+    {
+      "officialId": 7006,
+      "gid": 7006,
+      "name": "杜预",
+      "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/7006.png",
+      "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/700600.png",
+      "label": [
+        "进攻",
+        "辅助",
+        "发育"
+      ],
+      "figure": "晋",
+      "figure_py": "jin",
+      "quality": "史诗",
+      "biography": "字元凯，魏晋时期军事家、经学家、律学家，曹魏散骑常侍杜恕之子，曾经三次力陈司马炎伐吴，最终出任镇南大将军，成为晋灭吴之战的统帅之一。杜预为明朝之前唯一一个同时进入文庙和武庙之人。",
+      "characteristic": "操作得当，一回合可以造成极大量伤害。",
+      "hp": 4,
+      "initial_hp": 0,
+      "score": 0,
+      "skills": [
+        {
+          "name": "三陈",
+          "text": "出牌阶段限一次，你可以令一名角色摸三张牌，然后弃置三张牌。若其以此法弃置的牌类型均不同，其摸一张牌，本技能视为未发动且本回合不能指定其为目标。",
+          "textOrigin": "current exact hero SSR character-tab / skill-text span"
+        },
+        {
+          "name": "昭讨",
+          "text": "觉醒技，准备阶段，若你本局发动过至少3次“三陈”，你减少1点体力上限，并获得“破竹”。",
+          "textOrigin": "current exact hero SSR character-tab / skill-text span"
+        }
+      ],
+      "borrowedSkillReferences": [
+        {
+          "rawReference": "7020",
+          "name": "破竹"
+        }
+      ],
+      "sources": [
+        {
+          "role": "current official OL exact SSR skill text",
+          "url": "https://www.sanguosha.com/hero/7006",
+          "httpStatus": 200,
+          "capturedAtUtc": "2026-10-08T10:24:26.8633069+00:00",
+          "responseSha256": "24a6edc50574a6be05e57b5c3c4ed91e1735f7cc7fd8577c9b8cf6f4568e81a0",
+          "responseByteCount": 25264,
+          "hashScope": "UTF-8 re-encoding of decoded HTTP response body"
+        },
+        {
+          "role": "current official OL hero metadata",
+          "url": "https://www.sanguosha.com/api/v1/hero/info?gid=7006",
+          "httpStatus": 200,
+          "capturedAtUtc": "2026-10-08T10:24:27.0237063+00:00",
+          "responseSha256": "a7c0a1a11afc51a39bb2b07a90b328be26d4b38dec371af4a42d340096127135",
+          "responseByteCount": 923,
+          "hashScope": "UTF-8 re-encoding of decoded HTTP response body"
+        }
+      ],
+      "capabilityAssessmentAtResearch": {
+        "completeExistingCoverage": false,
+        "reusable": [
+          "Typed draw/discard movement children",
+          "Maximum-HP changes and skill grants",
+          "Actual gameplay activation history and real program bindings"
+        ],
+        "missing": [
+          "Actual nonempty discarded category receipt; success refunds phase use while banning that target for the actual turn, without refunding the game's activation count",
+          "A real native UnexpectedAssault trick, opaque hand-card choice and public reveal, effective-suit comparison, ordinary damage and native Nullification",
+          "Declaration-owned whole-use no-damage conversion disable that survives source loss/regrant until the actual turn ends"
+        ],
+        "recommended": true,
+        "whyRecommended": "A full bounded three-skill implementation expands shared actual-discard/awakening and native trick/conversion-completion capabilities. No difficult branch is omitted."
+      }
+    },
+    {
+      "officialId": 7008,
+      "gid": 7008,
+      "name": "羊徽瑜",
+      "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/7008.png",
+      "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/700800.png",
+      "label": [
+        "控制",
+        "爆发",
+        "美羊羊"
+      ],
+      "figure": "晋",
+      "figure_py": "jin",
+      "quality": "稀有",
+      "biography": "司马师第三任妻子。羊徽瑜出身官宦世家泰山羊氏，她是南阳太守羊续的孙女，上党太守羊衜[dào]之女；其母为东汉名士左中郎将蔡邕[yōng]之女、蔡文姬的姐妹。\n羊徽瑜聪慧贤德，嫁给司马师后未有子女。以司马师之弟司马昭的次子司马攸为继子。司马师死后，司马攸[yōu]侍奉羊徽瑜非常孝顺。",
+      "characteristic": "无效化敌人的关键牌，保证自己的安全",
+      "hp": 3,
+      "initial_hp": 0,
+      "score": 0,
+      "skills": [
+        {
+          "name": "慧容",
+          "text": "隐匿。锁定技，当你登场时，你令一名角色将手牌调整至体力值（至多摸至五张）。",
+          "textOrigin": "current exact hero SSR character-tab / skill-text span"
+        },
+        {
+          "name": "慈威",
+          "text": "当其他角色于其回合内使用第二张牌时，若此牌为基本牌或普通锦囊牌，你可以弃置一张牌令此牌无效。",
+          "textOrigin": "current exact hero SSR character-tab / skill-text span"
+        },
+        {
+          "name": "才媛",
+          "text": "锁定技，结束阶段，若你于上回合结束至今未扣减过体力，你摸两张牌。",
+          "textOrigin": "current exact hero SSR character-tab / skill-text span"
+        }
+      ],
+      "borrowedSkillReferences": [],
+      "sources": [
+        {
+          "role": "current official OL exact SSR skill text",
+          "url": "https://www.sanguosha.com/hero/7008",
+          "httpStatus": 200,
+          "capturedAtUtc": "2026-10-08T10:24:27.2021455+00:00",
+          "responseSha256": "f34063da13345ee3f2b357660bd6389f2ec3542aec0908aca9052fc2d0c6f032",
+          "responseByteCount": 25838,
+          "hashScope": "UTF-8 re-encoding of decoded HTTP response body"
+        },
+        {
+          "role": "current official OL hero metadata",
+          "url": "https://www.sanguosha.com/api/v1/hero/info?gid=7008",
+          "httpStatus": 200,
+          "capturedAtUtc": "2026-10-08T10:24:27.3804076+00:00",
+          "responseSha256": "0ae522e61b6d5a38a3024311732f75bf5bb3327a3221652b46a8272e57267c00",
+          "responseByteCount": 1052,
+          "hashScope": "UTF-8 re-encoding of decoded HTTP response body"
+        }
+      ],
+      "capabilityAssessmentAtResearch": {
+        "completeExistingCoverage": false,
+        "reusable": [
+          "Actual-turn card-use ordinal includes real own-Dodge and Nullification uses and excludes provision-only responses",
+          "Typed discard costs and damage/HP events"
+        ],
+        "missing": [
+          "Ordinary identity concealment and entry; adjust one hand to HP with drawing capped at five",
+          "Cancel an entire second actual use, including zero-target response-as-use; a current-target-only cancel is insufficient",
+          "Record every actual HP decrement from the owner's previous turn end through this Ending, including HP loss; recovery does not erase it"
+        ],
+        "whyNotSimplify": "Play-only ordinal tracking, current-target cancellation or damage-only history would underimplement the formal text."
+      }
+    }
+  ],
+  "currentOfficialClient": {
+    "capturedAtUtc": "2026-10-08T10:55:24.446906+00:00",
+    "bundle": {
+      "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+      "sha256": "6a035389beda8d0dbf31227f57a91b2da14d3d5055503198a227aef54f22bf76",
+      "bytes": 5256312
+    },
+    "config": {
+      "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+      "sha256": "9e26cb3db90532084579a20c292d5fec0c81dcf3d5eb2abf2009bff0326237bb",
+      "bytes": 4142728
+    },
+    "members": [
+      {
+        "name": "sys_playcard.sgs",
+        "encodedSha256": "9a1a02006f8e02fe2b36561030e843005c3b0a433be3d5cc1efeb9008d219ab5",
+        "decodedSha256": "5b0d29825cd5afadf5c41c70eb566ab17533ba3255d3110824078069e3132b13",
+        "rows": [
+          {
+            "path": "/CardsBook/119",
+            "row": {
+              "id": 46,
+              "cardid": 1292,
+              "Name": "出其不意",
+              "Model": 1,
+              "ModelTab": 1,
+              "sortindex": 275,
+              "num": 2,
+              "Type": "锦囊牌",
+              "Time": "出牌阶段",
+              "Target": "除你以外的一名角色",
+              "dese": "出牌阶段，对一名其他角色使用。你展示其一张手牌，若【出其不意】有花色且与此牌花色不同，其受到1点伤害。",
+              "use": "1、选择目标时注意武将技能是否对牌色有特殊要求，可提高成功率<br/>2、在需要集火目标时，可先使用出其不意尝试造成伤害",
+              "res": "ChuQiBuYi",
+              "color": "1,3;2,12",
+              "gamelabelId": "22,5;74,4",
+              "tabLevel": "20"
+            }
+          },
+          {
+            "path": "/CardsBook/210",
+            "row": {
+              "id": 167,
+              "cardid": 1292,
+              "Name": "出其不意",
+              "Model": 2,
+              "ModelTab": 1,
+              "sortindex": 295,
+              "num": 2,
+              "Type": "锦囊牌",
+              "Time": "出牌阶段",
+              "Target": "除你以外的一名角色",
+              "dese": "出牌阶段，对一名其他角色使用。你展示其一张手牌，若【出其不意】有花色且与此牌花色不同，其受到1点伤害。",
+              "use": "1、选择目标时注意武将技能是否对牌色有特殊要求，可提高成功率<br/>2、在需要集火目标时，可先使用出其不意尝试造成伤害",
+              "res": "ChuQiBuYi",
+              "color": "1,2;1,3",
+              "gamelabelId": "28,5",
+              "tabLevel": "20"
+            }
+          },
+          {
+            "path": "/CardsBook/379",
+            "row": {
+              "id": 262,
+              "cardid": 1292,
+              "Name": "出其不意",
+              "Model": 3,
+              "ModelTab": 1,
+              "sortindex": 270,
+              "num": 2,
+              "Type": "锦囊牌",
+              "Time": "出牌阶段",
+              "Target": "除你以外的一名角色",
+              "dese": "出牌阶段，对一名其他角色使用。你展示其一张手牌，若【出其不意】有花色且与此牌花色不同，其受到1点伤害。",
+              "use": "1、选择目标时注意武将技能是否对牌色有特殊要求，可提高成功率<br/>2、在需要集火目标时，可先使用出其不意尝试造成伤害",
+              "res": "ChuQiBuYi",
+              "color": "1,3;2,12",
+              "gamelabelId": "33,4",
+              "tabLevel": "5"
+            }
+          }
+        ]
+      },
+      {
+        "name": "cha_spell.sgs",
+        "encodedSha256": "95cfaa4106a4f6224ebed8948bcf86bd5fc6801a83a1c4162c7e59bc848bef66",
+        "decodedSha256": "39b83f6e2504590e262bb353bddfded546b83f83a7ea9199b67742b1bee68fc0",
+        "rows": [
+          {
+            "path": "/GameSpells/spell/1142",
+            "row": {
+              "a": 6000,
+              "b": "1",
+              "c": "出其不意",
+              "d": "ChuQiBuYi",
+              "e": 0,
+              "i": 1,
+              "n": 0,
+              "o": "出牌阶段，对一名其他角色使用。你展示其一张手牌，若【出其不意】有花色且与此牌花色不同，其受到1点伤害。",
+              "v": "请选择一个目标，展示其一张手牌",
+              "al": "出其",
+              "am": "1",
+              "ay": "选中出其不意→选择目标→点\"确定\"→点选牌手牌"
+            }
+          },
+          {
+            "path": "/GameSpells/spell/1327",
+            "row": {
+              "a": 7018,
+              "b": "3",
+              "c": "三陈",
+              "d": "SanChen",
+              "g": 5,
+              "h": 1,
+              "i": 2,
+              "n": 1,
+              "o": "出牌阶段限一次，你可以令一名角色摸三张牌，然后弃置三张牌。若其以此法弃置的牌类型均不同，其摸一张牌，本技能视为未发动且本回合不能指定其为目标。",
+              "v": "请选择一名目标",
+              "aa": "出牌阶段限一次，你可以令一名角色摸三张牌，然后弃置三张牌。若其以此法弃置的牌类型均不同，其摸一张牌，并视为本技能未发动（本回合不能再指定其为目标），然后你本回合获得“破竹”。"
+            }
+          },
+          {
+            "path": "/GameSpells/spell/1328",
+            "row": {
+              "a": 7019,
+              "b": "3,4,5,6,23",
+              "c": "昭讨",
+              "d": "ZhaoTao",
+              "i": 2,
+              "l": "duyu",
+              "m": "7020,6000",
+              "o": "觉醒技，准备阶段，若你本局发动过至少3次“三陈”，你减少1点体力上限，并获得“<font href='7020'>破竹</font>”。"
+            }
+          },
+          {
+            "path": "/GameSpells/spell/1329",
+            "row": {
+              "a": 7020,
+              "b": "3",
+              "c": "破竹",
+              "d": "PoZhu",
+              "g": 1,
+              "h": 1,
+              "i": 2,
+              "m": "6000",
+              "n": 0,
+              "o": "你可以将一张手牌当【出其不意】使用，若此牌未造成伤害，本回合本技能失效。",
+              "v": "请选择一名目标和一张手牌",
+              "aa": "出牌阶段限一次，你可将一张手牌当【出其不意】使用。"
+            }
+          },
+          {
+            "path": "/GameSpells/spell_tips/1142",
+            "row": {
+              "a": 6000
+            }
+          },
+          {
+            "path": "/GameSpells/spell_tips/1322",
+            "row": {
+              "a": 7018
+            }
+          },
+          {
+            "path": "/GameSpells/spell_tips/1323",
+            "row": {
+              "a": 7019
+            }
+          },
+          {
+            "path": "/GameSpells/spell_tips/1324",
+            "row": {
+              "a": 7020
+            }
+          }
+        ]
+      }
+    ],
+    "decodeProvenance": "Public official OL client bundle contains the AES-CFB128 + gzip decoder used by its Config.sgs. The existing repository importer documents this published client layout. Keys are not reproduced here; raw bytes and decoded member hashes plus exact relevant public rows are retained.",
+    "hashScope": "SHA-256 of exact raw fetched bundle/config/member bytes; decoded SHA-256 is exact decompressed UTF-8 JSON bytes."
+  },
+  "sourceNotes": [
+    "The hero/7006 <font href='7020'> reference is skill id 7020 in cha_spell, not hero gid7020 (Wang Xiang).",
+    "Current cha_spell o is ordinary identity text; aa on these rows is National War contrast and is explicitly not used for this ordinary Duyu.",
+    "Current card text explicitly says other character and requires UnexpectedAssault itself to have a suit. Earlier historical prototype self-target and no-color inferences were withdrawn.",
+    "No official FAQ was found for zero/short Sanchen discards, target death during children or source loss. The explicit engine mappings below are interpretation, not official quotations."
+  ],
+  "sources": [
+    {
+      "role": "current official OL full roster JSON-LD",
+      "url": "https://www.sanguosha.com/hero",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T10:24:26.3228594+00:00",
+      "responseSha256": "df68e4bb68731cf79e2ab27a2c970b251c75e084c321769d140bb3847e73bb26",
+      "responseByteCount": 1319990,
+      "hashScope": "UTF-8 re-encoding of decoded HTTP response body"
+    },
+    {
+      "role": "official identity-mode first-release expansion of Pochu; historical secondary-to-current source",
+      "url": "https://sanguosha.com/news/20210118_1583_5817",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T10:24:28.6865287+00:00",
+      "responseSha256": "0370c5a00e26e66823e31084ea30eb1eabb41857069074b764daad1d01410e71",
+      "responseByteCount": 69643,
+      "hashScope": "UTF-8 re-encoding of decoded HTTP response body"
+    },
+    {
+      "role": "official historical description of Jin concealment and entry",
+      "url": "https://www.sanguosha.com/news/20210102_2393_1319",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T10:24:28.8535447+00:00",
+      "responseSha256": "85f9bedd832e120b516ba7f11d887e2b9c4dcd0eb4efd78b02ab242492f8cec8",
+      "responseByteCount": 36877,
+      "hashScope": "UTF-8 re-encoding of decoded HTTP response body"
+    },
+    {
+      "url": "https://sanguosha.com/news/20201215_3621_5210",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T10:38:52.0573640Z",
+      "responseSha256": "832844d93f47da0123c21a01d82e8c75682ae4b833802f256e3132c770c9e046",
+      "responseByteCount": 37951,
+      "hashScope": "UTF-8 encoding of Invoke-WebRequest decoded response Content",
+      "fragments": [
+        " class=\"MsoNormal\" align=\"left\" style=\"text-align:left;background:white;\">\r\n\t⑤<span> </span><strong>出其不意</strong>：对一名角色使用，你展示其一张手牌，若此牌与【出其不意】花色不同，其受到<span>1</span>点伤害<span></span> \r\n</p>\r\n<p class=\"MsoNormal\" align=\"left\" style=\"text-align:left;background:white;\">\r\n\t<img src=\"/uploads/202012/5fd8248bde547.png\" /> \r\n</p>\r\n<p class=\"MsoNormal\">\r\n\t<b>【新装备牌】<span></span></b> \r\n</p>\r\n<p class=\"MsoNormal\" a",
+        " class=\"MsoNormal\" align=\"left\" style=\"text-align:left;background:white;\">\r\n\t④<span> </span><strong>藤甲</strong>：【南蛮入侵】、【万箭齐发】、【出其不意】、普通【杀】对你无效。你受到火焰伤害时，此伤害<span>+1</span> \r\n</p>\r\n<p class=\"MsoNormal\" align=\"left\" style=\"text-align:left;background:white;\">\r\n\t⑤<span> </span><strong>护心镜</strong>：当你受到致命伤害时，你可将装备区里的【护心镜】置入弃牌堆。若如此做，你防止此伤害\r\n</p>\r\n<p class=\"MsoNormal\" align=\"left\" style=\"text-align:left;bac"
+      ],
+      "images": [
+        "/uploads/202012/5fd8245eb5e32.png",
+        "/uploads/202012/5fd824722c5df.png",
+        "/uploads/202012/5fd824863c56f.png",
+        "/uploads/202012/5fd8248bde547.png",
+        "/uploads/202012/5fd8249635a60.png",
+        "/uploads/202012/5fd8249c97f01.jpg",
+        "/assets/img/pc/header-wx.png",
+        "/assets/img/bottom-code.png",
+        "/assets/img/top-line.png",
+        "/assets/img/h5/club-code.png",
+        "/assets/img/pc/left-code.png",
+        "/assets/img/pc/huojiang.png",
+        "/assets/img/inner-left-code.jpg",
+        "/assets/img/jing.png",
+        "/assets/img/pc/limit.png"
+      ]
+    },
+    {
+      "role": "official national-war Duyu contrast; excluded from identity definition",
+      "url": "https://www.sanguosha.com/news/20210401_4761_4015",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T10:24:29.2039628+00:00",
+      "responseSha256": "50e446b2a87109b473ce2e15c2cdaf5a03e8d4ecd7a2e3059f3572322b924dd0",
+      "responseByteCount": 39975,
+      "hashScope": "UTF-8 re-encoding of decoded HTTP response body"
+    },
+    {
+      "role": "current official HP renderer; initial_hp zero means full displayed hp",
+      "url": "https://www.sanguosha.com/assets/js/heroDetail.js?1",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T10:24:29.2574557+00:00",
+      "responseSha256": "55617a7de749ff8bf19ecd2b17682b59f35554090d5c1a8cc2101121ea248a59",
+      "responseByteCount": 15166,
+      "hashScope": "UTF-8 re-encoding of decoded HTTP response body"
+    },
+    {
+      "role": "identity-deck-table-2021-03-31",
+      "url": "https://www.sanguosha.com/news/20201214_3811_3218",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T10:38:15.4459261Z",
+      "responseSha256": "387a432a4c23263c9721be121a55f715be22f055bea1769563ecbb5571341956",
+      "responseByteCount": 96751,
+      "hashScope": "UTF-8 encoding of Invoke-WebRequest decoded response Content",
+      "fragments": [
+        "e:14px;\"><strong>八卦阵</strong></span> \r\n\t\t\t</td>\r\n\t\t\t<td class=\"xl76\" style=\"text-align:center;\">\r\n\t\t\t\t<span style=\"font-size:14px;\"><strong>藤甲</strong></span> \r\n\t\t\t</td>\r\n\t\t\t<td class=\"xl76\" style=\"text-align:center;background-color:#FFEBD2;\">\r\n\t\t\t\t<span style=\"font-size:14px;\"><strong>随机应变</strong></span> \r\n\t\t\t</td>\r\n\t\t</tr>\r\n\t\t<tr>\r\n\t\t\t<td height=\"44\" class=\"xl74\" style=\"text-align:center;\">\r\n\t\t\t\t<span style=\"font-si",
+        "ass=\"xl69\" width=\"251\" style=\"background-color:#FFEBD2;\">\r\n\t\t\t\t<div style=\"text-align:center;\">\r\n\t\t\t\t\t<span style=\"font-size:14px;\"><strong>出其不意</strong></span> \r\n\t\t\t\t</div>\r\n\t\t\t\t<div style=\"text-align:center;\">\r\n\t\t\t\t\t<span style=\"font-size:14px;color:#8B0000;\"><strong>（助战→目标+1）</strong></span> \r\n\t\t\t\t</div>\r\n\t\t\t</td>\r\n\t\t\t<td class=\"xl66\" style=\"text-align:center;\">\r\n\t\t\t</td>\r\n\t\t</tr>\r\n\t\t<tr>\r\n\t\t\t<td height=\"19\" class=\"xl",
+        "e:14px;\"><strong>黑光铠</strong></span> \r\n\t\t\t</td>\r\n\t\t\t<td class=\"xl68\" style=\"text-align:center;\">\r\n\t\t\t\t<span style=\"font-size:14px;\"><strong>藤甲</strong></span> \r\n\t\t\t</td>\r\n\t\t\t<td class=\"xl66\" style=\"text-align:center;\">\r\n\t\t\t\t<span style=\"font-size:14px;\"><strong>仁王盾</strong></span> \r\n\t\t\t</td>\r\n\t\t</tr>\r\n\t\t<tr>\r\n\t\t\t<td height=\"38\" class=\"xl66\" style=\"text-align:center;\">\r\n\t\t\t\t<span style=\"font-size:14px;\"><strong>3</stron",
+        "ize:14px;\"><strong>桃</strong></span> \r\n\t\t\t</td>\r\n\t\t\t<td class=\"xl66\" style=\"text-align:center;\">\r\n\t\t\t\t<span style=\"font-size:14px;\"><strong>出其不意</strong></span> \r\n\t\t\t</td>\r\n\t\t\t<td class=\"xl68\" style=\"text-align:center;background-color:#FFEBD2;\">\r\n\t\t\t\t<span style=\"font-size:14px;\"><strong>乌铁锁链</strong></span> \r\n\t\t\t</td>\r\n\t\t\t<td class=\"xl66\" style=\"text-align:center;\">\r\n\t\t\t\t<span style=\"font-size:14px;\"><strong>无</strong><"
+      ]
+    },
+    {
+      "role": "revision-2021-10-20",
+      "url": "https://sanguosha.com/news/20211018_6841_4719",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T10:38:16.1489733Z",
+      "responseSha256": "dd82c288087f2eb3721ed9e7e25be89be46fa5bcfab2798df818c650e86f9726",
+      "responseByteCount": 41891,
+      "hashScope": "UTF-8 encoding of Invoke-WebRequest decoded response Content",
+      "fragments": [
+        "olor: rgb(68, 68, 68); text-indent: 2em;\" font-size:14px;background-color:#ffffff;text-indent:2em;\"=\"\"><strong><span style=\"line-height:2;\">藤甲</span></strong> \r\n</p>\r\n<p style=\"color: rgb(68, 68, 68); text-indent: 2em;\" font-size:14px;background-color:#ffffff;text-indent:2em;\"=\"\">【南蛮入侵】、【万箭齐发】、<span style=\"color:#E53333;\"><s>【出其不意】</s><s>、</s></span>普通【杀】对你无效。你受到火焰伤害时，此伤害+1。\r\n\t</p>\r\n<p style=\"color: rgb(68, 68, 68); te"
+      ]
+    },
+    {
+      "role": "revision-deck-table-2021-10-20",
+      "url": "https://backend.sanguosha.com/news/20211018_2370_4316",
+      "error": "The SSL connection could not be established, see inner exception.",
+      "capturedAtUtc": "2026-10-08T10:38:36.2024471Z"
+    },
+    {
+      "role": "description-normalization-2022",
+      "url": "https://www.sanguosha.com/news/20220822_7692_0517",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T10:38:36.4283821Z",
+      "responseSha256": "3a26ea395bf0b9d0388926cebd610ae0fb1edb59a30541ac219c8c55920d2dd6",
+      "responseByteCount": 25845,
+      "hashScope": "UTF-8 encoding of Invoke-WebRequest decoded response Content",
+      "fragments": [
+        "卫、拥嫡、芳魂、武魂、舍宴、说盟、天香、平寇、酒诗、陷阵、旋风、当先、惴恐、明哲、天命、奋钺、奸雄、裸衣、遗计、活墨、守玺、绝响、天辩、审时、镇骨、箜声、摧克、镇南、荐杰、杀绝、化身、雷击、内伐、止啼、奇谋、调度、持节、神赋、酣战、咆哮、游龙、锦织、忠允、仪法、备战、锋略、祸水、破竹、补益、素俭、赋颂、好施、余威、狷狭、周旋、齐眉、卫戍、凶竖、博图、鬼才、缓释、鬼道、米道、神品、自书、观虚、奇思、激将、荐言、先略、涯角、枪舞、擢升、克己、离魂、铜雀、奇门八阵、出其不意、逐近弃远。</p>\r\n<p style=\"text-indent: 2em;\">&nbsp;</p>\r\n<p>&nbsp;</p>\r\n</body>\r\n</html>\",\n        \"datePublished\": \"2022-08-23 17:06:06\",\n        \"dateModified\": \"2022-08-23 17:06:06\",\n    ",
+        "卫、拥嫡、芳魂、武魂、舍宴、说盟、天香、平寇、酒诗、陷阵、旋风、当先、惴恐、明哲、天命、奋钺、奸雄、裸衣、遗计、活墨、守玺、绝响、天辩、审时、镇骨、箜声、摧克、镇南、荐杰、杀绝、化身、雷击、内伐、止啼、奇谋、调度、持节、神赋、酣战、咆哮、游龙、锦织、忠允、仪法、备战、锋略、祸水、破竹、补益、素俭、赋颂、好施、余威、狷狭、周旋、齐眉、卫戍、凶竖、博图、鬼才、缓释、鬼道、米道、神品、自书、观虚、奇思、激将、荐言、先略、涯角、枪舞、擢升、克己、离魂、铜雀、奇门八阵、出其不意、逐近弃远。</p>\r\n<p style=\"text-indent: 2em;\">&nbsp;</p>\r\n<p>&nbsp;</p>\r\n</body>\r\n</html></p>\n                    </div>\n                </div>\n            </div>\n        </div>\n    </div>\n</"
+      ]
+    },
+    {
+      "role": "description-normalization-2021",
+      "url": "https://www.sanguosha.com/news/20210903_6756_2218",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T10:38:36.9303793Z",
+      "responseSha256": "ea507031f65b5511c665504534d95e328353d2752be086a0491d838dde51d1c5",
+      "responseByteCount": 107337,
+      "hashScope": "UTF-8 encoding of Invoke-WebRequest decoded response Content",
+      "fragments": [
+        "束。</span> \r\n\t\t\t\t</td>\r\n\t\t\t</tr>\r\n\t\t\t<tr>\r\n\t\t\t\t<td height=\"18\" style=\"text-align:center;\">\r\n\t\t\t\t\t<span style=\"color:#E53333;font-size:12px;\">三陈</span> \r\n\t\t\t\t</td>\r\n\t\t\t\t<td>\r\n\t\t\t\t\t<span style=\"color:#E53333;font-size:12px;\">出牌阶段限一次，你可令一名角色摸3张牌，然后弃置3张牌。若其以此法弃置的牌种类均不同，则其摸一张牌，并视为该技能未发动过(本回合不能再指定其为目标)。</span> \r\n\t\t\t\t</td>\r\n\t\t\t</tr>\r\n\t\t\t<tr>\r\n\t\t\t\t<td height=\"18\" style=\"text-align:center;\">\r\n\t\t\t\t\t<span style=\"color:#E53333;font"
+      ]
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20211018_2370_4316",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-08T10:38:51.6632761Z",
+      "responseSha256": "d2cc09de3cbf79a25078ec3068a3a511826697e9fd3a488072eb1dd8e6045add",
+      "responseByteCount": 99153,
+      "hashScope": "UTF-8 encoding of Invoke-WebRequest decoded response Content",
+      "fragments": [
+        "an>的目标后，若你不是唯一目标，此牌对你无效。\r\n</p>\r\n<p style=\"text-indent:2em;\">\r\n\t<strong><span style=\"line-height:2;\">藤甲</span></strong> \r\n</p>\r\n<p style=\"text-indent:2em;\">\r\n\t【南蛮入侵】、【万箭齐发】、<span style=\"color:#E53333;\"><s>【出其不意】</s><span style=\"color:;\"><s>、</s></span></span>普通【杀】对你无效。你受到火焰伤害时，此伤害+1。\r\n</p>\r\n<p style=\"text-indent:2em;\">\r\n\t<strong><span style=\"line-height:2;\">铜雀</span></strong> \r\n</p>\r\n<p style=\"text-i",
+        "卦阵</strong> \r\n\t\t\t\t</td>\r\n\t\t\t\t<td class=\"xl69\" width=\"178\" style=\"text-align:center;\">\r\n\t\t\t\t\t<strong>藤甲</strong> \r\n\t\t\t\t</td>\r\n\t\t\t\t<td class=\"xl70\" width=\"178\" style=\"text-align:center;\">\r\n\t\t\t\t\t<strong>随机应变</strong> \r\n\t\t\t\t</td>\r\n\t\t\t</tr>\r\n\t\t\t<tr>\r\n\t\t\t\t<td height=\"38\" class=\"xl66\" width=\"46\" style=\"text-align:center;\">\r\n\t\t\t\t\t<strong>3</strong> \r\n\t\t\t\t</td>\r\n\t\t\t\t<td class=\"xl66\" width=\"184\" style=\"text-a",
+        "\t\t\t\t<td class=\"xl67\" width=\"178\" style=\"text-align:center;background-color:#FFEBD2;\">\r\n\t\t\t\t\t<strong>出其不意</strong> \r\n\t\t\t\t</td>\r\n\t\t\t\t<td class=\"xl68\" width=\"178\" style=\"text-align:center;\">\r\n\t\t\t\t</td>\r\n\t\t\t</tr>\r\n\t\t\t<tr>\r\n\t\t\t\t<td height=\"20\" class=\"xl69\" width=\"46\" style=\"text-align:center;\">\r\n\t\t\t\t\t<strong>4</strong> \r\n\t\t\t\t</td>\r\n\t\t\t\t<td class=\"xl69\" width=\"184\" style=\"text-align:center;\">\r\n\t\t\t\t\t<strong>",
+        "光铠</strong> \r\n\t\t\t\t</td>\r\n\t\t\t\t<td class=\"xl66\" width=\"178\" style=\"text-align:center;\">\r\n\t\t\t\t\t<strong>藤甲</strong> \r\n\t\t\t\t</td>\r\n\t\t\t\t<td class=\"xl66\" width=\"178\" style=\"text-align:center;\">\r\n\t\t\t\t\t<strong>仁王盾</strong> \r\n\t\t\t\t</td>\r\n\t\t\t</tr>\r\n\t\t\t<tr>\r\n\t\t\t\t<td height=\"38\" class=\"xl66\" width=\"46\" style=\"text-align:center;\">\r\n\t\t\t\t\t<strong>3</strong> \r\n\t\t\t\t</td>\r\n\t\t\t\t<td class=\"xl66\" width=\"184\">\r\n\t\t\t\t\t<div st",
+        ">桃</strong> \r\n\t\t\t\t</td>\r\n\t\t\t\t<td class=\"xl69\" width=\"201\" style=\"text-align:center;\">\r\n\t\t\t\t\t<strong>出其不意</strong> \r\n\t\t\t\t</td>\r\n\t\t\t\t<td class=\"xl70\" width=\"178\" style=\"text-align:center;\">\r\n\t\t\t\t\t<strong>乌铁锁链</strong> \r\n\t\t\t\t</td>\r\n\t\t\t\t<td class=\"xl69\" width=\"178\" style=\"text-align:center;\">\r\n\t\t\t\t\t<strong>无懈可击</strong> \r\n\t\t\t\t</td>\r\n\t\t\t</tr>\r\n\t\t\t<tr>\r\n\t\t\t\t<td height=\"20\" class=\"xl69\" width=\"46\" style=\"tex"
+      ],
+      "images": [
+        "/uploads/202110/616d348f67059.png",
+        "/assets/img/pc/header-wx.png",
+        "/assets/img/bottom-code.png",
+        "/assets/img/top-line.png",
+        "/assets/img/h5/club-code.png",
+        "/assets/img/pc/left-code.png",
+        "/assets/img/pc/huojiang.png",
+        "/assets/img/inner-left-code.jpg",
+        "/assets/img/jing.png",
+        "/assets/img/pc/limit.png"
+      ]
+    }
+  ],
+  "officialFaqSearch": {
+    "searchedAt": "2026-10-08",
+    "queries": [
+      "site:sanguosha.com 杜预 三陈 不足 三张 弃牌",
+      "site:sanguosha.com 三陈 类型 不同 手牌",
+      "site:sanguosha.com 出其不意 目标 自己 手牌 花色",
+      "site:sanguosha.com 破竹 未造成伤害"
+    ],
+    "result": "No official FAQ resolving short/zero actual discard or child death/source-loss was located. Current client supplies full Pochu and current card text; it does not resolve all lifecycle edges."
+  },
+  "engineMappingsNotOfficialQuotes": {
+    "sanchenSuccess": "Actual nonempty discarded cards have pairwise distinct effective categories. One or two cards can satisfy this text; zero actual cards earns no bonus/refund. Actual game activation remains counted even when the phase use is refunded.",
+    "targetPrerequisite": "Other living character with at least one actual hand card, because the real effect must reveal a hand entity; revalidate on effect entry and use the native skip if no card remains.",
+    "unexpectedAssaultChoice": "Caster uses the existing private opaque target-hand slot child. The selected actual card is then publicly revealed and stays in hand.",
+    "damage": "If the frozen use suit is not None and differs from the selected card's current effective suit, issue one ordinary damage point attributed to the actual native use source. Native Nullification applies before any reveal. No additional discard cost.",
+    "pochuCompletion": "Freeze accepted conversion source and policy at declaration; settle whole-use actual damage once. No damage disables the stable owner's skill for the actual turn even after physical loss/regrant; natural physical uses have no skill-disable policy."
+  },
+  "round15Acceptance": {
+    "registeredGeneral": "ol:du-yu",
+    "allThreeSkillsImplemented": true,
+    "behaviorValidated": true,
+    "report": "docs/benchmarks/2026-10-08-content-continuation-round15-verification.json",
+    "currentRegisteredJin": [
+      "ol:zhang-hu-yue-chen",
+      "ol:wei-guan",
+      "ol:wang-xiang",
+      "ol:du-yu"
+    ],
+    "baselinePreservedAsHistoricalObservation": true,
+    "remainingCandidatesImplemented": false
+  }
+}
