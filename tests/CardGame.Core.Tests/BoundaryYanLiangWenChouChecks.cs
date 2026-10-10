@@ -102,15 +102,13 @@ internal static class BoundaryYanLiangWenChouChecks
         var card = P(lost)!.Choices.First(c => c.Cards.Count == 1).Cards.Single(); Answer(lost, c => c.Cards.SequenceEqual([card]));
         Reach(lost, p => p.SkillPrompt?.SkillId == Moved); Reject(lost); lost = Restore(lost, lr);
         var paidRoot = lost.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.PaidColorConversion is not null).Id;
-        Continue(lost); Reach(lost, p => p.SkillPrompt?.SkillId == Moved &&
-            p.Choices.Any(c => c.Parameters.GetValueOrDefault("choice") == Skill));
-        lost = Restore(lost, lr); Answer(lost, c => c.Parameters.GetValueOrDefault("choice") == Skill);
+        Continue(lost);
         Until(lost, () => E<ProgramBindingResolvedEvent>(lost).Any(e => e.FrameId == paidRoot));
-        Require(!lost.CreateSnapshot(0).Players[0].Skills!.Any(s => s.Id == Skill) && lost.CardMovements.Count(m => m.CardId == card && m.Reason.Value == Cost) == 1 &&
+        Require(lost.CreateSnapshot(0).Players[0].Skills!.Any(s => s.Id == "fixture:ylwc-source-suppression") && lost.CardMovements.Count(m => m.CardId == card && m.Reason.Value == Cost) == 1 &&
             !E<CardConversionGrantedEvent>(lost).Any(e => e.Conversion.PaidColorOrigin is not null) &&
-            E<ProgramSkillSuppressedEvent>(lost).Single(e => e.SkillId == Skill && e.Suppressed) is { OwnerSeat: 0, TargetSeat: 0 } &&
+            E<SkillsAcquiredEvent>(lost).Count(e => e.PlayerSeat == 0 && e.SourceSkillId == Moved && e.SkillIds.Contains("fixture:ylwc-source-suppression")) == 1 &&
             !E<ProgramBindingResolvedEvent>(lost).Single(e => e.FrameId == paidRoot).Completed,
-            "Actual selected source suppression in the restored discard child cancels the unissued conversion and preserves its paid entity and exact return.");
+            "Actual source qualification suppression in the restored discard child cancels the unissued conversion and preserves its paid entity and exact return.");
 
         var (dying, dr) = Create(gainDying: true); DrawOffer(dying); Skip(dying); Play(dying);
         var materials = dying.CreateSnapshot(0).Players[0].Hand.Select(c => c.Id).ToArray(); AllHandDuel(dying, materials); Play(dying); End(dying);
@@ -122,18 +120,29 @@ internal static class BoundaryYanLiangWenChouChecks
         var (damaged, dm) = Create(gainDying: true, gainDamage: true); DrawOffer(damaged); Skip(damaged); Play(damaged);
         var originalDamageMaterials = damaged.CreateSnapshot(0).Players[0].Hand.Select(c => c.Id).ToArray();
         AllHandDuel(damaged, originalDamageMaterials); Play(damaged); End(damaged);
-        Reach(damaged, p => p.SkillPrompt?.SkillId == Entry); damaged = Restore(damaged, dm); Continue(damaged);
+        Reach(damaged, p => p.SkillPrompt?.SkillId == Entry || p.SkillPrompt?.SkillId == "classic:jiushi" &&
+            p.Choices.Any(c => c.Parameters.GetValueOrDefault("option-id") == "flip"));
+        damaged = Restore(damaged, dm);
+        if (P(damaged)!.SkillPrompt?.SkillId == Entry) Continue(damaged);
         Reach(damaged, p => p.SkillPrompt?.SkillId == "classic:jiushi" &&
             p.Choices.Any(c => c.Parameters.GetValueOrDefault("option-id") == "flip"));
         damaged = Restore(damaged, dm); Answer(damaged, c => c.Parameters.GetValueOrDefault("option-id") == "flip");
         Reach(damaged, p => p.SkillPrompt?.SkillId == Face);
         Require(damaged.ResolutionStack.OfType<DyingFrame>().Any(f => f.Continuation == DyingContinuationKind.Damage && f.VictimSeat == 0) &&
             damaged.State.Players[0].IsFaceDown, "A real damage SelfDyingResponse owns the classic Jiushi face observer after the paid claim.");
+        var damageClaimRoot = damaged.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == Skill && f.ActualTurnDamageClaim is not null).Id;
+        var damageSubtreeFrames = damaged.ResolutionStack.SkipWhile(f => f.Id != damageClaimRoot).Select(f => f.Id).ToArray();
         damaged = Restore(damaged, dm); Continue(damaged);
-        Until(damaged, () => damaged.State.Status == EngineStatus.Completed);
+        Until(damaged, () => E<ProgramBindingResolvedEvent>(damaged).Any(e => e.FrameId == damageClaimRoot && e.Completed));
         Require(originalDamageMaterials.All(id => damaged.CardMovements.Count(m => m.CardId == id && m.Reason.Value == Claim) == 1) &&
-            E<ActualTurnCardDamageEntityEvent>(damaged).All(e => e.EffectiveKind == CardKind.Duel),
-            "The same paid claim admits a real nested Program damage/Dying subtree and pure skill damage invents no extra materials.");
+            originalDamageMaterials.All(id => E<ActualTurnDamageEntityClaimedEvent>(damaged).Count(e => e.CardId == id && e.ProgramFrameId == damageClaimRoot) == 1) &&
+            E<ActualTurnCardDamageEntityEvent>(damaged).All(e => e.EffectiveKind == CardKind.Duel) &&
+            E<DyingResolvedEvent>(damaged).Single(e => e.VictimSeat == 0).Survived && damaged.State.Players[0].Hp > 0 &&
+            damaged.ResolutionStack.All(f => !damageSubtreeFrames.Contains(f.Id)) &&
+            !damaged.ResolutionStack.OfType<DyingFrame>().Any(f => f.VictimSeat == 0) &&
+            E<CardActionAcceptedEvent>(damaged).Count(e => e.Action.Type == CardActionType.Use && e.Action.EffectiveKind == CardKind.Alcohol &&
+                e.Action.PhysicalCards.Count == 0 && e.Action.ConversionChain.Any(s => s.SkillId == "classic:jiushi")) == 1,
+            "The restored paid claim completes once after its real nested damage, Dying and Jiushi self-rescue frames return; pure skill damage invents no extra materials.");
     }
 
     public static void RealEquipmentConversionNativeAndStrictOperationContracts()
@@ -217,7 +226,7 @@ internal static class BoundaryYanLiangWenChouChecks
     private static void Advance(GameEngine g)
     {
         var p = P(g);
-        if (p is { PlayerSeat: 0 } && ActivateChoice(p)) Skip(g);
+        if (p is { PlayerSeat: 0 } && p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "skip")) Skip(g);
         else if (p is { PlayerSeat: 0 } && p.Choices.Any(c => c.Parameters.GetValueOrDefault("option-id") == "continue")) Continue(g);
         else if (p is { PlayerSeat: 0 } && p.Choices.Any(c => c.Parameters.GetValueOrDefault("option-id") == "pass")) Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "pass");
         else if (p is { PlayerSeat: 0 } && p.Choices.Any(c => c.Parameters.GetValueOrDefault("response") is "take-damage" or "pass")) Pass(g);
@@ -250,7 +259,7 @@ internal static class BoundaryYanLiangWenChouChecks
         public PackageManifest Manifest { get; } = new("fixture-boundary-yan-liang-wen-chou", new(1, 0, 0), []);
         public void Register(IContentRegistryBuilder b)
         {
-            var terminal = sourceLoss ? ",{\"op\":\"suppressGeneralSkill\",\"target\":\"owner\"}" : "";
+            var terminal = sourceLoss ? ",{\"op\":\"grantSkills\",\"target\":\"owner\",\"skillIds\":[\"fixture:ylwc-source-suppression\"]}" : "";
             var gain = gainDying ? gainDamage ? """{"op":"damage","target":"owner","amount":7}""" :
                 """{"op":"loseHp","target":"owner","amount":7}""" : """{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}""";
             var rules = $$"""
@@ -272,6 +281,7 @@ internal static class BoundaryYanLiangWenChouChecks
                 [Face] = new { name = "实际九诗翻面", description = "伤害濒死子链", optionLabels = new Dictionary<string, string> { ["continue"] = "继续" } } };
             var c = SkillProgramCatalog.Load(rules, JsonSerializer.Serialize(new { schemaVersion = 3, skills = labels }));
             foreach (var id in c.Programs.Keys) b.AddSkill(new(id, id, "真实通用能力") { Program = c.Programs[id], ProgramPresentation = c.Presentations[id] });
+            b.AddSkill(new("fixture:ylwc-source-suppression", "已付来源资格抑制", "付款弃牌后取消未执行转换") { SuppressionRule = new(7), Tags = SkillTag.Locked });
             foreach (var owner in new[] { true, false }) b.AddSkill(new(owner ? "fixture:ylwc-owner-weight" : "fixture:ylwc-other-weight", "固定角色选将", "正式公开角色权重")
                 { SelectionWeights = Enum.GetValues<Role>().ToDictionary(role => role, role => (role == Role.Lord) == owner ? 10000d : -10000d) });
             var extra = new List<string> { "fixture:ylwc-owner-weight" };

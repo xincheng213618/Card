@@ -21,7 +21,7 @@ public sealed partial class GameEngine
     private IReadOnlyList<ProgramFengjiOptionChosenEvent> CurrentRoundFengjiOptions(int ownerSeat)
     {
         if (_roundNumber == 0) return [];
-        return [.. CompleteProgramEventHistory().OfType<ProgramFengjiOptionChosenEvent>()
+        return [.. ProgramEventHistory<ProgramFengjiOptionChosenEvent>()
             .Where(e => e.RoundNumber == _roundNumber && e.OwnerSeat == ownerSeat)];
     }
 
@@ -90,6 +90,8 @@ public sealed partial class GameEngine
     // multiple owners disable only their own instance.
     private bool IsXuanhuiDisabledByOwnSwap(int ownerSeat)
     {
+        if (!ProgramEventHistory<ProgramXuanhuiEffectsSwappedEvent>().Any(item => item.OwnerSeat == ownerSeat))
+            return false;
         var facts = CompleteProgramEventHistory().ToArray();
         var swapIndex = Array.FindLastIndex(facts, item =>
             item is ProgramXuanhuiEffectsSwappedEvent swapped && swapped.OwnerSeat == ownerSeat);

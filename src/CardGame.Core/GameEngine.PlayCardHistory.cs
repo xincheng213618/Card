@@ -98,9 +98,12 @@ public sealed partial class GameEngine
             : card;
 
     private void AddPhaseLimitedBasicCardActions(List<LegalAction> actions, CharacterState actor,
-        IReadOnlyList<Card> playableCards)
+        IReadOnlyList<Card> playableCards, int? selectedPhysicalCardId = null)
     {
+        if (!GetSkillBindingShard(actor).ViewAsPrograms.Any(program =>
+                program.ViewAs.Any(rule => rule.UsesPerPhase is not null || rule.UseOnly))) return;
         foreach (var card in playableCards.Concat(GetEquipment(actor)).DistinctBy(card => card.Id)
+                     .Where(card => selectedPhysicalCardId is null || card.Id == selectedPhysicalCardId)
                      .Where(card => !IsTurnHandCardRestricted(actor, card)))
             foreach (var kind in new[] { CardKind.Slash, CardKind.FireSlash, CardKind.ThunderSlash,
                          CardKind.Peach, CardKind.Alcohol })

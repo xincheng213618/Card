@@ -92,13 +92,13 @@ public sealed partial class MainViewModel
 
     private void RefreshBattleLogSeatOptions()
     {
-        var signature = string.Join('|', Seats.Select(seat => $"{seat.Seat}:{seat.GeneralName}"));
+        var signature = string.Join('|', Seats.Select(seat => $"{seat.Seat}:{seat.DisplaySeatNumber}:{seat.GeneralName}"));
         if (signature == _battleLogSeatSignature) return;
         _battleLogSeatSignature = signature;
         BattleLogSeats.Clear();
         BattleLogSeats.Add(new("all", "全部角色"));
         foreach (var seat in Seats)
-            BattleLogSeats.Add(new($"seat:{seat.Seat}", seat.IsHuman ? $"我 · {seat.GeneralName}" : $"{seat.Seat + 1}号 · {seat.GeneralName}"));
+            BattleLogSeats.Add(new($"seat:{seat.Seat}", seat.IsHuman ? $"我 · {seat.GeneralName}" : $"{seat.DisplaySeatNumber}号 · {seat.GeneralName}"));
         BattleLogSeats.Add(new("system", "系统事件"));
         if (!BattleLogSeats.Any(option => option.Id == SelectedBattleLogSeat)) SelectedBattleLogSeat = "all";
     }

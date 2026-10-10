@@ -145,6 +145,7 @@ internal static class PlaybackChecks
             {
                 var failedStore = new MemorySaveStore();
                 using var failed = Create(failedStore);
+                Program.StartLordFixture(failed);
                 failed.SelectGeneralChoiceCommand.Execute(failed.GeneralChoices[0]);
                 Program.AdvanceToDecision(failed);
                 Program.Assert(failed.CanEndTurn, "The failure fixture did not reach its opening Play phase.");

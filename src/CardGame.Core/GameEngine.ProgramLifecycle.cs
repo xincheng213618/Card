@@ -1739,26 +1739,61 @@ public sealed partial class GameEngine
 
     private IReadOnlyList<CardSnapshot> GetProgramPublicCards()
     {
-        var publicIds = _resolutionStack.OfType<ProgramSkillFrame>()
-            .SelectMany(frame => frame.CardSetBindings)
-            .Where(binding => binding.Visibility == SkillProgramCardSetVisibility.Public)
-            .SelectMany(binding => binding.CardIds)
-            .Concat(GetProgramHandControlPublicCardIds()).Concat(GetPublicHandDraftCardIds()).Concat(HandComparisonPublicIds())
-            .Concat(_resolutionStack.OfType<ProgramSkillFrame>().Where(f => f.PhaseNamePrediction is
-                { Stage: PhaseNamePredictionStage.Guessing, RevealedCardId: not null })
-                .Select(f => f.PhaseNamePrediction!.RevealedCardId!.Value))
-            .Distinct()
-            .Order()
-            .ToArray();
-        return CompletedUndamagedTargetRevealPublicCards().Concat(RecipientCategoryMarkPublicCards()).Concat(publicIds
-            .Select(cardId =>
+        HashSet<int>? publicIds = null;
+        var handControl = false;
+        var handDraft = false;
+        var comparison = false;
+        var completedReveal = false;
+        var categoryGift = false;
+        for (var index = 0; index < _resolutionStack.Count; index++)
+        {
+            if (_resolutionStack[index] is not ProgramSkillFrame frame) continue;
+            for (var bindingIndex = 0; bindingIndex < frame.CardSetBindings.Count; bindingIndex++)
+            {
+                var binding = frame.CardSetBindings[bindingIndex];
+                if (binding.Visibility != SkillProgramCardSetVisibility.Public) continue;
+                for (var cardIndex = 0; cardIndex < binding.CardIds.Count; cardIndex++)
+                    AddPublicId(binding.CardIds[cardIndex]);
+            }
+            handControl |= frame.HandControlDraft is
+                { Operation: SkillProgramEffectOp.RevealHandColorDiscardAndTake, Stage: "color", RevealedCardIds: not null };
+            handDraft |= frame.PublicHandDraft is { Stage: >= 2 };
+            comparison |= frame.HandComparisonDraft is not null;
+            completedReveal |= frame.CompletedUndamagedTargetReveal is { SelectionIssued: true, RevealedMaterials.Count: > 0 };
+            categoryGift |= frame.RecipientCategoryMark is
+                { Operation: SkillProgramEffectOp.GiveHandAndGrantCategoryMark,
+                  Stage: RecipientCategoryMarkStage.GiftChildren or RecipientCategoryMarkStage.Complete, Token: not null };
+            if (frame.PhaseNamePrediction is { Stage: PhaseNamePredictionStage.Guessing, RevealedCardId: { } predictionId })
+                AddPublicId(predictionId);
+        }
+        if (handControl) foreach (var id in GetProgramHandControlPublicCardIds()) AddPublicId(id);
+        if (handDraft) foreach (var id in GetPublicHandDraftCardIds()) AddPublicId(id);
+        if (comparison) foreach (var id in HandComparisonPublicIds()) AddPublicId(id);
+
+        // Receipt-backed faces precede current physical appearances. Query these
+        // protocols only when a live frame can expose a card, preserving their
+        // validation and duplicate checks even when the same ID is bound below.
+        List<CardSnapshot>? cards = null;
+        HashSet<int>? shownIds = null;
+        if (completedReveal) foreach (var card in CompletedUndamagedTargetRevealPublicCards()) AddCard(card);
+        if (categoryGift) foreach (var card in RecipientCategoryMarkPublicCards()) AddCard(card);
+        if (publicIds is not null)
+        {
+            var orderedIds = publicIds.ToArray();
+            Array.Sort(orderedIds);
+            foreach (var cardId in orderedIds)
             {
                 var location = _cardZones.GetLocation(cardId);
-                return _cardZones.CardsAt(location).Single(card => card.Id == cardId);
-            })
-            .Select(ToSnapshot))
-            .DistinctBy(card => card.Id)
-            .ToArray();
+                AddCard(ToSnapshot(_cardZones.CardsAt(location).Single(card => card.Id == cardId)));
+            }
+        }
+        return cards is null ? Array.Empty<CardSnapshot>() : cards.ToArray();
+
+        void AddPublicId(int id) => (publicIds ??= []).Add(id);
+        void AddCard(CardSnapshot card)
+        {
+            if ((shownIds ??= []).Add(card.Id)) (cards ??= []).Add(card);
+        }
     }
 
     private IReadOnlyList<CardSnapshot> CompletedUndamagedTargetRevealPublicCards()
@@ -1832,25 +1867,38 @@ public sealed partial class GameEngine
     private IReadOnlyList<ProgramTriggerCandidate> CollectProgramTriggerCandidates(
         CharacterState owner,
         SkillProgramTriggerWindow window,
-        int occurrenceIndex = 0) =>
-        GetSkillBindingShard(owner).GetInstanceTriggers(window)
-            .OrderByDescending(binding => binding.Trigger.Priority)
-            .ThenBy(binding => binding.SkillId, StringComparer.Ordinal)
-            .ThenBy(binding => binding.SkillInstanceId, StringComparer.Ordinal)
-            .ThenBy(binding => binding.Trigger.ChoiceGroup ?? binding.Trigger.Id, StringComparer.Ordinal)
-            .ThenBy(binding => binding.Trigger.Id, StringComparer.Ordinal)
-            .Select(binding => new ProgramTriggerCandidate(
-                owner.Seat,
-                binding.SkillId,
-                binding.Trigger.Id,
-                binding.SkillInstanceId,
-                binding.Program.GameplayHash,
-                binding.Trigger.Priority,
-                occurrenceIndex))
-            .Concat(IssuedPhaseHandDebtCandidates(owner, window, occurrenceIndex))
-            .DistinctBy(candidate => (candidate.SkillId, candidate.BindingId,
-                GetProgramTrigger(candidate).NamedUsageGroup is not null || GetProgramTrigger(candidate).DynamicUsageLimit is not null || GetProgramTrigger(candidate).Effects.Any(e => e.Op == SkillProgramEffectOp.DiscardHandToNamedTurnCount) ? "" : candidate.SkillInstanceId))
-            .ToArray();
+        int occurrenceIndex = 0)
+    {
+        var shard = GetSkillBindingShard(owner);
+        var candidates = shard.GetTriggerCandidates(window, occurrenceIndex);
+        // Issued Play-ending debt belongs to its receipt, even after its source
+        // grant disappears. Other empty windows have no candidates to prepare.
+        if (window != SkillProgramTriggerWindow.PlayEnding ||
+            owner.Seat != _currentSeat || _phase != TurnPhase.Play ||
+            ProgramEventHistory<PhaseHandSeizureIssuedEvent>().Count == 0)
+            return candidates;
+        return PrepareProgramTriggerCandidates(owner, window, occurrenceIndex, shard, candidates);
+    }
+
+    private IReadOnlyList<ProgramTriggerCandidate> PrepareProgramTriggerCandidates(
+        CharacterState owner, SkillProgramTriggerWindow window, int occurrenceIndex,
+        SkillBindingShard shard, IReadOnlyList<ProgramTriggerCandidate> candidates)
+    {
+        using var issued = IssuedPhaseHandDebtCandidates(owner, window, occurrenceIndex).GetEnumerator();
+        if (!issued.MoveNext()) return candidates;
+        var result = candidates.ToList();
+        var keys = candidates.Select(shard.TriggerCandidateKey).ToHashSet();
+        do
+        {
+            var candidate = issued.Current;
+            var trigger = GetProgramTrigger(candidate);
+            var key = (candidate.SkillId, candidate.BindingId,
+                trigger.NamedUsageGroup is not null || trigger.DynamicUsageLimit is not null ||
+                trigger.Effects.Any(effect => effect.Op == SkillProgramEffectOp.DiscardHandToNamedTurnCount) ? "" : candidate.SkillInstanceId);
+            if (keys.Add(key)) result.Add(candidate);
+        } while (issued.MoveNext());
+        return Array.AsReadOnly(result.ToArray());
+    }
 
     private SkillProgramTrigger GetProgramTrigger(ProgramTriggerCandidate candidate) =>
         ProgramInstructionResolver.Default.Resolve(_contentRegistry!.GetSkill(candidate.SkillId).Program!,
@@ -1861,7 +1909,9 @@ public sealed partial class GameEngine
         SkillProgramTriggerWindow window,
         SkillProgramTriggerFacts facts)
     {
-        return CollectProgramTriggerCandidates(owner, window)
+        var candidates = CollectProgramTriggerCandidates(owner, window);
+        if (candidates.Count == 0) return candidates;
+        return candidates
             .Where(candidate =>
             {
                 var trigger = GetProgramTrigger(candidate);
@@ -2635,8 +2685,16 @@ public sealed partial class GameEngine
             : EngineStatus.Running;
     }
 
+    // Empty match-local slots need no frozen facts. Issued continuations retain
+    // their authority even if the original skill instance has since disappeared.
+    private bool HasLivingProgramTriggerBindings(SkillProgramTriggerWindow window) =>
+        _players.Any(player => player.IsAlive &&
+            (GetSkillBindingShard(player).GetInstanceTriggers(window).Count != 0 ||
+             window == SkillProgramTriggerWindow.PlayEnding && IssuedPhaseHandDebtCandidates(player, window, 0).Any()));
+
     private bool TryBeginTurnStartProgramWindow(CharacterState owner)
     {
+        if (!HasLivingProgramTriggerBindings(SkillProgramTriggerWindow.TurnStartBeforeNormalFlow)) return false;
         var facts = CaptureProgramTriggerFacts(owner);
         var candidates = TracksForeignTurnStartPrograms
             ? CollectForeignTurnStartCandidates(owner, facts)
@@ -2664,6 +2722,7 @@ public sealed partial class GameEngine
             _roundNumber == 0 || _turnProgression.Kind == ActualTurnKind.Extra ||
             !_contentRegistry!.ProgramDependencies.HasTriggerWindow(SkillProgramTriggerWindow.RoundStarting))
             return false;
+        if (!HasLivingProgramTriggerBindings(SkillProgramTriggerWindow.RoundStarting)) return false;
         if (_resolutionStack.Count != 0 || _pendingDecision is not null)
             throw new InvalidOperationException("A round-starting program window requires a clean turn boundary.");
         var participants = _players.Where(player => player.IsAlive).ToArray();
@@ -2716,6 +2775,8 @@ public sealed partial class GameEngine
         if (!owner.IsAlive || owner.Seat != _currentSeat || _phase != TurnPhase.Play ||
             _pendingDecision is not null || _resolutionStack.Count != 0)
             return false;
+        if (!HasLivingProgramTriggerBindings(SkillProgramTriggerWindow.PlayEnding) && _phaseNamePredictions.Count == 0)
+            return false;
         var participants = _players.Where(player => player.IsAlive).ToArray();
         var participantFacts = participants.ToDictionary(player => player.Seat, CaptureProgramTriggerFacts);
         var facts = participantFacts[owner.Seat];
@@ -2754,6 +2815,7 @@ public sealed partial class GameEngine
         if (!owner.IsAlive || owner.Seat != _currentSeat || _phase != TurnPhase.Draw ||
             _pendingDecision is not null || _resolutionStack.Count != 0)
             return false;
+        if (!HasLivingProgramTriggerBindings(SkillProgramTriggerWindow.DrawPhaseStarting)) return false;
         var facts = CaptureProgramTriggerFacts(owner);
         if(HasAttributedEventOperations())facts=facts with {EventTargetMarkerCounts=new Dictionary<PlayerMarkerKind,int>(owner.Markers)};
         var candidates = CollectEligibleProgramTriggerCandidates(
@@ -2778,6 +2840,8 @@ public sealed partial class GameEngine
         if (!owner.IsAlive || owner.Seat != _currentSeat || _phase != TurnPhase.Draw ||
             _pendingDecision is not null || _resolutionStack.Count != 0)
             return false;
+        if (GetSkillBindingShard(owner).GetInstanceTriggers(SkillProgramTriggerWindow.AfterNormalDraw).Count == 0)
+            return false;
         var facts = CaptureProgramTriggerFacts(owner);
         var candidates = CollectEligibleProgramTriggerCandidates(
             owner, SkillProgramTriggerWindow.AfterNormalDraw, facts);
@@ -2794,6 +2858,7 @@ public sealed partial class GameEngine
         if (!owner.IsAlive || owner.Seat != _currentSeat || _phase != TurnPhase.Draw ||
             _pendingDecision is not null || _resolutionStack.Count != 0)
             return false;
+        if (!HasLivingProgramTriggerBindings(SkillProgramTriggerWindow.DrawPhaseEnded)) return false;
         var facts = CaptureProgramTriggerFacts(owner);
         var candidates = CollectEligibleProgramTriggerCandidates(
             owner, SkillProgramTriggerWindow.DrawPhaseEnded, facts);
@@ -2811,6 +2876,7 @@ public sealed partial class GameEngine
         if (!owner.IsAlive || owner.Seat != _currentSeat || _phase != TurnPhase.Discard ||
             _pendingDecision is not null || _resolutionStack.Count != 0)
             return false;
+        if (!HasLivingProgramTriggerBindings(SkillProgramTriggerWindow.DiscardPhaseStarting)) return false;
         var participants = _players.Where(player => player.IsAlive).ToArray();
         var participantFacts = participants.ToDictionary(player => player.Seat, CaptureProgramTriggerFacts);
         var facts = participantFacts[owner.Seat];
@@ -2837,6 +2903,7 @@ public sealed partial class GameEngine
         if (!phaseOwner.IsAlive || phaseOwner.Seat != _currentSeat || _phase != TurnPhase.Discard ||
             _pendingDecision is not null || _resolutionStack.Count != 0)
             return false;
+        if (!HasLivingProgramTriggerBindings(SkillProgramTriggerWindow.DiscardPhaseEnded)) return false;
         var participants = _players.Where(player => player.IsAlive).ToArray();
         var participantFacts = participants.ToDictionary(player => player.Seat, CaptureProgramTriggerFacts);
         if (HasAttributedEventOperations())
@@ -2874,7 +2941,8 @@ public sealed partial class GameEngine
             return false;
 
         var facts = CaptureProgramTriggerFacts(owner);
-        var items = _players.Where(player => player.IsAlive)
+        var items = _players.Where(player => player.IsAlive &&
+                GetSkillBindingShard(player).GetInstanceTriggers(SkillProgramTriggerWindow.TurnEnding).Count != 0)
             .SelectMany(player =>
             {
                 var playerFacts = player.Seat == owner.Seat ? facts : CaptureProgramTriggerFacts(player);
@@ -3013,6 +3081,7 @@ public sealed partial class GameEngine
         if (!owner.IsAlive || owner.Seat != _currentSeat || _pendingDecision is not null ||
             _resolutionStack.Count != 0)
             return false;
+        if (!HasLivingProgramTriggerBindings(SkillProgramTriggerWindow.PlayPhaseStarting)) return false;
 
         var facts = CaptureProgramTriggerFacts(owner);
         var items = _players.Where(player => player.IsAlive)

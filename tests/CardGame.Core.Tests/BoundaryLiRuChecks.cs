@@ -174,7 +174,7 @@ internal static class BoundaryLiRuChecks
             "The equal-hand target receives one real damage under that exact actual Ending, not the classic empty-hand predicate.");
         g = RestoreAfterCold(g, r); Continue(g); Reach(g, p => p.SkillPrompt?.SkillId == Hp); g = RestoreAfterCold(g, r); Continue(g);
         FinishFrame(g, juece.Id);
-        Require(F<ProgramSkillResolvedEvent>(g).Single(e => e.FrameId == juece.Id).Completed &&
+        Require(F<ProgramBindingResolvedEvent>(g).Single(e => e.FrameId == juece.Id).Completed &&
             !g.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.Id == juece.Id),
             "The original Ending damage and both real child windows return through their same owning candidate exactly once."); Cold(g, r);
 
@@ -209,9 +209,9 @@ internal static class BoundaryLiRuChecks
     private static void Clear(GameEngine g, int seat)
     {
         if (V(g, seat).HandCount + V(g, seat).Equipment.Count == 0) return;
-        Use(g, "clear", [seat]); Reach(g, p => Action(p, "select-owned-cards"));
-        while (P(g) is { } p && Action(p, "select-owned-cards")) Answer(g, c => c.Cards.Count == 1);
+        Use(g, "clear", [seat]);
         Play(g);
+        Require(V(g, seat).HandCount + V(g, seat).Equipment.Count == 0, "The all-owned selection commits its actual complete discard without a redundant partial-selection prompt.");
     }
     private static void SetHand(GameEngine g, int seat, int count) { Clear(g, seat); for (var i = 0; i < count; i++) { Use(g, "draw", [seat]); Play(g); } }
     private static ProgramSkillFrame SequentialRoot(GameEngine g) => g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SequentialDiscard is not null);
@@ -338,13 +338,13 @@ internal static class BoundaryLiRuChecks
             rules["schemaVersion"] = SkillProgramCatalog.RulesSchemaVersion;
             if (replenish) ((JsonArray)rules["skills"]![3]!["triggers"]![0]!["effects"]!).Add(JsonNode.Parse("""{"op":"draw","target":"owner","amount":1}"""));
             if (fatalCost) ((JsonArray)rules["skills"]![3]!["triggers"]![0]!["effects"]!).Add(JsonNode.Parse("""{"op":"loseHp","target":"owner","amount":8}"""));
-            if (removeSource) ((JsonArray)rules["skills"]![2]!["triggers"]![0]!["effects"]!).Add(JsonNode.Parse("""{"op":"loseOwnerSkillsAndGrant","target":"owner","skillIds":["boundary:mieji-current"],"sourceBind":"fixture:lr-noop"}"""));
+            if (removeSource) ((JsonArray)rules["skills"]![2]!["triggers"]![0]!["effects"]!).Add(JsonNode.Parse("""{"op":"grantSkills","target":"owner","skillIds":["fixture:lr-noop"]}"""));
             var presentation = JsonSerializer.Serialize(new { schemaVersion = 3, skills = new Dictionary<string, object>
                 { [Driver] = new { name = "真实命令", description = "小固定夹具" }, ["fixture:lr-quiet"] = new { name = "安静回合", description = "真实跳过出牌" },
                   [Top] = Pause("置顶孩子"), [Cost] = Pause("弃牌孩子"), [Hp] = Pause("真实回复"), [Gain] = Pause("真实得牌"), [Damage] = Pause("真实火伤"), [Dying] = Pause("真实濒死入口") } });
             var catalog = SkillProgramCatalog.Load(rules.ToJsonString(), presentation);
             foreach (var id in new[] { Driver, "fixture:lr-quiet", Top, Cost, Hp, Gain, Damage, Dying }) b.AddSkill(new(id, id, "真实程序夹具") { Program = catalog.Programs[id] });
-            b.AddSkill(new("fixture:lr-noop", "已替换来源", "无运行能力"));
+            b.AddSkill(new("fixture:lr-noop", "已付来源资格抑制", "置顶付款后取消未执行能力") { SuppressionRule = new(4), Tags = SkillTag.Locked });
             b.AddSkill(new("fixture:lr-selection", "固定选将", "无运行能力") { SelectionWeights = Enum.GetValues<Role>().ToDictionary(role => role, _ => 100d) });
             var ownerSkills = new List<string> { Fencheng, Juece, Driver }; if (observers) ownerSkills.AddRange([Top, Cost, Hp, Gain, Damage, Dying]);
             b.AddGeneral(new("fixture:lr-owner", "界李儒机制", "supporter", Mieji, "qun", 3, ownerSkills, Gender: GeneralGender.Male));

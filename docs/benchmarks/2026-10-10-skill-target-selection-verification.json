@@ -1,0 +1,81 @@
+{
+  "status": "passed",
+  "focused": {
+    "status": "passed",
+    "mode": "targeted",
+    "repository": "C:\\Users\\17917\\Desktop\\Card",
+    "artifactsPath": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-identity-ui-1791537330211",
+    "coreFilters": [],
+    "wpfFilters": [
+      "skill target selection"
+    ],
+    "startedAt": "2026-10-10T21:23:10.0835109+08:00",
+    "durationMs": 6856,
+    "message": null,
+    "results": [
+      {
+        "name": "Build selected scope",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 2030,
+        "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-identity-ui-1791537330211\\logs\\build.log"
+      },
+      {
+        "name": "WPF selected checks (1 filters, union)",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 4780,
+        "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-identity-ui-1791537330211\\logs\\wpf-selected.log"
+      }
+    ]
+  },
+  "manualFullRun": false,
+  "routine": {
+    "status": "passed",
+    "mode": "routine",
+    "durationMs": 120828,
+    "corePassed": 475,
+    "coreFailed": 0,
+    "wpfPassed": 34,
+    "wpfFailed": 0,
+    "results": [
+      {
+        "name": "Build selected scope",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 1480,
+        "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-identity-ui-1791537330211\\logs\\build.log"
+      },
+      {
+        "name": "Core selected checks (294 filters, union)",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 91109,
+        "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-identity-ui-1791537330211\\logs\\core-selected.log"
+      },
+      {
+        "name": "WPF selected checks (29 filters, union)",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 28161,
+        "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-identity-ui-1791537330211\\logs\\wpf-selected.log"
+      }
+    ]
+  },
+  "checks": [
+    "Real Zhefu response completion reaches native target prompt",
+    "Portrait draft has no command or cost before explicit confirmation",
+    "Invalid portrait ignored; single target replacement and cancellation are reversible",
+    "Mandatory target cancel clears only draft; optional cancel submits published zero-target choice",
+    "Exact original ChoiceId submitted once; ordered pairs and canonical sets preserved",
+    "1120x740 and 1920x1080: every portrait retains its bounds before and after selection",
+    "Manual load clears draft and cold replay preserves all viewer snapshots"
+  ],
+  "temporaryOutput": {
+    "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-identity-ui-1791537330211",
+    "sizeMiB": 2564.69,
+    "activeConsumers": 0,
+    "cleanupStatus": "blocked",
+    "reason": "Guarded recursive cleanup was previously rejected by automatic approval review with blocked by policy. Kept exact owned directory; did not retry or bypass the rejection."
+  }
+}

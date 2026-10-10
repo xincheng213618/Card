@@ -96,14 +96,38 @@ internal static class BoundaryYuJinChecks
         Answer(rescue, c => c.Parameters.GetValueOrDefault("response") == "peach");
         Reach(rescue, p => p.SkillPrompt?.SkillId == Entry && rescue.ResolutionStack.OfType<ProgramSkillFrame>().Any(f =>
             f.SkillId == Entry && f.WindowContext?.Window == SkillProgramTriggerWindow.CardUseCompleted));
-        Require(rescue.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.PrepDiscardEndingDraw is not null) &&
-            E<CardActionAcceptedEvent>(rescue).Any(e => e.Action.Type == CardActionType.Response &&
-                e.Action.EffectiveKind == CardKind.Peach && e.Action.PhysicalCards.Count == 1),
+        var endingRoot = rescue.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.PrepDiscardEndingDraw is not null);
+        var gainRoot = rescue.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == Gain);
+        var dyingRoot = rescue.ResolutionStack.OfType<DyingFrame>().Single(f => f.VictimSeat == 0);
+        var peachCompleted = rescue.ResolutionStack.OfType<ProgramSkillFrame>().Single(f =>
+            f.SkillId == Entry && f.WindowContext?.Window == SkillProgramTriggerWindow.CardUseCompleted);
+        var peachWindow = rescue.ResolutionStack.OfType<ProgramCardTriggerWindowFrame>().Single(f => f.Id == peachCompleted.ParentFrameId);
+        var peachUse = rescue.ResolutionStack.OfType<CardUseFrame>().Single(f => f.Id == peachWindow.ParentFrameId);
+        var peachAction = peachUse.Action!;
+        var peachCost = peachAction.PhysicalCards.Single();
+        var rescueFrames = rescue.ResolutionStack.SkipWhile(f => f.Id != endingRoot.Id).Select(f => f.Id).ToArray();
+        Require(gainRoot.WindowContext!.MovementBatch!.ParentFrameId == endingRoot.Id &&
+            dyingRoot.Continuation == DyingContinuationKind.ProgramSkill && dyingRoot.ParentFrameId == gainRoot.Id &&
+            peachUse.DyingResponse is { ResponderSeat: 0, UsedPeach: true } response && response.ResolutionId == dyingRoot.Id &&
+            response.PeachCardId == peachCost.CardId && peachCompleted.WindowContext!.CardUse!.ParentCardUseFrameId == peachUse.Id &&
+            peachCompleted.WindowContext.CardUse.CardActionId == peachAction.ActionId && peachWindow.Action.ActionId == peachAction.ActionId &&
+            peachAction is { Type: CardActionType.Use, ActorSeat: 0, ProviderSeat: 0, EffectiveKind: CardKind.Peach } &&
+            peachAction.TargetSeats.SequenceEqual([0]) && peachCost.CardKind == CardKind.Peach && peachCost.From == CardLocation.Hand(0) &&
+            E<CardUseDeclaredEvent>(rescue).Count(e => e.ResolutionId == peachUse.Id && e.CardId == peachCost.CardId &&
+                e.CardKind == CardKind.Peach && e.SourceSeat == 0) == 1 &&
+            E<CardUseFinishedEvent>(rescue).Count(e => e.ResolutionId == peachUse.Id && e.CardId == peachCost.CardId && e.CardKind == CardKind.Peach) == 1 &&
+            rescue.CardMovements.Count(m => m.CardId == peachCost.CardId && m.From == CardLocation.Hand(0) && m.To == CardLocation.Processing) == 1,
             "The promised real draw owns the gain→HP-loss→Dying→physical Peach completed child chain.");
         rescue = Restore(rescue, rr); Continue(rescue);
         Until(rescue, () => !rescue.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.PrepDiscardEndingDraw is not null));
         Require(rescue.CreateSnapshot(0).Players[0].Hp > 0 && E<PrepDiscardEndingDrawnEvent>(rescue).Count() == 1 &&
-            E<PrepDiscardPaidEvent>(rescue).Count() == 1, "The genuinely restored engine completes rescue and returns to Ending without repeated cost or draw.");
+            E<PrepDiscardPaidEvent>(rescue).Count() == 1 && rescue.ResolutionStack.All(f => !rescueFrames.Contains(f.Id)) &&
+            E<DyingResolvedEvent>(rescue).Single(e => e.ResolutionId == dyingRoot.Id).Survived &&
+            E<CardUseDeclaredEvent>(rescue).Count(e => e.ResolutionId == peachUse.Id) == 1 &&
+            E<CardUseFinishedEvent>(rescue).Count(e => e.ResolutionId == peachUse.Id) == 1 &&
+            rescue.CardMovements.Count(m => m.CardId == peachCost.CardId && m.From == CardLocation.Hand(0) && m.To == CardLocation.Processing) == 1 &&
+            rescue.CardMovements.Count(m => m.CardId == peachCost.CardId && m.From == CardLocation.Processing && m.To == CardLocation.DiscardPile) == 1,
+            "The genuinely restored engine completes rescue and returns every owning child to Ending without repeated cost, cleanup or draw.");
     }
 
     public static void FrozenBlackSlashHpHandArmorAndMixedPhysicalPayments()
@@ -146,7 +170,6 @@ internal static class BoundaryYuJinChecks
                 receipt.Ineffective == !lowerHp && receipt.Ineffective == (receipt.ActorHp >= receipt.TargetHp),
                 "The requested native actor truly uses its own physical Slash; incoming immunity compares the actual user HP.");
             incoming = Restore(incoming, ir);
-            if (lowerHp) { Reach(incoming, p => p.PlayerSeat == 0 && p.Kind == DecisionKind.RespondDodge); Pass(incoming); }
             Play(incoming);
             Require(incoming.CreateSnapshot(0).Players[0].Hp == originalHp - (lowerHp ? 1 : 0) &&
                 E<CardUseFinishedEvent>(incoming).Count(e => e.ResolutionId == receipt.CardUseFrameId) == 1,
@@ -154,12 +177,18 @@ internal static class BoundaryYuJinChecks
         }
 
         var (replaced, pr) = Create(replaceActor: true); SkipPrep(replaced); Play(replaced);
-        PlaySlash(replaced, 3);
+        var policyTargetSeat = replaced.State.Players.Single(p => p.GeneralId == "fixture:yj-peer-3").Seat;
+        PlaySlash(replaced, policyTargetSeat);
         Reach(replaced, p => p.SkillPrompt?.SkillId == RoleChange && p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "select-target"));
-        Answer(replaced, c => c.Targets.SequenceEqual([1])); Until(replaced, () => E<ComparedBlackSlashAppliedEvent>(replaced).Any());
+        var replacementSeat = P(replaced)!.Choices.Where(c => c.Targets.Count == 1).Select(c => c.Targets[0])
+            .First(seat => replaced.State.Players[seat].Hp >= replaced.State.Players[policyTargetSeat].Hp &&
+                !replaced.CreateSnapshot(0).Players[seat].Skills!.Any(s => s.Id == Compared));
+        Answer(replaced, c => c.Targets.SequenceEqual([replacementSeat])); Until(replaced, () => E<ComparedBlackSlashAppliedEvent>(replaced).Any());
         var currentActor = E<ComparedBlackSlashAppliedEvent>(replaced).Single().Receipt;
-        Require(E<ProgramCardUseActorReplacedEvent>(replaced).Single().ActorSeat == 1 &&
-            currentActor is { ActorSeat: 1, ProviderSeat: 0, TargetSeat: 3, Ineffective: true, ActorPolicySource: null } &&
+        Require(E<ProgramCardUseActorReplacedEvent>(replaced).Single().ActorSeat == replacementSeat &&
+            currentActor.ActorSeat == replacementSeat && currentActor.TargetSeat == policyTargetSeat &&
+            currentActor is { ProviderSeat: 0, Ineffective: true, ActorPolicySource: null, EffectiveIsRed: false } &&
+            currentActor.TargetPolicySource?.OwnerSeat == policyTargetSeat &&
             currentActor.ActorHp >= currentActor.TargetHp && replaced.CreateSnapshot(0).Players[0].Hp < currentActor.TargetHp,
             "Same-use actor replacement keeps its original black appearance/provider, but HP and policy qualification use the true replacement actor.");
         replaced = Restore(replaced, pr); Play(replaced);
@@ -190,7 +219,8 @@ internal static class BoundaryYuJinChecks
             Accept(native, new AdvanceOneStepCommand(native.Revision));
         var paid = E<PrepDiscardPaidEvent>(native).FirstOrDefault(e => !e.OwnerCost);
         var comparison = E<ComparedBlackSlashAppliedEvent>(native).FirstOrDefault()?.Receipt;
-        Require(paid is not null && paid.ActualCount > 0 && comparison is not null && comparison.ActorSeat == 0 &&
+        var ownerSeat = native.State.Players.Single(p => p.GeneralId == "fixture:yj-owner").Seat;
+        Require(paid is not null && paid.ActualCount > 0 && comparison is not null && comparison.ActorSeat == ownerSeat &&
             comparison.CannotRespond && E<CardActionAcceptedEvent>(native).Any(e => e.Action.ActionId == comparison.ActionId &&
                 e.Action.Type == CardActionType.Use && e.Action.PhysicalCards.Count == 1),
             "An actual native bot selects real Prep payment and uses a paid black conversion Slash through the comparison path.");
@@ -341,7 +371,7 @@ internal static class BoundaryYuJinChecks
               {"id":"paid-foreign-discard","window":"discardPileReceived","subject":"owner","discardOwnerScope":"other","sourceZones":["hand","equipment"],"movementReasons":["{{TargetDiscard}}","{{OwnerDiscard}}"],"movementOccurrence":"perBatch","optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"paid-seen","options":[{"id":"continue"}]}]},
               {"id":"promised-real-draw","window":"cardsGained","subject":"owner","destinationZones":["hand"],"movementReasons":["{{EndingDraw}}"],"movementOccurrence":"perBatch","optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"draw-seen","options":[{"id":"continue"}]}]}
             ]},
-            {"id":"{{Gain}}","revision":1,"triggers":[{"id":"real-gain","window":"cardsGained","subject":"owner","destinationZones":["hand"],"movementReasons":["{{EndingDraw}}"],"movementOccurrence":"perSourceOwner","optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"gain-seen","options":[{"id":"continue"}]}{{gainTail}}]}]},
+            {"id":"{{Gain}}","revision":1,"triggers":[{"id":"real-gain","window":"cardsGained","subject":"owner","destinationZones":["hand"],"movementReasons":["{{EndingDraw}}"],"movementOccurrence":"perBatch","optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"gain-seen","options":[{"id":"continue"}]}{{gainTail}}]}]},
             {"id":"{{Entry}}","revision":1,"triggers":[
               {"id":"dying-entry","window":"dyingEntering","subject":"owner","optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"entry-seen","options":[{"id":"continue"}]}]},
               {"id":"peach-completed","window":"cardUseCompleted","ownerRelation":"actor","cardKinds":["peach"],"includeResponseUses":true,"optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"peach-seen","options":[{"id":"continue"}]}]}
@@ -372,7 +402,7 @@ internal static class BoundaryYuJinChecks
                 if (!native && !gainDying) peerSkills.Add(Observer);
                 if (replaceActor && i == 3) peerSkills.Add(Compared);
                 b.AddGeneral(new($"fixture:yj-peer-{i}", "真实对手", "supporter", "fixture:yj-peer-weight", "shu", 8, peerSkills)
-                    { InitialHp = replaceActor ? (i == 3 ? 5 : null) : i == 1 && (deck != "slash" || lowerPeerHp) ? 1 : null });
+                    { InitialHp = replaceActor ? (i == 3 ? 6 : null) : i == 1 && (deck != "slash" || lowerPeerHp) ? 1 : null });
             }
             b.AddDeck(new("fixture:yj-deck", "固定真实实体", 4, 2, []) { PhysicalCards = Enumerable.Range(0, 80).Select(i => new ContentDeckPhysicalCard(
                 armor && i >= 64 ? armorId : "standard:" + deck, mixed && i >= 40 ? Suit.Heart : Suit.Spade, 7)).ToArray() });

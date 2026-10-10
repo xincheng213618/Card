@@ -11,6 +11,7 @@ public sealed class SeatViewModel : ObservableObject
     private int _filledHealthIcons;
 
     public required int Seat { get; init; }
+    public int DisplaySeatNumber { get; set; }
     public string GeneralId { get; set; } = string.Empty;
     public string GeneralName { get; set; } = string.Empty;
     public string SecondaryGeneralText { get; set; } = string.Empty;
@@ -48,10 +49,10 @@ public sealed class SeatViewModel : ObservableObject
     public bool IsTeammate { get; set; }
     public string DecisionRoleLabel { get; set; } = string.Empty;
     public bool HasDecisionRole => DecisionRoleLabel.Length > 0;
-    public string SeatLabel => IsHuman ? "你 · 一号位"
-        : IsNationalSeat ? $"{Seat + 1:00} 号位 · {RelationshipLabel}"
-        : TeamId is not null ? $"{Seat + 1:00} 号位 · {(IsTeammate ? "队友" : "对手")}"
-        : $"{Seat + 1:00} 号位";
+    public string SeatLabel => IsHuman ? $"你 · {DisplaySeatNumber:00} 号位"
+        : IsNationalSeat ? $"{DisplaySeatNumber:00} 号位 · {RelationshipLabel}"
+        : TeamId is not null ? $"{DisplaySeatNumber:00} 号位 · {(IsTeammate ? "队友" : "对手")}"
+        : $"{DisplaySeatNumber:00} 号位";
     public string VerticalName => string.Join("\n", GeneralName.ToCharArray());
     public string HealthPips => new('●', Math.Max(0, Hp));
     public string EmptyHealthPips => new('○', Math.Max(0, MaxHp - Math.Max(0, Hp)));
@@ -119,6 +120,7 @@ public sealed class SeatViewModel : ObservableObject
     internal void UpdateFrom(SeatViewModel source)
     {
         var changed = false;
+        if (DisplaySeatNumber != source.DisplaySeatNumber) { DisplaySeatNumber = source.DisplaySeatNumber; changed = true; }
         if (!EqualityComparer<string>.Default.Equals(GeneralId, source.GeneralId)) { GeneralId = source.GeneralId; changed = true; }
         if (!EqualityComparer<string>.Default.Equals(GeneralName, source.GeneralName)) { GeneralName = source.GeneralName; changed = true; }
         if (!EqualityComparer<string>.Default.Equals(SecondaryGeneralText, source.SecondaryGeneralText)) { SecondaryGeneralText = source.SecondaryGeneralText; changed = true; }

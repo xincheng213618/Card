@@ -13,10 +13,11 @@ internal static class StableHandResponseFixture
     private static readonly ContentSkillDefinition Jijiu = ContentRegistry.Build(new StandardContentPackage(),
         new StandardActiveSkillExpansionPackage(includeJijiu: true), new StandardRescueSkillExpansionPackage()).GetSkill("standard:jijiu");
 
-    internal static (MainViewModel Model, ContentRegistry Registry) Create(DecisionKind kind, string output, bool jijiu = false)
+    internal static (MainViewModel Model, ContentRegistry Registry) Create(DecisionKind kind, string output, bool jijiu = false, bool arrowBarrage = false,
+        bool zhefu = false)
     {
-        var label = jijiu ? "Jijiu" : kind.ToString();
-        var registry = ContentRegistry.Build(new StandardContentPackage(), new Package(kind, jijiu));
+        var label = zhefu ? "Zhefu" : jijiu ? "Jijiu" : arrowBarrage ? "ArrowBarrage" : kind.ToString();
+        var registry = ContentRegistry.Build(new StandardContentPackage(), new Package(kind, jijiu, arrowBarrage, zhefu));
         var game = GameEngine.CreateStandard(new GameOptions
         {
             Seed = 31, PlayerCount = 4, HumanSeat = 0, HumanRole = Role.Lord, ModeId = ModeId,
@@ -83,7 +84,7 @@ internal static class StableHandResponseFixture
                     choice.Parameters.GetValueOrDefault("response") == "peach" && choice.Description.Contains("当作【桃】")),
                     "Real outside-turn dying must offer the registered Jijiu conversion.");
             }
-            AssertPhysicalOrigin(game, kind);
+            AssertPhysicalOrigin(game, kind, arrowBarrage);
             RecordAndReplay(game, registry, output, label + ".before");
             Program.Assert(Enumerable.Range(1, 3).All(seat => game.CreateSnapshot(seat).Players[0].Hand.Count == 0),
                 "Response setup must keep the human's undisclosed Hand private from other viewers.");
@@ -115,12 +116,12 @@ internal static class StableHandResponseFixture
         }
     }
 
-    private static void AssertPhysicalOrigin(GameEngine game, DecisionKind kind)
+    private static void AssertPhysicalOrigin(GameEngine game, DecisionKind kind, bool arrowBarrage)
     {
         if (kind == DecisionKind.RescueDying) return;
         var incoming = kind switch
         {
-            DecisionKind.RespondDodge => CardKind.Slash,
+            DecisionKind.RespondDodge => arrowBarrage ? CardKind.ArrowBarrage : CardKind.Slash,
             DecisionKind.RespondSlash => CardKind.BarbarianAssault,
             DecisionKind.Nullification => CardKind.PeachGarden,
             _ => CardKind.FireAttack
@@ -185,7 +186,7 @@ internal static class StableHandResponseFixture
         Program.Assert(result.Accepted, result.Error?.Message ?? "The fixed fixture rejected a real command.");
     }
 
-    private sealed class Package(DecisionKind kind, bool jijiu) : IGameContentPackage
+    private sealed class Package(DecisionKind kind, bool jijiu, bool arrowBarrage, bool zhefu) : IGameContentPackage
     {
         public PackageManifest Manifest { get; } = new("fixture-stable-hand-response", new(1, 0, 0), []);
         public void Register(IContentRegistryBuilder builder)
@@ -201,7 +202,10 @@ internal static class StableHandResponseFixture
             foreach (var id in catalog.Programs.Keys)
                 builder.AddSkill(new(id, id, id) { Program = catalog.Programs[id] });
             if (jijiu) builder.AddSkill(Jijiu);
-            builder.AddGeneral(new(OwnerId, "固定响应者", "supporter", jijiu ? "standard:jijiu" : "standard:none", "qun", 4, [DriverId]));
+            if (zhefu) builder.AddSkill(ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(),
+                new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage()).GetSkill("ol:zhefu"));
+            builder.AddGeneral(new(OwnerId, "固定响应者", "supporter", jijiu ? "standard:jijiu" : "standard:none", "qun", 4,
+                zhefu ? [DriverId, "ol:zhefu"] : [DriverId]));
             for (var seat = 1; seat < 4; seat++)
                 builder.AddGeneral(new($"fixture:response-{seat}", "固定行动者" + seat, "supporter", "standard:none", "wei", 4,
                     jijiu ? ["fixture:response-dying"] : []));
@@ -219,7 +223,10 @@ internal static class StableHandResponseFixture
             // Verified Seed31 deals CardIds 21, 37, 61 and 80 to AI1. Give that seat native physical Nanman only.
             builder.AddDeck(new("fixture:response-deck", "固定实体响应牌库", 4, 0, [])
             {
-                PhysicalCards = Enumerable.Range(0, 80).Select(index => new ContentDeckPhysicalCard(jijiu && index + 1 == 45 ? "standard:peach" : kind == DecisionKind.RespondSlash ? (new[] { 21, 37, 61, 80 }.Contains(index + 1) ? "standard:barbarian_assault" : "standard:slash") : pair[index % 2], Suit.Heart, index % 13 + 1)).ToArray()
+                PhysicalCards = Enumerable.Range(0, 80).Select(index => new ContentDeckPhysicalCard(
+                    arrowBarrage ? new[] { 21, 37, 61, 80 }.Contains(index + 1) ? "standard:arrow_barrage" : "standard:dodge" :
+                    jijiu && index + 1 == 45 ? "standard:peach" : kind == DecisionKind.RespondSlash ?
+                    (new[] { 21, 37, 61, 80 }.Contains(index + 1) ? "standard:barbarian_assault" : "standard:slash") : pair[index % 2], Suit.Heart, index % 13 + 1)).ToArray()
             });
             builder.AddMode(new(ModeId, "固定真实响应", 4, 4,
                 new Dictionary<string, int> { [nameof(Role.Lord)] = 1, [nameof(Role.Rebel)] = 3 }, "fixture:response-deck",

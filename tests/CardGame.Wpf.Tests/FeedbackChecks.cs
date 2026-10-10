@@ -20,12 +20,12 @@ internal static class FeedbackChecks
 {
     public static void CardFlights(string output)
     {
-        var root = new Canvas { Background = Brushes.DarkSlateGray, Width = 900, Height = 300 };
+        var root = new Canvas { Background = Brushes.DarkSlateGray, Width = 1040, Height = 300 };
         var cues = new ObservableCollection<BattleCue>();
         var clock = new FrameClock();
-        var layer = new BattleFeedbackLayer { Width = 900, Height = 300, Cues = cues, AnchorRoot = root, Clock = clock };
+        var layer = new BattleFeedbackLayer { Width = 1040, Height = 300, Cues = cues, AnchorRoot = root, Clock = clock };
         var kinds = new CardKind?[] { CardKind.Slash, CardKind.ThunderSlash, CardKind.IronChain,
-            CardKind.GeneralWeapon, CardKind.ScarletBloodSword, null };
+            CardKind.GeneralWeapon, CardKind.ScarletBloodSword, null, CardKind.Dodge };
         for (var index = 0; index < kinds.Length; index++)
         {
             var seat = new Border { Width = 54, Height = 35, Background = Brushes.Black,
@@ -35,20 +35,21 @@ internal static class FeedbackChecks
             var name = kinds[index] is { } kind ? CardCatalog.Get(kind).DisplayName : "未知牌";
             var settled = new ContentControl
             {
-                Content = new TablePlayViewModel(index + 1, name, kinds[index] == CardKind.IronChain ? "公开动作 · 重铸" : "公开动作") { Kind = kinds[index] },
+                Content = new TablePlayViewModel(index + 1, name, "公开动作")
+                    { Kind = kinds[index], ActionLabel = index == 6 ? "打出" : kinds[index] == CardKind.IronChain ? "重铸" : "使用" },
                 ContentTemplate = (DataTemplate)Application.Current.FindResource("TablePlayTemplate")
             };
             Canvas.SetLeft(settled, 35 + 140 * index); Canvas.SetTop(settled, 150);
             root.Children.Add(settled);
-            cues.Add(new BattleCue(index + 1, BattleCueKind.Card, index, [], name, "公开动作")
+            cues.Add(new BattleCue(index + 1, index == 6 ? BattleCueKind.Response : BattleCueKind.Card, index, [], name, "公开动作")
                 { CardKind = kinds[index], Detail = kinds[index] == CardKind.IronChain ? "重铸" : null });
         }
         root.Children.Add(layer);
         clock.Advance(.12);
-        Render(root, 900, 300, Path.Combine(output, "card-flight-moving.png"));
+        Render(root, 1040, 300, Path.Combine(output, "card-flight-moving.png"));
         clock.Advance(.33);
         layer.InvalidateVisual();
-        Render(root, 900, 300, Path.Combine(output, "card-flight-landed.png"));
+        Render(root, 1040, 300, Path.Combine(output, "card-flight-landed.png"));
         var images = Images(VisualTreeHelper.GetDrawing(layer)).ToArray();
         Assert(images.Length == kinds.Count(kind => kind is not null) &&
                kinds.Where(kind => kind is not null).All(kind => images.Any(image => ReferenceEquals(image.ImageSource, CardArt.Get(kind)))),
@@ -72,8 +73,15 @@ internal static class FeedbackChecks
                 "A flying face landed at a different position or size than its settled public card.");
         }
         layer.IsPromptVisible = true;
-        Render(root, 900, 300, Path.Combine(output, "card-flight-prompt-safe.png"));
-        Assert(!Images(VisualTreeHelper.GetDrawing(layer)).Any(), "A flying face covered the current human decision.");
+        Render(root, 1040, 300, Path.Combine(output, "card-flight-prompt-safe.png"));
+        Assert(Images(VisualTreeHelper.GetDrawing(layer)).Count() == kinds.Count(kind => kind is not null),
+            "A hand response prompt suppressed card flights into the visible public row.");
+        foreach (var settled in root.Children.OfType<ContentControl>()) settled.Visibility = Visibility.Collapsed;
+        layer.InvalidateVisual();
+        Render(root, 1040, 300, Path.Combine(output, "card-flight-choice-safe.png"));
+        Assert(!Images(VisualTreeHelper.GetDrawing(layer)).Any(), "A flying face without a visible landing covered the current human decision.");
+        foreach (var settled in root.Children.OfType<ContentControl>()) settled.Visibility = Visibility.Visible;
+        layer.InvalidateVisual();
         layer.IsPromptVisible = false;
         var onRender = typeof(BattleFeedbackLayer).GetMethod("OnRender", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!;
         var visual = new DrawingVisual();
@@ -84,7 +92,7 @@ internal static class FeedbackChecks
             using var drawing = visual.RenderOpen();
             onRender.Invoke(layer, [drawing]);
         }
-        Console.WriteLine($"120 six-card drawing preparations: {System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalMilliseconds:F1} ms; {GC.GetAllocatedBytesForCurrentThread() - allocated:N0} bytes (not screen FPS).");
+        Console.WriteLine($"120 seven-card drawing preparations: {System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalMilliseconds:F1} ms; {GC.GetAllocatedBytesForCurrentThread() - allocated:N0} bytes (not screen FPS).");
         cues.Clear();
     }
 
@@ -229,8 +237,8 @@ internal static class FeedbackChecks
         Assert(cues.Count == 4 && cues.Select(cue => cue.Sequence).Distinct().Count() == 4, "Public response duplicated or zero damage rendered.");
         Assert(cues.All(cue => cue.Revision == 1), "Public feedback lost its committed command revision.");
         Assert(cues[0].Label == "杀" && cues[0].TargetSeats.SequenceEqual([1]), "Declared card or detached public targets differ.");
-        Assert(cues[0].CardKind == CardKind.Slash && cues.Skip(1).All(cue => cue.CardKind is null),
-            "Flight artwork must come from the public declaration, never inferred from another response or private card ID.");
+        Assert(cues[0].CardKind == CardKind.Slash && cues[1].CardKind == CardKind.Slash && cues.Skip(2).All(cue => cue.CardKind is null),
+            "Use and response artwork must come from their public effective kinds, never from private card IDs.");
         var recastCue = BattleCueProjector.Project([Envelope(new CardRecastEvent(0, 300, CardKind.IronChain, 1))], view).Single();
         Assert(recastCue is { CardKind: CardKind.IronChain, Detail: "重铸" }, "Recast lost its public card kind or action label.");
         Assert(cues[1].Label == "打出杀" && cues[2].Label == "−2" && cues[2].Nature == DamageNature.Fire && cues[3].Label == "+1", "Response, damage, or recovery feedback differs from committed events.");
@@ -246,6 +254,26 @@ internal static class FeedbackChecks
              Envelope(new CardRespondedEvent(-1, 2, 0, CardKind.Dodge))], view);
         Assert(virtualResponses.Count == 2 && virtualResponses.All(cue => cue.Label == "打出闪"),
             "Distinct virtual responses must not be collapsed by their shared nonphysical card sentinel.");
+        var zeroResponses = BattleCueProjector.ProjectCardPlays(
+            [Envelope(new CardRespondedEvent(0, 1, 0, CardKind.Dodge)),
+             Envelope(new GroupResponseEvent(30, CardKind.ArrowBarrage, CardKind.Dodge, 1, true, 0)),
+             Envelope(new CardRespondedEvent(0, 2, 0, CardKind.Dodge)),
+             Envelope(new GroupResponseEvent(30, CardKind.ArrowBarrage, CardKind.Dodge, 2, true, 0))], view);
+        Assert(zeroResponses.Count == 2 && zeroResponses.Select(cue => cue.SourceSeat).SequenceEqual([1, 2]),
+            "The zero virtual-card sentinel collapsed distinct players or duplicated their group results.");
+        var unknownResponse = BattleCueProjector.ProjectCardPlays([Envelope(new CardRespondedEvent(9876, 1, 0))], view).Single();
+        Assert(unknownResponse.CardKind is null && unknownResponse.Label == "打出响应牌",
+            "A legacy response without a public kind inferred a hidden physical face.");
+        var counterspellCards = BattleCueProjector.ProjectCardPlays(
+            [Envelope(new CardRespondedEvent(46, 1, 0, CardKind.Nullification)),
+             Envelope(new NullificationRespondedEvent(21, 45, CardKind.Duel, 1, 46, true, 1))], view);
+        Assert(counterspellCards.Count == 1 && counterspellCards[0].CardKind == CardKind.Nullification,
+            "The committed counterspell and its chain result produced two public cards.");
+        var rescueCards = BattleCueProjector.ProjectCardPlays(
+            [Envelope(new CardUseDeclaredEvent(31, 99, CardKind.Peach, 1)),
+             Envelope(new DyingResponseEvent(32, 1, true, 99) { UsedPeachPhysicalCardKind = CardKind.Dodge })], view);
+        Assert(rescueCards.Count == 1 && rescueCards[0].CardKind == CardKind.Peach && rescueCards[0].CardActionLabel == "使用",
+            "Converted rescue duplicated its declared use or displayed its physical material as the effective card.");
         var armorCues = BattleCueProjector.Project(
         [
             Envelope(new ArmorEffectAppliedEvent(8, CardKind.RenwangShield, 0, 1, CardKind.Slash)),
@@ -318,6 +346,71 @@ internal static class FeedbackChecks
                 "classic:i-field"))], iFieldView).Single();
         Assert(iFieldCue.Label == "I力场 · 锦囊伤害已防止",
             "Incoming trick prevention must display the skill that actually prevented damage.");
+    }
+
+    public static void PublicCardTable(string output)
+    {
+        var fixture = StableHandResponseFixture.Create(DecisionKind.RespondDodge, output, arrowBarrage: true);
+        using var vm = fixture.Model;
+        vm.IsMotionEnabled = true;
+        var window = new MainWindow(vm);
+        var root = (FrameworkElement)window.Content;
+        var layer = (BattleFeedbackLayer)window.FindName("BattleFeedback");
+        var clock = new FrameClock();
+        layer.Clock = clock;
+        try
+        {
+            Render(root, 1120, 740, Path.Combine(output, "public-card-table-arrow-before.png"));
+            var viewport = (Viewbox)window.FindName("TablePlaysViewport");
+            var prompt = (Border)window.FindName("DecisionPanel");
+            Assert(vm.AreTablePlaysVisible && viewport.Visibility == Visibility.Visible &&
+                   vm.RecentPlays[0] is { Kind: CardKind.ArrowBarrage, ActionLabel: "使用", SourceSeat: 1 },
+                "A real pending Arrow Barrage hid its declared public use from the center.");
+            var promptBounds = prompt.TransformToVisual(root).TransformBounds(new Rect(prompt.RenderSize));
+            var cardBounds = Find<Border>(root).Where(border => BattleFeedbackLayer.GetPlayAnchor(border) >= 0)
+                .Select(border => border.TransformToVisual(root).TransformBounds(new Rect(border.RenderSize))).ToArray();
+            Console.WriteLine($"Public row bounds: prompt={promptBounds}; cards={string.Join("; ", cardBounds.Select(bounds => bounds.ToString()))}.");
+            Assert(cardBounds.Length == vm.RecentPlays.Count && cardBounds.All(bounds => bounds.Top >= promptBounds.Bottom && bounds.Height > 80),
+                "The public card row overlapped the hand response description or disappeared in the small window.");
+            var card = vm.Hand.First(item => item.Kind == CardKind.Dodge && item.IsPlayable);
+            var before = Engine(vm).Revision;
+            vm.SelectCardCommand.Execute(card);
+            Assert(Engine(vm).Revision == before, "Selecting a response card started a public play before commit.");
+            vm.ConfirmSelectedCommand.Execute(null);
+            Assert(Engine(vm).Revision == before + 1 && vm.RecentPlays.Last() is
+                    { Kind: CardKind.Dodge, ActionLabel: "打出", SourceSeat: 0 } response && response.PublicCardId == card.Id &&
+                   vm.RecentPlays.Count(play => play.PublicCardId == card.Id) == 1 && vm.RecentPlays.Count <= 5,
+                "A committed physical Dodge lost its actor, duplicated its group result or displaced the group use.");
+            clock.Advance(.12);
+            Render(root, 1120, 740, Path.Combine(output, "public-card-table-dodge-moving.png"));
+            Assert(Find<Border>(root).Where(border => BattleFeedbackLayer.GetPlayAnchor(border) >= 0)
+                    .All(border => border.TransformToVisual(root).TransformBounds(new Rect(border.RenderSize)).Height > 80),
+                "Returning to AI playback shrank the public uses and responses below readable card size.");
+            var moving = ImageBounds(VisualTreeHelper.GetDrawing(layer), Matrix.Identity)
+                .Single(image => ReferenceEquals(image.Image.ImageSource, CardArt.Get(CardKind.Dodge))).Bounds;
+            clock.Advance(.43);
+            layer.InvalidateVisual();
+            Render(root, 1120, 740, Path.Combine(output, "public-card-table-dodge-landed.png"));
+            var landed = ImageBounds(VisualTreeHelper.GetDrawing(layer), Matrix.Identity)
+                .Single(image => ReferenceEquals(image.Image.ImageSource, CardArt.Get(CardKind.Dodge))).Bounds;
+            Assert((new Point(moving.X, moving.Y) - new Point(landed.X, landed.Y)).Length > 10,
+                "The actual committed Dodge had a badge but no movement from its responder to the public row.");
+            var captions = Find<TextBlock>(root).Where(text => text.Name == "PlayActorCaption").Select(text => text.Text).ToArray();
+            Assert(captions.Contains(vm.RecentPlays[0].ActorName + "使用") && captions.Contains(vm.RecentPlays.Last().ActorName + "打出"),
+                "Public use and response faces did not display their actor/action captions.");
+            vm.IsMotionEnabled = false;
+            Render(root, 1440, 880, Path.Combine(output, "public-card-table-motion-off.png"));
+            Assert(layer.ActiveEffectCount == 0 && !layer.IsFrameTimerRunning && vm.RecentPlays.Any(play => play.Kind == CardKind.Dodge),
+                "Disabling animation removed the settled response card or kept its frame timer running.");
+            var row = vm.RecentPlays.Select(play => (play.PublicCardId, play.Kind, play.SourceSeat, play.Caption)).ToArray();
+            vm.SaveGameCommand.Execute(null);
+            vm.LoadManualGameCommand.Execute(null);
+            Assert(!vm.HasSaveError && layer.ActiveEffectCount == 0 && row.SequenceEqual(
+                    vm.RecentPlays.Select(play => (play.PublicCardId, play.Kind, play.SourceSeat, play.Caption))),
+                "Loading the same boundary lost the public response row or replayed old animations.");
+            StableHandResponseFixture.RecordAndReplay(Engine(vm), fixture.Registry, output, "public-card-table-after");
+        }
+        finally { window.Content = null; window.Close(); }
     }
 
 

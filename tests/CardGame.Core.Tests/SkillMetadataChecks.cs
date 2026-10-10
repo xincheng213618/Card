@@ -116,6 +116,60 @@ internal static class SkillMetadataChecks
         Require(state.GetConversionState(2, "fixture:skill") == SkillPolarity.Yin &&
                 state.GetUsage(2, "fixture:skill", "game", SkillUsageScope.Game) == 0,
             "Skill reset must restore the registered initial side and clear every usage scope.");
+        SnapshotOrderingAndIsolation();
+    }
+
+    private static void SnapshotOrderingAndIsolation()
+    {
+        const string skill = "fixture:snapshot-skill";
+        var state = new SkillRuntimeStateStore();
+        var empty = state.CreateSnapshot(2, skill, false);
+        Require(empty.SkillId == skill && !empty.IsAcquired && empty.Polarity is null && empty.Usages.Count == 0,
+            "An unused skill snapshot retains its identity and absent conversion state.");
+        RequireThrows<NotSupportedException>(() => ((IList<SkillUsageStateSnapshot>)empty.Usages)
+            .Add(new("intruder", SkillUsageScope.Game, 1)));
+        RequireThrows<ArgumentOutOfRangeException>(() => state.CreateSnapshot(-1, skill, false));
+        RequireThrows<ArgumentException>(() => state.CreateSnapshot(2, " ", false));
+
+        var records = new[]
+        {
+            new SkillUsageStateSnapshot("same", SkillUsageScope.Event, 1),
+            new SkillUsageStateSnapshot("z", SkillUsageScope.Phase, 1),
+            new SkillUsageStateSnapshot("same", SkillUsageScope.Game, 2),
+            new SkillUsageStateSnapshot("a", SkillUsageScope.Phase, 1),
+            new SkillUsageStateSnapshot("A", SkillUsageScope.Phase, 1),
+            new SkillUsageStateSnapshot("same", SkillUsageScope.Turn, 1),
+            new SkillUsageStateSnapshot("same", SkillUsageScope.Round, 1)
+        };
+        foreach (var record in records)
+            for (var i = 0; i < record.Count; i++)
+                Require(state.TryConsumeUsage(2, skill, record.UsageId, record.Scope, record.Count),
+                    "The snapshot fixture must record each actual use.");
+        state.TryConsumeUsage(3, skill, "foreign-owner", SkillUsageScope.Game, 1);
+        state.TryConsumeUsage(2, "fixture:other-skill", "foreign-skill", SkillUsageScope.Game, 1);
+        state.RegisterConversionSkill(2, skill, SkillPolarity.Yin);
+        var captured = state.CreateSnapshot(2, skill, true);
+        var expected = records.OrderBy(record => record.Scope)
+            .ThenBy(record => record.UsageId, StringComparer.Ordinal).ToArray();
+        Require(captured.IsAcquired && captured.Polarity == SkillPolarity.Yin &&
+                captured.Usages.SequenceEqual(expected) && empty.Usages.Count == 0,
+            "Usage snapshots preserve scope/ordinal ordering and exclude other owners and skills.");
+        RequireThrows<NotSupportedException>(() => ((IList<SkillUsageStateSnapshot>)captured.Usages)[0] =
+            new("intruder", SkillUsageScope.Game, 1));
+
+        state.ClearUsage(2, skill, "same", SkillUsageScope.Event);
+        state.ResetPhase();
+        state.ToggleConversionState(2, skill);
+        var after = state.CreateSnapshot(2, skill, false);
+        Require(!after.IsAcquired && after.Polarity == SkillPolarity.Yang &&
+                after.Usages.SequenceEqual(expected.Where(record => (int)record.Scope < (int)SkillUsageScope.Phase)) &&
+                captured.Usages.SequenceEqual(expected) && captured.Polarity == SkillPolarity.Yin,
+            "Fresh snapshots see resets and polarity changes while exposed snapshots stay frozen.");
+        state.ResetSkill(2, skill);
+        Require(state.CreateSnapshot(2, skill, false) is { Polarity: SkillPolarity.Yin, Usages.Count: 0 } &&
+                state.CreateSnapshot(3, skill, false).Usages.Count == 1 &&
+                state.CreateSnapshot(2, "fixture:other-skill", false).Usages.Count == 1,
+            "Skill reset clears only its own snapshot records and restores its registered polarity.");
     }
 
     public static void ClassicLockedStateMetadataIsVersioned()

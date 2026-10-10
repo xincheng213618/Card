@@ -53,19 +53,25 @@ public sealed partial class MainViewModel
 
     private void RecordPublicPlays(IEnumerable<EventEnvelope> events, GameSnapshot? snapshot = null)
     {
-        // Card names come from the effective declared kind, including conversions and recovery cards.
-        var publicEvents = events.Where(item => item.Payload is CardUseDeclaredEvent or CardRecastEvent).TakeLast(3).ToArray();
-        foreach (var cue in BattleCueProjector.Project(publicEvents, snapshot ?? _snapshot))
+        // The current use stays at the left while committed responses arrive on its right.
+        var plays = BattleCueProjector.ProjectCardPlays(events, snapshot ?? _snapshot);
+        var lastUse = plays.ToList().FindLastIndex(cue => cue.Kind == BattleCueKind.Card && !cue.IsUseCompletion);
+        foreach (var cue in plays.Skip(Math.Max(0, lastUse)))
         {
-            var payload = publicEvents.Single(item => item.Sequence == cue.Sequence).Payload;
-            var recast = payload as CardRecastEvent;
-            RecentPlays.Insert(0, new TablePlayViewModel(cue.Sequence,
-                recast is null ? cue.Label : CardCatalog.Get(recast.CardKind).DisplayName,
-                recast is null ? cue.ActorName : $"{cue.ActorName} · 重铸")
+            if (cue.Kind == BattleCueKind.Card)
             {
-                Kind = recast?.CardKind ?? (payload as CardUseDeclaredEvent)?.CardKind
+                // A rescue completion can arrive after its declaration in another command.
+                if (cue.IsUseCompletion && RecentPlays.Any(play => play.PublicCardId == cue.PublicCardId &&
+                    play.SourceSeat == cue.SourceSeat && play.Kind == cue.CardKind && play.ActionLabel == cue.CardActionLabel)) continue;
+                RecentPlays.Clear();
+            }
+            RecentPlays.Add(new TablePlayViewModel(cue.Sequence,
+                cue.CardKind is { } kind ? CardCatalog.Get(kind).DisplayName : cue.Label, cue.ActorName)
+            {
+                Kind = cue.CardKind, SourceSeat = cue.SourceSeat,
+                PublicCardId = cue.PublicCardId, ActionLabel = cue.CardActionLabel
             });
-            while (RecentPlays.Count > 3) RecentPlays.RemoveAt(RecentPlays.Count - 1);
+            while (RecentPlays.Count > 5) RecentPlays.RemoveAt(RecentPlays[0].ActionLabel == "打出" ? 0 : 1);
         }
     }
 }

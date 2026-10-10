@@ -47,7 +47,9 @@ public sealed partial class GameEngine
 
     private long CaptureCurrentTurnQualificationStamp()
     {
-        var projection = CaptureCombinedProjectionDependencyStamp();
+        // Upstream owners affect derived grants only. Their separate shard stamp
+        // avoids scanning the whole table for every ordinary policy lookup.
+        const long projection = 0;
         if (_currentTurnSkillSuppressionRevision == 0) return CaptureDyingWindowQualificationStamp(projection);
         var current = (projection, _currentTurnSkillSuppressionRevision);
         if (current != _currentTurnQualificationDependencies)

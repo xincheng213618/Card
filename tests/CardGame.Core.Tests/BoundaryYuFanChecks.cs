@@ -122,7 +122,8 @@ internal static class BoundaryYuFanChecks
         Reject(g); g = RestoreAfterCold(g, r); Continue(g); Until(g, () => E<ProgramBindingResolvedEvent>(g).Any(e => e.SkillId == Zhi && e.Completed));
         Require(E<RevealedCardHpComparedEvent>(g).Single() is { RevealedKind: CardKind.Crossbow, LosesHp: false } &&
             E<ProgramSkillHpLostEvent>(g).All(e => e.SkillId != Zhi) &&
-            E<CardUsedEvent>(g).Count(e => e.CardId == card.Id && e.SourceSeat == 1) == 1,
+            E<CardUseDeclaredEvent>(g).Count(e => e.CardId == card.Id && e.SourceSeat == 1) == 1 &&
+            E<CardUseFinishedEvent>(g).Count(e => e.CardId == card.Id) == 1,
             "Equipment does not take the non-equipment HP branch, even when recovery makes the live HP unequal; the child return never repeats its use."); Cold(g, r);
         var frozen = JsonSerializer.Serialize(reveal);
         try { ((IList<CardSnapshot>)reveal.Cards)[0] = reveal.Cards[0] with { DisplayName = "mutation" }; } catch (NotSupportedException) { }

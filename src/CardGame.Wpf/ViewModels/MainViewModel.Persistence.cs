@@ -160,8 +160,8 @@ public sealed partial class MainViewModel
                     registeredMode.Name,
                     "已从存档恢复的内容模式",
                     save.Checkpoint.ModeId);
-            var role = StartingRoles.SingleOrDefault(role => role.Role == options.HumanRole)
-                ?? throw new InvalidDataException("存档的玩家身份不受支持。");
+            if (options.HumanRole is { } savedRole && !Enum.IsDefined(savedRole))
+                throw new InvalidDataException("存档的玩家身份不受支持。");
             // Fully restore and validate a separate engine before replacing the active match.
             var restored = GameReplay.Restore(save.Checkpoint, registry);
             var team = registeredMode.ModeKind == ContentModeKind.Team
@@ -174,7 +174,7 @@ public sealed partial class MainViewModel
             _autoSavePending = false;
             ReplaceEngine(restored);
             SelectedTableMode = mode;
-            SelectedStartingRole = role;
+            SelectedStartingRole = StartingRoles[0];
             if (team is not null) SelectedStartingTeam = team;
             ManualDiscardEnabled = options.UseInteractiveDiscard;
             IsAutoAdvance = save.AutoAdvance;

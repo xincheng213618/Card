@@ -15,6 +15,7 @@ internal sealed class SkillProgramDependencies
     private readonly FrozenSet<SkillProgramEffectOp> _activationOperations;
     private readonly FrozenDictionary<SkillProgramEffectOp, IReadOnlyList<string>> _triggerOperationSkillIds;
     private readonly FrozenSet<SkillProgramTriggerWindow> _windows;
+    private readonly FrozenSet<SkillProgramCardPolicyKind> _cardPolicyKinds;
     private readonly FrozenSet<(CardKind Kind, SkillProgramCardCategory Category)> _finalizedCards;
     private readonly int? _maximumCardPolicyKind;
 
@@ -45,6 +46,7 @@ internal sealed class SkillProgramDependencies
                 group => (IReadOnlyList<string>)Array.AsReadOnly(group.Select(entry => entry.SkillId)
                     .Distinct(StringComparer.Ordinal).ToArray()));
         _windows = triggers.Select(trigger => trigger.Window).ToFrozenSet();
+        _cardPolicyKinds = programs.SelectMany(program => program.CardPolicies).Select(policy => policy.Kind).ToFrozenSet();
         UsesTieredRoundConversions = programs.Any(program => program.ViewAs.Any(rule => rule.TieredRoundConversion is not null));
         UsesRoundDistinctBasicUse = programs.Any(program => program.ViewAs.Any(rule => rule.RoundDistinctBasicUse is not null));
         UsesDynamicRoundUsage = triggers.Any(trigger => trigger.DynamicUsageLimit is not null);
@@ -87,6 +89,7 @@ internal sealed class SkillProgramDependencies
     internal IReadOnlyList<string> GetTriggerOperationSkillIds(SkillProgramEffectOp op) =>
         _triggerOperationSkillIds.GetValueOrDefault(op) ?? Array.Empty<string>();
     internal bool HasTriggerWindow(SkillProgramTriggerWindow window) => _windows.Contains(window);
+    internal bool HasCardPolicy(SkillProgramCardPolicyKind kind) => _cardPolicyKinds.Contains(kind);
     internal bool HasFinalizedCardTrigger(CardKind kind, SkillProgramCardCategory category) => _finalizedCards.Contains((kind, category));
     internal bool HasCardPolicyKindAtOrAbove(int minimum) => _maximumCardPolicyKind >= minimum;
 }

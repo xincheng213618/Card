@@ -28,7 +28,7 @@ public sealed partial class GameEngine
         if (!HasRemainingAdjustedBorrowedSwordTargets(frameId)) return false;
         var frame = _resolutionStack.OfType<CardUseFrame>().Single(item => item.Id == frameId);
         SetCardUseTargetIndex(frameId, frame.TargetIndex + 2);
-        var card = _cardZones.CardsAt(CardLocation.Processing).Single(item => item.Id == frame.CardId);
+        var card = GetTrickRepresentation(frameId, frame.CardId, requireProcessing: true);
         BeginJizhiOrNullificationWindow(frameId, card, frame.SourceSeat,
             frame.TargetSeats.Skip(frame.TargetIndex + 2).Take(2).ToArray(), LegalActionKind.BorrowedSword);
         return true;
@@ -65,7 +65,8 @@ public sealed partial class GameEngine
         if (!HasLegacyNextCardTargetAdjustment(actor)) return;
         var source = _nextCardTargetAdjustmentOwners[actor.Seat];
         var ordinary = actions.ToArray();
-        foreach (var action in ordinary.Where(item => item.CardId is not null && item.Kind != LegalActionKind.Recast))
+        foreach (var action in ordinary.Where(item => item.CardId is not null && item.Kind != LegalActionKind.Recast &&
+                     (item.CardId != 0 || item.ProgramActivationId is null)))
         {
             var normal = action.Kind is LegalActionKind.DrawTwo or LegalActionKind.Peach or LegalActionKind.Alcohol ? new[] { actor.Seat }
                 : GetDeclaredCardTargets(actor, action.Kind, action.TargetSeats).ToArray();
@@ -76,7 +77,9 @@ public sealed partial class GameEngine
                 foreach (var owner in _players.Where(player => player.IsAlive && player.Seat != actor.Seat &&
                     player.Seat != action.TargetSeats[0] && GetWeapon(player) is not null &&
                     !IsDirectedCardTargetProhibited(actor.Seat, player.Seat, kind) &&
-                    !IsCardTargetProhibited(player, kind, FindOwnedPlayableCard(actor, action.CardId)!.Suit, SuitColor(EffectiveSuit(actor, ApplyProgramUseAppearance(actor, FindOwnedPlayableCard(actor, action.CardId)!, action.ConversionSource))))))
+                    !IsCardTargetProhibited(player, kind,
+                        action.CardId == 0 ? Suit.None : FindOwnedPlayableCard(actor, action.CardId)!.Suit,
+                        action.CardId == 0 ? null : SuitColor(EffectiveSuit(actor, ApplyProgramUseAppearance(actor, FindOwnedPlayableCard(actor, action.CardId)!, action.ConversionSource))))))
                     foreach (var victim in _players.Where(player => IsLegalBorrowedSwordSlashTarget(owner, player)))
                         Add([.. action.TargetSeats, owner.Seat, victim.Seat]);
                 continue;
@@ -109,6 +112,7 @@ public sealed partial class GameEngine
 
     private bool CanBeExtraNextCardTarget(CharacterState actor, CharacterState target, LegalAction action, CardKind kind, Suit? effectiveUseSuit = null)
     {
+        if (action.CardId == 0) return CanBeExtraTargetAdjustmentTarget(actor, target, action, kind, Suit.None);
         var physical = FindOwnedPlayableCard(actor, action.CardId)!;
         if (!target.IsAlive || IsDirectedCardTargetProhibited(actor.Seat, target.Seat, kind) ||
             IsCardTargetProhibited(target, kind, effectiveUseSuit ?? physical.Suit, SuitColor(effectiveUseSuit ?? EffectiveSuit(actor, ApplyProgramUseAppearance(actor, physical, action.ConversionSource)))) ||

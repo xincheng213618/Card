@@ -186,7 +186,7 @@ public sealed partial class MainViewModel
             CurrentGuideTitle = CanConfirmActiveSkill ? $"确认发动【{activeSkillName}】" : $"选择【{activeSkillName}】的牌和目标";
             CurrentGuideBody = $"{VisibleSkillDescriptions(human?.Skills)}\n{GetActiveSkillSelectionHint()}";
             var selectedNames = _selectedActiveSkillTargetSeats.Select(selected => Seats.Single(seat => seat.Seat == selected))
-                .Select(seat => seat.IsHuman ? $"你（{seat.GeneralName}）" : $"{seat.Seat + 1} 号位 {seat.GeneralName}").ToArray();
+                .Select(seat => seat.IsHuman ? $"你（{seat.GeneralName}）" : $"{seat.DisplaySeatNumber} 号位 {seat.GeneralName}").ToArray();
             var targetOrderHint = IsTieredRoundZeroAction(skillAction) ? "目标按原公开动作顺序提交" : "目标按点击顺序记录";
             steps = [$"本次需要选择{BuildActiveSkillRequirement(skillAction)}，{targetOrderHint}。再次点击已选牌或目标可以取消。",
                 selectedNames.Length == 0 ? "尚未选择目标；不要求目标的技能只需选牌。" : $"已选目标：{string.Join("、", selectedNames)}。",
@@ -246,13 +246,13 @@ public sealed partial class MainViewModel
                     choice.Parameters.GetValueOrDefault("response") == "faction-slash-request") => ("决定是否发动激将", new[] { "发动后，会按当前行动顺序依次询问其他存活的蜀势力角色。", "若无人代出杀，你仍可使用自己的杀或放弃响应。" }),
                 DecisionKind.RespondSlash when prompt.Choices.Any(choice =>
                     choice.Parameters.GetValueOrDefault("response") == "faction-slash-slash") => ("响应刘备的激将", new[] { "你可以打出自己的一张杀；成功后视为刘备打出杀。", "也可以拒绝，系统会继续询问下一名蜀势力角色。" }),
-                DecisionKind.RespondDodge or DecisionKind.RespondSlash => ("选择手牌并确认响应", new[] { "读清这次需要杀还是闪；中央会列出合法的手牌、技能或装备选项。", "点击中央候选会立即提交响应。选择不响应可能受到伤害。" }),
+                DecisionKind.RespondDodge or DecisionKind.RespondSlash => ("选择手牌并确认响应", new[] { "读清这次需要杀还是闪，选择亮起的手牌后点击下方确认。其他技能、装备或多牌响应仍在中央选择。", "点击下方「取消」放弃响应，可能受到伤害；Esc 只取消当前选牌。" }),
 DecisionKind.RescueDying => ("决定是否救援濒死角色", (new[] { "桃可用于救援当前濒死角色；只有濒死者本人可额外使用酒自救。庞统还可发动一次限定技涅槃。", "选择使用哪张牌、发动涅槃或不救援；按当前模式的阵营关系决定希望保护谁。" }
 )),                                DecisionKind.SelectHarvestCard => ("从公开牌中取走一张", new[] { "点击中央的一张公开牌，它会加入你的手牌。", "这是选牌，不需要再选择武将或点击出牌。" }),
                 DecisionKind.SelectTargetCard => ("选择一张暗牌位", new[] { "目标手牌的牌面不会展示；每个按钮只代表一个不透明的牌位。", "选择后，拆桥会弃置该牌，顺手会将该牌交给你。" }),
-                DecisionKind.Nullification => ("决定是否使用无懈可击", new[] { "看清候选写的是使锦囊失效，还是恢复已被无懈的效果。", "点击使用会消耗所选的无懈；也可跳过并保留手牌。" }),
-                DecisionKind.FireAttackReveal => ("展示一张手牌", new[] { "在中央选择要展示的牌；此时只是展示，并非主动弃牌。", "随后由火攻使用者决定是否弃置同花色牌造成伤害。" }),
-                DecisionKind.FireAttackDiscard => ("决定是否为火攻弃牌", new[] { "中央列出了可弃置的同花色手牌；点击候选将立即支付代价。", "也可以跳过，保留手牌并结束这次火攻。" }),
+                DecisionKind.Nullification => ("决定是否使用无懈可击", new[] { "看清本次是使锦囊失效，还是恢复已被无懈的效果。", "选择亮起的无懈并点击「确认无懈」；点击「取消」跳过并保留手牌。" }),
+                DecisionKind.FireAttackReveal => ("展示一张手牌", new[] { "点选底部手牌，再点击「展示此牌」；此时只是展示，并非主动弃牌，也不能跳过展示。", "随后由火攻使用者决定是否弃置同花色牌造成伤害。" }),
+                DecisionKind.FireAttackDiscard => ("决定是否为火攻弃牌", new[] { "选择亮起的同花色手牌，再点击「弃牌火攻」支付代价。", "点击「取消」保留手牌并结束这次火攻。" }),
 
 
 
@@ -280,7 +280,7 @@ DecisionKind.RescueDying => ("决定是否救援濒死角色", (new[] { "桃可�
             }
             CurrentGuideBody = prompt.Prompt;
             if (IsHandResponsePending)
-                steps = [HandResponseHint, "点选手牌不会立即消耗；再次点击或按 Esc 可取消，关闭指南会保留选择。", .. steps];
+                steps = [HandResponseHint, "点选手牌不会立即消耗；再次点击或按 Esc 可取消选牌，关闭指南会保留选择。", .. steps];
         }
         else
         {

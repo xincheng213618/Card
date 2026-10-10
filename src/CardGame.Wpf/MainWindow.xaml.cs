@@ -41,6 +41,11 @@ public partial class MainWindow : Window
         TopSeatRow.MaxHeight = Math.Clamp((e.NewSize.Height - 68) / rows, 90, 210);
     }
 
+    private void OpenEffectsPreview(object sender, RoutedEventArgs e)
+    {
+        new BattleEffectsPreviewWindow { Owner = this, WindowStartupLocation = WindowStartupLocation.CenterOwner }.Show();
+    }
+
     private void TableMouseDown(object sender, MouseButtonEventArgs e)
     {
         if (DataContext is not MainViewModel vm || IsTableModalOpen(vm)) return;
@@ -103,7 +108,7 @@ public partial class MainWindow : Window
         if (DataContext is not MainViewModel vm || IsTableModalOpen(vm)) return false;
         // The first click selects; the second confirms only an already complete
         // legal action. Incomplete or multi-selection decisions remain explicit.
-        if (vm.IsDiscardSelectionPending || vm.IsActiveSkillSelectionPending || vm.IsMultiTargetCardSelected) return false;
+        if (vm.IsDiscardSelectionPending || vm.IsActiveSkillSelectionPending || vm.IsSkillTargetSelectionPending || vm.IsMultiTargetCardSelected) return false;
         if (item is CardViewModel { IsSelected: true, IsPlayable: true } card && vm.Hand.Contains(card) ||
             item is SeatViewModel { IsSelectedTarget: true, IsLegalTarget: true } seat && vm.Seats.Contains(seat))
         {

@@ -6,7 +6,18 @@ public sealed partial class GameEngine
     private bool SupportsMultiplePublicPiles => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.StoreNonBasicOwnedPublicPile) || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.StoreArbitraryOwnedPublicPile) || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.CollectFinalTargetCardInPublicPile) || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.StoreBoundHandInPublicPile) || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.StoreBoundCardsInPublicPile) || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.CashOutPublicPile);
     private static string PublicPileIdentity(string skill, string instance) => $"{skill.Length}:{skill}{instance.Length}:{instance}";
     private IEnumerable<PublicPersistentPileSource> PublicPileSources(int seat) => _publicPersistentPiles.Values.Where(s => s.OwnerSeat == seat);
-    private PublicPersistentPileSource? SinglePublicPileSource(int seat) => PublicPileSources(seat).Take(2).ToArray() is [var source] ? source : null;
+    private PublicPersistentPileSource? SinglePublicPileSource(int seat)
+    {
+        if (_publicPersistentPiles.Count == 0) return null;
+        PublicPersistentPileSource? single = null;
+        foreach (var source in _publicPersistentPiles.Values)
+        {
+            if (source.OwnerSeat != seat) continue;
+            if (single is not null) return null;
+            single = source;
+        }
+        return single;
+    }
     private static CardLocation PublicPileLocation(int seat) => new(CardZoneKind.PublicPersistentPile, seat);
     private IReadOnlyList<Card> PublicPileCards(PublicPersistentPileSource source) => _cardZones.CardsAt(source.Location);
     // Legacy scalar view is populated only when it can describe exactly one source.
@@ -55,16 +66,42 @@ public sealed partial class GameEngine
         PublicPileDraftSource(draft)?.Location ?? throw new InvalidOperationException("Public pile draft lost its exact source location.");
     private IReadOnlyList<PublicPersistentPileSnapshot>? CreatePublicPersistentPileSnapshots(int seat)
     {
-        var sources = PublicPileSources(seat).ToArray();
-        if (sources.Length < 2) return null;
-        return Array.AsReadOnly(sources.Select(s => new PublicPersistentPileSnapshot(seat, s.SkillId, s.SkillInstanceId,
-            _contentRegistry.GetSkill(s.SkillId).ProgramPresentation?.AuthorityName,
-            Array.AsReadOnly(PublicPileCards(s).Select(ToSnapshot).ToArray()), PublicPileCards(s).Count, s.Location)).ToArray());
+        if (_publicPersistentPiles.Count == 0) return null;
+        PublicPersistentPileSource? first = null;
+        List<PublicPersistentPileSnapshot>? snapshots = null;
+        foreach (var source in _publicPersistentPiles.Values)
+        {
+            if (source.OwnerSeat != seat) continue;
+            if (first is null) { first = source; continue; }
+            if (snapshots is null)
+            {
+                snapshots = [];
+                snapshots.Add(CreatePublicPersistentPileSnapshot(seat, first));
+            }
+            snapshots.Add(CreatePublicPersistentPileSnapshot(seat, source));
+        }
+        return snapshots is null ? null : Array.AsReadOnly(snapshots.ToArray());
+    }
+    private PublicPersistentPileSnapshot CreatePublicPersistentPileSnapshot(int seat, PublicPersistentPileSource source)
+    {
+        var name = _contentRegistry.GetSkill(source.SkillId).ProgramPresentation?.AuthorityName;
+        var cards = PublicPileCards(source);
+        return new(seat, source.SkillId, source.SkillInstanceId, name,
+            Array.AsReadOnly(cards.Select(ToSnapshot).ToArray()), cards.Count, source.Location);
     }
     private int PublicPileProgramCount(int seat, string skill, string instance)
     {
         var program = _contentRegistry.GetSkill(skill).Program!;
-        if (program.Triggers.SelectMany(trigger => trigger.Effects)
+        // A non-program input must still follow the original failing path.
+        if (program is not null)
+        {
+            if (_publicPersistentPiles.Count == 0) return 0;
+            var hasOwnedSource = false;
+            foreach (var source in _publicPersistentPiles.Values)
+                if (source.OwnerSeat == seat) { hasOwnedSource = true; break; }
+            if (!hasOwnedSource) return 0;
+        }
+        if (program!.Triggers.SelectMany(trigger => trigger.Effects)
             .Any(effect => PublicPileCashOutContract.IsOperation(effect.Op)))
             return _publicPersistentPiles.GetValueOrDefault((seat, skill, instance)) is { } exact
                 ? PublicPileCards(exact).Count : 0;

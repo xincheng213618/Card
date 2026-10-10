@@ -21,6 +21,12 @@ internal sealed partial class TurnCardUseEffectStore
     }
     internal bool IsHandCategoryRestricted(int turn, int turnSeat, int affected, SkillProgramCardCategory category) =>
         _handCategoryRestrictions.Any(p => p.TurnNumber == turn && p.TurnSeat == turnSeat && p.AffectedSeat == affected && p.Category == category);
+    internal bool HasHandCategoryRestriction(int turn, int turnSeat, int affected)
+    {
+        foreach (var policy in _handCategoryRestrictions)
+            if (policy.TurnNumber == turn && policy.TurnSeat == turnSeat && policy.AffectedSeat == affected) return true;
+        return false;
+    }
     private IEnumerable<long> ExpiringHandCategoryRestrictions(int turn, int seat) => _handCategoryRestrictions
         .Where(p => p.TurnNumber == turn && p.TurnSeat == seat).Select(p => p.GrantSequence);
     private void ExpireHandCategoryRestrictions(IReadOnlySet<long> ids) => _handCategoryRestrictions.RemoveAll(p => ids.Contains(p.GrantSequence));

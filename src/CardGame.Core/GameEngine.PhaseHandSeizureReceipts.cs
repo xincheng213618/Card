@@ -99,9 +99,11 @@ public sealed partial class GameEngine
     private void AssertPhaseHandSeizurePrograms()
     {
         foreach (var frame in _resolutionStack.OfType<ProgramSkillFrame>()) AssertPhaseHandSeizure(frame);
-        var history = CompleteProgramEventHistory().ToArray();
-        if (history.OfType<PhaseHandSeizureIssuedEvent>().GroupBy(e => e.FrameId).Any(g => g.Count() != 1) ||
-            history.OfType<PhaseHandDebtSettledEvent>().GroupBy(e => e.SeizureFrameId).Any(g => g.Count() != 1))
+        var issued = ProgramEventHistory<PhaseHandSeizureIssuedEvent>();
+        var settled = ProgramEventHistory<PhaseHandDebtSettledEvent>();
+        if (issued.Count == 0 && settled.Count == 0) return;
+        if (issued.GroupBy(e => e.FrameId).Any(g => g.Count() != 1) ||
+            settled.GroupBy(e => e.SeizureFrameId).Any(g => g.Count() != 1))
             throw new InvalidOperationException("A phase-hand issuance or settlement was duplicated.");
         foreach (var due in UnsettledPhaseHandSeizures())
             if (!_players[due.Source.OwnerSeat].IsAlive || !_players[due.TargetSeat].IsAlive ||

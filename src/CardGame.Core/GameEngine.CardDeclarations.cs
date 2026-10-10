@@ -4,17 +4,34 @@ public sealed partial class GameEngine
 {
     private const string DeclarationTurnUsage = "declaration";
 
-    private DeclaredCardPayment? UnclaimedDeclarationPayment(int provider, int cardId) =>
-        _resolutionStack.Select(frame => frame is CardDeclarationFrame { Stage: CardDeclarationStage.Applying } declaration
-                ? declaration.Payment : frame.AcceptedDeclarationPayment)
-            .LastOrDefault(payment => payment is { Claimed: false } && payment.ProviderSeat == provider &&
-                payment.Cost.CardId == cardId && _cardZones.GetLocation(cardId) == CardLocation.Processing);
+    private DeclaredCardPayment? UnclaimedDeclarationPayment(int provider, int cardId)
+    {
+        for (var index = _resolutionStack.Count - 1; index >= 0; index--)
+        {
+            var frame = _resolutionStack[index];
+            var payment = frame is CardDeclarationFrame { Stage: CardDeclarationStage.Applying } declaration
+                ? declaration.Payment : frame.AcceptedDeclarationPayment;
+            if (payment is { Claimed: false } && payment.ProviderSeat == provider &&
+                payment.Cost.CardId == cardId && _cardZones.GetLocation(cardId) == CardLocation.Processing)
+                return payment;
+        }
+        return null;
+    }
 
-    private Card? AvailableDeclarationCard(CharacterState owner) =>
-        _resolutionStack.Select(frame => frame.AcceptedDeclarationPayment)
-            .Concat(_resolutionStack.OfType<CardDeclarationFrame>().Where(frame => frame.Stage == CardDeclarationStage.Applying).Select(frame => frame.Payment))
-            .LastOrDefault(payment => payment is { Claimed: false } && payment.ProviderSeat == owner.Seat) is { } receipt
-            ? _cardZones.CardsAt(CardLocation.Processing).SingleOrDefault(card => card.Id == receipt.Cost.CardId) : null;
+    private Card? AvailableDeclarationCard(CharacterState owner)
+    {
+        // Applying declarations form the last segment of the original lookup,
+        // so even an older declaration takes precedence over accepted receipts.
+        for (var index = _resolutionStack.Count - 1; index >= 0; index--)
+            if (_resolutionStack[index] is CardDeclarationFrame { Stage: CardDeclarationStage.Applying,
+                    Payment: { Claimed: false } receipt } && receipt.ProviderSeat == owner.Seat)
+                return _cardZones.CardsAt(CardLocation.Processing).SingleOrDefault(card => card.Id == receipt.Cost.CardId);
+        for (var index = _resolutionStack.Count - 1; index >= 0; index--)
+            if (_resolutionStack[index].AcceptedDeclarationPayment is { Claimed: false } acceptedReceipt &&
+                acceptedReceipt.ProviderSeat == owner.Seat)
+                return _cardZones.CardsAt(CardLocation.Processing).SingleOrDefault(card => card.Id == acceptedReceipt.Cost.CardId);
+        return null;
+    }
 
     private DeclaredCardPayment? TransferDeclarationToCardUse(long useId)
     {
@@ -33,26 +50,39 @@ public sealed partial class GameEngine
         return true;
     }
 
-    private CardLocation CapturedDeclarationOrigin(int cardId, CardLocation actual) =>
-        _resolutionStack.Select(frame => frame is CardDeclarationFrame { Stage: CardDeclarationStage.Applying } declaration
-                ? declaration.Payment : frame.AcceptedDeclarationPayment)
-            .LastOrDefault(payment => payment is { Claimed: false } && payment.Cost.CardId == cardId)?.Cost.From ?? actual;
+    private CardLocation CapturedDeclarationOrigin(int cardId, CardLocation actual)
+    {
+        for (var index = _resolutionStack.Count - 1; index >= 0; index--)
+        {
+            var frame = _resolutionStack[index];
+            var payment = frame is CardDeclarationFrame { Stage: CardDeclarationStage.Applying } declaration
+                ? declaration.Payment : frame.AcceptedDeclarationPayment;
+            if (payment is { Claimed: false } && payment.Cost.CardId == cardId) return payment.Cost.From;
+        }
+        return actual;
+    }
 
     // Only the exact committed cost entity is hidden. Other same-name cards
     // can become public during nested effects and keep their own description.
     private string PublicDeclarationDescription(Card card, string ordinaryDescription)
     {
-        var paid = _resolutionStack.Select(frame => frame is CardDeclarationFrame declaration
-                ? declaration.Payment : frame.AcceptedDeclarationPayment)
-            .LastOrDefault(payment => payment is { IsRevealed: false } && payment.Cost.CardId == card.Id);
-        return paid is not null && _cardZones.GetLocation(card.Id) == CardLocation.Processing
-            ? "声明【" + CardCatalog.Get(paid.DeclaredKind).DisplayName + "】" : ordinaryDescription;
+        for (var index = _resolutionStack.Count - 1; index >= 0; index--)
+        {
+            var frame = _resolutionStack[index];
+            var payment = frame is CardDeclarationFrame declaration ? declaration.Payment : frame.AcceptedDeclarationPayment;
+            if (payment is { IsRevealed: false } && payment.Cost.CardId == card.Id)
+                return _cardZones.GetLocation(card.Id) == CardLocation.Processing
+                    ? "声明【" + CardCatalog.Get(payment.DeclaredKind).DisplayName + "】" : ordinaryDescription;
+        }
+        return ordinaryDescription;
     }
 
     private void AddDeclarationSlashActions(List<LegalAction> actions, CharacterState actor, IReadOnlyList<Card> playable)
     {
         actions.RemoveAll(action => action.ConversionSource is { } source && ViewAsRule(source)?.DeclarationValidation is not null &&
             (action.Kind == LegalActionKind.Recast || IsSlashCard(action.PlayedCardKind ?? CardKind.Dodge)));
+        if (!GetSkillBindingShard(actor).ViewAsPrograms.Any(program =>
+                program.ViewAs.Any(rule => rule.DeclarationValidation is not null))) return;
         foreach (var card in playable.Where(card => !IsTurnHandCardRestricted(actor, card)))
         foreach (var kind in SlashKinds)
         foreach (var source in GetProgramViewAsConversions(actor, card, kind, false).Where(source => ViewAsRule(source)?.DeclarationValidation is not null))
@@ -66,9 +96,17 @@ public sealed partial class GameEngine
         }
     }
 
-    private DeclaredCardPayment? LiveDeclarationPayment(int cardId) =>
-        _resolutionStack.Select(frame => frame is CardDeclarationFrame declaration ? declaration.Payment : frame.AcceptedDeclarationPayment)
-            .LastOrDefault(payment => payment?.Cost.CardId == cardId && _cardZones.GetLocation(cardId) == CardLocation.Processing);
+    private DeclaredCardPayment? LiveDeclarationPayment(int cardId)
+    {
+        for (var index = _resolutionStack.Count - 1; index >= 0; index--)
+        {
+            var frame = _resolutionStack[index];
+            var payment = frame is CardDeclarationFrame declaration ? declaration.Payment : frame.AcceptedDeclarationPayment;
+            if (payment?.Cost.CardId == cardId && _cardZones.GetLocation(cardId) == CardLocation.Processing)
+                return payment;
+        }
+        return null;
+    }
 
     private bool CanDeclareCard(CharacterState owner, string skillId) => _turnNumber > 0 &&
         _skillRuntimeState.GetUsage(owner.Seat, skillId, DeclarationTurnUsage, SkillUsageScope.Turn) == 0;

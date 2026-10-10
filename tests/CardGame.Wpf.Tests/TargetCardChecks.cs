@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using CardGame.Core;
 using CardGame.Wpf;
+using CardGame.Wpf.Controls;
 using CardGame.Wpf.Persistence;
 using CardGame.Wpf.ViewModels;
 
@@ -60,6 +61,23 @@ internal static class TargetCardChecks
                 .ToArray();
             Program.Assert(buttons.Length == prompt.Choices.Count,
                 "Every opaque target-card slot must be reachable as a visible button.");
+            Program.Assert(buttons.All(button => Program.Find<ContentControl>(button)
+                    .Any(content => content.Content is PromptCardChoicePresentation { IsCard: true, IsHidden: true, Face: null })),
+                "Opaque target choices must display card backs without a card face or entity ID.");
+            var hiddenChoice = prompt.Choices[0];
+            foreach (var parameters in new[]
+            {
+                new Dictionary<string, string> { ["program-action"] = "choose-other-owned-card-discard", ["source-zone"] = "Hand", ["slot-index"] = "0" },
+                new Dictionary<string, string> { ["program-action"] = "zhanyi-punish-card", ["hand-slot"] = "0" },
+                new Dictionary<string, string> { ["program-action"] = "participant-discard", ["zone"] = "Hand", ["slot"] = "0" }
+            })
+                Program.Assert(PromptCardChoiceConverter.Present(hiddenChoice with { Parameters = parameters },
+                        engine.CreateSnapshot(engine.State.HumanSeat, revealAll: true)) is { IsHidden: true, Face: null },
+                    "Skill-owned opaque choices must stay card backs, including in a developer view.");
+            var faceChoice = hiddenChoice with { Cards = new[] { targetBefore.Hand[0].Id } };
+            Program.Assert(PromptCardChoiceConverter.Present(faceChoice, engine.CreateSnapshot(engine.State.HumanSeat)).Face is null &&
+                           PromptCardChoiceConverter.Present(faceChoice, engine.CreateSnapshot(targetSeat)).Face?.Id == targetBefore.Hand[0].Id,
+                "The shared card renderer must use only faces authorized in its supplied viewer snapshot.");
 
             var revision = engine.Revision;
             viewModel.SelectTargetCardChoiceCommand.Execute(viewModel.TargetCardChoices.Last());

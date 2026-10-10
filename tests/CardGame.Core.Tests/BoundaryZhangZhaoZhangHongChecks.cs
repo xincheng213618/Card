@@ -113,7 +113,7 @@ internal static class BoundaryZhangZhaoZhangHongChecks
         var discard=DiscardRoot(g).ActualDiscardRecovery!;
         Require(discard.Phase.Kind==ActualDiscardRecoveryPhaseKind.Discard &&discard.Phase.Token!=second.Phase.Token &&
             discard.OriginalEntities.All(e=>g.CardMovements.Any(m=>m.Sequence==e.MovementSequence &&m.To==CardLocation.DiscardPile &&
-                m.Reason.Value.EndsWith("DiscardOwnedZoneCards",StringComparison.Ordinal))),
+                 m.Reason.Value.EndsWith("MoveBoundCards",StringComparison.Ordinal))),
             "The next real other-character Discard starting batch has its own phase token and original genuine discard ledger.");
         g=Cold(g,r);Answer(g,c=>c.Parameters.GetValueOrDefault("option")=="return");
         Reach(g,p=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("option")=="skip" &&c.Parameters.GetValueOrDefault("program-action")=="actual-discard-recovery"));
@@ -203,7 +203,7 @@ internal static class BoundaryZhangZhaoZhangHongChecks
             var data=JsonNode.Parse(FixtureRules.Replace("$SCHEMA$",SkillProgramCatalog.RulesSchemaVersion.ToString(System.Globalization.CultureInfo.InvariantCulture)))!;
             if(damageReturn)
                 data["skills"]!.AsArray().Single(n=>n!["id"]!.GetValue<string>()=="fixture:zz-fragile")!["triggers"]![0]!["effects"]![0]=
-                    JsonNode.Parse("""{"op":"damage","target":"owner","amount":1,"sourceRef":"owner","nature":"normal"}""");
+                    JsonNode.Parse("""{"op":"damage","target":"owner","amount":1,"sourceRef":{"kind":"owner"},"nature":"normal"}""");
             var labels=new Dictionary<string,object>();
             foreach(var node in data["skills"]!.AsArray())
             {
@@ -237,7 +237,7 @@ internal static class BoundaryZhangZhaoZhangHongChecks
      {"id":"fixture:zz-hp","revision":1,"triggers":[{"id":"recovery","window":"afterHpRecovered","subject":"owner","optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"hp-seen","options":[{"id":"continue"}]}]}]},
      {"id":"fixture:zz-gain","revision":1,"triggers":[{"id":"gain","window":"cardsGained","subject":"owner","destinationZones":["hand"],"movementOccurrence":"perBatch","movementReasons":["skill-program.boundary:zhijian.captured-equipment-reward","skill-program.boundary:guzheng.actual-discard-return","skill-program.boundary:guzheng.actual-discard-claim"],"optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"gain-seen","options":[{"id":"continue"}]}]}]},
      {"id":"fixture:zz-discard-on-gift","revision":1,"triggers":[{"id":"discard-two","window":"cardsGained","subject":"owner","destinationZones":["hand"],"movementOccurrence":"perBatch","movementReasons":["skill-program.fixture:zz-driver.GiveSelected"],"optional":false,"effects":[{"op":"selectOwnedCards","target":"owner","minimumCards":2,"maximumCards":2,"zones":["hand"],"resultBind":"actual-two"},{"op":"moveBoundCards","target":"owner","sourceBind":"actual-two","destination":"discardPile","awaitMovementTriggers":true},{"op":"grantSkills","target":"owner","skillIds":["fixture:zz-discard-start"]}]}]},
-     {"id":"fixture:zz-discard-start","revision":1,"triggers":[{"id":"discard-at-real-start","window":"discardPhaseStarting","subject":"owner","priority":20,"optional":false,"effects":[{"op":"discardOwnedZoneCards","target":"owner","zones":["hand"]}]}]},
+     {"id":"fixture:zz-discard-start","revision":1,"triggers":[{"id":"discard-at-real-start","window":"discardPhaseStarting","subject":"owner","priority":20,"optional":false,"effects":[{"op":"selectOwnedCards","target":"owner","minimumCards":2,"maximumCards":2,"zones":["hand"],"resultBind":"discard-phase-pair"},{"op":"moveBoundCards","target":"owner","sourceBind":"discard-phase-pair","destination":"discardPile","awaitMovementTriggers":true}]}]},
      {"id":"fixture:zz-fragile","revision":1,"triggers":[{"id":"return-cost-child","window":"cardsGained","subject":"owner","destinationZones":["hand"],"movementOccurrence":"perBatch","movementReasons":["skill-program.boundary:guzheng.actual-discard-return"],"priority":20,"optional":false,"usageScope":"game","usageLimit":1,"effects":[{"op":"loseHp","target":"owner","amount":2}]}]},
      {"id":"fixture:zz-pulse","revision":1,"triggers":[{"id":"actual-self-response","window":"selfDyingResponse","subject":"owner","optional":false,"usageScope":"game","usageLimit":1,"effects":[{"op":"chooseOption","target":"owner","resultBind":"self-seen","options":[{"id":"continue"}]},{"op":"recoverTo","target":"owner","numberExpression":"integerConstant","minimumValue":3,"clampToMaxHp":true}]}]},
      {"id":"fixture:zz-extra","revision":1,"triggers":[{"id":"real-extra-play","window":"turnStartBeforeNormalFlow","subject":"owner","optional":false,"effects":[{"op":"insertPhase","target":"owner","phase":"play","phaseContinuation":"beforeNormalPreparation"}]}]}

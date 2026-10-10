@@ -14,6 +14,7 @@ internal static class HandPointerChecks
     public static void OverlapAndPointer(string output)
     {
         using var vm = new MainViewModel(false, 721019, false, new MemorySaveStore());
+        Program.StartLordFixture(vm);
         vm.SelectGeneralChoiceCommand.Execute(vm.GeneralChoices[0]);
         Program.AdvanceToDecision(vm);
         var window = new CardGame.Wpf.MainWindow(vm);

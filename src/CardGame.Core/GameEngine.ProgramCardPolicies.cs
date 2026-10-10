@@ -10,26 +10,26 @@ public sealed partial class GameEngine
         bool? eventTargetIsFemale = null,
         bool? eventSourceIsFemale = null)
     {
-        var context = CreateSkillContext(owner);
-        return GetSkillBindingShard(owner).ProgramInstances
-            .OrderBy(instance => instance.SkillId, StringComparer.Ordinal)
-            .ThenBy(instance => instance.SkillInstanceId, StringComparer.Ordinal)
-            .SelectMany(instance => instance.Program.CardPolicies
-                .Where(policy => (policy.Kind == kind || kind == SkillProgramCardPolicyKind.IgnoreUseDistance &&
-                    policy.Kind == SkillProgramCardPolicyKind.IgnoreUseDistanceBeforeDealingDamage) &&
-                    (policy.Kind != SkillProgramCardPolicyKind.IgnoreUseDistanceBeforeDealingDamage || IsBeforeActualDamageDistancePolicyQualified(owner)) &&
+        // Binding shards already preserve SkillId/instance order. Most queries have
+        // no matching policy, so do not build a gameplay context for those reads.
+        PlayerSkillContext? context = null;
+        foreach (var (instance, policy) in GetSkillBindingShard(owner).GetCardPolicies(kind))
+        {
+            if ((policy.Kind != SkillProgramCardPolicyKind.IgnoreUseDistanceBeforeDealingDamage || IsBeforeActualDamageDistancePolicyQualified(owner)) &&
                     (policy.OwnerRole is null || HasSkillRoleQualification(owner, instance.SkillId, instance.SkillInstanceId, policy.OwnerRole.Value)) &&
                     (policy.CardKinds.Count == 0 ||
                      effectiveKind is { } card && policy.CardKinds.Contains(card)) &&
                     (policy.RequiredCardKinds.Count == 0 ||
                      requiredKind is { } response && policy.RequiredCardKinds.Contains(response)) &&
-                    policy.Condition.Evaluate(context, null, eventTargetIsFemale,
+                    policy.Condition.Evaluate(context ??= CreateSkillContext(owner), null, eventTargetIsFemale,
                         eventSourceIsFemale))
-                .Select(policy => (instance, policy)));
+                yield return (instance, policy);
+        }
     }
 
     private bool HasCardPolicy(CharacterState owner, SkillProgramCardPolicyKind kind,
         CardKind? effectiveKind = null) =>
+        GetSkillBindingShard(owner).GetCardPolicies(kind).Count != 0 &&
         CardPolicies(owner, kind, effectiveKind).Any();
 
     private bool HasOutsideAttackRangeSlashQuota(CharacterState owner, CharacterState target, CardKind kind) =>
@@ -91,6 +91,8 @@ public sealed partial class GameEngine
 
     private Suit GetProgramEffectiveSuit(CharacterState owner, Card card)
     {
+        if (GetSkillBindingShard(owner).GetCardPolicies(SkillProgramCardPolicyKind.RewriteSuit).Count == 0)
+            return card.Suit;
         var suit = card.Suit;
         foreach (var item in CardPolicies(owner, SkillProgramCardPolicyKind.RewriteSuit))
             if (item.Policy.InputSuit == suit) suit = item.Policy.OutputSuit!.Value;

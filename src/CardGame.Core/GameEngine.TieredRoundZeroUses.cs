@@ -43,11 +43,13 @@ public sealed partial class GameEngine
             else if (IsOrdinaryTrick(kind) && kind != CardKind.Nullification)
                 foreach (var option in BuildProgramOrdinaryTrickUseOptions(actor, kind, Suit.None,
                     enforceUsePermission: true, beneficiaryShieldSuit: Suit.None, actualEffectiveColor: null, hasActualColor: true,
-                    physicalCardIds: [], includeNextActualUseAdjustment: true))
+                    physicalCardIds: [], includeNextActualUseAdjustment: false))
                     result.Add(new(option.ActionKind, 0, option.TargetSeats.Count == 1 ? option.TargetSeats[0] : null,
                         DescribeConversion(source, option.Description), kind, option.TargetCardId, option.TargetSeats)
                     { ConversionSource = source });
         }
+        AddNextCardTargetAdjustmentActions(result, actor);
+        AddNextActualUseAdjustmentActions(result, actor);
         return Array.AsReadOnly(result.Select(action => action with
         { TieredRoundZeroUse = ViewAsRule(action.ConversionSource!)!.TieredRoundConversion }).ToArray());
     }
@@ -163,13 +165,31 @@ public sealed partial class GameEngine
     private void ExecuteTieredRoundZeroPlay(CharacterState actor, LegalAction action)
     {
         var source = action.ConversionSource!; var kind = action.PlayedCardKind!.Value; var card = new Card(0, kind, Suit.None, 0);
+        if (IsTargetAdjustmentAction(actor, action)) _selectedNextCardTargetSeats = action.TargetSeats;
         if (kind == CardKind.Peach)
         { ResolveRecoveryCard(actor, actor, card, "桃", CardKind.Peach, conversionSource: source, physicalCards: []); return; }
         // Resolve the published option before BeginCardUse consumes any
         // one-use target adjustment or quota and freezes its accepted action.
-        var option = IsOrdinaryTrick(kind) ? BuildProgramOrdinaryTrickUseOptions(actor, kind, Suit.None, enforceUsePermission: true,
-            beneficiaryShieldSuit: Suit.None, actualEffectiveColor: null, hasActualColor: true, physicalCardIds: [],
-            includeNextActualUseAdjustment: true).Single(o => o.ActionKind == action.Kind && o.TargetCardId == action.TargetCardId && o.TargetSeats.SequenceEqual(action.TargetSeats)) : null;
+        CardKind? requiredKind = null;
+        if (IsOrdinaryTrick(kind))
+        {
+            var options = BuildProgramOrdinaryTrickUseOptions(actor, kind, Suit.None, enforceUsePermission: true,
+                beneficiaryShieldSuit: Suit.None, actualEffectiveColor: null, hasActualColor: true, physicalCardIds: [],
+                includeNextActualUseAdjustment: true);
+            if (action.ProgramActivationId == "next-card-target-adjustment")
+            {
+                // Legacy targets are already published by this exact producer;
+                // native options supply effect metadata, not replacement targets.
+                if (!TieredRoundZeroPlayActions(actor).Any(a => a.ProgramActivationId == action.ProgramActivationId &&
+                    a.ProgramSkillId == action.ProgramSkillId && a.ConversionSource == source && a.PlayedCardKind == kind &&
+                    a.Kind == action.Kind && a.TargetCardId == action.TargetCardId && a.TargetSeats.SequenceEqual(action.TargetSeats)))
+                    throw new InvalidOperationException("A legacy-adjusted zero trick lost its exact published producer and ordered targets.");
+                requiredKind = options.Where(o => o.ActionKind == action.Kind && o.TargetCardId == action.TargetCardId)
+                    .Select(o => o.RequiredCardKind).Distinct().Single();
+            }
+            else requiredKind = options.Single(o => o.ActionKind == action.Kind && o.TargetCardId == action.TargetCardId &&
+                o.TargetSeats.SequenceEqual(action.TargetSeats)).RequiredCardKind;
+        }
         var id = BeginCardUse(card, actor.Seat, action.TargetSeats, kind, physicalCardIds: [], conversionSource: source);
         if (kind == CardKind.Alcohol)
         { actor.UsedPlayPhaseAlcoholThisTurn = true; BeginSimpleCardUse(id, new(0, SimpleCardUseEffect.Alcohol)); return; }
@@ -191,7 +211,7 @@ public sealed partial class GameEngine
             return;
         }
         BeginJizhiOrNullificationWindow(id, card, actor.Seat, LifecycleCardUse(id)!.TargetSeats,
-            option!.ActionKind, option.TargetCardId, option.RequiredCardKind, kind);
+            action.Kind, action.TargetCardId, requiredKind, kind);
     }
 
     // Called between the real Push(CardUse) and CardUseDeclared. CaptureCardUseAction

@@ -13,7 +13,7 @@ internal static class NationalSeatChecks
     private static MainViewModel Ready()
     {
         var vm = new MainViewModel(false, 721019, true, new MemorySaveStore(), useExpandedContent: true) { IsMotionEnabled = false };
-        vm.SelectedTableMode = vm.TableModes.Single(mode => mode.ModeId == "national:lite-4");
+        vm.SelectedTableMode = new TableModeOption(4, "双将旧规则测试", string.Empty, "national:lite-4");
         vm.StartNewGameCommand.Execute(null);
         for (var i = 0; i < 100 && !vm.CanEndTurn; i++) PersistenceChecks.Step(vm);
         Require(vm.CanEndTurn, "National portrait fixture failed to reach play.");

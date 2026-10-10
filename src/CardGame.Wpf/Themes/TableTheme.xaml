@@ -501,7 +501,9 @@
                     </Viewbox>
                 </Grid>
             </Border>
-            <TextBlock Text="{Binding ActorName}" Foreground="#302519" FontSize="10" TextAlignment="Center" Margin="0,3,0,0" />
+            <Border Width="86" Background="#E0231B13" Padding="3,4" ToolTip="{Binding Caption}">
+                <TextBlock x:Name="PlayActorCaption" Text="{Binding Caption}" Foreground="#E5BD69" FontSize="10" TextAlignment="Center" TextTrimming="CharacterEllipsis" />
+            </Border>
         </StackPanel>
         <DataTemplate.Triggers>
             <DataTrigger Binding="{Binding HasArtwork}" Value="True"><Setter TargetName="PlayTextFallback" Property="Visibility" Value="Collapsed" /></DataTrigger>

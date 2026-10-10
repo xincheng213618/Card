@@ -64,13 +64,19 @@ public sealed partial class GameEngine
     private IEnumerable<LegalAction> BuildProgramActions(CharacterState owner)
     {
         if (!owner.IsAlive || owner.Seat != _currentSeat || _phase != TurnPhase.Play) yield break;
-        var context = CreateSkillContext(owner, includeHandLimit: true);
+        PlayerSkillContext? ordinaryContext = null;
+        PlayerSkillContext? handLimitContext = null;
         foreach (var program in EnabledActivationPrograms(owner))
             foreach (var activation in program.Activations)
             {
                 var plan = ProgramInstructionResolver.Default.Resolve(program,
                     ProgramInstructionSourceKind.Activation, activation.Id);
                 var features = plan.Features;
+                // Usability enumerates native actions. Only conditions that read it
+                // need that second action query; ordinary activations do not.
+                var context = activation.Condition.RequiresHandLimitContext || features.RequiresHandLimitContext
+                    ? handLimitContext ??= CreateSkillContext(owner, includeHandLimit: true)
+                    : ordinaryContext ??= CreateSkillContext(owner);
                 if (!CanStartOwnedHandRankSum(owner, plan)) continue;
                 if (!CanStartExactOwnedCardCount(owner, plan)) continue;
                 if (features.HasOperation(SkillProgramEffectOp.YujueResolve) && !CanRunYujueResolve(owner.Seat)) continue;
@@ -514,7 +520,7 @@ public sealed partial class GameEngine
         return Accept(() =>
         {
             ClearPendingDecision();
-            ExecuteProgramSkill(owner, action, command.CardIds, command.TargetSeats);
+            ExecuteValidatedProgramSkill(owner, action, command.CardIds, command.TargetSeats);
             AdvanceRulesAndPublishState();
             if (_options.AdvanceAfterHumanCommands) AdvanceToHumanBoundary();
         });
@@ -532,10 +538,16 @@ public sealed partial class GameEngine
             ?? throw new InvalidOperationException("The skill activation is no longer available.");
         if (ValidateProgramSelection(current, cards, targets) is { } error)
             throw new InvalidOperationException(error.Message);
-        if (current.ProgramSkillOwnerSeat is { } skillOwnerSeat)
+        ExecuteValidatedProgramSkill(owner, current, cards, targets);
+    }
+
+    private void ExecuteValidatedProgramSkill(CharacterState owner, LegalAction action,
+        IReadOnlyList<int> cards, IReadOnlyList<int> targets)
+    {
+        if (action.ProgramSkillOwnerSeat is { } skillOwnerSeat)
         {
-            if (TryExecuteDeckEndContribution(owner, _players[skillOwnerSeat], current, cards[0])) return;
-            ExecuteProgramContribution(owner, _players[skillOwnerSeat], current, cards[0]);
+            if (TryExecuteDeckEndContribution(owner, _players[skillOwnerSeat], action, cards[0])) return;
+            ExecuteProgramContribution(owner, _players[skillOwnerSeat], action, cards[0]);
             return;
         }
         var program = GetEnabledSkillProgram(owner, action.ProgramSkillId ??
@@ -1170,6 +1182,11 @@ public sealed partial class GameEngine
                     frame.RepeatedJudgment is { LastMatched: not null } &&
                     pendingMovement.CoverageResultBind is null &&
                     pendingMovement.SubjectSeat == frame.OwnerSeat;
+                var awaitsLostHpOwnedGift = paidEffect?.Op == SkillProgramEffectOp.DrawLostHpThenOfferOwnedCardsUpTo &&
+                    frame.ReexecuteParticipantInstruction &&
+                    frame.LostHpOwnedGift is { Stage: LostHpOwnedGiftStage.Drawing or LostHpOwnedGiftStage.Moving } &&
+                    pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.BeforeCount == 0 &&
+                    pendingMovement.CoverageResultBind is null && LostHpOwnedGiftObserverRoot()?.Id == frame.Id;
                 var awaitsOwnedMovement = paidEffect is
                 {
                     Op: SkillProgramEffectOp.SelectAndMoveOwnedCard,
@@ -1209,7 +1226,7 @@ public sealed partial class GameEngine
                     !(paidEffect?.Op == SkillProgramEffectOp.ObtainDamageTargetCardAndResolveCategory && frame.DamageTargetObtain is not null && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) &&
                     !(paidEffect?.Op == SkillProgramEffectOp.DiscardDamageTargetAndClaimMount && frame.DamageTargetMount is { Receipt: not null } && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) &&
                     !IsLiejieAwaitedMovement(frame, paidEffect, pendingMovement) &&
-                    !awaitsSuitPlacement && !awaitsCappedHandRefresh && !awaitsDeclaredDeck && !awaitsShownGift && !awaitsJudgmentClaim && !awaitsRepeatedJudgment && !awaitsOwnedMovement &&
+                    !awaitsSuitPlacement && !awaitsCappedHandRefresh && !awaitsDeclaredDeck && !awaitsShownGift && !awaitsJudgmentClaim && !awaitsRepeatedJudgment && !awaitsOwnedMovement && !awaitsLostHpOwnedGift &&
                     !IsPhaseHandSeizureMovement(frame, paidEffect, pendingMovement) && !IsPublicPilePreparationMovement(frame, paidEffect, pendingMovement) && !IsSourceCurseMovement(frame, paidEffect, pendingMovement) && !IsSelectedForeignCardSlashMovement(frame, paidEffect, pendingMovement) && !IsKuangfuMovement(frame, paidEffect, pendingMovement) && !IsGainGiftMovement(frame, paidEffect, pendingMovement) && !IsPhaseNamePredictionMovement(frame, paidEffect, pendingMovement) && !IsLastDamageSourceReciprocityMovement(frame, paidEffect, pendingMovement) && !IsPairedColorDispositionMovement(frame, paidEffect, pendingMovement) && !IsJoinedTrickDamageRewardAwaitedMovement(frame, paidEffect, pendingMovement) && !IsRoundGainedEquipmentDrawAwaitedMovement(frame, paidEffect, pendingMovement) && !IsSameNameHandDiscardOrDamageMovement(frame, paidEffect, pendingMovement) && !IsCompletedUndamagedTargetRevealMovement(frame, paidEffect, pendingMovement) && !IsRecipientCategoryMarkMovement(frame, paidEffect, pendingMovement) && !IsOffTurnUsedCardGiftMovement(frame, paidEffect, pendingMovement) && !IsOrderedPrintedSkillLossMovement(frame, paidEffect, pendingMovement) && !IsOverflowTargetCancellationAwaitedMovement(frame, paidEffect, pendingMovement) && !IsOriginalHandEntityMovement(frame, paidEffect, pendingMovement) && !IsOutsidePhaseDrawDiscardMovement(frame, paidEffect, pendingMovement) && !IsMatchingRecastMovement(frame, paidEffect, pendingMovement) && !IsPairedHandRecastMovement(frame, paidEffect, pendingMovement) && !IsFixedDistanceDebtMovement(frame, paidEffect, pendingMovement) && !IsActualHandGainMovement(frame, paidEffect, pendingMovement) && !IsPrivateOfferMovement(frame, paidEffect, pendingMovement) && !IsGameHandHpMovement(frame, paidEffect, pendingMovement) && !IsDyingSuitsMovement(frame, paidEffect, pendingMovement) && !IsFireTargetBenefitMovement(frame, paidEffect, pendingMovement) && !IsNamedCardAcquisitionMovement(frame, paidEffect, pendingMovement) && !IsCappedConversionAwaitedMovement(frame, pendingMovement) && !IsForeignContestOrAidMovement(frame, paidEffect, pendingMovement) && !IsPlacedEquipmentBenefitMovement(frame, paidEffect, pendingMovement) && !IsDynamicDiscardDamageMovement(frame, paidEffect, pendingMovement) && !IsConditionalDuelAwaitedMovement(frame, paidEffect, pendingMovement) && !IsInspectedHandMovement(frame, paidEffect, pendingMovement) && !IsRecipientContestMovement(frame, paidEffect, pendingMovement) && !IsRecipientConsequencesMovement(frame, paidEffect, pendingMovement) && !IsPrepDiscardMovement(frame, paidEffect, pendingMovement) && !IsSlashTargetBenefitMovement(frame, paidEffect, pendingMovement) && !IsTargetPenaltyMovement(frame, paidEffect, pendingMovement) && !IsActualEquipmentOrDiscardMovement(frame, paidEffect, pendingMovement) && !IsPaidColorDamageClaimMovement(frame, paidEffect, pendingMovement) && !IsEquipmentDonationMovement(frame, paidEffect, pendingMovement) && !IsHalfHandPhaseMovement(frame, paidEffect, pendingMovement) && !IsPairBenefitMovement(frame, paidEffect, pendingMovement) && !IsEndingPairMovement(frame, paidEffect, pendingMovement) && !IsExtraDrawDebtMovement(frame, paidEffect, pendingMovement) && !IsDrawDiscardCategoryMovement(frame, paidEffect, pendingMovement) && !IsOwnTrickDrawMovement(frame, paidEffect, pendingMovement) && !IsPreventionDrawMovement(frame, paidEffect, pendingMovement) && !IsDamageJudgmentSuitPaymentMovement(frame, paidEffect, pendingMovement) && !awaitsExchangedMovement && !(paidEffect?.Op == SkillProgramEffectOp.ResolveDeferredHandAlignment && frame.DeferredHandAlignmentResolution is { } deferredAlignment && pendingMovement.SubjectSeat == deferredAlignment.TargetSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op == SkillProgramEffectOp.UseRandomDeckEquipment && frame.SelectedTargetSeats is [var equipmentUser] && pendingMovement.SubjectSeat == equipmentUser && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op is SkillProgramEffectOp.DiscardSelectedParticipantCards or SkillProgramEffectOp.OfferBoundCardsForDamagePrevention && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op == SkillProgramEffectOp.TakeSelectedTargetCards && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) &&
                     !(paidEffect is { Op: SkillProgramEffectOp.MoveBoundCards, AwaitMovementTriggers: true } && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) &&
                     !(paidEffect?.Op == SkillProgramEffectOp.ObtainBoundCardsAndArmNextRevealBonus &&

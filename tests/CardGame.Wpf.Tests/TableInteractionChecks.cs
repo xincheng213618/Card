@@ -17,6 +17,7 @@ internal static class TableInteractionChecks
     public static void SelectionCost(string output)
     {
         using var vm = new MainViewModel(false, 1, false, new MemorySaveStore());
+        Program.StartLordFixture(vm);
         vm.SelectGeneralChoiceCommand.Execute(vm.GeneralChoices[0]);
         Program.AdvanceToDecision(vm);
         // Use the stable base catalogue for presentation costs; expanded-pool behavior has separate coverage.

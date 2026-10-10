@@ -111,7 +111,7 @@ internal static class BoundaryWangYiChecks
             "The real paid-HP observer acquires one independent suppression source; this is qualification suppression, not physical grant removal.");
         loss = Restore(loss, lr);
 
-        var (decline, dr) = Create(observers: false); Play(decline); hp = decline.State.Players[0].Hp;
+        var (decline, dr) = Create("standard:slash", observers: false); Play(decline); hp = decline.State.Players[0].Hp;
         Use(decline, "enemy-duel", [1]); Reach(decline, p => Activation(p, Zhen));
         Answer(decline, c => c.Parameters.GetValueOrDefault("program-action") == "skip");
         Reach(decline, p => p.Kind == DecisionKind.RespondSlash && p.PlayerSeat == 0);
@@ -296,7 +296,7 @@ internal static class BoundaryWangYiChecks
             {"id":"{{Hp}}","revision":1,"triggers":[{"id":"hp-child","window":"afterHealthChanged","subject":"owner","optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},
             {"id":"{{Entry}}","revision":1,"triggers":[{"id":"entry","window":"dyingEntering","subject":"owner","optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},
             {"id":"{{Loss}}","revision":1,"triggers":[{"id":"loss","window":"afterHpLost","subject":"owner","optional":false,"effects":[{"op":"grantSkills","target":"owner","skillIds":["{{SourceSuppression}}"]}]}]},
-            {"id":"fixture:wy-gain","revision":1,"triggers":[{"id":"gift-gain","window":"cardsGained","subject":"owner","destinationZones":["hand"],"movementOccurrence":"perSourceOwner","movementReasons":["program.lost-hp-owned-gift.give"],"optional":false,"effects":[{"op":"loseHp","target":"owner","amount":6}]}]}]}
+            {"id":"fixture:wy-gain","revision":1,"triggers":[{"id":"gift-gain","window":"cardsGained","subject":"owner","destinationZones":["hand"],"movementOccurrence":"perBatch","movementReasons":["program.lost-hp-owned-gift.give"],"optional":false,"effects":[{"op":"loseHp","target":"owner","amount":6}]}]}]}
             """;
             if (sourceLoss)
             {

@@ -22,7 +22,7 @@ public sealed partial class GameEngine
         var actor = _players[command.ActorSeat];
         if (FindOwnedPlayableCard(actor, command.CardId) is null)
             return Reject(CommandErrorCode.InvalidCard, "The recast card is not in the actor's playable zones.");
-        var action = BuildLegalActions(actor).SingleOrDefault(action =>
+        var action = BuildLegalActions(actor, selectedPhysicalCardId: command.CardId).SingleOrDefault(action =>
             action.Kind == LegalActionKind.Recast && action.CardId == command.CardId &&
             action.ConversionSource == command.ConversionSource);
         if (action is null) return Reject(CommandErrorCode.IllegalAction, "This card cannot be recast under the current rules.");
@@ -282,6 +282,7 @@ public sealed partial class GameEngine
     {
         var targets = eventTargets.Distinct().ToHashSet();
         var result = new List<ProgramCardTriggerCandidate>();
+        var capturedOwnerFacts = new SkillProgramTriggerFacts?[_players.Count];
         foreach (var owner in _players.Where(player => player.IsAlive).OrderBy(player => player.Seat))
         foreach (var binding in GetSkillBindingShard(owner)?.GetInstanceTriggers(window) ?? [])
         {
@@ -332,7 +333,7 @@ public sealed partial class GameEngine
                 eventTargetsForBinding = [-1];
             foreach (var eventTarget in eventTargetsForBinding)
             {
-                var capturedFacts = CaptureProgramTriggerFacts(owner, action);
+                var capturedFacts = capturedOwnerFacts[owner.Seat] ??= CaptureProgramTriggerFacts(owner, action);
                 var facts = capturedFacts with
                 {
                     // Explicit completion conditions read the response appearance frozen before
@@ -345,7 +346,6 @@ public sealed partial class GameEngine
                     EventTargetHandCount = eventTarget >= 0 ? GetHand(_players[eventTarget]).Count : 0,
                     EventTargetHp = window == SkillProgramTriggerWindow.CardUseTargetsFinalized && HasFinalTargetSlashEffects(trigger.Effects) && eventTarget >= 0
                         ? _players[eventTarget].Hp : capturedFacts.EventTargetHp,
-                    CurrentAttackRange = GetAttackRange(owner.Seat),
                     OwnerEventTargetDistance = eventTarget >= 0
                         ? GetCombatDistance(owner.Seat, eventTarget)
                         : int.MaxValue,

@@ -121,7 +121,7 @@ internal static class BoundaryXiaoQiaoChecks
                 g.CardMovements.Count(m => m.CardId == id && m.Sequence == fact.MovementSequence) == 1 &&
                 Facts<ProgramMatchedJudgmentSelfDiscardedEvent>(g).Count() == (destination == "self" ? 1 : 0),
                 "Top/other/self each move the one original result exactly once; only self acquisition pays one subsequent real discard.");
-            if (destination == "top") Require(g.CreateCardZoneDiagnostics().Single(c => c.CardId == id) is { Location: var place, ZoneIndex: 0 } && place == CardLocation.DrawPile,
+            if (destination == "top") Require(g.CreateCardZoneDiagnostics().Where(c => c.Location == CardLocation.DrawPile).MaxBy(c => c.ZoneIndex)!.CardId == id,
                 "The original judgment entity is actually the top draw-pile card.");
             if (destination == "self") Require(g.CreateCardZoneDiagnostics().Single(c => c.CardId == id).Location == CardLocation.DiscardPile,
                 "The self-owned result can itself pay the actual post-gain discard.");
@@ -130,7 +130,8 @@ internal static class BoundaryXiaoQiaoChecks
         var (native, registry) = Create(nativePeer: true, observers: false);
         var target = native.State.Players.Single(p => p.GeneralId == "fixture:xq-peer-1").Seat;
         Use(native, "range"); Play(native);
-        var slash = native.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.Slash && a.PlayedCardKind == CardKind.Slash && a.TargetSeats.SequenceEqual([target]));
+        var slash = native.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.Slash && a.PlayedCardKind is null or CardKind.Slash &&
+            a.CardId is { } id && native.CreateSnapshot(0).Players[0].Hand.Any(c => c.Id == id && c.Kind == CardKind.Slash) && a.TargetSeats.SequenceEqual([target]));
         Accept(native, new PlayCardCommand(0, slash.CardId!.Value, slash.TargetSeats, native.Revision, P(native)!.PromptId, slash.PlayedCardKind));
         Until(native, () => Facts<ProgramSuitPreventionPaymentEvent>(native).Any()); native = Cold(native, registry); Play(native);
         Require(Facts<ProgramSuitPreventionPaymentEvent>(native).Single().OwnerSeat == target && !native.State.Players[target].IsHuman &&

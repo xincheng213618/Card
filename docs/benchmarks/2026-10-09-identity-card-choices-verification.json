@@ -1,0 +1,69 @@
+{
+  "date": "2026-10-09",
+  "status": "passed",
+  "changes": {
+    "identityModes": [
+      "identity:classic-5",
+      "identity:classic-8"
+    ],
+    "randomIdentity": true,
+    "seatNumbers": "Lord 1; increment in the existing right-hand direction",
+    "tableDirectionChanged": false,
+    "generalChoices": {
+      "Lord": 11,
+      "Loyalist": 6,
+      "Rebel": 6,
+      "Renegade": 11
+    },
+    "generalRows": {
+      "6": [
+        3,
+        3
+      ],
+      "11": [
+        6,
+        5
+      ]
+    },
+    "lobbyModes": [
+      "identity:classic-8",
+      "identity:classic-5",
+      "team:standard-2v2",
+      "national:ambitious-6"
+    ],
+    "cardChoices": "Opaque cards use backs. Faces use only viewer-authorized snapshots.",
+    "randomCardEffects": "Existing rule-owned random transfers/discards settle directly without card-choice prompts."
+  },
+  "verification": {
+    "fullRun": false,
+    "build": "passed",
+    "newCoreCheck": {
+      "passed": 1,
+      "durationMs": 931
+    },
+    "routineCore": {
+      "passed": 472,
+      "failed": 0,
+      "durationMs": 81187
+    },
+    "wpfRoutineAndFocused": {
+      "passed": 28,
+      "failed": 0,
+      "durationMs": 19102
+    },
+    "targetedInitialDurationMs": 13078,
+    "firstRoutineDurationMs": 103191,
+    "wpfRecheckDurationMs": 20685,
+    "scope": "Command-driven Core checks and off-screen WPF rendering. No live desktop interaction run.",
+    "fixtureUpdates": "Explicit Lord fixtures replace dependence on the old default role; legacy mechanism modes are configured internally rather than restored as lobby entries."
+  },
+  "screenshots": [
+    "2026-10-09-identity-card-choices/choices-11-1120.png",
+    "2026-10-09-identity-card-choices/choices-6-1440.png",
+    "2026-10-09-identity-card-choices/hidden-card-choice-1120.png"
+  ],
+  "temporaryArtifacts": {
+    "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-identity-ui-1791537330211",
+    "cleanup": "blocked by automatic approval review: both guarded cleanup and exact literal-path recursive removal were rejected with blocked by policy; directory remains, no active task consumers"
+  }
+}

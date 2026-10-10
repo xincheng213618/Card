@@ -68,7 +68,7 @@ public sealed partial class GameEngine
     private ProgramDyingAlcoholPermission? CaptureProgramDyingAlcoholPermission(ProgramTriggerCandidate candidate, ProgramSkillWindowContext context)
     {
         // Keep historical producer state unchanged when this new policy is absent.
-        if (!_contentRegistry.Skills.Values.Any(s => s.Program?.CardPolicies.Any(p => p.Kind == SkillProgramCardPolicyKind.ForeignTurnAlcoholUseProhibition) == true)) return null;
+        if (!_contentRegistry.ProgramDependencies.HasCardPolicy(SkillProgramCardPolicyKind.ForeignTurnAlcoholUseProhibition)) return null;
         var trigger = GetProgramTrigger(candidate);
         if (!HasDyingAlcoholProducer(trigger)) return null;
         if (!CanRunProgramDyingAlcoholPolicy(trigger, context, candidate.OwnerSeat) || ActiveDying is not { } dying)

@@ -32,11 +32,14 @@ public sealed partial class GameEngine
                 HpChangeKind.Recovery => new[] { SkillProgramTriggerWindow.AfterHpRecovered, SkillProgramTriggerWindow.AfterHealthChanged },
                 _ => new[] { SkillProgramTriggerWindow.AfterHealthChanged }
             };
+            var registered = change.FrozenLossCandidates ??
+                windows.SelectMany(window => CollectProgramTriggerCandidates(owner, window)).ToArray();
+            if (registered.Count == 0) continue;
             var facts = CaptureProgramTriggerFacts(owner) with
             {
                 HpChangeAmount = change.Amount, HpBeforeChange = change.HpBefore, HpAfterChange = change.HpAfter
             };
-            var candidates = (change.FrozenLossCandidates ?? windows.SelectMany(window => CollectProgramTriggerCandidates(owner, window)).ToArray()).Where(candidate =>
+            var candidates = registered.Where(candidate =>
                 GetProgramTrigger(candidate)
                     .Condition.Evaluate(facts, candidate.SkillId, candidate.SkillInstanceId))
                 .SelectMany(candidate => Enumerable.Range(0,

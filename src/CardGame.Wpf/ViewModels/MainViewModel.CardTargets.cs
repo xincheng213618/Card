@@ -76,7 +76,7 @@ public sealed partial class MainViewModel
     private string[] MultiTargetGuideSteps()
     {
         var changes = Seats.Where(seat => _selectedCardTargetSeats.Contains(seat.Seat))
-            .Select(seat => $"{seat.Seat + 1} 号位 {seat.GeneralName}：{(seat.IsChained ? "解除连环" : "进入连环")}").ToArray();
+            .Select(seat => $"{seat.DisplaySeatNumber} 号位 {seat.GeneralName}：{(seat.IsChained ? "解除连环" : "进入连环")}").ToArray();
         var actions = MultiTargetCardActions;
         var range = actions.Length == 0 ? "0" :
             FormatSelectionRange(actions.Min(action => action.TargetSeats.Count), actions.Max(action => action.TargetSeats.Count));

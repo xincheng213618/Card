@@ -116,13 +116,22 @@ public sealed partial class GameEngine
     private IReadOnlyList<ProgramOrdinaryTrickUseOption> BuildProgramOrdinaryTrickUseOptions(CharacterState source, CardKind? outputKind = null, Suit? physicalSuit = null, bool excludeOwner = false, bool enforceUsePermission = false, Suit? beneficiaryShieldSuit = null, bool? actualEffectiveColor = null, bool hasActualColor = false, IReadOnlyList<int>? physicalCardIds = null, bool includeNextActualUseAdjustment = false)
     {
         var options = new List<ProgramOrdinaryTrickUseOption>();
+        bool Wants(CardKind kind) => outputKind is null || outputKind == kind;
         var effectiveColor = hasActualColor ? actualEffectiveColor : PhysicalGroupColor(source, GetHand(source));
         // A multi-card virtual card only carries a suit while every physical card
         // shares it; mixed-suit combinations are colorless and pass suit shields.
-        var handSuits = GetHand(source).Select(card => card.Suit).Distinct().ToArray();
-        var virtualSuit = physicalSuit ?? (handSuits.Length == 1 ? handSuits[0] : (Suit?)null);
-        var effectiveHandSuits = GetHand(source).Select(c => EffectiveSuit(source, c)).Distinct().ToArray();
-        var shieldSuit = beneficiaryShieldSuit ?? physicalSuit ?? (effectiveHandSuits.Length == 1 ? effectiveHandSuits[0] : (Suit?)null);
+        var virtualSuit = physicalSuit;
+        if (virtualSuit is null)
+        {
+            var handSuits = GetHand(source).Select(card => card.Suit).Distinct().ToArray();
+            virtualSuit = handSuits.Length == 1 ? handSuits[0] : null;
+        }
+        var shieldSuit = beneficiaryShieldSuit ?? physicalSuit;
+        if (shieldSuit is null)
+        {
+            var effectiveHandSuits = GetHand(source).Select(c => EffectiveSuit(source, c)).Distinct().ToArray();
+            shieldSuit = effectiveHandSuits.Length == 1 ? effectiveHandSuits[0] : null;
+        }
         void Add(
             CardKind cardKind,
             LegalActionKind actionKind,
@@ -149,40 +158,40 @@ public sealed partial class GameEngine
                 description));
         }
 
-        if (!excludeOwner && !IsBlackTrickTargetProhibited(source, CardKind.DrawTwo, effectiveColor)) Add(CardKind.DrawTwo, LegalActionKind.DrawTwo, "当【无中生有】使用：摸两张牌");
+        if (Wants(CardKind.DrawTwo) && !excludeOwner && !IsBlackTrickTargetProhibited(source, CardKind.DrawTwo, effectiveColor)) Add(CardKind.DrawTwo, LegalActionKind.DrawTwo, "当【无中生有】使用：摸两张牌");
 
-        if (CanUseGlobalCard(source, CardKind.BarbarianAssault, excludeOwner) ||
-            CanUseGlobalCard(source, CardKind.ArrowBarrage, excludeOwner))
+        if (Wants(CardKind.BarbarianAssault) && CanUseGlobalCard(source, CardKind.BarbarianAssault, excludeOwner) ||
+            Wants(CardKind.ArrowBarrage) && CanUseGlobalCard(source, CardKind.ArrowBarrage, excludeOwner))
         {
             var otherSeats = Enumerable.Range(1, _playerCount - 1)
                 .Select(offset => _players[(source.Seat + offset) % _playerCount])
                 .Where(player => player.IsAlive)
                 .Select(player => player.Seat)
                 .ToArray();
-            var barbarianTargets = otherSeats.Where(seat =>
+            var barbarianTargets = !Wants(CardKind.BarbarianAssault) ? [] : otherSeats.Where(seat =>
                     !HasCardPolicy(_players[seat], SkillProgramCardPolicyKind.ExcludeGlobalTarget,
                         CardKind.BarbarianAssault) &&
                     !IsCardTargetProhibited(_players[seat], CardKind.BarbarianAssault, virtualSuit, effectiveColor))
                 .ToArray();
-            var arrowTargets = otherSeats.Where(seat =>
+            var arrowTargets = !Wants(CardKind.ArrowBarrage) ? [] : otherSeats.Where(seat =>
                     !IsCardTargetProhibited(_players[seat], CardKind.ArrowBarrage, virtualSuit, effectiveColor))
                 .ToArray();
-            if (CanUseGlobalCard(source, CardKind.BarbarianAssault, excludeOwner) && barbarianTargets.Length > 0)
+            if (Wants(CardKind.BarbarianAssault) && CanUseGlobalCard(source, CardKind.BarbarianAssault, excludeOwner) && barbarianTargets.Length > 0)
                 Add(CardKind.BarbarianAssault, LegalActionKind.BarbarianAssault,
                     "当【南蛮入侵】使用：其他角色依次响应【杀】", barbarianTargets,
                     requiredCardKind: CardKind.Slash);
-            if (CanUseGlobalCard(source, CardKind.ArrowBarrage, excludeOwner) && arrowTargets.Length > 0)
+            if (Wants(CardKind.ArrowBarrage) && CanUseGlobalCard(source, CardKind.ArrowBarrage, excludeOwner) && arrowTargets.Length > 0)
                 Add(CardKind.ArrowBarrage, LegalActionKind.ArrowBarrage,
                     "当【万箭齐发】使用：其他角色依次响应【闪】", arrowTargets,
                     requiredCardKind: CardKind.Dodge);
         }
 
-        var allAliveSeats = Enumerable.Range(0, _playerCount)
+        var allAliveSeats = !Wants(CardKind.PeachGarden) && !Wants(CardKind.FiveGrains) ? [] : Enumerable.Range(0, _playerCount)
             .Select(offset => _players[(source.Seat + offset) % _playerCount])
             .Where(player => player.IsAlive && (!excludeOwner || player.Seat != source.Seat))
             .Select(player => player.Seat)
             .ToArray();
-        if (CanUseGlobalCard(source, CardKind.PeachGarden, excludeOwner))
+        if (Wants(CardKind.PeachGarden) && CanUseGlobalCard(source, CardKind.PeachGarden, excludeOwner))
         {
             var peachTargets = allAliveSeats.Where(seat =>
                     !IsCardTargetProhibited(_players[seat], CardKind.PeachGarden, virtualSuit, effectiveColor))
@@ -192,7 +201,7 @@ public sealed partial class GameEngine
                     "当【桃园结义】使用：所有存活角色依次回复体力", peachTargets);
         }
         var availableCards = _cardZones.Count(CardLocation.DrawPile) + _cardZones.Count(CardLocation.DiscardPile);
-        if (CanUseGlobalCard(source, CardKind.FiveGrains, excludeOwner))
+        if (Wants(CardKind.FiveGrains) && CanUseGlobalCard(source, CardKind.FiveGrains, excludeOwner))
         {
             var grainTargets = allAliveSeats.Where(seat =>
                     !IsCardTargetProhibited(_players[seat], CardKind.FiveGrains, virtualSuit, effectiveColor))
@@ -202,12 +211,14 @@ public sealed partial class GameEngine
                     "当【五谷丰登】使用：所有存活角色依次选牌", grainTargets);
         }
 
+        if (Wants(CardKind.Duel))
         foreach (var target in _players.Where(player =>
                      player.IsAlive && player.Seat != source.Seat &&
                      !IsCardTargetProhibited(player, CardKind.Duel, virtualSuit, effectiveColor) &&
                      !IsDirectedCardTargetProhibited(source.Seat, player.Seat, CardKind.Duel)))
             Add(CardKind.Duel, LegalActionKind.Duel, $"当【决斗】对 {target.Name} 使用", [target.Seat]);
 
+        if (Wants(CardKind.Dismantlement))
         foreach (var target in _players.Where(player =>
                      player.IsAlive && player.Seat != source.Seat && HasTargetCard(player) &&
                      !IsCardTargetProhibited(player, CardKind.Dismantlement, virtualSuit, effectiveColor) &&
@@ -215,6 +226,7 @@ public sealed partial class GameEngine
             AddProgramOrdinaryTrickTargetCardOptions(options, source, target, CardKind.Dismantlement,
                 LegalActionKind.Dismantlement, "过河拆桥");
 
+        if (Wants(CardKind.Snatch))
         foreach (var target in _players.Where(player =>
                      player.IsAlive && player.Seat != source.Seat &&
                      (HasPhaseSuitAllowance(source.Seat,shieldSuit) || HasCardDistanceExemption(source, player, CardKind.Snatch) ||
@@ -226,20 +238,25 @@ public sealed partial class GameEngine
             AddProgramOrdinaryTrickTargetCardOptions(options, source, target, CardKind.Snatch,
                 LegalActionKind.Snatch, "顺手牵羊");
 
+        if (Wants(CardKind.FireAttack))
         foreach (var target in _players.Where(player =>
                      player.IsAlive && GetHand(player).Count > 0 &&
                      !IsCardTargetProhibited(player, CardKind.FireAttack, virtualSuit, effectiveColor) &&
                      !IsDirectedCardTargetProhibited(source.Seat, player.Seat, CardKind.FireAttack)))
             Add(CardKind.FireAttack, LegalActionKind.FireAttack, $"当【火攻】对 {target.Name} 使用", [target.Seat]);
 
-        var chainTargets = _players.Where(player =>
-                player.IsAlive && !IsCardTargetProhibited(player, CardKind.IronChain, virtualSuit, effectiveColor) &&
-                !IsDirectedCardTargetProhibited(source.Seat, player.Seat, CardKind.IronChain))
-            .OrderBy(player => player.Seat).ToArray();
-        foreach (var targets in EnumerateProgramIronChainTargets(source, chainTargets))
-            Add(CardKind.IronChain, LegalActionKind.IronChain,
-                $"当【铁索连环】对 {string.Join("、", targets.Select(seat => _players[seat].Name))} 使用", targets);
+        if (Wants(CardKind.IronChain))
+        {
+            var chainTargets = _players.Where(player =>
+                    player.IsAlive && !IsCardTargetProhibited(player, CardKind.IronChain, virtualSuit, effectiveColor) &&
+                    !IsDirectedCardTargetProhibited(source.Seat, player.Seat, CardKind.IronChain))
+                .OrderBy(player => player.Seat).ToArray();
+            foreach (var targets in EnumerateProgramIronChainTargets(source, chainTargets))
+                Add(CardKind.IronChain, LegalActionKind.IronChain,
+                    $"当【铁索连环】对 {string.Join("、", targets.Select(seat => _players[seat].Name))} 使用", targets);
+        }
 
+        if (Wants(CardKind.BorrowedSword))
         foreach (var weaponOwner in _players.Where(player =>
                      player.IsAlive && player.Seat != source.Seat && GetWeapon(player) is not null &&
                      !IsCardTargetProhibited(player, CardKind.BorrowedSword, virtualSuit, effectiveColor) &&

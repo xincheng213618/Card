@@ -119,11 +119,12 @@ internal static class OrdinaryZhugeKeChecks
         var (lost,lr)=Create("slash",peerHp:2,sourceLoss:true);var other=Peer(lost);Duwu(lost,other);
         var ids=P(lost)!.Choices.Where(c=>c.Parameters.GetValueOrDefault("branch")=="card").Take(2).Select(c=>c.Cards.Single()).ToArray();
         Pay(lost,ids[0]);Pay(lost,ids[1]);Reach(lost,p=>p.SkillPrompt?.SkillId==Loss);var paidRoot=Root(lost);lost=Cold(lost,lr);Continue(lost);
-        Reach(lost,p=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="select-target" && c.Targets.SequenceEqual(new[]{0})));
-        Answer(lost,c=>c.Parameters.GetValueOrDefault("program-action")=="select-target" && c.Targets.SequenceEqual(new[]{0}));Play(lost);
+        Play(lost);
         Require(lost.State.Players[other].Hp==1 && Facts<DynamicDiscardDamagePaidEvent>(lost).Single().FrameId==paidRoot.Id &&
             ids.All(id=>lost.CardMovements.Count(m=>m.CardId==id && m.Reason.Value==CostReason)==1) &&
-            Facts<ProgramSkillResolvedEvent>(lost).Any(e=>e.SkillId=="ol:duwu" && e.Completed),
+            Facts<ProgramSkillResolvedEvent>(lost).Any(e=>e.SkillId=="ol:duwu" && e.Completed) &&
+            Facts<SkillsAcquiredEvent>(lost).Count(e=>e.PlayerSeat==0 && e.SourceSkillId==Loss && e.SkillIds.Contains("fixture:zk-source-suppression"))==1 &&
+            !lost.GetHumanLegalActions().Any(a=>a.SkillId=="ol:duwu"),
             "A real cost-movement observer suppresses the source after atomic payment, while the exact paid tail still deals its frozen damage and completes without repayment.");lost=Cold(lost,lr);
         StrictContracts();
     }
@@ -209,6 +210,7 @@ internal static class OrdinaryZhugeKeChecks
                 new{name=labelKey,description="真正子帧",optionLabels=new Dictionary<string,string>{["continue"]="继续"}}:(object)new{name=labelKey,description="固定真实命令能力"};
             var c=SkillProgramCatalog.Load(rules,JsonSerializer.Serialize(new{schemaVersion=SkillProgramCatalog.PresentationSchemaVersion,skills=labels}));
             foreach(var(skillId,program)in c.Programs)b.AddSkill(new(skillId,skillId,"原请求/费用子链小夹具"){Program=program,ProgramPresentation=c.Presentations[skillId],Tags=skillId=="fixture:zk-quiet"?SkillTag.Locked:SkillTag.None});
+            b.AddSkill(new("fixture:zk-source-suppression","已付来源资格抑制","原子付款后保留已付伤害"){SuppressionRule=new(3),Tags=SkillTag.Locked});
             b.AddSkill(new("fixture:zk-pick","固定其他角色","真实身份选将偏好"){SelectionWeights=Enum.GetValues<Role>().ToDictionary(role=>role,_=>100000d)});
             var ownerSkills=new List<string>{"ol:aocai","ol:duwu","classic:longdan",Hp,"classic:mashu"};if(sourceLoss)ownerSkills.Add(Loss);
             b.AddGeneral(new("fixture:zk-owner","真实诸葛恪规则","supporter",Driver,"wu",6,ownerSkills){InitialHp=2});
@@ -230,7 +232,7 @@ internal static class OrdinaryZhugeKeChecks
       {"id":"fixture:zk-quiet","revision":1,"triggers":[{"id":"quiet","window":"afterNormalDraw","subject":"owner","optional":false,"effects":[{"op":"skipTurnPhases","target":"owner","phases":["play"]}]},{"id":"quiet-discard","window":"discardPhaseStarting","subject":"owner","optional":false,"effects":[{"op":"skipTurnPhases","target":"owner","phases":["discard"]}]}]},
       {"id":"fixture:zk-hp","revision":1,"triggers":[{"id":"hp","window":"afterHpRecovered","subject":"owner","optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},
       {"id":"fixture:zk-pulse","revision":1,"triggers":[{"id":"pulse","window":"selfDyingResponse","subject":"owner","optional":true,"usageScope":"game","usageLimit":1,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]},{"op":"useVirtualDyingAlcohol","target":"owner"}]}]},
-      {"id":"fixture:zk-loss","revision":1,"triggers":[{"id":"paid","window":"cardsMoved","subject":"owner","sourceZones":["hand","equipment"],"movementOccurrence":"perOwnerBatch","movementReasons":["program.dynamic-target-hp.discard"],"optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]},{"op":"selectTarget","target":"owner","targetKind":"anyLiving"},{"op":"issueCurrentTurnNonLockedSkillSuppression","target":"selectedTarget"}]}]}
+      {"id":"fixture:zk-loss","revision":1,"triggers":[{"id":"paid","window":"cardsMoved","subject":"owner","sourceZones":["hand","equipment"],"movementOccurrence":"perOwnerBatch","movementReasons":["program.dynamic-target-hp.discard"],"optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]},{"op":"grantSkills","target":"owner","skillIds":["fixture:zk-source-suppression"]}]}]}
     ]}
     """;
 }

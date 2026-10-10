@@ -126,7 +126,9 @@ public sealed partial class GameEngine
     }
 
     private SkillBindingShard GetSkillBindingShard(CharacterState player) =>
-        _skillBindingIndex.GetShard(player);
+        _actionQuery is { } query
+            ? query.Bindings[player.Seat] ??= _skillBindingIndex.GetShard(player)
+            : _skillBindingIndex.GetShard(player);
 
     private IReadOnlyList<string> EnabledPrintedContentSkillIds(CharacterState player)
     {

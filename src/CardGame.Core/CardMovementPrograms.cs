@@ -32,6 +32,24 @@ public sealed record CardMovementSourceCount(
     int CountBefore,
     int CountAfter);
 
+/// <summary>The physical payment batch actually issued by one accepted Slash use.</summary>
+public sealed record CardUsePaymentMovementReceipt(long OwnerFrameId, long ActionId,
+    int SequenceBefore, int SequenceAfter)
+{
+    private CardMovementBatchContext _batch = null!;
+    public required CardMovementBatchContext Batch
+    {
+        get => _batch;
+        init => _batch = value with
+        {
+            Movements = Array.AsReadOnly(value.Movements.ToArray()),
+            SourceCounts = Array.AsReadOnly(value.SourceCounts.ToArray()),
+            DestinationCounts = value.DestinationCounts is null ? null : Array.AsReadOnly(value.DestinationCounts.ToArray()),
+            NativeDrawInvocation = value.NativeDrawInvocation is { } draw ? draw with { Materials = draw.Materials } : null
+        };
+    }
+}
+
 /// <summary>
 /// Serializable ordered cursor for configured post-movement triggers.
 /// The physical batch is already committed; this frame only coordinates the
@@ -53,6 +71,8 @@ public sealed partial record CardsMovedTriggerWindowFrame(
     public long? ResumeDrawFundedDistinctBasicFrameId { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public long? ResumeRecoveryReplacementFrameId { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public long? ResumePaidCardUseFrameId { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public long? ResumeEquipmentRecastFrameId { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]

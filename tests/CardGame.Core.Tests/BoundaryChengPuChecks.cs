@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Text.Json;
 using CardGame.Content.Standard;
 using CardGame.Core;
@@ -40,7 +41,7 @@ internal static class BoundaryChengPuChecks
         }
 
         var (natural, nr) = Create(kind: CardKind.FireSlash);
-        PlayAction(natural, natural.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.Slash && a.PlayedCardKind == CardKind.FireSlash && a.TargetSeats.SequenceEqual([1, 3])));
+        PlayAction(natural, natural.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.Slash && a.PlayedCardKind is null or CardKind.FireSlash && a.TargetSeats.SequenceEqual([1, 3])));
         Play(natural);
         Require(Facts<DamageAppliedEvent>(natural).Count(e => e.SourceSeat == 0 && e.Nature == DamageNature.Fire) == 2 &&
             !Facts<ProgramCompletedUsePaymentEvent>(natural).Any(), "A natural Fire Slash has the extra target and no conversion completion cost."); natural = Cold(natural, nr);
@@ -48,7 +49,7 @@ internal static class BoundaryChengPuChecks
         var (v, vr) = Create(virtualUse: true, deferPlay: true);
         Reach(v, p => Activate(p, "boundary:shensu", "skip-judgment-and-draw"));
         Answer(v, c => c.Parameters.GetValueOrDefault("program-action") == "activate");
-        Reach(v, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "select-targets"));
+        Reach(v, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "select-target"));
         Answer(v, c => c.Targets.SequenceEqual([2]));
         Reach(v, p => Activate(p, "boundary:lihuo", "committed-slash-fire-or-extra"));
         Answer(v, c => c.Parameters.GetValueOrDefault("program-action") == "activate");
@@ -62,6 +63,7 @@ internal static class BoundaryChengPuChecks
             child.CardKind == CardKind.FireSlash && child.CurrentSlashFirePolicy!.OriginalAction.EffectiveKind == CardKind.Slash &&
             producer.SelectedTargetSeats.SequenceEqual([2]) && !Facts<ProgramCompletedUsePaymentEvent>(v).Any(),
             "The zero-entity producer keeps its original selected primary target through a real extra-target tail pause.");
+        RequireExactVirtualSlashProducer(v, child, producer);
         v = Cold(v, vr); Reject(v); Continue(v); ReachPayment(v);
         Answer(v, c => c.Parameters.GetValueOrDefault("branch") == "discard"); Play(v);
         Require(Facts<DamageAppliedEvent>(v).Count(e => e.SourceSeat == 0 && e.Nature == DamageNature.Fire) == 2 &&
@@ -152,8 +154,8 @@ internal static class BoundaryChengPuChecks
                 "Each actual material pays and cleans up once after all cost, HP, gain and completed children."); g = Cold(g, r);
         }
         Use(g, "hurt-one", [victims[1]]);
-        Reach(g, p => p.PlayerSeat == 0 && p.Kind == DecisionKind.RescueDying);
-        Require(!P(g)!.Choices.Any(c => c.Parameters.GetValueOrDefault("skill-id") == "boundary:chunlao") && Stock(g, 0).Count == 1 &&
+        Drain(g); Play(g);
+        Require(Facts<PlayerDyingEvent>(g).Any(e => e.VictimSeat == victims[1]) && Stock(g, 0).Count == 1 &&
             Facts<ProgramRoundPileAlcoholIssuedEvent>(g).Select(e => e.Price).SequenceEqual([1, 2]),
             "One remaining material cannot publish a prospective three-material rescue; issued ordinals are not refunded or repeated."); g = Cold(g, r);
     }
@@ -198,6 +200,51 @@ internal static class BoundaryChengPuChecks
         Require(actual.Source.OwnerSeat == rescuer && actual.VictimSeat == rescuer && actual.Price == 1 && ai.State.Players[rescuer].Hp == 1 && Stock(ai, rescuer).Count == 0 &&
             Facts<ProgramRoundPileAlcoholMaterialPaidEvent>(ai).Count() == 1 && !ai.ResolutionStack.OfType<CardUseFrame>().Any(f => f.RoundPileAlcoholReturn is not null),
             "Native AI chooses a real first-price material, issues the victim's true Alcohol, pays once and returns all owning children."); ai = Cold(ai, ar);
+    }
+
+    private static void RequireExactVirtualSlashProducer(GameEngine game, CardUseFrame use, ProgramSkillFrame parent)
+    {
+        var method = typeof(GameEngine).GetMethod("TryGetCurrentSlashFirePrimaryReturn", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var store = typeof(GameEngine).GetField("_resolutionStack", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(game)!;
+        var replace = store.GetType().GetMethod("Replace")!;
+        var policy = use.CurrentSlashFirePolicy!;
+        var source = new CardConversionSource(parent.SkillId, parent.TriggerId ?? parent.ActivationId, parent.OwnerSeat, parent.SkillInstanceId);
+        Require(Proven(use, parent), "A converted zero-entity Slash returns exactly its frozen primary target to its issuing program.");
+        Require(Proven(WithChain([]), parent), "The historical empty-chain virtual producer keeps the same exact parent proof.");
+        RejectProducer(parent with { GameplayHash = "changed-hash" });
+        RejectProducer(parent with { SkillInstanceId = "changed-instance" });
+        RejectProducer(parent with { InstructionIndex = 1 });
+        RejectProducer(parent with { SelectedTargetSeats = [1] });
+        Require(!Proven(use with { CardAttack = use.CardAttack! with { ProgramSkillCardUseFrameId = parent.Id + 1000 } }, parent),
+            "A converted virtual use cannot borrow a different program return.");
+        Require(!Proven(use with { Id = use.Id + 1000 }, parent), "The declaration and change facts belong to the exact child use.");
+        foreach (var changed in new[] { source with { SkillId = "changed-skill" }, source with { BindingId = "changed-binding" },
+            source with { SkillInstanceId = "changed-instance" }, source with { OwnerSeat = 1 } })
+            Require(!Proven(WithChain([changed]), parent), "A virtual producer source must match its skill, binding, instance and owner.");
+        Require(!Proven(WithChain([source, source]), parent), "Multiple conversion sources cannot impersonate the unique virtual producer.");
+
+        bool Proven(CardUseFrame candidate, ProgramSkillFrame producer)
+        {
+            object?[] args = [candidate, producer, null];
+            return (bool)method.Invoke(game, args)! && args[2] is IReadOnlyList<int> targets && targets.SequenceEqual([2]);
+        }
+        void RejectProducer(ProgramSkillFrame candidate)
+        {
+            replace.Invoke(store, [candidate]);
+            try { Require(!Proven(use, candidate) && !Proven(WithChain([]), candidate),
+                "Both producer forms retain the exact owning instance, definition, selection and paused instruction."); }
+            finally { replace.Invoke(store, [parent]); }
+        }
+        CardUseFrame WithChain(IReadOnlyList<CardConversionSource> chain) => use with
+        {
+            CurrentSlashFirePolicy = policy with { OriginalAction = CopyAction(policy.OriginalAction, chain) },
+            Action = CopyAction(use.Action!, policy.Converted ? chain.Append(policy.Source).ToArray() : chain)
+        };
+        static CardActionContext CopyAction(CardActionContext action, IReadOnlyList<CardConversionSource> chain) =>
+            new(action.ActionId, action.ParentActionId, action.Type, action.ActorSeat, action.ProviderSeat,
+                action.RequesterSeat, action.ResponderSeat, action.OpponentSeat, action.EffectiveKind, action.TargetSeats,
+                action.PhysicalCards, chain, action.DesignatedTargetSeats, action.EffectiveSuit, action.EffectiveRank,
+                action.EffectiveIsRed, action.FactionOrigin);
     }
 
     private static IEnumerable<T> Facts<T>(GameEngine g) where T : IGameEvent => g.Events.Select(e => e.Payload).OfType<T>();
@@ -315,7 +362,7 @@ internal static class BoundaryChengPuChecks
      {"id":"fixture:cp-quiet","revision":1,"triggers":[{"id":"quiet","window":"afterNormalDraw","subject":"owner","optional":false,"effects":[{"op":"skipTurnPhases","target":"owner","phases":["play"]}]},{"id":"quiet-discard","window":"discardPhaseStarting","subject":"owner","optional":false,"effects":[{"op":"skipTurnPhases","target":"owner","phases":["discard"]}]}]},
      {"id":"fixture:cp-hp","revision":1,"triggers":[{"id":"actual-recovery","window":"afterHpRecovered","subject":"owner","optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"hp-seen","options":[{"id":"continue"}]},{"op":"draw","target":"owner","amount":1}]}]},
      {"id":"fixture:cp-gain","revision":1,"triggers":[{"id":"recovery-reward","window":"cardsGained","subject":"owner","destinationZones":["hand"],"movementOccurrence":"perBatch","movementReasons":["skill-program.fixture:cp-hp.Draw"],"optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"gain-seen","options":[{"id":"continue"}]}]}]},
-     {"id":"fixture:cp-store","revision":1,"triggers":[{"id":"actual-payment-after-stock","window":"cardsMoved","subject":"owner","sourceZones":["hand"],"movementOccurrence":"perBatch","movementReasons":["skill-program.boundary:lihuo.PayCompletedUseDiscardOrLoseHp"],"priority":-100,"optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"stock-seen","options":[{"id":"continue"}]}]}]},
+     {"id":"fixture:cp-store","revision":1,"triggers":[{"id":"actual-payment-after-stock","window":"discardPileReceived","subject":"owner","discardOwnerScope":"own","sourceZones":["hand"],"movementOccurrence":"perBatch","movementReasons":["skill-program.boundary:lihuo.PayCompletedUseDiscardOrLoseHp"],"priority":-100,"optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"stock-seen","options":[{"id":"continue"}]}]}]},
      {"id":"fixture:cp-pile-cost","revision":1,"triggers":[{"id":"atomic-stock-cost","window":"cardsMoved","subject":"owner","sourceZones":["chunlao"],"movementOccurrence":"perBatch","movementReasons":["skill-program.boundary:chunlao.round-pile-alcohol.pay"],"optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"stock-paid","options":[{"id":"continue"}]}]}]},
      {"id":"fixture:cp-wine-completed","revision":1,"triggers":[{"id":"true-victim-wine","window":"cardUseCompleted","ownerRelation":"actor","cardKinds":["alcohol"],"optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"wine-seen","options":[{"id":"continue"}]}]}]},
      {"id":"fixture:cp-dying-entry","revision":1,"triggers":[{"id":"actual-paid-dying","window":"dyingEntering","subject":"owner","optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"dying-seen","options":[{"id":"continue"}]}]}]},

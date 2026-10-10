@@ -97,6 +97,7 @@ public sealed partial class GameEngine
                 .Select(item => new CardMovementSourceCount(item.Key, item.Value, _cardZones.Count(item.Key))).ToArray(),
             batch.OriginProgram?.SkillId, batch.OriginProgram?.SkillInstanceId, batch.OriginProgram?.OwnerSeat)
             { MovementTiming = batch.MovementTiming, DiscardRecoveryPhase = batch.DiscardRecoveryPhase };
+        CaptureSlashUsePaymentBatch(completed);
         CaptureForeignTurnActualHandGains(completed);
         _pendingCardsMovedBatches.Add(completed);
     }
@@ -131,12 +132,13 @@ public sealed partial class GameEngine
         var counterspellPayment = _resolutionStack.LastOrDefault() is NullificationWindowFrame { CounterspellPayment: not null } counter && counter.Id == instructionFrameId ? counter : null;
         var historicalEnding = _resolutionStack.LastOrDefault() is CardUseFrame { EndingHistoricalUseReturn: not null, EndingHistoricalCostDrained: false } history && history.Id == instructionFrameId ? history : null;
         var roundPileAlcohol = _resolutionStack.LastOrDefault() is CardUseFrame { RoundPileAlcoholReturn: not null, RoundPileAlcoholCostDrained: false } wine && wine.Id == instructionFrameId ? wine : null;
-        bool Eligible(CardMovementBatchContext batch) => awaitingFrame is not null && IsSelectedForeignCardSlashMovementBatch(awaitingFrame, batch) || (drawFunded is not null ? batch.ParentFrameId == drawFunded.Id && batch.AwaitingProgramFrameId is null : historicalEnding is not null ? batch.ParentFrameId == historicalEnding.Id && batch.AwaitingProgramFrameId is null : roundPileAlcohol is not null ? batch.ParentFrameId == roundPileAlcohol.Id && batch.AwaitingProgramFrameId is null : counterspellPayment is not null ? batch.ParentFrameId == counterspellPayment.Id && batch.AwaitingProgramFrameId is null : colorFireAttack is not null ? batch.ParentFrameId == colorFireAttack.Id && batch.AwaitingProgramFrameId is null : drawPhase is not null ? batch.ParentFrameId == drawPhase.Id || drawPhase.InheritedMovementBatchIds?.Contains(batch.Id) == true : factionRequestCost is not null ? batch.ParentFrameId == factionRequestCost.Id : equipmentRecast is not null ? batch.ParentFrameId == equipmentRecast.Id : recoveryReplacement is not null ? batch.ParentFrameId == recoveryReplacement.Id : declaration is not null ? batch.ParentFrameId == declaration.Id : awaitingFrame is null
+        var paidCardUse = _resolutionStack.LastOrDefault() is CardUseFrame { RecoveryPaidContinuation.Kind: RecoveryPaidCardUseKind.CommittedSlash } paidUse && paidUse.Id == instructionFrameId ? paidUse : null;
+        bool Eligible(CardMovementBatchContext batch) => paidCardUse is not null ? IsCardUsePaymentBatch(paidCardUse, batch) : awaitingFrame is not null && IsSelectedForeignCardSlashMovementBatch(awaitingFrame, batch) || (drawFunded is not null ? batch.ParentFrameId == drawFunded.Id && batch.AwaitingProgramFrameId is null : historicalEnding is not null ? batch.ParentFrameId == historicalEnding.Id && batch.AwaitingProgramFrameId is null : roundPileAlcohol is not null ? batch.ParentFrameId == roundPileAlcohol.Id && batch.AwaitingProgramFrameId is null : counterspellPayment is not null ? batch.ParentFrameId == counterspellPayment.Id && batch.AwaitingProgramFrameId is null : colorFireAttack is not null ? batch.ParentFrameId == colorFireAttack.Id && batch.AwaitingProgramFrameId is null : drawPhase is not null ? batch.ParentFrameId == drawPhase.Id || drawPhase.InheritedMovementBatchIds?.Contains(batch.Id) == true : factionRequestCost is not null ? batch.ParentFrameId == factionRequestCost.Id : equipmentRecast is not null ? batch.ParentFrameId == equipmentRecast.Id : recoveryReplacement is not null ? batch.ParentFrameId == recoveryReplacement.Id : declaration is not null ? batch.ParentFrameId == declaration.Id : awaitingFrame is null
             ? batch.AwaitingProgramFrameId is null
             : batch.AwaitingProgramFrameId == awaitingFrame.Id ||
               batch.AwaitingProgramFrameId is null && batch.ParentFrameId == awaitingFrame.Id);
         if (_pendingDecision is not null ||
-            (_resolutionStack.Count != 0 && awaitingFrame is null && declaration is null && recoveryReplacement is null && equipmentRecast is null && factionRequestCost is null && drawPhase is null && colorFireAttack is null && counterspellPayment is null && roundPileAlcohol is null && historicalEnding is null && drawFunded is null) ||
+            (_resolutionStack.Count != 0 && awaitingFrame is null && declaration is null && recoveryReplacement is null && equipmentRecast is null && factionRequestCost is null && drawPhase is null && colorFireAttack is null && counterspellPayment is null && roundPileAlcohol is null && historicalEnding is null && drawFunded is null && paidCardUse is null) ||
             _winner != Winner.None || _status == EngineStatus.Completed)
             return false;
 
@@ -155,6 +157,7 @@ public sealed partial class GameEngine
             if (awaitingFrame is not null && IsSelectedForeignCardSlashMovementBatch(awaitingFrame, batch))
                 window = window with { ResumeProgramFrameId = awaitingFrame.Id };
             if (recoveryReplacement is not null) window = window with { ResumeRecoveryReplacementFrameId = recoveryReplacement.Id };
+            if (paidCardUse is not null) window = window with { ResumePaidCardUseFrameId = paidCardUse.Id };
             if (equipmentRecast is not null) window = window with { ResumeEquipmentRecastFrameId = equipmentRecast.Id };
             if (drawPhase is not null) window = window with { ResumeDrawPhaseObligationFrameId = drawPhase.Id };
             if (colorFireAttack is not null) window = window with { ResumeColorFireAttackFrameId = colorFireAttack.Id };
@@ -512,6 +515,14 @@ public sealed partial class GameEngine
                 PopResolutionFrame(frame.Id, ResolutionFrameKind.CardsMovedTriggerWindow);
                 if (ReturnCardResponseCompletionMovement(frame)) return;
                 if (ReturnCardSupplyCompletionMovement(frame)) return;
+                if (frame.ResumePaidCardUseFrameId is { } paidUseId)
+                {
+                    if (_resolutionStack.LastOrDefault() is not CardUseFrame paidParent ||
+                        paidParent.Id != paidUseId || !IsPaidCardUseMovementReturn(paidParent, frame))
+                        throw new InvalidOperationException("A card-use payment lost its original typed movement return.");
+                    ContinueRecoveryPaidCardUse(paidUseId);
+                    return;
+                }
                 if (frame.DeferredTurnEndReturn is not null)
                 {
                     ReturnDeferredTurnEndPrelude(frame);

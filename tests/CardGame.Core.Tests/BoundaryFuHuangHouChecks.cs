@@ -80,7 +80,7 @@ internal static class BoundaryFuHuangHouChecks
         Reach(dying, p => Offer(p, Contest)); ContestNow(dying); Reach(dying, p => p.SkillPrompt?.SkillId == Gain);
         Continue(dying); Reach(dying, p => p.SkillPrompt?.SkillId == Entry); dying = Restore(dying, dr); Continue(dying);
         Until(dying, () => E<ForeignTurnContestSlashReturnedEvent>(dying).Any() || dying.State.Status == EngineStatus.Completed);
-        Require(E<CardActionAcceptedEvent>(dying).Any(e => e.Action.Type == CardActionType.Response && e.Action.EffectiveKind == CardKind.Peach &&
+        Require(E<CardActionAcceptedEvent>(dying).Any(e => e.Action.Type == CardActionType.Use && e.Action.EffectiveKind == CardKind.Peach &&
             e.Action.PhysicalCards.Count > 0) && E<ForeignTurnContestCardClaimedEvent>(dying).Count() == 1,
             "The restored gain→actual HP-loss→Dying-entry chain uses real Peach rescue before the original foreign return, without repeating its claim.");
 
@@ -183,7 +183,7 @@ internal static class BoundaryFuHuangHouChecks
         var old = E<SameTypeAidGiftPaidEvent>(legacy).Single();
         Require(old.Use.CardActionId is null && old.Use.LegacyProducerProgramId is not null &&
             !E<CardActionAcceptedEvent>(legacy).Any(e => e.Action.Type == CardActionType.Use && e.Action.ActorSeat == old.Use.ActorSeat &&
-                e.Action.EffectiveKind == CardKind.Slash), "Real registered Shensu retains its Action-null producer and can request aid without a manufactured Action.");
+                e.Action.EffectiveKind == CardKind.Slash), "A real registered mandatory legacy producer retains its Action-null use and can request aid without a manufactured Action.");
         legacy = Restore(legacy, lr); Continue(legacy);
         Until(legacy, () => E<CardUseFinishedEvent>(legacy).Any(e => e.ResolutionId == old.Use.CardUseFrameId) ||
             !legacy.ResolutionStack.OfType<CardUseFrame>().Any(u => u.Id == old.Use.CardUseFrameId));
@@ -303,7 +303,7 @@ internal static class BoundaryFuHuangHouChecks
         public void Register(IContentRegistryBuilder b)
         {
             var terminal = sourceLoss
-                ? ",{\"op\":\"loseOwnerSkillsAndGrant\",\"target\":\"owner\",\"skillIds\":[\"" + Contest + "\"],\"sourceBind\":\"fixture:fhh-owner-weight\"}"
+                ? ",{\"op\":\"grantSkills\",\"target\":\"owner\",\"skillIds\":[\"fixture:fhh-source-suppression\"]}"
                 : claimDying ? ",{\"op\":\"loseHp\",\"target\":\"owner\",\"amount\":6}" : "";
             var giftTerminal = giftDying ? ",{\"op\":\"loseHp\",\"target\":\"owner\",\"amount\":6}" : "";
             var peachCompleted = giftDying
@@ -324,9 +324,10 @@ internal static class BoundaryFuHuangHouChecks
                {"id":"gear","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"useRandomDeckEquipment","target":"owner","resultBind":"gear"}]},
                {"id":"double-slash","minCards":2,"maxCards":2,"sourceZones":["hand","equipment"],"minTargets":1,"maxTargets":1,"targetKind":"otherLiving","usesPerTurn":null,"effects":[{"op":"useSelectedCardsAs","target":"selectedTarget","sourceBind":"two-slash","outputKind":"slash"}]}]},
             {"id":"{{Gain}}","revision":1,"triggers":[
-              {"id":"original-claim","window":"cardsGained","subject":"owner","destinationZones":["hand"],"movementReasons":["{{Claim}}"],"movementOccurrence":"perSourceOwner","optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"claim-seen","options":[{"id":"continue"}]}{{terminal}}]},
+              {"id":"original-claim","window":"cardsGained","subject":"owner","destinationZones":["hand"],"movementReasons":["{{Claim}}"],"movementOccurrence":"perBatch","optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"claim-seen","options":[{"id":"continue"}]}{{terminal}}]},
               {"id":"private-gift","window":"cardsGained","subject":"owner","destinationZones":["hand"],"movementReasons":["{{Gift}}"],"movementOccurrence":"perSourceOwner","optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"gift-seen","options":[{"id":"continue"}]}{{giftTerminal}}]}]},
             {"id":"{{Entry}}","revision":1,"triggers":[{"id":"entry","window":"dyingEntering","subject":"owner","optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"entry-seen","options":[{"id":"continue"}]}]}{{peachCompleted}}]},
+            {"id":"fixture:fhh-legacy","revision":1,"triggers":[{"id":"mandatory-legacy-slash","window":"turnStartBeforeNormalFlow","subject":"owner","optional":false,"effects":[{"op":"selectTarget","target":"owner","targetKind":"otherLivingVirtualSlashTarget"},{"op":"skipTurnPhases","target":"owner","phases":["judgment","draw"]},{"op":"useVirtualCard","target":"selectedTarget","outputKind":"slash","targetRestriction":"distanceUnlimitedAgainstTarget"}]}]},
             {"id":"fixture:fhh-completed","revision":1,"triggers":[{"id":"completed","window":"cardUseCompleted","ownerRelation":"actor","cardKinds":["slash"],"optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"completed-seen","options":[{"id":"continue"}]}]}]},
             {"id":"fixture:fhh-native-aoe","revision":1,{{aoe}}"modifiers":[{"id":"keep","query":"handLimit","operation":"add","value":20,"priority":0}]}
             ]}
@@ -335,11 +336,13 @@ internal static class BoundaryFuHuangHouChecks
                 [Driver] = new { name = "真实用牌驱动", description = "成熟零实体决斗与实际多材料杀" },
                 [Gain] = new { name = "实际收益子链", description = "原实体收益", optionLabels = new Dictionary<string,string> { ["continue"] = "继续" } },
                 [Entry] = new { name = "真实濒死入口", description = "真实救援", optionLabels = new Dictionary<string,string> { ["continue"] = "继续" } },
+                ["fixture:fhh-legacy"] = new { name = "固定旧生产者", description = "注册的实际阶段替换及虚拟杀" },
                 ["fixture:fhh-completed"] = new { name = "真实完成窗口", description = "全部目标完成", optionLabels = new Dictionary<string,string> { ["continue"] = "继续" } },
                 ["fixture:fhh-native-aoe"] = new { name = "实际AOE转换", description = "真实实体转换" }
             };
             var catalog = SkillProgramCatalog.Load(rules, JsonSerializer.Serialize(new { schemaVersion = 3, skills = label }));
             foreach (var id in catalog.Programs.Keys) b.AddSkill(new(id, id, "真实通用夹具") { Program = catalog.Programs[id], ProgramPresentation = catalog.Presentations[id] });
+            b.AddSkill(new("fixture:fhh-source-suppression", "已付来源资格抑制", "保留已领取实体并取消未发出的杀") { SuppressionRule = new(6), Tags = SkillTag.Locked });
             foreach (var owner in new[] { true, false }) b.AddSkill(new(owner ? "fixture:fhh-owner-weight" : "fixture:fhh-other-weight", "固定原生选将", "实际角色权重")
                 { SelectionWeights = Enum.GetValues<Role>().ToDictionary(role => role, role => (role == Role.Lord) == owner ? 10000d : -10000d) });
             var source = new List<string> { "fixture:fhh-owner-weight" };
@@ -347,11 +350,11 @@ internal static class BoundaryFuHuangHouChecks
             if (aid) source.Add(Aid); if (claimDying || giftDying) source.Add(Entry); if (peerAid) source.Add("fixture:fhh-completed");
             b.AddGeneral(new("fixture:fhh-owner", "当前伏皇后真实来源", "supporter", Contest, "qun", 6, source.ToArray()) { InitialHp = 5 });
             for (var i = 1; i < 4; i++) b.AddGeneral(new($"fixture:fhh-peer-{i}", "实际对手", "supporter", "fixture:fhh-other-weight", "wei", 8,
-                new[] { "fixture:fhh-native-aoe" }.Concat(peerAid ? [Aid] : Array.Empty<string>()).Concat(legacy ? ["boundary:shensu"] : Array.Empty<string>()).ToArray())
+                new[] { "fixture:fhh-native-aoe" }.Concat(peerAid ? [Aid] : Array.Empty<string>()).Concat(legacy ? ["fixture:fhh-legacy"] : Array.Empty<string>()).ToArray())
                 { InitialHp = fragileRecipients ? 1 : null });
             b.AddDeck(new("fixture:fhh-deck", "固定真实实体", 4, 2, []) {
                 PhysicalCards = Enumerable.Range(0, 80).Select(i => new ContentDeckPhysicalCard(
-                    gear && i >= 64 ? "classic:qinglong-crescent-blade" : "standard:" + deck, Suit.Heart, 7)).ToArray() });
+                    gear && i >= 64 ? "classic:qinglong-crescent-blade" : "standard:" + (deck == "fireAttack" ? "fire_attack" : deck), Suit.Heart, 7)).ToArray() });
             b.AddMode(new(Mode, "当前伏皇后实际付款", 4, 4, new Dictionary<string,int> { [nameof(Role.Lord)] = 1, [nameof(Role.Rebel)] = 3 },
                 "fixture:fhh-deck", GeneralCandidateCount: 4, GeneralPoolIds: ["fixture:fhh-owner","fixture:fhh-peer-1","fixture:fhh-peer-2","fixture:fhh-peer-3"]));
         }

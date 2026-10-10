@@ -9,7 +9,7 @@ public sealed partial class GameEngine
     private static bool IsOtherActualBasicDiscardTrigger(SkillProgramTrigger trigger) =>
         trigger.Effects is [{ Op: SkillProgramEffectOp.DrawFromOtherActualBasicDiscard }];
     private bool OtherActualBasicDiscardAlreadyIssued(int owner, string skill) =>
-        CompleteProgramEventHistory().OfType<OtherActualBasicDiscardDrawIssuedEvent>().Any(e =>
+        ProgramEventHistory<OtherActualBasicDiscardDrawIssuedEvent>().Any(e =>
             e.Source.OwnerSeat == owner && e.Source.SkillId == skill && e.ActualTurnNumber == _turnNumber &&
             e.ActualTurnOwnerSeat == _turnProgression.OwnerSeat);
     private int[] MatchingOtherActualBasicDiscardIndexes(CardMovementBatchContext batch, ProgramTriggerCandidate candidate)
@@ -115,8 +115,8 @@ public sealed partial class GameEngine
                 r.EffectiveRank != action.EffectiveRank || r.ActorSeat != r.Policy.Source.OwnerSeat ||
                 r.IgnoresDistance != (r.EffectiveRank is > 0 && r.EffectiveRank < r.Policy.Rank) ||
                 r.IgnoresQuota != (r.EffectiveRank is > 0 && r.EffectiveRank > r.Policy.Rank) ||
-                CompleteProgramEventHistory().OfType<TurnJudgedRankSlashPolicyGrantedEvent>().Count(e => e.Policy == r.Policy) != 1 ||
-                CompleteProgramEventHistory().OfType<JudgedRankSlashUsePolicyAppliedEvent>().Count(e => e.Receipt == r) != 1)
+                ProgramEventHistory<TurnJudgedRankSlashPolicyGrantedEvent>().Count(e => e.Policy == r.Policy) != 1 ||
+                ProgramEventHistory<JudgedRankSlashUsePolicyAppliedEvent>().Count(e => e.Receipt == r) != 1)
                 throw new InvalidOperationException("An issued rank-split Slash lost its frozen owner, rank or quota decision.");
         }
         foreach (var grant in _turnCardUseEffects.JudgedRankSlashPolicies)
@@ -126,17 +126,19 @@ public sealed partial class GameEngine
             if (program?.GameplayHash != grant.GameplayHash || activation?.Effects is not
                     [{ Op: SkillProgramEffectOp.StartJudgment }, { Op: SkillProgramEffectOp.GrantJudgedRankSplitSlashTurnPolicy }] ||
                 grant.EffectIndex != 1 || !IsValidPlayerSeat(grant.Source.OwnerSeat) || !IsValidPlayerSeat(grant.TurnSeat) ||
-                CompleteProgramEventHistory().OfType<ProgramSkillStartedEvent>().Count(e => e.FrameId == grant.ParentFrameId &&
+                ProgramEventHistory<ProgramSkillStartedEvent>().Count(e => e.FrameId == grant.ParentFrameId &&
                     e.OwnerSeat == grant.Source.OwnerSeat && e.SkillId == grant.Source.SkillId && e.ActivationId == grant.Source.BindingId) != 1 ||
-                CompleteProgramEventHistory().OfType<TurnJudgedRankSlashPolicyGrantedEvent>().Count(e => e.Policy == grant) != 1 ||
-                CompleteProgramEventHistory().OfType<JudgmentResolvedEvent>().Count(e => e.ResolutionId == grant.JudgmentFrameId &&
+                ProgramEventHistory<TurnJudgedRankSlashPolicyGrantedEvent>().Count(e => e.Policy == grant) != 1 ||
+                ProgramEventHistory<JudgmentResolvedEvent>().Count(e => e.ResolutionId == grant.JudgmentFrameId &&
                     e.ParentResolutionId == grant.ParentFrameId && e.TargetSeat == grant.Source.OwnerSeat && e.CardId == grant.JudgmentCardId && e.Rank == grant.Rank) != 1)
                 throw new InvalidOperationException("A judged-rank turn policy lost its exact issued public result.");
         }
-        if (CompleteProgramEventHistory().OfType<OtherActualBasicDiscardDrawIssuedEvent>()
+        var issuedDraws = ProgramEventHistory<OtherActualBasicDiscardDrawIssuedEvent>();
+        if (issuedDraws.Count == 0) return;
+        if (issuedDraws
             .GroupBy(e => (e.Source.OwnerSeat, e.Source.SkillId, e.ActualTurnNumber, e.ActualTurnOwnerSeat)).Any(g => g.Count() != 1))
             throw new InvalidOperationException("A basic discard benefit issued more than once in its actual turn.");
-        foreach (var issued in CompleteProgramEventHistory().OfType<OtherActualBasicDiscardDrawIssuedEvent>())
+        foreach (var issued in issuedDraws)
         {
             var program = _contentRegistry.GetSkill(issued.Source.SkillId).Program;
             var trigger = program?.Triggers.SingleOrDefault(t => t.Id == issued.Source.BindingId);
@@ -147,7 +149,7 @@ public sealed partial class GameEngine
                 movement is null || movement.CardId != issued.CardId || movement.TurnNumber != issued.ActualTurnNumber ||
                 GetProgramDiscardSource(movement)?.OwnerSeat != issued.DiscardOwnerSeat ||
                 !MatchesSkillProgramCardCategory(movement.CardKind, SkillProgramCardCategory.Basic) ||
-                CompleteProgramEventHistory().OfType<ProgramBindingStartedEvent>().Count(e => e.FrameId == issued.FrameId &&
+                ProgramEventHistory<ProgramBindingStartedEvent>().Count(e => e.FrameId == issued.FrameId &&
                     e.OwnerSeat == issued.Source.OwnerSeat && e.SkillId == issued.Source.SkillId && e.BindingId == issued.Source.BindingId &&
                     e.SkillInstanceId == issued.Source.SkillInstanceId && e.Window == SkillProgramTriggerWindow.DiscardPileReceived) != 1)
                 throw new InvalidOperationException("An issued basic discard draw lost its exact physical origin and accepted binding.");

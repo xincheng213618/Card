@@ -21,10 +21,14 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new ProgramPhaseColorRestrictionGrantedEvent(restriction));
     }
 
-    private bool IsPlayPhasePhysicalCardRestricted(CharacterState player, Card card) =>
-        _phase == TurnPhase.Play && card.Suit != Suit.None &&
-        _programPhaseColorRestrictions.Any(item => item.TurnNumber == _turnNumber && item.TargetSeat == player.Seat &&
-            item.IsRed == IsRedSuit(EffectiveSuit(player, card)));
+    private bool IsPlayPhasePhysicalCardRestricted(CharacterState player, Card card)
+    {
+        if (_phase != TurnPhase.Play || card.Suit == Suit.None) return false;
+        foreach (var restriction in _programPhaseColorRestrictions)
+            if (restriction.TurnNumber == _turnNumber && restriction.TargetSeat == player.Seat &&
+                restriction.IsRed == IsRedSuit(EffectiveSuit(player, card))) return true;
+        return false;
+    }
 
     private IReadOnlyList<string>? UnfulfilledPlayPhaseColorRestrictions(int ownerSeat)
     {

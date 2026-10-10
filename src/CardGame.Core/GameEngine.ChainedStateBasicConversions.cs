@@ -31,6 +31,8 @@ public sealed partial class GameEngine
         var actions = targets.Select(t => new LegalAction(LegalActionKind.Slash, 0, t.Seat,
             DescribeConversion(source, $"解除连环状态，视为对 {t.Name} 使用【{card.DisplayName}】"), kind) { ConversionSource = source }).ToList();
         AddProgramTargetCountSlashActions(actions, actor, card, targets, card.DisplayName, kind, source, null);
+        AddNextCardTargetAdjustmentActions(actions, actor);
+        AddNextActualUseAdjustmentActions(actions, actor);
         return Array.AsReadOnly(actions.Select(a => a with { ChainedStateBasicUse = false }).ToArray());
     }
     private IReadOnlyList<LegalAction> ChainedStateBasicPlayActions(CharacterState actor)
@@ -60,6 +62,7 @@ public sealed partial class GameEngine
         if (!ChainedStateBasicPlayActions(actor).Any(a => a.ConversionSource == source && a.PlayedCardKind == action.PlayedCardKind && a.TargetSeats.SequenceEqual(action.TargetSeats)))
             throw new InvalidOperationException("An AI chained-state use changed its actual legal action.");
         var original = _pendingDecision ?? new PendingDecision(DecisionKind.PlayCard, actor.Seat, "已发布合法用牌动作", [], []) { PromptId = CreatePromptId(), Revision = Revision };
+        _selectedNextCardTargetSeats = null;
         BeginChainedStateBasic(actor, source, action.PlayedCardKind!.Value, action.TargetSeats, original,
             new(ChainedStateBasicIntent.Play, null, null, null, 0, action.TargetSeat)); return true;
     }

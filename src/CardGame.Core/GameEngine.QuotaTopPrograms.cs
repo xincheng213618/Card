@@ -9,14 +9,15 @@ public sealed partial class GameEngine
     private void RegisterFirstTurnTargetActions(CardActionContext action, SkillProgramTriggerWindow window)
     {
         if (window != SkillProgramTriggerWindow.CardUseTargetsFinalized || action.Type != CardActionType.Use) return;
-        var programs = _contentRegistry.Skills.Values.Where(skill => skill.Program?.Triggers.Any(trigger =>
-            trigger.Effects.Any(effect => effect.Op == SkillProgramEffectOp.NullifyFirstTurnTargetByHand)) == true);
-        foreach (var skill in programs)
-        foreach (var trigger in skill.Program!.Triggers.Where(trigger => trigger.Effects.Any(effect => effect.Op == SkillProgramEffectOp.NullifyFirstTurnTargetByHand)))
+        foreach (var skillId in _contentRegistry.ProgramDependencies.GetTriggerOperationSkillIds(SkillProgramEffectOp.NullifyFirstTurnTargetByHand))
         {
-            if (!trigger.CardKinds.Contains(action.EffectiveKind)) continue;
-            foreach (var target in action.EffectiveDesignatedTargetSeats.Distinct().Where(target => target != action.ActorSeat))
-                _firstTurnTargetActions.TryAdd((_turnNumber, target, skill.Id), action.ActionId);
+            var skill = _contentRegistry.GetSkill(skillId);
+            foreach (var trigger in skill.Program!.Triggers.Where(trigger => trigger.Effects.Any(effect => effect.Op == SkillProgramEffectOp.NullifyFirstTurnTargetByHand)))
+            {
+                if (!trigger.CardKinds.Contains(action.EffectiveKind)) continue;
+                foreach (var target in action.EffectiveDesignatedTargetSeats.Distinct().Where(target => target != action.ActorSeat))
+                    _firstTurnTargetActions.TryAdd((_turnNumber, target, skill.Id), action.ActionId);
+            }
         }
     }
 

@@ -30,7 +30,7 @@ public sealed partial class GameEngine
         public SkillProgramActorState GetActor(int seat)
         {
             var actor = engine._players[seat];
-            return new(engine.CreateSkillContext(actor, includeHandLimit: true), actor.IsAlive);
+            return new(engine.CreateSkillContext(actor), actor.IsAlive);
         }
 
         public bool IsGameOver => engine._winner != Winner.None;
@@ -48,6 +48,11 @@ public sealed partial class GameEngine
             SkillProgramCondition condition,
             PlayerSkillContext context)
         {
+            // Most instructions only read ordinary actor state. Usability builds
+            // native card actions, so compute it only for a condition that reads
+            // it, against the current state after the preceding instruction.
+            if (condition.RequiresHandLimitContext)
+                context = engine.CreateSkillContext(engine._players[context.Seat], includeHandLimit: true);
             var selectedTarget = frame.SelectedTargetSeats.Count == 1
                 ? engine.CreateSkillContext(engine._players[frame.SelectedTargetSeats[0]])
                 : null;

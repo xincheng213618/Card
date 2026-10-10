@@ -66,7 +66,9 @@ public sealed partial class GameEngine
     private GiftedSlashHandPolicy? ActiveGiftedSlashPolicy(int recipient, int cardId)
     {
         if (!TracksGiftedSlash || _cardZones.GetLocation(cardId) != CardLocation.Hand(recipient)) return null;
-        var policy = CompleteProgramEventHistory().OfType<GiftedSlashHandPolicyGrantedEvent>()
+        var policies = ProgramEventHistory<GiftedSlashHandPolicyGrantedEvent>();
+        if (policies.Count == 0) return null;
+        var policy = policies
             .Select(e => e.Policy).Where(p => p.RecipientSeat == recipient && p.CardId == cardId)
             .OrderByDescending(p => p.GiftMovementSequence).FirstOrDefault();
         if (policy is null || _cardMovements.Any(move => move.CardId == cardId && move.Sequence > policy.GiftMovementSequence &&

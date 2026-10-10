@@ -1,0 +1,86 @@
+{
+  "status": "passed",
+  "mode": "routine",
+  "startedAt": "2026-10-10T04:20:47.308805+08:00",
+  "durationMs": 110036,
+  "results": [
+    {
+      "name": "Build selected scope",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 1331,
+      "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-identity-ui-1791537330211\\logs\\build.log"
+    },
+    {
+      "name": "Core selected checks (294 filters, union)",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 83911,
+      "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-identity-ui-1791537330211\\logs\\core-selected.log"
+    },
+    {
+      "name": "WPF selected checks (25 filters, union)",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 24728,
+      "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-identity-ui-1791537330211\\logs\\wpf-selected.log"
+    }
+  ],
+  "verified": {
+    "failed": 0,
+    "fullVerification": false,
+    "bottomResponses": [
+      "Slash",
+      "Dodge",
+      "Rescue",
+      "Nullification",
+      "FireAttackReveal",
+      "FireAttackDiscard",
+      "BarbarianAssault",
+      "ArrowBarrage"
+    ],
+    "corePassed": 475,
+    "exactVariantConfirmation": true,
+    "rebelRewardPhysicalCards": 3,
+    "wpfPassed": 25,
+    "viewerPrivacyAndColdReplay": true,
+    "rebelRewardKillerRoles": [
+      "Lord",
+      "Loyalist",
+      "Rebel",
+      "Renegade"
+    ],
+    "variantFamilies": [
+      "Ling Tong ordinary/boundary",
+      "Zhao Yun ordinary/boundary/SP/God/OL God/Gundam"
+    ],
+    "rowSizes": {
+      "thirteen": [
+        7,
+        6
+      ],
+      "eight": [
+        4,
+        4
+      ]
+    },
+    "candidateCounts": {
+      "Rebel": 8,
+      "Loyalist": 8,
+      "Renegade": 13,
+      "Lord": 13
+    }
+  },
+  "previews": [
+    "2026-10-10-hand-response-controls.png",
+    "2026-10-10-general-choices-13.png",
+    "2026-10-10-related-general-variants.png"
+  ],
+  "cleanup": {
+    "activeConsumers": 0,
+    "sizeMiB": 2532.48,
+    "temporaryPath": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-identity-ui-1791537330211",
+    "status": "blocked",
+    "reason": "Automatic approval rejected Remove-Item: blocked by policy"
+  }
+}

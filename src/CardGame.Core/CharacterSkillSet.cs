@@ -24,15 +24,38 @@ public sealed record SkillGrant(
 public sealed class CharacterSkillSet
 {
     private readonly Dictionary<string, SkillGrant> _grants = new(StringComparer.Ordinal);
+    private long _grantsSnapshotRevision = -1;
+    private IReadOnlyList<SkillGrant> _grantsSnapshot = Array.Empty<SkillGrant>();
+    private bool _hasProjectedGrants;
     public long Revision { get; private set; }
-    public IReadOnlyList<SkillGrant> Grants => Array.AsReadOnly(_grants.Values
-        .OrderBy(grant => grant.GrantId, StringComparer.Ordinal).ToArray());
+    public IReadOnlyList<SkillGrant> Grants
+    {
+        get
+        {
+            if (_grantsSnapshotRevision != Revision)
+            {
+                _grantsSnapshot = Array.AsReadOnly(_grants.Values.OrderBy(grant => grant.GrantId, StringComparer.Ordinal).ToArray());
+                _hasProjectedGrants = _grants.Values.Any(grant =>
+                    grant.LordProjection is not null || grant.GeneralLibraryProjection is not null);
+                _grantsSnapshotRevision = Revision;
+            }
+            return _grantsSnapshot;
+        }
+    }
+    internal bool HasProjectedGrants
+    {
+        get { _ = Grants; return _hasProjectedGrants; }
+    }
     public IReadOnlyList<string> EffectiveSkillIds => Array.AsReadOnly(_grants.Values
         .Where(grant => grant.IsEnabled).Select(grant => grant.SkillId)
         .Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray());
 
-    public bool HasEnabledSkill(IReadOnlySet<string> skillIds) =>
-        _grants.Values.Any(grant => grant.IsEnabled && skillIds.Contains(grant.SkillId));
+    public bool HasEnabledSkill(IReadOnlySet<string> skillIds)
+    {
+        foreach (var grant in _grants.Values)
+            if (grant.IsEnabled && skillIds.Contains(grant.SkillId)) return true;
+        return false;
+    }
 
     public bool Grant(SkillGrant grant)
     {

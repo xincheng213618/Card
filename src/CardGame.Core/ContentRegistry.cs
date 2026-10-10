@@ -145,7 +145,13 @@ public sealed record ContentModeDefinition(
     ContentModeKind ModeKind = ContentModeKind.Identity,
     IReadOnlyDictionary<string, int>? TeamCounts = null,
     IReadOnlyDictionary<string, int>? FactionCounts = null,
-    IReadOnlyList<string>? SoloFactionIds = null);
+    IReadOnlyList<string>? SoloFactionIds = null)
+{
+    /// <summary>Optional identity-role overrides for the number of general choices.</summary>
+    public IReadOnlyDictionary<string, int>? RoleGeneralCandidateCounts { get; init; }
+    /// <summary>Optional identity candidate families; every listed version remains a distinct legal general.</summary>
+    public IReadOnlyDictionary<string, IReadOnlyList<string>>? GeneralVariantGroups { get; init; }
+}
 
 /// <summary>
 /// Immutable, per-engine content catalogue. No static registration state is
@@ -399,22 +405,36 @@ public sealed class ContentRegistry
                     card.CardDefinitionId, Suit = card.Suit.ToString(), card.Rank
                 }).ToArray()
             }).ToArray(),
-            Modes = modes.Values.OrderBy(mode => mode.Id, StringComparer.Ordinal).Select(mode => new
-            {
-                mode.Id, mode.Name, mode.MinPlayers, mode.MaxPlayers,
-                Kind = mode.ModeKind.ToString(),
-                mode.DeckId, mode.GeneralCandidateCount,
-                GeneralPoolIds = mode.GeneralPoolIds?.ToArray(),
-                RoleCounts = (mode.RoleCounts ?? new Dictionary<string, int>()).OrderBy(role => role.Key, StringComparer.Ordinal)
-                    .Select(role => new { role.Key, role.Value }).ToArray(),
-                TeamCounts = (mode.TeamCounts ?? new Dictionary<string, int>()).OrderBy(team => team.Key, StringComparer.Ordinal)
-                    .Select(team => new { team.Key, team.Value }).ToArray(),
-                FactionCounts = (mode.FactionCounts ?? new Dictionary<string, int>()).OrderBy(faction => faction.Key, StringComparer.Ordinal)
-                    .Select(faction => new { faction.Key, faction.Value }).ToArray(),
-                SoloFactionIds = (mode.SoloFactionIds ?? []).OrderBy(id => id, StringComparer.Ordinal).ToArray()
-            }).ToArray()
+            Modes = modes.Values.OrderBy(mode => mode.Id, StringComparer.Ordinal).Select(ModeFingerprint).ToArray()
         });
         return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(canonical)));
+
+        static object ModeFingerprint(ContentModeDefinition mode)
+        {
+            var fingerprint = new Dictionary<string, object?>
+            {
+                [nameof(mode.Id)] = mode.Id, [nameof(mode.Name)] = mode.Name,
+                [nameof(mode.MinPlayers)] = mode.MinPlayers, [nameof(mode.MaxPlayers)] = mode.MaxPlayers,
+                ["Kind"] = mode.ModeKind.ToString(), [nameof(mode.DeckId)] = mode.DeckId,
+                [nameof(mode.GeneralCandidateCount)] = mode.GeneralCandidateCount,
+                [nameof(mode.GeneralPoolIds)] = mode.GeneralPoolIds?.ToArray(),
+                [nameof(mode.RoleCounts)] = mode.RoleCounts.OrderBy(entry => entry.Key, StringComparer.Ordinal)
+                    .Select(entry => new { entry.Key, entry.Value }).ToArray(),
+                [nameof(mode.TeamCounts)] = (mode.TeamCounts ?? new Dictionary<string, int>()).OrderBy(entry => entry.Key, StringComparer.Ordinal)
+                    .Select(entry => new { entry.Key, entry.Value }).ToArray(),
+                [nameof(mode.FactionCounts)] = (mode.FactionCounts ?? new Dictionary<string, int>()).OrderBy(entry => entry.Key, StringComparer.Ordinal)
+                    .Select(entry => new { entry.Key, entry.Value }).ToArray(),
+                [nameof(mode.SoloFactionIds)] = (mode.SoloFactionIds ?? []).OrderBy(id => id, StringComparer.Ordinal).ToArray()
+            };
+            // Modes without overrides keep their historical fingerprint representation.
+            if (mode.RoleGeneralCandidateCounts is { } candidates)
+                fingerprint[nameof(mode.RoleGeneralCandidateCounts)] = candidates.OrderBy(entry => entry.Key, StringComparer.Ordinal)
+                    .Select(entry => new { entry.Key, entry.Value }).ToArray();
+            if (mode.GeneralVariantGroups is { } variants)
+                fingerprint[nameof(mode.GeneralVariantGroups)] = variants.OrderBy(entry => entry.Key, StringComparer.Ordinal)
+                    .Select(entry => new { entry.Key, Value = entry.Value.Order(StringComparer.Ordinal).ToArray() }).ToArray();
+            return fingerprint;
+        }
 
         static object GeneralFingerprint(ContentGeneralDefinition general) => general.InitialHp is null
             ? new
@@ -762,11 +782,27 @@ public sealed class ContentRegistry
                         $"Mode '{mode.Id}' references unknown deck '{mode.DeckId}'.");
                 }
 
+                if (mode.RoleGeneralCandidateCounts is { } roleCandidates &&
+                    (mode.ModeKind != ContentModeKind.Identity || roleCandidates.Any(entry =>
+                        !mode.RoleCounts.ContainsKey(entry.Key) || entry.Value <= 0)))
+                {
+                    throw new InvalidOperationException(
+                        $"Mode '{mode.Id}' has invalid identity-role general candidate counts.");
+                }
+
                 if (mode.ModeKind == ContentModeKind.NationalWarLite && mode.GeneralPoolIds is null)
                 {
                     throw new InvalidOperationException(
                         $"National-war mode '{mode.Id}' must provide an explicit faction-tagged general pool.");
                 }
+
+                if (mode.GeneralVariantGroups is { } variants &&
+                    (mode.ModeKind != ContentModeKind.Identity || mode.GeneralPoolIds is null ||
+                     variants.Any(group => string.IsNullOrWhiteSpace(group.Key) || group.Value.Count < 2 ||
+                         group.Value.Any(id => !mode.GeneralPoolIds.Contains(id, StringComparer.Ordinal))) ||
+                     variants.Values.SelectMany(ids => ids).Distinct(StringComparer.Ordinal).Count() !=
+                     variants.Values.Sum(ids => ids.Count)))
+                    throw new InvalidOperationException($"Mode '{mode.Id}' has invalid general variant groups.");
 
                 if (mode.GeneralPoolIds is not null)
                 {
@@ -879,6 +915,12 @@ public sealed class ContentRegistry
             var normalized = definition.Tags.HasFlag(SkillTag.Awakening)
                 ? definition with { Tags = definition.Tags | SkillTag.Locked | SkillTag.Limited }
                 : definition;
+            if (normalized.SelectionWeights is { } selectionWeights)
+                normalized = normalized with
+                {
+                    SelectionWeights = new ReadOnlyDictionary<Role, double>(
+                        new Dictionary<Role, double>(selectionWeights))
+                };
             if (normalized.Program is null)
                 return normalized;
 
@@ -938,6 +980,12 @@ public sealed class ContentRegistry
             return definition with
             {
                 RoleCounts = FreezeDictionary(definition.RoleCounts),
+                RoleGeneralCandidateCounts = definition.RoleGeneralCandidateCounts is null
+                    ? null
+                    : FreezeDictionary(definition.RoleGeneralCandidateCounts),
+                GeneralVariantGroups = definition.GeneralVariantGroups is null ? null : FreezeDictionary(
+                    definition.GeneralVariantGroups.ToDictionary(entry => entry.Key,
+                        entry => (IReadOnlyList<string>)Array.AsReadOnly(entry.Value.ToArray()), StringComparer.Ordinal)),
                 GeneralPoolIds = definition.GeneralPoolIds is null
                     ? null
                     : Array.AsReadOnly(definition.GeneralPoolIds.ToArray()),

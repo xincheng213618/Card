@@ -545,7 +545,7 @@ internal sealed class CardZoneStore
 
     public void AssertInvariants(int expectedCardCount)
     {
-        var observed = new HashSet<int>();
+        var observed = new HashSet<int>(_locations.Count);
         var observedCount = 0;
         foreach (var (location, cards) in _zones)
         {

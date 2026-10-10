@@ -136,7 +136,7 @@ public sealed partial class GameEngine
         return $"【{_contentRegistry!.Skills[source.SkillId].Name}】{description}";
     }
 
-    private IReadOnlyList<ProgramCardIdentityMatch> GetProgramCardIdentityMatches(
+    private IReadOnlyList<ProgramCardIdentityMatch> FindProgramCardIdentityMatches(
         CharacterState owner,
         Card card)
     {
@@ -144,8 +144,10 @@ public sealed partial class GameEngine
         if (!identityHand && !IsAlcoholIdentityOwnedLocation(owner, card)) return [];
         if (identityHand && GetGiftedSlashIdentityMatch(owner, card) is { } gifted) return [gifted];
 
+        var bindings = GetSkillBindingShard(owner);
+        if (bindings.CardIdentityPrograms.Count == 0) return [];
         var context = CreateSkillContext(owner);
-        return GetSkillBindingShard(owner).ProgramInstances
+        return bindings.ProgramInstances
             .Where(instance => instance.Program.CardIdentities.Count != 0)
             .SelectMany(instance => instance.Program.CardIdentities
                 .Where(identity => (identityHand || instance.Program.CardPolicies.Any(p => p.Kind == SkillProgramCardPolicyKind.AlcoholKingIdentityRank) &&
@@ -224,7 +226,7 @@ public sealed partial class GameEngine
         HasUnlimitedTurnRuleModifier(actor.Seat, SkillRuleQuery.SlashDistanceLimit) ||
         HasUnlimitedStaticSlashDistance(actor);
 
-    private IReadOnlyList<CardConversionSource> GetProgramViewAsConversions(
+    private IReadOnlyList<CardConversionSource> FindProgramViewAsConversions(
         CharacterState owner,
         Card card,
         CardKind outputKind,
@@ -232,6 +234,9 @@ public sealed partial class GameEngine
     {
         if (UnclaimedDeclarationPayment(owner.Seat, card.Id) is { } paid &&
             (paid.DeclaredKind == outputKind || forResponse && outputKind == CardKind.Slash && IsSlashCard(paid.DeclaredKind))) return [paid.Source];
+        var registered = GetSkillBindingShard(owner).GetSingleCardConversions(outputKind);
+        var hasTurnConversions = _turnCardUseEffects.Conversions.Count > 0;
+        if (registered.Count == 0 && !hasTurnConversions) return [];
         if (IsResponseEntityRestricted(owner.Seat,card.Id)) return [];
         if (HasProgramCardIdentity(owner, card))
         {
@@ -248,10 +253,12 @@ public sealed partial class GameEngine
                     : location == CardLocation.WoodenOxGrain(owner.Seat) ? CardZoneKind.WoodenOxGrain
                     : location == CardLocation.Judgment(owner.Seat) ? CardZoneKind.Judgment : (CardZoneKind?)null;
         if (zone is null) return [];
-        var context = CreateSkillContext(owner);
-        var configured = GetSkillBindingShard(owner).ProgramInstances
-            .SelectMany(instance => instance.Program.ViewAs
-                .Where(rule => rule.InputCount == 1 &&
+        PlayerSkillContext? context = null;
+        var configured = registered.Count == 0 ? Array.Empty<CardConversionSource>() : registered
+                .Where(item =>
+                {
+                    var (instance, rule) = item;
+                    return rule.InputCount == 1 &&
                                (rule.OutputKind == outputKind || forResponse && rule.ExtendedUse && outputKind == CardKind.Slash && rule.OutputKind == CardKind.FireSlash || forResponse && rule.DeclarationValidation is not null && outputKind == CardKind.Slash && IsSlashCard(rule.OutputKind)) &&
                                rule.SourceZones.Contains(zone.Value) &&
                                (zone != CardZoneKind.Judgment || rule.LastInSourceZone == true) &&
@@ -264,18 +271,19 @@ public sealed partial class GameEngine
                                (!rule.UnusedOutputThisTurn || !HasProgramUsedBasicCardThisTurn(owner.Seat, outputKind)) &&
                                (card.Kind != outputKind || rule.InheritPreviousPlaySuit || rule.ConversionStateId is not null || rule.AllowSameKind) &&
                                CanUsePhaseLimitedViewAs(instance, rule, owner) &&
-                               rule.Condition.Evaluate(context) &&
+                               (rule.Condition.Kind == SkillProgramConditionKind.Always || rule.Condition.Evaluate(context ??= CreateSkillContext(owner))) &&
                                (rule.InputKinds.Count == 0 || rule.InputKinds.Contains(card.Kind)) &&
                                (rule.InputCategories.Count == 0 ||
                                 rule.InputCategories.Any(category => MatchesSkillProgramCardCategory(card.Kind, category))) &&
-                               (rule.InputSuits.Count == 0 || rule.InputSuits.Contains(rule.UseEffectiveInputSuit == true ? EffectiveSuit(owner,card) : card.Suit)))
-                .Select(rule => new CardConversionSource(
-                    instance.SkillId,
-                    rule.Id,
+                               (rule.InputSuits.Count == 0 || rule.InputSuits.Contains(rule.UseEffectiveInputSuit == true ? EffectiveSuit(owner,card) : card.Suit));
+                })
+                .Select(item => new CardConversionSource(
+                    item.Source.SkillId,
+                    item.Rule.Id,
                     owner.Seat,
-                    instance.SkillInstanceId)))
+                    item.Source.SkillInstanceId))
             .ToArray();
-        var turnScoped = forResponse || zone != CardZoneKind.Hand
+        var turnScoped = !hasTurnConversions || forResponse || zone != CardZoneKind.Hand
             ? Array.Empty<CardConversionSource>()
             : _turnCardUseEffects.GetConversions(
                     _turnNumber,
@@ -289,7 +297,11 @@ public sealed partial class GameEngine
                     item.Source.OwnerSeat,
                     item.Source.SkillInstanceId))
                 .ToArray();
-        return configured.Concat(turnScoped).Concat(GetPaidColorTurnDuelConversions(owner, card, outputKind, forResponse, zone.Value))
+        var paidColor = hasTurnConversions
+            ? GetPaidColorTurnDuelConversions(owner, card, outputKind, forResponse, zone.Value)
+            : Array.Empty<CardConversionSource>();
+        if (configured.Length == 0 && turnScoped.Length == 0 && paidColor.Count == 0) return [];
+        return configured.Concat(turnScoped).Concat(paidColor)
             .Distinct()
             .OrderBy(source => source.SkillId, StringComparer.Ordinal)
             .ThenBy(source => source.BindingId, StringComparer.Ordinal)
@@ -310,6 +322,8 @@ public sealed partial class GameEngine
     {
         if (!owner.IsAlive) return [];
 
+        var bindings = GetSkillBindingShard(owner).ProgramInstances;
+        if (!bindings.Any(instance => instance.Program.ViewAs.Any(rule => rule.InputCount > 1 && !rule.VariableInputCount))) return [];
         var context = CreateSkillContext(owner);
         var dyingUse = forResponse && outputKind is CardKind.Peach or CardKind.Alcohol &&
             ActiveDying is { } dying && dying.ResponderSeat == owner.Seat;
@@ -319,7 +333,7 @@ public sealed partial class GameEngine
             .OrderBy(card => card.Id)
             .ToArray();
         var selections = new List<ProgramMultiCardViewAsSelection>();
-        foreach (var instance in GetSkillBindingShard(owner).ProgramInstances.Where(instance =>
+        foreach (var instance in bindings.Where(instance =>
                      instance.Program.ViewAs.Count != 0))
         foreach (var rule in instance.Program.ViewAs.Where(rule =>
                      rule.InputCount > 1 && !rule.VariableInputCount &&
@@ -589,7 +603,7 @@ public sealed partial class GameEngine
         CompleteAttack(attack);
     }
 
-    private IReadOnlyList<Card> GetSlashUseCards(CharacterState owner, bool ignoreSuitUseProhibition = false)
+    private IReadOnlyList<Card> FindSlashUseCards(CharacterState owner, bool ignoreSuitUseProhibition = false)
     {
         if (SlashKinds.All(kind => IsCardUseForbidden(owner.Seat, kind, CardActionType.Use))) return [];
         var cards = GetPlayableCards(owner).Where(card =>

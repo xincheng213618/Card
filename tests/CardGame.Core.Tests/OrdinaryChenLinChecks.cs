@@ -77,7 +77,7 @@ internal static class OrdinaryChenLinChecks
         Reach(g, p => p.SkillPrompt?.SkillId == Gain); var root = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.GameTargetHandHp is not null);
         var receipt = root.GameTargetHandHp!;
         Require(receipt.Draw && receipt.TargetSeat == 1 && receipt.ActualCount == 2 && g.State.Players[1].HandCount == before + 2 &&
-            g.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Any(m => m.Batch.ParentFrameId == root.Id && m.ResumeProgramFrameId == root.Id && m.Batch.Movements.Count == 1),
+            g.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Any(m => m.Batch.ParentFrameId == root.Id && m.Batch.AwaitingProgramFrameId == root.Id && m.Batch.Movements.Count == 1),
             "Draw2 consists of real single-card atomic batches; its first gain child holds the exact paid game-target action.");
         Freeze(receipt.CardIds); var mutable = new[] { 99 }; var frozen = receipt with { CardIds = mutable }; mutable[0] = 100;
         Require(frozen.CardIds[0] == 99, "Receipt init/with clones the input instead of exposing caller arrays.");
@@ -114,18 +114,12 @@ internal static class OrdinaryChenLinChecks
                 g.ResolutionStack.OfType<HpChangedTriggerWindowFrame>().Any(h => h.ResumeFrameId == root.Id && h.Continuation == PostEventContinuation.AwaitedProgramMovement),
                 "One real HE payment queues its Silver Lion recovery under the exact owning receipt before program completion.");
             g = Cold(g, r); Continue(g);
-            if (loseSource)
-            {
-                Reach(g, p => p.SkillPrompt?.SkillId == Hp && Has(p, "advanced-lifecycle"));
-                Answer(g, P(g)!.Choices.Single(c => c.Parameters.GetValueOrDefault("advanced-value") == Songci));
-                g = Cold(g, r); Answer(g, P(g)!.Choices.Single(c => c.Parameters.GetValueOrDefault("advanced-value") == "finish"));
-            }
             Play(g);
             Require(E<GameTargetHandHpMovementIssuedEvent>(g).Count(e => e.FrameId == root.Id && !e.Draw && e.Count == 2) == 1 &&
                 E<ProgramSkillResolvedEvent>(g).Single(e => e.FrameId == root.Id).Completed && !g.ResolutionStack.Any(f => f.Id == root.Id) &&
                 g.CardMovements.Count(m => m.CardId == armor && m.From == CardLocation.Equipment(0) && m.To == CardLocation.DiscardPile) == 1 &&
-                (!loseSource || !g.CreateSnapshot(0).Players[0].Skills!.Any(s => s.ContentId == Songci)),
-                "Paid recovery/movement children drain after actual source removal without paying again or losing the whole-game issuance.");
+                (!loseSource || E<SkillsAcquiredEvent>(g).Count(e => e.PlayerSeat == 0 && e.SourceSkillId == Hp && e.SkillIds.Contains("fixture:cl-noop")) == 1),
+                "Paid recovery/movement children drain after actual source qualification suppression without paying again or losing the whole-game issuance.");
             g = Cold(g, r);
         }
     }
@@ -195,12 +189,12 @@ internal static class OrdinaryChenLinChecks
         public void Register(IContentRegistryBuilder b)
         {
             var rules = JsonNode.Parse(FixtureRules)!; rules["schemaVersion"] = SkillProgramCatalog.RulesSchemaVersion;
-            if (loseSource) rules["skills"]![3]!["triggers"]![0]!["effects"]!.AsArray().Add(new JsonObject { ["op"] = "replaceSkillsOnAwakening", ["target"] = "owner", ["skillIds"] = new JsonArray(JsonValue.Create("fixture:cl-noop")) });
+            if (loseSource) rules["skills"]![3]!["triggers"]![0]!["effects"]!.AsArray().Add(new JsonObject { ["op"] = "grantSkills", ["target"] = "owner", ["skillIds"] = new JsonArray(JsonValue.Create("fixture:cl-noop")) });
             var ids = rules["skills"]!.AsArray().Select(n => n!["id"]!.GetValue<string>()).ToArray();
             var descriptions = ids.ToDictionary(id => id, id => id is Gain or Hp or Pulse ? (object)new { name = id, description = "真实子选择", optionLabels = new Dictionary<string, string> { ["continue"] = "继续" } } : new { name = id, description = "固定真实命令" });
             var catalog = SkillProgramCatalog.Load(rules.ToJsonString(), JsonSerializer.Serialize(new { schemaVersion = SkillProgramCatalog.PresentationSchemaVersion, skills = descriptions }));
             foreach (var id in ids) b.AddSkill(new(id, id, "真实固定能力") { Program = catalog.Programs[id], ProgramPresentation = catalog.Presentations[id] });
-            b.AddSkill(new("fixture:cl-noop", "失源后的原始替换", "No program"));
+            b.AddSkill(new("fixture:cl-noop", "已付来源资格抑制", "白银狮子回复后保留已付弃牌") { SuppressionRule = new(3), Tags = SkillTag.Locked });
             b.AddSkill(new("fixture:cl-pick-owner", "固定主人", "Passive") { SelectionWeights = Enum.GetValues<Role>().ToDictionary(role => role, role => role == Role.Lord ? 10000d : -10000d) });
             b.AddSkill(new("fixture:cl-pick-peer", "固定他人", "Passive") { SelectionWeights = Enum.GetValues<Role>().ToDictionary(role => role, role => role != Role.Lord ? 10000d : -10000d) });
             var skills = new List<string> { Driver, Songci, Gain, Hp, "fixture:cl-skip-discard", "fixture:cl-pick-owner" }; if (!foreign) skills.Add(Bifa); else skills.Add(Pulse);

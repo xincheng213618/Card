@@ -685,6 +685,8 @@ public sealed class SkillProgramCondition
         Zones = zones ?? [];
         ChoiceBind = choiceBind;
         Gender = gender;
+        RequiresHandLimitContext = kind is SkillProgramConditionKind.PositiveHandLimit or
+            SkillProgramConditionKind.HasUsableHandCard || children.Any(child => child.RequiresHandLimitContext);
     }
 
     public SkillProgramConditionKind Kind { get; }
@@ -701,6 +703,8 @@ public sealed class SkillProgramCondition
     public IReadOnlyList<CardZoneKind> Zones { get; }
     public string? ChoiceBind { get; }
     public GeneralGender? Gender { get; }
+
+    internal bool RequiresHandLimitContext { get; }
 
     internal bool EvaluateOption(PlayerSkillContext context, Func<bool> hasClaimableDamageCards,
         Func<string, bool>? attackRangeCoverageDecreased = null,

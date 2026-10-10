@@ -2,6 +2,7 @@
     # Routine checks use existing name filters; each runner executes their union once.
     # Full validation retains every registration, including individual content scenarios.
     Core = @(
+        'identity role general candidates', 'identity general variants', 'identity Rebel kill reward',
         'Chained state basic:',
         'Foreign selected card Slash:',
         'Paired color responses:',
@@ -68,6 +69,10 @@
         'Delegated judgment and gain gifts:', 'JudgedRankSlashPolicy.', 'skill program public pile preparation',
         'Phase hand seizure:', 'RecipientContestConsequences',
         'command', 'observer', 'viewer', 'prepared snapshot', 'internal failure',
+        'declaration payment lookups', 'empty binding queries',
+        'ordinary card snapshot reuse', 'skill runtime usage',
+        'program state projection', 'public pile projection', 'zero material uses', 'legacy and borrowed sword zero material continuations',
+        'damage cursor typed observers',
         'round-start programs include foreign owners and cold returns',
         'skill program', 'lifecycle programs', 'shared post-event', 'Phase hand extra turn',
         'Actual draw obligation', 'Owned damage point judgment',
@@ -110,6 +115,8 @@
         'shared use lifecycle', 'shared card-use', 'card movement', 'card inventory',
         'initial deal', 'invalid single and batch', 'draw and recover',
         'execution plans', 'skill executor', 'program gameplay hashes',
+        'skill execution reads hand context', 'ordinary trick queries preserve exact options',
+        'legal action queries preserve exact physical entity options', 'invariant history index',
         'physical deck recipes', 'structured skill metadata', 'content registry',
         'standard package', 'composition kernel', 'rule query', 'slash resolution',
         'dying response', 'Xingshang', 'response use completion', 'selected gift',
@@ -240,12 +247,15 @@
         'Source faction prevention quota opaque HEJ equipment children'
     )
     Wpf = @(
+        'identity general choices', 'general selection switches related',
         'chained state basic UI:',
         'Last zone conversion presentation:',
         'Original hand tag presentation:',
         'Draw-funded zero Use',
         'original card artwork', 'overlapping hand', 'composed skills', 'conversion choices',
         'response context', 'hand responses', 'opaque target-card',
+        'skill target selection',
+        'battle feedback', 'card flights', 'public card table',
         'playback batches', 'saved UI boundaries', 'failed writes', 'public markers',
         'deferred hand alignment', 'Program conversion polarity stays visible',
         'declaration and general library views protect private faces',

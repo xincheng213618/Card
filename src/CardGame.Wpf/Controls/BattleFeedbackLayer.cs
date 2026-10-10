@@ -104,7 +104,7 @@ public sealed class BattleFeedbackLayer : FrameworkElement
         var now = Clock.GetTimestamp();
         foreach (var cue in args.NewItems.OfType<BattleCue>())
             if (!cue.IsInquiry || cue.Revision >= CommittedRevision)
-                _active.Add(new(cue, now, cue.Kind == BattleCueKind.Card ? CardArt.Get(cue.CardKind) : null));
+                _active.Add(new(cue, now, IsCardPlay(cue) ? CardArt.Get(cue.CardKind) : null));
         if (_active.Count > 24) _active.RemoveRange(0, _active.Count - 24);
         InvalidateVisual();
         StartIfNeeded();
@@ -142,6 +142,7 @@ public sealed class BattleFeedbackLayer : FrameworkElement
         BattleCueKind.ResponseWindow => 1.25,
         BattleCueKind.Judgment => 1.45,
         BattleCueKind.Dying or BattleCueKind.Death => 1.5,
+        BattleCueKind.Skill => 1.65,
         _ => 1.15
     };
 
@@ -161,8 +162,23 @@ public sealed class BattleFeedbackLayer : FrameworkElement
         {
             var item = _active[i];
             var progress = Math.Clamp(Clock.GetElapsedTime(item.Start, now).TotalSeconds / Duration(item.Cue.Kind), 0, 1);
+            DrawBattleEffects(dc, item.Cue, progress, seats);
             DrawCue(dc, item.Cue, item.Artwork, progress, seats, plays, center, i);
         }
+    }
+
+    private void DrawBattleEffects(DrawingContext dc, BattleCue cue, double progress, IReadOnlyDictionary<int, Rect> seats)
+    {
+        // Effects can cross the battlefield, but must leave decisions and command buttons readable.
+        Geometry clip = new RectangleGeometry(new Rect(0, 0, ActualWidth, ActualHeight));
+        foreach (var protectedArea in new[] { Bounds(ActionBar), IsPromptVisible ? Bounds(CenterAnchor) : Rect.Empty })
+            if (!protectedArea.IsEmpty)
+                clip = new CombinedGeometry(GeometryCombineMode.Exclude, clip, new RectangleGeometry(protectedArea));
+        clip.Freeze();
+        dc.PushClip(clip);
+        BattleEffectPainter.Draw(dc, cue, progress, seats.GetValueOrDefault(cue.SourceSeat, Rect.Empty), seats,
+            VisualTreeHelper.GetDpi(this).PixelsPerDip);
+        dc.Pop();
     }
 
     private void CollectAnchors(DependencyObject element, Dictionary<int, Rect> seats, Dictionary<long, Rect> plays)
@@ -208,7 +224,7 @@ public sealed class BattleFeedbackLayer : FrameworkElement
         var from = seats.TryGetValue(cue.SourceSeat, out var source) ? Center(source) : center;
         dc.PushOpacity(alpha);
 
-        if (cue.Kind == BattleCueKind.Card)
+        if (IsCardPlay(cue))
         {
             foreach (var target in cue.TargetSeats)
             {
@@ -216,10 +232,10 @@ public sealed class BattleFeedbackLayer : FrameworkElement
                 Highlight(dc, bounds, ink, progress);
                 if (cue.TargetSeats.Count <= 2 && target != cue.SourceSeat && seats.ContainsKey(cue.SourceSeat)) Arrow(dc, source, bounds, ink, progress);
             }
-            if (IsPromptVisible) Badge(dc, from + new Vector(0, -25), cue.Label, ink, 20);
+            var hasLanding = plays.TryGetValue(cue.Sequence, out var landing);
+            if (IsPromptVisible && !hasLanding) Badge(dc, from + new Vector(0, -25), cue.Label, ink, 20);
             else
             {
-                var hasLanding = plays.TryGetValue(cue.Sequence, out var landing);
                 var destination = hasLanding ? Center(landing) : center + new Vector(lane % 3 * 8, 0);
                 var move = 1 - Math.Pow(1 - Math.Min(1, progress / .4), 3);
                 var point = from + (destination - from) * move;
@@ -234,6 +250,10 @@ public sealed class BattleFeedbackLayer : FrameworkElement
             if (seats.TryGetValue(cue.SourceSeat, out var bounds)) Highlight(dc, bounds, ink, progress);
             if (!IsPromptVisible)
                 Badge(dc, center + new Vector(0, -22 + 10 * Math.Pow(1 - progress, 3)), cue.Label, ink, 24, cue.ActorName);
+        }
+        else if (cue.Kind == BattleCueKind.Skill)
+        {
+            // The effect already carries the skill name on its owner's portrait.
         }
         else if (cue.Kind is BattleCueKind.Response or BattleCueKind.ResponseWindow)
         {
@@ -265,6 +285,8 @@ public sealed class BattleFeedbackLayer : FrameworkElement
     }
 
     private static Point Center(Rect bounds) => new(bounds.X + bounds.Width / 2, bounds.Y + bounds.Height / 2);
+    private static bool IsCardPlay(BattleCue cue) => cue.Kind == BattleCueKind.Card ||
+        cue.Kind == BattleCueKind.Response && (cue.CardKind is not null || cue.PublicCardId is not null);
 
     private static void Highlight(DrawingContext dc, Rect bounds, Brush brush, double progress)
     {
@@ -342,10 +364,12 @@ public sealed class BattleFeedbackLayer : FrameworkElement
             text.TextAlignment = TextAlignment.Center;
             dc.DrawText(text, new Point(point.X, point.Y - text.Height / 2));
         }
-        var name = Text(cue.Detail is { } action ? $"{cue.ActorName} · {action}" : cue.ActorName,
-            10 * size.Width / 86, accent, TextTypeface);
+        dc.DrawRectangle(Frozen(Color.FromArgb(224, 35, 27, 19)), null, new Rect(bounds.X, bounds.Bottom, bounds.Width, 21 * size.Width / 86));
+        var name = Text(cue.ActorName + cue.CardActionLabel, 10 * size.Width / 86, accent, TextTypeface);
         name.TextAlignment = TextAlignment.Center;
-        dc.DrawText(name, new Point(point.X, bounds.Bottom + 4));
+        name.MaxTextWidth = size.Width - 6;
+        name.Trimming = TextTrimming.CharacterEllipsis;
+        dc.DrawText(name, new Point(bounds.X + 3, bounds.Bottom + 4));
     }
 
     private void Badge(DrawingContext dc, Point point, string label, Brush accent, double fontSize, string? detail = null)

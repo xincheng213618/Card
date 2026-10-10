@@ -19,6 +19,8 @@ internal sealed class ProgramInstructionFeatures
         _operations = effects.GroupBy(effect => effect.Op).ToFrozenDictionary(
             group => group.Key, group => (IReadOnlyList<SkillProgramEffect>)Array.AsReadOnly(group.ToArray()));
         UsesConversionPolarity = effects.Any(effect => ProgramOperationCatalog.Default.Resolve(effect.Op).UsesConversionPolarity);
+        RequiresHandLimitContext = effects.Any(effect => effect.Condition.RequiresHandLimitContext ||
+            effect.Options.Any(option => option.Condition.RequiresHandLimitContext));
         FirstInstruction = effects.FirstOrDefault();
         FirstNonTargetSelection = effects.SkipWhile(effect => effect.Op == SkillProgramEffectOp.SelectTarget).FirstOrDefault();
         InitialDiscardPayments = Array.AsReadOnly(effects
@@ -58,6 +60,7 @@ internal sealed class ProgramInstructionFeatures
     }
 
     internal bool UsesConversionPolarity { get; }
+    internal bool RequiresHandLimitContext { get; }
     internal SkillProgramEffect? FirstInstruction { get; }
     internal SkillProgramEffect? FirstNonTargetSelection { get; }
     internal IReadOnlyList<SkillProgramEffect> InitialDiscardPayments { get; }

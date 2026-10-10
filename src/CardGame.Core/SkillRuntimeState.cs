@@ -48,6 +48,8 @@ public enum SkillPolarity
 /// </summary>
 public sealed class SkillRuntimeStateStore
 {
+    private static readonly IReadOnlyList<SkillUsageStateSnapshot> EmptyUsages =
+        Array.AsReadOnly(Array.Empty<SkillUsageStateSnapshot>());
     private readonly Dictionary<SkillUsageKey, int> _usage = [];
     private readonly Dictionary<SkillStateKey, SkillPolarity> _initialPolarities = [];
     private readonly Dictionary<SkillStateKey, SkillPolarity> _polarities = [];
@@ -147,16 +149,22 @@ public sealed class SkillRuntimeStateStore
         bool isAcquired)
     {
         ValidateOwnerAndSkill(ownerSeat, skillId);
-        var usages = _usage
-            .Where(entry => entry.Key.OwnerSeat == ownerSeat &&
-                            string.Equals(entry.Key.SkillId, skillId, StringComparison.Ordinal))
-            .OrderBy(entry => entry.Key.Scope)
-            .ThenBy(entry => entry.Key.UsageId, StringComparer.Ordinal)
-            .Select(entry => new SkillUsageStateSnapshot(
+        List<SkillUsageStateSnapshot>? usages = null;
+        foreach (var entry in _usage)
+        {
+            if (entry.Key.OwnerSeat != ownerSeat ||
+                !string.Equals(entry.Key.SkillId, skillId, StringComparison.Ordinal))
+                continue;
+            (usages ??= []).Add(new SkillUsageStateSnapshot(
                 entry.Key.UsageId,
                 entry.Key.Scope,
-                entry.Value))
-            .ToArray();
+                entry.Value));
+        }
+        usages?.Sort(static (left, right) =>
+        {
+            var scope = ((int)left.Scope).CompareTo((int)right.Scope);
+            return scope != 0 ? scope : StringComparer.Ordinal.Compare(left.UsageId, right.UsageId);
+        });
         var stateKey = new SkillStateKey(ownerSeat, skillId);
         var polarity = _polarities.TryGetValue(stateKey, out var current)
             ? current
@@ -164,7 +172,7 @@ public sealed class SkillRuntimeStateStore
         return new SkillRuntimeStateSnapshot(
             skillId,
             isAcquired,
-            Array.AsReadOnly(usages),
+            usages is null ? EmptyUsages : Array.AsReadOnly(usages.ToArray()),
             polarity);
     }
 

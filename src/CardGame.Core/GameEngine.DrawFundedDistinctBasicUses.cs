@@ -20,6 +20,10 @@ public sealed partial class GameEngine
         }
         if (p.Intent == DrawFundedDistinctBasicIntent.Play)
         {
+            // Payment resume has revalidated these exact targets against the
+            // current native menu. Reuse the existing adjusted simple-use loop.
+            if (kind is CardKind.Peach or CardKind.Alcohol && frame.TargetSeats.Count > 1)
+                _selectedNextCardTargetSeats = frame.TargetSeats;
             if (kind == CardKind.Peach)
             { ResolveRecoveryCard(actor, actor, card, "桃", kind, conversionSource: p.Source, physicalCards: [], drawFundedPayment: p); return; }
             if (kind == CardKind.Alcohol)

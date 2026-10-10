@@ -7,6 +7,7 @@ public sealed class GeneralChoiceViewModel : ObservableObject
 {
     private bool _isPreviewSelected;
     public required string GeneralId { get; init; }
+    public string CandidateGeneralId { get; init; } = string.Empty;
 
     public required ChoiceId ChoiceId { get; init; }
 

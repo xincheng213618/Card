@@ -64,7 +64,7 @@ internal static class Fame2017WuXianChecks
         var action=extras.First(a=>a.TargetSeats.Contains(2));
         Require(game.GetCombatDistance(0,2)>1,"The added target is outside normal Slash range.");
         var before=State(game);var prompt=Prompt(game)!;var bad=game.Submit(new PlayCardCommand(0,action.CardId!.Value,[..action.TargetSeats,0],game.Revision,prompt.PromptId,action.PlayedCardKind));
-        Require(!bad.Accepted && before==State(game),"An illegal extra self target cannot spend the grant, command or real card.");Replay(game,registry);
+        Require(!bad.Accepted && before.Equals(State(game)),"An illegal extra self target cannot spend the grant, command or real card.");Replay(game,registry);
         Play(game,action);Reach(game,p=>p.Kind==DecisionKind.PlayCard);
         Require(game.Events.Select(e=>e.Payload).OfType<TargetsConfirmedEvent>().Any(e=>e.TargetSeats.SequenceEqual(action.TargetSeats)) &&
             game.CardMovements.Count(m=>m.CardId==action.CardId && m.To==CardLocation.Processing)==1 &&
@@ -193,13 +193,36 @@ internal static class Fame2017WuXianChecks
         }
         throw new InvalidOperationException("The conversion fixture did not reach its prompt: " + Prompt(game)?.Kind.ToString() + " Frames:" + JsonSerializer.Serialize(game.ResolutionStack));
     }
-    private static string State(GameEngine game) => JsonSerializer.Serialize(new
-    { Views = Enumerable.Range(0, 4).Select(seat => SnapshotJson.Serialize(game.CreateSnapshot(seat))).ToArray(), Frames = JsonSerializer.Serialize(game.ResolutionStack),
-        Events = game.Events.Select(item => JsonSerializer.Serialize(item.Payload, item.Payload.GetType())).ToArray(), Movements = game.CardMovements, Commands = CommandJson.Serialize(game.AcceptedCommands) });
+    private sealed class Observation : IEquatable<Observation>
+    {
+        public required string[] Views { get; init; }
+        public required string Frames { get; init; }
+        public required string[] Events { get; init; }
+        public required string Movements { get; init; }
+        public required string Commands { get; init; }
+
+        public bool Equals(Observation? other) => other is not null &&
+            Views.SequenceEqual(other.Views, StringComparer.Ordinal) &&
+            string.Equals(Frames, other.Frames, StringComparison.Ordinal) &&
+            Events.SequenceEqual(other.Events, StringComparer.Ordinal) &&
+            string.Equals(Movements, other.Movements, StringComparison.Ordinal) &&
+            string.Equals(Commands, other.Commands, StringComparison.Ordinal);
+        public override bool Equals(object? other) => other is Observation observation && Equals(observation);
+        public override int GetHashCode() => HashCode.Combine(Frames, Movements, Commands);
+    }
+
+    private static Observation State(GameEngine game) => new()
+    {
+        Views = Enumerable.Range(0, 4).Select(seat => SnapshotJson.Serialize(game.CreateSnapshot(seat))).ToArray(),
+        Frames = JsonSerializer.Serialize(game.ResolutionStack),
+        Events = game.Events.Select(item => JsonSerializer.Serialize(item.Payload, item.Payload.GetType())).ToArray(),
+        Movements = JsonSerializer.Serialize(game.CardMovements),
+        Commands = CommandJson.Serialize(game.AcceptedCommands)
+    };
     private static void RejectUnknown(GameEngine game)
-    { var before = State(game); var p = Prompt(game)!; var result = game.Submit(new AnswerPromptCommand(p.PlayerSeat, p.PromptId, new ChoiceId("fixture:illegal"), game.Revision)); Require(!result.Accepted && before == State(game), "An invalid answer preserves every view, event, real movement, cursor and accepted command."); }
+    { var before = State(game); var p = Prompt(game)!; var result = game.Submit(new AnswerPromptCommand(p.PlayerSeat, p.PromptId, new ChoiceId("fixture:illegal"), game.Revision)); Require(!result.Accepted && before.Equals(State(game)), "An invalid answer preserves every view, event, real movement, cursor and accepted command."); }
     private static void Replay(GameEngine game, ContentRegistry registry)
-    { var replay = GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint())), registry); Require(State(game) == State(replay), "Checkpoint and command JSON replay all public/private states and physical moves."); }
+    { var replay = GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint())), registry); Require(State(game).Equals(State(replay)), "Checkpoint and command JSON replay all public/private states and physical moves."); }
     private static void Accept(GameEngine game, GameCommand command)
     { var result = game.Submit(CommandJson.Deserialize(CommandJson.Serialize([command])).Single()); Require(result.Accepted, result.Error?.Message ?? "Command rejected."); }
     private static void Require(bool value, string message) { if (!value) throw new InvalidOperationException(message); }

@@ -76,30 +76,57 @@ public sealed partial class GameEngine
         _synchronizingLordProjections = true;
         try
         {
-            var lord = IsTeamMode || IsNationalWarMode ? null : _players.SingleOrDefault(p => p.IsAlive && p.Role == Role.Lord);
+            CharacterState? lord = null;
+            if (!IsTeamMode && !IsNationalWarMode)
+                for (var i = 0; i < _players.Count; i++)
+                {
+                    var player = _players[i];
+                    if (!player.IsAlive || player.Role != Role.Lord) continue;
+                    if (lord is not null)
+                        throw new InvalidOperationException("Sequence contains more than one matching element");
+                    lord = player;
+                }
             foreach (var owner in _players)
             {
-                var desired = new Dictionary<string, SkillGrant>(StringComparer.Ordinal);
-                if (lord is not null && owner.IsAlive && owner.Seat != lord.Seat)
-                    foreach (var capability in owner.SkillGrants.Grants.Where(g => g.LordProjection is null && _contentRegistry.GetSkill(g.SkillId).Program?.LordSkillProjection == true))
-                    foreach (var source in lord.SkillGrants.Grants.Where(g => g.LordProjection is null && _contentRegistry.GetSkill(g.SkillId).Tags.HasFlag(SkillTag.Lord)))
+                var grants = owner.SkillGrants.Grants;
+                var needsProjectionSync = false;
+                for (var i = 0; i < grants.Count; i++)
+                    if (grants[i].LordProjection is not null ||
+                        lord is not null && owner.IsAlive && owner.Seat != lord.Seat &&
+                        _contentRegistry.GetSkill(grants[i].SkillId).Program?.LordSkillProjection == true)
                     {
-                        var relation = new LordSkillProjectionSource(lord.Seat, source.GrantId, source.SkillInstanceId, capability.GrantId, capability.SkillInstanceId);
-                        var id = $"lord-projection:{owner.Seat}:{capability.GrantId.Length}:{capability.GrantId}:{capability.SkillInstanceId.Length}:{capability.SkillInstanceId}:{lord.Seat}:{source.GrantId.Length}:{source.GrantId}:{source.SkillInstanceId.Length}:{source.SkillInstanceId}:{source.SkillId}";
-                        desired.Add(id, new SkillGrant(id, source.SkillId, id, $"lord-projection:{capability.SourceId}", LordProjection: relation));
+                        needsProjectionSync = true;
+                        break;
                     }
-                foreach (var stale in owner.SkillGrants.Grants.Where(g => g.LordProjection is not null && !desired.ContainsKey(g.GrantId)))
-                {
-                    owner.SkillGrants.RemoveGrant(stale.GrantId);
-                    AdvanceEventRulesAndQueueFact(new LordSkillProjectionChangedEvent(owner.Seat, stale.GrantId, stale.SkillId, stale.LordProjection!, false));
-                }
-                foreach (var grant in desired.Values.Where(g => !owner.SkillGrants.Grants.Any(old => old.GrantId == g.GrantId)))
-                {
-                    owner.SkillGrants.Grant(grant);
-                    AdvanceEventRulesAndQueueFact(new LordSkillProjectionChangedEvent(owner.Seat, grant.GrantId, grant.SkillId, grant.LordProjection!, true));
-                }
+                // Disabled capabilities still retain their derived relations;
+                // existing projections still need stale-source cleanup.
+                if (!needsProjectionSync) continue;
+                SynchronizeOwnerLordSkillProjections(owner, lord);
             }
         }
         finally { _synchronizingLordProjections = false; }
+    }
+
+    private void SynchronizeOwnerLordSkillProjections(CharacterState owner, CharacterState? lord)
+    {
+        var desired = new Dictionary<string, SkillGrant>(StringComparer.Ordinal);
+        if (lord is not null && owner.IsAlive && owner.Seat != lord.Seat)
+            foreach (var capability in owner.SkillGrants.Grants.Where(g => g.LordProjection is null && _contentRegistry.GetSkill(g.SkillId).Program?.LordSkillProjection == true))
+            foreach (var source in lord.SkillGrants.Grants.Where(g => g.LordProjection is null && _contentRegistry.GetSkill(g.SkillId).Tags.HasFlag(SkillTag.Lord)))
+            {
+                var relation = new LordSkillProjectionSource(lord.Seat, source.GrantId, source.SkillInstanceId, capability.GrantId, capability.SkillInstanceId);
+                var id = $"lord-projection:{owner.Seat}:{capability.GrantId.Length}:{capability.GrantId}:{capability.SkillInstanceId.Length}:{capability.SkillInstanceId}:{lord.Seat}:{source.GrantId.Length}:{source.GrantId}:{source.SkillInstanceId.Length}:{source.SkillInstanceId}:{source.SkillId}";
+                desired.Add(id, new SkillGrant(id, source.SkillId, id, $"lord-projection:{capability.SourceId}", LordProjection: relation));
+            }
+        foreach (var stale in owner.SkillGrants.Grants.Where(g => g.LordProjection is not null && !desired.ContainsKey(g.GrantId)))
+        {
+            owner.SkillGrants.RemoveGrant(stale.GrantId);
+            AdvanceEventRulesAndQueueFact(new LordSkillProjectionChangedEvent(owner.Seat, stale.GrantId, stale.SkillId, stale.LordProjection!, false));
+        }
+        foreach (var grant in desired.Values.Where(g => !owner.SkillGrants.Grants.Any(old => old.GrantId == g.GrantId)))
+        {
+            owner.SkillGrants.Grant(grant);
+            AdvanceEventRulesAndQueueFact(new LordSkillProjectionChangedEvent(owner.Seat, grant.GrantId, grant.SkillId, grant.LordProjection!, true));
+        }
     }
 }

@@ -13,6 +13,13 @@ public partial class App : Application
             Shutdown(e.Args.Length == 2 ? Diagnostics.PackageVerification.Run(e.Args[1]) : 2);
             return;
         }
+        if (e.Args.Length == 1 && e.Args[0] == "--effects-demo")
+        {
+            base.OnStartup(e);
+            MainWindow = new BattleEffectsPreviewWindow();
+            MainWindow.Show();
+            return;
+        }
         StartupUri = new Uri("MainWindow.xaml", UriKind.Relative);
         base.OnStartup(e);
     }

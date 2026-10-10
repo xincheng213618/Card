@@ -74,8 +74,10 @@ public sealed partial class GameEngine
                 : (CardZoneKind?)null;
         if (zone is null) return [];
 
-        var context = CreateSkillContext(owner);
-        return GetSkillBindingShard(owner).ProgramInstances
+        var bindings = GetSkillBindingShard(owner);
+        if (bindings.ViewAsPrograms.Count == 0) return [];
+        PlayerSkillContext? context = null;
+        return bindings.ProgramInstances
             .Where(instance => instance.Program.ViewAs.Count != 0)
             .SelectMany(instance => instance.Program.ViewAs
                 .Where(rule => rule.AllowChainedInput &&
@@ -83,7 +85,7 @@ public sealed partial class GameEngine
                                rule.OutputKind == outputKind &&
                                rule.SourceZones.Contains(zone.Value) &&
                                (forResponse ? rule.ForResponse : rule.ForPlay) &&
-                               rule.Condition.Evaluate(context) &&
+                               rule.Condition.Evaluate(context ??= CreateSkillContext(owner)) &&
                                (rule.InputKinds.Count == 0 || rule.InputKinds.Contains(inputKind)) &&
                                (rule.InputCategories.Count == 0 ||
                                 rule.InputCategories.Any(category => MatchesSkillProgramCardCategory(inputKind, category))) &&

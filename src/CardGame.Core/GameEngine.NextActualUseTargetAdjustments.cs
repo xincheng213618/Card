@@ -99,9 +99,7 @@ public sealed partial class GameEngine
             Targets: string.Join(",", a.TargetSeats))).ToHashSet();
         foreach (var action in actions.ToArray().Where(a => a.CardId is not null && a.ProgramActivationId is null && a.Kind != LegalActionKind.Recast))
         {
-            var physical = FindOwnedPlayableCard(actor, action.CardId)!;
-            var kind = action.PlayedCardKind ?? physical.Kind;
-            var suit = EffectiveSuit(actor, ApplyProgramUseAppearance(actor, physical, action.ConversionSource));
+            var (kind, suit) = TargetAdjustmentAppearance(actor, action);
             var normal = action.Kind is LegalActionKind.DrawTwo or LegalActionKind.Peach or LegalActionKind.Alcohol
                 ? new[] { actor.Seat } : GetDeclaredCardTargets(actor, action.Kind, action.TargetSeats).ToArray();
             if (normal.Length == 0) continue;
@@ -117,7 +115,7 @@ public sealed partial class GameEngine
             }
             if (EquipmentCatalog.IsEquipment(kind) || kind is CardKind.Indulgence or CardKind.SupplyShortage or CardKind.Lightning) continue;
             var possible = kind is CardKind.BarbarianAssault or CardKind.ArrowBarrage or CardKind.PeachGarden or CardKind.FiveGrains
-                ? normal : _players.Where(p => CanBeExtraNextCardTarget(actor, p, action, kind, suit) &&
+                ? normal : _players.Where(p => CanBeExtraTargetAdjustmentTarget(actor, p, action, kind, suit) &&
                     !(p.Seat == actor.Seat && action.ConversionSource is { } source && ViewAsRule(source)?.ExcludeOwnerEffects == true)).Select(p => p.Seat);
             foreach (var seat in possible.Except(normal)) Add([..normal, seat]);
             if (normal.Length > 1) foreach (var seat in normal) Add(normal.Where(s => s != seat).ToArray());
@@ -130,6 +128,37 @@ public sealed partial class GameEngine
                     Description = action.Description + "（巧说目标调整）" });
             }
         }
+    }
+
+    // Entity zero denotes a genuine material-free use. Its neutral appearance
+    // comes from that producer, never from looking up an owned physical card.
+    private (CardKind Kind, Suit Suit) TargetAdjustmentAppearance(CharacterState actor, LegalAction action)
+    {
+        if (action.CardId == 0) return (action.PlayedCardKind!.Value, Suit.None);
+        var physical = FindOwnedPlayableCard(actor, action.CardId)!;
+        return (action.PlayedCardKind ?? physical.Kind,
+            EffectiveSuit(actor, ApplyProgramUseAppearance(actor, physical, action.ConversionSource)));
+    }
+
+    private bool CanBeExtraTargetAdjustmentTarget(CharacterState actor, CharacterState target,
+        LegalAction action, CardKind kind, Suit suit)
+    {
+        if (action.CardId != 0) return CanBeExtraNextCardTarget(actor, target, action, kind, suit);
+        if (!target.IsAlive || IsDirectedCardTargetProhibited(actor.Seat, target.Seat, kind) ||
+            IsCardTargetProhibited(target, kind, suit, SuitColor(suit)) || HasBeneficiarySuitShield(actor.Seat, target.Seat, suit)) return false;
+        return action.Kind switch
+        {
+            LegalActionKind.Slash => CanUseVirtualSlashTarget(actor, target, kind, Suit.None,
+                effectiveRank: 0, physicalCardIds: [], ignoreDistance: true),
+            LegalActionKind.Peach => target.Hp < target.MaxHp,
+            LegalActionKind.Alcohol or LegalActionKind.DrawTwo or LegalActionKind.IronChain => true,
+            LegalActionKind.Duel => target.Seat != actor.Seat,
+            LegalActionKind.FireAttack => GetHand(target).Count > 0,
+            LegalActionKind.UnexpectedAssault => target.Seat != actor.Seat && GetHand(target).Count > 0,
+            LegalActionKind.Dismantlement or LegalActionKind.Snatch => target.Seat != actor.Seat &&
+                GetHand(target).Count + GetEquipment(target).Count + GetJudgment(target).Count > 0,
+            _ => false
+        };
     }
 
     private static SkillProgramEffect? NextActualUseSelectedProducer(ProgramExecutionPlan plan) =>

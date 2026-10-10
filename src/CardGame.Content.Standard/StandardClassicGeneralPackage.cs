@@ -255,6 +255,8 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     public void Register(IContentRegistryBuilder builder)
     {
         ArgumentNullException.ThrowIfNull(builder);
+        var variantBuilder = new GeneralVariantContentBuilder(builder);
+        builder = variantBuilder;
 
         foreach (var weapon in new[]
         {
@@ -2043,7 +2045,15 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
 
 
         foreach (var module in GeneralModules) module.Register(builder);
-        var generalPoolIds = CurrentGeneralIds;
+        var generalPoolIds = CurrentGeneralIds.Concat(FanGeneralIds).ToArray();
+        var generalVariantGroups = variantBuilder.CreateGroups(generalPoolIds);
+        var roleGeneralCandidateCounts = new Dictionary<string, int>
+        {
+            [nameof(Role.Lord)] = 13,
+            [nameof(Role.Loyalist)] = 8,
+            [nameof(Role.Rebel)] = 8,
+            [nameof(Role.Renegade)] = 13
+        };
 
         builder.AddMode(new ContentModeDefinition(
             Id: "identity:classic-8",
@@ -2059,7 +2069,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             },
             DeckId: "classic:standard-deck",
             GeneralCandidateCount: 3,
-            GeneralPoolIds: generalPoolIds));
+            GeneralPoolIds: generalPoolIds) { RoleGeneralCandidateCounts = roleGeneralCandidateCounts, GeneralVariantGroups = generalVariantGroups });
         builder.AddMode(new ContentModeDefinition(
             Id: "identity:classic-5",
             Name: "五人经典身份（正式武将首批）",
@@ -2074,7 +2084,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             },
             DeckId: "classic:standard-deck",
             GeneralCandidateCount: 3,
-            GeneralPoolIds: generalPoolIds));
+            GeneralPoolIds: generalPoolIds) { RoleGeneralCandidateCounts = roleGeneralCandidateCounts, GeneralVariantGroups = generalVariantGroups });
         {
             builder.AddMode(new ContentModeDefinition(
                 Id: "identity:classic-boundary-8",
@@ -2531,7 +2541,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         .. GeneralModules.OrderBy(module => module.AppendPoolLast).SelectMany(module => module.GeneralIds)
     ];
 
-    /// <summary>Registered generals kept out of the classic identity pools (fan-made roster).</summary>
+    /// <summary>Additional fan-made versions linked into the current classic identity selection.</summary>
     internal static IReadOnlyList<string> FanGeneralIds { get; } = ["classic:gao-da-yi-hao"];
 
     internal static IReadOnlyList<string> BoundaryGeneralIds { get; } =

@@ -1,0 +1,92 @@
+{
+  "status": "passed",
+  "date": "2026-10-10",
+  "implementation": "Native WPF vector combat effects using committed public presentation cues",
+  "effects": [
+    "Slash",
+    "Dodge",
+    "FireSlash",
+    "ThunderSlash",
+    "Damage",
+    "FireDamage",
+    "ThunderDamage",
+    "Recovery",
+    "Skill",
+    "Trick"
+  ],
+  "routine": {
+    "durationMs": 121526,
+    "steps": [
+      {
+        "name": "Build selected scope",
+        "status": "passed",
+        "durationMs": 1247
+      },
+      {
+        "name": "Core selected checks (294 filters, union)",
+        "status": "passed",
+        "durationMs": 87383
+      },
+      {
+        "name": "WPF selected checks (29 filters, union)",
+        "status": "passed",
+        "durationMs": 32836
+      }
+    ],
+    "wpfPassed": 34,
+    "corePassed": 475
+  },
+  "finalFocused": {
+    "filters": [
+      "battle feedback",
+      "card flights",
+      "public card table",
+      "audio follows",
+      "sound controls"
+    ],
+    "durationMs": 11617,
+    "wpfPassed": 9
+  },
+  "gif": {
+    "bytes": 9742618,
+    "width": 616,
+    "loop": "infinite",
+    "height": 329,
+    "frameDelayMs": 80,
+    "path": "C:\\Users\\17917\\Desktop\\Card\\docs\\benchmarks\\2026-10-10-battle-effects-preview.gif",
+    "frames": 126
+  },
+  "realMatchSkill": {
+    "image": "C:\\Users\\17917\\Desktop\\Card\\docs\\benchmarks\\2026-10-10-battle-effects-in-match.png",
+    "skill": "苦肉",
+    "verified": "Real WPF command commits HP cost and emits a Skill cue into the bound table layer"
+  },
+  "runtimePreview": {
+    "title": "三国卡牌 · 战场特效预览",
+    "responding": true,
+    "processId": 74824,
+    "executable": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\bin\\Debug\\net8.0-windows\\CardGame.Wpf.exe"
+  },
+  "debugBuild": {
+    "errors": 0,
+    "warnings": 0
+  },
+  "sourceSha256": {
+    "src/CardGame.Wpf/Controls/BattleEffectPainter.cs": "701D7C8F3237B21DB54865BE55824023CDA7337B10547CC849AC04640BB73CA4",
+    "src/CardGame.Wpf/Controls/BattleEffectsPreview.cs": "85B4ABC707A4159B289CAFE5613BB05468145BF193B05D79B417D8791639A1C6",
+    "src/CardGame.Wpf/Controls/BattleFeedbackLayer.cs": "C077E35902FF42A7B21938CF18811E615973BB6BA36989C6AC89A3808A976077",
+    "src/CardGame.Wpf/Presentation/BattleCue.cs": "B3541B59B885DC84E18227DFD92BBF537DA4168A642AFD5F2C58848BB3E78E16",
+    "src/CardGame.Wpf/BattleEffectsPreviewWindow.cs": "014911E0FFE8C9DFA974DFAE2BB505402B41EFC9452F8D86F6BAD3476B009BF6",
+    "src/CardGame.Wpf/App.xaml.cs": "61FEA5DB9F95DD01D35E31D9824DC3DAE96D0B56162673DF9C59F4E961674011",
+    "src/CardGame.Wpf/Audio/GameSound.cs": "05B41AB8C165F50BB91E8C86856FBA31732596DDDA1701F5CEAC8FE3E4C43855",
+    "tests/CardGame.Wpf.Tests/BattleEffectsChecks.cs": "7F9C990680732E2668A083905B0BE145AB466459BAFADDABBA2125B8C89802F0"
+  },
+  "temporaryCleanup": {
+    "ownershipMarker": "removed; exact temporary path retained in this report",
+    "activeConsumers": 0,
+    "reason": "blocked by policy",
+    "status": "blocked by automatic approval review",
+    "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-effects-245042b7d105422b8d488af585359f6a"
+  },
+  "packagedReleaseCreated": false
+}

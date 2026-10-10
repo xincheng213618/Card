@@ -8,6 +8,7 @@ internal sealed class FrameStore : IReadOnlyList<ResolutionFrame>
     private readonly List<ResolutionFrame> _frames = [];
     public int Count => _frames.Count;
     public ResolutionFrame this[int index] => _frames[index];
+    public ResolutionFrame? LastOrDefault() => _frames.Count == 0 ? null : _frames[^1];
 
     public void Push(ResolutionFrame frame)
     {

@@ -101,7 +101,7 @@ internal static class OrdinarySpMaChaoChecks
             else SelectedSlash(g, [1, 2, 3], cards);
             Reach(g, Penalty); var use = g.ResolutionStack.OfType<CardUseFrame>().Single(f => f.HpLossMaterialSlashReturn is not null);
             var issued = use.HpLossMaterialSlashReturn!;
-            Require(use.Action is { ActorSeat: 0, ProviderSeat: 0, Type: CardActionType.Use } && use.PhysicalCardIds!.SequenceEqual(cards) &&
+            Require(use.Action is { ActorSeat: 0, ProviderSeat: 0, Type: CardActionType.Use } && use.PhysicalCardIds!.Order().SequenceEqual(cards.Order()) &&
                 use.TargetSeats.SequenceEqual([1, 2, 3]) && issued.FrozenMaximum >= 3 && issued.IsZhangba == spear &&
                 (spear ? issued.ParentProgramFrameId is null : g.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.Id == issued.ParentProgramFrameId &&
                     f.HpLossSlashSelection?.CardUseFrameId == use.Id && f.NextActualUseAdjustment is null)),
@@ -164,7 +164,9 @@ internal static class OrdinarySpMaChaoChecks
     private static void Reach(GameEngine g, Func<PendingDecision, bool> test)
     { for (var i = 0; i < 220; i++) { if (P(g) is { } p && test(p)) return;
         if (P(g) is { PlayerSeat: 0 } human) {
-            if (human.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "skip")) Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "skip");
+            if (human.SkillPrompt?.SkillId == "ol:moukui" && human.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "slash-target-benefit")) Answer(g, c => c.Parameters.GetValueOrDefault("slash-benefit-step") == "draw");
+            else if (human.SkillPrompt?.SkillId == "ol:tianming" && human.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "unique-hp-peer")) Answer(g, c => c.Parameters.GetValueOrDefault("branch") == "decline");
+            else if (human.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "skip")) Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "skip");
             else if (human.Choices.Any(c => c.Parameters.GetValueOrDefault("option-id") == "continue")) Continue(g);
             else throw new InvalidOperationException("Unexpected human boundary: " + human.Kind + "/" + human.SkillPrompt?.SkillId);
         } else Accept(g, new AdvanceOneStepCommand(g.Revision)); }

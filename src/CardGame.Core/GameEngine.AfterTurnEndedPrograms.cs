@@ -52,7 +52,8 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("After-turn-ended programs require the completed actual turn and prior due chain.");
         if (parent.AfterTurnEnded is null)
         {
-            var items = _players.Where(p => p.IsAlive).SelectMany(owner =>
+            var items = _players.Where(p => p.IsAlive &&
+                GetSkillBindingShard(p).GetInstanceTriggers(SkillProgramTriggerWindow.AfterTurnEnded).Count != 0).SelectMany(owner =>
             {
                 var facts = CaptureProgramTriggerFacts(owner);
                 return CollectEligibleProgramTriggerCandidates(owner, SkillProgramTriggerWindow.AfterTurnEnded, facts)

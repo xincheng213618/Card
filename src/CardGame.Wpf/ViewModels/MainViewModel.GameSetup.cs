@@ -10,7 +10,7 @@ public sealed partial class MainViewModel
     private bool _isLobbyConfigurationOpen;
     private bool _isIdentityRevealOpen;
     private bool _manualDiscardEnabled = true;
-    private StartingRoleOption _selectedStartingRole = new("主公", Role.Lord, "率领忠臣，平定叛乱");
+    private StartingRoleOption _selectedStartingRole = new("随机身份", null, "开局随机分配身份");
     private TableModeOption _selectedTableMode = null!;
     private StartingTeamOption _selectedStartingTeam = null!;
     private DeckOption? _selectedDeck;
@@ -19,7 +19,7 @@ public sealed partial class MainViewModel
     public IReadOnlyList<ModeCategoryOption> ModeCategories { get; } =
     [
         new("all", "全部", "全部可用模式"),
-        new("identity", "身份", "经典身份与技能演示"),
+        new("identity", "身份", "五人或八人随机身份"),
         new("team", "阵营", "公开队伍协作对抗"),
         new("national", "国战", "双将暗置试验模式")
     ];
@@ -52,11 +52,7 @@ public sealed partial class MainViewModel
 
     public IReadOnlyList<StartingRoleOption> StartingRoles { get; } =
     [
-        new("随机", null, "在开局时抽取身份"),
-        new("主公", Role.Lord, "率领忠臣，平定叛乱"),
-        new("忠臣", Role.Loyalist, "保护主公，消灭敌人"),
-        new("反贼", Role.Rebel, "与同伴一起击败主公"),
-        new("内奸", Role.Renegade, "伺机而动，成为最后赢家")
+        new("随机身份", null, "开局随机分配身份；主公固定为 1 号位，沿右手方向依次编号。")
     ];
     public IReadOnlyList<TableModeOption> TableModes { get; private set; } = null!;
     public IReadOnlyList<DeckOption> DeckOptions { get; private set; } = null!;
@@ -174,7 +170,7 @@ public sealed partial class MainViewModel
         RevealNationalGeneralCommand = new RelayCommand<NationalRevealChoice>(RevealNationalGeneral);
         SelectedModeCategory = ModeCategories[0];
         SelectedStartingTeam = StartingTeams[0];
-        SelectedStartingRole = StartingRoles[1];
+        SelectedStartingRole = StartingRoles[0];
         SelectedTableMode = TableModes[0];
         SelectedDeck = DeckOptions.FirstOrDefault();
         RecommendDiscardCommand = new RelayCommand(RecommendDiscard);

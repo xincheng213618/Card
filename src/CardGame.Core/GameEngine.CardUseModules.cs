@@ -10,6 +10,7 @@ public sealed partial class GameEngine
         if (ActiveCardAttack is { ProhibitsTargetHandResponses: true } attack &&
             attack.TargetSeat == player.Seat && attack.CardUserSeat != player.Seat)
             return true;
+        if (_turnCardUseEffects.HandColorRestrictions.Count == 0) return false;
         var suit = EffectiveSuit(player, card);
         return _turnCardUseEffects.IsHandColorRestricted(
             _turnNumber,

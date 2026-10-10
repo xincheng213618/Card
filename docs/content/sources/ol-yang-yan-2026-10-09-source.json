@@ -3,13 +3,13 @@
   "documentKind": "ordinary-ol-general-research-source",
   "capturedAt": "2026-10-08T22:45:07.496713+00:00",
   "localCaptureDate": "2026-10-09",
-  "status": "source verified; R28 implementation contracts being integrated; not registered or behavior accepted",
+  "status": "complete ordinary current OL Yang Yan integrated and accepted by targeted plus routine verification; no manual full run",
   "sourceVerified": true,
-  "sourceRegistered": false,
-  "registered": false,
-  "productionImplemented": false,
-  "behaviorValidated": false,
-  "behaviorAccepted": false,
+  "sourceRegistered": true,
+  "registered": true,
+  "productionImplemented": true,
+  "behaviorValidated": true,
+  "behaviorAccepted": true,
   "generalIdProposal": "ol:yang-yan",
   "characterName": "杨艳",
   "officialId": 7016,
@@ -261,7 +261,7 @@
   },
   "implementationMapping": {
     "xianwan": {
-      "status": "proposed shared capability; ABI and runtime pending",
+      "status": "implemented with focused real-command checks and measured routine verification",
       "input": "zero physical cards; use-only normal Slash or own Slash-defense Dodge; never generic response-only conversion",
       "cost": "actual unchained to chained for Dodge, actual chained to unchained for Slash; freeze typed payment on owning frame and drain native character-state children before issuing the requested use",
       "entryEvidence": "PRi.activeMode ACTIVE|PASSIVE|ASK; cardUseType UCt.USE; tap>0 selects SHA, tap==0 selects SHAN. Active Slash checks gf.CanUseSha; ordinary IXt target selector retains native distance and target legality",
@@ -270,7 +270,7 @@
       "inference": "A prevented entry or forced-chain refusal to unchain cannot pay the stated real state-change cost. Refuse before issuing a card; do not make a no-op state mutation count as payment. No dedicated official XianWan/QianJie/JieYing cross-FAQ located."
     },
     "xuanbei": {
-      "status": "proposed shared capability; exact descriptor pending",
+      "status": "implemented with focused real-command checks and measured routine verification",
       "activation": "owner own Play once per phase; choose one other living participant with an eligible region entity",
       "selection": "owner selects exactly one foreign owned physical entity; current eLi declares NORMAL|EQUIP|DECIDE|REGION and mS explicitly checks Hand/Equipment/Judgment counts. Preserve hidden-hand privacy",
       "actorAndDirection": "the selected foreign participant is the real ordinary Slash actor/provider; chosen entity is its sole physical material from original location; initial target and Draw beneficiary are the skill owner",
@@ -752,6 +752,11 @@
       "ol:xuanbei-current"
     ],
     "artworkDelivered": true,
-    "status": "content and portrait integrated; runtime verification pending"
+    "status": "complete ordinary current OL Yang Yan; targeted and routine behavior checks passed",
+    "acceptedAt": "2026-10-08T23:27:55.646260+00:00",
+    "verification": "docs/benchmarks/2026-10-09-content-continuation-round28-verification.json",
+    "manualFullRun": false,
+    "ordinaryJinRegisteredCountBefore": 13,
+    "ordinaryJinRegisteredCountAfter": 14
   }
 }

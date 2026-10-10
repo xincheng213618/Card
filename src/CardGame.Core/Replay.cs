@@ -63,7 +63,7 @@ public sealed record GameCheckpoint(
     // window for an ordinary trick declared by its InstantTrick category.
     // 203: Recognize the actual discard payments of category refund,
     // last-damage reciprocity and phase-name prediction in movement triggers.
-    public const int CurrentRulesVersion = 204;
+    public const int CurrentRulesVersion = 209;
     // 187 was consumed by main-side Zhang He / Shen Zhao Yun work.
 
     public int RulesVersion { get; init; }

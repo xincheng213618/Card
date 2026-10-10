@@ -40,7 +40,7 @@ internal static class OrdinaryLingJuChecks
         foreach (var role in new[] { Role.Loyalist, Role.Rebel, Role.Renegade })
         {
             var (g, r) = Create(role: role, ownerHp: 4, peerHp: role == Role.Renegade ? 6 : 2);
-            var dead = g.State.Players.First(p => p.Seat != 0 && p.Role == role).Seat;
+            var dead = g.CreateSnapshot(0, true).Players.First(p => p.Seat != 0 && p.Role == role).Seat;
             Use(g, "kill", [dead]); Play(g);
             Require(!g.State.Players[dead].IsAlive && g.CreateSnapshot(0).Players[dead].Role == role && Facts<PlayerDiedEvent>(g).Any(e => e.VictimSeat == dead),
                 "A true loss/Dying/death reveals the actual identity before the owner acquires its qualifier.");
@@ -74,15 +74,15 @@ internal static class OrdinaryLingJuChecks
         var equipmentCardId = equipment.CardId ?? throw new InvalidOperationException("The actual equipment requires its physical entity.");
         Accept(g, new PlayCardCommand(0, equipmentCardId, [], g.Revision, P(g)!.PromptId, equipment.PlayedCardKind)
         { ConversionSource = equipment.ConversionSource, AdditionalConversionSources = equipment.AdditionalConversionSources }); Play(g);
-        var dead = g.State.Players.First(p => p.Seat != 0 && p.Role == Role.Renegade).Seat;
+        var dead = g.CreateSnapshot(0, true).Players.First(p => p.Seat != 0 && p.Role == Role.Renegade).Seat;
         Use(g, "kill", [dead]); Play(g); Use(g, "fenxin"); Play(g);
         var source = AlivePeer(g); Use(g, "incoming-two", [source]); Activate(g); ReachAction(g); Private(g); g = Cold(g, r);
         Answer(g, c => c.Cards.SequenceEqual([equipmentCardId])); Reach(g, p => p.SkillPrompt?.SkillId == Hp);
         var paid = Root(g); var receipt = paid.SignedDamagePayment!;
         Require(receipt is { Stage: SignedDamagePaymentStage.Paid, Delta: -1, AllowEquipment: true } && receipt.CostFrom == CardLocation.Equipment(0) &&
             g.ResolutionStack.OfType<HpChangedTriggerWindowFrame>().Any(h => h.ResumeFrameId == paid.Id && h.Change.ParentFrameId == paid.Id && h.Change.Kind == HpChangeKind.Recovery) &&
-            g.ResolutionStack.OfType<BeforeDamageProgramWindowFrame>().Single(w => w.Id == receipt.BeforeDamageFrameId).Amount == 2 &&
-            !Facts<ProgramSignedDamageAdjustedEvent>(g).Any(), "Silver Lion recovery suspends its exact paid root before adjusting the original damage.");
+            g.ResolutionStack.OfType<BeforeDamageProgramWindowFrame>().Single(w => w.Id == receipt.BeforeDamageFrameId).Amount == 1 &&
+            !Facts<ProgramSignedDamageAdjustedEvent>(g).Any(), "Silver Lion first caps incoming damage to one; its removal recovery suspends the paid root before that damage is adjusted.");
         g = Cold(g, r); Continue(g); Reach(g, p => p.SkillPrompt?.SkillId == Entry);
         Require(g.State.Players[0].Hp == 0 && g.ResolutionStack.OfType<DyingFrame>().Any(d => d.VictimSeat == 0 && d.Continuation == DyingContinuationKind.Damage) &&
             g.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.SkillId == Hp && f.AttackAttempt is { DamageWasApplied: true }) &&
@@ -92,9 +92,9 @@ internal static class OrdinaryLingJuChecks
         Answer(g, c => c.Parameters.GetValueOrDefault("skill-id") == Pulse); Reach(g, p => p.SkillPrompt?.SkillId == Pulse);
         g = Cold(g, r); Continue(g); Play(g);
         Require(Facts<CardUseDeclaredEvent>(g).Any(e => e.CardId == 0 && e.CardKind == CardKind.Alcohol && e.SourceSeat == 0) &&
-            Facts<ProgramSignedDamagePaidEvent>(g).Count() == 1 && Facts<ProgramSignedDamageAdjustedEvent>(g).Single().AfterAmount == 1 &&
+            Facts<ProgramSignedDamagePaidEvent>(g).Count() == 1 && Facts<ProgramSignedDamageAdjustedEvent>(g).Single().AfterAmount == 0 &&
             g.CardMovements.Count(m => m.CardId == equipmentCardId && m.From == CardLocation.Equipment(0) && m.To == CardLocation.DiscardPile) == 1 &&
-            g.State.Players[0].IsAlive && g.State.Players[0].Hp == 2 && !g.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.SignedDamagePayment is not null),
+            g.State.Players[0].IsAlive && g.State.Players[0].Hp == 3 && !g.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.SignedDamagePayment is not null),
             "Restored Dying responds with a true zero-material Alcohol use, then the damage and paid movement return once and the original damage resolves at one.");
         g = Cold(g, r);
     }
@@ -108,7 +108,8 @@ internal static class OrdinaryLingJuChecks
             g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.Id == second.SignedDamagePayment.OriginalAttackFrameId).AttackAttempt is { DamageWasApplied: true, IsChainPropagation: true },
             "The second chained recipient receives the first actual damage's frozen base while preserving aggregate applied damage.");
         g = Cold(g, r); Answer(g, c => c.Cards.Count == 1);
-        Activate(g); Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "skip"); Play(g);
+        Reach(g, p => p.SkillPrompt?.SkillId == Jieyuan && p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "skip"));
+        Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "skip"); Play(g);
         var damage = Facts<DamageAppliedEvent>(g).Where(e => e.SourceSeat == 0 && peers.Contains(e.TargetSeat)).ToArray();
         Require(damage.Select(e => e.Amount).SequenceEqual([2, 3, 2]) && damage.Select(e => e.TargetSeat).SequenceEqual(peers) &&
             Facts<ProgramSignedDamagePaidEvent>(g).Count() == 2 && Facts<RecipientScopedDamageAdvancedEvent>(g).Count() == 2,
@@ -117,7 +118,7 @@ internal static class OrdinaryLingJuChecks
         Require(Facts<ProgramSignedDamageOfferedEvent>(g).Count() == before, "Self and source-less native damage never offer this other-source cost.");
         g = Cold(g, r);
         var (native, nr) = Create(native: true, role: Role.Loyalist, ownerHp: 4, peerHp: 2);
-        var loyalty = native.State.Players.First(p => p.Seat != 0 && p.Role == Role.Loyalist).Seat;
+        var loyalty = native.CreateSnapshot(0, true).Players.First(p => p.Seat != 0 && p.Role == Role.Loyalist).Seat;
         Use(native, "kill", [loyalty]); Play(native);
         var foreign = AlivePeer(native);
         Use(native, "outgoing-one", [foreign]); Play(native);

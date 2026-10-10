@@ -16,7 +16,7 @@ public sealed partial class GameEngine
             .Select(player => player.Hp)
             .Min();
 
-    private RuleQueryEvaluation EvaluateDistance(CharacterState source, CharacterState target,
+    private RuleQueryEvaluation CalculateDistance(CharacterState source, CharacterState target,
         int? excludedEquipmentId = null)
     {
         var baseTerms = new List<RuleQueryBaseTerm>
@@ -39,7 +39,7 @@ public sealed partial class GameEngine
             ApplyProgramDirectedDistance(source, target, RuleQueryService.EvaluateDirectionalDistance(baseTerms, outgoing, incoming)))));
     }
 
-    private RuleQueryEvaluation EvaluateAttackRange(CharacterState player, int? excludedEquipmentId = null)
+    private RuleQueryEvaluation CalculateAttackRange(CharacterState player, int? excludedEquipmentId = null)
     {
         var baseTerms = new List<RuleQueryBaseTerm>();
         var minimumRange = 1;
@@ -200,6 +200,7 @@ public sealed partial class GameEngine
             .Where(binding => binding.Modifier.ValueExpression != SkillRuleValueExpression.OwnerMarkerCount ||
                 !_contentRegistry.GetSkill(binding.Source.SkillId).Tags.HasFlag(SkillTag.Lord) ||
                 HasSkillRoleQualification(player, binding.Source.SkillId, binding.Source.SkillInstanceId, Role.Lord)).ToArray();
+        if (bindings.Length == 0) return CollectStrategicRuleContributions(player, query).ToArray();
         var context = new SkillProgramRuleContext(
             CreateSkillContext(player),
             GetLivingFactionCount(),

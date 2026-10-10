@@ -31,9 +31,12 @@ public sealed partial class GameEngine
 
     private IEnumerable<PhaseHandSeizureIssuedEvent> UnsettledPhaseHandSeizures()
     {
-        var history = CompleteProgramEventHistory().ToArray();
-        var settled = history.OfType<PhaseHandDebtSettledEvent>().Select(e => e.SeizureFrameId).ToHashSet();
-        return history.OfType<PhaseHandSeizureIssuedEvent>().Where(e => !settled.Contains(e.FrameId));
+        var issued = ProgramEventHistory<PhaseHandSeizureIssuedEvent>();
+        if (issued.Count == 0) return Array.Empty<PhaseHandSeizureIssuedEvent>();
+        var settlements = ProgramEventHistory<PhaseHandDebtSettledEvent>();
+        if (settlements.Count == 0) return issued;
+        var settled = settlements.Select(e => e.SeizureFrameId).ToHashSet();
+        return issued.Where(e => !settled.Contains(e.FrameId));
     }
     private PhaseHandSeizureIssuedEvent? CurrentPhaseHandSeizureDebt(int owner, string skill, string instance, string hash, string binding) =>
         _phase == TurnPhase.Play && owner == _currentSeat ? UnsettledPhaseHandSeizures().SingleOrDefault(e =>

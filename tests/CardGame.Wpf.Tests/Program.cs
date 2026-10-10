@@ -23,6 +23,7 @@ internal static class Program
     private static string[] _nameFilters = [];
     private static readonly HashSet<string> MatchedFilters = new(StringComparer.OrdinalIgnoreCase);
     private static bool _verbose;
+    internal static bool RecordMotion { get; private set; }
     private static string? _startAfterName;
     private static bool _startAfterReached;
     private static readonly BindingListener BindingErrors = new();
@@ -54,6 +55,7 @@ internal static class Program
         try
         {
             _verbose = args.Contains("--verbose", StringComparer.OrdinalIgnoreCase);
+            RecordMotion = args.Contains("--record-motion", StringComparer.OrdinalIgnoreCase);
             _nameFilters = args.Where(argument => argument.StartsWith("--filter=", StringComparison.OrdinalIgnoreCase))
                 .Select(argument => argument["--filter=".Length..].Trim()).Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
             if (_nameFilters.Any(value => value.Length == 0))
@@ -83,11 +85,15 @@ internal static class Program
             Check("guide modal preserves selection and pauses then resumes the original timer policy", PlayerGuideChecks.ModalLifecycle);
             Check("general selection previews candidates before one explicit confirmation", () => CheckGeneralSelectionPreview(output));
             Check("general selection input respects overlays and consecutive national prompts", () => GeneralSelectionChecks.InputBoundaries(output));
+            Check("identity general choices use two rows and lord-relative seat numbers", () => GeneralSelectionChecks.IdentityRowsAndSeats(output));
+            Check("general selection switches related editions without consuming candidate slots", () => GeneralSelectionChecks.RelatedVariants(output));
             Check("mode lobby filters real identity, team and national entries without changing the match", () => CheckModeLobby(output));
             Check("selection, target toggle, cancel and play use legal actions", CheckSelections);
             Check("skill conversion is explicit and shares the confirmation flow", CheckConversions);
             Check("conversion choices retain exact provenance without leaking trusted action details", CardConversionUiChecks.Run);
             Check("composed skills share the generic WPF draft and submit their stable program identity", SkillProgramUiChecks.ActiveSelectionAndSubmission);
+            Check("skill target selection adds portrait outlines and confirms a real Zhefu choice", () => SkillTargetSelectionChecks.PortraitDraftAndConfirmation(output));
+            Check("skill target selection preserves multiple ordered and optional published choices", () => SkillTargetSelectionChecks.MultipleOrderedAndOptionalTargets(output));
             Check("Program named choice renders shared labels and resumes parent", () => ProgramChoiceUiChecks.NamedChoiceUsesSharedSurfaceAndCommand(output));
             Check("Program paid choices preserve actor control and opaque slots", () => ProgramPaidChoiceUiChecks.SharedChoiceSurfaces(output));
             Check("declaration and general library views protect private faces", () => RuleInformationUiChecks.PrivateFacesAndPublicDeclarations(output));
@@ -129,8 +135,12 @@ internal static class Program
             Check("autosave coalesces commands and resumes after closing", PersistenceChecks.AutomaticAndExit);
             Check("continue and save controls render in the small window", () => CheckSaveViews(output));
             Check("battle feedback exposes only committed public actions", FeedbackChecks.PublicProjection);
+            Check("battle feedback skill effects use public committed identities once", () => BattleEffectsChecks.PublicSkills(output));
+            Check("battle feedback renders distinct combat effects and retires them", () => BattleEffectsChecks.RenderEffects(output));
+            Check("battle feedback preview is accessible and stops on close", BattleEffectsChecks.PreviewLifecycle);
             Check("battle feedback retires answered inquiries without dropping results", () => FeedbackChecks.InquiryLifetime(output));
             Check("card flights use public faces and preserve prompts", () => FeedbackChecks.CardFlights(output));
+            Check("public card table shows committed uses and responses with actor flights", () => FeedbackChecks.PublicCardTable(output));
             Check("audio follows committed actions and survives mute, background and device failure", AudioChecks.CommandRouting);
             if (args.Contains("--verify-native-audio")) Check("official native audio plays MP3 and converted WAV at zero volume", OfficialAudioChecks.NativeSilentPlayback);
             Check("sound controls, shipped assets and compatible JSON preferences are valid", () => AudioChecks.SettingsAndAssets(output));
@@ -211,7 +221,7 @@ internal static class Program
         Render(root, 1120, 740, Path.Combine(output, "131-general-selection-confirm.png"));
         var confirm = (Button)window.FindName("ConfirmGeneralChoiceButton");
         Assert(confirm.IsEnabled && confirm.ActualHeight > 0 &&
-               Find<Button>(root).Count(button => button.Command == vm.PreviewGeneralChoiceCommand) == vm.GeneralChoices.Count,
+               Find<Button>((ItemsControl)window.FindName("GeneralCandidateCards")).Count(button => button.Command == vm.PreviewGeneralChoiceCommand) == vm.GeneralChoices.Count,
             "Candidate preview or confirmation controls are inaccessible.");
         vm.ConfirmGeneralChoiceCommand.Execute(null);
         Assert(Engine(vm).Revision > revision && !vm.IsGeneralSelectionPending && vm.SelectedGeneralChoice is null,
@@ -232,8 +242,9 @@ internal static class Program
         var window = new MainWindow(vm);
         window.ApplyTemplate();
         var root = (FrameworkElement)window.Content;
-        Assert(vm.VisibleTableModes.Count == 11 && vm.SelectedModeCategory.Id == "all" &&
-               vm.VisibleTableModes.Select(mode => mode.ModeBadge).Distinct().Count() == 5,
+        Assert(vm.VisibleTableModes.Count == 4 && vm.SelectedModeCategory.Id == "all" &&
+               vm.VisibleTableModes.Select(mode => mode.ModeBadge).Distinct().Count() == 3 &&
+               vm.StartingRoles.Count == 1 && vm.SelectedStartingRole.Role is null,
             "The expanded mode lobby did not expose all registered entry families.");
         Render(root, 1440, 880, Path.Combine(output, "134-home-lobby.png"));
         Render(root, 1120, 740, Path.Combine(output, "134-home-lobby-compact.png"));
@@ -258,23 +269,22 @@ internal static class Program
         vm.OpenLobbyCategoryCommand.Execute("all");
         Render(root, 1120, 740, Path.Combine(output, "134-mode-lobby.png"));
         var lobby = (ListBox)window.FindName("TableModeChoices");
-        Assert(lobby.ActualHeight > 0 && lobby.Items.Count == 11 &&
+        Assert(lobby.ActualHeight > 0 && lobby.Items.Count == 4 &&
                (ListBox)window.FindName("ModeCategoryChoices") is { Items.Count: 4 },
             "Mode cards or category controls are inaccessible.");
         ModeSelectionChecks.RefreshBoundSelection(vm, lobby);
 
         vm.SelectedModeCategory = vm.ModeCategories.Single(category => category.Id == "national");
         root.Dispatcher.Invoke(() => { }, DispatcherPriority.DataBind);
-        Assert(vm.VisibleTableModes.Count == 3 && vm.VisibleTableModes.All(mode => mode.ModeId.StartsWith("national:")) &&
+        Assert(vm.VisibleTableModes.Count == 1 && vm.VisibleTableModes.Single().ModeId == "national:ambitious-6" &&
                vm.SelectedTableMode.ModeId.StartsWith("national:") && vm.IsNationalModeSelection,
             "National category leaked another mode or retained an invalid selection.");
         vm.SelectedModeCategory = vm.ModeCategories.Single(category => category.Id == "team");
         Assert(vm.VisibleTableModes.Count == 1 && vm.SelectedTableMode.ModeId == "team:standard-2v2" && vm.IsTeamModeSelection,
             "Team category did not select its real registered entry.");
         vm.SelectedModeCategory = vm.ModeCategories.Single(category => category.Id == "identity");
-        Assert(vm.VisibleTableModes.Count == 7 && vm.VisibleTableModes.All(mode => mode.ModeId.StartsWith("identity:")) && vm.IsIdentityModeSelection &&
-               vm.VisibleTableModes.Count(mode => mode.ModeId.Contains("classic-boundary", StringComparison.Ordinal)) == 2,
-            "Identity category did not expose its seven actual modes including both boundary rosters.");
+        Assert(vm.VisibleTableModes.Select(mode => mode.ModeId).SequenceEqual(["identity:classic-8", "identity:classic-5"]) && vm.IsIdentityModeSelection,
+            "Identity category must offer only five- and eight-player identity tables.");
         Assert(Engine(vm).Revision == revision && vm.IsNewGameSetupOpen,
             "Browsing the mode lobby changed or replaced the suspended match.");
         var shortcut = typeof(MainWindow).GetMethod("HandleShortcut", BindingFlags.NonPublic | BindingFlags.Instance)!;
@@ -298,6 +308,14 @@ internal static class Program
 
     internal static GameEngine Engine(MainViewModel vm) =>
         (GameEngine)typeof(MainViewModel).GetField("_game", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(vm)!;
+
+    internal static void StartLordFixture(MainViewModel vm)
+    {
+        // Mechanism fixtures do not depend on the lobby's random identity draw.
+        vm.SelectedStartingRole = new StartingRoleOption("fixture", Role.Lord, string.Empty);
+        vm.StartNewGameCommand.Execute(null);
+        vm.ContinueFromIdentityRevealCommand.Execute(null);
+    }
 
     internal static void Assert(bool condition, string message)
     {

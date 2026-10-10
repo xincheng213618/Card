@@ -143,8 +143,12 @@ public sealed partial class GameEngine
     }
     private ProgramCardTriggerWindowFrame? ResponseCompletionObserverRoot()
     {
+        var healthCursor = ProjectTypedResponseCompletionHealthCursor();
+        if (healthCursor.IsMalformed)
+            throw new InvalidOperationException("A native response health child lost its exact paid return.");
         for (var index = 0; index + 1 < _resolutionStack.Count; index++)
             if (_resolutionStack[index] is ProgramCardTriggerWindowFrame { ResponseCompletion: not null } root &&
+                root.ParentFrameId != healthCursor.Owner?.Id &&
                 ValidResponseCompletionWindow(root) && ResponseCompletionFirstChild(root, _resolutionStack[index + 1]) && SameNameHandObserverSuffix(index)) return root;
         return null;
     }

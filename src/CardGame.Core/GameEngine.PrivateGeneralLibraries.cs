@@ -57,7 +57,8 @@ public sealed partial class GameEngine
         library.RevealedGeneralId==relation.GeneralId&&library.DeclaredSkillId==relation.SkillId&&grant.SkillId==relation.SkillId;
     private bool IsGeneralLibraryGrantQualified(CharacterState owner,SkillGrant grant)=>IsCurrentTurnSkillGrantQualified(owner,grant)&&(grant.GeneralLibraryProjection is not {} source||
         source.LibrarySource.OwnerSeat==owner.Seat&&LibraryProjectionRelationLive(grant,source)&&LibrarySourceQualified(source.LibrarySource));
-    private PrivateGeneralLibrary? EffectiveGeneralLibrary(CharacterState owner)=>_privateGeneralLibraries.Values
+    private PrivateGeneralLibrary? EffectiveGeneralLibrary(CharacterState owner)=>_privateGeneralLibraries.Count==0?null:FindEffectiveGeneralLibrary(owner);
+    private PrivateGeneralLibrary? FindEffectiveGeneralLibrary(CharacterState owner)=>_privateGeneralLibraries.Values
         .Where(l=>l.Source.OwnerSeat==owner.Seat&&l.RevealedGeneralId is not null&&LibrarySourceQualified(l.Source))
         .OrderBy(l=>l.Source.CapabilitySkillInstanceId,StringComparer.Ordinal).ThenBy(l=>l.Source.CapabilityGrantId,StringComparer.Ordinal).FirstOrDefault();
     private GeneralGender? GetPrivateGeneralLibraryGender(CharacterState owner)=>EffectiveGeneralLibrary(owner) is {} l?_contentRegistry.Generals[l.RevealedGeneralId!].Gender:null;
@@ -78,12 +79,30 @@ public sealed partial class GameEngine
         }
         } finally {_synchronizingPrivateGeneralLibraries=false;}
     }
-    private long _combinedProjectionStamp;private (long Lord,long Library,string Owners) _combinedProjectionDependencies;
+    private long _combinedProjectionStamp;
+    private (long Lord, long Library) _combinedProjectionDependencies;
+    private ProjectionDependency[] _privateLibraryOwnerDependencies = [];
     private long CaptureCombinedProjectionDependencyStamp()
     {
         var lord=CaptureLordProjectionDependencyStamp();if(!HasPrivateGeneralLibraryCapability)return lord;
-        var owners=string.Join(';',_players.Select(p=>$"{p.SkillGrants.Revision}:{p.Hp}:{p.IsAlive}:{p.GeneralSelected}:{p.GeneralRevealed}:{p.SecondaryGeneralSelected}:{p.SecondaryGeneralRevealed}"));
-        var current=(lord,_privateGeneralLibraryRevision,owners);if(current!=_combinedProjectionDependencies){_combinedProjectionDependencies=current;_combinedProjectionStamp++;}return _combinedProjectionStamp;
+        var changed = _privateLibraryOwnerDependencies.Length != _players.Count;
+        if (changed) _privateLibraryOwnerDependencies = new ProjectionDependency[_players.Count];
+        for (var i = 0; i < _players.Count; i++)
+        {
+            var player = _players[i];
+            var currentOwner = new ProjectionDependency(player.SkillGrants.Revision, player.IsAlive, player.Hp, player.Role,
+                player.GeneralSelected, player.GeneralRevealed, player.SecondaryGeneralSelected, player.SecondaryGeneralRevealed);
+            if (_privateLibraryOwnerDependencies[i] == currentOwner) continue;
+            _privateLibraryOwnerDependencies[i] = currentOwner;
+            changed = true;
+        }
+        var current = (lord, _privateGeneralLibraryRevision);
+        if (changed || current != _combinedProjectionDependencies)
+        {
+            _combinedProjectionDependencies = current;
+            _combinedProjectionStamp++;
+        }
+        return _combinedProjectionStamp;
     }
     private PrivateGeneralLibrarySource? ResolvePrivateGeneralLibrarySource(ProgramSkillFrame f,SkillProgramEffect e)
     {

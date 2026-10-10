@@ -228,6 +228,23 @@ internal static class CommandSessionChecks
         Require(attempts == rejected && SnapshotJson.Serialize(frozen) == detachedJson &&
                 SnapshotJson.Serialize(detached) == detachedJson,
             "Populated decision lists and choice parameters must be frozen without modifying their detached source.");
+        var pendingField = typeof(GameEngine).GetField("_pendingDecisionBacking", BindingFlags.NonPublic | BindingFlags.Instance)!;
+        var originalPending = pendingField.GetValue(game);
+        try
+        {
+            pendingField.SetValue(game, prompt);
+            var exposed = game.PendingDecision!;
+            var exposedJson = System.Text.Json.JsonSerializer.Serialize(exposed);
+            Require(exposedJson == System.Text.Json.JsonSerializer.Serialize(game.CreateSnapshot(0).PendingDecision),
+                "The decision-only read must match the full human view.");
+            AttemptCollectionMutation(exposed, new HashSet<object>(ReferenceEqualityComparer.Instance), ref attempts, ref rejected);
+            Require(attempts == rejected && exposedJson == System.Text.Json.JsonSerializer.Serialize(game.PendingDecision),
+                "The decision-only read must detach and freeze every exposed nested collection.");
+            pendingField.SetValue(game, prompt with { PlayerSeat = 1 });
+            Require(game.PendingDecision is null && game.CreateSnapshot(1).PendingDecision is not null,
+                "Reading the human decision must not disclose another player's private prompt.");
+        }
+        finally { pendingField.SetValue(game, originalPending); }
         if (result.PendingDecision is { } decision)
         {
             var beforeDecision = System.Text.Json.JsonSerializer.Serialize(decision);
@@ -259,6 +276,12 @@ internal static class CommandSessionChecks
         }
         if (value is System.Collections.IList list)
         {
+            if (list.Count == 0)
+            {
+                attempts++;
+                try { list.Add(null); }
+                catch (NotSupportedException) { rejected++; }
+            }
             if (list.Count > 0)
             {
                 var replacement = list[0] switch

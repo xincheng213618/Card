@@ -50,6 +50,13 @@ public sealed partial class GameEngine
     {
         if (!TracksOriginalHandEntities && _originalHandEntityStates.Count == 0 && _originalHandPermanentBonuses.Count == 0)
             return;
+        if (_originalHandEntityStates.Count == 0 && _originalHandPermanentBonuses.Count == 0 &&
+            ProgramEventHistory<OriginalHandEntitiesInitializedEvent>().Count == 0 &&
+            ProgramEventHistory<OriginalHandEntityConsumedEvent>().Count == 0 &&
+            ProgramEventHistory<OriginalHandPermanentBonusGrantedEvent>().Count == 0 &&
+            ProgramEventHistory<OriginalHandBonusTransferredEvent>().Count == 0)
+            return;
+        // Grants and transfers must still be replayed in their original mixed order.
         var history = CompleteProgramEventHistory().Where(fact => fact is
             OriginalHandEntitiesInitializedEvent or OriginalHandEntityConsumedEvent or
             OriginalHandPermanentBonusGrantedEvent or OriginalHandBonusTransferredEvent).ToArray();

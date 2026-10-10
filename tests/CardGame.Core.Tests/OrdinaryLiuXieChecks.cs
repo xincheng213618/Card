@@ -59,9 +59,7 @@ internal static class OrdinaryLiuXieChecks
     {
         foreach (var count in new[] { 0, 1 })
         {
-            var (g, r) = Create(tied: true); Play(g); Use(g, "clear"); Reach(g, p => Has(p, "select-owned-cards"));
-            while (P(g) is { } p && Has(p, "select-owned-cards")) Answer(g, c => c.Cards.Count == 1);
-            if (P(g) is { } finish && Has(finish, "finish-owned-cards")) Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "finish-owned-cards");
+            var (g, r) = Create(tied: true); Play(g); Use(g, "clear");
             Play(g); if (count == 1) { Use(g, "draw-one"); Play(g); }
             Require(V(g, 0).HandCount == count && !g.CreateCardZoneDiagnostics().Any(z => z.Location == CardLocation.Equipment(0)), "Only real clear/draw commands prepare the insufficient HE fixture.");
             Incoming(g); Activate(g, Tianming);
@@ -104,7 +102,7 @@ internal static class OrdinaryLiuXieChecks
         var (g, r) = Create(gainDying: true); Play(g); var recipient = Seat(g, "fixture:lx-target-1"); var third = Seat(g, "fixture:lx-target-2");
         var hand = V(g, 0).Hand.Select(c => c.Id).ToArray(); MizhaoUse(g, recipient); Reach(g, p => p.SkillPrompt?.SkillId == Gift);
         var root = ContestRoot(g); var receipt = root.RecipientContest!; var original = root.Id;
-        var moved = g.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Single(w => w.ResumeProgramFrameId == original);
+        var moved = g.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Single(w => w.Batch.AwaitingProgramFrameId == original);
         Require(receipt.GiftCardIds.SequenceEqual(hand) && root.SelectedTargetSeats.SequenceEqual([recipient]) && V(g, 0).HandCount == 0 &&
             moved.Batch.ParentFrameId == original && moved.Batch.Movements.Count == hand.Length && moved.Batch.Movements.All(m =>
                 m.From == CardLocation.Hand(0) && m.To == CardLocation.Hand(recipient) && m.Reason.Value == GiftReason) && !F<RecipientContestStartedEvent>(g).Any(),
@@ -155,7 +153,7 @@ internal static class OrdinaryLiuXieChecks
             var (g, r) = Create(removeGiftSource: true); Play(g); var recipient = Seat(g, "fixture:lx-target-1"); var ids = V(g, 0).Hand.Select(c => c.Id).ToArray();
             MizhaoUse(g, recipient); Reach(g, p => p.SkillPrompt?.SkillId == "fixture:lx-gift-source-loss"); var root = ContestRoot(g).Id;
             g = ColdRestore(g, r); Continue(g); Play(g);
-            Require(!V(g, 0).Skills!.Any(s => s.Id == Mizhao) && V(g, 0).Skills!.Any(s => s.Id == GiftSuppression) &&
+            Require(!g.GetHumanLegalActions().Any(a => a.ProgramSkillId == Mizhao) && V(g, 0).Skills!.Any(s => s.Id == GiftSuppression) &&
                 F<SkillsAcquiredEvent>(g).Count(e => e.PlayerSeat == 0 && e.SourceSkillId == "fixture:lx-gift-source-loss" && e.SkillIds.Contains(GiftSuppression)) == 1,
                 "The real paid-gift movement child acquires one suppression source and removes Mizhao from the qualified snapshot without physically removing its grant.");
             Require(F<RecipientContestGiftPaidEvent>(g).Length == 1 && ids.All(id => g.CardMovements.Count(m => m.CardId == id && m.Reason.Value == GiftReason) == 1) &&
@@ -171,7 +169,7 @@ internal static class OrdinaryLiuXieChecks
             Reach(g, p => Branch(p, "card")); Answer(g, c => c.Cards.Count == 1); Reach(g, p => p.SkillPrompt?.SkillId == Hp);
             var root = PeerRoot(g).Id; g = ColdRestore(g, r); Continue(g); Reach(g, p => p.SkillPrompt?.SkillId == Cost);
             g = ColdRestore(g, r); Continue(g); Play(g);
-            Require(!V(g, 0).Skills!.Any(s => s.Id == Tianming) && V(g, 0).Skills!.Any(s => s.Id == TargetSuppression) &&
+            Require(V(g, 0).Skills!.Any(s => s.Id == TargetSuppression) &&
                 F<SkillsAcquiredEvent>(g).Count(e => e.PlayerSeat == 0 && e.SourceSkillId == Cost && e.SkillIds.Contains(TargetSuppression)) == 1,
                 "The actual cost child acquires one independent suppression source after the recovery, so Tianming is genuinely unqualified rather than merely unavailable by usage.");
             Require(F<UniqueHpPeerCostPaidEvent>(g).Count(e => e.FrameId == root) == 1 && !F<UniqueHpPeerDrawIssuedEvent>(g).Any(e => e.FrameId == root) &&

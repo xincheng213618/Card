@@ -2,7 +2,7 @@ using CardGame.Core;
 
 namespace CardGame.Wpf.Presentation;
 
-public enum BattleCueKind { Card, ResponseWindow, Response, Judgment, Damage, Recovery, Turn, Dying, Death }
+public enum BattleCueKind { Card, ResponseWindow, Response, Judgment, Damage, Recovery, Turn, Dying, Death, Skill }
 
 /// <summary>Presentation data containing only actions and values that are already public.</summary>
 public sealed record BattleCue(long Sequence, BattleCueKind Kind, int SourceSeat,
@@ -13,6 +13,10 @@ public sealed record BattleCue(long Sequence, BattleCueKind Kind, int SourceSeat
     public bool IsInquiry { get; init; }
     public long Revision { get; init; }
     public CardKind? CardKind { get; init; }
+    public int? PublicCardId { get; init; }
+    public bool IsUseCompletion { get; init; }
+    public string? SkillId { get; init; }
+    public string CardActionLabel => Kind == BattleCueKind.Card ? Detail ?? "使用" : "打出";
 }
 
 public static class BattleCueProjector
@@ -23,7 +27,8 @@ public static class BattleCueProjector
         var targets = events.Select(item => item.Payload).OfType<TargetsConfirmedEvent>()
             .GroupBy(item => item.ResolutionId).ToDictionary(group => group.Key, group => group.Last().TargetSeats);
         var cues = new List<BattleCue>();
-        var responseCards = new HashSet<int>();
+        var cardPlays = ProjectCardPlays(events, playerView).ToDictionary(cue => cue.Sequence);
+        var shownSkills = new HashSet<(long Revision, int Seat, string Skill)>();
         string Name(int seat) => playerView.Players.FirstOrDefault(player => player.Seat == seat)?.GeneralName ?? "武将";
         string SkillName(int ownerSeat, string skillId)
         {
@@ -150,26 +155,88 @@ public static class BattleCueProjector
                 _ => null
             };
 
-            // Do not project hand movements, private skill candidates, draws, or setup choices.
-            // A response card is included only after the corresponding public response was committed.
-            (int? Card, int Seat, CardKind? Kind) response = envelope.Payload switch
+            if (cardPlays.TryGetValue(envelope.Sequence, out var cardPlay))
+                cue = cardPlay with { TargetSeats = cue?.TargetSeats ?? cardPlay.TargetSeats };
+
+            var (skillSeat, skillId) = envelope.Payload switch
             {
-                CardRespondedEvent card => (card.CardId, card.ResponderSeat, card.EffectiveCardKind),
-                DuelResponseEvent { UsedSlash: true } duel => (duel.SlashCardId, duel.ResponderSeat, duel.ResponseCardKind ?? CardKind.Slash),
-                GroupResponseEvent { UsedResponse: true } group => (group.ResponseCardId, group.ResponderSeat, group.ResponseCardKind ?? group.RequiredCardKind),
-                DyingResponseEvent { UsedPeach: true } dying =>
-                    (dying.PeachCardId, dying.ResponderSeat, dying.UsedPeachPhysicalCardKind ?? CardKind.Peach),
-                DyingResponseEvent { UsedAlcohol: true } dying => (dying.AlcoholCardId, dying.ResponderSeat, CardKind.Alcohol),
-                _ => (null, -1, null)
+                ProgramSkillResolvedEvent { Completed: true } e => (e.OwnerSeat, e.SkillId),
+                ProgramBindingResolvedEvent { Activated: true, Completed: true } e => (e.OwnerSeat, e.SkillId),
+                ProgramJudgmentTriggerResolvedEvent { Activated: true } e => (e.OwnerSeat, e.SkillId),
+                ProgramJudgmentReplacementResolvedEvent { Activated: true } e => (e.OwnerSeat, e.SkillId),
+                ProgramCardPolicyResolvedEvent { Applied: true } e => (e.OwnerSeat, e.SkillId),
+                ProgramCardTriggerResolvedEvent { Activated: true } e => (e.OwnerSeat, e.SkillId),
+                ProgramRecoveryPolicyAppliedEvent e => (e.OwnerSeat, e.SkillId),
+                ProgramViewAsConvertedEvent e => (e.OwnerSeat, e.SkillId),
+                SkillUsageConsumedEvent { Count: > 0 } e => (e.SkillOwnerSeat, e.SkillId),
+                SkillAwakenedEvent e => (e.PlayerSeat, e.SkillId),
+                _ => (-1, (string?)null)
             };
-            if (response.Card is { } cardId && (cardId < 0 || responseCards.Add(cardId)))
-                cue = new(envelope.Sequence, BattleCueKind.Response, response.Seat, [],
-                    response.Kind is { } kind ? $"打出{CardCatalog.Get(kind).DisplayName}" : "打出响应牌", Name(response.Seat));
+            var owner = playerView.Players.FirstOrDefault(player => player.Seat == skillSeat);
+            var publicSkill = skillId is null || owner is null ? null :
+                (owner.IsGeneralPublic ? owner.Skills ?? [] : [])
+                .Concat(owner.IsSecondaryGeneralPublic ? owner.SecondarySkills ?? [] : [])
+                .FirstOrDefault(skill => skill.ContentId == skillId);
+            if (publicSkill is not null)
+            {
+                // Usage, conversion and completion may describe the same committed activation.
+                if (shownSkills.Add((envelope.Revision, skillSeat, skillId!)))
+                    cue = new(envelope.Sequence, BattleCueKind.Skill, skillSeat, Seats([skillSeat]),
+                        publicSkill.Name, Name(skillSeat), Detail: cue?.Label) { SkillId = skillId };
+                else if (cue?.Kind == BattleCueKind.Response && cue.CardKind is null)
+                    cue = null;
+            }
+            else if (skillId is not null)
+                cue = null; // An unrevealed general's skill identity is not a presentation cue.
             if (cue is not null) cues.Add(cue with { Revision = envelope.Revision });
         }
 
         // A bulk run can commit many turns. Show the latest useful actions, keeping playback bounded.
         return cues.TakeLast(12).ToArray();
+    }
+
+    /// <summary>Committed card faces only; never infer a face from a hidden hand or movement.</summary>
+    public static IReadOnlyList<BattleCue> ProjectCardPlays(IEnumerable<EventEnvelope> source, GameSnapshot playerView)
+    {
+        var events = source.ToArray();
+        var responses = events.Where(item => item.Payload is CardRespondedEvent)
+            .Select(item => (item.Revision, Card: (CardRespondedEvent)item.Payload))
+            .Select(item => (item.Revision, item.Card.ResponderSeat, item.Card.CardId)).ToHashSet();
+        var uses = events.Where(item => item.Payload is CardUseDeclaredEvent)
+            .Select(item => (item.Revision, Card: (CardUseDeclaredEvent)item.Payload))
+            .Select(item => (item.Card.SourceSeat, item.Card.CardId)).ToHashSet();
+        var result = new List<BattleCue>();
+        foreach (var envelope in events)
+        {
+            (int? Id, int Seat, CardKind? Kind, bool Use, string? Detail) play = envelope.Payload switch
+            {
+                CardUseDeclaredEvent use => (use.CardId, use.SourceSeat, use.CardKind, true, null),
+                CardRecastEvent recast => (recast.CardId, recast.ActorSeat, recast.CardKind, true, "重铸"),
+                CardRespondedEvent response => (response.CardId, response.ResponderSeat, response.EffectiveCardKind, false, null),
+                DuelResponseEvent { UsedSlash: true } duel => (duel.SlashCardId, duel.ResponderSeat, duel.ResponseCardKind ?? CardKind.Slash, false, null),
+                GroupResponseEvent { UsedResponse: true } group => (group.ResponseCardId, group.ResponderSeat, group.ResponseCardKind ?? group.RequiredCardKind, false, null),
+                NullificationRespondedEvent counterspell => (counterspell.NullificationCardId, counterspell.ResponderSeat, CardKind.Nullification, false,
+                    counterspell.EffectNullified ? "锦囊暂时失效" : "锦囊恢复生效"),
+                // Modern rescues declare an effective Peach/Alcohol use. Retain the fallback
+                // for older public events, without showing a converted physical cost as Peach.
+                DyingResponseEvent { UsedPeach: true } rescue => (rescue.PeachCardId, rescue.ResponderSeat, CardKind.Peach, true, null),
+                DyingResponseEvent { UsedAlcohol: true } rescue => (rescue.AlcoholCardId, rescue.ResponderSeat, CardKind.Alcohol, true, null),
+                _ => (null, -1, null, false, null)
+            };
+            if (play.Id is not { } cardId) continue;
+            if (envelope.Payload is not CardRespondedEvent && !play.Use && responses.Contains((envelope.Revision, play.Seat, cardId))) continue;
+            if (envelope.Payload is DyingResponseEvent && uses.Contains((play.Seat, cardId))) continue;
+            var name = playerView.Players.FirstOrDefault(player => player.Seat == play.Seat)?.GeneralName ?? "武将";
+            var label = play.Kind is { } kind ? CardCatalog.Get(kind).DisplayName : "响应牌";
+            if (!play.Use) label = "打出" + label;
+            if (envelope.Payload is CardRecastEvent) label = "重铸" + label;
+            if (envelope.Payload is NullificationRespondedEvent chainResponse) label += $" · 第 {chainResponse.ChainDepth} 层";
+            result.Add(new(envelope.Sequence, play.Use ? BattleCueKind.Card : BattleCueKind.Response,
+                play.Seat, [], label, name, Detail: play.Detail)
+                { CardKind = play.Kind, PublicCardId = cardId, Revision = envelope.Revision,
+                    IsUseCompletion = envelope.Payload is DyingResponseEvent });
+        }
+        return result;
     }
 
 

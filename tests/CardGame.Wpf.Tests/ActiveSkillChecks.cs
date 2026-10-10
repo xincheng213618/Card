@@ -17,8 +17,8 @@ internal static class ActiveSkillChecks
 
         Program.Assert(
             viewModel.TableModes.Any(mode => mode.ModeId == "identity:classic-8") &&
-            viewModel.TableModes.Any(mode => mode.ModeId == "identity:active-skills-8"),
-            "The expanded WPF setup did not expose both classic identity and the legacy skill showcase.");
+            viewModel.TableModes.All(mode => mode.ModeId != "identity:active-skills-8"),
+            "Legacy skill fixtures must remain available internally without a demonstration lobby entry.");
         var kujin = viewModel.GeneralChoices.Single(choice => choice.SkillName == "苦肉");
         viewModel.SelectGeneralChoiceCommand.Execute(kujin);
         Program.AdvanceToDecision(viewModel);
@@ -398,8 +398,8 @@ internal static class ActiveSkillChecks
         {
             IsMotionEnabled = false
         };
-        viewModel.SelectedTableMode = viewModel.TableModes.Single(mode => mode.ModeId == "identity:active-skills-8");
-        viewModel.StartNewGameCommand.Execute(null);
+        viewModel.SelectedTableMode = new TableModeOption(8, "主动技能测试", string.Empty, "identity:active-skills-8");
+        Program.StartLordFixture(viewModel);
         return viewModel;
     }
 

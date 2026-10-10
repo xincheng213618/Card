@@ -23,9 +23,7 @@ public sealed partial class GameEngine
             action.ConversionSource,action.TargetCardId,Targets:string.Join(",",action.TargetSeats))).ToHashSet();
         foreach(var action in actions.ToArray().Where(a=>a.CardId is not null && a.ProgramActivationId is null && a.Kind!=LegalActionKind.Recast))
         {
-            var physical=FindOwnedPlayableCard(actor,action.CardId)!;
-            var kind=action.PlayedCardKind??physical.Kind;
-            var suit=EffectiveSuit(actor,ApplyProgramUseAppearance(actor,physical,action.ConversionSource));
+            var (kind,suit)=TargetAdjustmentAppearance(actor,action);
             if(suit is not (Suit.Heart or Suit.Diamond) || (GetProgramCardCategory(kind)!=SkillProgramCardCategory.Basic && !IsOrdinaryTrick(kind))) continue;
             var normal=action.Kind is LegalActionKind.DrawTwo or LegalActionKind.Peach or LegalActionKind.Alcohol ? new[]{actor.Seat} :GetDeclaredCardTargets(actor,action.Kind,action.TargetSeats).ToArray();
             if(normal.Length==0) continue;

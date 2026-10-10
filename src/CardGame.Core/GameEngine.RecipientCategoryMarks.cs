@@ -27,7 +27,9 @@ public sealed partial class GameEngine
     private IReadOnlyList<ProgramTriggerCandidate> IncludeRecipientCategoryGiftObservers(CharacterState drawOwner, IReadOnlyList<ProgramTriggerCandidate> existing)
     {
         if (!TracksRecipientCategoryMarks) return existing;
-        var added = _players.Where(p => p.IsAlive && p.Seat != drawOwner.Seat)
+        var added = _players.Where(p => p.IsAlive && p.Seat != drawOwner.Seat &&
+            GetSkillBindingShard(p).GetInstanceTriggers(SkillProgramTriggerWindow.DrawPhaseEnded).Any(binding =>
+                ProgramInstructionResolver.Default.Features(binding.Trigger).HasOperation(SkillProgramEffectOp.GiveHandAndGrantCategoryMark)))
             .SelectMany(p => CollectEligibleProgramTriggerCandidates(p, SkillProgramTriggerWindow.DrawPhaseEnded, CaptureProgramTriggerFacts(p)))
             .Where(c => GetProgramTrigger(c).Effects.Any(e => e.Op == SkillProgramEffectOp.GiveHandAndGrantCategoryMark));
         return Array.AsReadOnly(existing.Concat(added).Distinct().OrderBy(c => (c.OwnerSeat - drawOwner.Seat + _playerCount) % _playerCount)

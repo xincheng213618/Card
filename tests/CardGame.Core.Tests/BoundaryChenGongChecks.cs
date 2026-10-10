@@ -150,7 +150,8 @@ internal static class BoundaryChenGongChecks
             if (!prevention)
             {
                 Reach(g, p => p.Kind == DecisionKind.RespondDodge && p.PlayerSeat == 2);
-                Require(P(g)!.Choices.Any(c => c.Parameters.GetValueOrDefault("response") == "program-dodge"),
+                Require(P(g)!.Choices.Any(c => c.Parameters.GetValueOrDefault("response") == "dodge" &&
+                    c.Parameters.GetValueOrDefault("conversion-skill-id") == "classic:qingguo"),
                     "The real target has a black-card Dodge conversion, not an injected dodged flag.");
                 Cold(g, r); Accept(g, new AdvanceOneStepCommand(g.Revision));
             }
@@ -333,10 +334,11 @@ internal static class BoundaryChenGongChecks
             }
             var catalog = SkillProgramCatalog.Load(rules.ToJsonString(),
                 JsonSerializer.Serialize(new { schemaVersion = 3, skills = presentations }));
-            foreach (var id in catalog.Programs.Keys) b.AddSkill(new(id, id, "真实命令夹具") { Program = catalog.Programs[id], Tags = id == "fixture:cg-quiet" ? SkillTag.Locked : SkillTag.None });
+            foreach (var id in catalog.Programs.Keys) b.AddSkill(new(id, id, "真实命令夹具") { Program = catalog.Programs[id], Tags = id is "fixture:cg-quiet" or RewardGain ? SkillTag.Locked : SkillTag.None });
             b.AddSkill(new("fixture:cg-pick-owner", "固定主公", "公开选将评分") { SelectionWeights = Enum.GetValues<Role>().ToDictionary(role => role, role => role == Role.Lord ? 100000d : -100000d) });
             b.AddSkill(new("fixture:cg-pick-other", "固定其他", "公开选将评分") { SelectionWeights = Enum.GetValues<Role>().ToDictionary(role => role, role => role == Role.Lord ? -100000d : 100000d) });
             var owner = new List<string> { classic ? "classic:mingce" : Mingce, Driver, RewardGain, Hp };
+            if (native) owner.Remove(Driver);
             if (wine) owner.Add("classic:wusheng");
             if (intrinsicIdentity) owner.Add("boundary:jinjiu-current");
             b.AddGeneral(new("fixture:cg-owner", "当前界陈宫机制", "supporter", "fixture:cg-pick-owner", "qun", 3, owner) { InitialHp = equipment ? 2 : 3 });
@@ -350,7 +352,9 @@ internal static class BoundaryChenGongChecks
             }
             b.AddDeck(new("fixture:cg-deck", "固定真实材料", 4, 2, []) { PhysicalCards = Enumerable.Range(0, 100).Select(i =>
                 new ContentDeckPhysicalCard(equipment ? "classic:silver-lion" : wine ? "standard:alcohol" : "standard:slash", equipment || wine ? Suit.Heart : Suit.Spade, 7)).ToArray() });
-            b.AddMode(new(Mode, "界陈宫真实边界", 4, 4, new Dictionary<string, int> { [nameof(Role.Lord)] = 1, [nameof(Role.Renegade)] = 3 },
+            var roles = native ? new Dictionary<string, int> { [nameof(Role.Lord)] = 1, [nameof(Role.Loyalist)] = 1, [nameof(Role.Rebel)] = 2 }
+                : new Dictionary<string, int> { [nameof(Role.Lord)] = 1, [nameof(Role.Renegade)] = 3 };
+            b.AddMode(new(Mode, "界陈宫真实边界", 4, 4, roles,
                 "fixture:cg-deck", GeneralCandidateCount: 4, GeneralPoolIds: ["fixture:cg-owner", "fixture:cg-other-1", "fixture:cg-other-2", "fixture:cg-other-3"]));
         }
     }

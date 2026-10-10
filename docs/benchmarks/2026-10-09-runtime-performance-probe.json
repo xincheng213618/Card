@@ -1,0 +1,383 @@
+{
+  "measuredAt": "2026-10-09T07:50:20.6923687+08:00",
+  "method": "Seven warmed batches with tiered compilation disabled for stable optimized JIT, allocation measured on the executing managed thread. Fixed seed=1, 8 seats, same standard active general pool and human PlayCard boundary for both catalogs; short-prefix replay. Isolates catalog-size overhead, not classic-pool gameplay. This is a microbenchmark, not long-game/UI acceptance or a historical regression comparison.",
+  "catalogs": [
+    {
+      "name": "base",
+      "cards": 30,
+      "skills": 13,
+      "generals": 14,
+      "modes": 2,
+      "contentHash": "C7C55273FADC603869D325AE74357C9ADC882481A6664B607D75CBA7FDF817FD"
+    },
+    {
+      "name": "expanded",
+      "cards": 51,
+      "skills": 676,
+      "generals": 357,
+      "modes": 8,
+      "contentHash": "A4E21239105C060E0B6B01875BFBBB4EBEA20F12197E86C614C2937955BD45D7"
+    }
+  ],
+  "metrics": [
+    {
+      "name": "base catalog build",
+      "iterationsPerBatch": 20,
+      "batches": 7,
+      "medianMsPerOperation": 0.231875,
+      "minimumMsPerOperation": 0.20779999999999998,
+      "maximumMsPerOperation": 0.379915,
+      "meanAllocatedBytesPerOperation": 278888.22857142857,
+      "batchMsPerOperation": [
+        0.379915,
+        0.21546500000000002,
+        0.231875,
+        0.272725,
+        0.20779999999999998,
+        0.22725,
+        0.23984999999999998
+      ]
+    },
+    {
+      "name": "expanded catalog build",
+      "iterationsPerBatch": 10,
+      "batches": 7,
+      "medianMsPerOperation": 11.60832,
+      "minimumMsPerOperation": 8.53524,
+      "maximumMsPerOperation": 12.35812,
+      "meanAllocatedBytesPerOperation": 8821104.114285715,
+      "batchMsPerOperation": [
+        9.22359,
+        11.776990000000001,
+        11.60832,
+        10.23202,
+        11.70523,
+        12.35812,
+        8.53524
+      ]
+    },
+    {
+      "name": "base standard mode engine construction with reused catalog",
+      "iterationsPerBatch": 20,
+      "batches": 7,
+      "medianMsPerOperation": 0.212115,
+      "minimumMsPerOperation": 0.182915,
+      "maximumMsPerOperation": 0.22613,
+      "meanAllocatedBytesPerOperation": 492426.62857142853,
+      "batchMsPerOperation": [
+        0.22613,
+        0.212115,
+        0.201815,
+        0.21509,
+        0.182915,
+        0.2111,
+        0.21770499999999998
+      ]
+    },
+    {
+      "name": "base standard mode player snapshot",
+      "iterationsPerBatch": 200,
+      "batches": 7,
+      "medianMsPerOperation": 0.080885,
+      "minimumMsPerOperation": 0.08049300000000001,
+      "maximumMsPerOperation": 0.0886725,
+      "meanAllocatedBytesPerOperation": 154408.10285714286,
+      "batchMsPerOperation": [
+        0.0886725,
+        0.08052849999999999,
+        0.08082750000000001,
+        0.08049300000000001,
+        0.081219,
+        0.080885,
+        0.08206300000000001
+      ]
+    },
+    {
+      "name": "base standard mode legal actions",
+      "iterationsPerBatch": 100,
+      "batches": 7,
+      "medianMsPerOperation": 0.9574550000000001,
+      "minimumMsPerOperation": 0.945491,
+      "maximumMsPerOperation": 0.990364,
+      "meanAllocatedBytesPerOperation": 1849112.342857143,
+      "batchMsPerOperation": [
+        0.9591299999999999,
+        0.956827,
+        0.9672740000000001,
+        0.951937,
+        0.990364,
+        0.9574550000000001,
+        0.945491
+      ]
+    },
+    {
+      "name": "base standard mode hand guidance",
+      "iterationsPerBatch": 100,
+      "batches": 7,
+      "medianMsPerOperation": 0.9723109999999999,
+      "minimumMsPerOperation": 0.965365,
+      "maximumMsPerOperation": 0.978796,
+      "meanAllocatedBytesPerOperation": 1859136.3428571427,
+      "batchMsPerOperation": [
+        0.9723109999999999,
+        0.965365,
+        0.967094,
+        0.977137,
+        0.978796,
+        0.9749909999999999,
+        0.96565
+      ]
+    },
+    {
+      "name": "base standard mode combined action view",
+      "iterationsPerBatch": 100,
+      "batches": 7,
+      "medianMsPerOperation": 0.969335,
+      "minimumMsPerOperation": 0.9588800000000001,
+      "maximumMsPerOperation": 0.973078,
+      "meanAllocatedBytesPerOperation": 1859968.3428571427,
+      "batchMsPerOperation": [
+        0.969335,
+        0.9726130000000001,
+        0.970938,
+        0.966187,
+        0.973078,
+        0.961865,
+        0.9588800000000001
+      ]
+    },
+    {
+      "name": "base standard mode checkpoint capture",
+      "iterationsPerBatch": 100,
+      "batches": 7,
+      "medianMsPerOperation": 0.000138,
+      "minimumMsPerOperation": 0.000126,
+      "maximumMsPerOperation": 0.000243,
+      "meanAllocatedBytesPerOperation": 272.2057142857143,
+      "batchMsPerOperation": [
+        0.000138,
+        0.00013,
+        0.000126,
+        0.000129,
+        0.000144,
+        0.000235,
+        0.000243
+      ]
+    },
+    {
+      "name": "base standard mode checkpoint JSON roundtrip",
+      "iterationsPerBatch": 50,
+      "batches": 7,
+      "medianMsPerOperation": 0.004666,
+      "minimumMsPerOperation": 0.004626,
+      "maximumMsPerOperation": 0.006745999999999999,
+      "meanAllocatedBytesPerOperation": 3232.411428571428,
+      "batchMsPerOperation": [
+        0.006745999999999999,
+        0.004664,
+        0.004666,
+        0.004968,
+        0.004738,
+        0.004626,
+        0.004662
+      ]
+    },
+    {
+      "name": "base standard mode restore short accepted prefix",
+      "iterationsPerBatch": 20,
+      "batches": 7,
+      "medianMsPerOperation": 1.8769200000000001,
+      "minimumMsPerOperation": 1.86172,
+      "maximumMsPerOperation": 1.90228,
+      "meanAllocatedBytesPerOperation": 3192375.1428571427,
+      "batchMsPerOperation": [
+        1.86172,
+        1.90228,
+        1.874875,
+        1.8890149999999999,
+        1.8769200000000001,
+        1.863815,
+        1.8769300000000002
+      ]
+    },
+    {
+      "name": "base standard mode fixture",
+      "revision": 1,
+      "commands": 1,
+      "checkpointJsonBytes": 685,
+      "prompt": "PlayCard",
+      "seed": 1,
+      "mode": "identity:standard-8"
+    },
+    {
+      "name": "expanded same standard mode engine construction with reused catalog",
+      "iterationsPerBatch": 20,
+      "batches": 7,
+      "medianMsPerOperation": 0.38255,
+      "minimumMsPerOperation": 0.36313,
+      "maximumMsPerOperation": 0.40597000000000005,
+      "meanAllocatedBytesPerOperation": 703091.4285714285,
+      "batchMsPerOperation": [
+        0.386775,
+        0.398475,
+        0.38116,
+        0.40597000000000005,
+        0.38167,
+        0.36313,
+        0.38255
+      ]
+    },
+    {
+      "name": "expanded same standard mode player snapshot",
+      "iterationsPerBatch": 200,
+      "batches": 7,
+      "medianMsPerOperation": 0.174515,
+      "minimumMsPerOperation": 0.17146899999999998,
+      "maximumMsPerOperation": 0.1939385,
+      "meanAllocatedBytesPerOperation": 336088.1028571428,
+      "batchMsPerOperation": [
+        0.1939385,
+        0.17905100000000002,
+        0.174515,
+        0.171621,
+        0.17146899999999998,
+        0.176675,
+        0.1743845
+      ]
+    },
+    {
+      "name": "expanded same standard mode legal actions",
+      "iterationsPerBatch": 100,
+      "batches": 7,
+      "medianMsPerOperation": 3.5762400000000003,
+      "minimumMsPerOperation": 3.5112889999999997,
+      "maximumMsPerOperation": 3.7289019999999997,
+      "meanAllocatedBytesPerOperation": 6547689.302857144,
+      "batchMsPerOperation": [
+        3.584159,
+        3.5762400000000003,
+        3.7289019999999997,
+        3.563003,
+        3.537912,
+        3.616566,
+        3.5112889999999997
+      ]
+    },
+    {
+      "name": "expanded same standard mode hand guidance",
+      "iterationsPerBatch": 100,
+      "batches": 7,
+      "medianMsPerOperation": 3.5602050000000003,
+      "minimumMsPerOperation": 3.528172,
+      "maximumMsPerOperation": 3.593335,
+      "meanAllocatedBytesPerOperation": 6582506.537142857,
+      "batchMsPerOperation": [
+        3.542174,
+        3.528172,
+        3.575728,
+        3.5602050000000003,
+        3.54513,
+        3.593335,
+        3.582435
+      ]
+    },
+    {
+      "name": "expanded same standard mode combined action view",
+      "iterationsPerBatch": 100,
+      "batches": 7,
+      "medianMsPerOperation": 3.552994,
+      "minimumMsPerOperation": 3.3201929999999997,
+      "maximumMsPerOperation": 3.619397,
+      "meanAllocatedBytesPerOperation": 6583333.92,
+      "batchMsPerOperation": [
+        3.6161399999999997,
+        3.610337,
+        3.552994,
+        3.619397,
+        3.354035,
+        3.3201929999999997,
+        3.337291
+      ]
+    },
+    {
+      "name": "expanded same standard mode checkpoint capture",
+      "iterationsPerBatch": 100,
+      "batches": 7,
+      "medianMsPerOperation": 0.000279,
+      "minimumMsPerOperation": 0.00026599999999999996,
+      "maximumMsPerOperation": 0.001181,
+      "meanAllocatedBytesPerOperation": 544.2057142857143,
+      "batchMsPerOperation": [
+        0.000279,
+        0.000273,
+        0.000275,
+        0.00026599999999999996,
+        0.000407,
+        0.000492,
+        0.001181
+      ]
+    },
+    {
+      "name": "expanded same standard mode checkpoint JSON roundtrip",
+      "iterationsPerBatch": 50,
+      "batches": 7,
+      "medianMsPerOperation": 0.005064,
+      "minimumMsPerOperation": 0.004961999999999999,
+      "maximumMsPerOperation": 0.007422,
+      "meanAllocatedBytesPerOperation": 3713.9199999999996,
+      "batchMsPerOperation": [
+        0.006,
+        0.005024,
+        0.005064,
+        0.005028,
+        0.0051400000000000005,
+        0.004961999999999999,
+        0.007422
+      ]
+    },
+    {
+      "name": "expanded same standard mode restore short accepted prefix",
+      "iterationsPerBatch": 20,
+      "batches": 7,
+      "medianMsPerOperation": 6.438979999999999,
+      "minimumMsPerOperation": 6.28629,
+      "maximumMsPerOperation": 6.567265000000001,
+      "meanAllocatedBytesPerOperation": 11592348.685714286,
+      "batchMsPerOperation": [
+        6.471675,
+        6.47116,
+        6.28629,
+        6.438979999999999,
+        6.397225000000001,
+        6.398725000000001,
+        6.567265000000001
+      ]
+    },
+    {
+      "name": "expanded same standard mode fixture",
+      "revision": 1,
+      "commands": 1,
+      "checkpointJsonBytes": 801,
+      "prompt": "PlayCard",
+      "seed": 1,
+      "mode": "identity:standard-8"
+    }
+  ],
+  "diagnosticSource": {
+    "project": "<Project Sdk=\"Microsoft.NET.Sdk\">\n  <PropertyGroup>\n    <OutputType>Exe</OutputType><TargetFramework>net8.0</TargetFramework>\n    <ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable>\n  </PropertyGroup>\n  <ItemGroup>\n    <Reference Include=\"CardGame.Core\"><HintPath>lib/CardGame.Core.dll</HintPath></Reference>\n    <Reference Include=\"CardGame.Content.Standard\"><HintPath>lib/CardGame.Content.Standard.dll</HintPath></Reference>\n  </ItemGroup>\n</Project>\n\n",
+    "program": "using System.Diagnostics;\nusing System.Text.Json;\nusing CardGame.Core;\nusing CardGame.Content.Standard;\n\nvar metrics = new List<object>();\nobject? sink = null;\n\nvoid Measure(string name, int iterations, Func<object?> operation)\n{\n    for (var i = 0; i < 5; i++) sink = operation();\n    var times = new List<double>();\n    var bytes = new List<double>();\n    for (var batch = 0; batch < 7; batch++)\n    {\n        var allocation = GC.GetAllocatedBytesForCurrentThread();\n        var start = Stopwatch.GetTimestamp();\n        for (var i = 0; i < iterations; i++) sink = operation();\n        times.Add(Stopwatch.GetElapsedTime(start).TotalMilliseconds / iterations);\n        bytes.Add((GC.GetAllocatedBytesForCurrentThread() - allocation) / (double)iterations);\n    }\n    var ordered = times.Order().ToArray();\n    var result = new {\n        name, iterationsPerBatch = iterations, batches = times.Count,\n        medianMsPerOperation = ordered[ordered.Length / 2],\n        minimumMsPerOperation = ordered[0], maximumMsPerOperation = ordered[^1],\n        meanAllocatedBytesPerOperation = bytes.Average(),\n        batchMsPerOperation = times\n    };\n    metrics.Add(result);\n    Console.WriteLine(JsonSerializer.Serialize(result));\n}\n\nMeasure(\"base catalog build\", 20, () => StandardContentRegistry.Create());\nMeasure(\"expanded catalog build\", 10, () => StandardContentRegistry.CreateWithClassicGenerals());\nvar baseRegistry = StandardContentRegistry.Create();\nvar expanded = StandardContentRegistry.CreateWithClassicGenerals();\nvar catalogSizes = new[] { (\"base\",baseRegistry), (\"expanded\",expanded) }.Select(x =>\n    new { name=x.Item1, cards=x.Item2.Cards.Count, skills=x.Item2.Skills.Count, generals=x.Item2.Generals.Count, modes=x.Item2.Modes.Count, contentHash=x.Item2.ContentHash }).ToArray();\n\nforeach (var entry in new[] {\n    (name:\"base standard mode\", registry:baseRegistry, mode:\"identity:standard-8\"),\n    (name:\"expanded same standard mode\", registry:expanded, mode:\"identity:standard-8\") })\n{\n    var options = new GameOptions { Seed=1, PlayerCount=8, HumanSeat=0, HumanRole=Role.Lord,\n        ModeId=entry.mode, UseInteractiveSetup=false, AdvanceAfterHumanCommands=false };\n    Measure(entry.name + \" engine construction with reused catalog\", 20,\n        () => GameEngine.CreateStandard(options,entry.registry));\n    var game = GameEngine.CreateStandard(options,entry.registry);\n    var startResult = game.Submit(new StartGameCommand());\n    if (!startResult.Accepted) throw new InvalidOperationException(\"Start was rejected for \"+entry.name);\n    // Single-step host policy keeps this bounded. Advance only to the first human decision.\n    for (var i=0; i<100 && game.State.PendingDecision is null; i++)\n        if (!game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted)\n            throw new InvalidOperationException(\"Advance was rejected for \"+entry.name);\n    if (game.State.PendingDecision is not { Kind:DecisionKind.PlayCard, PlayerSeat:0 })\n        throw new InvalidOperationException(\"Expected actual human PlayCard boundary for \"+entry.name);\n    Measure(entry.name + \" player snapshot\", 200, () => game.CreateSnapshot(0));\n    Measure(entry.name + \" legal actions\", 100, () => game.GetHumanLegalActions());\n    Measure(entry.name + \" hand guidance\", 100, () => game.GetHumanHandGuidance());\n    Measure(entry.name + \" combined action view\", 100, () => game.GetHumanActionView());\n    Measure(entry.name + \" checkpoint capture\", 100, () => game.CreateCheckpoint());\n    var checkpoint = game.CreateCheckpoint();\n    var checkpointJson = GameCheckpointJson.Serialize(checkpoint);\n    Measure(entry.name + \" checkpoint JSON roundtrip\", 50,\n        () => GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(checkpoint)));\n    Measure(entry.name + \" restore short accepted prefix\", 20, () => GameReplay.Restore(checkpoint,entry.registry));\n    metrics.Add(new {name=entry.name+\" fixture\",revision=game.Revision,\n        commands=game.AcceptedCommands.Count,checkpointJsonBytes=System.Text.Encoding.UTF8.GetByteCount(checkpointJson),\n        prompt=game.State.PendingDecision!.Kind.ToString(),seed=options.Seed,mode=entry.mode});\n}\nGC.KeepAlive(sink);\nFile.WriteAllText(args[0],JsonSerializer.Serialize(new {\n    measuredAt=DateTimeOffset.Now,method=\"Seven warmed batches with tiered compilation disabled for stable optimized JIT, allocation measured on the executing managed thread. Fixed seed=1, 8 seats, same standard active general pool and human PlayCard boundary for both catalogs; short-prefix replay. Isolates catalog-size overhead, not classic-pool gameplay. This is a microbenchmark, not long-game/UI acceptance or a historical regression comparison.\",\n    catalogs=catalogSizes,metrics\n},new JsonSerializerOptions {WriteIndented=true}));\n\n",
+    "libraryHashes": [
+      {
+        "file": "CardGame.Content.Standard.dll",
+        "Hash": "0C5AF100458E40FD0A0062C20ACE669B272820C6E9280A541D30CD406576C4C8"
+      },
+      {
+        "file": "CardGame.Core.dll",
+        "Hash": "87417F0F021C40833C44FF0FFF33F3E52D69392CDC61CEA77FF9C4088EAF22F4"
+      }
+    ],
+    "environment": {
+      "DOTNET_TieredCompilation": "0"
+    }
+  }
+}

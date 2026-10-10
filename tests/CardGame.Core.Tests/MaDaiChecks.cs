@@ -280,7 +280,7 @@ internal static class MaDaiChecks
 
     private static PendingDecision? GetHostPendingDecision(GameEngine game)
     {
-        var field = typeof(GameEngine).GetField(
+        var field = typeof(GameEngine).GetProperty(
             "_pendingDecision",
             BindingFlags.NonPublic | BindingFlags.Instance) ??
             throw new InvalidOperationException("The engine pending-decision store was not found.");

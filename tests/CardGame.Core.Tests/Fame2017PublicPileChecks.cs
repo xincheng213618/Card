@@ -8,7 +8,8 @@ internal static class Fame2017PublicPileChecks
     {
         var registry = Registry(); var game = Start(registry);
         UseDriver(game, "supply"); Settle(game);
-        var equipment = game.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.Equip && game.CreateSnapshot(0, true).Players[0].Hand.Single(c=>c.Id==a.CardId).Suit != Suit.Spade);
+        var suppliedHand = game.CreateSnapshot(0, true).Players[0].Hand.ToDictionary(c => c.Id);
+        var equipment = game.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.Equip && suppliedHand[a.CardId!.Value].Suit != Suit.Spade);
         Play(game, equipment); Settle(game);
         for (var i = 0; i < 4; i++)
         {
@@ -23,10 +24,12 @@ internal static class Fame2017PublicPileChecks
         Require(storageMoves.Length == 4 && storageMoves.All(m => game.CardMovements.Any(previous => previous.CardId == m.CardId && previous.To == CardLocation.Processing && previous.From == CardLocation.DrawPile && previous.Sequence < m.Sequence)), "Every stored card must come from the actual draw pile through Processing.");
         var before = Pile(game).Select(c => c.Id).ToArray();
         NextExchange(game);
-        Require(Prompt(game)!.IsPrivate && Prompt(game)!.Choices.Any(c => c.Cards.Any(id => game.CreateCardZoneDiagnostics().Any(z => z.CardId == id && z.Location == CardLocation.Equipment(0)))), "Exchange must offer actual equipment as well as hand cards.");
+        var exchangeLocations = game.CreateCardZoneDiagnostics().ToDictionary(z => z.CardId, z => z.Location);
+        Require(Prompt(game)!.IsPrivate && Prompt(game)!.Choices.Any(c => c.Cards.Any(id => exchangeLocations.TryGetValue(id, out var location) && location == CardLocation.Equipment(0))), "Exchange must offer actual equipment as well as hand cards.");
         Require(game.CreateSnapshot(1, false).PendingDecision is null, "Owned payment choices must remain private.");
         Atomic(game, new AnswerPromptCommand(0, Prompt(game)!.PromptId, new("unpublished"), game.Revision));
-        var entering = game.CreateSnapshot(0, true).Players[0].Equipment.Concat(game.CreateSnapshot(0, true).Players[0].Hand).GroupBy(c => c.Suit).Select(g => g.First()).Take(4).ToArray();
+        var exchangeOwner = game.CreateSnapshot(0, true).Players[0];
+        var entering = exchangeOwner.Equipment.Concat(exchangeOwner.Hand).GroupBy(c => c.Suit).Select(g => g.First()).Take(4).ToArray();
         Require(entering.Length == 4, "Fixed fixture must retain all four exchange suits.");
         var moveCount = game.CardMovements.Count;
         foreach (var card in entering)
@@ -39,7 +42,8 @@ internal static class Fame2017PublicPileChecks
         { Answer(game, Prompt(game)!.Choices.Single(c => c.Cards.SequenceEqual([id]))); if (id != before[^1]) Replay(game, registry); }
         Reach(game, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "choose-option"));
         Require(Pile(game).Select(c => c.Id).Order().SequenceEqual(entering.Select(c => c.Id).Order()), "Gain observer must see the fully committed equal swap.");
-        Require(before.All(id => game.CreateCardZoneDiagnostics().Any(z => z.CardId == id && z.Location == CardLocation.Hand(0))), "Every withdrawn book must enter the owner's real hand.");
+        var withdrawnLocations = game.CreateCardZoneDiagnostics().ToDictionary(z => z.CardId, z => z.Location);
+        Require(before.All(id => withdrawnLocations.TryGetValue(id, out var location) && location == CardLocation.Hand(0)), "Every withdrawn book must enter the owner's real hand.");
         Replay(game, registry); Answer(game, Prompt(game)!.Choices.Single());
         Reach(game, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("stage") == "distribute"));
         Require(Prompt(game)!.Choices.All(c => c.Targets.Count == 1 && c.Targets[0] != 0 && c.Cards.Count == 1), "Four suits require all books to other living players without decline.");
@@ -98,9 +102,10 @@ internal static class Fame2017PublicPileChecks
         var target=game.CreateSnapshot(0,true).Players.First(p=>p.Seat!=0&&p.Role==Role.Rebel&&p.Hand.Any(c=>c.Kind==CardKind.Slash)).Seat;
         var duel=game.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.Duel&&a.TargetSeats.SequenceEqual([target]));
         Accept(game.Submit(new UseProgramSkillCommand(0,"fixture:book-driver","wound",[],[target],game.Revision,Prompt(game)!.PromptId)));Settle(game);
-        var keepSlash=game.CreateSnapshot(0,true).Players[0].Hand.First(c=>c.Kind==CardKind.Slash).Id;
-        var keepDodge=game.CreateSnapshot(0,true).Players[0].Hand.First(c=>c.Kind==CardKind.Dodge).Id;
-        var remove=game.CreateSnapshot(0,true).Players[0].Hand.Where(c=>c.Id!=duel.CardId&&c.Id!=keepSlash&&c.Id!=keepDodge).Select(c=>c.Id).ToArray();
+        var responseHand=game.CreateSnapshot(0,true).Players[0].Hand;
+        var keepSlash=responseHand.First(c=>c.Kind==CardKind.Slash).Id;
+        var keepDodge=responseHand.First(c=>c.Kind==CardKind.Dodge).Id;
+        var remove=responseHand.Where(c=>c.Id!=duel.CardId&&c.Id!=keepSlash&&c.Id!=keepDodge).Select(c=>c.Id).ToArray();
         UseDriver(game,"trim");foreach(var paymentId in remove)Answer(game,Prompt(game)!.Choices.Single(c=>c.Cards.SequenceEqual([paymentId])));Answer(game,Prompt(game)!.Choices.Single(c=>c.Parameters.GetValueOrDefault("program-action")=="finish-owned-cards"));Settle(game);
         Play(game,game.GetHumanLegalActions().Single(a=>a.CardId==duel.CardId&&a.TargetSeats.SequenceEqual([target])));
         Reach(game,p=>p.PlayerSeat==0&&p.Kind==DecisionKind.RespondSlash);
@@ -116,7 +121,9 @@ internal static class Fame2017PublicPileChecks
         registry=Registry("dodge-response");game=Start(registry);
         Accept(game.Submit(new EndPlayPhaseCommand(0,game.Revision,Prompt(game)!.PromptId)));
         Reach(game,p=>p.PlayerSeat==0&&p.Kind==DecisionKind.RespondDodge);
-        var targetedCount=Pile(game).Count;var dodge=Prompt(game)!.Choices.First(c=>c.Cards.Count==1&&game.CreateSnapshot(0,true).Players[0].Hand.Single(card=>card.Id==c.Cards[0]).Kind==CardKind.Dodge);
+        var targetedCount=Pile(game).Count;
+        var dodgeHand=game.CreateSnapshot(0,true).Players[0].Hand.ToDictionary(card=>card.Id);
+        var dodge=Prompt(game)!.Choices.First(c=>c.Cards.Count==1&&dodgeHand[c.Cards[0]].Kind==CardKind.Dodge);
         Replay(game,registry);Answer(game,dodge);
         Reach(game,p=>p.PlayerSeat==0&&p.SkillPrompt?.SkillId=="classic:bizhuan");Answer(game,Prompt(game)!.Choices.Single(c=>c.Parameters.GetValueOrDefault("program-action")=="activate"));
         for(var i=0;i<50&&Pile(game).Count==targetedCount;i++)Tick(game);
@@ -137,14 +144,16 @@ internal static class Fame2017PublicPileChecks
         UseDriver(game,"suppress");Reach(game,p=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("choice")=="classic:bizhuan"));
         var suppression=Prompt(game)!.Choices.Single(c=>c.Parameters.GetValueOrDefault("choice")=="classic:bizhuan");Answer(game,suppression);
         Reach(game,p=>p.Kind==DecisionKind.DiscardCards&&p.PlayerSeat==0);
-        Require(Pile(game).Single().Id==id&&Prompt(game)!.RequiredCardCount==game.CreateSnapshot(0,true).Players[0].Hand.Count-game.CreateSnapshot(0,true).Players[0].Hp,"Suppression must preserve the pile while removing its hand-limit contribution.");Replay(game,registry);
+        var suppressedOwner=game.CreateSnapshot(0,true).Players[0];
+        Require(Pile(game).Single().Id==id&&Prompt(game)!.RequiredCardCount==suppressedOwner.Hand.Count-suppressedOwner.Hp,"Suppression must preserve the pile while removing its hand-limit contribution.");Replay(game,registry);
         Tick(game);Reach(game,p=>p.Kind==DecisionKind.PlayCard&&p.PlayerSeat==0);
         Accept(game.Submit(new EndPlayPhaseCommand(0,game.Revision,Prompt(game)!.PromptId)));
         Reach(game,p=>p.Kind==DecisionKind.PlayCard&&p.PlayerSeat==0);
         Require(Pile(game).Single().Id==id&&game.Events.Any(e=>e.Payload is ProgramSkillSuppressedEvent {SkillId:"classic:bizhuan",Suppressed:false}),"Turn expiration must re-enable the source grant without losing its persistent entity.");
         UseDriver(game,"supply");Settle(game);Accept(game.Submit(new EndPlayPhaseCommand(0,game.Revision,Prompt(game)!.PromptId)));
         Reach(game,p=>p.Kind==DecisionKind.DiscardCards&&p.PlayerSeat==0);
-        Require(Prompt(game)!.RequiredCardCount==game.CreateSnapshot(0,true).Players[0].Hand.Count-game.CreateSnapshot(0,true).Players[0].Hp-1,"Re-enabled source restores the pile count hand-limit modifier.");Replay(game,registry);
+        var enabledOwner=game.CreateSnapshot(0,true).Players[0];
+        Require(Prompt(game)!.RequiredCardCount==enabledOwner.Hand.Count-enabledOwner.Hp-1,"Re-enabled source restores the pile count hand-limit modifier.");Replay(game,registry);
     }
 
     public static void CompoundTargetsAndFrozenResponseSuit()
@@ -159,8 +168,9 @@ internal static class Fame2017PublicPileChecks
             }
             if(!converted){UseDriver(game,"next-target");Settle(game);}
             var before=game.CreateSnapshot(0,true).Players.Select(p=>p.PublicPersistentPileCount).ToArray();
-            var use=game.GetHumanLegalActions().FirstOrDefault(a=>a.Kind==LegalActionKind.BorrowedSword&&a.TargetSeats.SequenceEqual(converted?[1,2]:[1,2,3,0])&&(a.ConversionSource is not null)==converted);
-            Require(use is not null,"Missing actual compound borrowed action converted="+converted+" actions="+string.Join(";",game.GetHumanLegalActions().Where(a=>a.Kind==LegalActionKind.BorrowedSword).Select(a=>string.Join(",",a.TargetSeats)+" cv="+(a.ConversionSource is not null)).Distinct()));
+            var legalActions=game.GetHumanLegalActions();
+            var use=legalActions.FirstOrDefault(a=>a.Kind==LegalActionKind.BorrowedSword&&a.TargetSeats.SequenceEqual(converted?[1,2]:[1,2,3,0])&&(a.ConversionSource is not null)==converted);
+            Require(use is not null,"Missing actual compound borrowed action converted="+converted+" actions="+string.Join(";",legalActions.Where(a=>a.Kind==LegalActionKind.BorrowedSword).Select(a=>string.Join(",",a.TargetSeats)+" cv="+(a.ConversionSource is not null)).Distinct()));
             var cardId=use!.CardId!.Value;Play(game,use);Replay(game,registry);
             Settle(game);
             var after=game.CreateSnapshot(0,true).Players.Select(p=>p.PublicPersistentPileCount).ToArray();
@@ -189,9 +199,11 @@ internal static class Fame2017PublicPileChecks
         Require(completedSlash.Continuation==ProgramCardContinuation.CompletedSlash&&completedSlash.ParentFrameId==childSlash.Id&&
             completedSlash.Action.ActionId==childSlash.Action!.ActionId&&completedSlash.Action.ActorSeat==forced&&
             completedSlash.Candidates.Any(candidate=>frozenRegistry.GetSkill(candidate.SkillId).Program!.Triggers.Single(trigger=>trigger.Id==candidate.TriggerId).Effects.Any(effect=>effect.Op==SkillProgramEffectOp.StoreTopCardInPublicPile)),"The real AI child Slash must pause at its own new public-store completion candidate.");
-        Require(frozen.CreateCardZoneDiagnostics().Where(card=>card.Location==CardLocation.Processing).Select(card=>card.CardId).SequenceEqual([borrowedParent.CardId])&&
-            frozen.CreateCardZoneDiagnostics().Single(card=>card.CardId==childSlash.CardId).Location==CardLocation.DiscardPile&&
-            frozen.CreateCardZoneDiagnostics().Single(card=>card.CardId==physical).Location==CardLocation.DiscardPile,"Only the real borrowed parent remains Processing; completed child Slash and native Dodge retain their legal finished costs.");Replay(frozen,frozenRegistry);
+        var completedZones=frozen.CreateCardZoneDiagnostics();
+        var completedLocations=completedZones.ToDictionary(card=>card.CardId,card=>card.Location);
+        Require(completedZones.Where(card=>card.Location==CardLocation.Processing).Select(card=>card.CardId).SequenceEqual([borrowedParent.CardId])&&
+            completedLocations[childSlash.CardId]==CardLocation.DiscardPile&&
+            completedLocations[physical]==CardLocation.DiscardPile,"Only the real borrowed parent remains Processing; completed child Slash and native Dodge retain their legal finished costs.");Replay(frozen,frozenRegistry);
         for(var i=0;i<80&&frozen.ResolutionStack.Count>0;i++)Tick(frozen);
         Require(Pile(frozen).Count==count&&!frozen.Events.Any(e=>e.Payload is ProgramBindingStartedEvent {OwnerSeat:0,SkillId:"classic:bizhuan",BindingId:"used-spade"}),"Nested suit-policy suppression cannot retroactively turn the completed Heart response use into a spade deposit.");Replay(frozen,frozenRegistry);
     }
@@ -235,7 +247,11 @@ internal static class Fame2017PublicPileChecks
         Accept(game.Submit(new SelectGeneralCommand(0,"fixture:book-owner",game.Revision,Prompt(game)!.PromptId)));Reach(game,p=>p.Kind==DecisionKind.PlayCard&&p.PlayerSeat==0);return game;
     }
     private static IReadOnlyList<CardSnapshot> Pile(GameEngine game)=>game.CreateSnapshot(0,true).Players[0].PublicPersistentPileCards??[];
-    private static void Public(GameEngine game)=>Require(Enumerable.Range(0,4).All(seat=>game.CreateSnapshot(seat,false).Players[0].PublicPersistentPileCards?.Select(c=>c.Id).SequenceEqual(Pile(game).Select(c=>c.Id))==true),"Public book faces must match for all observers.");
+    private static void Public(GameEngine game)
+    {
+        var expectedIds=Pile(game).Select(c=>c.Id).ToArray();
+        Require(Enumerable.Range(0,4).All(seat=>game.CreateSnapshot(seat,false).Players[0].PublicPersistentPileCards?.Select(c=>c.Id).SequenceEqual(expectedIds)==true),"Public book faces must match for all observers.");
+    }
     private sealed class PromptCache
     {
         public long Revision = -1;
@@ -259,7 +275,8 @@ internal static class Fame2017PublicPileChecks
     {
         for(var i=0;i<4;i++)
         {
-            var action=game.GetHumanLegalActions().FirstOrDefault(a=>a.Kind==LegalActionKind.DrawTwo&&game.CreateSnapshot(0,true).Players[0].Hand.Single(c=>c.Id==a.CardId).Suit==Suit.Spade);
+            var hand=game.CreateSnapshot(0,true).Players[0].Hand.ToDictionary(c=>c.Id);
+            var action=game.GetHumanLegalActions().FirstOrDefault(a=>a.Kind==LegalActionKind.DrawTwo&&hand[a.CardId!.Value].Suit==Suit.Spade);
             if(action is not null)return action;UseDriver(game,"supply");Settle(game);
         }
         throw new InvalidOperationException("Fixed deck did not supply a spade draw entity.");
@@ -314,6 +331,12 @@ internal static class Fame2017PublicPileChecks
             ]}
             ""","""{"schemaVersion":3,"skills":{"fixture:book-driver":{"name":"公开堆驱动","description":"真实实体补牌与边界"},"fixture:book-observer":{"name":"获牌观察","description":"暂停获牌","optionLabels":{"continue":"继续"}}}}""");
             foreach(var p in catalog.Programs)b.AddSkill(new(p.Key,p.Key,p.Key){Program=p.Value});
+            if (mode.Length == 0)
+            {
+                var idle = SkillProgramCatalog.Load($$"""{"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[{"id":"fixture:book-idle","revision":1,"triggers":[{"id":"idle-play","window":"afterNormalDraw","subject":"owner","optional":false,"effects":[{"op":"skipTurnPhases","target":"owner","phases":["play"]}]}]}]}""",
+                    """{"schemaVersion":3,"skills":{"fixture:book-idle":{"name":"目标等待","description":"保留真实摸牌和得牌观察，省略无关出牌"}}}""");
+                b.AddSkill(new("fixture:book-idle", "目标等待", "交换分发检查不需要其他玩家出牌") { Program = idle.Programs["fixture:book-idle"] });
+            }
             if(mode is "normal" or "replacement-skip-play" or "skip-draw")
             {
                 var triggers=new List<object>();
@@ -333,7 +356,7 @@ internal static class Fame2017PublicPileChecks
                 b.AddSkill(new("fixture:response-freeze","花色冻结观察","响应支付后移除花色策略"){Program=freeze.Programs["fixture:response-freeze"]});
             }
             b.AddGeneral(new("fixture:book-owner","公开堆测试将","supporter","classic:bizhuan","qun",mode is "dodge-response" or "response-freeze"?3:20,["classic:tongbo", ..(mode=="ai"?Array.Empty<string>():new[]{"fixture:book-driver"}), "fixture:book-observer", ..(mode=="response-freeze"?new[]{"classic:hongyan","fixture:response-freeze"}:Array.Empty<string>()), ..(mode is "normal" or "replacement-skip-play" or "skip-draw" ? new[]{"fixture:draw-boundary"}:Array.Empty<string>())]));
-            for(var i=1;i<4;i++)b.AddGeneral(new($"fixture:book-{i}",$"目标{i}","supporter","fixture:book-observer","wei",20,mode is "ai" or "response" or "dodge-response" or "response-freeze" or "borrowed" ? ["classic:bizhuan","classic:tongbo"]:[]));
+            for(var i=1;i<4;i++)b.AddGeneral(new($"fixture:book-{i}",$"目标{i}","supporter","fixture:book-observer","wei",20,mode is "ai" or "response" or "dodge-response" or "response-freeze" or "borrowed" ? ["classic:bizhuan","classic:tongbo"]:mode.Length == 0 ? ["fixture:book-idle"] : []));
             b.AddDeck(new("fixture:book-deck","公开堆牌堆",8,2,[]){PhysicalCards=Enumerable.Range(0,160).Select(i=>new ContentDeckPhysicalCard(mode=="response-freeze"?i%8==0?"classic:borrowed-sword":i%8==2?"standard:qinggang_sword":i%2==0?"standard:slash":"standard:dodge":mode=="borrowed"?i%3==0?"classic:borrowed-sword":i%3==1?"standard:qinggang_sword":"standard:dodge":mode=="null-response"?i%2==0?"standard:draw_two":"standard:nullification":mode is "dodge-response" or "response-freeze"?i%2==0?"standard:slash":"standard:dodge":mode=="response" ? i%8==0?"standard:duel":i%2==0?"standard:slash":"standard:dodge" : i%10==0?"standard:qinggang_sword":i%5==1?"standard:draw_two":"standard:dodge",mode=="response-freeze"?i%8==2?Suit.Club:Suit.Spade:mode=="borrowed"?i%3==1?Suit.Club:Suit.Spade:mode is "response" or "ai" or "dodge-response" or "response-freeze" or "null-response"?Suit.Spade:i%10==0?Suit.Club:i%5==1?Suit.Spade:(Suit)(i%4),i%13+1)).ToArray()});
             b.AddMode(new("identity:classic-public-pile-check","公开堆机制",4,4,new Dictionary<string,int>{{nameof(Role.Lord),1},{nameof(Role.Loyalist),1},{nameof(Role.Rebel),2}},"fixture:book-deck",GeneralCandidateCount:4,GeneralPoolIds:["fixture:book-owner","fixture:book-1","fixture:book-2","fixture:book-3"]));
         }

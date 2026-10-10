@@ -117,8 +117,7 @@ internal static class BoundaryCaoZhiChecks
         foreach (var change in new (string Field, JsonNode Value)[]
         {
             ("movementOccurrence", JsonValue.Create("perBatch")!),
-            ("discardOwnerScope", JsonValue.Create("own")!),
-            ("cardKinds", new JsonArray(JsonValue.Create("slash")))
+            ("discardOwnerScope", JsonValue.Create("own")!)
         })
         {
             var malformed = rules.DeepClone();

@@ -68,6 +68,8 @@ public sealed partial class GameEngine
             (!actor.UsedPlayPhaseAlcoholThisTurn || HasTargetCardQuotaAllowance(actor.Seat, actor.Seat) || HasNextUnlimitedCard(actor) ||
                 HasCardPolicy(actor, SkillProgramCardPolicyKind.UnlimitedAlcoholUse, CardKind.Alcohol)) && !HasBeneficiarySuitShield(actor.Seat, actor.Seat, Suit.None))
             result.Add(new(LegalActionKind.Alcohol, 0, null, DescribeConversion(source, "摸一张牌，视为使用【酒】"), kind) { ConversionSource = source });
+        AddNextCardTargetAdjustmentActions(result, actor);
+        AddNextActualUseAdjustmentActions(result, actor);
         return Array.AsReadOnly(result.Select(a => a with { DrawFundedDistinctBasicUse = ViewAsRule(source)!.DrawFundedDistinctBasic }).ToArray());
     }
 
@@ -96,6 +98,9 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("An AI draw-funded use changed its published action before acceptance.");
         var original = _pendingDecision ?? new PendingDecision(DecisionKind.PlayCard, actor.Seat, "已发布合法出牌动作", [], [])
         { PromptId = CreatePromptId(), Revision = Revision };
+        // The exact selection belongs to the payment frame; a draw child must
+        // not borrow the outer use's temporary target selection.
+        _selectedNextCardTargetSeats = null;
         BeginDrawFundedDistinctBasic(actor, source, action.PlayedCardKind!.Value, action.TargetSeats, original,
             new(DrawFundedDistinctBasicIntent.Play, null, null, null, 0, action.TargetSeat)); return true;
     }

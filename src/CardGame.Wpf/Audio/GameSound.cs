@@ -23,7 +23,7 @@ public static class GameSoundRules
         .Select(cue => cue.Kind switch
         {
             BattleCueKind.Card => GameSound.Card,
-            BattleCueKind.Response => GameSound.Response,
+            BattleCueKind.Response or BattleCueKind.Skill => GameSound.Response,
             BattleCueKind.Damage => cue.Nature switch { DamageNature.Fire => GameSound.Fire, DamageNature.Thunder => GameSound.Thunder, _ => GameSound.Hit },
             BattleCueKind.Recovery => GameSound.Recover,
             BattleCueKind.Dying => GameSound.Dying,

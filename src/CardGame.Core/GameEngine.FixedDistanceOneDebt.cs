@@ -4,19 +4,19 @@ public sealed partial class GameEngine
 {
     private const string FixedDistanceDebtReason = "program.fixed-distance-one.ending-discard";
     private IEnumerable<FixedDistanceOneTurnGrant> FixedDistanceOneGrants() =>
-        CompleteProgramEventHistory().OfType<FixedDistanceOneTurnGrantedEvent>().Select(e => e.Grant);
-    private bool FixedDistanceDebtConsumed(FixedDistanceOneTurnGrant g) => CompleteProgramEventHistory()
-        .OfType<FixedDistanceOneDebtConsumedEvent>().Any(e => e.Grant == g);
+        ProgramEventHistory<FixedDistanceOneTurnGrantedEvent>().Select(e => e.Grant);
+    private bool FixedDistanceDebtConsumed(FixedDistanceOneTurnGrant g) =>
+        ProgramEventHistory<FixedDistanceOneDebtConsumedEvent>().Any(e => e.Grant == g);
     private bool ValidFixedDistanceOneGrant(FixedDistanceOneTurnGrant g) => g.ProgramFrameId > 0 && g.InstructionIndex == 1 &&
         IsValidPlayerSeat(g.TargetSeat) && IsValidPlayerSeat(g.ActualTurnOwnerSeat) && g.Source.OwnerSeat == g.ActualTurnOwnerSeat &&
         g.TargetSeat != g.Source.OwnerSeat && FixedDistanceOneGrants().Count(other => other.ProgramFrameId == g.ProgramFrameId) == 1 &&
         _contentRegistry.GetSkill(g.Source.SkillId).Program is { } program && program.GameplayHash == g.GameplayHash &&
         program.Activations.Any(a => a.Id == g.Source.BindingId && a.Effects is [{ Op: SkillProgramEffectOp.GrantFixedDistanceOneTurnPolicy }]) &&
-        CompleteProgramEventHistory().OfType<ProgramSkillStartedEvent>().Count(e => e.FrameId == g.ProgramFrameId &&
+        ProgramEventHistory<ProgramSkillStartedEvent>().Count(e => e.FrameId == g.ProgramFrameId &&
             e.OwnerSeat == g.Source.OwnerSeat && e.SkillId == g.Source.SkillId && e.ActivationId == g.Source.BindingId) == 1 &&
         program.Triggers.Any(t => t.Id == g.EndingBindingId && t.TurnOwnerScope == SkillProgramTurnOwnerScope.IssuedFixedDistanceEnding &&
             t.Effects is [{ Op: SkillProgramEffectOp.SettleFixedDistanceOneEndingDebt }]) &&
-        CompleteProgramEventHistory().OfType<TurnStartedEvent>().Any(e => e.TurnNumber == g.ActualTurnNumber && e.ActorSeat == g.ActualTurnOwnerSeat);
+        ProgramEventHistory<TurnStartedEvent>().Any(e => e.TurnNumber == g.ActualTurnNumber && e.ActorSeat == g.ActualTurnOwnerSeat);
     private void GrantFixedDistanceOneTurnPolicy(ProgramSkillFrame supplied, int target)
     {
         var f = GetActiveProgramFrame(supplied.Id);
@@ -197,7 +197,10 @@ public sealed partial class GameEngine
     private void AssertFixedDistanceOnePolicies()
     {
         if (!_contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.GrantFixedDistanceOneTurnPolicy)) return;
-        if (FixedDistanceOneGrants().Any(g => !ValidFixedDistanceOneGrant(g)) || CompleteProgramEventHistory().OfType<FixedDistanceOneDebtConsumedEvent>()
+        var grants = ProgramEventHistory<FixedDistanceOneTurnGrantedEvent>();
+        var consumed = ProgramEventHistory<FixedDistanceOneDebtConsumedEvent>();
+        if (grants.Count == 0 && consumed.Count == 0) return;
+        if (grants.Any(e => !ValidFixedDistanceOneGrant(e.Grant)) || consumed
             .GroupBy(e => e.Grant.ProgramFrameId).Any(g => g.Count() != 1)) throw new InvalidOperationException("A fixed-distance issuance or Ending consumption duplicated its original identity.");
     }
     private PromptChoice SelectAiFixedDistanceDebt(PendingDecision d)

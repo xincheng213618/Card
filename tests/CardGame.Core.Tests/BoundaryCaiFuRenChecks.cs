@@ -57,7 +57,7 @@ internal static class BoundaryCaiFuRenChecks
         var (lost, lr) = Create(sourceLoss: true); Play(lost); Use(lost, "gear", [0]); Play(lost); Donate(lost, 1);
         Reach(lost, p => p.PlayerSeat == 0 && p.SkillPrompt?.SkillId == Movement); lost = Restore(lost, lr); Continue(lost); Play(lost);
         var lostPaid = E<EquipmentDonationPaidEvent>(lost).Single();
-        Require(!lost.CreateSnapshot(0).Players[0].Skills!.Any(s => s.Id == Donation) &&
+        Require(!lost.GetHumanLegalActions().Any(a => a.ProgramSkillId == Donation) &&
             E<EquipmentDonationBenefitIssuedEvent>(lost).Count() == 0 && lostPaid.ActualDeliveredCount == 1 &&
             E<EquipmentDonationEntityPaidEvent>(lost).All(e => lost.CardMovements.Count(m => m.CardId == e.CardId &&
                 m.From == CardLocation.Equipment(0) && m.Reason.Value == Given) == 1),
@@ -117,7 +117,7 @@ internal static class BoundaryCaiFuRenChecks
         var fact = E<ActualTurnForeignUseTargetEvent>(legacy).First(e => e.CardActionId is null && e.LegacyProducerProgramId is not null);
         Require(fact.EffectiveKind == CardKind.Slash && fact.ActorSeat == fact.ProviderSeat && fact.TargetSeat != fact.ActorSeat &&
             E<CardUseDeclaredEvent>(legacy).Any(e => e.ResolutionId == fact.CardUseFrameId && e.CardId == 0),
-            "Registered Shensu retains a real declared action-null virtual Slash and exact typed producer rather than an invented accepted action.");
+            "A registered mandatory legacy producer retains a real declared action-null virtual Slash and exact typed return.");
         legacy = Restore(legacy, lr);
 
         var (native, _) = Create(native: true); var prior = E<ActualEndedTurnEquipmentOptionIssuedEvent>(native).Any();
@@ -169,7 +169,7 @@ internal static class BoundaryCaiFuRenChecks
         public PackageManifest Manifest {get;}=new("fixture-boundary-cai-fu-ren",new(1,0,0),[]);
         public void Register(IContentRegistryBuilder b)
         {
-            var loss=sourceLoss?",{\"op\":\"loseOwnerSkillsAndGrant\",\"target\":\"owner\",\"skillIds\":[\""+Donation+"\"],\"sourceBind\":\"standard:none\"}":"";
+            var loss=sourceLoss?",{\"op\":\"grantSkills\",\"target\":\"owner\",\"skillIds\":[\"fixture:cfr-source-suppression\"]}":"";
             var rules=$$"""
             {"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[
             {"id":"{{Driver}}","revision":1,"modifiers":[{"id":"keep","query":"handLimit","operation":"add","value":70,"priority":0}],"activations":[
@@ -179,17 +179,20 @@ internal static class BoundaryCaiFuRenChecks
             {"id":"{{Hp}}","revision":1,"triggers":[{"id":"hp","window":"afterHpRecovered","subject":"owner","optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},
             {"id":"{{Movement}}","revision":1,"triggers":[{"id":"move","window":"cardsMoved","subject":"owner","sourceZones":["equipment"],"movementOccurrence":"perOwnerBatch","movementReasons":["{{Given}}"],"optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}{{loss}}]}]},
             {"id":"{{Entry}}","revision":1,"triggers":[{"id":"entry","window":"dyingEntering","subject":"owner","optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},
-            {"id":"fixture:cfr-gain","revision":1,"triggers":[{"id":"gain","window":"cardsGained","subject":"owner","destinationZones":["hand"],"movementOccurrence":"perSourceOwner","movementReasons":["{{Given}}"],"optional":false,"effects":[{"op":"loseHp","target":"owner","amount":6}]}]}]}
+            {"id":"fixture:cfr-gain","revision":1,"triggers":[{"id":"gain","window":"cardsGained","subject":"owner","destinationZones":["hand"],"movementOccurrence":"perBatch","movementReasons":["{{Given}}"],"optional":false,"effects":[{"op":"loseHp","target":"owner","amount":6}]}]},
+            {"id":"fixture:cfr-legacy","revision":1,"triggers":[{"id":"mandatory-legacy-slash","window":"turnStartBeforeNormalFlow","subject":"owner","optional":false,"effects":[{"op":"selectTarget","target":"owner","targetKind":"otherLivingVirtualSlashTarget"},{"op":"skipTurnPhases","target":"owner","phases":["judgment","draw"]},{"op":"useVirtualCard","target":"selectedTarget","outputKind":"slash","targetRestriction":"distanceUnlimitedAgainstTarget"}]}]}]}
             """;
             var labels=new Dictionary<string,object>{[Driver]=new{name="真实装备驱动",description="实际装备及对方用牌"},[Hp]=new{name="实际HP子窗",description="真实回复",optionLabels=new Dictionary<string,string>{["continue"]="继续"}},[Movement]=new{name="真实付款观察",description="真实原批及失源",optionLabels=new Dictionary<string,string>{["continue"]="继续"}},[Entry]=new{name="实际濒死入口",description="实际收牌濒死",optionLabels=new Dictionary<string,string>{["continue"]="继续"}},["fixture:cfr-gain"]=new{name="真实收牌损失",description="实际gain"}};
+            labels["fixture:cfr-legacy"]=new{name="固定旧生产者",description="注册的实际阶段替换及虚拟杀"};
             var c=SkillProgramCatalog.Load(rules,JsonSerializer.Serialize(new{schemaVersion=3,skills=labels}));
             foreach(var id in c.Programs.Keys)b.AddSkill(new(id,id,"实际通用能力"){Program=c.Programs[id],ProgramPresentation=c.Presentations[id]});
+            b.AddSkill(new("fixture:cfr-source-suppression", "已付来源资格抑制", "赠予付款后取消未执行能力") { SuppressionRule = new(4), Tags = SkillTag.Locked });
             foreach(var owner in new[]{true,false})b.AddSkill(new(owner?"fixture:cfr-owner-weight":"fixture:cfr-other-weight","固定公开选将","正式角色权重")
             {SelectionWeights=Enum.GetValues<Role>().ToDictionary(role=>role,role=>(role==Role.Lord)==owner?10000d:-10000d)});
             var extras=new List<string>{Listen,"fixture:cfr-owner-weight"};if(!native)extras.Add(Driver);if(!native)extras.Add(Hp);if(sourceLoss)extras.Add(Movement);
             b.AddGeneral(new("fixture:cfr-owner","当前蔡夫人来源","supporter",Donation,"qun",3,extras));
             for(var i=1;i<4;i++)b.AddGeneral(new($"fixture:cfr-other-{i}","其他角色","supporter","fixture:cfr-other-weight","wei",6,
-                (gainDying?new[]{"fixture:cfr-gain",Entry}:Array.Empty<string>()).Concat(legacy?new[]{"boundary:shensu"}:Array.Empty<string>()).ToArray()));
+                (gainDying?new[]{"fixture:cfr-gain",Entry}:Array.Empty<string>()).Concat(legacy?new[]{"fixture:cfr-legacy"}:Array.Empty<string>()).ToArray()));
             var physical=Enumerable.Range(0,120).Select(i=>new ContentDeckPhysicalCard(i<40?(twoKinds&&i%2==1?"classic:fangtian-halberd":"classic:silver-lion"):slashDeck?"standard:slash":"standard:peach",Suit.Club,7)).ToArray();
             b.AddDeck(new("fixture:cfr-deck","小固定实际实体",4,0,[]){PhysicalCards=physical});
             b.AddMode(new(Mode,"实际全装备及原回合",4,4,new Dictionary<string,int>{[nameof(Role.Lord)]=1,[nameof(Role.Loyalist)]=1,[nameof(Role.Rebel)]=2},"fixture:cfr-deck",GeneralCandidateCount:4,GeneralPoolIds:["fixture:cfr-owner","fixture:cfr-other-1","fixture:cfr-other-2","fixture:cfr-other-3"]));

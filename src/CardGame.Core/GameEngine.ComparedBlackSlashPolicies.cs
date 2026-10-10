@@ -11,8 +11,9 @@ public sealed record ComparedBlackSlashAppliedEvent(ComparedBlackSlashReceipt Re
 
 public sealed partial class GameEngine
 {
-    private bool HasComparedBlackSlashPolicies => _contentRegistry.Skills.Values.Any(s => s.Program?.CardPolicies.Any(p =>
-        p.Kind is SkillProgramCardPolicyKind.NullifyBlackSlashByCurrentHp or SkillProgramCardPolicyKind.ProhibitBlackSlashResponseByCurrentHand) == true);
+    private bool HasComparedBlackSlashPolicies =>
+        _contentRegistry.ProgramDependencies.HasCardPolicy(SkillProgramCardPolicyKind.NullifyBlackSlashByCurrentHp) ||
+        _contentRegistry.ProgramDependencies.HasCardPolicy(SkillProgramCardPolicyKind.ProhibitBlackSlashResponseByCurrentHand);
     private bool ApplyComparedBlackSlashPolicies(CardAttackHandle attack)
     {
         if (!HasComparedBlackSlashPolicies || attack.IsSourceLess || attack.IsChainPropagation ||

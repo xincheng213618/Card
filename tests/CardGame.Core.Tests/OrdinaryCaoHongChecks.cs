@@ -74,10 +74,11 @@ internal static class OrdinaryCaoHongChecks
                 E<PlacedEquipmentBenefitDrawnEvent>(g).Length == 0, "Each real mount slot issues one recipient recovery through a restored HP child, without armor draw.");
         }
         var (loss, lr) = Create("standard:bagua", sourceLoss: true); Prepare(loss); Ending(loss); Activate(loss); ChooseEquipment(loss, CardZoneKind.Hand);
-        Reach(loss, p => Step(p, "recipient")); Answer(loss, c => c.Targets.SequenceEqual([1])); Reach(loss, p => p.SkillPrompt?.SkillId == Loss && p.Choices.Any(c => c.Targets.Count == 1));
-        Answer(loss, c => c.Targets.SequenceEqual([0])); Reach(loss, p => p.SkillPrompt?.SkillId == Loss); loss = Cold(loss, lr); Continue(loss);
+        Reach(loss, p => Step(p, "recipient")); Answer(loss, c => c.Targets.SequenceEqual([1])); Reach(loss, p => p.SkillPrompt?.SkillId == Loss);
+        loss = Cold(loss, lr); Continue(loss);
         DrainHolds(loss); Finish(loss);
-        Require(E<PlacedEquipmentBenefitPaidEvent>(loss).Length == 1 && E<PlacedEquipmentBenefitDrawnEvent>(loss).Single().Invoice.ActualCount == 1,
+        Require(E<PlacedEquipmentBenefitPaidEvent>(loss).Length == 1 && E<PlacedEquipmentBenefitDrawnEvent>(loss).Single().Invoice.ActualCount == 1 &&
+            E<SkillsAcquiredEvent>(loss).Count(e => e.PlayerSeat == 0 && e.SourceSkillId == Loss && e.SkillIds.Contains("fixture:ch-source-suppression")) == 1,
             "Actual source suppression after placement does not revoke the already paid armor benefit or repeat its equipment payment."); loss = Cold(loss, lr);
 
         var (dying, dr) = Create("standard:bagua", gainDying: true); Prepare(dying); Ending(dying); Activate(dying); ChooseEquipment(dying, CardZoneKind.Hand);
@@ -170,15 +171,16 @@ internal static class OrdinaryCaoHongChecks
             {"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[
             {"id":"{{Driver}}","revision":1,"activations":[{"id":"draw","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":null,"usesPerPhase":1,"effects":[{"op":"draw","target":"owner","amount":20}]},{"id":"gear","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"useRandomDeckEquipment","target":"owner","resultBind":"gear"}]},{"id":"hurt","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"damage","target":"selectedTarget","amount":2}]}]},
             {"id":"{{Hp}}","revision":1,"triggers":[{"id":"hp","window":"afterHpRecovered","subject":"owner","optional":false,"usageScope":"game","usageLimit":1,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},
-            {"id":"{{Gain}}","revision":1,"triggers":[{"id":"gain","window":"cardsGained","subject":"owner","destinationZones":["hand"],"movementOccurrence":"perSourceOwner","movementReasons":["{{DrawReason}}"],"optional":false,"usageScope":"game","usageLimit":1,"effects":[{{(gainDying ? "{\"op\":\"loseHp\",\"target\":\"owner\",\"amount\":7}," : string.Empty)}}{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},
+            {"id":"{{Gain}}","revision":1,"triggers":[{"id":"gain","window":"cardsGained","subject":"owner","destinationZones":["hand"],"movementOccurrence":"perBatch","movementReasons":["{{DrawReason}}"],"optional":false,"usageScope":"game","usageLimit":1,"effects":[{{(gainDying ? "{\"op\":\"loseHp\",\"target\":\"owner\",\"amount\":7}," : string.Empty)}}{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},
             {"id":"{{Entry}}","revision":1,"triggers":[{"id":"entry","window":"dyingEntering","subject":"owner","optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},
             {"id":"{{Pulse}}","revision":1,"triggers":[{"id":"wine","window":"selfDyingResponse","subject":"owner","optional":true,"usageScope":"game","usageLimit":1,"effects":[{"op":"useVirtualDyingAlcohol","target":"owner"},{"op":"recoverTo","target":"owner","numberExpression":"integerConstant","minimumValue":3,"clampToMaxHp":true}]}]},
-            {"id":"{{Loss}}","revision":1,"triggers":[{"id":"loss","window":"cardsMoved","subject":"owner","sourceZones":["hand","equipment"],"movementOccurrence":"perOwnerBatch","movementReasons":["{{CardMoveReasons.EquipmentEnter.Value}}"],"optional":false,"usageScope":"game","usageLimit":1,"effects":[{"op":"selectTarget","target":"owner","targetKind":"anyLiving"},{"op":"issueCurrentTurnNonLockedSkillSuppression","target":"selectedTarget"},{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]}]}
+            {"id":"{{Loss}}","revision":1,"triggers":[{"id":"loss","window":"cardsMoved","subject":"owner","sourceZones":["hand","equipment"],"movementOccurrence":"perOwnerBatch","movementReasons":["{{CardMoveReasons.EquipmentEnter.Value}}"],"optional":false,"usageScope":"game","usageLimit":1,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]},{"op":"grantSkills","target":"owner","skillIds":["fixture:ch-source-suppression"]}]}]}]}
             """;
             var labels = new Dictionary<string,object>(); foreach (var id in new[] { Driver, Hp, Gain, Entry, Pulse, Loss }) labels[id] = id is Hp or Gain or Entry or Loss
                 ? new { name = id, description = "真实子窗", optionLabels = new Dictionary<string,string> { ["continue"] = "继续" } } : (object)new { name = id, description = "固定真实命令驱动" };
             var catalog = SkillProgramCatalog.Load(rules, JsonSerializer.Serialize(new { schemaVersion = SkillProgramCatalog.PresentationSchemaVersion, skills = labels }));
             foreach (var id in catalog.Programs.Keys) b.AddSkill(new(id, id, "固定能力") { Program = catalog.Programs[id], ProgramPresentation = catalog.Presentations[id], Tags = id == Loss ? SkillTag.Locked : SkillTag.None });
+            b.AddSkill(new("fixture:ch-source-suppression", "已付来源资格抑制", "装备赠予后保留已付收益") { SuppressionRule = new(7), Tags = SkillTag.Locked });
             foreach (var owner in new[] { true, false }) b.AddSkill(new(owner ? "fixture:ch-owner-weight" : "fixture:ch-peer-weight", "公开固定选将", "角色权重")
             { SelectionWeights = Enum.GetValues<Role>().ToDictionary(role => role, role => (role == Role.Lord) == owner ? 10000d : -10000d) });
             var own = new List<string> { "fixture:ch-owner-weight" }; if (!native) own.AddRange([Driver, Hp, Gain, Entry, Pulse]); if (sourceLoss) own.Add(Loss);

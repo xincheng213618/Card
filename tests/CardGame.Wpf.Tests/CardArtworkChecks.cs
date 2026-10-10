@@ -100,6 +100,7 @@ internal static class CardArtworkChecks
         preview.Content = null;
         preview.Close();
 
+        Program.StartLordFixture(vm);
         vm.SelectGeneralChoiceCommand.Execute(vm.GeneralChoices[0]);
         Program.AdvanceToDecision(vm);
         var revision = Program.Engine(vm).Revision;

@@ -4,13 +4,15 @@ public sealed partial class GameEngine
 {
     /// <summary>One configured discard cost may include several owner zones, but it is one rules batch.</summary>
     private void MoveProgramCardsFromMultipleSources(IReadOnlyList<int> ids, CardLocation destination, CardMoveReason reason,
-        Action<long, IReadOnlyList<CardMovementRecord>>? afterPhysicalRecords = null)
+        Action<long, IReadOnlyList<CardMovementRecord>>? afterPhysicalRecords = null,
+        Func<Card, CardLocation, CardLocation>? destinationForCard = null)
     {
         var entries = ids.Select(id =>
         {
             var source = _cardZones.GetLocation(id);
             var card = _cardZones.CardsAt(source).Single(item => item.Id == id);
-            var target = source.Zone == CardZoneKind.Equipment && card.IsGeneralWeapon ? CardLocation.OutsideGame : destination;
+            var target = destinationForCard?.Invoke(card, source) ?? destination;
+            if (source.Zone == CardZoneKind.Equipment && card.IsGeneralWeapon) target = CardLocation.OutsideGame;
             return (Card: card, Source: source, Target: target);
         }).ToArray();
         if (entries.Length == 0) return;

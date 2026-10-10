@@ -409,6 +409,15 @@ public sealed partial class GameEngine
         if (TryAdvancePairedColorDispositionSubtree()) return;
         if (TryAdvanceJoinedTrickDamageRewardSubtree()) return;
         if (TryAdvanceRoundGainedEquipmentDrawSubtree()) return;
+        if (_pendingDecision is null &&
+            _resolutionStack.LastOrDefault() is (ProgramSkillFrame or HpChangedTriggerWindowFrame or CardsMovedTriggerWindowFrame or ProgramLifecycleTriggerWindowFrame) &&
+            (ProjectTypedResponseCompletionHealthCursor() is { Owner: not null, IsMalformed: false } ||
+             ProjectTypedCommittedSlashPaymentCursor() is { Owner: not null, IsMalformed: false }))
+        {
+            AdvanceRuntimeFrame(_resolutionStack.Last().Id);
+            AdvanceRulesAndPublishState();
+            return;
+        }
         if (TryAdvanceSameNameHandSubtree()) return;
         if (TryAdvanceCompletedUndamagedTargetRevealSubtree()) return;
         if (TryAdvanceFixedDistanceDebtSubtree()) return;
@@ -420,6 +429,18 @@ public sealed partial class GameEngine
         if (TryAdvanceDynamicDiscardDamageSubtree()) return;
         if (TryAdvanceSignedDamagePaymentSubtree()) return;
 
+        // The direct recovery family has already proved every producer/return
+        // edge and the exact owned Dying. Advance its response without scanning
+        // the capability-specific subtree predicates below.
+        if (ActiveDying is { } recoveryDying &&
+            _resolutionStack.LastOrDefault() is ProgramSkillFrame recoveryResponse &&
+            recoveryResponse.WindowContext?.ParentFrameId == recoveryDying.Id && HasTypedRecoveryProgramDying())
+        {
+            AdvanceRuntimeProgram(recoveryResponse.Id);
+            AdvanceRulesAndPublishState();
+            return;
+        }
+
         if (ActiveDying is { } paidProgramDying &&
             _resolutionStack.LastOrDefault() is ProgramSkillFrame { WindowContext: { } paidContext } paidDyingProgram &&
             _resolutionStack.Count >= 2 && _resolutionStack[^2] is DyingFrame paidDyingParent && paidDyingParent.Id == paidProgramDying.Id &&
@@ -427,7 +448,7 @@ public sealed partial class GameEngine
             paidContext.OwnerSeat == paidDyingProgram.OwnerSeat &&
             (paidContext.Window == SkillProgramTriggerWindow.DyingResponse && paidDyingProgram.OwnerSeat == paidProgramDying.ResponderSeat ||
              paidContext.Window == SkillProgramTriggerWindow.SelfDyingResponse && paidDyingProgram.OwnerSeat == paidProgramDying.VictimSeat) &&
-            (IsRoundGainedEquipmentDrawDying() || IsJoinedTrickDamageRewardDying() || IsPairedColorDispositionDying() || IsSameNameHandDying() || IsCompletedUndamagedTargetRevealDying() || IsOriginalHandEntityProgramDying() || IsOutsidePhaseDrawDiscardDying() || IsMatchingRecastDying() || IsPairedHandRecastDying() || IsPaidDodgeRecoveryProgramDying() || IsDrawFundedDistinctBasicProgramDying() || IsChainedStateBasicProgramDying() || IsSelectedForeignCardSlashProgramDying() || IsDrawDiscardCategoryProgramDying() || IsGameActivationAwakeningProgramDying() || IsFixedDistanceDebtProgramDying() || IsKuangfuProgramDying() || IsActualHandGainProgramDying() || IsGainGiftProgramDying() || IsPublicPilePreparationProgramDying() || IsPublicPileCashOutProgramDying() || IsGiftedSlashProgramDying() || IsDrawAdviceProgramDying() || IsLiejieSourceDiscardProgramDying() || IsPrivateOfferProgramDying() || IsPlacedEquipmentBenefitProgramDying() || IsFireTargetBenefitProgramDying() || IsNamedAcquisitionProgramDying() || IsDynamicDiscardDamageProgramDying() || IsConditionalDiscardDuelProgramDying() || IsInspectedHandProgramDying() || IsRecipientContestProgramDying() || IsPaidHandRepaymentProgramDying() || IsOwnedDamagePointJudgmentProgramDying() || IsPreventionDrawProgramDying() || IsDamageJudgmentSuitPaymentDying() || IsPaidCounterspellProgramDying() || IsSourceFactionYieldProgramDying() || IsExtraDrawDebtProgramDying() || IsTurnDrawDebtPaymentProgramDying() || IsRevealedHpComparisonProgramDying() || IsEquipmentPairOrDyingCardProgramDying() || IsPaidOwnTargetProgramDying() || IsOwnTrickDrawProgramDying() || IsLostHpOwnedGiftProgramDying() || IsSequentialDiscardProgramDying() || IsEquipmentDonationProgramDying() || IsSuitPlacementProgramDying() || IsSignedDamagePaymentProgramDying() || IsHalfHandPhaseDebtProgramDying() || IsPaidColorDamageClaimProgramDying() || IsActualEquipmentOrDiscardProgramDying() || IsOffTurnUsedCardGiftProgramDying() || IsOrderedPrintedSkillLossProgramDying() || IsOverflowTargetCancellationDying() || IsRecipientCategoryMarkProgramDying() || IsForeignContestAidProgramDying() || IsPairBenefitProgramDying() || IsEndingPairSlashProgramDying() || IsPrepDiscardProgramDying() || IsSlashTargetBenefitProgramDying() || IsTargetPenaltyProgramDying() || IsOwnedDeathBenefitProgramDying() || IsCappedConversionBenefitProgramDying() || IsTieredRoundZeroRescueProgramDying() || IsDyingSuitsProgramDying() || IsJielieGiftProgramDying()))
+            (IsRoundGainedEquipmentDrawDying() || IsJoinedTrickDamageRewardDying() || IsPairedColorDispositionDying() || IsSameNameHandDying() || IsCompletedUndamagedTargetRevealDying() || IsOriginalHandEntityProgramDying() || IsOutsidePhaseDrawDiscardDying() || IsMatchingRecastDying() || IsPairedHandRecastDying() || IsPaidCardUseProgramDying() || IsDrawFundedDistinctBasicProgramDying() || IsChainedStateBasicProgramDying() || IsSelectedForeignCardSlashProgramDying() || IsDrawDiscardCategoryProgramDying() || IsGameActivationAwakeningProgramDying() || IsFixedDistanceDebtProgramDying() || IsKuangfuProgramDying() || IsActualHandGainProgramDying() || IsGainGiftProgramDying() || IsPublicPilePreparationProgramDying() || IsPublicPileCashOutProgramDying() || IsGiftedSlashProgramDying() || IsDrawAdviceProgramDying() || IsLiejieSourceDiscardProgramDying() || IsPrivateOfferProgramDying() || IsPlacedEquipmentBenefitProgramDying() || IsFireTargetBenefitProgramDying() || IsNamedAcquisitionProgramDying() || IsDynamicDiscardDamageProgramDying() || IsConditionalDiscardDuelProgramDying() || IsInspectedHandProgramDying() || IsRecipientContestProgramDying() || IsPaidHandRepaymentProgramDying() || IsOwnedDamagePointJudgmentProgramDying() || IsPreventionDrawProgramDying() || IsDamageJudgmentSuitPaymentDying() || IsPaidCounterspellProgramDying() || IsSourceFactionYieldProgramDying() || IsExtraDrawDebtProgramDying() || IsTurnDrawDebtPaymentProgramDying() || IsRevealedHpComparisonProgramDying() || IsEquipmentPairOrDyingCardProgramDying() || IsPaidOwnTargetProgramDying() || IsOwnTrickDrawProgramDying() || IsLostHpOwnedGiftProgramDying() || IsSequentialDiscardProgramDying() || IsEquipmentDonationProgramDying() || IsSuitPlacementProgramDying() || IsSignedDamagePaymentProgramDying() || IsHalfHandPhaseDebtProgramDying() || IsPaidColorDamageClaimProgramDying() || IsActualEquipmentOrDiscardProgramDying() || IsOffTurnUsedCardGiftProgramDying() || IsOrderedPrintedSkillLossProgramDying() || IsOverflowTargetCancellationDying() || IsRecipientCategoryMarkProgramDying() || IsForeignContestAidProgramDying() || IsPairBenefitProgramDying() || IsEndingPairSlashProgramDying() || IsPrepDiscardProgramDying() || IsSlashTargetBenefitProgramDying() || IsTargetPenaltyProgramDying() || IsOwnedDeathBenefitProgramDying() || IsCappedConversionBenefitProgramDying() || IsTieredRoundZeroRescueProgramDying() || IsDyingSuitsProgramDying() || IsJielieGiftProgramDying()))
         {
             AdvanceRuntimeProgram(paidDyingProgram.Id);
             AdvanceRulesAndPublishState();

@@ -17,7 +17,13 @@ public sealed partial class GameEngine
     private bool ResponseExchangeUpgraded(int owner,string skill,string instance,string state) => ResponseExchangeHistory().OfType<ProgramResponseExchangeUpgradedEvent>().Any(e=>e.OwnerSeat==owner&&e.SkillId==skill&&e.SkillInstanceId==instance&&e.StateId==state);
     private bool IsExchangedCardClaim(long actionId,int cardId) => ResponseExchangeHistory().OfType<ProgramResponseEntityClaimedEvent>().Any(e=>e.ClaimedActionId==actionId&&e.CardIds.Contains(cardId));
     private bool IsExchangedUseCardClaim(long frameId,int cardId) => _resolutionStack.OfType<CardUseFrame>().SingleOrDefault(f=>f.Id==frameId)?.Action is {} action && IsExchangedCardClaim(action.ActionId,cardId);
-    private bool IsResponseEntityRestricted(int seat,int id) => ResponseExchangeHistory().OfType<ProgramResponseEntityClaimedEvent>().Any(e=>e.Restricted&&e.RecipientSeat==seat&&e.TurnNumber==_turnNumber&&e.TurnSeat==_currentSeat&&e.CardIds.Contains(id));
+    private bool IsResponseEntityRestricted(int seat,int id)
+    {
+        foreach (var claim in ProgramEventHistory<ProgramResponseEntityClaimedEvent>())
+            if (claim.Restricted && claim.RecipientSeat == seat && claim.TurnNumber == _turnNumber &&
+                claim.TurnSeat == _currentSeat && claim.CardIds.Contains(id)) return true;
+        return false;
+    }
     private Card EntityAtCurrentLocation(int id) => _cardZones.CardsAt(_cardZones.GetLocation(id)).Single(c=>c.Id==id);
     private CardActionContext? ActualRespondedAction(CardActionContext response)
     {

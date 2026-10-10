@@ -99,9 +99,11 @@ public sealed partial class GameEngine
                 g.Source.OwnerSeat, g.Source.SkillInstanceId)).Distinct().ToArray();
     }
 
-    private void AddPaidColorEquipmentDuelActions(List<LegalAction> actions, CharacterState owner)
+    private void AddPaidColorEquipmentDuelActions(List<LegalAction> actions, CharacterState owner,
+        int? selectedPhysicalCardId = null)
     {
         foreach (var card in GetEquipment(owner).Concat(GetHand(owner).Where(c => c.Kind == CardKind.Duel))
+                     .Where(c => selectedPhysicalCardId is null || c.Id == selectedPhysicalCardId)
                      .Where(c => !IsTurnHandCardRestricted(owner, c) && !HasProgramCardIdentity(owner, c)))
         foreach (var source in GetPaidColorTurnDuelConversions(owner, card, CardKind.Duel, false, _cardZones.GetLocation(card.Id).Zone))
         foreach (var target in _players.Where(p => p.IsAlive && p.Seat != owner.Seat &&

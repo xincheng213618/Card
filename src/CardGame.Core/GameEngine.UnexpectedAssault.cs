@@ -8,7 +8,7 @@ public sealed partial class GameEngine
         Card card,
         CardKind? playedCardKind = null)
     {
-        if (!BuildLegalActions(source).Any(action => action.Kind == LegalActionKind.UnexpectedAssault &&
+        if (!BuildLegalActions(source, selectedPhysicalCardId: card.Id).Any(action => action.Kind == LegalActionKind.UnexpectedAssault &&
                 action.CardId == card.Id && action.TargetSeat == target.Seat &&
                 action.PlayedCardKind == playedCardKind))
             throw new InvalidOperationException("Unexpected Assault became illegal before its real use.");

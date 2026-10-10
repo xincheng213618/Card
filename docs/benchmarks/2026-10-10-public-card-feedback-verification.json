@@ -1,0 +1,59 @@
+{
+  "status": "passed",
+  "mode": "routine",
+  "startedAt": "2026-10-10T04:43:49.6333558+08:00",
+  "durationMs": 112512,
+  "steps": [
+    {
+      "name": "Build selected scope",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 1289
+    },
+    {
+      "name": "Core selected checks (294 filters, union)",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 84423
+    },
+    {
+      "name": "WPF selected checks (28 filters, union)",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 26733
+    }
+  ],
+  "results": {
+    "Core": "475 passed, 0 failed, 0 skipped (475 total).",
+    "Wpf": "29 WPF checks passed, 0 failed. Renders: C:\\Users\\17917\\AppData\\Local\\Temp\\Card-identity-ui-1791537330211\\renders"
+  },
+  "additionalFocusedChecks": [
+    "table interaction refresh cost and stable presentation",
+    "audio follows committed actions and survives mute, background and device failure"
+  ],
+  "focusedStatus": "passed",
+  "manualFullRun": false,
+  "coverage": [
+    "All committed uses and responses use public effective card kinds, actor labels and flight anchors",
+    "Ordinary hand response prompts keep a separate visible public row",
+    "Arrow Barrage native physical Dodge appears once after confirm",
+    "Use stays at the left; up to four recent responses arrive on the right",
+    "Converted Peach uses its public effective face; unknown legacy responses never infer hidden material",
+    "Virtual negative and zero sentinel responses remain distinct",
+    "Motion-disabled settled cards and save/load preserve the public row without replaying history",
+    "1120 small viewport remains readable both during response and subsequent playback"
+  ],
+  "fixtureRepairs": "Table interaction and audio fixtures explicitly request their original Lord role, independently of the random-identity lobby",
+  "previews": [
+    "2026-10-10-public-card-row.png",
+    "2026-10-10-response-card-flight.png"
+  ],
+  "previewContext": "Four-player fixed seed 31 native Arrow Barrage fixture; fixed fixture generals have no portraits",
+  "cleanup": {
+    "temporaryPath": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-identity-ui-1791537330211",
+    "status": "blocked",
+    "reason": "Automatic approval previously rejected Remove-Item: blocked by policy",
+    "activeConsumers": 0,
+    "sizeMiB": 2546.04
+  }
+}

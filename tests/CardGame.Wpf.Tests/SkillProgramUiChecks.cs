@@ -7,11 +7,8 @@ internal static class SkillProgramUiChecks
     public static void ActiveSelectionAndSubmission()
     {
         using var viewModel = FindGiftShowcase();
-        Program.Assert(viewModel.TableModes.Any(mode =>
-                mode.ModeId == "identity:composed-skills-5" &&
-                mode.Name == "技能组合体验" &&
-                mode.Description.Contains("配置文件", StringComparison.Ordinal)),
-            "The composed-skill mode is not a separate selectable lobby entry.");
+        Program.Assert(viewModel.TableModes.All(mode => mode.ModeId != "identity:composed-skills-5"),
+            "The retained mechanism fixture must not reintroduce a demonstration lobby entry.");
 
         var gift = viewModel.GeneralChoices.Single(choice => choice.SkillName == "馈赠");
         Program.Assert(gift.SkillDescription.Contains("交给", StringComparison.Ordinal),
@@ -56,8 +53,8 @@ internal static class SkillProgramUiChecks
             {
                 IsMotionEnabled = false
             };
-            candidate.SelectedTableMode = candidate.TableModes.Single(mode => mode.ModeId == "identity:composed-skills-5");
-            candidate.StartNewGameCommand.Execute(null);
+            candidate.SelectedTableMode = new TableModeOption(5, "组合技能测试", string.Empty, "identity:composed-skills-5");
+            Program.StartLordFixture(candidate);
             if (candidate.GeneralChoices.Any(choice => choice.SkillName == "馈赠")) return candidate;
             candidate.Dispose();
         }

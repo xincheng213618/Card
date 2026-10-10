@@ -22,7 +22,7 @@ internal static class AudioChecks
         var clock = new TestClock();
         var constructed = 0;
         using var audio = new GameAudioController(vm, () => { constructed++; return output; }, clock);
-        vm.StartNewGameCommand.Execute(null);
+        StartLordFixture(vm);
         Assert(constructed == 0, "Background window constructed native audio.");
         audio.SetActive(true);
         Assert(output.Played.Count == 0, "Foreground activation replayed the existing general prompt.");
@@ -75,6 +75,7 @@ internal static class AudioChecks
         faultyAudio.SetActive(true);
         foreach (var model in new[] { broken, reference })
         {
+            StartLordFixture(model);
             model.SelectGeneralChoiceCommand.Execute(model.GeneralChoices[0]);
             AdvanceToDecision(model);
             PlaySlash(model);

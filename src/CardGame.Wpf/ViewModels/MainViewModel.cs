@@ -102,25 +102,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             ? [
                 new TableModeOption(8, "八人经典身份", "1 主公 · 2 忠臣\n4 反贼 · 1 内奸", "identity:classic-8"),
                 new TableModeOption(5, "五人经典身份", "1 主公 · 1 忠臣\n2 反贼 · 1 内奸", "identity:classic-5"),
-                .. (_contentRegistry.Modes.ContainsKey("identity:classic-boundary-8")
-                    ? new[]
-                    {
-                        new TableModeOption(8, "八人界限突破身份", "经典池替换界张角 · 1 主公\n2 忠臣 · 4 反贼 · 1 内奸", "identity:classic-boundary-8"),
-                        new TableModeOption(5, "五人界限突破身份", "经典池替换界张角 · 1 主公\n1 忠臣 · 2 反贼 · 1 内奸", "identity:classic-boundary-5")
-                    }
-                    : Array.Empty<TableModeOption>()),
-                new TableModeOption(8, "八人技能演示", "旧演示武将池 · 用于机制验证", "identity:active-skills-8"),
-                new TableModeOption(5, "五人技能演示", "旧演示武将池 · 用于机制验证", "identity:active-skills-5"),
-                new TableModeOption(5, "技能组合体验", "配置文件组合技能 · 修正、转化与主动效果", "identity:composed-skills-5"),
                 new TableModeOption(4, "2v2阵营", "青队 2 · 赤队 2\n公开阵营，协作对抗", "team:standard-2v2"),
-                new TableModeOption(6, "国战 M3", "魏 3 · 蜀 2 · 野心家 1\n六人独立势力试验", "national:ambitious-6"),
-                .. (_contentRegistry.Modes.ContainsKey("national:zhang-jiao-4")
-                    ? new[]
-                    {
-                        new TableModeOption(4, "国战张角", "魏 1 · 蜀 2 · 群 1\n标准国战张角试验", "national:zhang-jiao-4")
-                    }
-                    : Array.Empty<TableModeOption>()),
-                new TableModeOption(4, "国战 Lite", "魏蜀双将 · 暗置明置\n四人简化国战", "national:lite-4")
+                new TableModeOption(6, "国战 M3", "魏 3 · 蜀 2 · 野心家 1\n六人独立势力试验", "national:ambitious-6")
             ]
             : [
                 new TableModeOption(8, "八人身份", "1 主公 · 2 忠臣 · 4 反贼 · 1 内奸", "identity:standard-8"),
@@ -424,6 +407,9 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         _selectedProgramSkillOwnerSeat = null;
             _selectedActiveSkillTargetContract = null;
         _activeSkillPromptId = null;
+        _skillTargetPromptId = null;
+        _skillTargetChoices = [];
+        _selectedSkillTargetSeats.Clear();
         _selectedTieredRoundZeroAction = null;
         _isSelectingActiveSkillCards = false;
         _selectedTargetSeat = null;
@@ -547,11 +533,14 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         _snapshot = IsDeveloperView
             ? _game.CreateSnapshot(snapshot.HumanSeat, revealAll: true)
             : snapshot;
+        RaisePropertyChanged(nameof(ChoiceSnapshot));
         SyncDiscardSelection();
         SyncActiveSkillSelection();
+        SyncSkillTargetSelection();
         RefreshDecisionContext();
 
         GeneralChoices.Clear();
+        _generalSelectionChoices.Clear();
         DyingChoices.Clear();
         HarvestChoices.Clear();
         TargetCardChoices.Clear();
@@ -592,9 +581,10 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             {
                 var general = _game.ContentRegistry!.Generals[choice.ContentIds[0]];
                 var skills = general.SkillIds.Select(_game.ContentRegistry.GetSkill).ToArray();
-                GeneralChoices.Add(new GeneralChoiceViewModel
+                var generalChoice = new GeneralChoiceViewModel
                 {
                     GeneralId = choice.ContentIds[0],
+                    CandidateGeneralId = choice.Parameters.GetValueOrDefault("candidate-general-id", choice.ContentIds[0]),
                     Portrait = GetGeneralPortrait(choice.ContentIds[0]),
                     ChoiceId = choice.Id,
                     Text = choice.Description,
@@ -608,10 +598,13 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                     SkillName = string.Join(" / ", skills.Select(skill => skill.Name)),
                     SkillDescription = string.Join("\n", skills.Select(skill =>
                         $"{skill.Name}：{GetVisibleSkillDescription(skill)}"))
-                });
+                };
+                _generalSelectionChoices.Add(generalChoice.GeneralId, generalChoice);
+                if (generalChoice.CandidateGeneralId == generalChoice.GeneralId) GeneralChoices.Add(generalChoice);
             }
         }
         IsGeneralSelectionPending = _snapshot.PendingDecision?.Kind == DecisionKind.SelectGeneral;
+        RaisePropertyChanged(nameof(GeneralChoiceColumns));
         SyncGeneralChoicePreview(_snapshot.PendingDecision?.Kind == DecisionKind.SelectGeneral
             ? _snapshot.PendingDecision.PromptId
             : null);
@@ -747,12 +740,16 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         var humanAttackRange = humanSeat >= 0 ? _game.GetAttackRange(humanSeat) : 0;
         var seatPlayers = IsNationalSnapshot && IsDeveloperView ? _game.CreateSnapshot(humanSeat, revealAll: false).Players : _snapshot.Players;
         var currentSeats = Seats.ToDictionary(seat => seat.Seat);
+        var lordSeat = seatPlayers.FirstOrDefault(player => player.Role == Role.Lord)?.Seat ?? 0;
         var updatedSeats = new List<SeatViewModel>();
         foreach (var player in seatPlayers.OrderBy(player => player.Seat))
         {
             var updatedSeat = new SeatViewModel
             {
                 Seat = player.Seat,
+                DisplaySeatNumber = IsTeamSnapshot || IsNationalSnapshot
+                    ? player.Seat + 1
+                    : (player.Seat - lordSeat + seatPlayers.Count) % seatPlayers.Count + 1,
                 GeneralId = player.GeneralId,
                 Portrait = GetGeneralPortrait(player.GeneralId),
                 GeneralName = player.GeneralName,
@@ -1250,6 +1247,12 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
     private void SelectTarget(SeatViewModel seat)
     {
+        if (IsSkillTargetSelectionPending)
+        {
+            ToggleSkillTarget(seat);
+            return;
+        }
+
         if (IsActiveSkillTargetSelectionPending)
         {
             ToggleActiveSkillTarget(seat);
@@ -1652,6 +1655,12 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
     private void RefreshTargetHighlights()
     {
+        if (IsSkillTargetSelectionPending)
+        {
+            RefreshSkillTargetHighlights();
+            return;
+        }
+
         if (IsActiveSkillTargetSelectionPending)
         {
             var activeLegalTargets = HumanActiveSkillAction is { } activeAction

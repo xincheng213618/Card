@@ -133,7 +133,7 @@ public sealed partial class GameEngine
                 if (!PaidColorDamageClaimObserverEdge(child)) { valid = false; break; }
                 if (_resolutionStack[child] is DyingFrame dying && (IsPaidHandRepaymentRescueRide(child, dying) ||
                     IsPaidHandRepaymentProgramAlcoholRide(child, dying) || PolicyCounterspellVirtualAlcoholRide(child, dying) ||
-                    PaidObserverDamageVirtualAlcoholRide(child, dying))) break;
+                    PaidObserverDamageVirtualAlcoholRide(child, dying) || ExactLegacyDyingAlcoholReturnRide(child, dying))) break;
             }
             if (valid) return root;
         }

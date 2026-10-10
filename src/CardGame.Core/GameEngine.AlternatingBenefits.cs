@@ -14,7 +14,7 @@ public sealed partial class GameEngine
         ValidateProgramTurnEffectGrant(frame);
         var choice=frame.ChoiceBindings.Single(b=>b.Name==sourceBind).OptionId;
         if(choice is not ("draw" or "targets")) throw new InvalidOperationException("Unknown alternating benefit.");
-        var last=CompleteProgramEventHistory().OfType<AlternatingChoiceBenefitResolvedEvent>().LastOrDefault(e=>e.OwnerSeat==frame.OwnerSeat && e.SkillId==frame.SkillId && e.SkillInstanceId==frame.SkillInstanceId && e.StateId==stateId);
+        var last=ProgramEventHistory<AlternatingChoiceBenefitResolvedEvent>().LastOrDefault(e=>e.OwnerSeat==frame.OwnerSeat && e.SkillId==frame.SkillId && e.SkillInstanceId==frame.SkillInstanceId && e.StateId==stateId);
         var switched=last?.PendingOptionId is { } pending && pending!=choice;
         var amount=switched?2:1;
         AdvanceEventRulesAndQueueFact(new AlternatingChoiceBenefitResolvedEvent(frame.OwnerSeat,frame.SkillId,frame.SkillInstanceId,stateId,choice,amount,switched?null:choice));
@@ -30,7 +30,7 @@ public sealed partial class GameEngine
         var states=GetSkillBindingShard(owner).ProgramInstances.SelectMany(i=>i.Program.Triggers.SelectMany(t=>t.Effects).Where(e=>e.Op==SkillProgramEffectOp.ApplyAlternatingChoiceBenefit).Select(e=>new {Instance=i,StateId=e.StateId!})).ToArray();
         if(states.Length==0) return null;
         return states.Select(s=>{
-            var last=CompleteProgramEventHistory().OfType<AlternatingChoiceBenefitResolvedEvent>().LastOrDefault(e=>e.OwnerSeat==owner.Seat && e.SkillId==s.Instance.SkillId && e.SkillInstanceId==s.Instance.SkillInstanceId && e.StateId==s.StateId);
+            var last=ProgramEventHistory<AlternatingChoiceBenefitResolvedEvent>().LastOrDefault(e=>e.OwnerSeat==owner.Seat && e.SkillId==s.Instance.SkillId && e.SkillInstanceId==s.Instance.SkillInstanceId && e.StateId==s.StateId);
             return new ProgramAlternatingChoiceStateSnapshot(s.Instance.SkillId,s.StateId,s.Instance.SkillInstanceId,last?.PendingOptionId,last?.PendingOptionId=="targets"?2:1,last?.PendingOptionId=="draw"?2:1);
         }).ToArray();
     }
@@ -38,8 +38,8 @@ public sealed partial class GameEngine
     {
         if(frame.OwnerSeat!=_currentSeat || targetSeat==frame.OwnerSeat || !_players[targetSeat].IsAlive || frame.WindowContext?.Window!=SkillProgramTriggerWindow.TurnEnding)
             throw new InvalidOperationException("A deck gift needs the owner's ending and a living other target.");
-        var ordinal=CompleteProgramEventHistory().OfType<TurnStartedEvent>().Count(e=>e.ActorSeat==frame.OwnerSeat);
-        var last=CompleteProgramEventHistory().OfType<ConsecutiveTargetDeckGiftEvent>().LastOrDefault(e=>e.OwnerSeat==frame.OwnerSeat && e.SkillId==frame.SkillId && e.SkillInstanceId==frame.SkillInstanceId && e.StateId==effect.StateId);
+        var ordinal=ProgramEventHistory<TurnStartedEvent>().Count(e=>e.ActorSeat==frame.OwnerSeat);
+        var last=ProgramEventHistory<ConsecutiveTargetDeckGiftEvent>().LastOrDefault(e=>e.OwnerSeat==frame.OwnerSeat && e.SkillId==frame.SkillId && e.SkillInstanceId==frame.SkillInstanceId && e.StateId==effect.StateId);
         var repeated=last is not null && last.TargetSeat==targetSeat && last.OwnerTurnOrdinal==ordinal-1;
         var card=_cardZones.CardsAt(CardLocation.DrawPile).Reverse().FirstOrDefault(c=>effect.Suits.Contains(c.Suit) && effect.CardCategories.Any(category => MatchesSkillProgramCardCategory(c.Kind, category)));
         var index=_resolutionStack.FindIndex(f=>f.Id==frame.Id);

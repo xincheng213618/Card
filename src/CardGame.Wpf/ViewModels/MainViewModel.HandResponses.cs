@@ -10,6 +10,48 @@ public sealed partial class MainViewModel
 
     public bool IsHandResponsePending => SupportsHandResponse(_snapshot?.PendingDecision?.Kind);
 
+    private PromptChoice? HandResponseDeclineChoice
+    {
+        get
+        {
+            if (!IsHandResponsePending) return null;
+            var choices = _snapshot.PendingDecision!.Choices.Where(choice => choice.Cards.Count == 0 &&
+                (_snapshot.PendingDecision.Kind switch
+                {
+                    DecisionKind.RespondDodge => choice.Parameters.GetValueOrDefault("response") is "take-damage" or "faction-defense-decline",
+                    DecisionKind.RespondSlash => choice.Parameters.GetValueOrDefault("response") is "take-damage" or "faction-slash-decline" or "borrowed-sword-give-weapon",
+                    DecisionKind.RescueDying => choice.Parameters.GetValueOrDefault("response") == "let-die",
+                    DecisionKind.Nullification => choice.Parameters.GetValueOrDefault("response") == "pass",
+                    DecisionKind.FireAttackDiscard => choice.Parameters.GetValueOrDefault("response") == "fire-attack-skip",
+                    _ => false
+                })).Take(2).ToArray();
+            return choices.Length == 1 ? choices[0] : null;
+        }
+    }
+
+    // Keep the full published choices for command routing; the center shows only alternatives
+    // that cannot be answered by selecting one hand card or using the bottom Cancel button.
+    public IReadOnlyList<PromptChoice> HandResponseExtraChoices
+    {
+        get
+        {
+            if (!IsHandResponsePending) return [];
+            var choices = _snapshot.PendingDecision!.Choices;
+            var handIds = _snapshot.Players.Single(player => player.IsHuman).Hand.Select(card => card.Id).ToHashSet();
+            var handChoices = choices.Where(choice => choice.Cards.Count == 1 && handIds.Contains(choice.Cards[0]))
+                .GroupBy(choice => choice.Cards[0]).Where(group => group.Count() == 1)
+                .Select(group => group.Single().Id).ToHashSet();
+            var decline = HandResponseDeclineChoice?.Id;
+            return choices.Where(choice => choice.Id != decline && !handChoices.Contains(choice.Id)).ToArray();
+        }
+    }
+
+    public bool CanCancelAction => HasSelection || HandResponseDeclineChoice is not null || SkillTargetDeclineChoice is not null;
+    public string CancelActionHint => HandResponseDeclineChoice is { } choice
+        ? $"{choice.Description} · Esc 仅取消选牌。"
+        : SkillTargetDeclineChoice is { } decline ? $"{decline.Description} · Esc 仅取消选择。"
+        : "取消当前选牌和目标 · Esc";
+
     // A card is selectable only if it identifies one complete, currently published choice.
     // Ambiguous effects and multi-card choices continue to use the explicit central candidates.
     private PromptChoice? HandResponseChoice(int? cardId)
@@ -39,8 +81,11 @@ public sealed partial class MainViewModel
 
     private string HandResponseHint => SelectedHandResponse is { } choice
         ? $"{choice.Description} · 点击「{HandResponseButtonText}」或按 Enter 确认；Esc 取消选择。"
-        : Hand.Any(card => card.IsPlayable) ? "选择一张亮起的手牌，再确认响应；技能、装备和放弃选项在中央。"
-        : "当前没有可直接选择的手牌，请在中央选择技能、装备或其他响应。";
+        : (Hand.Any(card => card.IsPlayable)
+            ? $"选择一张亮起的手牌，再点击「{HandResponseButtonText}」。"
+            : "当前没有可直接选择的手牌。") +
+          (HandResponseExtraChoices.Count > 0 ? "其他技能、装备或响应方式在中央。" : string.Empty) +
+          (HandResponseDeclineChoice is not null ? "点击「取消」放弃本次响应。" : string.Empty);
 
     private string HandResponseUnavailableHint(int cardId) => _snapshot.PendingDecision!.Choices.Count(choice =>
         choice.Cards.Count == 1 && choice.Cards[0] == cardId) > 1
@@ -59,7 +104,19 @@ public sealed partial class MainViewModel
 
     private void ConfirmHandResponse()
     {
-        if (SelectedHandResponse is not { } choice || _snapshot.PendingDecision is not { } prompt) return;
+        if (SelectedHandResponse is { } choice) SubmitHandResponse(choice);
+    }
+
+    private void CancelAction()
+    {
+        if (HandResponseDeclineChoice is { } choice) SubmitHandResponse(choice);
+        else if (SkillTargetDeclineChoice is { } decline) SelectSkillChoice(decline);
+        else ClearSelection();
+    }
+
+    private void SubmitHandResponse(PromptChoice choice)
+    {
+        if (!IsHandResponsePending || _snapshot.PendingDecision is not { } prompt) return;
         ExecuteSafely(() =>
         {
             var result = SubmitCommand(new AnswerPromptCommand(_snapshot.HumanSeat, prompt.PromptId, choice.Id, _snapshot.Revision));

@@ -9,8 +9,11 @@ public sealed record DecisionContext(string Title, string Description, int? Sour
     {
         if (snapshot?.PendingDecision is not { } prompt || prompt.PlayerSeat != snapshot.HumanSeat ||
             prompt.Kind is DecisionKind.PlayCard or DecisionKind.SelectGeneral or DecisionKind.DiscardCards) return null;
+        var lordSeat = snapshot.Players.FirstOrDefault(player => player.Role == Role.Lord)?.Seat ?? 0;
+        int Number(int seat) => snapshot.ModeKind == ContentModeKind.Identity
+            ? (seat - lordSeat + snapshot.Players.Count) % snapshot.Players.Count + 1 : seat + 1;
         string Name(int? seat) => snapshot.Players.FirstOrDefault(player => player.Seat == seat) is { } player
-            ? player.IsHuman ? $"你（{player.GeneralName}）" : $"{player.Seat + 1}号位 {player.GeneralName}"
+            ? player.IsHuman ? $"你（{player.GeneralName}）" : $"{Number(player.Seat)}号位 {player.GeneralName}"
             : "未指定角色";
         var description = prompt.Prompt;
         foreach (var player in snapshot.Players.Where(player => !player.IsHuman).OrderByDescending(player => player.Name.Length))

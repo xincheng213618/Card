@@ -9,7 +9,8 @@ internal readonly record struct SkillBindingIndexStamp(
     bool PrimaryRevealed,
     bool HasSecondary,
     bool SecondarySelected,
-    bool SecondaryRevealed, long ProjectionRevision = 0, Role? MarkerQualificationRole = null);
+    bool SecondaryRevealed, long ProjectionRevision = 0, Role? OwnerRole = null,
+    long DerivedProjectionRevision = 0, bool OwnerAlive = true);
 
 internal sealed record IndexedSkillProgramInstance(
     string SkillId,
@@ -36,16 +37,25 @@ internal sealed class SkillBindingShard
 {
     private readonly HashSet<(string SkillId, string SkillInstanceId)> _activeInstances;
     private readonly IReadOnlyDictionary<string, SkillProgram> _programsById;
+    private readonly IReadOnlyDictionary<SkillProgramCardPolicyKind,
+        IReadOnlyList<(IndexedSkillProgramInstance Source, SkillProgramCardPolicy Policy)>> _cardPolicies;
+    private readonly IReadOnlyDictionary<CardKind,
+        IReadOnlyList<(IndexedSkillProgramInstance Source, SkillProgramViewAs Rule)>> _singleCardConversions;
+    private readonly IReadOnlyDictionary<SkillProgramTriggerWindow, IReadOnlyList<ProgramTriggerCandidate>> _triggerCandidates;
+    private readonly HashSet<(string SkillId, string BindingId)> _sharedUsageTriggerBindings;
     private static readonly IReadOnlyList<SkillGrant> EmptyGrants = Array.Empty<SkillGrant>();
     private static readonly IReadOnlyList<SkillProgram> EmptyPrograms = Array.Empty<SkillProgram>();
     private static readonly IReadOnlyList<IndexedSkillProgramInstance> EmptyInstances =
         Array.Empty<IndexedSkillProgramInstance>();
     private static readonly IReadOnlyList<IndexedSkillProgramTrigger> EmptyTriggers =
         Array.Empty<IndexedSkillProgramTrigger>();
+    private static readonly IReadOnlyList<ProgramTriggerCandidate> EmptyTriggerCandidates =
+        Array.Empty<ProgramTriggerCandidate>();
     private static readonly IReadOnlyList<IndexedSkillProgramModifier> EmptyModifiers =
         Array.Empty<IndexedSkillProgramModifier>();
 
     internal SkillBindingShard(
+        int ownerSeat,
         SkillBindingIndexStamp stamp,
         IReadOnlyList<SkillGrant> activeGrants,
         IReadOnlyDictionary<string, ContentSkillDefinition> definitions,
@@ -75,11 +85,58 @@ internal sealed class SkillBindingShard
         ViewAsPrograms = viewAsPrograms;
         CardIdentityPrograms = cardIdentityPrograms;
         PassiveRulePrograms = passiveRulePrograms;
+        _sharedUsageTriggerBindings = [];
+        var candidates = new Dictionary<SkillProgramTriggerWindow, IReadOnlyList<ProgramTriggerCandidate>>();
+        foreach (var (window, bindings) in instanceTriggers)
+        {
+            foreach (var binding in bindings)
+                if (binding.Trigger.NamedUsageGroup is not null || binding.Trigger.DynamicUsageLimit is not null ||
+                    binding.Trigger.Effects.Any(effect => effect.Op == SkillProgramEffectOp.DiscardHandToNamedTurnCount))
+                    _sharedUsageTriggerBindings.Add((binding.SkillId, binding.Trigger.Id));
+            candidates.Add(window, Array.AsReadOnly(bindings
+                .OrderByDescending(binding => binding.Trigger.Priority)
+                .ThenBy(binding => binding.SkillId, StringComparer.Ordinal)
+                .ThenBy(binding => binding.SkillInstanceId, StringComparer.Ordinal)
+                .ThenBy(binding => binding.Trigger.ChoiceGroup ?? binding.Trigger.Id, StringComparer.Ordinal)
+                .ThenBy(binding => binding.Trigger.Id, StringComparer.Ordinal)
+                .DistinctBy(binding => (binding.SkillId, binding.Trigger.Id,
+                    _sharedUsageTriggerBindings.Contains((binding.SkillId, binding.Trigger.Id)) ? "" : binding.SkillInstanceId))
+                .Select(binding => new ProgramTriggerCandidate(ownerSeat, binding.SkillId, binding.Trigger.Id,
+                    binding.SkillInstanceId, binding.Program.GameplayHash, binding.Trigger.Priority))
+                .ToArray()));
+        }
+        _triggerCandidates = new ReadOnlyDictionary<SkillProgramTriggerWindow, IReadOnlyList<ProgramTriggerCandidate>>(candidates);
         _activeInstances = activeGrants
             .Select(grant => (grant.SkillId, grant.SkillInstanceId))
             .ToHashSet();
         _programsById = new ReadOnlyDictionary<string, SkillProgram>(programs
             .ToDictionary(program => program.Id, StringComparer.Ordinal));
+        _cardPolicies = programInstances.SelectMany(instance => instance.Program.CardPolicies
+                .SelectMany(policy => policy.Kind == SkillProgramCardPolicyKind.IgnoreUseDistanceBeforeDealingDamage
+                    ? new[] { (Kind: policy.Kind, Source: instance, Policy: policy),
+                        (Kind: SkillProgramCardPolicyKind.IgnoreUseDistance, Source: instance, Policy: policy) }
+                    : new[] { (Kind: policy.Kind, Source: instance, Policy: policy) }))
+            .GroupBy(item => item.Kind).ToDictionary(group => group.Key,
+                group => (IReadOnlyList<(IndexedSkillProgramInstance, SkillProgramCardPolicy)>)Array.AsReadOnly(
+                    group.Select(item => (item.Source, item.Policy)).ToArray()));
+        var conversions = new Dictionary<CardKind, List<(IndexedSkillProgramInstance, SkillProgramViewAs)>>();
+        foreach (var instance in programInstances)
+        foreach (var rule in instance.Program.ViewAs)
+        {
+            if (rule.InputCount != 1) continue;
+            AddConversion(rule.OutputKind, instance, rule);
+            if (rule.OutputKind == CardKind.FireSlash && rule.ExtendedUse ||
+                rule.OutputKind is CardKind.FireSlash or CardKind.ThunderSlash && rule.DeclarationValidation is not null)
+                AddConversion(CardKind.Slash, instance, rule);
+        }
+        _singleCardConversions = conversions.ToDictionary(item => item.Key,
+            item => (IReadOnlyList<(IndexedSkillProgramInstance, SkillProgramViewAs)>)Array.AsReadOnly(item.Value.ToArray()));
+
+        void AddConversion(CardKind kind, IndexedSkillProgramInstance source, SkillProgramViewAs rule)
+        {
+            if (!conversions.TryGetValue(kind, out var bucket)) conversions[kind] = bucket = [];
+            bucket.Add((source, rule));
+        }
     }
 
     internal SkillBindingIndexStamp Stamp { get; }
@@ -104,6 +161,19 @@ internal sealed class SkillBindingShard
     internal IReadOnlyList<IndexedSkillProgramTrigger> GetUniqueTriggers(SkillProgramTriggerWindow window) =>
         UniqueTriggers.GetValueOrDefault(window, EmptyTriggers);
 
+    internal IReadOnlyList<ProgramTriggerCandidate> GetTriggerCandidates(SkillProgramTriggerWindow window, int occurrenceIndex = 0)
+    {
+        var candidates = _triggerCandidates.GetValueOrDefault(window, EmptyTriggerCandidates);
+        if (occurrenceIndex == 0 || candidates.Count == 0) return candidates;
+        var occurrences = new ProgramTriggerCandidate[candidates.Count];
+        for (var i = 0; i < candidates.Count; i++) occurrences[i] = candidates[i] with { OccurrenceIndex = occurrenceIndex };
+        return Array.AsReadOnly(occurrences);
+    }
+
+    internal (string SkillId, string BindingId, string SkillInstanceId) TriggerCandidateKey(ProgramTriggerCandidate candidate) =>
+        (candidate.SkillId, candidate.BindingId,
+            _sharedUsageTriggerBindings.Contains((candidate.SkillId, candidate.BindingId)) ? "" : candidate.SkillInstanceId);
+
     internal IReadOnlyList<IndexedSkillProgramModifier> GetNumericModifiers(SkillRuleQuery query) =>
         NumericModifiers.GetValueOrDefault(query, EmptyModifiers);
 
@@ -119,7 +189,16 @@ internal sealed class SkillBindingShard
     internal SkillProgram? GetProgram(string skillId) =>
         _programsById.GetValueOrDefault(skillId);
 
-    internal static SkillBindingShard Empty(SkillBindingIndexStamp stamp) => new(
+    internal IReadOnlyList<(IndexedSkillProgramInstance Source, SkillProgramCardPolicy Policy)>
+        GetCardPolicies(SkillProgramCardPolicyKind kind) => _cardPolicies.GetValueOrDefault(kind) ??
+            Array.Empty<(IndexedSkillProgramInstance, SkillProgramCardPolicy)>();
+
+    internal IReadOnlyList<(IndexedSkillProgramInstance Source, SkillProgramViewAs Rule)>
+        GetSingleCardConversions(CardKind kind) => _singleCardConversions.GetValueOrDefault(kind) ??
+            Array.Empty<(IndexedSkillProgramInstance, SkillProgramViewAs)>();
+
+    internal static SkillBindingShard Empty(int ownerSeat, SkillBindingIndexStamp stamp) => new(
+        ownerSeat,
         stamp,
         EmptyGrants,
         new ReadOnlyDictionary<string, ContentSkillDefinition>(
@@ -155,7 +234,7 @@ internal sealed class MatchSkillBindingIndex
     private readonly Func<CharacterState, SkillGrant, bool>? _grantQualification;
     private readonly Func<CharacterState,IReadOnlySet<string>>? _suppressionInputs;
     private readonly Func<long>? _projectionStamp;
-    private readonly bool _trackMarkerQualification;
+    private readonly Func<CharacterState, long>? _derivedProjectionStamp;
     private readonly Dictionary<int, SkillBindingShard> _shards = [];
     private readonly Dictionary<int, int> _rebuildCounts = [];
 
@@ -163,14 +242,15 @@ internal sealed class MatchSkillBindingIndex
         Func<string, ContentSkillDefinition> resolveDefinition,
         bool isNationalWarMode,
         Func<CharacterState, bool>? hasHpSensitiveSuppression = null,
-        Func<CharacterState, SkillGrant, bool>? grantQualification = null, Func<long>? projectionStamp = null, Func<CharacterState,IReadOnlySet<string>>? suppressionInputs = null, bool trackMarkerQualification = false)
+        Func<CharacterState, SkillGrant, bool>? grantQualification = null, Func<long>? projectionStamp = null, Func<CharacterState,IReadOnlySet<string>>? suppressionInputs = null,
+        Func<CharacterState, long>? derivedProjectionStamp = null)
     {
         ArgumentNullException.ThrowIfNull(resolveDefinition);
         _resolveDefinition = resolveDefinition;
         _isNationalWarMode = isNationalWarMode;
         _hasHpSensitiveSuppression = hasHpSensitiveSuppression;
         _grantQualification = grantQualification; _projectionStamp = projectionStamp; _suppressionInputs = suppressionInputs;
-        _trackMarkerQualification = trackMarkerQualification;
+        _derivedProjectionStamp = derivedProjectionStamp;
     }
 
     internal int CachedSeatCount => _shards.Count;
@@ -184,7 +264,9 @@ internal sealed class MatchSkillBindingIndex
         {
             CurrentHp = _hasHpSensitiveSuppression?.Invoke(player) == true ? player.Hp : 0,
             ProjectionRevision = _projectionStamp?.Invoke() ?? 0,
-            MarkerQualificationRole = _trackMarkerQualification ? player.Role : null
+            DerivedProjectionRevision = _derivedProjectionStamp?.Invoke(player) ?? 0,
+            OwnerRole = player.Role,
+            OwnerAlive = player.IsAlive
         };
         if (_shards.TryGetValue(player.Seat, out var existing) && existing.Stamp == stamp)
             return existing;
@@ -242,7 +324,7 @@ internal sealed class MatchSkillBindingIndex
         }
 
         if (activeGrants.Count == 0)
-            return SkillBindingShard.Empty(stamp);
+            return SkillBindingShard.Empty(player.Seat, stamp);
 
         var instances = activeGrants
             .GroupBy(grant => (grant.SkillId, grant.SkillInstanceId))
@@ -264,6 +346,7 @@ internal sealed class MatchSkillBindingIndex
             .ToArray();
 
         return new SkillBindingShard(
+            player.Seat,
             stamp,
             Array.AsReadOnly(activeGrants.ToArray()),
             new ReadOnlyDictionary<string, ContentSkillDefinition>(definitions),

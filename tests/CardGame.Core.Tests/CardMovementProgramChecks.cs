@@ -135,6 +135,176 @@ internal static class CardMovementProgramChecks
             "A skill instance lost while prompted must skip every frozen remaining occurrence without drawing.");
 
         VerifyArmorPaymentReturnsAfterRecoveryAndMovementWindows();
+        VerifySlashPaymentReturnsBeforeItsEffect();
+    }
+
+    private static void VerifySlashPaymentReturnsBeforeItsEffect()
+    {
+        var program = SkillProgramCatalog.Load("""
+            {"schemaVersion":62,"skills":[{"id":"fixture:card-movement","revision":1,
+             "modifiers":[{"id":"payment-quota","query":"slashLimit","operation":"add","value":2,"priority":0}],
+             "viewAs":[{"id":"top-cost","inputKinds":[],"inputSuits":[],"sourceZones":["hand"],
+               "outputKind":"fireSlash","forPlay":true,"forResponse":false,"useOnly":true,"costDestination":"drawPileTop"}],
+             "triggers":[{"id":"paid-owner-batch","window":"cardsMoved","subject":"owner",
+              "sourceZones":["hand","equipment"],"movementOccurrence":"perOwnerBatch","optional":true,
+              "effects":[{"op":"draw","target":"owner","amount":1}]}]}]}
+            """, Presentation).Programs[ScenarioPackage.SkillId];
+        var registry = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true),
+            new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage(),
+            new ScenarioPackage(program, slashPayment: true));
+        foreach (var (materialCount, alternative) in new[] { (1, false), (2, false), (1, true) })
+        {
+            var game = CreateAndSelect(registry, ScenarioPackage.ModeId, ScenarioPackage.OwnerGeneralId);
+            ReachHumanPlay(game);
+            var prompt = RequirePrompt(game, DecisionKind.PlayCard);
+            var cards = game.CreateSnapshot(HumanSeat).Players[HumanSeat].Hand.Take(materialCount).Select(card => card.Id).Order().ToArray();
+            var result = alternative ? PlayAlternative(game, cards[0]) : materialCount == 1
+                    ? game.Submit(new PlayCardCommand(HumanSeat, cards[0], [1], game.Revision, prompt.PromptId))
+                    : game.Submit(new UseProgramSkillCommand(HumanSeat, "classic:fuhun", "two-hand-cards-as-slash",
+                        cards, [1], game.Revision, prompt.PromptId));
+            Require(result.Accepted, result.Error?.Message ?? "The physical Slash payment was rejected.");
+            RequireSkillPrompt(game, ScenarioPackage.SkillId);
+            var movement = game.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Single();
+            var use = game.ResolutionStack.OfType<CardUseFrame>().Single();
+            Require(use.RecoveryPaidContinuation?.Kind == RecoveryPaidCardUseKind.CommittedSlash &&
+                    movement.ResumePaidCardUseFrameId == use.Id && movement.Batch.ParentFrameId == use.Id &&
+                    movement.Batch.AwaitingProgramFrameId is null && movement.Batch.Movements.Count == materialCount &&
+                    movement.Batch.Movements.Select(move => move.CardId).SequenceEqual(cards) &&
+                    movement.Batch.Movements.All(move => move.From == CardLocation.Hand(HumanSeat) &&
+                        move.To == (alternative ? CardLocation.DrawPile : CardLocation.Processing) && move.Reason == CardMoveReasons.Use) &&
+                    use.Action!.PhysicalCards.Select(cost => cost.CardId).SequenceEqual(cards) &&
+                    !game.Events.Any(item => item.Payload is DamageRequestedEvent),
+                "One accepted Slash pays one exact physical owner batch and suspends its own Use before requesting damage.");
+
+            VerifyPaidSlashBatchIssuance(game, use, movement);
+
+            var replay = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
+            Require(State(game) == State(replay) && Events(game).SequenceEqual(Events(replay)) &&
+                    JsonSerializer.Serialize(game.ResolutionStack) == JsonSerializer.Serialize(replay.ResolutionStack),
+                "A Slash paused on its paid movement child restores its exact issued receipt, owning action and public journal.");
+            foreach (var current in new[] { game, replay })
+            {
+                AnswerProgram(current, "activate");
+                ReachHumanPlay(current);
+                Require(cards.All(id => current.CardMovements.Count(move => move.CardId == id &&
+                            move.From == CardLocation.Hand(HumanSeat) && move.To == (alternative ? CardLocation.DrawPile : CardLocation.Processing)) == 1 &&
+                        current.CardMovements.Count(move => move.CardId == id &&
+                            move.From == CardLocation.Processing && move.To == CardLocation.DiscardPile) == (alternative ? 0 : 1)) &&
+                        current.Events.Select(item => item.Payload).OfType<DamageAppliedEvent>().Count(item =>
+                            item.SourceSeat == HumanSeat && item.TargetSeat == 1 && item.Amount == 1) == 1 &&
+                        current.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>().Count(item =>
+                            item.SkillId == ScenarioPackage.SkillId && item.Activated && item.Completed) == 1,
+                    "Payment observers resume the original Slash once without duplicating its materials, damage or cleanup.");
+            }
+            Require(State(game) == State(replay) && Events(game).SequenceEqual(Events(replay)),
+                "Single- and multi-material Slash payments retain identical cold-replay returns after their observers.");
+
+            if (alternative)
+            {
+                Require(game.CreateSnapshot(HumanSeat).Players[HumanSeat].Hand.Any(card => card.Id == cards[0]),
+                    "The payment observer really draws the same top-deck cost back before its next use.");
+                Require(PlayAlternative(game, cards[0]).Accepted, "The recycled alternative material can pay a second real Slash.");
+                var nextMovement = game.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Single();
+                var nextUse = game.ResolutionStack.OfType<CardUseFrame>().Single();
+                VerifyPaidSlashBatchIssuance(game, nextUse, nextMovement, movement.Batch);
+                var secondReplay = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
+                Require(JsonSerializer.Serialize(game.ResolutionStack) == JsonSerializer.Serialize(secondReplay.ResolutionStack),
+                    "The same recycled physical card retains a different exact issued batch on its second cold-restored use.");
+                foreach (var current in new[] { game, secondReplay }) { AnswerProgram(current, "activate"); ReachHumanPlay(current); }
+                Require(State(game) == State(secondReplay) && Events(game).SequenceEqual(Events(secondReplay)) &&
+                        game.CardMovements.Count(move => move.CardId == cards[0] && move.From == CardLocation.Hand(HumanSeat) &&
+                            move.To == CardLocation.DrawPile && move.Reason == CardMoveReasons.Use) == 2,
+                    "Historical-batch rejection preserves both real payments and exact cold replay without repaying either use.");
+            }
+        }
+
+        CommandResult PlayAlternative(GameEngine current, int cardId)
+        {
+            var legal = current.GetHumanLegalActions().First(action => action.CardId == cardId &&
+                action.PlayedCardKind == CardKind.FireSlash && action.ConversionSource?.SkillId == ScenarioPackage.SkillId && action.TargetSeats.Contains(1));
+            return current.Submit(new PlayCardCommand(HumanSeat, cardId, [1], current.Revision,
+                current.PendingDecision!.PromptId, CardKind.FireSlash) { ConversionSource = legal.ConversionSource });
+        }
+    }
+
+    private static void VerifyPaidSlashBatchIssuance(GameEngine game, CardUseFrame use,
+        CardsMovedTriggerWindowFrame movement, CardMovementBatchContext? historical = null)
+    {
+        // This is a trusted-host corruption check of the final invariant. The
+        // material movements remain genuine; only the unissued batch identity
+        // and every frozen copy of that identity change together.
+        var store = typeof(GameEngine).GetField("_resolutionStack", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(game)!;
+        var complete = store.GetType().GetMethod("CompleteTop")!;
+        var push = store.GetType().GetMethod("Push")!;
+        var replace = store.GetType().GetMethod("Replace")!;
+        var assert = typeof(GameEngine).GetMethod("AssertCoreInvariants", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        assert.Invoke(game, null);
+        Require(game.ResolutionStack.Last().Id == movement.Id, "The issuance negative check needs the actual unpaid observer chooser.");
+        var receipt = use.PaymentMovementReceipt ?? throw new InvalidOperationException("A real paid Slash lost its frame-owned batch issuance receipt.");
+        Require(receipt.OwnerFrameId == use.Id && receipt.ActionId == use.Action!.ActionId && receipt.Batch.Id == movement.Id &&
+                receipt.Batch.Movements.SequenceEqual(movement.Batch.Movements) &&
+                receipt.SequenceBefore == movement.Batch.Movements[0].Sequence - 1 && receipt.SequenceAfter == movement.Batch.Movements[^1].Sequence &&
+                !ReferenceEquals(receipt.Batch.Movements, movement.Batch.Movements) &&
+                receipt.Batch.Movements is System.Collections.IList { IsReadOnly: true } &&
+                receipt.Batch.SourceCounts is System.Collections.IList { IsReadOnly: true } &&
+                receipt.Batch.DestinationCounts is System.Collections.IList { IsReadOnly: true },
+            "Issuance freezes the exact physical batch, owning Use/Action, sequence range and nested collection copies.");
+        var foreignId = game.ResolutionStack.Max(frame => frame.Id) + 100;
+        Reject(use, Rebatch(movement.Batch with { Id = foreignId }));
+        foreach (var invalid in new[] { receipt with { OwnerFrameId = use.Id + 100 }, receipt with { ActionId = receipt.ActionId + 100 },
+                     receipt with { SequenceBefore = receipt.SequenceBefore - 1 }, receipt with { SequenceAfter = receipt.SequenceAfter + 1 } })
+            Reject(use with { PaymentMovementReceipt = invalid }, movement);
+        Reject(use with { PaymentMovementReceipt = null }, movement);
+        var action = use.Action!;
+        var foreignAction = new CardActionContext(action.ActionId + 100, action.ParentActionId, action.Type, action.ActorSeat,
+            action.ProviderSeat, action.RequesterSeat, action.ResponderSeat, action.OpponentSeat, action.EffectiveKind,
+            action.TargetSeats, action.PhysicalCards, action.ConversionChain, action.DesignatedTargetSeats,
+            action.EffectiveSuit, action.EffectiveRank, action.EffectiveIsRed, action.FactionOrigin);
+        Reject(use with { Action = foreignAction }, movement);
+        Reject(use, movement with { ResumeDeclarationFrameId = use.Id });
+        Reject(use, Rebatch(movement.Batch with { OriginSkillInstanceId = "foreign-payment-origin" }));
+        Reject(use, Rebatch(movement.Batch with { SourceCounts = movement.Batch.SourceCounts.Select((count, index) =>
+            index == 0 ? count with { CountBefore = count.CountBefore + 1 } : count).ToArray() }));
+        if (historical is not null)
+        {
+            var borrowed = historical with { ParentFrameId = use.Id };
+            Require(historical.Id != movement.Id && historical.Movements.All(old => game.CardMovements[old.Sequence - 1] == old) &&
+                    (bool)typeof(GameEngine).GetMethod("CardUsePaymentMaterialsMatch", BindingFlags.Instance | BindingFlags.NonPublic)!
+                        .Invoke(game, [use, borrowed])!,
+                "The historical negative uses genuine earlier payment records of the same recycled physical material that still pass the original material/ledger checks.");
+            Reject(use, Rebatch(borrowed));
+        }
+
+        var conversionGrants = action.ConversionChain.SelectMany(source => Players(game)[source.OwnerSeat].SkillGrants.Grants
+            .Where(grant => grant.SkillInstanceId == source.SkillInstanceId && grant.IsEnabled)
+            .Select(grant => (source.OwnerSeat, Grant: grant))).ToArray();
+        Require(action.ConversionChain.Count == 0 || conversionGrants.Length > 0,
+            "Converted payment source-loss verification must disable an actual granted producer instance.");
+        foreach (var item in conversionGrants) Players(game)[item.OwnerSeat].SkillGrants.SetEnabled(item.Grant.GrantId, false);
+        try { assert.Invoke(game, null); }
+        finally { foreach (var item in conversionGrants) Players(game)[item.OwnerSeat].SkillGrants.SetEnabled(item.Grant.GrantId, true); }
+        assert.Invoke(game, null);
+
+        CardsMovedTriggerWindowFrame Rebatch(CardMovementBatchContext batch) => movement with { Id = batch.Id, Batch = batch,
+            Contexts = movement.Contexts!.Select(context => context with { ParentFrameId = batch.Id, MovementBatch = batch }).ToArray() };
+
+        void Reject(CardUseFrame owner, CardsMovedTriggerWindowFrame forged)
+        {
+            replace.Invoke(store, [owner]);
+            complete.Invoke(store, [movement.Id, movement.Kind]);
+            push.Invoke(store, [forged]);
+            var rejected = false;
+            try { assert.Invoke(game, null); }
+            catch (TargetInvocationException exception) when (exception.InnerException is InvalidOperationException invalid &&
+                invalid.Message.Contains("card-use payment", StringComparison.Ordinal)) { rejected = true; }
+            finally
+            {
+                complete.Invoke(store, [forged.Id, forged.Kind]);
+                push.Invoke(store, [movement]);
+                replace.Invoke(store, [use]);
+            }
+            Require(rejected, "A real paid Slash must reject foreign issuance, action, sequence, batch facts and conflicting returns in the final invariant even when frozen contexts and genuine physical ledger records agree.");
+        }
     }
 
     public static void SelectedGiftContinuesAfterRecipientDeathAndReplays()
@@ -477,7 +647,7 @@ internal static class CardMovementProgramChecks
     private const string Presentation =
         "{\"schemaVersion\":3,\"skills\":{\"fixture:card-movement\":{\"name\":\"Movement\",\"description\":\"Fixture\"}}}";
 
-    private sealed class ScenarioPackage(SkillProgram program) : IGameContentPackage
+    private sealed class ScenarioPackage(SkillProgram program, bool slashPayment = false) : IGameContentPackage
     {
         public const string SkillId = "fixture:card-movement";
         public const string OwnerGeneralId = "fixture:card-movement-owner";
@@ -497,7 +667,8 @@ internal static class CardMovementProgramChecks
             var targets = Enumerable.Range(1, 4)
                 .Select(index => $"fixture:card-movement-target-{index}").ToArray();
             builder.AddGeneral(new ContentGeneralDefinition(
-                OwnerGeneralId, "Movement Owner", "supporter", SkillId, "wei", BaseHp: 4));
+                OwnerGeneralId, "Movement Owner", "supporter", SkillId, "wei", BaseHp: 4,
+                AdditionalSkillIds: slashPayment ? ["classic:fuhun"] : null));
             foreach (var target in targets)
                 builder.AddGeneral(new ContentGeneralDefinition(
                     target, "Movement Target", "supporter", "standard:none", "wei", BaseHp: 4));
@@ -506,7 +677,7 @@ internal static class CardMovementProgramChecks
                 "Movement Deck",
                 InitialHandSize: 2,
                 DrawPerTurn: 0,
-                [new ContentDeckCardCount("standard:crossbow", 64)]));
+                [new ContentDeckCardCount(slashPayment ? "standard:slash" : "standard:crossbow", 64)]));
             builder.AddMode(new ContentModeDefinition(
                 ModeId,
                 "Card Movement Program Test",

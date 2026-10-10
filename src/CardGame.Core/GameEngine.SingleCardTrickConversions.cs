@@ -3,11 +3,13 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private void AddSingleCardTrickConversionActions(List<LegalAction> actions, CharacterState actor,
-        IReadOnlyList<Card> playable)
+        IReadOnlyList<Card> playable, int? selectedPhysicalCardId = null)
     {
         var kinds = GetSkillBindingShard(actor).ProgramInstances.SelectMany(instance => instance.Program.ViewAs)
             .Where(rule => rule.SingleCardTrickUse).Select(rule => rule.OutputKind).Distinct().ToArray();
+        if (kinds.Length == 0) return;
         foreach (var card in playable.Concat(GetEquipment(actor)).DistinctBy(card => card.Id)
+                     .Where(card => selectedPhysicalCardId is null || card.Id == selectedPhysicalCardId)
                      .Where(card => !IsTurnHandCardRestricted(actor, card)))
         foreach (var kind in kinds)
         foreach (var source in GetProgramViewAsConversions(actor, card, kind, false)

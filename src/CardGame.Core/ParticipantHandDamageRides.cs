@@ -120,7 +120,7 @@ public sealed partial class GameEngine
             candidate.TriggerId == program.TriggerId && candidate.SkillInstanceId == program.SkillInstanceId && candidate.GameplayHash == program.GameplayHash;
     }
 
-    private static bool ParticipantHandRescueObserverRide(ResolutionFrame frame, ResolutionFrame parent, CardUseFrame rescue)
+    private bool ParticipantHandRescueObserverRide(ResolutionFrame frame, ResolutionFrame parent, CardUseFrame rescue)
     {
         if (frame is HpChangedTriggerWindowFrame hp && parent.Id == rescue.Id &&
             (hp.Change.ParentFrameId != rescue.Id || hp.ResumeFrameId != rescue.Id || hp.Continuation != PostEventContinuation.CardUse)) return false;

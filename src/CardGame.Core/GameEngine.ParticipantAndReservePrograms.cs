@@ -277,6 +277,10 @@ public sealed partial class GameEngine
                 frame.SlashTargetBenefitDraft is { Settlement: true } && SlashBenefitProgramParentMatches(frame),
             SkillProgramEffectOp.ResolvePrepDiscardOrEnding =>
                 frame.PrepDiscard is not null && ValidPrepDiscard(frame),
+            SkillProgramEffectOp.DrawPrepDiscardEnding =>
+                frame.PrepDiscardEndingDraw is not null && ValidPrepDiscardEndingDraw(frame),
+            SkillProgramEffectOp.DrawLostHpThenOfferOwnedCardsUpTo =>
+                frame.LostHpOwnedGift is not null && IsValidLostHpOwnedGift(frame),
             SkillProgramEffectOp.PayHpThenNullifyOwnActualUseTarget =>
                 frame.InstructionIndex == 1 && _resolutionStack.FindIndex(item => item.Id == frame.Id) is var paidIndex && paidIndex > 0 &&
                 _resolutionStack[paidIndex - 1] is ActualUseTargetWindowFrame paidParent && PaidOwnTargetMatches(frame, paidParent, true),

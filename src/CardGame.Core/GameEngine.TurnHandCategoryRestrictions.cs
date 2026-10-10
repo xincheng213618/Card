@@ -25,6 +25,7 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new HandCategoryRestrictionGrantedEvent(policy));
     }
     private bool IsTurnHandCategoryRestricted(CharacterState owner, Card card) =>
+        _turnCardUseEffects.HasHandCategoryRestriction(_turnNumber, _currentSeat, owner.Seat) &&
         _cardZones.GetLocation(card.Id) == CardLocation.Hand(owner.Seat) && _turnCardUseEffects.IsHandCategoryRestricted(
             _turnNumber, _currentSeat, owner.Seat, GetProgramCardCategory(AdvancedEffectiveHandKind(owner, card)));
     private bool IsHandCategoryMaterialRestricted(IReadOnlyList<int> ids) => ids.Any(id =>

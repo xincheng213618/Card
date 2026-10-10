@@ -383,7 +383,9 @@ internal static class Fame2015WeiChecks
     {
         const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
         var players = (System.Collections.IList)typeof(GameEngine).GetField("_players", flags)!.GetValue(game)!;
-        return (int)typeof(GameEngine).GetMethod(method, flags)!.Invoke(game, [players[seat]])!;
+        var query = typeof(GameEngine).GetMethod(method, flags)!;
+        var arguments = query.GetParameters().Select((parameter, index) => index == 0 ? players[seat] : parameter.DefaultValue).ToArray();
+        return (int)query.Invoke(game, arguments)!;
     }
     private static (GameEngine Game, ContentRegistry Registry) CreateWithAction(string skill, string weapon, Func<LegalAction, bool> condition)
     {

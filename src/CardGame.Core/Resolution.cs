@@ -602,6 +602,8 @@ public sealed partial record CardUseFrame(
     public bool CausedDamage { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public RecoveryPaidCardUseContinuation? RecoveryPaidContinuation { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public CardUsePaymentMovementReceipt? PaymentMovementReceipt { get; init; }
     public bool ProgramUseAccepted { get; init; }
     public bool ProgramUseCommitted { get; init; }
     public bool FinalizedTrickProgramsStarted { get; init; }

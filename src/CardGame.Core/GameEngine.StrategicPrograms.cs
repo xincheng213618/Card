@@ -57,6 +57,16 @@ public sealed partial class GameEngine
         foreach (var instance in GetSkillBindingShard(source).ProgramInstances)
         foreach (var policy in instance.Program.CardPolicies)
         {
+            if (policy.Kind switch
+            {
+                SkillProgramCardPolicyKind.ChainedHandLimitAura or
+                    SkillProgramCardPolicyKind.WoundedInRangeHandLimitPenalty => query != SkillRuleQuery.HandLimit,
+                SkillProgramCardPolicyKind.MarkerTurnBonuses => query is not
+                    (SkillRuleQuery.DrawCount or SkillRuleQuery.SlashLimit or SkillRuleQuery.HandLimit),
+                SkillProgramCardPolicyKind.WoundedPopulationBonuses => query is not
+                    (SkillRuleQuery.DrawCount or SkillRuleQuery.HandLimit),
+                _ => true
+            }) continue;
             if (!policy.Condition.Evaluate(CreateSkillContext(source))) continue;
             var value = policy.Kind switch
             {

@@ -11,18 +11,38 @@ public sealed partial class GameEngine
  }
  private IReadOnlyList<ProgramPublicRuleStateSnapshot>? GetHandComparisonPublicRuleStates(CharacterState owner,string skillId)
  {
-  var result=new List<ProgramPublicRuleStateSnapshot>();
-  foreach(var instance in GetSkillBindingShard(owner).ProgramInstances.Where(i=>i.SkillId==skillId))
+  List<ProgramPublicRuleStateSnapshot>? result=null;
+  var instances=GetSkillBindingShard(owner).ProgramInstances;
+  for(var index=0;index<instances.Count;index++)
   {
-   foreach(var activation in instance.Program.Activations.Where(a=>a.Effects.Any(e=>e.Op==SkillProgramEffectOp.CompareSelectedHandWithHpHand)))
-    result.Add(new(instance.SkillInstanceId,activation.Id,ProgramPublicRuleStateKind.ActivationLimit,HandComparisonPhaseLimit(owner,instance.Program,activation,instance.SkillInstanceId)!.Value,_programPhaseUses.GetValueOrDefault((owner.Seat,skillId,activation.UsageGroup)),SkillUsageScope.Phase));
+   var instance=instances[index];
+   if(instance.SkillId!=skillId)continue;
+   var hasPublicState=false;
+   for(var i=0;i<instance.Program.Activations.Count;i++)
+   {
+    var activation=instance.Program.Activations[i];
+    var features=ProgramInstructionResolver.Default.Features(activation);
+    if(features.HasOperation(SkillProgramEffectOp.CompareSelectedHandWithHpHand))
+     (result??=[]).Add(new(instance.SkillInstanceId,activation.Id,ProgramPublicRuleStateKind.ActivationLimit,HandComparisonPhaseLimit(owner,instance.Program,activation,instance.SkillInstanceId)!.Value,_programPhaseUses.GetValueOrDefault((owner.Seat,skillId,activation.UsageGroup)),SkillUsageScope.Phase));
+    hasPublicState|=features.HasOperation(SkillProgramEffectOp.CompareSelectedHandWithHpHand)||features.HasOperation(SkillProgramEffectOp.AdjustPersistentHandLimit)||features.HasOperation(SkillProgramEffectOp.ProhibitSelfCardTargetsForTurn);
+   }
+   for(var i=0;!hasPublicState&&i<instance.Program.Triggers.Count;i++)
+   {
+    var features=ProgramInstructionResolver.Default.Features(instance.Program.Triggers[i]);
+    hasPublicState=features.HasOperation(SkillProgramEffectOp.CompareSelectedHandWithHpHand)||features.HasOperation(SkillProgramEffectOp.AdjustPersistentHandLimit)||features.HasOperation(SkillProgramEffectOp.ProhibitSelfCardTargetsForTurn);
+   }
+   if(!hasPublicState)continue;
+   AddHandComparisonEffectPublicRuleStates(owner,skillId,instance,result??=[]);
+  }
+  return result is{Count:>0}?result.ToArray():null;
+ }
+ private void AddHandComparisonEffectPublicRuleStates(CharacterState owner,string skillId,IndexedSkillProgramInstance instance,List<ProgramPublicRuleStateSnapshot> result)
+ {
    var effects=instance.Program.Activations.SelectMany(a=>a.Effects).Concat(instance.Program.Triggers.SelectMany(t=>t.Effects)).ToArray();
    foreach(var stateId in effects.Where(e=>e.Op is SkillProgramEffectOp.CompareSelectedHandWithHpHand or SkillProgramEffectOp.AdjustPersistentHandLimit).Select(e=>e.StateId!).Distinct())
     result.Add(new(instance.SkillInstanceId,stateId,ProgramPublicRuleStateKind.PersistentHandLimit,HandComparisonHistory().OfType<ProgramPersistentHandLimitChangedEvent>().Where(e=>e.OwnerSeat==owner.Seat&&e.SkillId==skillId&&e.SkillInstanceId==instance.SkillInstanceId&&e.StateId==stateId).Sum(e=>e.Amount)));
    if(effects.Any(e=>e.Op==SkillProgramEffectOp.ProhibitSelfCardTargetsForTurn))
     result.Add(new(instance.SkillInstanceId,"self-target",ProgramPublicRuleStateKind.SelfTargetProhibition,HandComparisonHistory().OfType<ProgramSelfCardTargetsProhibitedEvent>().Any(e=>e.OwnerSeat==owner.Seat&&e.SkillId==skillId&&e.SkillInstanceId==instance.SkillInstanceId&&e.TurnNumber==_turnNumber&&e.TurnSeat==_currentSeat)?1:0,null,SkillUsageScope.Turn));
-  }
-  return result.Count==0?null:result.ToArray();
  }
  private IReadOnlyList<int> GetSelfProhibitionPolicyTargets(CharacterState actor,LegalAction action)
  {
@@ -37,7 +57,7 @@ public sealed partial class GameEngine
   foreach(var g in HandComparisonHistory().OfType<ProgramPersistentHandLimitChangedEvent>().Where(e=>(e.TargetSeat<0?e.OwnerSeat:e.TargetSeat)==owner.Seat&&HasRuntimeSkillInstance(_players[e.OwnerSeat],e.SkillId,e.SkillInstanceId)).GroupBy(e=>(e.SkillId,e.SkillInstanceId,e.StateId)))
    yield return new FiniteRuleQueryContribution("persistent:"+g.Key,SkillRuleOperation.Add,g.Sum(e=>e.Amount),0);
  }
- private bool HasSelfCardTargetProhibition(int seat)=>HandComparisonHistory().OfType<ProgramSelfCardTargetsProhibitedEvent>().Any(e=>e.OwnerSeat==seat&&e.TurnNumber==_turnNumber&&e.TurnSeat==_currentSeat&&HasRuntimeSkillInstance(_players[seat],e.SkillId,e.SkillInstanceId));
+ private bool HasSelfCardTargetProhibition(int seat)=>ProgramEventHistory<ProgramSelfCardTargetsProhibitedEvent>().Any(e=>e.OwnerSeat==seat&&e.TurnNumber==_turnNumber&&e.TurnSeat==_currentSeat&&HasRuntimeSkillInstance(_players[seat],e.SkillId,e.SkillInstanceId));
  private bool IsImplicitSelfCardUse(CardKind kind)=>kind is CardKind.Peach or CardKind.Alcohol or CardKind.DrawTwo or CardKind.Lightning||EquipmentCatalog.IsEquipment(kind);
  private bool IsSelfTargetForbiddenAction(CharacterState actor,CardKind kind,IReadOnlyList<int> targets)
  {

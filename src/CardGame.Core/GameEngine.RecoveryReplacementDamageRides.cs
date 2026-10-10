@@ -15,13 +15,13 @@ public sealed partial class GameEngine
             _ => false
         };
 
-    private static bool PaidDodgeRecoveryHpFrameRidesOn(ResolutionFrame ride, ResolutionFrame beneath) =>
-        beneath is CardUseFrame { RecoveryPaidContinuation.Kind: RecoveryPaidCardUseKind.DodgeCompletion } use &&
+    private static bool PaidCardUseHpFrameRidesOn(ResolutionFrame ride, ResolutionFrame beneath) =>
+        beneath is CardUseFrame { RecoveryPaidContinuation.Kind: RecoveryPaidCardUseKind.DodgeCompletion or RecoveryPaidCardUseKind.CommittedSlash } use &&
         ride is HpChangedTriggerWindowFrame hp && hp.Change.ParentFrameId == use.Id &&
         hp.ResumeFrameId == use.Id && hp.Continuation == PostEventContinuation.RecoveryPaidCardUse;
 
-    private bool IsPaidDodgeRecoveryProgramDying() => ActiveCardAttack is { } attack &&
-        LifecycleCardUse(attack.ResolutionId)?.RecoveryPaidContinuation?.Kind == RecoveryPaidCardUseKind.DodgeCompletion &&
+    private bool IsPaidCardUseProgramDying() => ActiveCardAttack is { } attack &&
+        LifecycleCardUse(attack.ResolutionId)?.RecoveryPaidContinuation?.Kind is RecoveryPaidCardUseKind.DodgeCompletion or RecoveryPaidCardUseKind.CommittedSlash &&
         IsRecoveryReplacementProgramDying(attack.ResolutionId);
 
     private bool RecoveryReplacementDamageObserverRidesOn(int index)
@@ -33,7 +33,7 @@ public sealed partial class GameEngine
         {
             var frame = _resolutionStack[parentIndex];
             var parent = _resolutionStack[parentIndex - 1];
-            if (RecoveryReplacementFrameRidesOn(frame, parent) || PaidDodgeRecoveryHpFrameRidesOn(frame, parent)) return true;
+            if (RecoveryReplacementFrameRidesOn(frame, parent) || PaidCardUseHpFrameRidesOn(frame, parent)) return true;
             if (!DamageFrameRidesOn(frame, parent) && !DamageObserverRidesOn(frame, parent) &&
                 !PileEquipmentFrameRidesOn(frame, parent) && !RandomEquipmentFrameRidesOn(frame, parent)) return false;
         }
@@ -42,6 +42,9 @@ public sealed partial class GameEngine
 
     private bool IsRecoveryReplacementProgramDying(long? requiredPaidUseId = null)
     {
+        var paymentCursor = ProjectTypedCommittedSlashPaymentCursor();
+        if (paymentCursor.IsMalformed || paymentCursor.Owner is { } typedOwner &&
+            (requiredPaidUseId is null || requiredPaidUseId == typedOwner.Id)) return false;
         if (ActiveDying is not { ResumesProgramSkill: true } dying ||
             _resolutionStack.OfType<DyingFrame>().SingleOrDefault(f => f.Id == dying.FrameId) is not { } child ||
             child.ParentFrameId != dying.ParentFrameId)
@@ -66,7 +69,10 @@ public sealed partial class GameEngine
                 return true;
             if (index == 0) return false;
             var parent = _resolutionStack[index - 1];
-            if (RecoveryReplacementFrameRidesOn(frame, parent) || PaidDodgeRecoveryHpFrameRidesOn(frame, parent))
+            if (RecoveryReplacementFrameRidesOn(frame, parent) || PaidCardUseHpFrameRidesOn(frame, parent))
+            { hasRecovery = true; continue; }
+            if (parent is CardUseFrame paymentOwner && frame is CardsMovedTriggerWindowFrame movement &&
+                IsPaidCardUseMovementReturn(paymentOwner, movement))
             { hasRecovery = true; continue; }
             if (!DamageFrameRidesOn(frame, parent) && !DamageObserverRidesOn(frame, parent) &&
                 !PileEquipmentFrameRidesOn(frame, parent) && !RandomEquipmentFrameRidesOn(frame, parent)) return false;
