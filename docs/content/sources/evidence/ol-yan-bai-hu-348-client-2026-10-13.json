@@ -1,0 +1,74 @@
+{
+  "capturedAtUtc": "2026-10-13T14:18:44.182368+00:00",
+  "clientBundleUrl": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+  "clientBundleSha256": "66dfce61f1c4fb0aca35b6f85ed940e394719db84655f4d4146b463bc0cf8c1b",
+  "configUrl": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+  "configSha256": "3d7536d4e2ca3d64707c2f6e0edbb8ccb4a045eee4274862dfa35431157c64f4",
+  "decoder": "public client AES-CFB128 then gzip",
+  "members": {
+    "character.sgs": {
+      "sha256": "e0b6f0188edebb1f502ea402c7171e93b88f4e9d05720948344a1f4f44474aae",
+      "decodedSha256": "b3ef3f1181e7fe667499cb688b7cdce56631d899dbb0eea55d75fbf80636b040"
+    },
+    "cha_spell.sgs": {
+      "sha256": "0c244585a54d101377d6e8d17cca27df2eb9520cff11f73b3373e8b3ddc5fe3d",
+      "decodedSha256": "c42298ef8eeed59ac5e2f30854ec1d35a9f38df80410403c849f0a3e2753a0d9"
+    }
+  },
+  "character.sgs": [
+    {
+      "a": 348,
+      "b": "严白虎",
+      "d": "YanBaiHu",
+      "e": 44,
+      "f": "43",
+      "g": 4,
+      "h": 1,
+      "i": 4,
+      "j": 276,
+      "k": 277,
+      "p": 1,
+      "q": "1",
+      "r": "934801",
+      "y": "吴郡乌程县人，原名“严虎”，别号“白虎”，东汉末年盘据吴郡一带山贼出身的地方豪帅。献帝初拥兵万人自固。孙策受袁术使渡江，攻破白虎等。白虎奔余杭，投靠许昭。建安二年，再度被孙策击败，至此不知亡佚[yì]何处。",
+      "z": "夺走敌人的牌使其变得脆弱，与身边的角色患难与共。个人能力强。",
+      "aa": 138,
+      "ab": "570,571",
+      "x": "东吴终于是我德王的天下了！不枉我卧薪尝胆、忍辱负重十数载。",
+      "al": 4270,
+      "am": "true",
+      "ap": 50,
+      "aq": 15,
+      "ay": 3,
+      "bx": 3500,
+      "LordCardRate1": 21,
+      "LordCardRate2": 38,
+      "cc": 0,
+      "starMax": 4
+    }
+  ],
+  "cha_spell.sgs": [
+    {
+      "a": 276,
+      "b": "3,4,5",
+      "c": "雉盗",
+      "d": "ZhiDao",
+      "e": 0,
+      "g": 4,
+      "i": 2,
+      "o": "锁定技，每回合限一次，当你于出牌阶段对其他角色造成伤害后，你获得其每个区域各一张牌，然后你本回合使用牌不能指定其他角色为目标。",
+      "ay": "系统提示→点“确定”"
+    },
+    {
+      "a": 277,
+      "b": "3,4,5",
+      "c": "寄篱",
+      "d": "JiLi",
+      "e": 0,
+      "g": 7,
+      "i": 2,
+      "o": "锁定技，当与你的距离为1的其他角色成为红色基本牌或红色普通锦囊牌的目标时，若你不是此牌的使用者或目标，你成为此牌的额外目标。",
+      "ay": "系统提示→点“确定”"
+    }
+  ]
+}

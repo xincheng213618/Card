@@ -1,0 +1,38 @@
+{
+  "generalId": "ol:han-sui", "characterId": "character:han-sui", "name": "韩遂·OL",
+  "rulesetId": "sanguosha-ol", "variantId": "ol", "verifiedOn": "2026-10-13",
+  "selectedVersion": "三国杀 OL 官方 hero/585 当前逆乱、骁袭版本；未合并旧 1v1 登场骁袭",
+  "faction": "qun", "maxHp": 4, "gender": "male", "galleryCategory": "其他",
+  "sources": [
+    { "url": "https://www.sanguosha.com/hero/585", "role": "官方技能和立绘",
+      "localEvidence": "docs/content/sources/evidence/ol-han-sui-official-2026-10-13.html",
+      "sha256": "E1903A30242BE0AE65243CB031D74BE87EE20CC1D8B9242E9C71FD78F356C6F2" },
+    { "url": "https://www.sanguosha.com/hero", "role": "官方目录，群、4 体力、其他分类",
+      "localEvidence": "docs/content/sources/evidence/ordinary-other-forty-first-directory.raw.html",
+      "note": "JSON-LD position 257: 韩遂、hero/585、characterClass 群、strength 4、genre 其他。" }
+  ],
+  "skills": [
+    { "id": "ol:niluan", "name": "逆乱", "officialText": "体力值大于你的角色的结束阶段，若其此回合使用过【杀】，你可以将一张黑色牌当【杀】对其使用。",
+      "implementation": "冻结真实结束阶段回合角色 HP 与当回合实际用杀次数；手牌或装备中的黑牌作为真实转化材料使用，保留物理牌、来源和原生支付子结算，目标固定为该回合角色并遵守距离。" },
+    { "id": "ol:xiaoxi", "name": "骁袭", "officialText": "每轮首个回合开始时，你可以视为使用一张无距离限制的【杀】。",
+      "implementation": "已有普通回合开始窗口加冻结 roundTurnSeatCount=1 条件，无实体普通杀；额外回合不打开该窗口，轮首拒绝不延后到本轮其他回合。" }
+  ],
+  "portrait": {
+    "url": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/58500.png",
+    "path": "src/CardGame.Wpf/Assets/official-ol-han-sui.png",
+    "sha256": "5A8B999A74D0B24935920223CCD2C05BC643AA6B8BD800BD87F648185E90C055",
+    "width": 750, "height": 950,
+    "selection": "hero/585 官方人物主图，已目视检查"
+  },
+  "verification": {
+    "filter": "Triggered card conversion:",
+    "checks": [
+      "TriggeredCardConversionChecks.ContractsFreezeFactsAndRejectInvalidComposition",
+      "TriggeredCardConversionChecks.BlackHandAndEquipmentUseRealMaterialsAndColdReplay",
+      "TriggeredCardConversionChecks.EndingGatesAndConsumedWeaponRangeAreExact",
+      "TriggeredCardConversionChecks.RoundFirstOpportunityDoesNotMoveAfterDeclineOrExtraTurn"
+    ],
+    "status": "2026-10-13 聚焦 Core 4 项全部通过；覆盖手牌/装备真实转杀、银狮支付子结算、装备范围、轮首拒绝/额外回合/翻面跳过、轮首 SelfOnly、冷回放",
+    "summary": "docs/benchmarks/2026-10-13-han-sui-focused-summary.json"
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "verifiedOn": "2026-10-13",
+  "status": "not_registered",
+  "scope": "Current official OL hero pages and existing shared capability inspection; no game execution or tests.",
+  "candidates": [
+    {
+      "gid": 136,
+      "name": "文聘",
+      "plannedGeneralId": "ol:wen-pin",
+      "faction": "wei",
+      "maxHp": 4,
+      "gender": "male",
+      "genderAuthority": "Historical identity inference; official info endpoint has no structured gender field.",
+      "sources": [
+        { "url": "https://www.sanguosha.com/hero/136", "path": "docs/content/sources/evidence/ol-candidate-136-official-2026-10-13.html", "sha256": "109DCE79985B15E4A91141AA4068625D7DAAB0F90CCB2ADE37A1C8819F91FE36" },
+        { "url": "https://www.sanguosha.com/api/v1/hero/info?gid=136", "path": "docs/content/sources/evidence/ol-candidate-136-info-2026-10-13.json", "sha256": "C819ABE266B4CBD4D698A5DCA4FC5B56E0268445F05D9960B6F29C9544C95B28" },
+        { "url": "https://www.sanguosha.com/news/20161101_6587_2616", "role": "Official guide explicitly returns the removed physical card to its actual user after the turn." }
+      ],
+      "skills": [ { "name": "镇卫", "officialText": "当其他角色成为【杀】或黑色锦囊牌的唯一目标时，若其体力值小于你且使用者不为你，你可以弃置一张牌并选择一项：1.摸一张牌，然后代替其成为此牌目标；2.令此牌无效并移出游戏直到回合结束。" } ],
+      "reusable": [ "Owner hand/equipment payment with movement children", "Actual card action identity and target-finalized windows", "Processing and OutsideGame physical card zones", "Actual turn-ended boundary" ],
+      "missing": [ "Third-party sole-target substitution for Slash and black tricks, including delayed tricks, while retaining the original action/provider/materials", "Quarantine the current card-use physical materials outside the game; make all native finishing paths respect issued quarantine; return once to the actual user after the exact real turn", "Frozen sole-target HP comparison and exact eligibility for third-party owner" ],
+      "notValidSubstitutes": [ "redirectCurrentAttack belongs to the original Slash target and cannot replace a black trick's target", "holdTargetCards moves another participant's hand/equipment to their PojunHold and is not a current-use quarantine", "nullifyCurrentCardEffect is for the trigger owner, not a protected third-party sole target" ],
+      "assessment": "Definition is sufficient, but the two alternative effects require a coordinated shared mechanism; not a pure content registration or a small parser addition."
+    },
+    {
+      "gid": 135,
+      "name": "孙鲁育",
+      "plannedGeneralId": "ol:sun-lu-yu",
+      "faction": "wu",
+      "maxHp": 3,
+      "gender": "female",
+      "genderAuthority": "Official biography identifies her as Sun Quan and Bu Lianshi's daughter.",
+      "sources": [
+        { "url": "https://www.sanguosha.com/hero/135", "path": "docs/content/sources/evidence/ol-candidate-135-official-2026-10-13.html", "sha256": "EA47D6CEE96A17CD60E2C9F77111B377FAE97D466893362ED80EFEC11643DE3D" },
+        { "url": "https://www.sanguosha.com/api/v1/hero/info?gid=135", "path": "docs/content/sources/evidence/ol-candidate-135-info-2026-10-13.json", "sha256": "536A8D9DBB186A65FB2E25B625FD3A94182C7A72760D70868D3F19FCD906B904" }
+      ],
+      "skills": [
+        { "name": "魅步", "officialText": "其他角色出牌阶段开始时，若你在其攻击范围内，你可以弃置一张牌，令其本回合视为拥有“止息”。若你弃置的牌不是【杀】或黑色锦囊牌，本回合其与你的距离视为1。" },
+        { "name": "穆穆", "officialText": "出牌阶段开始时，你可以选择一项：1.弃置一名其他角色装备区里的一张牌；2.获得一名角色装备区里的一张防具牌，若如此做，你本回合不能使用或打出【杀】。" }
+      ],
+      "sourceGap": "Current hero/135 does not expand the derived Zhixi skill. Ordinary OL 2015/2018 documented trick-as-Slash Zhixi; Ten-Year 2020/2021 documented mandatory hand payment on Slash/trick use alongside different Meibu/Mumu text. Those historical/platform versions cannot establish the present derived rule by name alone.",
+      "historicalComparisons": [
+        "https://www.sanguosha.com/news/20151112_1807_1410",
+        "https://www.sanguosha.com/news/20180315_9391_1716",
+        "https://sanguosha.com/news/20200709_4360_0917",
+        "https://www.sanguosha.com/news/20210921_3764_4215"
+      ],
+      "missing": [ "A source-backed current OL Zhixi definition matching current Meibu/Mumu", "GrantTurnSkills currently targets only the owner or the exact suspended card action actor, not another phase owner", "The existing fixed-distance-one grant is expressly bound to Fenxun's zero-cost own-Play activation and ending debt, not a paid other-Play trigger" ],
+      "assessment": "Do not register an incomplete derivative or combine mismatched ordinary OL and Ten-Year variants."
+    }
+  ]
+}

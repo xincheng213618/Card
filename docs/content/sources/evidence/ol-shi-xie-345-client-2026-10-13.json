@@ -1,0 +1,75 @@
+{
+  "capturedAtUtc": "2026-10-13T12:19:14.544606+00:00",
+  "clientBundleUrl": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+  "clientBundleSha256": "66dfce61f1c4fb0aca35b6f85ed940e394719db84655f4d4146b463bc0cf8c1b",
+  "configUrl": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+  "configSha256": "3d7536d4e2ca3d64707c2f6e0edbb8ccb4a045eee4274862dfa35431157c64f4",
+  "decoder": "public client AES-CFB128 then gzip",
+  "members": {
+    "character.sgs": {
+      "sha256": "e0b6f0188edebb1f502ea402c7171e93b88f4e9d05720948344a1f4f44474aae",
+      "decodedSha256": "b3ef3f1181e7fe667499cb688b7cdce56631d899dbb0eea55d75fbf80636b040"
+    },
+    "cha_spell.sgs": {
+      "sha256": "0c244585a54d101377d6e8d17cca27df2eb9520cff11f73b3373e8b3ddc5fe3d",
+      "decodedSha256": "c42298ef8eeed59ac5e2f30854ec1d35a9f38df80410403c849f0a3e2753a0d9"
+    }
+  },
+  "character.sgs": [
+    {
+      "a": 345,
+      "b": "士燮",
+      "d": "ShiXie",
+      "e": 44,
+      "f": "42",
+      "g": 4,
+      "h": 1,
+      "i": 3,
+      "j": 262,
+      "k": 263,
+      "p": 3,
+      "q": "1",
+      "r": "934501",
+      "y": "士燮[xiè]，割据交州（今越南）一带的军阀，年少时师事刘陶，经逐渐升迁任交趾太守。后被朝廷加职绥南中郎将，迁安远将军，封龙度亭侯。在步骘接管交州时积极配合，归附孙权，被孙权加为左将军；此后又因诱降益州豪族雍闿而迁任卫将军，进封龙编侯。任交趾太守四十年。",
+      "z": "利用距离获得很高的防御，可以获得大量的牌。输出能力较弱，受到【乐不思蜀】的限制。",
+      "aa": 70,
+      "ab": "538,539",
+      "ad": "画师:銘zmy",
+      "x": "诸位请与我携手共进，让中原百姓####也能与交州子民一般安享太平。",
+      "al": 4250,
+      "am": "true",
+      "ap": 800,
+      "aq": 240,
+      "bg": "ShiXie",
+      "bm": 1,
+      "bx": 1000000,
+      "LordCardRate1": 34,
+      "LordCardRate2": 38,
+      "cc": 0,
+      "starMax": 4
+    }
+  ],
+  "cha_spell.sgs": [
+    {
+      "a": 262,
+      "b": "3,5",
+      "c": "避乱",
+      "d": "BiLuan",
+      "e": 0,
+      "g": 2,
+      "i": 2,
+      "o": "结束阶段，若有其他角色计算与你的距离为1，你可以弃置一张牌，全场每有一个势力，其他角色计算与你的距离便+1。",
+      "v": "请选择一张牌弃置"
+    },
+    {
+      "a": 263,
+      "b": "3,4,5",
+      "c": "礼下",
+      "d": "LiXia",
+      "e": 0,
+      "g": 2,
+      "i": 2,
+      "o": "锁定技，其他角色的结束阶段，若你不在其攻击范围内，你选择一至两项：<br>&nbsp;1.摸一张牌；2.令其摸两张牌；3.令其回复1点体力。<br>每选择一项，你令其他角色计算与你的距离-1。"
+    }
+  ]
+}

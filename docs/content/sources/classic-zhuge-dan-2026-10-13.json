@@ -1,0 +1,60 @@
+{
+  "capturedAt": "2026-10-13",
+  "generalId": "classic:zhuge-dan",
+  "name": "诸葛诞·经典",
+  "productLine": "三国杀OL",
+  "version": "明确选择官网2016-11-01完整经典攻略版。举义要求受伤、手牌摸至上限，威重每次上限增减摸1。当前hero/129举义不要求受伤且直接摸上限等量，不混用；不声称已解析当前font239派生技能或当前客户端最新版本。",
+  "faction": "wei",
+  "maxHp": 4,
+  "gender": "male",
+  "genderEvidence": "官方传记称诸葛亮族弟，为语义推断；API没有性别字段。",
+  "sources": [
+    {
+      "url": "https://www.sanguosha.com/news/20161101_8831_4415",
+      "publishedAt": "2016-11-01",
+      "title": "[攻略] SP武将：诸葛诞攻略文",
+      "path": "docs/content/sources/evidence/classic-zhuge-dan-official-guide-2026-10-13.html",
+      "sha256": "EC10DBC776D9E759ABBEA20AFCAA4023DC83AECD3FE047196E8F277AF554B939",
+      "role": "实际所选功獒、举义及派生威重完整文本；不是用同名技能推测font路由。"
+    },
+    {
+      "url": "https://www.sanguosha.com/hero/129",
+      "path": "docs/content/sources/evidence/classic-zhuge-dan-current-page-2026-10-13.html",
+      "sha256": "02B7937B5052D9E724EC219D7B696B49E0A931BBD27A7028A3EBE7B015C90A6C",
+      "role": "确认人物、魏势力及官方立绘，并明确保存当前举义版本与所选经典版本的差异；font111/239不是武将编号。"
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=129",
+      "path": "docs/content/sources/evidence/classic-zhuge-dan-info-2026-10-13.json",
+      "sha256": "9BEB590DFFBFBB26519A3992DAE413F922BAF2DC620208CED5594F4F2C4D53F1",
+      "role": "官网实际广告API，确认魏、HP4和立绘；initial_hp=0是未指定占位，未实现零初始体力。2016攻略也明确仅依靠4体力存活。"
+    },
+    {
+      "url": "https://www.sanguosha.com/hero/369",
+      "role": "本次先审查董允；舍宴需要普通锦囊任意目标无效且至少保留一个有效目标，秉正需要手牌与HP动态选择，现有陈琳/张华窄契约不能直接复用。暂未新增董允，未声称运行复现其缺失能力。"
+    }
+  ],
+  "skills": [
+    { "id": "classic:gongao", "text": "锁定技，每当一名其他角色死亡后，你增加一点体力上限，然后回复一点体力。" },
+    { "id": "classic:juyi", "text": "觉醒技，准备阶段开始时，若你已受伤且体力上限大于存活角色数，你须将手牌摸至体力上限，然后获得技能“崩坏”和“威重”。" },
+    { "id": "classic:weizhong", "text": "锁定技，每当你的体力上限增加或减少时，你摸一张牌。" },
+    { "id": "classic:benghuai", "note": "复用已注册经典崩坏：结束阶段若不是最小体力值，选择失去1HP或降低1上限。" }
+  ],
+  "implementation": [
+    "功獒复用只收集实际存活拥有者的characterDied窗口，上限变化与回复分成原生指令，最大HP子事件先完成再回复。",
+    "新增可选冻结livingPlayerCount值，仅支持准备边界；举义使用actual game usage限一次，复用targetMaxHpMinusHandCount实际摸牌与grantSkills。",
+    "新增强类型healthChangeKindIs/hpChangeKind条件，仅支持AfterHealthChanged。typed nullable事实来自实际HpChangeContext，不从HpBefore/HpAfter相等推断上限变化。",
+    "威重复用既有MaximumHpChangedEvent非零变化到HpChangeKind.MaximumHp的owning-frame管线，每事件一次，变化幅度大于1仍只摸1；零变化、damage、loss和recovery不触发。",
+    "事实仅在内容引用能力时采集，null字段不进入旧内容序列化；三个原生健康事实入口均补齐含装备成本响应与供牌。不得从HP前后相等推断kind。",
+    "focused实际检查5项通过：strict条件/默认null兼容，上限增减与零delta、损伤/失血/回复边界，准备受伤及严格人数阈值、真实摸牌子窗后授予与game quota，真实他人死亡的maxHP子窗先于回复，实体白银狮子装备当闪成本的typed Recovery及冷恢复。不是WPF前台/全量验证。",
+    "不改变规则epoch/schema/package版本。新行为由内容指纹区分。"
+  ],
+  "artwork": {
+    "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/12900.png",
+    "path": "src/CardGame.Wpf/Assets/official-classic-zhuge-dan.png",
+    "sha256": "FBE6113BE2D6492800AAC7FF48166A06B83D4E67486665135345AAFF410B98C7",
+    "width": 750,
+    "height": 950,
+    "visuallyInspected": true
+  }
+}

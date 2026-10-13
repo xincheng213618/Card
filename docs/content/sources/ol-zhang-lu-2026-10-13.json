@@ -1,0 +1,89 @@
+{
+  "id": "ol:zhang-lu",
+  "status": "development",
+  "retrieved": "2026-10-13",
+  "officialCharacterId": 343,
+  "edition": "current ordinary Sanguosha OL",
+  "name": "张鲁",
+  "faction": "qun",
+  "maxHp": 3,
+  "gender": "male",
+  "versionPolicy": "Current official hero343, official API and current public client character343 with exact YiShe259/BuShi260/MiDao261 text. No historical rice-stock condition or cross-product edition is imported.",
+  "sources": [
+    {
+      "url": "https://www.sanguosha.com/hero/343",
+      "rawFile": "evidence/ol-zhang-lu-343-official-2026-10-13.html",
+      "sha256": "8a63792c81064ee7c7af62acb3d86ee47a5e3ce3ff578e368800c244726d3bb9",
+      "role": "complete current official skills"
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=343",
+      "rawFile": "evidence/ol-zhang-lu-343-info-2026-10-13.json",
+      "sha256": "95bec80e3b5e6a682e6becabc42a0dd3d6f1d46bf3f2b4e55d2fdcdd9b5beea2",
+      "role": "faction, HP and exact portrait"
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20160428_8567_0214",
+      "rawFile": "evidence/ol-zhang-lu-20160428-2026-10-13.html",
+      "sha256": "33004d54cd6d69b57102759d8857601d928f30a119f0171eabb134c200d00d16",
+      "role": "older official same-text introduction; no added historical rule"
+    }
+  ],
+  "currentClient": {
+    "evidenceFile": "evidence/ol-zhang-lu-343-client-2026-10-13.json",
+    "sha256": "dc28903eb23de7070da4e010f50e19688130f6322d03041b6aae9ee804a0bacd",
+    "clientBundleUrl": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+    "clientBundleSha256": "66dfce61f1c4fb0aca35b6f85ed940e394719db84655f4d4146b463bc0cf8c1b",
+    "configUrl": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+    "configSha256": "3d7536d4e2ca3d64707c2f6e0edbb8ccb4a045eee4274862dfa35431157c64f4",
+    "identityFields": {
+      "a": 343,
+      "d": "ZhangLu",
+      "g": 4,
+      "h": 1,
+      "i": 3,
+      "j": 259,
+      "k": 261,
+      "l": 260
+    },
+    "comparison": "All three exact current client descriptions equal hero343 after whitespace normalization. h=1 is male; g=4 is Qun; i=3 matches API hp. j/k/l establish complete skill identity, not the order of textual names guessed from older guide."
+  },
+  "officialSkillText": {
+    "YiShe": "结束阶段，若你没有“米”，你可以摸两张牌，然后将两张牌置于你的武将牌上，称为“米”。当你失去最后一张“米”时，你回复1点体力。",
+    "BuShi": "当你受到1点伤害后，你可以获得一张“米”。当你对其他角色造成1点伤害后，其可以获得一张“米”。",
+    "MiDao": "当一张判定牌生效前，你可以用一张“米”代替之。"
+  },
+  "interpretations": [
+    "Unqualified owned cards for Yishe storage means Hand or Equipment; actual own transfer legality and movement children remain enforced. If fewer than two eligible owned cards remain after actual draw children, store all remaining eligible cards.",
+    "Bushi incoming and outgoing opportunities are per actual applied damage point; self-inflicted sourced damage has incoming only and source-less damage can have incoming. For outgoing other damage, the damaged character controls optional confirmation and exact rice selection.",
+    "Exhaustion recovery uses frozen exact producer pile before/after counts of one actual movement batch, not a live global card count or another public pile belonging to the same owner.",
+    "Midao replaces from the exact rice location through Processing into the existing real Judgment frame, discards the old judgment, and drains last-rice recovery children before advancing that judgment candidate.",
+    "Already-issued draw and transfer receipts drain their children without repaying. Genuine removal of the Yishe producer clears its pile via existing source cleanup and does not resurrect that source; temporary suppression retains the actual stored rice."
+  ],
+  "capabilities": [
+    "drawAndStoreTwoPublicRice",
+    "offerRiceAfterDamagePoint",
+    "replaceJudgmentFromPublicRice",
+    "recoverAfterLastPublicRice"
+  ],
+  "portrait": {
+    "url": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/34300.png",
+    "file": "src/CardGame.Wpf/Assets/official-ol-zhang-lu.png",
+    "sha256": "dc59b0e4ab640127dac7286e91ca155661a1ba47f00a4ad7c7b6267304cb0e02",
+    "visualInspection": "750x950 PNG, inspected in current task"
+  },
+  "verification": {
+    "fullVerification": false,
+    "routineSummary": "docs/benchmarks/2026-10-13-batch-5-routine-summary.json",
+    "focusedSummary": "docs/benchmarks/2026-10-13-batch-5-final-focused-summary.json",
+    "status": "batch-focused-and-prescribed-routine-passed",
+    "foregroundAcceptance": false,
+    "coreEvidence": "docs/benchmarks/2026-10-13-batch-5-final-focused-core-selected.log.txt",
+    "summary": "docs/benchmarks/2026-10-13-batch-5-final-focused-summary.json",
+    "batchReport": "docs/benchmarks/2026-10-13-zhang-lu-wang-rong-shi-xie-verification.json",
+    "latestScopeNote": "586 Core / 76 WPF passing is evidence for the recorded earlier stable source snapshot. Two shared files subsequently changed; the current source is covered by the fresh 40 Core / 5 WPF related focused run, not another complete routine or Full.",
+    "latestCoreEvidence": "docs/benchmarks/2026-10-13-batch-5-latest-focused-core-selected.log.txt",
+    "latestFocusedSummary": "docs/benchmarks/2026-10-13-batch-5-latest-focused-summary.json",
+    "latestBatchReport": "docs/benchmarks/2026-10-13-zhang-lu-wang-rong-shi-xie-verification.json"
+  }
+}

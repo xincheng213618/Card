@@ -1,0 +1,500 @@
+{
+  "capturedAt": "2026-10-13",
+  "purpose": "Current ordinary OL Sun Luyu main-version and derived skill binding investigation; related ordinary candidate rows retained for source assessment only",
+  "primaryResources": [
+    {
+      "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-13T09:37:25.258343+00:00",
+      "sha256": "66dfce61f1c4fb0aca35b6f85ed940e394719db84655f4d4146b463bc0cf8c1b",
+      "byteCount": 5256349,
+      "hashScope": "Exact raw HTTP body bytes"
+    },
+    {
+      "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-13T09:37:25.134547+00:00",
+      "sha256": "3d7536d4e2ca3d64707c2f6e0edbb8ccb4a045eee4274862dfa35431157c64f4",
+      "byteCount": 4142822,
+      "hashScope": "Exact raw HTTP body bytes"
+    }
+  ],
+  "decoder": {
+    "reference": "tools/import_game_audio.py:384-413",
+    "method": "Public sgsGame_a.sgs InitOfb decoder; AES-CFB128 then gzip",
+    "exactDecoderExcerpt": "InitOfb(){var t=new Uint8Array([144,101,62,55,36,70,86,69,35,117,67,33,109,85,97,226]);this.jofb=new aesjs.ModeOfOperation.cfb([21,51,69,107,85,94,55,120,97,78,63,45,114,101,81,62],t,16)",
+    "members": [
+      {
+        "name": "character.sgs",
+        "encodedSha256": "e0b6f0188edebb1f502ea402c7171e93b88f4e9d05720948344a1f4f44474aae",
+        "encodedByteCount": 352776,
+        "decodedSha256": "b3ef3f1181e7fe667499cb688b7cdce56631d899dbb0eea55d75fbf80636b040",
+        "decodedByteCount": 1485056
+      },
+      {
+        "name": "cha_spell.sgs",
+        "encodedSha256": "0c244585a54d101377d6e8d17cca27df2eb9520cff11f73b3373e8b3ddc5fe3d",
+        "encodedByteCount": 246028,
+        "decodedSha256": "c42298ef8eeed59ac5e2f30854ec1d35a9f38df80410403c849f0a3e2753a0d9",
+        "decodedByteCount": 1166955
+      }
+    ]
+  },
+  "characters": [
+    {
+      "path": "/GameCharacters/character/124",
+      "row": {
+        "a": 135,
+        "b": "孙鲁育",
+        "d": "SunLuYu",
+        "e": 44,
+        "f": "41",
+        "g": 3,
+        "h": 2,
+        "i": 3,
+        "j": 247,
+        "k": 246,
+        "p": 1,
+        "q": "1",
+        "r": "913501",
+        "y": "又名小虎，孙权与步练师之女。吴后期，孙鲁班诬陷孙鲁育参与谋反，于是孙峻杀害了孙鲁育。",
+        "z": "能有效限制敌人使用锦囊牌和控制场上的装备牌，但自身很脆弱，会成为敌人优先攻击的目标。",
+        "RolePointS": "能有效限制敌人使用牌。",
+        "aa": 264,
+        "ab": "517,518",
+        "ad": "画师:depp",
+        "x": "家人和睦，国邦平安，####我要的并不多...",
+        "aj": "孙鲁育",
+        "al": 4370,
+        "am": "true",
+        "ap": 50,
+        "aq": 15,
+        "ay": 3,
+        "bt": "50",
+        "bx": 6300,
+        "cc": 0,
+        "starMax": 4
+      }
+    },
+    {
+      "path": "/GameCharacters/character/271",
+      "row": {
+        "a": 372,
+        "b": "王允",
+        "d": "WangYun",
+        "e": 44,
+        "f": "42",
+        "g": 4,
+        "h": 1,
+        "i": 4,
+        "j": 365,
+        "k": 366,
+        "p": 2,
+        "q": "1",
+        "r": "937201",
+        "s": 10,
+        "y": "东汉末年的重要大臣，出身官宦世家，在演义中，王允先出借七宝刀予曹操，以期刺杀董卓。失败后又遣养女貂蝉离间董卓吕布，最终成功杀死董卓。董卓死后，王允握持大权，矜功自傲，致使董卓余党李傕[jué]、郭汜等反叛，吕布出逃，王允被处死。",
+        "z": "可以给队友提供武器。觉醒后可以根据场上局势转化不同的锦囊牌。害怕被控制手牌。",
+        "aa": 265,
+        "ab": "616,617",
+        "ad": "画师:Thinking",
+        "x": "董国贼已伏诛，####你们还不速投老夫门下",
+        "al": 4010,
+        "am": "true",
+        "ap": 240,
+        "aq": 70,
+        "bx": 80000,
+        "LordCardRate1": 0,
+        "LordCardRate2": 7,
+        "cc": 37201,
+        "starMax": 4,
+        "freetitle": "0,辅助强将"
+      }
+    },
+    {
+      "path": "/GameCharacters/character/332",
+      "row": {
+        "a": 439,
+        "b": "卞夫人",
+        "d": "BianFuRen",
+        "e": 44,
+        "f": "41",
+        "g": 1,
+        "h": 2,
+        "i": 3,
+        "j": 3028,
+        "k": 3029,
+        "p": 1,
+        "q": "1",
+        "r": "9043901",
+        "y": "卞[biàn]夫人，魏武帝曹操的第二任妻子，魏文帝曹丕、任城威王曹彰、陈思王曹植、萧怀王曹熊的母亲。原本是倡家，后来与曹操成婚，原配丁夫人被废后成为曹操的正妻。曹丕继位后尊其为皇太后，曹叡继位后尊其为太皇太后。卞后在太和四年去世，与魏武帝曹操合葬高陵。",
+        "z": "可以回收敌人对你用的牌，注意调整手牌结构。",
+        "aa": 146,
+        "ab": "863,864",
+        "x": "人不过夜眠七尺，日食三餐，####争权夺利又为哪般？",
+        "am": "true",
+        "ap": 50,
+        "aq": 15,
+        "bx": 20000,
+        "cc": 43901,
+        "starMax": 4,
+        "freetitle": "0,辅助强将"
+      }
+    },
+    {
+      "path": "/GameCharacters/character/352",
+      "row": {
+        "a": 459,
+        "b": "审配",
+        "d": "ShenPei",
+        "e": 44,
+        "f": "42",
+        "g": 4,
+        "h": 1,
+        "i": 3,
+        "j": 1185,
+        "k": 1186,
+        "p": 2,
+        "q": "1",
+        "r": "9045901",
+        "y": "字正南，魏郡阴安（今河北清丰北）人。为人正直， 袁绍领冀州，审配被委以腹心之任，并总幕府。河北平定，袁绍以审配，逢纪统军事，审配恃其强盛，力主与曹操决战。曾率领弓弩手大破曹军于官渡。官渡战败，审配二子被俘，反因此受谮见疑，幸得逢纪力保。袁绍病死，审配等矫诏立袁尚为嗣，导致兄弟相争，被曹操各个击破。曹操围邺，审配死守数月，终城破被擒，拒不投降，慷慨受死。",
+        "z": "可以给队友补牌，或限制敌人使用牌。",
+        "aa": 144,
+        "ab": "769,770",
+        "x": "誓守孤城，####死不降曹！",
+        "al": 3170,
+        "am": "true",
+        "ap": 240,
+        "aq": 70,
+        "bn": "可补牌可限制敌人用牌的辅助",
+        "bt": "50",
+        "bx": 4999,
+        "cc": 0,
+        "starMax": 4,
+        "freetitle": "0,辅助强将"
+      }
+    },
+    {
+      "path": "/GameCharacters/character/1284",
+      "row": {
+        "a": 583,
+        "b": "何进",
+        "d": "HeJin",
+        "e": 44,
+        "f": "43",
+        "g": 4,
+        "h": 1,
+        "i": 4,
+        "j": 3372,
+        "k": 3373,
+        "p": 2,
+        "q": "1",
+        "r": "971001",
+        "v": "3041",
+        "y": "东汉灵帝时大将军。何进的异母妹有宠于灵帝并被立为皇后，他也随之升迁。黄巾起义时，何进为大将军，总镇京师。灵帝驾崩后，蹇[jiǎn]硕谋诛进而立皇子刘协，未果，反被进诛。何进从袁绍之言，博征智谋之士为己所用，独揽大权。然而何进不纳陈琳之谏，多结外镇军阀，翘首京师，与袁绍等谋诛宦竖。终于事泄，被张让等先下手为强，遭杀身之祸。",
+        "z": "每回合都能够获得敌人的牌使敌人变得脆弱。死亡时弃置敌人大量的牌使其变得脆弱。",
+        "aa": 264,
+        "ab": "1087,1088",
+        "ad": "画师:G.G.G.",
+        "x": "区区宦官算什么，####挡在我前面的人，都得死！",
+        "al": 900,
+        "am": "true",
+        "ap": 0,
+        "aq": 70,
+        "au": "3041",
+        "av": "3041",
+        "aw": "3041",
+        "starMax": 4,
+        "freetitle": "0,爆发强将"
+      }
+    },
+    {
+      "path": "/GameCharacters/character/1490",
+      "row": {
+        "a": 6031,
+        "b": "孙鲁育",
+        "d": "SunLuYuM",
+        "e": 0,
+        "g": 3,
+        "h": 2,
+        "i": 3,
+        "j": 21055,
+        "k": 21056,
+        "q": "0",
+        "al": 1740,
+        "am": "true",
+        "starMax": 4
+      }
+    }
+  ],
+  "spells": [
+    {
+      "path": "/GameSpells/spell/188",
+      "row": {
+        "a": 246,
+        "b": "3,5",
+        "c": "魅步",
+        "d": "MeiBu",
+        "e": 0,
+        "g": 7,
+        "i": 2,
+        "m": "258",
+        "o": "其他角色出牌阶段开始时，若你在其攻击范围内，你可以弃置一张牌，令其本回合视为拥有“<font href='258'>止息</font>”。若你弃置的牌不是【杀】或黑色锦囊牌，本回合其与你的距离视为1。",
+        "v": "请弃置一张牌",
+        "ay": "系统提示→点\"确定\""
+      }
+    },
+    {
+      "path": "/GameSpells/spell/189",
+      "row": {
+        "a": 247,
+        "b": "3",
+        "c": "穆穆",
+        "d": "MuMu",
+        "e": 0,
+        "g": 4,
+        "h": 1,
+        "i": 2,
+        "o": "出牌阶段开始时，你可以选择一项：<br>&nbsp;1.弃置一名其他角色装备区里的一张牌；<br>&nbsp;2.获得一名角色装备区里的一张防具牌，若如此做，你本回合不能使用或打出【杀】。",
+        "ay": "系统提示→选择一项执行"
+      }
+    },
+    {
+      "path": "/GameSpells/spell/200",
+      "row": {
+        "a": 258,
+        "b": "3,4,5",
+        "c": "止息",
+        "d": "ZhiXi",
+        "e": 0,
+        "g": 4,
+        "i": 2,
+        "o": "锁定技，出牌阶段，若你本阶段使用过锦囊牌或X张牌（X为你的体力值），你不能使用牌。"
+      }
+    },
+    {
+      "path": "/GameSpells/spell/277",
+      "row": {
+        "a": 365,
+        "b": "3",
+        "c": "连计",
+        "d": "LianJi",
+        "e": 0,
+        "g": 7,
+        "h": 1,
+        "i": 2,
+        "n": 1,
+        "o": "出牌阶段限一次，你可以弃置一张手牌令一名其他角色随机使用牌堆中一张武器牌，然后其选择一项：<br>&nbsp;1.对你指定的一名角色使用【杀】；<br>&nbsp;2.你将其装备区的武器交给一名角色。",
+        "w": "{0}对你使用<font color='#FFD800'>连计</font>，请你使用<font color='#FFD800'>杀</font>，否则你装备的武器可以交给任意角色",
+        "aw": "1",
+        "ay": "系统提示→点“确定”"
+      }
+    },
+    {
+      "path": "/GameSpells/spell/278",
+      "row": {
+        "a": 366,
+        "b": "3,4,5,6,23",
+        "c": "谋逞",
+        "d": "MouCheng",
+        "e": 0,
+        "g": 7,
+        "i": 2,
+        "l": "wangyunmoucheng",
+        "m": "367",
+        "o": "觉醒技，准备阶段，若你本局“连计”中使用的【杀】造成过伤害，你失去“连计”并获得“<font href='367'>矜功</font>”。",
+        "ay": "系统提示→点“确定”"
+      }
+    },
+    {
+      "path": "/GameSpells/spell/878",
+      "row": {
+        "a": 1185,
+        "b": "3,4,5",
+        "c": "刚直",
+        "d": "GangZhi",
+        "e": 0,
+        "g": 7,
+        "i": 2,
+        "o": "锁定技，其他角色对你造成的伤害，和你对其他角色造成的伤害均视为失去体力。"
+      }
+    },
+    {
+      "path": "/GameSpells/spell/879",
+      "row": {
+        "a": 1186,
+        "b": "3,5",
+        "c": "备战",
+        "d": "BeiZhan",
+        "e": 0,
+        "g": 5,
+        "i": 2,
+        "o": "回合结束后，你可以令一名角色将手牌摸至X张（X为其体力上限且至多为5）。其下回合开始时，若其手牌数全场最多，其此回合使用牌不能指定其他角色为目标。",
+        "v": "请选择一名角色对其发动<font color='#FFD800'>备战</font>，或点取消跳过",
+        "ay": "系统提示→点“确定”"
+      }
+    },
+    {
+      "path": "/GameSpells/spell/1383",
+      "row": {
+        "a": 3028,
+        "b": "3,5",
+        "c": "挽危",
+        "d": "WanWei",
+        "g": 2,
+        "i": 2,
+        "ab": 1,
+        "o": "每回合限一次，当你的牌被其他角色弃置或获得后，你可以从牌堆获得一张同名牌（无同名牌则改为摸一张牌）。",
+        "ac": "是否发动<font color=\"#ffff00\">挽危</font>摸一张牌;是否发动<font color=\"#ffff00\">挽危</font>摸一张<font color=\"#ffff00\">{0}</font>"
+      }
+    },
+    {
+      "path": "/GameSpells/spell/1384",
+      "row": {
+        "a": 3029,
+        "b": "3,5",
+        "c": "约俭",
+        "d": "YueJian",
+        "g": 2,
+        "i": 2,
+        "o": "每回合限两次，当其他角色对你使用的牌置入弃牌堆时，你可以展示所有手牌，若花色与此牌均不同，你获得此牌。"
+      }
+    },
+    {
+      "path": "/GameSpells/spell/2384",
+      "row": {
+        "a": 3372,
+        "b": "3",
+        "c": "谋诛",
+        "d": "MouZhu2",
+        "e": 0,
+        "g": 1,
+        "h": 1,
+        "i": 2,
+        "n": 0,
+        "o": "出牌阶段限一次，你可以令一名其他角色交给你一张手牌，若其手牌数小于你，其视为对你使用一张【杀】或【决斗】。"
+      }
+    },
+    {
+      "path": "/GameSpells/spell/2385",
+      "row": {
+        "a": 3373,
+        "b": "3,5",
+        "c": "延祸",
+        "d": "YanHuo2",
+        "e": 0,
+        "g": 1,
+        "i": 2,
+        "o": "当你死亡时，你可以弃置杀死你的角色至多X张牌（X为你的牌数）。"
+      }
+    },
+    {
+      "path": "/GameSpells/spell/3000",
+      "row": {
+        "a": 21055,
+        "b": "3,5",
+        "c": "穆穆",
+        "d": "MuMuRace",
+        "e": 0,
+        "g": 4,
+        "i": 2,
+        "o": "出牌阶段开始时，你可选择一项：弃置场上的一张装备牌；获得场上的一张防具牌，然后你本回合不能使用或打出【杀】。"
+      }
+    },
+    {
+      "path": "/GameSpells/spell/3001",
+      "row": {
+        "a": 21056,
+        "b": "3,5",
+        "c": "魅步",
+        "d": "MeiBuRace",
+        "e": 0,
+        "g": 4,
+        "i": 2,
+        "m": "21057",
+        "o": "其他角色的出牌阶段开始时，若你在其攻击范围内，你可以弃置一张牌，然后其本回合视为拥有技能“止息”。若你以此法弃置的牌不是【杀】或黑色锦囊牌，则本回合其与你距离为1。"
+      }
+    }
+  ],
+  "spellTips": [
+    {
+      "path": "/GameSpells/spell_tips/188",
+      "row": {
+        "a": 246
+      }
+    },
+    {
+      "path": "/GameSpells/spell_tips/189",
+      "row": {
+        "a": 247
+      }
+    },
+    {
+      "path": "/GameSpells/spell_tips/200",
+      "row": {
+        "a": 258
+      }
+    },
+    {
+      "path": "/GameSpells/spell_tips/277",
+      "row": {
+        "a": 365
+      }
+    },
+    {
+      "path": "/GameSpells/spell_tips/278",
+      "row": {
+        "a": 366
+      }
+    },
+    {
+      "path": "/GameSpells/spell_tips/878",
+      "row": {
+        "a": 1185
+      }
+    },
+    {
+      "path": "/GameSpells/spell_tips/879",
+      "row": {
+        "a": 1186
+      }
+    },
+    {
+      "path": "/GameSpells/spell_tips/1378",
+      "row": {
+        "a": 3028
+      }
+    },
+    {
+      "path": "/GameSpells/spell_tips/1379",
+      "row": {
+        "a": 3029
+      }
+    },
+    {
+      "path": "/GameSpells/spell_tips/2353",
+      "row": {
+        "a": 3372
+      }
+    },
+    {
+      "path": "/GameSpells/spell_tips/2354",
+      "row": {
+        "a": 3373
+      }
+    },
+    {
+      "path": "/GameSpells/spell_tips/2685",
+      "row": {
+        "a": 21055
+      }
+    },
+    {
+      "path": "/GameSpells/spell_tips/2686",
+      "row": {
+        "a": 21056
+      }
+    }
+  ],
+  "rawBundleRetention": "Fetched and decoded in memory; no full client or Config bundle written to workspace"
+}

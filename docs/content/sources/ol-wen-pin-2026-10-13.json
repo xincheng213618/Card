@@ -1,0 +1,67 @@
+{
+  "generalId": "ol:wen-pin",
+  "characterId": "character:wen-pin",
+  "variantId": "ol",
+  "verifiedOn": "2026-10-13",
+  "versionPolicy": "Current OL official hero 136, with current text taking precedence over historical guides.",
+  "identity": {
+    "faction": "wei",
+    "maxHp": 4,
+    "gender": "male",
+    "genderEvidence": "Official biography identifies Wen Pin as the historical general; API has no dedicated gender field."
+  },
+  "sources": [
+    {
+      "url": "https://www.sanguosha.com/hero/136",
+      "role": "Current complete Zhenwei wording",
+      "localEvidence": "evidence/ol-candidate-136-official-2026-10-13.html",
+      "sha256": "109DCE79985B15E4A91141AA4068625D7DAAB0F90CCB2ADE37A1C8819F91FE36"
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=136",
+      "role": "Official faction and HP metadata",
+      "localEvidence": "evidence/ol-candidate-136-info-2026-10-13.json",
+      "sha256": "C819ABE266B4CBD4D698A5DCA4FC5B56E0268445F05D9960B6F29C9544C95B28"
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20161101_6587_2616",
+      "role": "Official guide explicitly includes delayed tricks and physical return to actual card user."
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20151112_1807_1410",
+      "role": "Historical official explanation of sole current living main target and return after actual turn."
+    },
+    {
+      "url": "https://bug.sanguosha.com/announce?id=76&mod=announce",
+      "role": "Official historical FAQ on counting actual main target people during resolution and return beneficiary."
+    },
+    {
+      "url": "https://www.sanguosha.cn/pc/news-detail-96.html",
+      "role": "Historical mobile official timing adjustment, 2015-12-01 section 22: the new target after Liuli or Zhenwei starts again at becoming-target timing. Applying this timing to current OL is an implementation inference; the current OL page and 2016 guide do not provide a specific combination FAQ.",
+      "localEvidence": "evidence/mobile-target-timing-96-official-2026-10-13.html",
+      "sha256": "81B5BA163653FA9872EBECD5DFBEE764BB7162B4832956FADF7F4D935496A3FB"
+    }
+  ],
+  "mechanismMapping": {
+    "eligibility": "Recheck live actual Use, one current living main target other than owner, target HP lower than owner, actual user other than owner, Slash or black trick including delayed trick. Borrowed Sword victim is not a second main target. An ineffective target remains a target unless the whole Use was quarantined.",
+    "payment": "One real legal own HE discard, exact movement receipt on owning ProgramSkillFrame, drain movement and HP/recovery children before choosing disposition; paid source loss cannot restart payment.",
+    "legacySlash": "Only the new catalog opt-in gives the existing UseVirtualCard Slash producer a real Action at its native creation and routes its existing typed committed/finalized windows. The original native-window boolean still guards legacy Wine damage and consumption semantics. No invented physical entity or extra Wine cancellation window is added.",
+    "actorProvider": "When an existing exact ReplaceCurrentCardUseActor binding changes the real user before this observer resolves, the current action/user is admitted only with the existing accepted-use reconstruction proof. Provider and real physical material origins remain distinct from the actual return beneficiary.",
+    "substitution": "Draw one through real private native gain, drain children, replace the real live Action/main target and native attack target, preserve use/action/user/provider/material identity, then add new target confirmation candidates. Another source can protect the replacement; each paid exact source is consumed once per Use.",
+    "slashRetargetTiming": "A substituted Slash temporarily opens existing SlashTargetRedirecting on its owning finalized window, with a typed return preserving the already incremented finalized candidate cursor. A real RedirectCurrentAttack instruction issues exact source/binding and before/after-target proof, updates the live Action and native prepared attacks, and returns to the saved finalized cursor for the final receiver. Paid Zhenwei sources do not restart; new recipient target hooks run against the actual final targets. Historical mobile timing is evidence for the chosen interpretation, not an assertion that current OL explicitly documents the combination.",
+    "quarantine": "Mark current whole Use ineffective, isolate its still-Processing real entities to OutsideGame, finish one real Use, and issue immutable due receipt.",
+    "return": "Actual TurnEnded creates an owning DeferredTurnEnd cursor from issued minus settled committed facts. Return materials to actual living user, drain real gain children, then run AfterTurnEnded. Dead user or completed game settles isolated materials to Discard. Source loss does not revoke the receipt.",
+    "delayedPlacementBridge": "The new catalog bridge observes native committed delayed Use before finalized target protection, covering physical placement and existing conversion producers. Target substitution is offered only when initially able to receive the delayed card. If paid/draw children subsequently kill the receiver, abolish judgment, add the same delayed kind, or prohibit it, native placement skips and Use finishes while retaining paid cost/draw. This combination is an implementation interpretation of existing legality and paid continuation; no dedicated official combination FAQ was found. It does not claim comprehensive acceptance of all native delayed rules."
+  },
+  "portrait": {
+    "url": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/13600.png",
+    "asset": "src/CardGame.Wpf/Assets/official-ol-wen-pin.png",
+    "sha256": "8330E059BB99257C82E7DE64289F82EB5B1AD0F918F1E662494F1074B5E784B9",
+    "visuallyInspected": true
+  },
+  "verification": {
+    "status": "passed",
+    "scope": "17 focused Core checks including 11 new behavior checks, plus routine 535 Core and 74 WPF checks; not manual Full.",
+    "report": "docs/benchmarks/2026-10-13-wen-pin-dong-yun-verification.json"
+  }
+}

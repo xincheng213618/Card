@@ -1,0 +1,42 @@
+{
+  "generalId": "ol:he-tai-hou", "characterId": "character:he-tai-hou", "name": "何太后·OL",
+  "rulesetId": "sanguosha-ol", "variantId": "ol", "verifiedOn": "2026-10-13",
+  "selectedVersion": "三国杀 OL 官方 hero/131 当前版本：鸩毒含自身，戚乱按所有死亡角色数加本人击杀额外两张；未合并旧 SP 或国战 3X 版",
+  "faction": "qun", "maxHp": 3, "gender": "female", "galleryCategory": "其他",
+  "sources": [
+    { "url": "https://www.sanguosha.com/hero/131", "role": "当前官方技能和人物主图",
+      "localEvidence": "docs/content/sources/evidence/ol-he-tai-hou-official-2026-10-13.html",
+      "sha256": "5551ADD57FCC5594AF5E7431338B83F6ADEE256F85EDE00B2913074065B2DDD9" },
+    { "url": "https://www.sanguosha.com/hero", "role": "官方目录，群、3体力、其他分类",
+      "localEvidence": "docs/content/sources/evidence/ordinary-other-forty-first-directory.raw.html",
+      "note": "Listdata其他条目 gid131 resource13100 figure_py qun hp3；详情页og:description误写0体力，不作为体力依据；女性由官方皇后生平确认。" },
+    { "url": "https://www.sanguosha.com/news/20161027_3496_4114", "role": "历史版本区分",
+      "note": "2016 SP仅其他角色鸩毒及3X戚乱；仅用于防止版本混用，不作为当前规则。" }
+  ],
+  "skills": [
+    { "id": "ol:zhendu", "name": "鸩毒", "officialText": "每名角色出牌阶段开始时，你可以弃置一张手牌，然后其视为使用一张【酒】，若其不是你，你对其造成1点伤害。",
+      "implementation": "复用实际出牌阶段开始边界；弃置一张本人手牌并排空付款子结算后，由实际阶段角色使用真实零实体酒。费用帧保存精确Hand到Discard付款及原阶段父帧；已付款效果在技能实例失去后可继续，参与者死亡或游戏结束停止。禁酒或初始无合法酒时不提供付款。对他人的伤害属于酒完成后的独立技能尾效果。",
+      "interpretation": "官网当前文本将非自伤害置于酒之后，未以酒效果成功为条件。当前simple Wine使用不开放CardUseBeforeTargetEffects取消窗口，未实现或测试该窗口取消酒；未来若新增此能力，需要遵守独立尾效果的顺序并单独验证。已付成本子结算之后新增禁酒时，酒使用失败，独立伤害仍继续。此解释由顺序文本导出，未找到官方特定组合FAQ。" },
+    { "id": "ol:qiluan", "name": "戚乱", "officialText": "每回合结束后，你可以摸与本回合死亡角色数等量张牌，每有一名角色被你杀死，你额外摸两张牌。",
+      "implementation": "冻结本实际回合TurnStarted到TurnEnded之间的PlayerDied事实，总死亡数加本人击杀数乘二；实际回合角色死亡后仍允许存活技能持有人发动。后续回合结束后子技能死亡不计入刚结束回合。无死亡不询问。" }
+  ],
+  "portrait": {
+    "url": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/13100.png",
+    "path": "src/CardGame.Wpf/Assets/official-ol-he-tai-hou.png",
+    "sha256": "F947E177CDF13756DAB2EE092311B5D9324F1CA1B9A0FB26E9F33FEE81592FD5",
+    "width": 750, "height": 950, "selection": "官方hero/131人物主图，已目视检查"
+  },
+  "verification": {
+    "filter": "Forced phase Wine:",
+    "status": "2026-10-13聚焦Core四项全部通过，增量构建及测试6.080秒；不包含Wine取消窗口",
+    "summary": "docs/benchmarks/2026-10-13-forced-phase-wine-focused-summary.json",
+    "log": "docs/benchmarks/2026-10-13-forced-phase-wine-focused-core.txt",
+    "checks": [
+      "ForcedPhaseAlcoholChecks.ContractsRequireRealPaymentAndPositiveFrozenDeaths",
+      "ForcedPhaseAlcoholChecks.RealActorWineCommitQuotaAndColdReturns",
+      "ForcedPhaseAlcoholChecks.ForbiddenWineIsUnpaidAndPaidSourceLossCompletes",
+      "ForcedPhaseAlcoholChecks.DeathDrawFreezesMixedKillCountsAndDeadTurnOwner"
+    ],
+    "covered": "自/他实际使用者与provider、commit前额度消耗、成本隐私与wrong actor拒绝、实际费用濒死觉醒导致源丢失后续接、已声明Wine子结算导致实际使用者死亡停止增益和尾伤害、死亡数/击杀数混合、实际回合角色死亡奖励、native AI接受正死亡奖励、无死亡不询问、冷恢复无重复费用或奖励。"
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "capturedAt": "2026-10-13",
+  "generalId": "ol:xiahou-ba",
+  "name": "夏侯霸·OL",
+  "productLine": "三国杀OL",
+  "version": "官网 hero/116 的豹变阈值 + 官方2016攻略明确的经典三派生版本；不声称解析当前font985/34/363或当前客户端全部最新派生，也不是十周年受伤依次永久获得技能版",
+  "faction": "shu",
+  "maxHp": 4,
+  "gender": "male",
+  "genderEvidence": "官传称夏侯渊次子；属于文字语义证据，API未提供性别字段。",
+  "sources": [
+    {
+      "url": "https://www.sanguosha.com/hero/116",
+      "path": "docs/content/sources/evidence/ol-xiahou-ba-official-2026-10-13.html",
+      "sha256": "DD9BC765419269C819D4C8395A2DB67A05FE3816FB336D1F609029E306405B3F",
+      "role": "当前豹变全文。font985/34/363是技能编号，未将其推测成武将URL。"
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=116",
+      "path": "docs/content/sources/evidence/ol-xiahou-ba-info-2026-10-13.json",
+      "sha256": "EDD6CFC82DCAE7B4242BC8A274B43E2A600BE5D945749665B408BECB37053F47",
+      "role": "官网页广告API，确认蜀、4体力和立绘。initial_hp=0是未指定初始体力的占位，官网脚本据hp显示四勾玉。"
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20161031_2939_5817",
+      "publishedAt": "2016-10-31",
+      "title": "[攻略] SP武将：夏侯霸攻略文",
+      "path": "docs/content/sources/evidence/ol-xiahou-ba-official-guide-2026-10-13.html",
+      "sha256": "37C989C1408814FAA4ED72AE823D90A3EC6482B3A51A3814C50FAB3648793DC7",
+      "role": "官网发布的夏侯霸专属攻略直接列出豹变及三个派生技能全文，弥补此前仅有同名候选、未闭合派生定义的证据缺口；不是声称找到当前font路由。"
+    }
+  ],
+  "skills": [
+    { "id": "ol:baobian", "name": "豹变", "text": "锁定技，若你的体力值：不大于3，你视为拥有“挑衅”；不大于2，你视为拥有“咆哮”；为1，你视为拥有“神速”。" },
+    { "id": "classic:tiaoxin", "text": "出牌阶段限一次，你可以选择一名攻击范围内含有你的其他角色，该角色需对你使用一张【杀】，否则你弃置其一张牌。", "hp": "<=3" },
+    { "id": "classic:paoxiao", "text": "锁定技，你使用【杀】无次数限制。", "hp": "<=2" },
+    { "id": "classic:shensu", "text": "你可以选择一至两项：1.跳过判定阶段和摸牌阶段。2.跳过出牌阶段并弃置一张装备牌。你每选择一项，视为使用一张【杀】。", "hp": "==1", "note": "攻略同时说明神速无视距离；两项，没有界神速跳过弃牌并翻面的第三项。装备牌可来自手牌或装备区。" }
+  ],
+  "implementation": [
+    "通用hpSkillGrants按当前HP及精确能力来源可逆授予叶技能，不向本武将永久写入三个技能。",
+    "源被禁用、暗置、失去或死亡时失效；其他来源同名技能不删除。HP0或负数不满足神速，但仍满足前两个数值阈值。",
+    "同一来源保留初次派生的有效实例身份，跨阈值及外部同名来源消失不会重置实际阶段/回合使用记录；query只读，同步在命令规则推进边界执行。",
+    "已启动派生程序捕获精确frame/source receipt。白银狮子作为神速成本离开装备区后回血至2，立即失去新神速发动资格，但已支付程序继续完成当次虚拟杀；这是按选定技能完整效果与引擎有序成本解释，不是声称找到该组合的官方FAQ。旧技能默认无receipt，其来源失效合同不变。",
+    "现有classic挑衅的每回合限次和神速只允许装备区的配置缺陷由主代理在同批修正，并增对应技能revision；豹变复用修正后配置。"
+  ],
+  "artwork": {
+    "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/11600.png",
+    "path": "src/CardGame.Wpf/Assets/official-ol-xiahou-ba.png",
+    "sha256": "73CBADF66AF2CD09ED66898D7318D64842C4668FA4D362E3B29D407B39B2B80C",
+    "width": 750,
+    "height": 950,
+    "visuallyInspected": true
+  }
+}

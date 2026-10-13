@@ -19,10 +19,10 @@
 在 PowerShell 7 会话中传数组：
 
 ```powershell
-& .\tools\Test-Changed.ps1 -CoreFilter @('自己的实际测试名称', '直接受影响的公共检查') -ArtifactsPath 'C:\Temp\自己的检查目录'
+& .\tools\Test-Changed.ps1 -CoreFilter @('自己的实际测试名称', '直接受影响的公共检查')
 ```
 
-跨进程只有一个过滤项时可用 `pwsh -NoProfile -File ... -CoreFilter '完整过滤项'`。多个过滤项应放到 `.ps1` 包装脚本或 `pwsh -Command` 的 PowerShell 表达式中，不能把逗号字符串当原生 `-File` 数组传参。每次验证保留独立产物或先归档前次 summary/logs，避免失败细节只剩手工回忆。
+跨进程只有一个过滤项时可用 `pwsh -NoProfile -File ... -CoreFilter '完整过滤项'`。多个过滤项应放到 `.ps1` 包装脚本或 `pwsh -Command` 的 PowerShell 表达式中，不能把逗号字符串当原生 `-File` 数组传参。每个工作副本默认复用固定验证目录，脚本结束后把构建和渲染产物登记到 `tools/cleanup_queue.json`，保留供查看和增量构建。需要保留历史结果时归档必要 summary/logs 和截图；代理只登记，用户手动运行 `python tools/cleanup_temp.py` 清理。
 
 - 正式身份技能夹具沿用 `identity:classic-...` 模式前缀、真实势力和主公身份；护驾等正式模式行为不能在无前缀的任意测试模式中推断。
 - `game.PendingDecision` 是公开投影，可能隐藏 AI 角色的私有技能提示。AI 私有暂停点应参照 `BoundaryCaoCaoIntegrationChecks` 或 `ZhuHuanChecks` 的测试内读取方式；不能因为测试看不到就改生产隐私契约。

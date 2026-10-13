@@ -1,0 +1,67 @@
+{
+  "generalId": "mobile:sun-ru",
+  "characterId": "character:sun-ru",
+  "name": "孙茹·移动版",
+  "rulesetId": "sanguosha-mobile",
+  "variantId": "mobile",
+  "verifiedOn": "2026-10-13",
+  "selectedVersion": "移动版官方武将页 58 的影箭／释衅版本，按 2026-10-13 抓取锁定",
+  "faction": "wu",
+  "maxHp": 3,
+  "gender": "female",
+  "sources": [
+    {
+      "url": "https://www.sanguosha.cn/pc/hero-detail-58.html",
+      "role": "官方技能、势力、身份模式、人物生平和原画",
+      "localEvidence": "docs/content/sources/evidence/mobile-sun-ru-official-2026-10-13.html",
+      "note": "网页解析器只显示第一条技能；实际 HTML 的隐藏 li 包含释衅全文。生平明确孙策之女、陆逊之妻。官网没有体力和扩展包字段。"
+    },
+    {
+      "url": "https://wiki.biligame.com/msgs/index.php?title=影箭&oldid=38848",
+      "role": "移动版交叉核对、三勾玉体力证据",
+      "note": "影箭页显示孙茹、吴勾玉三枚及数字 3，技能为准备阶段无距离普通杀。"
+    },
+    {
+      "url": "https://wiki.biligame.com/msgs/index.php?title=释衅&oldid=29232",
+      "role": "移动版免疫时序交叉核对",
+      "note": "锁定技，当你受到火焰伤害时，防止之。"
+    }
+  ],
+  "skills": [
+    {
+      "id": "mobile:yingjian",
+      "name": "影箭",
+      "officialText": "准备阶段，你可以视为使用一张无距离限制的【杀】。",
+      "implementation": "已有准备窗口、可选触发、合法虚拟杀目标、无实体普通杀与完整卡牌行动窗口；不支付手牌，不消耗后续出牌阶段杀次数。"
+    },
+    {
+      "id": "mobile:shixin",
+      "name": "释衅",
+      "officialText": "锁定技，你不会受到火焰伤害。",
+      "tags": ["locked"],
+      "implementation": "BeforeDamageApplied + 新增通用 damageNatureIs + 既有 preventCurrentDamage；筛选实际伤害属性，包含无实体技能火伤与铁索后续目标，不以牌名代替属性。"
+    }
+  ],
+  "excludedVersions": [
+    { "url": "https://www.sanguosha.com/hero/632", "skills": ["持室", "慰勉"], "reason": "OL 异版，未合并" },
+    { "url": "https://x.sanguosha.com/hero/1019.html", "skills": ["撷翠", "忧恤"], "reason": "一将成名异版，未合并" }
+  ],
+  "portrait": {
+    "url": "https://www.sanguosha.cn/storage/uploads/images/skins/7000.jpg",
+    "path": "src/CardGame.Wpf/Assets/official-mobile-sun-ru.jpg",
+    "sha256": "7FFC63B33E4858335FA319D0ABB7DD541C3816BC3373AA3E32DC02C7329670D7",
+    "width": 530,
+    "height": 750,
+    "selection": "官方移动版页面第一张武将形象，已目视核对为完整原画"
+  },
+  "verification": {
+    "filter": "Damage nature",
+    "checks": [
+      "DamageNaturePreventionChecks.ConditionValidatesNatureAndWindow",
+      "DamageNaturePreventionChecks.ActualFireAndChainPreventedNormalThunderAndHpLossPreserved",
+      "DamageNaturePreventionChecks.PreparationSlashHasDistanceFreedomAndNormalPlayQuota"
+    ],
+    "status": "主代理聚焦检查已通过（三项 Core）；图鉴 WPF 检查已通过并完成渲染目视核对",
+    "scope": "实际命令驱动、物理火杀、无牌技能火伤、后续铁索火伤、普通雷伤与失去体力、冷回放、错误演员拒绝、准备虚拟杀和可跳过"
+  }
+}

@@ -1,0 +1,234 @@
+{
+  "generalId": "ol:sun-lu-yu",
+  "characterId": "character:sun-lu-yu",
+  "variantId": "ol",
+  "verifiedOn": "2026-10-13",
+  "versionPolicy": "Current ordinary OL hero 135 and current public client character 135 are bound by matching complete main-skill text and exact derived ID; no 2016 ordinary OL or 2020/2021 Ten-Year derivative is imported.",
+  "identity": {
+    "faction": "wu",
+    "maxHp": 3,
+    "gender": "female",
+    "clientClass": "SunLuYu",
+    "evidence": "Website info gid135 figure wu/hp3; client character gid135 g3/h2/i3; official biography identifies Sun Quan and Bu Lianshi daughter."
+  },
+  "sources": [
+    {
+      "url": "https://www.sanguosha.com/hero/135",
+      "role": "Current ordinary OL complete Meibu/Mumu wording and font href 258",
+      "localEvidence": "evidence/ol-candidate-135-official-2026-10-13.html",
+      "sha256": "EA47D6CEE96A17CD60E2C9F77111B377FAE97D466893362ED80EFEC11643DE3D"
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=135",
+      "role": "Current official faction/HP metadata",
+      "localEvidence": "evidence/ol-candidate-135-info-2026-10-13.json",
+      "sha256": "536A8D9DBB186A65FB2E25B625FD3A94182C7A72760D70868D3F19FCD906B904"
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20190123_4410_2410",
+      "role": "Ordinary OL main-version update matches current paid Meibu and armor-acquisition Slash ban Mumu",
+      "localEvidence": "evidence/ol-sun-lu-yu-matching-main-update-2019-01-23.raw.html",
+      "sha256": "CB91427A5FE1AB0E7BF551E27ADF754B4226E80C9DD3B4CFE990BF293D602BAE"
+    },
+    {
+      "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+      "role": "Current official client exact character/spell rows close derived Zhixi definition",
+      "localEvidence": "evidence/ol-sun-lu-yu-and-candidate-current-client-2026-10-13.json",
+      "sha256": "4c7da1338027f8abda6cad1d8272fec037c60187841e1cb3fa7c936780dcd182",
+      "primaryRawResources": [
+        {
+          "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+          "httpStatus": 200,
+          "capturedAtUtc": "2026-10-13T09:37:25.258343+00:00",
+          "sha256": "66dfce61f1c4fb0aca35b6f85ed940e394719db84655f4d4146b463bc0cf8c1b",
+          "byteCount": 5256349,
+          "hashScope": "Exact raw HTTP body bytes"
+        },
+        {
+          "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+          "httpStatus": 200,
+          "capturedAtUtc": "2026-10-13T09:37:25.134547+00:00",
+          "sha256": "3d7536d4e2ca3d64707c2f6e0edbb8ccb4a045eee4274862dfa35431157c64f4",
+          "byteCount": 4142822,
+          "hashScope": "Exact raw HTTP body bytes"
+        }
+      ],
+      "memberHashes": [
+        {
+          "name": "character.sgs",
+          "encodedSha256": "e0b6f0188edebb1f502ea402c7171e93b88f4e9d05720948344a1f4f44474aae",
+          "encodedByteCount": 352776,
+          "decodedSha256": "b3ef3f1181e7fe667499cb688b7cdce56631d899dbb0eea55d75fbf80636b040",
+          "decodedByteCount": 1485056
+        },
+        {
+          "name": "cha_spell.sgs",
+          "encodedSha256": "0c244585a54d101377d6e8d17cca27df2eb9520cff11f73b3373e8b3ddc5fe3d",
+          "encodedByteCount": 246028,
+          "decodedSha256": "c42298ef8eeed59ac5e2f30854ec1d35a9f38df80410403c849f0a3e2753a0d9",
+          "decodedByteCount": 1166955
+        }
+      ],
+      "decoderReference": "tools/import_game_audio.py:384-413"
+    }
+  ],
+  "sameVersionBinding": {
+    "characterPath": "/GameCharacters/character/124",
+    "characterId": 135,
+    "clientClass": "SunLuYu",
+    "printedClientSkillSlots": {
+      "j": 247,
+      "k": 246
+    },
+    "websiteDisplaySkillOrder": [
+      246,
+      247
+    ],
+    "assignedClientSpellRows": [
+      {
+        "path": "/GameSpells/spell/188",
+        "row": {
+          "a": 246,
+          "b": "3,5",
+          "c": "魅步",
+          "d": "MeiBu",
+          "e": 0,
+          "g": 7,
+          "i": 2,
+          "m": "258",
+          "o": "其他角色出牌阶段开始时，若你在其攻击范围内，你可以弃置一张牌，令其本回合视为拥有“<font href='258'>止息</font>”。若你弃置的牌不是【杀】或黑色锦囊牌，本回合其与你的距离视为1。",
+          "v": "请弃置一张牌",
+          "ay": "系统提示→点\"确定\""
+        }
+      },
+      {
+        "path": "/GameSpells/spell/189",
+        "row": {
+          "a": 247,
+          "b": "3",
+          "c": "穆穆",
+          "d": "MuMu",
+          "e": 0,
+          "g": 4,
+          "h": 1,
+          "i": 2,
+          "o": "出牌阶段开始时，你可以选择一项：<br>&nbsp;1.弃置一名其他角色装备区里的一张牌；<br>&nbsp;2.获得一名角色装备区里的一张防具牌，若如此做，你本回合不能使用或打出【杀】。",
+          "ay": "系统提示→选择一项执行"
+        }
+      },
+      {
+        "path": "/GameSpells/spell/200",
+        "row": {
+          "a": 258,
+          "b": "3,4,5",
+          "c": "止息",
+          "d": "ZhiXi",
+          "e": 0,
+          "g": 4,
+          "i": 2,
+          "o": "锁定技，出牌阶段，若你本阶段使用过锦囊牌或X张牌（X为你的体力值），你不能使用牌。"
+        }
+      }
+    ],
+    "mainTextComparison": "Meibu246 equals current hero135 including paid own discard, within actor range, granted Zhixi href258, and actor-to-owner conditional distance one. Mumu247 equals both current options including own armor possibility and Slash use/response ban, modulo HTML whitespace/br markup. Meibu246 derived m258 plus font href258 agrees with website href258. Exact row258 dZhiXi completes the current same-version derivative.",
+    "relatedRaceVariantExcluded": {
+      "characterId": 6031,
+      "clientClass": "SunLuYuM",
+      "assignedSkillIds": [
+        21055,
+        21056
+      ],
+      "reason": "Separate public client variant; not ordinary gid135."
+    }
+  },
+  "mechanismMapping": {
+    "meibu": "At actual other-player PlayStarting, test owner within actor attack range; optionally pay one actual legal own HE discard and drain movement/HP/recovery observers. Grant exact current phase actor Zhixi until actual turn expiry. If actual paid card is neither Slash nor a black trick, set the directed actor-to-owner distance to one for this actual turn. The distance effect has no Fenxun ending debt. Paid source loss must not pay twice or revoke the already issued effect.",
+    "zhixi": "Locked dynamic Use prohibition during the affected actual Play phase: after any trick use in that phase, or when actual phase use count reaches current HP. Text has no hand-material restriction, so physical/converted/virtual Use paths must obey it. Actual response-use Nullification counts as a trick use; pure played responses are not Use. This is a prohibition query, not a latched total-turn ban; phase instance and current HP must remain dynamic.",
+    "mumu": "At own PlayStarting choose either actual other-owner equipment discard, or actual armor acquisition from any player equipment including self. No additional own HE payment and no discard-branch draw reward exist in this version. Only actual armor acquisition issues own actual-turn Slash Use and Response prohibition, with exact paid movement receipt and child drain."
+  },
+  "capabilityAssessment": {
+    "status": "Implemented complete with exact phase-start payment/grant receipts, directed actual-turn distance, armor acquisition ban and opt-in real-use ledger coverage.",
+    "reusable": [
+      "ActualPlayPhaseCardUses action-ID dedup and actual phase instance ledger",
+      "Typed phase-starting lifecycle parent and source grants with actual turn expiry",
+      "Native own HE movement, foreign equipment movement, armor slot and protection policies",
+      "Movement/HP/recovery observers, real private choice and once-paid continuation"
+    ],
+    "required": [
+      "Exact paid other-Play actor grant plus directed distance-one policy independent of old GrantTurnSkills and Fenxun debt contracts",
+      "Opt-in actual Play trick-used fact and dynamic current HP Use prohibition across native conversion/response-use entry points",
+      "Own PlayStarting equipment option with actual acquisition receipt and own-turn Slash use/response ban",
+      "Focused behavior for paid source loss, phase checkpoint/reset, dynamic HP boundary, converted and zero-material uses, delayed/Nullification trick count and self armor acquisition"
+    ]
+  },
+  "portrait": {
+    "url": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/13500.png",
+    "asset": "src/CardGame.Wpf/Assets/official-ol-sun-lu-yu.png",
+    "sha256": "66E6C48FE61677ABEAFB462939C776B51F3DB6EADC0A77AA963274FB66FE96CF",
+    "visuallyInspected": true,
+    "inspection": "Official portrait shows Sun Luyu with green leaves/robe and instrument; intact 750 by 950 image."
+  },
+  "verification": {
+    "status": "current-source-focused-and-routine-passed",
+    "focusedCheckFile": "tests/CardGame.Core.Tests/PhaseStartCardControlChecks.cs",
+    "parentRun": {
+      "startedAt": "2026-10-13T18:49:56.5678519+08:00",
+      "coreEvidence": "docs/benchmarks/2026-10-13-next-generals-focused-fifth-core.txt",
+      "runnerSummary": "docs/benchmarks/2026-10-13-next-generals-focused-fifth-summary.json",
+      "scope": "Phase start card control: seven named checks, each PASS. The same union also included Named ambush and source hand checks; those separate concurrent failures mean the union summary is test-failed, not a Sun Luyu failure.",
+      "passed": 7,
+      "failed": 0,
+      "combinedBuildDurationMs": 3793,
+      "combinedSelectedCoreDurationMs": 3038,
+      "fullVerificationRun": false,
+      "foregroundDesktopAcceptance": false
+    },
+    "paidDonorDeathInterpretation": "Inferred from the once-completed cost and absence of a donor-alive requirement in the current Meibu text: after real payment and its children, source loss or donor death does not revoke the grant to a living actual phase owner. A game already decided or a dead phase recipient drains without a new effect. The focused check exercises this interpretation through real commands; it is not a separate official FAQ quote.",
+    "responseUseInterpretation": "The official current Zhixi text says use rather than play. Existing engine typed native responses distinguish actual response-use Nullification/Dodge/Peach from a Duel played Slash and supplied cards; only actual uses count. Frozen effective card kind and the same true ActionId are appended to the existing phase ledger rather than inventing a use-ID sidecar.",
+    "finalBatchFocused": {
+      "passed": 33,
+      "failed": 0,
+      "wpfPassed": 2,
+      "wpfFailed": 0,
+      "ownMechanismChecks": 7,
+      "totalDurationMs": 18719,
+      "summary": "docs/benchmarks/2026-10-13-next-generals-final-focused-summary.json",
+      "coreEvidence": "docs/benchmarks/2026-10-13-next-generals-final-focused-core.txt",
+      "wpfEvidence": "docs/benchmarks/2026-10-13-next-generals-final-focused-wpf.txt"
+    },
+    "coreRoutine": {
+      "passed": 558,
+      "failed": 0,
+      "summary": "docs/benchmarks/2026-10-13-next-generals-routine-first-summary.json",
+      "evidence": "docs/benchmarks/2026-10-13-next-generals-routine-first-core.txt",
+      "scope": "The prescribed routine, not Full. Whole-run initial WPF had one original native response failure; unchanged isolated recheck passed, then its reused-model test lifecycle was repaired without changing production."
+    },
+    "finalBatchReport": "docs/benchmarks/2026-10-13-shen-pei-sun-lu-yu-cheng-yu-verification.json",
+    "finalRoutine": {
+      "corePassed": 558,
+      "wpfPassed": 75,
+      "failed": 0,
+      "durationMs": 107768,
+      "summary": "docs/benchmarks/2026-10-13-next-generals-routine-final-summary.json",
+      "fullVerification": false,
+      "foregroundAcceptance": false
+    },
+    "latestSharedSourceRefresh": {
+      "status": "passed",
+      "corePassed": 33,
+      "wpfPassed": 2,
+      "failed": 0,
+      "durationMs": 23239,
+      "summary": "docs/benchmarks/2026-10-13-next-generals-latest-focused-summary.json",
+      "coreEvidence": "docs/benchmarks/2026-10-13-next-generals-latest-focused-core.txt",
+      "wpfEvidence": "docs/benchmarks/2026-10-13-next-generals-latest-focused-wpf.txt",
+      "sourceBefore": "docs/benchmarks/2026-10-13-next-generals-latest-focused-source-before.json",
+      "sourceAfter": "docs/benchmarks/2026-10-13-next-generals-latest-focused-source-after.json",
+      "sourcePaths": 80,
+      "sourceChangedDuringRun": 0,
+      "reason": "Continuing concurrent edits changed GameEngine.CardMovementPrograms.cs and GameEngine.SkillPrograms.cs after the completed 558/75 routine. Rebuild latest source and revalidate this group and relevant shared contracts, retaining all concurrent work.",
+      "scopeLimit": "The 558/75 complete prescribed routine is evidence for its recorded earlier source snapshot. Later concurrent shared source is covered by this fresh 33/2 focused run, not an additional complete routine or Full."
+    }
+  },
+  "rawResourceRetention": "Client/Config large archives decoded in memory only; compact exact row extracts and raw resource/member hashes retained."
+}

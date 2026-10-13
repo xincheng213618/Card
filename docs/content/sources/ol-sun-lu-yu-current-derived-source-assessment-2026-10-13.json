@@ -1,0 +1,37 @@
+{
+  "verifiedOn": "2026-10-13",
+  "generalId": "ol:sun-lu-yu",
+  "status": "current_derived_rule_verified",
+  "newEvidence": {
+    "url": "https://www.sanguosha.com/news/20190123_4410_2410",
+    "publishedOn": "2019-01-23",
+    "path": "docs/content/sources/evidence/ol-sun-lu-yu-matching-main-update-2019-01-23.raw.html",
+    "sha256": "CB91427A5FE1AB0E7BF551E27ADF754B4226E80C9DD3B4CFE990BF293D602BAE",
+    "finding": "Ordinary OL update reproduces both current hero/135 Meibu and Mumu, including paid discard, in-range qualification, conditional fixed distance one, armor acquisition and turn Slash use/response ban.",
+    "limit": "It names Zhixi once without expanding the derived rule. A matched main-version notice does not establish Zhixi's full semantics."
+  },
+  "currentPageBinding": {
+    "url": "https://www.sanguosha.com/hero/135",
+    "localPath": "docs/content/sources/evidence/ol-candidate-135-official-2026-10-13.html",
+    "derivedSkillId": 258,
+    "rawBinding": "<font href='258'>止息</font>",
+    "limit": "258 is a skill reference, not a hero id or proof of either historical derivative. Current advertised heroDetail.js, commen.js and header.js expose no derived-skill resolver."
+  },
+  "historicalDefinitionsRemainExcluded": [
+    {
+      "url": "https://www.sanguosha.com/news/20160301_5326_2115",
+      "reason": "2016 ordinary OL explicitly documents trick-as-Slash Zhixi alongside different Meibu/Mumu."
+    },
+    {
+      "url": "https://sanguosha.com/news/20200709_4360_0917",
+      "reason": "2020 Ten-Year explicitly documents hand payment on Slash/ordinary trick use alongside different Meibu/Mumu."
+    }
+  ],
+  "decision": "Current ordinary OL source gap is closed by exact current-client main/derived IDs and main-version match. Earlier mismatched definitions remain excluded. Complete shared mechanisms and focused behavior are still required before registration/acceptance.",
+  "completionEvidence": {
+    "sourceRecord": "ol-sun-lu-yu-2026-10-13.json",
+    "currentClientExtract": "docs/content/sources/evidence/ol-sun-lu-yu-and-candidate-current-client-2026-10-13.json",
+    "sha256": "4c7da1338027f8abda6cad1d8272fec037c60187841e1cb3fa7c936780dcd182",
+    "exactBinding": "Character135/SunLuYu j247+k246; Meibu246 m258 and font href258 match current hero135; spell258/ZhiXi is the exact derivative."
+  }
+}

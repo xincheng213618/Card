@@ -1,0 +1,131 @@
+{
+  "capturedAtUtc": "2026-10-13T12:18:56.028640+00:00",
+  "primaryResources": [
+    {
+      "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+      "sha256": "66dfce61f1c4fb0aca35b6f85ed940e394719db84655f4d4146b463bc0cf8c1b",
+      "byteCount": 5256349,
+      "capturedAtUtc": "2026-10-13T12:18:56.028640+00:00"
+    },
+    {
+      "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+      "sha256": "3d7536d4e2ca3d64707c2f6e0edbb8ccb4a045eee4274862dfa35431157c64f4",
+      "byteCount": 4142822,
+      "capturedAtUtc": "2026-10-13T12:18:56.028640+00:00"
+    }
+  ],
+  "decoder": {
+    "reference": "tools/import_game_audio.py:384-413",
+    "method": "Public client InitOfb AES-CFB128 then gzip",
+    "members": [
+      {
+        "name": "character.sgs",
+        "encodedSha256": "e0b6f0188edebb1f502ea402c7171e93b88f4e9d05720948344a1f4f44474aae",
+        "decodedSha256": "b3ef3f1181e7fe667499cb688b7cdce56631d899dbb0eea55d75fbf80636b040",
+        "decodedByteCount": 1485056
+      },
+      {
+        "name": "cha_spell.sgs",
+        "encodedSha256": "0c244585a54d101377d6e8d17cca27df2eb9520cff11f73b3373e8b3ddc5fe3d",
+        "decodedSha256": "c42298ef8eeed59ac5e2f30854ec1d35a9f38df80410403c849f0a3e2753a0d9",
+        "decodedByteCount": 1166955
+      }
+    ]
+  },
+  "characters": [
+    {
+      "path": "/GameCharacters/character/245",
+      "row": {
+        "a": 344,
+        "b": "王荣",
+        "d": "WangRong",
+        "e": 44,
+        "f": "41",
+        "g": 4,
+        "h": 2,
+        "i": 3,
+        "j": 3032,
+        "k": 3033,
+        "l": 3034,
+        "p": 3,
+        "q": "1",
+        "r": "934401",
+        "y": "汉灵怀皇后王荣（?~181年），赵国邯郸（今河北邯郸市）人。五官中郎将王苞孙女，汉灵帝刘宏妃子，汉献帝刘协生母。初以良家子选入掖庭，封为美人，服侍汉灵帝。光和四年（181年），生下陈留王刘协，惨遭灵思皇后毒杀。王荣死后，汉灵帝曾作《追德赋》、《令仪颂》。",
+        "z": "需要利用好每回合一次的双重结算。",
+        "aa": 132,
+        "ab": "865,866",
+        "ad": "画师:君恒文化",
+        "x": "得陛下垂青，####恩宠常在。",
+        "am": "true",
+        "ap": 800,
+        "aq": 240,
+        "bm": 1,
+        "bx": 200000,
+        "LordCardRate1": 37,
+        "LordCardRate2": 46,
+        "cc": 34403,
+        "starMax": 4
+      }
+    }
+  ],
+  "skills": [
+    {
+      "path": "/GameSpells/spell/1387",
+      "row": {
+        "a": 3032,
+        "b": "3,5",
+        "c": "丰姿",
+        "d": "FengZi",
+        "g": 3,
+        "i": 2,
+        "ab": 1,
+        "o": "出牌阶段限一次，当你使用基本牌或普通锦囊牌时，你可以弃置一张类型相同的手牌令此牌的效果额外结算一次。",
+        "v": "是否发动<font color='#FFD800'>丰姿</font>，弃置一张{0}令<font color='#FFD800'>{1}</font>额外结算一次"
+      }
+    },
+    {
+      "path": "/GameSpells/spell/1388",
+      "row": {
+        "a": 3033,
+        "b": "3,5",
+        "c": "吉占",
+        "d": "JiZhan",
+        "g": 3,
+        "i": 2,
+        "ab": 1,
+        "o": "摸牌阶段开始时，你可以改为展示牌堆顶的一张牌，猜测牌堆顶下一张牌点数大于或小于此牌，然后展示之，若猜对你继续猜测，最后你获得以此法展示的牌。",
+        "w": "请猜测下一张牌的点数：",
+        "j": 1
+      }
+    },
+    {
+      "path": "/GameSpells/spell/1389",
+      "row": {
+        "a": 3034,
+        "b": "3,5",
+        "c": "赋颂",
+        "d": "FuSong",
+        "g": 5,
+        "h": 1,
+        "i": 2,
+        "ab": 1,
+        "n": 1,
+        "o": "当你死亡时，你可以令一名体力上限大于你的角色选择获得“<font href='3032'>丰姿</font>”或“<font href='3033'>吉占</font>”。",
+        "v": "是否发动<font color='#FFD800'>赋颂</font>，选择一名目标获得技能或取消",
+        "w": "请选择要获得的技能"
+      }
+    }
+  ],
+  "webResources": [
+    {
+      "url": "https://www.sanguosha.com/hero/344",
+      "sha256": "6fa9bd3415bfcb10774cac0f8666f7280f07f6b35d7adb2a325369a607bf2ce7",
+      "byteCount": 26369
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=344",
+      "sha256": "5fe96b446e9e8fddaf4a1328acb8eee5be0232ffd5ac27717251de77fc534c68",
+      "byteCount": 1024
+    }
+  ]
+}

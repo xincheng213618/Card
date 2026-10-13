@@ -1,0 +1,155 @@
+{
+  "generalId": "ol:cheng-yu",
+  "characterId": "character:cheng-yu",
+  "variantId": "ol",
+  "verifiedOn": "2026-10-13",
+  "identity": {
+    "faction": "wei",
+    "maxHp": 3,
+    "gender": "male",
+    "clientClass": "ChengYu",
+    "evidence": "Website info gid130 figure wei/hp3 and exact client character130 g1/h1/i3, j234/k235."
+  },
+  "versionPolicy": "Current ordinary OL website hero130 and current public client character130 with exactly matching complete skill234 SheFu and skill235 BenYu. No historical hand-comparison split and no Ten-Year hero505 added all-skills suppression are imported.",
+  "sources": [
+    {
+      "url": "https://www.sanguosha.com/hero/130",
+      "role": "Current complete ordinary OL main text",
+      "rawFile": "evidence/ol-cheng-yu-130-official-2026-10-13.html",
+      "sha256": "4D51C59CE44641984AC0F6B8010EA55FDECA485F9B98BAF1F3F5218E7CDDDEB9"
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=130",
+      "role": "Current official identity metadata",
+      "rawFile": "evidence/ol-cheng-yu-130-info-2026-10-13.json",
+      "sha256": "E824690126C75C3B50983E66AF4B653260D2779C0891DE000F7DC9729062236F"
+    },
+    {
+      "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+      "sha256": "66dfce61f1c4fb0aca35b6f85ed940e394719db84655f4d4146b463bc0cf8c1b",
+      "role": "Current public resource decoder"
+    },
+    {
+      "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+      "sha256": "3d7536d4e2ca3d64707c2f6e0edbb8ccb4a045eee4274862dfa35431157c64f4",
+      "role": "Current same-client character/skill binding",
+      "decoder": "Public InitOfb AES-CFB128 then gzip, read only in memory; no private credentials or game account",
+      "evidenceFile": "evidence/ol-cheng-yu-130-client-2026-10-13.json",
+      "evidenceSha256": "3C6F7BF631DD8E5E44C34FAE636CAEB528D72874F829BAE8D0A3932D4352F238",
+      "binding": "character.sgs /GameCharacters/character a130 dChengYu j234 k235; cha_spell.sgs /GameSpells/spell a234 dSheFu and a235 dBenYu. Both o fields match the complete current main text, apart from HTML formatting."
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20151112_1807_1410",
+      "role": "Official OL rule interpretation: section11 ineffective card is a state preserving other unpassed use windows; section19 actual skill loss discards Shefu general pile",
+      "rawFile": "evidence/ol-use-ineffective-source-loss-official-2015-2026-10-13.html",
+      "sha256": "ED69456C13F202FEF8008C794284B1C94F46E7C56D46F1FB3D597FBF6A27D4E1"
+    },
+    {
+      "url": "https://www.sanguosha.com/Home/newsInfo/a_id/20141218_3709_0916",
+      "role": "Historical 2014 ordinary guide comparison only",
+      "excludedRules": [
+        "Historical mutually distinct recorded names are absent from both current main and exact current client234.",
+        "Historical Benyu hand-size branch conditions are absent from current235."
+      ]
+    }
+  ],
+  "portrait": {
+    "url": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/13000.png",
+    "file": "src/CardGame.Wpf/Assets/official-ol-cheng-yu.png",
+    "sha256": "5E2EC936A5A90EC65F03ECA6763A18C09371603A61FE38D4068BEBBDC240C490"
+  },
+  "mechanism": {
+    "recording": "One actual ending trigger chooses an existing owner hand entity and a non-equipment card name. Names may repeat under the complete current text. Each issued deposit has its own ID and exact source instance; consumed IDs stay consumed if the same entity later returns and is recorded again.",
+    "privatePile": "Owner-only physical card and recorded-name pairs, others see count only. No secret record name appears in public log. Temporary suppression does not discard; actual grant removal or death moves remaining real entities to discard.",
+    "eligibility": "Other actual actor, outside skill owner's actual turn, positive physical materials, provider equals actor, every captured material originated in that actor's real hand. Same-name Slash family includes fire and thunder Slash. Converted hand equipment and Zhangba two-hand inputs qualify; mixed hand/equipment, equipment-zone inputs, WoodenOx grain, another provider's supplied response and zero-entity virtual uses do not qualify.",
+    "eligibilityInterpretation": "The complete current main/client says hand use. The all-material origin and supplied-response exclusions follow the engine's captured hand-use and use-versus-play model. No current official combination FAQ was found for mixed HE, WoodenOx or supplied cards; these combinations are explicitly inference, not claimed FAQ text.",
+    "invalidation": "Move exactly one matching live deposit to discard, drain real movement children, retain the precise paid action/window proof and immutable original actual hand-use action. Normal Use preserves committed/finalized/completed processing and globally suppresses the effect, including added targets. A later role or kind change must prove the same original material/provider/action and actual issued mutation history; hand qualification stays at issuance. Delayed placement does not enter judgment. Real Alcohol commit retains quota while drink effect is canceled. Dodge is a true used response only against Slash, not ArrowBarrage played defense or Duel played Slash; canceled Dodge completes its real cost/observers then does not block Slash.",
+    "counterspell": "Only a live enabled matching off-turn ambush participant against an all-actor-hand counterspell creates a typed deferred response on the native nullification frame. Actual use chain depth is retained, effect boolean is applied after response observers: canceled use leaves the original boolean, accepted uncanceled use flips it. Without a qualifying ambush participant the old native immediate path remains.",
+    "benyu": "One actual sourced damage occurrence, not per point. Freeze source hand count X on the owning program frame. Draw to min(X,5) without discarding excess owner hand; or select and atomically discard at least X+1 real hand cards and deal one damage to the actual source after movement children. Once exact hand payment is issued, source-skill loss or owner death does not repay or revoke its retaliation while the game continues and the original damage source remains alive. Game end or death of that target stops the not-yet-issued retaliation.",
+    "paidOwnerDeathInterpretation": "Both skills finish already-paid effects after real movement children, including true non-Lord skill-owner death while the game continues. This applies the project's general issued-effect contract. No dedicated same-version official FAQ for death inside these payment children was found.",
+    "zeroDrawInterpretation": "Current text does not impose the historical hand-size conditions or exclude zero draw. The draw branch remains a true chosen activation when the capped refill is zero; it differs from declining. This is a literal current-rule interpretation without a dedicated current zero-draw FAQ."
+  },
+  "verification": {
+    "status": "current-source-focused-and-routine-passed",
+    "production": "Final current Core/content coupling compiled centrally; complete registry and gallery focused checks passed. The original-action proof repair and all nine current behavior methods passed together.",
+    "loader": "Exact new response-use contracts were added at both strict loader and registry boundaries. The retained required damageOccurrence is explicitly perDamage. Existing response contracts were preserved.",
+    "checks": [
+      "PrivateNamesAndAllTargetUseStateSurviveColdRecovery",
+      "DelayedAndAlcoholUsesFinishWithoutEffects",
+      "DodgeAndCounterspellRetainRealCompletedUse",
+      "SourceHandChoicesKeepCurrentTwoBranchesAndZeroDraw",
+      "PaidSourceLossAndZeroEntityEligibilityAreExact",
+      "ConsumedEntityCanBeRecordedAgainWithNewName",
+      "MultipleDepositsTrueSourceLossCleansOnce",
+      "PaidSourceHandRetaliationSurvivesSkillLossAndOwnerDeath",
+      "InvalidatedUseRetainsStateAfterRealActorReplacement"
+    ],
+    "realRegressions": [
+      "Two remaining deposits during actual skill loss reentered cleanup and tried to move an already-discarded entity; red in next-generals-focused-fifth, subsequent focused checks passed after exact live/location recheck.",
+      "Paid ambush non-Lord owner death revoked ineffective state; red in next-generals-focused-sixth, subsequent real death assertion passed with exact paid continuation.",
+      "Paid Benyu non-Lord owner death skipped retaliation; classified red in next-generals-focused-eighth and targeted green in next-generals-paid-retaliation-green.",
+      "Actual finalized Duel actor replacement after paid ambush, including cold recovery, made the old exact invalidation proof fail; red in next-generals-actor-replacement-red. Original-action/proven-mutation repair passed in the final nine-method named-ambush-green run, including real attempted mutation of targets/materials/conversion chain and unchanged next observer/history/cold state."
+    ],
+    "notYetValidated": [
+      "The complete new-general group focused checks and measured routine run are centrally in progress; no routine pass is claimed here yet.",
+      "Mixed HE/Zhangba/WoodenOx/supplied-card eligibility has a precise implementation predicate but not dedicated actual-command fixtures yet.",
+      "Later Slash-family kind conversion is covered by the same exact issued-mutation mechanism but has no dedicated post-invalidation actual-command fixture.",
+      "Full match, Full verification, foreground desktop acceptance and packaging are not performed."
+    ],
+    "focused": {
+      "passed": 9,
+      "failed": 0,
+      "durationMs": 21721,
+      "buildDurationMs": 17632,
+      "coreDurationMs": 3779,
+      "summary": "docs/benchmarks/2026-10-13-next-generals-named-ambush-green-summary.json",
+      "coreLog": "docs/benchmarks/2026-10-13-next-generals-named-ambush-green-core.txt",
+      "buildLog": "docs/benchmarks/2026-10-13-next-generals-named-ambush-green-build.txt"
+    },
+    "temporaryOutputs": "No new disposable directory was created by this agent. Central verification reuses the stable shared TestChanged output; its earlier policy-blocked retention is owned and tracked by the parent. No cleanup bypass was attempted.",
+    "finalBatchFocused": {
+      "passed": 33,
+      "failed": 0,
+      "wpfPassed": 2,
+      "wpfFailed": 0,
+      "ownMechanismChecks": 9,
+      "totalDurationMs": 18719,
+      "summary": "docs/benchmarks/2026-10-13-next-generals-final-focused-summary.json",
+      "coreEvidence": "docs/benchmarks/2026-10-13-next-generals-final-focused-core.txt",
+      "wpfEvidence": "docs/benchmarks/2026-10-13-next-generals-final-focused-wpf.txt"
+    },
+    "coreRoutine": {
+      "passed": 558,
+      "failed": 0,
+      "summary": "docs/benchmarks/2026-10-13-next-generals-routine-first-summary.json",
+      "evidence": "docs/benchmarks/2026-10-13-next-generals-routine-first-core.txt",
+      "scope": "The prescribed routine, not Full. Whole-run initial WPF had one original native response failure; unchanged isolated recheck passed, then its reused-model test lifecycle was repaired without changing production."
+    },
+    "finalBatchReport": "docs/benchmarks/2026-10-13-shen-pei-sun-lu-yu-cheng-yu-verification.json",
+    "finalRoutine": {
+      "corePassed": 558,
+      "wpfPassed": 75,
+      "failed": 0,
+      "durationMs": 107768,
+      "summary": "docs/benchmarks/2026-10-13-next-generals-routine-final-summary.json",
+      "fullVerification": false,
+      "foregroundAcceptance": false
+    },
+    "latestSharedSourceRefresh": {
+      "status": "passed",
+      "corePassed": 33,
+      "wpfPassed": 2,
+      "failed": 0,
+      "durationMs": 23239,
+      "summary": "docs/benchmarks/2026-10-13-next-generals-latest-focused-summary.json",
+      "coreEvidence": "docs/benchmarks/2026-10-13-next-generals-latest-focused-core.txt",
+      "wpfEvidence": "docs/benchmarks/2026-10-13-next-generals-latest-focused-wpf.txt",
+      "sourceBefore": "docs/benchmarks/2026-10-13-next-generals-latest-focused-source-before.json",
+      "sourceAfter": "docs/benchmarks/2026-10-13-next-generals-latest-focused-source-after.json",
+      "sourcePaths": 80,
+      "sourceChangedDuringRun": 0,
+      "reason": "Continuing concurrent edits changed GameEngine.CardMovementPrograms.cs and GameEngine.SkillPrograms.cs after the completed 558/75 routine. Rebuild latest source and revalidate this group and relevant shared contracts, retaining all concurrent work.",
+      "scopeLimit": "The 558/75 complete prescribed routine is evidence for its recorded earlier source snapshot. Later concurrent shared source is covered by this fresh 33/2 focused run, not an additional complete routine or Full."
+    }
+  }
+}

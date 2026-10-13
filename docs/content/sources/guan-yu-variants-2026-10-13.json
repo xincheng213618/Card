@@ -1,0 +1,32 @@
+{
+  "checkedAt": "2026-10-13",
+  "entries": [
+    {
+      "generalId": "mou:guan-yu-mobile",
+      "sourcePage": "https://www.sanguosha.cn/hero-detail-572.html",
+      "artUrl": "https://www.sanguosha.cn/storage/uploads/images/69701.png",
+      "localPath": "src/CardGame.Wpf/Assets/official-mou-guan-yu-mobile.png",
+      "sha256": "f3a45e40df0881341474152eb6f1fd347ff9a00c7aa3de57706fa63b64c2a63a"
+    },
+    {
+      "generalId": "mou:guan-yu-ol",
+      "sourcePage": "https://www.sanguosha.com/hero/593",
+      "artUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/59300.png",
+      "localPath": "src/CardGame.Wpf/Assets/official-mou-guan-yu-ol.png",
+      "sha256": "7f7033bb8838ea1d9710143405611916a7818f21b593452fbaff287d7aada8d5"
+    },
+    {
+      "generalId": "magic:guan-yu",
+      "sourcePage": "https://www.sohu.com/a/948691200_122050755",
+      "artUrl": "https://q3.itc.cn/images03/20251029/cca7ca5efccb4318b69a7be24b879348.jpeg",
+      "localPath": "src/CardGame.Wpf/Assets/magic-guan-yu-card.jpg",
+      "sha256": "278478a815645728eb69e252acc7707dc754f1db1d98d96f17228f8227c6de7e"
+    }
+  ],
+  "decisions": [
+    "魔关羽采用蚀心入魔·慢实体卡：5体力，撼国、唯我；卡面唯我是限定技，优先于百科误写的锁定技。",
+    "扣置范围为手牌、装备区、判定区；轮末返还到手牌；死亡时进入弃牌堆。",
+    "移动版使用官方页面武圣、义绝；OL版使用威临、夺首；三者共享character:guan-yu。",
+    "魔关羽原卡照片保留原始字节，ImageBrush.Viewbox只显示立绘区域。"
+  ]
+}

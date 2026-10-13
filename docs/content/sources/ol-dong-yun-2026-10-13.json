@@ -1,0 +1,68 @@
+{
+  "capturedAt": "2026-10-13",
+  "generalId": "ol:dong-yun",
+  "name": "董允·OL",
+  "productLine": "三国杀OL",
+  "version": "选择当前官网hero/369完整技能文本。舍宴按当前增加目标或对目标无效实现，不混用2017更新前仅能增加且排除借刀杀人的旧版本。",
+  "faction": "shu",
+  "maxHp": 3,
+  "gender": "male",
+  "genderEvidence": "官方传记称董和之子，为语义推断；官网API没有性别字段。initial_hp=0是未指定占位，不实现零初始体力。",
+  "galleryClassification": {
+    "group": "other",
+    "evidence": "已保存官网人物页与详情API，未获得可锁定当前目录为一将成名七的官方字段，故不凭技能年份或非官方目录猜分组。"
+  },
+  "sources": [
+    {
+      "url": "https://www.sanguosha.com/hero/369",
+      "path": "docs/content/sources/evidence/ol-dong-yun-current-page-2026-10-13.html",
+      "sha256": "8306496525DE44E467E94EB4C9D6A750FAC6EC3E6ADD205D6F966A730108A1F0",
+      "role": "当前完整秉正和舍宴技能文本。普通锦囊无效对象是任意实际目标，有效目标至少保留一个。"
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=369",
+      "path": "docs/content/sources/evidence/ol-dong-yun-info-2026-10-13.json",
+      "sha256": "BCED505BC9028662DC5F459ABD8B9A77F3223BA9FEFDCD33E2749C91A6BF6E6F",
+      "role": "官网实际详情API，确认蜀、体力3、官方立绘、传记。"
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20170814_1077_1717",
+      "path": "docs/content/sources/evidence/ol-dong-yun-update-2017-captured-2026-10-13.html",
+      "sha256": "9EE31D9F46CFCCB570EADE20FF077E2065B77A0F1633DA625C5B77E0BC2304B3",
+      "role": "官方2017更新文与规则说明，辅助核对旧版只追加目标与当前任意目标无效的区别；不沿用旧版排除借刀杀人的限制。"
+    }
+  ],
+  "skills": [
+    {
+      "id": "ol:bingzheng",
+      "text": "出牌阶段结束时，你可以令手牌数不等于体力值的一名角色弃置一张手牌或摸一张牌。然后若其手牌数等于体力值，你摸一张牌，且可以交给其一张牌。"
+    },
+    {
+      "id": "ol:sheyan",
+      "text": "当你成为一张普通锦囊牌的目标时，你可以令此牌增加一个目标或对一个目标无效（有效目标数至少为1）。"
+    }
+  ],
+  "implementation": [
+    "秉正使用精确自身出牌阶段结束的单指令选择；允许自身或其他存活角色，目标自行私下选择其手牌弃置，技能拥有者选择摸牌或弃牌。",
+    "手牌移动、回复、获得与源失去等真实子窗先返回，再按最新手牌数与HP判断奖励；拥有者实际摸牌一次后可交出其手牌或装备。自身奖励不执行无意义的自转移。",
+    "各项付款记录于所属ProgramSkillFrame的冻结收据，逐项绑定实际移动与唯一已付事件；冷恢复按 typed parent return 继续，不重付。不从失去的live source重建已支付能力。",
+    "舍宴保留原目标身份与唯一实际Use action，仅追加合法目标或标记单个效果无效；借刀杀人按主目标加杀目标的pair表达。加载舍宴时借刀效果仅检查pair主目标，原无效主目标作为另一pair的杀目标时不取消后者的借刀；随后真正杀的效果与防御独立裁定。原无舍宴目录保留其默认语义。",
+    "增加目标复用当前实际使用者的距离、禁止目标、锦囊目标与借刀杀人合法性；仅加载舍宴能力的目录也明确opt-in记录实际牌的花色、颜色与点数，不依赖另一个武将的能力顺带提供事实。无效选项在真正选择时重新计算当前有效主目标数，始终至少保留一名。五谷丰登保留原目标数量用于公开亮牌。",
+    "新目标通过同一 finalized window 收集尚未处理的既有目标关系触发；实体、provider、action id和整次使用的完成移动保持原始身份。",
+    "原生AI仅根据公开手牌数量、HP与公开锦囊效果估值决定激活，不读取他人手牌身份。",
+    "新事件所有嵌套目标、选择、参数集合在CommittedEventProjection冻结；不修改schema/package版本或按人物另升规则epoch。"
+  ],
+  "artwork": {
+    "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/36900.png",
+    "path": "src/CardGame.Wpf/Assets/official-ol-dong-yun.png",
+    "sha256": "FCD4455C4AFB6BCB5EC8E204B7E5648D45DCCC8894F5CACFE8F2FF7760DED9B9",
+    "width": 750,
+    "height": 950,
+    "visuallyInspected": true
+  },
+  "verification": {
+    "status": "passed",
+    "scope": "17 focused Core checks including 11 new behavior checks, plus routine 535 Core and 74 WPF checks; not manual Full.",
+    "report": "docs/benchmarks/2026-10-13-wen-pin-dong-yun-verification.json"
+  }
+}

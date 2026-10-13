@@ -1,0 +1,51 @@
+{
+  "capturedAt": "2026-10-13",
+  "contentId": "mobile:chen-zhen",
+  "characterName": "陈震",
+  "productLine": "三国杀移动版",
+  "edition": "经典身份版；不注册国战版",
+  "faction": "shu",
+  "maximumHp": 3,
+  "gender": "male",
+  "sources": [
+    {
+      "url": "https://www.taptap.cn/moment/155663451618806180",
+      "publisher": "桔子姐姐《三国杀》官方",
+      "publishedAt": "2021-06-20",
+      "role": "Official publisher account's skill showcase; gameplay commentary beyond the skill text is not adopted."
+    },
+    {
+      "url": "https://wiki.biligame.com/msgs/index.php?title=陈震&oldid=36289",
+      "revision": 36289,
+      "updatedAt": "2026-01-30",
+      "role": "Current mobile classic identity metadata, skill corroboration, and classic artwork. The informal summary incorrectly says both players draw two; only the formal skill section is adopted."
+    },
+    {
+      "url": "https://wiki.biligame.com/msgs/index.php?title=歃盟&oldid=36290",
+      "revision": 36290,
+      "role": "Matching current formal skill description."
+    }
+  ],
+  "skills": [
+    {
+      "id": "mobile:shameng",
+      "name": "歃盟",
+      "text": "出牌阶段限一次，你可以弃置两张颜色相同的手牌，令一名其他角色摸两张牌，然后你摸三张牌。",
+      "mapping": "Two exact hand-only suit-filtered activation branches share usageGroup shameng and one actual Play-phase allowance. Both discard two, draw two for the chosen other living target, then draw three for the owner. Same color does not require the same suit."
+    }
+  ],
+  "artwork": {
+    "filePage": "https://wiki.biligame.com/msgs/文件:陈震-经典形象.jpg",
+    "url": "https://patchwiki.biligame.com/images/msgs/b/bd/pp0dy6ndow9igb9nveq94x3youw9v1f.jpg",
+    "artist": "君桓文化",
+    "localPath": "src/CardGame.Wpf/Assets/wiki-mobile-chen-zhen.jpg",
+    "sha256": "23ceff081110b3e44d3c19db32519beaf1058e86dc8c05235d3229da24b384dc",
+    "width": 530,
+    "height": 750
+  },
+  "implementationNotes": [
+    "Reuses shared activation suit filtering, shared usage groups, selected-card discard and sequential draw operations. No new Core mechanism, rules epoch, schema version or package version.",
+    "The shared roster, gallery and artwork registration are integrated by the parent task.",
+    "The focused Mobile Chen Zhen behavior check and Mobile general gallery WPF check passed on 2026-10-13; both new portrait/detail renders were visually inspected."
+  ]
+}

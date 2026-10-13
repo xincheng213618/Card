@@ -1,0 +1,136 @@
+{
+  "capturedAt": "2026-10-13",
+  "generalId": "ol:shen-pei",
+  "name": "审配·OL",
+  "productLine": "三国杀OL",
+  "version": "选择当前官网hero/459的完整身份版刚直和备战，与2020-06-24身份版更新匹配。明确排除2017官渡之战只有受到伤害替代、备战无五张上限的专用版本，以及移动版守邺/烈直版本。",
+  "faction": "qun",
+  "maxHp": 3,
+  "gender": "male",
+  "genderEvidence": "官方传记称有二子；性别为传记语义推断，官网API无性别字段。initial_hp=0是未指定占位。",
+  "galleryClassification": {
+    "group": "other",
+    "evidence": "官网详情/API没有可锁定具体SP扩展包的目录字段，不以非官方人物目录猜分组。"
+  },
+  "sources": [
+    {
+      "url": "https://www.sanguosha.com/hero/459",
+      "path": "docs/content/sources/evidence/ol-shen-pei-current-page-2026-10-13.html",
+      "sha256": "D197A9F64C212F28249FBB0AE84F075F3DE745C6541AB54C3F8F658F59572C1F",
+      "role": "当前完整双向刚直及至多五张的备战全文。"
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=459",
+      "path": "docs/content/sources/evidence/ol-shen-pei-info-2026-10-13.json",
+      "sha256": "E1D692796D7239422E8BF9FD3CDD0ACDF922AF940E2706510638518C021435D6",
+      "role": "官网实际详情API，确认群、HP3、原画URL与传记。"
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20200624_4647_3820",
+      "path": "docs/content/sources/evidence/ol-shen-pei-identity-update-2020-2026-10-13.html",
+      "sha256": "701041DA9F30B207EF672268090B34CF512F05336073D20024ABD0C5C146574D",
+      "role": "身份版上线匹配全文：双向other损失体力、回合结束后补牌且至多五张。"
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20200702_2438_3213",
+      "path": "docs/content/sources/evidence/ol-shen-pei-release-2020-2026-10-13.html",
+      "sha256": "15E795A662F3AE2B60338E4D46FA6FAD38BF182530A7850C4D813C46B0AB3C0F",
+      "role": "审配正式上架的官方产品线交叉核对。"
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20220822_7692_0517",
+      "path": "docs/content/sources/evidence/ol-shen-pei-wording-update-2022-2026-10-13.html",
+      "sha256": "6816B10C612961EDCDD6022EDD68CC606AE6D17F9F29A04B44350D7B0572407D",
+      "role": "官方明确备战文案规范化不涉及结算修改；当前网页描述作为呈现全文。"
+    }
+  ],
+  "skills": [
+    {
+      "id": "ol:gangzhi",
+      "text": "锁定技，其他角色对你造成的伤害，和你对其他角色造成的伤害均视为失去体力。"
+    },
+    {
+      "id": "ol:beizhan",
+      "text": "回合结束后，你可以令一名角色将手牌摸至X张（X为其体力上限且至多为5）。其下回合开始时，若其手牌数全场最多，其此回合使用牌不能指定其他角色为目标。"
+    }
+  ],
+  "implementation": [
+    "备战在真实自身AfterTurnEnded parent、结束移动和既有到期链之后执行，任意存活角色包含自己与不需要摸牌者均可选择；确认时按最新手牌/体力上限冻结max(0,min(maxHP,5)-hand)并进行真实私有摸牌。",
+    "摸牌和延迟义务只发行一次；gain/HP/dying/skills子窗通过原生typed父返回排空，已发行源可以在原始技能失去或拥有者死亡后继续结清，不重新摸牌。",
+    "延迟义务从issued-minus-consumed的不可变真实事件历史投影，无并行pending sidecar。选定角色下次实际TurnStarted后、其他开始触发之前动态检查所有存活角色手牌最多，含并列。已经发行的义务不因原技能源失去撤销；翻面跳过的实际回合也消耗一次义务。 单次多张摸牌可以产生多个真实gain batch，机制依序排空这些批，未强行合并或缩减实际movement。",
+    "most成立后grant现有SelfOnly，来源采用原始issued记录，不从live源重造；当回合后续手牌减少不撤销，随实际当回合结束到期。其他玩家目标、原生群体牌、转化/额外目标仍走既有目标合法性边界。",
+    "刚直新policy仅处理实际source!=target且具有归属来源的damage attempt，双向opt-in；incoming受害者仍存活时即使实际source已死也可替代。self和真正无来源/闪电伤害保持damage。",
+    "新policy在damage-only修正、雾/伤害防止、防具加减伤、beforeDamage技能和新连环发行之前替代，用当前attempt base数（酒等已经进入base）。整次失去体力走既有HP loss、濒死/死亡、typed AttackHpLoss父返回，不发布DamageApplied或卖血触发。元素替代不解除连环或发行新传导；由真实self damage引发的传导则逐个接收者独立裁定替代。原张春华默认gate/event保持原样。",
+    "新OtherParticipantDamageReplacedEvent公开区分policyOwner、真实damageSource、目标与base；旧DamageReplacedWithHpLossEvent保留原source字段语义，以复用已有确切typed AttackHpLoss证据链。",
+    "目标/选项/参数集合由receipt setter及CommittedEventProjection深冻结。原生AI估值仅用可见手牌数量、HP和现有公开联盟/效果估值，不读取其他角色手牌实体。"
+  ],
+  "sourceAndAcceptanceLimits": [
+    "没有找到游戏官网同版本的刚直与伤害加减、防具及连环组合FAQ。替代早于damage-only阶段、base伤害边界是对当前完整官方文本及现有伤害阶段的实现解释，不把发行渠道攻略冒充官方FAQ。",
+    "不声称已执行人工完整对局、前台多DPI、配音或实际平台联机验收。",
+    "原始source持有者死亡或已死伤害来源、备战目标死亡的组合仅静态审查，未单独fixture验收；不把其与已付技能失去的真实fixture混同。"
+  ],
+  "artwork": {
+    "url": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/45900.png",
+    "path": "src/CardGame.Wpf/Assets/official-ol-shen-pei.png",
+    "sha256": "D90CAE9490CF428D940AB4C0A0C3FC95BBE843526C04F2EE14E1EAEF561C6C44",
+    "width": 750,
+    "height": 950,
+    "visuallyInspected": true
+  },
+  "verification": {
+    "status": "current-source-focused-and-routine-passed",
+    "class": "EndRefillNextTurnChecks",
+    "prefix": "End refill next turn:",
+    "scope": "Six current-source mechanism checks passed, including the extra-turn subcase within its existing method; integrated source passed final focused and Core routine. No manual Full or release.",
+    "evidence": [
+      "docs/benchmarks/2026-10-13-end-refill-second-focused-summary.json",
+      "docs/benchmarks/2026-10-13-end-refill-extra-turn-summary.json",
+      "docs/benchmarks/2026-10-13-next-generals-final-focused-summary.json",
+      "docs/benchmarks/2026-10-13-next-generals-routine-first-summary.json"
+    ],
+    "finalBatchFocused": {
+      "passed": 33,
+      "failed": 0,
+      "wpfPassed": 2,
+      "wpfFailed": 0,
+      "ownMechanismChecks": 6,
+      "totalDurationMs": 18719,
+      "summary": "docs/benchmarks/2026-10-13-next-generals-final-focused-summary.json",
+      "coreEvidence": "docs/benchmarks/2026-10-13-next-generals-final-focused-core.txt",
+      "wpfEvidence": "docs/benchmarks/2026-10-13-next-generals-final-focused-wpf.txt"
+    },
+    "coreRoutine": {
+      "passed": 558,
+      "failed": 0,
+      "summary": "docs/benchmarks/2026-10-13-next-generals-routine-first-summary.json",
+      "evidence": "docs/benchmarks/2026-10-13-next-generals-routine-first-core.txt",
+      "scope": "The prescribed routine, not Full. Whole-run initial WPF had one original native response failure; unchanged isolated recheck passed, then its reused-model test lifecycle was repaired without changing production."
+    },
+    "finalBatchReport": "docs/benchmarks/2026-10-13-shen-pei-sun-lu-yu-cheng-yu-verification.json",
+    "finalRoutine": {
+      "corePassed": 558,
+      "wpfPassed": 75,
+      "failed": 0,
+      "durationMs": 107768,
+      "summary": "docs/benchmarks/2026-10-13-next-generals-routine-final-summary.json",
+      "fullVerification": false,
+      "foregroundAcceptance": false
+    },
+    "latestSharedSourceRefresh": {
+      "status": "passed",
+      "corePassed": 33,
+      "wpfPassed": 2,
+      "failed": 0,
+      "durationMs": 23239,
+      "summary": "docs/benchmarks/2026-10-13-next-generals-latest-focused-summary.json",
+      "coreEvidence": "docs/benchmarks/2026-10-13-next-generals-latest-focused-core.txt",
+      "wpfEvidence": "docs/benchmarks/2026-10-13-next-generals-latest-focused-wpf.txt",
+      "sourceBefore": "docs/benchmarks/2026-10-13-next-generals-latest-focused-source-before.json",
+      "sourceAfter": "docs/benchmarks/2026-10-13-next-generals-latest-focused-source-after.json",
+      "sourcePaths": 80,
+      "sourceChangedDuringRun": 0,
+      "reason": "Continuing concurrent edits changed GameEngine.CardMovementPrograms.cs and GameEngine.SkillPrograms.cs after the completed 558/75 routine. Rebuild latest source and revalidate this group and relevant shared contracts, retaining all concurrent work.",
+      "scopeLimit": "The 558/75 complete prescribed routine is evidence for its recorded earlier source snapshot. Later concurrent shared source is covered by this fresh 33/2 focused run, not an additional complete routine or Full."
+    }
+  }
+}

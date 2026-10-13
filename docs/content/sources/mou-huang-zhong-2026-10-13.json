@@ -1,0 +1,15 @@
+{
+  "generalId": "mou:huang-zhong",
+  "name": "谋黄忠",
+  "rulesetId": "sanguosha-mobile",
+  "sourcePage": "https://www.sanguosha.cn/hero-detail-444.html",
+  "verifiedOn": "2026-10-13",
+  "skillId": "mou:liegong",
+  "rules": "未装备武器时属性杀只能当普通杀使用或打出；用牌和成为其他角色用牌的目标记录花色；杀指定唯一目标后可亮出记录花色数减一张牌，匹配花色每张增伤一点，并禁止目标以记录花色的牌响应；发动后在该杀结算结束清空记录。",
+  "portrait": {
+    "skinId": "64200",
+    "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/64200.jpg",
+    "localPath": "src/CardGame.Wpf/Assets/official-mou-huang-zhong.jpg",
+    "sha256": "5fdd6658734ffa177f8f300a1ec034dec4a0125a0ae14d258def9bf62d2c2028"
+  }
+}

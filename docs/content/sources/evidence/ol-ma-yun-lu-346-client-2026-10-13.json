@@ -1,0 +1,108 @@
+{
+  "primaryResources": [
+    {
+      "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+      "sha256": "66dfce61f1c4fb0aca35b6f85ed940e394719db84655f4d4146b463bc0cf8c1b"
+    },
+    {
+      "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+      "sha256": "3d7536d4e2ca3d64707c2f6e0edbb8ccb4a045eee4274862dfa35431157c64f4"
+    }
+  ],
+  "decoder": {
+    "method": "public InitOfb AES-CFB128 then gzip",
+    "members": [
+      {
+        "name": "character.sgs",
+        "encodedSha256": "e0b6f0188edebb1f502ea402c7171e93b88f4e9d05720948344a1f4f44474aae",
+        "decodedSha256": "b3ef3f1181e7fe667499cb688b7cdce56631d899dbb0eea55d75fbf80636b040"
+      },
+      {
+        "name": "cha_spell.sgs",
+        "encodedSha256": "0c244585a54d101377d6e8d17cca27df2eb9520cff11f73b3373e8b3ddc5fe3d",
+        "decodedSha256": "c42298ef8eeed59ac5e2f30854ec1d35a9f38df80410403c849f0a3e2753a0d9"
+      }
+    ]
+  },
+  "characters": [
+    {
+      "path": "/GameCharacters/character/247",
+      "row": {
+        "a": 346,
+        "b": "马云騄",
+        "d": "MaYunLu",
+        "e": 44,
+        "f": "44",
+        "g": 2,
+        "h": 2,
+        "i": 4,
+        "j": 70,
+        "k": 266,
+        "p": 1,
+        "q": "1",
+        "r": "934601",
+        "y": "马云騄[lù]，马腾之女，马超之妹，赵云之妻。父亲令其自幼习武，枪术非凡，寻常男子也是难以匹敌。",
+        "z": "对敌人使用【杀】获得大量的手牌，能够造成大量伤害，有较大的攻击范围。需要较多的【杀】。",
+        "aa": 69,
+        "ab": "540,541",
+        "ad": "画师:木美人",
+        "x": "子龙哥哥~ 孟起哥哥~ ####下回妹妹还要上战场玩耍哟~",
+        "al": 4240,
+        "am": "true",
+        "ap": 50,
+        "aq": 15,
+        "ay": 3,
+        "bm": 1,
+        "bx": 12800,
+        "LordCardRate1": 10,
+        "LordCardRate2": 37,
+        "cc": 34611,
+        "starMax": 4
+      }
+    }
+  ],
+  "skills": [
+    {
+      "path": "/GameSpells/spell/69",
+      "row": {
+        "a": 70,
+        "b": "3,4,5",
+        "c": "马术",
+        "d": "MaShu",
+        "e": 0,
+        "g": 1,
+        "i": 2,
+        "o": "锁定技，你计算与其他角色的距离-1。",
+        "bb": "锁定技，你计算与其他角色的距离-1。",
+        "aa": "锁定技，你计算与其他角色的距离-1。",
+        "p": "你与别人距离-1。"
+      }
+    },
+    {
+      "path": "/GameSpells/spell/208",
+      "row": {
+        "a": 266,
+        "b": "3,5",
+        "c": "凤魄",
+        "d": "FengPo",
+        "e": 0,
+        "g": 1,
+        "i": 2,
+        "o": "当你在回合内首次使用【杀】或【决斗】指定一个目标后，你可以选择一项：<br>&nbsp;1.摸X张牌；2.令此牌伤害+X。<br>（X为目标角色方片手牌数）",
+        "ay": "系统提示→选一项执行"
+      }
+    },
+    {
+      "path": "/GameSpells/spell_tips/69",
+      "row": {
+        "a": 70
+      }
+    },
+    {
+      "path": "/GameSpells/spell_tips/208",
+      "row": {
+        "a": 266
+      }
+    }
+  ]
+}

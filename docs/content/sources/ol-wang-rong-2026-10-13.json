@@ -1,0 +1,176 @@
+{
+  "capturedAt": "2026-10-13",
+  "generalId": "ol:wang-rong",
+  "officialHeroId": 344,
+  "name": "王荣",
+  "variant": "ordinary OL current",
+  "attributes": {
+    "faction": "qun",
+    "maxHp": 3,
+    "gender": "female"
+  },
+  "primarySources": [
+    {
+      "url": "https://www.sanguosha.com/hero/344",
+      "sha256": "6fa9bd3415bfcb10774cac0f8666f7280f07f6b35d7adb2a325369a607bf2ce7",
+      "byteCount": 26369
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=344",
+      "sha256": "5fe96b446e9e8fddaf4a1328acb8eee5be0232ffd5ac27717251de77fc534c68",
+      "byteCount": 1024
+    },
+    {
+      "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+      "sha256": "66dfce61f1c4fb0aca35b6f85ed940e394719db84655f4d4146b463bc0cf8c1b",
+      "byteCount": 5256349,
+      "capturedAtUtc": "2026-10-13T20:18:56.02864+08:00"
+    },
+    {
+      "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+      "sha256": "3d7536d4e2ca3d64707c2f6e0edbb8ccb4a045eee4274862dfa35431157c64f4",
+      "byteCount": 4142822,
+      "capturedAtUtc": "2026-10-13T20:18:56.02864+08:00"
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20211109_6914_4116",
+      "sha256": "379623a9d538ef63d1bc9c5b80e597bdf269e16af1a735f85403eb65786bfbf0",
+      "byteCount": 855298,
+      "purpose": "Same ordinary OL release confirms optional continuation after a correct guess; current client text abbreviates continue; not a combo FAQ."
+    }
+  ],
+  "clientEvidence": "docs/content/sources/evidence/ol-wang-rong-344-client-2026-10-13.json",
+  "clientBinding": {
+    "class": "WangRong",
+    "characterId": 344,
+    "skillIds": [
+      3032,
+      3033,
+      3034
+    ]
+  },
+  "skills": [
+    {
+      "id": "ol:fengzi",
+      "name": "丰姿",
+      "text": "出牌阶段限一次，当你使用基本牌或普通锦囊牌时，你可以弃置一张类型相同的手牌令此牌的效果额外结算一次。"
+    },
+    {
+      "id": "ol:jizhan",
+      "name": "吉占",
+      "text": "摸牌阶段开始时，你可以改为展示牌堆顶的一张牌，猜测牌堆顶下一张牌点数大于或小于此牌，然后展示之，若猜对你继续猜测，最后你获得以此法展示的牌。"
+    },
+    {
+      "id": "ol:fusong",
+      "name": "赋颂",
+      "text": "当你死亡时，你可以令一名体力上限大于你的角色选择获得“丰姿”或“吉占”。"
+    }
+  ],
+  "excludedVariants": [
+    "Ten Year / overseas Minsi-Jijing-Zhuide; separate website x.sanguosha.com hero1052",
+    "No invented Fuyi or renamed historical third skill"
+  ],
+  "mechanismAssessment": {
+    "status": "implemented; final focused and prescribed routine passed",
+    "required": [
+      "Single actual Use with one same-category hand discard, one additional effect, each genuine response/effect restored without recommit or target-finalization repeat",
+      "Actual Draw starting replacement zeros the planned normal draw at activation while allowing later same-window adjustments; public strict top-card rank guesses fail on ties; a correct guess may continue or stop per same-version 2021 official wording; gain includes the failed comparison card.",
+      "Actual owner-death optional target choice among living greater MaxHP recipients; once selected, recipient must choose exactly one configured permanent skill, with no invented refusal option."
+    ],
+    "sharedCapability": {
+      "opValues": {
+        "discardSameCategoryForExtraEffect": 20900,
+        "guessRanksForDrawReplacement": 20901,
+        "deathRecipientChooseSkill": 20902
+      },
+      "nativeEffectKinds": [
+        "Slash/FireSlash/ThunderSlash",
+        "Peach",
+        "Alcohol",
+        "DrawTwo",
+        "Duel",
+        "Dismantlement",
+        "Snatch",
+        "BarbarianAssault",
+        "ArrowBarrage",
+        "PeachGarden",
+        "FiveGrains",
+        "IronChain",
+        "FireAttack",
+        "BorrowedSword",
+        "UnexpectedAssault"
+      ],
+      "oncePerUse": [
+        "Accepted actual action",
+        "original physical material payment",
+        "Fengzi matching hand discard",
+        "actual Play phase usage debit",
+        "final target commitment and its designation triggers",
+        "underlying card completion"
+      ],
+      "repeatedPerEffect": [
+        "native responses and counterspell window",
+        "damage/recovery attempt",
+        "independent target-card choice",
+        "independent public draft pool and leftover settlement"
+      ],
+      "paidMaterialClaims": "The owning actual use retains per-entity scalar claim receipts with the same action, physical cost ID, exact original damage window/frame and candidate, producer skill instance/hash/effect, native claim event and exact Processing-to-Hand movement sequence/reason. Only these proven claimed entities may be read at the native Hand/DrawPile/Discard destinations. The second global group restores the same proven claimed IDs; it does not pay, claim or settle those entities twice.",
+      "aiRankPrior": "The public unknown-deck gain prior is three cards; common replacement estimation separately deducts the planned normal draw. No unrevealed deck order or opponent hand identity is consulted."
+    },
+    "focusedValidation": {
+      "class": "ExtraEffectsAndRankGuessChecks",
+      "methods": [
+        "ExactContractsAndCommittedCollectionFreeze",
+        "ActualSlashSingleUseDoubleDamageAndPhaseQuota",
+        "ActualPhaseStartingNativeVirtualSlashDoubleEffect",
+        "ActualPeachAndDoubleAlcoholBonusColdReplay",
+        "ActualGlobalAttackCompleteRoundsAndOneSettlement",
+        "ActualSecondSnatchRechoosesPublicCardAndRetainsMaterial",
+        "ActualRankEqualityPublicRevealGainAndPaidChildColdReturn",
+        "ActualCorrectRankStopRetainsLaterNormalDrawAdjustment",
+        "ActualAiRankReplacementUsesPublicPriorAndGains",
+        "ActualSecondNullificationWindowAfterFirstCanceledEffect",
+        "ActualFiveGrainsLeftoversAreSettledBeforeNewPublicPool",
+        "ActualDeathRecipientOwnChoicePermanentGrantAndOwnerDecline",
+        "ActualGlobalExtraEffectRetainsLegitimatelyClaimedMaterialAndColdCounterspell",
+        "ActualClaimedGlobalWithoutExtraEffectKeepsExistingFlow",
+        "ActualSlashExtraEffectRetainsLegitimatelyClaimedMaterial"
+      ],
+      "independentPaidSourceProof": "ExtraCardEffectPaidSourceChecks.PaidHandCostSourceLossAndOwnerDeathKeepOriginalUseOnce",
+      "evidence": [
+        "docs/benchmarks/2026-10-13-batch-5-before-claimed-material-focused-core-selected.log.txt",
+        "docs/benchmarks/2026-10-13-batch-5-ninth-focused-core-selected.log.txt",
+        "docs/benchmarks/2026-10-13-batch-5-claimed-material-red-core-selected.log.txt",
+        "docs/benchmarks/2026-10-13-batch-5-claimed-material-old-flow-core-selected.log.txt",
+        "docs/benchmarks/2026-10-13-batch-5-claimed-material-green-core-selected.log.txt"
+      ],
+      "claimAuditDisposition": "The initially static claimed-material conflict is closed by actual ArrowBarrage red/control/green commands, an additional native Slash green case, a legitimate full classic Jianxiong claim, and cold replay of the second counterspell window. The catalog without the new capability retains its actual three-target/one-claim/one-completion behavior. The red failure surfaced at an outer Damage finally; the strict new-capability material-disposition fix passes without a global Damage pop relaxation or old-content rules change.",
+      "scope": "Real serialized accepted commands and checkpoint replay, not injected runtime frames. Shared receipts and privacy checks are covered. These representative cases do not claim every physical material, card kind, combination or foreground WPF interaction was executed."
+    }
+  },
+  "portrait": {
+    "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/34400.png",
+    "path": "src/CardGame.Wpf/Assets/official-ol-wang-rong.png",
+    "sha256": "984a348cedbac96b3c9f9fc52a95be38febb29130034417f0e0750482ad02a0a",
+    "visuallyInspected": true
+  },
+  "interpretationLimits": [
+    "Current client is authoritative for the three active skills. The same ordinary OL 2021 release explicitly supplies optional continuation after a correct guess omitted in the abbreviated current text.",
+    "No same-version primary combo FAQ found for multi-target additional-effect order. This capability performs a complete native first target round, then a complete second round under one actual Use; not presented as a verified official ordering FAQ.",
+    "Fengzi is qualified at actual active CardUseFrame use commitment; pure played Dodge and standalone response-use Nullification use the native response boundaries and do not trigger this operation. Same-version primary combo FAQ for response-use classification was not located."
+  ],
+  "verification": {
+    "fullVerification": false,
+    "routineSummary": "docs/benchmarks/2026-10-13-batch-5-routine-summary.json",
+    "focusedSummary": "docs/benchmarks/2026-10-13-batch-5-final-focused-summary.json",
+    "status": "batch-focused-and-prescribed-routine-passed",
+    "foregroundAcceptance": false,
+    "coreEvidence": "docs/benchmarks/2026-10-13-batch-5-final-focused-core-selected.log.txt",
+    "summary": "docs/benchmarks/2026-10-13-batch-5-final-focused-summary.json",
+    "batchReport": "docs/benchmarks/2026-10-13-zhang-lu-wang-rong-shi-xie-verification.json",
+    "latestScopeNote": "586 Core / 76 WPF passing is evidence for the recorded earlier stable source snapshot. Two shared files subsequently changed; the current source is covered by the fresh 40 Core / 5 WPF related focused run, not another complete routine or Full.",
+    "latestCoreEvidence": "docs/benchmarks/2026-10-13-batch-5-latest-focused-core-selected.log.txt",
+    "latestFocusedSummary": "docs/benchmarks/2026-10-13-batch-5-latest-focused-summary.json",
+    "latestBatchReport": "docs/benchmarks/2026-10-13-zhang-lu-wang-rong-shi-xie-verification.json"
+  }
+}

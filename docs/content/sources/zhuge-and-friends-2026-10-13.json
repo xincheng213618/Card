@@ -1,0 +1,91 @@
+{
+  "retrievedOn": "2026-10-13",
+  "friendRosterSource": "https://www.sanguosha.cn/pc/news-detail-2020.html",
+  "friendRoster": [
+    "友诸葛亮",
+    "友庞统",
+    "友徐庶",
+    "友石韬",
+    "友崔钧"
+  ],
+  "generals": [
+    {
+      "key": "mou-zhuge-liang",
+      "sourceUrl": "https://www.sanguosha.com/hero/717",
+      "sourceSha256": "75a058fc156a9acb1509bffa99e90d615c05871ef6be17f4443b17c81aa59f95",
+      "artUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/71700.png",
+      "artPath": "src/CardGame.Wpf/Assets/Generals/official-mou-zhuge-liang.png",
+      "artSha256": "53c761120f1a8767211718e6a6ed2fc1ba18ed3fb7f5a758ebb7f0912943aeb1",
+      "officialHeroMetadata": {
+        "gid": 717,
+        "name": "谋诸葛亮",
+        "hp": 3,
+        "figure": "蜀",
+        "resource": "71700",
+        "extend": "谋"
+      },
+      "heroMetadataSource": "https://www.sanguosha.com/hero",
+      "heroMetadataSourceSha256": "6aaa9214d22454a9b2afbc5c1d738ca8eefbefb20a9ffa6c80a87d45709e6da2",
+      "pixelWidth": 750,
+      "pixelHeight": 950,
+      "format": "PNG"
+    },
+    {
+      "key": "friend-zhuge-liang",
+      "sourceUrl": "https://www.sanguosha.cn/hero-detail-604.html",
+      "sourceSha256": "f8cfd3f9b2fd8f542da34afa519eff4c0db96e42f147510e49ea3c3b5cd76681",
+      "artUrl": "https://www.sanguosha.cn/storage/uploads/images/82400.jpg",
+      "artPath": "src/CardGame.Wpf/Assets/Generals/official-friend-zhuge-liang.jpg",
+      "artSha256": "c1aa0464b883a228a8676e170064343b87229a6f7529ca3f0b5af6264d1f0751",
+      "pixelWidth": 530,
+      "pixelHeight": 750,
+      "format": "PNG"
+    },
+    {
+      "key": "friend-pang-tong",
+      "sourceUrl": "https://www.sanguosha.cn/hero-detail-605.html",
+      "sourceSha256": "a0e8b19ba174b7461f573bfe1d7635865288a9eb80a052178fc391c5820565f9",
+      "artUrl": "https://www.sanguosha.cn/storage/uploads/images/82300.jpg",
+      "artPath": "src/CardGame.Wpf/Assets/Generals/official-friend-pang-tong.jpg",
+      "artSha256": "8476bb9dffead308a41cda309d27e6c0d38df95e6bbba6a7aae6bce9caa73a11",
+      "pixelWidth": 530,
+      "pixelHeight": 750,
+      "format": "PNG"
+    },
+    {
+      "key": "friend-xu-shu",
+      "sourceUrl": "https://www.sanguosha.cn/hero-detail-606.html",
+      "sourceSha256": "fd4da352242a02f28c6312bc046e840816299d684abad27427caf4b00994377f",
+      "artUrl": "https://www.sanguosha.cn/storage/uploads/images/82200.jpg",
+      "artPath": "src/CardGame.Wpf/Assets/Generals/official-friend-xu-shu.jpg",
+      "artSha256": "a675b77e35ff7f02b4f72a0cf784d83e9d3aac97f640a3beafb23135c93268e7",
+      "pixelWidth": 530,
+      "pixelHeight": 750,
+      "format": "PNG"
+    },
+    {
+      "key": "friend-shi-tao",
+      "sourceUrl": "https://xianhua.sanguosha.cn/postDetails?id=11339770",
+      "artUrl": "https://sjpubicres.sanguosha.cn/release/character_skins/char/827_1.jpg",
+      "artPath": "src/CardGame.Wpf/Assets/Generals/official-friend-shi-tao.jpg",
+      "artSha256": "404bba5cd6d161ddb65d0b5fc1b3d59228bfe912a1f937c6b640619ff5072e98",
+      "pixelWidth": 530,
+      "pixelHeight": 750,
+      "format": "JPEG"
+    },
+    {
+      "key": "friend-cui-jun",
+      "sourceUrl": "https://wiki.biligame.com/msgs/%E5%8F%8B%E5%B4%94%E9%92%A7",
+      "sourceSha256": "bf6f5d710c8adf1f608ecea4b4343534e053467d21db80cbc3b94ecba54d6c09",
+      "artUrl": "https://patchwiki.biligame.com/images/msgs/b/b7/56vz7ujnirfq1dal92gjifvyl73v83u.png",
+      "artPath": "src/CardGame.Wpf/Assets/Generals/wiki-friend-cui-jun-classic.png",
+      "artSha256": "3a258a2775713801e2650044dfca6c80c0b2ea4b082f2e19a223abf472e9e1dd",
+      "artSourceTier": "BWIKI named classic portrait; official detail endpoint requires authentication",
+      "pixelWidth": 530,
+      "pixelHeight": 750,
+      "format": "JPEG"
+    }
+  ],
+  "status": "implemented-and-routine-verified",
+  "friendEventVersion": "mainland-mobile-2025-old-friends-season"
+}

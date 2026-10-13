@@ -1,0 +1,82 @@
+{
+  "capturedAt": "2026-10-13",
+  "generalId": "ol:ta-dun",
+  "name": "蹋顿·OL",
+  "productLine": "三国杀OL",
+  "version": "Current official hero347 and current official client character347 j275 complete skill match; exclude historical cumulative dealt-only/clear-all variants and TenYear/mobile versions.",
+  "faction": "qun",
+  "maxHp": 4,
+  "gender": "male",
+  "genderEvidence": "Current character347 h1; exact class TaDun. API initial_hp=0 is unspecified initial HP, not HP0.",
+  "galleryClassification": {
+    "group": "other",
+    "evidence": "No explicit current OL package field; do not infer historical SP package."
+  },
+  "sources": [
+    {
+      "url": "https://www.sanguosha.com/hero/347",
+      "path": "docs/content/sources/evidence/ol-ta-dun-347-page-2026-10-13.html",
+      "sha256": "f78ea64505763c56ac4fba2ca79680f0f331b7b2c487fff874d519784647ceb5",
+      "role": "current complete skill text"
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=347",
+      "path": "docs/content/sources/evidence/ol-ta-dun-347-info-2026-10-13.json",
+      "sha256": "eeaf55899ce79d98768c400cea98d9cc770e2d547a80ec2efc9e8baf57927570",
+      "role": "current gid HP4 faction qun artwork"
+    },
+    {
+      "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+      "path": "docs/content/sources/evidence/ol-ta-dun-347-client-2026-10-13.json",
+      "sha256": "89cb77ef2ea7586b6fb2ceb2fc7a52f81127be43bf010e466381c75b83369f4f",
+      "role": "exact character347/j275 and current skill275, public client decoding provenance"
+    }
+  ],
+  "skills": [
+    {
+      "id": "ol:luanzhan",
+      "clientSkillId": 275,
+      "text": "当你造成或受到伤害后，你获得1枚“乱战”标记。当你使用【杀】或黑色普通锦囊牌指定目标后，若目标角色数小于X，你移除一半“乱战”标记（向上取整）。你使用【杀】或黑色普通锦囊牌可以多指定X个目标（X为“乱战”标记数）。"
+    }
+  ],
+  "implementation": [
+    "Gain uses one mandatory Any per-damage observer constrained to actual owner source OR target. One damage of amount2 grants one, source-less received damage grants one; self damage grants one under current OR-text interpretation, not two duplicate direction triggers.",
+    "Marker attribution reuses native participant marker ledger and public projection. Only actual damage, not HP loss, earns marks.",
+    "At actual CardUseTargetsFinalized actor binding, snapshot X and original ordered targets once, offer native legal additional targets one at a time with explicit Done; additions obey native Slash range and ordinary-trick legality. Black qualification follows captured effective color, not physical card suit.",
+    "Borrowed Sword appends complete ordered weapon-holder/victim pairs, allows repeated victim seats and never flattens lists. Its weapon holders count as designated target characters, consistent with native EffectiveDesignatedTargetSeats.",
+    "Issued completion receipt remains on owning CardUseFrame. A new opt-in finalize-at-end hook checks the final designated count after every remaining target change. Selection entitlement retains the offered FrozenBudget; the later comparison and half removal observe actual current marks at that final boundary, with MarkersBeforeSettlement recorded. This avoids negative debt when an intervening genuine damage or nested actual Use changes the mark count. Loss of the issued skill does not abandon the settled effect.",
+    "Original card use, accepted ActionId, physical material, virtual issuer primary return and native multi-target cursor are reused; no new card acceptance, duplicate cost or use-ID pending sidecar.",
+    "CommittedEventProjection explicitly deep-freezes offered and resolved event receipts, nested choices and ordered targets.",
+    "Only these new trigger operations opt the catalog into captured effective card color and role-change color retention; historical catalogs without them preserve old action shapes. New primary targets refresh their native Target-relation observers before final settlement."
+  ],
+  "sourceAndAcceptanceLimits": [
+    "Current official client runtime exposes the skill UI and text, not an authoritative server damage-marker implementation. A limited runtime search excerpt is retained in ol-ta-dun-client-rule-search-2026-10-13.json. No same-version official FAQ established self-damage OR multiplicity; self1 is an explicit current-text interpretation.",
+    "No current same-version official FAQ established Borrowed Sword secondary-victim participation in marker threshold, intervening mark changes or source loss. Main designated weapon holders and final-window live-mark settlement follow native card target contracts and current text. The selection quota alone is frozen. These are explicit implementation interpretations, not official online-server acceptance.",
+    "2016 official guide uses a different dealt-only/clear-to-zero rule and is excluded from normative implementation.",
+    "Focused genuine-command checks are implemented but await root centralized execution. No Full, foreground desktop, live official matchmaking or complete manual game acceptance performed."
+  ],
+  "artwork": {
+    "url": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/34700.png",
+    "path": "src/CardGame.Wpf/Assets/official-ol-ta-dun.png",
+    "sha256": "7de2b5358cfa5e3e4017a05c6427404475ae1349fac031685e31228240ceb85c",
+    "width": 750,
+    "height": 950,
+    "visuallyInspected": true
+  },
+  "verification": {
+    "class": "DamageTargetBudgetChecks",
+    "prefix": "Damage target budget:",
+    "checks": [
+      "ExactContractsAndFrozenOrderedCollections",
+      "ActualDamageOccurrencesSelfSourceLessAndTwoPoints",
+      "ActualSlashFrozenBudgetSelectionsRecoveryAndOneUse",
+      "ActualOddHalfAfterFinalizationAndIssuedSourceLoss",
+      "ActualBorrowedSwordOrderedPairsAndIronChainSelf",
+      "ActualZeroMaterialSlashAndEffectiveRedExclusion"
+    ],
+    "status": "implemented-awaiting-root-execution",
+    "fullVerification": false,
+    "foregroundAcceptance": false,
+    "staticReview": "Six focused methods include actual quota1/range1, two-point/self/source-less/native damage, source loss, later finalization damage changing marks, Borrowed Sword ordered pairs with repeated victim, Iron Chain self/recast, native zero-material Slash and effective red exclusion. Implemented, not yet executed by root."
+  }
+}

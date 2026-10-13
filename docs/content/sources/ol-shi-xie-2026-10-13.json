@@ -1,0 +1,108 @@
+{
+  "capturedAt": "2026-10-13",
+  "generalId": "ol:shi-xie",
+  "name": "士燮·OL",
+  "productLine": "三国杀OL",
+  "version": "当前官网 hero345 与官方 current client character345 -> j262 / k263 完整匹配；排除2015体验服下回合前临时版本、旧摸牌放弃版，以及十周年场上人数至多4与只有两项礼下版。",
+  "faction": "qun",
+  "maxHp": 3,
+  "gender": "male",
+  "genderEvidence": "Official current client character345 h=1，和本项目已核的男性character一致；传记与官方原画交叉核对。API initial_hp=0 未指定初始值，并非0体力。",
+  "galleryClassification": {
+    "group": "other",
+    "evidence": "当前官网及API未明确目录包字段；不推断SP/线下包归属。"
+  },
+  "sources": [
+    {
+      "url": "https://www.sanguosha.com/hero/345",
+      "path": "docs/content/sources/evidence/ol-shi-xie-2026-10-13-current-page.html",
+      "sha256": "83f937a25fd54f99b406016db4e6d00c23583bee482ae611bede5d3b50889165",
+      "role": "当前完整双技能文本"
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=345",
+      "path": "docs/content/sources/evidence/ol-shi-xie-2026-10-13-info.json",
+      "sha256": "f3281e5e0a8b6007bc26572b2a12d60ed9b86f7170cbc1ae139700bfcc4aea1b",
+      "role": "同gid的群/HP3/姓名/原画"
+    },
+    {
+      "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+      "path": "docs/content/sources/evidence/ol-shi-xie-345-client-2026-10-13.json",
+      "sha256": "489ed3c1d46838adaffc6bc52689a75f73d9315bb1b5fc30a5044c7f6e328ca2",
+      "role": "public official client精确character/skill行及原始成员/解码hash，无整包保留"
+    }
+  ],
+  "skills": [
+    {
+      "id": "ol:biluan",
+      "text": "结束阶段，若有其他角色计算与你的距离为1，你可以弃置一张牌，令其他角色计算与你的距离+X（X为全场势力数）。",
+      "clientSkillId": 262,
+      "clientText": "结束阶段，若有其他角色计算与你的距离为1，你可以弃置一张牌，全场每有一个势力，其他角色计算与你的距离便+1。"
+    },
+    {
+      "id": "ol:lixia",
+      "text": "锁定技，其他角色的结束阶段，若你不在其攻击范围内，你选择一至两项：1.摸一张牌；2.令其摸两张牌；3.令其回复1点体力。每选择一项，你令其他角色计算与你的距离-1。",
+      "clientSkillId": 263,
+      "clientText": "锁定技，其他角色的结束阶段，若你不在其攻击范围内，你选择一至两项：<br>&nbsp;1.摸一张牌；2.令其摸两张牌；3.令其回复1点体力。<br>每选择一项，你令其他角色计算与你的距离-1。"
+    }
+  ],
+  "implementation": [
+    "避乱进入真实自身TurnEnding边界及精确candidate；仅其他存活角色对拥有者的当前combat distance为1且有合法HE弃置成本时可发动。成本使用原生多来源movement，所属receipt保存实体ID/原始位置/目的地/移动序号。",
+    "先排空成本的movement/银狮回复/回复替代/HP/characterstate/失源/濒死/死亡子链，然后动态按现有GetLivingFactionCount计算一次X并发行scalar不可变IncomingDistanceChangedEvent。",
+    "距离从真实永久issued历史投影，对所有其他角色计算与拥有者的方向生效；与座位/坐骑/常规skill modifier同层Add、minimum1，后续明确的distance Set1规则仍优先。自己的outgoing方向不受改动。",
+    "礼下仅真实其他角色TurnEnding、且拥有者不在实际当回合者攻击范围中成立；mandatory选项无跳过，选择一或两个不同收益，按文本项目顺序处理。满HP不提供回复，仍有两个必选摸牌选项和它们的组合。",
+    "每个选定收益在所属program receipt中保存benefits、nextbenefitindex、已发行movement，子链排空后才发行一次-1永久distance，再执行下一项。自己draw1/真实结束回合者draw2走原生private movement；回复1走原生 attributed recovery / replacement。",
+    "已付成本、已经选定并发行收益的技能实例失去不重复收取或中止既定后续；已有永久distance增量按事实保留，重授技能不重新发行历史增量。死亡角色不参与活角色distance；由真实gain child导致游戏结束时排空已发行阶段，不伪造后续收益。",
+    "receipt的Benefits/Movements/Choices及嵌套PromptChoice参数均detached/read-only；两种含集合新event由CommittedEventProjection明确覆盖，player snapshots仍走CreateSnapshot(viewerSeat)，不会显示外国手牌实体。",
+    "public enums采用新增显式尾部值，不改变已有enum或按人物升规则epoch/schema/package。"
+  ],
+  "sourceAndAcceptanceLimits": [
+    "没有找到当前同版官方FAQ明确多项收益排序、满体力回复选择、成本后势力变化或失去技能后永久增量清理；按当前完整技能文本与项目现有无期限已发行事实边界实现，明确作为实现解释。2015体验服的下回合开始前到期不得拼入当前版。",
+    "六项当前干净源码Core实际命令检查已通过，包括真实恢复实例继续结算、已付失源/重授、回复/移动子窗与死亡；整组常规验证仍由root继续，不能把自身6项称全组或全量验收。人工完整对局/前台多DPI/官方线上联机未执行。"
+  ],
+  "artwork": {
+    "url": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/34500.png",
+    "path": "src/CardGame.Wpf/Assets/official-ol-shi-xie.png",
+    "sha256": "2d1c53cb374a1ff78f47bffe761c7cf64c0f98fef0dd94836214a83f6751d22a",
+    "width": 750,
+    "height": 950,
+    "visuallyInspected": true
+  },
+  "verification": {
+    "class": "IncomingDistanceCourtesyChecks",
+    "prefix": "Incoming distance courtesy:",
+    "checks": [
+      "ExactContractsAndFrozenFacts",
+      "ActualFactionCostAndPermanentDirectionAcrossTurns",
+      "CourtesyDistinctBenefitsForeignPrivacyAndRecovery",
+      "PaidCostChildrenSourceLossAndRegrant",
+      "CourtesyPaidFirstBenefitSourceLossKeepsSecond",
+      "RecoveryAndDeathChildrenColdOnce"
+    ],
+    "passed": 6,
+    "failed": 0,
+    "scope": "All six incoming-distance/courtesy mechanism checks passed after all temporary Console/reflection/shared diagnostic hooks were removed. Every paused cost/selected benefit/gain child/HP child/dying source-loss/death child resumes on the actual GameReplay.Restore instance, retaining full state equivalence and original behavior assertions. The same union run had eight separate extra-effect fixture failures; this is not a claim that the whole selection or routine passed.",
+    "earlierMovementWatchObservation": {
+      "status": "not-reproduced-in-current-clean-source",
+      "evidence": [
+        "docs/benchmarks/2026-10-13-batch-5-third-focused-core-selected.log.txt",
+        "docs/benchmarks/2026-10-13-batch-5-courtesy-diagnostic-core-selected.log.txt",
+        "docs/benchmarks/2026-10-13-batch-5-fourth-focused-core-selected.log.txt"
+      ],
+      "explanation": "Earlier three movement Watch fixtures did not enter their observer despite exact real costs/draws and valid queued candidate identity. Later instrumented and then clean current-source runs passed. No specific production root cause or production repair is confirmed; reflection/Console diagnostics are not treated as the cause or the acceptance proof."
+    },
+    "readonlyMechanismAudit": "docs/benchmarks/2026-10-13-shi-xie-extra-effect-readonly-audit.json",
+    "fullVerification": false,
+    "routineSummary": "docs/benchmarks/2026-10-13-batch-5-routine-summary.json",
+    "focusedSummary": "docs/benchmarks/2026-10-13-batch-5-final-focused-summary.json",
+    "status": "batch-focused-and-prescribed-routine-passed",
+    "foregroundAcceptance": false,
+    "coreEvidence": "docs/benchmarks/2026-10-13-batch-5-final-focused-core-selected.log.txt",
+    "summary": "docs/benchmarks/2026-10-13-batch-5-final-focused-summary.json",
+    "batchReport": "docs/benchmarks/2026-10-13-zhang-lu-wang-rong-shi-xie-verification.json",
+    "latestScopeNote": "586 Core / 76 WPF passing is evidence for the recorded earlier stable source snapshot. Two shared files subsequently changed; the current source is covered by the fresh 40 Core / 5 WPF related focused run, not another complete routine or Full.",
+    "latestCoreEvidence": "docs/benchmarks/2026-10-13-batch-5-latest-focused-core-selected.log.txt",
+    "latestFocusedSummary": "docs/benchmarks/2026-10-13-batch-5-latest-focused-summary.json",
+    "latestBatchReport": "docs/benchmarks/2026-10-13-zhang-lu-wang-rong-shi-xie-verification.json"
+  }
+}

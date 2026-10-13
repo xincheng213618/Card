@@ -23,7 +23,7 @@
       "notes": [
         "转化体（inputCount 2、outputKind slash、forPlay+forResponse）与激活体逐字复用已验收的 classic:fuhun 程序形状，仅换 boundary id。",
         "界升级点一：新增引擎卡牌策略 convertedSlashSameColorResponseOnly（枚举 786）——当一次【杀】攻击的用牌来源是该技能实例时，目标响应用的【闪】必须与转化实体牌同色（实体牌全红要求红闪、全黑要求黑闪、红黑混合不施加单色限制）；在人类与 AI 两处闪避选择构建点按颜色过滤，解析门控要求恰为杀族 cardKinds 且无数值/花色附加。",
-        "界升级点二：afterDamageApplied（subject damageSource、perDamage、杀族 damageCardKinds、turnOwnerScope own）触发 grantTurnSkills 授予 classic:wusheng 与 classic:paoxiao——回合限授予走既有 GrantTurnSkills 机制，回合结束随 turn: 前缀授予清理。",
+        "界升级点二：afterDamageApplied（subject damageSource、perDamage、杀族 damageCardKinds、turnOwnerScope own）触发 grantTurnSkills 授予 boundary:wusheng 与 boundary:paoxiao，即界关羽方片杀无视距离、界张飞杀被闪后累加下一次杀的伤害；2026-10-13 按用户指定纠正授予版本。回合限授予走既有 GrantTurnSkills 机制，回合结束随 turn: 前缀授予清理。",
         "官方文案“使用【杀】造成伤害”未限定转化【杀】，故授予触发不按 sourceSkillId 过滤，任何回合内以其为伤害来源的杀族伤害均满足。"
       ]
     }
