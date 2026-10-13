@@ -1,0 +1,114 @@
+{
+  "status": "passed",
+  "failure": null,
+  "startedAt": "2026-10-13T12:51:03.8696872+08:00",
+  "durationMs": 104412,
+  "repository": "C:\\Users\\17917\\Desktop\\Card",
+  "artifactsPath": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-Startup-01a13324",
+  "filter": "hand responses select exact cards and confirm through shared controls",
+  "preparationBuildIncludesProjectReferences": true,
+  "comparisonBuildsDependencies": false,
+  "beforeSourceSha256": "9F32586CDA27AC9158BCA664ED9CC17765AC67EAFFF421CD5BF5B07DDF0ED84B",
+  "afterSourceSha256": "B4B0920EFD6A11A404C6FE03DAFA37D202122D0203813FEFBAE3AC77BBCC17F1",
+  "finalSourceSha256": "B4B0920EFD6A11A404C6FE03DAFA37D202122D0203813FEFBAE3AC77BBCC17F1",
+  "sourceRestoredExactly": true,
+  "lastBuiltVariant": "after",
+  "steps": [
+    {
+      "name": "prepare dependency synchronization",
+      "exitCode": 0,
+      "log": "C:\\Users\\17917\\Desktop\\Card\\docs\\benchmarks\\2026-10-13-hand-response-cache-controlled-prepare-build.log",
+      "durationMs": 17634
+    },
+    {
+      "name": "before test-only build",
+      "exitCode": 0,
+      "log": "C:\\Users\\17917\\Desktop\\Card\\docs\\benchmarks\\2026-10-13-hand-response-cache-controlled-before-build.log",
+      "durationMs": 1942
+    },
+    {
+      "name": "before sample 1",
+      "exitCode": 0,
+      "log": "C:\\Users\\17917\\Desktop\\Card\\docs\\benchmarks\\2026-10-13-hand-response-cache-controlled-before1-wpf.log",
+      "durationMs": 16998
+    },
+    {
+      "name": "before sample 2",
+      "exitCode": 0,
+      "log": "C:\\Users\\17917\\Desktop\\Card\\docs\\benchmarks\\2026-10-13-hand-response-cache-controlled-before2-wpf.log",
+      "durationMs": 17858
+    },
+    {
+      "name": "after test-only build",
+      "exitCode": 0,
+      "log": "C:\\Users\\17917\\Desktop\\Card\\docs\\benchmarks\\2026-10-13-hand-response-cache-controlled-after-build.log",
+      "durationMs": 1740
+    },
+    {
+      "name": "after sample 1",
+      "exitCode": 0,
+      "log": "C:\\Users\\17917\\Desktop\\Card\\docs\\benchmarks\\2026-10-13-hand-response-cache-controlled-after1-wpf.log",
+      "durationMs": 15857
+    },
+    {
+      "name": "after sample 2",
+      "exitCode": 0,
+      "log": "C:\\Users\\17917\\Desktop\\Card\\docs\\benchmarks\\2026-10-13-hand-response-cache-controlled-after2-wpf.log",
+      "durationMs": 16143
+    }
+  ],
+  "samples": [
+    {
+      "variant": "before",
+      "sample": 1,
+      "testMs": 16173.36,
+      "log": "C:\\Users\\17917\\Desktop\\Card\\docs\\benchmarks\\2026-10-13-hand-response-cache-controlled-before1-wpf.log",
+      "testAssemblySha256": "5280B0BB380729AFE7AF1C14190D59BCAA7419A2E2C1D0DF78D38828F3EE94D9",
+      "focusedDiagnosticCount": 23,
+      "responseFamilyCount": 8,
+      "allOtherSemanticLinesEqual": true,
+      "cacheDiagnostic": []
+    },
+    {
+      "variant": "before",
+      "sample": 2,
+      "testMs": 17240.712,
+      "log": "C:\\Users\\17917\\Desktop\\Card\\docs\\benchmarks\\2026-10-13-hand-response-cache-controlled-before2-wpf.log",
+      "testAssemblySha256": "5280B0BB380729AFE7AF1C14190D59BCAA7419A2E2C1D0DF78D38828F3EE94D9",
+      "focusedDiagnosticCount": 23,
+      "responseFamilyCount": 8,
+      "allOtherSemanticLinesEqual": true,
+      "cacheDiagnostic": []
+    },
+    {
+      "variant": "after",
+      "sample": 1,
+      "testMs": 15265.012,
+      "log": "C:\\Users\\17917\\Desktop\\Card\\docs\\benchmarks\\2026-10-13-hand-response-cache-controlled-after1-wpf.log",
+      "testAssemblySha256": "4C14971FC68BC4805BA0C63A82FB727F3EFEEBD2AA87E12A16C0EF6C3CE68C1B",
+      "focusedDiagnosticCount": 23,
+      "responseFamilyCount": 8,
+      "allOtherSemanticLinesEqual": true,
+      "cacheDiagnostic": [
+        "Focused Enter baseline reuse: actual loads=17, independent baselines=3."
+      ]
+    },
+    {
+      "variant": "after",
+      "sample": 2,
+      "testMs": 15567.553,
+      "log": "C:\\Users\\17917\\Desktop\\Card\\docs\\benchmarks\\2026-10-13-hand-response-cache-controlled-after2-wpf.log",
+      "testAssemblySha256": "4C14971FC68BC4805BA0C63A82FB727F3EFEEBD2AA87E12A16C0EF6C3CE68C1B",
+      "focusedDiagnosticCount": 23,
+      "responseFamilyCount": 8,
+      "allOtherSemanticLinesEqual": true,
+      "cacheDiagnostic": [
+        "Focused Enter baseline reuse: actual loads=17, independent baselines=3."
+      ]
+    }
+  ],
+  "fullChecksRun": false,
+  "productionSourcesChanged": false,
+  "deletionsAttempted": false,
+  "timingInterpretation": "Two focused samples per variant with fixed production dependencies; not a statistical estimate."
+}

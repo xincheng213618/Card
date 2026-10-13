@@ -1,0 +1,18 @@
+{
+  "scope": "Actual failing A-B-A becoming-target regression before the production correction",
+  "summary": "docs/benchmarks/2026-10-13-sole-target-episode-red-summary.json",
+  "files": [
+    {
+      "path": "src/CardGame.Core/GameEngine.SoleTargetRedirect.cs",
+      "sha256": "6A621BFC13ADF9DD5C8158E9BA03B2FD1B9B7B327F05C9389CB363916F797DD6"
+    },
+    {
+      "path": "tests/CardGame.Core.Tests/SoleTargetProtectionChecks.cs",
+      "sha256": "1E23176EC04FFBF05D3AC43E01F07BE41F52EFDB7EBCB1A2D34D2737E55CDCD7"
+    },
+    {
+      "path": "tests/CardGame.Core.Tests/Program.cs",
+      "sha256": "BB1ED6C4EF96109E36720921BBA467418F65239B8E1D437C52FEA48B073181C6"
+    }
+  ]
+}

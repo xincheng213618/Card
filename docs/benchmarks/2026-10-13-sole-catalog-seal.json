@@ -1,0 +1,13 @@
+{
+  "RecordedAt": "2026-10-13T17:37:38.5827476+08:00",
+  "Dependencies": {
+    "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-Startup-01a13324\\bin\\CardGame.Core\\release\\CardGame.Core.dll": "7D6468A188A67EEA264F4CDD89D494C91BAE16D353D186D132C42143EB49DFD1",
+    "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-Startup-01a13324\\obj\\CardGame.Core\\release\\ref\\CardGame.Core.dll": "847C07283DA272117E6010063CDDE78C03EFE946B7555CD5B82015219326F808",
+    "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-Startup-01a13324\\bin\\CardGame.Core.Tests\\release\\CardGame.Core.dll": "7D6468A188A67EEA264F4CDD89D494C91BAE16D353D186D132C42143EB49DFD1",
+    "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-Startup-01a13324\\bin\\CardGame.Content.Standard\\release\\CardGame.Content.Standard.dll": "C1574BDC4C3B285B5A6237FFBCFB240119712983346CE8864C494011B32CEFCF",
+    "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-Startup-01a13324\\obj\\CardGame.Content.Standard\\release\\ref\\CardGame.Content.Standard.dll": "B069638A610595616497CC378D43852334C85952488AB8DC9B4B132C6DE91463",
+    "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-Startup-01a13324\\bin\\CardGame.Core.Tests\\release\\CardGame.Content.Standard.dll": "C1574BDC4C3B285B5A6237FFBCFB240119712983346CE8864C494011B32CEFCF"
+  },
+  "BeforeSourceHash": "209CBE9F42C91726EA6B56F0CFE2CE5CB3B1CE2965D94A7D43703A134C849578",
+  "Scope": "Seven actual existing filtered Core checks and immutable content comparison, no full verification"
+}

@@ -1,0 +1,31 @@
+{
+  "AuditedAt": "2026-10-13T13:03:47.9500924+08:00",
+  "Root": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-Startup-01a13324",
+  "OwnerVerified": true,
+  "LinkedAncestors": [],
+  "Consumers": [],
+  "ExclusiveLockVerified": true,
+  "DeletionAttempted": false,
+  "RetryAttempted": false,
+  "FreedBytes": 0,
+  "Retained": [
+    {
+      "Path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-Startup-01a13324",
+      "Present": true
+    },
+    {
+      "Path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-Startup-01a13324\\bin",
+      "Present": true
+    },
+    {
+      "Path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-Startup-01a13324\\obj",
+      "Present": true
+    },
+    {
+      "Path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-Startup-01a13324\\renders",
+      "Present": true
+    }
+  ],
+  "HelperScript": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-Startup-01a13324\\hand-response-cache-ab.ps1",
+  "Reason": "Prior blocked-by-policy cleanup rejection; no retry. Final verification evidence preserved in docs/benchmarks."
+}

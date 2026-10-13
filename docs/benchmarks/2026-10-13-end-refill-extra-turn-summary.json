@@ -1,0 +1,8 @@
+{
+  "scope": "Focused extra-turn and skipped-turn actual-start check after adding the real extra-turn subcase; test-only build reuses the previous verified Core",
+  "filter": "End refill next turn: skipped actual turn consumes and restriction expires",
+  "exitCode": 0,
+  "durationMs": 1327,
+  "build": "docs/benchmarks/2026-10-13-end-refill-extra-turn-build.txt",
+  "log": "docs/benchmarks/2026-10-13-end-refill-extra-turn-core.txt"
+}

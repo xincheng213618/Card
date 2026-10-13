@@ -1,0 +1,26 @@
+[
+  {
+    "Path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-Startup-01a13324\\bin",
+    "Exists": true,
+    "NoDeletionRetried": true,
+    "Reason": "Prior root deletion blocked by policy"
+  },
+  {
+    "Path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-Startup-01a13324\\obj",
+    "Exists": true,
+    "NoDeletionRetried": true,
+    "Reason": "Prior root deletion blocked by policy"
+  },
+  {
+    "Path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-Startup-01a13324\\renders",
+    "Exists": true,
+    "NoDeletionRetried": true,
+    "Reason": "Prior root deletion blocked by policy"
+  },
+  {
+    "Path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-Startup-01a13324\\amount-cache-harness",
+    "Exists": true,
+    "NoDeletionRetried": true,
+    "Reason": "Prior root deletion blocked by policy"
+  }
+]

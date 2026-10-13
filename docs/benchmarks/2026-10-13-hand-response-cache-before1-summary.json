@@ -1,0 +1,39 @@
+{
+  "status": "passed",
+  "mode": "targeted",
+  "repository": "C:\\Users\\17917\\Desktop\\Card",
+  "artifactsPath": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-Startup-01a13324",
+  "coreFilters": [],
+  "wpfFilters": [
+    "hand responses select exact cards and confirm through shared controls"
+  ],
+  "startedAt": "2026-10-13T12:28:10.8125120+08:00",
+  "durationMs": 38216,
+  "message": null,
+  "results": [
+    {
+      "name": "Build selected scope",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 17036,
+      "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-Startup-01a13324\\logs\\build.log"
+    },
+    {
+      "name": "WPF selected checks (1 filters, union)",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 20853,
+      "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-Startup-01a13324\\logs\\wpf-selected.log"
+    }
+  ],
+  "cleanup": {
+    "status": "queued",
+    "queued": [
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-Startup-01a13324\\bin",
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-Startup-01a13324\\obj",
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-Startup-01a13324\\renders"
+    ],
+    "database": "C:\\Users\\17917\\Desktop\\Card\\tools\\cleanup_queue.json",
+    "message": null
+  }
+}

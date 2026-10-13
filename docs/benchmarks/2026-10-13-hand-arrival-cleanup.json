@@ -1,0 +1,33 @@
+{
+  "auditedAt": "2026-10-13T04:02:50.6599444+08:00",
+  "status": "retained_previous_policy_block_no_retry",
+  "artifactsRoot": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f",
+  "ownerMatches": true,
+  "strictlyInsideTemp": true,
+  "linkedPaths": [],
+  "lockAvailable": true,
+  "liveConsumers": [],
+  "deleteAttemptedThisBatch": false,
+  "freedBytes": 0,
+  "retainedDirectories": [
+    {
+      "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin",
+      "exists": true,
+      "queued": true
+    },
+    {
+      "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\obj",
+      "exists": true,
+      "queued": true
+    },
+    {
+      "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders",
+      "exists": true,
+      "queued": true
+    }
+  ],
+  "reason": "Task-owned reused verification outputs: previous exact-path cleanup was blocked by policy, so deletion retry remains prohibited. Hand-arrival focused/routine/native logs, source hashes, PNG/GIF/MP4 evidence are preserved in docs/benchmarks; no separate artifact root was created.",
+  "previousAudit": "docs/benchmarks/2026-10-13-hand-reflow-cleanup.json",
+  "cleanupQueue": "tools/cleanup_queue.json",
+  "unrelatedQueueEntriesProcessed": false
+}

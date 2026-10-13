@@ -1,0 +1,82 @@
+[
+  {
+    "path": "src/CardGame.Content.Standard/OlHanSuiContent.cs",
+    "sha256": "B81AF9007A64A1B9BA2DDB74A62EF84862B210949A611757AE934735B3F342B4"
+  },
+  {
+    "path": "src/CardGame.Content.Standard/OlXiahouBaContent.cs",
+    "sha256": "D3E7031C1A0D6D37A439EEEF4CFA67859802691E93C3FD8B3BC7E240CFD52900"
+  },
+  {
+    "path": "src/CardGame.Content.Standard/SkillPrograms/ol-han-sui.rules.json",
+    "sha256": "2EE44D9ACC59CA4679FBBE2E4467784A5D42802F8429A32694DDEBEC089E477D"
+  },
+  {
+    "path": "src/CardGame.Content.Standard/SkillPrograms/ol-xiahou-ba.rules.json",
+    "sha256": "06C0F65B73BFD3D65219F7AE0CA5C1AEAADCD89228E14D6E1A847C3E5D91CAED"
+  },
+  {
+    "path": "src/CardGame.Content.Standard/SkillPrograms/ol-zhu-ling.rules.json",
+    "sha256": "8A460D6AC2A01D55E129643DD185504330B9E0CC4B543588974D01C7F72DF6A0"
+  },
+  {
+    "path": "src/CardGame.Content.Standard/SkillPrograms/classic-jiang-wei.rules.json",
+    "sha256": "A534DEA9CF9FE1F676D6016B96AAC6CCCE99031BACE86D8CBA9654E1B3B00F77"
+  },
+  {
+    "path": "src/CardGame.Content.Standard/SkillPrograms/judgment-cutover.rules.json",
+    "sha256": "436AA3857ACEB7C3D1921ECF693F19130CA9815F3FA81DCC2EEFBC6A957155D8"
+  },
+  {
+    "path": "src/CardGame.Core/TriggeredCardConversionPrograms.cs",
+    "sha256": "5E49AB9DE536E770739AB8D976BECC8B9C3991ECF9A8A0530A7427685695E396"
+  },
+  {
+    "path": "src/CardGame.Core/GameEngine.TriggeredCardConversions.cs",
+    "sha256": "FF2C79FB47A1EDC8E098BC67E99ACF79A46EA661A52B314C20A515057917003B"
+  },
+  {
+    "path": "src/CardGame.Core/HpConditionalSkillGrants.cs",
+    "sha256": "1A84CF73544F93F3B84DC2CB499CA7632D5CFA70F77A8BB72CD80792B0FDDDDE"
+  },
+  {
+    "path": "src/CardGame.Core/GameEngine.HpConditionalSkillGrants.cs",
+    "sha256": "58434A8E6CEB18024BBF3314AA6F13572AE4E32EAE4DBD4AE721FB0919D33085"
+  },
+  {
+    "path": "src/CardGame.Core/CardRecoveryModifiers.cs",
+    "sha256": "48139CBFD9854DA4C8010BF5E44F2A54D0AE47EB023095B023E83A9A395577E2"
+  },
+  {
+    "path": "src/CardGame.Core/GameEngine.CardRecoveryModifiers.cs",
+    "sha256": "572AA9AE6AD73E8473C28D0C3E30D643234F9AF4518879D3427D9CEB2567C725"
+  },
+  {
+    "path": "src/CardGame.Core/GameEngine.ProgramBooleanStateExpiration.cs",
+    "sha256": "FF5E690E00762D4BA12279169D61832BA8165C13D37728A36356CEA171215479"
+  },
+  {
+    "path": "src/CardGame.Core/GameEngine.ProgramLifecycle.cs",
+    "sha256": "BA76434EC4F560E45AC7686E01ECFF42D5BBD014998FF2CF633C185345A03B7F"
+  },
+  {
+    "path": "src/CardGame.Core/Replay.cs",
+    "sha256": "62EF140F72BE0EA9FB31A09629E73AAE28C4A2728CB2C9225B4C1703C851B856"
+  },
+  {
+    "path": "tests/CardGame.Core.Tests/TriggeredCardConversionChecks.cs",
+    "sha256": "C36F06EC5CA81F77883C9D7BA6DCDB659EB3E9BFC6FBF96228C3BD1536E30FD5"
+  },
+  {
+    "path": "tests/CardGame.Core.Tests/HpConditionalSkillGrantChecks.cs",
+    "sha256": "8C67814FDB0B1F4E86BBE44B9D449E996961D4C4A5D27C51AEC260E25CD0DF8D"
+  },
+  {
+    "path": "tests/CardGame.Core.Tests/ZhuLingBenefitChecks.cs",
+    "sha256": "65EEC0A13BCE1C4DFB41F27BB0709A9F9588F6B17FDF200897E2646462BF7A0D"
+  },
+  {
+    "path": "tests/CardGame.Wpf.Tests/EditionGeneralGalleryChecks.cs",
+    "sha256": "65B3E8F5DA7A5EA6EBCF6750DBB0B1318F2AC77A231D238F1A028F7DAE552233"
+  }
+]

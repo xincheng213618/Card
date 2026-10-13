@@ -1,0 +1,25 @@
+{
+  "auditedAt": "2026-10-13T11:01:18.2048069+08:00",
+  "root": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f",
+  "ownerVerified": true,
+  "linkedAncestors": [],
+  "consumers": [],
+  "exclusiveLockVerified": true,
+  "deletionAttempted": false,
+  "freedBytes": 0,
+  "reason": "Previous exact-path policy rejection; no automatic retry under AGENTS.md.",
+  "retained": [
+    {
+      "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin",
+      "present": true
+    },
+    {
+      "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\obj",
+      "present": true
+    },
+    {
+      "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders",
+      "present": true
+    }
+  ]
+}

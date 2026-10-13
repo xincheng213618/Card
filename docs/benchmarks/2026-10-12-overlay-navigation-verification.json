@@ -1,0 +1,53 @@
+{
+  "recordedAt": "2026-10-12",
+  "scope": "WPF table overlay navigation",
+  "change": "Cycle Tab and Shift+Tab within opening deal, battle log and completed match result panels.",
+  "baseline": {
+    "reproduced": true,
+    "escapedRoutes": [
+      "opening Next",
+      "opening Previous",
+      "log Next",
+      "log Previous",
+      "result Next",
+      "result Previous"
+    ]
+  },
+  "focused": {
+    "filters": [
+      "table modal focus",
+      "table shortcuts",
+      "hand responses"
+    ],
+    "passed": 5,
+    "failed": 0,
+    "durationMs": 23826
+  },
+  "routine": {
+    "status": "passed",
+    "corePassed": 476,
+    "wpfPassed": 45,
+    "failed": 0,
+    "durationMs": 127043,
+    "buildMs": 1262,
+    "coreMs": 77740,
+    "wpfMs": 47753
+  },
+  "resultEvidence": {
+    "nativeDrawAcceptedCommands": 5,
+    "playerSafeSnapshotViewers": 8,
+    "ctrlEnterConsumed": true,
+    "ordinaryHistoryAndRematchEnter": true,
+    "historyEntries": 1,
+    "screenshot": "2026-10-12-overlay-navigation-result.png"
+  },
+  "limits": [
+    "Hidden message-only native WPF window and routed keyboard traversal; no foreground physical keyboard or mouse acceptance.",
+    "No multi-DPI or audio acceptance; full verification not requested or run.",
+    "Routine duration remains above the approximately one-minute target."
+  ],
+  "retainedArtifacts": {
+    "root": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f",
+    "reason": "Prior cleanup blocked by policy; automatic retry prohibited."
+  }
+}

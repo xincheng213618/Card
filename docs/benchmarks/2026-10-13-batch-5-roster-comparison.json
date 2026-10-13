@@ -1,0 +1,12 @@
+{
+  "before": 378,
+  "after": 381,
+  "added": [
+    "ol:shi-xie",
+    "ol:wang-rong",
+    "ol:zhang-lu"
+  ],
+  "removed": [],
+  "baseline": "docs/benchmarks/2026-10-13-next-batch-roster-preflight.json",
+  "current": "docs/benchmarks/2026-10-13-batch-5-final-roster.json"
+}

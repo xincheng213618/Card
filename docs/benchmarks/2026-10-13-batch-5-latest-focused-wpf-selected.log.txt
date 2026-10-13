@@ -1,0 +1,36 @@
+[PASS] Edition general gallery: namespaced portraits and real details
+[PASS] Alcohol bonus UI: stacked public bonus fallback and clearing
+OL Yeyan draft: ids=27,32,45,73, suits=Club,Diamond,Spade,Spade, publishedDistinct=True, canConfirm=False, buttonEnabled=False.
+Jianhe Mixed/button: ids=1,10, kinds=Slash,Duel, published=10, canConfirm=False, buttonEnabled=False.
+Jianhe Mixed/button: valid ids=1,2, origins=Hand,Hand, canConfirm=True, buttonEnabled=True.
+Jianhe Mixed/Enter: ids=1,10, kinds=Slash,Duel, published=10, canConfirm=False, buttonEnabled=False.
+Jianhe Mixed/Enter: valid ids=1,2, origins=Hand,Hand, canConfirm=True, buttonEnabled=True.
+Jianhe Canonical/button: valid ids=1,6,10, origins=Hand,Hand,Hand, canConfirm=True, buttonEnabled=True.
+Jianhe Canonical/Enter: valid ids=1,6,10, origins=Hand,Hand,Hand, canConfirm=True, buttonEnabled=True.
+Jianhe Equipment/button: valid ids=1,10, origins=Equipment,Hand, canConfirm=True, buttonEnabled=True.
+Jianhe Equipment/Enter: valid ids=1,10, origins=Equipment,Hand, canConfirm=True, buttonEnabled=True.
+Card-target advice Zhijian: armor=8, target=2, nativeAccepted=True.
+Card-target Zhijian: armor=10, weapon=1, limited=1, normal=2, nativeTargetUnion=1,2,3, armorLegal=2,3.
+Card-target Zhijian/button: cost=10, recipient=2, canConfirm=True, buttonEnabled=True.
+Card-target Zhijian/Enter: cost=10, recipient=2, canConfirm=True, buttonEnabled=True.
+Card-target Zhijian/button: cost=1, recipient=1, canConfirm=True, buttonEnabled=True.
+Card-target Zhijian/Enter: cost=1, recipient=1, canConfirm=True, buttonEnabled=True.
+Card-target advice Jieyin: armor=8, target=2, nativeAccepted=True.
+Card-target Jieyin: armor=10, weapon=1, limited=1, normal=2, nativeTargetUnion=1,2,3, armorLegal=2,3.
+Card-target Jieyin/button: cost=10, recipient=2, canConfirm=True, buttonEnabled=True.
+Card-target Jieyin/Enter: cost=10, recipient=2, canConfirm=True, buttonEnabled=True.
+Card-target Jieyin/button: cost=1, recipient=1, canConfirm=True, buttonEnabled=True.
+Card-target Jieyin/Enter: cost=1, recipient=1, canConfirm=True, buttonEnabled=True.
+Target-pair Dimeng: ownHE=1, low=1/1, bridge=2/2, high=3/3, union=1,2,3, afterLowLegal=1,2, canConfirm=False, buttonEnabled=False.
+Target-pair Dimeng/button: orderedTargets=1,2, actualCounts=1,2, canConfirm=True, buttonEnabled=True.
+Target-pair Dimeng/Enter: orderedTargets=1,2, actualCounts=1,2, canConfirm=True, buttonEnabled=True.
+Target-pair Dimeng/button: orderedTargets=2,1, actualCounts=2,1, canConfirm=True, buttonEnabled=True.
+Target-pair Dimeng/Enter: orderedTargets=2,1, actualCounts=2,1, canConfirm=True, buttonEnabled=True.
+Target-pair Dimeng/button: orderedTargets=2,3, actualCounts=2,3, canConfirm=True, buttonEnabled=True.
+Target-pair Dimeng/Enter: orderedTargets=2,3, actualCounts=2,3, canConfirm=True, buttonEnabled=True.
+Target-pair Dimeng/button: orderedTargets=3,2, actualCounts=3,2, canConfirm=True, buttonEnabled=True.
+Target-pair Dimeng/Enter: orderedTargets=3,2, actualCounts=3,2, canConfirm=True, buttonEnabled=True.
+[PASS] composed skills share the generic WPF draft and submit their stable program identity
+[PASS] Program conversion tiers restore actual shared skill state
+[PASS] Program conversion polarity stays visible with active entry and restore
+5 WPF checks passed, 0 failed. Renders: C:\Users\17917\AppData\Local\Temp\CardGame-TestChanged-25f07ed2579f\renders

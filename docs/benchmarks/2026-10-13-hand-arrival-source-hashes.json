@@ -1,0 +1,74 @@
+[
+  {
+    "path": "src/CardGame.Wpf/Controls/HandPanel.cs",
+    "sha256": "cd26b490e9cbdc81e242fa6c8c1462835316cf36661342cf05f9e88f475a0d17"
+  },
+  {
+    "path": "src/CardGame.Wpf/Controls/CardLiftSurface.cs",
+    "sha256": "f4437897dad67eb73ae03bcd4c4ced9316174a39ff082c0ab5c30e7acf3005ec"
+  },
+  {
+    "path": "src/CardGame.Wpf/Controls/BattleFeedbackLayer.cs",
+    "sha256": "82365938f2f4f03c9d3d5d7d7b420d46714cf3301c67fc01d7a03c63d0f03ca7"
+  },
+  {
+    "path": "src/CardGame.Wpf/Controls/BattleEffectPainter.cs",
+    "sha256": "a777a592b5dddab03d29e281ed37c4abf5d12182813787bc642f44e5d4047c07"
+  },
+  {
+    "path": "src/CardGame.Wpf/Themes/TableTheme.xaml",
+    "sha256": "086c609ea2eb56db06e69f4582939839032a8e71baa902aaf337a93a9999888c"
+  },
+  {
+    "path": "src/CardGame.Wpf/MainWindow.xaml",
+    "sha256": "0eae583f7286681d80a2c28336c4a3ede979cd8ddd61f9624e5254d4604fd129"
+  },
+  {
+    "path": "src/CardGame.Wpf/ViewModels/MainViewModel.cs",
+    "sha256": "127aff21695e36b52f1f9bf0ca7249a6c89a1bb0d9e8ccbc7b50bc84c99e190b"
+  },
+  {
+    "path": "tests/CardGame.Wpf.Tests/HandPointerChecks.cs",
+    "sha256": "a1a89cafca7d80880b491aa3bedcec3e2ce67c5979d1b6b7d11b4c462eecbb2c"
+  },
+  {
+    "path": "tests/CardGame.Wpf.Tests/HandLiftMotionChecks.cs",
+    "sha256": "60054b2c0c9499144be9516b7b30c3852a1d2f86aab9f83ecd09283617d0321e"
+  },
+  {
+    "path": "tests/CardGame.Wpf.Tests/NativeResponseStatusChecks.cs",
+    "sha256": "59ec41f8fac06a55cab03a3699717168a67c0487ad1fe587cd1b8720bb806fca"
+  },
+  {
+    "path": "tests/CardGame.Wpf.Tests/HandCardFlightChecks.cs",
+    "sha256": "d304cdd7fd1f4af4adb4d15ed0fe6da8595ceb5b17a671dfd26959c58250ca4a"
+  },
+  {
+    "path": "tests/CardGame.Wpf.Tests/HandGrainChecks.cs",
+    "sha256": "4fea62aaa2f267b0f23857110b08dddc1171f29c414aa7ce1fd9997a2795179c"
+  },
+  {
+    "path": "tests/CardGame.Wpf.Tests/Program.cs",
+    "sha256": "b16c5c2e7de568c6462b77381faf8210cdf277ca850fa1e8a5a01d0a3abbd9f7"
+  },
+  {
+    "path": "tools/VerificationScopes.psd1",
+    "sha256": "ef41abc2601eaaac759f3f6df88b41d3ff2d2dbf2f08a1b54df900de063e79f2"
+  },
+  {
+    "path": "tools/Test-Changed.ps1",
+    "sha256": "4d362882e8e098491a0961534ebccc95281a7171c2a384df3674bb19552fd0da"
+  },
+  {
+    "path": "src/CardGame.Wpf/ViewModels/MainViewModel.OpeningDeal.cs",
+    "sha256": "7731fd4b3f95fcb10b9a7cab1bc86fd699eec00d271d0827a6f80f9886be128b"
+  },
+  {
+    "path": "src/CardGame.Core/Replay.cs",
+    "sha256": "f97ff54489e6705a6755b82ffa039494f6d39fb445d7eac67fd9c2bedeb13783"
+  },
+  {
+    "path": "src/CardGame.Core/SkillPrograms.cs",
+    "sha256": "a883f4a969edab4e67b03838651be19ab9db5680512d34786c3889d620d690f3"
+  }
+]

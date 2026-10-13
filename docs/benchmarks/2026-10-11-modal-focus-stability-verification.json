@@ -1,0 +1,397 @@
+{
+  "date": "2026-10-11",
+  "objective": "Improve table interaction and stability: focus follows current surfaces and survives modal reopen",
+  "repository": "C:\\Users\\17917\\Desktop\\Card",
+  "baseHead": "0f08fb47bb8637ccf082f406d69f6f6c0cbe7b52",
+  "changes": [
+    "Coordinate deferred main-window overlay focus through one request generation and captured view model; retire stale callbacks and stop after Window closes.",
+    "Preserve the external return control across close/reopen instead of remembering a control inside the same overlay; restore only enabled, visible targets inside the current surface.",
+    "Choose the current focus surface in XAML order, including startup general/opening cards, log and result; add real visibility entry points for table overlays.",
+    "Preserve current focus when a covered table layer completes, while restoring table focus when the closing layer itself still owns focus before WPF propagates child visibility.",
+    "Add one focused loaded-window regression to the existing WPF runner and routine verification scope."
+  ],
+  "before": {
+    "status": "test-failed",
+    "startedAt": "2026-10-11T11:22:07.6556702+08:00",
+    "durationMs": 16730,
+    "results": [
+      {
+        "name": "Build selected scope",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 14573,
+        "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\build.log"
+      },
+      {
+        "name": "WPF selected checks (1 filters, union)",
+        "status": "failed",
+        "exitCode": 1,
+        "durationMs": 1927,
+        "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\wpf-selected.log"
+      }
+    ],
+    "passed": 0,
+    "failed": 1,
+    "failure": "Closing identity focused the table header instead of the pending general choice.",
+    "coldBuildWarnings": 18,
+    "warningScope": "Existing Core and Core.Tests source files outside this iteration; no WPF warnings. Final incremental builds report zero warnings."
+  },
+  "negativeControl": {
+    "status": "test-failed",
+    "startedAt": "2026-10-11T11:28:58.8534828+08:00",
+    "durationMs": 10888,
+    "results": [
+      {
+        "name": "Build selected scope",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 7566,
+        "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\build.log"
+      },
+      {
+        "name": "WPF selected checks (1 filters, union)",
+        "status": "failed",
+        "exitCode": 1,
+        "durationMs": 2995,
+        "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\wpf-selected.log"
+      }
+    ],
+    "passed": 0,
+    "failed": 1,
+    "failure": "Closing a rapidly reopened guide lost its original external return target.",
+    "change": "Temporarily restored unconditional return-focus capture; restored only the exact changed guard in finally, preserving all other file content."
+  },
+  "coveredLayerRegression": {
+    "status": "test-failed",
+    "startedAt": "2026-10-11T11:32:03.2764701+08:00",
+    "durationMs": 3875,
+    "results": [
+      {
+        "name": "Build selected scope",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 1495,
+        "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\build.log"
+      },
+      {
+        "name": "WPF selected checks (1 filters, union)",
+        "status": "failed",
+        "exitCode": 1,
+        "durationMs": 2156,
+        "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\wpf-selected.log"
+      }
+    ],
+    "passed": 0,
+    "failed": 1,
+    "failure": "Dismissing the covered opening cards moved focus within the active settings panel.",
+    "fix": "Preserve current enabled visible focus in the covering surface only if it is outside the closing lower overlay."
+  },
+  "focused": {
+    "status": "passed",
+    "startedAt": "2026-10-11T11:37:25.2954447+08:00",
+    "durationMs": 10673,
+    "results": [
+      {
+        "name": "Build selected scope",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 3871,
+        "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\build.log"
+      },
+      {
+        "name": "WPF selected checks (5 filters, union)",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 6486,
+        "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\wpf-selected.log"
+      }
+    ],
+    "filters": [
+      "table modal focus",
+      "table shortcuts",
+      "gallery details restore",
+      "general selection input",
+      "guide modal"
+    ],
+    "passed": 6,
+    "failed": 0
+  },
+  "intermediateRoutine": {
+    "status": "passed",
+    "startedAt": "2026-10-11T11:29:52.398259+08:00",
+    "durationMs": 119110,
+    "coreFilters": 294,
+    "wpfFilters": 34,
+    "results": [
+      {
+        "name": "Build selected scope",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 4352,
+        "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\build.log"
+      },
+      {
+        "name": "Core selected checks (294 filters, union)",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 83120,
+        "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\core-selected.log"
+      },
+      {
+        "name": "WPF selected checks (34 filters, union)",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 31181,
+        "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\wpf-selected.log"
+      }
+    ],
+    "corePassed": 475,
+    "wpfPassed": 40,
+    "note": "Passed before the added covered-layer regression. Not used as final verification for the later focus-preservation guard."
+  },
+  "fixture": {
+    "realMainWindowLoaded": true,
+    "wpfVisibility": true,
+    "nativeWindowVisible": false,
+    "ownWindowForeground": false,
+    "wpfKeyboardFocusedElementChecked": true,
+    "keyEventInjection": false,
+    "actualTabTraversal": false,
+    "physicalKeyboardAcceptance": false,
+    "focusTargetInjection": false,
+    "method": "Create the actual Window offscreen with ShowActivated=false and ShowInTaskbar=false; immediately hide its own HWND using SW_HIDE before dispatcher pumping. Assert IsLoaded, WPF IsVisible, !IsWindowVisible and foreground HWND differs. Use real commands, visibility bindings, Dispatcher queues and Keyboard.FocusedElement. Window closes in finally.",
+    "nativeForegroundScope": "Asserted at fixture initialization; real user desktop keyboard and foreground transitions are not an acceptance claim."
+  },
+  "coverage": {
+    "visibleRootPanels": [
+      "settings",
+      "history",
+      "gallery search",
+      "guide",
+      "lobby"
+    ],
+    "startup": [
+      "lobby to identity",
+      "identity to general selection without submitting",
+      "general selection to opening cards"
+    ],
+    "restoration": [
+      "exact real enabled original general control",
+      "rapid guide close/reopen original control",
+      "old guide callback followed by settings",
+      "log close to visible opening cards",
+      "settings close to visible opening cards",
+      "covered opening cards close preserves SettingsMotionToggle",
+      "active-table log close returns to a visible enabled table control",
+      "closed-window queued callbacks retire"
+    ],
+    "underlyingState": "Engine revision and serialized viewer snapshot remain unchanged during browsing/focus operations.",
+    "resultFocusEntryDirectlyCovered": false,
+    "galleryDetailsHigherLayerRestoreDirectlyCovered": false,
+    "galleryDetailsCoveredSeparately": "Existing gallery details restore regression passed in the focused and routine scopes."
+  },
+  "fixtureDevelopment": {
+    "repairs": [
+      "Stopped clearing logical focus scopes artificially during rapid reopen; assert actual Keyboard.FocusedElement instead of requiring a redundant GotFocus event when the target stays unchanged.",
+      "Removed diagnostic instrumentation after correcting an interpolation compile error."
+    ],
+    "retainedDiagnosticFiles": false
+  },
+  "review": {
+    "agent": "/root/table_input_review",
+    "mode": "read-only",
+    "newFocusRegressionFound": true,
+    "checksRunByReviewer": false,
+    "deferredExistingFinding": "Opening gallery then history leaves both VM flags true; keyboard shortcuts currently check gallery before history despite history being visually above gallery. UI has no direct gallery-to-history entry; reserve for a separate interaction iteration.",
+    "found": "Parent IsVisibleChanged can fire before child visibility changes; initial preservation guard skipped table fallback when closing the log.",
+    "findingReproduced": true,
+    "finalReadOnlyReview": "No remaining defects identified in this iteration after closing-layer exclusion."
+  },
+  "coreRulesChanged": false,
+  "fullVerification": false,
+  "published": false,
+  "closingLayerRegression": {
+    "status": "test-failed",
+    "startedAt": "2026-10-11T11:37:10.9875167+08:00",
+    "durationMs": 3994,
+    "results": [
+      {
+        "name": "Build selected scope",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 1485,
+        "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\build.log"
+      },
+      {
+        "name": "WPF selected checks (1 filters, union)",
+        "status": "failed",
+        "exitCode": 1,
+        "durationMs": 2266,
+        "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\wpf-selected.log"
+      }
+    ],
+    "passed": 0,
+    "failed": 1,
+    "failure": "Closing the active-table log left focus on a hidden control instead of the table.",
+    "fix": "When closing a table overlay, never preserve a focused descendant of that same overlay before child visibility propagation. Queue current-surface fallback instead."
+  },
+  "secondIntermediateRoutine": {
+    "status": "passed",
+    "startedAt": "2026-10-11T11:33:18.214888+08:00",
+    "durationMs": 106401,
+    "coreFilters": 294,
+    "wpfFilters": 34,
+    "results": [
+      {
+        "name": "Build selected scope",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 1238,
+        "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\build.log"
+      },
+      {
+        "name": "Core selected checks (294 filters, union)",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 79130,
+        "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\core-selected.log"
+      },
+      {
+        "name": "WPF selected checks (34 filters, union)",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 25783,
+        "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\wpf-selected.log"
+      }
+    ],
+    "corePassed": 475,
+    "wpfPassed": 40,
+    "note": "Passed before the final closing-layer assertion and guard correction; not used as final validation."
+  },
+  "registeredCoreChecks": 1056,
+  "routineScopeNote": "Routine union selects 475 of the 1056 currently registered Core checks. This is measured routine verification, not a full verification run.",
+  "artifactEvidenceNote": "Snapshots preserve measured status, counts and timings. Step log paths use the shared incremental verification root and are overwritten by later runs; historical step paths are not immutable archived logs.",
+  "routine": {
+    "status": "passed",
+    "mode": "routine",
+    "startedAt": "2026-10-11T11:37:54.1824504+08:00",
+    "durationMs": 112906,
+    "coreFilters": 294,
+    "wpfFilters": 34,
+    "results": [
+      {
+        "name": "Build selected scope",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 3861,
+        "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\build.log"
+      },
+      {
+        "name": "Core selected checks (294 filters, union)",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 82465,
+        "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\core-selected.log"
+      },
+      {
+        "name": "WPF selected checks (34 filters, union)",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 26311,
+        "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\wpf-selected.log"
+      }
+    ],
+    "cleanup": {
+      "status": "queued",
+      "queued": [
+        "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin",
+        "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\obj",
+        "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders"
+      ],
+      "database": "C:\\Users\\17917\\Desktop\\Card\\tools\\cleanup_queue.json",
+      "message": null
+    },
+    "coreSummary": [
+      "475 passed, 0 failed, 0 skipped (475 total)."
+    ],
+    "wpfSummary": [
+      "40 WPF checks passed, 0 failed. Renders: C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders"
+    ],
+    "corePassed": 475,
+    "wpfPassed": 40,
+    "failed": 0,
+    "buildWarnings": 0,
+    "buildErrors": 0
+  },
+  "cleanup": {
+    "observedAt": "2026-10-11T11:40:09.4943402+08:00",
+    "retained": [
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin",
+        "exists": true,
+        "fileCount": 2296,
+        "bytes": 1822274233,
+        "queued": true,
+        "root": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f",
+        "lockRoot": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f"
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\obj",
+        "exists": true,
+        "fileCount": 122,
+        "bytes": 752210622,
+        "queued": true,
+        "root": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f",
+        "lockRoot": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f"
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders",
+        "exists": true,
+        "fileCount": 322,
+        "bytes": 106165110,
+        "queued": true,
+        "root": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f",
+        "lockRoot": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f"
+      }
+    ],
+    "matchingConsumers": 0,
+    "lockAvailable": true,
+    "retiredOutput": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\iteration-20261011-01a128cd-keyboard",
+    "retiredOutputExists": false,
+    "retiredOutputQueued": false,
+    "removedByThisTask": false,
+    "reason": "Retained for incremental verification and inspection under the user-run cleanup queue policy in AGENTS.md."
+  },
+  "sourceHashes": [
+    {
+      "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\MainWindow.xaml.cs",
+      "Hash": "C4FAD602F91823026C1630BE338B8F1F72E2CEACE1897571476CE1C0E3027DFD"
+    },
+    {
+      "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\MainWindow.xaml",
+      "Hash": "D2AAE89D0A50DB6CF02CA3EA6ADCDBF81CFE98789B2D698021B75B4172A0512A"
+    },
+    {
+      "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\GeneralGalleryPanel.xaml.cs",
+      "Hash": "6AE6B6D5C69D4090394D9D758FDC40028C1229CE68DA8BC7ED5A84B64A8AA8B1"
+    },
+    {
+      "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\ModalFocusChecks.cs",
+      "Hash": "89DDD0B626159CC8FE9E3F9781D7B48F9FF3EE738DB3019E1688B94C1283DB67"
+    },
+    {
+      "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\Program.cs",
+      "Hash": "EF955B00FB6FB89F66DDCB0B3DF14C775AA69F1B10AD43C662CF816848ED90AE"
+    },
+    {
+      "Path": "C:\\Users\\17917\\Desktop\\Card\\tools\\VerificationScopes.psd1",
+      "Hash": "50E4CE011AA64B7D48F3031A5E0CD925EA431182578AD84F24B14DAD99C7F33C"
+    }
+  ],
+  "performance": {
+    "targetDefaultMs": 60000,
+    "actualRoutineMs": 112906,
+    "targetReached": false,
+    "note": "Current routine exceeds the one-minute target, dominated by Core scope (82.465 s). This focus iteration retains representative checks and does not prune rule coverage."
+  }
+}

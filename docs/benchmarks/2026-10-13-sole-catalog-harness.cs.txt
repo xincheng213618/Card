@@ -1,0 +1,66 @@
+using System.Diagnostics;
+using System.Reflection;
+using System.Runtime.Loader;
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.Json;
+using CardGame.Core;
+using CardGame.Content.Standard;
+
+var assemblyPath = args.Length == 0 ? Path.Combine(AppContext.BaseDirectory, "CardGame.Core.Tests.dll") : args[0];
+var context = new AssemblyLoadContext("fixture-comparison", isCollectible: true);
+context.Resolving += (_, name) => AssemblyLoadContext.Default.Assemblies.FirstOrDefault(candidate =>
+    AssemblyName.ReferenceMatchesDefinition(candidate.GetName(), name));
+var assembly = context.LoadFromAssemblyPath(Path.GetFullPath(assemblyPath));
+if (!string.Equals(Path.GetFullPath(assembly.Location), Path.GetFullPath(assemblyPath), StringComparison.OrdinalIgnoreCase))
+    throw new InvalidOperationException("The requested fixture assembly was substituted by another version.");
+var constructor = assembly.GetType("SoleTargetProtectionChecks+Fixture", throwOnError: true)!
+    .GetConstructors(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).Single();
+var cases = new List<(string Name, object[] Parameters)>();
+void Add(string name, CardKind kind, bool substitute = false, bool sourceLoss = false, bool red = false,
+    bool ownSkill = false, bool multi = false, bool chain = false, bool foreignActor = false,
+    bool zero = false, bool liuli = false, bool fullBenxi = false, int redirect = 0) =>
+    cases.Add((name, [kind, substitute, sourceLoss, red, ownSkill, multi, chain, foreignActor, zero, liuli, fullBenxi, redirect]));
+foreach (var kind in new[] { CardKind.Slash, CardKind.Duel, CardKind.Snatch, CardKind.DrawTwo,
+    CardKind.Indulgence, CardKind.SupplyShortage, CardKind.Lightning }) Add("substitute-" + kind, kind, substitute: true);
+foreach (var kind in new[] { CardKind.Duel, CardKind.Snatch, CardKind.DrawTwo,
+    CardKind.Indulgence, CardKind.SupplyShortage, CardKind.Lightning }) Add("quarantine-" + kind, kind);
+Add("paid-source-loss", CardKind.Slash, substitute: true, sourceLoss: true);
+Add("red-ineligible", CardKind.Duel, red: true);
+Add("own-ineligible", CardKind.Slash, ownSkill: true);
+Add("native-multi", CardKind.Slash, multi: true);
+Add("native-chain", CardKind.Slash, substitute: true, chain: true);
+Add("foreign-actor", CardKind.Duel, foreignActor: true);
+Add("legacy-zero", CardKind.Dodge, zero: true);
+Add("legacy-liuli", CardKind.Dodge, zero: true, liuli: true);
+foreach (var redirect in new[] { 1, 2, 3 }) Add("full-benxi-redirect-" + redirect, CardKind.Dodge, zero: true, fullBenxi: true, redirect: redirect);
+ContentRegistry Build(int index) => ContentRegistry.Build(new StandardContentPackage(),
+    (IGameContentPackage)constructor.Invoke(cases[index].Parameters.Concat(
+        Enumerable.Repeat<object>(false, constructor.GetParameters().Length - cases[index].Parameters.Length)).ToArray()));
+var definitions = new List<object>();
+foreach (var (item, index) in cases.Select((item, index) => (item, index)))
+{
+    var registry = Build(index);
+    var content = JsonSerializer.Serialize(new { registry.ContentHash, registry.Packages, registry.Cards,
+        registry.Skills, registry.Generals, registry.Decks, registry.Modes });
+    definitions.Add(new { item.Name, registry.ContentHash,
+        CompleteContentJsonSha256 = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(content))) });
+}
+var selected = new[] { 0, 7, 13, 21 };
+foreach (var index in selected) Build(index);
+var samples = new List<object>();
+for (var sample = 0; sample < 6; sample++)
+{
+    GC.Collect(); GC.WaitForPendingFinalizers(); GC.Collect();
+    var bytes = GC.GetAllocatedBytesForCurrentThread(); var started = Stopwatch.GetTimestamp();
+    foreach (var index in sample % 2 == 0 ? selected : selected.Reverse()) GC.KeepAlive(Build(index));
+    samples.Add(new { Sample = sample, FreshRegistries = selected.Length,
+        ElapsedMs = Stopwatch.GetElapsedTime(started).TotalMilliseconds,
+        ManagedBytes = GC.GetAllocatedBytesForCurrentThread() - bytes });
+}
+Console.WriteLine(JsonSerializer.Serialize(new { FixtureAssemblyPath = assembly.Location,
+    FixtureAssemblySha256 = Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(assembly.Location))),
+    FixtureConstructorParameters = constructor.GetParameters().Length,
+    HasParsedCatalogCache = constructor.DeclaringType!.GetField("WenPin", BindingFlags.NonPublic | BindingFlags.Static) is not null,
+    Definitions = definitions, Samples = samples,
+    Scope = "Twenty-four complete actual fixture variants, warm catalogs, four fresh registries per sample, no game/replay timing; JSON hash includes complete metadata and nested definitions" }));

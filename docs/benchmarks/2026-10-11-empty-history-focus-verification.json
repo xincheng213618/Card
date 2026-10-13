@@ -1,0 +1,207 @@
+{
+  "recordedAt": "2026-10-11T12:01:33.5585760+08:00",
+  "purpose": "Empty match-history keyboard focus stability",
+  "workspace": "C:\\Users\\17917\\Desktop\\Card",
+  "baseCommit": "0f08fb47bb8637ccf082f406d69f6f6c0cbe7b52",
+  "changes": [
+    "Disable empty history content as one inherited body so concealed list and detail controls leave keyboard traversal; retain enabled return and refresh actions.",
+    "After a refresh retires the focused history item, defer focus to the return action only while focus remains on the history container or disabled content.",
+    "Invalidate stale focus callbacks when data returns; reject callbacks after VM replacement, unload, close, or settings opening; preserve user-selected actions and focus outside history."
+  ],
+  "sourceSha256": [
+    {
+      "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\MatchHistoryPanel.xaml",
+      "Hash": "B2A7D70CEE8B3750C6B5F342AEE15B616404291093F004EBB924EB84A34322A8"
+    },
+    {
+      "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\MatchHistoryPanel.xaml.cs",
+      "Hash": "BB1F8030B25FD480515BE418D1A54C353F29A03619DB73313859AECBC43DD8E1"
+    },
+    {
+      "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\ModalFocusChecks.cs",
+      "Hash": "919AD2FDD5F70C7C599F08D7D8754B46A3600A27AB118D4B0975F2159E7A1565"
+    },
+    {
+      "Path": "C:\\Users\\17917\\Desktop\\Card\\docs\\LOCAL_PLAY.md",
+      "Hash": "5A060EC5CD4BAA515F9E37707E4D8672AA8BBE8F44DDF80778A690F93EACE673"
+    }
+  ],
+  "reproducedRegressions": [
+    {
+      "status": "test-failed",
+      "startedAt": "2026-10-11T11:51:28.0141572+08:00",
+      "durationMs": 3562,
+      "filters": [
+        "table modal focus"
+      ],
+      "passed": 0,
+      "failed": 1,
+      "failure": "Empty history Next traversal stopped on ItemsControl behind the empty-state message.",
+      "results": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 1356
+        },
+        {
+          "name": "WPF selected checks (1 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 1971
+        }
+      ]
+    },
+    {
+      "status": "test-failed",
+      "startedAt": "2026-10-11T11:53:49.6334012+08:00",
+      "durationMs": 3420,
+      "filters": [
+        "table modal focus"
+      ],
+      "passed": 0,
+      "failed": 1,
+      "failure": "Clearing focused history left keyboard focus on MatchHistoryPanel instead of a visible action.",
+      "results": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 1262
+        },
+        {
+          "name": "WPF selected checks (1 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 1938
+        }
+      ]
+    }
+  ],
+  "finalFocused": {
+    "status": "passed",
+    "startedAt": "2026-10-11T11:57:26.8816143+08:00",
+    "durationMs": 8073,
+    "filters": [
+      "table shortcuts",
+      "table modal focus",
+      "gallery details restore",
+      "general selection input",
+      "guide modal"
+    ],
+    "passed": 6,
+    "failed": 0,
+    "results": [
+      {
+        "name": "Build selected scope",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 1333
+      },
+      {
+        "name": "WPF selected checks (5 filters, union)",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 6491
+      }
+    ]
+  },
+  "finalRoutine": {
+    "status": "passed",
+    "mode": "routine",
+    "command": ".\\tools\\Test-Changed.ps1",
+    "startedAt": "2026-10-11T11:58:12.5171603+08:00",
+    "durationMs": 111156,
+    "coreFilterCount": 294,
+    "wpfFilterCount": 34,
+    "core": {
+      "passed": 475,
+      "failed": 0,
+      "skipped": 0
+    },
+    "wpf": {
+      "passed": 40,
+      "failed": 0
+    },
+    "buildWarnings": 0,
+    "buildErrors": 0,
+    "results": [
+      {
+        "name": "Build selected scope",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 1987
+      },
+      {
+        "name": "Core selected checks (294 filters, union)",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 81598
+      },
+      {
+        "name": "WPF selected checks (34 filters, union)",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 27242
+      }
+    ],
+    "fullRun": false
+  },
+  "coverage": [
+    "Initially empty history and refreshed-to-empty history cycle only through return and refresh actions.",
+    "MoveFocus Next and Previous each run six steps in four empty-history states: 48 real focus transitions.",
+    "Populated history restores enabled list/details and exact public fixture records and selection.",
+    "A refresh action retains focus while data becomes empty.",
+    "Removing data while the list owns focus returns to a visible action.",
+    "Rapid refill before the deferred input callback preserves list focus.",
+    "Opening settings before the deferred input callback preserves settings sound-toggle focus.",
+    "Reopened history captures its actual current general-selection return target and restores it after closing.",
+    "All panel interactions preserve engine revision and viewer snapshot."
+  ],
+  "fixtureBoundary": {
+    "realLoadedMainWindow": true,
+    "shownThenHiddenByNativeApi": true,
+    "foregroundActivation": false,
+    "actualManagedKeyboardFocus": true,
+    "wpfMoveFocus": true,
+    "physicalTabInjection": false,
+    "publicHistoryFixture": "One manually constructed entry in a switching in-memory history store; no complete-match simulation or player-file modification.",
+    "fixtureExpectationCorrection": "The expanded check initially expected the old return target after settings had closed history. It now captures the actual current general-selection target when history is reopened."
+  },
+  "review": {
+    "agent": "/root/table_input_review",
+    "readOnly": true,
+    "materialIssuesFound": 0
+  },
+  "performance": {
+    "routineTargetMs": 60000,
+    "actualRoutineMs": 111156,
+    "nextIteration": "Use the existing .\\tools\\Test-Changed.ps1 -Verbose on the next planned routine run; parse [TIME] lines in selected-run logs before choosing any fixture optimization.",
+    "entryPoints": [
+      "tools/Test-Changed.ps1:146",
+      "tests/CardGame.Core.Tests/Program.cs:1125",
+      "tests/CardGame.Wpf.Tests/Program.cs:183"
+    ],
+    "nextRunChangesScope": false,
+    "unmeasuredSlowRuleClaims": false
+  },
+  "cleanup": {
+    "workflow": "Manual cleanup queue required by current AGENTS.md; outputs retained for incremental verification and inspection.",
+    "queue": "C:\\Users\\17917\\Desktop\\Card\\tools\\cleanup_queue.json",
+    "lockRoot": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f",
+    "lockAvailable": true,
+    "liveConsumers": [],
+    "retainedAndQueued": [
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin",
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\obj",
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders"
+    ],
+    "retiredRoot": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\iteration-20261011-01a128cd-keyboard",
+    "retiredRootExists": false
+  },
+  "evidenceNote": "Metrics and hashes are durable snapshots. Stable-root logs and summary.json are overwritten by later verification runs.",
+  "limitations": [
+    "Automated WPF focus traversal was verified; physical keyboard navigation was not exercised.",
+    "Measured routine verification remains above the one-minute target."
+  ]
+}

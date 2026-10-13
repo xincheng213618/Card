@@ -1,0 +1,8 @@
+[PASS] End refill next turn: exact entry and frozen issued events
+[PASS] End refill next turn: capped actual refill and tied greatest hand
+[PASS] End refill next turn: actual gain children cold and paid source loss
+[PASS] End refill next turn: skipped actual turn consumes and restriction expires
+[PASS] End refill next turn: bidirectional HP replacement self source-less and chain
+[PASS] End refill next turn: real alcohol Slash materials and damage-only armor
+
+6 passed, 0 failed, 0 skipped (6 total).

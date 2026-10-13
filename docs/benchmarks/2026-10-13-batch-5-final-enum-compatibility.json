@@ -1,0 +1,8 @@
+{
+  "capturedAt": "2026-10-13T22:07:02.7380804+08:00",
+  "baseline": "docs/benchmarks/2026-10-13-zhang-lu-wang-rong-shi-xie-enum-baseline.json",
+  "oldEnums": 211,
+  "oldMembers": 1988,
+  "differences": [],
+  "coreAssemblySha256": "7069CADB1EDE1DAB69D48DC8F22EA55E01D1F35BD15C88A57B15E03F0D1D72F4"
+}

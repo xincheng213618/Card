@@ -1,0 +1,33 @@
+{
+  "status": "build-failed",
+  "mode": "targeted",
+  "repository": "C:\\Users\\17917\\Desktop\\Card",
+  "artifactsPath": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-Startup-01a13324",
+  "coreFilters": [],
+  "wpfFilters": [
+    "battle feedback floating numbers remain distinct at crowded table edges",
+    "table modal focus follows startup and current visible panels"
+  ],
+  "startedAt": "2026-10-13T14:06:18.6814944+08:00",
+  "durationMs": 18225,
+  "message": "The selected scope did not build; checks were not started.",
+  "results": [
+    {
+      "name": "Build selected scope",
+      "status": "failed",
+      "exitCode": 1,
+      "durationMs": 17953,
+      "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-Startup-01a13324\\logs\\build.log"
+    }
+  ],
+  "cleanup": {
+    "status": "queued",
+    "queued": [
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-Startup-01a13324\\bin",
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-Startup-01a13324\\obj",
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-Startup-01a13324\\renders"
+    ],
+    "database": "C:\\Users\\17917\\Desktop\\Card\\tools\\cleanup_queue.json",
+    "message": null
+  }
+}

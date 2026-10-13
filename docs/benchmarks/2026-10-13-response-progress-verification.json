@@ -1,0 +1,378 @@
+{
+  "batchDate": "2026-10-13",
+  "completedAt": "2026-10-13T01:19:16.7363068+08:00",
+  "status": "passed",
+  "goal": "持续迭代交互效果",
+  "goalRemainsActive": true,
+  "focus": "Paid Dodge motion and directly published consecutive response progress",
+  "changes": [
+    "Every committed Dodge response uses a brief open sidestep, rather than a complete success shield.",
+    "Typed public RequiredResponseProgressEvent directly projects exact response kind, count, required count and resolution ID; no private pending state or inferred card association.",
+    "First and completed quotas show remaining need or paid quota only; completion never claims final immunity.",
+    "A finite open progress meter has at most six strokes, with a visible incomplete gap for dense requests; invalid/inquiry cues do not draw progress.",
+    "New progress replaces earlier counts only for the same published response ID and responder, preserving paid card flights and other groups.",
+    "Progress captions reuse collision-aware placement, avoiding all portraits, protected areas and visible command/card buttons; the current human prompt suppresses a duplicate transient inquiry bubble.",
+    "Two neighboring preview stages independently show paid 1/2 and 2/2, with no new timer or synchronized fake two-command sequence."
+  ],
+  "native": {
+    "fixture": "Existing seed31 physical Wushuang Slash fixture",
+    "sourceSeat": 1,
+    "responderSeat": 0,
+    "first": {
+      "physicalCardId": 32,
+      "publicSequence": 45,
+      "progress": "1/2",
+      "pendingSecondDodge": true
+    },
+    "second": {
+      "physicalCardId": 24,
+      "publicSequence": 51,
+      "progress": "2/2",
+      "fixtureHp": 5
+    },
+    "declineFromSameFirstPaidCheckpoint": {
+      "damage": 1,
+      "remainingHp": 4,
+      "secondCardRetained": true,
+      "commands": 1,
+      "newResponseOrProgress": false
+    },
+    "sampledAgesMs": [
+      40,
+      180,
+      400,
+      1500
+    ],
+    "nativeMotionSize": "1120x740",
+    "persistentPromptSizes": [
+      "1120x740",
+      "1920x1080"
+    ],
+    "viewsUnchangedDuringPresentation": 4,
+    "testedBoundaries": [
+      "actual command and physical cost once",
+      "first quota continues human prompt",
+      "two real submissions",
+      "readback of exact public event fields",
+      "portrait/body/command non-occlusion",
+      "motion off/on without historical replay",
+      "checkpoint load clears recorded effects",
+      "decline shows actual damage only",
+      "transient retirement with persistent prompt retained"
+    ]
+  },
+  "movie": {
+    "file": "2026-10-13-response-progress-native-paid-2.gif",
+    "frames": 40,
+    "frameDurationMs": 40,
+    "encodedDurationMs": 1600,
+    "dimensions": "728x481",
+    "source": "Actual second paid response in the existing native fixture",
+    "decodedTimingVerified": true,
+    "movingAndRetiredFramesDistinct": true,
+    "note": "Injected TimeProvider sampling proves rendering sequence; it is not foreground responsiveness or an action-latency measurement."
+  },
+  "validation": [
+    {
+      "scope": "Initial focused build",
+      "durationMs": 12543,
+      "status": "build-failed",
+      "repair": "Non-generic Cues enumeration now uses Cast<BattleCue> before ToArray."
+    },
+    {
+      "scope": "First focused",
+      "durationMs": 10857,
+      "wpfPassed": 5,
+      "wpfFailed": 1,
+      "repair": "Native sibling-layer coordinate inspection uses TransformToVisual, rather than TransformToAncestor."
+    },
+    {
+      "scope": "Focused after enumeration/coordinate repairs",
+      "durationMs": 13656,
+      "wpfPassed": 6,
+      "wpfFailed": 0
+    },
+    {
+      "scope": "Progress caption composition",
+      "durationMs": 20122,
+      "wpfPassed": 7,
+      "wpfFailed": 0
+    },
+    {
+      "scope": "Final caption and command protection",
+      "durationMs": 17476,
+      "wpfPassed": 4,
+      "wpfFailed": 0
+    },
+    {
+      "scope": "Filtered native motion",
+      "durationMs": 9815,
+      "wpfPassed": 2,
+      "wpfFailed": 0,
+      "filter": "response context",
+      "recordMotion": true
+    },
+    {
+      "scope": "Final measured routine",
+      "durationMs": 176308,
+      "corePassed": 476,
+      "coreFailed": 0,
+      "coreSkipped": 0,
+      "wpfPassed": 66,
+      "wpfFailed": 0,
+      "buildMs": 1765,
+      "coreMs": 91335,
+      "wpfMs": 82894,
+      "summary": "2026-10-13-response-progress-routine-summary.json"
+    }
+  ],
+  "verificationLimits": [
+    "No -Full or unfiltered raw runner was run.",
+    "Loaded hidden message-only native HWND; actual foreground mouse/keyboard acceptance did not run.",
+    "New motion sampled at1120x740; persistent status additionally rendered1920x1080; component response ink covers compact and standard portrait sizes.",
+    "No hardware audio, multiple-DPI or field acceptance.",
+    "Fixture generals use placeholder artwork; the movie is a fixed test match.",
+    "Routine duration exceeds the repository minute target; it includes build and replay/assertion cost and is not card-action latency.",
+    "No weapon followup in this fixed Slash fixture; paid quota does not guarantee immunity in every rule path."
+  ],
+  "cleanup": {
+    "outputRoot": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f",
+    "ownerVerified": true,
+    "reparsePathsFound": 0,
+    "liveConsumers": 0,
+    "exclusiveLockVerified": true,
+    "newExternalTemporaryDirectories": 0,
+    "deletionRetried": false,
+    "retained": [
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin",
+        "present": true,
+        "queued": true,
+        "reason": "Task-owned reused verification outputs: previous exact-path cleanup was blocked by policy, so automatic deletion retry remains prohibited. Final response-progress summaries, logs, native PNGs and 40-frame GIF are preserved in docs/benchmarks; no new external temporary directory was created."
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\obj",
+        "present": true,
+        "queued": true,
+        "reason": "Task-owned reused verification outputs: previous exact-path cleanup was blocked by policy, so automatic deletion retry remains prohibited. Final response-progress summaries, logs, native PNGs and 40-frame GIF are preserved in docs/benchmarks; no new external temporary directory was created."
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders",
+        "present": true,
+        "queued": true,
+        "reason": "Task-owned reused verification outputs: previous exact-path cleanup was blocked by policy, so automatic deletion retry remains prohibited. Final response-progress summaries, logs, native PNGs and 40-frame GIF are preserved in docs/benchmarks; no new external temporary directory was created."
+      }
+    ],
+    "priorPolicyBlockedConsoleFiles": [
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\card-preparation-initial.log",
+        "present": true,
+        "priorRecord": "2026-10-12-card-preparation-verification.json",
+        "deletionRetried": false
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\card-preparation-focused.log",
+        "present": true,
+        "priorRecord": "2026-10-12-card-preparation-verification.json",
+        "deletionRetried": false
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\card-preparation-origin-layout-before.log",
+        "present": true,
+        "priorRecord": "2026-10-12-card-preparation-verification.json",
+        "deletionRetried": false
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\card-preparation-origin-layout-after.log",
+        "present": true,
+        "priorRecord": "2026-10-12-card-preparation-verification.json",
+        "deletionRetried": false
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\card-preparation-motion.log",
+        "present": true,
+        "priorRecord": "2026-10-12-card-preparation-verification.json",
+        "deletionRetried": false
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\card-preparation-routine.log",
+        "present": true,
+        "priorRecord": "2026-10-12-card-preparation-verification.json",
+        "deletionRetried": false
+      }
+    ],
+    "preservedSummaryAndLogs": true
+  },
+  "nextCandidate": "Connect paid response stages to actual subsequent outcomes and weapon continuations, without treating a satisfied response quota as final immunity.",
+  "sources": [
+    {
+      "path": "src\\CardGame.Wpf\\Presentation\\BattleCue.cs",
+      "sha256": "1A43CADCD11517180D809CBCEA0E80E3B688375B624B9A4DF326DC9E20028684"
+    },
+    {
+      "path": "src\\CardGame.Wpf\\Controls\\BattleEffectPainter.cs",
+      "sha256": "F38E9261FD993536437D7798753585DACA09A9DA7812D07E24AAC85FCB4BEFDD"
+    },
+    {
+      "path": "src\\CardGame.Wpf\\Controls\\BattleEffectsPreview.cs",
+      "sha256": "3B7AB1D6A2219E4B682E58EC84A2F87CF452667FCF2A522032A6E43C8F6E3970"
+    },
+    {
+      "path": "src\\CardGame.Wpf\\Controls\\BattleFeedbackLayer.cs",
+      "sha256": "B77BFA3DDDE4A5B0B38752E862B580F89F942CE360912E32065FC53672B20403"
+    },
+    {
+      "path": "tests\\CardGame.Wpf.Tests\\FeedbackChecks.cs",
+      "sha256": "13786BECEF724A7BD5525DAFDD5F991565FD20B6BD9EDCD8EAE4DDFF131F4F2F"
+    },
+    {
+      "path": "tests\\CardGame.Wpf.Tests\\BattleEffectsChecks.cs",
+      "sha256": "CF13E233C6A11581EFCD9ABBC66CD505DE45C023395AC95D4FBC1526F7774E81"
+    },
+    {
+      "path": "tests\\CardGame.Wpf.Tests\\NativeResponseStatusChecks.cs",
+      "sha256": "E97598D364EE5DEDFB7A6ED5EDB80EE96C56290A0D85F88EF6B0673BCE2E8810"
+    },
+    {
+      "path": "tests\\CardGame.Wpf.Tests\\BattleFeedbackTimelineChecks.cs",
+      "sha256": "5B5DF4E80D9E0C03CB5BD9681242AC625A29EAF3A19AE6DB166C810FA3172D3C"
+    }
+  ],
+  "evidence": [
+    {
+      "file": "2026-10-13-response-progress-before.png",
+      "bytes": 243186,
+      "sha256": "A4F67B8AAD634D6C5C024862590D890A71628B6E12BFF0CCA5E3CA72B3C47484"
+    },
+    {
+      "file": "2026-10-13-response-progress-build-initial-summary.json",
+      "bytes": 1372,
+      "sha256": "8509A3F3F5319E7D08BCDEAAE37F81B048284D1A6EC9CB31198AA031BA5DB430"
+    },
+    {
+      "file": "2026-10-13-response-progress-build-initial.log",
+      "bytes": 1502,
+      "sha256": "C3B932531C0C5F745CD8FA4ABA79129A47D7A0D912D5E1D293F6D584018A71AB"
+    },
+    {
+      "file": "2026-10-13-response-progress-caption-summary.json",
+      "bytes": 1640,
+      "sha256": "A73DD3365563BE55C6461F50267A6897DDF48C4CECD14F12470B9DC3A7A1DAF2"
+    },
+    {
+      "file": "2026-10-13-response-progress-caption.log",
+      "bytes": 18173,
+      "sha256": "6DB102441ADA8392C82E3C0EC90CF71F2B7F45BDB825F358E2F396B4DC730C85"
+    },
+    {
+      "file": "2026-10-13-response-progress-dense-complete.png",
+      "bytes": 1785,
+      "sha256": "C05390F3CE42D7C73C1D096E5FB639ECF5B9933799C5AB07C56A37D75928A42F"
+    },
+    {
+      "file": "2026-10-13-response-progress-dense-incomplete.png",
+      "bytes": 1801,
+      "sha256": "E8725B74C5838CF8D02573FF9FE9BF42BFBA7C66E8334C3B3AC2A00270C08343"
+    },
+    {
+      "file": "2026-10-13-response-progress-final-focused-summary.json",
+      "bytes": 1472,
+      "sha256": "A3358BD8A39E13DB7DA1DAC6BF4BFD3E8AD5DA703B3D0E722DB85F116D815DF8"
+    },
+    {
+      "file": "2026-10-13-response-progress-final-focused.log",
+      "bytes": 17166,
+      "sha256": "343EFB2EDF0F7305D9879843BE6C969092B03E2F2CA3480E782341AEBACC3989"
+    },
+    {
+      "file": "2026-10-13-response-progress-focused-initial-summary.json",
+      "bytes": 1609,
+      "sha256": "59AC47ABA1ADF4EE0A27B8A18EBC7E7DACA55C76836370C7A536524AD010C3A5"
+    },
+    {
+      "file": "2026-10-13-response-progress-focused-initial.log",
+      "bytes": 4685,
+      "sha256": "4D730F6849D50C887865E55011761BAA10492C64256521ED43BC35297995B950"
+    },
+    {
+      "file": "2026-10-13-response-progress-focused-summary.json",
+      "bytes": 1572,
+      "sha256": "800EE8B0813423D31FDB93CEE426D19ED1A4D825FD6DCA4E3EB7DE783B5E3EC7"
+    },
+    {
+      "file": "2026-10-13-response-progress-focused.log",
+      "bytes": 17808,
+      "sha256": "2437DF98B118DAE97B3646ECE0669D1DB3504C89FE70169C224745441EB95CC5"
+    },
+    {
+      "file": "2026-10-13-response-progress-motion-no-replay.png",
+      "bytes": 1081532,
+      "sha256": "9E20C2C2AC80C683CE104975CC9496A5ED84803379FCB7D31A048A4953BABA07"
+    },
+    {
+      "file": "2026-10-13-response-progress-motion-summary.json",
+      "bytes": 215,
+      "sha256": "D895194F1887D53D845801B99FEF5020D161A5B7E5260999131E31ABBEED1776"
+    },
+    {
+      "file": "2026-10-13-response-progress-motion.log",
+      "bytes": 16815,
+      "sha256": "FBC9BFD75EDF7D5FB6A3EA6A1AC579C03D58AB7B8A54A8F3C9EC47D86E9CB886"
+    },
+    {
+      "file": "2026-10-13-response-progress-native-declined.png",
+      "bytes": 1085145,
+      "sha256": "5B13F1215F611165B452EFEBE9B03DD343A88B362B45A7995849017E802C36D9"
+    },
+    {
+      "file": "2026-10-13-response-progress-native-paid-2.gif",
+      "bytes": 5363248,
+      "sha256": "E8FAA66861AC304B4110D1EB041F400407276CE843CE4DB09CB305F08DE195B7"
+    },
+    {
+      "file": "2026-10-13-response-progress-paid-1-180ms.png",
+      "bytes": 1080114,
+      "sha256": "B96A2479296EF2C00F789F72B1BCE7BC5B3554BC66E651267390BCA96FD7068B"
+    },
+    {
+      "file": "2026-10-13-response-progress-paid-1-retired.png",
+      "bytes": 1081532,
+      "sha256": "9E20C2C2AC80C683CE104975CC9496A5ED84803379FCB7D31A048A4953BABA07"
+    },
+    {
+      "file": "2026-10-13-response-progress-paid-2-180ms.png",
+      "bytes": 1076830,
+      "sha256": "ECD4B9DB8AA175C180A3F6223368530EB01A3920259F53F175B8C66B66907EFE"
+    },
+    {
+      "file": "2026-10-13-response-progress-paid-2-retired.png",
+      "bytes": 1044650,
+      "sha256": "48A2070E574258FC9539A9576FC730567E689DE67E12DF6E7B453F0ACA2203C6"
+    },
+    {
+      "file": "2026-10-13-response-progress-preview-first.png",
+      "bytes": 215366,
+      "sha256": "926BADD418BB49DDA00B0AACC3433036D381A8DC563A9B3D7A0FCDF2250FFBB1"
+    },
+    {
+      "file": "2026-10-13-response-progress-preview-second.png",
+      "bytes": 215366,
+      "sha256": "AF8B6B46D853D17B95A1AEE8F636E7DBF4117C435BF9CD67F5739E3F99FD26F2"
+    },
+    {
+      "file": "2026-10-13-response-progress-routine-core.log",
+      "bytes": 36170,
+      "sha256": "0D520F1F33C92EA9CB913881305BC3930896A4ACB7D3DA4A5D753CCC0811685A"
+    },
+    {
+      "file": "2026-10-13-response-progress-routine-summary.json",
+      "bytes": 16464,
+      "sha256": "756B54573654EC8740EC231924AD66BD58EC23BF184D505FB01DCADD86ACEBD3"
+    },
+    {
+      "file": "2026-10-13-response-progress-routine-wpf.log",
+      "bytes": 61532,
+      "sha256": "3F8EF5BDA6E362FBFE26D656DE0FA652F5956E656D7ECCE6CB5F2A507011FF18"
+    }
+  ]
+}

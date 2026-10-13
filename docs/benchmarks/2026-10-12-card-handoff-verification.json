@@ -1,0 +1,153 @@
+{
+  "date": "2026-10-12",
+  "objective": "持续迭代交互效果",
+  "focus": "战斗动效与出牌反馈",
+  "goalStatus": "active",
+  "change": "Transfer an accepted public card from its transient flight to the reserved public-row face once, and protect the table sidebar from all overlay drawing.",
+  "productionFiles": [
+    "src/CardGame.Wpf/Controls/BattleFeedbackLayer.cs",
+    "src/CardGame.Wpf/Themes/TableTheme.xaml",
+    "src/CardGame.Wpf/MainWindow.xaml"
+  ],
+  "behavior": [
+    "A matching public row face and actor caption reserve layout while hidden during flight, including presentation delay.",
+    "At 37 percent of its cue duration the static face takes over and the overlay stops drawing that face.",
+    "Repositioning an arrived public row does not restart its flight. A replaced row retires the previous card flight.",
+    "Motion off, reset, cue source replacement, anchor root replacement, expiry and unload restore hidden public faces.",
+    "The table sidebar is excluded from all overlay drawing and from floating combat text placement."
+  ],
+  "validation": {
+    "baseline": {
+      "failed": 1,
+      "durationMs": 5580,
+      "issue": "Public row face and caption visible before native local card arrived."
+    },
+    "focused": {
+      "status": "passed",
+      "passed": 16,
+      "failed": 0,
+      "durationMs": 17063,
+      "buildMs": 5217,
+      "wpfMs": 11553
+    },
+    "routine": {
+      "status": "passed",
+      "mode": "routine",
+      "corePassed": 476,
+      "wpfPassed": 52,
+      "failed": 0,
+      "durationMs": 144648,
+      "buildMs": 1282,
+      "coreMs": 90019,
+      "wpfMs": 53034
+    },
+    "motion": {
+      "passed": 1,
+      "failed": 0,
+      "cases": [
+        {
+          "case": "use",
+          "frames": 24,
+          "size": [
+            728,
+            481
+          ],
+          "durationMs": 40,
+          "distinctFrames": 24,
+          "bytes": 4577989
+        },
+        {
+          "case": "response",
+          "frames": 24,
+          "size": [
+            728,
+            481
+          ],
+          "durationMs": 40,
+          "distinctFrames": 24,
+          "bytes": 4393497
+        }
+      ],
+      "note": "24 native WPF render frames each, injected presentation clock. This is not physical foreground acceptance or measured screen FPS."
+    },
+    "nativeCases": [
+      {
+        "action": "physical Slash",
+        "cardId": 9,
+        "acceptedBefore": 12,
+        "acceptedAfter": 13,
+        "safeViewers": 8,
+        "launchArtwork": [
+          624,
+          470,
+          108,
+          154
+        ],
+        "landingArtwork": [
+          408,
+          214.18666666666667,
+          84,
+          118
+        ]
+      },
+      {
+        "action": "physical Dodge against ArrowBarrage",
+        "cardId": 45,
+        "acceptedBefore": 14,
+        "acceptedAfter": 15,
+        "safeViewers": 4,
+        "launchArtwork": [
+          172,
+          470,
+          108,
+          154
+        ],
+        "landingArtwork": [
+          552,
+          214.18666666666667,
+          84,
+          118
+        ]
+      }
+    ],
+    "assertions": [
+      "Last moving face matches its reserved landing within 0.1 DIP.",
+      "Arrival leaves zero duplicate card images in the overlay and reveals the static row.",
+      "Native overlay pixels inside the actual sidebar are transparent.",
+      "Sorting and drawing preserve accepted command count and every player-safe snapshot.",
+      "Delayed attack/response arrivals, replaced rows and lifecycle interruptions were checked."
+    ],
+    "projectionReview": "ProjectCardPlays already deduplicates a declaration and its rescue completion in the same event batch. Cross-command rescue completion remains a separate follow-up acceptance case.",
+    "fullVerificationRun": false,
+    "physicalForegroundAcceptance": false,
+    "multiDpiAcceptance": false,
+    "audioAcceptance": false
+  },
+  "evidence": [
+    "2026-10-12-card-handoff-before.png",
+    "2026-10-12-card-handoff-use-launch.png",
+    "2026-10-12-card-handoff-use-arriving.png",
+    "2026-10-12-card-handoff-use-landed.png",
+    "2026-10-12-card-handoff-response-launch.png",
+    "2026-10-12-card-handoff-response-landed.png",
+    "2026-10-12-card-handoff-use.gif",
+    "2026-10-12-card-handoff-response.gif",
+    "2026-10-12-card-handoff-delayed-response.png",
+    "2026-10-12-card-handoff-replaced-row.png"
+  ],
+  "remainingObservedGaps": [
+    "The central Continue button can overlap a static public card's actor caption.",
+    "Flying/public faces still need physical suit and rank information.",
+    "Cross-command rescue completion should receive a dedicated native acceptance check."
+  ],
+  "cleanup": {
+    "root": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f",
+    "retained": [
+      "bin",
+      "obj",
+      "renders"
+    ],
+    "newTemporaryRoots": 0,
+    "reason": "Earlier exact-path cleanup was blocked by policy. Reused compatible outputs; no deletion retry was attempted. Exact paths remain queued."
+  }
+}

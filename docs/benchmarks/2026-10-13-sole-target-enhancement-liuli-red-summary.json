@@ -1,0 +1,39 @@
+{
+  "status": "test-failed",
+  "mode": "targeted",
+  "repository": "C:\\Users\\17917\\Desktop\\Card",
+  "artifactsPath": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-Startup-01a13324",
+  "coreFilters": [
+    "Sole target protection: legacy Benxi"
+  ],
+  "wpfFilters": [],
+  "startedAt": "2026-10-13T16:20:27.4360909+08:00",
+  "durationMs": 29700,
+  "message": "One or more selected checks failed.",
+  "results": [
+    {
+      "name": "Build selected scope",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 27737,
+      "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-Startup-01a13324\\logs\\build.log"
+    },
+    {
+      "name": "Core selected checks (1 filters, union)",
+      "status": "failed",
+      "exitCode": 1,
+      "durationMs": 1695,
+      "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-Startup-01a13324\\logs\\core-selected.log"
+    }
+  ],
+  "cleanup": {
+    "status": "queued",
+    "queued": [
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-Startup-01a13324\\bin",
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-Startup-01a13324\\obj",
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-Startup-01a13324\\renders"
+    ],
+    "database": "C:\\Users\\17917\\Desktop\\Card\\tools\\cleanup_queue.json",
+    "message": null
+  }
+}

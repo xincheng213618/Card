@@ -1,0 +1,41 @@
+{
+  "status": "passed",
+  "mode": "targeted",
+  "repository": "C:\\Users\\17917\\Desktop\\Card",
+  "artifactsPath": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f",
+  "coreFilters": [],
+  "wpfFilters": [
+    "Opening customization UI:",
+    "table shortcuts respect navigation",
+    "table shortcuts execute once"
+  ],
+  "startedAt": "2026-10-13T11:40:31.3184076+08:00",
+  "durationMs": 11674,
+  "message": null,
+  "results": [
+    {
+      "name": "Build selected scope",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 4928,
+      "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\build.log"
+    },
+    {
+      "name": "WPF selected checks (3 filters, union)",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 6470,
+      "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\wpf-selected.log"
+    }
+  ],
+  "cleanup": {
+    "status": "queued",
+    "queued": [
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin",
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\obj",
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders"
+    ],
+    "database": "C:\\Users\\17917\\Desktop\\Card\\tools\\cleanup_queue.json",
+    "message": null
+  }
+}

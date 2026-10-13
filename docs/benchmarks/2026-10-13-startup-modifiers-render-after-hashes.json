@@ -1,0 +1,22 @@
+[
+  {
+    "File": "317-exact-top-choice.png",
+    "Sha256": "6FC685CE4925E58654F9F13605446A72E91C3BA448B97810D4B78FC05F4C9D21",
+    "Matches": false
+  },
+  {
+    "File": "317-exact-top-second-choice.png",
+    "Sha256": "664708C4596043C410559CD29204D4B69FADBE36C64CF594D899B141B5654792",
+    "Matches": false
+  },
+  {
+    "File": "317-exact-bottom-choice.png",
+    "Sha256": "A00CB275A11E6994FE2B28EFB74935E19E2D91887DC13B13F6256B29CCCE0D06",
+    "Matches": false
+  },
+  {
+    "File": "317-exact-bottom-last-choice.png",
+    "Sha256": "C5C9C373F51E50AEFCFFA5137870AD3BA9C1EF3319700C9EB5BFAD11EC21617F",
+    "Matches": false
+  }
+]

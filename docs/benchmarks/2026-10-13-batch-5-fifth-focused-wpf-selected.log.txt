@@ -1,0 +1,3 @@
+[PASS] Edition general gallery: namespaced portraits and real details
+[PASS] Alcohol bonus UI: stacked public bonus fallback and clearing
+2 WPF checks passed, 0 failed. Renders: C:\Users\17917\AppData\Local\Temp\CardGame-TestChanged-25f07ed2579f\renders

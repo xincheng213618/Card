@@ -1,0 +1,7 @@
+{
+  "before": "docs/benchmarks/2026-10-13-batch-5-final-source-before.json",
+  "after": "docs/benchmarks/2026-10-13-batch-5-final-source-after.json",
+  "checked": 2365,
+  "differences": [],
+  "scope": "Repository CSharp, rules/resources JSON, XAML, projects/build configuration and verification tool sources plus three portraits/art catalogue. External SDK, native runtime dependencies and ignored build inputs are not captured."
+}

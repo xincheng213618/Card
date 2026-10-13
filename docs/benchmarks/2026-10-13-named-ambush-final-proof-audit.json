@@ -1,0 +1,26 @@
+{
+  "date": "2026-10-13",
+  "reviewer": "general_batch3_b",
+  "kind": "read-only static review",
+  "result": "No reachable issue identified in the reviewed final proof scope.",
+  "scope": [
+    "ProgramNamedAmbush.cs OriginalAction and frozen collections",
+    "GameEngine.NamedAmbush.cs BeginNamedAmbush/RequireNamedAmbushReceipt",
+    "GameEngine.NamedAmbushInvalidation.cs IsExactNamedAmbushInvalidation",
+    "GameEngine.CompletedCategoryUseProof.cs accepted-action mutation reconstruction"
+  ],
+  "checks": [
+    "OriginalAction preserves the committed actor/provider, nonempty own-hand material qualification and recorded effective kind. Issuance and pending receipt compare action values and list contents, not class reference identity.",
+    "Final invalidation retains the original material/provider/action identity and exactly one deposit/removal/invalidation fact plus the exact private-pile-to-discard movement interval.",
+    "Actor/kind/conversion changes take the actual live Use branch, requiring accepted-use proof and reconstruction from subsequent typed facts. Actor changes require a real finalized replacement binding; Response uses cannot borrow that branch.",
+    "CardActionContext constructor freezes targets, designated targets, physical materials and conversion chain. Receipt choices and committed-event choices remain deeply frozen; other new nested facts are scalar records."
+  ],
+  "existingBehaviorEvidence": {
+    "core": "docs/benchmarks/2026-10-13-next-generals-named-ambush-green-core.txt",
+    "summary": "docs/benchmarks/2026-10-13-next-generals-named-ambush-green-summary.json",
+    "observedResult": "9 passed, 0 failed; includes real actor replacement, observer mutation rejection and cold command recovery.",
+    "runBy": "Parent-coordinated filtered verification; reviewer did not execute tests."
+  },
+  "coreModifiedByReview": false,
+  "fullVerificationRunByReview": false
+}

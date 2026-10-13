@@ -1,0 +1,430 @@
+{
+  "formatVersion": 1,
+  "recordedAt": "2026-10-11T07:15:59Z",
+  "purpose": "Pause the opening-hand countdown under covering panels and respect current motion preferences when canceling or restoring startup presentation.",
+  "repository": "C:\\Users\\17917\\Desktop\\Card",
+  "head": "0f08fb47bb8637ccf082f406d69f6f6c0cbe7b52",
+  "changes": [
+    "OpeningDeal listens to its owner's relevant property changes: stop the countdown while covered and restart the reading interval after the last covering panel closes.",
+    "Turning motion off cancels both armed and visible opening presentation, without clearing the pending identity or submitting commands.",
+    "Tutorial return restores armed/visible startup presentation only when current motion remains enabled.",
+    "Dispose removes the local property subscription before stopping and detaching the opening timer.",
+    "Add regression branches to the existing table shortcut and modal focus checks; document the resulting behavior."
+  ],
+  "baseline": {
+    "command": "& .\\tools\\Test-Changed.ps1 -WpfFilter @('table shortcuts respect navigation','table modal focus')",
+    "run": {
+      "status": "test-failed",
+      "mode": "targeted",
+      "startedAt": "2026-10-11T15:09:25.2687608+08:00",
+      "durationMs": 8008,
+      "coreFilterCount": 0,
+      "wpfFilters": [
+        "table shortcuts respect navigation",
+        "table modal focus"
+      ],
+      "wpfFilterCount": 2,
+      "results": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 3490,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\build.log"
+        },
+        {
+          "name": "WPF selected checks (2 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 4228,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\wpf-selected.log"
+        }
+      ],
+      "message": "One or more selected checks failed."
+    },
+    "wpfPassed": 0,
+    "wpfFailed": 2,
+    "log": "Resumed startup: identity=False, opening=True, faces=4, hand=4, current=True, prompt=ProgramTrigger, revision=13.\r\nOpening timer behind settings: enabled=False, ticks=1, opening=False.\r\n[FAIL] table shortcuts respect navigation panels above startup overlays: System.InvalidOperationException: The opening countdown ran or changed the match behind settings.\r\n   at Program.Assert(Boolean condition, String message) in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\Program.cs:line 328\r\n   at TableShortcutChecks.<>c__DisplayClass1_0.<OpeningOverlayPriority>g__VerifyOpeningTimerCoverage|4() in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\TableShortcutChecks.cs:line 175\r\n   at TableShortcutChecks.OpeningOverlayPriority() in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\TableShortcutChecks.cs:line 128\r\n   at Program.Check(String name, Action action) in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\Program.cs:line 186\r\nModal Window shown: loaded=True, WPF visible=True, native visible=True, owns foreground=False, source matches=True, loaded events=1, unloaded events=0.\r\nModal Window hidden: loaded=True, WPF visible=True, native visible=False, owns foreground=False, source matches=True, loaded events=1, unloaded events=0.\r\nModal Window pumped: loaded=True, WPF visible=True, native visible=False, owns foreground=False, source matches=True, loaded events=1, unloaded events=0.\r\nOpening motion disabled before deal: motion=False, opening=True.\r\n[FAIL] table modal focus follows startup and current visible panels: System.InvalidOperationException: Disabling motion during an armed start must cancel its pending opening animation.\r\n   at Program.Assert(Boolean condition, String message) in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\Program.cs:line 328\r\n   at ModalFocusChecks.<>c__DisplayClass0_0.<StartupAndModalTransitions>g__VerifyOpeningMotionPreference|5() in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\ModalFocusChecks.cs:line 444\r\n   at ModalFocusChecks.StartupAndModalTransitions() in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\ModalFocusChecks.cs:line 406\r\n   at Program.Check(String name, Action action) in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\Program.cs:line 186\r\n0 WPF checks passed, 2 failed. Renders: C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders\r\n",
+    "provenFailures": [
+      "Actual DispatcherTimer fired once behind settings and cleared the opening faces: enabled=False, ticks=1, opening=False.",
+      "Activating SettingsMotionToggle through its real ToggleButton.OnClick in a loaded native-hidden Window disabled motion, but completing the armed start still displayed opening=True."
+    ]
+  },
+  "focused": {
+    "command": "& .\\tools\\Test-Changed.ps1 -WpfFilter @('table shortcuts','table modal focus','device preferences','playback batches','saved UI boundaries','failed writes')",
+    "run": {
+      "status": "passed",
+      "mode": "targeted",
+      "startedAt": "2026-10-11T15:11:20.1051305+08:00",
+      "durationMs": 12779,
+      "coreFilterCount": 0,
+      "wpfFilters": [
+        "table shortcuts",
+        "table modal focus",
+        "device preferences",
+        "playback batches",
+        "saved UI boundaries",
+        "failed writes"
+      ],
+      "wpfFilterCount": 6,
+      "results": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 2043,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\build.log"
+        },
+        {
+          "name": "WPF selected checks (6 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 10412,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\wpf-selected.log"
+        }
+      ],
+      "message": null
+    },
+    "wpfPassed": 7,
+    "wpfFailed": 0,
+    "log": "[PASS] table shortcuts execute once per key press and preserve modal drafts\r\nResumed startup: identity=False, opening=True, faces=4, hand=4, current=True, prompt=ProgramTrigger, revision=13.\r\nOpening timer behind settings: enabled=False, ticks=0, opening=True.\r\nOpening timer behind history: enabled=False, ticks=0, opening=True.\r\nOpening timer behind gallery: enabled=False, ticks=0, opening=True.\r\nOpening timer behind guide: enabled=False, ticks=0, opening=True.\r\nOpening timer behind lobby: enabled=False, ticks=0, opening=True.\r\nOpening timer behind log: enabled=False, ticks=0, opening=True.\r\nOpening timer uncovered: ticks=1, faces=0.\r\n[PASS] table shortcuts respect navigation panels above startup overlays\r\nModal Window shown: loaded=True, WPF visible=True, native visible=True, owns foreground=False, source matches=True, loaded events=1, unloaded events=0.\r\nModal Window hidden: loaded=True, WPF visible=True, native visible=False, owns foreground=False, source matches=True, loaded events=1, unloaded events=0.\r\nModal Window pumped: loaded=True, WPF visible=True, native visible=False, owns foreground=False, source matches=True, loaded events=1, unloaded events=0.\r\nOpening motion disabled before deal: motion=False, opening=False.\r\n[PASS] table modal focus follows startup and current visible panels\r\n[PASS] device preferences persist before play and survive legacy loads and tutorials\r\nAutomatic playback with bound layout: 87 commands, 65 table refreshes; 927.6 ms; 78,191,840 bytes.\r\nAutomatic slice revision 2->9: logic 30.0 ms; layout 33.4 ms; core replay 3.1 ms.\r\nAutomatic slice revision 67->68: logic 52.6 ms; layout 3.2 ms; core replay 1.1 ms.\r\nAutomatic slice revision 12->13: logic 33.4 ms; layout 3.7 ms; core replay 1.6 ms.\r\nAutomatic slice revision 52->53: logic 9.1 ms; layout 25.7 ms; core replay 1.2 ms.\r\nAutomatic slice revision 17->18: logic 27.3 ms; layout 6.3 ms; core replay 1.2 ms.\r\nAutomatic slice revision 22->24: logic 23.4 ms; layout 6.7 ms; core replay 1.7 ms.\r\nAutomatic slice revision 68->69: logic 15.1 ms; layout 12.4 ms; core replay 1.1 ms.\r\nAutomatic slice revision 21->22: logic 21.6 ms; layout 4.8 ms; core replay 0.9 ms.\r\nAutomatic slice revision 69->70: logic 20.6 ms; layout 5.5 ms; core replay 1.2 ms.\r\nAutomatic slice revision 53->56: logic 15.2 ms; layout 10.0 ms; core replay 1.4 ms.\r\nFeedback failure: automatic mode=True, view=16, engine=16\r\nFeedback failure: automatic mode=False, view=16, engine=16\r\n[PASS] playback batches internal steps while preserving human boundaries and replay\r\n  Restored and continued: SelectGeneral, Running, InFlight, RespondDodge, ProgramTrigger, RespondSlash, PlayCard, DiscardCards.\r\n[PASS] saved UI boundaries restore and continue through actual files\r\n[PASS] failed writes and incompatible reads preserve the active game\r\n7 WPF checks passed, 0 failed. Renders: C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders\r\n",
+    "developmentRuns": "The first post-fix focused run passed. The final focused run followed new stacked-panel and currently-visible cancellation assertions; no full run was used."
+  },
+  "routine": {
+    "command": "& .\\tools\\Test-Changed.ps1 -Verbose",
+    "run": {
+      "status": "passed",
+      "mode": "routine",
+      "startedAt": "2026-10-11T15:12:16.0515582+08:00",
+      "durationMs": 122266,
+      "coreFilterCount": 294,
+      "wpfFilterCount": 34,
+      "results": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 1614,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\build.log"
+        },
+        {
+          "name": "Core selected checks (294 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 86944,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\core-selected.log"
+        },
+        {
+          "name": "WPF selected checks (34 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 33381,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\wpf-selected.log"
+        }
+      ]
+    },
+    "corePassed": 475,
+    "coreFailed": 0,
+    "coreSkipped": 0,
+    "wpfPassed": 40,
+    "wpfFailed": 0,
+    "buildWarnings": 0,
+    "buildErrors": 0,
+    "buildResult": [
+      "    0 个警告",
+      "    0 个错误"
+    ],
+    "scopeUnchanged": true,
+    "allRegisteredScopeRun": false,
+    "profile": [
+      {
+        "scope": "core",
+        "checkCount": 475,
+        "sumOfCheckMs": 86751.851,
+        "top": [
+          {
+            "name": "Unrespondable counterspell equipment payment completed cold",
+            "durationMs": 1851.743
+          },
+          {
+            "name": "Recipient category mark: face-up gift issues one public token and survives source loss",
+            "durationMs": 1600.437
+          },
+          {
+            "name": "zero material uses preserve appearance targets and replay",
+            "durationMs": 1565.361
+          },
+          {
+            "name": "Discarded provenance real turn all materials no response",
+            "durationMs": 1206.254
+          },
+          {
+            "name": "card inventory is conserved at every public boundary",
+            "durationMs": 1098.915
+          },
+          {
+            "name": "Damage judgment suit payment four suits and exact claims",
+            "durationMs": 932.722
+          },
+          {
+            "name": "Tiered Round shared quota and zero ordinary child",
+            "durationMs": 865.48
+          },
+          {
+            "name": "Nearest legal Slash paid conversion provider optional finisher",
+            "durationMs": 842.993
+          },
+          {
+            "name": "Tongxie use provenance: live child and returned entity use response",
+            "durationMs": 794.448
+          },
+          {
+            "name": "Draw advice and designated extra target: frozen draw qualifications and HE payment",
+            "durationMs": 776.02
+          },
+          {
+            "name": "Draw-funded distinct basic: native Dodge Dying and program returns",
+            "durationMs": 770.957
+          },
+          {
+            "name": "Participant hand per point effective red and HP loss damage cursor",
+            "durationMs": 752.799
+          },
+          {
+            "name": "Round distinct basic use: forced Slash and hand-like materials keep native parents",
+            "durationMs": 743.858
+          },
+          {
+            "name": "Actual second use foreign grants share state and expire on end",
+            "durationMs": 739.263
+          },
+          {
+            "name": "Actual draw obligation skipped extra reissued marker source death",
+            "durationMs": 719.029
+          }
+        ],
+        "results": [
+          "475 passed, 0 failed, 0 skipped (475 total)."
+        ],
+        "diagnostics": []
+      },
+      {
+        "scope": "wpf",
+        "checkCount": 40,
+        "sumOfCheckMs": 32743.303,
+        "top": [
+          {
+            "name": "hand responses select exact cards and confirm through shared controls",
+            "durationMs": 5473.793
+          },
+          {
+            "name": "table modal focus follows startup and current visible panels",
+            "durationMs": 2627.068
+          },
+          {
+            "name": "table shortcuts respect navigation panels above startup overlays",
+            "durationMs": 2103.627
+          },
+          {
+            "name": "general selection switches related editions without consuming candidate slots",
+            "durationMs": 2023.984
+          },
+          {
+            "name": "stale prompt choices cannot answer reloaded or consecutive decisions",
+            "durationMs": 1995.349
+          },
+          {
+            "name": "Program exact top count restores private shared order",
+            "durationMs": 1717.549
+          },
+          {
+            "name": "Program population count private faces restore shared free order",
+            "durationMs": 1617.107
+          },
+          {
+            "name": "identity general choices use two rows and lord-relative seat numbers",
+            "durationMs": 1461.787
+          },
+          {
+            "name": "playback batches internal steps while preserving human boundaries and replay",
+            "durationMs": 1292.461
+          },
+          {
+            "name": "Iron Chain selection preserves all eight portrait bounds when Recast appears",
+            "durationMs": 1171.771
+          },
+          {
+            "name": "table shortcuts execute once per key press and preserve modal drafts",
+            "durationMs": 965.635
+          },
+          {
+            "name": "opaque target-card slots render privately and commit through WPF commands",
+            "durationMs": 917.353
+          },
+          {
+            "name": "original card artwork preserves physical card identity and interaction",
+            "durationMs": 886.646
+          },
+          {
+            "name": "overlapping hand cards keep stable pointer targets",
+            "durationMs": 863.558
+          },
+          {
+            "name": "skill target selection adds portrait outlines and confirms a real Zhefu choice",
+            "durationMs": 800.064
+          }
+        ],
+        "results": [
+          "40 WPF checks passed, 0 failed. Renders: C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders"
+        ],
+        "diagnostics": [
+          "Resumed startup: identity=False, opening=True, faces=4, hand=4, current=True, prompt=ProgramTrigger, revision=13.",
+          "Opening timer behind settings: enabled=False, ticks=0, opening=True.",
+          "Opening timer behind history: enabled=False, ticks=0, opening=True.",
+          "Opening timer behind gallery: enabled=False, ticks=0, opening=True.",
+          "Opening timer behind guide: enabled=False, ticks=0, opening=True.",
+          "Opening timer behind lobby: enabled=False, ticks=0, opening=True.",
+          "Opening timer behind log: enabled=False, ticks=0, opening=True.",
+          "Opening timer uncovered: ticks=1, faces=0.",
+          "Modal Window shown: loaded=True, WPF visible=True, native visible=True, owns foreground=False, source matches=True, loaded events=1, unloaded events=0.",
+          "Modal Window hidden: loaded=True, WPF visible=True, native visible=False, owns foreground=False, source matches=True, loaded events=1, unloaded events=0.",
+          "Modal Window pumped: loaded=True, WPF visible=True, native visible=False, owns foreground=False, source matches=True, loaded events=1, unloaded events=0.",
+          "Opening motion disabled before deal: motion=False, opening=False."
+        ]
+      }
+    ],
+    "timingTargetMs": 60000,
+    "timingTargetMet": false,
+    "timingInterpretation": "Total 122266 ms includes incremental build 1614 ms, Core 86944 ms, and WPF 33381 ms. Individual check timing accounts for 86751.851 ms Core and 32743.303 ms WPF. Core cost is spread across many checks; no single measured Core check exceeds 1851.743 ms. WPF hand responses remain the largest individual WPF check at 5473.793 ms. This is scope timing, not actual command latency or screen FPS; the batch does not establish a routine speed improvement."
+  },
+  "coveredTimerCoverage": {
+    "host": "Existing real VM and MainWindow command/shortcut fixture, using the owning actual DispatcherTimer on the WPF dispatcher.",
+    "defaultProductionIntervalMs": 1800,
+    "testIntervalMs": 50,
+    "coverPumpMs": 120,
+    "coveredPanels": [
+      "settings",
+      "history",
+      "gallery",
+      "guide",
+      "lobby",
+      "log"
+    ],
+    "assertions": [
+      "Each covering panel remains open; opening IDs and current engine reference/all eight viewer-safe snapshots remain unchanged after a dispatcher pump.",
+      "The actual opening timer is disabled with no Tick while covered; Escape resumes it after the panel closes.",
+      "Settings above a retained gallery keeps the timer paused after closing only settings; closing the gallery resumes it.",
+      "Once uncovered, the real timer ticks exactly once, hides opening presentation and clears faces, while all eight player views remain unchanged."
+    ],
+    "cleanup": "Tick observer is removed and the original Interval restored in finally; monitor timers stop in finally; enclosing Window closes and the VM disposes.",
+    "limitations": [
+      "The 50 ms accelerated real-timer check verifies pause/resume/one natural expiry; it does not measure the default 1800 ms desktop reading duration.",
+      "Identity, general-selection and result coverage is included in the implementation's predicate, without added real-timer regression branches for these three layers.",
+      "The shortcut fixture drives actual VM commands and the shared key handler; it is not a foreground desktop input acceptance test."
+    ]
+  },
+  "motionCoverage": {
+    "host": "Real loaded MainWindow, offscreen and native-hidden with no foreground ownership; actual bound SettingsMotionToggle.OnClick activates the preference.",
+    "assertions": [
+      "Disabling motion during an armed start preserves identity/engine/all eight viewer-safe snapshots, then confirming identity/general does not display the pending opening.",
+      "Disabling motion while opening is visible clears its faces and preserves the engine and every player's view.",
+      "Re-enabling motion after cancellation does not replay a retired opening.",
+      "Disabling motion during practice prevents restoration of both visible and armed original startup animation, while preserving original engine and safe player views.",
+      "Pending original identity still restores after tutorial return with motion disabled."
+    ]
+  },
+  "review": {
+    "agent": "/root/table_input_review",
+    "status": "No substantive regression found.",
+    "notes": "Initialization does not access an unready snapshot; pending/general and game-over state use value-change notifications; same-value view refreshes do not reset the countdown. Covering-state checks, current motion guards and local observer/timer cleanup remain on the existing UI/session boundaries.",
+    "independentBuildOrConsumers": false
+  },
+  "sourceHashes": [
+    {
+      "path": "src/CardGame.Wpf/ViewModels/MainViewModel.OpeningDeal.cs",
+      "sha256": "7731FD4B3F95FCB10B9A7CAB1BC86FD699EEC00D271D0827A6F80F9886BE128B"
+    },
+    {
+      "path": "src/CardGame.Wpf/ViewModels/MainViewModel.Tutorial.cs",
+      "sha256": "1F29B47F2AB159EE8D392D377D4F1AFA3931E0A96F179B92DA8EE5EFC0531B4B"
+    },
+    {
+      "path": "src/CardGame.Wpf/ViewModels/MainViewModel.Presentation.cs",
+      "sha256": "195BE405A74AF880319D142482CADD9F270B42AAA53F961340C2CB543F3778D9"
+    },
+    {
+      "path": "tests/CardGame.Wpf.Tests/TableShortcutChecks.cs",
+      "sha256": "9765F3212049C3159B1F2E135B20EDE7D15E7A5C9DD4F048ADE34141F0363A4D"
+    },
+    {
+      "path": "tests/CardGame.Wpf.Tests/ModalFocusChecks.cs",
+      "sha256": "FE5BE0D38B75CDBFD9F190B1039E82C1FBBCDF5F2E521759A1658A5D8D4DB67C"
+    },
+    {
+      "path": "docs/LOCAL_PLAY.md",
+      "sha256": "F417CEBD185E062A64FA69F433EFA21149E499B28EB63DA8C904D30FD8CF8FD5"
+    },
+    {
+      "path": "tools/VerificationScopes.psd1",
+      "sha256": "50E4CE011AA64B7D48F3031A5E0CD925EA431182578AD84F24B14DAD99C7F33C"
+    },
+    {
+      "path": "src/CardGame.Core/Replay.cs",
+      "sha256": "8553B2BA685D28AF35F5C91F4FEF99FA5D227FFD807214D5AB4281D20A4041D0"
+    },
+    {
+      "path": "src/CardGame.Core/SkillPrograms.cs",
+      "sha256": "A883F4A969EDAB4E67B03838651BE19AB9DB5680512D34786C3889D620D690F3"
+    }
+  ],
+  "cleanup": {
+    "policy": "Current workspace AGENTS.md uses the user-run cleanup queue; outputs remain registered and retained.",
+    "inspection": {
+      "root": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f",
+      "owner": {
+        "formatVersion": 1,
+        "repository": "C:\\Users\\17917\\Desktop\\Card",
+        "artifactsPath": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f"
+      },
+      "entries": [
+        {
+          "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin",
+          "added_at": "2026-10-11T11:22:24.373633+08:00",
+          "root": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f",
+          "reason": "Test-Changed verification output (passed); safe to clean after inspection.",
+          "lock_root": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f"
+        },
+        {
+          "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\obj",
+          "added_at": "2026-10-11T11:22:24.373657+08:00",
+          "root": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f",
+          "reason": "Test-Changed verification output (passed); safe to clean after inspection.",
+          "lock_root": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f"
+        },
+        {
+          "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders",
+          "added_at": "2026-10-11T11:22:24.373662+08:00",
+          "root": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f",
+          "reason": "Test-Changed verification output (passed); safe to clean after inspection.",
+          "lock_root": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f"
+        }
+      ],
+      "lockFree": true,
+      "consumers": [],
+      "allExactChildren": true,
+      "allExist": true
+    },
+    "previewCommand": "python -B tools/cleanup_temp.py --database tools/cleanup_queue.json --dry-run",
+    "previewResult": "Pending: 3; failed: 0",
+    "previewLog": "[preview] C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin | Test-Changed verification output (passed); safe to clean after inspection.\n[preview] C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\obj | Test-Changed verification output (passed); safe to clean after inspection.\n[preview] C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders | Test-Changed verification output (passed); safe to clean after inspection.\nPending: 3; failed: 0",
+    "newIndependentOutputRoots": 0,
+    "spaceFreed": false
+  },
+  "scopeLimits": {
+    "manualFullRun": false,
+    "releaseOrPackaging": false,
+    "coreCommandsRulesOrContentVersionChanged": false,
+    "unrelatedDirtyWorkPreserved": true,
+    "nativeForegroundAcceptance": false
+  }
+}

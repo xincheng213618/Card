@@ -1,0 +1,16 @@
+{
+  "RecordedAt": "2026-10-13T19:37:48.8950146+08:00",
+  "Goal": "持续迭代",
+  "SourceHashes": {
+    "tests/CardGame.Core.Tests/BoundaryWolongZhugeLiangChecks.cs": "1941B7301966B40ABFB262B475D01E9508EBC85A3F1137435C5F700AA8C1DD56",
+    "src/CardGame.Core/GameEngine.NamedAmbushInvalidation.cs": "560A1147A58BC0C726922D68651EEF2CBDDD51DEC7AEA84FCA1FB3E541E3076D",
+    "src/CardGame.Core/GameEngine.NamedAmbush.cs": "16EE308FBE02FA2A7288B555D654907C1BA0E790EEF9A74677EAAA3314FD783C",
+    "src/CardGame.Core/GameEngine.DamageSourceHandChoice.cs": "10AB26300C9ABEDCFB01CD22B3384A29983089FA64BD2E5A388E956FD4D03F4F",
+    "tests/CardGame.Core.Tests/NamedAmbushAndSourceHandChecks.cs": "9733E55B51AE0FF0ED83DD5007606B701D5D96AF5DD29A464C8ED22D0C36503E",
+    "tools/Test-Changed.ps1": "F010EEF5CA911570F55419757FEB1B23D292BAAE7E53384D86F23AB04BA1A91D"
+  },
+  "NamedFocusedPassed": 9,
+  "WolongFocusedPassed": 3,
+  "FullVerification": false,
+  "Note": "Real focused guards and cold assertions preserved; exact performance gain of formal-base wrappers not yet measured"
+}

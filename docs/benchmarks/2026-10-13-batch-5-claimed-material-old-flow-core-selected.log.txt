@@ -1,0 +1,3 @@
+[PASS] Extra card effect and rank guess: claimed global existing flow without extra capability
+
+1 passed, 0 failed, 0 skipped (1 total).

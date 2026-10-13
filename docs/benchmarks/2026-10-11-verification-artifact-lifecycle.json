@@ -1,0 +1,51 @@
+{
+  "status": "passed",
+  "lifecycleChecksPassed": 9,
+  "lifecycleFixtureRemoved": true,
+  "routineCorePassed": 475,
+  "routineCoreFailed": 0,
+  "routineWpfPassed": 36,
+  "routineWpfFailed": 0,
+  "routineDurationMs": 148402,
+  "steps": [
+    {
+      "name": "Build selected scope",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 22327,
+      "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\build.log"
+    },
+    {
+      "name": "Core selected checks (294 filters, union)",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 92821,
+      "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\core-selected.log"
+    },
+    {
+      "name": "WPF selected checks (31 filters, union)",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 31849,
+      "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\wpf-selected.log"
+    }
+  ],
+  "cleanup": {
+    "status": "removed",
+    "removed": [
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin",
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\obj",
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders"
+    ],
+    "message": null
+  },
+  "retainedBytes": 69471.0,
+  "manualFullRun": false,
+  "priorArtifactDirectory": {
+    "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-identity-ui-1791537330211",
+    "sizeBytes": 2701806611,
+    "activeConsumers": 0,
+    "deletion": "rejected",
+    "reason": "Tool automatic approval review rejected the guarded exact-path removal: blocked by policy."
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "status": "test-failed",
+  "mode": "targeted",
+  "repository": "C:\\Users\\17917\\Desktop\\Card",
+  "artifactsPath": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f",
+  "coreFilters": [
+    "Extra card effect and rank guess:",
+    "Incoming distance courtesy: paid",
+    "Incoming distance courtesy: recovery"
+  ],
+  "wpfFilters": [
+    "Edition general gallery:",
+    "Alcohol bonus UI:"
+  ],
+  "startedAt": "2026-10-13T21:00:14.5657311+08:00",
+  "durationMs": 20090,
+  "message": "One or more selected checks failed.",
+  "results": [
+    {
+      "name": "Build selected scope",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 16325,
+      "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\build.log"
+    },
+    {
+      "name": "Core selected checks (3 filters, union)",
+      "status": "failed",
+      "exitCode": 1,
+      "durationMs": 1892,
+      "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\core-selected.log",
+      "startedAt": "2026-10-13T21:00:31.0095538+08:00",
+      "endedAt": "2026-10-13T21:00:32.9011372+08:00",
+      "processId": 62956
+    },
+    {
+      "name": "WPF selected checks (2 filters, union)",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 3426,
+      "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\wpf-selected.log",
+      "startedAt": "2026-10-13T21:00:31.0287422+08:00",
+      "endedAt": "2026-10-13T21:00:34.4547410+08:00",
+      "processId": 27492
+    }
+  ],
+  "cleanup": {
+    "status": "queued",
+    "queued": [
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin",
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\obj",
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders"
+    ],
+    "database": "C:\\Users\\17917\\Desktop\\Card\\tools\\cleanup_queue.json",
+    "message": null
+  }
+}

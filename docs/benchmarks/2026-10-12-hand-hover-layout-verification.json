@@ -1,0 +1,147 @@
+{
+  "task": "Hand hover follows physical slots after sorting and resizing",
+  "changes": [
+    "Re-resolve the physical card under the last pointer position after layout; use the live position while the hand owns mouse input.",
+    "Clear pointer position and highlight when the hand empties, the pointer leaves, or the panel unloads.",
+    "Preserve card selection and game revision; keep pointer clicks stable and allow keyboard reveal on moved cards."
+  ],
+  "baseline": {
+    "status": "test-failed",
+    "assertion": "Sorting must move the hover to the card now beneath the stationary pointer and preserve the draft.",
+    "matchedWpfChecks": 1,
+    "passed": 0,
+    "failed": 1
+  },
+  "focused": {
+    "status": "passed",
+    "mode": "targeted",
+    "startedAt": "2026-10-12T17:21:38.8381560+08:00",
+    "durationMs": 10142,
+    "results": [
+      {
+        "name": "Build selected scope",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 6455
+      },
+      {
+        "name": "WPF selected checks (1 filters, union)",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 3370
+      }
+    ],
+    "wpfPassed": 2,
+    "wpfFailed": 0
+  },
+  "routineFirst": {
+    "status": "test-failed",
+    "mode": "routine",
+    "startedAt": "2026-10-12T17:22:46.7313570+08:00",
+    "durationMs": 126648,
+    "results": [
+      {
+        "name": "Build selected scope",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 1663
+      },
+      {
+        "name": "Core selected checks (295 filters, union)",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 83734
+      },
+      {
+        "name": "WPF selected checks (37 filters, union)",
+        "status": "failed",
+        "exitCode": 1,
+        "durationMs": 40941
+      }
+    ],
+    "corePassed": 476,
+    "coreFailed": 0,
+    "wpfPassed": 43,
+    "wpfFailed": 1,
+    "failure": "hand responses select exact cards and confirm through shared controls: A modifier route must begin with the test thread's original unmodified keyboard state.",
+    "failureLocation": "TableShortcutChecks.WithControl, before input routing",
+    "interpretation": "Transient initial keyboard-state failure; unchanged code passed the relevant focused rerun and the entire WPF routine filter set. Ambient keyboard state remains a verification limitation."
+  },
+  "focusedRecovery": {
+    "status": "passed",
+    "mode": "targeted",
+    "startedAt": "2026-10-12T17:25:42.8090642+08:00",
+    "durationMs": 16224,
+    "results": [
+      {
+        "name": "Build selected scope",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 1394
+      },
+      {
+        "name": "WPF selected checks (2 filters, union)",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 14543
+      }
+    ],
+    "wpfPassed": 3,
+    "wpfFailed": 0
+  },
+  "wpfRoutineRecovery": {
+    "status": "passed",
+    "mode": "targeted",
+    "startedAt": "2026-10-12T17:26:39.5046931+08:00",
+    "durationMs": 46865,
+    "results": [
+      {
+        "name": "Build selected scope",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 1251
+      },
+      {
+        "name": "WPF selected checks (37 filters, union)",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 45365
+      }
+    ],
+    "scopeSource": "tools/VerificationScopes.psd1 Wpf",
+    "filterCount": 37,
+    "wpfPassed": 44,
+    "wpfFailed": 0
+  },
+  "build": {
+    "warnings": 0,
+    "errors": 0
+  },
+  "visualInspection": {
+    "image": "docs/benchmarks/2026-10-12-hand-hover-after-sort.png",
+    "type": "WPF off-screen render with synthetic overflow hand; stationary pointer remains over the new physical card after SortHandCommand",
+    "inspected": true
+  },
+  "limits": [
+    "No manual full verification.",
+    "No physical foreground keyboard/mouse or multi-DPI/audio acceptance.",
+    "Routine scope remains longer than the approximately one-minute target."
+  ],
+  "cleanup": {
+    "status": "policy-blocked-retained",
+    "root": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f",
+    "paths": [
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin",
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\obj",
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders"
+    ],
+    "database": "tools/cleanup_queue.json",
+    "reason": "The reused outputs were already rejected for recursive cleanup in the prior iteration; no deletion retry was performed.",
+    "existenceVerified": true
+  },
+  "delivery": {
+    "commit": false,
+    "push": false,
+    "publish": false
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "capturedAtUtc": "2026-10-13T13:23:30.017114+00:00",
+  "scope": "Readonly current-source audit of the second extra-effect Snatch/Dismantlement mixed opaque-hand/public-equipment/judgment selector. No build, fixture execution, foreground UI interaction or production write by this reviewer. Parent supplied native Snatch focused evidence; this report does not independently rerun it.",
+  "snapshotHashes": {
+    "src/CardGame.Core/GameEngine.ExtraEffectForeignSelection.cs": "4754dac1e744b5c81b00d959d5675323af5bff5b7d712b150f3d8f1500dafe6d",
+    "src/CardGame.Core/ProgramExtraEffectsAndRankGuessing.cs": "3ac3f6df92d94ecf66ab53b1d5fbd4469c01e76388b5ed5bc6763d8c5a95237b",
+    "src/CardGame.Core/Resolution.cs": "09b6eb84134a4df2215a12dcb414bb0dbf6d386445c3a1279be9c6e0a5b9e180",
+    "src/CardGame.Core/GameEngine.cs": "4cb7e23e09f95f492470469408b7b7cb3dbe38a8a29f4f10cff3a2ba097c4eb7",
+    "src/CardGame.Core/Projection/PlayerViewProjector.cs": "20b6734a5eab5e9cc1709935c9fd2e204a98385d07066fb40ed9538d28d01701",
+    "src/CardGame.Core/Projection/PromptChoiceProjection.cs": "74f8b415ecd1b7adcb9672c9ba285ab85f3141a6e6022709393748ec8d29bf53",
+    "src/CardGame.Core/GameEngine.CommandSession.cs": "a449fe9c352ae0283abf750da4ce13430129e33d6d3fe9181bb0c291834f69e3",
+    "src/CardGame.Core/GameEngine.SequentialTrickTargets.cs": "f10597b52beaa28573b83f77f4236b91b48c75c2208d0f0f7c2bcf44f1f6c811",
+    "src/CardGame.Core/GameEngine.ExtraCardEffectRounds.cs": "1e603ea76c827eb1a7da852a2a7db8cab1e18a712e84dd15ac3e9dadb2aac924",
+    "src/CardGame.Core/Replay.cs": "4421250b9eda44b165564f012b48dbe408dbaae84223bcc94d1a5add6c685a1e"
+  },
+  "snapshotStableAcrossCapture": true,
+  "findings": [
+    {
+      "topic": "concealed hand",
+      "status": "static-consistent",
+      "evidence": "TryBeginExtraForeignSelection emits ordinal hand slots with PublicCardId/PublicLocation null. Published opaque choices have no Cards ids and only target seat/slot index/opaque text. The new frame stores hand count, not foreign hand ids/faces."
+    },
+    {
+      "topic": "public regions",
+      "status": "static-consistent",
+      "evidence": "Equipment and judgment slots store exact public card id/location. Dismantlement filters IsForeignEquipmentDiscardPrevented with actual source seat, and selection checks the same policy again. Snatch retains normal public equipment and judgment selection."
+    },
+    {
+      "topic": "viewer projection and freeze",
+      "status": "static-consistent",
+      "evidence": "ProjectPlayerView includes hand faces only for that hand owner or explicit revealAll diagnostics. PendingDecision is visible only to its PlayerSeat. FreezePlayerView -> CloneDecision -> PromptChoiceProjection.Freeze detaches read-only Cards/Targets/Parameters. ResolutionStack remains trusted diagnostics, not a player-facing view."
+    },
+    {
+      "topic": "command freshness and slot validation",
+      "status": "static-consistent",
+      "evidence": "SubmitPromptAnswer requires matching actual actor/current PromptId/published ChoiceId. Public branch requires exact slot/publicCardId and target. TryResolveExtraForeignSelection checks active top child, same ActionId/current extra round, current hand count and exact public location, then removes only its owned child and resumes original use."
+    },
+    {
+      "topic": "physical material and target movement",
+      "status": "static-consistent",
+      "evidence": "GetTrickRepresentation requires live original use representation. ApplyTargetCardEffect moves chosen current entity through Processing once into source Hand or DiscardPile and masks foreign hand identity in target-effect facts/logs. MoveFinishedTrickCard protects the original material before the extra round and during remaining sequential targets; FinishCardUse later moves only material still in Processing, preserving current physical-claim exceptions."
+    }
+  ],
+  "confirmedDefects": [],
+  "limits": [
+    "No separate actual mixed public-equipment/opaque-hand selector or Dismantlement fixture run by this reviewer.",
+    "No foreground desktop UI acceptance, DPI check, multi-target selector run or same-count hand reorder attempt performed.",
+    "Malformed serialized frame and custom derived-event mutation paths are not accepted as proven publicly reachable inputs; command/public-view boundaries were reviewed statically.",
+    "Source hashes identify the captured snapshot; future concurrent B/root edits require their own final verification."
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "status": "build-failed",
+  "mode": "targeted",
+  "repository": "C:\\Users\\17917\\Desktop\\Card",
+  "artifactsPath": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f",
+  "coreFilters": [],
+  "wpfFilters": [
+    "response context",
+    "battle feedback exposes only committed public actions",
+    "battle feedback renders distinct combat effects and retires them",
+    "battle feedback sequences public attacks responses and confirmed damage",
+    "public card table"
+  ],
+  "startedAt": "2026-10-13T01:05:20.8673425+08:00",
+  "durationMs": 12543,
+  "message": "The selected scope did not build; checks were not started.",
+  "results": [
+    {
+      "name": "Build selected scope",
+      "status": "failed",
+      "exitCode": 1,
+      "durationMs": 12152,
+      "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\build.log"
+    }
+  ],
+  "cleanup": {
+    "status": "queued",
+    "queued": [
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin",
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\obj",
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders"
+    ],
+    "database": "C:\\Users\\17917\\Desktop\\Card\\tools\\cleanup_queue.json",
+    "message": null
+  }
+}

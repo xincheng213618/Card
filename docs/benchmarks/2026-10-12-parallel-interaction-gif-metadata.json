@@ -1,0 +1,30 @@
+[
+  {
+    "file": "2026-10-12-battle-long-chain-native-thunder.gif",
+    "frames": 110,
+    "size": [
+      728,
+      481
+    ],
+    "delaysMs": [
+      40
+    ],
+    "distinctFrames": 103,
+    "loop": 0,
+    "bytes": 19820147
+  },
+  {
+    "file": "2026-10-12-battle-group-native-arrow.gif",
+    "frames": 95,
+    "size": [
+      728,
+      481
+    ],
+    "delaysMs": [
+      40
+    ],
+    "distinctFrames": 50,
+    "loop": 0,
+    "bytes": 17367615
+  }
+]

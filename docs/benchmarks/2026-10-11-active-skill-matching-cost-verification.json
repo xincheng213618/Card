@@ -1,0 +1,912 @@
+{
+  "formatVersion": 1,
+  "createdAt": "2026-10-11 09:31:19 UTC",
+  "task": "持续迭代 — 完善牌桌交互与稳定性",
+  "scope": "剑合 active-skill same-name or all-equipment confirmation",
+  "repository": "C:\\Users\\17917\\Desktop\\Card",
+  "head": "0f08fb47bb8637ccf082f406d69f6f6c0cbe7b52",
+  "outcome": "Invalid mixed-name materials no longer enable confirmation; canonical Slash variants and differently named hand/equipment costs confirm through the native command once.",
+  "implementation": {
+    "publicCostContract": "LegalAction.SelectedCardsSameNameOrAllEquipment is derived from RecastMatchingCardsThenPeerChoice capability, independent of presentation skill ID and AI hint; default false is omitted from JSON.",
+    "presentation": "Current player-safe physical faces supply printed kind and suit. Counts, candidate membership and suit restrictions remain required. The matching group requires at least two cards and normalized same names (Slash, FireSlash, ThunderSlash) or all equipment.",
+    "hint": "Displays the same-name or all-equipment requirement and names Slash variants.",
+    "nativeRules": "Existing native matching selection validation, command session, movement/payment, AI selection and target phase ledger are unchanged.",
+    "versions": "Replay.cs and SkillPrograms.cs source hashes unchanged; no rules/presentation JSON changed; no rules, schema or content version bump.",
+    "routineScope": "Existing 294 Core and 36 WPF filters retained; no test registrations restored or new framework/runner switches added."
+  },
+  "fixture": {
+    "seed": 31,
+    "playerCount": 4,
+    "humanSeat": 0,
+    "humanRole": "Lord",
+    "setup": "Actual native StartGame/SelectGeneral, twelve physical entities per small deck, ten actual owner hand cards, no opponent initial cards, no seed search or fabricated views/prompts.",
+    "branches": [
+      {
+        "kind": "Mixed",
+        "invalidCards": [
+          1,
+          10
+        ],
+        "invalidKinds": [
+          "Slash",
+          "Duel"
+        ],
+        "publishedCandidateCount": 10,
+        "validCards": [
+          1,
+          2
+        ],
+        "validKinds": [
+          "Slash",
+          "Slash"
+        ],
+        "routes": [
+          "button",
+          "Enter"
+        ]
+      },
+      {
+        "kind": "Canonical",
+        "validCards": [
+          1,
+          6,
+          10
+        ],
+        "validKinds": [
+          "Slash",
+          "FireSlash",
+          "ThunderSlash"
+        ],
+        "routes": [
+          "button",
+          "Enter"
+        ]
+      },
+      {
+        "kind": "Equipment",
+        "validCards": [
+          1,
+          10
+        ],
+        "validKinds": [
+          "Crossbow",
+          "BaguaFormation"
+        ],
+        "origins": [
+          "Equipment[0]",
+          "Hand[0]"
+        ],
+        "setup": "Crossbow genuinely paid Hand -> Processing -> Equipment before saving.",
+        "routes": [
+          "button",
+          "Enter"
+        ]
+      }
+    ],
+    "coverage": "Native invalid command independently rejects InvalidCard with identical boundary. Actual bound confirmation state/CanExecute and Enter reject mixed draft; Esc clears draft without payment. Six positive routes commit exact native command and each original HE card once, then reach actual peer prompt after owner's draw. Four safe views, commands, movements, events match independent native reference and cold checkpoint restore."
+  },
+  "baseline": {
+    "summary": {
+      "status": "test-failed",
+      "mode": "targeted",
+      "repository": "C:\\Users\\17917\\Desktop\\Card",
+      "artifactsPath": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f",
+      "coreFilters": [],
+      "wpfFilters": [
+        "composed skills"
+      ],
+      "startedAt": "2026-10-11T17:24:05.9431610+08:00",
+      "durationMs": 5224,
+      "message": "One or more selected checks failed.",
+      "results": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 2413,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\build.log"
+        },
+        {
+          "name": "WPF selected checks (1 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 2566,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\wpf-selected.log"
+        }
+      ],
+      "cleanup": {
+        "status": "queued",
+        "queued": [
+          "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin",
+          "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\obj",
+          "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders"
+        ],
+        "database": "C:\\Users\\17917\\Desktop\\Card\\tools\\cleanup_queue.json",
+        "message": null
+      }
+    },
+    "build": "  正在确定要还原的项目…\r\n  所有项目均是最新的，无法还原。\r\n  CardGame.Core -> C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin\\CardGame.Core\\release\\CardGame.Core.dll\r\n  CardGame.Content.Standard -> C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin\\CardGame.Content.Standard\\release\\CardGame.Content.Standard.dll\r\n  CardGame.Core.Tests -> C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin\\CardGame.Core.Tests\\release\\CardGame.Core.Tests.dll\r\n  CardGame.Wpf -> C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin\\CardGame.Wpf\\release\\CardGame.Wpf.dll\r\n  CardGame.Wpf.Tests -> C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin\\CardGame.Wpf.Tests\\release\\CardGame.Wpf.Tests.dll\r\n\r\n已成功生成。\r\n    0 个警告\r\n    0 个错误\r\n\r\n已用时间 00:00:02.20\r\n",
+    "wpf": "OL Yeyan draft: ids=27,32,45,73, suits=Club,Diamond,Spade,Spade, publishedDistinct=True, canConfirm=False, buttonEnabled=False.\r\nJianhe Mixed/button: ids=1,10, kinds=Slash,Duel, published=10, canConfirm=True, buttonEnabled=True.\r\n0 WPF checks passed, 1 failed. Renders: C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders\r\n[FAIL] composed skills share the generic WPF draft and submit their stable program identity: System.InvalidOperationException: A mixed-name Jianhe group must keep the actual primary confirmation disabled despite satisfying counts and individual candidates.\r\n   at Program.Assert(Boolean condition, String message) in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\Program.cs:line 329\r\n   at ActiveSkillMatchingCostUiChecks.Run() in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\ActiveSkillMatchingCostUiChecks.cs:line 90\r\n   at SkillProgramUiChecks.ActiveSelectionAndSubmission() in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\SkillProgramUiChecks.cs:line 59\r\n   at Program.Check(String name, Action action) in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\Program.cs:line 187\r\n",
+    "testHash": "7EE6F894557317FF9D56D1B2925828E932482033F3254A8CDBA8FA67C458F30E",
+    "productionHash": "EC8480A718093316D953915CBFB2BC105AAB0E8C5051D39F9592538F54223BF5"
+  },
+  "fixtureCompileRepair": {
+    "reason": "First tests-only build had two StreamReader missing-namespace errors; added System.IO before executing the real failing baseline.",
+    "evidence": {
+      "summary": "{\r\n  \"status\": \"build-failed\",\r\n  \"mode\": \"targeted\",\r\n  \"repository\": \"C:\\\\Users\\\\17917\\\\Desktop\\\\Card\",\r\n  \"artifactsPath\": \"C:\\\\Users\\\\17917\\\\AppData\\\\Local\\\\Temp\\\\CardGame-TestChanged-25f07ed2579f\",\r\n  \"coreFilters\": [],\r\n  \"wpfFilters\": [\r\n    \"composed skills\"\r\n  ],\r\n  \"startedAt\": \"2026-10-11T17:23:47.2699529+08:00\",\r\n  \"durationMs\": 3868,\r\n  \"message\": \"The selected scope did not build; checks were not started.\",\r\n  \"results\": [\r\n    {\r\n      \"name\": \"Build selected scope\",\r\n      \"status\": \"failed\",\r\n      \"exitCode\": 1,\r\n      \"durationMs\": 3633,\r\n      \"log\": \"C:\\\\Users\\\\17917\\\\AppData\\\\Local\\\\Temp\\\\CardGame-TestChanged-25f07ed2579f\\\\logs\\\\build.log\"\r\n    }\r\n  ],\r\n  \"cleanup\": {\r\n    \"status\": \"queued\",\r\n    \"queued\": [\r\n      \"C:\\\\Users\\\\17917\\\\AppData\\\\Local\\\\Temp\\\\CardGame-TestChanged-25f07ed2579f\\\\bin\",\r\n      \"C:\\\\Users\\\\17917\\\\AppData\\\\Local\\\\Temp\\\\CardGame-TestChanged-25f07ed2579f\\\\obj\",\r\n      \"C:\\\\Users\\\\17917\\\\AppData\\\\Local\\\\Temp\\\\CardGame-TestChanged-25f07ed2579f\\\\renders\"\r\n    ],\r\n    \"database\": \"C:\\\\Users\\\\17917\\\\Desktop\\\\Card\\\\tools\\\\cleanup_queue.json\",\r\n    \"message\": null\r\n  }\r\n}\r\n",
+      "build": "  正在确定要还原的项目…\r\n  所有项目均是最新的，无法还原。\r\n  CardGame.Core -> C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin\\CardGame.Core\\release\\CardGame.Core.dll\r\n  CardGame.Content.Standard -> C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin\\CardGame.Content.Standard\\release\\CardGame.Content.Standard.dll\r\n  CardGame.Core.Tests -> C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin\\CardGame.Core.Tests\\release\\CardGame.Core.Tests.dll\r\n  CardGame.Wpf -> C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin\\CardGame.Wpf\\release\\CardGame.Wpf.dll\r\nC:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\ActiveSkillMatchingCostUiChecks.cs(259,35): error CS0246: 未能找到类型或命名空间名“StreamReader”(是否缺少 using 指令或程序集引用?) [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\CardGame.Wpf.Tests.csproj]\r\nC:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\ActiveSkillMatchingCostUiChecks.cs(260,42): error CS0246: 未能找到类型或命名空间名“StreamReader”(是否缺少 using 指令或程序集引用?) [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\CardGame.Wpf.Tests.csproj]\r\n\r\n生成失败。\r\n\r\nC:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\ActiveSkillMatchingCostUiChecks.cs(259,35): error CS0246: 未能找到类型或命名空间名“StreamReader”(是否缺少 using 指令或程序集引用?) [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\CardGame.Wpf.Tests.csproj]\r\nC:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\ActiveSkillMatchingCostUiChecks.cs(260,42): error CS0246: 未能找到类型或命名空间名“StreamReader”(是否缺少 using 指令或程序集引用?) [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\CardGame.Wpf.Tests.csproj]\r\n    0 个警告\r\n    2 个错误\r\n\r\n已用时间 00:00:03.41\r\n"
+    }
+  },
+  "focused": {
+    "summary": {
+      "status": "passed",
+      "mode": "targeted",
+      "repository": "C:\\Users\\17917\\Desktop\\Card",
+      "artifactsPath": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f",
+      "coreFilters": [
+        "Matching recast:",
+        "hand guidance"
+      ],
+      "wpfFilters": [
+        "composed skills",
+        "reference table layout preserves",
+        "table shortcuts",
+        "stale prompt choices"
+      ],
+      "startedAt": "2026-10-11T17:25:11.4999376+08:00",
+      "durationMs": 34961,
+      "message": null,
+      "results": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 23569,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\build.log"
+        },
+        {
+          "name": "Core selected checks (2 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 1861,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\core-selected.log"
+        },
+        {
+          "name": "WPF selected checks (4 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 9298,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\wpf-selected.log"
+        }
+      ],
+      "cleanup": {
+        "status": "queued",
+        "queued": [
+          "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin",
+          "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\obj",
+          "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders"
+        ],
+        "database": "C:\\Users\\17917\\Desktop\\Card\\tools\\cleanup_queue.json",
+        "message": null
+      }
+    },
+    "counts": {
+      "corePassed": 3,
+      "coreFailed": 0,
+      "wpfPassed": 5,
+      "wpfFailed": 0
+    },
+    "buildWarnings": 18,
+    "buildErrors": 0,
+    "warningScope": "Warnings are at files/lines outside this batch's edits; incremental routine build emits zero warnings.",
+    "logs": [
+      {
+        "path": "logs/build.log",
+        "sha256": "DC044B9E902FEC0F733816423830745A41CF6C2502B88FD86EC4A267954A6957",
+        "content": "  正在确定要还原的项目…\r\n  所有项目均是最新的，无法还原。\r\nC:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\SkillProgramExecutor.cs(1148,41): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\CardGame.Core.csproj]\r\nC:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\GameEngine.EndingHistoricalUses.cs(99,69): warning CS8604: “IEnumerable<int> Enumerable.Where<int>(IEnumerable<int> source, Func<int, int, bool> predicate)”中的形参“source”可能传入 null 引用实参。 [C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\CardGame.Core.csproj]\r\nC:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\GameEngine.LiangXingPrograms.cs(27,65): warning CS1718: 对同一变量进行比较；是否希望比较其他变量? [C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\CardGame.Core.csproj]\r\nC:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\GameEngine.PublicPilePreparation.cs(75,131): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\CardGame.Core.csproj]\r\nC:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\GameEngine.SameTypeActualUseAid.cs(178,35): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\CardGame.Core.csproj]\r\n  CardGame.Core -> C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin\\CardGame.Core\\release\\CardGame.Core.dll\r\n  CardGame.Content.Standard -> C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin\\CardGame.Content.Standard\\release\\CardGame.Content.Standard.dll\r\nC:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\BoundaryBuLianShiChecks.cs(316,66): warning CS9113: 参数“deathOwner”未读。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]\r\nC:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\BoundaryWangYiChecks.cs(52,56): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]\r\nC:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\DirectedDistanceDebtChecks.cs(40,65): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]\r\nC:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\DelegatedJudgmentAndGainGiftChecks.cs(117,49): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]\r\nC:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]\r\nC:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]\r\nC:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\OrdinaryLiuXieChecks.cs(84,20): warning CS8604: “void OrdinaryLiuXieChecks.Freeze<int>(IReadOnlyList<int> list)”中的形参“list”可能传入 null 引用实参。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]\r\nC:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\PublicPilePreparationChecks.cs(17,13): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]\r\nC:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\PublicPilePreparationChecks.cs(55,56): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]\r\nC:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\ProgramStateProjectionChecks.cs(66,17): warning CS8604: “bool Enumerable.All<ProgramBooleanStateSnapshot>(IEnumerable<ProgramBooleanStateSnapshot> source, Func<ProgramBooleanStateSnapshot, bool> predicate)”中的形参“source”可能传入 null 引用实参。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]\r\nC:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\ProgramStateProjectionChecks.cs(171,28): warning CS8604: “void ProgramStateProjectionChecks.RejectReadOnly<SkillRuntimeStateSnapshot>(IReadOnlyList<SkillRuntimeStateSnapshot> values, SkillRuntimeStateSnapshot replacement)”中的形参“values”可能传入 null 引用实参。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]\r\nC:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\PublicPilePreparationChecks.cs(148,55): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]\r\nC:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\OrdinaryYiJiChecks.cs(11,25): warning CS0169: 从不使用字段“OrdinaryYiJiChecks.hurtSelf” [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]\r\n  CardGame.Core.Tests -> C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin\\CardGame.Core.Tests\\release\\CardGame.Core.Tests.dll\r\n  CardGame.Wpf -> C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin\\CardGame.Wpf\\release\\CardGame.Wpf.dll\r\n  CardGame.Wpf.Tests -> C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin\\CardGame.Wpf.Tests\\release\\CardGame.Wpf.Tests.dll\r\n\r\n已成功生成。\r\n\r\nC:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\SkillProgramExecutor.cs(1148,41): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\CardGame.Core.csproj]\r\nC:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\GameEngine.EndingHistoricalUses.cs(99,69): warning CS8604: “IEnumerable<int> Enumerable.Where<int>(IEnumerable<int> source, Func<int, int, bool> predicate)”中的形参“source”可能传入 null 引用实参。 [C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\CardGame.Core.csproj]\r\nC:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\GameEngine.LiangXingPrograms.cs(27,65): warning CS1718: 对同一变量进行比较；是否希望比较其他变量? [C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\CardGame.Core.csproj]\r\nC:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\GameEngine.PublicPilePreparation.cs(75,131): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\CardGame.Core.csproj]\r\nC:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\GameEngine.SameTypeActualUseAid.cs(178,35): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\CardGame.Core.csproj]\r\nC:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\BoundaryBuLianShiChecks.cs(316,66): warning CS9113: 参数“deathOwner”未读。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]\r\nC:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\BoundaryWangYiChecks.cs(52,56): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]\r\nC:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\DirectedDistanceDebtChecks.cs(40,65): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]\r\nC:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\DelegatedJudgmentAndGainGiftChecks.cs(117,49): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]\r\nC:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]\r\nC:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]\r\nC:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\OrdinaryLiuXieChecks.cs(84,20): warning CS8604: “void OrdinaryLiuXieChecks.Freeze<int>(IReadOnlyList<int> list)”中的形参“list”可能传入 null 引用实参。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]\r\nC:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\PublicPilePreparationChecks.cs(17,13): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]\r\nC:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\PublicPilePreparationChecks.cs(55,56): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]\r\nC:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\ProgramStateProjectionChecks.cs(66,17): warning CS8604: “bool Enumerable.All<ProgramBooleanStateSnapshot>(IEnumerable<ProgramBooleanStateSnapshot> source, Func<ProgramBooleanStateSnapshot, bool> predicate)”中的形参“source”可能传入 null 引用实参。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]\r\nC:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\ProgramStateProjectionChecks.cs(171,28): warning CS8604: “void ProgramStateProjectionChecks.RejectReadOnly<SkillRuntimeStateSnapshot>(IReadOnlyList<SkillRuntimeStateSnapshot> values, SkillRuntimeStateSnapshot replacement)”中的形参“values”可能传入 null 引用实参。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]\r\nC:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\PublicPilePreparationChecks.cs(148,55): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]\r\nC:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\OrdinaryYiJiChecks.cs(11,25): warning CS0169: 从不使用字段“OrdinaryYiJiChecks.hurtSelf” [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]\r\n    18 个警告\r\n    0 个错误\r\n\r\n已用时间 00:00:23.36\r\n"
+      },
+      {
+        "path": "logs/core-selected.log",
+        "sha256": "CCB58D9B4E078DD009ADB4A692FEF3D18FBBA95861A16D39B13390DD0DED3153",
+        "content": "[PASS] Matching recast: canonical names self quota and extra Play phase\r\n[PASS] Matching recast: equipment recovery and Thunder damage remain native\r\n[PASS] hand guidance is private, read-only and agrees with legal actions\r\n\r\n3 passed, 0 failed, 0 skipped (3 total).\r\n"
+      },
+      {
+        "path": "logs/wpf-selected.log",
+        "sha256": "919BCF2D7E41E82BCADEAFE82460870EB317A26CAB0094DB9D18F364B15D31A5",
+        "content": "[PASS] table shortcuts execute once per key press and preserve modal drafts\r\nResumed startup: identity=False, opening=True, faces=4, hand=4, current=True, prompt=ProgramTrigger, revision=13.\r\nOpening timer behind settings: enabled=False, ticks=0, opening=True.\r\nOpening timer behind history: enabled=False, ticks=0, opening=True.\r\nOpening timer behind gallery: enabled=False, ticks=0, opening=True.\r\nOpening timer behind guide: enabled=False, ticks=0, opening=True.\r\nOpening timer behind lobby: enabled=False, ticks=0, opening=True.\r\nOpening timer behind log: enabled=False, ticks=0, opening=True.\r\nOpening timer uncovered: ticks=1, faces=0.\r\n[PASS] table shortcuts respect navigation panels above startup overlays\r\nPlay-choice fixture: seed 52, 57 setup commands, native Borrowed Sword.\r\nPublic-target fixture: seed 31, 10 setup commands, physical weapon 33, same-prompt target 1 to 2.\r\nPublic-target settlement: status=AwaitingHumanPlay, prompt=PlayCard, moves=8:Hand[0]->Processing:card.use; 33:Equipment[1]->Processing:card.effect.dismantlement; 33:Processing->DiscardPile:card.effect.dismantlement-finished; 8:Processing->DiscardPile:card.use-finished.\r\n  Original VerifyBoundary branches RespondDodge: invalid 2, ambiguous 0.\r\n  Stable fixture RespondDodge: seed 31, 12 accepted setup commands, actual turn seat 1.\r\n  Original VerifyBoundary branches RespondSlash: invalid 0, ambiguous 0.\r\n  Stable fixture RespondSlash: seed 31, 14 accepted setup commands, actual turn seat 1.\r\n  Original VerifyBoundary branches RescueDying: invalid 2, ambiguous 0.\r\n  Stable fixture RescueDying: seed 31, 9 accepted setup commands, actual turn seat 0.\r\n  Original VerifyBoundary branches Nullification: invalid 1, ambiguous 0.\r\n  Stable fixture Nullification: seed 31, 14 accepted setup commands, actual turn seat 0.\r\n  Original VerifyBoundary branches FireAttackReveal: invalid 0, ambiguous 0.\r\n  Stable fixture FireAttackReveal: seed 31, 15 accepted setup commands, actual turn seat 1.\r\n  Original VerifyBoundary branches FireAttackDiscard: invalid 0, ambiguous 0.\r\n  Stable fixture FireAttackDiscard: seed 31, 10 accepted setup commands, actual turn seat 0.\r\n[PASS] stale prompt choices cannot answer reloaded or consecutive decisions\r\nLonghun fixture equipment Crossbow/45: Hand[0] -> Processing (equipment.use); Processing -> Equipment[0] (equipment.enter)\r\nLonghun fixture equipment BaguaFormation/32: Hand[0] -> Processing (equipment.use); Processing -> Equipment[0] (equipment.enter)\r\n[PASS] reference table layout preserves equipment and skill controls\r\nOL Yeyan draft: ids=27,32,45,73, suits=Club,Diamond,Spade,Spade, publishedDistinct=True, canConfirm=False, buttonEnabled=False.\r\nJianhe Mixed/button: ids=1,10, kinds=Slash,Duel, published=10, canConfirm=False, buttonEnabled=False.\r\nJianhe Mixed/button: valid ids=1,2, origins=Hand,Hand, canConfirm=True, buttonEnabled=True.\r\nJianhe Mixed/Enter: ids=1,10, kinds=Slash,Duel, published=10, canConfirm=False, buttonEnabled=False.\r\nJianhe Mixed/Enter: valid ids=1,2, origins=Hand,Hand, canConfirm=True, buttonEnabled=True.\r\nJianhe Canonical/button: valid ids=1,6,10, origins=Hand,Hand,Hand, canConfirm=True, buttonEnabled=True.\r\nJianhe Canonical/Enter: valid ids=1,6,10, origins=Hand,Hand,Hand, canConfirm=True, buttonEnabled=True.\r\nJianhe Equipment/button: valid ids=1,10, origins=Equipment,Hand, canConfirm=True, buttonEnabled=True.\r\nJianhe Equipment/Enter: valid ids=1,10, origins=Equipment,Hand, canConfirm=True, buttonEnabled=True.\r\n[PASS] composed skills share the generic WPF draft and submit their stable program identity\r\n5 WPF checks passed, 0 failed. Renders: C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders\r\n"
+      }
+    ]
+  },
+  "routine": {
+    "summary": {
+      "status": "passed",
+      "mode": "routine",
+      "repository": "C:\\Users\\17917\\Desktop\\Card",
+      "artifactsPath": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f",
+      "coreFilters": [
+        "identity role general candidates",
+        "identity general variants",
+        "identity Rebel kill reward",
+        "Chained state basic:",
+        "Foreign selected card Slash:",
+        "Paired color responses:",
+        "Actor hand limit penalty:",
+        "Play phase temporary skills:",
+        "Round gained source uses:",
+        "Unique maximum trick targets:",
+        "Damage counterpart acquisition:",
+        "Last zone conversions:",
+        "Overflow target cancellation:",
+        "Matching recast:",
+        "Ordered printed skill loss:",
+        "Recipient category mark:",
+        "Off-turn used card gift:",
+        "Turn default allocation:",
+        "Round distinct basic use:",
+        "Card response completion cost:",
+        "Card response completion:",
+        "Same name hand demand:",
+        "Completed undamaged target reveal:",
+        "Paired hand recast:",
+        "Original hand entities:",
+        "Outside phase draw discard:",
+        "Native discard classification:",
+        "Phase name prediction:",
+        "Last damage source reciprocity:",
+        "Category discard refund:",
+        "Activation-count awakening:",
+        "Unexpected Assault:",
+        "Draw-funded distinct basic:",
+        "Multiple original materials already moved and empty virtual responses",
+        "Liejie source discard:",
+        "Choice target prerequisite:",
+        "Different color judgment replacement:",
+        "Ending damage marker:",
+        "Tongxie use provenance:",
+        "Tang Ji paid continuation:",
+        "Liu Hong activation:",
+        "Draw advice and designated extra target:",
+        "Gifted Slash hand policy:",
+        "Public pile cash out:",
+        "Current turn hand exchange:",
+        "Exact owned card count and named targets:",
+        "Actual target prompt retains the AI-owned attack",
+        "Owned hand exact rank sum actual gift and recovery return",
+        "Owned hand exact rank sum no solution and native AI",
+        "Initial hand modifiers: owner maximum HP controls the real deal and dynamic hand limit",
+        "Owner dying awakening paid HP tail returns once",
+        "Owner dying replacement permanent source and optional ending replay",
+        "Virtual ordinary trick composition frozen branches and public AI",
+        "Ending Pindian win loss tie actual virtual tricks and cold return",
+        "Trick target arbitrary hand gift empty Dismantlement and true counterspell",
+        "Delayed trick target hand gift waits exact movement child",
+        "Ending virtual trick real adjusted target sequence returns once",
+        "Actual turn use ordinal:",
+        "Actual second use foreign grants share state and expire on end",
+        "Actual legacy Wine",
+        "foreign ending owner and equipment costs wait once",
+        "shared actual target loader keeps operation ownership",
+        "public equipment half count draw resumes once",
+        "Short range Slash and directed ending debt:",
+        "Equipment Slash ownership:",
+        "Actual hand gains and category gifts:",
+        "Delegated judgment and gain gifts:",
+        "JudgedRankSlashPolicy.",
+        "skill program public pile preparation",
+        "Phase hand seizure:",
+        "RecipientContestConsequences",
+        "command",
+        "observer",
+        "viewer",
+        "prepared snapshot",
+        "internal failure",
+        "declaration payment lookups",
+        "empty binding queries",
+        "ordinary card snapshot reuse",
+        "skill runtime usage",
+        "program state projection",
+        "public pile projection",
+        "zero material uses",
+        "legacy and borrowed sword zero material continuations",
+        "damage cursor typed observers",
+        "round-start programs include foreign owners and cold returns",
+        "skill program",
+        "lifecycle programs",
+        "shared post-event",
+        "Phase hand extra turn",
+        "Actual draw obligation",
+        "Owned damage point judgment",
+        "Prevented damage draw",
+        "Black trick target policy",
+        "Dying skill qualification",
+        "Nearest legal Slash",
+        "Actual turn target commitment",
+        "Applied damage occurrence",
+        "Applied damage benefit",
+        "Dual private color commitments",
+        "Damage judgment suit payment four suits",
+        "Granted entity extra phase distance",
+        "Frozen faction recovery game damage",
+        "Next actual-use paid wins",
+        "Original target addition rights",
+        "Foreign turn Wine actual actor",
+        "Neighbor discard own first previous",
+        "boundary cheng pu completion payment",
+        "boundary wu guo tai paid equipment pair",
+        "Paid actual target HP and original use return",
+        "boundary li ru sequential discard top cost",
+        "Whole equipment donation actual X and recovery",
+        "boundary xiao qiao suit prevention equipment cost",
+        "boundary lu su extra draw half hand gift",
+        "Real color payment Duel back-damage and mandatory Ending claim",
+        "boundary two zhangs equipment replacement",
+        "boundary bu lian shi ordered opaque pair gift",
+        "Foreign actual turn contest decline win expiry",
+        "boundary ma dai shown color hand ban",
+        "Ending pair two draws own extra round and cold",
+        "Preparation discard actual cost",
+        "Ordinary SP Cao Ren private whole hand",
+        "Ordinary SP Pang De two real costs",
+        "Ordinary Chen Lin deferred private offer next actual start exchange",
+        "Ordinary SP Cai Wen Ji original Dying four suits private cost cold replay",
+        "Ordinary Guan Yin Ping red equipment cost before lost HP targets and real fire draw",
+        "ordinary OL Zhuge Ke empty-hand Dodge private top request and once payment",
+        "Yang Xiu multi-target trick",
+        "SP Ma Chao HP ordered distance and lost HP extra targets pay each target once",
+        "Ordinary Fu Wan same-use benefit",
+        "Ordinary Cao Hong real placement",
+        "Ordinary Liu Xie Tianming SilverLion cost and unique current HP peer",
+        "OL signed damage actual material",
+        "Tiered Round true uses physical conversion and private cold",
+        "Tiered Round shared quota and zero ordinary child",
+        "Same actual use aid extra duel physical slash targets",
+        "shared use lifecycle",
+        "shared card-use",
+        "card movement",
+        "card inventory",
+        "initial deal",
+        "invalid single and batch",
+        "draw and recover",
+        "execution plans",
+        "skill executor",
+        "program gameplay hashes",
+        "skill execution reads hand context",
+        "ordinary trick queries preserve exact options",
+        "legal action queries preserve exact physical entity options",
+        "invariant history index",
+        "physical deck recipes",
+        "structured skill metadata",
+        "content registry",
+        "standard package",
+        "composition kernel",
+        "rule query",
+        "slash resolution",
+        "dying response",
+        "Xingshang",
+        "response use completion",
+        "selected gift",
+        "configured active sequences",
+        "standard active programs",
+        "owned-card set",
+        "turn card-use effects",
+        "active Program contracts",
+        "hand guidance",
+        "actual marker payment",
+        "replacement draw and dying payment",
+        "two dynamic actual ends",
+        "ordered nested native owner",
+        "payment nested comparison",
+        "first target history",
+        "program conversion polarity shared state and replay",
+        "Feng Lin Lu Zhi actual discard entry boundaries",
+        "Ending child gift joins current boundary",
+        "Feng Lin Yuan Shu command loss regrant source suppression",
+        "Feng Lin Yuan Shu qualified awakening persistent local loss",
+        "Feng Lin Zhou Fei first domains and true equipment sequence",
+        "Feng Lin Zhou Fei same-source association freeze",
+        "Feng Lin Congjian Equipment gift nested replay",
+        "after turn ended return movement prelude ordering",
+        "after turn ended due before window nested replay",
+        "Feng Lin Zuo Ci initial privacy and replay",
+        "Feng Lin Zuo Ci layered suppression and local disable",
+        "Feng Lin Zuo Ci same avatar program and actual end",
+        "Feng Lin Yu Ji",
+        "boundary Lu Meng all table printed suits replay",
+        "boundary Lu Meng cross owner skip chain resume death",
+        "boundary Lu Meng Qinxue windows shared usage",
+        "boundary Lu Meng opt in usage legacy shape",
+        "Boundary Huang Gai actual provider color",
+        "Boundary Huang Gai multi card color source lifecycle",
+        "boundary Lu Xun actual trick hold lianying and return",
+        "boundary Lu Xun HE payment exact Hand batch count",
+        "boundary Liu Bei virtual Peach HP child",
+        "boundary Liu Bei native provided use decline once",
+        "boundary Liu Bei gift threshold recipient",
+        "boundary Da Qiao atomic mixed discard replay",
+        "boundary Hua Tuo ordered actual discard effective suit receipts",
+        "participant discard mandatory cost cancellation preserves legal composition",
+        "current turn nonlocked suppression host lifecycle audit",
+        "boundary Guan Yu actual Played and black Hand rejection",
+        "Boundary Zhang Fei actual recovery receipt limited child",
+        "boundary Ma Chao Tieqi Paoxiao exact cancellation integration",
+        "boundary Xiahou Dun real phases skip quota expiry",
+        "boundary Xiahou Dun receipt before gain child source audit",
+        "Exact top count partition normal draw",
+        "Bound draw receipt per point nested gain",
+        "boundary Zhen Ji exact receipt stop red discard",
+        "boundary Zhen Ji receipt before child source loss",
+        "Unconverted Trick draw receipt disposition",
+        "Foreign equipment discard program selections",
+        "Population reorder actual partition and short pile",
+        "Population reorder real Ending Extra Scheduled",
+        "HP pair freezes after payment children before draw children",
+        "Equipment placement slot self equal boundaries",
+        "Final target Slash frozen comparisons actual paid Dodge",
+        "Final target Slash escalation:",
+        "Paid HP loss rescue and gain children",
+        "Paid HP loss source and legacy",
+        "Boundary Deng Ai own turn slash discard judges authority",
+        "Boundary Deng Ai awakening grants snatch and extra turn",
+        "Boundary Jiang Wei declined taunt discards target card",
+        "Boundary Jiang Wei dodged slash still discards",
+        "Boundary Jiang Wei taunt runs twice per phase",
+        "Boundary Jiang Wei awakening wakes once across phases",
+        "Boundary Sun Ce own duel and red slash draw",
+        "Boundary Sun Ce reclaim once per turn",
+        "Boundary Sun Ce hunzi wakes draws and stays silent",
+        "Boundary Sun Ce zhiba declined claim discards both",
+        "Boundary Zhu Rong juxiang immunity claims resolved barbarian",
+        "Boundary Zhu Rong winning pindian takes target card",
+        "Boundary Zhu Rong lost pindian takes nothing",
+        "Boundary Zhu Rong unlimited slash damage draws at phase end",
+        "Boundary Zhu Rong dodged slash skips phase end draw",
+        "Boundary Zhu Rong changbiao runs once per phase",
+        "Boundary Meng Huo definitions and metadata",
+        "Boundary Meng Huo barbarian immunity and attribution",
+        "Boundary Meng Huo zaiqi asks chosen participants in order",
+        "Boundary Meng Huo zaiqi draw only at full owner",
+        "Boundary Meng Huo zaiqi decline leaves everyone alone",
+        "Boundary Meng Huo zaiqi stays silent without red discards",
+        "Boundary Guan Xing Zhang Bao converted slash response follows pair color",
+        "Boundary Guan Xing Zhang Bao turn skills expire with the turn",
+        "Damage target mount paid children source lifetime",
+        "Damage appearance Draw definitions physical colors cardless legacy",
+        "Selected actor Duel actual Use and Nullification",
+        "Damage target obtain nested Duel native cold",
+        "Boundary Yuan Shao population start role marker limit",
+        "Boundary Yuan Shao conversion actual remaining targets",
+        "Recovery replacement Silver Lion Zhiheng HP and reward children",
+        "Recovery replacement paid equipment tail",
+        "Recovery replacement faction request Silver Lion cost before providers",
+        "Program Iron Chain third target owned recast",
+        "Equipment recast Silver Lion recovery and movement children",
+        "BoundaryXuShu fixed target real Slash",
+        "BoundaryXuShu declared deck criterion",
+        "Character turned over Shebian both directions",
+        "Character turned over Shebian occupied equipment slot",
+        "Character turned over actual damage cursor",
+        "Capped hand refresh",
+        "HP paid shield",
+        "Random Pindian",
+        "Maximum Slash Pindian",
+        "Bound card recast dynamic Slash",
+        "Bound card recast Silver Lion",
+        "Turn kind hand exemption",
+        "Signed Slash modifier",
+        "Bound discard Slash frozen suit",
+        "Bound discard Slash equipment",
+        "First round limited refund exact",
+        "Current Slash entity claim basic",
+        "Current Slash entity claim nonbasic",
+        "Participant hand declined private take",
+        "Participant hand mixed HE gift",
+        "Participant hand per point effective red",
+        "Participant hand program bound alcohol",
+        "Next-use rank bonus",
+        "Other dying recovery equipment",
+        "Alternative phase cost actual",
+        "Alternative phase cost equipped",
+        "Ending hand count history",
+        "Random reveal color Fire Attack",
+        "Unrespondable counterspell equipment",
+        "Discarded provenance virtual Alcohol",
+        "Discarded provenance exact discard judgment",
+        "Discarded provenance real turn all materials",
+        "Actual turn use kinds independent hand suits",
+        "Actual turn use kinds per Play draw",
+        "Owner batch loss equipment OR two cards once",
+        "Shared Slash gift equipment recovery both gain children cold",
+        "Turn damage-use draw debt actual gain and frozen ending cost",
+        "Source faction prevention quota opaque HEJ equipment children"
+      ],
+      "wpfFilters": [
+        "reference table layout preserves",
+        "discard recommendation",
+        "table shortcuts",
+        "table modal focus",
+        "stale prompt choices",
+        "gallery details restore",
+        "identity general choices",
+        "general selection switches related",
+        "chained state basic UI:",
+        "Last zone conversion presentation:",
+        "Original hand tag presentation:",
+        "Draw-funded zero Use",
+        "original card artwork",
+        "overlapping hand",
+        "composed skills",
+        "conversion choices",
+        "response context",
+        "hand responses",
+        "opaque target-card",
+        "skill target selection",
+        "Iron Chain selection preserves",
+        "battle feedback",
+        "card flights",
+        "public card table",
+        "playback batches",
+        "saved UI boundaries",
+        "failed writes",
+        "public markers",
+        "deferred hand alignment",
+        "Program conversion polarity stays visible",
+        "declaration and general library views protect private faces",
+        "Jin faction presentation:",
+        "Program paid choices",
+        "Program exact top count restores private shared order",
+        "Program population count private faces restore shared free order",
+        "Program Iron Chain guide follows actual target count"
+      ],
+      "startedAt": "2026-10-11T17:27:12.7244113+08:00",
+      "durationMs": 112494,
+      "message": null,
+      "results": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 1236,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\build.log"
+        },
+        {
+          "name": "Core selected checks (294 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 75668,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\core-selected.log"
+        },
+        {
+          "name": "WPF selected checks (36 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 35306,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\wpf-selected.log"
+        }
+      ],
+      "cleanup": {
+        "status": "queued",
+        "queued": [
+          "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin",
+          "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\obj",
+          "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders"
+        ],
+        "database": "C:\\Users\\17917\\Desktop\\Card\\tools\\cleanup_queue.json",
+        "message": null
+      }
+    },
+    "counts": {
+      "corePassed": 475,
+      "coreFailed": 0,
+      "coreSkipped": 0,
+      "wpfPassed": 42,
+      "wpfFailed": 0
+    },
+    "buildWarnings": 0,
+    "buildErrors": 0,
+    "logs": [
+      {
+        "path": "logs/build.log",
+        "sha256": "54D8E6020305053759C2A6EA84D5B07C68E41DD362E23F2AA209D18AE0856F46",
+        "content": "  正在确定要还原的项目…\r\n  所有项目均是最新的，无法还原。\r\n  CardGame.Core -> C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin\\CardGame.Core\\release\\CardGame.Core.dll\r\n  CardGame.Content.Standard -> C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin\\CardGame.Content.Standard\\release\\CardGame.Content.Standard.dll\r\n  CardGame.Core.Tests -> C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin\\CardGame.Core.Tests\\release\\CardGame.Core.Tests.dll\r\n  CardGame.Wpf -> C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin\\CardGame.Wpf\\release\\CardGame.Wpf.dll\r\n  CardGame.Wpf.Tests -> C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin\\CardGame.Wpf.Tests\\release\\CardGame.Wpf.Tests.dll\r\n\r\n已成功生成。\r\n    0 个警告\r\n    0 个错误\r\n\r\n已用时间 00:00:01.01\r\n"
+      },
+      {
+        "path": "logs/core-selected.log",
+        "sha256": "4C61BFA2BA7369D46AD9A29433B35B2C3D3C397426F507D6A9BC6065358A72C8",
+        "content": "[PASS] Recipient category mark: face-up gift issues one public token and survives source loss\r\n[PASS] Recipient category mark: Lei recovers native dying to one and draws once\r\n[PASS] Recipient category mark: Fu blindly discards up to two from one area\r\n[PASS] Recipient category mark: Song adds legal targets to the original Slash\r\n[PASS] Off-turn used card gift: actual single and pair Dodge give every material once\r\n[PASS] Off-turn used card gift: own turn and pure responses stay excluded\r\n[PASS] Chained state basic: own play pays state and returns once\r\n[PASS] Chained state basic: own Dodge waits for state children\r\n[PASS] Chained state basic: requested uses exclude pure provision\r\n[PASS] Foreign selected card Slash: hand use and exact outcome\r\n[PASS] Foreign selected card Slash: equipment Judgment and native children\r\n[PASS] Foreign selected card Slash: redirect and paid source loss\r\n[PASS] Actor hand limit penalty: real uses stack and change actual discard\r\n[PASS] Actor hand limit penalty: black trick and foreign actor own turn expiry\r\n[PASS] Actor hand limit penalty: added redirected and Borrowed Sword targets\r\n[PASS] Actor hand limit penalty: paid children source loss privacy and cold replay\r\n[PASS] Play phase temporary skills: independent sources share state and preserve permanent grants\r\n[PASS] Play phase temporary skills: ending child and exact boundary cold\r\n[PASS] Play phase temporary skills: inserted phases and death do not leak sources\r\n[PASS] Round gained source uses: qualified basic materials distance and quota\r\n[PASS] Round gained source uses: trick plus minus and implicit self\r\n[PASS] Round gained source uses: Borrowed Sword whole pairs\r\n[PASS] Round gained source uses: equipment draw exclusion return and regrant\r\n[PASS] Unique maximum trick targets: actual hand leader and tied counts\r\n[PASS] Unique maximum trick targets: complete legal Borrowed Sword pair\r\n[PASS] Unique maximum trick targets: same use damage reward and paid source loss\r\n[PASS] Unique maximum trick targets: HP qualification and true counterspell exclusion\r\n[PASS] Paired color responses: same color actual hand payment and duplicate grants\r\n[PASS] Paired color responses: different and colorless pairs have no offer\r\n[PASS] Paired color responses: both directions and original Duel use stay exact\r\n[PASS] Paired color responses: equipment is legal and judgment alone is not\r\n[PASS] Paired color responses: paid acquisition source loss and native cold child return\r\n[PASS] Damage counterpart acquisition: source regrant and actual owner turn expiration\r\n[PASS] Last zone conversions: strict schema and actual hand Dodge payment\r\n[PASS] Last zone conversions: equipment Nullification Silver Lion and movement children\r\n[PASS] Last zone conversions: judgment Slash use and pure Duel response retain printed material\r\n[PASS] Overflow target cancellation: unique physical and pair materials return through native gain\r\n[PASS] Overflow target cancellation: multiple targets self use and exact hand limit stay distinct\r\n[PASS] Matching recast: canonical names self quota and extra Play phase\r\n[PASS] Matching recast: equipment recovery and Thunder damage remain native\r\n[PASS] Ordered printed skill loss: current prefix repeated and self damage once\r\n[PASS] Ordered printed skill loss: frozen draw and exact turn restoration survive source loss\r\n[PASS] Turn default allocation: phase defaults preserve modifiers and repeated Play\r\n[PASS] Turn default allocation: outside-turn damage applies only to next actual turn\r\n[PASS] Round distinct basic use: real pair pays once and shares round name across regrant\r\n[PASS] Round distinct basic use: own Dodge use and pure provision stay distinct\r\n[PASS] Round distinct basic use: Peach and self Alcohol retain native dying returns\r\n[PASS] Round distinct basic use: forced Slash and hand-like materials keep native parents\r\n[PASS] Card response completion cost: Silver Lion equipment Dodge drains health before completion\r\n[PASS] Completed undamaged target reveal: public pile payment stays separate from native materials\r\n[PASS] Card response completion: native Zhangba pair and cold return\r\n[PASS] Same name hand demand: outside-turn actual use and own-turn exclusion\r\n[PASS] Same name hand demand: pure responses complete on their native parents\r\n[PASS] Same name hand demand: response uses complete only once\r\n[PASS] Same name hand demand: actual faction providers own completion exactly once\r\n[PASS] Same name hand demand: active faction supply completes before principal use without a fake response\r\n[PASS] Same name hand demand: paid discard and native damage dying survive source loss\r\n[PASS] Completed undamaged target reveal: whole-use group target same-color discard and cold return\r\n[PASS] Completed undamaged target reveal: optional zero, mixed colors and target effective colors\r\n[PASS] Original hand entities: initial physical loss, returned card and real paired recast\r\n[PASS] Original hand entities: paid benefit draw survives nested source qualification loss\r\n[PASS] Original hand entities: empty originals awaken at real turn start once\r\n[PASS] Original hand entities: optional death transfers only personally received permanent bonuses\r\n[PASS] Outside phase draw discard: actual draw invocation excludes gifts, initial deal, Draw phase and empty deck\r\n[PASS] Outside phase draw discard: actual category discard excludes recast and Discard phase\r\n[PASS] Paired hand recast: real Hand private selection, phase quota and cold native return\r\n[PASS] Native discard classification: exact paid producers exclude adjacent gain and cleanup\r\n[PASS] Paired hand recast: paid source suppression preserves both owed draws\r\n[PASS] Paired hand recast: moved frozen partner material cannot be replaced\r\n[PASS] Paired hand recast: native partner death skips only the unpaid participant\r\n[PASS] Phase name prediction: secret actual phase, escalating round cost and native settlement\r\n[PASS] Phase name prediction: stolen armor native owner recovery and collateral return\r\n[PASS] Phase name prediction: frozen ending death, early native uses and inserted phase boundaries\r\n[PASS] Last damage source reciprocity: latest actual source, native HE payment and physical regrant memory\r\n[PASS] Unexpected Assault: opaque reveal native damage counterspell and conversion lifetime\r\n[PASS] Activation-count awakening: actual refunded activations preparation quota and source loss\r\n[PASS] Category discard refund: distinct payment phase refund and actual turn target ban\r\n[PASS] Category discard refund: repeated categories and small actual payments\r\n[PASS] Category discard refund: equipment child and lost source\r\n[PASS] Category discard refund: protected hand and payable own armor\r\n[PASS] Draw-funded distinct basic: qualification ledger and paid children\r\n[PASS] Draw-funded distinct basic: native Dodge Dying and program returns\r\n[PASS] Liejie source discard: effective red quota mixed HE and native children\r\n[PASS] Liejie source discard: zero decline protected and general weapon payments\r\n[PASS] Choice target prerequisite: missing targets retain mandatory draw recovery and consume group once\r\n[PASS] Choice target prerequisite: available targets keep exact choice through damage and private discard children\r\n[PASS] Different color judgment replacement: effective owner and subject colors pay hand equipment and replay once\r\n[PASS] Different color judgment replacement: same color none and legacy defaults keep private native choices\r\n[PASS] Ending damage marker: frozen actual damage settles once\r\n[PASS] Liu Hong activation: decline and paid children return once\r\n[PASS] Liu Hong activation: native AI available slots and source-less damage\r\n[PASS] Tang Ji paid continuation: marked death discards and returns once\r\n[PASS] Tang Ji paid continuation: lethal prevention rescues and gifts once\r\n[PASS] Tongxie use provenance: live child and returned entity use response\r\n[PASS] Draw advice and designated extra target: frozen draw qualifications and HE payment\r\n[PASS] Draw advice and designated extra target: canonical Slash name and distance\r\n[PASS] Draw advice and designated extra target: multiple Iron Chain targets\r\n[PASS] Draw advice and designated extra target: native Peach and Alcohol effects\r\n[PASS] Draw advice and designated extra target: Borrowed Sword compound pair\r\n[PASS] Draw advice and designated extra target: response recast and unsupported boundaries\r\n[PASS] Gifted Slash hand policy: actual use damage reward and cold children\r\n[PASS] Gifted Slash hand policy: departed entities and recipient boundaries\r\n[PASS] Gifted Slash hand policy: response consumes without use reward\r\n[PASS] Gifted Slash hand policy: target phase quota and continuous hand lifetime\r\n[PASS] Public pile cash out: damage points hand equipment and decline\r\n[PASS] Public pile cash out: frozen payment draw and nested deposit\r\n[PASS] Public pile cash out: isolated sources and actual turn expiry\r\n[PASS] Public pile cash out: empty source and strict composition\r\n[PASS] Current turn hand exchange: frozen foreign quantity and native HE returns\r\n[PASS] Current turn hand exchange: self draw and decline\r\n[PASS] Current turn hand exchange: gift child resource exhaustion\r\n[PASS] Exact owned card count and named targets: frozen payment recovery children\r\n[PASS] Exact owned card count and named targets: insufficient empty effective suits and native AI\r\n[PASS] Actual target prompt retains the AI-owned attack\r\n[PASS] Owned hand exact rank sum actual gift and recovery return\r\n[PASS] Owned hand exact rank sum no solution and native AI\r\n[PASS] Initial hand modifiers: owner maximum HP controls the real deal and dynamic hand limit\r\n[PASS] Owner dying awakening paid HP tail returns once\r\n[PASS] Owner dying replacement permanent source and optional ending replay\r\n[PASS] Virtual ordinary trick composition frozen branches and public AI\r\n[PASS] Ending Pindian win loss tie actual virtual tricks and cold return\r\n[PASS] Trick target arbitrary hand gift empty Dismantlement and true counterspell\r\n[PASS] Delayed trick target hand gift waits exact movement child\r\n[PASS] Ending virtual trick real adjusted target sequence returns once\r\n[PASS] Actual turn use ordinal: frozen declaration order and true uses\r\n[PASS] Actual second use foreign grants share state and expire on end\r\n[PASS] Actual legacy Wine synchronous HP and completion child return\r\n[PASS] foreign ending owner and equipment costs wait once\r\n[PASS] Short range Slash and directed ending debt: FixedOneActualTurnZeroCostEndingPhysicalOnce\r\n[PASS] Short range Slash and directed ending debt: ShortRangeOneTailActualSlashAndNativeDoubleDodge\r\n[PASS] Short range Slash and directed ending debt: WholeActualTurnPriorDamageAndIssuedSourceLossHostBoundary\r\n[PASS] Short range Slash and directed ending debt: ShortRangeNativeRedirectCursorAndFireOrdering\r\n[PASS] Equipment Slash ownership: KuangfuOwnEquipmentRecoveryAndWholeUseCompletionReturnOnce\r\n[PASS] Equipment Slash ownership: KuangfuForeignPreventionIgnoresPaidSkillsChangedDyingDamage\r\n[PASS] Equipment Slash ownership: KuangfuOwnershipDamageMatrixAndPartialHandPenalty\r\n[PASS] Equipment Slash ownership: KuangfuSpentQuotaRejectsDiscardingItsOwnCrossbow\r\n[PASS] Actual hand gains and category gifts: ActualHandGainsPreserveBatchIdentityAndExcludeSelfRecursion\r\n[PASS] Actual hand gains and category gifts: ForeignHandGainsWaitForActualEndAndKeepOnlySurvivingAcquisitions\r\n[PASS] Actual hand gains and category gifts: CategoryDeckGiftsUseTrueCompletionQuotaAndPrivateTargets\r\n[PASS] Delegated judgment and gain gifts: actual private judgment and paid HE children\r\n[PASS] Delegated judgment and gain gifts: single gain batch and actual phase quota\r\n[PASS] Delegated judgment and gain gifts: foreign Play and frozen effective red loss\r\n[PASS] Delegated judgment and gain gifts: sequential red materials and frozen collections\r\n[PASS] JudgedRankSlashPolicy.QiangwuActualJudgmentFrozenRankDistanceAndSeparateQuota\r\n[PASS] JudgedRankSlashPolicy.QiangwuReplacementEmptyDeckAndIssuedSourceLossHostBoundary\r\n[PASS] JudgedRankSlashPolicy.ShenxianSkipThenRealDrawOnceWithFrozenGainChild\r\n[PASS] JudgedRankSlashPolicy.ShenxianOriginalMovedEntityResetAndActualTurnPredicateHostBoundary\r\n[PASS] skill program public pile preparation empty independent source and real damage\r\n[PASS] skill program public pile preparation whole fill paid child\r\n[PASS] skill program public pile preparation gift recovery original quantity\r\n[PASS] Phase hand seizure: LihunRealCostFlipTakeAndFrozenHpReturnColdReplay\r\n[PASS] Phase hand seizure: LihunMaleSelfEquipmentTransferCountsOnlyPhysicalCards\r\n[PASS] Phase hand seizure: LihunSourceLossInsufficientAndForcedEndHostBoundaries\r\n[PASS] Phase hand seizure: BiyueCurrentHandBranchesSingleDrawInstruction\r\n[PASS] Phase hand seizure: LihunDeathTerminalClosureAndFrozenReceiptCollections\r\n[PASS] RecipientContestConsequencesActualBlackGiftSelfSecondAndTie\r\n[PASS] RecipientContestConsequencesActualWinnerDiscardPaidChildAndReturn\r\n[PASS] RecipientContestConsequencesActualPrintedLordQualificationNativeAndPersistent\r\n[PASS] RecipientContestConsequencesPrintedQualificationExactGrantAndReplacement\r\n[PASS] RecipientContestConsequencesActualOrdinaryTrickProtectionAndDelayedBoundary\r\n[PASS] RecipientContestConsequencesReceiptCollectionsAndLegacyGrantAbi\r\n[PASS] skill program source curse physical initial judgment replacement and actual turn loss\r\n[PASS] skill program source curse locked reward and second paid source loss return\r\n[PASS] skill program source curse HP Dying parent and physical death cleanup\r\n[PASS] skill program activation BooleanState nested gates and current instance isolation\r\n[PASS] Damage judgment suit payment four suits and exact claims\r\n[PASS] Random reveal color Fire Attack HE payment and children cold\r\n[PASS] Unrespondable counterspell equipment payment completed cold\r\n[PASS] Actual turn use kinds independent hand suits and effective types\r\n[PASS] Actual turn use kinds per Play draw child and actual turn expiry\r\n[PASS] Discarded provenance virtual Alcohol face children and zero entity\r\n[PASS] Discarded provenance exact discard judgment origins and gain children\r\n[PASS] Discarded provenance real turn all materials no response\r\n[PASS] Granted entity extra phase distance claim children and cold\r\n[PASS] Frozen faction recovery game damage points benefit children\r\n[PASS] Next actual-use paid wins refresh one target token and original claims\r\n[PASS] Original target addition rights quota armor and cold\r\n[PASS] Foreign turn Wine actual actor physical virtual and pile dying\r\n[PASS] Neighbor discard own first previous actual entities order privacy\r\n[PASS] boundary cheng pu completion payment recovery and dying\r\n[PASS] boundary wu guo tai paid equipment pair cost and typed return\r\n[PASS] Paid actual target HP and original use return\r\n[PASS] shared actual target loader keeps operation ownership and paid contracts\r\n[PASS] public equipment half count draw resumes once\r\n[PASS] boundary li ru sequential discard top cost and typed child return\r\n[PASS] Whole equipment donation actual X and recovery\r\n[PASS] boundary xiao qiao suit prevention equipment cost and capped draw\r\n[PASS] boundary lu su extra draw half hand gift and cold children\r\n[PASS] Real color payment Duel back-damage and mandatory Ending claim\r\n[PASS] Multiple original materials already moved and empty virtual responses\r\n[PASS] boundary two zhangs equipment replacement paid children and cold draw\r\n[PASS] boundary bu lian shi ordered opaque pair gift and reward\r\n[PASS] Foreign actual turn contest decline win expiry\r\n[PASS] Same actual use aid extra duel physical slash targets\r\n[PASS] boundary ma dai shown color hand ban and equipment response\r\n[PASS] Ending pair two draws own extra round and cold\r\n[PASS] Preparation discard actual cost\r\n[PASS] Yang Xiu multi-target trick owns draw children and unique Borrowed Sword is excluded\r\n[PASS] SP Ma Chao HP ordered distance and lost HP extra targets pay each target once\r\n[PASS] Ordinary Cao Hong real placement replacement and armor draw\r\n[PASS] Ordinary Guan Yin Ping red equipment cost before lost HP targets and real fire draw\r\n[PASS] ordinary OL Zhuge Ke empty-hand Dodge private top request and once payment\r\n[PASS] Ordinary SP Cao Ren private whole hand after HP children and real discard\r\n[PASS] Ordinary Chen Lin deferred private offer next actual start exchange\r\n[PASS] Ordinary SP Cai Wen Ji original Dying four suits private cost cold replay\r\n[PASS] Ordinary SP Pang De two real costs and issued Duel typed return\r\n[PASS] Ordinary Fu Wan same-use benefit and real Dodge settlement\r\n[PASS] Ordinary Liu Xie Tianming SilverLion cost and unique current HP peer\r\n[PASS] OL signed damage actual material effective color and amount\r\n[PASS] Tiered Round true uses physical conversion and private cold\r\n[PASS] Tiered Round shared quota and zero ordinary child\r\n[PASS] Owner batch loss equipment OR two cards once\r\n[PASS] Shared Slash gift equipment recovery both gain children cold\r\n[PASS] Turn damage-use draw debt actual gain and frozen ending cost\r\n[PASS] Source faction prevention quota opaque HEJ equipment children\r\n[PASS] Dual private color commitments atomic payment real Duel and cold\r\n[PASS] Actual turn target commitment damage weapon shared quota\r\n[PASS] Applied damage occurrence frozen victim and real source\r\n[PASS] Applied damage benefit gain field recovery source death\r\n[PASS] Owned damage point judgment actual alcohol suppression expiry\r\n[PASS] Owned damage point judgment bonus and dodged virtual no suppression\r\n[PASS] Owned damage point judgment per point recovery claim children native\r\n[PASS] Owned damage point judgment claimed gain bound Alcohol rescue and cold replay\r\n[PASS] Prevented damage draw exact amount owning children\r\n[PASS] Black trick target policy actual color and lightning\r\n[PASS] Dying skill qualification current source foreign grants\r\n[PASS] Nearest legal Slash paid conversion provider optional finisher\r\n[PASS] Nearest legal Slash paid source loss native start history\r\n[PASS] Actual draw obligation distance whole turn paid equipment\r\n[PASS] Actual draw obligation least hand marker end observers\r\n[PASS] Actual draw obligation existing marker nonminimum awaited gain\r\n[PASS] Actual draw obligation skipped extra reissued marker source death\r\n[PASS] Phase hand extra turn native public declaration paid selected beneficiary\r\n[PASS] Phase hand extra turn owner only native legacy value\r\n[PASS] Next-use rank bonus per point real consumption public pool and cold replay\r\n[PASS] Other dying recovery equipment payment turnover exact victim and cold replay\r\n[PASS] Alternative phase cost actual Judgment Draw zero to two targets cold\r\n[PASS] Alternative phase cost equipped payment HP movement children\r\n[PASS] Ending hand count history Extra turns face down native AI\r\n[PASS] Participant hand declined private take two cards atomic source reward\r\n[PASS] Participant hand mixed HE gift atomic recovery and reward children\r\n[PASS] Participant hand per point effective red and HP loss damage cursor\r\n[PASS] Participant hand program bound alcohol rescue typed return and cold\r\n[PASS] Current Slash entity claim basic payment original damage and multiple materials\r\n[PASS] Current Slash entity claim nonbasic receipt real allowance and armor boundaries\r\n[PASS] Bound discard Slash frozen suit quota prepared privacy and expiry\r\n[PASS] Bound discard Slash equipment frozen suit recovery and movement children\r\n[PASS] First round limited refund exact usage and second round consumption\r\n[PASS] Character turned over Shebian both directions movement children cold replay\r\n[PASS] Character turned over Shebian occupied equipment slot no replacement cold replay\r\n[PASS] Character turned over actual damage cursor and movement child cold replay\r\n[PASS] Turn kind hand exemption survives source suppression actual turn expiry\r\n[PASS] Signed Slash modifier parser and prepared collection boundaries\r\n[PASS] Random Pindian both strategies exact RNG tied Slash claims cold replay\r\n[PASS] Random Pindian source decline opponent forces source cold replay\r\n[PASS] Maximum Slash Pindian claim effective ranks deferred top cold replay\r\n[PASS] Bound card recast dynamic Slash hand exemption actual expiry\r\n[PASS] Bound card recast Silver Lion recovery movement before grants\r\n[PASS] Capped hand refresh real damage private discard and cold replay\r\n[PASS] Capped hand refresh dead owner exact parent and cold replay\r\n[PASS] HP paid shield source death full damage prevention and once payment\r\n[PASS] HP paid shield lethal payment exact dying return cold replay\r\n[PASS] HP paid shield winner HP child cancels tail\r\n[PASS] HP paid shield native AI affordable protection\r\n[PASS] Recovery replacement Silver Lion Zhiheng HP and reward children\r\n[PASS] Recovery replacement paid equipment tail Qixi and replaced ID\r\n[PASS] Recovery replacement paid equipment tail Stone Axe before damage\r\n[PASS] Recovery replacement Qingxian damage HP reward observer chain\r\n[PASS] Recovery replacement paid Qixi stops after observer victory\r\n[PASS] Recovery replacement faction request Silver Lion cost before providers\r\n[PASS] Equipment recast Silver Lion recovery and movement children\r\n[PASS] Program equipment recast Silver Lion recovery and movement children\r\n[PASS] BoundaryXuShu fixed target real Slash cold replay\r\n[PASS] BoundaryXuShu declared deck criterion male give\r\n[PASS] Program Iron Chain third target owned recast cold replay\r\n[PASS] boundary Ma Chao Tieqi Paoxiao exact cancellation integration\r\n[PASS] program conversion polarity shared state and replay\r\n[PASS] Population reorder actual partition and short pile\r\nActual command witnesses: Normal/Extra Ending and preparation before-parent Scheduled Draw/Play cold prefixes, not host phase mutation.\r\n[PASS] Population reorder real Ending Extra Scheduled\r\n[PASS] Unconverted Trick draw receipt disposition\r\n[PASS] Foreign equipment discard program selections\r\n[PASS] Damage target obtain nested Duel native cold\r\n[PASS] Damage target mount paid children source lifetime\r\n[PASS] Final target Slash frozen comparisons actual paid Dodge\r\n[PASS] Final target Slash escalation: judgment quota and Silver Lion\r\n[PASS] Boundary Yuan Shao population start role marker limit\r\n[PASS] Boundary Yuan Shao conversion actual remaining targets\r\n[PASS] Damage appearance Draw definitions physical colors cardless legacy\r\n[PASS] Selected actor Duel actual Use and Nullification\r\n[PASS] Paid HP loss rescue and gain children\r\n[PASS] Paid HP loss source and legacy\r\n[PASS] Boundary Deng Ai own turn slash discard judges authority\r\n[PASS] Boundary Deng Ai awakening grants snatch and extra turn\r\n[PASS] Boundary Jiang Wei declined taunt discards target card\r\n[PASS] Boundary Jiang Wei dodged slash still discards\r\n[PASS] Boundary Jiang Wei taunt runs twice per phase\r\n[PASS] Boundary Jiang Wei awakening wakes once across phases\r\n[PASS] Boundary Sun Ce own duel and red slash draw\r\n[PASS] Boundary Sun Ce reclaim once per turn\r\n[PASS] Boundary Sun Ce hunzi wakes draws and stays silent\r\n[PASS] Boundary Sun Ce zhiba declined claim discards both\r\n[PASS] Boundary Zhu Rong juxiang immunity claims resolved barbarian\r\n[PASS] Boundary Zhu Rong winning pindian takes target card\r\n[PASS] Boundary Zhu Rong lost pindian takes nothing\r\n[PASS] Boundary Zhu Rong unlimited slash damage draws at phase end\r\n[PASS] Boundary Zhu Rong dodged slash skips phase end draw\r\n[PASS] Boundary Zhu Rong changbiao runs once per phase\r\n[PASS] Boundary Meng Huo definitions and metadata\r\n[PASS] Boundary Meng Huo barbarian immunity and attribution\r\n[PASS] Boundary Meng Huo zaiqi asks chosen participants in order\r\n[PASS] Boundary Meng Huo zaiqi draw only at full owner\r\n[PASS] Boundary Meng Huo zaiqi decline leaves everyone alone\r\n[PASS] Boundary Meng Huo zaiqi stays silent without red discards\r\n[PASS] Boundary Guan Xing Zhang Bao converted slash response follows pair color\r\n[PASS] Boundary Guan Xing Zhang Bao turn skills expire with the turn\r\n[PASS] HP pair freezes after payment children before draw children\r\n[PASS] Equipment placement slot self equal boundaries\r\n[PASS] Exact top count partition normal draw\r\nPhysical Peach rescue (save) accepted revision=21; originalCost=13/Peach; receipt=[24,33]; four-view cold prefixes match.\r\nPhysical Peach rescue (save-observer) accepted revision=22; originalCost=13/Peach; receipt=[24,33]; four-view cold prefixes match.\r\nPhysical Peach rescue (save-observer-activate) accepted revision=22; originalCost=13/Peach; receipt=[24,33]; four-view cold prefixes match.\r\nConverted Peach/Jijiu rescue (save-jijiu-observer) accepted revision=28; originalCost=13/Dodge; receipt=[24,33]; four-view cold prefixes match.\r\nConverted Peach/Jijiu rescue (save-jijiu-observer-activate) accepted revision=28; originalCost=13/Dodge; receipt=[24,33]; four-view cold prefixes match.\r\n[PASS] Bound draw receipt per point nested gain\r\n[PASS] Boundary Zhang Fei actual recovery receipt limited child\r\n[PASS] Feng Lin Kuai Ending child gift joins current boundary\r\n[PASS] participant discard mandatory cost cancellation preserves legal composition\r\n[PASS] boundary Hua Tuo ordered actual discard effective suit receipts\r\n[PASS] boundary Lu Xun HE payment exact Hand batch count\r\n[PASS] boundary Lu Xun actual trick hold lianying and return\r\n[PASS] Feng Lin Zuo Ci initial privacy and replay\r\n[PASS] Feng Lin Zuo Ci layered suppression and local disable\r\n[PASS] Feng Lin Zuo Ci same avatar program and actual end\r\n[PASS] Feng Lin Zhou Fei first domains and true equipment sequence\r\n[PASS] Feng Lin Zhou Fei same-source association freeze\r\n[PASS] Feng Lin Lu Zhi actual discard entry boundaries\r\n[PASS] Feng Lin Lu Ji actual marker payment and damage\r\n[PASS] Feng Lin Lu Ji replacement draw and dying payment\r\n[PASS] boundary Liu Bei native provided use decline once\r\n[PASS] boundary Liu Bei virtual Peach HP child\r\n[PASS] boundary Liu Bei gift threshold recipient\r\n[PASS] boundary Da Qiao atomic mixed discard replay\r\n[PASS] boundary Lu Meng all table printed suits replay\r\n[PASS] boundary Lu Meng cross owner skip chain resume death\r\n[PASS] boundary Lu Meng Qinxue windows shared usage\r\n[PASS] boundary Lu Meng opt in usage legacy shape\r\n[PASS] after turn ended return movement prelude ordering\r\n[PASS] after turn ended due before window nested replay\r\n[PASS] FengLin Hao Zhao two dynamic actual ends native discard\r\n[PASS] FengLin Hao Zhao ordered nested native owner\r\n[PASS] Feng Lin Wang Ping payment nested comparison empty\r\n[PASS] Feng Lin Wang Ping first target history independent reward\r\n[PASS] committed events see the accepted command\r\n[PASS] command projection preparation failure preserves prior commit\r\n[PASS] command delivery failure preserves visible commit\r\n[PASS] command observer exception preserves commit and result\r\n[PASS] prepared snapshot rejects observer collection mutation\r\n[PASS] committed event collections reject observer mutation\r\n[PASS] round-start programs include foreign owners and cold returns\r\n[PASS] selected gift continues after recipient death\r\n[PASS] internal failure stops the session and preserves its trusted prefix\r\n[PASS] draw and recover compile typed instructions\r\n[PASS] commands share prepared projection across result and reentry\r\n[PASS] content registry compiles whole catalog dependencies\r\n[PASS] execution plans reuse source bindings without order collisions\r\n[PASS] active Program contracts share legality with public AI\r\n[PASS] skill execution reads hand context only for dependent conditions\r\n[PASS] ordinary trick queries preserve exact options when narrowed\r\n[PASS] legal action queries preserve exact physical entity options\r\n[PASS] invariant history index retains issued receipts after source loss\r\n[PASS] content registry freezes selection weights before publication\r\n[PASS] declaration payment lookups preserve exact receipt precedence\r\n[PASS] empty binding queries preserve exact states and issued obligations\r\n[PASS] ordinary card snapshot reuse preserves appearance privacy and replay\r\n[PASS] program state projection preserves empty and live policy JSON\r\n[PASS] public pile projection preserves empty and live queries\r\n[PASS] zero material uses preserve appearance targets and replay\r\n[PASS] legacy and borrowed sword zero material continuations\r\n[PASS] skill executor retires strategic damage batches\r\n[PASS] lifecycle programs retire deferred provider rewards after owner death\r\n[PASS] response use completion Dodge timing parent and replay\r\n[PASS] response use completion counterspell chain and replay\r\n[PASS] response use completion counterspell dying rescue exact parent\r\n[PASS] response use completion Dodge dying rescue exact parent\r\n[PASS] response use completion excludes group response and wrong loader window\r\n[PASS] shared post-event recipient batch counts and reason filters\r\n[PASS] shared post-event gained cards pause and replay\r\n[PASS] shared post-event dying recovery ordering and replay\r\n[PASS] shared post-event definition context validation\r\n[PASS] shared use lifecycle nests rescue inside a suspended card window\r\n[PASS] shared card-use phase-owner movement context validation\r\n[PASS] Fame 2016 Taoluan response use completion\r\n[PASS] Fame 2015 Wei observer Spade damage gate replay\r\n[PASS] Fame 2013 discard movement origin native Dismantlement and replay\r\n[PASS] turn-ending Xiaoguo Tianxiang game over stops later observers\r\n[PASS] Feng Lin Congjian Equipment gift nested replay\r\n[PASS] owned-card set private draft movement and replay\r\n[PASS] owned-card set shortfall empty sources and invalidation\r\n[PASS] shared use lifecycle preserves dying rescue and replay\r\n[PASS] composition kernel resource graph safety\r\n[PASS] composition kernel malformed nodes\r\n[PASS] composition kernel boundary capabilities\r\n[PASS] composition kernel target-set consumption\r\n[PASS] execution plans freeze instructions and reject ambiguous bindings\r\n[PASS] rule query reduction is input-order independent\r\n[PASS] rule query reduction rejects invalid mutable inputs\r\n[PASS] rule query distance runs both directions before clamping\r\n[PASS] rule query registry rejects future Set conflicts\r\n[PASS] boundary Zhen Ji exact receipt stop red discard\r\n[PASS] boundary Zhen Ji receipt before child source loss\r\n[PASS] boundary Xiahou Dun real phases skip quota expiry\r\n[PASS] boundary Xiahou Dun receipt before gain child source audit\r\n[PASS] boundary Guan Yu actual Played and black Hand rejection\r\n[PASS] current turn nonlocked suppression host lifecycle audit\r\n[PASS] skill executor resumes child resolution without repeating paid effects\r\n[PASS] skill executor cancels remaining effects after an invalid selected cost\r\n[PASS] skill executor rejects changed programs and missing or duplicate handlers\r\n[PASS] active Program contracts reject invalid selections and preserve target order\r\n[PASS] lifecycle programs reject live card bindings across inserted phases\r\n[PASS] lifecycle programs cancel missing conditional bindings without leaks\r\n[PASS] cancelled lifecycle programs preserve parent attack cards\r\n[PASS] card movement programs compose atomic per-card and per-batch triggers with replay\r\n[PASS] nested card movement batches retain immediate parent identity\r\n[PASS] damage cursor typed observers require frozen candidate and parent chain\r\n[PASS] structured skill metadata normalizes explicitly and fingerprints content\r\n[PASS] skill runtime usage and conversion states reset by declared scope\r\n[PASS] Boundary Huang Gai actual provider color\r\n[PASS] Boundary Huang Gai multi card color source lifecycle\r\n[PASS] Feng Lin Yu Ji actual dodge duel rescue parents\r\n[PASS] Feng Lin Yu Ji actual counterspell provider parents\r\n[PASS] Feng Lin Yu Ji borrowed sword faction provider declaration\r\n[PASS] Feng Lin Yu Ji old registry virtual duel native continuation\r\n[PASS] Feng Lin Yu Ji cost child atomic privacy restore\r\n[PASS] Feng Lin Yu Ji all pass privacy quota replay\r\n[PASS] Feng Lin Yu Ji first challenge true false\r\n[PASS] Feng Lin Yuan Shu qualified awakening persistent local loss\r\n[PASS] Feng Lin Yuan Shu command loss regrant source suppression\r\n[PASS] skill program v2 trigger definitions validate and freeze\r\n[PASS] skill program card triggers require exact conversion sources and replay\r\n[PASS] skill program multi-target triggers wait for every Liuli redirection\r\n[PASS] skill program final judgment triggers resume recovery, drawing and replay\r\n[PASS] skill program judgment replacement commits both old-card destinations and replays\r\n[PASS] skill program judgment damage resumes through dying, death and replay\r\n[PASS] skill program direct Dodge and Lightning judgments resume and replay\r\n[PASS] skill program contributions bind owner filters, phase ledger and replay\r\n[PASS] skill program selected judgment subjects damage and replay\r\n[PASS] turn card-use effects union order consume and expire by action semantics\r\n[PASS] Chunlao spends one public Chun as virtual Alcohol in a dying response\r\n[PASS] Xingshang claims nested direct death cleanup cards and replays\r\n[PASS] recast is an independent validated card movement and replays exactly\r\n[PASS] viewer snapshot hides private roles and hands\r\n[PASS] viewer snapshot hides seed and other players' decisions\r\n[PASS] viewer cannot mutate the engine pending decision\r\n[PASS] commands publish a revision and reject stale input atomically\r\n[PASS] play commands use one exact published card and target choice\r\n[PASS] command reentry is a typed rejection\r\n[PASS] manual discard checkpoints and commands replay exactly\r\n[PASS] standard package builds an immutable isolated registry\r\n[PASS] skill program loader separates canonical gameplay from presentation\r\n[PASS] skill program loader rejects malformed and unsupported definitions\r\n[PASS] configured active sequences reject forged input and replay exact moves\r\n[PASS] program gameplay hashes control checkpoint compatibility independently of presentation\r\n[PASS] physical deck recipes preserve exact suit, rank and content hashing\r\n[PASS] standard active programs use typed selections and deterministic replay\r\n[PASS] content registry rejects duplicate ids and bad references\r\n[PASS] identity role general candidates freeze private choices and replay\r\n[PASS] identity general variants keep candidate families private and replay exact editions\r\n[PASS] identity Rebel kill reward draws exactly three cards and replays once\r\n[PASS] hand guidance is private, read-only and agrees with legal actions\r\n[PASS] accepted command journals serialize and replay deterministically\r\n[PASS] command checkpoints restore a paused private prompt deterministically\r\n[PASS] command checkpoints reject same-version content drift\r\n[PASS] initial deal registers every physical card in one zone\r\n[PASS] invalid single and batch moves are atomic\r\n[PASS] card inventory is conserved at every public boundary\r\n[PASS] observers run only after the public operation commits\r\n[PASS] slash resolution exposes a serializable frame stack\r\n[PASS] dying response can pause and recover with a private Peach\r\n[PASS] throwing observers are isolated after commit\r\n[PASS] synchronous observers cannot advance the engine reentrantly\r\n\r\n475 passed, 0 failed, 0 skipped (475 total).\r\n"
+      },
+      {
+        "path": "logs/wpf-selected.log",
+        "sha256": "15E91F9C81871F0BB5F9985FD2F0B86F55C794C650274785198B6DC16DF71890",
+        "content": "[PASS] table shortcuts execute once per key press and preserve modal drafts\r\nDiscard recommendation: HP=4, required=4, eligible=32,24,56,36, exempt=45,27,73,3,63,39, selected=32,24,56,36, legal=True, nativeHint=True, nativeGuide=True; hint=手牌上限为 0，请选择 4 张手牌弃置。 已选 4 张。再次点击可取消。; guide=手牌上限为 0，请选择 4 张手牌弃置。 已选 4 张。再次点击可取消。.\r\n[PASS] discard recommendation preserves published material and actual hand limit\r\nResumed startup: identity=False, opening=True, faces=4, hand=4, current=True, prompt=ProgramTrigger, revision=13.\r\nOpening timer behind settings: enabled=False, ticks=0, opening=True.\r\nOpening timer behind history: enabled=False, ticks=0, opening=True.\r\nOpening timer behind gallery: enabled=False, ticks=0, opening=True.\r\nOpening timer behind guide: enabled=False, ticks=0, opening=True.\r\nOpening timer behind lobby: enabled=False, ticks=0, opening=True.\r\nOpening timer behind log: enabled=False, ticks=0, opening=True.\r\nOpening timer uncovered: ticks=1, faces=0.\r\n[PASS] table shortcuts respect navigation panels above startup overlays\r\nModal Window shown: loaded=True, WPF visible=True, native visible=True, owns foreground=False, source matches=True, loaded events=1, unloaded events=0.\r\nModal Window hidden: loaded=True, WPF visible=True, native visible=False, owns foreground=False, source matches=True, loaded events=1, unloaded events=0.\r\nModal Window pumped: loaded=True, WPF visible=True, native visible=False, owns foreground=False, source matches=True, loaded events=1, unloaded events=0.\r\nOpening motion disabled before deal: motion=False, opening=False.\r\nAdvice after startup: available=True, visible=True, enabled=True.\r\n[PASS] table modal focus follows startup and current visible panels\r\nPlay-choice fixture: seed 52, 57 setup commands, native Borrowed Sword.\r\nPublic-target fixture: seed 31, 10 setup commands, physical weapon 33, same-prompt target 1 to 2.\r\nPublic-target settlement: status=AwaitingHumanPlay, prompt=PlayCard, moves=8:Hand[0]->Processing:card.use; 33:Equipment[1]->Processing:card.effect.dismantlement; 33:Processing->DiscardPile:card.effect.dismantlement-finished; 8:Processing->DiscardPile:card.use-finished.\r\n  Original VerifyBoundary branches RespondDodge: invalid 2, ambiguous 0.\r\n  Stable fixture RespondDodge: seed 31, 12 accepted setup commands, actual turn seat 1.\r\n  Original VerifyBoundary branches RespondSlash: invalid 0, ambiguous 0.\r\n  Stable fixture RespondSlash: seed 31, 14 accepted setup commands, actual turn seat 1.\r\n  Original VerifyBoundary branches RescueDying: invalid 2, ambiguous 0.\r\n  Stable fixture RescueDying: seed 31, 9 accepted setup commands, actual turn seat 0.\r\n  Original VerifyBoundary branches Nullification: invalid 1, ambiguous 0.\r\n  Stable fixture Nullification: seed 31, 14 accepted setup commands, actual turn seat 0.\r\n  Original VerifyBoundary branches FireAttackReveal: invalid 0, ambiguous 0.\r\n  Stable fixture FireAttackReveal: seed 31, 15 accepted setup commands, actual turn seat 1.\r\n  Original VerifyBoundary branches FireAttackDiscard: invalid 0, ambiguous 0.\r\n  Stable fixture FireAttackDiscard: seed 31, 10 accepted setup commands, actual turn seat 0.\r\n[PASS] stale prompt choices cannot answer reloaded or consecutive decisions\r\n[PASS] gallery details restore enabled browse focus and retire stale callbacks\r\nOverlap pointer: intended=9003, visual hit=9003\r\nHand viewport: face bottom=178.0, visible height=179.7\r\nHand edge selection: offset 0.0 -> 0.0; intended=9015, next press=9015\r\nHand sort pointer: card=9008, index 8->20, same button=True, pointer=True.\r\nHand sort focused: pointer=True, capture=False, hand mouse-over=False, offset=0.0, pressed=False, left=Released, key-state-left=Released(0001), async-left=Released(0000), modifiers=None, owns focus=True, handled=n/a.\r\nHand sort space-down-idle-before: pointer=True, capture=False, hand mouse-over=False, offset=0.0, pressed=False, left=Released, key-state-left=Released(0001), async-left=Released(0000), modifiers=None, owns focus=True, handled=n/a.\r\nHand sort space-down-idle-after (0 ms): pointer=True, capture=False, hand mouse-over=False, offset=0.0, pressed=False, left=Released, key-state-left=Released(0001), async-left=Released(0000), modifiers=None, owns focus=True, handled=n/a.\r\nHand sort PreviewKeyDown-before: pointer=True, capture=False, hand mouse-over=False, offset=0.0, pressed=False, left=Released, key-state-left=Released(0001), async-left=Released(0000), modifiers=None, owns focus=True, handled=False.\r\nHand sort PreviewKeyDown-after: pointer=True, capture=False, hand mouse-over=False, offset=0.0, pressed=False, left=Released, key-state-left=Released(0001), async-left=Released(0000), modifiers=None, owns focus=True, handled=False.\r\nHand sort PreviewMouseMove: position=23449.333333333332,21818.333333333332, pointer=False, capture=True.\r\nHand sort KeyDown-after: pointer=False, capture=True, hand mouse-over=True, offset=0.0, pressed=True, left=Released, key-state-left=Released(0001), async-left=Released(0000), modifiers=None, owns focus=True, handled=True.\r\nHand sort space-down: pointer=False, capture=True, hand mouse-over=True, offset=0.0, pressed=True, left=Released, key-state-left=Released(0001), async-left=Released(0000), modifiers=None, owns focus=True, handled=n/a.\r\nHand sort space-up-idle-before: pointer=False, capture=True, hand mouse-over=True, offset=0.0, pressed=True, left=Released, key-state-left=Released(0001), async-left=Released(0000), modifiers=None, owns focus=True, handled=n/a.\r\nHand sort space-up-idle-after (0 ms): pointer=False, capture=True, hand mouse-over=True, offset=0.0, pressed=True, left=Released, key-state-left=Released(0001), async-left=Released(0000), modifiers=None, owns focus=True, handled=n/a.\r\nHand sort PreviewKeyUp-before: pointer=False, capture=True, hand mouse-over=True, offset=0.0, pressed=True, left=Released, key-state-left=Released(0001), async-left=Released(0000), modifiers=None, owns focus=True, handled=False.\r\nHand sort PreviewKeyUp-after: pointer=False, capture=True, hand mouse-over=True, offset=0.0, pressed=True, left=Released, key-state-left=Released(0001), async-left=Released(0000), modifiers=None, owns focus=True, handled=False.\r\nHand sort MouseLeave: position=23449.333333333332,21818.333333333332, pointer=False, capture=False.\r\nHand sort KeyUp-after: pointer=False, capture=False, hand mouse-over=False, offset=0.0, pressed=False, left=Released, key-state-left=Released(0001), async-left=Released(0000), modifiers=None, owns focus=True, handled=True.\r\nHand sort space-up: pointer=False, capture=False, hand mouse-over=False, offset=0.0, pressed=False, left=Released, key-state-left=Released(0001), async-left=Released(0000), modifiers=None, owns focus=True, handled=n/a.\r\nHand sort pumped: pointer=False, capture=False, hand mouse-over=False, offset=282.7, pressed=False, left=Released, key-state-left=Released(0001), async-left=Released(0000), modifiers=None, owns focus=True, handled=n/a.\r\nHand sort keyboard: offset=282.7, bounds=437.3..549.3, viewport=549.3.\r\n[PASS] overlapping hand cards keep stable pointer targets\r\nJudgment advice: material=37, printed=Lightning, actions=9.\r\n[PASS] Last zone conversion presentation: restored judgment material uses central controls\r\n[PASS] Original hand tag presentation: real entity refresh and cold restore\r\n[PASS] original card artwork preserves physical card identity and interaction\r\nGuhuo AOE: source=CardConversionSource { SkillId = classic:guhuo, BindingId = declare-barbarianAssault, OwnerSeat = 0, SkillInstanceId = template:primary:classic:guhuo }, multi=False, combos=1, native targets=1,2,3, chain mode=True, chain recast=False, chain hint=铁索连环 · 已选 2 / 1–2 个目标 · 再次点击取消；主按钮或 Enter 确认.\r\n[PASS] Program Iron Chain guide follows actual target count and submits set\r\nIron Chain 1120: recast=402,378,96,36, hint=14,421.475,872,19.05, battlefield=0,48,900,368, enabled=True.\r\nIron Chain 1440: recast=562,498,96,36, hint=14,541.475,1192,19.05, battlefield=0,48,1220,488, enabled=True.\r\nIron Chain 1920: recast=802,718,96,36, hint=14,761.475,1672,19.05, battlefield=0,48,1700,708, enabled=True.\r\n[PASS] Iron Chain selection preserves all eight portrait bounds when Recast appears\r\nLonghun fixture equipment Crossbow/45: Hand[0] -> Processing (equipment.use); Processing -> Equipment[0] (equipment.enter)\r\nLonghun fixture equipment BaguaFormation/32: Hand[0] -> Processing (equipment.use); Processing -> Equipment[0] (equipment.enter)\r\n[PASS] reference table layout preserves equipment and skill controls\r\n[PASS] identity general choices use two rows and lord-relative seat numbers\r\n[PASS] general selection switches related editions without consuming candidate slots\r\nRed Iron Chain button: source=CardConversionSource { SkillId = standard:wusheng, BindingId = red-as-slash, OwnerSeat = 0, SkillInstanceId = template:primary:standard:wusheng }, multi=False, recast=False, legal=1,3, native=1,3.\r\nRed Iron Chain Enter: source=CardConversionSource { SkillId = standard:wusheng, BindingId = red-as-slash, OwnerSeat = 0, SkillInstanceId = template:primary:standard:wusheng }, multi=False, recast=False, legal=1,3, native=1,3.\r\n[PASS] conversion choices retain exact provenance without leaking trusted action details\r\nOL Yeyan draft: ids=27,32,45,73, suits=Club,Diamond,Spade,Spade, publishedDistinct=True, canConfirm=False, buttonEnabled=False.\r\nJianhe Mixed/button: ids=1,10, kinds=Slash,Duel, published=10, canConfirm=False, buttonEnabled=False.\r\nJianhe Mixed/button: valid ids=1,2, origins=Hand,Hand, canConfirm=True, buttonEnabled=True.\r\nJianhe Mixed/Enter: ids=1,10, kinds=Slash,Duel, published=10, canConfirm=False, buttonEnabled=False.\r\nJianhe Mixed/Enter: valid ids=1,2, origins=Hand,Hand, canConfirm=True, buttonEnabled=True.\r\nJianhe Canonical/button: valid ids=1,6,10, origins=Hand,Hand,Hand, canConfirm=True, buttonEnabled=True.\r\nJianhe Canonical/Enter: valid ids=1,6,10, origins=Hand,Hand,Hand, canConfirm=True, buttonEnabled=True.\r\nJianhe Equipment/button: valid ids=1,10, origins=Equipment,Hand, canConfirm=True, buttonEnabled=True.\r\nJianhe Equipment/Enter: valid ids=1,10, origins=Equipment,Hand, canConfirm=True, buttonEnabled=True.\r\n[PASS] composed skills share the generic WPF draft and submit their stable program identity\r\n  Original VerifyBoundary branches Zhefu: invalid 2, ambiguous 0.\r\n  Stable fixture Zhefu: seed 31, 12 accepted setup commands, actual turn seat 1.\r\n[PASS] skill target selection adds portrait outlines and confirms a real Zhefu choice\r\n[PASS] skill target selection preserves multiple ordered and optional published choices\r\n[PASS] Program paid choices preserve actor control and opaque slots\r\n[PASS] declaration and general library views protect private faces\r\n[PASS] Jin faction presentation: gallery names filters colors and embedded images\r\n[PASS] Draw-funded zero Use exact source private draw child and stale action\r\n[PASS] chained state basic UI: false marker selects exact source\r\n[PASS] Program conversion polarity stays visible with active entry and restore\r\n[PASS] Program public markers restore actual payment transfer and consumption\r\n[PASS] Program deferred hand alignment restores native private recipient and exact payment\r\n[PASS] Program exact top count restores private shared order\r\n[PASS] Program population count private faces restore shared free order\r\n  Original VerifyBoundary branches RespondDodge: invalid 2, ambiguous 0.\r\n  Stable fixture RespondDodge: seed 31, 12 accepted setup commands, actual turn seat 1.\r\n  Hand response verified: RespondDodge, 打出【闪】，抵消这次【杀】。\r\n  Original VerifyBoundary branches RespondSlash: invalid 0, ambiguous 0.\r\n  Stable fixture RespondSlash: seed 31, 14 accepted setup commands, actual turn seat 1.\r\n  Hand response verified: RespondSlash, 打出【杀】，响应【南蛮入侵】。\r\n  Original VerifyBoundary branches RescueDying: invalid 2, ambiguous 0.\r\n  Stable fixture RescueDying: seed 31, 9 accepted setup commands, actual turn seat 0.\r\n  Hand response verified: RescueDying, 使用【桃】救援 你。\r\n  Original VerifyBoundary branches Nullification: invalid 1, ambiguous 0.\r\n  Stable fixture Nullification: seed 31, 14 accepted setup commands, actual turn seat 0.\r\n  Hand response verified: Nullification, 使用【无懈可击】恢复【桃园结义】效果。\r\n  Original VerifyBoundary branches FireAttackReveal: invalid 0, ambiguous 0.\r\n  Stable fixture FireAttackReveal: seed 31, 15 accepted setup commands, actual turn seat 1.\r\n  Hand response verified: FireAttackReveal, 展示【火攻】（A）\r\n  Original VerifyBoundary branches FireAttackDiscard: invalid 0, ambiguous 0.\r\n  Stable fixture FireAttackDiscard: seed 31, 10 accepted setup commands, actual turn seat 0.\r\n  Hand response verified: FireAttackDiscard, 弃置【杀】（A），造成 1 点火焰伤害。\r\n  Original VerifyBoundary branches Jijiu: invalid 0, ambiguous 0.\r\n  Stable fixture Jijiu: seed 31, 14 accepted setup commands, actual turn seat 1.\r\n  Hand response verified: Jijiu, 发动【急救】，将【闪】当作【桃】救援 AI 2。\r\n  Original VerifyBoundary branches ArrowBarrage: invalid 0, ambiguous 0.\r\n  Stable fixture ArrowBarrage: seed 31, 14 accepted setup commands, actual turn seat 1.\r\n  Hand response verified: ArrowBarrage, 打出【闪】，响应【万箭齐发】。\r\nStored Slash: card=32, native choice=respond.slash.card-32, grain=True, playable=True, button=True, extra=0, commands=18.\r\nStored Dodge: card=32, native choice=respond.dodge.card-32, grain=True, playable=True, button=True, extra=0, commands=18.\r\nStored Taoluan: card=32, native choice=respond.dodge.card-32.conversion-0, grain=True, playable=True, button=True, extra=1, commands=16.\r\n[PASS] hand responses select exact cards and confirm through shared controls\r\n[PASS] response context distinguishes recipients, opponents and private prompts\r\nAutomatic playback with bound layout: 87 commands, 61 table refreshes; 357.9 ms; 97,071,848 bytes.\r\nAutomatic slice revision 2->10: logic 23.8 ms; layout 8.2 ms; core replay 1.5 ms.\r\nAutomatic slice revision 67->68: logic 17.1 ms; layout 2.7 ms; core replay 0.7 ms.\r\nAutomatic slice revision 59->62: logic 4.7 ms; layout 13.0 ms; core replay 1.0 ms.\r\nAutomatic slice revision 17->18: logic 1.6 ms; layout 16.0 ms; core replay 0.6 ms.\r\nAutomatic slice revision 52->53: logic 8.3 ms; layout 6.0 ms; core replay 0.6 ms.\r\nAutomatic slice revision 69->70: logic 9.6 ms; layout 2.9 ms; core replay 0.7 ms.\r\nAutomatic slice revision 53->58: logic 4.8 ms; layout 5.2 ms; core replay 0.9 ms.\r\nAutomatic slice revision 68->69: logic 4.9 ms; layout 4.7 ms; core replay 0.5 ms.\r\nAutomatic slice revision 79->81: logic 1.6 ms; layout 7.2 ms; core replay 3.3 ms.\r\nAutomatic slice revision 37->40: logic 5.1 ms; layout 2.3 ms; core replay 0.8 ms.\r\nFeedback failure: automatic mode=True, view=16, engine=16\r\nFeedback failure: automatic mode=False, view=16, engine=16\r\n[PASS] playback batches internal steps while preserving human boundaries and replay\r\n[PASS] opaque target-card slots render privately and commit through WPF commands\r\n  Restored and continued: SelectGeneral, Running, InFlight, RespondDodge, ProgramTrigger, RespondSlash, PlayCard, DiscardCards.\r\n[PASS] saved UI boundaries restore and continue through actual files\r\n[PASS] failed writes and incompatible reads preserve the active game\r\n[PASS] battle feedback exposes only committed public actions\r\n[PASS] battle feedback skill effects use public committed identities once\r\n[PASS] battle feedback renders distinct combat effects and retires them\r\n[PASS] battle feedback preview is accessible and stops on close\r\nInquiry lifetime: revision 11 -> 12, expired inquiries=1, expected active=2, actual active=2, setup steps=10.\r\n[PASS] battle feedback retires answered inquiries without dropping results\r\n120 seven-card drawing preparations: 13.0 ms; 9,150,736 bytes (not screen FPS).\r\n[PASS] card flights use public faces and preserve prompts\r\n  Original VerifyBoundary branches ArrowBarrage: invalid 0, ambiguous 0.\r\n  Stable fixture ArrowBarrage: seed 31, 14 accepted setup commands, actual turn seat 1.\r\nPublic row bounds: prompt=192,246.62666666666667,516,42.24; cards=340.20942904525,294.8666666666667,67.92797915185974,94.78322672352523; 416.0360104240701,294.8666666666667,67.92797915185974,94.78322672352523; 491.8625918028903,294.8666666666667,67.92797915185974,94.78322672352523.\r\n[PASS] public card table shows committed uses and responses with actor flights\r\n42 WPF checks passed, 0 failed. Renders: C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders\r\n"
+      }
+    ]
+  },
+  "source": {
+    "beforeBatch": [
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\Domain.cs",
+        "bytes": 34311,
+        "sha256": "A85F183C91590D7395859DF726F9B057DD0517356F2D6A7524696A6EBF4B54EE"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\GameEngine.SkillPrograms.cs",
+        "bytes": 128320,
+        "sha256": "474B5A4966476C78596A36A4712C68D0455F520EAD80D29CBC2616B37BC70082"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.Presentation.cs",
+        "bytes": 47053,
+        "sha256": "EC8480A718093316D953915CBFB2BC105AAB0E8C5051D39F9592538F54223BF5"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\SkillProgramUiChecks.cs",
+        "bytes": 4953,
+        "sha256": "514DC490E7B208D44FE162C1E4A8BE1281F45AB696C242AA4E08C2C76F206D68"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\OrdinaryZhangHuaChecks.cs",
+        "bytes": 40701,
+        "sha256": "163DE945DC40B498922BD14113484E31516BB6B2B5AB7ED0D1056BFCF3DAB2F9"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\HandGuidanceChecks.cs",
+        "bytes": 5106,
+        "sha256": "AEBDC05F04B85C24120027ABA3795783394229CFA73BE912E201B8FF18B18702"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\docs\\LOCAL_PLAY.md",
+        "bytes": 9288,
+        "sha256": "AE9E0903543AE45C3C19A5502CACC98AD48D8BFEF54AB51B2D071E6915DE1496"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\Replay.cs",
+        "bytes": 10445,
+        "sha256": "8553B2BA685D28AF35F5C91F4FEF99FA5D227FFD807214D5AB4281D20A4041D0"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\SkillPrograms.cs",
+        "bytes": 349606,
+        "sha256": "A883F4A969EDAB4E67B03838651BE19AB9DB5680512D34786C3889D620D690F3"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tools\\VerificationScopes.psd1",
+        "bytes": 15804,
+        "sha256": "1E36BA0B9715D43C1D18D5112AE2ECAFF6ECD16D725D3BD5788571B612F7F57F"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\Program.cs",
+        "bytes": 38869,
+        "sha256": "2F73C686D8B6D99A399A677670756EDA25EE458153A4BF4036F7CFAAC1A0D2D3"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.cs",
+        "bytes": 104037,
+        "sha256": "B62711021FEDE627050EE0DB9C97892A4B5BB6AC3723B97226EDB6958586049E"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.HandResponses.cs",
+        "bytes": 7106,
+        "sha256": "A6F0BA74DCC2FF26267386234E962620008F99DAF3492A35A81C1CB80B2CC4B4"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.CardTargets.cs",
+        "bytes": 4936,
+        "sha256": "4E5EA8908B56F9AE2B445D2A76B4E9588101F2CF4A8F0BDF0ACD4B6A5562DFA5"
+      }
+    ],
+    "beforeRoutine": [
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\Domain.cs",
+        "bytes": 34651,
+        "sha256": "B68409F48CEFA6CD0DF65571E5EA412C397C7F807BC97124042D91DC16E085C8"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\GameEngine.SkillPrograms.cs",
+        "bytes": 128458,
+        "sha256": "6C7F42954D7A34FBBB2C21D0EB5AE73C8D9C6AD9F0679D9BBC1840D593835AE2"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.Presentation.cs",
+        "bytes": 47659,
+        "sha256": "A990C158D1C6D5F26D9A941583C69B77AE1AE641C2C05A3D60B3E90BB95F744E"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\SkillProgramUiChecks.cs",
+        "bytes": 5000,
+        "sha256": "12D7A9FFA8E72045878DD973A38E0AE1BC93FB6877650AF4CA062943805BE9AC"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\OrdinaryZhangHuaChecks.cs",
+        "bytes": 41028,
+        "sha256": "981483D10ECF0430D3E4F4A8EC70F542FE909505A989403D13CFF0BADFE43D3E"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\HandGuidanceChecks.cs",
+        "bytes": 5212,
+        "sha256": "99AA349374B2A8B538D76AD2FF2BC3DE8080003EB8F7A3BD351A291466F56D18"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\docs\\LOCAL_PLAY.md",
+        "bytes": 9481,
+        "sha256": "8B18ED001EC573501BBDBAC612A6F36B4FC7BEEA01A152634145080480AEABCC"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\Replay.cs",
+        "bytes": 10445,
+        "sha256": "8553B2BA685D28AF35F5C91F4FEF99FA5D227FFD807214D5AB4281D20A4041D0"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\SkillPrograms.cs",
+        "bytes": 349606,
+        "sha256": "A883F4A969EDAB4E67B03838651BE19AB9DB5680512D34786C3889D620D690F3"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tools\\VerificationScopes.psd1",
+        "bytes": 15804,
+        "sha256": "1E36BA0B9715D43C1D18D5112AE2ECAFF6ECD16D725D3BD5788571B612F7F57F"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\Program.cs",
+        "bytes": 38869,
+        "sha256": "2F73C686D8B6D99A399A677670756EDA25EE458153A4BF4036F7CFAAC1A0D2D3"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.cs",
+        "bytes": 104037,
+        "sha256": "B62711021FEDE627050EE0DB9C97892A4B5BB6AC3723B97226EDB6958586049E"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.HandResponses.cs",
+        "bytes": 7106,
+        "sha256": "A6F0BA74DCC2FF26267386234E962620008F99DAF3492A35A81C1CB80B2CC4B4"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.CardTargets.cs",
+        "bytes": 4936,
+        "sha256": "4E5EA8908B56F9AE2B445D2A76B4E9588101F2CF4A8F0BDF0ACD4B6A5562DFA5"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\ActiveSkillMatchingCostUiChecks.cs",
+        "bytes": 22594,
+        "sha256": "6BD4907525BE47ED49C59624749D9D0F3BF1C7FEAA8216A78ED83FB920531C1D"
+      }
+    ],
+    "afterRoutine": [
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\Domain.cs",
+        "bytes": 34651,
+        "sha256": "B68409F48CEFA6CD0DF65571E5EA412C397C7F807BC97124042D91DC16E085C8"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\GameEngine.SkillPrograms.cs",
+        "bytes": 128458,
+        "sha256": "6C7F42954D7A34FBBB2C21D0EB5AE73C8D9C6AD9F0679D9BBC1840D593835AE2"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.Presentation.cs",
+        "bytes": 47659,
+        "sha256": "A990C158D1C6D5F26D9A941583C69B77AE1AE641C2C05A3D60B3E90BB95F744E"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\SkillProgramUiChecks.cs",
+        "bytes": 5000,
+        "sha256": "12D7A9FFA8E72045878DD973A38E0AE1BC93FB6877650AF4CA062943805BE9AC"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\OrdinaryZhangHuaChecks.cs",
+        "bytes": 41028,
+        "sha256": "981483D10ECF0430D3E4F4A8EC70F542FE909505A989403D13CFF0BADFE43D3E"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\HandGuidanceChecks.cs",
+        "bytes": 5212,
+        "sha256": "99AA349374B2A8B538D76AD2FF2BC3DE8080003EB8F7A3BD351A291466F56D18"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\docs\\LOCAL_PLAY.md",
+        "bytes": 9481,
+        "sha256": "8B18ED001EC573501BBDBAC612A6F36B4FC7BEEA01A152634145080480AEABCC"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\Replay.cs",
+        "bytes": 10445,
+        "sha256": "8553B2BA685D28AF35F5C91F4FEF99FA5D227FFD807214D5AB4281D20A4041D0"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\SkillPrograms.cs",
+        "bytes": 349606,
+        "sha256": "A883F4A969EDAB4E67B03838651BE19AB9DB5680512D34786C3889D620D690F3"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tools\\VerificationScopes.psd1",
+        "bytes": 15804,
+        "sha256": "1E36BA0B9715D43C1D18D5112AE2ECAFF6ECD16D725D3BD5788571B612F7F57F"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\Program.cs",
+        "bytes": 38869,
+        "sha256": "2F73C686D8B6D99A399A677670756EDA25EE458153A4BF4036F7CFAAC1A0D2D3"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.cs",
+        "bytes": 104037,
+        "sha256": "B62711021FEDE627050EE0DB9C97892A4B5BB6AC3723B97226EDB6958586049E"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.HandResponses.cs",
+        "bytes": 7106,
+        "sha256": "A6F0BA74DCC2FF26267386234E962620008F99DAF3492A35A81C1CB80B2CC4B4"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.CardTargets.cs",
+        "bytes": 4936,
+        "sha256": "4E5EA8908B56F9AE2B445D2A76B4E9588101F2CF4A8F0BDF0ACD4B6A5562DFA5"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\ActiveSkillMatchingCostUiChecks.cs",
+        "bytes": 22594,
+        "sha256": "6BD4907525BE47ED49C59624749D9D0F3BF1C7FEAA8216A78ED83FB920531C1D"
+      }
+    ],
+    "unchangedAcrossRoutine": true
+  },
+  "staticChecks": {
+    "diffCheckExitCode": 0,
+    "contentJsonChanges": [],
+    "head": "0f08fb47bb8637ccf082f406d69f6f6c0cbe7b52"
+  },
+  "review": {
+    "verdict": "No substantive issue in read-only review by table_input_review.",
+    "scope": "LegalAction flag, capability-derived publication, scalar preservation in frozen action view, safe-snapshot physical faces, canonical Slash names, all-equipment cost, existing counts/suits and native command validation.",
+    "limits": [
+      "Real bound ButtonBase.OnClick and existing HandleKeyInput handler exercised; no operating-system pointer or keyboard, Loaded focus, multi-DPI or sound acceptance.",
+      "Positive UI checks stop at original matching-recast peer prompt after owner payment/draw; existing focused Core checks cover canonical names, target quota, extra phases, Silver Lion recovery children and Thunder damage.",
+      "Rules, AI choice, payment, movement boundaries and phase target ledger unchanged."
+    ]
+  },
+  "cleanup": {
+    "status": "policy-blocked-retained-and-queued",
+    "reason": "Exact stable output deletions were rejected blocked by policy in the preceding stored-grain batch. Applicable AGENTS.md prohibits retry through another tool, script, or later stage. Reused outputs and registered exact retained paths again; no deletion retried and no space claimed freed.",
+    "verified": {
+      "owner": {
+        "formatVersion": 1,
+        "repository": "C:\\Users\\17917\\Desktop\\Card",
+        "artifactsPath": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f"
+      },
+      "targets": [
+        {
+          "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin",
+          "exists": true,
+          "linked": false
+        },
+        {
+          "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\obj",
+          "exists": true,
+          "linked": false
+        },
+        {
+          "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders",
+          "exists": true,
+          "linked": false
+        }
+      ],
+      "consumers": [],
+      "lockFree": true,
+      "reportExists": false
+    },
+    "database": "C:\\Users\\17917\\Desktop\\Card\\tools\\cleanup_queue.json",
+    "retainedOutputs": [
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin",
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\obj",
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders"
+    ],
+    "necessaryEvidence": "Stable summary/logs retained; this durable report embeds baseline, targeted and routine logs.",
+    "newDisposableOutputs": "No new temporary directory, archive, worktree, release or distribution output created."
+  },
+  "limits": [
+    "Real bound ButtonBase.OnClick and existing HandleKeyInput handler exercised; no operating-system pointer or keyboard, Loaded focus, multi-DPI or sound acceptance.",
+    "Positive UI checks stop at original matching-recast peer prompt after owner payment/draw; existing focused Core checks cover canonical names, target quota, extra phases, Silver Lion recovery children and Thunder damage.",
+    "Rules, AI choice, payment, movement boundaries and phase target ledger unchanged."
+  ],
+  "goalStatus": "active; this report completes one verified iteration"
+}

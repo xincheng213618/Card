@@ -1,0 +1,385 @@
+{
+  "date": "2026-10-13",
+  "verifiedAt": "2026-10-13T04:03:54.9109286+08:00",
+  "status": "passed",
+  "objective": "持续迭代交互效果",
+  "goalRemainsActive": true,
+  "focus": "真实获牌后的手牌进场与进场过程中立即出牌",
+  "changes": [
+    "Only newly gained own physical IDs from a forward player snapshot can start arrival. Candidates survive snapshot-before-collection layout and include hand-like Wooden Ox grain.",
+    "CardLiftSurface combines independent arrival/lift/reflow on its existing transform and pose event: arrival 200ms cubic easing, alpha .72 to 1, Y -12 to 0, 35ms stagger capped at 105ms; combined lift stays within the 18px headroom.",
+    "An arrival-owned opacity mask preserves the existing .55 unavailable-card opacity. The public flight uses an opaque revealed face and the current combined physical pose.",
+    "Cold views, collection/session reset, revision rollback, owner changes, covered table, sorting, viewport resize and unload/reload retire their arrival candidates and masks. Repeated unchanged layout preserves the original deadline.",
+    "Reset invalidates arrangement without forcing early item generation; DP callbacks only inspect materialized visuals. The panel frame clock reaches new surfaces before arrival begins."
+  ],
+  "implementationFiles": [
+    "src/CardGame.Wpf/Controls/HandPanel.cs",
+    "src/CardGame.Wpf/Controls/CardLiftSurface.cs",
+    "src/CardGame.Wpf/MainWindow.xaml"
+  ],
+  "testFiles": [
+    "tests/CardGame.Wpf.Tests/HandPointerChecks.cs",
+    "tests/CardGame.Wpf.Tests/HandLiftMotionChecks.cs",
+    "tests/CardGame.Wpf.Tests/HandGrainChecks.cs"
+  ],
+  "verification": {
+    "focused": {
+      "passed": 10,
+      "failed": 0,
+      "durationMs": 26723,
+      "summary": "2026-10-13-hand-arrival-focused-summary.json"
+    },
+    "developmentFailures": {
+      "preserved": true,
+      "files": [
+        "focused-initial",
+        "focused-retry",
+        "focused-template-fix",
+        "focused-handoff",
+        "focused-clock"
+      ],
+      "productionFixes": [
+        "Early InternalChildren generation during snapshot DP binding made the native panel template nonempty.",
+        "Snapshot-only reset needed InvalidateArrange to establish its next static baseline."
+      ],
+      "checkPreparationFixes": [
+        "Newly generated surfaces must receive the injected clock before their first animation starts.",
+        "Real DrawTwo resolution requires one actual AdvanceOneStep before the next Play prompt.",
+        "Real equipment payment uses equipment.use, followed by equipment.enter and EquipmentChanged."
+      ]
+    },
+    "routine": {
+      "corePassed": 476,
+      "coreFailed": 0,
+      "coreSkipped": 0,
+      "wpfPassed": 68,
+      "wpfFailed": 0,
+      "durationMs": 162534,
+      "stages": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 1766,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\build.log"
+        },
+        {
+          "name": "Core selected checks (295 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 83677,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\core-selected.log"
+        },
+        {
+          "name": "WPF selected checks (37 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 76799,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\wpf-selected.log"
+        }
+      ],
+      "summary": "2026-10-13-hand-arrival-routine-summary.json"
+    },
+    "nativeRecording": {
+      "passed": 1,
+      "failed": 0,
+      "durationMs": 11718,
+      "host": "Real loaded WPF Window owned by a hidden message-only HWND; no foreground manual acceptance.",
+      "clock": "Injected monotonic clock, shared before new surfaces start moving.",
+      "fixture": "Reuse LastZoneConversionScenario.Create(equipment), fixed seed31, real bounded skill draws and real drops. Fixture generals remain explicit placeholders.",
+      "preparatoryDraws": 3,
+      "droppedActualCards": 10,
+      "lastDrawTwo": 60,
+      "freshPhysicalIds": [
+        43,
+        39
+      ],
+      "freshKinds": [
+        "SilverLion",
+        "DrawTwo"
+      ],
+      "immediatePlayedCard": 43,
+      "commandsBefore": 16,
+      "commandsAfter": 19,
+      "paidPlayCommands": 2,
+      "actualAdvanceOneStepCommands": 1,
+      "arrivalSampleMs": 40,
+      "selectionToConfirmationMs": 50,
+      "combinedX": 0,
+      "combinedY": -15.21441953390854,
+      "origin": "171,471.78558046609146,110,156",
+      "firstFace": "172,472.78558046609146,108,154",
+      "opaqueFlight": true,
+      "privateOtherDrawStaysHidden": true,
+      "playerSafeViews": 4,
+      "realSaveLoadNoReplay": true,
+      "gif": "2026-10-13-hand-arrival-native.gif",
+      "mp4": "2026-10-13-hand-arrival-native.mp4",
+      "frames": 50,
+      "frameIntervalMs": 40,
+      "durationSeconds": 2,
+      "gifSize": "728x481",
+      "mp4Size": "728x482",
+      "audio": "Silent visual recording.",
+      "log": "2026-10-13-hand-arrival-native-record.log"
+    },
+    "componentChecks": {
+      "snapshotInputs": "Synthetic player-snapshot record copies only; no claim of committed gain for these component cases.",
+      "safeViews": 8,
+      "commandsUnchanged": true,
+      "cases": [
+        "cold",
+        "same-revision",
+        "forward-no-delta",
+        "snapshot-before-collection",
+        "primed-empty",
+        "visible-X-instant-input",
+        "unavailable-opacity-mask",
+        "same-layout-deadline",
+        "motion",
+        "cover",
+        "sort",
+        "resize",
+        "reset-static-reprime",
+        "revision-rollback",
+        "owner-switch",
+        "foreign-card-id",
+        "unload-reload"
+      ]
+    },
+    "storedGrain": "Real Wooden Ox zone changes reuse the same physical model/container; unchanged refresh and actual manual save/load remain static with motion and the panel clock enabled.",
+    "imagesInspected": [
+      "2026-10-13-hand-arrival-evidence-hand-arrival-native-40ms-1120.png",
+      "2026-10-13-hand-arrival-evidence-hand-arrival-native-use-launch-1120.png",
+      "2026-10-13-hand-arrival-evidence-grain-restored-without-arrival.png"
+    ],
+    "sourceHashesRechecked": true,
+    "sourceCount": 18
+  },
+  "boundaries": {
+    "coreRulesReplayChangedThisBatch": false,
+    "newRunnerOrFramework": false,
+    "manualFullRunPerformed": false,
+    "releaseOrPackagingPerformed": false,
+    "commitOrPushPerformed": false,
+    "foregroundManualPlayAcceptance": "Not performed.",
+    "multiDpiAcceptance": "Not performed.",
+    "physicalSpeakerAcceptance": "Not performed; this batch is visual."
+  },
+  "cleanup": {
+    "auditedAt": "2026-10-13T04:02:50.6599444+08:00",
+    "status": "retained_previous_policy_block_no_retry",
+    "artifactsRoot": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f",
+    "ownerMatches": true,
+    "strictlyInsideTemp": true,
+    "linkedPaths": [],
+    "lockAvailable": true,
+    "liveConsumers": [],
+    "deleteAttemptedThisBatch": false,
+    "freedBytes": 0,
+    "retainedDirectories": [
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin",
+        "exists": true,
+        "queued": true
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\obj",
+        "exists": true,
+        "queued": true
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders",
+        "exists": true,
+        "queued": true
+      }
+    ],
+    "reason": "Task-owned reused verification outputs: previous exact-path cleanup was blocked by policy, so deletion retry remains prohibited. Hand-arrival focused/routine/native logs, source hashes, PNG/GIF/MP4 evidence are preserved in docs/benchmarks; no separate artifact root was created.",
+    "previousAudit": "docs/benchmarks/2026-10-13-hand-reflow-cleanup.json",
+    "cleanupQueue": "tools/cleanup_queue.json",
+    "unrelatedQueueEntriesProcessed": false
+  },
+  "sourceHashes": "2026-10-13-hand-arrival-source-hashes.json",
+  "evidence": [
+    {
+      "file": "2026-10-13-hand-arrival-cleanup.json",
+      "bytes": 1367,
+      "sha256": "e8e7c951112914c9c6765d472f7dda7da6c496169465d731fa9c02ed7ee0d4d6"
+    },
+    {
+      "file": "2026-10-13-hand-arrival-evidence-grain-restored-without-arrival.png",
+      "bytes": 1200560,
+      "sha256": "2b551f12a1f7a6db11a7c42757483b2f6349228d10be6b3aa874c279515aa946"
+    },
+    {
+      "file": "2026-10-13-hand-arrival-evidence-hand-arrival-component-unavailable.png",
+      "bytes": 1180899,
+      "sha256": "b6647e096e4537eb3e049d24c52e6e0af0c27e0e9c32efd52af139dbbb4e807b"
+    },
+    {
+      "file": "2026-10-13-hand-arrival-evidence-hand-arrival-native-40ms-1120.png",
+      "bytes": 1073063,
+      "sha256": "8e0a8f158596ae7d99eb340f750d812e2dd729a067542ae87153f2bbef2f20b2"
+    },
+    {
+      "file": "2026-10-13-hand-arrival-evidence-hand-arrival-native-cold-1120.png",
+      "bytes": 1093760,
+      "sha256": "7190b43c4eab51e5d2ab26bb3c2ef7f529c080523d27eb2bd6cffdb3909002a0"
+    },
+    {
+      "file": "2026-10-13-hand-arrival-evidence-hand-arrival-native-reloaded-1120.png",
+      "bytes": 1056458,
+      "sha256": "d887768350bf1cebfdb74066371254dff8aa917df3d98803ade72fb3b13dafe0"
+    },
+    {
+      "file": "2026-10-13-hand-arrival-evidence-hand-arrival-native-settled-1120.png",
+      "bytes": 1087258,
+      "sha256": "443314e698008c9668c03f2d14fdba9acce22ed250a79771572e95ce03425499"
+    },
+    {
+      "file": "2026-10-13-hand-arrival-evidence-hand-arrival-native-use-launch-1120.png",
+      "bytes": 1060064,
+      "sha256": "8af2fc36d1d14dee2ced35b40d824c85b2e44f6ffd3e0de1e571857cc2e1bb52"
+    },
+    {
+      "file": "2026-10-13-hand-arrival-focused-build.log",
+      "bytes": 896,
+      "sha256": "5e3ec2a5319e8f9a792ea1034ddeaccf8badcaf234f2b759c81f0f6d4ebc4f19"
+    },
+    {
+      "file": "2026-10-13-hand-arrival-focused-clock-build.log",
+      "bytes": 896,
+      "sha256": "0ae0d9edb33464139578a0f1f5a5c7ba1caf716408c820e8683f8227514ac7bd"
+    },
+    {
+      "file": "2026-10-13-hand-arrival-focused-clock-summary.json",
+      "bytes": 1473,
+      "sha256": "ac60ceabe0b4f12325b0021ea8bdaa22e1453f075514ffa14bcd9951ab4a9e31"
+    },
+    {
+      "file": "2026-10-13-hand-arrival-focused-clock.log",
+      "bytes": 8272,
+      "sha256": "0814fb9638b28b32d724bb4b7d2f79a4e0f4d287c67613317f3d9dee36f912dc"
+    },
+    {
+      "file": "2026-10-13-hand-arrival-focused-handoff-build.log",
+      "bytes": 896,
+      "sha256": "8f39c5635147c5221c85179482359c6437b3b0dd5fcc5ed8f361aa28178d52b0"
+    },
+    {
+      "file": "2026-10-13-hand-arrival-focused-handoff-summary.json",
+      "bytes": 1392,
+      "sha256": "dd6858fd132389355a3f392e9031f56250669aa43fca2c7665594aa039148675"
+    },
+    {
+      "file": "2026-10-13-hand-arrival-focused-handoff.log",
+      "bytes": 3140,
+      "sha256": "63d8e96fdf81b3da0a2e7ab1bd54972d91c01e94526261332295128b243a57dc"
+    },
+    {
+      "file": "2026-10-13-hand-arrival-focused-initial-build.log",
+      "bytes": 896,
+      "sha256": "5921fc061e0b135e8870b0d399febdcf377df81cc275f2cf0effec7edeb8c826"
+    },
+    {
+      "file": "2026-10-13-hand-arrival-focused-initial-summary.json",
+      "bytes": 1410,
+      "sha256": "9de1aa7225fb82b52339ddffd2f3e3903d244848f299a8104e7d3d6be29a3037"
+    },
+    {
+      "file": "2026-10-13-hand-arrival-focused-initial.log",
+      "bytes": 14577,
+      "sha256": "9f0909788e85b705f9c2c6e817940678acd2f2ea227b86a12e057cce03a06e46"
+    },
+    {
+      "file": "2026-10-13-hand-arrival-focused-retry-build.log",
+      "bytes": 896,
+      "sha256": "2561ed5858e494d5910be8baf61aa16ca33641753436275656b6dcb0491bb445"
+    },
+    {
+      "file": "2026-10-13-hand-arrival-focused-retry-summary.json",
+      "bytes": 1472,
+      "sha256": "25f6b8a438a21f123ed51939b162118a4eae10a6bfb6df6af04d9cb85e75aad7"
+    },
+    {
+      "file": "2026-10-13-hand-arrival-focused-retry.log",
+      "bytes": 7658,
+      "sha256": "00499ef65cbb8a08b1b5f006d5df1d6ff5bdef59de929bb5b252137bd13f4961"
+    },
+    {
+      "file": "2026-10-13-hand-arrival-focused-summary.json",
+      "bytes": 1373,
+      "sha256": "0a97e482d312f5fef0a8ea288433419b10e0bfc868f88da2d2dddcc582d4e1bd"
+    },
+    {
+      "file": "2026-10-13-hand-arrival-focused-template-fix-build.log",
+      "bytes": 896,
+      "sha256": "c434f8b073e4f8c60f8e50a1587e7533f6582f1978a9e968783affedf06632e1"
+    },
+    {
+      "file": "2026-10-13-hand-arrival-focused-template-fix-summary.json",
+      "bytes": 1472,
+      "sha256": "23cf2a6de464158d29dec061e71d59335eef03c22e34e553e635acae1c815655"
+    },
+    {
+      "file": "2026-10-13-hand-arrival-focused-template-fix.log",
+      "bytes": 7766,
+      "sha256": "9e00ca8f7a2a96e06e109faa65f6945386b313729190b74b0c448644f9e8c595"
+    },
+    {
+      "file": "2026-10-13-hand-arrival-focused.log",
+      "bytes": 13901,
+      "sha256": "e9dec482d6cadb6b31f7db02a841605d543d1685e3a3c82ac268a0496de2ded3"
+    },
+    {
+      "file": "2026-10-13-hand-arrival-native-movie-metadata.json",
+      "bytes": 210,
+      "sha256": "a369fb682467bf328e1c036cf69841303b65285194dbce73ee0f8c58309b1b94"
+    },
+    {
+      "file": "2026-10-13-hand-arrival-native-record-summary.json",
+      "bytes": 138,
+      "sha256": "a6f2f29736ebe5c68a6ad416049b31e950ead04a5eef7821fbccad04df25e66a"
+    },
+    {
+      "file": "2026-10-13-hand-arrival-native-record.log",
+      "bytes": 7459,
+      "sha256": "aeb2b6708ff165f72c92c8568974dfeeef51ea3aeed37dca7da14ab544421fca"
+    },
+    {
+      "file": "2026-10-13-hand-arrival-native.gif",
+      "bytes": 8693119,
+      "sha256": "bbd63ae8fb3eb467a6b8452fb1988d09b51d2a2c590bf0d0607f5596aeb6dead"
+    },
+    {
+      "file": "2026-10-13-hand-arrival-native.mp4",
+      "bytes": 955962,
+      "sha256": "c39b588cbfa48892ce1a9967ce6035dc7061a7795f4defa0a76134462fab46f4"
+    },
+    {
+      "file": "2026-10-13-hand-arrival-routine-build.log",
+      "bytes": 896,
+      "sha256": "949675b6b776954197f85b444d9ea1205477501ea343e28aad16443f06576d33"
+    },
+    {
+      "file": "2026-10-13-hand-arrival-routine-core-selected.log",
+      "bytes": 36170,
+      "sha256": "0d520f1f33c92ea9cb913881305bc3930896a4acb7d3da4a5d753ccc0811685a"
+    },
+    {
+      "file": "2026-10-13-hand-arrival-routine-summary.json",
+      "bytes": 16464,
+      "sha256": "e4870405ee4e258a5065b5900b716b87db26ead47a785d4bc5e63764a3753687"
+    },
+    {
+      "file": "2026-10-13-hand-arrival-routine-wpf-selected.log",
+      "bytes": 71378,
+      "sha256": "a3d5888186dff118cf279a403b332c9c006ba9c809f17623dbc55bbbb7b506ed"
+    },
+    {
+      "file": "2026-10-13-hand-arrival-source-hashes.json",
+      "bytes": 2719,
+      "sha256": "ffad679ee627b15e391a8c922fcfe60638ddc480475a8c807b221c837aa482e7"
+    }
+  ]
+}

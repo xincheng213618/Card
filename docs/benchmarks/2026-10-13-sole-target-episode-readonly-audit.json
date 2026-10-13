@@ -1,0 +1,40 @@
+{
+  "Scope": "Read-only review requested by root after the actual A-to-B-to-A Liuli regression fix",
+  "Status": "No reachable command/checkpoint scalar injection found",
+  "RuntimeEvidence": "docs/benchmarks/2026-10-13-sole-target-episode-green-summary.json",
+  "Sources": [
+    {
+      "Path": "src/CardGame.Core/ProgramSoleTargetRedirect.cs",
+      "Sha256": "DC2A5BBA0AFF43FFA9556740A48AE79E9DC496D22251F25C33E1DF0664133EE0"
+    },
+    {
+      "Path": "src/CardGame.Core/GameEngine.SoleTargetRedirect.cs",
+      "Sha256": "8B94D0FC23E3E515C87C0C0A42EB9472DE29190DFFF773A3E194AC6B803C7F85"
+    },
+    {
+      "Path": "src/CardGame.Core/GameEngine.SoleTargetReplacementCandidates.cs",
+      "Sha256": "0FE8C973E2E354541C3ADCBE3E6B7CC898D87F28AF71F24E9E17826B7DAD3DCE"
+    },
+    {
+      "Path": "src/CardGame.Core/Replay.cs",
+      "Sha256": "4421250B9EDA44B165564F012B48DBE408DBAAE84223BCC94D1A5ADD6C685A1E"
+    },
+    {
+      "Path": "src/CardGame.Core/Commands.cs",
+      "Sha256": "41AD07773CE841F0D71833C1F96C10BFED074130136FECF18F0003EEA5041A1E"
+    }
+  ],
+  "Observations": [
+    "The return owns its scalar cutoff and frozen finalized cursor; initial cutoff is zero, and the only later native write sets the old candidate count immediately after actual RedirectCurrentAttack issuance before appending the new target episode.",
+    "Target owner bindings are admitted only when candidateIndex is at or after the cutoff and the active native attack target matches their owner; non-target bindings keep their existing scope.",
+    "The exact-return predicate checks the cutoff range, not a separately issued cutoff ledger. Arbitrary trusted frame replacement could construct another in-range cutoff, but command and checkpoint input do not deserialize or replace runtime frames.",
+    "GameCheckpoint stores immutable setup and accepted commands. GameReplay.Restore calls command Replay and checks revision, mode, package signatures, content hash and rules compatibility. Public ResolutionStack is trusted diagnostics returned as a read-only list; the scalar and frame fields are init-only records.",
+    "AnswerPromptCommand accepts actor, prompt id, choice id and revision; it carries no runtime cursor or mutable PromptChoice parameters. The accepted choice comes from the published exact prompt.",
+    "No command or checkpoint restore path was found that supplies an arbitrary in-range cutoff. This is static input-boundary analysis, not a proof against arbitrary host reflection or future direct-frame restoration APIs."
+  ],
+  "ProductionChanged": false,
+  "Limits": [
+    "No private-frame reflection or arbitrary host-memory replacement was treated as a player input path.",
+    "The helper predicate alone is not claimed to authenticate the scalar against an independent cutoff issuance event."
+  ]
+}

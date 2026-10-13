@@ -1,0 +1,122 @@
+{
+  "capturedAt": "2026-10-13T21:16:25.210221+08:00",
+  "files": [
+    {
+      "path": "docs/content/sources/evidence/ol-shi-xie-2026-10-13-current-page.html",
+      "bytes": 25528,
+      "sha256": "83f937a25fd54f99b406016db4e6d00c23583bee482ae611bede5d3b50889165",
+      "expectedSha256": "83f937a25fd54f99b406016db4e6d00c23583bee482ae611bede5d3b50889165",
+      "expectedMatch": true
+    },
+    {
+      "path": "docs/content/sources/evidence/ol-shi-xie-2026-10-13-info.json",
+      "bytes": 1063,
+      "sha256": "f3281e5e0a8b6007bc26572b2a12d60ed9b86f7170cbc1ae139700bfcc4aea1b",
+      "expectedSha256": "f3281e5e0a8b6007bc26572b2a12d60ed9b86f7170cbc1ae139700bfcc4aea1b",
+      "expectedMatch": true
+    },
+    {
+      "path": "docs/content/sources/evidence/ol-shi-xie-345-client-2026-10-13.json",
+      "bytes": 2857,
+      "sha256": "489ed3c1d46838adaffc6bc52689a75f73d9315bb1b5fc30a5044c7f6e328ca2",
+      "expectedSha256": "489ed3c1d46838adaffc6bc52689a75f73d9315bb1b5fc30a5044c7f6e328ca2",
+      "expectedMatch": true
+    },
+    {
+      "path": "docs/content/sources/evidence/ol-wang-rong-2021-release-excerpt-2026-10-13.json",
+      "bytes": 889,
+      "sha256": "47292707377c247f8a7d4b98d4ab7270e289dcf64853ccfbbfc7b5eafc68b3a2",
+      "expectedSha256": null,
+      "expectedMatch": null
+    },
+    {
+      "path": "docs/content/sources/evidence/ol-wang-rong-344-client-2026-10-13.json",
+      "bytes": 4554,
+      "sha256": "53d0719635b6e95962e888edf1c44c734266e8ec6a54e79331b32d2d21f15611",
+      "expectedSha256": null,
+      "expectedMatch": null
+    },
+    {
+      "path": "docs/content/sources/evidence/ol-wang-rong-344-info-2026-10-13.json",
+      "bytes": 1024,
+      "sha256": "5fe96b446e9e8fddaf4a1328acb8eee5be0232ffd5ac27717251de77fc534c68",
+      "expectedSha256": "5fe96b446e9e8fddaf4a1328acb8eee5be0232ffd5ac27717251de77fc534c68",
+      "expectedMatch": true
+    },
+    {
+      "path": "docs/content/sources/evidence/ol-wang-rong-344-page-2026-10-13.html",
+      "bytes": 26369,
+      "sha256": "6fa9bd3415bfcb10774cac0f8666f7280f07f6b35d7adb2a325369a607bf2ce7",
+      "expectedSha256": "6fa9bd3415bfcb10774cac0f8666f7280f07f6b35d7adb2a325369a607bf2ce7",
+      "expectedMatch": true
+    },
+    {
+      "path": "docs/content/sources/evidence/ol-zhang-lu-20160428-2026-10-13.html",
+      "bytes": 32674,
+      "sha256": "33004d54cd6d69b57102759d8857601d928f30a119f0171eabb134c200d00d16",
+      "expectedSha256": "33004d54cd6d69b57102759d8857601d928f30a119f0171eabb134c200d00d16",
+      "expectedMatch": true
+    },
+    {
+      "path": "docs/content/sources/evidence/ol-zhang-lu-343-client-2026-10-13.json",
+      "bytes": 3463,
+      "sha256": "dc28903eb23de7070da4e010f50e19688130f6322d03041b6aae9ee804a0bacd",
+      "expectedSha256": null,
+      "expectedMatch": null
+    },
+    {
+      "path": "docs/content/sources/evidence/ol-zhang-lu-343-info-2026-10-13.json",
+      "bytes": 1148,
+      "sha256": "95bec80e3b5e6a682e6becabc42a0dd3d6f1d46bf3f2b4e55d2fdcdd9b5beea2",
+      "expectedSha256": "95bec80e3b5e6a682e6becabc42a0dd3d6f1d46bf3f2b4e55d2fdcdd9b5beea2",
+      "expectedMatch": true
+    },
+    {
+      "path": "docs/content/sources/evidence/ol-zhang-lu-343-official-2026-10-13.html",
+      "bytes": 26283,
+      "sha256": "8a63792c81064ee7c7af62acb3d86ee47a5e3ce3ff578e368800c244726d3bb9",
+      "expectedSha256": "8a63792c81064ee7c7af62acb3d86ee47a5e3ce3ff578e368800c244726d3bb9",
+      "expectedMatch": true
+    },
+    {
+      "path": "src/CardGame.Wpf/Assets/official-ol-shi-xie.png",
+      "bytes": 1208026,
+      "sha256": "2d1c53cb374a1ff78f47bffe761c7cf64c0f98fef0dd94836214a83f6751d22a",
+      "expectedSha256": "2d1c53cb374a1ff78f47bffe761c7cf64c0f98fef0dd94836214a83f6751d22a",
+      "expectedMatch": true
+    },
+    {
+      "path": "src/CardGame.Wpf/Assets/official-ol-wang-rong.png",
+      "bytes": 1118842,
+      "sha256": "984a348cedbac96b3c9f9fc52a95be38febb29130034417f0e0750482ad02a0a",
+      "expectedSha256": "984a348cedbac96b3c9f9fc52a95be38febb29130034417f0e0750482ad02a0a",
+      "expectedMatch": true
+    },
+    {
+      "path": "src/CardGame.Wpf/Assets/official-ol-zhang-lu.png",
+      "bytes": 1154864,
+      "sha256": "dc59b0e4ab640127dac7286e91ca155661a1ba47f00a4ad7c7b6267304cb0e02",
+      "expectedSha256": "dc59b0e4ab640127dac7286e91ca155661a1ba47f00a4ad7c7b6267304cb0e02",
+      "expectedMatch": true
+    }
+  ],
+  "comparedFiles": 11,
+  "mismatches": [],
+  "provenanceOnly": [
+    {
+      "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+      "reportedRawSha256": "66dfce61f1c4fb0aca35b6f85ed940e394719db84655f4d4146b463bc0cf8c1b",
+      "note": "Full upstream raw bytes not part of this retained local comparison."
+    },
+    {
+      "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+      "reportedRawSha256": "3d7536d4e2ca3d64707c2f6e0edbb8ccb4a045eee4274862dfa35431157c64f4",
+      "note": "Full upstream raw bytes not part of this retained local comparison."
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20211109_6914_4116",
+      "reportedRawSha256": "379623a9d538ef63d1bc9c5b80e597bdf269e16af1a735f85403eb65786bfbf0",
+      "note": "Full upstream raw bytes not part of this retained local comparison."
+    }
+  ]
+}

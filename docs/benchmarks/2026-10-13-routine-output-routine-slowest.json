@@ -1,0 +1,102 @@
+[
+  {
+    "Scope": "wpf",
+    "Name": "hand responses select exact cards and confirm through shared controls",
+    "DurationMs": 7128.474
+  },
+  {
+    "Scope": "wpf",
+    "Name": "battle feedback shows native weapon activations and exact followup costs",
+    "DurationMs": 5008.847
+  },
+  {
+    "Scope": "wpf",
+    "Name": "Wusheng skill-first red cards use exact Slash source without popup",
+    "DurationMs": 3843.858
+  },
+  {
+    "Scope": "wpf",
+    "Name": "response context keeps the current responder and native chain stage visible",
+    "DurationMs": 3707.221
+  },
+  {
+    "Scope": "wpf",
+    "Name": "skill target selection previews portrait acquisition without committing",
+    "DurationMs": 3625.985
+  },
+  {
+    "Scope": "wpf",
+    "Name": "card flights follow a continuous native hand lift",
+    "DurationMs": 3489.394
+  },
+  {
+    "Scope": "wpf",
+    "Name": "table shortcuts respect navigation panels above startup overlays",
+    "DurationMs": 3295.389
+  },
+  {
+    "Scope": "wpf",
+    "Name": "table modal focus follows startup and current visible panels",
+    "DurationMs": 3254.457
+  },
+  {
+    "Scope": "wpf",
+    "Name": "Delayed trick UI: portrait press conversion targets and automatic Lightning",
+    "DurationMs": 3031.785
+  },
+  {
+    "Scope": "wpf",
+    "Name": "battle feedback sequences native dying rescue and death outcomes",
+    "DurationMs": 2999.836
+  },
+  {
+    "Scope": "wpf",
+    "Name": "general selection switches related editions without consuming candidate slots",
+    "DurationMs": 2554.066
+  },
+  {
+    "Scope": "wpf",
+    "Name": "battle feedback draws native public quantities without hidden faces",
+    "DurationMs": 2453.139
+  },
+  {
+    "Scope": "wpf",
+    "Name": "battle feedback targeting guides follow reversible native card drafts",
+    "DurationMs": 2376.6
+  },
+  {
+    "Scope": "core",
+    "Name": "Sole target protection: actual Slash and black trick substitution",
+    "DurationMs": 2358.219
+  },
+  {
+    "Scope": "wpf",
+    "Name": "battle feedback follows each native group responder",
+    "DurationMs": 2346.721
+  },
+  {
+    "Scope": "wpf",
+    "Name": "stale prompt choices cannot answer reloaded or consecutive decisions",
+    "DurationMs": 2321.073
+  },
+  {
+    "Scope": "core",
+    "Name": "Actual turn use kinds foreign Play draw and classic own-turn boundary",
+    "DurationMs": 2290.815
+  },
+  {
+    "Scope": "wpf",
+    "Name": "table modal focus keeps opening log and result navigation inside their panels",
+    "DurationMs": 2273.18
+  },
+  {
+    "Scope": "wpf",
+    "Name": "card flights launch accepted local uses and responses from visible hand slots",
+    "DurationMs": 2242.941
+  },
+  {
+    "Scope": "core",
+    "Name": "Unrespondable counterspell equipment payment completed cold",
+    "DurationMs": 2042.312
+  }
+]

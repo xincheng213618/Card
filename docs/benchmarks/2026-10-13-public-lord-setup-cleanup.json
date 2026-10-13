@@ -1,0 +1,25 @@
+{
+  "AuditedAt": "2026-10-13T11:27:52.2905265+08:00",
+  "Root": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f",
+  "OwnerVerified": true,
+  "LinkedAncestors": [],
+  "Consumers": [],
+  "ExclusiveLockVerified": true,
+  "DeletionAttempted": false,
+  "FreedBytes": 0,
+  "Reason": "Prior exact-path policy rejection: no retry. Verification deliverables copied to docs/benchmarks.",
+  "Retained": [
+    {
+      "Path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin",
+      "Present": true
+    },
+    {
+      "Path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\obj",
+      "Present": true
+    },
+    {
+      "Path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders",
+      "Present": true
+    }
+  ]
+}

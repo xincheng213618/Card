@@ -1,0 +1,169 @@
+{
+  "schemaVersion": 1,
+  "archivedAtUtc": "2026-10-13T18:33:32.351326+08:00",
+  "provenance": {
+    "kind": "captured_mock_process_output",
+    "command": "pwsh -NoLogo -NoProfile -File ./tools/tests/Test-Changed.Artifacts.Tests.ps1",
+    "startedAtUtc": "2026-10-13T18:33:09.2354495+08:00",
+    "endedAtUtc": "2026-10-13T18:33:32.351326+08:00",
+    "durationMs": 23116,
+    "finalProcessExitCode": 0,
+    "rerunForThisArchive": true,
+    "logPath": "C:\\Users\\17917\\Desktop\\Card\\docs\\benchmarks\\2026-10-13-parallel-runner-mock-verification.log",
+    "logCoverage": "Full merged stdout/stderr from the standalone mock process.",
+    "logSha256": "02D5852F561F2D952AA16FF9E7CF8F840206D236C6511EFC543C448D4DB67D98"
+  },
+  "result": {
+    "status": "passed",
+    "checksPassed": 19,
+    "cases": [
+      {
+        "name": "routine",
+        "verified": "One solution build; unchanged routine filter unions; two real child processes overlap."
+      },
+      {
+        "name": "only-wpf",
+        "verified": "Only WPF project and runner; original single-scope path."
+      },
+      {
+        "name": "only-core",
+        "verified": "Only Core project and runner; original single-scope path."
+      },
+      {
+        "name": "mixed",
+        "verified": "One solution build; two filtered child processes overlap."
+      },
+      {
+        "name": "core-fail",
+        "verified": "Exact Core exit 41; WPF completes successfully; both scope results and logs retained."
+      },
+      {
+        "name": "wpf-fail",
+        "verified": "Exact WPF exit 43; Core completes successfully; both scope results and logs retained."
+      },
+      {
+        "name": "both-fail",
+        "verified": "Both exact child exit codes retained and overall verification fails."
+      },
+      {
+        "name": "mock-full",
+        "verified": "Explicit Full retains no-filter contract in fake runners only; two real child processes overlap."
+      },
+      {
+        "name": "parent-fail",
+        "verified": "Injected parent output failure while both children sleep; both PIDs gone before artifact lease can be reacquired."
+      },
+      {
+        "name": "partial-start",
+        "verified": "Windows command-length limit prevents WPF native start after Core has started; both failures/logs retained and Core ends before return."
+      },
+      {
+        "name": "build-fail",
+        "verified": "Build exit 23 prevents tests and remains build-failed after registration."
+      },
+      {
+        "name": "test-fail",
+        "verified": "Single-scope exit 37 remains test-failed after registration."
+      },
+      {
+        "name": "keep",
+        "verified": "Compatibility KeepArtifacts retains/queues outputs; same owned output may be reused."
+      },
+      {
+        "name": "foreign",
+        "verified": "Unowned output is rejected before build or modification."
+      },
+      {
+        "name": "locked",
+        "verified": "Busy output lease rejects a second invocation without replacing owner evidence."
+      },
+      {
+        "name": "invalid",
+        "verified": "Explicit empty filters reject before build/cleanup and retain prior outputs."
+      },
+      {
+        "name": "source-root",
+        "verified": "Repository root is rejected as ArtifactsPath before build/write."
+      },
+      {
+        "name": "busy-file",
+        "verified": "Occupied output files are retained and registered, without deletion attempts."
+      },
+      {
+        "name": "registration-failure",
+        "verified": "Invalid cleanup database remains unchanged; overall status fails and outputs remain until fixture cleanup."
+      }
+    ]
+  },
+  "sources": [
+    {
+      "path": "C:\\Users\\17917\\Desktop\\Card\\tools\\Test-Changed.ps1",
+      "sha256": "F010EEF5CA911570F55419757FEB1B23D292BAAE7E53384D86F23AB04BA1A91D",
+      "firstLine": "#requires -Version 7.0"
+    },
+    {
+      "path": "C:\\Users\\17917\\Desktop\\Card\\tools\\tests\\Test-Changed.Artifacts.Tests.ps1",
+      "sha256": "41C282BA033F3171258C8FFDFD30BB9AB4F4137C78580849FB0853EA9A8F5E7E",
+      "firstLine": "#requires -Version 7.0"
+    }
+  ],
+  "compatibility": {
+    "fallbackNecessary": false,
+    "fallbackAdded": false,
+    "reason": "Both current and HEAD runner require PowerShell 7.0; the original dirty runner also used SHA256.HashData and Convert.ToHexString. Windows PowerShell 5.1 was not a supported entry path.",
+    "headRunnerFirstLine": "#requires -Version 7.0",
+    "currentShellVersion": "7.6.6",
+    "currentShellEdition": "Core",
+    "currentShellExecutable": "C:\\Program Files\\PowerShell\\7\\pwsh.exe",
+    "argumentListApiPresent": true,
+    "argumentListApiEvidence": "Read-only current-runtime reflection of ProcessStartInfo.GetProperty(\"ArgumentList\") returned non-null.",
+    "originalApiSourceLines": [
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tools\\Test-Changed.ps1",
+        "line": 1,
+        "evidence": "#requires -Version 7.0"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tools\\Test-Changed.ps1",
+        "line": 39,
+        "evidence": "SHA256.HashData"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tools\\Test-Changed.ps1",
+        "line": 40,
+        "evidence": "Convert.ToHexString"
+      }
+    ],
+    "originalDirtySourceSha256": "EDA2697EE6224BE4126A5CAB627F8478528D86C23D1FCA490E914946E63D60DB",
+    "parallelSourceUnchangedSinceSuccessfulMockRun": true
+  },
+  "cleanup": {
+    "ownedMockRoot": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\test-changed-parallel",
+    "ownershipAndNonLinkedPathAssertionsPassed": true,
+    "automaticCleanup": "The fixture try/finally removed only this owned directory after checking its resolved absolute path and owner.",
+    "outputEvidence": "Task-owned parallel mock outputs removed.",
+    "existsAtArchiveTime": false,
+    "previouslyPolicyBlockedCleanupQueueRootTouched": false,
+    "rootRoutineArtifactsTouched": false
+  },
+  "validation": {
+    "powerShellParserErrors": 0.0,
+    "gitDiffCheckPassed": true,
+    "realGameBuildOrChecksRunByThisMock": false,
+    "realFullRunPerformed": false,
+    "encodingRoundtrip": {
+      "expectedStdout": "中文正在选择 → ✅",
+      "expectedStderr": "中文正在选择 → 🧪",
+      "stdoutCaptured": true,
+      "stderrCaptured": true,
+      "replacementCharacterCount": 0,
+      "scopeLogsAssertedByMock": true,
+      "createNoWindowChildConsoleAndParentReaders": "Explicit UTF-8 on both sides."
+    }
+  },
+  "limits": [
+    "Mock runners prove process overlap, UTF-8 roundtrip and lifecycle; real-suite elapsed time and actual C# runner output require the root controlled verification.",
+    "The mock uses an external-script dotnet shim; installed dotnet resolves to Application.",
+    "No real game build, routine or Full run was started by this mock."
+  ]
+}

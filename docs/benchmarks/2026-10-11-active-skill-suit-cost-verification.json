@@ -1,0 +1,489 @@
+{
+  "formatVersion": 1,
+  "repository": "C:\\Users\\17917\\Desktop\\Card",
+  "head": "0f08fb47bb8637ccf082f406d69f6f6c0cbe7b52",
+  "purpose": "Repair native active-skill suit validation and wording in the shared WPF confirmation draft.",
+  "changes": [
+    "CanConfirmActiveSkill retains current native card/target counts and selectable IDs, then checks both SelectedCardsSameSuit and SelectedCardsDistinctSuits against physical Suit values in the current player-safe snapshot.",
+    "Physical costs can be read from Hand, Equipment, Judgment, Wooden Ox grain, Buqu wounds, Authority and Chunlao public collections without trusted engine-state reads. The existing current-selectable-ID gate remains authoritative.",
+    "Current skill hints and the context guide now explain same-suit or pairwise-distinct-suit requirements.",
+    "The retained equipment/skill-control check now exercises two equipped Diamond entities through actual OL Longhun rail, equipment-choice buttons, confirmation button and Enter.",
+    "The retained composed-skill check now exercises a native four-distinct-suit OL Yeyan action, exact-count invalid drafts, actual disabled confirmation, Enter preservation, valid one-time payment and cold restore.",
+    "Only the existing equipment-layout filter is added to routine scope; all retained registrations and assertions remain.",
+    "The retained sorted-hand keyboard fixture now establishes a bounded idle-input prerequisite before synthetic Space Down and Up, logs WPF and Win32 device/pressed/focus/handled states, and releases only its own button capture in finally. Existing actual button, one-time selection and complete keyboard reveal assertions remain."
+  ],
+  "firstBaseline": {
+    "command": ".\\tools\\Test-Changed.ps1 -WpfFilter @('composed skills','reference table layout preserves') -Verbose",
+    "run": {
+      "status": "test-failed",
+      "mode": "targeted",
+      "startedAt": "2026-10-11T16:05:30.5636145+08:00",
+      "durationMs": 7851,
+      "coreFilterCount": 0,
+      "wpfFilterCount": 2,
+      "results": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 3252,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\build.log"
+        },
+        {
+          "name": "WPF selected checks (2 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 4311,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\wpf-selected.log"
+        }
+      ],
+      "message": "One or more selected checks failed."
+    },
+    "log": "[TIME] reference table layout preserves equipment and skill controls: 3352.238 ms\r\n[FAIL] reference table layout preserves equipment and skill controls: System.InvalidOperationException: The Longhun fixture must move each exact Diamond entity through one accepted native equipment command.\r\n   at Program.Assert(Boolean condition, String message) in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\Program.cs:line 329\r\n   at TableSurfaceChecks.EquipmentOnlyLonghun(String output) in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\TableSurfaceChecks.cs:line 226\r\n   at TableSurfaceChecks.EquipmentAndSkillControls(String output) in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\TableSurfaceChecks.cs:line 201\r\n   at Program.<>c__DisplayClass12_0.<Main>b__15() in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\Program.cs:line 89\r\n   at Program.Check(String name, Action action) in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\Program.cs:line 187\r\nOL Yeyan draft: ids=27,32,45,73, suits=Club,Diamond,Spade,Spade, publishedDistinct=True, canConfirm=True, buttonEnabled=True.\r\n[FAIL] composed skills share the generic WPF draft and submit their stable program identity: System.InvalidOperationException: An exact-count but repeated-suit native Yeyan draft must keep the real confirmation button disabled.\r\n[TIME] composed skills share the generic WPF draft and submit their stable program identity: 399.818 ms\r\n   at Program.Assert(Boolean condition, String message) in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\Program.cs:line 329\r\n   at ActiveSkillSuitUiChecks.DistinctSuitsRequireLegalDraft() in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\ActiveSkillSuitUiChecks.cs:line 67\r\n   at SkillProgramUiChecks.ActiveSelectionAndSubmission() in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\SkillProgramUiChecks.cs:line 58\r\n   at Program.Check(String name, Action action) in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\Program.cs:line 187\r\n0 WPF checks passed, 2 failed. Renders: C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders",
+    "passed": 0,
+    "failed": 2,
+    "note": "OL Yeyan repeated-suit confirmation was reproduced. Longhun stopped at a mistaken fixture expectation of direct Hand-to-Equipment movement; this first failure is not Longhun product evidence. The fixture was corrected to assert native Hand -> Processing (equipment.use) -> Equipment (equipment.enter) before a fresh product baseline."
+  },
+  "baseline": {
+    "command": ".\\tools\\Test-Changed.ps1 -WpfFilter @('composed skills','reference table layout preserves') -Verbose",
+    "run": {
+      "status": "test-failed",
+      "mode": "targeted",
+      "startedAt": "2026-10-11T16:07:24.5825800+08:00",
+      "durationMs": 8191,
+      "coreFilterCount": 0,
+      "wpfFilterCount": 2,
+      "results": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 2461,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\build.log"
+        },
+        {
+          "name": "WPF selected checks (2 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 5457,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\wpf-selected.log"
+        }
+      ],
+      "message": "One or more selected checks failed."
+    },
+    "log": "Longhun fixture equipment Crossbow/45: Hand[0] -> Processing (equipment.use); Processing -> Equipment[0] (equipment.enter)\r\nLonghun fixture equipment BaguaFormation/32: Hand[0] -> Processing (equipment.use); Processing -> Equipment[0] (equipment.enter)\r\n[TIME] reference table layout preserves equipment and skill controls: 4431.655 ms\r\n[FAIL] reference table layout preserves equipment and skill controls: System.InvalidOperationException: Two real same-Diamond equipment materials must enable native Longhun confirmation outside the Hand collection.\r\n   at Program.Assert(Boolean condition, String message) in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\Program.cs:line 329\r\n   at TableSurfaceChecks.EquipmentOnlyLonghun(String output) in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\TableSurfaceChecks.cs:line 297\r\n   at TableSurfaceChecks.EquipmentAndSkillControls(String output) in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\TableSurfaceChecks.cs:line 201\r\n   at Program.<>c__DisplayClass12_0.<Main>b__15() in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\Program.cs:line 89\r\n   at Program.Check(String name, Action action) in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\Program.cs:line 187\r\nOL Yeyan draft: ids=27,32,45,73, suits=Club,Diamond,Spade,Spade, publishedDistinct=True, canConfirm=True, buttonEnabled=True.\r\n[FAIL] composed skills share the generic WPF draft and submit their stable program identity: System.InvalidOperationException: An exact-count but repeated-suit native Yeyan draft must keep the real confirmation button disabled.\r\n[TIME] composed skills share the generic WPF draft and submit their stable program identity: 462.087 ms\r\n   at Program.Assert(Boolean condition, String message) in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\Program.cs:line 329\r\n   at ActiveSkillSuitUiChecks.DistinctSuitsRequireLegalDraft() in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\ActiveSkillSuitUiChecks.cs:line 74\r\n   at SkillProgramUiChecks.ActiveSelectionAndSubmission() in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\SkillProgramUiChecks.cs:line 58\r\n   at Program.Check(String name, Action action) in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\Program.cs:line 187\r\n0 WPF checks passed, 2 failed. Renders: C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders",
+    "passed": 0,
+    "failed": 2,
+    "note": "Tests-only baseline before the production change: both native equip commands and their exact two-leg movements succeeded, but equipment-only same-suit Longhun could not confirm. Exact four-card Yeyan with Club, Diamond, Spade, Spade incorrectly enabled confirmation; an independent native command had already rejected that set as InvalidCard without state or journal changes."
+  },
+  "focused": {
+    "command": ".\\tools\\Test-Changed.ps1 -WpfFilter @('composed skills','reference table layout preserves','conversion choices','public pile costs','Program conversion polarity','Last zone conversion presentation:') -Verbose",
+    "run": {
+      "status": "passed",
+      "mode": "targeted",
+      "startedAt": "2026-10-11T16:08:29.7759379+08:00",
+      "durationMs": 17248,
+      "coreFilterCount": 0,
+      "wpfFilterCount": 6,
+      "results": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 7735,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\build.log"
+        },
+        {
+          "name": "WPF selected checks (6 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 9240,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\wpf-selected.log"
+        }
+      ],
+      "message": null
+    },
+    "log": "Judgment advice: material=37, printed=Lightning, actions=9.\r\n[PASS] Last zone conversion presentation: restored judgment material uses central controls\r\n[TIME] Last zone conversion presentation: restored judgment material uses central controls: 3115.869 ms\r\nLonghun fixture equipment Crossbow/45: Hand[0] -> Processing (equipment.use); Processing -> Equipment[0] (equipment.enter)\r\nLonghun fixture equipment BaguaFormation/32: Hand[0] -> Processing (equipment.use); Processing -> Equipment[0] (equipment.enter)\r\n[PASS] reference table layout preserves equipment and skill controls\r\n[TIME] reference table layout preserves equipment and skill controls: 2647.513 ms\r\n[PASS] conversion choices retain exact provenance without leaking trusted action details\r\n[TIME] conversion choices retain exact provenance without leaking trusted action details: 34.245 ms\r\nOL Yeyan draft: ids=27,32,45,73, suits=Club,Diamond,Spade,Spade, publishedDistinct=True, canConfirm=False, buttonEnabled=False.\r\n[PASS] composed skills share the generic WPF draft and submit their stable program identity\r\n[TIME] composed skills share the generic WPF draft and submit their stable program identity: 403.339 ms\r\n[PASS] Program conversion polarity stays visible with active entry and restore\r\n[TIME] Program conversion polarity stays visible with active entry and restore: 1352.039 ms\r\n[PASS] public pile costs use the named foreign pile and shared confirmation draft\r\n[TIME] public pile costs use the named foreign pile and shared confirmation draft: 968.664 ms\r\n6 WPF checks passed, 0 failed. Renders: C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders",
+    "passed": 6,
+    "failed": 0,
+    "note": "Both regression groups and retained conversion/provenance, foreign public-pile, polarity and judgment-material UI boundaries passed."
+  },
+  "finalFocused": {
+    "command": ".\\tools\\Test-Changed.ps1 -WpfFilter @('composed skills','reference table layout preserves') -Verbose",
+    "run": {
+      "status": "passed",
+      "mode": "targeted",
+      "startedAt": "2026-10-11T16:11:30.1539717+08:00",
+      "durationMs": 7277,
+      "coreFilterCount": 0,
+      "wpfFilterCount": 2,
+      "results": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 1882,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\build.log"
+        },
+        {
+          "name": "WPF selected checks (2 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 5109,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\wpf-selected.log"
+        }
+      ],
+      "message": null
+    },
+    "log": "Longhun fixture equipment Crossbow/45: Hand[0] -> Processing (equipment.use); Processing -> Equipment[0] (equipment.enter)\r\nLonghun fixture equipment BaguaFormation/32: Hand[0] -> Processing (equipment.use); Processing -> Equipment[0] (equipment.enter)\r\n[PASS] reference table layout preserves equipment and skill controls\r\n[TIME] reference table layout preserves equipment and skill controls: 4153.967 ms\r\nOL Yeyan draft: ids=27,32,45,73, suits=Club,Diamond,Spade,Spade, publishedDistinct=True, canConfirm=False, buttonEnabled=False.\r\n[PASS] composed skills share the generic WPF draft and submit their stable program identity\r\n[TIME] composed skills share the generic WPF draft and submit their stable program identity: 408.691 ms\r\n2 WPF checks passed, 0 failed. Renders: C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders",
+    "passed": 2,
+    "failed": 0,
+    "note": "Final test source additionally asserts exact physical materials and target survive invalid-suit Enter; both retained groups passed again."
+  },
+  "assertions": [
+    "Fixed seed 31, native StartGame / SelectGeneral / bounded AdvanceOneStep and the current manual-save boundary establish the human Play fixtures. Fixtures grant the actual native skill to a fixture general; this is not full official-general stat acceptance.",
+    "Longhun Crossbow/45 and BaguaFormation/32 are separately equipped through accepted physical PlayCard commands with exact Hand -> Processing -> Equipment paths before testing the product.",
+    "Both actual Longhun routes select exactly the two equipped IDs and a published target, with no selected Hand cards or premature revision, command, movement, event or four-view changes.",
+    "Button and Enter each submit one exact UseProgramSkillCommand for ol:longhun / two-diamond, original revision and prompt, and the two equipment IDs. The resulting native FireSlash has ol:longhun / 2-diamond provenance.",
+    "Each Longhun equipment cost moves once through Equipment -> Processing (use) -> Discard (use-finished). Cold checkpoint restore matches all four player-safe views.",
+    "Native Yeyan / two publishes min/max four and SelectedCardsDistinctSuits. IDs 27,32,45,73 have Club,Diamond,Spade,Spade, remain individually published selectable, and are invalid only as a combined suit set.",
+    "An independent restored native game rejects that invalid exact command as InvalidCard with unchanged revision, command/movement/event counts and all four player-safe views. Invalid UI Enter does not submit or pay and preserves the exact draft for correction.",
+    "A valid four-suit set enables the actual same confirmation button; its one exact native submission pays each Hand cost once, matches an independently restored accepted native reference including HP changes, and survives cold checkpoint restore.",
+    "Context-guide opening and cancellation preserve the game boundary; the hint and guide both explain the distinct-suit restriction."
+  ],
+  "visualInspection": {
+    "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders\\longhun-equipment-button-ready.png",
+    "size": "1120x740",
+    "findings": [
+      "Both actual equipped-cost buttons show selection and no Hand cost is highlighted.",
+      "The same-suit requirement fits in the visible action area, the published target is selected, and the actual confirmation button is enabled."
+    ],
+    "delivery": "Temporary render retained in registered verification outputs; the durable report preserves the findings."
+  },
+  "limits": [
+    "In-process WPF binding, real controls and shortcut entry points are verified; no foreground native mouse/key automation or human play acceptance is claimed.",
+    "Flagged native activations currently use Hand or Hand plus Equipment. Public collections are statically included by the helper, with retained public-pile UI checks still green; no flagged public-pile suit fixture was introduced.",
+    "Core rule implementation, persisted formats, rules/schema/package versions and trusted private-state boundaries are unchanged by this batch. This report does not claim a new Core rule.",
+    "Only focused and measured routine scopes ran. Manual Full, release/publish/packaging, commit and push were not invoked.",
+    "The sorted-hand Space fixture still depends on real input devices. It now explicitly fails after two seconds if its prerequisites do not hold; a physical input race after the prerequisite remains possible. The first failed run had no WPF/KeyState/Async-state diagnostics, so the exact device cause of that original failure is inferred, not directly observed."
+  ],
+  "sourceHashes": [
+    {
+      "path": "src/CardGame.Wpf/ViewModels/MainViewModel.Presentation.cs",
+      "sha256": "EC8480A718093316D953915CBFB2BC105AAB0E8C5051D39F9592538F54223BF5"
+    },
+    {
+      "path": "tests/CardGame.Wpf.Tests/ActiveSkillSuitUiChecks.cs",
+      "sha256": "3445F613FE1E9329F9F30DE5B77603ADAD51E5EBF2CE99D14ECD4D1668780951"
+    },
+    {
+      "path": "tests/CardGame.Wpf.Tests/SkillProgramUiChecks.cs",
+      "sha256": "514DC490E7B208D44FE162C1E4A8BE1281F45AB696C242AA4E08C2C76F206D68"
+    },
+    {
+      "path": "tests/CardGame.Wpf.Tests/TableSurfaceChecks.cs",
+      "sha256": "D15245FE78AC1DA4B6E13E14CD795520C269AE6E24AC16F8121B19EA2D10ABC4"
+    },
+    {
+      "path": "tests/CardGame.Wpf.Tests/HandPointerChecks.cs",
+      "sha256": "AF3E52E9422B06BFCC8FF9FA7CF9A79D0665862D2A94EDD4AD55246BBFF3F5D2"
+    },
+    {
+      "path": "tools/VerificationScopes.psd1",
+      "sha256": "1E36BA0B9715D43C1D18D5112AE2ECAFF6ECD16D725D3BD5788571B612F7F57F"
+    },
+    {
+      "path": "docs/LOCAL_PLAY.md",
+      "sha256": "2F6C1A21DBB8A4A69F1BDE6E15520772BABE1956D53F867A1BD03AA474130BB9"
+    },
+    {
+      "path": "src/CardGame.Core/Replay.cs",
+      "sha256": "8553B2BA685D28AF35F5C91F4FEF99FA5D227FFD807214D5AB4281D20A4041D0"
+    },
+    {
+      "path": "src/CardGame.Core/SkillPrograms.cs",
+      "sha256": "A883F4A969EDAB4E67B03838651BE19AB9DB5680512D34786C3889D620D690F3"
+    }
+  ],
+  "sourceHashesMeasuredBeforeRoutine": true,
+  "goal": {
+    "status": "active",
+    "objective": "持续迭代",
+    "iterationPriority": "完善牌桌交互与稳定性"
+  },
+  "firstRoutine": {
+    "command": ".\\tools\\Test-Changed.ps1",
+    "run": {
+      "status": "test-failed",
+      "mode": "routine",
+      "startedAt": "2026-10-11T16:14:30.990183+08:00",
+      "durationMs": 120892,
+      "coreFilterCount": 294,
+      "wpfFilterCount": 36,
+      "results": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 1526,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\build.log"
+        },
+        {
+          "name": "Core selected checks (294 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 83863,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\core-selected.log"
+        },
+        {
+          "name": "WPF selected checks (36 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 35173,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\wpf-selected.log"
+        }
+      ],
+      "message": "One or more selected checks failed."
+    },
+    "corePassed": 475,
+    "coreFailed": 0,
+    "wpfPassed": 41,
+    "wpfFailed": 1,
+    "buildWarnings": 0,
+    "buildErrors": 0,
+    "evidence": [
+      "Overlap pointer: intended=9003, visual hit=9003",
+      "Hand viewport: face bottom=178.0, visible height=179.7",
+      "Hand edge selection: offset 0.0 -> 0.0; intended=9015, next press=9015",
+      "Hand sort pointer: card=9008, index 8->20, same button=True, pointer=True.",
+      "Hand sort focused: pointer=True, capture=False, hand mouse-over=False, offset=0.0.",
+      "Hand sort PreviewMouseMove: position=22856,22246.333333333332, pointer=False, capture=True.",
+      "Hand sort space-down: pointer=False, capture=True, hand mouse-over=True, offset=0.0.",
+      "Hand sort space-up: pointer=False, capture=True, hand mouse-over=True, offset=0.0.",
+      "Hand sort pumped: pointer=False, capture=True, hand mouse-over=True, offset=0.0.",
+      "[FAIL] overlapping hand cards keep stable pointer targets: System.InvalidOperationException: Space must activate the actual sorted hand button exactly once.",
+      "Longhun fixture equipment Crossbow/45: Hand[0] -> Processing (equipment.use); Processing -> Equipment[0] (equipment.enter)",
+      "Longhun fixture equipment BaguaFormation/32: Hand[0] -> Processing (equipment.use); Processing -> Equipment[0] (equipment.enter)",
+      "[PASS] reference table layout preserves equipment and skill controls",
+      "OL Yeyan draft: ids=27,32,45,73, suits=Club,Diamond,Spade,Spade, publishedDistinct=True, canConfirm=False, buttonEnabled=False.",
+      "[PASS] composed skills share the generic WPF draft and submit their stable program identity"
+    ],
+    "note": "Both suit regression groups passed in the routine. The retained sorted-hand Space fixture failed once with button capture still active after synthetic key-up. An unchanged standalone rerun passed. This failed routine is retained; it is not rewritten as a green run."
+  },
+  "pointerIsolatedBeforeFixtureChange": {
+    "command": ".\\tools\\Test-Changed.ps1 -WpfFilter @('overlapping hand') -Verbose",
+    "run": {
+      "status": "passed",
+      "startedAt": "2026-10-11T16:17:43.1661828+08:00",
+      "durationMs": 4029,
+      "results": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 1273,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\build.log"
+        },
+        {
+          "name": "WPF selected checks (1 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 2496,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\wpf-selected.log"
+        }
+      ]
+    },
+    "passed": 1,
+    "failed": 0,
+    "log": "Overlap pointer: intended=9003, visual hit=9003\r\nHand viewport: face bottom=178.0, visible height=179.7\r\nHand edge selection: offset 0.0 -> 0.0; intended=9015, next press=9015\r\nHand sort pointer: card=9008, index 8->20, same button=True, pointer=True.\r\nHand sort focused: pointer=True, capture=False, hand mouse-over=False, offset=0.0.\r\nHand sort PreviewMouseMove: position=25406.666666666664,22394.333333333332, pointer=False, capture=True.\r\nHand sort space-down: pointer=False, capture=True, hand mouse-over=True, offset=0.0.\r\nHand sort MouseLeave: position=25406.666666666664,22394.333333333332, pointer=False, capture=False.\r\nHand sort space-up: pointer=False, capture=False, hand mouse-over=False, offset=0.0.\r\nHand sort pumped: pointer=False, capture=False, hand mouse-over=False, offset=282.7.\r\nHand sort keyboard: offset=282.7, bounds=437.3..549.3, viewport=549.3.\r\n[PASS] overlapping hand cards keep stable pointer targets\r\n[TIME] overlapping hand cards keep stable pointer targets: 1871.767 ms\r\n1 WPF checks passed, 0 failed. Renders: C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders",
+    "note": "This isolated rerun ran before any fixture correction and does not invalidate the preceding failed routine."
+  },
+  "inputFrameworkReferences": [
+    {
+      "source": "https://github.com/dotnet/wpf/blob/main/src/Microsoft.DotNet.Wpf/src/PresentationFramework/System/Windows/Controls/Primitives/ButtonBase.cs#L598-L679",
+      "use": "Current upstream ButtonBase source used to explain why Space key-up does not release capture or click while its primary mouse reports LeftButton Pressed. No verbatim source is copied."
+    }
+  ],
+  "sourceHashesBeforeInitialRoutine": [
+    {
+      "path": "src/CardGame.Wpf/ViewModels/MainViewModel.Presentation.cs",
+      "sha256": "EC8480A718093316D953915CBFB2BC105AAB0E8C5051D39F9592538F54223BF5"
+    },
+    {
+      "path": "tests/CardGame.Wpf.Tests/ActiveSkillSuitUiChecks.cs",
+      "sha256": "3445F613FE1E9329F9F30DE5B77603ADAD51E5EBF2CE99D14ECD4D1668780951"
+    },
+    {
+      "path": "tests/CardGame.Wpf.Tests/SkillProgramUiChecks.cs",
+      "sha256": "514DC490E7B208D44FE162C1E4A8BE1281F45AB696C242AA4E08C2C76F206D68"
+    },
+    {
+      "path": "tests/CardGame.Wpf.Tests/TableSurfaceChecks.cs",
+      "sha256": "D15245FE78AC1DA4B6E13E14CD795520C269AE6E24AC16F8121B19EA2D10ABC4"
+    },
+    {
+      "path": "tools/VerificationScopes.psd1",
+      "sha256": "1E36BA0B9715D43C1D18D5112AE2ECAFF6ECD16D725D3BD5788571B612F7F57F"
+    },
+    {
+      "path": "docs/LOCAL_PLAY.md",
+      "sha256": "2F6C1A21DBB8A4A69F1BDE6E15520772BABE1956D53F867A1BD03AA474130BB9"
+    },
+    {
+      "path": "src/CardGame.Core/Replay.cs",
+      "sha256": "8553B2BA685D28AF35F5C91F4FEF99FA5D227FFD807214D5AB4281D20A4041D0"
+    },
+    {
+      "path": "src/CardGame.Core/SkillPrograms.cs",
+      "sha256": "A883F4A969EDAB4E67B03838651BE19AB9DB5680512D34786C3889D620D690F3"
+    }
+  ],
+  "orderedFocused": {
+    "command": ".\\tools\\Test-Changed.ps1 -WpfFilter @('table shortcuts','discard recommendation','table modal focus','stale prompt choices','gallery details restore','overlapping hand','composed skills','reference table layout preserves') -Verbose",
+    "run": {
+      "status": "passed",
+      "mode": "targeted",
+      "startedAt": "2026-10-11T16:21:36.6910147+08:00",
+      "durationMs": 16715,
+      "coreFilterCount": 0,
+      "wpfFilterCount": 8,
+      "results": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 3069,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\build.log"
+        },
+        {
+          "name": "WPF selected checks (8 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 13382,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\wpf-selected.log"
+        }
+      ],
+      "message": null
+    },
+    "passed": 9,
+    "failed": 0,
+    "log": "[PASS] table shortcuts execute once per key press and preserve modal drafts\r\n[TIME] table shortcuts execute once per key press and preserve modal drafts: 1641.374 ms\r\nDiscard recommendation: HP=4, required=4, eligible=32,24,56,36, exempt=45,27,73,3,63,39, selected=32,24,56,36, legal=True, nativeHint=True, nativeGuide=True; hint=手牌上限为 0，请选择 4 张手牌弃置。 已选 4 张。再次点击可取消。; guide=手牌上限为 0，请选择 4 张手牌弃置。 已选 4 张。再次点击可取消。.\r\n[PASS] discard recommendation preserves published material and actual hand limit\r\n[TIME] discard recommendation preserves published material and actual hand limit: 785.972 ms\r\nResumed startup: identity=False, opening=True, faces=4, hand=4, current=True, prompt=ProgramTrigger, revision=13.\r\nOpening timer behind settings: enabled=False, ticks=0, opening=True.\r\nOpening timer behind history: enabled=False, ticks=0, opening=True.\r\nOpening timer behind gallery: enabled=False, ticks=0, opening=True.\r\nOpening timer behind guide: enabled=False, ticks=0, opening=True.\r\nOpening timer behind lobby: enabled=False, ticks=0, opening=True.\r\nOpening timer behind log: enabled=False, ticks=0, opening=True.\r\nOpening timer uncovered: ticks=1, faces=0.\r\n[PASS] table shortcuts respect navigation panels above startup overlays\r\n[TIME] table shortcuts respect navigation panels above startup overlays: 1986.437 ms\r\nModal Window shown: loaded=True, WPF visible=True, native visible=True, owns foreground=False, source matches=True, loaded events=1, unloaded events=0.\r\nModal Window hidden: loaded=True, WPF visible=True, native visible=False, owns foreground=False, source matches=True, loaded events=1, unloaded events=0.\r\nModal Window pumped: loaded=True, WPF visible=True, native visible=False, owns foreground=False, source matches=True, loaded events=1, unloaded events=0.\r\nOpening motion disabled before deal: motion=False, opening=False.\r\nAdvice after startup: available=True, visible=True, enabled=True.\r\n[PASS] table modal focus follows startup and current visible panels\r\n[TIME] table modal focus follows startup and current visible panels: 3241.466 ms\r\nPlay-choice fixture: seed 52, 57 setup commands, native Borrowed Sword.\r\nPublic-target fixture: seed 31, 10 setup commands, physical weapon 33, same-prompt target 1 to 2.\r\nPublic-target settlement: status=AwaitingHumanPlay, prompt=PlayCard, moves=8:Hand[0]->Processing:card.use; 33:Equipment[1]->Processing:card.effect.dismantlement; 33:Processing->DiscardPile:card.effect.dismantlement-finished; 8:Processing->DiscardPile:card.use-finished.\r\n  Original VerifyBoundary branches RespondDodge: invalid 2, ambiguous 0.\r\n  Stable fixture RespondDodge: seed 31, 12 accepted setup commands, actual turn seat 1.\r\n  Original VerifyBoundary branches RespondSlash: invalid 0, ambiguous 0.\r\n  Stable fixture RespondSlash: seed 31, 14 accepted setup commands, actual turn seat 1.\r\n  Original VerifyBoundary branches RescueDying: invalid 2, ambiguous 0.\r\n  Stable fixture RescueDying: seed 31, 9 accepted setup commands, actual turn seat 0.\r\n  Original VerifyBoundary branches Nullification: invalid 1, ambiguous 0.\r\n  Stable fixture Nullification: seed 31, 14 accepted setup commands, actual turn seat 0.\r\n  Original VerifyBoundary branches FireAttackReveal: invalid 0, ambiguous 0.\r\n  Stable fixture FireAttackReveal: seed 31, 15 accepted setup commands, actual turn seat 1.\r\n  Original VerifyBoundary branches FireAttackDiscard: invalid 0, ambiguous 0.\r\n  Stable fixture FireAttackDiscard: seed 31, 10 accepted setup commands, actual turn seat 0.\r\n[PASS] stale prompt choices cannot answer reloaded or consecutive decisions\r\n[TIME] stale prompt choices cannot answer reloaded or consecutive decisions: 1959.344 ms\r\n[PASS] gallery details restore enabled browse focus and retire stale callbacks\r\n[TIME] gallery details restore enabled browse focus and retire stale callbacks: 162.266 ms\r\nOverlap pointer: intended=9003, visual hit=9003\r\nHand viewport: face bottom=178.0, visible height=179.7\r\nHand edge selection: offset 0.0 -> 0.0; intended=9015, next press=9015\r\nHand sort pointer: card=9008, index 8->20, same button=True, pointer=True.\r\nHand sort focused: pointer=True, capture=False, hand mouse-over=False, offset=0.0, pressed=False, left=Released, key-state-left=Released(0001), async-left=Released(0000), modifiers=None, owns focus=True, handled=n/a.\r\nHand sort space-down-idle-before: pointer=True, capture=False, hand mouse-over=False, offset=0.0, pressed=False, left=Released, key-state-left=Released(0001), async-left=Released(0000), modifiers=None, owns focus=True, handled=n/a.\r\nHand sort space-down-idle-after (0 ms): pointer=True, capture=False, hand mouse-over=False, offset=0.0, pressed=False, left=Released, key-state-left=Released(0001), async-left=Released(0000), modifiers=None, owns focus=True, handled=n/a.\r\nHand sort PreviewKeyDown-before: pointer=True, capture=False, hand mouse-over=False, offset=0.0, pressed=False, left=Released, key-state-left=Released(0001), async-left=Released(0000), modifiers=None, owns focus=True, handled=False.\r\nHand sort PreviewKeyDown-after: pointer=True, capture=False, hand mouse-over=False, offset=0.0, pressed=False, left=Released, key-state-left=Released(0001), async-left=Released(0000), modifiers=None, owns focus=True, handled=False.\r\nHand sort PreviewMouseMove: position=25512,22390.333333333332, pointer=False, capture=True.\r\nHand sort KeyDown-after: pointer=False, capture=True, hand mouse-over=True, offset=0.0, pressed=True, left=Released, key-state-left=Released(0001), async-left=Released(0000), modifiers=None, owns focus=True, handled=True.\r\nHand sort space-down: pointer=False, capture=True, hand mouse-over=True, offset=0.0, pressed=True, left=Released, key-state-left=Released(0001), async-left=Released(0000), modifiers=None, owns focus=True, handled=n/a.\r\nHand sort space-up-idle-before: pointer=False, capture=True, hand mouse-over=True, offset=0.0, pressed=True, left=Released, key-state-left=Released(0001), async-left=Released(0000), modifiers=None, owns focus=True, handled=n/a.\r\nHand sort space-up-idle-after (0 ms): pointer=False, capture=True, hand mouse-over=True, offset=0.0, pressed=True, left=Released, key-state-left=Released(0001), async-left=Released(0000), modifiers=None, owns focus=True, handled=n/a.\r\nHand sort PreviewKeyUp-before: pointer=False, capture=True, hand mouse-over=True, offset=0.0, pressed=True, left=Released, key-state-left=Released(0001), async-left=Released(0000), modifiers=None, owns focus=True, handled=False.\r\nHand sort PreviewKeyUp-after: pointer=False, capture=True, hand mouse-over=True, offset=0.0, pressed=True, left=Released, key-state-left=Released(0001), async-left=Released(0000), modifiers=None, owns focus=True, handled=False.\r\nHand sort MouseLeave: position=25512,22390.333333333332, pointer=False, capture=False.\r\nHand sort KeyUp-after: pointer=False, capture=False, hand mouse-over=False, offset=0.0, pressed=False, left=Released, key-state-left=Released(0001), async-left=Released(0000), modifiers=None, owns focus=True, handled=True.\r\nHand sort space-up: pointer=False, capture=False, hand mouse-over=False, offset=0.0, pressed=False, left=Released, key-state-left=Released(0001), async-left=Released(0000), modifiers=None, owns focus=True, handled=n/a.\r\nHand sort pumped: pointer=False, capture=False, hand mouse-over=False, offset=282.7, pressed=False, left=Released, key-state-left=Released(0001), async-left=Released(0000), modifiers=None, owns focus=True, handled=n/a.\r\nHand sort keyboard: offset=282.7, bounds=437.3..549.3, viewport=549.3.\r\n[PASS] overlapping hand cards keep stable pointer targets\r\n[TIME] overlapping hand cards keep stable pointer targets: 839.610 ms\r\nLonghun fixture equipment Crossbow/45: Hand[0] -> Processing (equipment.use); Processing -> Equipment[0] (equipment.enter)\r\nLonghun fixture equipment BaguaFormation/32: Hand[0] -> Processing (equipment.use); Processing -> Equipment[0] (equipment.enter)\r\n[PASS] reference table layout preserves equipment and skill controls\r\n[TIME] reference table layout preserves equipment and skill controls: 1835.893 ms\r\nOL Yeyan draft: ids=27,32,45,73, suits=Club,Diamond,Spade,Spade, publishedDistinct=True, canConfirm=False, buttonEnabled=False.\r\n[PASS] composed skills share the generic WPF draft and submit their stable program identity\r\n[TIME] composed skills share the generic WPF draft and submit their stable program identity: 306.139 ms\r\n9 WPF checks passed, 0 failed. Renders: C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders",
+    "note": "All routine checks registered before the hand-pointer check, the hand-pointer check itself, and both suit groups passed in their existing runner order. Both input prerequisite waits were 0 ms in this run."
+  },
+  "routine": {
+    "command": ".\\tools\\Test-Changed.ps1",
+    "run": {
+      "status": "passed",
+      "mode": "routine",
+      "startedAt": "2026-10-11T16:22:34.7629585+08:00",
+      "durationMs": 125097,
+      "coreFilterCount": 294,
+      "wpfFilterCount": 36,
+      "results": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 1404,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\build.log"
+        },
+        {
+          "name": "Core selected checks (294 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 84515,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\core-selected.log"
+        },
+        {
+          "name": "WPF selected checks (36 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 38838,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\wpf-selected.log"
+        }
+      ],
+      "message": null
+    },
+    "corePassed": 475,
+    "coreFailed": 0,
+    "coreSkipped": 0,
+    "wpfPassed": 42,
+    "wpfFailed": 0,
+    "buildWarnings": 0,
+    "buildErrors": 0,
+    "evidence": [
+      "Hand sort pointer: card=9008, index 8->20, same button=True, pointer=True.",
+      "Hand sort focused: pointer=True, capture=False, hand mouse-over=False, offset=0.0, pressed=False, left=Released, key-state-left=Released(0000), async-left=Released(0000), modifiers=None, owns focus=True, handled=n/a.",
+      "Hand sort space-down-idle-before: pointer=True, capture=False, hand mouse-over=False, offset=0.0, pressed=False, left=Released, key-state-left=Released(0000), async-left=Released(0000), modifiers=None, owns focus=True, handled=n/a.",
+      "Hand sort space-down-idle-after (0 ms): pointer=True, capture=False, hand mouse-over=False, offset=0.0, pressed=False, left=Released, key-state-left=Released(0000), async-left=Released(0000), modifiers=None, owns focus=True, handled=n/a.",
+      "Hand sort PreviewKeyDown-before: pointer=True, capture=False, hand mouse-over=False, offset=0.0, pressed=False, left=Released, key-state-left=Released(0000), async-left=Released(0000), modifiers=None, owns focus=True, handled=False.",
+      "Hand sort PreviewKeyDown-after: pointer=True, capture=False, hand mouse-over=False, offset=0.0, pressed=False, left=Released, key-state-left=Released(0000), async-left=Released(0000), modifiers=None, owns focus=True, handled=False.",
+      "Hand sort PreviewMouseMove: position=25593.333333333332,22223.666666666664, pointer=False, capture=True.",
+      "Hand sort KeyDown-after: pointer=False, capture=True, hand mouse-over=True, offset=0.0, pressed=True, left=Released, key-state-left=Released(0000), async-left=Released(0000), modifiers=None, owns focus=True, handled=True.",
+      "Hand sort space-down: pointer=False, capture=True, hand mouse-over=True, offset=0.0, pressed=True, left=Released, key-state-left=Released(0000), async-left=Released(0000), modifiers=None, owns focus=True, handled=n/a.",
+      "Hand sort space-up-idle-before: pointer=False, capture=True, hand mouse-over=True, offset=0.0, pressed=True, left=Released, key-state-left=Released(0000), async-left=Released(0000), modifiers=None, owns focus=True, handled=n/a.",
+      "Hand sort space-up-idle-after (0 ms): pointer=False, capture=True, hand mouse-over=True, offset=0.0, pressed=True, left=Released, key-state-left=Released(0000), async-left=Released(0000), modifiers=None, owns focus=True, handled=n/a.",
+      "Hand sort PreviewKeyUp-before: pointer=False, capture=True, hand mouse-over=True, offset=0.0, pressed=True, left=Released, key-state-left=Released(0000), async-left=Released(0000), modifiers=None, owns focus=True, handled=False.",
+      "Hand sort PreviewKeyUp-after: pointer=False, capture=True, hand mouse-over=True, offset=0.0, pressed=True, left=Released, key-state-left=Released(0000), async-left=Released(0000), modifiers=None, owns focus=True, handled=False.",
+      "Hand sort MouseLeave: position=25593.333333333332,22223.666666666664, pointer=False, capture=False.",
+      "Hand sort KeyUp-after: pointer=False, capture=False, hand mouse-over=False, offset=0.0, pressed=False, left=Released, key-state-left=Released(0000), async-left=Released(0000), modifiers=None, owns focus=True, handled=True.",
+      "Hand sort space-up: pointer=False, capture=False, hand mouse-over=False, offset=0.0, pressed=False, left=Released, key-state-left=Released(0000), async-left=Released(0000), modifiers=None, owns focus=True, handled=n/a.",
+      "Hand sort pumped: pointer=False, capture=False, hand mouse-over=False, offset=282.7, pressed=False, left=Released, key-state-left=Released(0000), async-left=Released(0000), modifiers=None, owns focus=True, handled=n/a.",
+      "Hand sort keyboard: offset=282.7, bounds=437.3..549.3, viewport=549.3.",
+      "[PASS] overlapping hand cards keep stable pointer targets",
+      "Longhun fixture equipment Crossbow/45: Hand[0] -> Processing (equipment.use); Processing -> Equipment[0] (equipment.enter)",
+      "Longhun fixture equipment BaguaFormation/32: Hand[0] -> Processing (equipment.use); Processing -> Equipment[0] (equipment.enter)",
+      "[PASS] reference table layout preserves equipment and skill controls",
+      "[PASS] conversion choices retain exact provenance without leaking trusted action details",
+      "OL Yeyan draft: ids=27,32,45,73, suits=Club,Diamond,Spade,Spade, publishedDistinct=True, canConfirm=False, buttonEnabled=False.",
+      "[PASS] composed skills share the generic WPF draft and submit their stable program identity"
+    ],
+    "cleanup": {
+      "status": "queued",
+      "queued": [
+        "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin",
+        "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\obj",
+        "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders"
+      ],
+      "database": "C:\\Users\\17917\\Desktop\\Card\\tools\\cleanup_queue.json",
+      "message": null
+    },
+    "routineTargetMs": 60000,
+    "targetMet": false,
+    "note": "Final measured routine is 125097 ms with 294 Core filters/475 checks and 36 WPF filters/42 checks, all green. The one-minute target is not met. Core coverage is unchanged; one existing representative equipment-layout WPF filter is newly included. No performance improvement or causal slowdown is claimed from these individual runs. Both synthetic-input prerequisite waits were 0 ms."
+  },
+  "cleanup": {
+    "status": "queued for user-run manual cleanup; no space freed",
+    "database": "C:\\Users\\17917\\Desktop\\Card\\tools\\cleanup_queue.json",
+    "artifactsRoot": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f",
+    "owner": {
+      "formatVersion": 1,
+      "repository": "C:\\Users\\17917\\Desktop\\Card",
+      "artifactsPath": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f"
+    },
+    "lockFree": true,
+    "consumers": [],
+    "consumerCount": 0,
+    "registeredPaths": [
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin",
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\obj",
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders"
+    ],
+    "queueCount": 3,
+    "preview": "[preview] C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin | Test-Changed verification output (passed); safe to clean after inspection.\n[preview] C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\obj | Test-Changed verification output (passed); safe to clean after inspection.\n[preview] C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders | Test-Changed verification output (passed); safe to clean after inspection.\nPending: 3; failed: 0",
+    "policy": "Current project AGENTS.md requires agents to register or preview exact owned outputs and forbids deletion of registered outputs. Only python -B tools/cleanup_temp.py --dry-run was invoked. Stable bin, obj and renders are retained for incremental builds and inspection."
+  },
+  "sourceHashesUnchangedAfterRoutine": true,
+  "sourceHashTiming": "Original eight-file hashes captured before the initial routine; final nine-file hashes captured before the final measured routine and checked unchanged afterward.",
+  "diffCheck": {
+    "command": "git diff --check",
+    "exitCode": 0,
+    "note": "Only existing LF/CRLF informational warnings were printed."
+  },
+  "recordedAt": "2026-10-11 08:26:08 UTC",
+  "outputScope": {
+    "durableReport": "docs/benchmarks/2026-10-11-active-skill-suit-cost-verification.json",
+    "newTemporaryRoots": [],
+    "retainedVerificationRoot": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f"
+  }
+}

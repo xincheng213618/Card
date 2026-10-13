@@ -1,0 +1,118 @@
+{
+  "status": "test-fixture-optimization-verified; continuous-goal-active",
+  "previousGoalTurn": "progress: startup fixes and 4-image decoded pixel comparison verified with routine509/74",
+  "change": "Method-local reference-identity cache for the independent expected ResponseBoundary of three fixed checkpoints.",
+  "source": "tests/CardGame.Wpf.Tests/HandResponseChecks.cs",
+  "beforeSource": "2026-10-13-hand-response-cache-before-source.json",
+  "afterSource": "2026-10-13-hand-response-cache-after-source.json",
+  "focused": {
+    "beforePassed": 2,
+    "afterPassed": 2,
+    "failed": 0,
+    "actualLoadsPerAfterSample": 17,
+    "independentExpectedRestoresPerAfterSample": 3,
+    "originalFocusedDiagnosticsPreserved": 23,
+    "responseFamiliesPreserved": 8,
+    "nativeActionsAndColdRestores": "unchanged",
+    "measurement": "2026-10-13-hand-response-cache-measurement.json"
+  },
+  "routine": {
+    "status": "test-failed",
+    "corePassed": 509,
+    "coreFailed": 1,
+    "wpfPassed": 74,
+    "wpfFailed": 0,
+    "durationMs": 185422,
+    "filters": {
+      "core": 310,
+      "wpf": 40
+    },
+    "full": false,
+    "summary": "2026-10-13-hand-response-cache-routine-summary.json",
+    "failedCheck": "Zhuihuan retaliation: cumulative payments survive damage children and replay",
+    "initialFailure": "Compiled fixture failed Single because multiple card/general matches; current fixture was edited after that build."
+  },
+  "scope": "Test fixture optimization only. No production, version, registration or scope-filter change; no Full, commit, push or publish.",
+  "cleanup": {
+    "status": "policy-blocked retention registered; no retry",
+    "audit": "2026-10-13-hand-response-cache-cleanup.json",
+    "freedBytes": 0,
+    "root": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-Startup-01a13324"
+  },
+  "limits": [
+    "Controlled BB-to-AA comparison has two samples per variant; no statistical or whole-routine speedup claim.",
+    "17 local repeated loads and the initial direct load remain; all native command comparisons and branch cold restores remain.",
+    "No physical foreground or multi-DPI acceptance.",
+    "One-minute routine target remains unproven."
+  ],
+  "next": "Continue from measured routine hotspots; this controlled comparison does not claim the whole routine reached the one-minute target.",
+  "zhuihuanRecheck": {
+    "status": "test-failed",
+    "summary": "2026-10-13-hand-response-cache-zhuihuan-current-summary.json",
+    "log": "2026-10-13-hand-response-cache-zhuihuan-current-core.log",
+    "failure": "An active skill program has an invalid cursor or selection (AssertProgramSkillState line1129), now after the fixture uniqueness boundary.",
+    "scope": "Current source, focused only; no Full or assertion deletion."
+  },
+  "controlledComparison": {
+    "status": "passed",
+    "verification": "2026-10-13-hand-response-cache-controlled-verification.json",
+    "measurement": "2026-10-13-hand-response-cache-controlled-measurement.json",
+    "samplesBefore": 2,
+    "samplesAfter": 2,
+    "frozenCompiledDependencies": 9,
+    "beforeMeanMs": 16707.036,
+    "afterMeanMs": 15416.282500000001,
+    "savedMs": 1290.753499999999,
+    "savedPercent": 7.7258078572405,
+    "sourceRestoredExactly": true,
+    "lastBuiltVariant": "after",
+    "independentReview": "Raw logs, source inputs, dependency guards and final source hash verified independently."
+  },
+  "zhuihuanLatestRecheck": {
+    "status": "passed",
+    "passed": 1,
+    "failed": 0,
+    "durationMs": 15762,
+    "summary": "2026-10-13-hand-response-cache-zhuihuan-latest-summary.json",
+    "log": "2026-10-13-hand-response-cache-zhuihuan-latest-core.log"
+  },
+  "latestRoutine": {
+    "status": "passed",
+    "corePassed": 519,
+    "coreFailed": 0,
+    "wpfPassed": 74,
+    "wpfFailed": 0,
+    "durationMs": 173848,
+    "coreFilters": 312,
+    "wpfFilters": 40,
+    "full": false,
+    "summary": "2026-10-13-hand-response-cache-routine-latest-summary.json",
+    "stages": [
+      {
+        "name": "Build selected scope",
+        "durationMs": 4017,
+        "status": "passed"
+      },
+      {
+        "name": "Core selected checks (312 filters, union)",
+        "durationMs": 78727,
+        "status": "passed"
+      },
+      {
+        "name": "WPF selected checks (40 filters, union)",
+        "durationMs": 90832,
+        "status": "passed"
+      }
+    ]
+  },
+  "finalSourceSha256": "B4B0920EFD6A11A404C6FE03DAFA37D202122D0203813FEFBAE3AC77BBCC17F1",
+  "sampleCoverage": {
+    "originalFocusedDiagnostics": 23,
+    "responseFamilies": 8,
+    "initialDirectLoadRetained": true,
+    "repeatedNativeLoadChecks": 17,
+    "independentExpectedBaselines": 3,
+    "allNativeActionComparisonsRetained": true,
+    "allColdRestoresRetained": true
+  }
+}

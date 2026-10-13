@@ -1,0 +1,2283 @@
+{
+  "formatVersion": 1,
+  "kind": "hand-number-selected-card-focus-regression-verification",
+  "repository": "C:\\Users\\17917\\Desktop\\Card",
+  "baseHead": "0f08fb47bb8637ccf082f406d69f6f6c0cbe7b52",
+  "goal": {
+    "objective": "持续迭代",
+    "priority": "完善牌桌交互与稳定性",
+    "status": "active",
+    "manualFullVerificationOnly": true,
+    "previousGoalTurnClassification": "progress"
+  },
+  "problem": {
+    "trigger": "Actual Cancel owns keyboard focus; a valid number key selects the current native Dodge but leaves focus on Cancel; immediate Enter executes native decline instead of the selected Dodge.",
+    "genuineRed": "D3 selected physical card24, expected respond.dodge.card-24, actual respond.take-damage, exact hand focus=False, number Preview handled=True, Enter Preview handled=False/bubble=1, independent native response boundary mismatched.",
+    "remainingBaselineAssertionsNotReached": [
+      "Positive correct number-response/cold-restore assertions.",
+      "Original Play cancel/end/portrait paths and subsequent remaining response fixtures after the new isolated number path."
+    ]
+  },
+  "production": {
+    "changedFiles": [
+      "src/CardGame.Wpf/MainWindow.xaml.cs",
+      "docs/LOCAL_PLAY.md"
+    ],
+    "behavior": "After a valid current hand number selection, a loaded window finds that same card reference's actual HandCards container and moves keyboard focus to its first real card Button.",
+    "preserved": [
+      "Ordinary Enter ownership of explicitly focused actions.",
+      "Startup, modal/navigation, general selection and repeat-key precedence.",
+      "Unplayable and out-of-range number behavior.",
+      "Existing mouse-selected edge-card pointer protection and keyboard reveal/BringIntoView mechanisms.",
+      "Native current prompt/choice identity, replay, privacy, event and card movement boundaries.",
+      "Core rules/content/version sources."
+    ]
+  },
+  "proof": {
+    "fixture": {
+      "entry": "HandResponseChecks.Controls via VerifyFocusedCancelEnter",
+      "registry": "Existing unchanged StableHandResponseFixture response registry",
+      "seed": 31,
+      "playerCount": 4,
+      "humanSeat": 0,
+      "nativeResponse": "RespondDodge private prompt3, 12 accepted setup commands, exact published physical Dodge24 vs take-damage choices",
+      "play": "Reuse the same actual accepted prefix before first human EndPlayPhase; current physical Slash45 and native legal target1.",
+      "stateForgingOrNewSeedSearch": false
+    },
+    "keyboardHost": {
+      "ownedMainWindow": true,
+      "loaded": true,
+      "actualButtonsAndCurrentCommandParameters": true,
+      "messageOnly": true,
+      "noActivate": true,
+      "nativeHidden": true,
+      "notForeground": true,
+      "exactKeyboardFocus": true,
+      "route": "Actual Window PreviewKeyDown tunnel followed only if unhandled by the same actual focused Button KeyDown bubble.",
+      "noManualHandRefocusAfterNumber": true,
+      "noReflectiveHandleKeyInputOrOnClickForNewRoutes": true
+    },
+    "boundaries": {
+      "preview": "Zero accepted commands and unchanged native revision, full CommandJson accepted-command journal, card movements, event payloads serialized by actual type and all four CreateSnapshot(viewerSeat) safe views.",
+      "confirmed": "Exactly one correct AnswerPromptCommand or PlayCardCommand with current actor/card/choice/targets/prompt/revision; full four-player boundary equals independent native Submit and serialized JSON checkpoint cold restore."
+    },
+    "paths": [
+      "Actual Cancel focus → D3 selects Dodge24 → actual resulting card focus → immediate Enter submits exact Dodge once.",
+      "Actual Cancel focus → unplayable numbered card → original focus/draft/native boundary retained.",
+      "Actual Cancel focus → out-of-range D9 → original focus/draft/native boundary retained.",
+      "Fresh repeated number presses toggle selection on/off/on while retaining exact current card focus without commands; actual resulting Enter submits exact Dodge once and cold matches.",
+      "Actual End Turn focus → numbered physical Slash45 → immediate exact card focus/incomplete draft without commands → add current native legal target1 without focus change → actual resulting Enter submits exact Slash once and cold matches."
+    ],
+    "preservedRegressionEvidence": [
+      "Original explicit focused Cancel declines rather than pays selected Dodge.",
+      "Original focused hand and primary confirm submit selected response.",
+      "Original Play cancel clears draft, End ends phase and portrait confirms current Slash.",
+      "Existing six ordinary responses, Jijiu, Arrow Barrage, grain and extra-choice speed focus.",
+      "Existing overlapping hand mouse-edge/pointer-sort and keyboard full-card scrolling.",
+      "Previous general-selection Enter/current version/candidate/numeric/dedicated-confirm paths and modal/national input boundaries."
+    ]
+  },
+  "review": {
+    "subagent": "/root/table_input_review",
+    "permissions": "test-only genuine baseline followed by read-only production and final regression review",
+    "findings": [],
+    "baselineTestSha256": "FB8BCDDF74C02E0B8F1A83C0BB50C26A1053119349863BAA80F5E9D75A06D4F9",
+    "finalTestSha256": "015B219151F57210C9DA5DEB8A3FC8A761800228A1C8642E8462F7518F46C1A7",
+    "actualResultingFocusUsedWithoutManualRefocus": true,
+    "independentFourPlayerNativeBoundariesAndColdReviewed": true,
+    "currentChoiceCardAndSeatReferencesReviewed": true,
+    "priorAssertionsRetained": true,
+    "ownedObserversWindowVmDisposalReviewed": true,
+    "limits": "Real WPF route acceptance in an owned loaded hidden message-only window; no physical/global keyboard input acceptance."
+  },
+  "sourceGuards": {
+    "before": [
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.HandResponses.cs",
+        "bytes": 7610,
+        "sha256": "A8AA5CB5ED3416F5C3BE4CDDBD5D9736F232267C671DF899DA8C3732A9DB6711"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.Presentation.cs",
+        "bytes": 49442,
+        "sha256": "252F2E30710E80E52A60BC56EA9EACC7A020DB46C4EEA3B511CCEC3ED3323D95"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.Playback.cs",
+        "bytes": 2810,
+        "sha256": "3BC9546EBDB3BFFD7BDD5E106E9EBCFE6658AE470905A8EFF95295A1FD38D3D5"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.cs",
+        "bytes": 104202,
+        "sha256": "059ECCFCD7225627603D9277A004BDF8E524BF0FC748E26B16BCAE99884B154B"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\MainWindow.xaml",
+        "bytes": 116708,
+        "sha256": "E0257790A0ECFFD9B5CC0107AC361F568E7F698A4508018E41B84BF3BB854923"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\MainWindow.xaml.cs",
+        "bytes": 25543,
+        "sha256": "325725F3DACB313A2A6EBB2B7103D15866864BB9D20278D66AC064BDABD0F99C"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\StoredGrainResponseUiChecks.cs",
+        "bytes": 36756,
+        "sha256": "63C074BA9E81A2A676CC91EDFDE1E8727869B87D882E141399A6B4CA45E4EF6F"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\HandResponseChecks.cs",
+        "bytes": 32225,
+        "sha256": "06F05DBBAF3B78191ABD52CB4715471F68D57C9914928D8404928B083F4E9538"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\GeneralSelectionChecks.cs",
+        "bytes": 63976,
+        "sha256": "E5290F4863BAB3596C804D4EC2677245CC3B6482ABC2191EEBEE71A0D2BFB356"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\Program.cs",
+        "bytes": 38869,
+        "sha256": "2F73C686D8B6D99A399A677670756EDA25EE458153A4BF4036F7CFAAC1A0D2D3"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tools\\VerificationScopes.psd1",
+        "bytes": 15804,
+        "sha256": "1E36BA0B9715D43C1D18D5112AE2ECAFF6ECD16D725D3BD5788571B612F7F57F"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\Replay.cs",
+        "bytes": 10803,
+        "sha256": "46AC5C161D66E81F7BC2D0FC0F8105170DCF8D083C55B06213A515A80C782229"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\Domain.cs",
+        "bytes": 35525,
+        "sha256": "6FDC331CFDCCEFAB7C7798BE64E59E51E76DC9732C190301127A413AC20B181E"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\SkillPrograms.cs",
+        "bytes": 349606,
+        "sha256": "A883F4A969EDAB4E67B03838651BE19AB9DB5680512D34786C3889D620D690F3"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\docs\\LOCAL_PLAY.md",
+        "bytes": 11121,
+        "sha256": "2513229617F068CD112A2F09BC8845A62065D95113A8EE3C1648310F9C049C52"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\ModalFocusChecks.cs",
+        "bytes": 35152,
+        "sha256": "1A9516855B61BABE98F926DF33DA7305DABA798EE8F7523A803178741856B861"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\PlayerGuidePanel.xaml",
+        "bytes": 24638,
+        "sha256": "9012341ACB3739D3B641F77CD8DDCD56EC2CF475AB0CB06EB199A0DBE139F614"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\PlayerGuidePanel.xaml.cs",
+        "bytes": 236,
+        "sha256": "0D762880E822E691AA6575A18A56A0D8AB5D98549D6E92096A59971C1F05D5B3"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\StalePromptChoiceChecks.cs",
+        "bytes": 39332,
+        "sha256": "BFCC132EE51FFBA26C65FE8405C4B49FB040640C7E78C7D1843EA986873665C5"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\TargetCardChecks.cs",
+        "bytes": 7845,
+        "sha256": "BED25E087AAA887D82483C92FE77D1A2CC1F85C9C015E5A1CA753BDC73E49217"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\PromptCardChoiceConverter.cs",
+        "bytes": 2870,
+        "sha256": "0742AFDBC9B9B97B7AB3B7796B12EB879F63C18B25D5923BF138AA81FA43A28B"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\PlaybackChecks.cs",
+        "bytes": 19716,
+        "sha256": "F393FF77F3FBF56481CB0B4933B9ED9348A4BE1D3E67E9893EA80E842F78A0E8"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.BattleLog.cs",
+        "bytes": 5915,
+        "sha256": "6E3AAD17C36FFF7CEE1B2ABE3749D3D8BD5897EC3964319862E970F13D85432F"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.SkillTargets.cs",
+        "bytes": 6837,
+        "sha256": "B7944016F6DCD85F4ABF971C60297AA74F73D3D56CBF34F0E99E9FB50DF45079"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\ProgramPaidChoiceUiChecks.cs",
+        "bytes": 26607,
+        "sha256": "1F1696DE01C325F131C1D58EFD617F5FA7F84DF97913DA97FFB3348C62154594"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\SkillTargetSelectionChecks.cs",
+        "bytes": 18181,
+        "sha256": "BB53764012CD76882C48EE28F2F749C7DF3FD4D95D38E6CEBF0F8B3B5A2EBA63"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\GameEngine.DistinctFactionDiscards.cs",
+        "bytes": 16860,
+        "sha256": "6E7FEFD1D2ED322A3D2B84E2F2E1A085336EB1069683EF9F537F8DC6C58494AF"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\StableHandResponseFixture.cs",
+        "bytes": 17158,
+        "sha256": "2C8B329A1546590B99B87047DB6AAB891ED1DEEF949B74836637A49630B75D92"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\RelayCommand.cs",
+        "bytes": 1336,
+        "sha256": "A75432F4EAF45B2EE1D246A9304F9B2EF00A1F391FA45A328BFF62757FFB2ED7"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Themes\\TableTheme.xaml",
+        "bytes": 43490,
+        "sha256": "7E021721F968DA85ECFB46EEAAD130EF2F8CB899E282E9973E2AFEEE15DD13A6"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\TableShortcutChecks.cs",
+        "bytes": 33159,
+        "sha256": "C70A69CD912D5ACA66C43CE014BCEC790B1B6E2844EA9FC18B71632356F0B4DC"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.GeneralSelection.cs",
+        "bytes": 5137,
+        "sha256": "4952C863B133B07B88D5467F0A04DB46F5D79B14D8A0B23A4F0F5B73D65381A6"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\GeneralChoiceViewModel.cs",
+        "bytes": 3659,
+        "sha256": "11D869571E88F92DFC6D05334DDDE04AA1D9DE261DA771AA98117FBAF50AACBC"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\HandPanel.cs",
+        "bytes": 5384,
+        "sha256": "D19B04A845276A8037AAAEC7561A1F136A96C11434F4777C715EF330E8A318ED"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\HandScrollViewer.cs",
+        "bytes": 2973,
+        "sha256": "BD93B3360551F22C4A73229FC2A432E1C61C3C3843C76BADE06F2350C79E7259"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\HandPointerChecks.cs",
+        "bytes": 17214,
+        "sha256": "AF3E52E9422B06BFCC8FF9FA7CF9A79D0665862D2A94EDD4AD55246BBFF3F5D2"
+      }
+    ],
+    "baselineSource": [
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.HandResponses.cs",
+        "bytes": 7610,
+        "sha256": "A8AA5CB5ED3416F5C3BE4CDDBD5D9736F232267C671DF899DA8C3732A9DB6711"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.Presentation.cs",
+        "bytes": 49442,
+        "sha256": "252F2E30710E80E52A60BC56EA9EACC7A020DB46C4EEA3B511CCEC3ED3323D95"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.Playback.cs",
+        "bytes": 2810,
+        "sha256": "3BC9546EBDB3BFFD7BDD5E106E9EBCFE6658AE470905A8EFF95295A1FD38D3D5"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.cs",
+        "bytes": 104202,
+        "sha256": "059ECCFCD7225627603D9277A004BDF8E524BF0FC748E26B16BCAE99884B154B"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\MainWindow.xaml",
+        "bytes": 116708,
+        "sha256": "E0257790A0ECFFD9B5CC0107AC361F568E7F698A4508018E41B84BF3BB854923"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\MainWindow.xaml.cs",
+        "bytes": 25543,
+        "sha256": "325725F3DACB313A2A6EBB2B7103D15866864BB9D20278D66AC064BDABD0F99C"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\StoredGrainResponseUiChecks.cs",
+        "bytes": 36756,
+        "sha256": "63C074BA9E81A2A676CC91EDFDE1E8727869B87D882E141399A6B4CA45E4EF6F"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\HandResponseChecks.cs",
+        "bytes": 39626,
+        "sha256": "FB8BCDDF74C02E0B8F1A83C0BB50C26A1053119349863BAA80F5E9D75A06D4F9"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\GeneralSelectionChecks.cs",
+        "bytes": 63976,
+        "sha256": "E5290F4863BAB3596C804D4EC2677245CC3B6482ABC2191EEBEE71A0D2BFB356"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\Program.cs",
+        "bytes": 38869,
+        "sha256": "2F73C686D8B6D99A399A677670756EDA25EE458153A4BF4036F7CFAAC1A0D2D3"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tools\\VerificationScopes.psd1",
+        "bytes": 15804,
+        "sha256": "1E36BA0B9715D43C1D18D5112AE2ECAFF6ECD16D725D3BD5788571B612F7F57F"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\Replay.cs",
+        "bytes": 10803,
+        "sha256": "46AC5C161D66E81F7BC2D0FC0F8105170DCF8D083C55B06213A515A80C782229"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\Domain.cs",
+        "bytes": 35525,
+        "sha256": "6FDC331CFDCCEFAB7C7798BE64E59E51E76DC9732C190301127A413AC20B181E"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\SkillPrograms.cs",
+        "bytes": 349606,
+        "sha256": "A883F4A969EDAB4E67B03838651BE19AB9DB5680512D34786C3889D620D690F3"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\docs\\LOCAL_PLAY.md",
+        "bytes": 11121,
+        "sha256": "2513229617F068CD112A2F09BC8845A62065D95113A8EE3C1648310F9C049C52"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\ModalFocusChecks.cs",
+        "bytes": 35152,
+        "sha256": "1A9516855B61BABE98F926DF33DA7305DABA798EE8F7523A803178741856B861"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\PlayerGuidePanel.xaml",
+        "bytes": 24638,
+        "sha256": "9012341ACB3739D3B641F77CD8DDCD56EC2CF475AB0CB06EB199A0DBE139F614"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\PlayerGuidePanel.xaml.cs",
+        "bytes": 236,
+        "sha256": "0D762880E822E691AA6575A18A56A0D8AB5D98549D6E92096A59971C1F05D5B3"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\StalePromptChoiceChecks.cs",
+        "bytes": 39332,
+        "sha256": "BFCC132EE51FFBA26C65FE8405C4B49FB040640C7E78C7D1843EA986873665C5"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\TargetCardChecks.cs",
+        "bytes": 7845,
+        "sha256": "BED25E087AAA887D82483C92FE77D1A2CC1F85C9C015E5A1CA753BDC73E49217"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\PromptCardChoiceConverter.cs",
+        "bytes": 2870,
+        "sha256": "0742AFDBC9B9B97B7AB3B7796B12EB879F63C18B25D5923BF138AA81FA43A28B"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\PlaybackChecks.cs",
+        "bytes": 19716,
+        "sha256": "F393FF77F3FBF56481CB0B4933B9ED9348A4BE1D3E67E9893EA80E842F78A0E8"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.BattleLog.cs",
+        "bytes": 5915,
+        "sha256": "6E3AAD17C36FFF7CEE1B2ABE3749D3D8BD5897EC3964319862E970F13D85432F"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.SkillTargets.cs",
+        "bytes": 6837,
+        "sha256": "B7944016F6DCD85F4ABF971C60297AA74F73D3D56CBF34F0E99E9FB50DF45079"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\ProgramPaidChoiceUiChecks.cs",
+        "bytes": 26607,
+        "sha256": "1F1696DE01C325F131C1D58EFD617F5FA7F84DF97913DA97FFB3348C62154594"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\SkillTargetSelectionChecks.cs",
+        "bytes": 18181,
+        "sha256": "BB53764012CD76882C48EE28F2F749C7DF3FD4D95D38E6CEBF0F8B3B5A2EBA63"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\GameEngine.DistinctFactionDiscards.cs",
+        "bytes": 16860,
+        "sha256": "6E7FEFD1D2ED322A3D2B84E2F2E1A085336EB1069683EF9F537F8DC6C58494AF"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\StableHandResponseFixture.cs",
+        "bytes": 17158,
+        "sha256": "2C8B329A1546590B99B87047DB6AAB891ED1DEEF949B74836637A49630B75D92"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\RelayCommand.cs",
+        "bytes": 1336,
+        "sha256": "A75432F4EAF45B2EE1D246A9304F9B2EF00A1F391FA45A328BFF62757FFB2ED7"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Themes\\TableTheme.xaml",
+        "bytes": 43490,
+        "sha256": "7E021721F968DA85ECFB46EEAAD130EF2F8CB899E282E9973E2AFEEE15DD13A6"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\TableShortcutChecks.cs",
+        "bytes": 33159,
+        "sha256": "C70A69CD912D5ACA66C43CE014BCEC790B1B6E2844EA9FC18B71632356F0B4DC"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.GeneralSelection.cs",
+        "bytes": 5137,
+        "sha256": "4952C863B133B07B88D5467F0A04DB46F5D79B14D8A0B23A4F0F5B73D65381A6"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\GeneralChoiceViewModel.cs",
+        "bytes": 3659,
+        "sha256": "11D869571E88F92DFC6D05334DDDE04AA1D9DE261DA771AA98117FBAF50AACBC"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\HandPanel.cs",
+        "bytes": 5384,
+        "sha256": "D19B04A845276A8037AAAEC7561A1F136A96C11434F4777C715EF330E8A318ED"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\HandScrollViewer.cs",
+        "bytes": 2973,
+        "sha256": "BD93B3360551F22C4A73229FC2A432E1C61C3C3843C76BADE06F2350C79E7259"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\HandPointerChecks.cs",
+        "bytes": 17214,
+        "sha256": "AF3E52E9422B06BFCC8FF9FA7CF9A79D0665862D2A94EDD4AD55246BBFF3F5D2"
+      }
+    ],
+    "baselineAfter": [
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.HandResponses.cs",
+        "bytes": 7610,
+        "sha256": "A8AA5CB5ED3416F5C3BE4CDDBD5D9736F232267C671DF899DA8C3732A9DB6711"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.Presentation.cs",
+        "bytes": 49442,
+        "sha256": "252F2E30710E80E52A60BC56EA9EACC7A020DB46C4EEA3B511CCEC3ED3323D95"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.Playback.cs",
+        "bytes": 2810,
+        "sha256": "3BC9546EBDB3BFFD7BDD5E106E9EBCFE6658AE470905A8EFF95295A1FD38D3D5"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.cs",
+        "bytes": 104202,
+        "sha256": "059ECCFCD7225627603D9277A004BDF8E524BF0FC748E26B16BCAE99884B154B"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\MainWindow.xaml",
+        "bytes": 116708,
+        "sha256": "E0257790A0ECFFD9B5CC0107AC361F568E7F698A4508018E41B84BF3BB854923"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\MainWindow.xaml.cs",
+        "bytes": 25543,
+        "sha256": "325725F3DACB313A2A6EBB2B7103D15866864BB9D20278D66AC064BDABD0F99C"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\StoredGrainResponseUiChecks.cs",
+        "bytes": 36756,
+        "sha256": "63C074BA9E81A2A676CC91EDFDE1E8727869B87D882E141399A6B4CA45E4EF6F"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\HandResponseChecks.cs",
+        "bytes": 39626,
+        "sha256": "FB8BCDDF74C02E0B8F1A83C0BB50C26A1053119349863BAA80F5E9D75A06D4F9"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\GeneralSelectionChecks.cs",
+        "bytes": 63976,
+        "sha256": "E5290F4863BAB3596C804D4EC2677245CC3B6482ABC2191EEBEE71A0D2BFB356"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\Program.cs",
+        "bytes": 38869,
+        "sha256": "2F73C686D8B6D99A399A677670756EDA25EE458153A4BF4036F7CFAAC1A0D2D3"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tools\\VerificationScopes.psd1",
+        "bytes": 15804,
+        "sha256": "1E36BA0B9715D43C1D18D5112AE2ECAFF6ECD16D725D3BD5788571B612F7F57F"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\Replay.cs",
+        "bytes": 10803,
+        "sha256": "46AC5C161D66E81F7BC2D0FC0F8105170DCF8D083C55B06213A515A80C782229"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\Domain.cs",
+        "bytes": 35525,
+        "sha256": "6FDC331CFDCCEFAB7C7798BE64E59E51E76DC9732C190301127A413AC20B181E"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\SkillPrograms.cs",
+        "bytes": 349606,
+        "sha256": "A883F4A969EDAB4E67B03838651BE19AB9DB5680512D34786C3889D620D690F3"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\docs\\LOCAL_PLAY.md",
+        "bytes": 11121,
+        "sha256": "2513229617F068CD112A2F09BC8845A62065D95113A8EE3C1648310F9C049C52"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\ModalFocusChecks.cs",
+        "bytes": 35152,
+        "sha256": "1A9516855B61BABE98F926DF33DA7305DABA798EE8F7523A803178741856B861"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\PlayerGuidePanel.xaml",
+        "bytes": 24638,
+        "sha256": "9012341ACB3739D3B641F77CD8DDCD56EC2CF475AB0CB06EB199A0DBE139F614"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\PlayerGuidePanel.xaml.cs",
+        "bytes": 236,
+        "sha256": "0D762880E822E691AA6575A18A56A0D8AB5D98549D6E92096A59971C1F05D5B3"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\StalePromptChoiceChecks.cs",
+        "bytes": 39332,
+        "sha256": "BFCC132EE51FFBA26C65FE8405C4B49FB040640C7E78C7D1843EA986873665C5"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\TargetCardChecks.cs",
+        "bytes": 7845,
+        "sha256": "BED25E087AAA887D82483C92FE77D1A2CC1F85C9C015E5A1CA753BDC73E49217"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\PromptCardChoiceConverter.cs",
+        "bytes": 2870,
+        "sha256": "0742AFDBC9B9B97B7AB3B7796B12EB879F63C18B25D5923BF138AA81FA43A28B"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\PlaybackChecks.cs",
+        "bytes": 19716,
+        "sha256": "F393FF77F3FBF56481CB0B4933B9ED9348A4BE1D3E67E9893EA80E842F78A0E8"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.BattleLog.cs",
+        "bytes": 5915,
+        "sha256": "6E3AAD17C36FFF7CEE1B2ABE3749D3D8BD5897EC3964319862E970F13D85432F"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.SkillTargets.cs",
+        "bytes": 6837,
+        "sha256": "B7944016F6DCD85F4ABF971C60297AA74F73D3D56CBF34F0E99E9FB50DF45079"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\ProgramPaidChoiceUiChecks.cs",
+        "bytes": 26607,
+        "sha256": "1F1696DE01C325F131C1D58EFD617F5FA7F84DF97913DA97FFB3348C62154594"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\SkillTargetSelectionChecks.cs",
+        "bytes": 18181,
+        "sha256": "BB53764012CD76882C48EE28F2F749C7DF3FD4D95D38E6CEBF0F8B3B5A2EBA63"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\GameEngine.DistinctFactionDiscards.cs",
+        "bytes": 16860,
+        "sha256": "6E7FEFD1D2ED322A3D2B84E2F2E1A085336EB1069683EF9F537F8DC6C58494AF"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\StableHandResponseFixture.cs",
+        "bytes": 17158,
+        "sha256": "2C8B329A1546590B99B87047DB6AAB891ED1DEEF949B74836637A49630B75D92"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\RelayCommand.cs",
+        "bytes": 1336,
+        "sha256": "A75432F4EAF45B2EE1D246A9304F9B2EF00A1F391FA45A328BFF62757FFB2ED7"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Themes\\TableTheme.xaml",
+        "bytes": 43490,
+        "sha256": "7E021721F968DA85ECFB46EEAAD130EF2F8CB899E282E9973E2AFEEE15DD13A6"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\TableShortcutChecks.cs",
+        "bytes": 33159,
+        "sha256": "C70A69CD912D5ACA66C43CE014BCEC790B1B6E2844EA9FC18B71632356F0B4DC"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.GeneralSelection.cs",
+        "bytes": 5137,
+        "sha256": "4952C863B133B07B88D5467F0A04DB46F5D79B14D8A0B23A4F0F5B73D65381A6"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\GeneralChoiceViewModel.cs",
+        "bytes": 3659,
+        "sha256": "11D869571E88F92DFC6D05334DDDE04AA1D9DE261DA771AA98117FBAF50AACBC"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\HandPanel.cs",
+        "bytes": 5384,
+        "sha256": "D19B04A845276A8037AAAEC7561A1F136A96C11434F4777C715EF330E8A318ED"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\HandScrollViewer.cs",
+        "bytes": 2973,
+        "sha256": "BD93B3360551F22C4A73229FC2A432E1C61C3C3843C76BADE06F2350C79E7259"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\HandPointerChecks.cs",
+        "bytes": 17214,
+        "sha256": "AF3E52E9422B06BFCC8FF9FA7CF9A79D0665862D2A94EDD4AD55246BBFF3F5D2"
+      }
+    ],
+    "firstGreenSource": [
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.HandResponses.cs",
+        "bytes": 7610,
+        "sha256": "A8AA5CB5ED3416F5C3BE4CDDBD5D9736F232267C671DF899DA8C3732A9DB6711"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.Presentation.cs",
+        "bytes": 49442,
+        "sha256": "252F2E30710E80E52A60BC56EA9EACC7A020DB46C4EEA3B511CCEC3ED3323D95"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.Playback.cs",
+        "bytes": 2810,
+        "sha256": "3BC9546EBDB3BFFD7BDD5E106E9EBCFE6658AE470905A8EFF95295A1FD38D3D5"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.cs",
+        "bytes": 104202,
+        "sha256": "059ECCFCD7225627603D9277A004BDF8E524BF0FC748E26B16BCAE99884B154B"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\MainWindow.xaml",
+        "bytes": 116708,
+        "sha256": "E0257790A0ECFFD9B5CC0107AC361F568E7F698A4508018E41B84BF3BB854923"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\MainWindow.xaml.cs",
+        "bytes": 25782,
+        "sha256": "5E333D891C0E7FACA2985F8CFE7B54C4FFE629139DA23C569EBC704100CCF689"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\StoredGrainResponseUiChecks.cs",
+        "bytes": 36756,
+        "sha256": "63C074BA9E81A2A676CC91EDFDE1E8727869B87D882E141399A6B4CA45E4EF6F"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\HandResponseChecks.cs",
+        "bytes": 39626,
+        "sha256": "FB8BCDDF74C02E0B8F1A83C0BB50C26A1053119349863BAA80F5E9D75A06D4F9"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\GeneralSelectionChecks.cs",
+        "bytes": 63976,
+        "sha256": "E5290F4863BAB3596C804D4EC2677245CC3B6482ABC2191EEBEE71A0D2BFB356"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\Program.cs",
+        "bytes": 38869,
+        "sha256": "2F73C686D8B6D99A399A677670756EDA25EE458153A4BF4036F7CFAAC1A0D2D3"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tools\\VerificationScopes.psd1",
+        "bytes": 15804,
+        "sha256": "1E36BA0B9715D43C1D18D5112AE2ECAFF6ECD16D725D3BD5788571B612F7F57F"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\Replay.cs",
+        "bytes": 10803,
+        "sha256": "46AC5C161D66E81F7BC2D0FC0F8105170DCF8D083C55B06213A515A80C782229"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\Domain.cs",
+        "bytes": 35525,
+        "sha256": "6FDC331CFDCCEFAB7C7798BE64E59E51E76DC9732C190301127A413AC20B181E"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\SkillPrograms.cs",
+        "bytes": 349606,
+        "sha256": "A883F4A969EDAB4E67B03838651BE19AB9DB5680512D34786C3889D620D690F3"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\docs\\LOCAL_PLAY.md",
+        "bytes": 11161,
+        "sha256": "3A91318723320708FFBC1833CB2F8E53C3CD1D3EBA4ECD989ABFAFE30301D714"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\ModalFocusChecks.cs",
+        "bytes": 35152,
+        "sha256": "1A9516855B61BABE98F926DF33DA7305DABA798EE8F7523A803178741856B861"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\PlayerGuidePanel.xaml",
+        "bytes": 24638,
+        "sha256": "9012341ACB3739D3B641F77CD8DDCD56EC2CF475AB0CB06EB199A0DBE139F614"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\PlayerGuidePanel.xaml.cs",
+        "bytes": 236,
+        "sha256": "0D762880E822E691AA6575A18A56A0D8AB5D98549D6E92096A59971C1F05D5B3"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\StalePromptChoiceChecks.cs",
+        "bytes": 39332,
+        "sha256": "BFCC132EE51FFBA26C65FE8405C4B49FB040640C7E78C7D1843EA986873665C5"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\TargetCardChecks.cs",
+        "bytes": 7845,
+        "sha256": "BED25E087AAA887D82483C92FE77D1A2CC1F85C9C015E5A1CA753BDC73E49217"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\PromptCardChoiceConverter.cs",
+        "bytes": 2870,
+        "sha256": "0742AFDBC9B9B97B7AB3B7796B12EB879F63C18B25D5923BF138AA81FA43A28B"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\PlaybackChecks.cs",
+        "bytes": 19716,
+        "sha256": "F393FF77F3FBF56481CB0B4933B9ED9348A4BE1D3E67E9893EA80E842F78A0E8"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.BattleLog.cs",
+        "bytes": 5915,
+        "sha256": "6E3AAD17C36FFF7CEE1B2ABE3749D3D8BD5897EC3964319862E970F13D85432F"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.SkillTargets.cs",
+        "bytes": 6837,
+        "sha256": "B7944016F6DCD85F4ABF971C60297AA74F73D3D56CBF34F0E99E9FB50DF45079"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\ProgramPaidChoiceUiChecks.cs",
+        "bytes": 26607,
+        "sha256": "1F1696DE01C325F131C1D58EFD617F5FA7F84DF97913DA97FFB3348C62154594"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\SkillTargetSelectionChecks.cs",
+        "bytes": 18181,
+        "sha256": "BB53764012CD76882C48EE28F2F749C7DF3FD4D95D38E6CEBF0F8B3B5A2EBA63"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\GameEngine.DistinctFactionDiscards.cs",
+        "bytes": 16860,
+        "sha256": "6E7FEFD1D2ED322A3D2B84E2F2E1A085336EB1069683EF9F537F8DC6C58494AF"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\StableHandResponseFixture.cs",
+        "bytes": 17158,
+        "sha256": "2C8B329A1546590B99B87047DB6AAB891ED1DEEF949B74836637A49630B75D92"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\RelayCommand.cs",
+        "bytes": 1336,
+        "sha256": "A75432F4EAF45B2EE1D246A9304F9B2EF00A1F391FA45A328BFF62757FFB2ED7"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Themes\\TableTheme.xaml",
+        "bytes": 43490,
+        "sha256": "7E021721F968DA85ECFB46EEAAD130EF2F8CB899E282E9973E2AFEEE15DD13A6"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\TableShortcutChecks.cs",
+        "bytes": 33159,
+        "sha256": "C70A69CD912D5ACA66C43CE014BCEC790B1B6E2844EA9FC18B71632356F0B4DC"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.GeneralSelection.cs",
+        "bytes": 5137,
+        "sha256": "4952C863B133B07B88D5467F0A04DB46F5D79B14D8A0B23A4F0F5B73D65381A6"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\GeneralChoiceViewModel.cs",
+        "bytes": 3659,
+        "sha256": "11D869571E88F92DFC6D05334DDDE04AA1D9DE261DA771AA98117FBAF50AACBC"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\HandPanel.cs",
+        "bytes": 5384,
+        "sha256": "D19B04A845276A8037AAAEC7561A1F136A96C11434F4777C715EF330E8A318ED"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\HandScrollViewer.cs",
+        "bytes": 2973,
+        "sha256": "BD93B3360551F22C4A73229FC2A432E1C61C3C3843C76BADE06F2350C79E7259"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\HandPointerChecks.cs",
+        "bytes": 17214,
+        "sha256": "AF3E52E9422B06BFCC8FF9FA7CF9A79D0665862D2A94EDD4AD55246BBFF3F5D2"
+      }
+    ],
+    "firstGreenAfter": [
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.HandResponses.cs",
+        "bytes": 7610,
+        "sha256": "A8AA5CB5ED3416F5C3BE4CDDBD5D9736F232267C671DF899DA8C3732A9DB6711"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.Presentation.cs",
+        "bytes": 49442,
+        "sha256": "252F2E30710E80E52A60BC56EA9EACC7A020DB46C4EEA3B511CCEC3ED3323D95"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.Playback.cs",
+        "bytes": 2810,
+        "sha256": "3BC9546EBDB3BFFD7BDD5E106E9EBCFE6658AE470905A8EFF95295A1FD38D3D5"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.cs",
+        "bytes": 104202,
+        "sha256": "059ECCFCD7225627603D9277A004BDF8E524BF0FC748E26B16BCAE99884B154B"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\MainWindow.xaml",
+        "bytes": 116708,
+        "sha256": "E0257790A0ECFFD9B5CC0107AC361F568E7F698A4508018E41B84BF3BB854923"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\MainWindow.xaml.cs",
+        "bytes": 25782,
+        "sha256": "5E333D891C0E7FACA2985F8CFE7B54C4FFE629139DA23C569EBC704100CCF689"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\StoredGrainResponseUiChecks.cs",
+        "bytes": 36756,
+        "sha256": "63C074BA9E81A2A676CC91EDFDE1E8727869B87D882E141399A6B4CA45E4EF6F"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\HandResponseChecks.cs",
+        "bytes": 39626,
+        "sha256": "FB8BCDDF74C02E0B8F1A83C0BB50C26A1053119349863BAA80F5E9D75A06D4F9"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\GeneralSelectionChecks.cs",
+        "bytes": 63976,
+        "sha256": "E5290F4863BAB3596C804D4EC2677245CC3B6482ABC2191EEBEE71A0D2BFB356"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\Program.cs",
+        "bytes": 38869,
+        "sha256": "2F73C686D8B6D99A399A677670756EDA25EE458153A4BF4036F7CFAAC1A0D2D3"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tools\\VerificationScopes.psd1",
+        "bytes": 15804,
+        "sha256": "1E36BA0B9715D43C1D18D5112AE2ECAFF6ECD16D725D3BD5788571B612F7F57F"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\Replay.cs",
+        "bytes": 10803,
+        "sha256": "46AC5C161D66E81F7BC2D0FC0F8105170DCF8D083C55B06213A515A80C782229"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\Domain.cs",
+        "bytes": 35525,
+        "sha256": "6FDC331CFDCCEFAB7C7798BE64E59E51E76DC9732C190301127A413AC20B181E"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\SkillPrograms.cs",
+        "bytes": 349606,
+        "sha256": "A883F4A969EDAB4E67B03838651BE19AB9DB5680512D34786C3889D620D690F3"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\docs\\LOCAL_PLAY.md",
+        "bytes": 11161,
+        "sha256": "3A91318723320708FFBC1833CB2F8E53C3CD1D3EBA4ECD989ABFAFE30301D714"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\ModalFocusChecks.cs",
+        "bytes": 35152,
+        "sha256": "1A9516855B61BABE98F926DF33DA7305DABA798EE8F7523A803178741856B861"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\PlayerGuidePanel.xaml",
+        "bytes": 24638,
+        "sha256": "9012341ACB3739D3B641F77CD8DDCD56EC2CF475AB0CB06EB199A0DBE139F614"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\PlayerGuidePanel.xaml.cs",
+        "bytes": 236,
+        "sha256": "0D762880E822E691AA6575A18A56A0D8AB5D98549D6E92096A59971C1F05D5B3"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\StalePromptChoiceChecks.cs",
+        "bytes": 39332,
+        "sha256": "BFCC132EE51FFBA26C65FE8405C4B49FB040640C7E78C7D1843EA986873665C5"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\TargetCardChecks.cs",
+        "bytes": 7845,
+        "sha256": "BED25E087AAA887D82483C92FE77D1A2CC1F85C9C015E5A1CA753BDC73E49217"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\PromptCardChoiceConverter.cs",
+        "bytes": 2870,
+        "sha256": "0742AFDBC9B9B97B7AB3B7796B12EB879F63C18B25D5923BF138AA81FA43A28B"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\PlaybackChecks.cs",
+        "bytes": 19716,
+        "sha256": "F393FF77F3FBF56481CB0B4933B9ED9348A4BE1D3E67E9893EA80E842F78A0E8"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.BattleLog.cs",
+        "bytes": 5915,
+        "sha256": "6E3AAD17C36FFF7CEE1B2ABE3749D3D8BD5897EC3964319862E970F13D85432F"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.SkillTargets.cs",
+        "bytes": 6837,
+        "sha256": "B7944016F6DCD85F4ABF971C60297AA74F73D3D56CBF34F0E99E9FB50DF45079"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\ProgramPaidChoiceUiChecks.cs",
+        "bytes": 26607,
+        "sha256": "1F1696DE01C325F131C1D58EFD617F5FA7F84DF97913DA97FFB3348C62154594"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\SkillTargetSelectionChecks.cs",
+        "bytes": 18181,
+        "sha256": "BB53764012CD76882C48EE28F2F749C7DF3FD4D95D38E6CEBF0F8B3B5A2EBA63"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\GameEngine.DistinctFactionDiscards.cs",
+        "bytes": 16860,
+        "sha256": "6E7FEFD1D2ED322A3D2B84E2F2E1A085336EB1069683EF9F537F8DC6C58494AF"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\StableHandResponseFixture.cs",
+        "bytes": 17158,
+        "sha256": "2C8B329A1546590B99B87047DB6AAB891ED1DEEF949B74836637A49630B75D92"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\RelayCommand.cs",
+        "bytes": 1336,
+        "sha256": "A75432F4EAF45B2EE1D246A9304F9B2EF00A1F391FA45A328BFF62757FFB2ED7"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Themes\\TableTheme.xaml",
+        "bytes": 43490,
+        "sha256": "7E021721F968DA85ECFB46EEAAD130EF2F8CB899E282E9973E2AFEEE15DD13A6"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\TableShortcutChecks.cs",
+        "bytes": 33159,
+        "sha256": "C70A69CD912D5ACA66C43CE014BCEC790B1B6E2844EA9FC18B71632356F0B4DC"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.GeneralSelection.cs",
+        "bytes": 5137,
+        "sha256": "4952C863B133B07B88D5467F0A04DB46F5D79B14D8A0B23A4F0F5B73D65381A6"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\GeneralChoiceViewModel.cs",
+        "bytes": 3659,
+        "sha256": "11D869571E88F92DFC6D05334DDDE04AA1D9DE261DA771AA98117FBAF50AACBC"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\HandPanel.cs",
+        "bytes": 5384,
+        "sha256": "D19B04A845276A8037AAAEC7561A1F136A96C11434F4777C715EF330E8A318ED"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\HandScrollViewer.cs",
+        "bytes": 2973,
+        "sha256": "BD93B3360551F22C4A73229FC2A432E1C61C3C3843C76BADE06F2350C79E7259"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\HandPointerChecks.cs",
+        "bytes": 17214,
+        "sha256": "AF3E52E9422B06BFCC8FF9FA7CF9A79D0665862D2A94EDD4AD55246BBFF3F5D2"
+      }
+    ],
+    "finalSource": [
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.HandResponses.cs",
+        "bytes": 7610,
+        "sha256": "A8AA5CB5ED3416F5C3BE4CDDBD5D9736F232267C671DF899DA8C3732A9DB6711"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.Presentation.cs",
+        "bytes": 49442,
+        "sha256": "252F2E30710E80E52A60BC56EA9EACC7A020DB46C4EEA3B511CCEC3ED3323D95"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.Playback.cs",
+        "bytes": 2810,
+        "sha256": "3BC9546EBDB3BFFD7BDD5E106E9EBCFE6658AE470905A8EFF95295A1FD38D3D5"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.cs",
+        "bytes": 104202,
+        "sha256": "059ECCFCD7225627603D9277A004BDF8E524BF0FC748E26B16BCAE99884B154B"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\MainWindow.xaml",
+        "bytes": 116708,
+        "sha256": "E0257790A0ECFFD9B5CC0107AC361F568E7F698A4508018E41B84BF3BB854923"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\MainWindow.xaml.cs",
+        "bytes": 25782,
+        "sha256": "5E333D891C0E7FACA2985F8CFE7B54C4FFE629139DA23C569EBC704100CCF689"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\StoredGrainResponseUiChecks.cs",
+        "bytes": 36756,
+        "sha256": "63C074BA9E81A2A676CC91EDFDE1E8727869B87D882E141399A6B4CA45E4EF6F"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\HandResponseChecks.cs",
+        "bytes": 47758,
+        "sha256": "015B219151F57210C9DA5DEB8A3FC8A761800228A1C8642E8462F7518F46C1A7"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\GeneralSelectionChecks.cs",
+        "bytes": 63976,
+        "sha256": "E5290F4863BAB3596C804D4EC2677245CC3B6482ABC2191EEBEE71A0D2BFB356"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\Program.cs",
+        "bytes": 38869,
+        "sha256": "2F73C686D8B6D99A399A677670756EDA25EE458153A4BF4036F7CFAAC1A0D2D3"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tools\\VerificationScopes.psd1",
+        "bytes": 15804,
+        "sha256": "1E36BA0B9715D43C1D18D5112AE2ECAFF6ECD16D725D3BD5788571B612F7F57F"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\Replay.cs",
+        "bytes": 10803,
+        "sha256": "46AC5C161D66E81F7BC2D0FC0F8105170DCF8D083C55B06213A515A80C782229"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\Domain.cs",
+        "bytes": 35525,
+        "sha256": "6FDC331CFDCCEFAB7C7798BE64E59E51E76DC9732C190301127A413AC20B181E"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\SkillPrograms.cs",
+        "bytes": 349606,
+        "sha256": "A883F4A969EDAB4E67B03838651BE19AB9DB5680512D34786C3889D620D690F3"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\docs\\LOCAL_PLAY.md",
+        "bytes": 11161,
+        "sha256": "3A91318723320708FFBC1833CB2F8E53C3CD1D3EBA4ECD989ABFAFE30301D714"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\ModalFocusChecks.cs",
+        "bytes": 35152,
+        "sha256": "1A9516855B61BABE98F926DF33DA7305DABA798EE8F7523A803178741856B861"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\PlayerGuidePanel.xaml",
+        "bytes": 24638,
+        "sha256": "9012341ACB3739D3B641F77CD8DDCD56EC2CF475AB0CB06EB199A0DBE139F614"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\PlayerGuidePanel.xaml.cs",
+        "bytes": 236,
+        "sha256": "0D762880E822E691AA6575A18A56A0D8AB5D98549D6E92096A59971C1F05D5B3"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\StalePromptChoiceChecks.cs",
+        "bytes": 39332,
+        "sha256": "BFCC132EE51FFBA26C65FE8405C4B49FB040640C7E78C7D1843EA986873665C5"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\TargetCardChecks.cs",
+        "bytes": 7845,
+        "sha256": "BED25E087AAA887D82483C92FE77D1A2CC1F85C9C015E5A1CA753BDC73E49217"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\PromptCardChoiceConverter.cs",
+        "bytes": 2870,
+        "sha256": "0742AFDBC9B9B97B7AB3B7796B12EB879F63C18B25D5923BF138AA81FA43A28B"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\PlaybackChecks.cs",
+        "bytes": 19716,
+        "sha256": "F393FF77F3FBF56481CB0B4933B9ED9348A4BE1D3E67E9893EA80E842F78A0E8"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.BattleLog.cs",
+        "bytes": 5915,
+        "sha256": "6E3AAD17C36FFF7CEE1B2ABE3749D3D8BD5897EC3964319862E970F13D85432F"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.SkillTargets.cs",
+        "bytes": 6837,
+        "sha256": "B7944016F6DCD85F4ABF971C60297AA74F73D3D56CBF34F0E99E9FB50DF45079"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\ProgramPaidChoiceUiChecks.cs",
+        "bytes": 26607,
+        "sha256": "1F1696DE01C325F131C1D58EFD617F5FA7F84DF97913DA97FFB3348C62154594"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\SkillTargetSelectionChecks.cs",
+        "bytes": 18181,
+        "sha256": "BB53764012CD76882C48EE28F2F749C7DF3FD4D95D38E6CEBF0F8B3B5A2EBA63"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\GameEngine.DistinctFactionDiscards.cs",
+        "bytes": 16860,
+        "sha256": "6E7FEFD1D2ED322A3D2B84E2F2E1A085336EB1069683EF9F537F8DC6C58494AF"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\StableHandResponseFixture.cs",
+        "bytes": 17158,
+        "sha256": "2C8B329A1546590B99B87047DB6AAB891ED1DEEF949B74836637A49630B75D92"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\RelayCommand.cs",
+        "bytes": 1336,
+        "sha256": "A75432F4EAF45B2EE1D246A9304F9B2EF00A1F391FA45A328BFF62757FFB2ED7"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Themes\\TableTheme.xaml",
+        "bytes": 43490,
+        "sha256": "7E021721F968DA85ECFB46EEAAD130EF2F8CB899E282E9973E2AFEEE15DD13A6"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\TableShortcutChecks.cs",
+        "bytes": 33159,
+        "sha256": "C70A69CD912D5ACA66C43CE014BCEC790B1B6E2844EA9FC18B71632356F0B4DC"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.GeneralSelection.cs",
+        "bytes": 5137,
+        "sha256": "4952C863B133B07B88D5467F0A04DB46F5D79B14D8A0B23A4F0F5B73D65381A6"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\GeneralChoiceViewModel.cs",
+        "bytes": 3659,
+        "sha256": "11D869571E88F92DFC6D05334DDDE04AA1D9DE261DA771AA98117FBAF50AACBC"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\HandPanel.cs",
+        "bytes": 5384,
+        "sha256": "D19B04A845276A8037AAAEC7561A1F136A96C11434F4777C715EF330E8A318ED"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\HandScrollViewer.cs",
+        "bytes": 2973,
+        "sha256": "BD93B3360551F22C4A73229FC2A432E1C61C3C3843C76BADE06F2350C79E7259"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\HandPointerChecks.cs",
+        "bytes": 17214,
+        "sha256": "AF3E52E9422B06BFCC8FF9FA7CF9A79D0665862D2A94EDD4AD55246BBFF3F5D2"
+      }
+    ],
+    "routineBefore": [
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.HandResponses.cs",
+        "bytes": 7610,
+        "sha256": "A8AA5CB5ED3416F5C3BE4CDDBD5D9736F232267C671DF899DA8C3732A9DB6711"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.Presentation.cs",
+        "bytes": 49442,
+        "sha256": "252F2E30710E80E52A60BC56EA9EACC7A020DB46C4EEA3B511CCEC3ED3323D95"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.Playback.cs",
+        "bytes": 2810,
+        "sha256": "3BC9546EBDB3BFFD7BDD5E106E9EBCFE6658AE470905A8EFF95295A1FD38D3D5"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.cs",
+        "bytes": 104202,
+        "sha256": "059ECCFCD7225627603D9277A004BDF8E524BF0FC748E26B16BCAE99884B154B"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\MainWindow.xaml",
+        "bytes": 116708,
+        "sha256": "E0257790A0ECFFD9B5CC0107AC361F568E7F698A4508018E41B84BF3BB854923"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\MainWindow.xaml.cs",
+        "bytes": 25782,
+        "sha256": "5E333D891C0E7FACA2985F8CFE7B54C4FFE629139DA23C569EBC704100CCF689"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\StoredGrainResponseUiChecks.cs",
+        "bytes": 36756,
+        "sha256": "63C074BA9E81A2A676CC91EDFDE1E8727869B87D882E141399A6B4CA45E4EF6F"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\HandResponseChecks.cs",
+        "bytes": 47758,
+        "sha256": "015B219151F57210C9DA5DEB8A3FC8A761800228A1C8642E8462F7518F46C1A7"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\GeneralSelectionChecks.cs",
+        "bytes": 63976,
+        "sha256": "E5290F4863BAB3596C804D4EC2677245CC3B6482ABC2191EEBEE71A0D2BFB356"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\Program.cs",
+        "bytes": 38869,
+        "sha256": "2F73C686D8B6D99A399A677670756EDA25EE458153A4BF4036F7CFAAC1A0D2D3"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tools\\VerificationScopes.psd1",
+        "bytes": 15804,
+        "sha256": "1E36BA0B9715D43C1D18D5112AE2ECAFF6ECD16D725D3BD5788571B612F7F57F"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\Replay.cs",
+        "bytes": 10803,
+        "sha256": "46AC5C161D66E81F7BC2D0FC0F8105170DCF8D083C55B06213A515A80C782229"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\Domain.cs",
+        "bytes": 35525,
+        "sha256": "6FDC331CFDCCEFAB7C7798BE64E59E51E76DC9732C190301127A413AC20B181E"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\SkillPrograms.cs",
+        "bytes": 349606,
+        "sha256": "A883F4A969EDAB4E67B03838651BE19AB9DB5680512D34786C3889D620D690F3"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\docs\\LOCAL_PLAY.md",
+        "bytes": 11161,
+        "sha256": "3A91318723320708FFBC1833CB2F8E53C3CD1D3EBA4ECD989ABFAFE30301D714"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\ModalFocusChecks.cs",
+        "bytes": 35152,
+        "sha256": "1A9516855B61BABE98F926DF33DA7305DABA798EE8F7523A803178741856B861"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\PlayerGuidePanel.xaml",
+        "bytes": 24638,
+        "sha256": "9012341ACB3739D3B641F77CD8DDCD56EC2CF475AB0CB06EB199A0DBE139F614"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\PlayerGuidePanel.xaml.cs",
+        "bytes": 236,
+        "sha256": "0D762880E822E691AA6575A18A56A0D8AB5D98549D6E92096A59971C1F05D5B3"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\StalePromptChoiceChecks.cs",
+        "bytes": 39332,
+        "sha256": "BFCC132EE51FFBA26C65FE8405C4B49FB040640C7E78C7D1843EA986873665C5"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\TargetCardChecks.cs",
+        "bytes": 7845,
+        "sha256": "BED25E087AAA887D82483C92FE77D1A2CC1F85C9C015E5A1CA753BDC73E49217"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\PromptCardChoiceConverter.cs",
+        "bytes": 2870,
+        "sha256": "0742AFDBC9B9B97B7AB3B7796B12EB879F63C18B25D5923BF138AA81FA43A28B"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\PlaybackChecks.cs",
+        "bytes": 19716,
+        "sha256": "F393FF77F3FBF56481CB0B4933B9ED9348A4BE1D3E67E9893EA80E842F78A0E8"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.BattleLog.cs",
+        "bytes": 5915,
+        "sha256": "6E3AAD17C36FFF7CEE1B2ABE3749D3D8BD5897EC3964319862E970F13D85432F"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.SkillTargets.cs",
+        "bytes": 6837,
+        "sha256": "B7944016F6DCD85F4ABF971C60297AA74F73D3D56CBF34F0E99E9FB50DF45079"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\ProgramPaidChoiceUiChecks.cs",
+        "bytes": 26607,
+        "sha256": "1F1696DE01C325F131C1D58EFD617F5FA7F84DF97913DA97FFB3348C62154594"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\SkillTargetSelectionChecks.cs",
+        "bytes": 18181,
+        "sha256": "BB53764012CD76882C48EE28F2F749C7DF3FD4D95D38E6CEBF0F8B3B5A2EBA63"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\GameEngine.DistinctFactionDiscards.cs",
+        "bytes": 16860,
+        "sha256": "6E7FEFD1D2ED322A3D2B84E2F2E1A085336EB1069683EF9F537F8DC6C58494AF"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\StableHandResponseFixture.cs",
+        "bytes": 17158,
+        "sha256": "2C8B329A1546590B99B87047DB6AAB891ED1DEEF949B74836637A49630B75D92"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\RelayCommand.cs",
+        "bytes": 1336,
+        "sha256": "A75432F4EAF45B2EE1D246A9304F9B2EF00A1F391FA45A328BFF62757FFB2ED7"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Themes\\TableTheme.xaml",
+        "bytes": 43490,
+        "sha256": "7E021721F968DA85ECFB46EEAAD130EF2F8CB899E282E9973E2AFEEE15DD13A6"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\TableShortcutChecks.cs",
+        "bytes": 33159,
+        "sha256": "C70A69CD912D5ACA66C43CE014BCEC790B1B6E2844EA9FC18B71632356F0B4DC"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.GeneralSelection.cs",
+        "bytes": 5137,
+        "sha256": "4952C863B133B07B88D5467F0A04DB46F5D79B14D8A0B23A4F0F5B73D65381A6"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\GeneralChoiceViewModel.cs",
+        "bytes": 3659,
+        "sha256": "11D869571E88F92DFC6D05334DDDE04AA1D9DE261DA771AA98117FBAF50AACBC"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\HandPanel.cs",
+        "bytes": 5384,
+        "sha256": "D19B04A845276A8037AAAEC7561A1F136A96C11434F4777C715EF330E8A318ED"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\HandScrollViewer.cs",
+        "bytes": 2973,
+        "sha256": "BD93B3360551F22C4A73229FC2A432E1C61C3C3843C76BADE06F2350C79E7259"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\HandPointerChecks.cs",
+        "bytes": 17214,
+        "sha256": "AF3E52E9422B06BFCC8FF9FA7CF9A79D0665862D2A94EDD4AD55246BBFF3F5D2"
+      }
+    ],
+    "guardedPaths": [
+      "src/CardGame.Wpf/ViewModels/MainViewModel.HandResponses.cs",
+      "src/CardGame.Wpf/ViewModels/MainViewModel.Presentation.cs",
+      "src/CardGame.Wpf/ViewModels/MainViewModel.Playback.cs",
+      "src/CardGame.Wpf/ViewModels/MainViewModel.cs",
+      "src/CardGame.Wpf/MainWindow.xaml",
+      "src/CardGame.Wpf/MainWindow.xaml.cs",
+      "tests/CardGame.Wpf.Tests/StoredGrainResponseUiChecks.cs",
+      "tests/CardGame.Wpf.Tests/HandResponseChecks.cs",
+      "tests/CardGame.Wpf.Tests/GeneralSelectionChecks.cs",
+      "tests/CardGame.Wpf.Tests/Program.cs",
+      "tools/VerificationScopes.psd1",
+      "src/CardGame.Core/Replay.cs",
+      "src/CardGame.Core/Domain.cs",
+      "src/CardGame.Core/SkillPrograms.cs",
+      "docs/LOCAL_PLAY.md",
+      "tests/CardGame.Wpf.Tests/ModalFocusChecks.cs",
+      "src/CardGame.Wpf/Controls/PlayerGuidePanel.xaml",
+      "src/CardGame.Wpf/Controls/PlayerGuidePanel.xaml.cs",
+      "tests/CardGame.Wpf.Tests/StalePromptChoiceChecks.cs",
+      "tests/CardGame.Wpf.Tests/TargetCardChecks.cs",
+      "src/CardGame.Wpf/Controls/PromptCardChoiceConverter.cs",
+      "tests/CardGame.Wpf.Tests/PlaybackChecks.cs",
+      "src/CardGame.Wpf/ViewModels/MainViewModel.BattleLog.cs",
+      "src/CardGame.Wpf/ViewModels/MainViewModel.SkillTargets.cs",
+      "tests/CardGame.Wpf.Tests/ProgramPaidChoiceUiChecks.cs",
+      "tests/CardGame.Wpf.Tests/SkillTargetSelectionChecks.cs",
+      "src/CardGame.Core/GameEngine.DistinctFactionDiscards.cs",
+      "tests/CardGame.Wpf.Tests/StableHandResponseFixture.cs",
+      "src/CardGame.Wpf/ViewModels/RelayCommand.cs",
+      "src/CardGame.Wpf/Themes/TableTheme.xaml",
+      "tests/CardGame.Wpf.Tests/TableShortcutChecks.cs",
+      "src/CardGame.Wpf/ViewModels/MainViewModel.GeneralSelection.cs",
+      "src/CardGame.Wpf/ViewModels/GeneralChoiceViewModel.cs",
+      "src/CardGame.Wpf/Controls/HandPanel.cs",
+      "src/CardGame.Wpf/Controls/HandScrollViewer.cs",
+      "tests/CardGame.Wpf.Tests/HandPointerChecks.cs"
+    ],
+    "baselineToGreenFrozenTestUnchanged": true,
+    "focusedSourceDriftCount": 0,
+    "changedSinceBatchStart": [
+      "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\MainWindow.xaml.cs",
+      "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\HandResponseChecks.cs",
+      "C:\\Users\\17917\\Desktop\\Card\\docs\\LOCAL_PLAY.md"
+    ],
+    "routineAfter": [
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.HandResponses.cs",
+        "bytes": 7610,
+        "sha256": "A8AA5CB5ED3416F5C3BE4CDDBD5D9736F232267C671DF899DA8C3732A9DB6711"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.Presentation.cs",
+        "bytes": 49442,
+        "sha256": "252F2E30710E80E52A60BC56EA9EACC7A020DB46C4EEA3B511CCEC3ED3323D95"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.Playback.cs",
+        "bytes": 2810,
+        "sha256": "3BC9546EBDB3BFFD7BDD5E106E9EBCFE6658AE470905A8EFF95295A1FD38D3D5"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.cs",
+        "bytes": 104202,
+        "sha256": "059ECCFCD7225627603D9277A004BDF8E524BF0FC748E26B16BCAE99884B154B"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\MainWindow.xaml",
+        "bytes": 116708,
+        "sha256": "E0257790A0ECFFD9B5CC0107AC361F568E7F698A4508018E41B84BF3BB854923"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\MainWindow.xaml.cs",
+        "bytes": 25782,
+        "sha256": "5E333D891C0E7FACA2985F8CFE7B54C4FFE629139DA23C569EBC704100CCF689"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\StoredGrainResponseUiChecks.cs",
+        "bytes": 36756,
+        "sha256": "63C074BA9E81A2A676CC91EDFDE1E8727869B87D882E141399A6B4CA45E4EF6F"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\HandResponseChecks.cs",
+        "bytes": 47758,
+        "sha256": "015B219151F57210C9DA5DEB8A3FC8A761800228A1C8642E8462F7518F46C1A7"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\GeneralSelectionChecks.cs",
+        "bytes": 63976,
+        "sha256": "E5290F4863BAB3596C804D4EC2677245CC3B6482ABC2191EEBEE71A0D2BFB356"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\Program.cs",
+        "bytes": 38869,
+        "sha256": "2F73C686D8B6D99A399A677670756EDA25EE458153A4BF4036F7CFAAC1A0D2D3"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tools\\VerificationScopes.psd1",
+        "bytes": 15804,
+        "sha256": "1E36BA0B9715D43C1D18D5112AE2ECAFF6ECD16D725D3BD5788571B612F7F57F"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\Replay.cs",
+        "bytes": 10803,
+        "sha256": "46AC5C161D66E81F7BC2D0FC0F8105170DCF8D083C55B06213A515A80C782229"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\Domain.cs",
+        "bytes": 35525,
+        "sha256": "6FDC331CFDCCEFAB7C7798BE64E59E51E76DC9732C190301127A413AC20B181E"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\SkillPrograms.cs",
+        "bytes": 349606,
+        "sha256": "A883F4A969EDAB4E67B03838651BE19AB9DB5680512D34786C3889D620D690F3"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\docs\\LOCAL_PLAY.md",
+        "bytes": 11161,
+        "sha256": "3A91318723320708FFBC1833CB2F8E53C3CD1D3EBA4ECD989ABFAFE30301D714"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\ModalFocusChecks.cs",
+        "bytes": 35152,
+        "sha256": "1A9516855B61BABE98F926DF33DA7305DABA798EE8F7523A803178741856B861"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\PlayerGuidePanel.xaml",
+        "bytes": 24638,
+        "sha256": "9012341ACB3739D3B641F77CD8DDCD56EC2CF475AB0CB06EB199A0DBE139F614"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\PlayerGuidePanel.xaml.cs",
+        "bytes": 236,
+        "sha256": "0D762880E822E691AA6575A18A56A0D8AB5D98549D6E92096A59971C1F05D5B3"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\StalePromptChoiceChecks.cs",
+        "bytes": 39332,
+        "sha256": "BFCC132EE51FFBA26C65FE8405C4B49FB040640C7E78C7D1843EA986873665C5"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\TargetCardChecks.cs",
+        "bytes": 7845,
+        "sha256": "BED25E087AAA887D82483C92FE77D1A2CC1F85C9C015E5A1CA753BDC73E49217"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\PromptCardChoiceConverter.cs",
+        "bytes": 2870,
+        "sha256": "0742AFDBC9B9B97B7AB3B7796B12EB879F63C18B25D5923BF138AA81FA43A28B"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\PlaybackChecks.cs",
+        "bytes": 19716,
+        "sha256": "F393FF77F3FBF56481CB0B4933B9ED9348A4BE1D3E67E9893EA80E842F78A0E8"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.BattleLog.cs",
+        "bytes": 5915,
+        "sha256": "6E3AAD17C36FFF7CEE1B2ABE3749D3D8BD5897EC3964319862E970F13D85432F"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.SkillTargets.cs",
+        "bytes": 6837,
+        "sha256": "B7944016F6DCD85F4ABF971C60297AA74F73D3D56CBF34F0E99E9FB50DF45079"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\ProgramPaidChoiceUiChecks.cs",
+        "bytes": 26607,
+        "sha256": "1F1696DE01C325F131C1D58EFD617F5FA7F84DF97913DA97FFB3348C62154594"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\SkillTargetSelectionChecks.cs",
+        "bytes": 18181,
+        "sha256": "BB53764012CD76882C48EE28F2F749C7DF3FD4D95D38E6CEBF0F8B3B5A2EBA63"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\GameEngine.DistinctFactionDiscards.cs",
+        "bytes": 16860,
+        "sha256": "6E7FEFD1D2ED322A3D2B84E2F2E1A085336EB1069683EF9F537F8DC6C58494AF"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\StableHandResponseFixture.cs",
+        "bytes": 17158,
+        "sha256": "2C8B329A1546590B99B87047DB6AAB891ED1DEEF949B74836637A49630B75D92"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\RelayCommand.cs",
+        "bytes": 1336,
+        "sha256": "A75432F4EAF45B2EE1D246A9304F9B2EF00A1F391FA45A328BFF62757FFB2ED7"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Themes\\TableTheme.xaml",
+        "bytes": 43490,
+        "sha256": "7E021721F968DA85ECFB46EEAAD130EF2F8CB899E282E9973E2AFEEE15DD13A6"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\TableShortcutChecks.cs",
+        "bytes": 33159,
+        "sha256": "C70A69CD912D5ACA66C43CE014BCEC790B1B6E2844EA9FC18B71632356F0B4DC"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.GeneralSelection.cs",
+        "bytes": 5137,
+        "sha256": "4952C863B133B07B88D5467F0A04DB46F5D79B14D8A0B23A4F0F5B73D65381A6"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\GeneralChoiceViewModel.cs",
+        "bytes": 3659,
+        "sha256": "11D869571E88F92DFC6D05334DDDE04AA1D9DE261DA771AA98117FBAF50AACBC"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\HandPanel.cs",
+        "bytes": 5384,
+        "sha256": "D19B04A845276A8037AAAEC7561A1F136A96C11434F4777C715EF330E8A318ED"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\HandScrollViewer.cs",
+        "bytes": 2973,
+        "sha256": "BD93B3360551F22C4A73229FC2A432E1C61C3C3843C76BADE06F2350C79E7259"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\HandPointerChecks.cs",
+        "bytes": 17214,
+        "sha256": "AF3E52E9422B06BFCC8FF9FA7CF9A79D0665862D2A94EDD4AD55246BBFF3F5D2"
+      }
+    ],
+    "routineSourceDriftCount": 0
+  },
+  "verification": {
+    "baseline": {
+      "summary": {
+        "status": "test-failed",
+        "mode": "targeted",
+        "repository": "C:\\Users\\17917\\Desktop\\Card",
+        "artifactsPath": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f",
+        "coreFilters": [],
+        "wpfFilters": [
+          "hand responses"
+        ],
+        "startedAt": "2026-10-11T21:17:02.0244261+08:00",
+        "durationMs": 4925,
+        "message": "One or more selected checks failed.",
+        "results": [
+          {
+            "name": "Build selected scope",
+            "status": "passed",
+            "exitCode": 0,
+            "durationMs": 1684,
+            "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\build.log"
+          },
+          {
+            "name": "WPF selected checks (1 filters, union)",
+            "status": "failed",
+            "exitCode": 1,
+            "durationMs": 2984,
+            "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\wpf-selected.log"
+          }
+        ],
+        "cleanup": {
+          "status": "queued",
+          "queued": [
+            "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin",
+            "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\obj",
+            "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders"
+          ],
+          "database": "C:\\Users\\17917\\Desktop\\Card\\tools\\cleanup_queue.json",
+          "message": null
+        }
+      },
+      "logs": [
+        {
+          "name": "Build selected scope",
+          "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\build.log",
+          "content": "  正在确定要还原的项目…\r\n  所有项目均是最新的，无法还原。\r\n  CardGame.Core -> C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin\\CardGame.Core\\release\\CardGame.Core.dll\r\n  CardGame.Content.Standard -> C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin\\CardGame.Content.Standard\\release\\CardGame.Content.Standard.dll\r\n  CardGame.Core.Tests -> C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin\\CardGame.Core.Tests\\release\\CardGame.Core.Tests.dll\r\n  CardGame.Wpf -> C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin\\CardGame.Wpf\\release\\CardGame.Wpf.dll\r\n  CardGame.Wpf.Tests -> C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin\\CardGame.Wpf.Tests\\release\\CardGame.Wpf.Tests.dll\r\n\r\n已成功生成。\r\n    0 个警告\r\n    0 个错误\r\n\r\n已用时间 00:00:01.45\r\n"
+        },
+        {
+          "name": "WPF selected checks (1 filters, union)",
+          "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\wpf-selected.log",
+          "content": "  Original VerifyBoundary branches RespondDodge: invalid 2, ambiguous 0.\r\n  Stable fixture RespondDodge: seed 31, 12 accepted setup commands, actual turn seat 1.\r\n  Hand response verified: RespondDodge, 打出【闪】，抵消这次【杀】。\r\nFocused Cancel Enter: seed=31, prompt=3, selected=respond.dodge.card-24, expected=respond.take-damage, actual=respond.take-damage, preview=1, preview handled=False, bubble=1, handled=True, same native decline=True.\r\nFocused hand Enter: choice=respond.dodge.card-24, preview handled=True, same native response=True.\r\nFocused confirm Enter: choice=respond.dodge.card-24, preview handled=False, same native response=True.\r\nFocused response number then Enter: index=3, card=24, expected=respond.dodge.card-24, actual=respond.take-damage, exact hand focus=False, number preview handled=True, Enter preview handled=False, Enter bubble=1, handled=True, same native response=False.\r\n0 WPF checks passed, 1 failed. Renders: C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders\r\n[FAIL] hand responses select exact cards and confirm through shared controls: System.InvalidOperationException: A number key must focus its actual selected hand Button so immediate Enter submits that exact native Dodge once, never declines from the old Cancel focus.\r\n   at Program.Assert(Boolean condition, String message) in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\Program.cs:line 329\r\n   at HandResponseChecks.VerifyFocusedCancelEnter(GameCheckpoint checkpoint, ContentRegistry registry) in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\HandResponseChecks.cs:line 304\r\n   at HandResponseChecks.VerifyCancel(MainViewModel vm, String output, DecisionKind kind, ContentRegistry registry, Boolean checkFocusedEnter) in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\HandResponseChecks.cs:line 122\r\n   at HandResponseChecks.Controls(String output) in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\HandResponseChecks.cs:line 27\r\n   at Program.<>c__DisplayClass12_0.<Main>b__51() in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\Program.cs:line 133\r\n   at Program.Check(String name, Action action) in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\Program.cs:line 187\r\n"
+        }
+      ]
+    },
+    "firstGreen": {
+      "summary": {
+        "status": "passed",
+        "mode": "targeted",
+        "repository": "C:\\Users\\17917\\Desktop\\Card",
+        "artifactsPath": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f",
+        "coreFilters": [],
+        "wpfFilters": [
+          "hand responses"
+        ],
+        "startedAt": "2026-10-11T21:17:50.7430016+08:00",
+        "durationMs": 17713,
+        "message": null,
+        "results": [
+          {
+            "name": "Build selected scope",
+            "status": "passed",
+            "exitCode": 0,
+            "durationMs": 4932,
+            "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\build.log"
+          },
+          {
+            "name": "WPF selected checks (1 filters, union)",
+            "status": "passed",
+            "exitCode": 0,
+            "durationMs": 12470,
+            "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\wpf-selected.log"
+          }
+        ],
+        "cleanup": {
+          "status": "queued",
+          "queued": [
+            "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin",
+            "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\obj",
+            "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders"
+          ],
+          "database": "C:\\Users\\17917\\Desktop\\Card\\tools\\cleanup_queue.json",
+          "message": null
+        }
+      },
+      "logs": [
+        {
+          "name": "Build selected scope",
+          "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\build.log",
+          "content": "  正在确定要还原的项目…\r\n  所有项目均是最新的，无法还原。\r\n  CardGame.Core -> C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin\\CardGame.Core\\release\\CardGame.Core.dll\r\n  CardGame.Content.Standard -> C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin\\CardGame.Content.Standard\\release\\CardGame.Content.Standard.dll\r\n  CardGame.Core.Tests -> C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin\\CardGame.Core.Tests\\release\\CardGame.Core.Tests.dll\r\n  CardGame.Wpf -> C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin\\CardGame.Wpf\\release\\CardGame.Wpf.dll\r\n  CardGame.Wpf.Tests -> C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin\\CardGame.Wpf.Tests\\release\\CardGame.Wpf.Tests.dll\r\n\r\n已成功生成。\r\n    0 个警告\r\n    0 个错误\r\n\r\n已用时间 00:00:04.69\r\n"
+        },
+        {
+          "name": "WPF selected checks (1 filters, union)",
+          "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\wpf-selected.log",
+          "content": "  Original VerifyBoundary branches RespondDodge: invalid 2, ambiguous 0.\r\n  Stable fixture RespondDodge: seed 31, 12 accepted setup commands, actual turn seat 1.\r\n  Hand response verified: RespondDodge, 打出【闪】，抵消这次【杀】。\r\nFocused Cancel Enter: seed=31, prompt=3, selected=respond.dodge.card-24, expected=respond.take-damage, actual=respond.take-damage, preview=1, preview handled=False, bubble=1, handled=True, same native decline=True.\r\nFocused hand Enter: choice=respond.dodge.card-24, preview handled=True, same native response=True.\r\nFocused confirm Enter: choice=respond.dodge.card-24, preview handled=False, same native response=True.\r\nFocused response number then Enter: index=3, card=24, expected=respond.dodge.card-24, actual=respond.dodge.card-24, exact hand focus=True, number preview handled=True, Enter preview handled=True, Enter bubble=0, handled=True, same native response=True.\r\nFocused Play cancel Enter: preview handled=False, added commands=0, same native action=True.\r\nFocused Play end Enter: preview handled=False, added commands=1, same native action=True.\r\nFocused Play portrait Enter: preview handled=True, added commands=1, same native action=True.\r\n  Original VerifyBoundary branches RespondSlash: invalid 0, ambiguous 0.\r\n  Stable fixture RespondSlash: seed 31, 14 accepted setup commands, actual turn seat 1.\r\n  Hand response verified: RespondSlash, 打出【杀】，响应【南蛮入侵】。\r\n  Original VerifyBoundary branches RescueDying: invalid 2, ambiguous 0.\r\n  Stable fixture RescueDying: seed 31, 9 accepted setup commands, actual turn seat 0.\r\n  Hand response verified: RescueDying, 使用【桃】救援 你。\r\n  Original VerifyBoundary branches Nullification: invalid 1, ambiguous 0.\r\n  Stable fixture Nullification: seed 31, 14 accepted setup commands, actual turn seat 0.\r\n  Hand response verified: Nullification, 使用【无懈可击】恢复【桃园结义】效果。\r\n  Original VerifyBoundary branches FireAttackReveal: invalid 0, ambiguous 0.\r\n  Stable fixture FireAttackReveal: seed 31, 15 accepted setup commands, actual turn seat 1.\r\n  Hand response verified: FireAttackReveal, 展示【火攻】（A）\r\n  Original VerifyBoundary branches FireAttackDiscard: invalid 0, ambiguous 0.\r\n  Stable fixture FireAttackDiscard: seed 31, 10 accepted setup commands, actual turn seat 0.\r\n  Hand response verified: FireAttackDiscard, 弃置【杀】（A），造成 1 点火焰伤害。\r\n  Original VerifyBoundary branches Jijiu: invalid 0, ambiguous 0.\r\n  Stable fixture Jijiu: seed 31, 14 accepted setup commands, actual turn seat 1.\r\n  Hand response verified: Jijiu, 发动【急救】，将【闪】当作【桃】救援 AI 2。\r\n  Original VerifyBoundary branches ArrowBarrage: invalid 0, ambiguous 0.\r\n  Stable fixture ArrowBarrage: seed 31, 14 accepted setup commands, actual turn seat 1.\r\n  Hand response verified: ArrowBarrage, 打出【闪】，响应【万箭齐发】。\r\nStored Slash: card=32, native choice=respond.slash.card-32, grain=True, playable=True, button=True, extra=0, commands=18.\r\nStored Dodge: card=32, native choice=respond.dodge.card-32, grain=True, playable=True, button=True, extra=0, commands=18.\r\nStored Taoluan: card=32, native choice=respond.dodge.card-32.conversion-0, grain=True, playable=True, button=True, extra=1, commands=16.\r\nTaoluan extra speed=fast: choice45=respond.dodge.card-45.conversion-0, extras=1, same button=True, exact WPF focus=True, native focus=16385314, native hidden=True, owns foreground=False.\r\nTaoluan extra speed=slow: choice45=respond.dodge.card-45.conversion-0, extras=1, same button=True, exact WPF focus=True, native focus=16385314, native hidden=True, owns foreground=False.\r\nTaoluan extra speed=normal: choice45=respond.dodge.card-45.conversion-0, extras=1, same button=True, exact WPF focus=True, native focus=16385314, native hidden=True, owns foreground=False.\r\n[PASS] hand responses select exact cards and confirm through shared controls\r\n1 WPF checks passed, 0 failed. Renders: C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders\r\n"
+        }
+      ]
+    },
+    "finalFocused": {
+      "summary": {
+        "status": "passed",
+        "mode": "targeted",
+        "repository": "C:\\Users\\17917\\Desktop\\Card",
+        "artifactsPath": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f",
+        "coreFilters": [],
+        "wpfFilters": [
+          "hand responses",
+          "overlapping hand",
+          "table shortcuts",
+          "table modal focus",
+          "stale prompt choices",
+          "general selection",
+          "identity general choices"
+        ],
+        "startedAt": "2026-10-11T21:19:21.387173+08:00",
+        "durationMs": 25199,
+        "message": null,
+        "results": [
+          {
+            "name": "Build selected scope",
+            "status": "passed",
+            "exitCode": 0,
+            "durationMs": 1640,
+            "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\build.log"
+          },
+          {
+            "name": "WPF selected checks (7 filters, union)",
+            "status": "passed",
+            "exitCode": 0,
+            "durationMs": 23296,
+            "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\wpf-selected.log"
+          }
+        ],
+        "cleanup": {
+          "status": "queued",
+          "queued": [
+            "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin",
+            "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\obj",
+            "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders"
+          ],
+          "database": "C:\\Users\\17917\\Desktop\\Card\\tools\\cleanup_queue.json",
+          "message": null
+        }
+      },
+      "logs": [
+        {
+          "name": "Build selected scope",
+          "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\build.log",
+          "content": "  正在确定要还原的项目…\r\n  所有项目均是最新的，无法还原。\r\n  CardGame.Core -> C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin\\CardGame.Core\\release\\CardGame.Core.dll\r\n  CardGame.Content.Standard -> C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin\\CardGame.Content.Standard\\release\\CardGame.Content.Standard.dll\r\n  CardGame.Core.Tests -> C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin\\CardGame.Core.Tests\\release\\CardGame.Core.Tests.dll\r\n  CardGame.Wpf -> C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin\\CardGame.Wpf\\release\\CardGame.Wpf.dll\r\n  CardGame.Wpf.Tests -> C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin\\CardGame.Wpf.Tests\\release\\CardGame.Wpf.Tests.dll\r\n\r\n已成功生成。\r\n    0 个警告\r\n    0 个错误\r\n\r\n已用时间 00:00:01.42\r\n"
+        },
+        {
+          "name": "WPF selected checks (7 filters, union)",
+          "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\wpf-selected.log",
+          "content": "[PASS] table shortcuts execute once per key press and preserve modal drafts\r\nResumed startup: identity=False, opening=True, faces=4, hand=4, current=True, prompt=ProgramTrigger, revision=13.\r\nOpening timer behind settings: enabled=False, ticks=0, opening=True.\r\nOpening timer behind history: enabled=False, ticks=0, opening=True.\r\nOpening timer behind gallery: enabled=False, ticks=0, opening=True.\r\nOpening timer behind guide: enabled=False, ticks=0, opening=True.\r\nOpening timer behind lobby: enabled=False, ticks=0, opening=True.\r\nOpening timer behind log: enabled=False, ticks=0, opening=True.\r\nOpening timer uncovered: ticks=1, faces=0.\r\n[PASS] table shortcuts respect navigation panels above startup overlays\r\nModal Window shown: loaded=True, WPF visible=True, native visible=True, owns foreground=False, source matches=True, loaded events=1, unloaded events=0.\r\nModal Window hidden: loaded=True, WPF visible=True, native visible=False, owns foreground=False, source matches=True, loaded events=1, unloaded events=0.\r\nModal Window pumped: loaded=True, WPF visible=True, native visible=False, owns foreground=False, source matches=True, loaded events=1, unloaded events=0.\r\nOpening motion disabled before deal: motion=False, opening=False.\r\nAdvice after startup: available=True, visible=True, enabled=True.\r\n[PASS] table modal focus follows startup and current visible panels\r\nPlay-choice fixture: seed 52, 57 setup commands, native Borrowed Sword.\r\nPublic-target fixture: seed 31, 10 setup commands, physical weapon 33, same-prompt target 1 to 2.\r\nPublic-target settlement: status=AwaitingHumanPlay, prompt=PlayCard, moves=8:Hand[0]->Processing:card.use; 33:Equipment[1]->Processing:card.effect.dismantlement; 33:Processing->DiscardPile:card.effect.dismantlement-finished; 8:Processing->DiscardPile:card.use-finished.\r\nOpaque refresh developer=True: seed=31, slot=3, choices=4, same choice refs=False, same button=False, current exact focus=True, focused=.\r\nOpaque refresh developer=False: seed=31, slot=3, choices=4, same choice refs=False, same button=False, current exact focus=True, focused=.\r\n  Original VerifyBoundary branches RespondDodge: invalid 2, ambiguous 0.\r\n  Stable fixture RespondDodge: seed 31, 12 accepted setup commands, actual turn seat 1.\r\n  Original VerifyBoundary branches RespondSlash: invalid 0, ambiguous 0.\r\n  Stable fixture RespondSlash: seed 31, 14 accepted setup commands, actual turn seat 1.\r\n  Original VerifyBoundary branches RescueDying: invalid 2, ambiguous 0.\r\n  Stable fixture RescueDying: seed 31, 9 accepted setup commands, actual turn seat 0.\r\n  Original VerifyBoundary branches Nullification: invalid 1, ambiguous 0.\r\n  Stable fixture Nullification: seed 31, 14 accepted setup commands, actual turn seat 0.\r\n  Original VerifyBoundary branches FireAttackReveal: invalid 0, ambiguous 0.\r\n  Stable fixture FireAttackReveal: seed 31, 15 accepted setup commands, actual turn seat 1.\r\n  Original VerifyBoundary branches FireAttackDiscard: invalid 0, ambiguous 0.\r\n  Stable fixture FireAttackDiscard: seed 31, 10 accepted setup commands, actual turn seat 0.\r\n[PASS] stale prompt choices cannot answer reloaded or consecutive decisions\r\nOverlap pointer: intended=9003, visual hit=9003\r\nHand viewport: face bottom=178.0, visible height=179.7\r\nHand edge selection: offset 0.0 -> 0.0; intended=9015, next press=9015\r\nHand sort pointer: card=9008, index 8->20, same button=True, pointer=True.\r\nHand sort focused: pointer=True, capture=False, hand mouse-over=False, offset=0.0, pressed=False, left=Released, key-state-left=Released(0000), async-left=Released(0000), modifiers=None, owns focus=True, handled=n/a.\r\nHand sort space-down-idle-before: pointer=True, capture=False, hand mouse-over=False, offset=0.0, pressed=False, left=Released, key-state-left=Released(0000), async-left=Released(0000), modifiers=None, owns focus=True, handled=n/a.\r\nHand sort space-down-idle-after (0 ms): pointer=True, capture=False, hand mouse-over=False, offset=0.0, pressed=False, left=Released, key-state-left=Released(0000), async-left=Released(0000), modifiers=None, owns focus=True, handled=n/a.\r\nHand sort PreviewKeyDown-before: pointer=True, capture=False, hand mouse-over=False, offset=0.0, pressed=False, left=Released, key-state-left=Released(0000), async-left=Released(0000), modifiers=None, owns focus=True, handled=False.\r\nHand sort PreviewKeyDown-after: pointer=True, capture=False, hand mouse-over=False, offset=0.0, pressed=False, left=Released, key-state-left=Released(0000), async-left=Released(0000), modifiers=None, owns focus=True, handled=False.\r\nHand sort PreviewMouseMove: position=23346,22419.666666666664, pointer=False, capture=True.\r\nHand sort KeyDown-after: pointer=False, capture=True, hand mouse-over=True, offset=0.0, pressed=True, left=Released, key-state-left=Released(0000), async-left=Released(0000), modifiers=None, owns focus=True, handled=True.\r\nHand sort space-down: pointer=False, capture=True, hand mouse-over=True, offset=0.0, pressed=True, left=Released, key-state-left=Released(0000), async-left=Released(0000), modifiers=None, owns focus=True, handled=n/a.\r\nHand sort space-up-idle-before: pointer=False, capture=True, hand mouse-over=True, offset=0.0, pressed=True, left=Released, key-state-left=Released(0000), async-left=Released(0000), modifiers=None, owns focus=True, handled=n/a.\r\nHand sort space-up-idle-after (0 ms): pointer=False, capture=True, hand mouse-over=True, offset=0.0, pressed=True, left=Released, key-state-left=Released(0000), async-left=Released(0000), modifiers=None, owns focus=True, handled=n/a.\r\nHand sort PreviewKeyUp-before: pointer=False, capture=True, hand mouse-over=True, offset=0.0, pressed=True, left=Released, key-state-left=Released(0000), async-left=Released(0000), modifiers=None, owns focus=True, handled=False.\r\nHand sort PreviewKeyUp-after: pointer=False, capture=True, hand mouse-over=True, offset=0.0, pressed=True, left=Released, key-state-left=Released(0000), async-left=Released(0000), modifiers=None, owns focus=True, handled=False.\r\nHand sort MouseLeave: position=23346,22419.666666666664, pointer=False, capture=False.\r\nHand sort KeyUp-after: pointer=False, capture=False, hand mouse-over=False, offset=0.0, pressed=False, left=Released, key-state-left=Released(0000), async-left=Released(0000), modifiers=None, owns focus=True, handled=True.\r\nHand sort space-up: pointer=False, capture=False, hand mouse-over=False, offset=0.0, pressed=False, left=Released, key-state-left=Released(0000), async-left=Released(0000), modifiers=None, owns focus=True, handled=n/a.\r\nHand sort pumped: pointer=False, capture=False, hand mouse-over=False, offset=282.7, pressed=False, left=Released, key-state-left=Released(0000), async-left=Released(0000), modifiers=None, owns focus=True, handled=n/a.\r\nHand sort keyboard: offset=282.7, bounds=437.3..549.3, viewport=549.3.\r\n[PASS] overlapping hand cards keep stable pointer targets\r\n[PASS] general selection previews candidates before one explicit confirmation\r\n[PASS] general selection input respects overlays and consecutive national prompts\r\n[PASS] identity general choices use two rows and lord-relative seat numbers\r\nFocused general version Enter: seed=31, prompt=1, previous=classic:zhao-yun, focused=classic:gao-da-yi-hao, selected=classic:gao-da-yi-hao, submitted=none, preview=1, preview handled=False, bubble=1, handled=True, added commands=0, same native boundary=True.\r\nFocused general current version: selected=classic:gao-da-yi-hao, added commands=1, exact native selection=True, cold boundary=True.\r\nFocused general candidate Enter: previous=boundary:zhao-yun, focused=classic:cao-cao, preview only=True, added commands=0, same native boundary=True.\r\nFocused general current candidate: selected=classic:cao-cao, added commands=1, exact native selection=True, cold boundary=True.\r\nFocused general dedicated confirm: selected=classic:gao-da-yi-hao, added commands=1, exact native selection=True, cold boundary=True.\r\nFocused general number preview: index=2, previous=boundary:zhao-yun, selected=classic:cao-cao, exact candidate focus=True, added commands=0, same native boundary=True.\r\nFocused general number then Enter: selected=classic:cao-cao, added commands=1, exact native selection=True, cold boundary=True.\r\nGeneral Window ready: style=8000100, native focus=4987128, active=4987128, foreground=265716, native visible=False.\r\nGeneral version focus: native visible=False, owns foreground=False, exact WPF focus=True.\r\nGeneral version settled: native focus=4987128, active=4987128, foreground=265716, native visible=False, exact WPF focus=True.\r\nGeneral version focus: native visible=False, owns foreground=False, exact WPF focus=True.\r\nGeneral version settled: native focus=4987128, active=4987128, foreground=265716, native visible=False, exact WPF focus=True.\r\nGeneral version focus: native visible=False, owns foreground=False, exact WPF focus=True.\r\nGeneral version settled: native focus=4987128, active=4987128, foreground=265716, native visible=False, exact WPF focus=True.\r\nGeneral version focus: native visible=False, owns foreground=False, exact WPF focus=True.\r\nGeneral version settled: native focus=4987128, active=4987128, foreground=265716, native visible=False, exact WPF focus=True.\r\nGeneral version focus: native visible=False, owns foreground=False, exact WPF focus=True.\r\nGeneral version settled: native focus=4987128, active=4987128, foreground=265716, native visible=False, exact WPF focus=True.\r\nGeneral version focus: native visible=False, owns foreground=False, exact WPF focus=True.\r\nGeneral version settled: native focus=4987128, active=4987128, foreground=265716, native visible=False, exact WPF focus=True.\r\nGeneral family focus: native=4987128, window=4987128, active=4987128, foreground=265716, WPF=, panelWithin=True.\r\nGeneral refresh developer=True: selected=classic:gao-da-yi-hao, editions=classic:gao-da-yi-hao,classic:cao-cao,boundary:ling-tong.\r\nGeneral refresh developer=False: selected=classic:gao-da-yi-hao, editions=classic:gao-da-yi-hao,classic:cao-cao,boundary:ling-tong.\r\nGeneral refresh manual reload: selected=classic:gao-da-yi-hao, editions=classic:gao-da-yi-hao,classic:cao-cao,boundary:ling-tong.\r\nTutorial resume general: selected=classic:gao-da-yi-hao, editions=classic:gao-da-yi-hao,classic:cao-cao,boundary:ling-tong, confirm=True.\r\nGeneral changed contract identity:classic-variants-ui-fewer-candidates: prompt=1, selected=classic:gao-da-yi-hao, editions=classic:gao-da-yi-hao,boundary:ling-tong.\r\nGeneral changed contract identity:classic-variants-ui-fewer-variants: prompt=1, selected=classic:cao-cao, editions=classic:cao-cao,boundary:ling-tong,classic:zhao-yun.\r\n[PASS] general selection switches related editions without consuming candidate slots\r\n  Original VerifyBoundary branches RespondDodge: invalid 2, ambiguous 0.\r\n  Stable fixture RespondDodge: seed 31, 12 accepted setup commands, actual turn seat 1.\r\n  Hand response verified: RespondDodge, 打出【闪】，抵消这次【杀】。\r\nFocused Cancel Enter: seed=31, prompt=3, selected=respond.dodge.card-24, expected=respond.take-damage, actual=respond.take-damage, preview=1, preview handled=False, bubble=1, handled=True, same native decline=True.\r\nFocused hand Enter: choice=respond.dodge.card-24, preview handled=True, same native response=True.\r\nFocused confirm Enter: choice=respond.dodge.card-24, preview handled=False, same native response=True.\r\nFocused response number then Enter: index=3, card=24, expected=respond.dodge.card-24, actual=respond.dodge.card-24, exact hand focus=True, number preview handled=True, Enter preview handled=True, Enter bubble=0, handled=True, same native response=True.\r\nFocused response ignored numbers: unplayable and out-of-range, same action focus=True, added commands=0, same native boundary=True.\r\nFocused response fresh number toggles: card=24, exact hand focus=True, added commands=1, same native response=True, cold boundary=True.\r\nFocused Play number then Enter: card=45, target=1, exact hand focus=True, added commands=1, same native Slash=True, cold boundary=True.\r\nFocused Play cancel Enter: preview handled=False, added commands=0, same native action=True.\r\nFocused Play end Enter: preview handled=False, added commands=1, same native action=True.\r\nFocused Play portrait Enter: preview handled=True, added commands=1, same native action=True.\r\n  Original VerifyBoundary branches RespondSlash: invalid 0, ambiguous 0.\r\n  Stable fixture RespondSlash: seed 31, 14 accepted setup commands, actual turn seat 1.\r\n  Hand response verified: RespondSlash, 打出【杀】，响应【南蛮入侵】。\r\n  Original VerifyBoundary branches RescueDying: invalid 2, ambiguous 0.\r\n  Stable fixture RescueDying: seed 31, 9 accepted setup commands, actual turn seat 0.\r\n  Hand response verified: RescueDying, 使用【桃】救援 你。\r\n  Original VerifyBoundary branches Nullification: invalid 1, ambiguous 0.\r\n  Stable fixture Nullification: seed 31, 14 accepted setup commands, actual turn seat 0.\r\n  Hand response verified: Nullification, 使用【无懈可击】恢复【桃园结义】效果。\r\n  Original VerifyBoundary branches FireAttackReveal: invalid 0, ambiguous 0.\r\n  Stable fixture FireAttackReveal: seed 31, 15 accepted setup commands, actual turn seat 1.\r\n  Hand response verified: FireAttackReveal, 展示【火攻】（A）\r\n  Original VerifyBoundary branches FireAttackDiscard: invalid 0, ambiguous 0.\r\n  Stable fixture FireAttackDiscard: seed 31, 10 accepted setup commands, actual turn seat 0.\r\n  Hand response verified: FireAttackDiscard, 弃置【杀】（A），造成 1 点火焰伤害。\r\n  Original VerifyBoundary branches Jijiu: invalid 0, ambiguous 0.\r\n  Stable fixture Jijiu: seed 31, 14 accepted setup commands, actual turn seat 1.\r\n  Hand response verified: Jijiu, 发动【急救】，将【闪】当作【桃】救援 AI 2。\r\n  Original VerifyBoundary branches ArrowBarrage: invalid 0, ambiguous 0.\r\n  Stable fixture ArrowBarrage: seed 31, 14 accepted setup commands, actual turn seat 1.\r\n  Hand response verified: ArrowBarrage, 打出【闪】，响应【万箭齐发】。\r\nStored Slash: card=32, native choice=respond.slash.card-32, grain=True, playable=True, button=True, extra=0, commands=18.\r\nStored Dodge: card=32, native choice=respond.dodge.card-32, grain=True, playable=True, button=True, extra=0, commands=18.\r\nStored Taoluan: card=32, native choice=respond.dodge.card-32.conversion-0, grain=True, playable=True, button=True, extra=1, commands=16.\r\nTaoluan extra speed=fast: choice45=respond.dodge.card-45.conversion-0, extras=1, same button=True, exact WPF focus=True, native focus=26350326, native hidden=True, owns foreground=False.\r\nTaoluan extra speed=slow: choice45=respond.dodge.card-45.conversion-0, extras=1, same button=True, exact WPF focus=True, native focus=26350326, native hidden=True, owns foreground=False.\r\nTaoluan extra speed=normal: choice45=respond.dodge.card-45.conversion-0, extras=1, same button=True, exact WPF focus=True, native focus=26350326, native hidden=True, owns foreground=False.\r\n[PASS] hand responses select exact cards and confirm through shared controls\r\n10 WPF checks passed, 0 failed. Renders: C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders\r\n"
+        }
+      ]
+    },
+    "routine": {
+      "summary": {
+        "status": "passed",
+        "mode": "routine",
+        "repository": "C:\\Users\\17917\\Desktop\\Card",
+        "artifactsPath": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f",
+        "coreFilters": [
+          "identity role general candidates",
+          "identity general variants",
+          "identity Rebel kill reward",
+          "Chained state basic:",
+          "Foreign selected card Slash:",
+          "Paired color responses:",
+          "Actor hand limit penalty:",
+          "Play phase temporary skills:",
+          "Round gained source uses:",
+          "Unique maximum trick targets:",
+          "Damage counterpart acquisition:",
+          "Last zone conversions:",
+          "Overflow target cancellation:",
+          "Matching recast:",
+          "Ordered printed skill loss:",
+          "Recipient category mark:",
+          "Off-turn used card gift:",
+          "Turn default allocation:",
+          "Round distinct basic use:",
+          "Card response completion cost:",
+          "Card response completion:",
+          "Same name hand demand:",
+          "Completed undamaged target reveal:",
+          "Paired hand recast:",
+          "Original hand entities:",
+          "Outside phase draw discard:",
+          "Native discard classification:",
+          "Phase name prediction:",
+          "Last damage source reciprocity:",
+          "Category discard refund:",
+          "Activation-count awakening:",
+          "Unexpected Assault:",
+          "Draw-funded distinct basic:",
+          "Multiple original materials already moved and empty virtual responses",
+          "Liejie source discard:",
+          "Choice target prerequisite:",
+          "Different color judgment replacement:",
+          "Ending damage marker:",
+          "Tongxie use provenance:",
+          "Tang Ji paid continuation:",
+          "Liu Hong activation:",
+          "Draw advice and designated extra target:",
+          "Gifted Slash hand policy:",
+          "Public pile cash out:",
+          "Current turn hand exchange:",
+          "Exact owned card count and named targets:",
+          "Actual target prompt retains the AI-owned attack",
+          "Owned hand exact rank sum actual gift and recovery return",
+          "Owned hand exact rank sum no solution and native AI",
+          "Initial hand modifiers: owner maximum HP controls the real deal and dynamic hand limit",
+          "Owner dying awakening paid HP tail returns once",
+          "Owner dying replacement permanent source and optional ending replay",
+          "Virtual ordinary trick composition frozen branches and public AI",
+          "Ending Pindian win loss tie actual virtual tricks and cold return",
+          "Trick target arbitrary hand gift empty Dismantlement and true counterspell",
+          "Delayed trick target hand gift waits exact movement child",
+          "Ending virtual trick real adjusted target sequence returns once",
+          "Actual turn use ordinal:",
+          "Actual second use foreign grants share state and expire on end",
+          "Actual legacy Wine",
+          "foreign ending owner and equipment costs wait once",
+          "shared actual target loader keeps operation ownership",
+          "public equipment half count draw resumes once",
+          "Short range Slash and directed ending debt:",
+          "Equipment Slash ownership:",
+          "Actual hand gains and category gifts:",
+          "Delegated judgment and gain gifts:",
+          "JudgedRankSlashPolicy.",
+          "skill program public pile preparation",
+          "Phase hand seizure:",
+          "RecipientContestConsequences",
+          "command",
+          "observer",
+          "viewer",
+          "prepared snapshot",
+          "internal failure",
+          "declaration payment lookups",
+          "empty binding queries",
+          "ordinary card snapshot reuse",
+          "skill runtime usage",
+          "program state projection",
+          "public pile projection",
+          "zero material uses",
+          "legacy and borrowed sword zero material continuations",
+          "damage cursor typed observers",
+          "round-start programs include foreign owners and cold returns",
+          "skill program",
+          "lifecycle programs",
+          "shared post-event",
+          "Phase hand extra turn",
+          "Actual draw obligation",
+          "Owned damage point judgment",
+          "Prevented damage draw",
+          "Black trick target policy",
+          "Dying skill qualification",
+          "Nearest legal Slash",
+          "Actual turn target commitment",
+          "Applied damage occurrence",
+          "Applied damage benefit",
+          "Dual private color commitments",
+          "Damage judgment suit payment four suits",
+          "Granted entity extra phase distance",
+          "Frozen faction recovery game damage",
+          "Next actual-use paid wins",
+          "Original target addition rights",
+          "Foreign turn Wine actual actor",
+          "Neighbor discard own first previous",
+          "boundary cheng pu completion payment",
+          "boundary wu guo tai paid equipment pair",
+          "Paid actual target HP and original use return",
+          "boundary li ru sequential discard top cost",
+          "Whole equipment donation actual X and recovery",
+          "boundary xiao qiao suit prevention equipment cost",
+          "boundary lu su extra draw half hand gift",
+          "Real color payment Duel back-damage and mandatory Ending claim",
+          "boundary two zhangs equipment replacement",
+          "boundary bu lian shi ordered opaque pair gift",
+          "Foreign actual turn contest decline win expiry",
+          "boundary ma dai shown color hand ban",
+          "Ending pair two draws own extra round and cold",
+          "Preparation discard actual cost",
+          "Ordinary SP Cao Ren private whole hand",
+          "Ordinary SP Pang De two real costs",
+          "Ordinary Chen Lin deferred private offer next actual start exchange",
+          "Ordinary SP Cai Wen Ji original Dying four suits private cost cold replay",
+          "Ordinary Guan Yin Ping red equipment cost before lost HP targets and real fire draw",
+          "ordinary OL Zhuge Ke empty-hand Dodge private top request and once payment",
+          "Yang Xiu multi-target trick",
+          "SP Ma Chao HP ordered distance and lost HP extra targets pay each target once",
+          "Ordinary Fu Wan same-use benefit",
+          "Ordinary Cao Hong real placement",
+          "Ordinary Liu Xie Tianming SilverLion cost and unique current HP peer",
+          "OL signed damage actual material",
+          "Tiered Round true uses physical conversion and private cold",
+          "Tiered Round shared quota and zero ordinary child",
+          "Same actual use aid extra duel physical slash targets",
+          "shared use lifecycle",
+          "shared card-use",
+          "card movement",
+          "card inventory",
+          "initial deal",
+          "invalid single and batch",
+          "draw and recover",
+          "execution plans",
+          "skill executor",
+          "program gameplay hashes",
+          "skill execution reads hand context",
+          "ordinary trick queries preserve exact options",
+          "legal action queries preserve exact physical entity options",
+          "invariant history index",
+          "physical deck recipes",
+          "structured skill metadata",
+          "content registry",
+          "standard package",
+          "composition kernel",
+          "rule query",
+          "slash resolution",
+          "dying response",
+          "Xingshang",
+          "response use completion",
+          "selected gift",
+          "configured active sequences",
+          "standard active programs",
+          "owned-card set",
+          "turn card-use effects",
+          "active Program contracts",
+          "hand guidance",
+          "actual marker payment",
+          "replacement draw and dying payment",
+          "two dynamic actual ends",
+          "ordered nested native owner",
+          "payment nested comparison",
+          "first target history",
+          "program conversion polarity shared state and replay",
+          "Feng Lin Lu Zhi actual discard entry boundaries",
+          "Ending child gift joins current boundary",
+          "Feng Lin Yuan Shu command loss regrant source suppression",
+          "Feng Lin Yuan Shu qualified awakening persistent local loss",
+          "Feng Lin Zhou Fei first domains and true equipment sequence",
+          "Feng Lin Zhou Fei same-source association freeze",
+          "Feng Lin Congjian Equipment gift nested replay",
+          "after turn ended return movement prelude ordering",
+          "after turn ended due before window nested replay",
+          "Feng Lin Zuo Ci initial privacy and replay",
+          "Feng Lin Zuo Ci layered suppression and local disable",
+          "Feng Lin Zuo Ci same avatar program and actual end",
+          "Feng Lin Yu Ji",
+          "boundary Lu Meng all table printed suits replay",
+          "boundary Lu Meng cross owner skip chain resume death",
+          "boundary Lu Meng Qinxue windows shared usage",
+          "boundary Lu Meng opt in usage legacy shape",
+          "Boundary Huang Gai actual provider color",
+          "Boundary Huang Gai multi card color source lifecycle",
+          "boundary Lu Xun actual trick hold lianying and return",
+          "boundary Lu Xun HE payment exact Hand batch count",
+          "boundary Liu Bei virtual Peach HP child",
+          "boundary Liu Bei native provided use decline once",
+          "boundary Liu Bei gift threshold recipient",
+          "boundary Da Qiao atomic mixed discard replay",
+          "boundary Hua Tuo ordered actual discard effective suit receipts",
+          "participant discard mandatory cost cancellation preserves legal composition",
+          "current turn nonlocked suppression host lifecycle audit",
+          "boundary Guan Yu actual Played and black Hand rejection",
+          "Boundary Zhang Fei actual recovery receipt limited child",
+          "boundary Ma Chao Tieqi Paoxiao exact cancellation integration",
+          "boundary Xiahou Dun real phases skip quota expiry",
+          "boundary Xiahou Dun receipt before gain child source audit",
+          "Exact top count partition normal draw",
+          "Bound draw receipt per point nested gain",
+          "boundary Zhen Ji exact receipt stop red discard",
+          "boundary Zhen Ji receipt before child source loss",
+          "Unconverted Trick draw receipt disposition",
+          "Foreign equipment discard program selections",
+          "Population reorder actual partition and short pile",
+          "Population reorder real Ending Extra Scheduled",
+          "HP pair freezes after payment children before draw children",
+          "Equipment placement slot self equal boundaries",
+          "Final target Slash frozen comparisons actual paid Dodge",
+          "Final target Slash escalation:",
+          "Paid HP loss rescue and gain children",
+          "Paid HP loss source and legacy",
+          "Boundary Deng Ai own turn slash discard judges authority",
+          "Boundary Deng Ai awakening grants snatch and extra turn",
+          "Boundary Jiang Wei declined taunt discards target card",
+          "Boundary Jiang Wei dodged slash still discards",
+          "Boundary Jiang Wei taunt runs twice per phase",
+          "Boundary Jiang Wei awakening wakes once across phases",
+          "Boundary Sun Ce own duel and red slash draw",
+          "Boundary Sun Ce reclaim once per turn",
+          "Boundary Sun Ce hunzi wakes draws and stays silent",
+          "Boundary Sun Ce zhiba declined claim discards both",
+          "Boundary Zhu Rong juxiang immunity claims resolved barbarian",
+          "Boundary Zhu Rong winning pindian takes target card",
+          "Boundary Zhu Rong lost pindian takes nothing",
+          "Boundary Zhu Rong unlimited slash damage draws at phase end",
+          "Boundary Zhu Rong dodged slash skips phase end draw",
+          "Boundary Zhu Rong changbiao runs once per phase",
+          "Boundary Meng Huo definitions and metadata",
+          "Boundary Meng Huo barbarian immunity and attribution",
+          "Boundary Meng Huo zaiqi asks chosen participants in order",
+          "Boundary Meng Huo zaiqi draw only at full owner",
+          "Boundary Meng Huo zaiqi decline leaves everyone alone",
+          "Boundary Meng Huo zaiqi stays silent without red discards",
+          "Boundary Guan Xing Zhang Bao converted slash response follows pair color",
+          "Boundary Guan Xing Zhang Bao turn skills expire with the turn",
+          "Damage target mount paid children source lifetime",
+          "Damage appearance Draw definitions physical colors cardless legacy",
+          "Selected actor Duel actual Use and Nullification",
+          "Damage target obtain nested Duel native cold",
+          "Boundary Yuan Shao population start role marker limit",
+          "Boundary Yuan Shao conversion actual remaining targets",
+          "Recovery replacement Silver Lion Zhiheng HP and reward children",
+          "Recovery replacement paid equipment tail",
+          "Recovery replacement faction request Silver Lion cost before providers",
+          "Program Iron Chain third target owned recast",
+          "Equipment recast Silver Lion recovery and movement children",
+          "BoundaryXuShu fixed target real Slash",
+          "BoundaryXuShu declared deck criterion",
+          "Character turned over Shebian both directions",
+          "Character turned over Shebian occupied equipment slot",
+          "Character turned over actual damage cursor",
+          "Capped hand refresh",
+          "HP paid shield",
+          "Random Pindian",
+          "Maximum Slash Pindian",
+          "Bound card recast dynamic Slash",
+          "Bound card recast Silver Lion",
+          "Turn kind hand exemption",
+          "Signed Slash modifier",
+          "Bound discard Slash frozen suit",
+          "Bound discard Slash equipment",
+          "First round limited refund exact",
+          "Current Slash entity claim basic",
+          "Current Slash entity claim nonbasic",
+          "Participant hand declined private take",
+          "Participant hand mixed HE gift",
+          "Participant hand per point effective red",
+          "Participant hand program bound alcohol",
+          "Next-use rank bonus",
+          "Other dying recovery equipment",
+          "Alternative phase cost actual",
+          "Alternative phase cost equipped",
+          "Ending hand count history",
+          "Random reveal color Fire Attack",
+          "Unrespondable counterspell equipment",
+          "Discarded provenance virtual Alcohol",
+          "Discarded provenance exact discard judgment",
+          "Discarded provenance real turn all materials",
+          "Actual turn use kinds independent hand suits",
+          "Actual turn use kinds per Play draw",
+          "Owner batch loss equipment OR two cards once",
+          "Shared Slash gift equipment recovery both gain children cold",
+          "Turn damage-use draw debt actual gain and frozen ending cost",
+          "Source faction prevention quota opaque HEJ equipment children"
+        ],
+        "wpfFilters": [
+          "reference table layout preserves",
+          "discard recommendation",
+          "table shortcuts",
+          "table modal focus",
+          "stale prompt choices",
+          "gallery details restore",
+          "identity general choices",
+          "general selection switches related",
+          "chained state basic UI:",
+          "Last zone conversion presentation:",
+          "Original hand tag presentation:",
+          "Draw-funded zero Use",
+          "original card artwork",
+          "overlapping hand",
+          "composed skills",
+          "conversion choices",
+          "response context",
+          "hand responses",
+          "opaque target-card",
+          "skill target selection",
+          "Iron Chain selection preserves",
+          "battle feedback",
+          "card flights",
+          "public card table",
+          "playback batches",
+          "saved UI boundaries",
+          "failed writes",
+          "public markers",
+          "deferred hand alignment",
+          "Program conversion polarity stays visible",
+          "declaration and general library views protect private faces",
+          "Jin faction presentation:",
+          "Program paid choices",
+          "Program exact top count restores private shared order",
+          "Program population count private faces restore shared free order",
+          "Program Iron Chain guide follows actual target count"
+        ],
+        "startedAt": "2026-10-11T21:20:22.1432249+08:00",
+        "durationMs": 119356,
+        "message": null,
+        "results": [
+          {
+            "name": "Build selected scope",
+            "status": "passed",
+            "exitCode": 0,
+            "durationMs": 1267,
+            "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\build.log"
+          },
+          {
+            "name": "Core selected checks (294 filters, union)",
+            "status": "passed",
+            "exitCode": 0,
+            "durationMs": 76234,
+            "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\core-selected.log"
+          },
+          {
+            "name": "WPF selected checks (36 filters, union)",
+            "status": "passed",
+            "exitCode": 0,
+            "durationMs": 41584,
+            "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\wpf-selected.log"
+          }
+        ],
+        "cleanup": {
+          "status": "queued",
+          "queued": [
+            "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin",
+            "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\obj",
+            "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders"
+          ],
+          "database": "C:\\Users\\17917\\Desktop\\Card\\tools\\cleanup_queue.json",
+          "message": null
+        }
+      },
+      "logs": [
+        {
+          "name": "Build selected scope",
+          "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\build.log",
+          "content": "  正在确定要还原的项目…\r\n  所有项目均是最新的，无法还原。\r\n  CardGame.Core -> C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin\\CardGame.Core\\release\\CardGame.Core.dll\r\n  CardGame.Content.Standard -> C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin\\CardGame.Content.Standard\\release\\CardGame.Content.Standard.dll\r\n  CardGame.Core.Tests -> C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin\\CardGame.Core.Tests\\release\\CardGame.Core.Tests.dll\r\n  CardGame.Wpf -> C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin\\CardGame.Wpf\\release\\CardGame.Wpf.dll\r\n  CardGame.Wpf.Tests -> C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin\\CardGame.Wpf.Tests\\release\\CardGame.Wpf.Tests.dll\r\n\r\n已成功生成。\r\n    0 个警告\r\n    0 个错误\r\n\r\n已用时间 00:00:01.05\r\n"
+        },
+        {
+          "name": "Core selected checks (294 filters, union)",
+          "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\core-selected.log",
+          "content": "[PASS] Recipient category mark: face-up gift issues one public token and survives source loss\r\n[PASS] Recipient category mark: Lei recovers native dying to one and draws once\r\n[PASS] Recipient category mark: Fu blindly discards up to two from one area\r\n[PASS] Recipient category mark: Song adds legal targets to the original Slash\r\n[PASS] Off-turn used card gift: actual single and pair Dodge give every material once\r\n[PASS] Off-turn used card gift: own turn and pure responses stay excluded\r\n[PASS] Chained state basic: own play pays state and returns once\r\n[PASS] Chained state basic: own Dodge waits for state children\r\n[PASS] Chained state basic: requested uses exclude pure provision\r\n[PASS] Foreign selected card Slash: hand use and exact outcome\r\n[PASS] Foreign selected card Slash: equipment Judgment and native children\r\n[PASS] Foreign selected card Slash: redirect and paid source loss\r\n[PASS] Actor hand limit penalty: real uses stack and change actual discard\r\n[PASS] Actor hand limit penalty: black trick and foreign actor own turn expiry\r\n[PASS] Actor hand limit penalty: added redirected and Borrowed Sword targets\r\n[PASS] Actor hand limit penalty: paid children source loss privacy and cold replay\r\n[PASS] Play phase temporary skills: independent sources share state and preserve permanent grants\r\n[PASS] Play phase temporary skills: ending child and exact boundary cold\r\n[PASS] Play phase temporary skills: inserted phases and death do not leak sources\r\n[PASS] Round gained source uses: qualified basic materials distance and quota\r\n[PASS] Round gained source uses: trick plus minus and implicit self\r\n[PASS] Round gained source uses: Borrowed Sword whole pairs\r\n[PASS] Round gained source uses: equipment draw exclusion return and regrant\r\n[PASS] Unique maximum trick targets: actual hand leader and tied counts\r\n[PASS] Unique maximum trick targets: complete legal Borrowed Sword pair\r\n[PASS] Unique maximum trick targets: same use damage reward and paid source loss\r\n[PASS] Unique maximum trick targets: HP qualification and true counterspell exclusion\r\n[PASS] Paired color responses: same color actual hand payment and duplicate grants\r\n[PASS] Paired color responses: different and colorless pairs have no offer\r\n[PASS] Paired color responses: both directions and original Duel use stay exact\r\n[PASS] Paired color responses: equipment is legal and judgment alone is not\r\n[PASS] Paired color responses: paid acquisition source loss and native cold child return\r\n[PASS] Damage counterpart acquisition: source regrant and actual owner turn expiration\r\n[PASS] Last zone conversions: strict schema and actual hand Dodge payment\r\n[PASS] Last zone conversions: equipment Nullification Silver Lion and movement children\r\n[PASS] Last zone conversions: judgment Slash use and pure Duel response retain printed material\r\n[PASS] Overflow target cancellation: unique physical and pair materials return through native gain\r\n[PASS] Overflow target cancellation: multiple targets self use and exact hand limit stay distinct\r\n[PASS] Matching recast: canonical names self quota and extra Play phase\r\n[PASS] Matching recast: equipment recovery and Thunder damage remain native\r\n[PASS] Ordered printed skill loss: current prefix repeated and self damage once\r\n[PASS] Ordered printed skill loss: frozen draw and exact turn restoration survive source loss\r\n[PASS] Turn default allocation: phase defaults preserve modifiers and repeated Play\r\n[PASS] Turn default allocation: outside-turn damage applies only to next actual turn\r\n[PASS] Round distinct basic use: real pair pays once and shares round name across regrant\r\n[PASS] Round distinct basic use: own Dodge use and pure provision stay distinct\r\n[PASS] Round distinct basic use: Peach and self Alcohol retain native dying returns\r\n[PASS] Round distinct basic use: forced Slash and hand-like materials keep native parents\r\n[PASS] Card response completion cost: Silver Lion equipment Dodge drains health before completion\r\n[PASS] Completed undamaged target reveal: public pile payment stays separate from native materials\r\n[PASS] Card response completion: native Zhangba pair and cold return\r\n[PASS] Same name hand demand: outside-turn actual use and own-turn exclusion\r\n[PASS] Same name hand demand: pure responses complete on their native parents\r\n[PASS] Same name hand demand: response uses complete only once\r\n[PASS] Same name hand demand: actual faction providers own completion exactly once\r\n[PASS] Same name hand demand: active faction supply completes before principal use without a fake response\r\n[PASS] Same name hand demand: paid discard and native damage dying survive source loss\r\n[PASS] Completed undamaged target reveal: whole-use group target same-color discard and cold return\r\n[PASS] Completed undamaged target reveal: optional zero, mixed colors and target effective colors\r\n[PASS] Original hand entities: initial physical loss, returned card and real paired recast\r\n[PASS] Original hand entities: paid benefit draw survives nested source qualification loss\r\n[PASS] Original hand entities: empty originals awaken at real turn start once\r\n[PASS] Original hand entities: optional death transfers only personally received permanent bonuses\r\n[PASS] Outside phase draw discard: actual draw invocation excludes gifts, initial deal, Draw phase and empty deck\r\n[PASS] Outside phase draw discard: actual category discard excludes recast and Discard phase\r\n[PASS] Paired hand recast: real Hand private selection, phase quota and cold native return\r\n[PASS] Native discard classification: exact paid producers exclude adjacent gain and cleanup\r\n[PASS] Paired hand recast: paid source suppression preserves both owed draws\r\n[PASS] Paired hand recast: moved frozen partner material cannot be replaced\r\n[PASS] Paired hand recast: native partner death skips only the unpaid participant\r\n[PASS] Phase name prediction: secret actual phase, escalating round cost and native settlement\r\n[PASS] Phase name prediction: stolen armor native owner recovery and collateral return\r\n[PASS] Phase name prediction: frozen ending death, early native uses and inserted phase boundaries\r\n[PASS] Last damage source reciprocity: latest actual source, native HE payment and physical regrant memory\r\n[PASS] Unexpected Assault: opaque reveal native damage counterspell and conversion lifetime\r\n[PASS] Activation-count awakening: actual refunded activations preparation quota and source loss\r\n[PASS] Category discard refund: distinct payment phase refund and actual turn target ban\r\n[PASS] Category discard refund: repeated categories and small actual payments\r\n[PASS] Category discard refund: equipment child and lost source\r\n[PASS] Category discard refund: protected hand and payable own armor\r\n[PASS] Draw-funded distinct basic: qualification ledger and paid children\r\n[PASS] Draw-funded distinct basic: native Dodge Dying and program returns\r\n[PASS] Liejie source discard: effective red quota mixed HE and native children\r\n[PASS] Liejie source discard: zero decline protected and general weapon payments\r\n[PASS] Choice target prerequisite: missing targets retain mandatory draw recovery and consume group once\r\n[PASS] Choice target prerequisite: available targets keep exact choice through damage and private discard children\r\n[PASS] Different color judgment replacement: effective owner and subject colors pay hand equipment and replay once\r\n[PASS] Different color judgment replacement: same color none and legacy defaults keep private native choices\r\n[PASS] Ending damage marker: frozen actual damage settles once\r\n[PASS] Liu Hong activation: decline and paid children return once\r\n[PASS] Liu Hong activation: native AI available slots and source-less damage\r\n[PASS] Tang Ji paid continuation: marked death discards and returns once\r\n[PASS] Tang Ji paid continuation: lethal prevention rescues and gifts once\r\n[PASS] Tongxie use provenance: live child and returned entity use response\r\n[PASS] Draw advice and designated extra target: frozen draw qualifications and HE payment\r\n[PASS] Draw advice and designated extra target: canonical Slash name and distance\r\n[PASS] Draw advice and designated extra target: multiple Iron Chain targets\r\n[PASS] Draw advice and designated extra target: native Peach and Alcohol effects\r\n[PASS] Draw advice and designated extra target: Borrowed Sword compound pair\r\n[PASS] Draw advice and designated extra target: response recast and unsupported boundaries\r\n[PASS] Gifted Slash hand policy: actual use damage reward and cold children\r\n[PASS] Gifted Slash hand policy: departed entities and recipient boundaries\r\n[PASS] Gifted Slash hand policy: response consumes without use reward\r\n[PASS] Gifted Slash hand policy: target phase quota and continuous hand lifetime\r\n[PASS] Public pile cash out: damage points hand equipment and decline\r\n[PASS] Public pile cash out: frozen payment draw and nested deposit\r\n[PASS] Public pile cash out: isolated sources and actual turn expiry\r\n[PASS] Public pile cash out: empty source and strict composition\r\n[PASS] Current turn hand exchange: frozen foreign quantity and native HE returns\r\n[PASS] Current turn hand exchange: self draw and decline\r\n[PASS] Current turn hand exchange: gift child resource exhaustion\r\n[PASS] Exact owned card count and named targets: frozen payment recovery children\r\n[PASS] Exact owned card count and named targets: insufficient empty effective suits and native AI\r\n[PASS] Actual target prompt retains the AI-owned attack\r\n[PASS] Owned hand exact rank sum actual gift and recovery return\r\n[PASS] Owned hand exact rank sum no solution and native AI\r\n[PASS] Initial hand modifiers: owner maximum HP controls the real deal and dynamic hand limit\r\n[PASS] Owner dying awakening paid HP tail returns once\r\n[PASS] Owner dying replacement permanent source and optional ending replay\r\n[PASS] Virtual ordinary trick composition frozen branches and public AI\r\n[PASS] Ending Pindian win loss tie actual virtual tricks and cold return\r\n[PASS] Trick target arbitrary hand gift empty Dismantlement and true counterspell\r\n[PASS] Delayed trick target hand gift waits exact movement child\r\n[PASS] Ending virtual trick real adjusted target sequence returns once\r\n[PASS] Actual turn use ordinal: frozen declaration order and true uses\r\n[PASS] Actual second use foreign grants share state and expire on end\r\n[PASS] Actual legacy Wine synchronous HP and completion child return\r\n[PASS] foreign ending owner and equipment costs wait once\r\n[PASS] Short range Slash and directed ending debt: FixedOneActualTurnZeroCostEndingPhysicalOnce\r\n[PASS] Short range Slash and directed ending debt: ShortRangeOneTailActualSlashAndNativeDoubleDodge\r\n[PASS] Short range Slash and directed ending debt: WholeActualTurnPriorDamageAndIssuedSourceLossHostBoundary\r\n[PASS] Short range Slash and directed ending debt: ShortRangeNativeRedirectCursorAndFireOrdering\r\n[PASS] Equipment Slash ownership: KuangfuOwnEquipmentRecoveryAndWholeUseCompletionReturnOnce\r\n[PASS] Equipment Slash ownership: KuangfuForeignPreventionIgnoresPaidSkillsChangedDyingDamage\r\n[PASS] Equipment Slash ownership: KuangfuOwnershipDamageMatrixAndPartialHandPenalty\r\n[PASS] Equipment Slash ownership: KuangfuSpentQuotaRejectsDiscardingItsOwnCrossbow\r\n[PASS] Actual hand gains and category gifts: ActualHandGainsPreserveBatchIdentityAndExcludeSelfRecursion\r\n[PASS] Actual hand gains and category gifts: ForeignHandGainsWaitForActualEndAndKeepOnlySurvivingAcquisitions\r\n[PASS] Actual hand gains and category gifts: CategoryDeckGiftsUseTrueCompletionQuotaAndPrivateTargets\r\n[PASS] Delegated judgment and gain gifts: actual private judgment and paid HE children\r\n[PASS] Delegated judgment and gain gifts: single gain batch and actual phase quota\r\n[PASS] Delegated judgment and gain gifts: foreign Play and frozen effective red loss\r\n[PASS] Delegated judgment and gain gifts: sequential red materials and frozen collections\r\n[PASS] JudgedRankSlashPolicy.QiangwuActualJudgmentFrozenRankDistanceAndSeparateQuota\r\n[PASS] JudgedRankSlashPolicy.QiangwuReplacementEmptyDeckAndIssuedSourceLossHostBoundary\r\n[PASS] JudgedRankSlashPolicy.ShenxianSkipThenRealDrawOnceWithFrozenGainChild\r\n[PASS] JudgedRankSlashPolicy.ShenxianOriginalMovedEntityResetAndActualTurnPredicateHostBoundary\r\n[PASS] skill program public pile preparation empty independent source and real damage\r\n[PASS] skill program public pile preparation whole fill paid child\r\n[PASS] skill program public pile preparation gift recovery original quantity\r\n[PASS] Phase hand seizure: LihunRealCostFlipTakeAndFrozenHpReturnColdReplay\r\n[PASS] Phase hand seizure: LihunMaleSelfEquipmentTransferCountsOnlyPhysicalCards\r\n[PASS] Phase hand seizure: LihunSourceLossInsufficientAndForcedEndHostBoundaries\r\n[PASS] Phase hand seizure: BiyueCurrentHandBranchesSingleDrawInstruction\r\n[PASS] Phase hand seizure: LihunDeathTerminalClosureAndFrozenReceiptCollections\r\n[PASS] RecipientContestConsequencesActualBlackGiftSelfSecondAndTie\r\n[PASS] RecipientContestConsequencesActualWinnerDiscardPaidChildAndReturn\r\n[PASS] RecipientContestConsequencesActualPrintedLordQualificationNativeAndPersistent\r\n[PASS] RecipientContestConsequencesPrintedQualificationExactGrantAndReplacement\r\n[PASS] RecipientContestConsequencesActualOrdinaryTrickProtectionAndDelayedBoundary\r\n[PASS] RecipientContestConsequencesReceiptCollectionsAndLegacyGrantAbi\r\n[PASS] skill program source curse physical initial judgment replacement and actual turn loss\r\n[PASS] skill program source curse locked reward and second paid source loss return\r\n[PASS] skill program source curse HP Dying parent and physical death cleanup\r\n[PASS] skill program activation BooleanState nested gates and current instance isolation\r\n[PASS] Damage judgment suit payment four suits and exact claims\r\n[PASS] Random reveal color Fire Attack HE payment and children cold\r\n[PASS] Unrespondable counterspell equipment payment completed cold\r\n[PASS] Actual turn use kinds independent hand suits and effective types\r\n[PASS] Actual turn use kinds per Play draw child and actual turn expiry\r\n[PASS] Discarded provenance virtual Alcohol face children and zero entity\r\n[PASS] Discarded provenance exact discard judgment origins and gain children\r\n[PASS] Discarded provenance real turn all materials no response\r\n[PASS] Granted entity extra phase distance claim children and cold\r\n[PASS] Frozen faction recovery game damage points benefit children\r\n[PASS] Next actual-use paid wins refresh one target token and original claims\r\n[PASS] Original target addition rights quota armor and cold\r\n[PASS] Foreign turn Wine actual actor physical virtual and pile dying\r\n[PASS] Neighbor discard own first previous actual entities order privacy\r\n[PASS] boundary cheng pu completion payment recovery and dying\r\n[PASS] boundary wu guo tai paid equipment pair cost and typed return\r\n[PASS] Paid actual target HP and original use return\r\n[PASS] shared actual target loader keeps operation ownership and paid contracts\r\n[PASS] public equipment half count draw resumes once\r\n[PASS] boundary li ru sequential discard top cost and typed child return\r\n[PASS] Whole equipment donation actual X and recovery\r\n[PASS] boundary xiao qiao suit prevention equipment cost and capped draw\r\n[PASS] boundary lu su extra draw half hand gift and cold children\r\n[PASS] Real color payment Duel back-damage and mandatory Ending claim\r\n[PASS] Multiple original materials already moved and empty virtual responses\r\n[PASS] boundary two zhangs equipment replacement paid children and cold draw\r\n[PASS] boundary bu lian shi ordered opaque pair gift and reward\r\n[PASS] Foreign actual turn contest decline win expiry\r\n[PASS] Same actual use aid extra duel physical slash targets\r\n[PASS] boundary ma dai shown color hand ban and equipment response\r\n[PASS] Ending pair two draws own extra round and cold\r\n[PASS] Preparation discard actual cost\r\n[PASS] Yang Xiu multi-target trick owns draw children and unique Borrowed Sword is excluded\r\n[PASS] SP Ma Chao HP ordered distance and lost HP extra targets pay each target once\r\n[PASS] Ordinary Cao Hong real placement replacement and armor draw\r\n[PASS] Ordinary Guan Yin Ping red equipment cost before lost HP targets and real fire draw\r\n[PASS] ordinary OL Zhuge Ke empty-hand Dodge private top request and once payment\r\n[PASS] Ordinary SP Cao Ren private whole hand after HP children and real discard\r\n[PASS] Ordinary Chen Lin deferred private offer next actual start exchange\r\n[PASS] Ordinary SP Cai Wen Ji original Dying four suits private cost cold replay\r\n[PASS] Ordinary SP Pang De two real costs and issued Duel typed return\r\n[PASS] Ordinary Fu Wan same-use benefit and real Dodge settlement\r\n[PASS] Ordinary Liu Xie Tianming SilverLion cost and unique current HP peer\r\n[PASS] OL signed damage actual material effective color and amount\r\n[PASS] Tiered Round true uses physical conversion and private cold\r\n[PASS] Tiered Round shared quota and zero ordinary child\r\n[PASS] Owner batch loss equipment OR two cards once\r\n[PASS] Shared Slash gift equipment recovery both gain children cold\r\n[PASS] Turn damage-use draw debt actual gain and frozen ending cost\r\n[PASS] Source faction prevention quota opaque HEJ equipment children\r\n[PASS] Dual private color commitments atomic payment real Duel and cold\r\n[PASS] Actual turn target commitment damage weapon shared quota\r\n[PASS] Applied damage occurrence frozen victim and real source\r\n[PASS] Applied damage benefit gain field recovery source death\r\n[PASS] Owned damage point judgment actual alcohol suppression expiry\r\n[PASS] Owned damage point judgment bonus and dodged virtual no suppression\r\n[PASS] Owned damage point judgment per point recovery claim children native\r\n[PASS] Owned damage point judgment claimed gain bound Alcohol rescue and cold replay\r\n[PASS] Prevented damage draw exact amount owning children\r\n[PASS] Black trick target policy actual color and lightning\r\n[PASS] Dying skill qualification current source foreign grants\r\n[PASS] Nearest legal Slash paid conversion provider optional finisher\r\n[PASS] Nearest legal Slash paid source loss native start history\r\n[PASS] Actual draw obligation distance whole turn paid equipment\r\n[PASS] Actual draw obligation least hand marker end observers\r\n[PASS] Actual draw obligation existing marker nonminimum awaited gain\r\n[PASS] Actual draw obligation skipped extra reissued marker source death\r\n[PASS] Phase hand extra turn native public declaration paid selected beneficiary\r\n[PASS] Phase hand extra turn owner only native legacy value\r\n[PASS] Next-use rank bonus per point real consumption public pool and cold replay\r\n[PASS] Other dying recovery equipment payment turnover exact victim and cold replay\r\n[PASS] Alternative phase cost actual Judgment Draw zero to two targets cold\r\n[PASS] Alternative phase cost equipped payment HP movement children\r\n[PASS] Ending hand count history Extra turns face down native AI\r\n[PASS] Participant hand declined private take two cards atomic source reward\r\n[PASS] Participant hand mixed HE gift atomic recovery and reward children\r\n[PASS] Participant hand per point effective red and HP loss damage cursor\r\n[PASS] Participant hand program bound alcohol rescue typed return and cold\r\n[PASS] Current Slash entity claim basic payment original damage and multiple materials\r\n[PASS] Current Slash entity claim nonbasic receipt real allowance and armor boundaries\r\n[PASS] Bound discard Slash frozen suit quota prepared privacy and expiry\r\n[PASS] Bound discard Slash equipment frozen suit recovery and movement children\r\n[PASS] First round limited refund exact usage and second round consumption\r\n[PASS] Character turned over Shebian both directions movement children cold replay\r\n[PASS] Character turned over Shebian occupied equipment slot no replacement cold replay\r\n[PASS] Character turned over actual damage cursor and movement child cold replay\r\n[PASS] Turn kind hand exemption survives source suppression actual turn expiry\r\n[PASS] Signed Slash modifier parser and prepared collection boundaries\r\n[PASS] Random Pindian both strategies exact RNG tied Slash claims cold replay\r\n[PASS] Random Pindian source decline opponent forces source cold replay\r\n[PASS] Maximum Slash Pindian claim effective ranks deferred top cold replay\r\n[PASS] Bound card recast dynamic Slash hand exemption actual expiry\r\n[PASS] Bound card recast Silver Lion recovery movement before grants\r\n[PASS] Capped hand refresh real damage private discard and cold replay\r\n[PASS] Capped hand refresh dead owner exact parent and cold replay\r\n[PASS] HP paid shield source death full damage prevention and once payment\r\n[PASS] HP paid shield lethal payment exact dying return cold replay\r\n[PASS] HP paid shield winner HP child cancels tail\r\n[PASS] HP paid shield native AI affordable protection\r\n[PASS] Recovery replacement Silver Lion Zhiheng HP and reward children\r\n[PASS] Recovery replacement paid equipment tail Qixi and replaced ID\r\n[PASS] Recovery replacement paid equipment tail Stone Axe before damage\r\n[PASS] Recovery replacement Qingxian damage HP reward observer chain\r\n[PASS] Recovery replacement paid Qixi stops after observer victory\r\n[PASS] Recovery replacement faction request Silver Lion cost before providers\r\n[PASS] Equipment recast Silver Lion recovery and movement children\r\n[PASS] Program equipment recast Silver Lion recovery and movement children\r\n[PASS] BoundaryXuShu fixed target real Slash cold replay\r\n[PASS] BoundaryXuShu declared deck criterion male give\r\n[PASS] Program Iron Chain third target owned recast cold replay\r\n[PASS] boundary Ma Chao Tieqi Paoxiao exact cancellation integration\r\n[PASS] program conversion polarity shared state and replay\r\n[PASS] Population reorder actual partition and short pile\r\nActual command witnesses: Normal/Extra Ending and preparation before-parent Scheduled Draw/Play cold prefixes, not host phase mutation.\r\n[PASS] Population reorder real Ending Extra Scheduled\r\n[PASS] Unconverted Trick draw receipt disposition\r\n[PASS] Foreign equipment discard program selections\r\n[PASS] Damage target obtain nested Duel native cold\r\n[PASS] Damage target mount paid children source lifetime\r\n[PASS] Final target Slash frozen comparisons actual paid Dodge\r\n[PASS] Final target Slash escalation: judgment quota and Silver Lion\r\n[PASS] Boundary Yuan Shao population start role marker limit\r\n[PASS] Boundary Yuan Shao conversion actual remaining targets\r\n[PASS] Damage appearance Draw definitions physical colors cardless legacy\r\n[PASS] Selected actor Duel actual Use and Nullification\r\n[PASS] Paid HP loss rescue and gain children\r\n[PASS] Paid HP loss source and legacy\r\n[PASS] Boundary Deng Ai own turn slash discard judges authority\r\n[PASS] Boundary Deng Ai awakening grants snatch and extra turn\r\n[PASS] Boundary Jiang Wei declined taunt discards target card\r\n[PASS] Boundary Jiang Wei dodged slash still discards\r\n[PASS] Boundary Jiang Wei taunt runs twice per phase\r\n[PASS] Boundary Jiang Wei awakening wakes once across phases\r\n[PASS] Boundary Sun Ce own duel and red slash draw\r\n[PASS] Boundary Sun Ce reclaim once per turn\r\n[PASS] Boundary Sun Ce hunzi wakes draws and stays silent\r\n[PASS] Boundary Sun Ce zhiba declined claim discards both\r\n[PASS] Boundary Zhu Rong juxiang immunity claims resolved barbarian\r\n[PASS] Boundary Zhu Rong winning pindian takes target card\r\n[PASS] Boundary Zhu Rong lost pindian takes nothing\r\n[PASS] Boundary Zhu Rong unlimited slash damage draws at phase end\r\n[PASS] Boundary Zhu Rong dodged slash skips phase end draw\r\n[PASS] Boundary Zhu Rong changbiao runs once per phase\r\n[PASS] Boundary Meng Huo definitions and metadata\r\n[PASS] Boundary Meng Huo barbarian immunity and attribution\r\n[PASS] Boundary Meng Huo zaiqi asks chosen participants in order\r\n[PASS] Boundary Meng Huo zaiqi draw only at full owner\r\n[PASS] Boundary Meng Huo zaiqi decline leaves everyone alone\r\n[PASS] Boundary Meng Huo zaiqi stays silent without red discards\r\n[PASS] Boundary Guan Xing Zhang Bao converted slash response follows pair color\r\n[PASS] Boundary Guan Xing Zhang Bao turn skills expire with the turn\r\n[PASS] HP pair freezes after payment children before draw children\r\n[PASS] Equipment placement slot self equal boundaries\r\n[PASS] Exact top count partition normal draw\r\nPhysical Peach rescue (save) accepted revision=21; originalCost=13/Peach; receipt=[24,33]; four-view cold prefixes match.\r\nPhysical Peach rescue (save-observer) accepted revision=22; originalCost=13/Peach; receipt=[24,33]; four-view cold prefixes match.\r\nPhysical Peach rescue (save-observer-activate) accepted revision=22; originalCost=13/Peach; receipt=[24,33]; four-view cold prefixes match.\r\nConverted Peach/Jijiu rescue (save-jijiu-observer) accepted revision=28; originalCost=13/Dodge; receipt=[24,33]; four-view cold prefixes match.\r\nConverted Peach/Jijiu rescue (save-jijiu-observer-activate) accepted revision=28; originalCost=13/Dodge; receipt=[24,33]; four-view cold prefixes match.\r\n[PASS] Bound draw receipt per point nested gain\r\n[PASS] Boundary Zhang Fei actual recovery receipt limited child\r\n[PASS] Feng Lin Kuai Ending child gift joins current boundary\r\n[PASS] participant discard mandatory cost cancellation preserves legal composition\r\n[PASS] boundary Hua Tuo ordered actual discard effective suit receipts\r\n[PASS] boundary Lu Xun HE payment exact Hand batch count\r\n[PASS] boundary Lu Xun actual trick hold lianying and return\r\n[PASS] Feng Lin Zuo Ci initial privacy and replay\r\n[PASS] Feng Lin Zuo Ci layered suppression and local disable\r\n[PASS] Feng Lin Zuo Ci same avatar program and actual end\r\n[PASS] Feng Lin Zhou Fei first domains and true equipment sequence\r\n[PASS] Feng Lin Zhou Fei same-source association freeze\r\n[PASS] Feng Lin Lu Zhi actual discard entry boundaries\r\n[PASS] Feng Lin Lu Ji actual marker payment and damage\r\n[PASS] Feng Lin Lu Ji replacement draw and dying payment\r\n[PASS] boundary Liu Bei native provided use decline once\r\n[PASS] boundary Liu Bei virtual Peach HP child\r\n[PASS] boundary Liu Bei gift threshold recipient\r\n[PASS] boundary Da Qiao atomic mixed discard replay\r\n[PASS] boundary Lu Meng all table printed suits replay\r\n[PASS] boundary Lu Meng cross owner skip chain resume death\r\n[PASS] boundary Lu Meng Qinxue windows shared usage\r\n[PASS] boundary Lu Meng opt in usage legacy shape\r\n[PASS] after turn ended return movement prelude ordering\r\n[PASS] after turn ended due before window nested replay\r\n[PASS] FengLin Hao Zhao two dynamic actual ends native discard\r\n[PASS] FengLin Hao Zhao ordered nested native owner\r\n[PASS] Feng Lin Wang Ping payment nested comparison empty\r\n[PASS] Feng Lin Wang Ping first target history independent reward\r\n[PASS] committed events see the accepted command\r\n[PASS] command projection preparation failure preserves prior commit\r\n[PASS] command delivery failure preserves visible commit\r\n[PASS] command observer exception preserves commit and result\r\n[PASS] prepared snapshot rejects observer collection mutation\r\n[PASS] committed event collections reject observer mutation\r\n[PASS] round-start programs include foreign owners and cold returns\r\n[PASS] selected gift continues after recipient death\r\n[PASS] internal failure stops the session and preserves its trusted prefix\r\n[PASS] draw and recover compile typed instructions\r\n[PASS] commands share prepared projection across result and reentry\r\n[PASS] content registry compiles whole catalog dependencies\r\n[PASS] execution plans reuse source bindings without order collisions\r\nCorrelated AI HandPair/legacy1: cards=, targets=1,3, nativeAccepted=False, error=InvalidTarget.\r\nCorrelated AI HandPair/legacy2: cards=, targets=1,3, nativeAccepted=False, error=InvalidTarget.\r\nCorrelated AI HandPair/legacy3: cards=, targets=1,3, nativeAccepted=False, error=InvalidTarget.\r\nCorrelated AI HandPair/policy4: cards=, targets=1,2, nativeAccepted=True, error=, cardPairs=, targetSequences=4.\r\nCorrelated AI Equipment/legacy1: cards=8, targets=1, nativeAccepted=False, error=InvalidCard.\r\nCorrelated AI Equipment/legacy2: cards=8, targets=1, nativeAccepted=False, error=InvalidCard.\r\nCorrelated AI Equipment/legacy3: cards=8, targets=1, nativeAccepted=False, error=InvalidCard.\r\nCorrelated AI Equipment/policy4: cards=8, targets=2, nativeAccepted=True, error=, cardPairs=25, targetSequences=.\r\nCorrelated AI native Advance/policy4: owner=1, orderedTargets=2,3, frozenDifference=1.\r\n[PASS] active Program contracts share legality with public AI\r\n[PASS] skill execution reads hand context only for dependent conditions\r\n[PASS] ordinary trick queries preserve exact options when narrowed\r\n[PASS] legal action queries preserve exact physical entity options\r\n[PASS] invariant history index retains issued receipts after source loss\r\n[PASS] content registry freezes selection weights before publication\r\n[PASS] declaration payment lookups preserve exact receipt precedence\r\n[PASS] empty binding queries preserve exact states and issued obligations\r\n[PASS] ordinary card snapshot reuse preserves appearance privacy and replay\r\n[PASS] program state projection preserves empty and live policy JSON\r\n[PASS] public pile projection preserves empty and live queries\r\n[PASS] zero material uses preserve appearance targets and replay\r\n[PASS] legacy and borrowed sword zero material continuations\r\n[PASS] skill executor retires strategic damage batches\r\n[PASS] lifecycle programs retire deferred provider rewards after owner death\r\n[PASS] response use completion Dodge timing parent and replay\r\n[PASS] response use completion counterspell chain and replay\r\n[PASS] response use completion counterspell dying rescue exact parent\r\n[PASS] response use completion Dodge dying rescue exact parent\r\n[PASS] response use completion excludes group response and wrong loader window\r\n[PASS] shared post-event recipient batch counts and reason filters\r\n[PASS] shared post-event gained cards pause and replay\r\n[PASS] shared post-event dying recovery ordering and replay\r\n[PASS] shared post-event definition context validation\r\n[PASS] shared use lifecycle nests rescue inside a suspended card window\r\n[PASS] shared card-use phase-owner movement context validation\r\n[PASS] Fame 2016 Taoluan response use completion\r\n[PASS] Fame 2015 Wei observer Spade damage gate replay\r\n[PASS] Fame 2013 discard movement origin native Dismantlement and replay\r\n[PASS] turn-ending Xiaoguo Tianxiang game over stops later observers\r\n[PASS] Feng Lin Congjian Equipment gift nested replay\r\n[PASS] owned-card set private draft movement and replay\r\n[PASS] owned-card set shortfall empty sources and invalidation\r\n[PASS] shared use lifecycle preserves dying rescue and replay\r\n[PASS] composition kernel resource graph safety\r\n[PASS] composition kernel malformed nodes\r\n[PASS] composition kernel boundary capabilities\r\n[PASS] composition kernel target-set consumption\r\n[PASS] execution plans freeze instructions and reject ambiguous bindings\r\n[PASS] rule query reduction is input-order independent\r\n[PASS] rule query reduction rejects invalid mutable inputs\r\n[PASS] rule query distance runs both directions before clamping\r\n[PASS] rule query registry rejects future Set conflicts\r\n[PASS] boundary Zhen Ji exact receipt stop red discard\r\n[PASS] boundary Zhen Ji receipt before child source loss\r\n[PASS] boundary Xiahou Dun real phases skip quota expiry\r\n[PASS] boundary Xiahou Dun receipt before gain child source audit\r\n[PASS] boundary Guan Yu actual Played and black Hand rejection\r\n[PASS] current turn nonlocked suppression host lifecycle audit\r\n[PASS] skill executor resumes child resolution without repeating paid effects\r\n[PASS] skill executor cancels remaining effects after an invalid selected cost\r\n[PASS] skill executor rejects changed programs and missing or duplicate handlers\r\n[PASS] active Program contracts reject invalid selections and preserve target order\r\n[PASS] lifecycle programs reject live card bindings across inserted phases\r\n[PASS] lifecycle programs cancel missing conditional bindings without leaks\r\n[PASS] cancelled lifecycle programs preserve parent attack cards\r\n[PASS] card movement programs compose atomic per-card and per-batch triggers with replay\r\n[PASS] nested card movement batches retain immediate parent identity\r\n[PASS] damage cursor typed observers require frozen candidate and parent chain\r\n[PASS] structured skill metadata normalizes explicitly and fingerprints content\r\n[PASS] skill runtime usage and conversion states reset by declared scope\r\n[PASS] Boundary Huang Gai actual provider color\r\n[PASS] Boundary Huang Gai multi card color source lifecycle\r\n[PASS] Feng Lin Yu Ji actual dodge duel rescue parents\r\n[PASS] Feng Lin Yu Ji actual counterspell provider parents\r\n[PASS] Feng Lin Yu Ji borrowed sword faction provider declaration\r\n[PASS] Feng Lin Yu Ji old registry virtual duel native continuation\r\n[PASS] Feng Lin Yu Ji cost child atomic privacy restore\r\n[PASS] Feng Lin Yu Ji all pass privacy quota replay\r\n[PASS] Feng Lin Yu Ji first challenge true false\r\n[PASS] Feng Lin Yuan Shu qualified awakening persistent local loss\r\n[PASS] Feng Lin Yuan Shu command loss regrant source suppression\r\n[PASS] skill program v2 trigger definitions validate and freeze\r\n[PASS] skill program card triggers require exact conversion sources and replay\r\n[PASS] skill program multi-target triggers wait for every Liuli redirection\r\n[PASS] skill program final judgment triggers resume recovery, drawing and replay\r\n[PASS] skill program judgment replacement commits both old-card destinations and replays\r\n[PASS] skill program judgment damage resumes through dying, death and replay\r\n[PASS] skill program direct Dodge and Lightning judgments resume and replay\r\n[PASS] skill program contributions bind owner filters, phase ledger and replay\r\n[PASS] skill program selected judgment subjects damage and replay\r\n[PASS] turn card-use effects union order consume and expire by action semantics\r\n[PASS] Chunlao spends one public Chun as virtual Alcohol in a dying response\r\n[PASS] Xingshang claims nested direct death cleanup cards and replays\r\n[PASS] recast is an independent validated card movement and replays exactly\r\n[PASS] viewer snapshot hides private roles and hands\r\n[PASS] viewer snapshot hides seed and other players' decisions\r\n[PASS] viewer cannot mutate the engine pending decision\r\n[PASS] commands publish a revision and reject stale input atomically\r\n[PASS] play commands use one exact published card and target choice\r\n[PASS] command reentry is a typed rejection\r\n[PASS] manual discard checkpoints and commands replay exactly\r\n[PASS] standard package builds an immutable isolated registry\r\n[PASS] skill program loader separates canonical gameplay from presentation\r\n[PASS] skill program loader rejects malformed and unsupported definitions\r\n[PASS] configured active sequences reject forged input and replay exact moves\r\n[PASS] program gameplay hashes control checkpoint compatibility independently of presentation\r\n[PASS] physical deck recipes preserve exact suit, rank and content hashing\r\n[PASS] standard active programs use typed selections and deterministic replay\r\n[PASS] content registry rejects duplicate ids and bad references\r\n[PASS] identity role general candidates freeze private choices and replay\r\n[PASS] identity general variants keep candidate families private and replay exact editions\r\n[PASS] identity Rebel kill reward draws exactly three cards and replays once\r\n[PASS] hand guidance is private, read-only and agrees with legal actions\r\n[PASS] accepted command journals serialize and replay deterministically\r\n[PASS] command checkpoints restore a paused private prompt deterministically\r\n[PASS] command checkpoints reject same-version content drift\r\n[PASS] initial deal registers every physical card in one zone\r\n[PASS] invalid single and batch moves are atomic\r\n[PASS] card inventory is conserved at every public boundary\r\n[PASS] observers run only after the public operation commits\r\n[PASS] slash resolution exposes a serializable frame stack\r\n[PASS] dying response can pause and recover with a private Peach\r\n[PASS] throwing observers are isolated after commit\r\n[PASS] synchronous observers cannot advance the engine reentrantly\r\n\r\n475 passed, 0 failed, 0 skipped (475 total).\r\n"
+        },
+        {
+          "name": "WPF selected checks (36 filters, union)",
+          "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\wpf-selected.log",
+          "content": "[PASS] table shortcuts execute once per key press and preserve modal drafts\r\nDiscard recommendation: HP=4, required=4, eligible=32,24,56,36, exempt=45,27,73,3,63,39, selected=32,24,56,36, legal=True, nativeHint=True, nativeGuide=True; hint=手牌上限为 0，请选择 4 张手牌弃置。 已选 4 张。再次点击可取消。; guide=手牌上限为 0，请选择 4 张手牌弃置。 已选 4 张。再次点击可取消。.\r\nTutorial resume discard: selected=24,32,36,56, required=4, confirm=True.\r\n[PASS] discard recommendation preserves published material and actual hand limit\r\nResumed startup: identity=False, opening=True, faces=4, hand=4, current=True, prompt=ProgramTrigger, revision=13.\r\nOpening timer behind settings: enabled=False, ticks=0, opening=True.\r\nOpening timer behind history: enabled=False, ticks=0, opening=True.\r\nOpening timer behind gallery: enabled=False, ticks=0, opening=True.\r\nOpening timer behind guide: enabled=False, ticks=0, opening=True.\r\nOpening timer behind lobby: enabled=False, ticks=0, opening=True.\r\nOpening timer behind log: enabled=False, ticks=0, opening=True.\r\nOpening timer uncovered: ticks=1, faces=0.\r\n[PASS] table shortcuts respect navigation panels above startup overlays\r\nModal Window shown: loaded=True, WPF visible=True, native visible=True, owns foreground=False, source matches=True, loaded events=1, unloaded events=0.\r\nModal Window hidden: loaded=True, WPF visible=True, native visible=False, owns foreground=False, source matches=True, loaded events=1, unloaded events=0.\r\nModal Window pumped: loaded=True, WPF visible=True, native visible=False, owns foreground=False, source matches=True, loaded events=1, unloaded events=0.\r\nOpening motion disabled before deal: motion=False, opening=False.\r\nAdvice after startup: available=True, visible=True, enabled=True.\r\n[PASS] table modal focus follows startup and current visible panels\r\nPlay-choice fixture: seed 52, 57 setup commands, native Borrowed Sword.\r\nPublic-target fixture: seed 31, 10 setup commands, physical weapon 33, same-prompt target 1 to 2.\r\nPublic-target settlement: status=AwaitingHumanPlay, prompt=PlayCard, moves=8:Hand[0]->Processing:card.use; 33:Equipment[1]->Processing:card.effect.dismantlement; 33:Processing->DiscardPile:card.effect.dismantlement-finished; 8:Processing->DiscardPile:card.use-finished.\r\nOpaque refresh developer=True: seed=31, slot=3, choices=4, same choice refs=False, same button=False, current exact focus=True, focused=.\r\nOpaque refresh developer=False: seed=31, slot=3, choices=4, same choice refs=False, same button=False, current exact focus=True, focused=.\r\n  Original VerifyBoundary branches RespondDodge: invalid 2, ambiguous 0.\r\n  Stable fixture RespondDodge: seed 31, 12 accepted setup commands, actual turn seat 1.\r\n  Original VerifyBoundary branches RespondSlash: invalid 0, ambiguous 0.\r\n  Stable fixture RespondSlash: seed 31, 14 accepted setup commands, actual turn seat 1.\r\n  Original VerifyBoundary branches RescueDying: invalid 2, ambiguous 0.\r\n  Stable fixture RescueDying: seed 31, 9 accepted setup commands, actual turn seat 0.\r\n  Original VerifyBoundary branches Nullification: invalid 1, ambiguous 0.\r\n  Stable fixture Nullification: seed 31, 14 accepted setup commands, actual turn seat 0.\r\n  Original VerifyBoundary branches FireAttackReveal: invalid 0, ambiguous 0.\r\n  Stable fixture FireAttackReveal: seed 31, 15 accepted setup commands, actual turn seat 1.\r\n  Original VerifyBoundary branches FireAttackDiscard: invalid 0, ambiguous 0.\r\n  Stable fixture FireAttackDiscard: seed 31, 10 accepted setup commands, actual turn seat 0.\r\n[PASS] stale prompt choices cannot answer reloaded or consecutive decisions\r\n[PASS] gallery details restore enabled browse focus and retire stale callbacks\r\nOverlap pointer: intended=9003, visual hit=9003\r\nHand viewport: face bottom=178.0, visible height=179.7\r\nHand edge selection: offset 0.0 -> 0.0; intended=9015, next press=9015\r\nHand sort pointer: card=9008, index 8->20, same button=True, pointer=True.\r\nHand sort focused: pointer=True, capture=False, hand mouse-over=False, offset=0.0, pressed=False, left=Released, key-state-left=Released(0000), async-left=Released(0000), modifiers=None, owns focus=True, handled=n/a.\r\nHand sort space-down-idle-before: pointer=True, capture=False, hand mouse-over=False, offset=0.0, pressed=False, left=Released, key-state-left=Released(0000), async-left=Released(0000), modifiers=None, owns focus=True, handled=n/a.\r\nHand sort space-down-idle-after (0 ms): pointer=True, capture=False, hand mouse-over=False, offset=0.0, pressed=False, left=Released, key-state-left=Released(0000), async-left=Released(0000), modifiers=None, owns focus=True, handled=n/a.\r\nHand sort PreviewKeyDown-before: pointer=True, capture=False, hand mouse-over=False, offset=0.0, pressed=False, left=Released, key-state-left=Released(0000), async-left=Released(0000), modifiers=None, owns focus=True, handled=False.\r\nHand sort PreviewKeyDown-after: pointer=True, capture=False, hand mouse-over=False, offset=0.0, pressed=False, left=Released, key-state-left=Released(0000), async-left=Released(0000), modifiers=None, owns focus=True, handled=False.\r\nHand sort PreviewMouseMove: position=23346,22419.666666666664, pointer=False, capture=True.\r\nHand sort KeyDown-after: pointer=False, capture=True, hand mouse-over=True, offset=0.0, pressed=True, left=Released, key-state-left=Released(0000), async-left=Released(0000), modifiers=None, owns focus=True, handled=True.\r\nHand sort space-down: pointer=False, capture=True, hand mouse-over=True, offset=0.0, pressed=True, left=Released, key-state-left=Released(0000), async-left=Released(0000), modifiers=None, owns focus=True, handled=n/a.\r\nHand sort space-up-idle-before: pointer=False, capture=True, hand mouse-over=True, offset=0.0, pressed=True, left=Released, key-state-left=Released(0000), async-left=Released(0000), modifiers=None, owns focus=True, handled=n/a.\r\nHand sort space-up-idle-after (0 ms): pointer=False, capture=True, hand mouse-over=True, offset=0.0, pressed=True, left=Released, key-state-left=Released(0000), async-left=Released(0000), modifiers=None, owns focus=True, handled=n/a.\r\nHand sort PreviewKeyUp-before: pointer=False, capture=True, hand mouse-over=True, offset=0.0, pressed=True, left=Released, key-state-left=Released(0000), async-left=Released(0000), modifiers=None, owns focus=True, handled=False.\r\nHand sort PreviewKeyUp-after: pointer=False, capture=True, hand mouse-over=True, offset=0.0, pressed=True, left=Released, key-state-left=Released(0000), async-left=Released(0000), modifiers=None, owns focus=True, handled=False.\r\nHand sort MouseLeave: position=23346,22419.666666666664, pointer=False, capture=False.\r\nHand sort KeyUp-after: pointer=False, capture=False, hand mouse-over=False, offset=0.0, pressed=False, left=Released, key-state-left=Released(0000), async-left=Released(0000), modifiers=None, owns focus=True, handled=True.\r\nHand sort space-up: pointer=False, capture=False, hand mouse-over=False, offset=0.0, pressed=False, left=Released, key-state-left=Released(0000), async-left=Released(0000), modifiers=None, owns focus=True, handled=n/a.\r\nHand sort pumped: pointer=False, capture=False, hand mouse-over=False, offset=282.7, pressed=False, left=Released, key-state-left=Released(0000), async-left=Released(0000), modifiers=None, owns focus=True, handled=n/a.\r\nHand sort keyboard: offset=282.7, bounds=437.3..549.3, viewport=549.3.\r\n[PASS] overlapping hand cards keep stable pointer targets\r\nJudgment advice: material=37, printed=Lightning, actions=9.\r\n[PASS] Last zone conversion presentation: restored judgment material uses central controls\r\n[PASS] Original hand tag presentation: real entity refresh and cold restore\r\n[PASS] original card artwork preserves physical card identity and interaction\r\nGuhuo AOE: source=CardConversionSource { SkillId = classic:guhuo, BindingId = declare-barbarianAssault, OwnerSeat = 0, SkillInstanceId = template:primary:classic:guhuo }, multi=False, combos=1, native targets=1,2,3, chain mode=True, chain recast=False, chain hint=铁索连环 · 已选 2 / 1–2 个目标 · 再次点击取消；主按钮或 Enter 确认.\r\n[PASS] Program Iron Chain guide follows actual target count and submits set\r\nIron Chain 1120: recast=402,378,96,36, hint=14,421.475,872,19.05, battlefield=0,48,900,368, enabled=True.\r\nIron Chain 1440: recast=562,498,96,36, hint=14,541.475,1192,19.05, battlefield=0,48,1220,488, enabled=True.\r\nIron Chain 1920: recast=802,718,96,36, hint=14,761.475,1672,19.05, battlefield=0,48,1700,708, enabled=True.\r\n[PASS] Iron Chain selection preserves all eight portrait bounds when Recast appears\r\nLonghun fixture equipment Crossbow/45: Hand[0] -> Processing (equipment.use); Processing -> Equipment[0] (equipment.enter)\r\nLonghun fixture equipment BaguaFormation/32: Hand[0] -> Processing (equipment.use); Processing -> Equipment[0] (equipment.enter)\r\n[PASS] reference table layout preserves equipment and skill controls\r\n[PASS] identity general choices use two rows and lord-relative seat numbers\r\nFocused general version Enter: seed=31, prompt=1, previous=classic:zhao-yun, focused=classic:gao-da-yi-hao, selected=classic:gao-da-yi-hao, submitted=none, preview=1, preview handled=False, bubble=1, handled=True, added commands=0, same native boundary=True.\r\nFocused general current version: selected=classic:gao-da-yi-hao, added commands=1, exact native selection=True, cold boundary=True.\r\nFocused general candidate Enter: previous=boundary:zhao-yun, focused=classic:cao-cao, preview only=True, added commands=0, same native boundary=True.\r\nFocused general current candidate: selected=classic:cao-cao, added commands=1, exact native selection=True, cold boundary=True.\r\nFocused general dedicated confirm: selected=classic:gao-da-yi-hao, added commands=1, exact native selection=True, cold boundary=True.\r\nFocused general number preview: index=2, previous=boundary:zhao-yun, selected=classic:cao-cao, exact candidate focus=True, added commands=0, same native boundary=True.\r\nFocused general number then Enter: selected=classic:cao-cao, added commands=1, exact native selection=True, cold boundary=True.\r\nGeneral Window ready: style=8000100, native focus=26018738, active=26018738, foreground=265716, native visible=False.\r\nGeneral version focus: native visible=False, owns foreground=False, exact WPF focus=True.\r\nGeneral version settled: native focus=26018738, active=26018738, foreground=265716, native visible=False, exact WPF focus=True.\r\nGeneral version focus: native visible=False, owns foreground=False, exact WPF focus=True.\r\nGeneral version settled: native focus=26018738, active=26018738, foreground=265716, native visible=False, exact WPF focus=True.\r\nGeneral version focus: native visible=False, owns foreground=False, exact WPF focus=True.\r\nGeneral version settled: native focus=26018738, active=26018738, foreground=265716, native visible=False, exact WPF focus=True.\r\nGeneral version focus: native visible=False, owns foreground=False, exact WPF focus=True.\r\nGeneral version settled: native focus=26018738, active=26018738, foreground=265716, native visible=False, exact WPF focus=True.\r\nGeneral version focus: native visible=False, owns foreground=False, exact WPF focus=True.\r\nGeneral version settled: native focus=26018738, active=26018738, foreground=265716, native visible=False, exact WPF focus=True.\r\nGeneral version focus: native visible=False, owns foreground=False, exact WPF focus=True.\r\nGeneral version settled: native focus=26018738, active=26018738, foreground=265716, native visible=False, exact WPF focus=True.\r\nGeneral family focus: native=26018738, window=26018738, active=26018738, foreground=265716, WPF=, panelWithin=True.\r\nGeneral refresh developer=True: selected=classic:gao-da-yi-hao, editions=classic:gao-da-yi-hao,classic:cao-cao,boundary:ling-tong.\r\nGeneral refresh developer=False: selected=classic:gao-da-yi-hao, editions=classic:gao-da-yi-hao,classic:cao-cao,boundary:ling-tong.\r\nGeneral refresh manual reload: selected=classic:gao-da-yi-hao, editions=classic:gao-da-yi-hao,classic:cao-cao,boundary:ling-tong.\r\nTutorial resume general: selected=classic:gao-da-yi-hao, editions=classic:gao-da-yi-hao,classic:cao-cao,boundary:ling-tong, confirm=True.\r\nGeneral changed contract identity:classic-variants-ui-fewer-candidates: prompt=1, selected=classic:gao-da-yi-hao, editions=classic:gao-da-yi-hao,boundary:ling-tong.\r\nGeneral changed contract identity:classic-variants-ui-fewer-variants: prompt=1, selected=classic:cao-cao, editions=classic:cao-cao,boundary:ling-tong,classic:zhao-yun.\r\n[PASS] general selection switches related editions without consuming candidate slots\r\nRed Iron Chain button: source=CardConversionSource { SkillId = standard:wusheng, BindingId = red-as-slash, OwnerSeat = 0, SkillInstanceId = template:primary:standard:wusheng }, multi=False, recast=False, legal=1,3, native=1,3.\r\nRed Iron Chain Enter: source=CardConversionSource { SkillId = standard:wusheng, BindingId = red-as-slash, OwnerSeat = 0, SkillInstanceId = template:primary:standard:wusheng }, multi=False, recast=False, legal=1,3, native=1,3.\r\n[PASS] conversion choices retain exact provenance without leaking trusted action details\r\nOL Yeyan draft: ids=27,32,45,73, suits=Club,Diamond,Spade,Spade, publishedDistinct=True, canConfirm=False, buttonEnabled=False.\r\nJianhe Mixed/button: ids=1,10, kinds=Slash,Duel, published=10, canConfirm=False, buttonEnabled=False.\r\nJianhe Mixed/button: valid ids=1,2, origins=Hand,Hand, canConfirm=True, buttonEnabled=True.\r\nJianhe Mixed/Enter: ids=1,10, kinds=Slash,Duel, published=10, canConfirm=False, buttonEnabled=False.\r\nJianhe Mixed/Enter: valid ids=1,2, origins=Hand,Hand, canConfirm=True, buttonEnabled=True.\r\nJianhe Canonical/button: valid ids=1,6,10, origins=Hand,Hand,Hand, canConfirm=True, buttonEnabled=True.\r\nJianhe Canonical/Enter: valid ids=1,6,10, origins=Hand,Hand,Hand, canConfirm=True, buttonEnabled=True.\r\nJianhe Equipment/button: valid ids=1,10, origins=Equipment,Hand, canConfirm=True, buttonEnabled=True.\r\nJianhe Equipment/Enter: valid ids=1,10, origins=Equipment,Hand, canConfirm=True, buttonEnabled=True.\r\nCard-target advice Zhijian: armor=8, target=2, nativeAccepted=True.\r\nCard-target Zhijian: armor=10, weapon=1, limited=1, normal=2, nativeTargetUnion=1,2,3, armorLegal=2,3.\r\nCard-target Zhijian/button: cost=10, recipient=2, canConfirm=True, buttonEnabled=True.\r\nCard-target Zhijian/Enter: cost=10, recipient=2, canConfirm=True, buttonEnabled=True.\r\nCard-target Zhijian/button: cost=1, recipient=1, canConfirm=True, buttonEnabled=True.\r\nCard-target Zhijian/Enter: cost=1, recipient=1, canConfirm=True, buttonEnabled=True.\r\nCard-target advice Jieyin: armor=8, target=2, nativeAccepted=True.\r\nCard-target Jieyin: armor=10, weapon=1, limited=1, normal=2, nativeTargetUnion=1,2,3, armorLegal=2,3.\r\nCard-target Jieyin/button: cost=10, recipient=2, canConfirm=True, buttonEnabled=True.\r\nCard-target Jieyin/Enter: cost=10, recipient=2, canConfirm=True, buttonEnabled=True.\r\nCard-target Jieyin/button: cost=1, recipient=1, canConfirm=True, buttonEnabled=True.\r\nCard-target Jieyin/Enter: cost=1, recipient=1, canConfirm=True, buttonEnabled=True.\r\nTarget-pair Dimeng: ownHE=1, low=1/1, bridge=2/2, high=3/3, union=1,2,3, afterLowLegal=1,2, canConfirm=False, buttonEnabled=False.\r\nTarget-pair Dimeng/button: orderedTargets=1,2, actualCounts=1,2, canConfirm=True, buttonEnabled=True.\r\nTarget-pair Dimeng/Enter: orderedTargets=1,2, actualCounts=1,2, canConfirm=True, buttonEnabled=True.\r\nTarget-pair Dimeng/button: orderedTargets=2,1, actualCounts=2,1, canConfirm=True, buttonEnabled=True.\r\nTarget-pair Dimeng/Enter: orderedTargets=2,1, actualCounts=2,1, canConfirm=True, buttonEnabled=True.\r\nTarget-pair Dimeng/button: orderedTargets=2,3, actualCounts=2,3, canConfirm=True, buttonEnabled=True.\r\nTarget-pair Dimeng/Enter: orderedTargets=2,3, actualCounts=2,3, canConfirm=True, buttonEnabled=True.\r\nTarget-pair Dimeng/button: orderedTargets=3,2, actualCounts=3,2, canConfirm=True, buttonEnabled=True.\r\nTarget-pair Dimeng/Enter: orderedTargets=3,2, actualCounts=3,2, canConfirm=True, buttonEnabled=True.\r\n[PASS] composed skills share the generic WPF draft and submit their stable program identity\r\n  Original VerifyBoundary branches Zhefu: invalid 2, ambiguous 0.\r\n  Stable fixture Zhefu: seed 31, 12 accepted setup commands, actual turn seat 1.\r\nTutorial resume Zhefu target: selected=2, confirm=True.\r\n[PASS] skill target selection adds portrait outlines and confirms a real Zhefu choice\r\nTutorial resume set target pair: selected=1,2, confirm=True.\r\nTutorial resume ordered target pair: selected=1,2, confirm=True.\r\nTutorial resume optional target pair: selected=1,2, confirm=True.\r\n[PASS] skill target selection preserves multiple ordered and optional published choices\r\nCenter choice speed=fast: seed=31, prompt=4, choice=participant-discard.finish, same choice=True, same button=True, exact focus=True.\r\nCenter choice speed=normal: seed=31, prompt=4, choice=participant-discard.finish, same choice=True, same button=True, exact focus=True.\r\nCenter choice payment: target draft=False, choices=6, enabled buttons=6, retired Finish removed=True, same native continuation=True.\r\n[PASS] Program paid choices preserve actor control and opaque slots\r\n[PASS] declaration and general library views protect private faces\r\n[PASS] Jin faction presentation: gallery names filters colors and embedded images\r\nTutorial resume draw-funded zero Slash: selected=1, active=True, confirm=True, button=True.\r\n[PASS] Draw-funded zero Use exact source private draw child and stale action\r\n[PASS] chained state basic UI: false marker selects exact source\r\n[PASS] Program conversion polarity stays visible with active entry and restore\r\n[PASS] Program public markers restore actual payment transfer and consumption\r\n[PASS] Program deferred hand alignment restores native private recipient and exact payment\r\n[PASS] Program exact top count restores private shared order\r\n[PASS] Program population count private faces restore shared free order\r\n  Original VerifyBoundary branches RespondDodge: invalid 2, ambiguous 0.\r\n  Stable fixture RespondDodge: seed 31, 12 accepted setup commands, actual turn seat 1.\r\n  Hand response verified: RespondDodge, 打出【闪】，抵消这次【杀】。\r\nFocused Cancel Enter: seed=31, prompt=3, selected=respond.dodge.card-24, expected=respond.take-damage, actual=respond.take-damage, preview=1, preview handled=False, bubble=1, handled=True, same native decline=True.\r\nFocused hand Enter: choice=respond.dodge.card-24, preview handled=True, same native response=True.\r\nFocused confirm Enter: choice=respond.dodge.card-24, preview handled=False, same native response=True.\r\nFocused response number then Enter: index=3, card=24, expected=respond.dodge.card-24, actual=respond.dodge.card-24, exact hand focus=True, number preview handled=True, Enter preview handled=True, Enter bubble=0, handled=True, same native response=True.\r\nFocused response ignored numbers: unplayable and out-of-range, same action focus=True, added commands=0, same native boundary=True.\r\nFocused response fresh number toggles: card=24, exact hand focus=True, added commands=1, same native response=True, cold boundary=True.\r\nFocused Play number then Enter: card=45, target=1, exact hand focus=True, added commands=1, same native Slash=True, cold boundary=True.\r\nFocused Play cancel Enter: preview handled=False, added commands=0, same native action=True.\r\nFocused Play end Enter: preview handled=False, added commands=1, same native action=True.\r\nFocused Play portrait Enter: preview handled=True, added commands=1, same native action=True.\r\n  Original VerifyBoundary branches RespondSlash: invalid 0, ambiguous 0.\r\n  Stable fixture RespondSlash: seed 31, 14 accepted setup commands, actual turn seat 1.\r\n  Hand response verified: RespondSlash, 打出【杀】，响应【南蛮入侵】。\r\n  Original VerifyBoundary branches RescueDying: invalid 2, ambiguous 0.\r\n  Stable fixture RescueDying: seed 31, 9 accepted setup commands, actual turn seat 0.\r\n  Hand response verified: RescueDying, 使用【桃】救援 你。\r\n  Original VerifyBoundary branches Nullification: invalid 1, ambiguous 0.\r\n  Stable fixture Nullification: seed 31, 14 accepted setup commands, actual turn seat 0.\r\n  Hand response verified: Nullification, 使用【无懈可击】恢复【桃园结义】效果。\r\n  Original VerifyBoundary branches FireAttackReveal: invalid 0, ambiguous 0.\r\n  Stable fixture FireAttackReveal: seed 31, 15 accepted setup commands, actual turn seat 1.\r\n  Hand response verified: FireAttackReveal, 展示【火攻】（A）\r\n  Original VerifyBoundary branches FireAttackDiscard: invalid 0, ambiguous 0.\r\n  Stable fixture FireAttackDiscard: seed 31, 10 accepted setup commands, actual turn seat 0.\r\n  Hand response verified: FireAttackDiscard, 弃置【杀】（A），造成 1 点火焰伤害。\r\n  Original VerifyBoundary branches Jijiu: invalid 0, ambiguous 0.\r\n  Stable fixture Jijiu: seed 31, 14 accepted setup commands, actual turn seat 1.\r\n  Hand response verified: Jijiu, 发动【急救】，将【闪】当作【桃】救援 AI 2。\r\n  Original VerifyBoundary branches ArrowBarrage: invalid 0, ambiguous 0.\r\n  Stable fixture ArrowBarrage: seed 31, 14 accepted setup commands, actual turn seat 1.\r\n  Hand response verified: ArrowBarrage, 打出【闪】，响应【万箭齐发】。\r\nStored Slash: card=32, native choice=respond.slash.card-32, grain=True, playable=True, button=True, extra=0, commands=18.\r\nStored Dodge: card=32, native choice=respond.dodge.card-32, grain=True, playable=True, button=True, extra=0, commands=18.\r\nStored Taoluan: card=32, native choice=respond.dodge.card-32.conversion-0, grain=True, playable=True, button=True, extra=1, commands=16.\r\nTaoluan extra speed=fast: choice45=respond.dodge.card-45.conversion-0, extras=1, same button=True, exact WPF focus=True, native focus=36311564, native hidden=True, owns foreground=False.\r\nTaoluan extra speed=slow: choice45=respond.dodge.card-45.conversion-0, extras=1, same button=True, exact WPF focus=True, native focus=36311564, native hidden=True, owns foreground=False.\r\nTaoluan extra speed=normal: choice45=respond.dodge.card-45.conversion-0, extras=1, same button=True, exact WPF focus=True, native focus=36311564, native hidden=True, owns foreground=False.\r\n[PASS] hand responses select exact cards and confirm through shared controls\r\n[PASS] response context distinguishes recipients, opponents and private prompts\r\nBattle log pause: seed=17, revision=2, commands=2, viewers=8, same boundary=True, automatic=True, can step=True, interval=350.\r\nBattle log real timer: observed ticks=1, revision=2, commands=2, same boundary=True, automatic=True.\r\nBattle log manual pause: automatic=False, timer enabled=False, same boundary=True.\r\nAutomatic playback with bound layout: 87 commands, 61 table refreshes; 295.1 ms; 75,000,032 bytes.\r\nAutomatic slice revision 2->10: logic 24.6 ms; layout 6.8 ms; core replay 1.2 ms.\r\nAutomatic slice revision 67->68: logic 15.9 ms; layout 1.3 ms; core replay 0.6 ms.\r\nAutomatic slice revision 69->70: logic 9.6 ms; layout 2.7 ms; core replay 0.6 ms.\r\nAutomatic slice revision 62->63: logic 2.3 ms; layout 8.8 ms; core replay 0.7 ms.\r\nAutomatic slice revision 68->69: logic 4.9 ms; layout 3.9 ms; core replay 0.4 ms.\r\nAutomatic slice revision 53->58: logic 4.4 ms; layout 4.1 ms; core replay 0.7 ms.\r\nAutomatic slice revision 19->20: logic 1.3 ms; layout 6.3 ms; core replay 0.3 ms.\r\nAutomatic slice revision 52->53: logic 3.1 ms; layout 3.9 ms; core replay 0.5 ms.\r\nAutomatic slice revision 10->11: logic 4.3 ms; layout 2.7 ms; core replay 0.7 ms.\r\nAutomatic slice revision 59->62: logic 3.6 ms; layout 3.1 ms; core replay 0.9 ms.\r\nFeedback failure: automatic mode=True, view=16, engine=16\r\nFeedback failure: automatic mode=False, view=16, engine=16\r\n[PASS] playback batches internal steps while preserving human boundaries and replay\r\n[PASS] opaque target-card slots render privately and commit through WPF commands\r\n  Restored and continued: SelectGeneral, Running, InFlight, RespondDodge, ProgramTrigger, RespondSlash, PlayCard, DiscardCards.\r\n[PASS] saved UI boundaries restore and continue through actual files\r\n[PASS] failed writes and incompatible reads preserve the active game\r\n[PASS] battle feedback exposes only committed public actions\r\n[PASS] battle feedback skill effects use public committed identities once\r\n[PASS] battle feedback renders distinct combat effects and retires them\r\n[PASS] battle feedback preview is accessible and stops on close\r\nInquiry lifetime: revision 11 -> 12, expired inquiries=1, expected active=2, actual active=2, setup steps=10.\r\n[PASS] battle feedback retires answered inquiries without dropping results\r\n120 seven-card drawing preparations: 18.6 ms; 9,150,736 bytes (not screen FPS).\r\n[PASS] card flights use public faces and preserve prompts\r\n  Original VerifyBoundary branches ArrowBarrage: invalid 0, ambiguous 0.\r\n  Stable fixture ArrowBarrage: seed 31, 14 accepted setup commands, actual turn seat 1.\r\nPublic row bounds: prompt=192,246.62666666666667,516,42.24; cards=340.20942904525,294.8666666666667,67.92797915185974,94.78322672352523; 416.0360104240701,294.8666666666667,67.92797915185974,94.78322672352523; 491.8625918028903,294.8666666666667,67.92797915185974,94.78322672352523.\r\n[PASS] public card table shows committed uses and responses with actor flights\r\n42 WPF checks passed, 0 failed. Renders: C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders\r\n"
+        }
+      ]
+    },
+    "actualCounts": {
+      "baselineWpf": {
+        "passed": 0,
+        "failed": 1,
+        "expectedRegressionFailure": true
+      },
+      "firstGreenWpf": {
+        "passed": 1,
+        "failed": 0
+      },
+      "finalFocusedWpf": {
+        "passed": 10,
+        "failed": 0
+      },
+      "routineCore": {
+        "passed": 475,
+        "failed": 0,
+        "skipped": 0,
+        "total": 475
+      },
+      "routineWpf": {
+        "passed": 42,
+        "failed": 0
+      }
+    }
+  },
+  "commands": {
+    "baselineAndSameFrozenGreen": "./tools/Test-Changed.ps1 -WpfFilter 'hand responses'",
+    "finalFocused": "./tools/Test-Changed.ps1 -WpfFilter @('hand responses', 'overlapping hand', 'table shortcuts', 'table modal focus', 'stale prompt choices', 'general selection', 'identity general choices')",
+    "routine": "./tools/Test-Changed.ps1",
+    "fullRunPerformed": false,
+    "releasePublishPackageCommitPushPerformed": false
+  },
+  "timing": {
+    "baselineMs": 4925,
+    "sameFrozenGreenMs": 17713,
+    "finalFocusedMs": 25199,
+    "performanceImprovementClaimed": false,
+    "routineOneMinuteTargetMet": false,
+    "routineMs": 119356
+  },
+  "limits": [
+    "Actual WPF routing is established; no physical hardware/global keyboard input acceptance claim.",
+    "Routine scope differs from all registered checks; no manual full run was requested or performed.",
+    "The existing overlapping-hand layout check uses its established presentation fixture; native command acceptance is proved by the actual four-player response and Play checkpoints.",
+    "Concurrent unrelated dirty work was preserved."
+  ],
+  "cleanup": {
+    "status": "three-previously-policy-blocked-directories-retained",
+    "preflight": {
+      "root": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f",
+      "ownerMatched": true,
+      "linkedAncestors": false,
+      "consumerCount": 0,
+      "lockFree": true
+    },
+    "queueDatabase": "C:\\Users\\17917\\Desktop\\Card\\tools\\cleanup_queue.json",
+    "reason": "Previously rejected as blocked by policy; deletion not retried after hand number focus verification; manual cleanup required.",
+    "retainedDirectoryRecords": [
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin",
+        "added_at": "2026-10-11T11:22:24.373633+08:00",
+        "root": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f",
+        "reason": "Previously rejected as blocked by policy; deletion not retried after hand number focus verification; manual cleanup required.",
+        "lock_root": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f"
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\obj",
+        "added_at": "2026-10-11T11:22:24.373657+08:00",
+        "root": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f",
+        "reason": "Previously rejected as blocked by policy; deletion not retried after hand number focus verification; manual cleanup required.",
+        "lock_root": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f"
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders",
+        "added_at": "2026-10-11T11:22:24.373662+08:00",
+        "root": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f",
+        "reason": "Previously rejected as blocked by policy; deletion not retried after hand number focus verification; manual cleanup required.",
+        "lock_root": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f"
+      }
+    ],
+    "retainedDirectoryPresence": [
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin",
+        "exists": true
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\obj",
+        "exists": true
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders",
+        "exists": true
+      }
+    ],
+    "deletionAttemptedThisBatch": false,
+    "temporaryDiagnosticCopiesCreatedThisBatch": [],
+    "previousOwnedDiagnosticCopies": [
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\opaque-slot-focus-baseline.summary.json",
+        "exists": false
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\opaque-slot-focus-baseline.build.log",
+        "exists": false
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\opaque-slot-focus-baseline.wpf.log",
+        "exists": false
+      }
+    ],
+    "necessaryMinimalEvidenceRetained": [
+      "summary.json",
+      "logs/build.log",
+      "logs/core-selected.log",
+      "logs/wpf-selected.log"
+    ],
+    "ownedObserversWindowDisposedInFinally": true,
+    "ownedVmDisposedByUsing": true,
+    "notes": [
+      "The exact bin/obj/renders directories were previously rejected as blocked by policy. Actual AGENTS.md prohibits retrying their deletion through another tool, script or later stage. Only these matching three queue records were updated; no freed disk-space claim.",
+      "No historical cleanup queue was run. No separate output tree, diagnostic script or raw-log copy was created for this batch. All four authoritative verification phases are embedded here."
+    ]
+  },
+  "createdAtUtc": "2026-10-11 13:23:26 UTC"
+}

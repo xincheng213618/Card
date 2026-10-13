@@ -1,0 +1,302 @@
+[PASS] Extra card effect and rank guess: exact contracts and committed collections
+[FAIL] Extra card effect and rank guess: actual Slash single use double damage and quota
+       InvalidOperationException: Invalid skill program at skill 'fixture:extra-rank-driver' (rules.skills[0]).activations[3].effects[0]: operation requires context VirtualSlashUse, supplied Judgment, TurnEffects, Pindian.
+   at CardGame.Core.ProgramCompositionValidator.Validate(String path, IReadOnlyList`1 effects, Boolean initialSelectedTarget, Int32 selectedCardCount, Nullable`1 window, SkillProgramDrawPhaseMode drawPhaseMode, Int32 initialTargetSetCount, Int32 initialTargetSetMaximum, Boolean expandedCardDomain, Nullable`1 cardActionRelation, IReadOnlyList`1 cardKinds, Nullable`1 turnOwnerScope, Nullable`1 activationTargetKind, IReadOnlyList`1 activationSourceZones, Nullable`1 activationMinimumCards, IReadOnlyList`1 activationCardCategories) in C:\Users\17917\Desktop\Card\src\CardGame.Core\ProgramCompositionValidator.cs:line 157
+   at CardGame.Core.SkillProgramCatalog.ParseActivation(JsonElement node, String path) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 3037
+   at CardGame.Core.SkillProgramCatalog.ReadArray[T](JsonElement owner, String name, String path, Func`3 parser, Boolean optional) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 4672
+   at CardGame.Core.SkillProgramCatalog.LoadPrograms(JsonElement root) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 1971
+   at CardGame.Core.SkillProgramCatalog.Load(String rulesJson, String presentationJson) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 1905
+   at ExtraEffectsAndRankGuessChecks.Fixture.Register(IContentRegistryBuilder b) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\ExtraEffectsAndRankGuessChecks.cs:line 193
+   at CardGame.Core.ContentRegistry.Build(IGameContentPackage[] packages) in C:\Users\17917\Desktop\Card\src\CardGame.Core\ContentRegistry.cs:line 259
+   at ExtraEffectsAndRankGuessChecks.Start(String scenario, Boolean stopAtDraw, Boolean child) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\ExtraEffectsAndRankGuessChecks.cs:line 164
+   at ExtraEffectsAndRankGuessChecks.ActualSlashSingleUseDoubleDamageAndPhaseQuota() in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\ExtraEffectsAndRankGuessChecks.cs:line 29
+   at Program.<Main>$(String[] args) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\Program.cs:line 1253
+[FAIL] Extra card effect and rank guess: Peach and stacked Alcohol cold replay
+       InvalidOperationException: Invalid skill program at skill 'fixture:extra-rank-driver' (rules.skills[0]).activations[3].effects[0]: operation requires context VirtualSlashUse, supplied Judgment, TurnEffects, Pindian.
+   at CardGame.Core.ProgramCompositionValidator.Validate(String path, IReadOnlyList`1 effects, Boolean initialSelectedTarget, Int32 selectedCardCount, Nullable`1 window, SkillProgramDrawPhaseMode drawPhaseMode, Int32 initialTargetSetCount, Int32 initialTargetSetMaximum, Boolean expandedCardDomain, Nullable`1 cardActionRelation, IReadOnlyList`1 cardKinds, Nullable`1 turnOwnerScope, Nullable`1 activationTargetKind, IReadOnlyList`1 activationSourceZones, Nullable`1 activationMinimumCards, IReadOnlyList`1 activationCardCategories) in C:\Users\17917\Desktop\Card\src\CardGame.Core\ProgramCompositionValidator.cs:line 157
+   at CardGame.Core.SkillProgramCatalog.ParseActivation(JsonElement node, String path) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 3037
+   at CardGame.Core.SkillProgramCatalog.ReadArray[T](JsonElement owner, String name, String path, Func`3 parser, Boolean optional) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 4672
+   at CardGame.Core.SkillProgramCatalog.LoadPrograms(JsonElement root) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 1971
+   at CardGame.Core.SkillProgramCatalog.Load(String rulesJson, String presentationJson) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 1905
+   at ExtraEffectsAndRankGuessChecks.Fixture.Register(IContentRegistryBuilder b) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\ExtraEffectsAndRankGuessChecks.cs:line 193
+   at CardGame.Core.ContentRegistry.Build(IGameContentPackage[] packages) in C:\Users\17917\Desktop\Card\src\CardGame.Core\ContentRegistry.cs:line 259
+   at ExtraEffectsAndRankGuessChecks.Start(String scenario, Boolean stopAtDraw, Boolean child) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\ExtraEffectsAndRankGuessChecks.cs:line 164
+   at ExtraEffectsAndRankGuessChecks.ActualPeachAndDoubleAlcoholBonusColdReplay() in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\ExtraEffectsAndRankGuessChecks.cs:line 47
+   at Program.<Main>$(String[] args) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\Program.cs:line 1253
+[FAIL] Extra card effect and rank guess: global attacks complete rounds and one settlement
+       InvalidOperationException: Invalid skill program at skill 'fixture:extra-rank-driver' (rules.skills[0]).activations[3].effects[0]: operation requires context VirtualSlashUse, supplied Judgment, TurnEffects, Pindian.
+   at CardGame.Core.ProgramCompositionValidator.Validate(String path, IReadOnlyList`1 effects, Boolean initialSelectedTarget, Int32 selectedCardCount, Nullable`1 window, SkillProgramDrawPhaseMode drawPhaseMode, Int32 initialTargetSetCount, Int32 initialTargetSetMaximum, Boolean expandedCardDomain, Nullable`1 cardActionRelation, IReadOnlyList`1 cardKinds, Nullable`1 turnOwnerScope, Nullable`1 activationTargetKind, IReadOnlyList`1 activationSourceZones, Nullable`1 activationMinimumCards, IReadOnlyList`1 activationCardCategories) in C:\Users\17917\Desktop\Card\src\CardGame.Core\ProgramCompositionValidator.cs:line 157
+   at CardGame.Core.SkillProgramCatalog.ParseActivation(JsonElement node, String path) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 3037
+   at CardGame.Core.SkillProgramCatalog.ReadArray[T](JsonElement owner, String name, String path, Func`3 parser, Boolean optional) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 4672
+   at CardGame.Core.SkillProgramCatalog.LoadPrograms(JsonElement root) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 1971
+   at CardGame.Core.SkillProgramCatalog.Load(String rulesJson, String presentationJson) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 1905
+   at ExtraEffectsAndRankGuessChecks.Fixture.Register(IContentRegistryBuilder b) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\ExtraEffectsAndRankGuessChecks.cs:line 193
+   at CardGame.Core.ContentRegistry.Build(IGameContentPackage[] packages) in C:\Users\17917\Desktop\Card\src\CardGame.Core\ContentRegistry.cs:line 259
+   at ExtraEffectsAndRankGuessChecks.Start(String scenario, Boolean stopAtDraw, Boolean child) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\ExtraEffectsAndRankGuessChecks.cs:line 164
+   at ExtraEffectsAndRankGuessChecks.ActualGlobalAttackCompleteRoundsAndOneSettlement() in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\ExtraEffectsAndRankGuessChecks.cs:line 61
+   at Program.<Main>$(String[] args) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\Program.cs:line 1253
+[FAIL] Extra card effect and rank guess: second Snatch public choice retains material
+       InvalidOperationException: Invalid skill program at skill 'fixture:extra-rank-driver' (rules.skills[0]).activations[3].effects[0]: operation requires context VirtualSlashUse, supplied Judgment, TurnEffects, Pindian.
+   at CardGame.Core.ProgramCompositionValidator.Validate(String path, IReadOnlyList`1 effects, Boolean initialSelectedTarget, Int32 selectedCardCount, Nullable`1 window, SkillProgramDrawPhaseMode drawPhaseMode, Int32 initialTargetSetCount, Int32 initialTargetSetMaximum, Boolean expandedCardDomain, Nullable`1 cardActionRelation, IReadOnlyList`1 cardKinds, Nullable`1 turnOwnerScope, Nullable`1 activationTargetKind, IReadOnlyList`1 activationSourceZones, Nullable`1 activationMinimumCards, IReadOnlyList`1 activationCardCategories) in C:\Users\17917\Desktop\Card\src\CardGame.Core\ProgramCompositionValidator.cs:line 157
+   at CardGame.Core.SkillProgramCatalog.ParseActivation(JsonElement node, String path) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 3037
+   at CardGame.Core.SkillProgramCatalog.ReadArray[T](JsonElement owner, String name, String path, Func`3 parser, Boolean optional) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 4672
+   at CardGame.Core.SkillProgramCatalog.LoadPrograms(JsonElement root) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 1971
+   at CardGame.Core.SkillProgramCatalog.Load(String rulesJson, String presentationJson) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 1905
+   at ExtraEffectsAndRankGuessChecks.Fixture.Register(IContentRegistryBuilder b) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\ExtraEffectsAndRankGuessChecks.cs:line 193
+   at CardGame.Core.ContentRegistry.Build(IGameContentPackage[] packages) in C:\Users\17917\Desktop\Card\src\CardGame.Core\ContentRegistry.cs:line 259
+   at ExtraEffectsAndRankGuessChecks.Start(String scenario, Boolean stopAtDraw, Boolean child) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\ExtraEffectsAndRankGuessChecks.cs:line 164
+   at ExtraEffectsAndRankGuessChecks.ActualSecondSnatchRechoosesPublicCardAndRetainsMaterial() in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\ExtraEffectsAndRankGuessChecks.cs:line 75
+   at Program.<Main>$(String[] args) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\Program.cs:line 1253
+[FAIL] Extra card effect and rank guess: rank equality public reveal and paid child cold
+       InvalidOperationException: Invalid skill program at skill 'fixture:extra-rank-driver' (rules.skills[0]).activations[3].effects[0]: operation requires context VirtualSlashUse, supplied Judgment, TurnEffects, Pindian.
+   at CardGame.Core.ProgramCompositionValidator.Validate(String path, IReadOnlyList`1 effects, Boolean initialSelectedTarget, Int32 selectedCardCount, Nullable`1 window, SkillProgramDrawPhaseMode drawPhaseMode, Int32 initialTargetSetCount, Int32 initialTargetSetMaximum, Boolean expandedCardDomain, Nullable`1 cardActionRelation, IReadOnlyList`1 cardKinds, Nullable`1 turnOwnerScope, Nullable`1 activationTargetKind, IReadOnlyList`1 activationSourceZones, Nullable`1 activationMinimumCards, IReadOnlyList`1 activationCardCategories) in C:\Users\17917\Desktop\Card\src\CardGame.Core\ProgramCompositionValidator.cs:line 157
+   at CardGame.Core.SkillProgramCatalog.ParseActivation(JsonElement node, String path) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 3037
+   at CardGame.Core.SkillProgramCatalog.ReadArray[T](JsonElement owner, String name, String path, Func`3 parser, Boolean optional) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 4672
+   at CardGame.Core.SkillProgramCatalog.LoadPrograms(JsonElement root) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 1971
+   at CardGame.Core.SkillProgramCatalog.Load(String rulesJson, String presentationJson) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 1905
+   at ExtraEffectsAndRankGuessChecks.Fixture.Register(IContentRegistryBuilder b) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\ExtraEffectsAndRankGuessChecks.cs:line 193
+   at CardGame.Core.ContentRegistry.Build(IGameContentPackage[] packages) in C:\Users\17917\Desktop\Card\src\CardGame.Core\ContentRegistry.cs:line 259
+   at ExtraEffectsAndRankGuessChecks.Start(String scenario, Boolean stopAtDraw, Boolean child) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\ExtraEffectsAndRankGuessChecks.cs:line 164
+   at ExtraEffectsAndRankGuessChecks.ActualRankEqualityPublicRevealGainAndPaidChildColdReturn() in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\ExtraEffectsAndRankGuessChecks.cs:line 94
+   at Program.<Main>$(String[] args) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\Program.cs:line 1253
+[FAIL] Extra card effect and rank guess: death recipient owns permanent skill choice
+       InvalidOperationException: Invalid skill program at skill 'fixture:extra-rank-driver' (rules.skills[0]).activations[3].effects[0]: operation requires context VirtualSlashUse, supplied Judgment, TurnEffects, Pindian.
+   at CardGame.Core.ProgramCompositionValidator.Validate(String path, IReadOnlyList`1 effects, Boolean initialSelectedTarget, Int32 selectedCardCount, Nullable`1 window, SkillProgramDrawPhaseMode drawPhaseMode, Int32 initialTargetSetCount, Int32 initialTargetSetMaximum, Boolean expandedCardDomain, Nullable`1 cardActionRelation, IReadOnlyList`1 cardKinds, Nullable`1 turnOwnerScope, Nullable`1 activationTargetKind, IReadOnlyList`1 activationSourceZones, Nullable`1 activationMinimumCards, IReadOnlyList`1 activationCardCategories) in C:\Users\17917\Desktop\Card\src\CardGame.Core\ProgramCompositionValidator.cs:line 157
+   at CardGame.Core.SkillProgramCatalog.ParseActivation(JsonElement node, String path) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 3037
+   at CardGame.Core.SkillProgramCatalog.ReadArray[T](JsonElement owner, String name, String path, Func`3 parser, Boolean optional) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 4672
+   at CardGame.Core.SkillProgramCatalog.LoadPrograms(JsonElement root) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 1971
+   at CardGame.Core.SkillProgramCatalog.Load(String rulesJson, String presentationJson) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 1905
+   at ExtraEffectsAndRankGuessChecks.Fixture.Register(IContentRegistryBuilder b) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\ExtraEffectsAndRankGuessChecks.cs:line 193
+   at CardGame.Core.ContentRegistry.Build(IGameContentPackage[] packages) in C:\Users\17917\Desktop\Card\src\CardGame.Core\ContentRegistry.cs:line 259
+   at ExtraEffectsAndRankGuessChecks.Start(String scenario, Boolean stopAtDraw, Boolean child) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\ExtraEffectsAndRankGuessChecks.cs:line 164
+   at ExtraEffectsAndRankGuessChecks.ActualDeathRecipientOwnChoicePermanentGrantAndCancel() in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\ExtraEffectsAndRankGuessChecks.cs:line 112
+   at Program.<Main>$(String[] args) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\Program.cs:line 1253
+[COURTESY DIAGNOSTIC] frame=18 pending=ProgramMovementContinuation { SubjectSeat = 0, BeforeCount = 0, CoverageResultBind =  } queue=1; owner candidates=fixture:courtesy-watch:child
+[COURTESY DIAGNOSTIC] batch=19 parent=18 await=18 candidateCount=1 candidates=fixture:courtesy-watch:child
+[COURTESY GATES] actualCanRun=True ownerAlive=True source=True hash=True window=CardsMoved parent=19 stackTop=19 condition=True usage=0/1 startingSubstitution=False
+[COURTESY GATES] FALSE CanRunAfterTurnEndedCandidate(candidate,context,trigger)
+[COURTESY GATES] FALSE CanRunCardEffectCandidate(candidate,context)
+[COURTESY GATES] FALSE CanOfferDamageTargetMount(ownerSeat,context)
+[COURTESY GATES] FALSE CanOfferDamageTargetObtain(owner,c)
+[COURTESY GATES] FALSE CanOfferNonFinalTargetPayment(candidate,context)
+[COURTESY GATES] FALSE CanRunForeignActualTurnContest(candidate,context)
+[COURTESY GATES] FALSE CanRunOtherActualBasicDiscard(candidate,context)
+[COURTESY GATES] FALSE CanRunIssuedPhaseHandDebt(candidate,context)
+[COURTESY GATES] FALSE CanRunDeferredPrivateOffer(candidate,context)
+[COURTESY GATES] FALSE CanRunAfterDamageProgramTrigger(owner,trigger,context)
+[COURTESY GATES] FALSE CanRunSlashTargetBenefitCandidate(c,context)
+[COURTESY GATES] FALSE CanRunSlashTargetPenalty(c,context)
+[COURTESY GATES] FALSE CanRunTongxieFollowUp(ownerSeat,context)
+[COURTESY GATES] FALSE CanRunTongxieGuard(ownerSeat,context)
+[COURTESY DIAGNOSTIC] frame=18 pending=ProgramMovementContinuation { SubjectSeat = 0, BeforeCount = 0, CoverageResultBind =  } queue=1; owner candidates=fixture:courtesy-watch:child
+[COURTESY DIAGNOSTIC] batch=19 parent=18 await=18 candidateCount=1 candidates=fixture:courtesy-watch:child
+[COURTESY GATES] actualCanRun=True ownerAlive=True source=True hash=True window=CardsMoved parent=19 stackTop=19 condition=True usage=0/1 startingSubstitution=False
+[COURTESY GATES] FALSE CanRunAfterTurnEndedCandidate(candidate,context,trigger)
+[COURTESY GATES] FALSE CanRunCardEffectCandidate(candidate,context)
+[COURTESY GATES] FALSE CanOfferDamageTargetMount(ownerSeat,context)
+[COURTESY GATES] FALSE CanOfferDamageTargetObtain(owner,c)
+[COURTESY GATES] FALSE CanOfferNonFinalTargetPayment(candidate,context)
+[COURTESY GATES] FALSE CanRunForeignActualTurnContest(candidate,context)
+[COURTESY GATES] FALSE CanRunOtherActualBasicDiscard(candidate,context)
+[COURTESY GATES] FALSE CanRunIssuedPhaseHandDebt(candidate,context)
+[COURTESY GATES] FALSE CanRunDeferredPrivateOffer(candidate,context)
+[COURTESY GATES] FALSE CanRunAfterDamageProgramTrigger(owner,trigger,context)
+[COURTESY GATES] FALSE CanRunSlashTargetBenefitCandidate(c,context)
+[COURTESY GATES] FALSE CanRunSlashTargetPenalty(c,context)
+[COURTESY GATES] FALSE CanRunTongxieFollowUp(ownerSeat,context)
+[COURTESY GATES] FALSE CanRunTongxieGuard(ownerSeat,context)
+[COURTESY DIAGNOSTIC] frame=18 pending=ProgramMovementContinuation { SubjectSeat = 0, BeforeCount = 0, CoverageResultBind =  } queue=1; owner candidates=fixture:courtesy-watch:child
+[COURTESY DIAGNOSTIC] batch=19 parent=18 await=18 candidateCount=1 candidates=fixture:courtesy-watch:child
+[COURTESY GATES] actualCanRun=True ownerAlive=True source=True hash=True window=CardsMoved parent=19 stackTop=19 condition=True usage=0/1 startingSubstitution=False
+[COURTESY GATES] FALSE CanRunAfterTurnEndedCandidate(candidate,context,trigger)
+[COURTESY GATES] FALSE CanRunCardEffectCandidate(candidate,context)
+[COURTESY GATES] FALSE CanOfferDamageTargetMount(ownerSeat,context)
+[COURTESY GATES] FALSE CanOfferDamageTargetObtain(owner,c)
+[COURTESY GATES] FALSE CanOfferNonFinalTargetPayment(candidate,context)
+[COURTESY GATES] FALSE CanRunForeignActualTurnContest(candidate,context)
+[COURTESY GATES] FALSE CanRunOtherActualBasicDiscard(candidate,context)
+[COURTESY GATES] FALSE CanRunIssuedPhaseHandDebt(candidate,context)
+[COURTESY GATES] FALSE CanRunDeferredPrivateOffer(candidate,context)
+[COURTESY GATES] FALSE CanRunAfterDamageProgramTrigger(owner,trigger,context)
+[COURTESY GATES] FALSE CanRunSlashTargetBenefitCandidate(c,context)
+[COURTESY GATES] FALSE CanRunSlashTargetPenalty(c,context)
+[COURTESY GATES] FALSE CanRunTongxieFollowUp(ownerSeat,context)
+[COURTESY GATES] FALSE CanRunTongxieGuard(ownerSeat,context)
+[COURTESY DIAGNOSTIC] frame=18 pending=ProgramMovementContinuation { SubjectSeat = 0, BeforeCount = 0, CoverageResultBind =  } queue=0; owner candidates=fixture:courtesy-watch:child
+[COURTESY DIAGNOSTIC] frame=18 pending=ProgramMovementContinuation { SubjectSeat = 0, BeforeCount = 0, CoverageResultBind =  } queue=1; owner candidates=fixture:courtesy-watch:child
+[COURTESY DIAGNOSTIC] batch=19 parent=18 await=18 candidateCount=1 candidates=fixture:courtesy-watch:child
+[COURTESY GATES] actualCanRun=True ownerAlive=True source=True hash=True window=CardsMoved parent=19 stackTop=19 condition=True usage=0/1 startingSubstitution=False
+[COURTESY GATES] FALSE CanRunAfterTurnEndedCandidate(candidate,context,trigger)
+[COURTESY GATES] FALSE CanRunCardEffectCandidate(candidate,context)
+[COURTESY GATES] FALSE CanOfferDamageTargetMount(ownerSeat,context)
+[COURTESY GATES] FALSE CanOfferDamageTargetObtain(owner,c)
+[COURTESY GATES] FALSE CanOfferNonFinalTargetPayment(candidate,context)
+[COURTESY GATES] FALSE CanRunForeignActualTurnContest(candidate,context)
+[COURTESY GATES] FALSE CanRunOtherActualBasicDiscard(candidate,context)
+[COURTESY GATES] FALSE CanRunIssuedPhaseHandDebt(candidate,context)
+[COURTESY GATES] FALSE CanRunDeferredPrivateOffer(candidate,context)
+[COURTESY GATES] FALSE CanRunAfterDamageProgramTrigger(owner,trigger,context)
+[COURTESY GATES] FALSE CanRunSlashTargetBenefitCandidate(c,context)
+[COURTESY GATES] FALSE CanRunSlashTargetPenalty(c,context)
+[COURTESY GATES] FALSE CanRunTongxieFollowUp(ownerSeat,context)
+[COURTESY GATES] FALSE CanRunTongxieGuard(ownerSeat,context)
+[COURTESY DIAGNOSTIC] frame=18 pending=ProgramMovementContinuation { SubjectSeat = 0, BeforeCount = 0, CoverageResultBind =  } queue=0; owner candidates=fixture:courtesy-watch:child
+[PASS] Incoming distance courtesy: paid cost source loss and regrant
+[COURTESY DIAGNOSTIC] frame=18 pending=ProgramMovementContinuation { SubjectSeat = 0, BeforeCount = 0, CoverageResultBind =  } queue=1; owner candidates=fixture:courtesy-watch:child
+[COURTESY DIAGNOSTIC] batch=19 parent=18 await=18 candidateCount=0 candidates=
+[COURTESY DIAGNOSTIC] frame=23 pending=ProgramMovementContinuation { SubjectSeat = 0, BeforeCount = 0, CoverageResultBind =  } queue=1; owner candidates=fixture:courtesy-watch:child
+[COURTESY DIAGNOSTIC] batch=24 parent=23 await=23 candidateCount=1 candidates=fixture:courtesy-watch:child
+[COURTESY GATES] actualCanRun=True ownerAlive=True source=True hash=True window=CardsGained parent=24 stackTop=24 condition=True usage=0/1 startingSubstitution=False
+[COURTESY GATES] FALSE CanRunAfterTurnEndedCandidate(candidate,context,trigger)
+[COURTESY GATES] FALSE CanRunCardEffectCandidate(candidate,context)
+[COURTESY GATES] FALSE CanOfferDamageTargetMount(ownerSeat,context)
+[COURTESY GATES] FALSE CanOfferDamageTargetObtain(owner,c)
+[COURTESY GATES] FALSE CanOfferNonFinalTargetPayment(candidate,context)
+[COURTESY GATES] FALSE CanRunForeignActualTurnContest(candidate,context)
+[COURTESY GATES] FALSE CanRunOtherActualBasicDiscard(candidate,context)
+[COURTESY GATES] FALSE CanRunIssuedPhaseHandDebt(candidate,context)
+[COURTESY GATES] FALSE CanRunDeferredPrivateOffer(candidate,context)
+[COURTESY GATES] FALSE CanRunAfterDamageProgramTrigger(owner,trigger,context)
+[COURTESY GATES] FALSE CanRunSlashTargetBenefitCandidate(c,context)
+[COURTESY GATES] FALSE CanRunSlashTargetPenalty(c,context)
+[COURTESY GATES] FALSE CanRunTongxieFollowUp(ownerSeat,context)
+[COURTESY GATES] FALSE CanRunTongxieGuard(ownerSeat,context)
+[COURTESY DIAGNOSTIC] frame=18 pending=ProgramMovementContinuation { SubjectSeat = 0, BeforeCount = 0, CoverageResultBind =  } queue=1; owner candidates=fixture:courtesy-watch:child
+[COURTESY DIAGNOSTIC] batch=19 parent=18 await=18 candidateCount=0 candidates=
+[COURTESY DIAGNOSTIC] frame=23 pending=ProgramMovementContinuation { SubjectSeat = 0, BeforeCount = 0, CoverageResultBind =  } queue=1; owner candidates=fixture:courtesy-watch:child
+[COURTESY DIAGNOSTIC] batch=24 parent=23 await=23 candidateCount=1 candidates=fixture:courtesy-watch:child
+[COURTESY GATES] actualCanRun=True ownerAlive=True source=True hash=True window=CardsGained parent=24 stackTop=24 condition=True usage=0/1 startingSubstitution=False
+[COURTESY GATES] FALSE CanRunAfterTurnEndedCandidate(candidate,context,trigger)
+[COURTESY GATES] FALSE CanRunCardEffectCandidate(candidate,context)
+[COURTESY GATES] FALSE CanOfferDamageTargetMount(ownerSeat,context)
+[COURTESY GATES] FALSE CanOfferDamageTargetObtain(owner,c)
+[COURTESY GATES] FALSE CanOfferNonFinalTargetPayment(candidate,context)
+[COURTESY GATES] FALSE CanRunForeignActualTurnContest(candidate,context)
+[COURTESY GATES] FALSE CanRunOtherActualBasicDiscard(candidate,context)
+[COURTESY GATES] FALSE CanRunIssuedPhaseHandDebt(candidate,context)
+[COURTESY GATES] FALSE CanRunDeferredPrivateOffer(candidate,context)
+[COURTESY GATES] FALSE CanRunAfterDamageProgramTrigger(owner,trigger,context)
+[COURTESY GATES] FALSE CanRunSlashTargetBenefitCandidate(c,context)
+[COURTESY GATES] FALSE CanRunSlashTargetPenalty(c,context)
+[COURTESY GATES] FALSE CanRunTongxieFollowUp(ownerSeat,context)
+[COURTESY GATES] FALSE CanRunTongxieGuard(ownerSeat,context)
+[COURTESY DIAGNOSTIC] frame=18 pending=ProgramMovementContinuation { SubjectSeat = 0, BeforeCount = 0, CoverageResultBind =  } queue=1; owner candidates=fixture:courtesy-watch:child
+[COURTESY DIAGNOSTIC] batch=19 parent=18 await=18 candidateCount=0 candidates=
+[COURTESY DIAGNOSTIC] frame=23 pending=ProgramMovementContinuation { SubjectSeat = 0, BeforeCount = 0, CoverageResultBind =  } queue=1; owner candidates=fixture:courtesy-watch:child
+[COURTESY DIAGNOSTIC] batch=24 parent=23 await=23 candidateCount=1 candidates=fixture:courtesy-watch:child
+[COURTESY GATES] actualCanRun=True ownerAlive=True source=True hash=True window=CardsGained parent=24 stackTop=24 condition=True usage=0/1 startingSubstitution=False
+[COURTESY GATES] FALSE CanRunAfterTurnEndedCandidate(candidate,context,trigger)
+[COURTESY GATES] FALSE CanRunCardEffectCandidate(candidate,context)
+[COURTESY GATES] FALSE CanOfferDamageTargetMount(ownerSeat,context)
+[COURTESY GATES] FALSE CanOfferDamageTargetObtain(owner,c)
+[COURTESY GATES] FALSE CanOfferNonFinalTargetPayment(candidate,context)
+[COURTESY GATES] FALSE CanRunForeignActualTurnContest(candidate,context)
+[COURTESY GATES] FALSE CanRunOtherActualBasicDiscard(candidate,context)
+[COURTESY GATES] FALSE CanRunIssuedPhaseHandDebt(candidate,context)
+[COURTESY GATES] FALSE CanRunDeferredPrivateOffer(candidate,context)
+[COURTESY GATES] FALSE CanRunAfterDamageProgramTrigger(owner,trigger,context)
+[COURTESY GATES] FALSE CanRunSlashTargetBenefitCandidate(c,context)
+[COURTESY GATES] FALSE CanRunSlashTargetPenalty(c,context)
+[COURTESY GATES] FALSE CanRunTongxieFollowUp(ownerSeat,context)
+[COURTESY GATES] FALSE CanRunTongxieGuard(ownerSeat,context)
+[COURTESY DIAGNOSTIC] frame=23 pending=ProgramMovementContinuation { SubjectSeat = 0, BeforeCount = 0, CoverageResultBind =  } queue=0; owner candidates=fixture:courtesy-watch:child
+[COURTESY DIAGNOSTIC] frame=23 pending=ProgramMovementContinuation { SubjectSeat = 1, BeforeCount = 0, CoverageResultBind =  } queue=2; owner candidates=fixture:courtesy-watch:child
+[COURTESY DIAGNOSTIC] batch=32 parent=23 await=23 candidateCount=0 candidates=
+[COURTESY DIAGNOSTIC] batch=33 parent=23 await=23 candidateCount=0 candidates=
+[COURTESY DIAGNOSTIC] frame=18 pending=ProgramMovementContinuation { SubjectSeat = 0, BeforeCount = 0, CoverageResultBind =  } queue=1; owner candidates=fixture:courtesy-watch:child
+[COURTESY DIAGNOSTIC] batch=19 parent=18 await=18 candidateCount=0 candidates=
+[COURTESY DIAGNOSTIC] frame=23 pending=ProgramMovementContinuation { SubjectSeat = 0, BeforeCount = 0, CoverageResultBind =  } queue=1; owner candidates=fixture:courtesy-watch:child
+[COURTESY DIAGNOSTIC] batch=24 parent=23 await=23 candidateCount=1 candidates=fixture:courtesy-watch:child
+[COURTESY GATES] actualCanRun=True ownerAlive=True source=True hash=True window=CardsGained parent=24 stackTop=24 condition=True usage=0/1 startingSubstitution=False
+[COURTESY GATES] FALSE CanRunAfterTurnEndedCandidate(candidate,context,trigger)
+[COURTESY GATES] FALSE CanRunCardEffectCandidate(candidate,context)
+[COURTESY GATES] FALSE CanOfferDamageTargetMount(ownerSeat,context)
+[COURTESY GATES] FALSE CanOfferDamageTargetObtain(owner,c)
+[COURTESY GATES] FALSE CanOfferNonFinalTargetPayment(candidate,context)
+[COURTESY GATES] FALSE CanRunForeignActualTurnContest(candidate,context)
+[COURTESY GATES] FALSE CanRunOtherActualBasicDiscard(candidate,context)
+[COURTESY GATES] FALSE CanRunIssuedPhaseHandDebt(candidate,context)
+[COURTESY GATES] FALSE CanRunDeferredPrivateOffer(candidate,context)
+[COURTESY GATES] FALSE CanRunAfterDamageProgramTrigger(owner,trigger,context)
+[COURTESY GATES] FALSE CanRunSlashTargetBenefitCandidate(c,context)
+[COURTESY GATES] FALSE CanRunSlashTargetPenalty(c,context)
+[COURTESY GATES] FALSE CanRunTongxieFollowUp(ownerSeat,context)
+[COURTESY GATES] FALSE CanRunTongxieGuard(ownerSeat,context)
+[COURTESY DIAGNOSTIC] frame=23 pending=ProgramMovementContinuation { SubjectSeat = 0, BeforeCount = 0, CoverageResultBind =  } queue=0; owner candidates=fixture:courtesy-watch:child
+[COURTESY DIAGNOSTIC] frame=23 pending=ProgramMovementContinuation { SubjectSeat = 1, BeforeCount = 0, CoverageResultBind =  } queue=2; owner candidates=fixture:courtesy-watch:child
+[COURTESY DIAGNOSTIC] batch=32 parent=23 await=23 candidateCount=0 candidates=
+[COURTESY DIAGNOSTIC] batch=33 parent=23 await=23 candidateCount=0 candidates=
+[PASS] Incoming distance courtesy: paid first benefit source loss keeps second
+[COURTESY DIAGNOSTIC] frame=20 pending=ProgramMovementContinuation { SubjectSeat = 0, BeforeCount = 0, CoverageResultBind =  } queue=1; owner candidates=
+[COURTESY DIAGNOSTIC] batch=21 parent=20 await=20 candidateCount=0 candidates=
+[COURTESY DIAGNOSTIC] frame=25 pending=ProgramMovementContinuation { SubjectSeat = 1, BeforeCount = 0, CoverageResultBind =  } queue=0; owner candidates=
+[COURTESY DIAGNOSTIC] frame=20 pending=ProgramMovementContinuation { SubjectSeat = 0, BeforeCount = 0, CoverageResultBind =  } queue=1; owner candidates=
+[COURTESY DIAGNOSTIC] batch=21 parent=20 await=20 candidateCount=0 candidates=
+[COURTESY DIAGNOSTIC] frame=25 pending=ProgramMovementContinuation { SubjectSeat = 1, BeforeCount = 0, CoverageResultBind =  } queue=0; owner candidates=
+[COURTESY DIAGNOSTIC] frame=25 pending=ProgramMovementContinuation { SubjectSeat = 1, BeforeCount = 0, CoverageResultBind =  } queue=0; owner candidates=
+[COURTESY DIAGNOSTIC] frame=20 pending=ProgramMovementContinuation { SubjectSeat = 0, BeforeCount = 0, CoverageResultBind =  } queue=1; owner candidates=
+[COURTESY DIAGNOSTIC] batch=21 parent=20 await=20 candidateCount=0 candidates=
+[COURTESY DIAGNOSTIC] frame=25 pending=ProgramMovementContinuation { SubjectSeat = 1, BeforeCount = 0, CoverageResultBind =  } queue=0; owner candidates=
+[COURTESY DIAGNOSTIC] frame=25 pending=ProgramMovementContinuation { SubjectSeat = 1, BeforeCount = 0, CoverageResultBind =  } queue=0; owner candidates=
+[COURTESY DIAGNOSTIC] frame=18 pending=ProgramMovementContinuation { SubjectSeat = 0, BeforeCount = 0, CoverageResultBind =  } queue=1; owner candidates=fixture:courtesy-watch:child
+[COURTESY DIAGNOSTIC] batch=19 parent=18 await=18 candidateCount=0 candidates=
+[COURTESY DIAGNOSTIC] frame=23 pending=ProgramMovementContinuation { SubjectSeat = 0, BeforeCount = 0, CoverageResultBind =  } queue=1; owner candidates=fixture:courtesy-watch:child
+[COURTESY DIAGNOSTIC] batch=24 parent=23 await=23 candidateCount=1 candidates=fixture:courtesy-watch:child
+[COURTESY GATES] actualCanRun=True ownerAlive=True source=True hash=True window=CardsGained parent=24 stackTop=24 condition=True usage=0/1 startingSubstitution=False
+[COURTESY GATES] FALSE CanRunAfterTurnEndedCandidate(candidate,context,trigger)
+[COURTESY GATES] FALSE CanRunCardEffectCandidate(candidate,context)
+[COURTESY GATES] FALSE CanOfferDamageTargetMount(ownerSeat,context)
+[COURTESY GATES] FALSE CanOfferDamageTargetObtain(owner,c)
+[COURTESY GATES] FALSE CanOfferNonFinalTargetPayment(candidate,context)
+[COURTESY GATES] FALSE CanRunForeignActualTurnContest(candidate,context)
+[COURTESY GATES] FALSE CanRunOtherActualBasicDiscard(candidate,context)
+[COURTESY GATES] FALSE CanRunIssuedPhaseHandDebt(candidate,context)
+[COURTESY GATES] FALSE CanRunDeferredPrivateOffer(candidate,context)
+[COURTESY GATES] FALSE CanRunAfterDamageProgramTrigger(owner,trigger,context)
+[COURTESY GATES] FALSE CanRunSlashTargetBenefitCandidate(c,context)
+[COURTESY GATES] FALSE CanRunSlashTargetPenalty(c,context)
+[COURTESY GATES] FALSE CanRunTongxieFollowUp(ownerSeat,context)
+[COURTESY GATES] FALSE CanRunTongxieGuard(ownerSeat,context)
+[COURTESY DIAGNOSTIC] frame=18 pending=ProgramMovementContinuation { SubjectSeat = 0, BeforeCount = 0, CoverageResultBind =  } queue=1; owner candidates=fixture:courtesy-watch:child
+[COURTESY DIAGNOSTIC] batch=19 parent=18 await=18 candidateCount=0 candidates=
+[COURTESY DIAGNOSTIC] frame=23 pending=ProgramMovementContinuation { SubjectSeat = 0, BeforeCount = 0, CoverageResultBind =  } queue=1; owner candidates=fixture:courtesy-watch:child
+[COURTESY DIAGNOSTIC] batch=24 parent=23 await=23 candidateCount=1 candidates=fixture:courtesy-watch:child
+[COURTESY GATES] actualCanRun=True ownerAlive=True source=True hash=True window=CardsGained parent=24 stackTop=24 condition=True usage=0/1 startingSubstitution=False
+[COURTESY GATES] FALSE CanRunAfterTurnEndedCandidate(candidate,context,trigger)
+[COURTESY GATES] FALSE CanRunCardEffectCandidate(candidate,context)
+[COURTESY GATES] FALSE CanOfferDamageTargetMount(ownerSeat,context)
+[COURTESY GATES] FALSE CanOfferDamageTargetObtain(owner,c)
+[COURTESY GATES] FALSE CanOfferNonFinalTargetPayment(candidate,context)
+[COURTESY GATES] FALSE CanRunForeignActualTurnContest(candidate,context)
+[COURTESY GATES] FALSE CanRunOtherActualBasicDiscard(candidate,context)
+[COURTESY GATES] FALSE CanRunIssuedPhaseHandDebt(candidate,context)
+[COURTESY GATES] FALSE CanRunDeferredPrivateOffer(candidate,context)
+[COURTESY GATES] FALSE CanRunAfterDamageProgramTrigger(owner,trigger,context)
+[COURTESY GATES] FALSE CanRunSlashTargetBenefitCandidate(c,context)
+[COURTESY GATES] FALSE CanRunSlashTargetPenalty(c,context)
+[COURTESY GATES] FALSE CanRunTongxieFollowUp(ownerSeat,context)
+[COURTESY GATES] FALSE CanRunTongxieGuard(ownerSeat,context)
+[COURTESY DIAGNOSTIC] frame=23 pending=ProgramMovementContinuation { SubjectSeat = 0, BeforeCount = 0, CoverageResultBind =  } queue=1; owner candidates=fixture:courtesy-watch:child
+[COURTESY DIAGNOSTIC] frame=18 pending=ProgramMovementContinuation { SubjectSeat = 0, BeforeCount = 0, CoverageResultBind =  } queue=1; owner candidates=fixture:courtesy-watch:child
+[COURTESY DIAGNOSTIC] batch=19 parent=18 await=18 candidateCount=0 candidates=
+[COURTESY DIAGNOSTIC] frame=23 pending=ProgramMovementContinuation { SubjectSeat = 0, BeforeCount = 0, CoverageResultBind =  } queue=1; owner candidates=fixture:courtesy-watch:child
+[COURTESY DIAGNOSTIC] batch=24 parent=23 await=23 candidateCount=1 candidates=fixture:courtesy-watch:child
+[COURTESY GATES] actualCanRun=True ownerAlive=True source=True hash=True window=CardsGained parent=24 stackTop=24 condition=True usage=0/1 startingSubstitution=False
+[COURTESY GATES] FALSE CanRunAfterTurnEndedCandidate(candidate,context,trigger)
+[COURTESY GATES] FALSE CanRunCardEffectCandidate(candidate,context)
+[COURTESY GATES] FALSE CanOfferDamageTargetMount(ownerSeat,context)
+[COURTESY GATES] FALSE CanOfferDamageTargetObtain(owner,c)
+[COURTESY GATES] FALSE CanOfferNonFinalTargetPayment(candidate,context)
+[COURTESY GATES] FALSE CanRunForeignActualTurnContest(candidate,context)
+[COURTESY GATES] FALSE CanRunOtherActualBasicDiscard(candidate,context)
+[COURTESY GATES] FALSE CanRunIssuedPhaseHandDebt(candidate,context)
+[COURTESY GATES] FALSE CanRunDeferredPrivateOffer(candidate,context)
+[COURTESY GATES] FALSE CanRunAfterDamageProgramTrigger(owner,trigger,context)
+[COURTESY GATES] FALSE CanRunSlashTargetBenefitCandidate(c,context)
+[COURTESY GATES] FALSE CanRunSlashTargetPenalty(c,context)
+[COURTESY GATES] FALSE CanRunTongxieFollowUp(ownerSeat,context)
+[COURTESY GATES] FALSE CanRunTongxieGuard(ownerSeat,context)
+[COURTESY DIAGNOSTIC] frame=23 pending=ProgramMovementContinuation { SubjectSeat = 0, BeforeCount = 0, CoverageResultBind =  } queue=1; owner candidates=fixture:courtesy-watch:child
+[PASS] Incoming distance courtesy: recovery and death children cold once
+
+4 passed, 6 failed, 0 skipped (10 total).

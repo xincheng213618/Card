@@ -1,0 +1,956 @@
+{
+  "recorded_at": "2026-10-11T11:14:14.581571+08:00",
+  "deletion_executed": false,
+  "chat_audit": {
+    "scope": "C:\\Users\\17917\\.codex\\sessions\\2026\\10",
+    "files_with_policy_text": 73,
+    "confirmed_card_cleanup_rejections": [
+      {
+        "session": "01a125ed-2172-70a3-86dd-4d226c5912d3",
+        "file": "C:\\Users\\17917\\.codex\\sessions\\2026\\10\\10\\rollout-2026-10-10T21-07-40-01a125ed-2172-70a3-86dd-4d226c5912d3.jsonl",
+        "blocked_deletion_calls": [
+          {
+            "line": 322,
+            "known_directory_names": [
+              "Card-effects-245042b7d105422b8d488af585359f6a"
+            ],
+            "actual_rejection": true
+          }
+        ]
+      },
+      {
+        "session": "01a128cd-f27e-7fc2-9e7e-78f38855af91",
+        "file": "C:\\Users\\17917\\.codex\\sessions\\2026\\10\\11\\rollout-2026-10-11T10-32-28-01a128cd-f27e-7fc2-9e7e-78f38855af91.jsonl",
+        "blocked_deletion_calls": [
+          {
+            "line": 449,
+            "known_directory_names": [
+              "iteration-20261011-01a128cd-keyboard"
+            ],
+            "actual_rejection": true
+          }
+        ]
+      },
+      {
+        "session": "01a11fe1-b9cf-7210-abe7-bd99d847a36e",
+        "file": "C:\\Users\\17917\\.codex\\sessions\\2026\\10\\09\\rollout-2026-10-09T16-57-29-01a11fe1-b9cf-7210-abe7-bd99d847a36e.jsonl",
+        "blocked_deletion_calls": [
+          {
+            "line": 521,
+            "known_directory_names": [],
+            "actual_rejection": true
+          },
+          {
+            "line": 538,
+            "known_directory_names": [
+              "Card-identity-ui-1791537330211"
+            ],
+            "actual_rejection": true
+          },
+          {
+            "line": 756,
+            "known_directory_names": [
+              "Card-identity-ui-1791537330211"
+            ],
+            "actual_rejection": true
+          },
+          {
+            "line": 1992,
+            "known_directory_names": [
+              "Card-identity-ui-1791537330211"
+            ],
+            "actual_rejection": true
+          }
+        ]
+      },
+      {
+        "session": "01a117d6-8642-7840-a694-d84b35a6aeb0",
+        "file": "C:\\Users\\17917\\.codex\\sessions\\2026\\10\\08\\rollout-2026-10-08T03-28-17-01a117d6-8642-7840-a694-d84b35a6aeb0.jsonl",
+        "blocked_deletion_calls": [
+          {
+            "line": 954,
+            "known_directory_names": [
+              "zcode-integration-repair-20261008-9fbe"
+            ],
+            "actual_rejection": true
+          }
+        ]
+      },
+      {
+        "session": "01a11dde-dac8-75b1-90f4-6c594b2e8bea",
+        "file": "C:\\Users\\17917\\.codex\\sessions\\2026\\10\\09\\rollout-2026-10-09T07-35-07-01a11dde-dac8-75b1-90f4-6c594b2e8bea.jsonl",
+        "blocked_deletion_calls": [
+          {
+            "line": 450,
+            "known_directory_names": [
+              "Card-perf-20261009-f78dba55"
+            ],
+            "actual_rejection": true
+          },
+          {
+            "line": 3093,
+            "known_directory_names": [
+              "Card-slowchecks-20261009-07ac82c4"
+            ],
+            "actual_rejection": true
+          },
+          {
+            "line": 8206,
+            "known_directory_names": [
+              "Card-payment-cursor-red-20261009-246c9e12",
+              "Card-slowchecks-20261009-07ac82c4"
+            ],
+            "actual_rejection": true
+          },
+          {
+            "line": 8856,
+            "known_directory_names": [
+              "Card-payment-cursor-red-20261009-246c9e12",
+              "Card-slowchecks-20261009-07ac82c4"
+            ],
+            "actual_rejection": true
+          }
+        ]
+      },
+      {
+        "session": "01a11dde-dac8-75b1-90f4-6c594b2e8bea",
+        "file": "C:\\Users\\17917\\.codex\\sessions\\2026\\10\\09\\rollout-2026-10-09T09-18-35-01a11e3d-967b-7b41-8a78-f3c38a994292.jsonl",
+        "blocked_deletion_calls": [
+          {
+            "line": 1210,
+            "known_directory_names": [
+              "Card-slowchecks-20261009-07ac82c4"
+            ],
+            "actual_rejection": true
+          },
+          {
+            "line": 1221,
+            "known_directory_names": [
+              "Card-slowchecks-20261009-07ac82c4"
+            ],
+            "actual_rejection": true
+          },
+          {
+            "line": 2168,
+            "known_directory_names": [
+              "Card-slowchecks-20261009-07ac82c4"
+            ],
+            "actual_rejection": true
+          }
+        ]
+      },
+      {
+        "session": "01a1156d-5b85-7411-b1b1-955b0a42b747",
+        "file": "C:\\Users\\17917\\.codex\\sessions\\2026\\10\\07\\rollout-2026-10-07T16-14-10-01a1156d-5b85-7411-b1b1-955b0a42b747.jsonl",
+        "blocked_deletion_calls": [
+          {
+            "line": 1239,
+            "known_directory_names": [
+              "goal-20261007-01a1156d"
+            ],
+            "actual_rejection": true
+          },
+          {
+            "line": 1252,
+            "known_directory_names": [
+              "goal-20261007-01a1156d"
+            ],
+            "actual_rejection": true
+          },
+          {
+            "line": 1991,
+            "known_directory_names": [
+              "goal-20261007-01a1156d"
+            ],
+            "actual_rejection": true
+          },
+          {
+            "line": 2931,
+            "known_directory_names": [
+              "goal-20261007-01a1156d"
+            ],
+            "actual_rejection": true
+          },
+          {
+            "line": 4153,
+            "known_directory_names": [
+              "goal-20261007-01a1156d"
+            ],
+            "actual_rejection": true
+          },
+          {
+            "line": 5589,
+            "known_directory_names": [
+              "goal-20261007-01a1156d"
+            ],
+            "actual_rejection": true
+          },
+          {
+            "line": 6193,
+            "known_directory_names": [
+              "goal-20261007-01a1156d"
+            ],
+            "actual_rejection": true
+          },
+          {
+            "line": 7497,
+            "known_directory_names": [
+              "goal-20261007-01a1156d"
+            ],
+            "actual_rejection": true
+          },
+          {
+            "line": 8515,
+            "known_directory_names": [
+              "goal-20261007-01a1156d"
+            ],
+            "actual_rejection": true
+          },
+          {
+            "line": 9485,
+            "known_directory_names": [
+              "goal-20261007-01a1156d"
+            ],
+            "actual_rejection": true
+          },
+          {
+            "line": 10649,
+            "known_directory_names": [
+              "goal-20261007-01a1156d"
+            ],
+            "actual_rejection": true
+          },
+          {
+            "line": 14886,
+            "known_directory_names": [
+              "goal-20261007-01a1156d"
+            ],
+            "actual_rejection": true
+          }
+        ]
+      },
+      {
+        "session": "01a1156d-5b85-7411-b1b1-955b0a42b747",
+        "file": "C:\\Users\\17917\\.codex\\sessions\\2026\\10\\07\\rollout-2026-10-07T16-15-33-01a1156e-9f5e-75a3-b084-3c06b8f3dfb9.jsonl",
+        "blocked_deletion_calls": [
+          {
+            "line": 513,
+            "known_directory_names": [
+              "goal-20261007-01a1156d"
+            ],
+            "actual_rejection": true
+          }
+        ]
+      },
+      {
+        "session": "01a0fe12-de26-75b3-ac5e-be0e2fdf07ca",
+        "file": "C:\\Users\\17917\\.codex\\sessions\\2026\\10\\03\\rollout-2026-10-03T03-24-04-01a0fe12-de26-75b3-ac5e-be0e2fdf07ca.jsonl",
+        "blocked_deletion_calls": [
+          {
+            "line": 36,
+            "known_directory_names": [],
+            "actual_rejection": true
+          },
+          {
+            "line": 46,
+            "known_directory_names": [],
+            "actual_rejection": true
+          }
+        ]
+      },
+      {
+        "session": "01a10038-bec6-7f41-bf23-3a445f5cc27e",
+        "file": "C:\\Users\\17917\\.codex\\sessions\\2026\\10\\03\\rollout-2026-10-03T13-24-46-01a10038-bec6-7f41-bf23-3a445f5cc27e.jsonl",
+        "blocked_deletion_calls": [
+          {
+            "line": 2563,
+            "known_directory_names": [],
+            "actual_rejection": true
+          },
+          {
+            "line": 2578,
+            "known_directory_names": [],
+            "actual_rejection": true
+          },
+          {
+            "line": 2593,
+            "known_directory_names": [],
+            "actual_rejection": true
+          },
+          {
+            "line": 4187,
+            "known_directory_names": [
+              "continuation-20261003-batch17"
+            ],
+            "actual_rejection": true
+          }
+        ]
+      },
+      {
+        "session": "01a10861-d1be-76d2-b88c-dbd142ce7dfc",
+        "file": "C:\\Users\\17917\\.codex\\sessions\\2026\\10\\05\\rollout-2026-10-05T03-26-30-01a10861-d1be-76d2-b88c-dbd142ce7dfc.jsonl",
+        "blocked_deletion_calls": [
+          {
+            "line": 182,
+            "known_directory_names": [
+              "worktree-merge-20261005-01a10861"
+            ],
+            "actual_rejection": true
+          },
+          {
+            "line": 214,
+            "known_directory_names": [],
+            "actual_rejection": true
+          },
+          {
+            "line": 338,
+            "known_directory_names": [
+              "worktree-merge-20261005-01a10861"
+            ],
+            "actual_rejection": true
+          },
+          {
+            "line": 359,
+            "known_directory_names": [
+              "worktree-merge-20261005-01a10861"
+            ],
+            "actual_rejection": true
+          },
+          {
+            "line": 365,
+            "known_directory_names": [
+              "worktree-merge-20261005-01a10861"
+            ],
+            "actual_rejection": true
+          }
+        ]
+      },
+      {
+        "session": "01a0fdd9-e2ec-7ea3-957c-762ce3717553",
+        "file": "C:\\Users\\17917\\.codex\\sessions\\2026\\10\\03\\rollout-2026-10-03T02-21-50-01a0fdd9-e2ec-7ea3-957c-762ce3717553.jsonl",
+        "blocked_deletion_calls": [
+          {
+            "line": 546,
+            "known_directory_names": [],
+            "actual_rejection": true
+          },
+          {
+            "line": 566,
+            "known_directory_names": [],
+            "actual_rejection": true
+          }
+        ]
+      }
+    ],
+    "rejected_call_count": 40
+  },
+  "scan": {
+    "roots": [
+      "C:\\Users\\17917\\AppData\\Local\\Temp",
+      "C:\\Users\\17917\\Desktop\\Card\\.artifacts"
+    ],
+    "top_level_entries": 6665,
+    "duration_seconds": 22.43,
+    "reparse_points_followed": false,
+    "read_errors": 0,
+    "total_bytes": 41598326505,
+    "largest_entries": [
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\zcode-integration-repair-20261008-9fbe",
+        "directory": true,
+        "bytes": 5369059186,
+        "files": 7514,
+        "reparse_skipped": 0,
+        "read_errors": 0,
+        "root": "C:\\Users\\17917\\Desktop\\Card\\.artifacts"
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\PerfWatsonHangDump_devenv_a53b8c3f-08b7-44a5-943e-e284ec1a0395.dmp",
+        "directory": false,
+        "bytes": 5225221472,
+        "files": 1,
+        "reparse_skipped": 0,
+        "read_errors": 0,
+        "root": "C:\\Users\\17917\\AppData\\Local\\Temp"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d",
+        "directory": true,
+        "bytes": 4463432488,
+        "files": 11050,
+        "reparse_skipped": 0,
+        "read_errors": 0,
+        "root": "C:\\Users\\17917\\Desktop\\Card\\.artifacts"
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-slowchecks-20261009-07ac82c4",
+        "directory": true,
+        "bytes": 2900770341,
+        "files": 3220,
+        "reparse_skipped": 0,
+        "read_errors": 0,
+        "root": "C:\\Users\\17917\\AppData\\Local\\Temp"
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-identity-ui-1791537330211",
+        "directory": true,
+        "bytes": 2701806611,
+        "files": 2810,
+        "reparse_skipped": 0,
+        "read_errors": 0,
+        "root": "C:\\Users\\17917\\AppData\\Local\\Temp"
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f",
+        "directory": true,
+        "bytes": 2682652981,
+        "files": 2741,
+        "reparse_skipped": 0,
+        "read_errors": 0,
+        "root": "C:\\Users\\17917\\AppData\\Local\\Temp"
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-effects-245042b7d105422b8d488af585359f6a",
+        "directory": true,
+        "bytes": 2673271082,
+        "files": 2726,
+        "reparse_skipped": 0,
+        "read_errors": 0,
+        "root": "C:\\Users\\17917\\AppData\\Local\\Temp"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17",
+        "directory": true,
+        "bytes": 2550270194,
+        "files": 7319,
+        "reparse_skipped": 0,
+        "read_errors": 0,
+        "root": "C:\\Users\\17917\\Desktop\\Card\\.artifacts"
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\wijicdrh",
+        "directory": true,
+        "bytes": 1460269185,
+        "files": 497,
+        "reparse_skipped": 0,
+        "read_errors": 0,
+        "root": "C:\\Users\\17917\\AppData\\Local\\Temp"
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\scoped_dir46196_1780925411",
+        "directory": true,
+        "bytes": 1108505726,
+        "files": 4669,
+        "reparse_skipped": 0,
+        "read_errors": 0,
+        "root": "C:\\Users\\17917\\AppData\\Local\\Temp"
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\spectrum-sg-integration-a53908a5462e4ee69a0c81b531fa60a1",
+        "directory": true,
+        "bytes": 574137969,
+        "files": 402,
+        "reparse_skipped": 0,
+        "read_errors": 0,
+        "root": "C:\\Users\\17917\\AppData\\Local\\Temp"
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\scoped_dir45924_786548071",
+        "directory": true,
+        "bytes": 466682529,
+        "files": 1237,
+        "reparse_skipped": 0,
+        "read_errors": 0,
+        "root": "C:\\Users\\17917\\AppData\\Local\\Temp"
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\cvCamera-smu-idn-4837444832e849b79941627c529be851",
+        "directory": true,
+        "bytes": 421269653,
+        "files": 124,
+        "reparse_skipped": 0,
+        "read_errors": 0,
+        "root": "C:\\Users\\17917\\AppData\\Local\\Temp"
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\cvCamera-smu-baud-192b7bce521a4459b82f86365af43a8d",
+        "directory": true,
+        "bytes": 421198469,
+        "files": 119,
+        "reparse_skipped": 0,
+        "read_errors": 0,
+        "root": "C:\\Users\\17917\\AppData\\Local\\Temp"
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\cvCamera-wavefilter-removal-711535e443894ce2958351d204f29f68",
+        "directory": true,
+        "bytes": 415969319,
+        "files": 124,
+        "reparse_skipped": 0,
+        "read_errors": 0,
+        "root": "C:\\Users\\17917\\AppData\\Local\\Temp"
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\VSTelem",
+        "directory": true,
+        "bytes": 263777280,
+        "files": 35,
+        "reparse_skipped": 0,
+        "read_errors": 0,
+        "root": "C:\\Users\\17917\\AppData\\Local\\Temp"
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\Roslyn",
+        "directory": true,
+        "bytes": 215308640,
+        "files": 181,
+        "reparse_skipped": 0,
+        "read_errors": 0,
+        "root": "C:\\Users\\17917\\AppData\\Local\\Temp"
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\VSLogs",
+        "directory": true,
+        "bytes": 100052027,
+        "files": 134,
+        "reparse_skipped": 0,
+        "read_errors": 0,
+        "root": "C:\\Users\\17917\\AppData\\Local\\Temp"
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\spectrum-audit-20261009-4fe838eb",
+        "directory": true,
+        "bytes": 96016063,
+        "files": 237,
+        "reparse_skipped": 0,
+        "read_errors": 0,
+        "root": "C:\\Users\\17917\\AppData\\Local\\Temp"
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\VC++",
+        "directory": true,
+        "bytes": 76070912,
+        "files": 1,
+        "reparse_skipped": 0,
+        "read_errors": 0,
+        "root": "C:\\Users\\17917\\AppData\\Local\\Temp"
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\f425cde8-15da-4dc1-ac88-16997e752501.tmp",
+        "directory": false,
+        "bytes": 67897833,
+        "files": 1,
+        "reparse_skipped": 0,
+        "read_errors": 0,
+        "root": "C:\\Users\\17917\\AppData\\Local\\Temp"
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\spectrum-smoothing-benchmark-213d517dd3c446238fc2844ff3b2aeb8",
+        "directory": true,
+        "bytes": 61609085,
+        "files": 29,
+        "reparse_skipped": 0,
+        "read_errors": 0,
+        "root": "C:\\Users\\17917\\AppData\\Local\\Temp"
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\playwright_chromiumdev_profile-NCFRid",
+        "directory": true,
+        "bytes": 54480400,
+        "files": 197,
+        "reparse_skipped": 0,
+        "read_errors": 0,
+        "root": "C:\\Users\\17917\\AppData\\Local\\Temp"
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\.net",
+        "directory": true,
+        "bytes": 48014992,
+        "files": 20,
+        "reparse_skipped": 0,
+        "read_errors": 0,
+        "root": "C:\\Users\\17917\\AppData\\Local\\Temp"
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\d4f0dee5-f781-4b27-bbd0-468f69854c43.tmp",
+        "directory": false,
+        "bytes": 30902908,
+        "files": 1,
+        "reparse_skipped": 0,
+        "read_errors": 0,
+        "root": "C:\\Users\\17917\\AppData\\Local\\Temp"
+      }
+    ],
+    "card_entries": [
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-effects-245042b7d105422b8d488af585359f6a",
+        "directory": true,
+        "bytes": 2673271082,
+        "files": 2726,
+        "reparse_skipped": 0,
+        "read_errors": 0,
+        "root": "C:\\Users\\17917\\AppData\\Local\\Temp"
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-identity-ui-1791537330211",
+        "directory": true,
+        "bytes": 2701806611,
+        "files": 2810,
+        "reparse_skipped": 0,
+        "read_errors": 0,
+        "root": "C:\\Users\\17917\\AppData\\Local\\Temp"
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-payment-cursor-red-20261009-246c9e12",
+        "directory": true,
+        "bytes": 15637471,
+        "files": 33,
+        "reparse_skipped": 0,
+        "read_errors": 0,
+        "root": "C:\\Users\\17917\\AppData\\Local\\Temp"
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-perf-20261009-f78dba55",
+        "directory": true,
+        "bytes": 26250737,
+        "files": 36,
+        "reparse_skipped": 0,
+        "read_errors": 0,
+        "root": "C:\\Users\\17917\\AppData\\Local\\Temp"
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-slowchecks-20261009-07ac82c4",
+        "directory": true,
+        "bytes": 2900770341,
+        "files": 3220,
+        "reparse_skipped": 0,
+        "read_errors": 0,
+        "root": "C:\\Users\\17917\\AppData\\Local\\Temp"
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f",
+        "directory": true,
+        "bytes": 2682652981,
+        "files": 2741,
+        "reparse_skipped": 0,
+        "read_errors": 0,
+        "root": "C:\\Users\\17917\\AppData\\Local\\Temp"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\cleanup-queue-tests",
+        "directory": true,
+        "bytes": 44275,
+        "files": 119,
+        "reparse_skipped": 0,
+        "read_errors": 0,
+        "root": "C:\\Users\\17917\\Desktop\\Card\\.artifacts"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17",
+        "directory": true,
+        "bytes": 2550270194,
+        "files": 7319,
+        "reparse_skipped": 0,
+        "read_errors": 0,
+        "root": "C:\\Users\\17917\\Desktop\\Card\\.artifacts"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d",
+        "directory": true,
+        "bytes": 4463432488,
+        "files": 11050,
+        "reparse_skipped": 0,
+        "read_errors": 0,
+        "root": "C:\\Users\\17917\\Desktop\\Card\\.artifacts"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\iteration-20261011-01a128cd-keyboard",
+        "directory": true,
+        "bytes": 92400,
+        "files": 13,
+        "reparse_skipped": 0,
+        "read_errors": 0,
+        "root": "C:\\Users\\17917\\Desktop\\Card\\.artifacts"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\worktree-merge-20261005-01a10861",
+        "directory": true,
+        "bytes": 4325116,
+        "files": 12,
+        "reparse_skipped": 0,
+        "read_errors": 0,
+        "root": "C:\\Users\\17917\\Desktop\\Card\\.artifacts"
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\zcode-integration-repair-20261008-9fbe",
+        "directory": true,
+        "bytes": 5369059186,
+        "files": 7514,
+        "reparse_skipped": 0,
+        "read_errors": 0,
+        "root": "C:\\Users\\17917\\Desktop\\Card\\.artifacts"
+      }
+    ],
+    "other_entries_not_registered": 6653
+  },
+  "registration": {
+    "completed_at": "2026-10-11T11:17:28.020641+08:00",
+    "new_count": 19,
+    "new_bytes": 15826444204,
+    "queue_count": 25,
+    "queue_bytes": 21211069702,
+    "entries": [
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin",
+        "bytes": 1822262949,
+        "lock_root": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f",
+        "newly_registered": false
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\obj",
+        "bytes": 752197000,
+        "lock_root": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f",
+        "newly_registered": false
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders",
+        "bytes": 108222263,
+        "lock_root": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f",
+        "newly_registered": false
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\cleanup-queue-tests",
+        "bytes": 44275,
+        "lock_root": null,
+        "newly_registered": false
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\iteration-20261011-01a128cd-keyboard",
+        "bytes": 92400,
+        "lock_root": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\iteration-20261011-01a128cd-keyboard",
+        "newly_registered": false
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-identity-ui-1791537330211",
+        "bytes": 2701806611,
+        "lock_root": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-identity-ui-1791537330211",
+        "newly_registered": false
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-effects-245042b7d105422b8d488af585359f6a",
+        "bytes": 2673271082,
+        "lock_root": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-effects-245042b7d105422b8d488af585359f6a",
+        "newly_registered": true
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-payment-cursor-red-20261009-246c9e12",
+        "bytes": 15637471,
+        "lock_root": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-payment-cursor-red-20261009-246c9e12",
+        "newly_registered": true
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-perf-20261009-f78dba55",
+        "bytes": 26250737,
+        "lock_root": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-perf-20261009-f78dba55",
+        "newly_registered": true
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-slowchecks-20261009-07ac82c4",
+        "bytes": 2900770341,
+        "lock_root": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-slowchecks-20261009-07ac82c4",
+        "newly_registered": true
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\verification-cache\\bin",
+        "bytes": 1567706375,
+        "lock_root": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\verification-cache",
+        "newly_registered": true
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\verification-cache\\obj",
+        "bytes": 522317952,
+        "lock_root": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\verification-cache",
+        "newly_registered": true
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\verification-cache\\renders",
+        "bytes": 112287843,
+        "lock_root": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\verification-cache",
+        "newly_registered": true
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\build\\bin",
+        "bytes": 1821240513,
+        "lock_root": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\build",
+        "newly_registered": true
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\build\\obj",
+        "bytes": 751451505,
+        "lock_root": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\build",
+        "newly_registered": true
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\build\\renders",
+        "bytes": 114873079,
+        "lock_root": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\build",
+        "newly_registered": true
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\zcode-integration-repair-20261008-9fbe\\build\\bin",
+        "bytes": 1762841655,
+        "lock_root": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\zcode-integration-repair-20261008-9fbe\\build",
+        "newly_registered": true
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\zcode-integration-repair-20261008-9fbe\\build\\obj",
+        "bytes": 702373167,
+        "lock_root": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\zcode-integration-repair-20261008-9fbe\\build",
+        "newly_registered": true
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\zcode-integration-repair-20261008-9fbe\\build\\renders",
+        "bytes": 111781574,
+        "lock_root": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\zcode-integration-repair-20261008-9fbe\\build",
+        "newly_registered": true
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\zcode-integration-repair-20261008-9fbe\\clean-build\\bin",
+        "bytes": 1762841743,
+        "lock_root": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\zcode-integration-repair-20261008-9fbe\\clean-build",
+        "newly_registered": true
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\zcode-integration-repair-20261008-9fbe\\clean-build\\obj",
+        "bytes": 702387490,
+        "lock_root": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\zcode-integration-repair-20261008-9fbe\\clean-build",
+        "newly_registered": true
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\zcode-integration-repair-20261008-9fbe\\clean-build\\renders",
+        "bytes": 111738270,
+        "lock_root": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\zcode-integration-repair-20261008-9fbe\\clean-build",
+        "newly_registered": true
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\zcode-integration-repair-20261008-9fbe\\diagnostic-build",
+        "bytes": 12644833,
+        "lock_root": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\zcode-integration-repair-20261008-9fbe\\diagnostic-build",
+        "newly_registered": true
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\zcode-integration-repair-20261008-9fbe\\head-build",
+        "bytes": 80803324,
+        "lock_root": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\zcode-integration-repair-20261008-9fbe\\head-build",
+        "newly_registered": true
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\zcode-integration-repair-20261008-9fbe\\regression",
+        "bytes": 73225250,
+        "lock_root": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\zcode-integration-repair-20261008-9fbe\\regression",
+        "newly_registered": true
+      }
+    ],
+    "deletion_executed": false
+  },
+  "preserved": [
+    {
+      "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\worktree-merge-20261005-01a10861",
+      "reason": "Contains recovery archives; retained in full."
+    },
+    {
+      "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\round10-source",
+      "reason": "Frozen source/assets snapshot; retained."
+    },
+    {
+      "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\round11-frozen-source",
+      "reason": "Frozen source/assets snapshot; retained."
+    },
+    {
+      "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\zcode-integration-repair-20261008-9fbe",
+      "reason": "Only disposable build directories queued; backup, merge/source, logs and summary retained."
+    },
+    {
+      "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17",
+      "reason": "Only verification-cache bin/obj/renders queued; historical evidence and patches retained."
+    }
+  ],
+  "skipped": [
+    {
+      "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\PerfWatsonHangDump_devenv_a53b8c3f-08b7-44a5-943e-e284ec1a0395.dmp",
+      "reason": "VS diagnostic dump is a file, not a task-owned directory; not registered."
+    },
+    {
+      "category": "other application and system temporary files",
+      "reason": "Browser caches, SDK installers, Roslyn caches and other project outputs lack verified disposal ownership in this audit; not registered."
+    }
+  ],
+  "runtime_audit": {
+    "recorded_at": "2026-10-11T03:18:07.4593250+00:00",
+    "consumers": [],
+    "locks": [
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\.test-changed.lock",
+        "available": true
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-identity-ui-1791537330211\\.test-changed.lock",
+        "available": true
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-effects-245042b7d105422b8d488af585359f6a\\.test-changed.lock",
+        "available": true
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-slowchecks-20261009-07ac82c4\\.test-changed.lock",
+        "available": true
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\verification-cache\\.test-changed.lock",
+        "available": true
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\goal-20261007-01a1156d\\build\\.test-changed.lock",
+        "available": true
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\zcode-integration-repair-20261008-9fbe\\build\\.test-changed.lock",
+        "available": true
+      },
+      {
+        "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\zcode-integration-repair-20261008-9fbe\\clean-build\\.test-changed.lock",
+        "available": true
+      }
+    ],
+    "all_registered_directories_present": true
+  },
+  "launcher_verification": {
+    "working_directory": "C:\\Users\\17917\\Desktop",
+    "runs": [
+      {
+        "mode": "--list",
+        "exit_code": 0,
+        "unicode_reason_displayed": true,
+        "pause_displayed": true,
+        "preview_count": 0,
+        "queue_unchanged": true
+      },
+      {
+        "mode": "--dry-run",
+        "exit_code": 0,
+        "unicode_reason_displayed": true,
+        "pause_displayed": true,
+        "preview_count": 25,
+        "queue_unchanged": true
+      }
+    ],
+    "deletion_executed": false
+  },
+  "observations": [
+    {
+      "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f",
+      "initial_scan": "Shared verification had active dotnet PID 41560 and unavailable lock; existing queued entries retained for user cleanup.",
+      "final_check": "Consumer exited and all verification locks were available; cleanup still rechecks usage and locks when run."
+    }
+  ]
+}

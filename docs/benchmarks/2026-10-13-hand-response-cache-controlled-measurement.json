@@ -1,0 +1,54 @@
+{
+  "BeforeMeanMs": 16707.036,
+  "AfterMeanMs": 15416.282500000001,
+  "SavedMs": 1290.753499999999,
+  "SavedPercent": 7.7258078572405,
+  "Samples": [
+    {
+      "variant": "before",
+      "sample": 1,
+      "testMs": 16173.36,
+      "focusedDiagnosticCount": 23,
+      "responseFamilyCount": 8,
+      "allOtherSemanticLinesEqual": true,
+      "cacheDiagnostic": []
+    },
+    {
+      "variant": "before",
+      "sample": 2,
+      "testMs": 17240.712,
+      "focusedDiagnosticCount": 23,
+      "responseFamilyCount": 8,
+      "allOtherSemanticLinesEqual": true,
+      "cacheDiagnostic": []
+    },
+    {
+      "variant": "after",
+      "sample": 1,
+      "testMs": 15265.012,
+      "focusedDiagnosticCount": 23,
+      "responseFamilyCount": 8,
+      "allOtherSemanticLinesEqual": true,
+      "cacheDiagnostic": [
+        "Focused Enter baseline reuse: actual loads=17, independent baselines=3."
+      ]
+    },
+    {
+      "variant": "after",
+      "sample": 2,
+      "testMs": 15567.553,
+      "focusedDiagnosticCount": 23,
+      "responseFamilyCount": 8,
+      "allOtherSemanticLinesEqual": true,
+      "cacheDiagnostic": [
+        "Focused Enter baseline reuse: actual loads=17, independent baselines=3."
+      ]
+    }
+  ],
+  "FrozenCompiledDependencies": 9,
+  "InitialLoadRetained": true,
+  "RepeatedLoadChecksRetained": 17,
+  "IndependentExpectedBaselines": 3,
+  "SourceRestoredExactly": true,
+  "Limits": "Two samples per variant in BB-to-AA order, with concurrent host load; this is the observed focused-check reduction, not a statistical estimate or whole-routine gain."
+}

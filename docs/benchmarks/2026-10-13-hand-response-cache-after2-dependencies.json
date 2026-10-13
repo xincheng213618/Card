@@ -1,0 +1,17 @@
+[
+  {
+    "Name": "CardGame.Core",
+    "Path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-Startup-01a13324\\bin\\CardGame.Core\\release\\CardGame.Core.dll",
+    "Sha256": "FBF92BB36F588B373336DB6807E9C0B88B398BB13CC37CCB7E6333B9880E01DB"
+  },
+  {
+    "Name": "CardGame.Content.Standard",
+    "Path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-Startup-01a13324\\bin\\CardGame.Content.Standard\\release\\CardGame.Content.Standard.dll",
+    "Sha256": "93BDDC7BB8AC442E345002B65DBADC44E285C61445C7141878BE284C492236B9"
+  },
+  {
+    "Name": "CardGame.Wpf",
+    "Path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-Startup-01a13324\\bin\\CardGame.Wpf\\release\\CardGame.Wpf.dll",
+    "Sha256": "A8C2F7A526368648BAA75247127DD89704F0CF33448CE703E984E185952154C3"
+  }
+]

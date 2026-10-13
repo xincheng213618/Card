@@ -1,0 +1,63 @@
+{
+  "CheckedAt": "2026-10-13T12:26:24.6822904+08:00",
+  "Sources": [
+    {
+      "Path": "src/CardGame.Core/GameEngine.cs",
+      "Expected": "BC95C8944F7D3C0AAFA9952433AE38941758E1FF14F5640E3732FD26A6104580",
+      "Actual": "DBC22FF427A467BEA60BD6B4962173B5F69524D731A36892EBDD3BD40005A1F3",
+      "Matches": false,
+      "LastWriteTime": "2026-10-13T12:24:45.5567020+08:00"
+    },
+    {
+      "Path": "tests/CardGame.Core.Tests/GodFactionSelectionChecks.cs",
+      "Expected": "B2D3A244069AA408561ED330EB7A3BF9BEEC5B0D8C09B6A1815C4CB2CCD51676",
+      "Actual": "B2D3A244069AA408561ED330EB7A3BF9BEEC5B0D8C09B6A1815C4CB2CCD51676",
+      "Matches": true,
+      "LastWriteTime": "2026-10-13T12:02:52.1918906+08:00"
+    },
+    {
+      "Path": "src/CardGame.Wpf/MainWindow.xaml",
+      "Expected": "F340319FC0504B771C9577560D1C0710B972EDA2DAC2609345BD073CF8850A57",
+      "Actual": "F340319FC0504B771C9577560D1C0710B972EDA2DAC2609345BD073CF8850A57",
+      "Matches": true,
+      "LastWriteTime": "2026-10-13T12:08:43.5489734+08:00"
+    },
+    {
+      "Path": "src/CardGame.Wpf/MainWindow.xaml.cs",
+      "Expected": "85F28F9DAF1C8C0BF3B2E75A9B7F4A18A72E915EC2F34629A99385C0FAF9DB8D",
+      "Actual": "85F28F9DAF1C8C0BF3B2E75A9B7F4A18A72E915EC2F34629A99385C0FAF9DB8D",
+      "Matches": true,
+      "LastWriteTime": "2026-10-13T12:08:43.5499737+08:00"
+    },
+    {
+      "Path": "tests/CardGame.Wpf.Tests/GeneralSelectionChecks.cs",
+      "Expected": "BE3355A2CE8EE14D9B1B1E5E55F1523D3A6BDBAD22EADE9017F24D2E963E7644",
+      "Actual": "BE3355A2CE8EE14D9B1B1E5E55F1523D3A6BDBAD22EADE9017F24D2E963E7644",
+      "Matches": true,
+      "LastWriteTime": "2026-10-13T12:03:30.2503257+08:00"
+    },
+    {
+      "Path": "tests/CardGame.Wpf.Tests/ExactTopReorderUiChecks.cs",
+      "Expected": "56D528D60D519D8B7B221950A4DAFDED066E6D298F878F433B45174F1B33573B",
+      "Actual": "56D528D60D519D8B7B221950A4DAFDED066E6D298F878F433B45174F1B33573B",
+      "Matches": true,
+      "LastWriteTime": "2026-10-13T12:17:26.9170428+08:00"
+    },
+    {
+      "Path": "tools/Test-Changed.ps1",
+      "Expected": "EDA2697EE6224BE4126A5CAB627F8478528D86C23D1FCA490E914946E63D60DB",
+      "Actual": "EDA2697EE6224BE4126A5CAB627F8478528D86C23D1FCA490E914946E63D60DB",
+      "Matches": true,
+      "LastWriteTime": "2026-10-13T12:06:51.6188361+08:00"
+    },
+    {
+      "Path": "tools/tests/Test-Changed.Artifacts.Tests.ps1",
+      "Expected": "FD99BE7EAE386AAC49EBC333C6D728684E88D001AA968B033BF2961B84463279",
+      "Actual": "FD99BE7EAE386AAC49EBC333C6D728684E88D001AA968B033BF2961B84463279",
+      "Matches": true,
+      "LastWriteTime": "2026-10-13T12:06:51.6197477+08:00"
+    }
+  ],
+  "AffectedGodFactionMethodMatchesVerifiedCode": true,
+  "Scope": "Full-file GameEngine hash changed after routine completion due concurrent edits; this task method remains exact after whitespace normalization. Routine evidence covers the earlier compiled snapshot."
+}

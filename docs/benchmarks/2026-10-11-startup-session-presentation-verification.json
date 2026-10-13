@@ -1,0 +1,334 @@
+{
+  "formatVersion": 1,
+  "recordedAt": "2026-10-11T07:04:16Z",
+  "purpose": "Keep startup identity and opening-hand presentation with its owning match across replacement, failed restore, and tutorial suspension.",
+  "repository": "C:\\Users\\17917\\Desktop\\Card",
+  "head": "0f08fb47bb8637ccf082f406d69f6f6c0cbe7b52",
+  "changes": [
+    "Reset identity reveal, armed opening deal, opening faces and timer when a prepared replacement engine is installed.",
+    "Arm a lobby opening after NewGame installs the new engine, then refresh against its actual current hand and pending-general guard.",
+    "Suspend startup presentation with the existing tutorial match record; rebuild the original opening card IDs from the resumed current hand.",
+    "Retain real sorted-container Space key coverage inside the existing hand-pointer check; no production hand-control changes in this batch.",
+    "Document startup presentation behavior in LOCAL_PLAY.md."
+  ],
+  "baseline": {
+    "command": "& .\\tools\\Test-Changed.ps1 -WpfFilter 'table shortcuts respect navigation'",
+    "run": {
+      "status": "test-failed",
+      "mode": "targeted",
+      "startedAt": "2026-10-11T14:53:27.0143989+08:00",
+      "durationMs": 3686,
+      "coreFilterCount": 0,
+      "wpfFilters": [
+        "table shortcuts respect navigation"
+      ],
+      "results": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 1555,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\build.log"
+        },
+        {
+          "name": "WPF selected checks (1 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 1882,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\wpf-selected.log"
+        }
+      ],
+      "message": "One or more selected checks failed."
+    },
+    "wpfPassed": 0,
+    "wpfFailed": 1,
+    "failureLog": "0 WPF checks passed, 1 failed. Renders: C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders\r\n[FAIL] table shortcuts respect navigation panels above startup overlays: System.InvalidOperationException: A successful load must retire the replaced match's identity and pending opening cards.\r\n   at Program.Assert(Boolean condition, String message) in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\Program.cs:line 328\r\n   at TableShortcutChecks.<>c__DisplayClass1_0.<OpeningOverlayPriority>g__VerifyStartupReplacement|4() in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\TableShortcutChecks.cs:line 152\r\n   at TableShortcutChecks.OpeningOverlayPriority() in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\TableShortcutChecks.cs:line 126\r\n   at Program.Check(String name, Action action) in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\Program.cs:line 186\r\n\r\n",
+    "interpretation": "The measured pre-fix failure confirms a successful read retained the prior identity presentation. The existing fixture had motion disabled at this point, so the baseline is not evidence of an animated opening-arm failure."
+  },
+  "focused": {
+    "command": "& .\\tools\\Test-Changed.ps1 -WpfFilter @('table shortcuts','table modal focus','overlapping hand cards','saved UI boundaries','failed writes','device preferences')",
+    "run": {
+      "status": "passed",
+      "mode": "targeted",
+      "startedAt": "2026-10-11T14:57:58.1296818+08:00",
+      "durationMs": 9157,
+      "coreFilterCount": 0,
+      "wpfFilters": [
+        "table shortcuts",
+        "table modal focus",
+        "overlapping hand cards",
+        "saved UI boundaries",
+        "failed writes",
+        "device preferences"
+      ],
+      "results": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 1941,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\build.log"
+        },
+        {
+          "name": "WPF selected checks (6 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 6911,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\wpf-selected.log"
+        }
+      ],
+      "message": null
+    },
+    "wpfPassed": 7,
+    "wpfFailed": 0,
+    "log": "[PASS] table shortcuts execute once per key press and preserve modal drafts\r\nResumed startup: identity=False, opening=True, faces=4, hand=4, current=True, prompt=ProgramTrigger, revision=13.\r\n[PASS] table shortcuts respect navigation panels above startup overlays\r\nModal Window shown: loaded=True, WPF visible=True, native visible=True, owns foreground=False, source matches=True, loaded events=1, unloaded events=0.\r\nModal Window hidden: loaded=True, WPF visible=True, native visible=False, owns foreground=False, source matches=True, loaded events=1, unloaded events=0.\r\nModal Window pumped: loaded=True, WPF visible=True, native visible=False, owns foreground=False, source matches=True, loaded events=1, unloaded events=0.\r\n[PASS] table modal focus follows startup and current visible panels\r\nOverlap pointer: intended=9003, visual hit=9003\r\nHand viewport: face bottom=178.0, visible height=179.7\r\nHand edge selection: offset 0.0 -> 0.0; intended=9015, next press=9015\r\nHand sort pointer: card=9008, index 8->20, same button=True, pointer=True.\r\nHand sort focused: pointer=True, capture=False, hand mouse-over=False, offset=0.0.\r\nHand sort PreviewMouseMove: position=26058,22366.333333333332, pointer=False, capture=True.\r\nHand sort space-down: pointer=False, capture=True, hand mouse-over=True, offset=0.0.\r\nHand sort MouseLeave: position=26058,22366.333333333332, pointer=False, capture=False.\r\nHand sort space-up: pointer=False, capture=False, hand mouse-over=False, offset=0.0.\r\nHand sort pumped: pointer=False, capture=False, hand mouse-over=False, offset=282.7.\r\nHand sort keyboard: offset=282.7, bounds=437.3..549.3, viewport=549.3.\r\n[PASS] overlapping hand cards keep stable pointer targets\r\n[PASS] device preferences persist before play and survive legacy loads and tutorials\r\n  Restored and continued: SelectGeneral, Running, InFlight, RespondDodge, ProgramTrigger, RespondSlash, PlayCard, DiscardCards.\r\n[PASS] saved UI boundaries restore and continue through actual files\r\n[PASS] failed writes and incompatible reads preserve the active game\r\n7 WPF checks passed, 0 failed. Renders: C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders\r\n\r\n",
+    "fixtureCorrections": "The new startup helper explicitly enables motion. Assertions preserve the initial opening IDs and require every face to be a current hand object; they do not require the initial opening to equal all cards drawn later. A local-function syntax error and incorrect fixture assumptions were corrected during development, and are not counted as product defects."
+  },
+  "routine": {
+    "command": "& .\\tools\\Test-Changed.ps1",
+    "run": {
+      "status": "passed",
+      "mode": "routine",
+      "startedAt": "2026-10-11T14:58:34.2568367+08:00",
+      "durationMs": 119087,
+      "coreFilterCount": 294,
+      "wpfFilters": [
+        "table shortcuts",
+        "table modal focus",
+        "stale prompt choices",
+        "gallery details restore",
+        "identity general choices",
+        "general selection switches related",
+        "chained state basic UI:",
+        "Last zone conversion presentation:",
+        "Original hand tag presentation:",
+        "Draw-funded zero Use",
+        "original card artwork",
+        "overlapping hand",
+        "composed skills",
+        "conversion choices",
+        "response context",
+        "hand responses",
+        "opaque target-card",
+        "skill target selection",
+        "Iron Chain selection preserves",
+        "battle feedback",
+        "card flights",
+        "public card table",
+        "playback batches",
+        "saved UI boundaries",
+        "failed writes",
+        "public markers",
+        "deferred hand alignment",
+        "Program conversion polarity stays visible",
+        "declaration and general library views protect private faces",
+        "Jin faction presentation:",
+        "Program paid choices",
+        "Program exact top count restores private shared order",
+        "Program population count private faces restore shared free order",
+        "Program Iron Chain guide follows actual target count"
+      ],
+      "results": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 1593,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\build.log"
+        },
+        {
+          "name": "Core selected checks (294 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 85106,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\core-selected.log"
+        },
+        {
+          "name": "WPF selected checks (34 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 32060,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\wpf-selected.log"
+        }
+      ],
+      "message": null
+    },
+    "corePassed": 475,
+    "coreFailed": 0,
+    "coreSkipped": 0,
+    "wpfPassed": 40,
+    "wpfFailed": 0,
+    "coreResult": "475 passed, 0 failed, 0 skipped (475 total).",
+    "wpfResult": "40 WPF checks passed, 0 failed.",
+    "buildWarnings": 0,
+    "buildErrors": 0,
+    "timingTargetMs": 60000,
+    "timingTargetMet": false,
+    "timingInterpretation": "Measured routine scope is unchanged: 294 Core filters and 34 WPF filters, union. Total 119087 ms includes incremental build; Core 85106 ms and WPF 32060 ms dominate. This batch does not establish a routine performance improvement.",
+    "diagnostics": [
+      "Resumed startup: identity=False, opening=True, faces=4, hand=4, current=True, prompt=ProgramTrigger, revision=13.",
+      "Modal Window shown: loaded=True, WPF visible=True, native visible=True, owns foreground=False, source matches=True, loaded events=1, unloaded events=0.",
+      "Modal Window hidden: loaded=True, WPF visible=True, native visible=False, owns foreground=False, source matches=True, loaded events=1, unloaded events=0.",
+      "Modal Window pumped: loaded=True, WPF visible=True, native visible=False, owns foreground=False, source matches=True, loaded events=1, unloaded events=0.",
+      "Hand sort pointer: card=9008, index 8->20, same button=True, pointer=True.",
+      "Hand sort focused: pointer=True, capture=False, hand mouse-over=False, offset=0.0.",
+      "Hand sort PreviewMouseMove: position=25285.333333333332,22154.999999999996, pointer=False, capture=True.",
+      "Hand sort space-down: pointer=False, capture=True, hand mouse-over=True, offset=0.0.",
+      "Hand sort MouseLeave: position=25285.333333333332,22154.999999999996, pointer=False, capture=False.",
+      "Hand sort space-up: pointer=False, capture=False, hand mouse-over=False, offset=0.0.",
+      "Hand sort pumped: pointer=False, capture=False, hand mouse-over=False, offset=282.7.",
+      "Hand sort keyboard: offset=282.7, bounds=437.3..549.3, viewport=549.3.",
+      "Automatic playback with bound layout: 87 commands, 61 table refreshes; 444.2 ms; 95,607,584 bytes.",
+      "Automatic slice revision 2->10: logic 47.1 ms; layout 9.1 ms; core replay 1.4 ms.",
+      "Automatic slice revision 74->77: logic 13.6 ms; layout 5.0 ms; core replay 0.8 ms.",
+      "Automatic slice revision 67->68: logic 16.1 ms; layout 2.4 ms; core replay 0.8 ms.",
+      "Automatic slice revision 25->26: logic 1.8 ms; layout 16.4 ms; core replay 0.4 ms.",
+      "Automatic slice revision 68->69: logic 5.6 ms; layout 10.4 ms; core replay 0.5 ms.",
+      "Automatic slice revision 69->70: logic 10.2 ms; layout 3.6 ms; core replay 0.6 ms.",
+      "Automatic slice revision 62->63: logic 9.0 ms; layout 3.9 ms; core replay 0.8 ms.",
+      "Automatic slice revision 18->19: logic 2.4 ms; layout 8.4 ms; core replay 0.7 ms.",
+      "Automatic slice revision 52->53: logic 3.6 ms; layout 6.9 ms; core replay 0.6 ms.",
+      "Automatic slice revision 40->41: logic 6.5 ms; layout 3.6 ms; core replay 0.6 ms."
+    ]
+  },
+  "startupCoverage": [
+    "Rejected incompatible schema preserves original engine reference, all eight viewer-safe snapshots, pending identity and hidden opening.",
+    "Successful manual read installs the restored engine, matches all eight saved viewer-safe snapshots, and withdraws old identity and opening faces.",
+    "Armed lobby start followed by plain start does not pass its opening animation to the later match.",
+    "Tutorial entry withdraws pending identity/opening; exit restores the original engine and all eight player views before confirming its own identity/general through routed keys.",
+    "Tutorial entry from a visible opening withdraws its faces; exit preserves exact initial opening IDs using resumed current hand objects."
+  ],
+  "handSortCoverage": {
+    "fixture": "Existing 22-card WPF view-model hand fixture in a real loaded MainWindow, native-hidden and offscreen with no foreground ownership; routed Preview/bubble Space Down/Up on the actual reused Button.",
+    "behavior": "Actual SortHandCommand moves card 9008 from index 8 to 20 while reusing the Button. Space capture synchronizes mouse input and clears the pointer marker, release produces MouseLeave, then the queued reveal scrolls the whole selected card into view.",
+    "offsetBefore": 0,
+    "offsetAfter": 282.7,
+    "cardBoundsAfter": [
+      437.3,
+      549.3
+    ],
+    "viewportAfter": 549.3,
+    "productionFixNeeded": false,
+    "limitation": "The hand fixture tests sorting, container reuse, input and scrolling; mock cards are not evidence of a Core card-play command. Diagnostic values are rounded."
+  },
+  "review": {
+    "agent": "/root/table_input_review",
+    "status": "No substantive issue found in startup ownership and failure ordering.",
+    "notes": "Failed restore paths prepare and validate before ReplaceEngine; tutorial prepares practice and flushes pending save before replacement. Original engine and hand restore before current opening faces. No new Core commands or privacy projection changes.",
+    "limitations": [
+      "No claim of exact remaining opening-animation countdown restoration.",
+      "No new failure injection for tutorial preparation or NewGame.",
+      "Manual full verification was not requested or run."
+    ]
+  },
+  "sourceHashes": [
+    {
+      "path": "src/CardGame.Wpf/ViewModels/MainViewModel.cs",
+      "sha256": "AC8B525D93F4B6E6D64D4B09C76256A441FED75BAF9A3B790AACCA8CED04754F"
+    },
+    {
+      "path": "src/CardGame.Wpf/ViewModels/MainViewModel.GameSetup.cs",
+      "sha256": "EC8587DAA48A23C4700E4C0EDCEC7A88D7D77111C595B07E2D0BE1D6CCC7A976"
+    },
+    {
+      "path": "src/CardGame.Wpf/ViewModels/MainViewModel.OpeningDeal.cs",
+      "sha256": "C4A69B5AD26C7110AEA3D6D50B06E19007FCFA63135200A179F5E1C9DB1E88D7"
+    },
+    {
+      "path": "src/CardGame.Wpf/ViewModels/MainViewModel.Tutorial.cs",
+      "sha256": "49FB0951F814AAFE1159716E3FA0F51E1A682BA221FE220721F65A93668F5B18"
+    },
+    {
+      "path": "tests/CardGame.Wpf.Tests/TableShortcutChecks.cs",
+      "sha256": "43103E95FC6C9FF1F5E7F6B23D2232BF6E7F854B45EECDDB0A6DAA86C08A76A3"
+    },
+    {
+      "path": "tests/CardGame.Wpf.Tests/HandPointerChecks.cs",
+      "sha256": "6E91AF5AC80DE915F1E8B47B6A61B820386E3FD250063FBA9B5192EEB52928F0"
+    },
+    {
+      "path": "docs/LOCAL_PLAY.md",
+      "sha256": "6B5533130904B9FEB030F92E1168C0527BCB3C26574B200DF160E26009C8612D"
+    },
+    {
+      "path": "tools/VerificationScopes.psd1",
+      "sha256": "50E4CE011AA64B7D48F3031A5E0CD925EA431182578AD84F24B14DAD99C7F33C"
+    },
+    {
+      "path": "src/CardGame.Core/Replay.cs",
+      "sha256": "8553B2BA685D28AF35F5C91F4FEF99FA5D227FFD807214D5AB4281D20A4041D0"
+    },
+    {
+      "path": "src/CardGame.Core/SkillPrograms.cs",
+      "sha256": "A883F4A969EDAB4E67B03838651BE19AB9DB5680512D34786C3889D620D690F3"
+    }
+  ],
+  "cleanup": {
+    "policy": "Current workspace AGENTS.md uses the user-run cleanup queue; registered outputs are retained, not deleted by the agent.",
+    "inspection": {
+      "resolvedRoot": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f",
+      "queueEntries": [
+        {
+          "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin",
+          "added_at": "2026-10-11T11:22:24.373633+08:00",
+          "root": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f",
+          "reason": "Test-Changed verification output (passed); safe to clean after inspection.",
+          "lock_root": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f"
+        },
+        {
+          "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\obj",
+          "added_at": "2026-10-11T11:22:24.373657+08:00",
+          "root": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f",
+          "reason": "Test-Changed verification output (passed); safe to clean after inspection.",
+          "lock_root": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f"
+        },
+        {
+          "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders",
+          "added_at": "2026-10-11T11:22:24.373662+08:00",
+          "root": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f",
+          "reason": "Test-Changed verification output (passed); safe to clean after inspection.",
+          "lock_root": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f"
+        }
+      ],
+      "owner": {
+        "formatVersion": 1,
+        "repository": "C:\\Users\\17917\\Desktop\\Card",
+        "artifactsPath": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f"
+      },
+      "lockFree": true,
+      "consumers": [],
+      "directories": [
+        {
+          "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin",
+          "exists": true,
+          "exactChild": true,
+          "lockRoot": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f"
+        },
+        {
+          "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\obj",
+          "exists": true,
+          "exactChild": true,
+          "lockRoot": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f"
+        },
+        {
+          "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders",
+          "exists": true,
+          "exactChild": true,
+          "lockRoot": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f"
+        }
+      ]
+    },
+    "previewCommand": "python -B tools/cleanup_temp.py --database tools/cleanup_queue.json --dry-run",
+    "previewResult": "Pending: 3; failed: 0",
+    "previewLog": "[preview] C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin | Test-Changed verification output (passed); safe to clean after inspection.\n[preview] C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\obj | Test-Changed verification output (passed); safe to clean after inspection.\n[preview] C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders | Test-Changed verification output (passed); safe to clean after inspection.\nPending: 3; failed: 0",
+    "spaceFreed": false,
+    "newIndependentOutputRoots": 0
+  },
+  "scopeLimits": {
+    "manualFullRun": false,
+    "releaseOrPackaging": false,
+    "coreRulesOrContentVersionChanged": false,
+    "unrelatedDirtyWorkPreserved": true,
+    "nativeInteractiveForegroundAcceptance": false
+  }
+}

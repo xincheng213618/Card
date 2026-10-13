@@ -1,0 +1,6 @@
+[PASS] Forced phase Wine: exact payment and positive frozen death contracts
+[PASS] Forced phase Wine: actual actor commit quota and cold returns
+[PASS] Forced phase Wine: forbidden unpaid use and actual paid source loss
+[PASS] Forced phase Wine: mixed deaths and dead turn owner
+
+4 passed, 0 failed, 0 skipped (4 total).

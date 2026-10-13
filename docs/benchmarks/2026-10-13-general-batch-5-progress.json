@@ -1,0 +1,76 @@
+{
+  "batch": "OL Zhang Lu, Wang Rong, Shi Xie",
+  "goalStatus": "active",
+  "status": "batch-complete; persistent goal remains active",
+  "sourceBaseline": "docs/benchmarks/2026-10-13-next-batch-roster-preflight.json",
+  "enumBaseline": "docs/benchmarks/2026-10-13-zhang-lu-wang-rong-shi-xie-enum-baseline.json",
+  "officialCurrentCharacters": [
+    {
+      "id": "ol:zhang-lu",
+      "officialHeroId": 343,
+      "skills": [
+        "义舍",
+        "布施",
+        "米道"
+      ],
+      "operationRange": "20800-20803",
+      "agent": "general_batch5_zhang_lu"
+    },
+    {
+      "id": "ol:wang-rong",
+      "officialHeroId": 344,
+      "skills": [
+        "丰姿",
+        "吉占",
+        "赋颂"
+      ],
+      "operationRange": "20900-20902",
+      "agent": "general_batch5_wang_rong"
+    },
+    {
+      "id": "ol:shi-xie",
+      "officialHeroId": 345,
+      "skills": [
+        "避乱",
+        "礼下"
+      ],
+      "operationRange": "21000-21001",
+      "agent": "general_batch5_shi_xie"
+    }
+  ],
+  "completed": [
+    "Current official hero/API/client binding cross-check for all three complete skill sets",
+    "Three official portraits retained and inspected by owning agents",
+    "Shared enum baseline captured from the previously verified binary: 211 public enums, 1988 existing values",
+    "Portrait aliases, art catalogue and existing edition-gallery integration prepared",
+    "All three complete content modules and focused mechanism checks registered",
+    "Current clean six Rice and six incoming-distance checks passed; recovered engines continue the real paused commands",
+    "Actual WPF gallery and stacked Wine badge checks passed; all three gallery renders inspected",
+    "Extra-effect focused checks passed for second public Snatch, tied-rank paid gain, second counterspell, Five Grains pool leftovers, and paid source loss/death",
+    "Fourteen retained source/portrait files hashed; eleven compare against recorded expectations with no mismatch",
+    "Current additional effect AOE is accepted/used/finished exactly once; Slash, zero-material Slash, stacked Wine, rank stop/later adjustment and AI rank replacement passed",
+    "Actual owner-death recipient choice and permanent Fengzi/Jizhan grants with cold recovery passed",
+    "Final focused 29 Core / 2 WPF and prescribed routine 586 Core / 76 WPF passed; 2365 repository inputs stable and 1988 old public enum values unchanged"
+  ],
+  "outstanding": [],
+  "verification": {
+    "status": "passed",
+    "latestBatchScope": "docs/benchmarks/2026-10-13-batch-5-latest-focused-summary.json",
+    "latestExtraEffectScope": "docs/benchmarks/2026-10-13-batch-5-claimed-material-green-summary.json",
+    "manualFull": false,
+    "routine": "docs/benchmarks/2026-10-13-batch-5-routine-summary.json",
+    "noExtraClaimControl": "docs/benchmarks/2026-10-13-batch-5-claimed-material-old-flow-summary.json",
+    "finalReport": "docs/benchmarks/2026-10-13-zhang-lu-wang-rong-shi-xie-verification.json",
+    "routineSourceBoundary": "586 Core / 76 WPF passing is evidence for the recorded earlier stable source snapshot. Two shared files subsequently changed; the current source is covered by the fresh 40 Core / 5 WPF related focused run, not another complete routine or Full."
+  },
+  "release": {
+    "published": false,
+    "committed": false,
+    "pushed": false
+  },
+  "retainedOutputs": {
+    "root": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f",
+    "reason": "Prior automatic approval review blocked deletion. Reuse only; do not retry deletion through any path."
+  },
+  "updatedAt": "2026-10-13T22:07:54.6420547+08:00"
+}

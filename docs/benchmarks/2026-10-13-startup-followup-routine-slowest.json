@@ -1,0 +1,62 @@
+[
+  {
+    "Scope": "wpf",
+    "Name": "hand responses select exact cards and confirm through shared controls",
+    "DurationMs": 7902.568
+  },
+  {
+    "Scope": "wpf",
+    "Name": "battle feedback shows native weapon activations and exact followup costs",
+    "DurationMs": 7887.468
+  },
+  {
+    "Scope": "wpf",
+    "Name": "skill target selection previews portrait acquisition without committing",
+    "DurationMs": 5222.806
+  },
+  {
+    "Scope": "wpf",
+    "Name": "response context keeps the current responder and native chain stage visible",
+    "DurationMs": 4684.455
+  },
+  {
+    "Scope": "wpf",
+    "Name": "composed skills share the generic WPF draft and submit their stable program identity",
+    "DurationMs": 3382.595
+  },
+  {
+    "Scope": "wpf",
+    "Name": "card flights follow a continuous native hand lift",
+    "DurationMs": 3229.601
+  },
+  {
+    "Scope": "wpf",
+    "Name": "table modal focus follows startup and current visible panels",
+    "DurationMs": 3129.703
+  },
+  {
+    "Scope": "wpf",
+    "Name": "table shortcuts respect navigation panels above startup overlays",
+    "DurationMs": 3087.016
+  },
+  {
+    "Scope": "wpf",
+    "Name": "Wusheng skill-first red cards use exact Slash source without popup",
+    "DurationMs": 2990.988
+  },
+  {
+    "Scope": "wpf",
+    "Name": "battle feedback sequences native dying rescue and death outcomes",
+    "DurationMs": 2899.53
+  },
+  {
+    "Scope": "wpf",
+    "Name": "general selection switches related editions without consuming candidate slots",
+    "DurationMs": 2868.111
+  },
+  {
+    "Scope": "wpf",
+    "Name": "stale prompt choices cannot answer reloaded or consecutive decisions",
+    "DurationMs": 2477.742
+  }
+]

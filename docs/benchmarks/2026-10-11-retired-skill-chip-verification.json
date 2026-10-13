@@ -1,0 +1,260 @@
+{
+  "purpose": "Reject retired human skill rail parameters while preserving stable published controls and exact native actions",
+  "workspace": "C:\\Users\\17917\\Desktop\\Card",
+  "baseCommit": "0f08fb47bb8637ccf082f406d69f6f6c0cbe7b52",
+  "changes": [
+    "ActivateHumanSkillCommand first requires reference membership in the currently published HumanSkillCards, while retaining the pending-draft guard.",
+    "Resolve an admitted current chip against current legal actions. HumanSkillCards value caching, Core rules and command dispatch remain unchanged.",
+    "Extend retained table-surface and composed-skill WPF checks; no new runner, registration, seed search, content package or rules version."
+  ],
+  "reproducedRegression": {
+    "status": "test-failed",
+    "mode": "targeted",
+    "repository": "C:\\Users\\17917\\Desktop\\Card",
+    "artifactsPath": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f",
+    "coreFilters": [],
+    "wpfFilters": [
+      "reference table layout"
+    ],
+    "startedAt": "2026-10-11T13:45:59.3623926+08:00",
+    "durationMs": 4651,
+    "message": "One or more selected checks failed.",
+    "results": [
+      {
+        "name": "Build selected scope",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 1320,
+        "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\build.log"
+      },
+      {
+        "name": "WPF selected checks (1 filters, union)",
+        "status": "failed",
+        "exitCode": 1,
+        "durationMs": 3079,
+        "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\wpf-selected.log"
+      }
+    ],
+    "cleanup": {
+      "status": "queued",
+      "queued": [
+        "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin",
+        "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\obj",
+        "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders"
+      ],
+      "database": "C:\\Users\\17917\\Desktop\\Card\\tools\\cleanup_queue.json",
+      "message": null
+    },
+    "evidenceLines": [
+      "0 WPF checks passed, 1 failed. Renders: C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders",
+      "[FAIL] reference table layout preserves equipment and skill controls: System.InvalidOperationException: A retired skill chip rebound to the loaded game and paid its HP cost."
+    ]
+  },
+  "coverage": [
+    "Use the existing seed 721019 native Kurou showcase and capture the command and parameter from its rendered skill button.",
+    "Save and reload the real manual checkpoint; confirm the equal unchanged chip is still published.",
+    "Enter tutorial and render it before checking the old parameter left the skill rail. Exit to the original engine, then reload the manual checkpoint.",
+    "Assert the current available chip is value-equal to the captured original but has a different reference. Rejected inputs must first be absent from the current published rail.",
+    "Reject the actual retired chip and a current value-equal copy independently; preserve player-0 snapshot including exact HP/hand, revision, accepted commands, card movements, prompt, selection text and empty draft.",
+    "Render after reload and execute the current button parameter. Verify one exact native UseProgramSkill identity, empty costs/targets, HP minus one and hand count plus two.",
+    "Start the retained composed gift's hand-and-target draft through a current chip; re-click it without paying or resetting selected costs/targets, then confirm its exact program identity and selections once.",
+    "Retain the existing table refresh, stable control and layout coverage in the focused scope."
+  ],
+  "focused": {
+    "status": "passed",
+    "mode": "targeted",
+    "repository": "C:\\Users\\17917\\Desktop\\Card",
+    "artifactsPath": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f",
+    "coreFilters": [],
+    "wpfFilters": [
+      "reference table layout",
+      "composed skills share",
+      "table interaction refresh"
+    ],
+    "startedAt": "2026-10-11T13:46:38.2625084+08:00",
+    "durationMs": 8928,
+    "message": null,
+    "results": [
+      {
+        "name": "Build selected scope",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 4207,
+        "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\build.log"
+      },
+      {
+        "name": "WPF selected checks (3 filters, union)",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 4466,
+        "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\wpf-selected.log"
+      }
+    ],
+    "cleanup": {
+      "status": "queued",
+      "queued": [
+        "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin",
+        "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\obj",
+        "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders"
+      ],
+      "database": "C:\\Users\\17917\\Desktop\\Card\\tools\\cleanup_queue.json",
+      "message": null
+    },
+    "evidenceLines": [
+      "[PASS] table interaction refresh cost and stable presentation",
+      "[TIME] table interaction refresh cost and stable presentation: 2078.941 ms",
+      "[PASS] reference table layout preserves equipment and skill controls",
+      "[TIME] reference table layout preserves equipment and skill controls: 1622.481 ms",
+      "[PASS] composed skills share the generic WPF draft and submit their stable program identity",
+      "[TIME] composed skills share the generic WPF draft and submit their stable program identity: 104.561 ms",
+      "3 WPF checks passed, 0 failed. Renders: C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders"
+    ]
+  },
+  "routine": {
+    "status": "passed",
+    "mode": "routine",
+    "repository": "C:\\Users\\17917\\Desktop\\Card",
+    "artifactsPath": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f",
+    "coreFilterCount": 294,
+    "wpfFilterCount": 34,
+    "wpfFilters": [
+      "table shortcuts",
+      "table modal focus",
+      "stale prompt choices",
+      "gallery details restore",
+      "identity general choices",
+      "general selection switches related",
+      "chained state basic UI:",
+      "Last zone conversion presentation:",
+      "Original hand tag presentation:",
+      "Draw-funded zero Use",
+      "original card artwork",
+      "overlapping hand",
+      "composed skills",
+      "conversion choices",
+      "response context",
+      "hand responses",
+      "opaque target-card",
+      "skill target selection",
+      "Iron Chain selection preserves",
+      "battle feedback",
+      "card flights",
+      "public card table",
+      "playback batches",
+      "saved UI boundaries",
+      "failed writes",
+      "public markers",
+      "deferred hand alignment",
+      "Program conversion polarity stays visible",
+      "declaration and general library views protect private faces",
+      "Jin faction presentation:",
+      "Program paid choices",
+      "Program exact top count restores private shared order",
+      "Program population count private faces restore shared free order",
+      "Program Iron Chain guide follows actual target count"
+    ],
+    "startedAt": "2026-10-11T13:47:27.797265+08:00",
+    "durationMs": 109301,
+    "results": [
+      {
+        "name": "Build selected scope",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 1180,
+        "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\build.log"
+      },
+      {
+        "name": "Core selected checks (294 filters, union)",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 81029,
+        "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\core-selected.log"
+      },
+      {
+        "name": "WPF selected checks (34 filters, union)",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 26817,
+        "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\wpf-selected.log"
+      }
+    ],
+    "cleanup": {
+      "status": "queued",
+      "queued": [
+        "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin",
+        "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\obj",
+        "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders"
+      ],
+      "database": "C:\\Users\\17917\\Desktop\\Card\\tools\\cleanup_queue.json",
+      "message": null
+    },
+    "evidenceLines": [
+      "    0 个警告",
+      "    0 个错误",
+      "475 passed, 0 failed, 0 skipped (475 total).",
+      "[PASS] composed skills share the generic WPF draft and submit their stable program identity",
+      "40 WPF checks passed, 0 failed. Renders: C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders"
+    ]
+  },
+  "sourceHashes": [
+    {
+      "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.TableSurface.cs",
+      "Hash": "BE8FFB44C59FFE07DCC4D80E99F5F4BAF13D5EA9F403E3C206C273A2A9D8CEB8"
+    },
+    {
+      "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\TableSurfaceChecks.cs",
+      "Hash": "FD6F94CD356ABC480DBE87E8379ECD71DE5DC295BAE14D586416DE3631BAD22B"
+    },
+    {
+      "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\SkillProgramUiChecks.cs",
+      "Hash": "6D4EA49EAFB405BF3937D1F961C24BA4A2595F5B753C02D45B5F984C434557D0"
+    }
+  ],
+  "sourceBoundaryVerified": true,
+  "review": {
+    "status": "No concrete regression found in read-only subagent review.",
+    "scope": "Admission guard and retained table-surface/composed-skill tests; reviewer did not edit, build or execute tests.",
+    "evidenceBoundary": "The composed-skill re-click assertion relies on the unchanged skill cache during local selection; its reference membership is not separately asserted at that second click."
+  },
+  "validation": {
+    "whitespace": "git diff --check passed",
+    "visualInspection": "Inspected the post-reload rendered table and available Kurou chip at 1120 by 740.",
+    "coreContentStatus": "No dirty paths reported in src/CardGame.Core or src/CardGame.Content.Standard.",
+    "routineMinuteTargetMet": false,
+    "fullVerificationRun": false,
+    "releaseOrPublishRun": false,
+    "committedOrPushed": false,
+    "inputScope": "Commands captured from rendered WPF buttons and typed current VM chips; no native mouse acceptance claim."
+  },
+  "cleanup": {
+    "status": "Queued for user-run manual cleanup; no queued output was deleted.",
+    "database": "C:\\Users\\17917\\Desktop\\Card\\tools\\cleanup_queue.json",
+    "entries": [
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin",
+        "added_at": "2026-10-11T11:22:24.373633+08:00",
+        "root": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f",
+        "reason": "Test-Changed verification output (passed); safe to clean after inspection.",
+        "lock_root": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f"
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\obj",
+        "added_at": "2026-10-11T11:22:24.373657+08:00",
+        "root": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f",
+        "reason": "Test-Changed verification output (passed); safe to clean after inspection.",
+        "lock_root": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f"
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders",
+        "added_at": "2026-10-11T11:22:24.373662+08:00",
+        "root": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f",
+        "reason": "Test-Changed verification output (passed); safe to clean after inspection.",
+        "lock_root": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f"
+      }
+    ],
+    "exactDirectoriesVerified": true,
+    "lockFree": true,
+    "liveOwnedConsumers": [],
+    "dryRun": "Pending: 3; failed: 0"
+  }
+}

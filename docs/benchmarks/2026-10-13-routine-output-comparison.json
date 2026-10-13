@@ -1,0 +1,4188 @@
+{
+  "checks": [
+    {
+      "name": "skill target selection adds portrait outlines and confirms a real Zhefu choice",
+      "beforeSamplesMs": [
+        3126.016,
+        3047.284
+      ],
+      "afterSamplesMs": [
+        3179.829,
+        3214.638
+      ],
+      "beforeMeanMs": 3086.65,
+      "afterMeanMs": 3197.2335000000003,
+      "observedSavedMs": -110.58350000000019
+    },
+    {
+      "name": "response context keeps the current responder and native chain stage visible",
+      "beforeSamplesMs": [
+        3762.66,
+        3898.295
+      ],
+      "afterSamplesMs": [
+        3900.692,
+        3686.918
+      ],
+      "beforeMeanMs": 3830.4775,
+      "afterMeanMs": 3793.8050000000003,
+      "observedSavedMs": 36.67249999999967
+    },
+    {
+      "name": "card flights follow a continuous native hand lift",
+      "beforeSamplesMs": [
+        3525.714,
+        3701.751
+      ],
+      "afterSamplesMs": [
+        3614.79,
+        3648.373
+      ],
+      "beforeMeanMs": 3613.7325,
+      "afterMeanMs": 3631.5815000000002,
+      "observedSavedMs": -17.84900000000016
+    },
+    {
+      "name": "battle feedback readability protects the measured phase HUD",
+      "beforeSamplesMs": [
+        1265.001,
+        1224.983
+      ],
+      "afterSamplesMs": [
+        1271.67,
+        1305.836
+      ],
+      "beforeMeanMs": 1244.992,
+      "afterMeanMs": 1288.7530000000002,
+      "observedSavedMs": -43.761000000000195
+    },
+    {
+      "name": "battle feedback shows native weapon activations and exact followup costs",
+      "beforeSamplesMs": [
+        4603.241,
+        4286.094
+      ],
+      "afterSamplesMs": [
+        4463.902,
+        4342.215
+      ],
+      "beforeMeanMs": 4444.6675,
+      "afterMeanMs": 4403.0585,
+      "observedSavedMs": 41.60899999999947
+    }
+  ],
+  "beforeMeanMeasuredChecksMs": 16220.5195,
+  "afterMeanMeasuredChecksMs": 16314.4315,
+  "observedSavedMs": -93.91200000000026,
+  "observedSavedPercent": -0.5789703591182777,
+  "comparisons": [
+    {
+      "first": "before1",
+      "second": "before2",
+      "images": [
+        {
+          "file": "audio-native-fast-chain-before-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "65a4d22ae9bad6437ebef160e9b03f17823ec3c34a7f9d0ef7e1716094d9699e",
+          "secondRgbaSha256": "65a4d22ae9bad6437ebef160e9b03f17823ec3c34a7f9d0ef7e1716094d9699e"
+        },
+        {
+          "file": "audio-native-fast-chain-retired-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 27608,
+          "maxChannelDelta": 31,
+          "firstRgbaSha256": "a7a23350f19d7a139a5f344ae814b59b04b6c77e9fa79cb13d4b85d2d6028247",
+          "secondRgbaSha256": "ff02a75b6b669362df58853da41a39e3efa6586be49233809e43e4de5c81dfe3"
+        },
+        {
+          "file": "battle-hud-native-phase-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "40198a44808c288591a42d05eb50890caac155d8ac2d65593f58bf7d7e5493ee",
+          "secondRgbaSha256": "40198a44808c288591a42d05eb50890caac155d8ac2d65593f58bf7d7e5493ee"
+        },
+        {
+          "file": "battle-hud-native-phase-1920.png",
+          "equal": true,
+          "size": [
+            1920,
+            1080
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "4114dee026c9e39a20773fff81eb25f9e373f05bc009cbde7021b07b6aea027f",
+          "secondRgbaSha256": "4114dee026c9e39a20773fff81eb25f9e373f05bc009cbde7021b07b6aea027f"
+        },
+        {
+          "file": "battle-hud-native-prompt-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "8bb235929afc196c440f0147f19e3161d3615a965521471e5b76b4722a8c95a6",
+          "secondRgbaSha256": "8bb235929afc196c440f0147f19e3161d3615a965521471e5b76b4722a8c95a6"
+        },
+        {
+          "file": "battle-hud-native-prompt-1920.png",
+          "equal": true,
+          "size": [
+            1920,
+            1080
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "59bd2c0b70fea6530365340453eb28f8864cd324aadb950f85690595ba8dd053",
+          "secondRgbaSha256": "59bd2c0b70fea6530365340453eb28f8864cd324aadb950f85690595ba8dd053"
+        },
+        {
+          "file": "battle-hud-native-public-face-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "d3720aa790db2990b65c9e53fb11df7ea0e0e50ddd400bf7f7dcbfd0c9d45198",
+          "secondRgbaSha256": "d3720aa790db2990b65c9e53fb11df7ea0e0e50ddd400bf7f7dcbfd0c9d45198"
+        },
+        {
+          "file": "battle-hud-native-public-face-1920.png",
+          "equal": true,
+          "size": [
+            1920,
+            1080
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "ee59adaeff3788df3487b846caf9120d4f80fa0c2e573befd5309d250ff2a5b0",
+          "secondRgbaSha256": "ee59adaeff3788df3487b846caf9120d4f80fa0c2e573befd5309d250ff2a5b0"
+        },
+        {
+          "file": "hand-arrival-native-40ms-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "c11962444467a1c8319fb685c927fb603cbedcb69370189dc2d768666488e85b",
+          "secondRgbaSha256": "c11962444467a1c8319fb685c927fb603cbedcb69370189dc2d768666488e85b"
+        },
+        {
+          "file": "hand-arrival-native-cold-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "f9df65aef62ac2ad4dde1f74d8bdd384ed9c96904a097af4434e78086015ce37",
+          "secondRgbaSha256": "f9df65aef62ac2ad4dde1f74d8bdd384ed9c96904a097af4434e78086015ce37"
+        },
+        {
+          "file": "hand-arrival-native-reloaded-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "2b4a7e0e34affa3df0505cdbcf591130573c838977cb76461d6e9edbebfdcf9f",
+          "secondRgbaSha256": "2b4a7e0e34affa3df0505cdbcf591130573c838977cb76461d6e9edbebfdcf9f"
+        },
+        {
+          "file": "hand-arrival-native-settled-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "af329165cf626aa43822e101d74ba81714bd087e7fb6ee9d6ba3721b514b8da5",
+          "secondRgbaSha256": "af329165cf626aa43822e101d74ba81714bd087e7fb6ee9d6ba3721b514b8da5"
+        },
+        {
+          "file": "hand-arrival-native-use-launch-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "8a000fc2ae052480bcf09e53c8d5c6fbbfb7dd8e11101fdabb3aa03d79d943ba",
+          "secondRgbaSha256": "8a000fc2ae052480bcf09e53c8d5c6fbbfb7dd8e11101fdabb3aa03d79d943ba"
+        },
+        {
+          "file": "hand-reflow-double-response-40ms-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "a11ebe0824bf843aee61f09948eae71013633ccdfcf15e60632f42f1c7969442",
+          "secondRgbaSha256": "a11ebe0824bf843aee61f09948eae71013633ccdfcf15e60632f42f1c7969442"
+        },
+        {
+          "file": "hand-reflow-double-response-before-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "59ca3fa93a66eef42103fb5c87a4854f8e9a58309260f7eac3665021751c3b28",
+          "secondRgbaSha256": "59ca3fa93a66eef42103fb5c87a4854f8e9a58309260f7eac3665021751c3b28"
+        },
+        {
+          "file": "hand-reflow-double-response-launch-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "f0eb8718580ab915958e445e2ccf0109207690c249a8a1bf3a11e7a2c13bdae1",
+          "secondRgbaSha256": "f0eb8718580ab915958e445e2ccf0109207690c249a8a1bf3a11e7a2c13bdae1"
+        },
+        {
+          "file": "hand-reflow-double-response-launch-stable-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "f0eb8718580ab915958e445e2ccf0109207690c249a8a1bf3a11e7a2c13bdae1",
+          "secondRgbaSha256": "f0eb8718580ab915958e445e2ccf0109207690c249a8a1bf3a11e7a2c13bdae1"
+        },
+        {
+          "file": "hand-reflow-double-response-next-40ms-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "47cbc2920b54a6e50a6fd8e3791934a74c92503fc09c43b05aa01a222b8cdbac",
+          "secondRgbaSha256": "47cbc2920b54a6e50a6fd8e3791934a74c92503fc09c43b05aa01a222b8cdbac"
+        },
+        {
+          "file": "hand-reflow-double-response-settled-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "8c7b49d33abaf691aef2e3c4b4560d2b5586b6f725c605681418cb37bf7ba32a",
+          "secondRgbaSha256": "8c7b49d33abaf691aef2e3c4b4560d2b5586b6f725c605681418cb37bf7ba32a"
+        },
+        {
+          "file": "hand-reflow-response-180ms-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "0304224168cc8f9ef61a2f75e669dd9327c68f27875e2d2e22e773cfe858d90e",
+          "secondRgbaSha256": "0304224168cc8f9ef61a2f75e669dd9327c68f27875e2d2e22e773cfe858d90e"
+        },
+        {
+          "file": "hand-reflow-response-40ms-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "201fa857ed0360e2004ccd6199f57cba17a14173d703c4d9fe44f53a3a5ac372",
+          "secondRgbaSha256": "201fa857ed0360e2004ccd6199f57cba17a14173d703c4d9fe44f53a3a5ac372"
+        },
+        {
+          "file": "hand-reflow-response-after-sort-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "0304224168cc8f9ef61a2f75e669dd9327c68f27875e2d2e22e773cfe858d90e",
+          "secondRgbaSha256": "0304224168cc8f9ef61a2f75e669dd9327c68f27875e2d2e22e773cfe858d90e"
+        },
+        {
+          "file": "hand-reflow-response-before-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "99b499a4e50fa8548e2a611df8edffbb6dc3da2c272f0d540027ef4941753b27",
+          "secondRgbaSha256": "99b499a4e50fa8548e2a611df8edffbb6dc3da2c272f0d540027ef4941753b27"
+        },
+        {
+          "file": "hand-reflow-response-launch-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "fa4faf6172a684a88953cc1f5f70e7795e4c380034944a238218ddaf5a9fa015",
+          "secondRgbaSha256": "fa4faf6172a684a88953cc1f5f70e7795e4c380034944a238218ddaf5a9fa015"
+        },
+        {
+          "file": "hand-reflow-response-ready-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "99b499a4e50fa8548e2a611df8edffbb6dc3da2c272f0d540027ef4941753b27",
+          "secondRgbaSha256": "99b499a4e50fa8548e2a611df8edffbb6dc3da2c272f0d540027ef4941753b27"
+        },
+        {
+          "file": "hand-reflow-use-180ms-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "9162068a42d9d0c835487fedc29438b33b2356d39a07196050f03fe60231fe8d",
+          "secondRgbaSha256": "9162068a42d9d0c835487fedc29438b33b2356d39a07196050f03fe60231fe8d"
+        },
+        {
+          "file": "hand-reflow-use-40ms-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "ccd9d0862a4948ebb0759d732a9fa4f54928dd24809bfb23e0d2c7c60125a634",
+          "secondRgbaSha256": "ccd9d0862a4948ebb0759d732a9fa4f54928dd24809bfb23e0d2c7c60125a634"
+        },
+        {
+          "file": "hand-reflow-use-after-sort-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "da01aa7468f76170b4be58f90786b8b60e9744fb9a7a74fc13f815b97fa55e74",
+          "secondRgbaSha256": "da01aa7468f76170b4be58f90786b8b60e9744fb9a7a74fc13f815b97fa55e74"
+        },
+        {
+          "file": "hand-reflow-use-before-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "77fe622b72f6334f771bf1412826a91bad3459c99e764c304eff5259d8a625db",
+          "secondRgbaSha256": "77fe622b72f6334f771bf1412826a91bad3459c99e764c304eff5259d8a625db"
+        },
+        {
+          "file": "hand-reflow-use-hover-middle.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "d0ba85df325b77c8821cd7a69b3fe955d074255d869ac276b794b6f2b1275204",
+          "secondRgbaSha256": "d0ba85df325b77c8821cd7a69b3fe955d074255d869ac276b794b6f2b1275204"
+        },
+        {
+          "file": "hand-reflow-use-launch-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "bb4ae3fe9a0a07748259d73d494803a9575271f5d4e4321dca69476a7b11ca55",
+          "secondRgbaSha256": "bb4ae3fe9a0a07748259d73d494803a9575271f5d4e4321dca69476a7b11ca55"
+        },
+        {
+          "file": "hand-reflow-use-ready-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "77fe622b72f6334f771bf1412826a91bad3459c99e764c304eff5259d8a625db",
+          "secondRgbaSha256": "77fe622b72f6334f771bf1412826a91bad3459c99e764c304eff5259d8a625db"
+        },
+        {
+          "file": "hand-reflow-use-returned.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "77fe622b72f6334f771bf1412826a91bad3459c99e764c304eff5259d8a625db",
+          "secondRgbaSha256": "77fe622b72f6334f771bf1412826a91bad3459c99e764c304eff5259d8a625db"
+        },
+        {
+          "file": "hand-reflow-use-selected-middle.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "3493dcbc3f494df53a5bef19ea6a378817cdc04dc4a8799c1feb7f98edafd349",
+          "secondRgbaSha256": "3493dcbc3f494df53a5bef19ea6a378817cdc04dc4a8799c1feb7f98edafd349"
+        },
+        {
+          "file": "response-progress-loaded-no-replay-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "265591c00214e261af8056c9d69e188ac87725bd3f66b0fba3533d53cdf1b496",
+          "secondRgbaSha256": "265591c00214e261af8056c9d69e188ac87725bd3f66b0fba3533d53cdf1b496"
+        },
+        {
+          "file": "response-progress-paid-1-first-40ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 33677,
+          "maxChannelDelta": 244,
+          "firstRgbaSha256": "19ea898a689cbd3c30f538ad66dfb2f0b16a0d62cfcfa3c6ada50f825bf95242",
+          "secondRgbaSha256": "9c83594f71fa04b25446299e4fdf4d6bffa2929259cebd5327733d5e572aac07"
+        },
+        {
+          "file": "response-progress-paid-1-late-400ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 17095,
+          "maxChannelDelta": 20,
+          "firstRgbaSha256": "1f91d93ff65758878224c02ac332385a23d1a9cc120330bbe82e3cb0fddc0695",
+          "secondRgbaSha256": "f22e0a6c531cb98a0b4286ddc4d4909419c05640d6d739a5da8e7d25aac9520d"
+        },
+        {
+          "file": "response-progress-paid-1-middle-180ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 31928,
+          "maxChannelDelta": 218,
+          "firstRgbaSha256": "fe747df416730e01d4404b72cbe74015391fcb5c5539a15d11ad5ad3e1d5548c",
+          "secondRgbaSha256": "edddf52bf27df0ba6b80ec34e5871442c9bf3c9a390bf3b149714140494ee169"
+        },
+        {
+          "file": "response-progress-paid-1-motion-off-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "3a8ded81b6e9d93ba27b321e75daaeb9d8f28005a25417dec632c7b377df6a05",
+          "secondRgbaSha256": "3a8ded81b6e9d93ba27b321e75daaeb9d8f28005a25417dec632c7b377df6a05"
+        },
+        {
+          "file": "response-progress-paid-1-motion-on-no-replay-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "265591c00214e261af8056c9d69e188ac87725bd3f66b0fba3533d53cdf1b496",
+          "secondRgbaSha256": "265591c00214e261af8056c9d69e188ac87725bd3f66b0fba3533d53cdf1b496"
+        },
+        {
+          "file": "response-progress-paid-1-retired-1500ms-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "265591c00214e261af8056c9d69e188ac87725bd3f66b0fba3533d53cdf1b496",
+          "secondRgbaSha256": "265591c00214e261af8056c9d69e188ac87725bd3f66b0fba3533d53cdf1b496"
+        },
+        {
+          "file": "response-progress-paid-2-first-40ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 65,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "ac65c448d16995a350cba843737d4141814ad20821423dbfbc8a059fa5ad6790",
+          "secondRgbaSha256": "e4d3c22ff051772629aa354b2111b421f55c99f3e6af26413f731ed56d51f12e"
+        },
+        {
+          "file": "response-progress-paid-2-late-400ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 65,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "47d76eb4f36db6d52ab4f858f6800ba326b5ec011f286a0d90b79d10159ffcfb",
+          "secondRgbaSha256": "ef5feb0783718e8751acc549f94fe017e0880aef83649e3d55d02d3f0757ee42"
+        },
+        {
+          "file": "response-progress-paid-2-middle-180ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 65,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "215f0e8994dbca97ac8262e57046453bfb7bb52d4f6b05a1acf82fa76d915db2",
+          "secondRgbaSha256": "47cf8ab645db4db3fb3f57db966df40ab2c5586672593988dc9275a2d2c3fe10"
+        },
+        {
+          "file": "response-progress-paid-2-retired-1500ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 65,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "0ad4281a7c62405ae67971a40af9723163aeac37df7e0f38a82b0998d2c187c0",
+          "secondRgbaSha256": "ac4f3511d46d02b98a88fcf0683b7ecb8d5fc8f038a4e17bf4e07461aff1eac0"
+        },
+        {
+          "file": "response-progress-second-declined-hit-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "06c6ca7882931ce0adbfde2de6b9085db4c72aeac42d7ecf4d340c327941d97f",
+          "secondRgbaSha256": "06c6ca7882931ce0adbfde2de6b9085db4c72aeac42d7ecf4d340c327941d97f"
+        },
+        {
+          "file": "response-status-jijiu-completed-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "cfd731782ad3ee74455ff10ecac72e50ce2d5a722f095bd2785920b6d1d3d526",
+          "secondRgbaSha256": "cfd731782ad3ee74455ff10ecac72e50ce2d5a722f095bd2785920b6d1d3d526"
+        },
+        {
+          "file": "response-status-jijiu-current-actor-wait-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "81a53e58e2d7287bca4a5d1c25cfb9961d5649f6b6a5071173b6f74e7c6b21e8",
+          "secondRgbaSha256": "81a53e58e2d7287bca4a5d1c25cfb9961d5649f6b6a5071173b6f74e7c6b21e8"
+        },
+        {
+          "file": "response-status-jijiu-current-actor-wait-1920.png",
+          "equal": true,
+          "size": [
+            1920,
+            1080
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "7429e82d67f19c0c72456ddaa3280a027b475d6611058e193eaf04ae5c33533e",
+          "secondRgbaSha256": "7429e82d67f19c0c72456ddaa3280a027b475d6611058e193eaf04ae5c33533e"
+        },
+        {
+          "file": "response-status-nullification-loaded-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "83e8448021f6fa5bc91cd764429c3a6d29c41ceb922464f785445e1a3ac6723b",
+          "secondRgbaSha256": "83e8448021f6fa5bc91cd764429c3a6d29c41ceb922464f785445e1a3ac6723b"
+        },
+        {
+          "file": "response-status-nullification-motion-off-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "83e8448021f6fa5bc91cd764429c3a6d29c41ceb922464f785445e1a3ac6723b",
+          "secondRgbaSha256": "83e8448021f6fa5bc91cd764429c3a6d29c41ceb922464f785445e1a3ac6723b"
+        },
+        {
+          "file": "response-status-nullification-motion-on-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "b97c9d717ebe47557f20faa30824595cb959f796c62f624f3ecd82ec13ed4aed",
+          "secondRgbaSha256": "b97c9d717ebe47557f20faa30824595cb959f796c62f624f3ecd82ec13ed4aed"
+        },
+        {
+          "file": "response-status-nullification-next-prompt-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "76bbccc0648982b0a691bffc55f4c5f13c4f6149c0a91186a4778fd54b9333e4",
+          "secondRgbaSha256": "76bbccc0648982b0a691bffc55f4c5f13c4f6149c0a91186a4778fd54b9333e4"
+        },
+        {
+          "file": "response-status-nullification-reset-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "83da32c89953ca15a0301c5d3c6e691675837369babba8fd05686fd8ad1685f8",
+          "secondRgbaSha256": "83da32c89953ca15a0301c5d3c6e691675837369babba8fd05686fd8ad1685f8"
+        },
+        {
+          "file": "response-status-nullification-second-wait-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "83e8448021f6fa5bc91cd764429c3a6d29c41ceb922464f785445e1a3ac6723b",
+          "secondRgbaSha256": "83e8448021f6fa5bc91cd764429c3a6d29c41ceb922464f785445e1a3ac6723b"
+        },
+        {
+          "file": "response-status-nullification-second-wait-1920.png",
+          "equal": true,
+          "size": [
+            1920,
+            1080
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "5e9a8fbc74f5d137b01495b95faa2d9de12cce480062933cf01c812035ef2d64",
+          "secondRgbaSha256": "5e9a8fbc74f5d137b01495b95faa2d9de12cce480062933cf01c812035ef2d64"
+        },
+        {
+          "file": "response-status-nullification-selected-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "be5a45d26f455598cc019b9f7da2a7650c86384dedff5c7e928519c6c115a1f9",
+          "secondRgbaSha256": "be5a45d26f455598cc019b9f7da2a7650c86384dedff5c7e928519c6c115a1f9"
+        },
+        {
+          "file": "response-status-wushuang-before-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "59ca3fa93a66eef42103fb5c87a4854f8e9a58309260f7eac3665021751c3b28",
+          "secondRgbaSha256": "59ca3fa93a66eef42103fb5c87a4854f8e9a58309260f7eac3665021751c3b28"
+        },
+        {
+          "file": "response-status-wushuang-completed-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 65,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "0ad4281a7c62405ae67971a40af9723163aeac37df7e0f38a82b0998d2c187c0",
+          "secondRgbaSha256": "ac4f3511d46d02b98a88fcf0683b7ecb8d5fc8f038a4e17bf4e07461aff1eac0"
+        },
+        {
+          "file": "response-status-wushuang-declined-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "06c6ca7882931ce0adbfde2de6b9085db4c72aeac42d7ecf4d340c327941d97f",
+          "secondRgbaSha256": "06c6ca7882931ce0adbfde2de6b9085db4c72aeac42d7ecf4d340c327941d97f"
+        },
+        {
+          "file": "response-status-wushuang-restored-second-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "265591c00214e261af8056c9d69e188ac87725bd3f66b0fba3533d53cdf1b496",
+          "secondRgbaSha256": "265591c00214e261af8056c9d69e188ac87725bd3f66b0fba3533d53cdf1b496"
+        },
+        {
+          "file": "response-status-wushuang-second-wait-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "265591c00214e261af8056c9d69e188ac87725bd3f66b0fba3533d53cdf1b496",
+          "secondRgbaSha256": "265591c00214e261af8056c9d69e188ac87725bd3f66b0fba3533d53cdf1b496"
+        },
+        {
+          "file": "response-status-wushuang-second-wait-1920.png",
+          "equal": true,
+          "size": [
+            1920,
+            1080
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "876420e0e6aa2e1141560e15ecb8623fef6fd847a3f19bb2a00f6a16481584b8",
+          "secondRgbaSha256": "876420e0e6aa2e1141560e15ecb8623fef6fd847a3f19bb2a00f6a16481584b8"
+        },
+        {
+          "file": "skill-target-before-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 35,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "5d8a426329ea4ab7710eedc536a45421f316ffdc8ab82c56e6cfafa98ac0b39e",
+          "secondRgbaSha256": "af7a5ba6e178b8b1801c371b6882f1fdae89fd4a7574e51ed96f4a7d260c91c3"
+        },
+        {
+          "file": "skill-target-before-1920.png",
+          "equal": false,
+          "size": [
+            1920,
+            1080
+          ],
+          "changedPixels": 35,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "7e0b2217adb19aa9f77bc528192152bc29fa042312033df143d3117b26563e21",
+          "secondRgbaSha256": "fc6b7d6cb73abdcf8d1f9b611ffad9696aa94a26c2ff68c5cd8a6fc55b4489b3"
+        },
+        {
+          "file": "skill-target-selected-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 35,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "2f62a70873cc71ef23bf7684e8cb8c891e452aa2c98aa55222683d01c2e31c22",
+          "secondRgbaSha256": "4257ba5081d32c54bff62a8ceec82e7914cf4275e2792d0a5ab5330e94efa390"
+        },
+        {
+          "file": "skill-target-selected-1920.png",
+          "equal": false,
+          "size": [
+            1920,
+            1080
+          ],
+          "changedPixels": 35,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "2c107984a46423447e1cf1aacb7652f4ac2610b1fbb3e19f8464d79ed64a3752",
+          "secondRgbaSha256": "3b3f7cd428be006e3826398a8afbda08971099e4cdfa36e118027f4ddc754ec9"
+        },
+        {
+          "file": "weapon-qinglong-await-choice-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "5975cc5af55bdd4b157fdd0beeea7f98eb6a50d1cdaba20986889249e7e081ba",
+          "secondRgbaSha256": "5975cc5af55bdd4b157fdd0beeea7f98eb6a50d1cdaba20986889249e7e081ba"
+        },
+        {
+          "file": "weapon-qinglong-await-choice-1920.png",
+          "equal": true,
+          "size": [
+            1920,
+            1080
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "e4403a91b846f8a365a5888b0c3ed90182aab11955d671ed8524cbee30112a95",
+          "secondRgbaSha256": "e4403a91b846f8a365a5888b0c3ed90182aab11955d671ed8524cbee30112a95"
+        },
+        {
+          "file": "weapon-qinglong-declined-180ms-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "1482beffdbfc247469390c33b0e7c123c42ee33430b2298c828dc3f72976ce22",
+          "secondRgbaSha256": "1482beffdbfc247469390c33b0e7c123c42ee33430b2298c828dc3f72976ce22"
+        },
+        {
+          "file": "weapon-qinglong-declined-180ms-1920.png",
+          "equal": true,
+          "size": [
+            1920,
+            1080
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "23c67fcaaed3347392fb0d8b08c58fd530a5d7b5ca3c24c681bc5056808f988d",
+          "secondRgbaSha256": "23c67fcaaed3347392fb0d8b08c58fd530a5d7b5ca3c24c681bc5056808f988d"
+        },
+        {
+          "file": "weapon-qinglong-equipped-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "99609fa6775881863b524029c6242adea3a3f61a86b557b233a36c7d75708daf",
+          "secondRgbaSha256": "99609fa6775881863b524029c6242adea3a3f61a86b557b233a36c7d75708daf"
+        },
+        {
+          "file": "weapon-qinglong-loaded-no-replay-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "5975cc5af55bdd4b157fdd0beeea7f98eb6a50d1cdaba20986889249e7e081ba",
+          "secondRgbaSha256": "5975cc5af55bdd4b157fdd0beeea7f98eb6a50d1cdaba20986889249e7e081ba"
+        },
+        {
+          "file": "weapon-qinglong-motion-off-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 58,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "c1d118e370e4aeff222db6af3d9aa57a1fea06d7c93fb82855c22c4a638df353",
+          "secondRgbaSha256": "a1f231ce7bad21dd1317cb68222fedf8c798e6ca8bfcdb8dbcbfe9ad9e4cf30e"
+        },
+        {
+          "file": "weapon-qinglong-motion-on-no-replay-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 58,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "95f4e2485acf11a0d899c620b860cb1bf06858c4d5ec208b9b8d94190680d841",
+          "secondRgbaSha256": "d5b2560148477b3c346a439f6bca22d829337b1d68d87028d392a76ec063361e"
+        },
+        {
+          "file": "weapon-qinglong-paid-arrival-260ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 58,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "abc8206cc4f0d4ebfc234d763ce7973e9d42ef19b90ca8fe4f955f160f67df68",
+          "secondRgbaSha256": "7ce6baf3ce83240cafa66f34873a5a44413f522fa5673a9f732245124653febe"
+        },
+        {
+          "file": "weapon-qinglong-paid-retired-800ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 58,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "dd9db0be4114edb4f0f3a3c1943a085e5a40ec866d9096c6146a17f48bd43b2c",
+          "secondRgbaSha256": "5b2fc48f1ce6a44f78b93347f744ea42050262040ac21944f876051d77176098"
+        },
+        {
+          "file": "weapon-qinglong-paid-startup-40ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 25943,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "0dc63c971a9352254f3163c5e51376ffd0f06be48efa0b04b8aef49c8d203a3a",
+          "secondRgbaSha256": "60844a50ec31fe2cde01df68e4c76f914e8fe3f5ab189d1b83a07ce87a09c37a"
+        },
+        {
+          "file": "weapon-qinglong-paid-tail-600ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 58,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "9ae4d45bbcf2c5f165d2cf8bb4f6ef16b2bee271b13dd7a540764625b58e4265",
+          "secondRgbaSha256": "a761a35102280bc94798b93fa7ba0b696f1cca9d02ac4c020f65bbd2b439cf0e"
+        },
+        {
+          "file": "weapon-qinglong-paid-travel-180ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 58,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "69b6fd505fc86a0485601fe1516c15584000058adde885ff5db9e6dcecf800c0",
+          "secondRgbaSha256": "dffb963836d6095fbce19ca7a67dccf2c9360f43dc7a5822c359870b678f05cb"
+        },
+        {
+          "file": "weapon-qinglong-paid-travel-180ms-1920.png",
+          "equal": false,
+          "size": [
+            1920,
+            1080
+          ],
+          "changedPixels": 58,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "9ef23b0a691605f5e29ca2fa3dbed03575c3eb25d2d6c89b538b6eff023c273b",
+          "secondRgbaSha256": "f69bf45cef734e45f021c74c3427697cf52c5fc2531ecbd049a0252a7bb086c1"
+        },
+        {
+          "file": "weapon-qinglong-reset-no-replay-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "95af021281ea0ea95981a918270381eaf59cea0a1f86baeed1ded75d06725d33",
+          "secondRgbaSha256": "95af021281ea0ea95981a918270381eaf59cea0a1f86baeed1ded75d06725d33"
+        },
+        {
+          "file": "weapon-stone-axe-await-choice-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "693708cffbfaba49a1379f747d684f8b191f851cf2af62e7d8762c397fc0cc83",
+          "secondRgbaSha256": "693708cffbfaba49a1379f747d684f8b191f851cf2af62e7d8762c397fc0cc83"
+        },
+        {
+          "file": "weapon-stone-axe-await-choice-1920.png",
+          "equal": true,
+          "size": [
+            1920,
+            1080
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "339d3819f54af4589f86cfa35153b0252e3d3dc97a698c4a0b7f7ea91b1bbf8f",
+          "secondRgbaSha256": "339d3819f54af4589f86cfa35153b0252e3d3dc97a698c4a0b7f7ea91b1bbf8f"
+        },
+        {
+          "file": "weapon-stone-axe-declined-180ms-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "d9f5f76d74bb817b8a51af33887abada106fb9027a718331d4aa3b30774b43d7",
+          "secondRgbaSha256": "d9f5f76d74bb817b8a51af33887abada106fb9027a718331d4aa3b30774b43d7"
+        },
+        {
+          "file": "weapon-stone-axe-declined-180ms-1920.png",
+          "equal": true,
+          "size": [
+            1920,
+            1080
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "f2142359486ee63d3b747fe2d59bd2c892c3668384ecd8460c5b2c32a8db1df8",
+          "secondRgbaSha256": "f2142359486ee63d3b747fe2d59bd2c892c3668384ecd8460c5b2c32a8db1df8"
+        },
+        {
+          "file": "weapon-stone-axe-equipped-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "20425c24dece101dd200f54b2bd293136432bb03557c13a4a9a21c4849e81e06",
+          "secondRgbaSha256": "20425c24dece101dd200f54b2bd293136432bb03557c13a4a9a21c4849e81e06"
+        },
+        {
+          "file": "weapon-stone-axe-loaded-no-replay-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "693708cffbfaba49a1379f747d684f8b191f851cf2af62e7d8762c397fc0cc83",
+          "secondRgbaSha256": "693708cffbfaba49a1379f747d684f8b191f851cf2af62e7d8762c397fc0cc83"
+        },
+        {
+          "file": "weapon-stone-axe-motion-off-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 69,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "fd4583deca0247ae61662547cbeaff42e66408b88d65511c445e97710ddc2f06",
+          "secondRgbaSha256": "c6f403fc443987a2322a97a7e69fd52067edbfd289955d3976231aee9505bf0c"
+        },
+        {
+          "file": "weapon-stone-axe-motion-on-no-replay-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 69,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "d6bc7db300c8fb8fbc8b84b6f3d3d54f34d64bd4eb07fc885fa1e041fb286202",
+          "secondRgbaSha256": "76a55b0c6fc82383ce0fa6ec2f16793284fd2a692e5895513ce8a7613d39e0b6"
+        },
+        {
+          "file": "weapon-stone-axe-paid-arrival-260ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 69,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "0f0ca8ae882c62efe82b552df031495dc1e51ddaaacb43dfd137a1249b574c05",
+          "secondRgbaSha256": "312e78db9c4a04369c7ecbdb2bd99e164b8dbbf1e54fa20b381c1e0cc5eac901"
+        },
+        {
+          "file": "weapon-stone-axe-paid-retired-800ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 69,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "c1cf3ae04a43cac2e3cc044916588f17d8ae9b739dce87278fad541676b03c57",
+          "secondRgbaSha256": "aae244686b60fbc62da7139d165c16ad2e8446efba532266f963b288baf19a29"
+        },
+        {
+          "file": "weapon-stone-axe-paid-startup-40ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 36149,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "086690b1469963d181f75c23c4fc211d877ba3ec2bdf00cd9b1ee2cfa46b9d1f",
+          "secondRgbaSha256": "39c2946fbce027b1ad9489f9f9dd6ad1a1eb299e3047a8d932030ac820db72d5"
+        },
+        {
+          "file": "weapon-stone-axe-paid-tail-600ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 69,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "8ae7cc0a285327c7498b08163fdef45dd875df7cd7b26e04176aad90307795cc",
+          "secondRgbaSha256": "e4f06235f4650110bb530e9fae5775fa14e2353e93c0e4a3a9336b8017c89b90"
+        },
+        {
+          "file": "weapon-stone-axe-paid-travel-180ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 69,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "235005243b8d2bff2fbd8a4273860dc0bd9fdccaba60a4da512be7b51efb3280",
+          "secondRgbaSha256": "3e31f53b10715a36fd64801a037101659bf03453fb011c0d161d946c0f3efa22"
+        },
+        {
+          "file": "weapon-stone-axe-paid-travel-180ms-1920.png",
+          "equal": false,
+          "size": [
+            1920,
+            1080
+          ],
+          "changedPixels": 69,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "82cef08efeb4480ea2f20b6678144611f072aa7e509892f38020c580e9f6311c",
+          "secondRgbaSha256": "a9175763ec8d7deda26ca5c74dac4fe1fa2801427ed3808e89614033d74eca12"
+        },
+        {
+          "file": "weapon-stone-axe-reset-no-replay-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "95af021281ea0ea95981a918270381eaf59cea0a1f86baeed1ded75d06725d33",
+          "secondRgbaSha256": "95af021281ea0ea95981a918270381eaf59cea0a1f86baeed1ded75d06725d33"
+        }
+      ],
+      "nativeJson": [
+        {
+          "file": "audio-beat-events.json",
+          "equal": true
+        },
+        {
+          "file": "native-fast-chain-events.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/ArrowBarrage.before.checkpoint.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/ArrowBarrage.before.commands.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/ArrowBarrage.before.origin.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/ArrowBarrage.before.viewer-0.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/ArrowBarrage.before.viewer-1.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/ArrowBarrage.before.viewer-2.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/ArrowBarrage.before.viewer-3.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/ArrowBarrage.branch-witnesses.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Jijiu.before.checkpoint.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Jijiu.before.commands.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Jijiu.before.origin.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Jijiu.before.viewer-0.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Jijiu.before.viewer-1.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Jijiu.before.viewer-2.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Jijiu.before.viewer-3.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Jijiu.branch-witnesses.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Nullification.before.checkpoint.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Nullification.before.commands.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Nullification.before.origin.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Nullification.before.viewer-0.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Nullification.before.viewer-1.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Nullification.before.viewer-2.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Nullification.before.viewer-3.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Nullification.branch-witnesses.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/WushuangDodge.before.checkpoint.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/WushuangDodge.before.commands.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/WushuangDodge.before.origin.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/WushuangDodge.before.viewer-0.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/WushuangDodge.before.viewer-1.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/WushuangDodge.before.viewer-2.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/WushuangDodge.before.viewer-3.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/WushuangDodge.branch-witnesses.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Zhefu.before.checkpoint.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Zhefu.before.commands.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Zhefu.before.origin.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Zhefu.before.viewer-0.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Zhefu.before.viewer-1.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Zhefu.before.viewer-2.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Zhefu.before.viewer-3.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Zhefu.branch-witnesses.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Zhefu.target-confirm.checkpoint.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Zhefu.target-confirm.commands.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Zhefu.target-confirm.origin.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Zhefu.target-confirm.viewer-0.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Zhefu.target-confirm.viewer-1.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Zhefu.target-confirm.viewer-2.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Zhefu.target-confirm.viewer-3.json",
+          "equal": true
+        }
+      ],
+      "semanticLogLinesEqual": true
+    },
+    {
+      "first": "before1",
+      "second": "after1",
+      "images": [
+        {
+          "file": "audio-native-fast-chain-before-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 29,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "65a4d22ae9bad6437ebef160e9b03f17823ec3c34a7f9d0ef7e1716094d9699e",
+          "secondRgbaSha256": "523acd28672baf6633b9c13ae732038578f2c556f15a1f0a5fa1122f1b63c857"
+        },
+        {
+          "file": "audio-native-fast-chain-retired-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 50690,
+          "maxChannelDelta": 133,
+          "firstRgbaSha256": "a7a23350f19d7a139a5f344ae814b59b04b6c77e9fa79cb13d4b85d2d6028247",
+          "secondRgbaSha256": "576d7c343ae89a1367f776c1c64eefb3c19f475818ea037d95e0774c3f9c8baf"
+        },
+        {
+          "file": "battle-hud-native-phase-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "40198a44808c288591a42d05eb50890caac155d8ac2d65593f58bf7d7e5493ee",
+          "secondRgbaSha256": "40198a44808c288591a42d05eb50890caac155d8ac2d65593f58bf7d7e5493ee"
+        },
+        {
+          "file": "battle-hud-native-phase-1920.png",
+          "equal": true,
+          "size": [
+            1920,
+            1080
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "4114dee026c9e39a20773fff81eb25f9e373f05bc009cbde7021b07b6aea027f",
+          "secondRgbaSha256": "4114dee026c9e39a20773fff81eb25f9e373f05bc009cbde7021b07b6aea027f"
+        },
+        {
+          "file": "battle-hud-native-prompt-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 30,
+          "maxChannelDelta": 93,
+          "firstRgbaSha256": "8bb235929afc196c440f0147f19e3161d3615a965521471e5b76b4722a8c95a6",
+          "secondRgbaSha256": "7e6f9681e4d2d1d632884d3bc0e425aee5cd98a02558747bc035baa31e1d8562"
+        },
+        {
+          "file": "battle-hud-native-prompt-1920.png",
+          "equal": false,
+          "size": [
+            1920,
+            1080
+          ],
+          "changedPixels": 30,
+          "maxChannelDelta": 93,
+          "firstRgbaSha256": "59bd2c0b70fea6530365340453eb28f8864cd324aadb950f85690595ba8dd053",
+          "secondRgbaSha256": "97f04170088e5b2e1d6ce2f1cc912443e1afcfcd7b5b5de01da4ef070d939d9a"
+        },
+        {
+          "file": "battle-hud-native-public-face-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "d3720aa790db2990b65c9e53fb11df7ea0e0e50ddd400bf7f7dcbfd0c9d45198",
+          "secondRgbaSha256": "d3720aa790db2990b65c9e53fb11df7ea0e0e50ddd400bf7f7dcbfd0c9d45198"
+        },
+        {
+          "file": "battle-hud-native-public-face-1920.png",
+          "equal": true,
+          "size": [
+            1920,
+            1080
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "ee59adaeff3788df3487b846caf9120d4f80fa0c2e573befd5309d250ff2a5b0",
+          "secondRgbaSha256": "ee59adaeff3788df3487b846caf9120d4f80fa0c2e573befd5309d250ff2a5b0"
+        },
+        {
+          "file": "hand-arrival-native-40ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 30,
+          "maxChannelDelta": 93,
+          "firstRgbaSha256": "c11962444467a1c8319fb685c927fb603cbedcb69370189dc2d768666488e85b",
+          "secondRgbaSha256": "f2a61801c1449525d702b2abaab2685182b1404474e275703c0097384b78e40c"
+        },
+        {
+          "file": "hand-arrival-native-cold-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 30,
+          "maxChannelDelta": 93,
+          "firstRgbaSha256": "f9df65aef62ac2ad4dde1f74d8bdd384ed9c96904a097af4434e78086015ce37",
+          "secondRgbaSha256": "b6dbbe900893dfe3503689eba9dfd2d4158f5cb78257872c217dbde104a58c07"
+        },
+        {
+          "file": "hand-arrival-native-reloaded-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 30,
+          "maxChannelDelta": 93,
+          "firstRgbaSha256": "2b4a7e0e34affa3df0505cdbcf591130573c838977cb76461d6e9edbebfdcf9f",
+          "secondRgbaSha256": "6b291e6a9c01059f170a60f1951082fec5edd365e8b35fd42c7c3a9c7fc79ec0"
+        },
+        {
+          "file": "hand-arrival-native-settled-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 30,
+          "maxChannelDelta": 93,
+          "firstRgbaSha256": "af329165cf626aa43822e101d74ba81714bd087e7fb6ee9d6ba3721b514b8da5",
+          "secondRgbaSha256": "33b696c9440efec510b414e6c57ae57a3ef84687aea8cd0393332ecb877bb1f8"
+        },
+        {
+          "file": "hand-arrival-native-use-launch-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 30,
+          "maxChannelDelta": 93,
+          "firstRgbaSha256": "8a000fc2ae052480bcf09e53c8d5c6fbbfb7dd8e11101fdabb3aa03d79d943ba",
+          "secondRgbaSha256": "83786b7acfded605ccba40f32c8497144690cc91bd06c507df7259d525b59529"
+        },
+        {
+          "file": "hand-reflow-double-response-40ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 30,
+          "maxChannelDelta": 93,
+          "firstRgbaSha256": "a11ebe0824bf843aee61f09948eae71013633ccdfcf15e60632f42f1c7969442",
+          "secondRgbaSha256": "47019bfc36c4729c4a9519631c6df5e69aee3178e1ad4a1083c93cfc374f8d13"
+        },
+        {
+          "file": "hand-reflow-double-response-before-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 30,
+          "maxChannelDelta": 93,
+          "firstRgbaSha256": "59ca3fa93a66eef42103fb5c87a4854f8e9a58309260f7eac3665021751c3b28",
+          "secondRgbaSha256": "3d325ca278e159e657b00f3723edaeabb4ae9a05e8f657b614d4fcc02591be81"
+        },
+        {
+          "file": "hand-reflow-double-response-launch-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 30,
+          "maxChannelDelta": 93,
+          "firstRgbaSha256": "f0eb8718580ab915958e445e2ccf0109207690c249a8a1bf3a11e7a2c13bdae1",
+          "secondRgbaSha256": "bd177d79ae90d8b2989c507b901dfc0cd5fe1262f0a4ddd0068ba0a3aafeeac5"
+        },
+        {
+          "file": "hand-reflow-double-response-launch-stable-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 30,
+          "maxChannelDelta": 93,
+          "firstRgbaSha256": "f0eb8718580ab915958e445e2ccf0109207690c249a8a1bf3a11e7a2c13bdae1",
+          "secondRgbaSha256": "bd177d79ae90d8b2989c507b901dfc0cd5fe1262f0a4ddd0068ba0a3aafeeac5"
+        },
+        {
+          "file": "hand-reflow-double-response-next-40ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 30,
+          "maxChannelDelta": 93,
+          "firstRgbaSha256": "47cbc2920b54a6e50a6fd8e3791934a74c92503fc09c43b05aa01a222b8cdbac",
+          "secondRgbaSha256": "38705d32df0fb68ba4ed83cc1c9dcd3b3cae2e5810841d189fbdc23208a6ace5"
+        },
+        {
+          "file": "hand-reflow-double-response-settled-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 30,
+          "maxChannelDelta": 93,
+          "firstRgbaSha256": "8c7b49d33abaf691aef2e3c4b4560d2b5586b6f725c605681418cb37bf7ba32a",
+          "secondRgbaSha256": "416567a242d53364e906a2ec80133ae2d8c56b9366c80f25e388dcd877b6ae1e"
+        },
+        {
+          "file": "hand-reflow-response-180ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 30,
+          "maxChannelDelta": 93,
+          "firstRgbaSha256": "0304224168cc8f9ef61a2f75e669dd9327c68f27875e2d2e22e773cfe858d90e",
+          "secondRgbaSha256": "76c66874c148ea771314125ecf79fe1e73c15f77530868392eec347fe0e0a351"
+        },
+        {
+          "file": "hand-reflow-response-40ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 30,
+          "maxChannelDelta": 93,
+          "firstRgbaSha256": "201fa857ed0360e2004ccd6199f57cba17a14173d703c4d9fe44f53a3a5ac372",
+          "secondRgbaSha256": "05d15cc228302f11b8ae95a20bf519a04d18e214e9531879fe08004490c43cd0"
+        },
+        {
+          "file": "hand-reflow-response-after-sort-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 30,
+          "maxChannelDelta": 93,
+          "firstRgbaSha256": "0304224168cc8f9ef61a2f75e669dd9327c68f27875e2d2e22e773cfe858d90e",
+          "secondRgbaSha256": "76c66874c148ea771314125ecf79fe1e73c15f77530868392eec347fe0e0a351"
+        },
+        {
+          "file": "hand-reflow-response-before-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 30,
+          "maxChannelDelta": 93,
+          "firstRgbaSha256": "99b499a4e50fa8548e2a611df8edffbb6dc3da2c272f0d540027ef4941753b27",
+          "secondRgbaSha256": "6f3f61c602f7ce1c5235e52e1d1e848211ce0c4e2df0bd9131b34a76bf9fbd42"
+        },
+        {
+          "file": "hand-reflow-response-launch-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 30,
+          "maxChannelDelta": 93,
+          "firstRgbaSha256": "fa4faf6172a684a88953cc1f5f70e7795e4c380034944a238218ddaf5a9fa015",
+          "secondRgbaSha256": "84cd9c8ab37c7b6356e6b2775c38aba852cc448a6ddb59bbffa2e0402126ef1e"
+        },
+        {
+          "file": "hand-reflow-response-ready-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 30,
+          "maxChannelDelta": 93,
+          "firstRgbaSha256": "99b499a4e50fa8548e2a611df8edffbb6dc3da2c272f0d540027ef4941753b27",
+          "secondRgbaSha256": "6f3f61c602f7ce1c5235e52e1d1e848211ce0c4e2df0bd9131b34a76bf9fbd42"
+        },
+        {
+          "file": "hand-reflow-use-180ms-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "9162068a42d9d0c835487fedc29438b33b2356d39a07196050f03fe60231fe8d",
+          "secondRgbaSha256": "9162068a42d9d0c835487fedc29438b33b2356d39a07196050f03fe60231fe8d"
+        },
+        {
+          "file": "hand-reflow-use-40ms-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "ccd9d0862a4948ebb0759d732a9fa4f54928dd24809bfb23e0d2c7c60125a634",
+          "secondRgbaSha256": "ccd9d0862a4948ebb0759d732a9fa4f54928dd24809bfb23e0d2c7c60125a634"
+        },
+        {
+          "file": "hand-reflow-use-after-sort-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "da01aa7468f76170b4be58f90786b8b60e9744fb9a7a74fc13f815b97fa55e74",
+          "secondRgbaSha256": "da01aa7468f76170b4be58f90786b8b60e9744fb9a7a74fc13f815b97fa55e74"
+        },
+        {
+          "file": "hand-reflow-use-before-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "77fe622b72f6334f771bf1412826a91bad3459c99e764c304eff5259d8a625db",
+          "secondRgbaSha256": "77fe622b72f6334f771bf1412826a91bad3459c99e764c304eff5259d8a625db"
+        },
+        {
+          "file": "hand-reflow-use-hover-middle.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "d0ba85df325b77c8821cd7a69b3fe955d074255d869ac276b794b6f2b1275204",
+          "secondRgbaSha256": "d0ba85df325b77c8821cd7a69b3fe955d074255d869ac276b794b6f2b1275204"
+        },
+        {
+          "file": "hand-reflow-use-launch-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "bb4ae3fe9a0a07748259d73d494803a9575271f5d4e4321dca69476a7b11ca55",
+          "secondRgbaSha256": "bb4ae3fe9a0a07748259d73d494803a9575271f5d4e4321dca69476a7b11ca55"
+        },
+        {
+          "file": "hand-reflow-use-ready-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "77fe622b72f6334f771bf1412826a91bad3459c99e764c304eff5259d8a625db",
+          "secondRgbaSha256": "77fe622b72f6334f771bf1412826a91bad3459c99e764c304eff5259d8a625db"
+        },
+        {
+          "file": "hand-reflow-use-returned.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "77fe622b72f6334f771bf1412826a91bad3459c99e764c304eff5259d8a625db",
+          "secondRgbaSha256": "77fe622b72f6334f771bf1412826a91bad3459c99e764c304eff5259d8a625db"
+        },
+        {
+          "file": "hand-reflow-use-selected-middle.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "3493dcbc3f494df53a5bef19ea6a378817cdc04dc4a8799c1feb7f98edafd349",
+          "secondRgbaSha256": "3493dcbc3f494df53a5bef19ea6a378817cdc04dc4a8799c1feb7f98edafd349"
+        },
+        {
+          "file": "response-progress-loaded-no-replay-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 30,
+          "maxChannelDelta": 93,
+          "firstRgbaSha256": "265591c00214e261af8056c9d69e188ac87725bd3f66b0fba3533d53cdf1b496",
+          "secondRgbaSha256": "9035e8146028008cfcfeb40630c0a6e4262157294d9029dca8e4349a274de477"
+        },
+        {
+          "file": "response-progress-paid-1-first-40ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 33706,
+          "maxChannelDelta": 245,
+          "firstRgbaSha256": "19ea898a689cbd3c30f538ad66dfb2f0b16a0d62cfcfa3c6ada50f825bf95242",
+          "secondRgbaSha256": "40595a3dbbd90416e29ae5d00678e8c3e9182f1f9dd877d7ec8da239a38aea2f"
+        },
+        {
+          "file": "response-progress-paid-1-late-400ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 17347,
+          "maxChannelDelta": 93,
+          "firstRgbaSha256": "1f91d93ff65758878224c02ac332385a23d1a9cc120330bbe82e3cb0fddc0695",
+          "secondRgbaSha256": "1b1d9464ee967fd3d4d5e5d505a27a1ecd5512e9097f9dc4e3f43aaf95111dbf"
+        },
+        {
+          "file": "response-progress-paid-1-middle-180ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 28862,
+          "maxChannelDelta": 93,
+          "firstRgbaSha256": "fe747df416730e01d4404b72cbe74015391fcb5c5539a15d11ad5ad3e1d5548c",
+          "secondRgbaSha256": "fa2968d426325e94801359a2403b1fe9f9aae5270567c039fe82cb6337bbe53d"
+        },
+        {
+          "file": "response-progress-paid-1-motion-off-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 30,
+          "maxChannelDelta": 93,
+          "firstRgbaSha256": "3a8ded81b6e9d93ba27b321e75daaeb9d8f28005a25417dec632c7b377df6a05",
+          "secondRgbaSha256": "67200fe2152a786eb7d08cf4d8dcfca78649401b03e75d8cc7104dd5a73b8086"
+        },
+        {
+          "file": "response-progress-paid-1-motion-on-no-replay-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 30,
+          "maxChannelDelta": 93,
+          "firstRgbaSha256": "265591c00214e261af8056c9d69e188ac87725bd3f66b0fba3533d53cdf1b496",
+          "secondRgbaSha256": "9035e8146028008cfcfeb40630c0a6e4262157294d9029dca8e4349a274de477"
+        },
+        {
+          "file": "response-progress-paid-1-retired-1500ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 30,
+          "maxChannelDelta": 93,
+          "firstRgbaSha256": "265591c00214e261af8056c9d69e188ac87725bd3f66b0fba3533d53cdf1b496",
+          "secondRgbaSha256": "9035e8146028008cfcfeb40630c0a6e4262157294d9029dca8e4349a274de477"
+        },
+        {
+          "file": "response-progress-paid-2-first-40ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 88,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "ac65c448d16995a350cba843737d4141814ad20821423dbfbc8a059fa5ad6790",
+          "secondRgbaSha256": "68a8f410fbc98b42577d867ac83a3660fade383fb80606031fde68044c6c0b9f"
+        },
+        {
+          "file": "response-progress-paid-2-late-400ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 88,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "47d76eb4f36db6d52ab4f858f6800ba326b5ec011f286a0d90b79d10159ffcfb",
+          "secondRgbaSha256": "bffbe9a5c5d023be019a978964a32a4ee1487e700c0df728c23b25d6924926f3"
+        },
+        {
+          "file": "response-progress-paid-2-middle-180ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 88,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "215f0e8994dbca97ac8262e57046453bfb7bb52d4f6b05a1acf82fa76d915db2",
+          "secondRgbaSha256": "3187b9cb4f0baed9c84398a50bfff8a76ef1d530f06b3a269901915e118bdd02"
+        },
+        {
+          "file": "response-progress-paid-2-retired-1500ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 88,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "0ad4281a7c62405ae67971a40af9723163aeac37df7e0f38a82b0998d2c187c0",
+          "secondRgbaSha256": "d543cb3146883d7c547c42ace7826f4aaea58b71f91b48bc207cbed92741d77d"
+        },
+        {
+          "file": "response-progress-second-declined-hit-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 30,
+          "maxChannelDelta": 93,
+          "firstRgbaSha256": "06c6ca7882931ce0adbfde2de6b9085db4c72aeac42d7ecf4d340c327941d97f",
+          "secondRgbaSha256": "62483c396e4569edbb4825c2634229d6b2c98a050bcd856cc355a9a4c7ff9b57"
+        },
+        {
+          "file": "response-status-jijiu-completed-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 30,
+          "maxChannelDelta": 93,
+          "firstRgbaSha256": "cfd731782ad3ee74455ff10ecac72e50ce2d5a722f095bd2785920b6d1d3d526",
+          "secondRgbaSha256": "136c5a885a6a8a8bbecd0759fc0121cc5b9ab66c5e420d03fc259ecbc47fccf7"
+        },
+        {
+          "file": "response-status-jijiu-current-actor-wait-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 30,
+          "maxChannelDelta": 93,
+          "firstRgbaSha256": "81a53e58e2d7287bca4a5d1c25cfb9961d5649f6b6a5071173b6f74e7c6b21e8",
+          "secondRgbaSha256": "8d0f3e9393d3ccbfa8df3db210505997844ab6f238b2a83b82f8964be46a5893"
+        },
+        {
+          "file": "response-status-jijiu-current-actor-wait-1920.png",
+          "equal": false,
+          "size": [
+            1920,
+            1080
+          ],
+          "changedPixels": 30,
+          "maxChannelDelta": 93,
+          "firstRgbaSha256": "7429e82d67f19c0c72456ddaa3280a027b475d6611058e193eaf04ae5c33533e",
+          "secondRgbaSha256": "de0c2620dd5afaa4e1ac1edc9b79a94c34aafbea15967e743dec7fed2cf18995"
+        },
+        {
+          "file": "response-status-nullification-loaded-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 30,
+          "maxChannelDelta": 93,
+          "firstRgbaSha256": "83e8448021f6fa5bc91cd764429c3a6d29c41ceb922464f785445e1a3ac6723b",
+          "secondRgbaSha256": "65178f051fa2f3bd7a4292cf0d2999d2161996d8d9ac520d522ea3e1e5dcf6f6"
+        },
+        {
+          "file": "response-status-nullification-motion-off-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 30,
+          "maxChannelDelta": 93,
+          "firstRgbaSha256": "83e8448021f6fa5bc91cd764429c3a6d29c41ceb922464f785445e1a3ac6723b",
+          "secondRgbaSha256": "65178f051fa2f3bd7a4292cf0d2999d2161996d8d9ac520d522ea3e1e5dcf6f6"
+        },
+        {
+          "file": "response-status-nullification-motion-on-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 30,
+          "maxChannelDelta": 93,
+          "firstRgbaSha256": "b97c9d717ebe47557f20faa30824595cb959f796c62f624f3ecd82ec13ed4aed",
+          "secondRgbaSha256": "010e229cf5c31d3ba0d94dafd4a4a133269ce314431920a25cb9cfaa31984281"
+        },
+        {
+          "file": "response-status-nullification-next-prompt-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 30,
+          "maxChannelDelta": 93,
+          "firstRgbaSha256": "76bbccc0648982b0a691bffc55f4c5f13c4f6149c0a91186a4778fd54b9333e4",
+          "secondRgbaSha256": "791fee2716697e1b19e7e3114b8e926b7301821c6b89eaa17420635304bb96f2"
+        },
+        {
+          "file": "response-status-nullification-reset-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "83da32c89953ca15a0301c5d3c6e691675837369babba8fd05686fd8ad1685f8",
+          "secondRgbaSha256": "83da32c89953ca15a0301c5d3c6e691675837369babba8fd05686fd8ad1685f8"
+        },
+        {
+          "file": "response-status-nullification-second-wait-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 30,
+          "maxChannelDelta": 93,
+          "firstRgbaSha256": "83e8448021f6fa5bc91cd764429c3a6d29c41ceb922464f785445e1a3ac6723b",
+          "secondRgbaSha256": "65178f051fa2f3bd7a4292cf0d2999d2161996d8d9ac520d522ea3e1e5dcf6f6"
+        },
+        {
+          "file": "response-status-nullification-second-wait-1920.png",
+          "equal": false,
+          "size": [
+            1920,
+            1080
+          ],
+          "changedPixels": 30,
+          "maxChannelDelta": 93,
+          "firstRgbaSha256": "5e9a8fbc74f5d137b01495b95faa2d9de12cce480062933cf01c812035ef2d64",
+          "secondRgbaSha256": "03285811eec8168267914141dd590368415d1c793a6cee871988ec6256bb7aa7"
+        },
+        {
+          "file": "response-status-nullification-selected-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 30,
+          "maxChannelDelta": 93,
+          "firstRgbaSha256": "be5a45d26f455598cc019b9f7da2a7650c86384dedff5c7e928519c6c115a1f9",
+          "secondRgbaSha256": "8e88cebe4d734d4acf8a636093c5f98d6a9460d60fdf5dfdd2a209e612b48d10"
+        },
+        {
+          "file": "response-status-wushuang-before-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 30,
+          "maxChannelDelta": 93,
+          "firstRgbaSha256": "59ca3fa93a66eef42103fb5c87a4854f8e9a58309260f7eac3665021751c3b28",
+          "secondRgbaSha256": "3d325ca278e159e657b00f3723edaeabb4ae9a05e8f657b614d4fcc02591be81"
+        },
+        {
+          "file": "response-status-wushuang-completed-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 88,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "0ad4281a7c62405ae67971a40af9723163aeac37df7e0f38a82b0998d2c187c0",
+          "secondRgbaSha256": "d543cb3146883d7c547c42ace7826f4aaea58b71f91b48bc207cbed92741d77d"
+        },
+        {
+          "file": "response-status-wushuang-declined-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 30,
+          "maxChannelDelta": 93,
+          "firstRgbaSha256": "06c6ca7882931ce0adbfde2de6b9085db4c72aeac42d7ecf4d340c327941d97f",
+          "secondRgbaSha256": "62483c396e4569edbb4825c2634229d6b2c98a050bcd856cc355a9a4c7ff9b57"
+        },
+        {
+          "file": "response-status-wushuang-restored-second-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 30,
+          "maxChannelDelta": 93,
+          "firstRgbaSha256": "265591c00214e261af8056c9d69e188ac87725bd3f66b0fba3533d53cdf1b496",
+          "secondRgbaSha256": "9035e8146028008cfcfeb40630c0a6e4262157294d9029dca8e4349a274de477"
+        },
+        {
+          "file": "response-status-wushuang-second-wait-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 30,
+          "maxChannelDelta": 93,
+          "firstRgbaSha256": "265591c00214e261af8056c9d69e188ac87725bd3f66b0fba3533d53cdf1b496",
+          "secondRgbaSha256": "9035e8146028008cfcfeb40630c0a6e4262157294d9029dca8e4349a274de477"
+        },
+        {
+          "file": "response-status-wushuang-second-wait-1920.png",
+          "equal": false,
+          "size": [
+            1920,
+            1080
+          ],
+          "changedPixels": 30,
+          "maxChannelDelta": 93,
+          "firstRgbaSha256": "876420e0e6aa2e1141560e15ecb8623fef6fd847a3f19bb2a00f6a16481584b8",
+          "secondRgbaSha256": "1ebb05b20eb34c9b1f2d5de008498277b5b8a228297be98f168520d265a28142"
+        },
+        {
+          "file": "skill-target-before-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 40,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "5d8a426329ea4ab7710eedc536a45421f316ffdc8ab82c56e6cfafa98ac0b39e",
+          "secondRgbaSha256": "2a82e34cd3d3af1d19b035b8c33e6acf59d0e0674993fb5f31aec6339ae9fa83"
+        },
+        {
+          "file": "skill-target-before-1920.png",
+          "equal": false,
+          "size": [
+            1920,
+            1080
+          ],
+          "changedPixels": 40,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "7e0b2217adb19aa9f77bc528192152bc29fa042312033df143d3117b26563e21",
+          "secondRgbaSha256": "a093e8e98f359a21e32c98dfa9458c4d3e4fe5cca81ba0957f97367980b96497"
+        },
+        {
+          "file": "skill-target-selected-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 40,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "2f62a70873cc71ef23bf7684e8cb8c891e452aa2c98aa55222683d01c2e31c22",
+          "secondRgbaSha256": "920f17af69cf0c8417b1ae90fe862c00774e8fc0ff55a9b0fe00e402dc4943e3"
+        },
+        {
+          "file": "skill-target-selected-1920.png",
+          "equal": false,
+          "size": [
+            1920,
+            1080
+          ],
+          "changedPixels": 40,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "2c107984a46423447e1cf1aacb7652f4ac2610b1fbb3e19f8464d79ed64a3752",
+          "secondRgbaSha256": "01fe6c735cbc4cd34c4376533a0b0de4c29e882fe82e1736a60ea7203a6edc1c"
+        },
+        {
+          "file": "weapon-qinglong-await-choice-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 29,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "5975cc5af55bdd4b157fdd0beeea7f98eb6a50d1cdaba20986889249e7e081ba",
+          "secondRgbaSha256": "4e5040af426f3084038a1f662292439dff14a87fd32b76de0fbdbb409cfbad8b"
+        },
+        {
+          "file": "weapon-qinglong-await-choice-1920.png",
+          "equal": false,
+          "size": [
+            1920,
+            1080
+          ],
+          "changedPixels": 29,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "e4403a91b846f8a365a5888b0c3ed90182aab11955d671ed8524cbee30112a95",
+          "secondRgbaSha256": "365b422f58b478db6b9bb1aa76ac0304eeb27e80a9dbe7787428d44b1bb2bbb0"
+        },
+        {
+          "file": "weapon-qinglong-declined-180ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 29,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "1482beffdbfc247469390c33b0e7c123c42ee33430b2298c828dc3f72976ce22",
+          "secondRgbaSha256": "b9aa5c52fc7d9092d8c2601ce2cc671c63830c9a64354c7bb8e1e29028b9ac60"
+        },
+        {
+          "file": "weapon-qinglong-declined-180ms-1920.png",
+          "equal": false,
+          "size": [
+            1920,
+            1080
+          ],
+          "changedPixels": 29,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "23c67fcaaed3347392fb0d8b08c58fd530a5d7b5ca3c24c681bc5056808f988d",
+          "secondRgbaSha256": "2e940a895036b77e4e47efa48d2a5e05f42a07c271570775b4f76bef79e85dc4"
+        },
+        {
+          "file": "weapon-qinglong-equipped-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 29,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "99609fa6775881863b524029c6242adea3a3f61a86b557b233a36c7d75708daf",
+          "secondRgbaSha256": "cc573172b7e28e41d0b97673e5777b63a8037a61d7cfcbb5b4e40b3532828d85"
+        },
+        {
+          "file": "weapon-qinglong-loaded-no-replay-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 29,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "5975cc5af55bdd4b157fdd0beeea7f98eb6a50d1cdaba20986889249e7e081ba",
+          "secondRgbaSha256": "4e5040af426f3084038a1f662292439dff14a87fd32b76de0fbdbb409cfbad8b"
+        },
+        {
+          "file": "weapon-qinglong-motion-off-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 97,
+          "maxChannelDelta": 104,
+          "firstRgbaSha256": "c1d118e370e4aeff222db6af3d9aa57a1fea06d7c93fb82855c22c4a638df353",
+          "secondRgbaSha256": "65619657d472a0b855691a5d30899a0c7a0c915b51904496558aaf7a1f3742ea"
+        },
+        {
+          "file": "weapon-qinglong-motion-on-no-replay-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 97,
+          "maxChannelDelta": 104,
+          "firstRgbaSha256": "95f4e2485acf11a0d899c620b860cb1bf06858c4d5ec208b9b8d94190680d841",
+          "secondRgbaSha256": "dddd67153de0f9ec41d87157d6e7cd6673fdc8d5c644aa817921ca6b71f13de2"
+        },
+        {
+          "file": "weapon-qinglong-paid-arrival-260ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 97,
+          "maxChannelDelta": 104,
+          "firstRgbaSha256": "abc8206cc4f0d4ebfc234d763ce7973e9d42ef19b90ca8fe4f955f160f67df68",
+          "secondRgbaSha256": "ffafeed37ee43c931c683f18ef05a535bf3ff5526f085de02e99e89b10bf7197"
+        },
+        {
+          "file": "weapon-qinglong-paid-retired-800ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 97,
+          "maxChannelDelta": 104,
+          "firstRgbaSha256": "dd9db0be4114edb4f0f3a3c1943a085e5a40ec866d9096c6146a17f48bd43b2c",
+          "secondRgbaSha256": "9956a5d034f97620759ce6223349af2d6b81b92e6801258cc3557be5ca743d55"
+        },
+        {
+          "file": "weapon-qinglong-paid-startup-40ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 4808,
+          "maxChannelDelta": 104,
+          "firstRgbaSha256": "0dc63c971a9352254f3163c5e51376ffd0f06be48efa0b04b8aef49c8d203a3a",
+          "secondRgbaSha256": "b0dabaee70aa6de2b64a6e3c6772ae71173f0afc38302becebc8e0f5ac624d1d"
+        },
+        {
+          "file": "weapon-qinglong-paid-tail-600ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 97,
+          "maxChannelDelta": 104,
+          "firstRgbaSha256": "9ae4d45bbcf2c5f165d2cf8bb4f6ef16b2bee271b13dd7a540764625b58e4265",
+          "secondRgbaSha256": "17e361888efb09af8d75756087735d4a1dc5733b5d616a995facaa0bf7c32d1c"
+        },
+        {
+          "file": "weapon-qinglong-paid-travel-180ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 97,
+          "maxChannelDelta": 104,
+          "firstRgbaSha256": "69b6fd505fc86a0485601fe1516c15584000058adde885ff5db9e6dcecf800c0",
+          "secondRgbaSha256": "1cb15835284ed98e9374aeb76e09644708db7813ed4d141dfae67a64d9e2e36b"
+        },
+        {
+          "file": "weapon-qinglong-paid-travel-180ms-1920.png",
+          "equal": false,
+          "size": [
+            1920,
+            1080
+          ],
+          "changedPixels": 97,
+          "maxChannelDelta": 104,
+          "firstRgbaSha256": "9ef23b0a691605f5e29ca2fa3dbed03575c3eb25d2d6c89b538b6eff023c273b",
+          "secondRgbaSha256": "a4a1fe927926b2bb10abe117835f9eba30aa50da352cab3b8dbfcabd4ceda13d"
+        },
+        {
+          "file": "weapon-qinglong-reset-no-replay-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "95af021281ea0ea95981a918270381eaf59cea0a1f86baeed1ded75d06725d33",
+          "secondRgbaSha256": "95af021281ea0ea95981a918270381eaf59cea0a1f86baeed1ded75d06725d33"
+        },
+        {
+          "file": "weapon-stone-axe-await-choice-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 29,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "693708cffbfaba49a1379f747d684f8b191f851cf2af62e7d8762c397fc0cc83",
+          "secondRgbaSha256": "4988980c8a49c4693b052d1f1b4050c3570d660f12b29c2058edd1cf14852a56"
+        },
+        {
+          "file": "weapon-stone-axe-await-choice-1920.png",
+          "equal": false,
+          "size": [
+            1920,
+            1080
+          ],
+          "changedPixels": 29,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "339d3819f54af4589f86cfa35153b0252e3d3dc97a698c4a0b7f7ea91b1bbf8f",
+          "secondRgbaSha256": "37251289ca56b4599b54ec0b170f9e1fb28c6f13a60923789e88365887d29b87"
+        },
+        {
+          "file": "weapon-stone-axe-declined-180ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 29,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "d9f5f76d74bb817b8a51af33887abada106fb9027a718331d4aa3b30774b43d7",
+          "secondRgbaSha256": "ea31aae3cef59038723fd1720c945e91cff92d6f89b403d7437deb393732b3c9"
+        },
+        {
+          "file": "weapon-stone-axe-declined-180ms-1920.png",
+          "equal": false,
+          "size": [
+            1920,
+            1080
+          ],
+          "changedPixels": 29,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "f2142359486ee63d3b747fe2d59bd2c892c3668384ecd8460c5b2c32a8db1df8",
+          "secondRgbaSha256": "7fefe53f066278ababc450b5d945e9b3718807872d17acddd079c0a949e8fb66"
+        },
+        {
+          "file": "weapon-stone-axe-equipped-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 29,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "20425c24dece101dd200f54b2bd293136432bb03557c13a4a9a21c4849e81e06",
+          "secondRgbaSha256": "5f1eda9bb60ded9e7afea09e9be3cc4a2bb5c9bc786eb7d6eeda0efbf221ded3"
+        },
+        {
+          "file": "weapon-stone-axe-loaded-no-replay-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 29,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "693708cffbfaba49a1379f747d684f8b191f851cf2af62e7d8762c397fc0cc83",
+          "secondRgbaSha256": "4988980c8a49c4693b052d1f1b4050c3570d660f12b29c2058edd1cf14852a56"
+        },
+        {
+          "file": "weapon-stone-axe-motion-off-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 106,
+          "maxChannelDelta": 104,
+          "firstRgbaSha256": "fd4583deca0247ae61662547cbeaff42e66408b88d65511c445e97710ddc2f06",
+          "secondRgbaSha256": "ffab45c8d172000227e304bdb63ed3fcfc85bcfba28f073d140c029adfb72602"
+        },
+        {
+          "file": "weapon-stone-axe-motion-on-no-replay-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 106,
+          "maxChannelDelta": 104,
+          "firstRgbaSha256": "d6bc7db300c8fb8fbc8b84b6f3d3d54f34d64bd4eb07fc885fa1e041fb286202",
+          "secondRgbaSha256": "a2103646a04a900d22098612846fc3c65c769076995ca1dac992d47db28113b2"
+        },
+        {
+          "file": "weapon-stone-axe-paid-arrival-260ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 106,
+          "maxChannelDelta": 104,
+          "firstRgbaSha256": "0f0ca8ae882c62efe82b552df031495dc1e51ddaaacb43dfd137a1249b574c05",
+          "secondRgbaSha256": "6b444468bf74138048dd93b71025bb8f4c2ac7c1c916a2c097d9b5846fa1c9e4"
+        },
+        {
+          "file": "weapon-stone-axe-paid-retired-800ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 106,
+          "maxChannelDelta": 104,
+          "firstRgbaSha256": "c1cf3ae04a43cac2e3cc044916588f17d8ae9b739dce87278fad541676b03c57",
+          "secondRgbaSha256": "0615dc644793fc1543c577311806e45d2853c2f305534149eac1345a6f122353"
+        },
+        {
+          "file": "weapon-stone-axe-paid-startup-40ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 31829,
+          "maxChannelDelta": 104,
+          "firstRgbaSha256": "086690b1469963d181f75c23c4fc211d877ba3ec2bdf00cd9b1ee2cfa46b9d1f",
+          "secondRgbaSha256": "beb105c3b3f569bf62bdd50878e3863d213c5a9fd501058c8627aeed512e96ab"
+        },
+        {
+          "file": "weapon-stone-axe-paid-tail-600ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 106,
+          "maxChannelDelta": 104,
+          "firstRgbaSha256": "8ae7cc0a285327c7498b08163fdef45dd875df7cd7b26e04176aad90307795cc",
+          "secondRgbaSha256": "e39b9387318f0998ae17b987290199f1d8031c152f6ce689a2aa8f25845c3cda"
+        },
+        {
+          "file": "weapon-stone-axe-paid-travel-180ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 106,
+          "maxChannelDelta": 104,
+          "firstRgbaSha256": "235005243b8d2bff2fbd8a4273860dc0bd9fdccaba60a4da512be7b51efb3280",
+          "secondRgbaSha256": "547c1e465f7a5f95ff9975fb56fa571933e1e43711fbd74acf5a610fe78e57d5"
+        },
+        {
+          "file": "weapon-stone-axe-paid-travel-180ms-1920.png",
+          "equal": false,
+          "size": [
+            1920,
+            1080
+          ],
+          "changedPixels": 106,
+          "maxChannelDelta": 104,
+          "firstRgbaSha256": "82cef08efeb4480ea2f20b6678144611f072aa7e509892f38020c580e9f6311c",
+          "secondRgbaSha256": "1e8f74a014b52ad138b5a8ee99d09c67f81ed3fdeb61ca67fb99e8e7af9afaef"
+        },
+        {
+          "file": "weapon-stone-axe-reset-no-replay-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "95af021281ea0ea95981a918270381eaf59cea0a1f86baeed1ded75d06725d33",
+          "secondRgbaSha256": "95af021281ea0ea95981a918270381eaf59cea0a1f86baeed1ded75d06725d33"
+        }
+      ],
+      "nativeJson": [
+        {
+          "file": "audio-beat-events.json",
+          "equal": true
+        },
+        {
+          "file": "native-fast-chain-events.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/ArrowBarrage.before.checkpoint.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/ArrowBarrage.before.commands.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/ArrowBarrage.before.origin.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/ArrowBarrage.before.viewer-0.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/ArrowBarrage.before.viewer-1.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/ArrowBarrage.before.viewer-2.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/ArrowBarrage.before.viewer-3.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/ArrowBarrage.branch-witnesses.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Jijiu.before.checkpoint.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Jijiu.before.commands.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Jijiu.before.origin.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Jijiu.before.viewer-0.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Jijiu.before.viewer-1.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Jijiu.before.viewer-2.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Jijiu.before.viewer-3.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Jijiu.branch-witnesses.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Nullification.before.checkpoint.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Nullification.before.commands.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Nullification.before.origin.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Nullification.before.viewer-0.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Nullification.before.viewer-1.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Nullification.before.viewer-2.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Nullification.before.viewer-3.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Nullification.branch-witnesses.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/WushuangDodge.before.checkpoint.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/WushuangDodge.before.commands.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/WushuangDodge.before.origin.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/WushuangDodge.before.viewer-0.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/WushuangDodge.before.viewer-1.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/WushuangDodge.before.viewer-2.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/WushuangDodge.before.viewer-3.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/WushuangDodge.branch-witnesses.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Zhefu.before.checkpoint.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Zhefu.before.commands.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Zhefu.before.origin.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Zhefu.before.viewer-0.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Zhefu.before.viewer-1.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Zhefu.before.viewer-2.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Zhefu.before.viewer-3.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Zhefu.branch-witnesses.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Zhefu.target-confirm.checkpoint.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Zhefu.target-confirm.commands.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Zhefu.target-confirm.origin.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Zhefu.target-confirm.viewer-0.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Zhefu.target-confirm.viewer-1.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Zhefu.target-confirm.viewer-2.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Zhefu.target-confirm.viewer-3.json",
+          "equal": true
+        }
+      ],
+      "semanticLogLinesEqual": true
+    },
+    {
+      "first": "after1",
+      "second": "after2",
+      "images": [
+        {
+          "file": "audio-native-fast-chain-before-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "523acd28672baf6633b9c13ae732038578f2c556f15a1f0a5fa1122f1b63c857",
+          "secondRgbaSha256": "523acd28672baf6633b9c13ae732038578f2c556f15a1f0a5fa1122f1b63c857"
+        },
+        {
+          "file": "audio-native-fast-chain-retired-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 50668,
+          "maxChannelDelta": 133,
+          "firstRgbaSha256": "576d7c343ae89a1367f776c1c64eefb3c19f475818ea037d95e0774c3f9c8baf",
+          "secondRgbaSha256": "1b4201e08d94b9ccadd4be9f6da4e62ce341db5a8d4b19cbd8c39a1c3a05d38f"
+        },
+        {
+          "file": "battle-hud-native-phase-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "40198a44808c288591a42d05eb50890caac155d8ac2d65593f58bf7d7e5493ee",
+          "secondRgbaSha256": "40198a44808c288591a42d05eb50890caac155d8ac2d65593f58bf7d7e5493ee"
+        },
+        {
+          "file": "battle-hud-native-phase-1920.png",
+          "equal": true,
+          "size": [
+            1920,
+            1080
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "4114dee026c9e39a20773fff81eb25f9e373f05bc009cbde7021b07b6aea027f",
+          "secondRgbaSha256": "4114dee026c9e39a20773fff81eb25f9e373f05bc009cbde7021b07b6aea027f"
+        },
+        {
+          "file": "battle-hud-native-prompt-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 35,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "7e6f9681e4d2d1d632884d3bc0e425aee5cd98a02558747bc035baa31e1d8562",
+          "secondRgbaSha256": "a0628970f2a01732ba9c032fa22e2498eccbb4edd1f244a339e3b2944e9cb173"
+        },
+        {
+          "file": "battle-hud-native-prompt-1920.png",
+          "equal": false,
+          "size": [
+            1920,
+            1080
+          ],
+          "changedPixels": 35,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "97f04170088e5b2e1d6ce2f1cc912443e1afcfcd7b5b5de01da4ef070d939d9a",
+          "secondRgbaSha256": "f7e35dd1d65a7e591888fbd1855dc5dc62d01ce7b6e1e00574178d5b46815f60"
+        },
+        {
+          "file": "battle-hud-native-public-face-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "d3720aa790db2990b65c9e53fb11df7ea0e0e50ddd400bf7f7dcbfd0c9d45198",
+          "secondRgbaSha256": "d3720aa790db2990b65c9e53fb11df7ea0e0e50ddd400bf7f7dcbfd0c9d45198"
+        },
+        {
+          "file": "battle-hud-native-public-face-1920.png",
+          "equal": true,
+          "size": [
+            1920,
+            1080
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "ee59adaeff3788df3487b846caf9120d4f80fa0c2e573befd5309d250ff2a5b0",
+          "secondRgbaSha256": "ee59adaeff3788df3487b846caf9120d4f80fa0c2e573befd5309d250ff2a5b0"
+        },
+        {
+          "file": "hand-arrival-native-40ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 35,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "f2a61801c1449525d702b2abaab2685182b1404474e275703c0097384b78e40c",
+          "secondRgbaSha256": "3e3eefd55b60bafc6284ce11bd2ec6ac9f99b513de652671aaf741e4bc2ee7be"
+        },
+        {
+          "file": "hand-arrival-native-cold-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 35,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "b6dbbe900893dfe3503689eba9dfd2d4158f5cb78257872c217dbde104a58c07",
+          "secondRgbaSha256": "3b90b312ab84fc1a093526719b30263dd620ea9a7dee4e9b1c24a585fbc23791"
+        },
+        {
+          "file": "hand-arrival-native-reloaded-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 35,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "6b291e6a9c01059f170a60f1951082fec5edd365e8b35fd42c7c3a9c7fc79ec0",
+          "secondRgbaSha256": "601db0baa4aaa58a21d488b09e43aa084d953653ae0878480e348fd6ef31cd49"
+        },
+        {
+          "file": "hand-arrival-native-settled-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 35,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "33b696c9440efec510b414e6c57ae57a3ef84687aea8cd0393332ecb877bb1f8",
+          "secondRgbaSha256": "3ed3550ea3834b28118f5bb040ae1848ea160b76f62fb5601ad11f2385bbc6f8"
+        },
+        {
+          "file": "hand-arrival-native-use-launch-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 35,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "83786b7acfded605ccba40f32c8497144690cc91bd06c507df7259d525b59529",
+          "secondRgbaSha256": "2457d0d536334110dc34750e19d4337dd23144fa137d74a1482f2e415da5303f"
+        },
+        {
+          "file": "hand-reflow-double-response-40ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 35,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "47019bfc36c4729c4a9519631c6df5e69aee3178e1ad4a1083c93cfc374f8d13",
+          "secondRgbaSha256": "2602f7bd4b380cb3704c0f3a85eafc4688f8f4e1027c3513af83b87c1f204ec4"
+        },
+        {
+          "file": "hand-reflow-double-response-before-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 35,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "3d325ca278e159e657b00f3723edaeabb4ae9a05e8f657b614d4fcc02591be81",
+          "secondRgbaSha256": "7d3ff934dc588df4c859ab422f039b5d47a317d98866a805b4380647416c5aec"
+        },
+        {
+          "file": "hand-reflow-double-response-launch-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 35,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "bd177d79ae90d8b2989c507b901dfc0cd5fe1262f0a4ddd0068ba0a3aafeeac5",
+          "secondRgbaSha256": "fbe2084743c4c5496329d96520d83d9f74c8a0a502e15d5608a8a7588e2ca2cd"
+        },
+        {
+          "file": "hand-reflow-double-response-launch-stable-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 35,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "bd177d79ae90d8b2989c507b901dfc0cd5fe1262f0a4ddd0068ba0a3aafeeac5",
+          "secondRgbaSha256": "fbe2084743c4c5496329d96520d83d9f74c8a0a502e15d5608a8a7588e2ca2cd"
+        },
+        {
+          "file": "hand-reflow-double-response-next-40ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 35,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "38705d32df0fb68ba4ed83cc1c9dcd3b3cae2e5810841d189fbdc23208a6ace5",
+          "secondRgbaSha256": "780cccdb48c28e7e82ff1e7f3e0c995d05dd88c824ac2a0287408c8beb792f6c"
+        },
+        {
+          "file": "hand-reflow-double-response-settled-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 35,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "416567a242d53364e906a2ec80133ae2d8c56b9366c80f25e388dcd877b6ae1e",
+          "secondRgbaSha256": "95f10378ab6534bb67a5e7c73f915aa277c19f9a3ab600cd5299ad0f0ff5c894"
+        },
+        {
+          "file": "hand-reflow-response-180ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 35,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "76c66874c148ea771314125ecf79fe1e73c15f77530868392eec347fe0e0a351",
+          "secondRgbaSha256": "ed5cfae5198cd641fc4b1576b02a3c2eaf98ee6516df71d947b09d7d96d8504b"
+        },
+        {
+          "file": "hand-reflow-response-40ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 35,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "05d15cc228302f11b8ae95a20bf519a04d18e214e9531879fe08004490c43cd0",
+          "secondRgbaSha256": "104876078ef0e7740d81225fcb1e21ce497fb99e1f7c4be7ff2598d43d5dcc90"
+        },
+        {
+          "file": "hand-reflow-response-after-sort-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 35,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "76c66874c148ea771314125ecf79fe1e73c15f77530868392eec347fe0e0a351",
+          "secondRgbaSha256": "ed5cfae5198cd641fc4b1576b02a3c2eaf98ee6516df71d947b09d7d96d8504b"
+        },
+        {
+          "file": "hand-reflow-response-before-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 35,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "6f3f61c602f7ce1c5235e52e1d1e848211ce0c4e2df0bd9131b34a76bf9fbd42",
+          "secondRgbaSha256": "f0ecd124a0ab1969db7fe9029436a62d61f0cb1f0bdf2742e6c04758be57fe5a"
+        },
+        {
+          "file": "hand-reflow-response-launch-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 35,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "84cd9c8ab37c7b6356e6b2775c38aba852cc448a6ddb59bbffa2e0402126ef1e",
+          "secondRgbaSha256": "db5c5e994d7a2a6e18cb834f90c58a20caf4990011cb1489ccb6488b6ee5cba4"
+        },
+        {
+          "file": "hand-reflow-response-ready-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 35,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "6f3f61c602f7ce1c5235e52e1d1e848211ce0c4e2df0bd9131b34a76bf9fbd42",
+          "secondRgbaSha256": "f0ecd124a0ab1969db7fe9029436a62d61f0cb1f0bdf2742e6c04758be57fe5a"
+        },
+        {
+          "file": "hand-reflow-use-180ms-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "9162068a42d9d0c835487fedc29438b33b2356d39a07196050f03fe60231fe8d",
+          "secondRgbaSha256": "9162068a42d9d0c835487fedc29438b33b2356d39a07196050f03fe60231fe8d"
+        },
+        {
+          "file": "hand-reflow-use-40ms-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "ccd9d0862a4948ebb0759d732a9fa4f54928dd24809bfb23e0d2c7c60125a634",
+          "secondRgbaSha256": "ccd9d0862a4948ebb0759d732a9fa4f54928dd24809bfb23e0d2c7c60125a634"
+        },
+        {
+          "file": "hand-reflow-use-after-sort-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "da01aa7468f76170b4be58f90786b8b60e9744fb9a7a74fc13f815b97fa55e74",
+          "secondRgbaSha256": "da01aa7468f76170b4be58f90786b8b60e9744fb9a7a74fc13f815b97fa55e74"
+        },
+        {
+          "file": "hand-reflow-use-before-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "77fe622b72f6334f771bf1412826a91bad3459c99e764c304eff5259d8a625db",
+          "secondRgbaSha256": "77fe622b72f6334f771bf1412826a91bad3459c99e764c304eff5259d8a625db"
+        },
+        {
+          "file": "hand-reflow-use-hover-middle.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "d0ba85df325b77c8821cd7a69b3fe955d074255d869ac276b794b6f2b1275204",
+          "secondRgbaSha256": "d0ba85df325b77c8821cd7a69b3fe955d074255d869ac276b794b6f2b1275204"
+        },
+        {
+          "file": "hand-reflow-use-launch-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "bb4ae3fe9a0a07748259d73d494803a9575271f5d4e4321dca69476a7b11ca55",
+          "secondRgbaSha256": "bb4ae3fe9a0a07748259d73d494803a9575271f5d4e4321dca69476a7b11ca55"
+        },
+        {
+          "file": "hand-reflow-use-ready-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "77fe622b72f6334f771bf1412826a91bad3459c99e764c304eff5259d8a625db",
+          "secondRgbaSha256": "77fe622b72f6334f771bf1412826a91bad3459c99e764c304eff5259d8a625db"
+        },
+        {
+          "file": "hand-reflow-use-returned.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "77fe622b72f6334f771bf1412826a91bad3459c99e764c304eff5259d8a625db",
+          "secondRgbaSha256": "77fe622b72f6334f771bf1412826a91bad3459c99e764c304eff5259d8a625db"
+        },
+        {
+          "file": "hand-reflow-use-selected-middle.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "3493dcbc3f494df53a5bef19ea6a378817cdc04dc4a8799c1feb7f98edafd349",
+          "secondRgbaSha256": "3493dcbc3f494df53a5bef19ea6a378817cdc04dc4a8799c1feb7f98edafd349"
+        },
+        {
+          "file": "response-progress-loaded-no-replay-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 35,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "9035e8146028008cfcfeb40630c0a6e4262157294d9029dca8e4349a274de477",
+          "secondRgbaSha256": "0407e2b97df3dc5dcb3ab4464d215c342d262ea0746a47478f349ad5ab7f6805"
+        },
+        {
+          "file": "response-progress-paid-1-first-40ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 33735,
+          "maxChannelDelta": 246,
+          "firstRgbaSha256": "40595a3dbbd90416e29ae5d00678e8c3e9182f1f9dd877d7ec8da239a38aea2f",
+          "secondRgbaSha256": "443eb1c88a7c0c60e42850a78fc952d07f345cb630ae9d6bd64b9467419f334f"
+        },
+        {
+          "file": "response-progress-paid-1-late-400ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 20025,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "1b1d9464ee967fd3d4d5e5d505a27a1ecd5512e9097f9dc4e3f43aaf95111dbf",
+          "secondRgbaSha256": "ce3cd8ac027b718f6ee3ea524c6ab7172afaffec97baf034f44491f4ecd840eb"
+        },
+        {
+          "file": "response-progress-paid-1-middle-180ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 27212,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "fa2968d426325e94801359a2403b1fe9f9aae5270567c039fe82cb6337bbe53d",
+          "secondRgbaSha256": "c81abba523647fe5b9c226a6fc1b9a78fe96bbd024cf5d2d865180d2dcedc6ac"
+        },
+        {
+          "file": "response-progress-paid-1-motion-off-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 35,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "67200fe2152a786eb7d08cf4d8dcfca78649401b03e75d8cc7104dd5a73b8086",
+          "secondRgbaSha256": "9fa76ac72b3b7fd0e113ae66ce084986a361f88829f7d67f221f9e1737052672"
+        },
+        {
+          "file": "response-progress-paid-1-motion-on-no-replay-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 35,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "9035e8146028008cfcfeb40630c0a6e4262157294d9029dca8e4349a274de477",
+          "secondRgbaSha256": "0407e2b97df3dc5dcb3ab4464d215c342d262ea0746a47478f349ad5ab7f6805"
+        },
+        {
+          "file": "response-progress-paid-1-retired-1500ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 35,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "9035e8146028008cfcfeb40630c0a6e4262157294d9029dca8e4349a274de477",
+          "secondRgbaSha256": "0407e2b97df3dc5dcb3ab4464d215c342d262ea0746a47478f349ad5ab7f6805"
+        },
+        {
+          "file": "response-progress-paid-2-first-40ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 99,
+          "maxChannelDelta": 104,
+          "firstRgbaSha256": "68a8f410fbc98b42577d867ac83a3660fade383fb80606031fde68044c6c0b9f",
+          "secondRgbaSha256": "38c5d3218037a5574f1248f990a9b1cf5def71026bf53d1a7d9dd2e4905992f3"
+        },
+        {
+          "file": "response-progress-paid-2-late-400ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 99,
+          "maxChannelDelta": 104,
+          "firstRgbaSha256": "bffbe9a5c5d023be019a978964a32a4ee1487e700c0df728c23b25d6924926f3",
+          "secondRgbaSha256": "248ae772b7aeb066564508a8196916f02acc9a52749cd35f47e872b8748bb7a1"
+        },
+        {
+          "file": "response-progress-paid-2-middle-180ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 99,
+          "maxChannelDelta": 104,
+          "firstRgbaSha256": "3187b9cb4f0baed9c84398a50bfff8a76ef1d530f06b3a269901915e118bdd02",
+          "secondRgbaSha256": "9f92e4a05d0f59adbf06019a60623d9c6fc2d4208eeb9ed4f08df2e8b5b1c356"
+        },
+        {
+          "file": "response-progress-paid-2-retired-1500ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 99,
+          "maxChannelDelta": 104,
+          "firstRgbaSha256": "d543cb3146883d7c547c42ace7826f4aaea58b71f91b48bc207cbed92741d77d",
+          "secondRgbaSha256": "a402407dba3253942192db7b23e0ab19d3cb78b6b7dfed06340946763910cabb"
+        },
+        {
+          "file": "response-progress-second-declined-hit-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 35,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "62483c396e4569edbb4825c2634229d6b2c98a050bcd856cc355a9a4c7ff9b57",
+          "secondRgbaSha256": "5110231be8cf08b16c00a2e473e13e4741cd49e849b66537e5dff71a1128fed3"
+        },
+        {
+          "file": "response-status-jijiu-completed-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 35,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "136c5a885a6a8a8bbecd0759fc0121cc5b9ab66c5e420d03fc259ecbc47fccf7",
+          "secondRgbaSha256": "a0734a26fbf0b42ed6bc316c2e5d59ba3b0aa8e5d9f1038c12204ce30f637f84"
+        },
+        {
+          "file": "response-status-jijiu-current-actor-wait-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 35,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "8d0f3e9393d3ccbfa8df3db210505997844ab6f238b2a83b82f8964be46a5893",
+          "secondRgbaSha256": "6721cc65b3684ed43bd3c27c0ba9233747564414e58baf3943f7149225a02e08"
+        },
+        {
+          "file": "response-status-jijiu-current-actor-wait-1920.png",
+          "equal": false,
+          "size": [
+            1920,
+            1080
+          ],
+          "changedPixels": 35,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "de0c2620dd5afaa4e1ac1edc9b79a94c34aafbea15967e743dec7fed2cf18995",
+          "secondRgbaSha256": "f50dde0a4a92037498983c56037ba5ad92d595061f7c27a3f11df5ab84ae68ae"
+        },
+        {
+          "file": "response-status-nullification-loaded-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 35,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "65178f051fa2f3bd7a4292cf0d2999d2161996d8d9ac520d522ea3e1e5dcf6f6",
+          "secondRgbaSha256": "bf158b56ab32ea306c903db13a05b99377e4c86b7cc491969ed550beacf8fb70"
+        },
+        {
+          "file": "response-status-nullification-motion-off-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 35,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "65178f051fa2f3bd7a4292cf0d2999d2161996d8d9ac520d522ea3e1e5dcf6f6",
+          "secondRgbaSha256": "bf158b56ab32ea306c903db13a05b99377e4c86b7cc491969ed550beacf8fb70"
+        },
+        {
+          "file": "response-status-nullification-motion-on-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 35,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "010e229cf5c31d3ba0d94dafd4a4a133269ce314431920a25cb9cfaa31984281",
+          "secondRgbaSha256": "3fe78a2a475d182f2dd58838b51862ca9d42b0f5d7938175f054b4ffd0428145"
+        },
+        {
+          "file": "response-status-nullification-next-prompt-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 35,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "791fee2716697e1b19e7e3114b8e926b7301821c6b89eaa17420635304bb96f2",
+          "secondRgbaSha256": "f1c23ab7a21c69090ec5f18153f1782d6933ed92e226a24845e5064678099b05"
+        },
+        {
+          "file": "response-status-nullification-reset-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "83da32c89953ca15a0301c5d3c6e691675837369babba8fd05686fd8ad1685f8",
+          "secondRgbaSha256": "83da32c89953ca15a0301c5d3c6e691675837369babba8fd05686fd8ad1685f8"
+        },
+        {
+          "file": "response-status-nullification-second-wait-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 35,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "65178f051fa2f3bd7a4292cf0d2999d2161996d8d9ac520d522ea3e1e5dcf6f6",
+          "secondRgbaSha256": "bf158b56ab32ea306c903db13a05b99377e4c86b7cc491969ed550beacf8fb70"
+        },
+        {
+          "file": "response-status-nullification-second-wait-1920.png",
+          "equal": false,
+          "size": [
+            1920,
+            1080
+          ],
+          "changedPixels": 35,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "03285811eec8168267914141dd590368415d1c793a6cee871988ec6256bb7aa7",
+          "secondRgbaSha256": "b84c1131581a9ce71d68aa6765bd472c3f5bf524f12290f4f803b9ba79809744"
+        },
+        {
+          "file": "response-status-nullification-selected-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 35,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "8e88cebe4d734d4acf8a636093c5f98d6a9460d60fdf5dfdd2a209e612b48d10",
+          "secondRgbaSha256": "99c93ef8504438be1ed28ea9728d2f9bd57259091eacb390a686442985750f61"
+        },
+        {
+          "file": "response-status-wushuang-before-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 35,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "3d325ca278e159e657b00f3723edaeabb4ae9a05e8f657b614d4fcc02591be81",
+          "secondRgbaSha256": "7d3ff934dc588df4c859ab422f039b5d47a317d98866a805b4380647416c5aec"
+        },
+        {
+          "file": "response-status-wushuang-completed-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 99,
+          "maxChannelDelta": 104,
+          "firstRgbaSha256": "d543cb3146883d7c547c42ace7826f4aaea58b71f91b48bc207cbed92741d77d",
+          "secondRgbaSha256": "a402407dba3253942192db7b23e0ab19d3cb78b6b7dfed06340946763910cabb"
+        },
+        {
+          "file": "response-status-wushuang-declined-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 35,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "62483c396e4569edbb4825c2634229d6b2c98a050bcd856cc355a9a4c7ff9b57",
+          "secondRgbaSha256": "5110231be8cf08b16c00a2e473e13e4741cd49e849b66537e5dff71a1128fed3"
+        },
+        {
+          "file": "response-status-wushuang-restored-second-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 35,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "9035e8146028008cfcfeb40630c0a6e4262157294d9029dca8e4349a274de477",
+          "secondRgbaSha256": "0407e2b97df3dc5dcb3ab4464d215c342d262ea0746a47478f349ad5ab7f6805"
+        },
+        {
+          "file": "response-status-wushuang-second-wait-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 35,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "9035e8146028008cfcfeb40630c0a6e4262157294d9029dca8e4349a274de477",
+          "secondRgbaSha256": "0407e2b97df3dc5dcb3ab4464d215c342d262ea0746a47478f349ad5ab7f6805"
+        },
+        {
+          "file": "response-status-wushuang-second-wait-1920.png",
+          "equal": false,
+          "size": [
+            1920,
+            1080
+          ],
+          "changedPixels": 35,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "1ebb05b20eb34c9b1f2d5de008498277b5b8a228297be98f168520d265a28142",
+          "secondRgbaSha256": "33922f99c0d40a955e4485b456135c9314f1416d954adbb9fe402d9703cbf0d1"
+        },
+        {
+          "file": "skill-target-before-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 35,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "2a82e34cd3d3af1d19b035b8c33e6acf59d0e0674993fb5f31aec6339ae9fa83",
+          "secondRgbaSha256": "85c86d5799c5fae5b6bb85d979da91c0491a3780132fc361ecee607f0a8a5239"
+        },
+        {
+          "file": "skill-target-before-1920.png",
+          "equal": false,
+          "size": [
+            1920,
+            1080
+          ],
+          "changedPixels": 35,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "a093e8e98f359a21e32c98dfa9458c4d3e4fe5cca81ba0957f97367980b96497",
+          "secondRgbaSha256": "9aed070d7f7b01e4e1828f3f08d751f703d61cad3185927f1e9e9f719b4ecba8"
+        },
+        {
+          "file": "skill-target-selected-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 35,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "920f17af69cf0c8417b1ae90fe862c00774e8fc0ff55a9b0fe00e402dc4943e3",
+          "secondRgbaSha256": "ec289f4ca1927224588363ae2320a1310a962271b334e1f83735c76cea2a01da"
+        },
+        {
+          "file": "skill-target-selected-1920.png",
+          "equal": false,
+          "size": [
+            1920,
+            1080
+          ],
+          "changedPixels": 35,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "01fe6c735cbc4cd34c4376533a0b0de4c29e882fe82e1736a60ea7203a6edc1c",
+          "secondRgbaSha256": "0a70db8226a1fa1dc189eefa27ac99e5f32352031bac6456bbe696c1c68c9cce"
+        },
+        {
+          "file": "weapon-qinglong-await-choice-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "4e5040af426f3084038a1f662292439dff14a87fd32b76de0fbdbb409cfbad8b",
+          "secondRgbaSha256": "4e5040af426f3084038a1f662292439dff14a87fd32b76de0fbdbb409cfbad8b"
+        },
+        {
+          "file": "weapon-qinglong-await-choice-1920.png",
+          "equal": true,
+          "size": [
+            1920,
+            1080
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "365b422f58b478db6b9bb1aa76ac0304eeb27e80a9dbe7787428d44b1bb2bbb0",
+          "secondRgbaSha256": "365b422f58b478db6b9bb1aa76ac0304eeb27e80a9dbe7787428d44b1bb2bbb0"
+        },
+        {
+          "file": "weapon-qinglong-declined-180ms-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "b9aa5c52fc7d9092d8c2601ce2cc671c63830c9a64354c7bb8e1e29028b9ac60",
+          "secondRgbaSha256": "b9aa5c52fc7d9092d8c2601ce2cc671c63830c9a64354c7bb8e1e29028b9ac60"
+        },
+        {
+          "file": "weapon-qinglong-declined-180ms-1920.png",
+          "equal": true,
+          "size": [
+            1920,
+            1080
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "2e940a895036b77e4e47efa48d2a5e05f42a07c271570775b4f76bef79e85dc4",
+          "secondRgbaSha256": "2e940a895036b77e4e47efa48d2a5e05f42a07c271570775b4f76bef79e85dc4"
+        },
+        {
+          "file": "weapon-qinglong-equipped-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "cc573172b7e28e41d0b97673e5777b63a8037a61d7cfcbb5b4e40b3532828d85",
+          "secondRgbaSha256": "cc573172b7e28e41d0b97673e5777b63a8037a61d7cfcbb5b4e40b3532828d85"
+        },
+        {
+          "file": "weapon-qinglong-loaded-no-replay-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "4e5040af426f3084038a1f662292439dff14a87fd32b76de0fbdbb409cfbad8b",
+          "secondRgbaSha256": "4e5040af426f3084038a1f662292439dff14a87fd32b76de0fbdbb409cfbad8b"
+        },
+        {
+          "file": "weapon-qinglong-motion-off-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 71,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "65619657d472a0b855691a5d30899a0c7a0c915b51904496558aaf7a1f3742ea",
+          "secondRgbaSha256": "2a50421d80ec3255c3c94e6e1869677dbb5373fbb3cd7a7c7660c45dbab05e85"
+        },
+        {
+          "file": "weapon-qinglong-motion-on-no-replay-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 71,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "dddd67153de0f9ec41d87157d6e7cd6673fdc8d5c644aa817921ca6b71f13de2",
+          "secondRgbaSha256": "4b564d73e421e0db89533e3d3b433bb7989cfa73efd3ce37c92945c1493aba50"
+        },
+        {
+          "file": "weapon-qinglong-paid-arrival-260ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 71,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "ffafeed37ee43c931c683f18ef05a535bf3ff5526f085de02e99e89b10bf7197",
+          "secondRgbaSha256": "85016523078f83497f5fac9c8bc0945fe220fa67443cad867cc898f9389b9ab5"
+        },
+        {
+          "file": "weapon-qinglong-paid-retired-800ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 71,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "9956a5d034f97620759ce6223349af2d6b81b92e6801258cc3557be5ca743d55",
+          "secondRgbaSha256": "7b1a9b7017ed1932ad7fa3367c42452dcac214d3c9007dd230bd76b6502d7511"
+        },
+        {
+          "file": "weapon-qinglong-paid-startup-40ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 11454,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "b0dabaee70aa6de2b64a6e3c6772ae71173f0afc38302becebc8e0f5ac624d1d",
+          "secondRgbaSha256": "bcaa3d9f3fd519f945d77b3358b2446c6ea8dc458a2518b91b232be00e71a1e2"
+        },
+        {
+          "file": "weapon-qinglong-paid-tail-600ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 71,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "17e361888efb09af8d75756087735d4a1dc5733b5d616a995facaa0bf7c32d1c",
+          "secondRgbaSha256": "08e8b0c5c8d4295f5ab97a0183091023dbc0e09c171126d31b3f31e2c83574b3"
+        },
+        {
+          "file": "weapon-qinglong-paid-travel-180ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 71,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "1cb15835284ed98e9374aeb76e09644708db7813ed4d141dfae67a64d9e2e36b",
+          "secondRgbaSha256": "1d3d4dd8d31e680d05e3e6947be74e8cf1bcccb072e70b0180f70d23c49b5406"
+        },
+        {
+          "file": "weapon-qinglong-paid-travel-180ms-1920.png",
+          "equal": false,
+          "size": [
+            1920,
+            1080
+          ],
+          "changedPixels": 71,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "a4a1fe927926b2bb10abe117835f9eba30aa50da352cab3b8dbfcabd4ceda13d",
+          "secondRgbaSha256": "505e0fb4f2d29cd59c76fe09f11fd028ed4393ff20b87c2349ac3dd38f1b1c4d"
+        },
+        {
+          "file": "weapon-qinglong-reset-no-replay-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "95af021281ea0ea95981a918270381eaf59cea0a1f86baeed1ded75d06725d33",
+          "secondRgbaSha256": "95af021281ea0ea95981a918270381eaf59cea0a1f86baeed1ded75d06725d33"
+        },
+        {
+          "file": "weapon-stone-axe-await-choice-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "4988980c8a49c4693b052d1f1b4050c3570d660f12b29c2058edd1cf14852a56",
+          "secondRgbaSha256": "4988980c8a49c4693b052d1f1b4050c3570d660f12b29c2058edd1cf14852a56"
+        },
+        {
+          "file": "weapon-stone-axe-await-choice-1920.png",
+          "equal": true,
+          "size": [
+            1920,
+            1080
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "37251289ca56b4599b54ec0b170f9e1fb28c6f13a60923789e88365887d29b87",
+          "secondRgbaSha256": "37251289ca56b4599b54ec0b170f9e1fb28c6f13a60923789e88365887d29b87"
+        },
+        {
+          "file": "weapon-stone-axe-declined-180ms-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "ea31aae3cef59038723fd1720c945e91cff92d6f89b403d7437deb393732b3c9",
+          "secondRgbaSha256": "ea31aae3cef59038723fd1720c945e91cff92d6f89b403d7437deb393732b3c9"
+        },
+        {
+          "file": "weapon-stone-axe-declined-180ms-1920.png",
+          "equal": true,
+          "size": [
+            1920,
+            1080
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "7fefe53f066278ababc450b5d945e9b3718807872d17acddd079c0a949e8fb66",
+          "secondRgbaSha256": "7fefe53f066278ababc450b5d945e9b3718807872d17acddd079c0a949e8fb66"
+        },
+        {
+          "file": "weapon-stone-axe-equipped-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "5f1eda9bb60ded9e7afea09e9be3cc4a2bb5c9bc786eb7d6eeda0efbf221ded3",
+          "secondRgbaSha256": "5f1eda9bb60ded9e7afea09e9be3cc4a2bb5c9bc786eb7d6eeda0efbf221ded3"
+        },
+        {
+          "file": "weapon-stone-axe-loaded-no-replay-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "4988980c8a49c4693b052d1f1b4050c3570d660f12b29c2058edd1cf14852a56",
+          "secondRgbaSha256": "4988980c8a49c4693b052d1f1b4050c3570d660f12b29c2058edd1cf14852a56"
+        },
+        {
+          "file": "weapon-stone-axe-motion-off-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 68,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "ffab45c8d172000227e304bdb63ed3fcfc85bcfba28f073d140c029adfb72602",
+          "secondRgbaSha256": "3840812e345bd0a583a086859568d8f0ca93f3745cae2b06044621b92ce7f713"
+        },
+        {
+          "file": "weapon-stone-axe-motion-on-no-replay-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 68,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "a2103646a04a900d22098612846fc3c65c769076995ca1dac992d47db28113b2",
+          "secondRgbaSha256": "eadc8e4ae8eb16c689b3c848d3151b4481401c9a21701346a75c8b32cc1801bd"
+        },
+        {
+          "file": "weapon-stone-axe-paid-arrival-260ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 68,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "6b444468bf74138048dd93b71025bb8f4c2ac7c1c916a2c097d9b5846fa1c9e4",
+          "secondRgbaSha256": "7a71b92b5f0abb35ff8f0cb5cf6168fc7a883303a64e00028662a15eb7167d1b"
+        },
+        {
+          "file": "weapon-stone-axe-paid-retired-800ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 68,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "0615dc644793fc1543c577311806e45d2853c2f305534149eac1345a6f122353",
+          "secondRgbaSha256": "b12ee9f012f3220edc899225b8bd7550c1b9f06ffca090b04f8f2b91df5fbd59"
+        },
+        {
+          "file": "weapon-stone-axe-paid-startup-40ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 16595,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "beb105c3b3f569bf62bdd50878e3863d213c5a9fd501058c8627aeed512e96ab",
+          "secondRgbaSha256": "55c186c52f87e4bac4bf38fe90728d457c4284628db323ebdbf85d369346c419"
+        },
+        {
+          "file": "weapon-stone-axe-paid-tail-600ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 68,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "e39b9387318f0998ae17b987290199f1d8031c152f6ce689a2aa8f25845c3cda",
+          "secondRgbaSha256": "76aedaf0cc940ca68e4897501392e5e5503653c6640482bbec595993071b288b"
+        },
+        {
+          "file": "weapon-stone-axe-paid-travel-180ms-1120.png",
+          "equal": false,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 68,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "547c1e465f7a5f95ff9975fb56fa571933e1e43711fbd74acf5a610fe78e57d5",
+          "secondRgbaSha256": "14f844712fc19d80c1f625df7e5df8ae037a7b440d8ef451850fd2c9dfd8e711"
+        },
+        {
+          "file": "weapon-stone-axe-paid-travel-180ms-1920.png",
+          "equal": false,
+          "size": [
+            1920,
+            1080
+          ],
+          "changedPixels": 68,
+          "maxChannelDelta": 103,
+          "firstRgbaSha256": "1e8f74a014b52ad138b5a8ee99d09c67f81ed3fdeb61ca67fb99e8e7af9afaef",
+          "secondRgbaSha256": "bc6bb11edf294c2852e6128c443ea634e0639eb7a11cdb7534978a87c6297404"
+        },
+        {
+          "file": "weapon-stone-axe-reset-no-replay-1120.png",
+          "equal": true,
+          "size": [
+            1120,
+            740
+          ],
+          "changedPixels": 0,
+          "maxChannelDelta": 0,
+          "firstRgbaSha256": "95af021281ea0ea95981a918270381eaf59cea0a1f86baeed1ded75d06725d33",
+          "secondRgbaSha256": "95af021281ea0ea95981a918270381eaf59cea0a1f86baeed1ded75d06725d33"
+        }
+      ],
+      "nativeJson": [
+        {
+          "file": "audio-beat-events.json",
+          "equal": true
+        },
+        {
+          "file": "native-fast-chain-events.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/ArrowBarrage.before.checkpoint.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/ArrowBarrage.before.commands.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/ArrowBarrage.before.origin.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/ArrowBarrage.before.viewer-0.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/ArrowBarrage.before.viewer-1.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/ArrowBarrage.before.viewer-2.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/ArrowBarrage.before.viewer-3.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/ArrowBarrage.branch-witnesses.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Jijiu.before.checkpoint.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Jijiu.before.commands.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Jijiu.before.origin.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Jijiu.before.viewer-0.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Jijiu.before.viewer-1.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Jijiu.before.viewer-2.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Jijiu.before.viewer-3.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Jijiu.branch-witnesses.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Nullification.before.checkpoint.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Nullification.before.commands.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Nullification.before.origin.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Nullification.before.viewer-0.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Nullification.before.viewer-1.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Nullification.before.viewer-2.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Nullification.before.viewer-3.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Nullification.branch-witnesses.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/WushuangDodge.before.checkpoint.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/WushuangDodge.before.commands.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/WushuangDodge.before.origin.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/WushuangDodge.before.viewer-0.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/WushuangDodge.before.viewer-1.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/WushuangDodge.before.viewer-2.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/WushuangDodge.before.viewer-3.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/WushuangDodge.branch-witnesses.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Zhefu.before.checkpoint.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Zhefu.before.commands.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Zhefu.before.origin.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Zhefu.before.viewer-0.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Zhefu.before.viewer-1.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Zhefu.before.viewer-2.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Zhefu.before.viewer-3.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Zhefu.branch-witnesses.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Zhefu.target-confirm.checkpoint.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Zhefu.target-confirm.commands.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Zhefu.target-confirm.origin.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Zhefu.target-confirm.viewer-0.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Zhefu.target-confirm.viewer-1.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Zhefu.target-confirm.viewer-2.json",
+          "equal": true
+        },
+        {
+          "file": "stable-hand-response-setup/Zhefu.target-confirm.viewer-3.json",
+          "equal": true
+        }
+      ],
+      "semanticLogLinesEqual": true
+    }
+  ],
+  "limits": "Two processes per variant, BB then AA, small samples and host load; no statistical, FPS or whole-routine savings claim. Full RGBA including alpha; complete native JSON semantics without field exclusions; logs exclude only timings and sample path."
+}

@@ -1,0 +1,5 @@
+[PASS] Extra card effect and rank guess: death recipient owns permanent skill choice
+[PASS] Extra card effect and rank guess: correct rank stop retains later normal draw adjustment
+[PASS] Extra card effect and rank guess: AI rank replacement uses public prior and gains
+
+3 passed, 0 failed, 0 skipped (3 total).
