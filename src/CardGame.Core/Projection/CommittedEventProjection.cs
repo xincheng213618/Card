@@ -10,11 +10,64 @@ internal static class CommittedEventProjection
 {
     private static RoundGainedUseQualification FreezeRoundQualification(RoundGainedUseQualification value) =>
         value with { MaterialGains = FreezeList(value.MaterialGains) };
+    private static RicePileReceipt FreezeRiceReceipt(RicePileReceipt value) => value with
+    { Selected = FreezeList(value.Selected), CardIds = FreezeList(value.CardIds), From = FreezeList(value.From),
+        Choices = Array.AsReadOnly(value.Choices.Select(PromptChoiceProjection.Freeze).ToArray()) };
 
     // Keep collection-bearing built-in facts here when adding a mechanism.
     // Rules see the original fact first; only the committed projection is copied.
     public static IGameEvent Freeze(IGameEvent payload) => payload switch
     {
+        DamageZoneAcquisitionStartedEvent value => value with { Receipt = value.Receipt with {
+            Cards = FreezeList(value.Receipt.Cards), From = FreezeList(value.Receipt.From),
+            Choices = Array.AsReadOnly(value.Receipt.Choices.Select(PromptChoiceProjection.Freeze).ToArray()) } },
+        DamageZoneAcquisitionPaidEvent value => value with { Receipt = value.Receipt with {
+            Cards = FreezeList(value.Receipt.Cards), From = FreezeList(value.Receipt.From),
+            Choices = Array.AsReadOnly(value.Receipt.Choices.Select(PromptChoiceProjection.Freeze).ToArray()) } },
+        AdjacentRedTargetAddedEvent value => value with { OriginalTargets = FreezeList(value.OriginalTargets),
+            AddedTargets = FreezeList(value.AddedTargets), ResultTargets = FreezeList(value.ResultTargets) },
+        DamageTargetBudgetOfferedEvent value => value with { Receipt = value.Receipt with {
+            OriginalTargets = FreezeList(value.Receipt.OriginalTargets), AddedTargets = FreezeList(value.Receipt.AddedTargets),
+            Choices = Array.AsReadOnly(value.Receipt.Choices.Select(PromptChoiceProjection.Freeze).ToArray()) } },
+        DamageTargetBudgetResolvedEvent value => value with { Receipt = value.Receipt with {
+            OriginalTargets = FreezeList(value.Receipt.OriginalTargets), AddedTargets = FreezeList(value.Receipt.AddedTargets),
+            Choices = Array.AsReadOnly(value.Receipt.Choices.Select(PromptChoiceProjection.Freeze).ToArray()) }, ResultTargets = FreezeList(value.ResultTargets) },
+        ExtraEffectsAndRankGuessOfferedEvent value => value with { Receipt = value.Receipt with {
+            RevealedCardIds = FreezeList(value.Receipt.RevealedCardIds), Choices = Array.AsReadOnly(value.Receipt.Choices.Select(PromptChoiceProjection.Freeze).ToArray()) } },
+        ExtraEffectsAndRankGuessPaidEvent value => value with { Receipt = value.Receipt with {
+            RevealedCardIds = FreezeList(value.Receipt.RevealedCardIds), Choices = Array.AsReadOnly(value.Receipt.Choices.Select(PromptChoiceProjection.Freeze).ToArray()) } },
+        RicePileStartedEvent value => value with { Receipt = FreezeRiceReceipt(value.Receipt) },
+        RicePilePaymentIssuedEvent value => value with { Receipt = FreezeRiceReceipt(value.Receipt) },
+        IncomingDistanceCourtesyOfferedEvent value => value with { Receipt = value.Receipt with
+            { Benefits = FreezeList(value.Receipt.Benefits), Movements = FreezeList(value.Receipt.Movements),
+                Choices = Array.AsReadOnly(value.Receipt.Choices.Select(PromptChoiceProjection.Freeze).ToArray()) } },
+        IncomingDistanceCourtesySelectedEvent value => value with { Receipt = value.Receipt with
+            { Benefits = FreezeList(value.Receipt.Benefits), Movements = FreezeList(value.Receipt.Movements),
+                Choices = Array.AsReadOnly(value.Receipt.Choices.Select(PromptChoiceProjection.Freeze).ToArray()) } },
+        NamedAmbushOfferedEvent value => value with { Receipt = value.Receipt with
+            { Choices = Array.AsReadOnly(value.Receipt.Choices.Select(PromptChoiceProjection.Freeze).ToArray()) } },
+        DamageSourceHandChoiceOfferedEvent value => value with { Receipt = value.Receipt with
+            { SelectedCards = FreezeList(value.Receipt.SelectedCards), Choices = Array.AsReadOnly(value.Receipt.Choices.Select(PromptChoiceProjection.Freeze).ToArray()) } },
+        DamageSourceHandChoicePaidEvent value => value with { Receipt = value.Receipt with
+            { SelectedCards = FreezeList(value.Receipt.SelectedCards), Choices = Array.AsReadOnly(value.Receipt.Choices.Select(PromptChoiceProjection.Freeze).ToArray()) } },
+        EndRefillNextTurnOfferedEvent value => value with { Receipt = value.Receipt with
+            { Targets = FreezeList(value.Receipt.Targets), Choices = Array.AsReadOnly(value.Receipt.Choices.Select(PromptChoiceProjection.Freeze).ToArray()) } },
+        EndRefillNextTurnIssuedEvent value => value with { Receipt = value.Receipt with
+            { Targets = FreezeList(value.Receipt.Targets), Choices = Array.AsReadOnly(value.Receipt.Choices.Select(PromptChoiceProjection.Freeze).ToArray()) } },
+        SoleTargetProtectionPaidEvent value => value with { Receipt = value.Receipt with
+            { OriginalTargets = FreezeList(value.Receipt.OriginalTargets), Materials = FreezeList(value.Receipt.Materials) } },
+        SoleTargetReplacedEvent value => value with { BeforeTargets = FreezeList(value.BeforeTargets), AfterTargets = FreezeList(value.AfterTargets) },
+        SoleTargetAfterProtectionRedirectedEvent value => value with { BeforeTargets = FreezeList(value.BeforeTargets), AfterTargets = FreezeList(value.AfterTargets) },
+        CurrentEnhancementSlashRedirectedEvent value => value with { BeforeTargets = FreezeList(value.BeforeTargets), AfterTargets = FreezeList(value.AfterTargets) },
+        SoleTargetQuarantineIssuedEvent value => value with { Receipt = value.Receipt with
+            { TargetSeats = FreezeList(value.Receipt.TargetSeats), Materials = FreezeList(value.Receipt.Materials) } },
+        SoleTargetQuarantineSettledEvent value => value with { CardIds = FreezeList(value.CardIds) },
+        TargetedOrdinaryTrickOfferedEvent value => value with
+        { Receipt = value.Receipt with { OriginalTargets = FreezeList(value.Receipt.OriginalTargets),
+            Choices = Array.AsReadOnly(value.Receipt.Choices.Select(PromptChoiceProjection.Freeze).ToArray()) } },
+        TargetedOrdinaryTrickResolvedEvent value => value with
+        { BeforeTargets = FreezeList(value.BeforeTargets), AddedTargets = FreezeList(value.AddedTargets), ResultTargets = FreezeList(value.ResultTargets) },
+        FriendPredictionRevealedEvent value => value with { Predictions = FreezeList(value.Predictions) },
         OverflowUseTargetsCanceledEvent value => value with
         {
             Receipt = value.Receipt with
@@ -40,7 +93,7 @@ internal static class CommittedEventProjection
         { Qualification = FreezeRoundQualification(value.Qualification) },
         RoundGainedTrickTargetOfferedEvent value => value with
         { Qualification = FreezeRoundQualification(value.Qualification), OriginalTargetSeats = FreezeList(value.OriginalTargetSeats),
-            Choices = FreezeList(value.Choices.Select(DesignatedExtraTargetDraft.FreezeChoice).ToArray()) },
+            Choices = Array.AsReadOnly(value.Choices.Select(PromptChoiceProjection.Freeze).ToArray()) },
         RoundGainedTrickTargetResolvedEvent value => value with
         { Qualification = FreezeRoundQualification(value.Qualification), OriginalTargetSeats = FreezeList(value.OriginalTargetSeats),
             AddedTargetSeats = FreezeList(value.AddedTargetSeats), RemovedTargetSeats = FreezeList(value.RemovedTargetSeats),
@@ -216,6 +269,8 @@ internal static class CommittedEventProjection
         ProgramResponseEntityClaimedEvent value => value with
         { CardIds = FreezeList(value.CardIds) },
         CardDamageModifierGrantedEvent value => value with
+        { Modifier = value.Modifier with { CardKinds = FreezeList(value.Modifier.CardKinds) } },
+        CardRecoveryModifierGrantedEvent value => value with
         { Modifier = value.Modifier with { CardKinds = FreezeList(value.Modifier.CardKinds) } },
         CardActionProhibitionGrantedEvent value => value with
         {

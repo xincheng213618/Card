@@ -2,8 +2,8 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private bool TracksShownEntityTurnPolicies=>_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.IssueShownEntityTurnPolicy);
-    private bool CanOfferShownEntityTurnPolicy(ProgramTriggerCandidate candidate,ProgramSkillWindowContext context)=>
-        !GetProgramTrigger(candidate).Effects.Any(e=>e.Op==SkillProgramEffectOp.IssueShownEntityTurnPolicy) ||
+    private bool CanOfferShownEntityTurnPolicy(ProgramTriggerCandidate candidate,SkillProgramTrigger trigger,ProgramSkillWindowContext context)=>
+        !ProgramInstructionResolver.Default.Features(trigger).HasOperation(SkillProgramEffectOp.IssueShownEntityTurnPolicy) ||
         context.Window==SkillProgramTriggerWindow.PlayPhaseStarting &&candidate.OwnerSeat==_turnProgression.OwnerSeat &&
         candidate.OwnerSeat==_currentSeat &&_phase==TurnPhase.Play &&GetHand(_players[candidate.OwnerSeat]).Count>0;
 

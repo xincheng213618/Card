@@ -116,13 +116,20 @@ public sealed partial class GameEngine
                 SkillProgramDamageModifierExpiration.NextOwnerTurnStart,
                 SkillProgramDamageModifierSourceScope.OwnerUsed);
             GrantProgramTurnRuleModifier(active, SkillRuleQuery.CardUseDistanceLimit,
-                SkillRuleOperation.Unlimited, 0, ZhanyiBasicDamageKinds);
+                SkillRuleOperation.Unlimited, 0, ZhanyiBasicDamageKinds,
+                expiration: paused.Effect.CardUseBenefitPolicy?.Expiration ?? SkillProgramDamageModifierExpiration.CurrentTurnEnd);
+            if (paused.Effect.CardUseBenefitPolicy is { RecoveryBonus: > 0 } policy)
+                GrantProgramCardRecoveryModifier(active, [CardKind.Peach, CardKind.Alcohol], policy.RecoveryBonus, policy.Expiration);
         }
         if (category != SkillProgramCardCategory.Trick)
-            GrantProgramTurnHandLimitCardKindExemption(active, ZhanyiTrickKinds);
+            GrantProgramTurnHandLimitCardKindExemption(active, ZhanyiTrickKinds,
+                paused.Effect.CardUseBenefitPolicy?.Expiration ?? SkillProgramDamageModifierExpiration.CurrentTurnEnd);
         SetProgramBooleanState(active, "zhanyi-basic", category != SkillProgramCardCategory.Basic);
         SetProgramBooleanState(active, "zhanyi-trick", category != SkillProgramCardCategory.Trick);
         SetProgramBooleanState(active, "zhanyi-equipment", category != SkillProgramCardCategory.Equipment);
+        if (paused.Effect.CardUseBenefitPolicy?.ExpireBooleanStatesAtOwnerTurnStart == true)
+            ScheduleProgramBooleanStateExpiration(active, ["zhanyi-basic", "zhanyi-trick", "zhanyi-equipment"],
+                SkillProgramDamageModifierExpiration.NextOwnerTurnStart);
         AddLog("SkillEffect",
             $"{owner.Name} 战意：弃置 {discarded.Count} 张【{ZhanyiCategoryName(category)}】，另外两种类别的牌直到下个回合开始获得加成。",
             active.OwnerSeat);
@@ -133,12 +140,18 @@ public sealed partial class GameEngine
             AdvanceRuntimeProgram(active.Id);
     }
 
-    // 战意 equipment punish: the owner's committed equipment use is about to
-    // enter the equipment zone; pick another character's card to discard.
+    // The native movement frame proves equipment entered this owner's zone.
+    // It need not have been used: direct placement and transfers also qualify.
     private SkillProgramStepOutcome ZhanyiProgramEquipmentPunish(ProgramSkillFrame frame, SkillProgramEffect effect)
     {
         var active = GetActiveProgramFrame(frame.Id);
         var owner = _players[active.OwnerSeat];
+        if (active.WindowContext is not { Window: SkillProgramTriggerWindow.CardsGained,
+                MovementBatch: { } batch, MovementIndex: { } index } ||
+            index < 0 || index >= batch.Movements.Count ||
+            batch.Movements[index].To != CardLocation.Equipment(active.OwnerSeat) ||
+            batch.Movements[index].From == batch.Movements[index].To)
+            throw new InvalidOperationException("Zhanyi equipment punishment lost its exact actual equipment entry.");
         if (!owner.IsAlive || _winner != Winner.None ||
             !HasRuntimeSkillInstance(owner, active.SkillId, active.SkillInstanceId) ||
             !GetProgramBooleanState(active, "zhanyi-equipment"))

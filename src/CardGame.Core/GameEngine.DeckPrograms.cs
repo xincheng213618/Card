@@ -83,6 +83,7 @@ public sealed partial class GameEngine
         return SkillProgramStepOutcome.AwaitChild;
     }
 
+    [ProgramContinuation(ProgramContinuationKind.Resume, 1000)]
     private bool TryResumeDeckPrograms(long frameId)
     {
         var frame = GetActiveProgramFrame(frameId);

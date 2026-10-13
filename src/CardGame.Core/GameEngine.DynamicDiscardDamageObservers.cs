@@ -84,19 +84,7 @@ public sealed partial class GameEngine
     }
     private bool TryAdvanceDynamicDiscardDamageSubtree()
     {
-        if(_pendingDecision is not null || DynamicDiscardDamageObserverRoot() is null)return false;
-        var top=_resolutionStack.LastOrDefault();
-        if(top is ProgramSkillFrame {AttackAttempt:not null} attack)
-        {
-            if(attack.AttackReturn is null || CurrentDamageAttempt?.ResolutionId!=attack.Id || ActiveDying is not null ||
-                _resolutionStack.Any(f=>f is DamageFrame d && d.ParentFrameId==attack.Id || f is BeforeDamageProgramWindowFrame b &&
-                    (b.ContinuationAttackResolutionId??b.ParentFrameId)==attack.Id))return false;
-            CompleteDamageAttack(new ProgramAttackHandle(this,attack.Id));AdvanceRulesAndPublishState();return true;
-        }
-        if(top is ProgramSkillFrame or CardsMovedTriggerWindowFrame or HpChangedTriggerWindowFrame or ProgramLifecycleTriggerWindowFrame or
-            ProgramCardTriggerWindowFrame or BeforeDamageProgramWindowFrame or ProgramDeathTriggerWindowFrame or ProgramKillTriggerWindowFrame)
-        {AdvanceRuntimeFrame(top.Id);AdvanceRulesAndPublishState();return true;}
-        if(top is DeathFrame death){ContinueDeathResolution(death.Id);AdvanceRulesAndPublishState();return true;}
-        return false;
+        if (_pendingDecision is not null || DynamicDiscardDamageObserverRoot() is null) return false;
+        return TryAdvanceObserverSubtree(advanceRecoveryReplacement: false);
     }
 }

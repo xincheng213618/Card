@@ -4,8 +4,11 @@ internal enum OwnedCardMoveIntent { Discard, Obtain, Transfer, Replacement, Clea
 
 public sealed partial class GameEngine
 {
-    private readonly bool _hasForeignDiscardCapability;
-    private bool HasForeignDiscardCapability => _hasForeignDiscardCapability || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.RestrictDamageSourceHandCategory);
+    private bool HasForeignDiscardCapability =>
+        _contentRegistry.ProgramDependencies.HasCardPolicy(SkillProgramCardPolicyKind.PreventForeignEquipmentDiscard) ||
+        _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.SelectEquipmentPairAndPayment) ||
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.SelectDyingOwnedCard) ||
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.RestrictDamageSourceHandCategory);
     // Intent and actor come from the actual operation, never the movement reason
     // or the current turn. This is a pure, opt-in pre-movement eligibility query.
     private bool IsForeignEquipmentDiscardPrevented(int actorSeat, Card card, CardLocation from,

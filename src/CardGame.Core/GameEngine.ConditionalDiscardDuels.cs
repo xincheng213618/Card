@@ -113,12 +113,14 @@ public sealed partial class GameEngine
         ReplaceRuntimeTop(f = GetActiveProgramFrame(f.Id) with { PendingMovementContinuation = null });
         AdvanceRuntimeProgram(f.Id);
     }
+    [ProgramContinuation(ProgramContinuationKind.Movement, 370)]
     private bool ReturnConditionalDuelMovement(ProgramSkillFrame f)
     {
         if (f.ConditionalDiscardDuel is not { Stage: ConditionalDiscardDuelStage.OwnerChildren or ConditionalDiscardDuelStage.TargetChildren }) return false;
         if (f.PendingMovementContinuation is null || !ValidConditionalDuelPayments(f)) throw new InvalidOperationException("Conditional Duel movement lost its real cost.");
         ContinueConditionalDuelPaymentChildren(f); return true;
     }
+    [ProgramContinuation(ProgramContinuationKind.Resume, 670)]
     private bool ResumeConditionalDiscardDuel(long id)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame f || f.Id != id || f.ConditionalDiscardDuel is not { } d) return false;

@@ -48,12 +48,7 @@ internal sealed class ObtainDeferredPileDescriptor : ProgramOperationDescriptorB
     public override SkillProgramEffectOp Op => SkillProgramEffectOp.ObtainDeferredPile;
     public override ISkillProgramEffectHandler Handler { get; } = new ObtainDeferredPileHandler();
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GainCards, static (_, _) => { });
-    public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
-    {
-        r.AllowOnly("op", "target", "condition");
-        var effect = new SkillProgramEffect(Op, FilterBoundCardsProgramOperationDescriptor.Owner(r), 0, r.Condition());
-        RequireAlways(effect, r.Path); return effect;
-    }
+    public override SkillProgramEffect Parse(ProgramOperationNodeReader r) => ParseOwnerAlways(r);
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
         [new RequireTriggerWindow(SkillProgramTriggerWindow.TurnStartBeforeNormalFlow)];
 }
@@ -63,12 +58,7 @@ internal sealed class RewardDeferredProvidersDescriptor : ProgramOperationDescri
     public override SkillProgramEffectOp Op => SkillProgramEffectOp.RewardDeferredProviders;
     public override ISkillProgramEffectHandler Handler { get; } = new RewardDeferredProvidersHandler();
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GainCards, static (_, _) => { });
-    public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
-    {
-        r.AllowOnly("op", "target", "condition");
-        var effect = new SkillProgramEffect(Op, FilterBoundCardsProgramOperationDescriptor.Owner(r), 0, r.Condition());
-        RequireAlways(effect, r.Path); return effect;
-    }
+    public override SkillProgramEffect Parse(ProgramOperationNodeReader r) => ParseOwnerAlways(r);
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
         [new RequireTriggerWindow(SkillProgramTriggerWindow.TurnStartBeforeNormalFlow)];
 }

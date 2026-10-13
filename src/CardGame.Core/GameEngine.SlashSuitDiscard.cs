@@ -73,6 +73,7 @@ public sealed partial class GameEngine
         return true;
     }
 
+    [ProgramContinuation(ProgramContinuationKind.Resume, 850)]
     private bool ResumeProgramSlashSuitDiscard(long frameId)
     {
         var frame = GetActiveProgramFrame(frameId);

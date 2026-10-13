@@ -97,10 +97,7 @@ public sealed partial class GameEngine
     { if (f.Items[f.ItemIndex].FixedDistanceDebt is { } g) ConsumeFixedDistanceDebt(g, false); }
     private IReadOnlyList<PromptChoice> FixedDistanceDebtChoices(ProgramSkillFrame f) => Array.AsReadOnly(
         BuildOwnedCardPaymentChoices(f.Id, f.OwnerSeat, f.OwnerSeat, [CardZoneKind.Hand, CardZoneKind.Equipment], OwnedCardMoveIntent.Discard)
-            .Select(c => FreezeDirectedDistanceChoice(c with { Parameters = new Dictionary<string,string>(c.Parameters) { ["program-action"] = "fixed-distance-ending-debt" } })).ToArray());
-    private static PromptChoice FreezeDirectedDistanceChoice(PromptChoice c) => c with
-    { Cards = Array.AsReadOnly(c.Cards.ToArray()), Targets = Array.AsReadOnly(c.Targets.ToArray()),
-      Parameters = new System.Collections.ObjectModel.ReadOnlyDictionary<string,string>(new Dictionary<string,string>(c.Parameters)) };
+            .Select(c => PromptChoiceProjection.Freeze(c with { Parameters = new Dictionary<string,string>(c.Parameters) { ["program-action"] = "fixed-distance-ending-debt" } })).ToArray());
     private SkillProgramStepOutcome SettleFixedDistanceOneEndingDebt(ProgramSkillFrame supplied)
     {
         var f = GetActiveProgramFrame(supplied.Id);
@@ -150,6 +147,7 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new FixedDistanceOneDebtPaidEvent(f.Id, r.Grant, id, from, r.SequenceBefore, r.SequenceAfter));
         if (!DrainFixedDistanceDebtChildren(f)) ReturnFixedDistanceOneDebtMovement(f);
     }
+    [ProgramContinuation(ProgramContinuationKind.Resume, 310)]
     private bool ResumeFixedDistanceOneDebt(long id)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame { FixedDistanceDebtPayment: not null } f || f.Id != id) return false;
@@ -159,6 +157,7 @@ public sealed partial class GameEngine
         { ClearPendingDecision(); ReplaceRuntimeTop(f with { FixedDistanceDebtPayment = null }); AdvanceRuntimeProgram(f.Id); return true; }
         if (_pendingDecision is null) PublishFixedDistanceDebt(f); return true;
     }
+    [ProgramContinuation(ProgramContinuationKind.Movement, 300)]
     private bool ReturnFixedDistanceOneDebtMovement(ProgramSkillFrame f)
     {
         if (f.FixedDistanceDebtPayment is null) return false;

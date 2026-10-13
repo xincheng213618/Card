@@ -114,6 +114,7 @@ public sealed partial class GameEngine
             TryBeginHpChangedProgramWindow(f.Id, continuation) || TryBeginCardsMovedProgramWindow(f.Id);
     }
 
+    [ProgramContinuation(ProgramContinuationKind.Resume, 500)]
     private bool ResumeSuitPreventionBenefit(long id)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame f || f.Id != id || f.SuitPreventionBenefit is not { } r) return false;
@@ -188,6 +189,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("Suit benefit damage returned to a different original owner.");
         AdvanceEventRulesAndQueueFact(new ProgramSuitPreventionDamageCompletedEvent(f.Id, r.OriginalAttackFrameId, r.RecipientSeat!.Value, applied));
     }
+    [ProgramContinuation(ProgramContinuationKind.Movement, 480)]
     private bool ReturnSuitPlacementMovement(ProgramSkillFrame f)
     {
         if (f.SuitPreventionBenefit is null && f.MatchedJudgmentPlacement is null) return false;

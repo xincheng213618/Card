@@ -11,6 +11,7 @@ public sealed partial class SimpleAiBrain
     private readonly Dictionary<int, double> _nationalEnemySuspicion = [];
     private readonly DeterministicRandom _random;
     private readonly int _policyVersion;
+    private readonly bool _includeJudgmentMaterials;
     private readonly HashSet<int> _recastCardsThisTurn = [];
     private int _recastTurn = -1;
     private readonly Dictionary<(string SkillId, string ActivationId), int> _programUsesThisTurn = [];
@@ -20,11 +21,19 @@ public sealed partial class SimpleAiBrain
         int seat,
         int seed,
         int policyVersion = 1)
+        : this(seat, seed, policyVersion, includeJudgmentMaterials: false)
     {
-        if (policyVersion is not (1 or 2 or 3))
+    }
+
+    public SimpleAiBrain(int seat, int seed, int policyVersion, bool includeJudgmentMaterials)
+    {
+        if (!AiDecisionPolicy.IsSupported(policyVersion))
             throw new ArgumentOutOfRangeException(nameof(policyVersion));
         Seat = seat;
         _policyVersion = policyVersion;
+        // Standalone advice can inspect current regional conversions. Engine AI
+        // keeps its recorded policy behavior unless this is explicitly enabled.
+        _includeJudgmentMaterials = includeJudgmentMaterials;
         _random = new DeterministicRandom(seed == 0 ? seat + 1 : seed);
     }
 
@@ -304,6 +313,9 @@ public sealed partial class SimpleAiBrain
 
         var self = view.Players.Single(player => player.Seat == Seat);
         var selectableCards = GetActiveSkillSelectableCards(self, action);
+        if (action.ProgramAiHint?.ArbitraryOwnedRecastInput == true)
+            return selectableCards.OrderBy(card => CardCatalog.Get(card.Kind).HandKeepValue).ThenBy(card => card.Id)
+                .Take(Math.Min(action.MaxCardCount, Math.Max(1, self.HandCount - self.Hp))).Select(card => card.Id).ToArray();
         if (action.ProgramAiHint?.PreferPindianInputOrder == true)
             return action.SelectableCardIds.Take(action.MinCardCount).ToArray();
         if (action.ProgramAiHint?.MatchingNameOrEquipmentRecastInput == true)
@@ -386,6 +398,15 @@ public sealed partial class SimpleAiBrain
     public IReadOnlyList<int> ChooseActiveSkillTargets(
         GameSnapshot view,
         LegalAction action)
+        => ChooseActiveSkillTargets(view, action,
+            _policyVersion >= AiDecisionPolicy.CorrelatedActiveSkillVersion && action.SelectableCardTargets is not null
+                ? ChooseActiveSkillCards(view, action) : []);
+
+    /// <summary>Selects targets compatible with the actual prepared material IDs.</summary>
+    public IReadOnlyList<int> ChooseActiveSkillTargets(
+        GameSnapshot view,
+        LegalAction action,
+        IReadOnlyList<int> selectedCardIds)
     {
         if (action.Kind is not (LegalActionKind.UseEquipmentEffect or LegalActionKind.UseProgramSkill) ||
             action.MinTargetCount == 0)
@@ -413,6 +434,31 @@ public sealed partial class SimpleAiBrain
         {
             var hint = action.ProgramAiHint ?? throw new InvalidOperationException(
                 "A configured skill action must publish its public AI hint.");
+            if (_policyVersion >= AiDecisionPolicy.CorrelatedActiveSkillVersion)
+            {
+                if (action.SelectableTargetSequences is { } sequences)
+                {
+                    var bySeat = candidates.ToDictionary(player => player.Seat);
+                    return sequences
+                        .Where(sequence => sequence.Count >= action.MinTargetCount && sequence.Count <= action.MaxTargetCount &&
+                            sequence.Distinct().Count() == sequence.Count && sequence.All(bySeat.ContainsKey))
+                        .OrderByDescending(sequence => sequence.Sum(seat => ScoreProgramTarget(view, selfRole, bySeat[seat], hint)))
+                        .ThenBy(sequence => sequence.Sum(seat => bySeat[seat].Hp))
+                        .ThenBy(sequence => string.Join(',', sequence), StringComparer.Ordinal)
+                        .FirstOrDefault()?.ToArray()
+                        ?? throw new InvalidOperationException("The active skill has no complete published target sequence.");
+                }
+                if (action.SelectableCardTargets is { } associations)
+                {
+                    if (selectedCardIds.Count != 1)
+                        throw new InvalidOperationException("The correlated active skill requires one prepared material.");
+                    var compatible = associations.Where(pair => pair.CardId == selectedCardIds[0])
+                        .Select(pair => pair.TargetSeat).ToHashSet();
+                    candidates = candidates.Where(target => compatible.Contains(target.Seat)).ToArray();
+                    if (candidates.Length < action.MinTargetCount)
+                        throw new InvalidOperationException("The prepared active-skill material has no published compatible target.");
+                }
+            }
             return candidates
                 .OrderByDescending(target => ScoreProgramTarget(view, selfRole, target, hint))
                 .ThenBy(target => target.Hp)
@@ -2013,11 +2059,14 @@ public sealed partial class SimpleAiBrain
         if (hint.OwnerHpLoss > 0 && self.Hp - hint.OwnerHpLoss <= 1)
             ownerValue -= 24d;
 
-        var selectedCards = GetActiveSkillSelectableCards(self, action)
-            .OrderBy(card => CardCatalog.Get(card.Kind).HandKeepValue)
-            .ThenBy(card => card.Id)
-            .Take(action.MinCardCount)
-            .ToArray();
+        var correlatedInputs = _policyVersion >= AiDecisionPolicy.CorrelatedActiveSkillVersion &&
+            (action.SelectableCardTargets is not null || action.SelectableTargetSequences is not null);
+        var selectableCards = GetActiveSkillSelectableCards(self, action);
+        var selectedCardIds = correlatedInputs ? ChooseActiveSkillCards(view, action) : null;
+        var selectedCards = selectedCardIds is not null
+            ? selectableCards.Where(card => selectedCardIds.Contains(card.Id)).ToArray()
+            : selectableCards.OrderBy(card => CardCatalog.Get(card.Kind).HandKeepValue)
+                .ThenBy(card => card.Id).Take(action.MinCardCount).ToArray();
         if (selectedCards.Length < action.MinCardCount)
             return (-1000d, "配置技能没有足够的合法自有牌支付公开选牌要求。");
         var cardCost = selectedCards.Sum(card => CardCatalog.Get(card.Kind).HandKeepValue) * .35d;
@@ -2026,7 +2075,11 @@ public sealed partial class SimpleAiBrain
         var targetReason = string.Empty;
         if (action.MinTargetCount > 0)
         {
-            var targets = view.Players
+            var targetSeats = correlatedInputs ? ChooseActiveSkillTargets(view, action, selectedCardIds!) : null;
+            var targetCandidates = targetSeats is not null
+                ? targetSeats.Select(seat => view.Players.Single(player => player.Seat == seat))
+                : view.Players;
+            var targets = targetCandidates
                 .Where(player => player.IsAlive &&
                                  (action.SelectableTargetSeats.Count == 0 || action.SelectableTargetSeats.Contains(player.Seat)))
                 .Select(player => new { Player = player, Score = ScoreProgramTarget(view, selfRole, player, hint) })
@@ -2141,6 +2194,7 @@ public sealed partial class SimpleAiBrain
             .Concat(self.WoodenOxGrain ?? [])
             .Concat(self.Equipment)
             .Concat(self.AuthorityCards ?? [])
+            .Concat(_includeJudgmentMaterials ? self.Judgment : [])
             .Single(candidate => candidate.Id == action.CardId);
         var playedCardKind = action.PlayedCardKind ?? card.Kind;
         var cardProfile = CardCatalog.Get(playedCardKind);
@@ -2461,7 +2515,9 @@ public sealed partial class SimpleAiBrain
         Role selfRole,
         LegalAction action)
     {
-        var card = self.Hand.Concat(self.Equipment).Single(candidate => candidate.Id == action.CardId);
+        var card = self.Hand.Concat(self.Equipment)
+            .Concat(_includeJudgmentMaterials ? self.Judgment : [])
+            .Single(candidate => candidate.Id == action.CardId);
         var effectiveKind = action.PlayedCardKind ?? card.Kind;
         var profile = CardCatalog.Get(effectiveKind);
         var targets = action.TargetSeats

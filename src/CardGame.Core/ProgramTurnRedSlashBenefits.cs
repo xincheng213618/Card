@@ -6,13 +6,7 @@ internal sealed class GrantTurnRedSlashBenefitsDescriptor : ProgramOperationDesc
     public override SkillProgramEffectOp Op => SkillProgramEffectOp.GrantTurnRedSlashBenefits;
     public override ISkillProgramEffectHandler Handler { get; } = new GrantTurnRedSlashBenefitsHandler();
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GrantTurnRuleModifier, static (_, _) => { });
-    public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
-    {
-        r.AllowOnly("op", "target", "condition");
-        var effect = new SkillProgramEffect(Op, FilterBoundCardsProgramOperationDescriptor.Owner(r), 0, r.Condition());
-        RequireAlways(effect, r.Path);
-        return effect;
-    }
+    public override SkillProgramEffect Parse(ProgramOperationNodeReader r) => ParseOwnerAlways(r);
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) => [new RequireTriggerWindow(SkillProgramTriggerWindow.AfterHpLost)];
 }
 public sealed class GrantTurnRedSlashBenefitsHandler : ISkillProgramEffectHandler

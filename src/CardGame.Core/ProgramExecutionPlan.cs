@@ -41,8 +41,6 @@ internal sealed class ProgramExecutionPlan
         ArgumentException.ThrowIfNullOrWhiteSpace(gameplayHash);
         ArgumentException.ThrowIfNullOrWhiteSpace(bindingId);
         ArgumentNullException.ThrowIfNull(instructions);
-        SkillId = skillId;
-        GameplayHash = gameplayHash;
         SourceKind = sourceKind;
         BindingId = bindingId;
         _instructions = Array.AsReadOnly(instructions.ToArray());
@@ -51,8 +49,6 @@ internal sealed class ProgramExecutionPlan
         Features = features ?? new ProgramInstructionFeatures(_instructions);
     }
 
-    internal string SkillId { get; }
-    internal string GameplayHash { get; }
     internal ProgramInstructionSourceKind SourceKind { get; }
     internal string BindingId { get; }
     internal IReadOnlyList<SkillProgramEffect> Instructions => _instructions;
@@ -154,12 +150,11 @@ internal sealed class ProgramInstructionResolver
                 activation: activation, features: Features(activation)), program.Id);
 
         var triggers = new Dictionary<string, ProgramExecutionPlan>(StringComparer.Ordinal);
-        var triggerIds = new HashSet<string>(StringComparer.Ordinal);
         foreach (var trigger in program.Triggers)
         {
-            if (!triggerIds.Add(trigger.Id)) throw Duplicate(program.Id, trigger.Id);
-            Add(triggers, trigger.Id, new(program.Id, program.GameplayHash,
-                ProgramInstructionSourceKind.Trigger, trigger.Id, trigger.Effects,
+            if (trigger.Id is not null && triggers.ContainsKey(trigger.Id)) throw Duplicate(program.Id, trigger.Id);
+            Add(triggers, trigger.Id!, new(program.Id, program.GameplayHash,
+                ProgramInstructionSourceKind.Trigger, trigger.Id!, trigger.Effects,
                 trigger: trigger, features: Features(trigger)), program.Id);
         }
         return new(activations.ToFrozenDictionary(StringComparer.Ordinal),

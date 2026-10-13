@@ -30,6 +30,7 @@ public sealed partial class GameEngine
         return true;
     }
 
+    [ProgramContinuation(ProgramContinuationKind.Resume, 1030)]
     private bool TryContinueFactionRecoveryDebts(long frameId)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame { FactionRecoveryDraft.SettlingDebts: true } frame ||

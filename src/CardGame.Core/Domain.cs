@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace CardGame.Core;
@@ -90,7 +90,8 @@ public enum CardKind
     XingtianAxe,
     RedBloodBlade = 500,
     GeneralWeapon,
-    UnexpectedAssault = 502
+    UnexpectedAssault = 502,
+    Xuanjian = 503
 }
 
 public enum Suit
@@ -137,13 +138,19 @@ public enum PlayerMarkerKind
     Jue = 4050,
     CategoryLei = 4060,
     CategoryFu = 4061,
-    CategorySong = 4062
+    CategorySong = 4062,
+    QihuiBasic = 20100, QihuiTrick = 20101, QihuiEquipment = 20102,
+    LuanZhan = 21200
 }
 
 public static class PlayerMarkerCatalog
 {
     public static string GetDisplayName(PlayerMarkerKind marker) => marker switch
     {
+        PlayerMarkerKind.LuanZhan => "乱战",
+        PlayerMarkerKind.QihuiBasic => "启诲·基本",
+        PlayerMarkerKind.QihuiTrick => "启诲·锦囊",
+        PlayerMarkerKind.QihuiEquipment => "启诲·装备",
         PlayerMarkerKind.Nightmare => "梦魇",
         PlayerMarkerKind.Huang => "黄",
         PlayerMarkerKind.Orange => "橘",
@@ -236,7 +243,8 @@ public enum DecisionKind
     ProgramRepeatJudgment,
     SelectFaction,
     SkillModule,
-    ProgramTrigger
+    ProgramTrigger,
+    OpeningHand
 }
 
 public enum JiangchiMode
@@ -265,7 +273,8 @@ public enum EngineStatus
     Completed,
     AwaitingHumanDiscard,
     AwaitingHumanFactionSelection,
-    Faulted
+    Faulted,
+    AwaitingHumanOpeningHand
 }
 
 public enum Winner
@@ -368,6 +377,9 @@ public sealed record GameOptions
     /// </summary>
     public bool UseInteractiveSetup { get; init; }
 
+    /// <summary>Let the human confirm or reroll their private initial hand before game-start rules and the first turn.</summary>
+    public bool ConfirmOpeningHand { get; init; }
+
     /// <summary>Human players choose their hand-limit discards. Disable for unattended demos.</summary>
     public bool UseInteractiveDiscard { get; init; } = true;
 
@@ -380,7 +392,7 @@ public sealed record GameOptions
 
     /// <summary>
     /// Recorded decision policy. Missing values in older checkpoints retain v1;
-    /// hosts opt new games into v3. Never change a policy already used by a save.
+    /// hosts opt new games into AiDecisionPolicy.CurrentVersion. Never change a policy already used by a save.
     /// </summary>
     public int AiPolicyVersion { get; init; } = 1;
 
@@ -523,6 +535,8 @@ public sealed partial record PlayerSnapshot(
 public sealed partial record PlayerSnapshot
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? AlcoholDamageBonus { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public IReadOnlyDictionary<EquipmentSlot, int>? EquipmentSlotCapacities { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public int PrivateReserveCount { get; init; }
@@ -655,6 +669,9 @@ public sealed partial record PlayerSnapshot
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public int PojunHoldCount { get; init; }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public int RoundHoldCount { get; init; }
+
     /// <summary>
     /// Private/public effective faction metadata. In national war, a viewer may
     /// receive its own hidden faction before it is revealed. In identity mode,
@@ -739,6 +756,9 @@ public sealed partial record PendingDecision
 
 }
 
+/// <summary>A currently legal single-card active-skill cost and recipient.</summary>
+public sealed record ActiveSkillCardTarget(int CardId, int TargetSeat);
+
 public sealed record LegalAction
 {
     public LegalAction(
@@ -783,6 +803,13 @@ public sealed record LegalAction
     /// <summary>Selected activation cards must all share one printed suit.</summary>
     public bool SelectedCardsSameSuit { get; init; }
     public bool SelectedCardsDistinctSuits { get; init; }
+
+    /// <summary>
+    /// At least two selected activation cards must have one printed name (all Slash variants
+    /// share a name), or every selected card must be equipment.
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public bool SelectedCardsSameNameOrAllEquipment { get; init; }
 
     /// <summary>Identifies the equipment whose active conversion creates this action.</summary>
     public CardKind? EquipmentKind { get; init; }
@@ -846,6 +873,20 @@ public sealed record LegalAction
     public IReadOnlyList<int> SelectableTargetSeats { get; init; } = [];
 
     /// <summary>
+    /// Exact single-card/single-target associations for correlated active-skill
+    /// inputs. Null retains independently selectable cards and targets.
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<ActiveSkillCardTarget>? SelectableCardTargets { get; init; }
+
+    /// <summary>
+    /// Complete ordered target selections for correlated active-skill inputs.
+    /// Null retains independently selectable targets.
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<IReadOnlyList<int>>? SelectableTargetSequences { get; init; }
+
+    /// <summary>
     /// The complete ordered target selection. Single-target legacy actions are
     /// projected from TargetSeat; multi-target actions publish their exact
     /// combination here so callers never have to reconstruct legal pairs.
@@ -890,6 +931,9 @@ public sealed record GameSnapshot(
     /// <summary>Cards privately viewed by this snapshot's viewer; absent for every other viewer.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public IReadOnlyList<CardSnapshot>? PrivateRevealedCards { get; init; }
+    /// <summary>Issued forecasts visible to this viewer: private to their owner until deliberately revealed.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<FriendPredictionView>? FriendPredictions { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public IReadOnlyList<ProgramResponseExchangeStateSnapshot>? ProgramResponseExchangeStates { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

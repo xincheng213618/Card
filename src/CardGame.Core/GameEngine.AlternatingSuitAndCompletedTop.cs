@@ -65,6 +65,7 @@ public sealed partial class GameEngine
         if(ids.Length==0)return SkillProgramStepOutcome.Continue;
         f=f with {AlternatingSuitTop=new("completed","order",ids.Length,ids,[],a.ActionId)};ReplaceRuntimeTop(f);PublishAlternatingSuitTop(f);return SkillProgramStepOutcome.AwaitChoice;
     }
+    [ProgramContinuation(ProgramContinuationKind.Resume, 950)]
     private bool ResumeAlternatingSuitTop(long id)
     {
         var f=GetActiveProgramFrame(id);var d=f.AlternatingSuitTop;if(d is null)return false;

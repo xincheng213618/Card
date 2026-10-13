@@ -3,7 +3,7 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private readonly Dictionary<(int Owner, string Skill, string Instance), PublicPersistentPileSource> _publicPersistentPiles = [];
-    private bool SupportsMultiplePublicPiles => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.StoreNonBasicOwnedPublicPile) || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.StoreArbitraryOwnedPublicPile) || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.CollectFinalTargetCardInPublicPile) || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.StoreBoundHandInPublicPile) || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.StoreBoundCardsInPublicPile) || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.CashOutPublicPile);
+    private bool SupportsMultiplePublicPiles => RiceCapability || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.StoreNonBasicOwnedPublicPile) || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.StoreArbitraryOwnedPublicPile) || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.CollectFinalTargetCardInPublicPile) || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.StoreBoundHandInPublicPile) || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.StoreBoundCardsInPublicPile) || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.CashOutPublicPile);
     private static string PublicPileIdentity(string skill, string instance) => $"{skill.Length}:{skill}{instance.Length}:{instance}";
     private IEnumerable<PublicPersistentPileSource> PublicPileSources(int seat) => _publicPersistentPiles.Values.Where(s => s.OwnerSeat == seat);
     private PublicPersistentPileSource? SinglePublicPileSource(int seat)
@@ -108,7 +108,8 @@ public sealed partial class GameEngine
         var sourceSkills = program.Triggers.SelectMany(t => t.Effects).Concat(program.Activations.SelectMany(a => a.Effects))
             .Where(e => e.Op is SkillProgramEffectOp.ExchangePublicPile or SkillProgramEffectOp.DistributePublicPileIfAllSuits or
                 SkillProgramEffectOp.RemovePublicPileAfterAttackDamage or SkillProgramEffectOp.ResolvePreparationPublicPile or
-                SkillProgramEffectOp.ExchangePublicPileHand or SkillProgramEffectOp.ObtainPublicPileCard or SkillProgramEffectOp.PublicPileColorDamage or SkillProgramEffectOp.RewardDiscardedActionColor or SkillProgramEffectOp.ResolveFirstGameDomainCrossing)
+                SkillProgramEffectOp.ExchangePublicPileHand or SkillProgramEffectOp.ObtainPublicPileCard or SkillProgramEffectOp.PublicPileColorDamage or SkillProgramEffectOp.RewardDiscardedActionColor or SkillProgramEffectOp.ResolveFirstGameDomainCrossing or
+                SkillProgramEffectOp.OfferRiceAfterDamagePoint or SkillProgramEffectOp.ReplaceJudgmentFromPublicRice)
             .SelectMany(e => e.SkillIds).Distinct(StringComparer.Ordinal).ToArray();
         if (sourceSkills.Length == 0) sourceSkills = [skill];
         return sourceSkills.SelectMany(id => ReferencedPublicPileSources(seat, id, instance))

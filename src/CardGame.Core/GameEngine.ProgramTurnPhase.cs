@@ -57,6 +57,20 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("Virtual card use requires one current selected Slash target.");
         var source = _players[active.OwnerSeat];
         var target = _players[targetSeat];
+        var phaseControlParticipant = HasPhaseStartCardUseParticipant(source.Seat);
+        if (phaseControlParticipant && IsCardUseForbidden(source.Seat, cardKind, CardActionType.Use))
+            return SkillProgramStepOutcome.Continue;
+        if (active.WindowContext is { Window: SkillProgramTriggerWindow.RoundStarting } round &&
+            (!instruction.UseCardActionWindows || round.Facts?.RoundTurnSeatCount != 1 || _roundTurnSeats.Count != 1 ||
+             _turnProgression.Kind == ActualTurnKind.Extra ||
+             _resolutionStack.Count < 2 || _resolutionStack[^2] is not ProgramLifecycleTriggerWindowFrame parent ||
+             parent.Id != round.ParentFrameId || parent.Window != SkillProgramTriggerWindow.RoundStarting ||
+             parent.Continuation != ProgramLifecycleContinuation.RoundProgramsTurnStart))
+            throw new InvalidOperationException("A round-first virtual Slash lost its actual normal-turn boundary and native continuation.");
+        if (active.WindowContext?.Window == SkillProgramTriggerWindow.RoundStarting &&
+            (IsCardUseForbidden(source.Seat, CardKind.Slash, CardActionType.Use) ||
+             HasTurnCardTargetRestriction(source.Seat, SkillProgramCardTargetRestriction.SelfOnly)))
+            return SkillProgramStepOutcome.Continue;
         if (!source.IsAlive || !target.IsAlive || source.Seat == target.Seat ||
             IsDirectedCardTargetProhibited(source.Seat, targetSeat, cardKind) ||
             IsSlashProhibited(target) ||
@@ -64,7 +78,8 @@ public sealed partial class GameEngine
             return SkillProgramStepOutcome.Continue;
 
         var resolutionId = ++_resolutionSequence;
-        var action = instruction.UseCardActionWindows || HasCommittedSlashFireCapability(source)
+        var nativeWindows = instruction.UseCardActionWindows || HasCommittedSlashFireCapability(source);
+        var action = nativeWindows || HasSoleTargetProtectionParticipant || phaseControlParticipant
             ? CaptureFactionAction(new CardActionContext(++_cardActionSequence, _resolutionStack.OfType<CardUseFrame>().LastOrDefault()?.Action?.ActionId,
                 CardActionType.Use, source.Seat, source.Seat, null, null, null, cardKind, [targetSeat], [],
                 Array.AsReadOnly(new[] { new CardConversionSource(active.SkillId, GetProgramBindingId(active), active.OwnerSeat, active.SkillInstanceId) }),
@@ -76,7 +91,7 @@ public sealed partial class GameEngine
         else RecordPredictionNativeCardUse(resolutionId, source.Seat, cardKind);
         if ((instruction.Op == SkillProgramEffectOp.OfferUnlimitedVirtualSlash ||
              instruction.TargetRestriction == SkillProgramCardTargetRestriction.NormalSlashTarget ||
-             HasCommittedSlashFireCapability(source)) && action is not null)
+             HasCommittedSlashFireCapability(source) || phaseControlParticipant) && action is not null)
         {
             RecordYingboCardUse(resolutionId, source.Seat, cardKind);
             RecordProgramUsedBasicCard(source.Seat, cardKind);
@@ -87,10 +102,10 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new CardUseDeclaredEvent(resolutionId, 0, cardKind, source.Seat));
         AdvanceEventRulesAndQueueFact(new TargetsConfirmedEvent(resolutionId, Array.AsReadOnly(new[] { targetSeat })));
         var attack = new CardAttackHandle(this, resolutionId, source.Seat, targetSeat, card: null,
-            damageAmount: action is not null && source.HasAlcoholEffect ? 2 : 1,
-            playedCardKind: cardKind, ignoresArmor: action is not null && HasCardArmorBypass(source, target, cardKind),
+            damageAmount: nativeWindows ? 1 + source.AlcoholDamageBonus : 1,
+            playedCardKind: cardKind, ignoresArmor: nativeWindows && HasCardArmorBypass(source, target, cardKind),
             programSkillCardUseFrameId: frame.Id);
-        if (action is not null)
+        if (nativeWindows && action is not null)
         {
             CaptureProgramAlcoholConsumption(resolutionId, source);
             source.HasAlcoholEffect = false;

@@ -56,8 +56,7 @@ public sealed partial class GameEngine
         {
             if (ActiveNullificationWindow is not { } pending || window.ParentFrameId != pending.Id ||
                 window.Action.OpponentSeat != pending.SourceSeat) return false;
-            var parent = _resolutionStack.OfType<CardUseFrame>().SingleOrDefault(frame => frame.Id == pending.ParentFrameId);
-            return parent is not null && window.Action.ParentActionId == parent.Action?.ActionId;
+            return HasNullificationEffectOwner(pending) && window.Action.ParentActionId == NullificationParentActionId(pending);
         }
         if (window.CompletedResponseReturn?.Kind != ProgramCompletedResponseKind.Dodge ||
             window.AttackOwnerFrameId is not { } ownerId || window.ParentFrameId != ownerId) return false;
@@ -95,6 +94,7 @@ public sealed partial class GameEngine
     {
         if (kind is not (CardKind.Dodge or CardKind.Nullification) ||
             !(_contentRegistry.ProgramDependencies.CapturesCompletedResponseSuit ||
+              _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.RevealRecordedSuitSlash) ||
               TracksCurrentTurnUseKinds && kind == CardKind.Nullification || TracksActualTurnUseOrdinal && kind == CardKind.Dodge)) return null;
         var suits = cards.Select(card => EffectiveSuit(owner, card)).Distinct().ToArray();
         return suits.Length == 1 ? suits[0] : null;

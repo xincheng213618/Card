@@ -16,12 +16,7 @@ internal sealed class LuochongResolveDescriptor : ProgramOperationDescriptorBase
     public override ProgramOperationInteraction Interaction => ProgramOperationInteraction.Choice;
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GainCards,
         static (effect, context) => context.Draw(new(SkillProgramEffectOp.Draw, SkillProgramEffectTarget.Owner, 2, effect.Condition)));
-    public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
-    {
-        r.AllowOnly("op", "target", "condition");
-        var effect = new SkillProgramEffect(Op, FilterBoundCardsProgramOperationDescriptor.Owner(r), 0, r.Condition());
-        RequireAlways(effect, r.Path); return effect;
-    }
+    public override SkillProgramEffect Parse(ProgramOperationNodeReader r) => ParseOwnerAlways(r);
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
         [new RequireTriggerWindows([SkillProgramTriggerWindow.TurnStartBeforeNormalFlow,
          SkillProgramTriggerWindow.AfterDamageApplied])];
@@ -43,12 +38,7 @@ internal sealed class AichenRemoveOptionDescriptor : ProgramOperationDescriptorB
     public override ProgramOperationInteraction Interaction => ProgramOperationInteraction.Choice;
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.ChooseOption,
         static (_, _) => { });
-    public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
-    {
-        r.AllowOnly("op", "target", "condition");
-        var effect = new SkillProgramEffect(Op, FilterBoundCardsProgramOperationDescriptor.Owner(r), 0, r.Condition());
-        RequireAlways(effect, r.Path); return effect;
-    }
+    public override SkillProgramEffect Parse(ProgramOperationNodeReader r) => ParseOwnerAlways(r);
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
         [new RequireTriggerWindow(SkillProgramTriggerWindow.DyingEntering)];
 }

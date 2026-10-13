@@ -127,7 +127,7 @@ public sealed partial class GameEngine
         var r = f.PairedColorDisposition!;
         return Array.AsReadOnly(BuildOwnedCardPaymentChoices(f.Id, f.OwnerSeat, r.CounterpartSeat,
                 [CardZoneKind.Hand, CardZoneKind.Equipment], r.Obtain ? OwnedCardMoveIntent.Obtain : OwnedCardMoveIntent.Discard)
-            .Select(c => FreezeDirectedDistanceChoice(c with { Parameters = new Dictionary<string, string>(c.Parameters)
+            .Select(c => PromptChoiceProjection.Freeze(c with { Parameters = new Dictionary<string, string>(c.Parameters)
                 { ["program-action"] = "paired-color-disposition" } })).ToArray());
     }
 
@@ -181,6 +181,7 @@ public sealed partial class GameEngine
         TryBeginHpChangedProgramWindow(f.Id, PostEventContinuation.AwaitedProgramMovement) ||
         TryBeginCardsMovedProgramWindow(f.Id) || TryBeginAdvancedSkillsChanged(f.Id);
 
+    [ProgramContinuation(ProgramContinuationKind.Resume, 160)]
     private bool ResumePairedColorDisposition(long frameId)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame { PairedColorDisposition: { } r } f || f.Id != frameId) return false;
@@ -204,6 +205,7 @@ public sealed partial class GameEngine
         ReplaceRuntimeTop(f = f with { PairedColorDisposition = null, PendingMovementContinuation = null });
         FinishProgramSkill(f, paid);
     }
+    [ProgramContinuation(ProgramContinuationKind.Movement, 140)]
     private bool ReturnPairedColorDispositionMovement(ProgramSkillFrame f)
     {
         if (f.PairedColorDisposition is not { Stage: PairedColorDispositionStage.MovementChildren }) return false;
@@ -225,6 +227,5 @@ public sealed partial class GameEngine
     private sealed partial class ProgramSkillHost : IPairedColorResponseHost
     {
         public SkillProgramStepOutcome OfferPairedColorCardDisposition(ProgramSkillFrame frame, string stateId) => engine.OfferPairedColorCardDisposition(frame, stateId);
-        public bool CanContinuePairedColorDisposition(ProgramSkillFrame frame) => engine.CanContinuePairedColorDisposition(frame);
     }
 }

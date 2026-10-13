@@ -93,6 +93,7 @@ public sealed partial class GameEngine
     private bool IsGameHandHpMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
         f.GameTargetHandHp is { Stage: "children" } r && effect?.Op == SkillProgramEffectOp.ResolveGameTargetHandHpChoice && ValidGameHandHpReceipt(f) &&
         pending.SubjectSeat == r.TargetSeat && pending.BeforeCount == 0 && pending.CoverageResultBind is null;
+    [ProgramContinuation(ProgramContinuationKind.Movement, 330)]
     private bool ReturnGameTargetHandHpMovement(ProgramSkillFrame f)
     {
         if (f.GameTargetHandHp is null) return false;
@@ -100,6 +101,7 @@ public sealed partial class GameEngine
         if (TryDrainFireTargetMovement(f)) return true;
         ReplaceRuntimeTop(f with { PendingMovementContinuation = null, GameTargetHandHp = null }); FinishProgramSkill(GetActiveProgramFrame(f.Id), true); return true;
     }
+    [ProgramContinuation(ProgramContinuationKind.Resume, 340)]
     private bool ResumeGameHandHp(long id)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame { GameTargetHandHp: { } r } f || f.Id != id) return false;

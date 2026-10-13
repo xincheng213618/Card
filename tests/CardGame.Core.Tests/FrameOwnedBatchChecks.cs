@@ -4,6 +4,88 @@ using CardGame.Core;
 
 internal static class FrameOwnedBatchChecks
 {
+    public static void StrategicFirstDamageInstructionKeepsCommittedCursorAcrossChildren()
+    {
+        foreach (var afterDamage in new[] { false, true })
+        {
+            var registry = ContentRegistry.Build(new StandardContentPackage(),
+                new StandardActiveSkillExpansionPackage(true), new StandardRescueSkillExpansionPackage(),
+                new StandardClassicGeneralPackage(),
+                new Fixture(false, firstInstruction: true, afterDamagePause: afterDamage));
+            Require(registry.Skills["fixture:batch-damage"].Program!.Activations.Single().Effects[0].Op ==
+                    SkillProgramEffectOp.DamageOtherLiving,
+                "The regression must suspend a real first damage instruction without a preceding cursor increment.");
+            var game = GameEngine.CreateStandard(new GameOptions
+            {
+                Seed = 31, PlayerCount = 4, HumanSeat = 0, HumanRole = Role.Lord,
+                ModeId = "identity:classic-frame-batch-check", UseInteractiveSetup = true,
+                UseInteractiveDiscard = true, AdvanceAfterHumanCommands = false, MaxTurns = 10
+            }, registry);
+            Submit(game, new StartGameCommand());
+            Reach(game, p => p.Kind == DecisionKind.SelectGeneral && p.PlayerSeat == 0);
+            Submit(game, new SelectGeneralCommand(0, "fixture:batch-owner", game.Revision, game.PendingDecision!.PromptId));
+            Reach(game, p => p.Kind == DecisionKind.PlayCard && p.PlayerSeat == 0);
+            game = Cold(game, registry);
+            var initialHp = game.CreateSnapshot(0).Players.Select(player => player.Hp).ToArray();
+            var initialHand = game.CreateSnapshot(0).Players[0].HandCount;
+            var initialRng = Rng(game);
+            Submit(game, new UseProgramSkillCommand(0, "fixture:batch-damage", "all-others", [], [],
+                game.Revision, game.PendingDecision!.PromptId));
+            var parentId = game.Events.Select(envelope => envelope.Payload).OfType<ProgramSkillStartedEvent>()
+                .Single(item => item.SkillId == "fixture:batch-damage").FrameId;
+            var pauses = 0;
+            for (var step = 0; step < 100 && game.ResolutionStack.Count > 0; step++)
+            {
+                if (game.PendingDecision is { } decision)
+                {
+                    var parent = game.ResolutionStack.OfType<ProgramSkillFrame>().Single(frame => frame.Id == parentId);
+                    var child = game.ResolutionStack.OfType<ProgramSkillFrame>()
+                        .Single(frame => frame.SkillId == "fixture:batch-pause");
+                    var target = pauses + 1;
+                    Require(pauses < 3 && parent.InstructionIndex == 1 &&
+                            parent.StrategicDamageBatch is { InstructionIndex: 1 } batch &&
+                            batch.RemainingTargetSeats.SequenceEqual(Enumerable.Range(target + 1, 3 - target)) &&
+                            parent.AttackAttempt is { SourceSeat: 0 } attempt && attempt.TargetSeat == target &&
+                            child.WindowContext?.Window == (afterDamage
+                                ? SkillProgramTriggerWindow.AfterDamageApplied : SkillProgramTriggerWindow.BeforeDamageApplied),
+                        "Each genuine before/after-damage child must retain the first committed parent and its ordered remaining targets.");
+                    var applied = game.Events.Select(envelope => envelope.Payload).OfType<DamageAppliedEvent>()
+                        .Where(item => item.SourceSeat == 0).ToArray();
+                    Require(applied.Select(item => item.TargetSeat).SequenceEqual(
+                                Enumerable.Range(1, afterDamage ? target : target - 1)) &&
+                            game.CreateSnapshot(0).Players[target].Hp == initialHp[target] - (afterDamage ? 1 : 0) &&
+                            game.CreateSnapshot(0).Players[0].HandCount == initialHand &&
+                            !game.CardMovements.Any(move => move.Reason.Value == "skill-program.fixture:batch-damage.Draw") &&
+                            Rng(game) == initialRng,
+                        "The paused damage window must expose the exact paid HP prefix without drawing or consuming another random value.");
+                    Private(game);
+                    game = Cold(game, registry);
+                    decision = game.PendingDecision!;
+                    var choice = decision.Choices.Single(item =>
+                        item.Parameters.GetValueOrDefault("program-action") == "choose-option");
+                    Submit(game, new AnswerPromptCommand(decision.PlayerSeat, decision.PromptId, choice.Id, game.Revision));
+                    pauses++;
+                }
+                else Submit(game, new AdvanceOneStepCommand(game.Revision));
+            }
+            var damage = game.Events.Select(envelope => envelope.Payload).OfType<DamageAppliedEvent>()
+                .Where(item => item.SourceSeat == 0).ToArray();
+            var resolved = game.Events.Select(envelope => envelope.Payload).OfType<ProgramSkillResolvedEvent>()
+                .Where(item => item.FrameId == parentId).ToArray();
+            Require(pauses == 3 && game.ResolutionStack.Count == 0 &&
+                    damage.Select(item => item.TargetSeat).SequenceEqual(new[] { 1, 2, 3 }) && damage.All(item => item.Amount == 1) &&
+                    resolved is [{ Completed: true }] &&
+                    Enumerable.Range(1, 3).All(seat => game.CreateSnapshot(0).Players[seat].Hp == initialHp[seat] - 1) &&
+                    game.CreateSnapshot(0).Players[0].Hp == initialHp[0] &&
+                    game.CreateSnapshot(0).Players[0].HandCount == initialHand + 1 &&
+                    game.CardMovements.Count(move => move.Reason.Value == "skill-program.fixture:batch-damage.Draw") == 1 &&
+                    Rng(game) == initialRng,
+                "Cold child returns must hit every frozen target once, retire the parent once and pay its following draw once.");
+            Private(game);
+            _ = Cold(game, registry);
+        }
+    }
+
     public static void StrategicDamageCompletesAndCancelsWithItsFrame()
     {
         foreach (var cancels in new[] { false, true })
@@ -141,6 +223,38 @@ internal static class FrameOwnedBatchChecks
         Payload = JsonSerializer.Serialize(envelope.Payload, envelope.Payload.GetType())
     });
 
+    private static uint Rng(GameEngine game)
+    {
+        var random = typeof(GameEngine).GetField("_random",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(game)!;
+        return (uint)random.GetType().GetProperty("State")!.GetValue(random)!;
+    }
+
+    private static string State(GameEngine game) => JsonSerializer.Serialize(new
+    {
+        game.Revision, RandomState = Rng(game),
+        Views = Enumerable.Range(0, 4).Select(seat => SnapshotJson.Serialize(game.CreateSnapshot(seat))).ToArray(),
+        Frames = JsonSerializer.Serialize(game.ResolutionStack),
+        Events = game.Events.Select(EventBytes).ToArray(), game.CardMovements,
+        Commands = CommandJson.Serialize(game.AcceptedCommands), Zones = game.CreateCardZoneDiagnostics(),
+        Checkpoint = GameCheckpointJson.Serialize(game.CreateCheckpoint())
+    });
+
+    private static GameEngine Cold(GameEngine game, ContentRegistry registry)
+    {
+        var restored = GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint())), registry);
+        Require(State(game) == State(restored),
+            "Cold checkpoint restoration must preserve four safe views, exact frames, event bytes, payments, RNG, commands and content identity.");
+        return restored;
+    }
+
+    private static void Private(GameEngine game)
+    {
+        foreach (var seat in Enumerable.Range(0, 4))
+            Require(game.CreateSnapshot(seat).Players.Where(player => player.Seat != seat).All(player => player.Hand.Count == 0),
+                "Damage child and batch diagnostics must not expose foreign hand entities in any player view.");
+    }
+
     private static void Reach(GameEngine game, Func<PendingDecision, bool> predicate)
     {
         for (var step = 0; step < 30; step++)
@@ -161,7 +275,8 @@ internal static class FrameOwnedBatchChecks
         if (!condition) throw new InvalidOperationException(message);
     }
 
-    private sealed class Fixture(bool cancels, bool conditionChanges = false) : IGameContentPackage
+    private sealed class Fixture(bool cancels, bool conditionChanges = false,
+        bool firstInstruction = false, bool afterDamagePause = false) : IGameContentPackage
     {
         public PackageManifest Manifest { get; } = new("fixture-frame-batches", new(1, 0, 0), []);
         public void Register(IContentRegistryBuilder builder)
@@ -186,6 +301,19 @@ internal static class FrameOwnedBatchChecks
                 effects.Insert(2, System.Text.Json.Nodes.JsonNode.Parse("""{"op":"damageOtherLiving","target":"owner","amount":1}"""));
                 document["skills"]![1]!["triggers"]![0]!["effects"]!.AsArray().Insert(0,
                     System.Text.Json.Nodes.JsonNode.Parse("""{"op":"loseHp","target":"owner","amount":1}"""));
+                rules = document.ToJsonString();
+            }
+            if (firstInstruction || afterDamagePause)
+            {
+                var document = System.Text.Json.Nodes.JsonNode.Parse(rules)!;
+                if (firstInstruction)
+                    document["skills"]![0]!["activations"]![0]!["effects"]!.AsArray().RemoveAt(0);
+                if (afterDamagePause)
+                {
+                    var trigger = document["skills"]![1]!["triggers"]![0]!;
+                    trigger["window"] = "afterDamageApplied";
+                    trigger["damageOccurrence"] = "perDamage";
+                }
                 rules = document.ToJsonString();
             }
             var catalog = SkillProgramCatalog.Load(rules, """{"schemaVersion":3,"skills":{"fixture:batch-damage":{"name":"群体结算","description":"逐人伤害后摸牌"},"fixture:batch-pause":{"name":"伤害暂停","description":"伤害前暂停","optionLabels":{"continue":"继续"}}}}""");

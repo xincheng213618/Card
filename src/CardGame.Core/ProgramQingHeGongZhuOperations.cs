@@ -10,12 +10,7 @@ internal sealed class ChangjiEndingDamageChoiceDescriptor : ProgramOperationDesc
     public override ProgramOperationInteraction Interaction => ProgramOperationInteraction.Choice;
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.ChooseOption,
         static (_, _) => { });
-    public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
-    {
-        r.AllowOnly("op", "target", "condition");
-        var effect = new SkillProgramEffect(Op, FilterBoundCardsProgramOperationDescriptor.Owner(r), 0, r.Condition());
-        RequireAlways(effect, r.Path); return effect;
-    }
+    public override SkillProgramEffect Parse(ProgramOperationNodeReader r) => ParseOwnerAlways(r);
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
         [new RequireTriggerWindow(SkillProgramTriggerWindow.TurnEnding)];
 }
@@ -37,12 +32,7 @@ internal sealed class ZengouNullifyDodgeDescriptor : ProgramOperationDescriptorB
     public override ProgramOperationInteraction Interaction => ProgramOperationInteraction.Choice;
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.NullifyCurrentCardEffect,
         static (_, _) => { });
-    public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
-    {
-        r.AllowOnly("op", "target", "condition");
-        var effect = new SkillProgramEffect(Op, FilterBoundCardsProgramOperationDescriptor.Owner(r), 0, r.Condition());
-        RequireAlways(effect, r.Path); return effect;
-    }
+    public override SkillProgramEffect Parse(ProgramOperationNodeReader r) => ParseOwnerAlways(r);
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
         [new RequireTriggerWindow(SkillProgramTriggerWindow.SlashFullyDodged)];
 }

@@ -86,6 +86,7 @@ public sealed partial class GameEngine
             r.IsEquipment == EquipmentCatalog.IsEquipment(r.PrintedKind) && _cardMovements.Any(m => m.Sequence == r.MovementSequence &&
                 m.CardId == r.CardId && m.CardKind == r.PrintedKind && m.From == r.From && m.To == r.To && m.Reason.Value == r.Reason);
     }
+    [ProgramContinuation(ProgramContinuationKind.Resume, 830)]
     private bool ResumeDamageTargetObtain(long id)
     {
         var f = GetActiveProgramFrame(id);
@@ -145,7 +146,7 @@ public sealed partial class GameEngine
         BeginJizhiOrNullificationWindow(use,card,d.OwnerSeat,[target],LegalActionKind.Duel,playedCardKind:CardKind.Duel);
     }
     private bool IsDamageTargetDuelUse(long id) => LifecycleCardUse(id) is {DamageTargetDuelOrigin:not null,SelectedActorDuelOrigin:null,CardId:0,CardKind:CardKind.Duel,PhysicalCardIds.Count:0};
-    private bool IsIssuedZeroEntityDuel(long id) => IsSelectedActorDuelUse(id) || IsDamageTargetDuelUse(id) || IsDualColorDuelUse(id) || IsConditionalDiscardDuelUse(id);
+    private bool IsIssuedZeroEntityDuel(long id) => IsSelectedActorDuelUse(id) || IsDamageTargetDuelUse(id) || IsDualColorDuelUse(id) || IsConditionalDiscardDuelUse(id) || IsFriendRecastDuelUse(id);
     private IReadOnlyList<int> DamageTargetDuelOuterProcessing(long useId)
     {
         var use=LifecycleCardUse(useId);
@@ -209,10 +210,11 @@ public sealed partial class GameEngine
         var view=CreateSnapshot(decision.PlayerSeat);var hint=new SkillProgramAiHint(0,0,0,0,0,1,false,false);
         return decision.Choices.OrderByDescending(c=>_aiBrains[decision.PlayerSeat].ScoreProgramTarget(view,c.Targets.Single(),hint)).ThenBy(c=>c.Targets.Single()).First();
     }
+    private bool CanContinuePaidDamageTargetObtain(ProgramSkillFrame f)=>f.DamageTargetObtain is {Receipt:not null} && IsValidDamageTargetObtain(f) &&
+        (_players[f.OwnerSeat].IsAlive || f.DamageTargetObtain is {Receipt.IsEquipment:false,Stage:ProgramDamageTargetObtainStage.DrawChildren or ProgramDamageTargetObtainStage.Complete});
+
     private sealed partial class ProgramSkillHost : IDamageTargetObtainProgramHost
     {
         public SkillProgramStepOutcome ObtainDamageTargetCardAndResolveCategory(ProgramSkillFrame f)=>engine.BeginDamageTargetObtain(f);
-        public bool CanContinuePaidDamageTargetObtain(ProgramSkillFrame f)=>f.DamageTargetObtain is {Receipt:not null} && engine.IsValidDamageTargetObtain(f) &&
-            (engine._players[f.OwnerSeat].IsAlive || f.DamageTargetObtain is {Receipt.IsEquipment:false,Stage:ProgramDamageTargetObtainStage.DrawChildren or ProgramDamageTargetObtainStage.Complete});
     }
 }

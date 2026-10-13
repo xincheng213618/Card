@@ -78,6 +78,7 @@ public sealed partial class GameEngine
         return SkillProgramStepOutcome.AwaitChild;
     }
 
+    [ProgramContinuation(ProgramContinuationKind.Resume, 120)]
     private bool ResumeOrderedPrintedSkillLoss(long id)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame f || f.Id != id || f.OrderedPrintedSkillLoss is not { } r) return false;
@@ -106,6 +107,7 @@ public sealed partial class GameEngine
         return true;
     }
 
+    [ProgramContinuation(ProgramContinuationKind.Movement, 100)]
     private bool ReturnOrderedPrintedSkillLossMovement(ProgramSkillFrame f)
     {
         if (f.OrderedPrintedSkillLoss is null) return false;
@@ -156,6 +158,5 @@ public sealed partial class GameEngine
     private sealed partial class ProgramSkillHost : IOrderedPrintedSkillLossProgramHost
     {
         public SkillProgramStepOutcome ExecuteOrderedPrintedSkillLoss(ProgramSkillFrame frame) => engine.ExecuteOrderedPrintedSkillLoss(frame);
-        public bool CanContinueOrderedPrintedSkillLoss(ProgramSkillFrame frame) => engine.CanContinueOrderedPrintedSkillLoss(frame);
     }
 }

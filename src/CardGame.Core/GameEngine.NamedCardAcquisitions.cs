@@ -108,6 +108,7 @@ public sealed partial class GameEngine
         if (f.NamedCardAcquisition is not null && !ValidNamedCardAcquisition(f))
             throw new InvalidOperationException("The named-card acquisition lost its exact issuance or original movement.");
     }
+    [ProgramContinuation(ProgramContinuationKind.Resume, 360)]
     private bool ResumeNamedCardAcquisition(long id)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame { NamedCardAcquisition: { } d } f || f.Id != id) return false;
@@ -127,6 +128,7 @@ public sealed partial class GameEngine
         else AdvanceRuntimeProgram(id);
         return true;
     }
+    [ProgramContinuation(ProgramContinuationKind.Movement, 360)]
     private bool ReturnNamedCardAcquisitionMovement(ProgramSkillFrame f)
     {
         if (f.NamedCardAcquisition is not { Stage: NamedCardAcquisitionStage.MovementChildren }) return false;

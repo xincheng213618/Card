@@ -126,18 +126,28 @@ internal static class Fame2016ConversionChecks
     {
         Accept(game, new UseProgramSkillCommand(0, "classic:jiaozhao", "declare-card", [card], [], game.Revision, Prompt(game)!.PromptId));
         var prompt = Prompt(game)!;
+        var declarationFrame = game.ResolutionStack.OfType<ProgramSkillFrame>().Last();
+        Require(declarationFrame.CardDeclarationDraft is { DeclarerSeat: null } draft &&
+            draft.CardId == card && draft.NearestSeats.SequenceEqual(prompt.Choices.Select(choice => choice.Targets.Single())),
+            "The private two-stage declaration draft must belong to its suspended program frame.");
+        ProgramChoiceDraftChecks.Frozen(declarationFrame.CardDeclarationDraft!.NearestSeats);
         Require(prompt.Choices.All(choice => choice.Targets.Count == 1 && choice.Targets[0] != 0 && game.GetCombatDistance(0, choice.Targets[0]) == 1), "The owner chooses only nearest living other characters.");
         foreach (var seat in Enumerable.Range(0, 4))
             Require(game.CreateSnapshot(seat).PublicRevealedCards.Single().Id == card, "The displayed real hand card is public during declaration.");
         RejectUnknown(game); Replay(game, registry);
         Answer(game, _ => true);
         var declarer = Prompt(game)!.PlayerSeat;
+        Require(game.ResolutionStack.OfType<ProgramSkillFrame>().Single(frame => frame.Id == declarationFrame.Id)
+            .CardDeclarationDraft?.DeclarerSeat == declarer,
+            "Choosing a declarer updates the same owning frame before its second private prompt.");
         Require(declarer != 0 && Prompt(game)!.Choices.Any(choice => choice.Parameters.GetValueOrDefault("choice") == kind.ToString()), "The selected other character declares a permitted real name.");
         foreach (var seat in Enumerable.Range(0, 4).Where(seat => seat != declarer))
             Require(game.CreateSnapshot(seat).PendingDecision is null || game.CreateSnapshot(seat).PendingDecision!.Choices.Count == 0, "Only the declarer sees their pending choices.");
         RejectUnknown(game); Replay(game, registry);
         Answer(game, choice => choice.Parameters.GetValueOrDefault("choice") == kind.ToString());
         Reach(game, prompt => prompt.Kind == DecisionKind.PlayCard);
+        Require(game.ResolutionStack.OfType<ProgramSkillFrame>().All(frame => frame.CardDeclarationDraft is null),
+            "Completing the declaration must retire its temporary frame draft.");
         Replay(game, registry);
     }
 

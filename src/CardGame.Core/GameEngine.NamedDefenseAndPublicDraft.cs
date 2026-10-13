@@ -80,6 +80,7 @@ public sealed partial class GameEngine
         return SkillProgramStepOutcome.AwaitChild;
     }
 
+    [ProgramContinuation(ProgramContinuationKind.Resume, 1020)]
     private bool TryResumeNamedDefenseAndPublicDraft(long frameId)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame frame || frame.Id != frameId || frame.PendingMovementContinuation is not null) return false;

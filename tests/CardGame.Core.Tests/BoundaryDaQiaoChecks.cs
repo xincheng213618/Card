@@ -46,12 +46,12 @@ internal static class BoundaryDaQiaoChecks
         Require(g.CreateSnapshot(0).Players[0].Hand.Count==before+2,"The child draws one then Guose draws one exactly once.");
         Require(g.CardMovements.Count(m=>m.CardId==equip.CardId&&m.From==CardLocation.Equipment(0)&&m.To==CardLocation.Processing)==1,"Equipped Diamond physical cost pays once.");Replay(g,r);
     }
-    public static void NullifiedUseStillDraws()
+    public static void CompletedPlacementDrawsBeforeDelayedNullification()
     {
         var(g,r)=Create("nullification");var a=g.GetHumanLegalActions().Single(a=>a.ProgramSkillId=="boundary:guose");var id=a.SelectableCardIds.First();var before=g.CreateSnapshot(0).Players[0].Hand.Count;
         Accept(g,new UseProgramSkillCommand(0,"boundary:guose","diamond-delayed",[id],[],g.Revision,Prompt(g)!.PromptId));Answer(g,c=>c.Parameters.GetValueOrDefault("branch")=="use"&&c.Targets.SequenceEqual([1]));
-        for(var i=0;i<64&&!(Prompt(g) is {Kind:DecisionKind.Nullification,PlayerSeat:0});i++)Accept(g,new AdvanceOneStepCommand(g.Revision));
-        Require(Prompt(g) is {Kind:DecisionKind.Nullification,PlayerSeat:0},"Real owner response can negate the declared use."); Replay(g,r);
+        Require(Prompt(g)?.SkillPrompt?.SkillId=="fixture:dq-counter" && !g.ResolutionStack.OfType<NullificationWindowFrame>().Any(),
+            "A committed-use child can suspend the exact Guose placement before its effect, without a counterspell window."); Replay(g,r);
         var owning=g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f=>f.DiamondDelayed is not null);
         var checker=typeof(GameEngine).GetMethod("AssertDiamondDelayed",System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic)!;
         foreach(var invalid in new[]{owning with{DiamondDelayed=owning.DiamondDelayed! with{UseFrameId=owning.DiamondDelayed.UseFrameId+1}},owning with{DiamondDelayed=owning.DiamondDelayed! with{Source=CardLocation.Equipment(0)}}})
@@ -61,10 +61,24 @@ internal static class BoundaryDaQiaoChecks
             catch(System.Reflection.TargetInvocationException e) when(e.InnerException is InvalidOperationException){rejected=true;}
             Require(rejected&&State(g)==unchanged,"Wrong child identity or frozen physical cost source is rejected without mutating the true owning frame.");
         }
+        Answer(g,c=>c.Parameters.GetValueOrDefault("option-id")=="continue"); ReachPlay(g);
+        Require(g.CreateSnapshot(0).Players[0].Hand.Count==before && g.CreateSnapshot(0).Players[1].Judgment.Any(c=>c.Id==id) &&
+            !g.Events.Select(e=>e.Payload).OfType<NullificationRequestedEvent>().Any(),
+            "Completed Guose placement earns exactly one refill and enters Judgment before any counterspell."); Replay(g,r);
+        Accept(g,new EndPlayPhaseCommand(0,g.Revision,Prompt(g)!.PromptId));
+        for(var i=0;i<64&&!(Prompt(g) is {Kind:DecisionKind.Nullification,PlayerSeat:0});i++)Accept(g,new AdvanceOneStepCommand(g.Revision));
+        Require(Prompt(g) is {Kind:DecisionKind.Nullification,PlayerSeat:0} && g.State.CurrentSeat==1,
+            "The converted delayed effect offers its real counterspell only in the holder's Judgment turn."); Replay(g,r);
         Answer(g,c=>c.Cards.Count==1);
-        ReachPlay(g);Require(g.Events.Select(e=>e.Payload).OfType<NullificationResolvedEvent>().Any(e=>e.EffectNullified),"Actual Nullification negates the converted delayed effect.");
-        Require(g.CardMovements.Any(m=>m.CardId==id&&m.From==CardLocation.Processing&&m.To==CardLocation.DiscardPile)&&!g.CardMovements.Any(m=>m.CardId==id&&m.To==CardLocation.Judgment(1)),"Negated physical use cleans up Processing rather than placing a delayed card.");
-        Require(g.CreateSnapshot(0).Players[0].Hand.Count==before-1,"Completed negated use still earns exactly one Guose refill.");Replay(g,r);
+        for(var i=0;i<64&&g.ResolutionStack.OfType<NullificationWindowFrame>().Any();i++)
+            if(Prompt(g) is {Kind:DecisionKind.Nullification,PlayerSeat:0}) Answer(g,c=>c.Parameters.GetValueOrDefault("response")=="pass");
+            else Accept(g,new AdvanceOneStepCommand(g.Revision));
+        Require(g.Events.Select(e=>e.Payload).OfType<NullificationResolvedEvent>().Any(e=>e.EffectCardId==id&&e.EffectNullified),
+            "Actual Judgment-stage Nullification cancels the already placed converted effect.");
+        Require(g.CardMovements.Any(m=>m.CardId==id&&m.From==CardLocation.Judgment(1)&&m.To==CardLocation.DiscardPile)&&
+            g.CardMovements.Count(m=>m.CardId==id&&m.To==CardLocation.Judgment(1))==1,
+            "The canceled physical delayed card leaves Judgment once after its completed placement.");
+        Require(g.CreateSnapshot(0).Players[0].Hand.Count==before-1,"Delayed cancellation pays one response without a second Guose refill.");Replay(g,r);
         Require(!JsonSerializer.Serialize(new ProgramSkillFrame(1,0,"old","old","hash",0,[],[])).Contains("DiamondDelayed"),"The new nullable draft is omitted from old frame JSON.");
     }
     public static void ExtraPlayRefreshAndEffectiveSuit()
@@ -224,7 +238,7 @@ internal static class BoundaryDaQiaoChecks
         {
             if(mode=="nullification")
             {
-                var counter=LoadFixture("""{"skills":[{"id":"fixture:dq-counter","revision":1,"viewAs":[{"id":"diamond-counter","sourceZones":["hand"],"inputKinds":["dodge"],"inputSuits":["diamond"],"outputKind":"nullification","forPlay":false,"forResponse":true}]}]}""","""{"skills":{"fixture:dq-counter":{"name":"固定无懈","description":"仅本人固定实体响应"}}}""");
+                var counter=LoadFixture("""{"skills":[{"id":"fixture:dq-counter","revision":1,"viewAs":[{"id":"diamond-counter","sourceZones":["hand"],"inputKinds":["dodge"],"inputSuits":["diamond"],"outputKind":"nullification","forPlay":false,"forResponse":true}],"triggers":[{"id":"committed-placement","window":"cardUseCommitted","ownerRelation":"actor","cardKinds":["indulgence"],"optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"placement-seen","options":[{"id":"continue"}]}]}]}]}""","""{"skills":{"fixture:dq-counter":{"name":"固定无懈","description":"仅本人固定实体响应","optionLabels":{"continue":"继续放置"}}}}""");
                 b.AddSkill(new("fixture:dq-counter","固定无懈","固定实体响应"){Program=counter.Programs["fixture:dq-counter"]});
             }
             if(mode.StartsWith("equipment",StringComparison.Ordinal))

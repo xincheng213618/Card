@@ -186,6 +186,7 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new GainGiftDrawPaidEvent(f.Id, loss.MovementSequence, drawn.Count, before, _movementSequence));
         if (!TryDrainFireTargetMovement(f)) ReturnGainGiftMovement(f);
     }
+    [ProgramContinuation(ProgramContinuationKind.Resume, 300)]
     private bool ResumeGainGift(long id)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame { GainGiftReceipt: not null } f || f.Id != id) return false;
@@ -196,6 +197,7 @@ public sealed partial class GameEngine
         if (_pendingDecision is null) PublishGainGiftChoice(f);
         return true;
     }
+    [ProgramContinuation(ProgramContinuationKind.Movement, 290)]
     private bool ReturnGainGiftMovement(ProgramSkillFrame f)
     {
         if (f.GainGiftReceipt is not { } r) return false;

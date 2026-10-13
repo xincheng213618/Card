@@ -8,16 +8,16 @@ public sealed record DeferredPublicPileObtainedEvent(int OwnerSeat, int Provider
 public sealed partial class GameEngine
 {
     private readonly List<DeferredPublicPileDeposit> _deferredPublicPileDeposits = [];
-    private readonly Dictionary<long, (int Seat, IReadOnlyList<int> Ids)> _participantTopViews = [];
 
     private CardSnapshot[] GetPrivatelyViewedCards(int viewerSeat)
     {
-        var topCards = _participantTopViews.Values
+        var topCards = _resolutionStack.OfType<ProgramSkillFrame>()
+            .Select(frame => frame.ParticipantTopView).OfType<ProgramParticipantTopView>()
             .Where(view => view.Seat == viewerSeat)
-            .SelectMany(view => view.Ids)
+            .SelectMany(view => view.CardIds)
             .Select(id => _cardZones.CardsAt(CardLocation.Processing).Single(card => card.Id == id))
             .Select(ToSnapshot);
-        return topCards.Concat(DelegatedJudgmentPrivateCards(viewerSeat)).Concat(DeferredPrivateOfferViewedCards(viewerSeat)).Concat(InspectedHandPrivateCards(viewerSeat)).Concat(RequestedDeckBasicPrivateCards(viewerSeat)).Concat(GetOfferedPrivatelyViewedCards(viewerSeat)).Concat(GetQuotaPrivatelyViewedCards(viewerSeat)).Concat(GetConvertingGiftPrivatelyViewedCards(viewerSeat)).Concat(GetExactTopPrivatelyViewedCards(viewerSeat)).Concat(GetPopulationTopPrivatelyViewedCards(viewerSeat)).Concat(GetParticipantPrivatelyViewedCards(viewerSeat)).DistinctBy(card => card.Id).ToArray();
+        return topCards.Concat(MouZhitianPrivateCards(viewerSeat)).Concat(DelegatedJudgmentPrivateCards(viewerSeat)).Concat(DeferredPrivateOfferViewedCards(viewerSeat)).Concat(InspectedHandPrivateCards(viewerSeat)).Concat(RequestedDeckBasicPrivateCards(viewerSeat)).Concat(GetOfferedPrivatelyViewedCards(viewerSeat)).Concat(GetQuotaPrivatelyViewedCards(viewerSeat)).Concat(GetConvertingGiftPrivatelyViewedCards(viewerSeat)).Concat(GetExactTopPrivatelyViewedCards(viewerSeat)).Concat(GetPopulationTopPrivatelyViewedCards(viewerSeat)).Concat(GetParticipantPrivatelyViewedCards(viewerSeat)).DistinctBy(card => card.Id).ToArray();
     }
 
     // Checkpoints replay the complete accepted command prefix. The event stream is never
@@ -53,13 +53,14 @@ public sealed partial class GameEngine
 
     private SkillProgramStepOutcome BeginParticipantTopView(ProgramSkillFrame frame, int seat, int amount)
     {
-        if (!_players[seat].IsAlive || seat == frame.OwnerSeat || _participantTopViews.ContainsKey(frame.Id))
+        if (!_players[seat].IsAlive || seat == frame.OwnerSeat || frame.ParticipantTopView is not null)
             throw new InvalidOperationException("A private top-card view requires a living other participant and no active view.");
         var cards = new List<Card>();
         for (var index = 0; index < amount; index++)
             if (DrawOneToProcessing(new CardMoveReason("skill-program.private-top.view")) is { } card) cards.Add(card); else break;
         if (cards.Count == 0) return SkillProgramStepOutcome.Continue;
-        _participantTopViews.Add(frame.Id, (seat, cards.Select(card => card.Id).ToArray()));
+        ReplaceRuntimeTop(frame with
+        { ParticipantTopView = new(seat) { CardIds = cards.Select(card => card.Id).ToArray() } });
         var skill = _contentRegistry.GetSkill(frame.SkillId);
         var choice = new PromptChoice(new ChoiceId($"participant-top.frame-{frame.Id}.confirm"),
             string.Join("、", cards.Select(card => card.DisplayName + "（" + card.RankText + "）")), cards.Select(card => card.Id).ToArray(), [],
@@ -74,22 +75,38 @@ public sealed partial class GameEngine
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("Private top view lost its frame.");
         var effect = ProgramInstructionResolver.Default.Resolve(frame, _contentRegistry.GetSkill(frame.SkillId).Program!).GetPausedInstruction(frame.InstructionIndex).Effect;
-        if (effect.Op != SkillProgramEffectOp.ViewTopCardsAndObtainMatchingCards || !_participantTopViews.TryGetValue(frame.Id, out var view) ||
-            frame.SelectedTargetSeats.Single() != view.Seat || !selected.Cards.SequenceEqual(view.Ids) ||
+        if (effect.Op != SkillProgramEffectOp.ViewTopCardsAndObtainMatchingCards || frame.ParticipantTopView is not { } view ||
+            frame.SelectedTargetSeats.Single() != view.Seat || !selected.Cards.SequenceEqual(view.CardIds) ||
             selected.Parameters.GetValueOrDefault("frame-id") != frame.Id.ToString(System.Globalization.CultureInfo.InvariantCulture) ||
-            view.Ids.Any(id => _cardZones.GetLocation(id) != CardLocation.Processing))
+            view.CardIds.Any(id => _cardZones.GetLocation(id) != CardLocation.Processing))
             throw new InvalidOperationException("Private top-card confirmation does not match the frozen participant view.");
-        var cards = view.Ids.Select(id => _cardZones.CardsAt(CardLocation.Processing).Single(card => card.Id == id)).ToArray();
+        var cards = view.CardIds.Select(id => _cardZones.CardsAt(CardLocation.Processing).Single(card => card.Id == id)).ToArray();
         var gained = cards.Where(card => MatchesProgramCardCategory(card.Kind, effect.CardCategories)).ToArray();
         var remaining = cards.Except(gained).ToArray();
-        ClearPendingDecision(); _participantTopViews.Remove(frame.Id);
-        ReplaceRuntimeTop(frame with { PendingMovementContinuation = new(frame.OwnerSeat, 0, null) });
+        ClearPendingDecision();
+        ReplaceRuntimeTop(frame with { ParticipantTopView = null, PendingMovementContinuation = new(frame.OwnerSeat, 0, null) });
         // Return non-matching cards first, in their original top-first order. Gain
         // observers therefore cannot draw the unreconciled processing remainder.
         MoveCards(remaining, CardLocation.Processing, CardLocation.DrawPile, new("skill-program.private-top.return"));
         _cardZones.PlaceDrawPileCardsAtTop(remaining.Select(card => card.Id).ToArray());
         MoveCards(gained, CardLocation.Processing, CardLocation.Hand(view.Seat), new("skill-program.private-top.obtain"));
         if (!TryBeginCardsMovedProgramWindow()) ReturnRuntimeProgramMovement(frame.Id);
+    }
+
+    private void AssertParticipantTopView(ProgramSkillFrame frame, SkillProgramEffect paused)
+    {
+        if (frame.ParticipantTopView is not { } view) return;
+        if (paused.Op != SkillProgramEffectOp.ViewTopCardsAndObtainMatchingCards ||
+            frame.SelectedTargetSeats is not [var seat] || seat != view.Seat || seat == frame.OwnerSeat ||
+            view.CardIds.Count == 0 || view.CardIds.Distinct().Count() != view.CardIds.Count ||
+            view.CardIds.Any(id => _cardZones.GetLocation(id) != CardLocation.Processing) ||
+            !ReferenceEquals(frame, _resolutionStack.LastOrDefault()) ||
+            _pendingDecision is not { Kind: DecisionKind.ProgramTrigger, IsPrivate: true } prompt ||
+            prompt.PlayerSeat != seat || !prompt.ValidCardIds.SequenceEqual(view.CardIds) ||
+            prompt.Choices is not [var choice] || !choice.Cards.SequenceEqual(view.CardIds) ||
+            choice.Parameters.GetValueOrDefault("program-action") != "participant-top-view" ||
+            choice.Parameters.GetValueOrDefault("frame-id") != frame.Id.ToString(System.Globalization.CultureInfo.InvariantCulture))
+            throw new InvalidOperationException("A private top-card view lost its owning frame, participant, cards or private prompt.");
     }
 
     private SkillProgramStepOutcome DepositDeferredPile(ProgramSkillFrame frame, string bind)

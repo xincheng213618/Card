@@ -21,17 +21,16 @@ public sealed partial class GameEngine
     {
         if (frozenSource is null) return;
         var current = _resolutionStack.OfType<NullificationWindowFrame>().Single(frame => frame.Id == window.Id);
-        var parent = _resolutionStack.OfType<CardUseFrame>().Single(frame => frame.Id == window.ParentFrameId);
         if (action.Type != CardActionType.Response || action.EffectiveKind != CardKind.Nullification ||
             action.ActorSeat != action.ProviderSeat || action.ResponderSeat != action.ActorSeat ||
-            action.RequesterSeat is not null || action.ParentActionId != parent.Action?.ActionId ||
+            action.RequesterSeat is not null || !HasNullificationEffectOwner(current) || action.ParentActionId != NullificationParentActionId(current) ||
             frozenSource.OwnerSeat != action.ActorSeat || string.IsNullOrWhiteSpace(frozenSource.SkillId) ||
             string.IsNullOrWhiteSpace(frozenSource.BindingId) || string.IsNullOrWhiteSpace(frozenSource.SkillInstanceId) ||
             action.PhysicalCards.Count == 0 && !IsIssuedTieredRoundZeroResponse(current, action) || current.ChainDepth <= 0 ||
             current.UnrespondableCounterspell is not null)
             throw new InvalidOperationException("Unrespondable counterspell lost its exact paid response action.");
         var receipt = new UnrespondableCounterspellReceipt(frozenSource, current.Id,
-            parent.Id, action.ActionId, action.ActorSeat, current.ChainDepth);
+            current.ParentFrameId, action.ActionId, action.ActorSeat, current.ChainDepth);
         ReplaceRuntimeFrame(current.Id, current with { UnrespondableCounterspell = receipt });
         AdvanceEventRulesAndQueueFact(new UnrespondableCounterspellIssuedEvent(current.Id,
             action.ActionId, action.ActorSeat, current.ChainDepth, frozenSource));
@@ -49,12 +48,11 @@ public sealed partial class GameEngine
                 fact.Action.ActionId == receipt.ActionId && fact.Action.EffectiveKind == CardKind.Nullification &&
                 fact.Action.ActorSeat == receipt.ResponderSeat && fact.Action.ProviderSeat == receipt.ResponderSeat &&
                 fact.Action.ResponderSeat == receipt.ResponderSeat && fact.Action.RequesterSeat is null &&
-                fact.Action.ParentActionId == _resolutionStack.OfType<CardUseFrame>()
-                    .Single(frame => frame.Id == window.ParentFrameId).Action?.ActionId))
+                fact.Action.ParentActionId == NullificationParentActionId(window)))
             throw new InvalidOperationException("Unrespondable counterspell changed its issued chain node.");
         // Every accepted/committed/completed response child has already returned
         // here. This ends this counterspell node, not the original trick's policy.
-        if (_winner != Winner.None)
+        if (_winner != Winner.None && window.DelayedReturn is null)
         {
             ReplaceRuntimeTop(window with { Step = ResolutionFrameStep.Completed });
             PopResolutionFrame(window.Id, ResolutionFrameKind.NullificationWindow);

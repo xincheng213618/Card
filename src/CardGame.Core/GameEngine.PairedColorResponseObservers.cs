@@ -101,13 +101,9 @@ public sealed partial class GameEngine
         parent is ProgramSkillFrame root && PairedColorDispositionFirstChild(root, child) ||
         parent is ProgramCardTriggerWindowFrame window && child is ProgramSkillFrame { PairedColorDisposition: not null } program &&
             program.WindowContext?.ParentFrameId == window.Id && ValidPairedColorDispositionReceipt(program);
-    private ProgramSkillFrame? PairedColorDispositionObserverRoot()
-    {
-        for (var index = 0; index + 1 < _resolutionStack.Count; index++)
-            if (_resolutionStack[index] is ProgramSkillFrame root && PairedColorDispositionFirstChild(root, _resolutionStack[index + 1]) &&
-                SameNameHandObserverSuffix(index)) return root;
-        return null;
-    }
+    private ProgramSkillFrame? PairedColorDispositionObserverRoot() => FindProgramObserverRoot(
+        static (engine, root, child) => engine.PairedColorDispositionFirstChild(root, child),
+        static (engine, index) => engine.SameNameHandObserverSuffix(index));
     private bool IsPairedColorDispositionDying() => ActiveDying is { } dying && PairedColorDispositionObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
     private bool HasPairedColorDispositionCardObserver(long parentId) => PairedColorDispositionObserverRoot() is { } root &&
@@ -144,18 +140,6 @@ public sealed partial class GameEngine
     private bool TryAdvancePairedColorDispositionSubtree()
     {
         if (_pendingDecision is not null || PairedColorDispositionObserverRoot() is null) return false;
-        var top = _resolutionStack.LastOrDefault();
-        if (top is ProgramSkillFrame { AttackAttempt: not null } attack)
-        {
-            if (CurrentDamageAttempt?.ResolutionId != attack.Id || ActiveDying is not null || attack.AttackReturn is null ||
-                _resolutionStack.Any(f => f is DamageFrame d && d.ParentFrameId == attack.Id || f is BeforeDamageProgramWindowFrame b &&
-                    (b.ContinuationAttackResolutionId ?? b.ParentFrameId) == attack.Id)) return false;
-            CompleteDamageAttack(new ProgramAttackHandle(this, attack.Id)); AdvanceRulesAndPublishState(); return true;
-        }
-        if (top is ProgramSkillFrame or CardsMovedTriggerWindowFrame or HpChangedTriggerWindowFrame or ProgramLifecycleTriggerWindowFrame or
-            ProgramCardTriggerWindowFrame or BeforeDamageProgramWindowFrame or ProgramDeathTriggerWindowFrame or ProgramKillTriggerWindowFrame or RecoveryReplacementFrame)
-        { AdvanceRuntimeFrame(top.Id); AdvanceRulesAndPublishState(); return true; }
-        if (top is DeathFrame death) { ContinueDeathResolution(death.Id); AdvanceRulesAndPublishState(); return true; }
-        return false;
+        return TryAdvanceObserverSubtree(advanceRecoveryReplacement: true);
     }
 }

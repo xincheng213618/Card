@@ -59,7 +59,4 @@ public sealed partial class GameEngine
     private bool CanSelectSelfDiscardBinding(ProgramSkillFrame f, string bind, int selectionActorSeat, Card card, CardLocation location) =>
         !ProgramSelectionWillSelfDiscard(f, bind) || !IsSelfHandCategoryDiscardForbidden(selectionActorSeat,
             card, location, OwnedCardMoveIntent.Discard);
-    private bool CanSelectActivationSelfDiscard(SkillProgramActivation a, Card c, int owner) =>
-        !a.Effects.Any(e => e.Op == SkillProgramEffectOp.DiscardSelected && e.Condition.Kind == SkillProgramConditionKind.Always) ||
-        !IsSelfHandCategoryDiscardForbidden(owner, c, _cardZones.GetLocation(c.Id), OwnedCardMoveIntent.Discard);
 }

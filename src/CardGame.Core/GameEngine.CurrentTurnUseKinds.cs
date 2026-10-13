@@ -42,8 +42,7 @@ public sealed partial class GameEngine
                 response.ActorSeat != response.ProviderSeat || response.ResponderSeat != response.ActorSeat ||
                 response.RequesterSeat is not null) return;
             var window = _resolutionStack.OfType<NullificationWindowFrame>().LastOrDefault();
-            var parent = _resolutionStack.OfType<CardUseFrame>().SingleOrDefault(use => use.Id == window?.ParentFrameId);
-            if (window is null || parent is null || response.ParentActionId != parent.Action?.ActionId ||
+            if (window is null || !HasNullificationEffectOwner(window) || response.ParentActionId != NullificationParentActionId(window) ||
                 response.OpponentSeat != window.SourceSeat || !IsValidPlayerSeat(response.ActorSeat))
                 throw new InvalidOperationException("Actual Nullification use requires its exact live counterspell window and parent use.");
             if (EventsSinceLastBoundary(e => e is TurnStartedEvent or TurnEndedEvent)
@@ -171,16 +170,18 @@ public sealed partial class GameEngine
         var context = frame.WindowContext;
         var window = _resolutionStack.OfType<ProgramLifecycleTriggerWindowFrame>()
             .SingleOrDefault(w => w.Id == context?.ParentFrameId);
+        var ownerFacts = window?.ParticipantFacts?.GetValueOrDefault(frame.OwnerSeat) ?? window?.Facts;
         if (targetSeat != frame.OwnerSeat || context?.Window != SkillProgramTriggerWindow.PlayEnding ||
-            window is null || window.Window != SkillProgramTriggerWindow.PlayEnding || window.OwnerSeat != frame.OwnerSeat ||
+            window is null || window.Window != SkillProgramTriggerWindow.PlayEnding || window.OwnerSeat != _currentSeat ||
+            context.SourceSeat != window.OwnerSeat || context.TargetSeat != window.OwnerSeat ||
             window.CandidateIndex < 0 || window.CandidateIndex >= window.Candidates.Count || window.Candidates[window.CandidateIndex] is not { } candidate ||
             candidate.OwnerSeat != frame.OwnerSeat || candidate.SkillId != frame.SkillId ||
             candidate.SkillInstanceId != frame.SkillInstanceId || candidate.BindingId != frame.TriggerId ||
             candidate.GameplayHash != frame.GameplayHash || context.OwnerSeat != frame.OwnerSeat ||
             candidate.OccurrenceIndex != context.OccurrenceIndex ||
             context.Facts?.CurrentTurnUsedCardCategoryCount is not { } count ||
-            window.Facts.CurrentTurnUsedCardCategoryCount != count || count is < 0 or > 3)
-            throw new InvalidOperationException("Type-count draw requires its exact own Play-ending candidate and frozen public count.");
+            ownerFacts?.CurrentTurnUsedCardCategoryCount != count || count is < 0 or > 3)
+            throw new InvalidOperationException("Type-count draw requires its exact Play-ending candidate and frozen owner count.");
         return count;
     }
 }

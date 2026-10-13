@@ -57,7 +57,7 @@ public sealed partial class GameEngine
             choices.Add(new(new($"round-gained-trick-target.{frame.Id}.remove.{original[index]}"), $"减少目标：{_players[original[index]].Name}", [],
                 original.Skip(index).Take(pairSize).ToArray(), Parameters("remove")));
         choices.Add(new(new($"round-gained-trick-target.{frame.Id}.decline"), "不改变目标", [], [], Parameters("decline")));
-        return Array.AsReadOnly(choices.Select(DesignatedExtraTargetDraft.FreezeChoice).ToArray());
+        return Array.AsReadOnly(choices.Select(PromptChoiceProjection.Freeze).ToArray());
     }
 
     private SkillProgramStepOutcome OfferRoundGainedTrickTarget(ProgramSkillFrame supplied)
@@ -202,6 +202,5 @@ public sealed partial class GameEngine
     {
         public SkillProgramStepOutcome AdjustOneRoundGainedOrdinaryTrickTarget(ProgramSkillFrame frame) => engine.OfferRoundGainedTrickTarget(frame);
         public SkillProgramStepOutcome DrawForRoundGainedEquipmentUse(ProgramSkillFrame frame) => engine.BeginRoundGainedEquipmentDraw(frame);
-        public bool CanContinueIssuedRoundGainedUse(ProgramSkillFrame frame) => engine.CanContinueIssuedRoundGainedUse(frame);
     }
 }

@@ -23,6 +23,7 @@ public sealed partial class GameEngine
         if (outcome != SkillProgramStepOutcome.AwaitChild) AdvanceRuntimeProgram(f.Id);
         return SkillProgramStepOutcome.AwaitChild;
     }
+    [ProgramContinuation(ProgramContinuationKind.Resume, 680)]
     private bool ResumeInspectedHandSlash(long id)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame f || f.Id != id || f.InspectedHandSlash is not { } d) return false;
@@ -102,6 +103,7 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new InspectedHandDiscardPaidEvent(f.Id, d.TargetSeat, before, _movementSequence));
         AdvanceRuntimeProgram(f.Id);
     }
+    [ProgramContinuation(ProgramContinuationKind.Movement, 380)]
     private bool ReturnInspectedHandMovement(ProgramSkillFrame f)
     {
         if (f.InspectedHandSlash is not { Stage: InspectedHandSlashStage.HpChildren or InspectedHandSlashStage.DiscardChildren }) return false;

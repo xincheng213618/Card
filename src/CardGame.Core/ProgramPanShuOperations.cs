@@ -16,12 +16,7 @@ internal sealed class ZhirenReorderTopByLengthDescriptor : ProgramOperationDescr
     public override ProgramOperationInteraction Interaction => ProgramOperationInteraction.Choice;
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.Move,
         static (effect, context) => context.Move(effect));
-    public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
-    {
-        r.AllowOnly("op", "target", "condition");
-        var effect = new SkillProgramEffect(Op, FilterBoundCardsProgramOperationDescriptor.Owner(r), 0, r.Condition());
-        RequireAlways(effect, r.Path); return effect;
-    }
+    public override SkillProgramEffect Parse(ProgramOperationNodeReader r) => ParseOwnerAlways(r);
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
         [new RequireTriggerWindow(SkillProgramTriggerWindow.CardUseTargetsFinalized),
          new RequireContext(ProgramContextCapability.CardAction)];
@@ -43,12 +38,7 @@ internal sealed class ZhirenResolveFieldTiersDescriptor : ProgramOperationDescri
     public override ProgramOperationInteraction Interaction => ProgramOperationInteraction.Choice;
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GainCards,
         static (effect, context) => context.Draw(effect));
-    public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
-    {
-        r.AllowOnly("op", "target", "condition");
-        var effect = new SkillProgramEffect(Op, FilterBoundCardsProgramOperationDescriptor.Owner(r), 0, r.Condition());
-        RequireAlways(effect, r.Path); return effect;
-    }
+    public override SkillProgramEffect Parse(ProgramOperationNodeReader r) => ParseOwnerAlways(r);
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
         [new RequireTriggerWindow(SkillProgramTriggerWindow.CardUseTargetsFinalized),
          new RequireContext(ProgramContextCapability.CardAction)];

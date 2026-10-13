@@ -155,7 +155,12 @@ public sealed record CardUseDeclaredEvent(
     int CardId,
     CardKind CardKind,
     int SourceSeat,
-    bool IgnoresArmor = false) : IGameEvent;
+    bool IgnoresArmor = false) : IGameEvent
+{
+    /// <summary>Printed face of the publicly played physical card; absent for virtual or concealed costs.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public CardSnapshot? PublicCard { get; init; }
+}
 
 public sealed record TargetsConfirmedEvent(
     long ResolutionId,
@@ -503,7 +508,11 @@ public sealed record IronChainResolvedEvent(
     IReadOnlyList<int> TargetSeats) : IGameEvent;
 
 /// <summary>The recast card is public; the newly drawn card identities remain private.</summary>
-public sealed record CardRecastEvent(int ActorSeat, int CardId, CardKind CardKind, int DrawCount) : IGameEvent;
+public sealed record CardRecastEvent(int ActorSeat, int CardId, CardKind CardKind, int DrawCount) : IGameEvent
+{
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public CardSnapshot? PublicCard { get; init; }
+}
 
 /// <summary>Publicly explains one propagated elemental damage step.</summary>
 public sealed record ChainedDamagePropagatedEvent(
@@ -571,7 +580,11 @@ public sealed record CardRespondedEvent(
     int CardId,
     int ResponderSeat,
     int SourceSeat,
-    CardKind? EffectiveCardKind = null) : IGameEvent;
+    CardKind? EffectiveCardKind = null) : IGameEvent
+{
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public CardSnapshot? PublicCard { get; init; }
+}
 
 public sealed record DamageAppliedEvent(
     int SourceSeat,

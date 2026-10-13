@@ -2,15 +2,11 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private bool? _hasBlackTrickTargetPolicy;
-    private bool HasBlackTrickTargetPolicy => _hasBlackTrickTargetPolicy ??=
-        _contentRegistry.Skills.Values.Any(skill => skill.Program?.CardPolicies.Any(policy =>
-            policy.Kind == SkillProgramCardPolicyKind.ProhibitBlackTrickTarget) == true);
+    private bool HasBlackTrickTargetPolicy => _contentRegistry.ProgramDependencies
+        .HasCardPolicy(SkillProgramCardPolicyKind.ProhibitBlackTrickTarget);
 
-    private bool? _hasDyingWindowQualificationPolicy;
-    private bool HasDyingWindowQualificationPolicy => _hasDyingWindowQualificationPolicy ??=
-        _contentRegistry.Skills.Values.Any(skill => skill.Program?.CardPolicies.Any(policy =>
-            policy.Kind == SkillProgramCardPolicyKind.SuppressOthersNonLockedDuringDying) == true);
+    private bool HasDyingWindowQualificationPolicy => _contentRegistry.ProgramDependencies
+        .HasCardPolicy(SkillProgramCardPolicyKind.SuppressOthersNonLockedDuringDying);
     private (long Base, long Frame, int Victim, int Turn, int TurnOwner, long SourceRevision, int SourceHp, bool SourceAlive) _dyingQualificationDependencies;
     private long _dyingQualificationStamp;
 

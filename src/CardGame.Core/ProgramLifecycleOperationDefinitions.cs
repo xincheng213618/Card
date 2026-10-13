@@ -1,4 +1,4 @@
-namespace CardGame.Core;
+﻿namespace CardGame.Core;
 
 internal sealed class DamageProgramOperationDescriptor : ProgramOperationDescriptorBase
 {
@@ -173,7 +173,7 @@ internal sealed class SelectTargetsProgramOperationDescriptor : ProgramOperation
         var kind = r.RequiredEnum<SkillProgramTargetKind>("targetKind");
         var sourceBind = r.Has("sourceBind") ? r.RequiredIdentifier("sourceBind") : null;
         var named = sourceBind is not null;
-        if (kind is not (SkillProgramTargetKind.OtherLiving or SkillProgramTargetKind.OtherLivingWithHand or SkillProgramTargetKind.OtherLivingUnequalHandPair or
+        if (kind is not (SkillProgramTargetKind.OtherLivingWithoutEndingSupport or SkillProgramTargetKind.OtherLiving or SkillProgramTargetKind.OtherLivingWithHand or SkillProgramTargetKind.OtherLivingUnequalHandPair or
             SkillProgramTargetKind.AnyLiving or SkillProgramTargetKind.LivingWhoseAttackRangeIncludesLord or SkillProgramTargetKind.OtherLivingHandAtLeastOwner or
             SkillProgramTargetKind.CurrentCardUseTargets or SkillProgramTargetKind.CurrentArrowBarrageTargets or SkillProgramTargetKind.OtherLivingMale or
             SkillProgramTargetKind.AnyWounded or SkillProgramTargetKind.OtherLivingPair or
@@ -193,7 +193,7 @@ internal sealed class SelectTargetsProgramOperationDescriptor : ProgramOperation
             throw new InvalidOperationException($"Invalid skill program at {r.Path}: unsupported target maximum expression.");
         if (numberExpression == SkillProgramNumberExpression.OwnerLostHpAtLeastOne && (kind != SkillProgramTargetKind.AnyLiving || minimum != 1))
             throw new InvalidOperationException("Lost-HP-at-least-one targets require anyLiving and minimum one.");
-        if ((minimum < 1 && !(minimum == 0 && (named || kind == SkillProgramTargetKind.OtherLivingWithHand))) || maximum < minimum || maximum > (named ? 8 : kind == SkillProgramTargetKind.CurrentCardUseTargets
+        if ((minimum < 1 && !(minimum == 0 && (named || kind is SkillProgramTargetKind.OtherLivingWithHand or SkillProgramTargetKind.OtherLivingWithoutEndingSupport))) || maximum < minimum || maximum > (named ? 8 : kind == SkillProgramTargetKind.CurrentCardUseTargets
             ? 64 : kind is SkillProgramTargetKind.AnyLiving or SkillProgramTargetKind.LivingWhoseAttackRangeIncludesLord or SkillProgramTargetKind.AnyWounded or
                 SkillProgramTargetKind.OtherLivingHandAtLeastOwner ? 8 : 2))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}: target bounds exceed the supported participant count.");
@@ -452,13 +452,7 @@ internal sealed class PreventCurrentDamageProgramOperationDescriptor : ProgramOp
     public override ProgramContextCapability RequiredCapabilities => ProgramContextCapability.Damage;
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.PreventCurrentDamage,
         static (effect, context) => context.PreventCurrentDamage(effect));
-    public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
-    {
-        r.AllowOnly("op", "target", "condition");
-        var effect = new SkillProgramEffect(Op, FilterBoundCardsProgramOperationDescriptor.Owner(r), 0, r.Condition());
-        RequireAlways(effect, r.Path);
-        return effect;
-    }
+    public override SkillProgramEffect Parse(ProgramOperationNodeReader r) => ParseOwnerAlways(r);
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) => [];
 }
 

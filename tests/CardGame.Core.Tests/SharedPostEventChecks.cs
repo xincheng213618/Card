@@ -92,7 +92,8 @@ internal static class SharedPostEventChecks
     {
         var valid = Rules;
         _ = SkillProgramCatalog.Load(valid, Presentation);
-        Reject(valid.Replace("\"destinationZones\":[\"hand\"]", "\"destinationZones\":[\"equipment\"]"), "hand destination");
+        _ = SkillProgramCatalog.Load(valid.Replace("\"destinationZones\":[\"hand\"]", "\"destinationZones\":[\"equipment\"]"), Presentation);
+        Reject(valid.Replace("\"destinationZones\":[\"hand\"]", "\"destinationZones\":[\"judgment\"]"), "hand or equipment destination");
         Reject(valid.Replace("\"window\":\"cardsGained\"", "\"window\":\"turnEnding\""), "only by cardsMoved");
         Reject(valid.Replace("\"hpChangeOccurrence\":\"perPoint\"", "\"hpChangeOccurrence\":\"perCard\""), "hpChangeOccurrence");
         Reject(valid.Replace("\"window\":\"afterHpLost\"", "\"window\":\"turnEnding\""), "afterHpLost");

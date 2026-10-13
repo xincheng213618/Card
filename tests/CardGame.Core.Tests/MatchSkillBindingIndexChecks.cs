@@ -8,12 +8,22 @@ internal static class MatchSkillBindingIndexChecks
     public static void SourcesDeduplicateInstancesAndUniqueProgramBuckets()
     {
         var fixture = Fixture();
+        EmptyAndFailedRebuildsRetainIndependentMetadata(fixture);
         var index = Index(fixture);
         var player = Player(0, Role.Rebel);
         player.SkillGrants.Grant(Grant("source:a", fixture.RichId, "shared"));
         player.SkillGrants.Grant(Grant("source:b", fixture.RichId, "shared"));
         player.SkillGrants.Grant(Grant("source:c", fixture.RichId, "independent"));
         var shard = index.GetShard(player);
+
+        var program = fixture.Definitions[fixture.RichId].Program!;
+        Require(ReferenceEquals(shard.GetProgram(fixture.RichId), program) &&
+                shard.HasProgram(fixture.RichId) && shard.HasProgram(fixture.RichId, program.GameplayHash) &&
+                !shard.HasProgram(fixture.RichId, program.GameplayHash + ".different") &&
+                !shard.HasProgram(fixture.RichId.ToUpperInvariant()) &&
+                shard.GetProgram(fixture.RichId.ToUpperInvariant()) is null &&
+                !shard.HasProgram(fixture.PlainId) && shard.GetProgram(fixture.PlainId) is null,
+            "Program queries must use the current enabled definitions and retain exact ordinal identity and hash checks.");
 
         Require(shard.ProgramInstances.Count == 2 && shard.Programs.Count == 1 &&
                 shard.GetNumericModifiers(SkillRuleQuery.AttackRange).Count == 2 &&
@@ -36,15 +46,24 @@ internal static class MatchSkillBindingIndexChecks
                 shard.GetCardPolicies(SkillProgramCardPolicyKind.IgnoreUseDistanceBeforeDealingDamage).Count == 2,
             "Conversion and policy slots contain only registered instances, including the distance-policy alias.");
         player.SkillGrants.SetEnabled("source:a", false);
-        Require(index.GetShard(player).GetSingleCardConversions(CardKind.Slash).Count == 2,
+        Require(index.GetShard(player).GetSingleCardConversions(CardKind.Slash).Count == 2 &&
+                index.GetShard(player).HasProgram(fixture.RichId, program.GameplayHash),
             "Disabling one duplicate source retains the shared instance's slot.");
         player.SkillGrants.SetEnabled("source:b", false);
         Require(index.GetShard(player).GetSingleCardConversions(CardKind.Slash).Count == 1,
             "Disabling the final shared source removes only that instance's slots.");
         player.SkillGrants.RemoveGrant("source:c");
         Require(index.GetShard(player).GetCardPolicies(SkillProgramCardPolicyKind.IgnoreUseDistance).Count == 0 &&
-                shard.GetSingleCardConversions(CardKind.Slash).Count == 2,
+                !index.GetShard(player).HasProgram(fixture.RichId) &&
+                index.GetShard(player).GetProgram(fixture.RichId) is null &&
+                shard.GetSingleCardConversions(CardKind.Slash).Count == 2 &&
+                ReferenceEquals(shard.GetProgram(fixture.RichId), program),
             "Removing the last source empties the current slots without mutating previously prepared shards.");
+        player.SkillGrants.Grant(Grant("plain", fixture.PlainId, "plain"));
+        var plainShard = index.GetShard(player);
+        Require(plainShard.HasSkill(fixture.PlainId) && !plainShard.HasProgram(fixture.PlainId) &&
+                plainShard.GetProgram(fixture.PlainId) is null,
+            "An enabled non-program skill must not become an executable program.");
         var table = Enumerable.Range(0, 8).Select(seat => Player(seat, Role.Rebel)).ToArray();
         foreach (var participant in table)
         {
@@ -63,6 +82,75 @@ internal static class MatchSkillBindingIndexChecks
         lord.SkillGrants.Grant(Grant("printed", fixture.LordId, "printed", CharacterState.PrimarySkillSource));
         Require(index.GetShard(lord).HasSkill(fixture.LordId), "An updated role input refreshes qualification even with the same grant revision.");
         PreparedTriggerCandidatesRetainOrderAndOwnership();
+    }
+
+    private static void EmptyAndFailedRebuildsRetainIndependentMetadata(FixtureData fixture)
+    {
+        var index = Index(fixture);
+        var first = Player(0, Role.Rebel);
+        var second = Player(1, Role.Lord);
+        var empty = index.GetShard(first);
+        var other = index.GetShard(second);
+        Require(!ReferenceEquals(empty, other) && empty.Stamp.OwnerRole == Role.Rebel &&
+                other.Stamp.OwnerRole == Role.Lord && index.CachedSeatCount == 2 &&
+                index.TotalRebuildCount == 2 && index.GetRebuildCount(9) == 0,
+            "Empty owners retain independent stamps and count only successful cache entries.");
+        Require(empty.ActiveGrants.Count == 0 && empty.Definitions.Count == 0 && empty.Programs.Count == 0 &&
+                empty.ProgramInstances.Count == 0 && empty.ActivationPrograms.Count == 0 &&
+                empty.ContributionPrograms.Count == 0 && empty.ViewAsPrograms.Count == 0 &&
+                empty.CardIdentityPrograms.Count == 0 && empty.PassiveRulePrograms.Count == 0 &&
+                !empty.HasInstance(fixture.RichId, "unknown") && empty.GetProgram(fixture.RichId) is null,
+            "Empty shards expose no bindings, definitions or program capabilities.");
+        Require(empty.GetInstanceTriggers(SkillProgramTriggerWindow.PlayEnding).Count == 0 &&
+                empty.GetUniqueTriggers(SkillProgramTriggerWindow.PlayEnding).Count == 0 &&
+                empty.GetTriggerCandidates(SkillProgramTriggerWindow.PlayEnding, 7).Count == 0 &&
+                empty.GetNumericModifiers(SkillRuleQuery.AttackRange).Count == 0 &&
+                empty.GetCardPolicies(SkillProgramCardPolicyKind.IgnoreUseDistance).Count == 0 &&
+                empty.GetSingleCardConversions(CardKind.Slash).Count == 0,
+            "Empty projections retain their trigger, occurrence, modifier, policy and conversion query boundaries.");
+        try { ((IDictionary<string, ContentSkillDefinition>)empty.Definitions).Add(fixture.PlainId, fixture.Definitions[fixture.PlainId]); throw new InvalidOperationException("Empty definitions accepted mutation."); }
+        catch (NotSupportedException) { }
+        foreach (Action query in new Action[] { () => empty.HasSkill(null!), () => empty.HasProgram(null!), () => empty.GetProgram(null!) })
+        {
+            try { query(); throw new InvalidOperationException("A null skill key was accepted."); }
+            catch (ArgumentNullException error) { Require(error.ParamName == "key", "Empty key validation retains its dictionary argument boundary."); }
+        }
+        second.SkillGrants.Grant(Grant("plain", fixture.PlainId, "plain"));
+        var plain = index.GetShard(second);
+        Require(plain.HasSkill(fixture.PlainId) && plain.HasInstance(fixture.PlainId, "plain") &&
+                plain.Programs.Count == 0 && !plain.HasProgram(fixture.PlainId) &&
+                index.GetRebuildCount(1) == 2 && index.TotalRebuildCount == 3 &&
+                ReferenceEquals(index.GetShard(first), empty) && empty.Definitions.Count == 0 && other.Definitions.Count == 0,
+            "A plain grant rebuilds only its owner and never becomes an empty-shard shortcut or mutates earlier views.");
+
+        var reject = true;
+        var failing = new MatchSkillBindingIndex(id => reject
+            ? throw new InvalidOperationException("fixture-resolve-failure") : fixture.Definitions[id], false);
+        var owner = Player(2, Role.Rebel);
+        var before = failing.GetShard(owner);
+        owner.SkillGrants.Grant(Grant("active", fixture.RichId, "active"));
+        try { failing.GetShard(owner); throw new InvalidOperationException("The rejecting resolver was ignored."); }
+        catch (InvalidOperationException error) when (error.Message == "fixture-resolve-failure") { }
+        Require(failing.CachedSeatCount == 1 && failing.GetRebuildCount(2) == 1 &&
+                failing.TotalRebuildCount == 1 && before.Definitions.Count == 0,
+            "A failed rebuild publishes neither a new shard nor an incremented count.");
+        reject = false;
+        Require(failing.GetShard(owner).HasProgram(fixture.RichId) && failing.GetRebuildCount(2) == 2,
+            "A later successful rebuild increments the same cached seat exactly once.");
+
+        var entered = false;
+        MatchSkillBindingIndex nested = null!;
+        SkillBindingShard? inner = null;
+        nested = new(id =>
+        {
+            if (!entered) { entered = true; inner = nested.GetShard(owner); }
+            return fixture.Definitions[id];
+        }, false);
+        var outer = nested.GetShard(owner);
+        Require(inner is not null && !ReferenceEquals(inner, outer) && nested.CachedSeatCount == 1 &&
+                nested.GetRebuildCount(2) == 2 && nested.TotalRebuildCount == 2 &&
+                ReferenceEquals(nested.GetShard(owner), outer),
+            "A nested successful rebuild remains counted before the outer successful publication.");
     }
 
     private static void PreparedTriggerCandidatesRetainOrderAndOwnership()

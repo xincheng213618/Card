@@ -161,6 +161,7 @@ public sealed partial class GameEngine
         TryBeginCharacterStateProgramWindow(f.Id, CharacterStateContinuation.Program) ||
         TryBeginHpChangedProgramWindow(f.Id, PostEventContinuation.AwaitedProgramMovement) ||
         TryBeginCardsMovedProgramWindow(f.Id) || TryBeginAdvancedSkillsChanged(f.Id);
+    [ProgramContinuation(ProgramContinuationKind.Resume, 60)]
     private bool ResumeMatchingRecast(long id)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame { MatchingRecast: { } r } f || f.Id != id) return false;
@@ -189,6 +190,7 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new MatchingRecastCompletedEvent(f.Id, r.Owner.CostIssued, r.Peer.CostIssued, r.DamageIssued, r.Owner.ActualDrawCount, r.Peer.ActualDrawCount));
         FinishProgramSkill(f, true);
     }
+    [ProgramContinuation(ProgramContinuationKind.Movement, 40)]
     private bool ReturnMatchingRecastMovement(ProgramSkillFrame f)
     {
         if (f.MatchingRecast is not { Stage: MatchingRecastStage.OwnerCostChildren or MatchingRecastStage.OwnerDrawChildren or MatchingRecastStage.PeerCostChildren or MatchingRecastStage.PeerDrawChildren }) return false;
@@ -209,6 +211,5 @@ public sealed partial class GameEngine
     private sealed partial class ProgramSkillHost : IMatchingRecastProgramHost
     {
         public SkillProgramStepOutcome RecastMatchingCardsThenPeerChoice(ProgramSkillFrame f, int peer, string ledger) => engine.BeginMatchingRecast(f, peer, ledger);
-        public bool CanContinueMatchingRecast(ProgramSkillFrame f) => engine.CanContinueMatchingRecast(f);
     }
 }

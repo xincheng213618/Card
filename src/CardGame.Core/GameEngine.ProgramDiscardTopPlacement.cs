@@ -29,7 +29,7 @@ public sealed partial class GameEngine
     internal static bool IsDiscardMovementReason(CardMoveReason reason)
     {
         var value = reason.Value;
-        if (value == PairedColorDiscardReason) return true;
+        if (value is PairedColorDiscardReason or SoleProtectionCostReason) return true;
         if (value is "card.effect.dismantlement" or "card.effect.dismantlement-judgment" or
             "mode.identity.lord-killed-loyalist" or "skill.gongqi.cost" or
             "program.phase-name-prediction.cost") return true;

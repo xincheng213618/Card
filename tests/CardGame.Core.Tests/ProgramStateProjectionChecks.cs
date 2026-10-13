@@ -12,6 +12,7 @@ internal static class ProgramStateProjectionChecks
 
     public static void EmptyAndLivePoliciesMatchOriginalSnapshotJson()
     {
+        DictionarySnapshotsRemainDetachedAndReadOnly();
         // These explicitly assembled grants, ledgers and turn fields audit the
         // projection host boundary; they do not claim accepted-command replay.
         var registry = ContentRegistry.Build(new StandardContentPackage(), new Fixture());
@@ -183,6 +184,34 @@ internal static class ProgramStateProjectionChecks
     }
 
     private static CardUseEffectSource Source(int owner, string skill, string instance) => new(skill, "fixture", owner, instance);
+    private static void DictionarySnapshotsRemainDetachedAndReadOnly()
+    {
+        var freeze = Method("FreezeViewDictionary", BindingFlags.Static | BindingFlags.NonPublic)
+            .MakeGenericMethod(typeof(string), typeof(int))
+            .CreateDelegate<Func<IReadOnlyDictionary<string, int>?, IReadOnlyDictionary<string, int>?>>();
+        var input = new Dictionary<string, int>(StringComparer.Ordinal);
+        var empty = freeze(input)!;
+        Require(freeze(null) is null && empty.Count == 0,
+            "Absent and present-empty dictionary projections must remain distinct.");
+        RejectMutation(empty, () => ((IDictionary<string, int>)empty).Add("key", 1));
+        input.Add("key", 1);
+        var populated = freeze(input)!;
+        input["key"] = 2;
+        Require(empty.Count == 0 && populated["key"] == 1 && freeze(input)!["key"] == 2,
+            "Both empty and populated snapshots must stay detached from later input mutations.");
+        RejectMutation(populated, () => ((IDictionary<string, int>)populated)["key"] = 3);
+        try { empty.ContainsKey(null!); throw new InvalidOperationException("A null dictionary key was accepted."); }
+        catch (ArgumentNullException error) { Require(error.ParamName == "key", "Empty dictionary key validation retains its original argument boundary."); }
+
+        static void RejectMutation(IReadOnlyDictionary<string, int> snapshot, Action mutate)
+        {
+            Require(snapshot is IDictionary<string, int> { IsReadOnly: true }, "A projected dictionary must expose an immutable boundary.");
+            try { mutate(); }
+            catch (NotSupportedException) { return; }
+            throw new InvalidOperationException("A dictionary projection accepted mutation.");
+        }
+    }
+
     private static SkillGrant Grant(CharacterState owner, string skill, string instance)
     {
         var grant = new SkillGrant(instance, skill, instance, "acquired:projection-audit");

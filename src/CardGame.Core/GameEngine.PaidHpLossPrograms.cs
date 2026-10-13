@@ -115,7 +115,6 @@ public sealed partial class GameEngine
     }
     private sealed partial class ProgramSkillHost
     {
-        public bool CanContinuePaidHpLoss(ProgramSkillFrame frame)=>engine.CanContinueIssuedHpLoss(frame);
         public SkillProgramStepOutcome ChooseOwnerHpLoss(ProgramSkillFrame frame,string resultBind)=>engine.BeginHpLossQuantity(frame,resultBind);
         public SkillProgramStepOutcome DrawPaidHpLoss(ProgramSkillFrame frame,string sourceBind)=>engine.DrawProgramPaidHpLoss(frame,sourceBind);
         public void GrantPaidHpLoss(ProgramSkillFrame frame,string sourceBind,bool distance)=>engine.GrantProgramPaidHpLoss(frame,sourceBind,distance);

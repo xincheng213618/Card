@@ -146,7 +146,7 @@ public sealed partial class GameEngine
     {
         var r = f.TurnDefaultStatAllocation!;
         return Array.AsReadOnly(Enumerable.Range(0, 4).Where(slot => (r.UsedSlotMask & (1 << slot)) == 0).Select(slot =>
-            FreezeDirectedDistanceChoice(new PromptChoice(new($"turn-default-stat.{f.Id}.{r.CurrentStat}.{slot}"),
+            PromptChoiceProjection.Freeze(new PromptChoice(new($"turn-default-stat.{f.Id}.{r.CurrentStat}.{slot}"),
                 $"{TurnDefaultStatName(r.CurrentStat)}：{r.Slots[slot]}", [], [], new Dictionary<string, string> {
                     ["program-action"] = "turn-default-stat", ["stat-kind"] = r.CurrentStat.ToString(),
                     ["slot-index"] = slot.ToString(CultureInfo.InvariantCulture), ["value"] = r.Slots[slot].ToString(CultureInfo.InvariantCulture) }))).ToArray());

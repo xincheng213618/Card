@@ -47,6 +47,8 @@ public sealed partial class GameEngine
         RecordCurrentSlashFireRedirect(frame, attack.ResolutionId, previousSeat, targetSeat);
         RecordShortRangeSlashRedirect(frame, attack.ResolutionId, previousSeat, targetSeat);
         RecordDesignatedExtraTargetRedirect(frame, attack.ResolutionId, previousSeat, targetSeat);
+        RecordCurrentEnhancementSlashRedirect(frame, attack.ResolutionId, previousSeat, targetSeat);
+        RecordSoleTargetAfterProtectionRedirect(frame, attack.ResolutionId, previousSeat, targetSeat);
         AddLog("SkillTriggered",
             $"{_players[frame.OwnerSeat].Name} 发动【{_contentRegistry.GetSkill(frame.SkillId).Name}】，将【杀】转移给 {_players[targetSeat].Name}。",
             frame.OwnerSeat, targetSeat);

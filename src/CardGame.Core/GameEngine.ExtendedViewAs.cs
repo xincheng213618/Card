@@ -70,7 +70,9 @@ public sealed partial class GameEngine
             var unrespondableSource = FreezeUnrespondableCounterspellSource(owner, selection.Cards.Select(card => card.Id).ToArray());
             var action = MoveProgramMultiCardResponse(owner, selection, pending.ParentFrameId, pending.SourceSeat);
             FinishProgramMultiCardResponse(selection);
-            pending = ReplaceNullificationWindowFrame(pending with
+            pending = action.PhysicalCards.Count > 0 && action.ActorSeat == action.ProviderSeat &&
+                action.PhysicalCards.All(c => c.From == CardLocation.Hand(owner.Seat)) && HasEnabledMatchingNamedAmbush(owner.Seat, CardKind.Nullification)
+                ? PrepareNamedAmbushCounterspell(pending, owner.Seat, selection.Cards[0].Id) : ReplaceNullificationWindowFrame(pending with
             {
                 EffectNullified = !pending.EffectNullified,
                 ChainDepth = pending.ChainDepth + 1,
@@ -78,7 +80,8 @@ public sealed partial class GameEngine
                 CandidateIndex = 0,
                 Step = ResolutionFrameStep.AwaitingResponse
             });
-            AdvanceEventRulesAndQueueFact(new NullificationRespondedEvent(pending.ParentFrameId, pending.EffectCardId,
+            if (pending.NamedAmbushResponse is not null) BindNamedAmbushCounterspell(pending.Id, action);
+            else AdvanceEventRulesAndQueueFact(new NullificationRespondedEvent(pending.ParentFrameId, pending.EffectCardId,
                 pending.EffectCardKind, owner.Seat, selection.Cards[0].Id, pending.EffectNullified, pending.ChainDepth));
             if (TryBeginPolicyCounterspellPayment(pending, action, unrespondableSource, selection.Cards.Select(card => card.Id).ToArray())) return;
             if (TryBeginCommittedResponseUsePrograms(null, action, ProgramCardContinuation.NullificationResponse)) return;

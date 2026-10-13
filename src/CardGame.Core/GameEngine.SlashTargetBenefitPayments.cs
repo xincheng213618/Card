@@ -24,6 +24,7 @@ public sealed partial class GameEngine
         ResolveSlashTargetBenefit(supplied, false, settlementBinding);
     private SkillProgramStepOutcome SettleDodgeCancelledSlashBenefit(ProgramSkillFrame supplied) =>
         ResolveSlashTargetBenefit(supplied, true, null);
+    [ProgramContinuation(ProgramContinuationKind.Resume, 590)]
     private bool ResumeSlashTargetBenefit(long frameId)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame f || f.Id != frameId ||
@@ -212,6 +213,7 @@ public sealed partial class GameEngine
         ReplaceRuntimeTop(GetActiveProgramFrame(f.Id) with { SlashTargetBenefitDraft = d with { Stage = SlashTargetBenefitDraftStage.Complete }, ReexecuteParticipantInstruction = false });
         return SkillProgramStepOutcome.Continue;
     }
+    [ProgramContinuation(ProgramContinuationKind.MovementTail, 20)]
     private bool ReturnSlashBenefitMovement(ProgramSkillFrame f)
     {
         if (f.SlashTargetBenefitDraft is not { Stage: SlashTargetBenefitDraftStage.PaidChildren }) return false;

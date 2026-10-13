@@ -46,9 +46,10 @@ public sealed partial class GameEngine
             .GroupBy(b => (b.Source.OwnerSeat, b.Source.SkillId, b.TargetSeat)).Select(group => (group.First().Source, 1));
     }
     private bool HasSlashUseDistanceBySuit(CharacterState owner, CardKind kind, Suit? suit) =>
-        suit is { } value && IsSlashCard(kind) && GetSkillBindingShard(owner).Programs.Any(p => p.CardPolicies.Any(policy =>
-            policy.Kind == SkillProgramCardPolicyKind.IgnoreSlashUseDistanceBySuit && policy.InputSuit == value &&
-            policy.CardKinds.Contains(kind) && policy.Condition.Evaluate(CreateSkillContext(owner))));
+        suit is { } value && IsSlashCard(kind) && GetSkillBindingShard(owner)
+            .GetCardPolicies(SkillProgramCardPolicyKind.IgnoreSlashUseDistanceBySuit)
+            .Any(item => item.Policy.InputSuit == value && item.Policy.CardKinds.Contains(kind) &&
+                item.Policy.Condition.Evaluate(CreateSkillContext(owner)));
     private sealed partial class ProgramSkillHost : ICurrentTurnShownCardProgramHost
     {
         public void RevealOwnedBoundCardAppearance(ProgramSkillFrame f, string bind) => engine.RevealOwnedBoundCardAppearance(f, bind);

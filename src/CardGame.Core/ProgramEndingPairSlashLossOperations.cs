@@ -56,12 +56,7 @@ internal sealed class RecastSelectedPhysicalSlashDescriptor : ProgramOperationDe
         c.DiscardSelected(new(SkillProgramEffectOp.DiscardSelected, SkillProgramEffectTarget.Owner, 1, new(SkillProgramConditionKind.Always, 0, [])));
         c.Draw(new(SkillProgramEffectOp.Draw, SkillProgramEffectTarget.Owner, 1, new(SkillProgramConditionKind.Always, 0, [])));
     });
-    public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
-    {
-        r.AllowOnly("op", "target", "condition");
-        var e = new SkillProgramEffect(Op, FilterBoundCardsProgramOperationDescriptor.Owner(r), 0, r.Condition());
-        RequireAlways(e, r.Path); return e;
-    }
+    public override SkillProgramEffect Parse(ProgramOperationNodeReader r) => ParseOwnerAlways(r);
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e) => [new ConsumeSelectedCards(1)];
 }
 public sealed class DrawEndingPairThenBlockRoundIfUnequalHandler : ISkillProgramEffectHandler

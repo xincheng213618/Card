@@ -26,9 +26,10 @@ public sealed partial class GameEngine
     }
     private int[] MatchingActualHandGainIndexes(CardMovementBatchContext batch, int owner, CardLocation location) =>
         batch.Movements.Select((m, i) => (m, i)).GroupBy(x => x.m.CardId)
-            .Where(g => g.Any(x => x.m.To == CardLocation.Hand(owner) && ActualHandGainOriginalSource(x.m, batch) != CardLocation.Hand(owner)) &&
-                g.OrderBy(x => x.m.Sequence).Last().m.To == CardLocation.Hand(owner))
-            .Select(g => g.OrderBy(x => x.m.Sequence).Last()).Where(x => x.m.To == location).Select(x => x.i).Order().ToArray();
+            .Where(g => g.Any(x => x.m.To == CardLocation.Hand(owner) && ActualHandGainOriginalSource(x.m, batch) != CardLocation.Hand(owner)))
+            .Select(g => g.OrderBy(x => x.m.Sequence).Last())
+            .Where(x => x.m.To == CardLocation.Hand(owner) && x.m.To == location)
+            .Select(x => x.i).Order().ToArray();
     private ActualHandGainEntity[] ActualHandGainEntities(CardMovementBatchContext batch, int owner) =>
         MatchingActualHandGainIndexes(batch, owner, CardLocation.Hand(owner)).Select(i =>
         {
@@ -257,6 +258,7 @@ public sealed partial class GameEngine
         }
         if (!TryDrainFireTargetMovement(f)) ReturnActualHandGainMovement(f);
     }
+    [ProgramContinuation(ProgramContinuationKind.Resume, 320)]
     private bool ResumeActualHandGain(long id)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame { ActualHandGain: not null } f || f.Id != id) return false;
@@ -269,6 +271,7 @@ public sealed partial class GameEngine
         if (_pendingDecision is null) PublishActualHandGainChoice(f);
         return true;
     }
+    [ProgramContinuation(ProgramContinuationKind.Movement, 310)]
     private bool ReturnActualHandGainMovement(ProgramSkillFrame f)
     {
         if (f.ActualHandGain is null) return false;

@@ -255,7 +255,7 @@ internal static class AfterTurnEndedChecks
         public void Register(IContentRegistryBuilder b)
         {
             foreach(var c in source.Cards.Values)b.AddCard(c);
-            foreach(var s in source.Skills.Values)b.AddSkill(s.Program is {} p && (p.Triggers.Any(t=>t.Window==SkillProgramTriggerWindow.AfterTurnEnded || t.Effects.Any(e=>e.Op==SkillProgramEffectOp.HoldOwnerHandUntilTurnEnd)) || p.Activations.Any(a=>a.Effects.Any(e=>e.Op==SkillProgramEffectOp.HoldOwnerHandUntilTurnEnd)))?s with{Program=null}:s);
+            foreach(var s in source.Skills.Values)b.AddSkill(s.Program is {} p && (p.Triggers.Any(t=>t.Window==SkillProgramTriggerWindow.AfterTurnEnded || t.Effects.Any(e=>e.Op is SkillProgramEffectOp.HoldOwnerHandUntilTurnEnd or SkillProgramEffectOp.HoldUsedSuitHandAndDraw)) || p.Activations.Any(a=>a.Effects.Any(e=>e.Op==SkillProgramEffectOp.HoldOwnerHandUntilTurnEnd)))?s with{Program=null}:s);
             foreach(var g in source.Generals.Values)b.AddGeneral(g);foreach(var d in source.Decks.Values)b.AddDeck(d);foreach(var m in source.Modes.Values)b.AddMode(m);
         }
     }

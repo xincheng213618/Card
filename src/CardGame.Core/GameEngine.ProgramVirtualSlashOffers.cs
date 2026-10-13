@@ -91,7 +91,7 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new CardUseDeclaredEvent(resolutionId, 0, CardKind.Slash, actorSeat));
         AdvanceEventRulesAndQueueFact(new TargetsConfirmedEvent(resolutionId, [targetSeat]));
         var attack = new CardAttackHandle(this, resolutionId, actorSeat, targetSeat, card: null,
-            damageAmount: source.HasAlcoholEffect ? 2 : 1, playedCardKind: CardKind.Slash,
+            damageAmount: 1 + source.AlcoholDamageBonus, playedCardKind: CardKind.Slash,
             ignoresArmor: HasCardArmorBypass(source, target, CardKind.Slash), programSkillCardUseFrameId: frame.Id);
         CaptureProgramAlcoholConsumption(resolutionId, source);
         source.HasAlcoholEffect = false;

@@ -38,7 +38,8 @@ internal sealed record ProgramAiPublicContext(
     bool PricePhaseHandExtraTurnTarget = false, int? CurrentTurnUsedCardCategoryCount = null, int? PublicLivingFactionCount = null,
     int EquipmentCardCount = 0,
     Func<string, bool?>? PindianOutcome = null,
-    double PairedColorDispositionScore = 0d);
+    double PairedColorDispositionScore = 0d,
+    int? ActualTurnDeathBenefits = null, double TargetedTrickHandHpScore = 0d, double EndRefillNextTurnScore = 0d);
 
 /// <summary>
 /// Pure, public-state estimate for schema-23 program compositions. Unknown cards use a
@@ -247,6 +248,7 @@ internal sealed partial class ProgramAiEstimateContext
             SkillProgramNumberExpression.CurrentHandEmptyTwoOtherwiseOne => _estimatedHandCount == 0 ? 2 : 1,
             SkillProgramNumberExpression.EquipmentHalfCeilingPlusOne => (_publicContext.EquipmentCardCount + 1) / 2 + 1,
             SkillProgramNumberExpression.CurrentTurnUsedCardCategoryCount => _publicContext.CurrentTurnUsedCardCategoryCount ?? 0,
+            SkillProgramNumberExpression.ActualTurnDeathBenefits => _publicContext.ActualTurnDeathBenefits ?? 0,
             SkillProgramNumberExpression.OwnerLostHp => Math.Max(0, _player.MaxHp - _player.Hp),
               SkillProgramNumberExpression.LostHpMinusHandCount => Math.Max(0, _player.MaxHp - Math.Max(0, _player.Hp) - _estimatedHandCount),
             SkillProgramNumberExpression.LivingFactionCount => _publicContext.LivingFactionCount,
@@ -278,6 +280,16 @@ internal sealed partial class ProgramAiEstimateContext
         _targetDraw += 1d;
         // Public estimate only: one paid entity and a bounded two-category reward prior.
         _ownerDraw += 0.5d;
+    }
+
+    internal void PhaseOwnerAlcohol(SkillProgramEffect effect)
+    {
+        if (_publicContext.SelectedTarget?.Seat == _player.Seat) _otherAdjustment += 6d;
+        else if (_publicContext.SelectedTarget is not null)
+        {
+            _targetHpLoss += effect.Amount;
+            _targetAdjustment += 6d; // Public Wine buff prior, without target hand inspection.
+        }
     }
 
     internal void PlaceSelectedEquipment()
@@ -690,6 +702,11 @@ internal sealed partial class ProgramAiEstimateContext
         var matches = comparison == ProgramFinalTargetComparison.TargetHandAtMostActor
             ? facts.EventTargetHandCount <= facts.CurrentHandCount : facts.EventTargetHp >= facts.CurrentHp;
         if (matches) _targetAdjustment -= effect.Op == SkillProgramEffectOp.PreventCurrentTargetSlashCancellation ? 20d : effect.Amount * 20d;
+    }
+    internal void RecordedSuitSlashValue(SkillProgramEffect effect)
+    {
+        Reveal(effect);
+        _targetAdjustment -= 40d;
     }
     internal void SetBooleanState(SkillProgramEffect effect) { }
     internal void ToggleBooleanState(SkillProgramEffect effect) { }

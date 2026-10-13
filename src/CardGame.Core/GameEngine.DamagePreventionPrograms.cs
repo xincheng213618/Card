@@ -1,11 +1,19 @@
-namespace CardGame.Core;
+﻿namespace CardGame.Core;
 
 /// <summary>Generic before-damage program window. It contains no character or skill ids.</summary>
 public sealed partial class GameEngine
 {
-    private bool? _hasRangePreventionPrograms;
-    private bool HasRangePreventionPrograms => _hasRangePreventionPrograms ??= _contentRegistry.Skills.Values.Any(s =>
-        s.Program?.Triggers.Any(t => t.Effects.Any(e => e.Op is SkillProgramEffectOp.PreventOwnPlayOutsideTargetRangeDamage or SkillProgramEffectOp.PreventCurrentDamageAndDrawMultiple or SkillProgramEffectOp.PreventDamageAndConsumeSourceFaction or SkillProgramEffectOp.DiscardOwnedCardToAdjustCurrentDamage)) == true);
+    private bool HasRangePreventionPrograms =>
+        _contentRegistry.ProgramDependencies.UsesTriggerCondition(SkillProgramTriggerConditionKind.DamageNatureIs) ||
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.SpareFirstLethalTarget) ||
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.PreventOwnPlayOutsideTargetRangeDamage) ||
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.PreventCurrentDamageAndDrawMultiple) ||
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.PreventDamageAndConsumeSourceFaction) ||
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DiscardOwnedCardToAdjustCurrentDamage);
+
+    private static bool UsesDamageNatureCondition(SkillProgramTriggerCondition condition) =>
+        condition.Kind == SkillProgramTriggerConditionKind.DamageNatureIs ||
+        condition.Children.Any(UsesDamageNatureCondition);
 
     private bool TryVisitRangePreventionChainTarget(IDamageAttempt attack)
     {
@@ -64,6 +72,8 @@ public sealed partial class GameEngine
                 var facts = CaptureProgramTriggerFacts(owner) with
                 {
                     EventTargetHp = target.Hp,
+                    DamageNature = _contentRegistry.ProgramDependencies.UsesTriggerCondition(SkillProgramTriggerConditionKind.DamageNatureIs)
+                        ? nature : null,
                     EventTargetMarkerCounts = HasAttributedEventOperations() ? new Dictionary<PlayerMarkerKind,int>(target.Markers) : null,
                     OtherDamageSourceAlive = sourceSeat != owner.Seat && CurrentDamageAttempt?.IsSourceLess != true && _players[sourceSeat].IsAlive,
                     BlockedDamageSourceSkills = GetSkillBindingShard(owner).ProgramInstances.Where(instance => IsDamageOfferPairBlocked(owner.Seat, instance.SkillId, sourceSeat)).Select(instance => instance.SkillId).Distinct().ToArray(),
@@ -74,7 +84,7 @@ public sealed partial class GameEngine
                         ? _players[sourceSeat].Gender : null
                 };
                 return CollectProgramTriggerCandidates(owner, SkillProgramTriggerWindow.BeforeDamageApplied)
-                    .Where(candidate => !rangeChainOnly || GetProgramTrigger(candidate).Effects.Any(e => e.Op is SkillProgramEffectOp.PreventOwnPlayOutsideTargetRangeDamage or SkillProgramEffectOp.PreventCurrentDamageAndDrawMultiple or SkillProgramEffectOp.PreventDamageAndConsumeSourceFaction or SkillProgramEffectOp.DiscardOwnedCardToAdjustCurrentDamage))
+                    .Where(candidate => !rangeChainOnly || UsesDamageNatureCondition(GetProgramTrigger(candidate).Condition) || GetProgramTrigger(candidate).Effects.Any(e => e.Op is SkillProgramEffectOp.SpareFirstLethalTarget or SkillProgramEffectOp.PreventOwnPlayOutsideTargetRangeDamage or SkillProgramEffectOp.PreventCurrentDamageAndDrawMultiple or SkillProgramEffectOp.PreventDamageAndConsumeSourceFaction or SkillProgramEffectOp.DiscardOwnedCardToAdjustCurrentDamage))
                     .Where(candidate => GetProgramTrigger(candidate).Subject switch
                     {
                         SkillProgramTriggerSubject.DamageTarget => owner.Seat == targetSeat &&

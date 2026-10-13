@@ -16,6 +16,15 @@ internal static class CompiledSkillMetadataChecks
             var programs = registry.Skills.Values.Select(skill => skill.Program).OfType<SkillProgram>().ToArray();
             var triggers = programs.SelectMany(program => program.Triggers).ToArray();
             var dependencies = registry.ProgramDependencies;
+            Require(dependencies.RequiredProgramRulesVersion == programs.Select(program => program.MinimumRulesVersion).DefaultIfEmpty(0).Max() &&
+                    dependencies.HpSensitiveSkillIds.SetEquals(registry.Skills.Values
+                        .Where(skill => skill.SuppressionRule is not null || skill.Program?.HpSkillGrants.Count > 0).Select(skill => skill.Id)) &&
+                    dependencies.HpConditionalCapabilitySkillIds.SetEquals(registry.Skills.Values
+                        .Where(skill => skill.Program?.HpSkillGrants.Count > 0).Select(skill => skill.Id)),
+                "Compiled rules requirements and the broad/strict HP sets must preserve their exact catalog predicates.");
+            Require(dependencies.UsesLordSkillProjection == programs.Any(program => program.LordSkillProjection) &&
+                    dependencies.UsesGainPhaseQualification == triggers.Any(trigger => trigger.GainPhaseQualification is not null),
+                "Lord projection and gain-phase qualification must retain their independent whole-catalog opt-ins.");
             foreach (var kind in Enum.GetValues<SkillProgramTriggerConditionKind>())
                 Require(dependencies.UsesTriggerCondition(kind) == triggers.Any(trigger => ContainsCondition(trigger.Condition, kind)),
                     $"The complete catalog condition opt-in changed for {kind}.");
@@ -56,6 +65,12 @@ internal static class CompiledSkillMetadataChecks
                 trigger.Window == SkillProgramTriggerWindow.CardUseCompleted && trigger.IncludeResponseUses &&
                 ContainsCondition(trigger.Condition, SkillProgramTriggerConditionKind.CardActionSuitIs)),
                 "An unrelated suit condition must not opt into completed-response suit capture.");
+            Require(dependencies.UsesActualPlayPhaseUseLedger == programs.Any(program =>
+                program.CardPolicies.Any(policy => policy.Kind == SkillProgramCardPolicyKind.FirstActualPlayUseDistanceUnlimited) ||
+                program.Triggers.SelectMany(trigger => trigger.Effects)
+                    .Concat(program.Activations.SelectMany(activation => activation.Effects))
+                    .Any(effect => ProgramOperationCatalog.Default.Resolve(effect.Op) is IActualPlayPhaseUseLedgerOperation)),
+                "Actual Play use recording must retain the whole-catalog policy and descriptor-trait opt-ins.");
             Require(dependencies.TracksPlayCardHistory == programs.Any(program =>
                 program.Triggers.Any(trigger => trigger.Effects.Any(effect => effect.Op is
                     SkillProgramEffectOp.ReplaceAllSlashTargets or SkillProgramEffectOp.GrantRandomSkillAndSuitShield)) ||
@@ -77,6 +92,121 @@ internal static class CompiledSkillMetadataChecks
         var game = GameEngine.CreateStandard(new GameOptions { Seed = 7, HumanSeat = 0 }, custom);
         Require(game.ContentRegistry.ProgramDependencies.HasTriggerWindow(SkillProgramTriggerWindow.TurnEnding),
             "Dependency compilation must not narrow catalog scope to a match's owners.");
+        ActualPlayLedgerIncludesUnownedTriggerActivationAndPolicy();
+        ConditionalCatalogCapabilitiesIncludeUnownedPrograms();
+        HpCatalogFactsAndRulesGateRemainIndependent();
+        EndingMarkerRequiresSyntheticTriggerValue();
+    }
+
+    private static void EndingMarkerRequiresSyntheticTriggerValue()
+    {
+        var marker = BuildUnownedCatalogRegistry("""
+            "triggers":[{"id":"ending","window":"turnEnding","subject":"owner","optional":false,"effects":[{"op":"addEndingTurnDamageMarker","target":"owner","marker":"jue"}]}]
+            """).ProgramDependencies;
+        Require(marker.HasTriggerOperation(SkillProgramEffectOp.AddEndingTurnDamageMarker) &&
+                marker.UsesTriggerValue(SkillProgramTriggerValueKind.TurnOwnerDamageDealtThisTurn) &&
+                !marker.HasActivationOperation(SkillProgramEffectOp.AddEndingTurnDamageMarker),
+            "An unowned mandatory ending marker must capture its damage value even without a condition value node.");
+        Require(!StandardContentRegistry.Create().ProgramDependencies
+                .UsesTriggerValue(SkillProgramTriggerValueKind.TurnOwnerDamageDealtThisTurn),
+            "A separate catalog without a marker must not inherit its synthetic trigger value.");
+    }
+
+    private static void ActualPlayLedgerIncludesUnownedTriggerActivationAndPolicy()
+    {
+        foreach (var members in new[]
+        {
+            """
+            "cardPolicies":[{"id":"distance","kind":"firstActualPlayUseDistanceUnlimited"}]
+            """,
+            """
+            "activations":[{"id":"colors","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"otherLiving","usesPerTurn":null,"usesPerPhase":1,"effects":[{"op":"choosePrivateColorsDiscardAndDuel","target":"owner"}]}]
+            """,
+            """
+            "triggers":[{"id":"ending","window":"playEnding","subject":"owner","optional":false,"effects":[{"op":"discardOutsideRangeAfterInsufficientUses","target":"owner"}]}]
+            """
+        })
+        {
+            var registry = BuildUnownedCatalogRegistry(members);
+            Require(registry.ProgramDependencies.UsesActualPlayPhaseUseLedger &&
+                    GameEngine.CreateStandard(new GameOptions { Seed = 7, HumanSeat = 0 }, registry)
+                        .ContentRegistry.ProgramDependencies.UsesActualPlayPhaseUseLedger,
+                "Each unowned policy, activation trait and trigger trait must independently enable the actual Play ledger.");
+        }
+        Require(!StandardContentRegistry.Create().ProgramDependencies.UsesActualPlayPhaseUseLedger,
+            "A separate catalog without a ledger capability must not inherit a previous registry's opt-in.");
+    }
+
+    private static void ConditionalCatalogCapabilitiesIncludeUnownedPrograms()
+    {
+        const string gained = """
+            "triggers":[{"id":"gain","window":"cardsGained","subject":"owner","destinationZones":["hand"],"movementOccurrence":"perBatch","optional":true,"effects":[{"op":"draw","target":"owner","amount":1}]}]
+            """;
+        var qualified = gained.Replace("\"optional\":true", "\"gainPhaseQualification\":\"outsideOwnerDraw\",\"optional\":true", StringComparison.Ordinal);
+        foreach (var (members, lord, gain) in new[]
+        {
+            ("\"lordSkillProjection\":true", true, false),
+            (qualified, false, true),
+            (gained, false, false)
+        })
+        {
+            var registry = BuildUnownedCatalogRegistry(members);
+            var dependencies = registry.ProgramDependencies;
+            Require(dependencies.UsesLordSkillProjection == lord && dependencies.UsesGainPhaseQualification == gain &&
+                    GameEngine.CreateStandard(new GameOptions { Seed = 7, HumanSeat = 0 }, registry)
+                        .ContentRegistry.ProgramDependencies == dependencies,
+                "Unowned programs must independently enable each capability; an unqualified gain trigger must leave timing opt-in absent.");
+            if (!lord)
+                Require(dependencies.HasTriggerWindow(SkillProgramTriggerWindow.CardsGained) &&
+                        dependencies.HasTriggerOperation(SkillProgramEffectOp.Draw),
+                    "The gain qualification field must be distinguished from an otherwise identical window and operation.");
+        }
+        var plain = StandardContentRegistry.Create().ProgramDependencies;
+        Require(!plain.UsesLordSkillProjection && !plain.UsesGainPhaseQualification,
+            "A separate plain registry must not inherit another catalog's conditional capabilities.");
+    }
+
+    private static ContentRegistry BuildUnownedCatalogRegistry(string members)
+    {
+        const string id = "fixture:catalog-opt-in";
+        var presentation = JsonSerializer.Serialize(new
+        {
+            schemaVersion = SkillProgramCatalog.PresentationSchemaVersion,
+            skills = new Dictionary<string, object> { [id] = new { name = "Capability", description = "Unowned catalog opt-in" } }
+        });
+        var program = SkillProgramCatalog.Load($$"""
+            {"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[{"id":"{{id}}","revision":1,{{members}}}]}
+            """, presentation).Programs[id];
+        return ContentRegistry.Build(new StandardContentPackage(), new ProgramOnlyPackage(program));
+    }
+
+    private static void HpCatalogFactsAndRulesGateRemainIndependent()
+    {
+        const string id = "fixture:catalog-opt-in";
+        var hp = BuildUnownedCatalogRegistry("""
+            "hpSkillGrants":[{"id":"one","skillId":"standard:none","minimumHp":1,"maximumHp":1}]
+            """).ProgramDependencies;
+        Require(hp.HpSensitiveSkillIds.Contains(id) && hp.HpConditionalCapabilitySkillIds.Contains(id) &&
+                !hp.HpSensitiveSkillIds.Contains(id.ToUpperInvariant()) && !hp.HpConditionalCapabilitySkillIds.Contains(id.ToUpperInvariant()),
+            "An unowned HP capability must belong to both catalog sets with ordinal case-sensitive identity.");
+        var suppression = ContentRegistry.Build(new StandardContentPackage(), new SuppressionOnlyPackage()).ProgramDependencies;
+        Require(suppression.HpSensitiveSkillIds.Contains(SuppressionOnlyPackage.Id) &&
+                !suppression.HpConditionalCapabilitySkillIds.Contains(SuppressionOnlyPackage.Id),
+            "A suppression-only skill without a program belongs to the broad HP set, not the strict conditional-grant set.");
+        var required = GameCheckpoint.CurrentRulesVersion + 1;
+        var higher = BuildUnownedCatalogRegistry($"\"minimumRulesVersion\":{required},\"lordSkillProjection\":true");
+        Require(higher.ProgramDependencies.RequiredProgramRulesVersion == required,
+            "The highest requirement must include an unowned program.");
+        var rejected = false;
+        try { _ = GameEngine.CreateStandard(new GameOptions { Seed = 7, HumanSeat = 0 }, higher); }
+        catch (InvalidOperationException error)
+        {
+            rejected = error.Message == $"Compiled skill programs require rules version {required} or newer.";
+        }
+        Require(rejected, "The existing engine rules gate must reject the same incompatible catalog with its original message.");
+        var empty = ContentRegistry.Build().ProgramDependencies;
+        Require(empty.RequiredProgramRulesVersion == 0 && empty.HpSensitiveSkillIds.Count == 0 && empty.HpConditionalCapabilitySkillIds.Count == 0,
+            "An empty independent catalog must retain zero/empty facts without inheriting earlier opt-ins.");
     }
 
     public static void SourcePlansReuseBindingsWithoutIdentityOrOrderCollisions()
@@ -174,6 +304,7 @@ internal static class CompiledSkillMetadataChecks
         Require(ProgramCompositionEntryChecks.Events(game).SequenceEqual(ProgramCompositionEntryChecks.Events(restored)) &&
             Enumerable.Range(0, 5).All(viewer => SnapshotJson.Serialize(game.CreateSnapshot(viewer)) == SnapshotJson.Serialize(restored.CreateSnapshot(viewer))),
             "Accepted input must replay to the same events, card ownership and every player view.");
+        CorrelatedActiveSkillAiChecks.Run(AiDecisionPolicy.CurrentVersion);
     }
 
     public static void ExecutionConditionsReadHandContextOnlyWhenRequired()
@@ -512,5 +643,13 @@ internal static class CompiledSkillMetadataChecks
     {
         public PackageManifest Manifest { get; } = new("compiled-program-only", new Version(1, 0, 0));
         public void Register(IContentRegistryBuilder builder) => builder.AddSkill(new(program.Id, "Bindings", "Unowned opt-in") { Program = program });
+    }
+
+    private sealed class SuppressionOnlyPackage : IGameContentPackage
+    {
+        internal const string Id = "fixture:catalog-suppression";
+        public PackageManifest Manifest { get; } = new("compiled-suppression-only", new Version(1, 0, 0));
+        public void Register(IContentRegistryBuilder builder) => builder.AddSkill(new(Id, "Suppression", "Unowned suppression without a program")
+            { SuppressionRule = new SkillSuppressionRule(1) });
     }
 }

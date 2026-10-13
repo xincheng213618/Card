@@ -69,6 +69,7 @@ public sealed partial class GameEngine
         AdvanceRuntimeProgram(f.Id);
     }
 
+    [ProgramContinuation(ProgramContinuationKind.Resume, 530)]
     private bool ResumeCompletedUsePayment(long id)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame f || f.Id != id || f.CompletedUsePayment is not { } r) return false;

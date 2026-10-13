@@ -15,6 +15,7 @@ public sealed partial class GameEngine
         return true;
     }
 
+    [ProgramContinuation(ProgramContinuationKind.Resume, 800)]
     private bool ResumeProgramEquipmentRecast(long frameId)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame frame || frame.Id != frameId ||

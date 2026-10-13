@@ -99,7 +99,8 @@ internal static class BoundaryZhangFeiChecks
         var (doubleDodge, dr) = Start("wushuang"); Slash(doubleDodge, [1]); Settle(doubleDodge);
         Require(doubleDodge.Events.Select(e => e.Payload).OfType<CardRespondedEvent>().Count(e => e.ResponderSeat == 1) == 1 && !Reserved(doubleDodge).Any(), "One Dodge never fully cancels Wushuang's two-response Slash."); Replay(doubleDodge, dr);
         var (uncancelable, ur) = Start("uncancelable"); Slash(uncancelable, [1]); Settle(uncancelable);
-        Require(uncancelable.Events.Select(e => e.Payload).OfType<CardRespondedEvent>().Any(e => e.ResponderSeat == 1) && !Reserved(uncancelable).Any(), "Real Dodge response to uncancelable Slash produces no cancellation reserve."); Replay(uncancelable, ur);
+        Require(!uncancelable.Events.Select(e => e.Payload).OfType<CardRespondedEvent>().Any(e => e.ResponderSeat == 1) && !Reserved(uncancelable).Any() &&
+            uncancelable.Events.Select(e => e.Payload).OfType<DamageAppliedEvent>().Any(e => e.TargetSeat == 1), "Zhaxiang skips Dodge and deals damage without producing a cancellation reserve."); Replay(uncancelable, ur);
         var (g, r) = Start(); Slash(g, [1]); Settle(g);
         var owner = Players(g)[0]; var grant = owner.SkillGrants.Grants.Single(x => x.SkillId == "boundary:paoxiao");
         owner.SkillGrants.RemoveGrant(grant.GrantId); owner.SkillGrants.Grant(grant with { GrantId = "fixture:renewed", SkillInstanceId = "fixture:renewed", SourceId = "fixture:renewed" });

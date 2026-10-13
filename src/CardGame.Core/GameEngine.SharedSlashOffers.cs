@@ -83,6 +83,7 @@ public sealed partial class GameEngine
         GetProgramVirtualSlashOfferTargets(actorSeat).Where(seat =>
             !IsCardTargetProhibited(_players[seat], CardKind.Slash, Suit.None)).ToArray();
 
+    [ProgramContinuation(ProgramContinuationKind.Resume, 580)]
     private bool ResumeSharedSlashOffer(long frameId)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame f || f.Id != frameId || f.SharedSlashOffer is not { } r) return false;
@@ -187,7 +188,7 @@ public sealed partial class GameEngine
         MarkSlashUsedOrPlayedDuringCurrentPlayPhase(actor.Seat, CardKind.Slash);
         RecordActualPlayPhaseUse(action);
         var attack = new CardAttackHandle(this, id, actor.Seat, targetSeat, card: null,
-            damageAmount: actor.HasAlcoholEffect ? 2 : 1, playedCardKind: CardKind.Slash,
+            damageAmount: 1 + actor.AlcoholDamageBonus, playedCardKind: CardKind.Slash,
             ignoresArmor: HasCardArmorBypass(actor, _players[targetSeat], CardKind.Slash), programSkillCardUseFrameId: f.Id);
         CaptureProgramAlcoholConsumption(id, actor); actor.HasAlcoholEffect = false; ActiveCardAttack = attack;
         AdvanceEventRulesAndQueueFact(new CardUsedEvent(0, CardKind.Slash, actor.Seat, targetSeat));

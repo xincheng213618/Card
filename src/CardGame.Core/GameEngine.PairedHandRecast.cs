@@ -138,6 +138,7 @@ public sealed partial class GameEngine
         TryBeginHpChangedProgramWindow(f.Id, PostEventContinuation.AwaitedProgramMovement) ||
         TryBeginCardsMovedProgramWindow(f.Id) || TryBeginAdvancedSkillsChanged(f.Id);
 
+    [ProgramContinuation(ProgramContinuationKind.Resume, 70)]
     private bool ResumePairedHandRecast(long frameId)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame f || f.Id != frameId || f.PairedHandRecast is not { } r) return false;
@@ -172,6 +173,7 @@ public sealed partial class GameEngine
         FinishProgramSkill(f, true); return true;
     }
 
+    [ProgramContinuation(ProgramContinuationKind.Movement, 50)]
     private bool ReturnPairedHandRecastMovement(ProgramSkillFrame f)
     {
         if (f.PairedHandRecast is not { Stage: PairedHandRecastStage.CostChildren or PairedHandRecastStage.DrawChildren }) return false;
@@ -192,6 +194,5 @@ public sealed partial class GameEngine
     private sealed partial class ProgramSkillHost : IPairedHandRecastProgramHost
     {
         public SkillProgramStepOutcome PairedHandRecast(ProgramSkillFrame f, int partnerSeat) => engine.BeginPairedHandRecast(f, partnerSeat);
-        public bool CanContinuePairedHandRecast(ProgramSkillFrame f) => engine.CanContinuePairedHandRecast(f);
     }
 }

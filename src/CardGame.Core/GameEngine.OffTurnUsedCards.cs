@@ -89,6 +89,13 @@ public sealed partial class GameEngine
         useId = 0; kind = default;
         if (action.Type != CardActionType.Response || action.ActorSeat != action.ProviderSeat ||
             action.RequesterSeat is not null || action.ResponderSeat != action.ActorSeat) return false;
+        if (action.EffectiveKind == CardKind.Nullification && ActiveNullificationWindow is { DelayedReturn: not null } delayed &&
+            HasNullificationEffectOwner(delayed) && action.ParentActionId is null && action.OpponentSeat == delayed.SourceSeat)
+        {
+            useId = delayed.Id;
+            kind = OffTurnUsedCardKind.NullificationUse;
+            return true;
+        }
         var legacy = action.ParentActionId is null ? CompleteProgramEventHistory().OfType<OffTurnResponseUseOriginEvent>()
             .SingleOrDefault(e => e.ActionId == action.ActionId && e.ActorSeat == action.ActorSeat && e.ProviderSeat == action.ProviderSeat && e.OpponentSeat == action.OpponentSeat) : null;
         var parent = action.ParentActionId is { } parentActionId
@@ -227,6 +234,7 @@ public sealed partial class GameEngine
         AdvanceRuntimeProgram(f.Id);
     }
 
+    [ProgramContinuation(ProgramContinuationKind.Resume, 110)]
     private bool ResumeOffTurnUsedCardGift(long id)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame f || f.Id != id || f.OffTurnUsedCardGift is not { } r) return false;
@@ -242,6 +250,7 @@ public sealed partial class GameEngine
         FinishProgramSkill(f, true); return true;
     }
 
+    [ProgramContinuation(ProgramContinuationKind.Movement, 90)]
     private bool ReturnOffTurnUsedCardGiftMovement(ProgramSkillFrame f)
     {
         if (f.OffTurnUsedCardGift is null) return false;

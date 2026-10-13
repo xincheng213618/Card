@@ -140,9 +140,12 @@ public sealed partial class GameEngine
         CharacterState owner,
         Card card)
     {
-        var identityHand = _cardZones.GetLocation(card.Id) == CardLocation.Hand(owner.Seat);
-        if (!identityHand && !IsAlcoholIdentityOwnedLocation(owner, card)) return [];
+        var identityLocation = _cardZones.GetLocation(card.Id);
+        var identityHand = identityLocation == CardLocation.Hand(owner.Seat);
+        var identityGrain = identityLocation == CardLocation.WoodenOxGrain(owner.Seat);
+        if (!identityHand && !identityGrain && !IsAlcoholIdentityOwnedLocation(owner, card)) return [];
         if (identityHand && GetGiftedSlashIdentityMatch(owner, card) is { } gifted) return [gifted];
+        if (identityHand && WeilinIdentity(owner, card) is { } weilin) return [weilin];
 
         var bindings = GetSkillBindingShard(owner);
         if (bindings.CardIdentityPrograms.Count == 0) return [];
@@ -150,8 +153,8 @@ public sealed partial class GameEngine
         return bindings.ProgramInstances
             .Where(instance => instance.Program.CardIdentities.Count != 0)
             .SelectMany(instance => instance.Program.CardIdentities
-                .Where(identity => (identityHand || instance.Program.CardPolicies.Any(p => p.Kind == SkillProgramCardPolicyKind.AlcoholKingIdentityRank) &&
-                                    identity.InputKinds.SequenceEqual([CardKind.Alcohol]) && identity.OutputKind == CardKind.Slash) && identity.Zones.Contains(CardZoneKind.Hand) &&
+                .Where(identity => ((identityHand || identityGrain) && identity.Zones.Contains(identityLocation.Zone) || instance.Program.CardPolicies.Any(p => p.Kind == SkillProgramCardPolicyKind.AlcoholKingIdentityRank) &&
+                                    identity.InputKinds.SequenceEqual([CardKind.Alcohol]) && identity.OutputKind == CardKind.Slash && identity.Zones.Contains(CardZoneKind.Hand)) &&
                                    identity.Condition.Evaluate(context) &&
                                    (identity.InputKinds.Count == 0 || identity.InputKinds.Contains(card.Kind)) &&
                                    (identity.InputSuits.Count == 0 || identity.InputSuits.Contains(card.Suit)))
@@ -194,6 +197,7 @@ public sealed partial class GameEngine
         CardConversionSource? source)
     {
         if (source is null || source.OwnerSeat != owner.Seat) return false;
+        if (FriendXuanjianIgnoresDistance(owner, source)) return true;
         var context = CreateSkillContext(owner);
         return GetSkillBindingShard(owner).GetNumericModifiers(SkillRuleQuery.SlashDistanceLimit).Any(binding =>
             binding.Source.SkillId == source.SkillId &&
@@ -264,7 +268,7 @@ public sealed partial class GameEngine
                                (zone != CardZoneKind.Judgment || rule.LastInSourceZone == true) &&
                                (dyingUse ? rule.ForResponse || rule.UseOnly && rule.ForPlay : forResponse ? rule.ForResponse && (!rule.UseOnly || IsProgramResponseCardUse(owner, outputKind) || (rule.ConversionStateId is not null || rule.UnusedOutputNameThisGame || rule.LastInSourceZone == true) && outputKind == CardKind.Nullification) : rule.ForPlay) &&
                                (rule.DeclarationValidation is null || CanDeclareCard(owner, instance.SkillId)) &&
-                               IsNamedUseConversionAvailable(owner, instance, rule) &&
+                               IsNamedUseConversionAvailable(owner, instance, rule) && GuanConversionAvailable(owner.Seat, instance.SkillId) &&
                                (rule.TieredRoundConversion is null || !card.IsGeneralWeapon) &&
                                CanUseTieredRoundConversion(owner, instance, rule, forResponse, dyingUse) &&
                                IsConfiguredConversionAvailable(owner, card, instance, rule, dyingUse) &&
@@ -362,6 +366,7 @@ public sealed partial class GameEngine
                     selections.Add(new(cards, source, rule.RoundDistinctBasicUse is null ? outputKind : rule.OutputKind));
         }
         return selections
+            .Where(item => !forResponse || IsRecordedSuitResponseAllowed(owner, item.Cards, outputKind))
             .Where(item => forResponse || ignoreSuitUseProhibition || !IsTurnPhysicalUseForbidden(owner.Seat,item.Cards.Select(c=>c.Id).ToArray()))
             .OrderBy(item => item.Source.SkillId, StringComparer.Ordinal)
             .ThenBy(item => item.Source.BindingId, StringComparer.Ordinal)
@@ -448,6 +453,7 @@ public sealed partial class GameEngine
             cards.Add(card);
         }
         if (IsTurnPhysicalUseForbidden(owner.Seat, orderedCardIds)) return null;
+        if (rule.AllHandCardsOfSelectedSuit && !ValidWholeHandSuitConversion(owner, cards, source)) return null;
         return new(cards, source, outputKind);
     }
 

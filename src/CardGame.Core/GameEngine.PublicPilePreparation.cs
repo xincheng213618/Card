@@ -154,6 +154,7 @@ public sealed partial class GameEngine
         TryBeginCharacterStateProgramWindow(f.Id, CharacterStateContinuation.Program) ||
         TryBeginHpChangedProgramWindow(f.Id, movement ? PostEventContinuation.AwaitedProgramMovement : PostEventContinuation.Program) ||
         TryBeginCardsMovedProgramWindow(f.Id) || TryBeginAdvancedSkillsChanged(f.Id);
+    [ProgramContinuation(ProgramContinuationKind.Resume, 250)]
     private bool ResumePublicPilePreparation(long id)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame f || f.Id != id || f.PublicPilePreparation is not { } r) return false;
@@ -183,6 +184,7 @@ public sealed partial class GameEngine
     }
     private void FinishPublicPilePreparation(ProgramSkillFrame f, bool completed)
     { ReplaceRuntimeTop(f = f with { PublicPilePreparation = null, PendingMovementContinuation = null }); FinishProgramSkill(f, completed); }
+    [ProgramContinuation(ProgramContinuationKind.Movement, 270)]
     private bool ReturnPublicPilePreparationMovement(ProgramSkillFrame f)
     { if (f.PublicPilePreparation is null || f.PendingMovementContinuation is null) return false; AssertPublicPilePreparation(f); AdvanceRuntimeProgram(f.Id); return true; }
     private PromptChoice SelectAiPublicPilePreparation(PendingDecision p, ProgramSkillFrame f)

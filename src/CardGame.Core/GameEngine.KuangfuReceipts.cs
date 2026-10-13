@@ -149,19 +149,7 @@ public sealed partial class GameEngine
     private bool TryAdvanceKuangfuSubtree()
     {
         if (_pendingDecision is not null || KuangfuPaidObserverRoot() is null) return false;
-        var top = _resolutionStack.LastOrDefault();
-        if (top is ProgramSkillFrame { AttackAttempt: not null } attack)
-        {
-            if (CurrentDamageAttempt?.ResolutionId != attack.Id || ActiveDying is not null || attack.AttackReturn is null ||
-                _resolutionStack.Any(f => f is DamageFrame damage && damage.ParentFrameId == attack.Id ||
-                    f is BeforeDamageProgramWindowFrame before && (before.ContinuationAttackResolutionId ?? before.ParentFrameId) == attack.Id)) return false;
-            CompleteDamageAttack(new ProgramAttackHandle(this, attack.Id)); AdvanceRulesAndPublishState(); return true;
-        }
-        if (top is ProgramSkillFrame or CardsMovedTriggerWindowFrame or HpChangedTriggerWindowFrame or ProgramLifecycleTriggerWindowFrame or
-            ProgramCardTriggerWindowFrame or BeforeDamageProgramWindowFrame or ProgramDeathTriggerWindowFrame or ProgramKillTriggerWindowFrame)
-        { AdvanceRuntimeFrame(top.Id); AdvanceRulesAndPublishState(); return true; }
-        if (top is DeathFrame death) { ContinueDeathResolution(death.Id); AdvanceRulesAndPublishState(); return true; }
-        return false;
+        return TryAdvanceObserverSubtree(advanceRecoveryReplacement: false);
     }
     private bool AllowsKuangfuNestedDamage(ProgramSkillFrame f, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {

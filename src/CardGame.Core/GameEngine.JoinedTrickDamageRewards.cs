@@ -135,6 +135,7 @@ public sealed partial class GameEngine
         AdvanceRuntimeProgram(frame.Id); return SkillProgramStepOutcome.AwaitChild;
     }
 
+    [ProgramContinuation(ProgramContinuationKind.Resume, 190)]
     private bool ResumeJoinedTrickDamageReward(long id)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame frame || frame.Id != id || frame.JoinedTrickDamageRewardReceipt is null) return false;
@@ -151,6 +152,7 @@ public sealed partial class GameEngine
         FinishProgramSkill(frame, true); return true;
     }
 
+    [ProgramContinuation(ProgramContinuationKind.Movement, 210)]
     private bool ReturnJoinedTrickDamageRewardMovement(ProgramSkillFrame frame)
     {
         if (frame.JoinedTrickDamageRewardReceipt is null || frame.PendingMovementContinuation is null) return false;

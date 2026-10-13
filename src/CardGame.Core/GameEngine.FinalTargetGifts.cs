@@ -60,6 +60,7 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new ProgramFinalTargetGiftCommittedEvent(frame.Id,draft.ActionId,frame.OwnerSeat,frame.SkillId,frame.SkillInstanceId,recipient,card.Id,reward,ordinal));
         if(AwaitProgramBoundCardMovements(frame.Id,frame.OwnerSeat)==SkillProgramStepOutcome.Continue)AdvanceRuntimeProgram(frame.Id);
     }
+    [ProgramContinuation(ProgramContinuationKind.Resume, 910)]
     private bool ResumeFinalTargetGift(long frameId)
     {
         var frame=GetActiveProgramFrame(frameId);if(frame.FinalTargetGift is not {} draft)return false;

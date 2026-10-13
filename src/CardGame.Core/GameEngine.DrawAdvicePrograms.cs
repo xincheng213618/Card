@@ -67,6 +67,7 @@ public sealed partial class GameEngine
         TryBeginHpChangedProgramWindow(frame.Id, PostEventContinuation.AwaitedProgramMovement) ||
         TryBeginCardsMovedProgramWindow(frame.Id) || TryBeginAdvancedSkillsChanged(frame.Id);
 
+    [ProgramContinuation(ProgramContinuationKind.Resume, 280)]
     private bool ResumeDrawAdvice(long id)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame frame || frame.Id != id ||
@@ -269,6 +270,7 @@ public sealed partial class GameEngine
         if (index + 1 < _resolutionStack.Count && !DrawAdviceFirstChild(frame, _resolutionStack[index + 1]))
             throw new InvalidOperationException("Draw advice retained an unrelated native child.");
     }
+    [ProgramContinuation(ProgramContinuationKind.Movement, 230)]
     private bool ReturnDrawAdviceMovement(ProgramSkillFrame frame)
     {
         if (frame.DrawAdviceReceipt is null || frame.PendingMovementContinuation is null) return false;
@@ -320,29 +322,10 @@ public sealed partial class GameEngine
             recovery.Attempt.Completion.Producer == RecoveryAttemptProducer.SilverLion &&
             recovery.Attempt.Completion.MoveReason?.Value == reason;
     }
-    private ProgramSkillFrame? DrawAdviceObserverRoot()
-    {
-        for (var index = 0; index + 1 < _resolutionStack.Count; index++)
-        {
-            if (_resolutionStack[index] is not ProgramSkillFrame root || !DrawAdviceFirstChild(root, _resolutionStack[index + 1])) continue;
-            var exact = true;
-            for (var child = index + 2; child < _resolutionStack.Count; child++)
-            {
-                if (_resolutionStack[child] is ProgramLifecycleTriggerWindowFrame changed && _resolutionStack[child - 1] is ProgramSkillFrame owner &&
-                    changed.Window == SkillProgramTriggerWindow.SkillsChanged && changed.ResumeProgramFrameId == owner.Id &&
-                    changed.Continuation == ProgramLifecycleContinuation.ResumeParentProgram &&
-                    changed.CandidateIndex >= 0 && changed.CandidateIndex <= changed.Candidates.Count) continue;
-                if (!DyingSuitsStructuralEdge(_resolutionStack[child - 1], _resolutionStack[child]) &&
-                    !HalfHandPaidDamageObserverEdge(child) && !PaidTargetObserverEdge(child)) { exact = false; break; }
-                if (_resolutionStack[child] is DyingFrame dying && child + 1 < _resolutionStack.Count &&
-                    ((IsOriginalDyingSuspendedByDyingSuits(dying) || IsOriginalDyingSuspendedByRecipientCategoryMark(dying)) || IsOriginalDyingSuspendedByOwnedDeathBenefit(dying) ||
-                     IsPaidHandRepaymentProgramAlcoholRide(child, dying) || IsPaidHandRepaymentRescueRide(child, dying) ||
-                     PolicyCounterspellVirtualAlcoholRide(child, dying) || PaidObserverDamageVirtualAlcoholRide(child, dying))) break;
-            }
-            if (exact) return root;
-        }
-        return null;
-    }
+    private ProgramSkillFrame? DrawAdviceObserverRoot() => FindProgramObserverRoot(
+        static (engine, root, child) => engine.DrawAdviceFirstChild(root, child),
+        static (engine, index) => engine.HasPaidDamageObserverSuffix(index));
+
     private bool IsDrawAdviceProgramDying() => ActiveDying is { } dying && DrawAdviceObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
     private bool HasDrawAdviceDamageObserver(long id) =>
@@ -363,6 +346,5 @@ public sealed partial class GameEngine
     private sealed partial class ProgramSkillHost : IDrawAdviceProgramHost
     {
         public SkillProgramStepOutcome BeginDrawAdvice(ProgramSkillFrame frame, int recipientSeat) => engine.BeginDrawAdvice(frame, recipientSeat);
-        public bool CanContinueIssuedDrawAdvice(ProgramSkillFrame frame) => engine.CanContinueIssuedDrawAdvice(frame);
     }
 }

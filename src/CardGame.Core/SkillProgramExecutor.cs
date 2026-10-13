@@ -24,36 +24,8 @@ public interface ISkillProgramExecutionHost
     SkillProgram GetProgram(string skillId);
     SkillProgramActorState GetActor(int seat);
     bool IsGameOver { get; }
-    bool CanContinueIssuedOriginalTargetAddition(ProgramSkillFrame frame) => false;
-    bool CanContinueIssuedGiftedSlashReward(ProgramSkillFrame frame) => false;
-    bool CanContinueIssuedJoinedTrickDamageReward(ProgramSkillFrame frame) => false;
-    bool CanContinueSelectedForeignCardSlash(ProgramSkillFrame frame) => false;
-    bool CanContinueIssuedRoundGainedUse(ProgramSkillFrame frame) => false;
-    bool CanContinueDrawDiscardCategoryRefund(ProgramSkillFrame frame) => false;
-    bool CanContinueGameActivationAwakening(ProgramSkillFrame frame) => false;
-    bool CanContinueIssuedDrawAdvice(ProgramSkillFrame frame) => false;
-    bool CanContinueIssuedFixedDistanceEnding(ProgramSkillFrame frame) => false;
-    bool CanContinuePhaseNamePrediction(ProgramSkillFrame frame) => false;
-    bool CanContinueLastDamageSourceReciprocity(ProgramSkillFrame frame) => false;
-    bool CanContinueMatchingRecast(ProgramSkillFrame frame) => false;
-    bool CanContinuePairedHandRecast(ProgramSkillFrame frame) => false;
-    bool CanContinueOutsidePhaseDrawDiscard(ProgramSkillFrame frame) => false;
-    bool CanContinueOriginalHandEntityProgram(ProgramSkillFrame frame) => false;
-    bool CanContinuePairedColorDisposition(ProgramSkillFrame frame) => false;
-    bool CanContinueSameNameHandDiscardOrDamage(ProgramSkillFrame frame) => false;
-    bool CanContinueCompletedUndamagedTargetReveal(ProgramSkillFrame frame) => false;
-    bool CanContinueRecipientCategoryMark(ProgramSkillFrame frame) => false;
-    bool CanContinueOffTurnUsedCardGift(ProgramSkillFrame frame) => false;
-    bool CanContinueOrderedPrintedSkillLoss(ProgramSkillFrame frame) => false;
-    bool CanContinueOverflowTargetCancellation(ProgramSkillFrame frame) => false;
-    bool CanContinuePaidHpLoss(ProgramSkillFrame frame) => false;
-    bool CanContinueReplacedPaidHpContinuation(ProgramSkillFrame frame) => false;
-    bool CanContinueIssuedPrivateOffer(ProgramSkillFrame frame) => false;
-    bool CanContinueIssuedPhaseHandDebt(ProgramSkillFrame frame) => false;
-    bool CanContinuePaidDamageShield(ProgramSkillFrame frame) => false;
-    bool CanContinuePaidDamageTargetMount(ProgramSkillFrame frame) => false;
-    bool CanContinuePaidDamageTargetObtain(ProgramSkillFrame frame) => false;
-    bool CanContinuePaidLostHpChain(ProgramSkillFrame frame) => false;
+    bool CanContinueAfterOwnerDeath(ProgramSkillFrame frame) => false;
+    bool CanContinueAfterSkillLoss(ProgramSkillFrame frame) => false;
     bool OwnsSkillInstance(int ownerSeat, string skillId, string skillInstanceId);
     bool OwnsCards(int ownerSeat, IReadOnlyList<int> cardIds, IReadOnlyList<CardZoneKind> sourceZones);
     bool EvaluateCondition(ProgramSkillFrame frame, SkillProgramCondition condition, PlayerSkillContext context);
@@ -1454,12 +1426,12 @@ public sealed class SkillProgramExecutor
             if (!string.Equals(program.GameplayHash, frame.GameplayHash, StringComparison.Ordinal))
                 throw new InvalidOperationException(
                     $"Running skill program '{frame.SkillId}' changed its gameplay hash.");
-            var allowsDeadOwner = state.CanContinueSelectedForeignCardSlash(frame) || state.CanContinueIssuedRoundGainedUse(frame) || state.CanContinueIssuedJoinedTrickDamageReward(frame) || state.CanContinuePairedColorDisposition(frame) || state.CanContinueSameNameHandDiscardOrDamage(frame) || state.CanContinueCompletedUndamagedTargetReveal(frame) || state.CanContinueRecipientCategoryMark(frame) || state.CanContinueOffTurnUsedCardGift(frame) || state.CanContinueOrderedPrintedSkillLoss(frame) || state.CanContinueOverflowTargetCancellation(frame) || state.CanContinueOriginalHandEntityProgram(frame) || state.CanContinueOutsidePhaseDrawDiscard(frame) || state.CanContinueMatchingRecast(frame) || state.CanContinuePairedHandRecast(frame) || state.CanContinuePhaseNamePrediction(frame) || state.CanContinueLastDamageSourceReciprocity(frame) || state.CanContinuePaidDamageShield(frame) || state.CanContinuePaidDamageTargetObtain(frame) || frame.WindowContext?.Window == SkillProgramTriggerWindow.OwnerDied ||
+            var allowsDeadOwner = state.CanContinueAfterOwnerDeath(frame) || frame.WindowContext?.Window == SkillProgramTriggerWindow.OwnerDied ||
                 ProgramInstructionResolver.Default.FindActivation(program, frame.ActivationId)?.ContinueAfterOwnerDeath == true ||
                 ProgramInstructionResolver.Default.Find(program, ProgramInstructionSourceKind.Trigger, frame.ActivationId)
                     ?.Features.HasOperation(SkillProgramEffectOp.LoseHpParticipants) == true;
             if (!state.OwnsSkillInstance(frame.OwnerSeat, frame.SkillId, frame.SkillInstanceId) && (actor.IsAlive || !allowsDeadOwner) &&
-                !state.CanContinueSelectedForeignCardSlash(frame) && !state.CanContinuePairedColorDisposition(frame) && !state.CanContinueSameNameHandDiscardOrDamage(frame) && !state.CanContinueCompletedUndamagedTargetReveal(frame) && !state.CanContinueRecipientCategoryMark(frame) && !state.CanContinueOffTurnUsedCardGift(frame) && !state.CanContinueOrderedPrintedSkillLoss(frame) && !state.CanContinueOverflowTargetCancellation(frame) && !state.CanContinueOriginalHandEntityProgram(frame) && !state.CanContinueOutsidePhaseDrawDiscard(frame) && !state.CanContinueMatchingRecast(frame) && !state.CanContinuePairedHandRecast(frame) && !state.CanContinuePhaseNamePrediction(frame) && !state.CanContinueLastDamageSourceReciprocity(frame) && !state.CanContinueGameActivationAwakening(frame) && !state.CanContinueDrawDiscardCategoryRefund(frame) && !state.CanContinueIssuedFixedDistanceEnding(frame) && !state.CanContinueIssuedPhaseHandDebt(frame) && !state.CanContinueIssuedPrivateOffer(frame) && !state.CanContinueIssuedOriginalTargetAddition(frame) && !state.CanContinueIssuedGiftedSlashReward(frame) && !state.CanContinueIssuedJoinedTrickDamageReward(frame) && !state.CanContinueIssuedRoundGainedUse(frame) && !state.CanContinueIssuedDrawAdvice(frame) && !state.CanContinuePaidHpLoss(frame) && !state.CanContinueReplacedPaidHpContinuation(frame) && !state.CanContinuePaidDamageShield(frame) && !state.CanContinuePaidDamageTargetMount(frame) && !state.CanContinuePaidDamageTargetObtain(frame) && !state.CanContinuePaidLostHpChain(frame))
+                !state.CanContinueAfterSkillLoss(frame))
             {
                 state.Complete(frame, completed: false, "技能实例在结算前已失效，剩余步骤取消。");
                 return;
@@ -1509,7 +1481,7 @@ public sealed class SkillProgramExecutor
                 continue;
             }
             if (frame.WindowContext?.JudgmentReplacement is { } replacement &&
-                effect.Op is not (SkillProgramEffectOp.ReplaceJudgment or SkillProgramEffectOp.DelegateJudgmentReplacement) &&
+                effect.Op is not (SkillProgramEffectOp.ReplaceJudgment or SkillProgramEffectOp.DelegateJudgmentReplacement or SkillProgramEffectOp.ReplaceJudgmentFromPublicRice) &&
                 (replacement.ReplacementSuit is not { } replacementSuit ||
                  !effect.ReplacementSuits.Contains(replacementSuit) ||
                  replacement.ReplacementRank is not { } replacementRank ||
@@ -1562,7 +1534,7 @@ public sealed class SkillProgramExecutor
                     (SkillProgramEffectOp.SelectTarget or SkillProgramEffectOp.SelectTargets or
                      SkillProgramEffectOp.LoseDeathSourceSkills or SkillProgramEffectOp.DamageParticipants or SkillProgramEffectOp.LoseHpParticipants or SkillProgramEffectOp.SelectIssuedFixedRecipient or
                      SkillProgramEffectOp.SelectIssuedFixedRecipientWithDeathReturn) ||
-                    effect.Op == SkillProgramEffectOp.InheritOriginalHandBonuses &&
+                    effect.Op is (SkillProgramEffectOp.InheritOriginalHandBonuses or SkillProgramEffectOp.DeathRecipientChooseSkill) &&
                     frame.WindowContext?.Window == SkillProgramTriggerWindow.OwnerDied)))
             {
                 if (effect.Op is SkillProgramEffectOp.ChooseOption or SkillProgramEffectOp.SelectOwnedCards or SkillProgramEffectOp.SelectOwnedHandRankSum)

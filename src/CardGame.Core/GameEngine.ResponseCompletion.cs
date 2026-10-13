@@ -207,7 +207,7 @@ public sealed partial class GameEngine
             if (r.AttackOwnerFrameId is not null || a.EffectiveKind != CardKind.Nullification || a.ProviderSeat != a.ActorSeat || a.RequesterSeat is not null ||
                 _resolutionStack.SingleOrDefault(f => f.Id == r.ParentFrameId) is not NullificationWindowFrame pending ||
                 ActiveNullificationWindow?.Id != pending.Id || a.OpponentSeat != pending.SourceSeat ||
-                LifecycleCardUse(pending.ParentFrameId) is not { } use || a.ParentActionId != use.Action?.ActionId) return false;
+                !HasNullificationEffectOwner(pending) || a.ParentActionId != NullificationParentActionId(pending)) return false;
         }
         else
         {

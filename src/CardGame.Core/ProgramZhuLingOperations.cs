@@ -8,7 +8,8 @@ internal interface IZhuLingProgramHost
 
 // 战意 launch: at the play phase start the owner discards every owned card of
 // one chosen category; the other two categories stay empowered until the
-// owner's next turn starts (state expiry is the content's own trigger).
+// owner's next turn starts. New content opts into an actual-turn state lease;
+// unconfigured content retains its original trigger-based expiry.
 internal sealed class ZhuLingZhanyiChooseCategoryDescriptor : ProgramOperationDescriptorBase
 {
     public override SkillProgramEffectOp Op => SkillProgramEffectOp.ZhuLingZhanyiChooseCategory;
@@ -18,8 +19,17 @@ internal sealed class ZhuLingZhanyiChooseCategoryDescriptor : ProgramOperationDe
         static (effect, context) => context.ZhanyiLaunch(effect));
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
     {
-        r.AllowOnly("op", "target", "condition");
-        var effect = new SkillProgramEffect(Op, FilterBoundCardsProgramOperationDescriptor.Owner(r), 0, r.Condition());
+        r.AllowOnly("op", "target", "condition", "recoveryBonus", "expires", "expireBooleanStatesAtOwnerTurnStart");
+        var configured = r.Has("recoveryBonus") || r.Has("expires") || r.Has("expireBooleanStatesAtOwnerTurnStart");
+        var recoveryBonus = r.Has("recoveryBonus") ? r.RequiredInt("recoveryBonus") : 0;
+        if (recoveryBonus is < 0 or > 20)
+            throw new InvalidOperationException(r.Path + ": recoveryBonus must be between zero and twenty.");
+        var effect = new SkillProgramEffect(Op, FilterBoundCardsProgramOperationDescriptor.Owner(r), 0, r.Condition())
+        {
+            CardUseBenefitPolicy = configured ? new(recoveryBonus,
+                r.Has("expires") ? r.RequiredEnum<SkillProgramDamageModifierExpiration>("expires") : SkillProgramDamageModifierExpiration.CurrentTurnEnd,
+                r.Has("expireBooleanStatesAtOwnerTurnStart") && r.RequiredBool("expireBooleanStatesAtOwnerTurnStart")) : null
+        };
         RequireAlways(effect, r.Path); return effect;
     }
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
@@ -33,8 +43,8 @@ public sealed class ZhuLingZhanyiChooseCategoryHandler : ISkillProgramEffectHand
         ((IZhuLingProgramHost)host).ZhuLingZhanyiChooseCategory(f, e);
 }
 
-// 战意 equipment punish: an equipment card the owner used is entering the
-// owner's equipment zone; the owner may make another character discard one card.
+// 战意 equipment punish belongs to each actual equipment-zone entry, including
+// placements by other skills that never declare a card Use.
 internal sealed class ZhuLingZhanyiEquipmentPunishDescriptor : ProgramOperationDescriptorBase
 {
     public override SkillProgramEffectOp Op => SkillProgramEffectOp.ZhuLingZhanyiEquipmentPunish;
@@ -42,17 +52,22 @@ internal sealed class ZhuLingZhanyiEquipmentPunishDescriptor : ProgramOperationD
     public override ProgramOperationInteraction Interaction => ProgramOperationInteraction.Choice;
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.ChooseOtherOwnedCardDiscard,
         static (effect, context) => context.ChooseOtherOwnedCardDiscard(effect));
-    public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
-    {
-        r.AllowOnly("op", "target", "condition");
-        var effect = new SkillProgramEffect(Op, FilterBoundCardsProgramOperationDescriptor.Owner(r), 0, r.Condition());
-        RequireAlways(effect, r.Path); return effect;
-    }
+    public override SkillProgramEffect Parse(ProgramOperationNodeReader r) => ParseOwnerAlways(r);
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
     [
-        new RequireTriggerWindow(SkillProgramTriggerWindow.CardUseCommitted),
-        new RequireCardActionActor()
+        new RequireTriggerWindow(SkillProgramTriggerWindow.CardsGained),
+        new RequireContext(ProgramContextCapability.MovementSource)
     ];
+
+    internal static void ValidateTrigger(string path, SkillProgramTrigger trigger)
+    {
+        if (!trigger.Effects.Any(effect => effect.Op == SkillProgramEffectOp.ZhuLingZhanyiEquipmentPunish)) return;
+        if (trigger.Effects.Count != 1 || trigger.Window != SkillProgramTriggerWindow.CardsGained ||
+            trigger.Subject != SkillProgramTriggerSubject.Owner || !trigger.Optional ||
+            trigger.MovementOccurrence != SkillProgramMovementOccurrence.PerCard ||
+            !trigger.DestinationZones.SequenceEqual([CardZoneKind.Equipment]))
+            throw new InvalidOperationException(path + ": Zhanyi equipment punishment requires one optional owner per-card equipment entry.");
+    }
 }
 
 public sealed class ZhuLingZhanyiEquipmentPunishHandler : ISkillProgramEffectHandler

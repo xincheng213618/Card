@@ -38,20 +38,32 @@ public sealed partial record ProgramSkillFrame
 // slash card ids accumulate on the owning frame across slash children. The
 // trigger action id dedupes the twin member/own trigger bindings on one batch.
 public sealed record TongxieFollowUpState(int ActorSeat, int TargetSeat, int CardId,
-    IReadOnlyList<int> PendingResponders,
-    IReadOnlyList<int>? UsedBy = null, IReadOnlyList<int>? DeclinedBy = null,
-    IReadOnlyList<int>? UsedCardIds = null)
+    IReadOnlyList<int> PendingResponders)
 {
-    public IReadOnlyList<int> Used { get; init; } = UsedBy ?? [];
-    public IReadOnlyList<int> Declined { get; init; } = DeclinedBy ?? [];
-    public IReadOnlyList<int> UsedCards { get; init; } = UsedCardIds ?? [];
+    private readonly IReadOnlyList<int> _pendingResponders = Array.AsReadOnly(PendingResponders.ToArray());
+    private readonly IReadOnlyList<int> _usedBy = Array.AsReadOnly(Array.Empty<int>());
+    private readonly IReadOnlyList<int> _declinedBy = Array.AsReadOnly(Array.Empty<int>());
+    private readonly IReadOnlyList<int> _usedCardIds = Array.AsReadOnly(Array.Empty<int>());
+    public IReadOnlyList<int> PendingResponders
+    { get => _pendingResponders; init => _pendingResponders = Array.AsReadOnly(value.ToArray()); }
+    public IReadOnlyList<int> UsedBy
+    { get => _usedBy; init => _usedBy = Array.AsReadOnly(value.ToArray()); }
+    public IReadOnlyList<int> DeclinedBy
+    { get => _declinedBy; init => _declinedBy = Array.AsReadOnly(value.ToArray()); }
+    public IReadOnlyList<int> UsedCardIds
+    { get => _usedCardIds; init => _usedCardIds = Array.AsReadOnly(value.ToArray()); }
     public long TriggerActionId { get; init; }
 }
 
 // One prevention candidate at a time; a nonzero accepted preventer marks the
 // resume after that member's losing-hp dying child.
 public sealed record TongxieGuardState(int ProtectedSeat, int PreventedAmount,
-    IReadOnlyList<int> PendingPreventers, int? AcceptedPreventer = null);
+    IReadOnlyList<int> PendingPreventers, int? AcceptedPreventer = null)
+{
+    private readonly IReadOnlyList<int> _pendingPreventers = Array.AsReadOnly(PendingPreventers.ToArray());
+    public IReadOnlyList<int> PendingPreventers
+    { get => _pendingPreventers; init => _pendingPreventers = Array.AsReadOnly(value.ToArray()); }
+}
 
 // One completed single-target Slash action recovered from the exact settled
 // movement fact, so replay rebuilds the identical actor, target and chain.
@@ -170,7 +182,7 @@ public sealed partial class GameEngine
         if (use.CardAttack?.ProgramSkillCardUseFrameId is { } candidateId &&
             _resolutionStack.OfType<ProgramSkillFrame>().SingleOrDefault(frame => frame.Id == candidateId) is
                 { ReexecuteParticipantInstruction: true, TongxieFollowUp: { } pending } parent &&
-            pending.UsedCards.LastOrDefault() == movement.CardId && pending.Used.LastOrDefault() == accepted.ProviderSeat &&
+            pending.UsedCardIds.LastOrDefault() == movement.CardId && pending.UsedBy.LastOrDefault() == accepted.ProviderSeat &&
             accepted.PhysicalCards[0].From == CardLocation.Hand(accepted.ProviderSeat) &&
             _contentRegistry.GetSkill(parent.SkillId).Program is { } program &&
             program.GameplayHash == parent.GameplayHash && parent.InstructionIndex > 0 &&
@@ -375,7 +387,7 @@ public sealed partial class GameEngine
         ReplaceRuntimeTop(GetActiveProgramFrame(frame.Id) with
         {
             TongxieFollowUp = new TongxieFollowUpState(use.ActorSeat, use.TargetSeat, use.CardId,
-                Array.AsReadOnly(responders)) { TriggerActionId = use.ActionId }
+                responders) { TriggerActionId = use.ActionId }
         });
         return PresentTongxieFollowUpPrompt(GetActiveProgramFrame(frame.Id));
     }
@@ -385,8 +397,8 @@ public sealed partial class GameEngine
         if (pending.PendingResponders.Count == 0)
         {
             ReplaceRuntimeTop(GetActiveProgramFrame(active.Id) with { TongxieFollowUp = null });
-            var segments = new[] { DescribeTongxieActors("使用【杀】", pending.Used),
-                    DescribeTongxieActors("放弃追杀", pending.Declined) }
+            var segments = new[] { DescribeTongxieActors("使用【杀】", pending.UsedBy),
+                    DescribeTongxieActors("放弃追杀", pending.DeclinedBy) }
                 .Where(segment => segment.Length > 0).ToArray();
             AddLog("SkillEffect",
                 $"{_players[active.OwnerSeat].Name} 的【{_contentRegistry!.GetSkill(active.SkillId).Name}】追杀结算完成" +
@@ -394,8 +406,8 @@ public sealed partial class GameEngine
                 active.OwnerSeat, pending.TargetSeat);
             AdvanceEventRulesAndQueueFact(new ProgramTongxieFollowUpResolvedEvent(active.Id, active.SkillId,
                 GetProgramBindingId(active), active.OwnerSeat, pending.ActorSeat, pending.TargetSeat,
-                Array.AsReadOnly(pending.Used.ToArray()), Array.AsReadOnly(pending.Declined.ToArray()),
-                Array.AsReadOnly(pending.UsedCards.ToArray())));
+                Array.AsReadOnly(pending.UsedBy.ToArray()), Array.AsReadOnly(pending.DeclinedBy.ToArray()),
+                Array.AsReadOnly(pending.UsedCardIds.ToArray())));
             return SkillProgramStepOutcome.Continue;
         }
         return PresentTongxieFollowUpPrompt(GetActiveProgramFrame(active.Id));
@@ -423,7 +435,7 @@ public sealed partial class GameEngine
             {
                 TongxieFollowUp = pending with
                 {
-                    PendingResponders = Array.AsReadOnly(pending.PendingResponders.Skip(1).ToArray())
+                    PendingResponders = pending.PendingResponders.Skip(1).ToArray()
                 }
             });
             return ContinueTongxieFollowUp(GetActiveProgramFrame(frame.Id),
@@ -491,8 +503,8 @@ public sealed partial class GameEngine
             {
                 TongxieFollowUp = pending with
                 {
-                    PendingResponders = Array.AsReadOnly(pending.PendingResponders.Skip(1).ToArray()),
-                    Declined = Array.AsReadOnly(pending.Declined.Append(responderSeat).ToArray())
+                    PendingResponders = pending.PendingResponders.Skip(1).ToArray(),
+                    DeclinedBy = pending.DeclinedBy.Append(responderSeat).ToArray()
                 }
             });
             if (ContinueTongxieFollowUp(GetActiveProgramFrame(frame.Id),
@@ -515,7 +527,7 @@ public sealed partial class GameEngine
             CancelProgramBindingAndCleanup(active, "所选【杀】已离开使用者手牌，同协追杀结算已取消。");
             return;
         }
-        var usedBy = pending.Used.Append(responderSeat).ToArray();
+        var usedBy = pending.UsedBy.Append(responderSeat).ToArray();
         ReplaceRuntimeTop(GetActiveProgramFrame(frame.Id) with
         {
             // The reexecute flag re-enters this instruction after the slash
@@ -523,9 +535,9 @@ public sealed partial class GameEngine
             ReexecuteParticipantInstruction = true,
             TongxieFollowUp = pending with
             {
-                PendingResponders = Array.AsReadOnly(pending.PendingResponders.Skip(1).ToArray()),
-                Used = Array.AsReadOnly(usedBy),
-                UsedCards = Array.AsReadOnly(pending.UsedCards.Append(cardId).ToArray())
+                PendingResponders = pending.PendingResponders.Skip(1).ToArray(),
+                UsedBy = usedBy,
+                UsedCardIds = pending.UsedCardIds.Append(cardId).ToArray()
             }
         });
         ResolveSlashCore(_players[responderSeat], _players[pending.TargetSeat], card, card.Kind, responderSeat,
@@ -556,7 +568,7 @@ public sealed partial class GameEngine
         if (preventers.Length == 0) return SkillProgramStepOutcome.Continue;
         ReplaceRuntimeTop(GetActiveProgramFrame(frame.Id) with
         {
-            TongxieGuard = new TongxieGuardState(victim, amount, Array.AsReadOnly(preventers))
+            TongxieGuard = new TongxieGuardState(victim, amount, preventers)
         });
         return PresentTongxieGuardPrompt(GetActiveProgramFrame(frame.Id));
     }
@@ -576,7 +588,7 @@ public sealed partial class GameEngine
             {
                 TongxieGuard = pending with
                 {
-                    PendingPreventers = Array.AsReadOnly(pending.PendingPreventers.Skip(1).ToArray())
+                    PendingPreventers = pending.PendingPreventers.Skip(1).ToArray()
                 }
             });
             return ContinueTongxieGuard(GetActiveProgramFrame(frame.Id), GetActiveProgramFrame(frame.Id).TongxieGuard!);
@@ -655,7 +667,7 @@ public sealed partial class GameEngine
             {
                 TongxieGuard = pending with
                 {
-                    PendingPreventers = Array.AsReadOnly(pending.PendingPreventers.Skip(1).ToArray())
+                    PendingPreventers = pending.PendingPreventers.Skip(1).ToArray()
                 }
             });
             if (ContinueTongxieGuard(GetActiveProgramFrame(frame.Id),

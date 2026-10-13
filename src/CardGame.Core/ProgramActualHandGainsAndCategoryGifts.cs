@@ -83,12 +83,7 @@ internal abstract class ActualHandGainProgramDescriptor : ProgramOperationDescri
         static (effect, context) => context.Draw(new(SkillProgramEffectOp.Draw,
             effect.Op == SkillProgramEffectOp.GiveSameCategoryFromDeck ? SkillProgramEffectTarget.SelectedTarget : SkillProgramEffectTarget.Owner,
             1, effect.Condition)));
-    public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
-    {
-        r.AllowOnly("op", "target", "condition");
-        var e = new SkillProgramEffect(Op, FilterBoundCardsProgramOperationDescriptor.Owner(r), 0, r.Condition());
-        RequireAlways(e, r.Path); return e;
-    }
+    public override SkillProgramEffect Parse(ProgramOperationNodeReader r) => ParseOwnerAlways(r);
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e) =>
         [new RequireTriggerWindow(Op == SkillProgramEffectOp.DrawAfterActualOwnHandGain ? SkillProgramTriggerWindow.CardsGained :
             Op == SkillProgramEffectOp.DiscardForeignTurnHandGains ? SkillProgramTriggerWindow.AfterTurnEnded : SkillProgramTriggerWindow.CardUseCompleted)];

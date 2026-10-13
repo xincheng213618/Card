@@ -21,7 +21,9 @@ public enum CardZoneKind
     PrivateReserve = 400,
     PublicDeferredPile = 1000,
     PublicPersistentPile = 1140,
-    PrivateTurnHold = 1700
+    PrivateTurnHold = 1700,
+    RoundHold = 9800,
+    PrivatePersistentPile = 20700
 }
 
 public readonly record struct CardLocation
@@ -29,7 +31,7 @@ public readonly record struct CardLocation
     [System.Text.Json.Serialization.JsonConstructor]
     public CardLocation(CardZoneKind zone, int? ownerSeat = null, string? publicPileId = null, PrivateTurnHoldIdentity? privateTurnHold = null)
     {
-        var owned = zone is CardZoneKind.Hand or CardZoneKind.Equipment or CardZoneKind.Judgment or CardZoneKind.WoodenOxGrain or CardZoneKind.BuquWound or CardZoneKind.Authority or CardZoneKind.Chunlao or CardZoneKind.PojunHold or CardZoneKind.PrivateReserve or CardZoneKind.PublicDeferredPile or CardZoneKind.PublicPersistentPile or CardZoneKind.PrivateTurnHold;
+        var owned = zone is CardZoneKind.Hand or CardZoneKind.Equipment or CardZoneKind.Judgment or CardZoneKind.WoodenOxGrain or CardZoneKind.BuquWound or CardZoneKind.Authority or CardZoneKind.Chunlao or CardZoneKind.PojunHold or CardZoneKind.PrivateReserve or CardZoneKind.PublicDeferredPile or CardZoneKind.PublicPersistentPile or CardZoneKind.PrivateTurnHold or CardZoneKind.RoundHold or CardZoneKind.PrivatePersistentPile;
         if (owned && ownerSeat is null or < 0)
         {
             throw new ArgumentOutOfRangeException(nameof(ownerSeat), $"Zone {zone} requires a non-negative owner seat.");
@@ -40,8 +42,10 @@ public readonly record struct CardLocation
             throw new ArgumentException($"Shared zone {zone} cannot have an owner seat.", nameof(ownerSeat));
         }
 
-        if (publicPileId is not null && (zone != CardZoneKind.PublicPersistentPile || string.IsNullOrWhiteSpace(publicPileId)))
-            throw new ArgumentException("A named pile identity is valid only for a public persistent pile.", nameof(publicPileId));
+        if (publicPileId is not null && (zone is not (CardZoneKind.PublicPersistentPile or CardZoneKind.PrivatePersistentPile) || string.IsNullOrWhiteSpace(publicPileId)))
+            throw new ArgumentException("A named pile identity is valid only for a persistent pile.", nameof(publicPileId));
+        if (zone == CardZoneKind.PrivatePersistentPile && string.IsNullOrWhiteSpace(publicPileId))
+            throw new ArgumentException("A private persistent pile needs an exact source identity.", nameof(publicPileId));
         if ((zone == CardZoneKind.PrivateTurnHold) != (privateTurnHold is not null))
             throw new ArgumentException("A private turn hold needs its exact typed identity.");
         if (privateTurnHold is { } hold && (hold.HoldId <= 0 || hold.ExpiresTurnNumber <= 0 || string.IsNullOrWhiteSpace(hold.SkillId) || string.IsNullOrWhiteSpace(hold.SkillInstanceId) || string.IsNullOrWhiteSpace(hold.SourceId)))
@@ -85,6 +89,7 @@ public readonly record struct CardLocation
     public static CardLocation Chunlao(int seat) => new(CardZoneKind.Chunlao, seat);
 
     public static CardLocation PojunHold(int seat) => new(CardZoneKind.PojunHold, seat);
+    public static CardLocation RoundHold(int seat) => new(CardZoneKind.RoundHold, seat);
 
     public override string ToString() => OwnerSeat is { } seat ? $"{Zone}[{seat}]" : Zone.ToString();
 }
@@ -272,6 +277,7 @@ internal sealed class CardZoneStore
             AddZone(CardLocation.Authority(seat));
             AddZone(CardLocation.Chunlao(seat));
             AddZone(CardLocation.PojunHold(seat));
+            AddZone(CardLocation.RoundHold(seat));
             AddZone(new CardLocation(CardZoneKind.PublicDeferredPile, seat));
             AddZone(new CardLocation(CardZoneKind.PublicPersistentPile, seat));
             AddZone(new CardLocation(CardZoneKind.PrivateReserve, seat));
@@ -279,6 +285,13 @@ internal sealed class CardZoneStore
     }
 
     public int TotalCards => _locations.Count;
+    internal bool HasPrivatePersistentCards(int? ownerSeat = null)
+    {
+        foreach (var (location, cards) in _zones)
+            if (location.Zone == CardZoneKind.PrivatePersistentPile && cards.Count > 0 &&
+                (ownerSeat is null || location.OwnerSeat == ownerSeat)) return true;
+        return false;
+    }
     internal IReadOnlyList<CardLocation> PrivateTurnHoldLocations => Array.AsReadOnly(_zones.Keys.Where(l => l.Zone == CardZoneKind.PrivateTurnHold && _zones[l].Count > 0).OrderBy(l => l.PrivateTurnHold!.HoldId).ToArray());
     internal void EnsurePrivateTurnHold(CardLocation location)
     {
@@ -290,6 +303,13 @@ internal sealed class CardZoneStore
         if (location.Zone != CardZoneKind.PublicPersistentPile || location.OwnerSeat is not { } seat ||
             !_zones.ContainsKey(CardLocation.Hand(seat)))
             throw new ArgumentException("Named public pile requires an existing owner.", nameof(location));
+        if (!_zones.ContainsKey(location)) AddZone(location);
+    }
+    internal void EnsurePrivatePersistentPile(CardLocation location)
+    {
+        if (location.Zone != CardZoneKind.PrivatePersistentPile || location.OwnerSeat is not { } seat ||
+            string.IsNullOrWhiteSpace(location.PublicPileId) || !_zones.ContainsKey(CardLocation.Hand(seat)))
+            throw new ArgumentException("Named private pile requires an existing owner and source.", nameof(location));
         if (!_zones.ContainsKey(location)) AddZone(location);
     }
     internal void AddGeneratedCard(Card card)
@@ -304,6 +324,13 @@ internal sealed class CardZoneStore
         _zoneViews.TryGetValue(location, out var cards)
             ? cards
             : throw new ArgumentOutOfRangeException(nameof(location), location, "The card zone is not registered for this game.");
+
+    public bool Contains(CardLocation location, int cardId)
+    {
+        // Preserve zone validation even when the physical ID is unknown.
+        _ = CardsAt(location);
+        return _locations.TryGetValue(cardId, out var actual) && actual == location;
+    }
 
     public int Count(CardLocation location) => GetZone(location).Count;
 

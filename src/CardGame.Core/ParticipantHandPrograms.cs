@@ -238,6 +238,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("An awaited bound gift lost its exact candidate or movement instruction.");
     }
 
+    [ProgramContinuation(ProgramContinuationKind.Resume, 750)]
     private bool ResumeParticipantHandPayment(long frameId)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame frame || frame.Id != frameId ||

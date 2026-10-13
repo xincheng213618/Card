@@ -102,6 +102,7 @@ public sealed partial class GameEngine
         });
         AdvanceRuntimeProgram(f.Id);
     }
+    [ProgramContinuation(ProgramContinuationKind.Resume, 620)]
     private bool ResumeGrantedPhaseSlashClaim(long frameId)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame f || f.Id != frameId || f.GrantedPhaseSlashClaim is not { } receipt) return false;
@@ -124,6 +125,7 @@ public sealed partial class GameEngine
     private bool IsReturningGrantedEntityPhase(ProgramSkillFrame f) => f.IssuedEntityPhase is { Stage: GrantedEntityPhaseStage.Returning } r &&
         r.DamageDealt is not null && CompleteProgramEventHistory().OfType<GrantedEntityPhaseEndedEvent>().Any(e =>
             e.FrameId == f.Id && e.Source == r.Source && e.TurnNumber == r.TurnNumber && e.PhaseInstanceId == r.PhaseInstanceId && e.DamageDealt == r.DamageDealt);
+    [ProgramContinuation(ProgramContinuationKind.Resume, 610)]
     private bool ResumeGrantedEntityPhaseTrailer(long frameId)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame f || f.Id != frameId || f.IssuedEntityPhase is not { } receipt ||

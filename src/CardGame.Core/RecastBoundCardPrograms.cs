@@ -85,6 +85,7 @@ public sealed partial class GameEngine
         return SkillProgramStepOutcome.AwaitChild;
     }
 
+    [ProgramContinuation(ProgramContinuationKind.Resume, 780)]
     private bool ResumeProgramBoundCardRecast(long frameId)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame frame || frame.Id != frameId ||

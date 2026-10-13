@@ -131,6 +131,7 @@ public sealed partial class GameEngine
         else PublishQuotaTop(frame);
     }
 
+    [ProgramContinuation(ProgramContinuationKind.Resume, 960)]
     private bool TryResumeQuotaTop(long frameId)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame frame || frame.Id != frameId || frame.QuotaTop is not { } draft) return false;

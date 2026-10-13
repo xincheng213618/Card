@@ -3,10 +3,8 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private readonly List<PhaseNamePredictionPolicy> _phaseNamePredictions = [];
-    private bool? _tracksPhaseNamePredictions;
-    private bool TracksPhaseNamePredictions => _tracksPhaseNamePredictions ??=
-        _contentRegistry.Skills.Values.Any(s => s.Program?.Triggers.Any(t =>
-            t.Effects.Any(e => e.Op == SkillProgramEffectOp.BeginPhaseNamePrediction)) == true);
+    private bool TracksPhaseNamePredictions => _contentRegistry.ProgramDependencies
+        .HasTriggerOperation(SkillProgramEffectOp.BeginPhaseNamePrediction);
     // An inserted phase advances the global serial. Its suspended ending parent
     // retains the original identity; never rewind the serial and reuse an ID.
     private int CurrentPredictionPhaseInstanceId => _resolutionStack.OfType<ProgramLifecycleTriggerWindowFrame>()
@@ -52,15 +50,15 @@ public sealed partial class GameEngine
         var r = f.PhaseNamePrediction!;
         if (r.Stage == PhaseNamePredictionStage.ChoosingCost)
             return Array.AsReadOnly(r.Eligible.Where(m => !r.Selected.Contains(m.CardId)).Select(m =>
-                FreezeDirectedDistanceChoice(new(new($"phase-prediction.{f.Id}.cost.{m.CardId}"),
+                PromptChoiceProjection.Freeze(new(new($"phase-prediction.{f.Id}.cost.{m.CardId}"),
                     $"弃置 {GetAttackCard(m.CardId).DisplayName}", [m.CardId], [], new Dictionary<string,string>
                     { ["program-action"]="phase-name-cost", ["card-id"]=m.CardId.ToString(CultureInfo.InvariantCulture) }))).ToArray());
         if (r.Stage == PhaseNamePredictionStage.Revealing)
-            return Array.AsReadOnly(r.TargetHand.Select((id, slot) => FreezeDirectedDistanceChoice(new(
+            return Array.AsReadOnly(r.TargetHand.Select((id, slot) => PromptChoiceProjection.Freeze(new(
                 new($"phase-prediction.{f.Id}.slot.{slot}"), $"展示第 {slot + 1} 张手牌", [], [], new Dictionary<string,string>
                 { ["program-action"]="phase-name-reveal", ["slot-index"]=slot.ToString(CultureInfo.InvariantCulture) }))).ToArray());
         if (r.Stage == PhaseNamePredictionStage.Guessing)
-            return Array.AsReadOnly(new[] { true, false }.Select(guess => FreezeDirectedDistanceChoice(new(
+            return Array.AsReadOnly(new[] { true, false }.Select(guess => PromptChoiceProjection.Freeze(new(
                 new($"phase-prediction.{f.Id}.guess.{(guess ? "yes" : "no")}"), guess ? "会使用同名牌" : "不会使用同名牌", [], [],
                 new Dictionary<string,string> { ["program-action"]="phase-name-guess", ["guess"]=guess ? "yes" : "no" }))).ToArray());
         return [];
@@ -227,6 +225,7 @@ public sealed partial class GameEngine
         TryBeginCharacterStateProgramWindow(f.Id, CharacterStateContinuation.Program) ||
         TryBeginHpChangedProgramWindow(f.Id, PostEventContinuation.AwaitedProgramMovement) ||
         TryBeginCardsMovedProgramWindow(f.Id) || TryBeginAdvancedSkillsChanged(f.Id);
+    [ProgramContinuation(ProgramContinuationKind.Movement, 60)]
     private bool ReturnPhaseNamePredictionMovement(ProgramSkillFrame f)
     {
         if (f.PhaseNamePrediction is not { Stage: PhaseNamePredictionStage.CostChildren or PhaseNamePredictionStage.ClaimChildren } r) return false;
@@ -237,6 +236,7 @@ public sealed partial class GameEngine
         else { ReplaceRuntimeTop(f with { PhaseNamePrediction = null, PendingMovementContinuation = null }); AdvanceRuntimeProgram(f.Id); }
         return true;
     }
+    [ProgramContinuation(ProgramContinuationKind.Resume, 80)]
     private bool ResumePhaseNamePrediction(long id)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame { PhaseNamePrediction: { } r } f || f.Id != id) return false;
@@ -285,6 +285,5 @@ public sealed partial class GameEngine
     {
         public SkillProgramStepOutcome BeginPhaseNamePrediction(ProgramSkillFrame f, string state) => engine.BeginPhaseNamePrediction(f, state);
         public SkillProgramStepOutcome SettlePhaseNamePrediction(ProgramSkillFrame f, string state) => engine.SettlePhaseNamePrediction(f, state);
-        public bool CanContinuePhaseNamePrediction(ProgramSkillFrame f) => engine.CanContinuePhaseNamePrediction(f);
     }
 }

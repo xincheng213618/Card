@@ -127,12 +127,9 @@ public sealed partial class GameEngine
             f.MatchingRecast.Stage is MatchingRecastStage.ChoosingPeer or MatchingRecastStage.ChoosingPeerCards && !IsMatchingRecastChoice(f, prompt))
             throw new InvalidOperationException("Matching recast changed its participant-only private prompt.");
     }
-    private ProgramSkillFrame? MatchingRecastObserverRoot()
-    {
-        for (var index = 0; index + 1 < _resolutionStack.Count; index++)
-            if (_resolutionStack[index] is ProgramSkillFrame root && MatchingRecastFirstChild(root, _resolutionStack[index + 1]) && SameNameHandObserverSuffix(index)) return root;
-        return null;
-    }
+    private ProgramSkillFrame? MatchingRecastObserverRoot() => FindProgramObserverRoot(
+        static (engine, root, child) => engine.MatchingRecastFirstChild(root, child),
+        static (engine, index) => engine.SameNameHandObserverSuffix(index));
     private bool IsMatchingRecastDying() => ActiveDying is { } dying && MatchingRecastObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
     private bool HasMatchingRecastDamageObserver(long windowId) => _resolutionStack.Any(f => f.Id == windowId && f is DamageTriggerWindowFrame) && MatchingRecastObserverRoot() is not null;
@@ -152,17 +149,6 @@ public sealed partial class GameEngine
     private bool TryAdvanceMatchingRecastSubtree()
     {
         if (_pendingDecision is not null || MatchingRecastObserverRoot() is null) return false;
-        var top = _resolutionStack.LastOrDefault();
-        if (top is ProgramSkillFrame { AttackAttempt: not null } attack)
-        {
-            if (CurrentDamageAttempt?.ResolutionId != attack.Id || ActiveDying is not null || attack.AttackReturn is null ||
-                _resolutionStack.Any(f => f is DamageFrame d && d.ParentFrameId == attack.Id || f is BeforeDamageProgramWindowFrame b && (b.ContinuationAttackResolutionId ?? b.ParentFrameId) == attack.Id)) return false;
-            CompleteDamageAttack(new ProgramAttackHandle(this, attack.Id)); AdvanceRulesAndPublishState(); return true;
-        }
-        if (top is ProgramSkillFrame or CardsMovedTriggerWindowFrame or HpChangedTriggerWindowFrame or ProgramLifecycleTriggerWindowFrame or
-            ProgramCardTriggerWindowFrame or BeforeDamageProgramWindowFrame or ProgramDeathTriggerWindowFrame or ProgramKillTriggerWindowFrame or RecoveryReplacementFrame)
-        { AdvanceRuntimeFrame(top.Id); AdvanceRulesAndPublishState(); return true; }
-        if (top is DeathFrame death) { ContinueDeathResolution(death.Id); AdvanceRulesAndPublishState(); return true; }
-        return false;
+        return TryAdvanceObserverSubtree(advanceRecoveryReplacement: true);
     }
 }

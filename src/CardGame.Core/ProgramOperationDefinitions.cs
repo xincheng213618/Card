@@ -52,6 +52,7 @@ internal sealed record ReadSingleCardSet(string Name) : ProgramResourceOperation
 internal sealed record ReadFrozenSingleCardSet(string Name) : ProgramResourceOperation;
 internal sealed record SelectTargetSet(int Minimum, int Maximum) : ProgramResourceOperation;
 internal sealed record ConsumeTargetSet : ProgramResourceOperation;
+internal sealed record ReleaseTargetSet : ProgramResourceOperation;
 internal sealed record NarrowTargetSetToSingle : ProgramResourceOperation;
 internal sealed record DeriveCardSet(
     string Source, string Result, IReadOnlyList<Suit> Suits, int? SelectionMaximum = null,
@@ -347,6 +348,15 @@ internal abstract class ProgramOperationDescriptorBase : IProgramOperationDescri
     public abstract SkillProgramEffect Parse(ProgramOperationNodeReader reader);
     public virtual ProgramSkillInstruction? Compile(SkillProgramEffect effect) => null;
     public abstract IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect);
+
+    protected SkillProgramEffect ParseOwnerAlways(ProgramOperationNodeReader reader)
+    {
+        reader.AllowOnly("op", "target", "condition");
+        var effect = new SkillProgramEffect(Op, FilterBoundCardsProgramOperationDescriptor.Owner(reader), 0, reader.Condition());
+        RequireAlways(effect, reader.Path);
+        return effect;
+    }
+
     protected static void RequireAlways(SkillProgramEffect effect, string path)
     {
         if (effect.Condition.Kind != SkillProgramConditionKind.Always)
@@ -373,7 +383,7 @@ internal abstract class ProgramOperationDescriptorBase : IProgramOperationDescri
         .Where(reference => reference is not null)
         .SelectMany(reference => reference!.Kind switch
         {
-            ProgramParticipantRef.Actor =>
+            ProgramParticipantRef.Actor or ProgramParticipantRef.CardProvider =>
                 new ProgramResourceOperation[] { new RequireContext(ProgramContextCapability.CardAction) },
             ProgramParticipantRef.EventTarget =>
                 new ProgramResourceOperation[] { new RequireAnyContext(ProgramContextCapability.CardAction |
@@ -423,7 +433,7 @@ internal sealed class DrawProgramOperationDescriptor : ProgramOperationDescripto
                  SkillProgramNumberExpression.CategoryTargetTurnUsage or SkillProgramNumberExpression.OwnerLostHp or SkillProgramNumberExpression.BoundCardCount or
                  SkillProgramNumberExpression.CurrentAttackRange or SkillProgramNumberExpression.HandLimitMinusHandCount or
                  SkillProgramNumberExpression.LostHpMinusHandCount or SkillProgramNumberExpression.SelectedTargetsHandGreaterThanLord or
-                 SkillProgramNumberExpression.PhaseSkillUsage or SkillProgramNumberExpression.CurrentTurnUsedCardCategoryCount or
+                 SkillProgramNumberExpression.PhaseSkillUsage or SkillProgramNumberExpression.CurrentTurnUsedCardCategoryCount or SkillProgramNumberExpression.ActualTurnDeathBenefits or
                  SkillProgramNumberExpression.TurnOwnerDiscardPhaseHandDiscardCount or SkillProgramNumberExpression.CurrentHandEmptyTwoOtherwiseOne or
                  SkillProgramNumberExpression.EquipmentHalfCeilingPlusOne)))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}: draw accepts a constant or a supported public-state expression.");
@@ -458,6 +468,9 @@ internal sealed class DrawProgramOperationDescriptor : ProgramOperationDescripto
         if (expression == SkillProgramNumberExpression.CurrentTurnUsedCardCategoryCount &&
             (target != SkillProgramEffectTarget.Owner || bind is not null || targetRef is not null || replacementSuits.Count != 0))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}: actual turn type-count draw requires the owner and no card binding or replacement filter.");
+        if (expression == SkillProgramNumberExpression.ActualTurnDeathBenefits &&
+            (target != SkillProgramEffectTarget.Owner || bind is not null || targetRef is not null || replacementSuits.Count != 0))
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}: actual turn death draw requires the owner and no card binding or replacement filter.");
         if (bind is not null && target is not (SkillProgramEffectTarget.Owner or SkillProgramEffectTarget.SelectedTarget))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}: bound draws require owner or selectedTarget.");
         if (bind is not null) RequireAlways(effect, r.Path);
@@ -473,7 +486,10 @@ internal sealed class DrawProgramOperationDescriptor : ProgramOperationDescripto
                 : Array.Empty<ProgramResourceOperation>())),
             .. ParticipantResources(effect.TargetReference),
             .. effect.NumberExpression == SkillProgramNumberExpression.CurrentTurnUsedCardCategoryCount
-                ? new ProgramResourceOperation[] { new RequireTriggerWindow(SkillProgramTriggerWindow.PlayEnding), new RequireOwnTurnBoundary() }
+                ? new ProgramResourceOperation[] { new RequireTriggerWindow(SkillProgramTriggerWindow.PlayEnding) }
+                : Array.Empty<ProgramResourceOperation>(),
+            .. effect.NumberExpression == SkillProgramNumberExpression.ActualTurnDeathBenefits
+                ? new ProgramResourceOperation[] { new RequireTriggerWindow(SkillProgramTriggerWindow.AfterTurnEnded) }
                 : Array.Empty<ProgramResourceOperation>()];
     internal static int Amount(ProgramOperationNodeReader r, int maximum, bool allowZero = false)
     {

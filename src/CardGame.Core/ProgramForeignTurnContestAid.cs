@@ -74,12 +74,7 @@ internal sealed class OfferSameTypeDifferentNameOrExtraTargetDescriptor : Progra
     public override ProgramOperationInteraction Interaction => ProgramOperationInteraction.Choice;
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GainCards,
         static (_, c) => c.PublicControlValue(10));
-    public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
-    {
-        r.AllowOnly("op", "target", "condition");
-        var e = new SkillProgramEffect(Op, FilterBoundCardsProgramOperationDescriptor.Owner(r), 0, r.Condition());
-        RequireAlways(e, r.Path); return e;
-    }
+    public override SkillProgramEffect Parse(ProgramOperationNodeReader r) => ParseOwnerAlways(r);
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e) =>
         [new RequireTriggerWindows([SkillProgramTriggerWindow.CardUseTargetsFinalized, SkillProgramTriggerWindow.OtherActualUseTargeted])];
 }

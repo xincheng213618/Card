@@ -12,12 +12,7 @@ internal sealed class DiscardDistinctFactionParticipantsDescriptor : ProgramOper
     public override ISkillProgramEffectHandler Handler { get; } = new DiscardDistinctFactionParticipantsHandler();
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.ChooseOwnCardDiscard,
         static (e,c) => c.ChooseOwnCardDiscard(new(SkillProgramEffectOp.ChooseOwnCardDiscard, SkillProgramEffectTarget.Owner, 1, e.Condition)));
-    public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
-    {
-        r.AllowOnly("op","target","condition");
-        var e = new SkillProgramEffect(Op, FilterBoundCardsProgramOperationDescriptor.Owner(r), 0, r.Condition());
-        RequireAlways(e,r.Path); return e;
-    }
+    public override SkillProgramEffect Parse(ProgramOperationNodeReader r) => ParseOwnerAlways(r);
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e) => [new RequireActivationEntry()];
 }
 public sealed class DiscardDistinctFactionParticipantsHandler : ISkillProgramEffectHandler

@@ -142,6 +142,7 @@ public sealed partial class GameEngine
         TryBeginHpChangedProgramWindow(frame.Id, PostEventContinuation.AwaitedProgramMovement) ||
         TryBeginCardsMovedProgramWindow(frame.Id) || TryBeginAdvancedSkillsChanged(frame.Id);
 
+    [ProgramContinuation(ProgramContinuationKind.Resume, 260)]
     private bool ResumePublicPileCashOut(long id)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame frame || frame.Id != id || frame.PublicPileCashOut is not { } receipt) return false;
@@ -176,6 +177,7 @@ public sealed partial class GameEngine
         return true;
     }
 
+    [ProgramContinuation(ProgramContinuationKind.Movement, 190)]
     private bool ReturnPublicPileCashOutMovement(ProgramSkillFrame frame)
     {
         if (frame.PublicPileCashOut is null || frame.PendingMovementContinuation is null) return false;
@@ -300,28 +302,9 @@ public sealed partial class GameEngine
             recovery.Attempt.Completion.Producer == RecoveryAttemptProducer.SilverLion && recovery.Attempt.Completion.MoveReason?.Value == reason;
     }
 
-    private ProgramSkillFrame? PublicPileCashOutObserverRoot()
-    {
-        for (var index = 0; index + 1 < _resolutionStack.Count; index++)
-        {
-            if (_resolutionStack[index] is not ProgramSkillFrame root || !PublicPileCashOutFirstChild(root, _resolutionStack[index + 1])) continue;
-            var exact = true;
-            for (var child = index + 2; child < _resolutionStack.Count; child++)
-            {
-                if (_resolutionStack[child] is ProgramLifecycleTriggerWindowFrame changed && _resolutionStack[child - 1] is ProgramSkillFrame owner &&
-                    changed.Window == SkillProgramTriggerWindow.SkillsChanged && changed.ResumeProgramFrameId == owner.Id &&
-                    changed.Continuation == ProgramLifecycleContinuation.ResumeParentProgram && changed.CandidateIndex >= 0 && changed.CandidateIndex <= changed.Candidates.Count) continue;
-                if (!DyingSuitsStructuralEdge(_resolutionStack[child - 1], _resolutionStack[child]) &&
-                    !HalfHandPaidDamageObserverEdge(child) && !PaidTargetObserverEdge(child)) { exact = false; break; }
-                if (_resolutionStack[child] is DyingFrame dying && child + 1 < _resolutionStack.Count &&
-                    ((IsOriginalDyingSuspendedByDyingSuits(dying) || IsOriginalDyingSuspendedByRecipientCategoryMark(dying)) || IsOriginalDyingSuspendedByOwnedDeathBenefit(dying) ||
-                     IsPaidHandRepaymentProgramAlcoholRide(child, dying) || IsPaidHandRepaymentRescueRide(child, dying) ||
-                     PolicyCounterspellVirtualAlcoholRide(child, dying) || PaidObserverDamageVirtualAlcoholRide(child, dying))) break;
-            }
-            if (exact) return root;
-        }
-        return null;
-    }
+    private ProgramSkillFrame? PublicPileCashOutObserverRoot() => FindProgramObserverRoot(
+        static (engine, root, child) => engine.PublicPileCashOutFirstChild(root, child),
+        static (engine, index) => engine.HasPaidDamageObserverSuffix(index));
 
     private bool IsPublicPileCashOutProgramDying() => ActiveDying is { } dying && PublicPileCashOutObserverRoot() is { } root &&
         _resolutionStack.FindIndex(frame => frame.Id == dying.Id) > _resolutionStack.FindIndex(frame => frame.Id == root.Id);

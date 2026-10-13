@@ -29,17 +29,18 @@ public sealed partial class GameEngine
         return value;
     }
 
-    private void SetProgramBooleanState(ProgramSkillFrame frame, string stateId, bool value)
+    private void SetProgramBooleanState(ProgramSkillFrame frame, string stateId, bool value) =>
+        SetProgramBooleanState(frame.OwnerSeat, frame.SkillId, frame.SkillInstanceId, stateId, value);
+
+    private void SetProgramBooleanState(int ownerSeat, string skillId, string instanceId, string stateId, bool value)
     {
-        var definition = GetProgramBooleanStateDefinition(frame, stateId);
-        var key = new ProgramBooleanStateKey(frame.OwnerSeat, frame.SkillId, frame.SkillInstanceId, stateId);
-        var previous = GetProgramBooleanState(frame, stateId);
-        if (previous == value) return;
+        var definition = GetProgramBooleanStateDefinition(skillId, stateId);
+        var key = new ProgramBooleanStateKey(ownerSeat, skillId, instanceId, stateId);
+        if (GetProgramBooleanState(ownerSeat, skillId, instanceId, stateId) == value) return;
         _programBooleanStates[key] = value;
-        // Private state remains engine-only; public event/snapshot projections must not disclose its value.
         if (definition.Visibility == SkillProgramStateVisibility.Public)
             AdvanceEventRulesAndQueueFact(new ProgramBooleanStateChangedEvent(
-                frame.OwnerSeat, frame.SkillId, frame.SkillInstanceId, stateId, value, definition.Visibility));
+                ownerSeat, skillId, instanceId, stateId, value, definition.Visibility));
     }
 
     private SkillProgramBooleanStateDefinition GetProgramBooleanStateDefinition(

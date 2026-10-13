@@ -80,7 +80,7 @@ public sealed partial class GameEngine
         RecordYingboCardUse(useId, actor.Seat, CardKind.Slash); RecordProgramUsedBasicCard(actor.Seat, CardKind.Slash);
         MarkSlashUsedOrPlayedDuringCurrentPlayPhase(actor.Seat, CardKind.Slash); RecordActualPlayPhaseUse(action);
         var attack = new CardAttackHandle(this, useId, actor.Seat, target.Seat, card: null,
-            damageAmount: actor.HasAlcoholEffect ? 2 : 1, playedCardKind: CardKind.Slash,
+            damageAmount: 1 + actor.AlcoholDamageBonus, playedCardKind: CardKind.Slash,
             ignoresArmor: HasCardArmorBypass(actor, target, CardKind.Slash), programSkillCardUseFrameId: f.Id);
         CaptureProgramAlcoholConsumption(useId, actor); actor.HasAlcoholEffect = false; ActiveCardAttack = attack;
         AdvanceEventRulesAndQueueFact(new CardUsedEvent(0, CardKind.Slash, actor.Seat, target.Seat));

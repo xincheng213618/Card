@@ -17,6 +17,7 @@ public sealed partial class GameEngine
         if (!TryBeginCardsMovedProgramWindow()) ReturnRuntimeProgramMovement(f.Id);
         return SkillProgramStepOutcome.AwaitChild;
     }
+    [ProgramContinuation(ProgramContinuationKind.Resume, 880)]
     private bool ResumePrivateTurnHold(long id)
     {
         var f = GetActiveProgramFrame(id);
@@ -26,7 +27,7 @@ public sealed partial class GameEngine
         ReplaceRuntimeTop(f with { PrivateTurnHoldDraft = null });
         return false;
     }
-    private bool HasActualTurnEndMovementPrelude => HasAfterTurnEndedPrograms || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.HoldOwnerHandUntilTurnEnd);
+    private bool HasActualTurnEndMovementPrelude => HasAfterTurnEndedPrograms || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.HoldOwnerHandUntilTurnEnd) || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.HoldUsedSuitHandAndDraw);
     private void ReturnPrivateTurnHoldsAtTurnEnd()
     {
         foreach (var location in _cardZones.PrivateTurnHoldLocations.Where(l => l.PrivateTurnHold!.DeferredOffer is null && l.PrivateTurnHold.ExpiresTurnNumber <= _turnNumber))

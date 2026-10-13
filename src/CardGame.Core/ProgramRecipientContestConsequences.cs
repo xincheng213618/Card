@@ -67,8 +67,7 @@ internal sealed class RaiseMaximumRecoverAndQualifyPrintedLordDescriptor : Progr
     public override ISkillProgramEffectHandler Handler { get; } = new RaiseMaximumRecoverAndQualifyPrintedLordHandler();
     public override ProgramOperationInteraction Interaction => ProgramOperationInteraction.Choice;
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.Recover, static (_, c) => c.PrintedLordBenefit());
-    public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
-    { r.AllowOnly("op", "target", "condition"); var e = new SkillProgramEffect(Op, FilterBoundCardsProgramOperationDescriptor.Owner(r), 0, r.Condition()); RequireAlways(e, r.Path); return e; }
+    public override SkillProgramEffect Parse(ProgramOperationNodeReader r) => ParseOwnerAlways(r);
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e) => [new RequireTriggerWindow(SkillProgramTriggerWindow.TurnStartBeforeNormalFlow)];
 }
 public sealed class GiveBlackHandAndResolveRecipientContestHandler : ISkillProgramEffectHandler

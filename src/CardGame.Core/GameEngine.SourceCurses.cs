@@ -174,6 +174,7 @@ public sealed partial class GameEngine
         if (!TryDrainFireTargetMovement(f)) ReturnSourceCurseMovement(f);
         return SkillProgramStepOutcome.AwaitChild;
     }
+    [ProgramContinuation(ProgramContinuationKind.Resume, 290)]
     private bool ResumeSourceCurse(long id)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame { SourceCurseReceipt: { } r } f || f.Id != id) return false;
@@ -206,6 +207,7 @@ public sealed partial class GameEngine
         ReplaceRuntimeTop(f = f with { SourceCurseReceipt = null });
         FinishProgramSkill(f, true);
     }
+    [ProgramContinuation(ProgramContinuationKind.Movement, 280)]
     private bool ReturnSourceCurseMovement(ProgramSkillFrame f)
     {
         if (f.SourceCurseReceipt is not { } r) return false;

@@ -69,7 +69,7 @@ public sealed partial class GameEngine
         var choices = ShortRangeSlashTargets(use).Select(target => new PromptChoice(new($"short-range.{frame.Id}.{target}"),
             $"额外指定距离为1的 {_players[target].Name}", [], [target], Parameters())).ToList();
         choices.Add(new(new($"short-range.{frame.Id}.decline"), "不追加目标", [], [], Parameters()));
-        return Array.AsReadOnly(choices.Select(FreezeDirectedDistanceChoice).ToArray());
+        return Array.AsReadOnly(choices.Select(PromptChoiceProjection.Freeze).ToArray());
     }
     private void PublishShortRangeSlashTarget(ProgramSkillFrame frame)
     {
@@ -355,6 +355,5 @@ public sealed partial class GameEngine
         public SkillProgramStepOutcome OfferShortRangeSlashTarget(ProgramSkillFrame frame) => engine.OfferShortRangeSlashTarget(frame);
         public void GrantFixedDistanceOneTurnPolicy(ProgramSkillFrame frame, int target) => engine.GrantFixedDistanceOneTurnPolicy(frame, target);
         public SkillProgramStepOutcome SettleFixedDistanceOneEndingDebt(ProgramSkillFrame frame) => engine.SettleFixedDistanceOneEndingDebt(frame);
-        public bool CanContinueIssuedFixedDistanceEnding(ProgramSkillFrame frame) => engine.CanContinueIssuedFixedDistanceEnding(frame);
     }
 }

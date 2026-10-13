@@ -104,6 +104,7 @@ public sealed partial class GameEngine
         });
         AdvanceRuntimeProgram(f.Id);
     }
+    [ProgramContinuation(ProgramContinuationKind.Resume, 510)]
     private bool ResumeMatchedJudgmentPlacement(long id)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame f || f.Id != id || f.MatchedJudgmentPlacement is not { } r) return false;

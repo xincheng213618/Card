@@ -243,6 +243,7 @@ public sealed partial class GameEngine
         });
         AdvanceRuntimeProgram(f.Id);
     }
+    [ProgramContinuation(ProgramContinuationKind.Resume, 140)]
     private bool ResumeRecipientCategoryMark(long id)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame { RecipientCategoryMark: { } r } f || f.Id != id) return false;
@@ -269,6 +270,7 @@ public sealed partial class GameEngine
         ReplaceRuntimeTop(f = f with { RecipientCategoryMark = r with { Stage = RecipientCategoryMarkStage.Complete }, PendingMovementContinuation = null });
         AdvanceEventRulesAndQueueFact(new RecipientCategoryMarkCompletedEvent(f.Id, r.Operation, r.Consumed)); FinishProgramSkill(f, true);
     }
+    [ProgramContinuation(ProgramContinuationKind.Movement, 120)]
     private bool ReturnRecipientCategoryMarkMovement(ProgramSkillFrame f)
     {
         if (f.RecipientCategoryMark is not { Stage: RecipientCategoryMarkStage.GiftChildren or RecipientCategoryMarkStage.DiscardChildren or RecipientCategoryMarkStage.RecoveryChildren or RecipientCategoryMarkStage.DrawChildren }) return false;
@@ -285,6 +287,5 @@ public sealed partial class GameEngine
     private sealed partial class ProgramSkillHost : IRecipientCategoryMarksProgramHost
     {
         public SkillProgramStepOutcome ExecuteRecipientCategoryMark(ProgramSkillFrame f, SkillProgramEffect e) => engine.ExecuteRecipientCategoryMark(f, e);
-        public bool CanContinueRecipientCategoryMark(ProgramSkillFrame f) => engine.CanContinueRecipientCategoryMark(f);
     }
 }

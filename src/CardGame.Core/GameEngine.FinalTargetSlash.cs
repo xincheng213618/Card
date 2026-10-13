@@ -4,7 +4,7 @@ public sealed partial class GameEngine
 {
     private static bool HasFinalTargetSlashEffects(IEnumerable<SkillProgramEffect> effects) =>
         effects.Any(effect => effect.Op is SkillProgramEffectOp.PreventCurrentTargetSlashCancellation or SkillProgramEffectOp.AddCurrentTargetSlashDamage or
-            SkillProgramEffectOp.ZhuiLieEscalateTargetDamage or
+            SkillProgramEffectOp.ZhuiLieEscalateTargetDamage or SkillProgramEffectOp.RevealRecordedSuitSlash or
             SkillProgramEffectOp.ClaimCurrentUsePhysicalCards or SkillProgramEffectOp.PreventCurrentTargetSlashCancellationByRule);
     private static bool MatchesFinalTargetComparison(ProgramFinalTargetComparison comparison, SkillProgramTriggerFacts facts) => comparison switch
     {
@@ -95,15 +95,20 @@ public sealed partial class GameEngine
             IsValidPlayerSeat(target) && _players[target].IsAlive &&
             _resolutionStack.OfType<CardUseFrame>().SingleOrDefault(use => use.Id == context.ParentCardUseFrameId)?.Action is { Type: CardActionType.Use } action &&
             action.ActionId == context.CardActionId && action.ActorSeat == candidate.OwnerSeat && context.ActorSeat == candidate.OwnerSeat &&
-            IsSlashCard(action.EffectiveKind) && action.EffectiveDesignatedTargetSeats.Contains(target);
+            IsSlashCard(action.EffectiveKind) && action.EffectiveDesignatedTargetSeats.Contains(target) &&
+            (!trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.RevealRecordedSuitSlash) || action.EffectiveDesignatedTargetSeats.Count == 1);
     }
     private bool HasRankSlashRange(CharacterState actor, CardKind kind) =>
         IsSlashCard(kind) && (HasCardPolicy(actor, SkillProgramCardPolicyKind.SlashRangeFromEffectiveRank, kind) || CurrentJudgedRankSlashPolicy(actor.Seat) is not null);
-    private bool IsWithinSpecificSlashRange(CharacterState actor, CharacterState target, CardKind kind, int? rank, long? existingUseFrameId = null) =>
+    private bool IsWithinSpecificSlashRange(CharacterState actor, CharacterState target, CardKind kind, int? rank, long? existingUseFrameId = null, int? excludedEquipmentId = null) =>
         HasJudgedRankSlashDistance(actor.Seat, kind, rank, existingUseFrameId) ||
         (HasCardPolicy(actor, SkillProgramCardPolicyKind.SlashRangeFromEffectiveRank, kind) && rank is > 0
-            ? GetCombatDistance(actor.Seat, target.Seat) <= rank.Value
-            : IsWithinAttackRange(actor.Seat, target.Seat));
+            ? (excludedEquipmentId is null ? GetCombatDistance(actor.Seat, target.Seat) :
+                ConvertRuleValue(EvaluateDistance(actor, target, excludedEquipmentId))) <= rank.Value
+            : excludedEquipmentId is null ? IsWithinAttackRange(actor.Seat, target.Seat) :
+                IsGameFactionAttackRangeTarget(actor.Seat, target.Seat) ||
+                ConvertRuleValue(EvaluateDistance(actor, target, excludedEquipmentId)) <=
+                ConvertRuleValue(EvaluateAttackRange(actor, excludedEquipmentId)));
     private bool HasPotentialRankSlashRange(CharacterState actor, CharacterState target, CardKind kind) =>
         (CurrentJudgedRankSlashPolicy(actor.Seat) is { Rank: > 1 } || HasRankSlashRange(actor, kind) && (GetSlashUseCards(actor).Any(card => IsWithinSpecificSlashRange(actor,target,kind,SpecificSlashRank(actor,card,kind))) ||
             GetZhangbaSlashPairs(actor).Any(pair => IsWithinSpecificSlashRange(actor,target,kind,ZhangbaSpecificSlashRank(actor,pair)))));

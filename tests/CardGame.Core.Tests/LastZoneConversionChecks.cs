@@ -24,6 +24,8 @@ internal static class LastZoneConversionChecks
         Answer(g, c => c.Id == choice.Id);
         Reach(g, p => p?.SkillPrompt?.SkillId == Accepted);
         var action = Response(g, id, CardKind.Dodge);
+        Require(g.Events.Select(e=>e.Payload).OfType<CardRespondedEvent>().Last(e=>e.CardId==id).PublicCard == original.Single(c=>c.Id==id),
+            "A publicly paid Crossbow-to-Dodge conversion lost its original printed suit, rank or physical kind.");
         Require(action.PhysicalCards.Single().From == CardLocation.Hand(0) && action.ConversionChain.Single().BindingId == "last-hand-dodge" &&
             action.ActorSeat == 0 && action.ProviderSeat == 0 && action.RequesterSeat is null,
             "The last Hand card is paid as the actor's own native Slash-defense Dodge, with exact configured provenance.");
@@ -109,6 +111,7 @@ internal static class LastZoneConversionChecks
             g = Cold(g, registry);
             if (use)
             {
+                VerifyJudgmentAdviceScoring(g, id);
                 var action = g.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.Slash && a.CardId == id && a.ConversionSource?.BindingId == "last-judgment-slash");
                 var before = State(g);
                 var rejected = g.Submit(new PlayCardCommand(1, id, [action.TargetSeat!.Value], g.Revision, Prompt(g)!.PromptId,
@@ -147,6 +150,35 @@ internal static class LastZoneConversionChecks
     }
 
     private static bool IsConversion(PromptChoice c) => c.Parameters.GetValueOrDefault("conversion-skill-id") == Conversion;
+    private static void VerifyJudgmentAdviceScoring(GameEngine game, int id)
+    {
+        var view = game.CreateSnapshot(0);
+        var before = State(game);
+        var actions = game.GetHumanLegalActions();
+        var regional = actions.First(a => a.CardId == id && a.Kind == LegalActionKind.Slash);
+        var ordinary = actions.Where(a => a.CardId != id).ToArray();
+        Require(view.Seed is null && view.Players.Where(p => p.Seat != 0).All(p => p.Hand.Count == 0) &&
+            view.Players[0].Judgment.Single().Kind == CardKind.Lightning && !view.Players[0].Hand.Any(c => c.Id == id),
+            "Advice scoring must use the actual printed Judgment material and a player-filtered view.");
+        foreach (var policy in new[] { 1, 2, 3 })
+        {
+            var legacy = new SimpleAiBrain(0, 721019, policy).ChoosePlay(view, ordinary, 1);
+            var enabled = new SimpleAiBrain(0, 721019, policy, includeJudgmentMaterials: true).ChoosePlay(view, ordinary, 1);
+            Require(JsonSerializer.Serialize(new { legacy.Action, legacy.Thought }) ==
+                JsonSerializer.Serialize(new { enabled.Action, enabled.Thought }),
+                "Opting into Judgment material must preserve every ordinary candidate score, reason and seeded choice.");
+            var selected = new SimpleAiBrain(0, 721019, policy, includeJudgmentMaterials: true).ChoosePlay(view, [regional], 1);
+            Require(ReferenceEquals(selected.Action, regional) && selected.Thought.Candidates is [var candidate] &&
+                ReferenceEquals(candidate.Action, regional) && double.IsFinite(candidate.Score),
+                "Advice must score and retain the exact native Judgment Slash action rather than discard or rewrite it.");
+            var complete = new SimpleAiBrain(0, 721019, policy, includeJudgmentMaterials: true).ChoosePlay(view, actions, 1);
+            Require(actions.Contains(complete.Action) && complete.Thought.Candidates.Count == actions.Count &&
+                complete.Thought.Candidates.All(c => double.IsFinite(c.Score)) &&
+                complete.Thought.Candidates.Select(c => c.Action).ToHashSet().SetEquals(actions),
+                "Advice must evaluate all current legal actions alongside the real Judgment conversion.");
+        }
+        Require(State(game) == before, "Independent advice scoring must not change the match, payment, commands, prompts or replay state.");
+    }
     private static void FinishUnavailableDodge(GameEngine g, int expectedHandCount, string message)
     {
         var start = g.Events.Count;

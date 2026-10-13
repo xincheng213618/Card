@@ -28,7 +28,8 @@ public sealed partial class GameEngine
             actorSeat,
             effectiveKind,
             actionType) || IsExclusiveTurnPeachUseForbidden(actorSeat, effectiveKind, actionType) ||
-        IsNextActualUseCounterspellForbidden(actorSeat, effectiveKind, actionType) || IsForeignTurnAlcoholUseForbidden(actorSeat, effectiveKind, actionType);
+        IsNextActualUseCounterspellForbidden(actorSeat, effectiveKind, actionType) || IsForeignTurnAlcoholUseForbidden(actorSeat, effectiveKind, actionType) ||
+        IsOtherPlayRestrictionUseForbidden(actorSeat, effectiveKind, actionType);
 
     private IReadOnlyList<LegalAction> FilterTurnCardUseRestrictions(
         CharacterState actor,
@@ -104,6 +105,7 @@ public sealed partial class GameEngine
 
     private void ExpireTurnCardUseEffects(int turnNumber, int turnSeat)
     {
+        ExpireProgramBooleanStateLeases(turnNumber, turnSeat);
         _currentTurnHeartSlashBonuses.RemoveAll(b => b.TurnNumber == turnNumber && b.TurnOwnerSeat == turnSeat);
         ExpireCurrentTurnNonLockedSkillSuppressions(turnNumber, turnSeat);
         ExpireCurrentTurnOwnSkillSuppressions(turnNumber, turnSeat);
@@ -120,15 +122,19 @@ public sealed partial class GameEngine
     private void ExpireOwnerTurnStartDamageModifiers(int ownerSeat)
     {
         ExpireAttributedNatureMarkers(ownerSeat);
-        var expired = _turnCardUseEffects.ExpireDamageModifiersAtOwnerTurnStart(ownerSeat, _turnNumber);
-        if (expired.Count > 0)
+        ExpireProgramBooleanStateLeasesAtOwnerTurnStart(ownerSeat);
+        var expired = _turnCardUseEffects.ExpireDamageModifiersAtOwnerTurnStart(ownerSeat, _turnNumber)
+            .Concat(_turnCardUseEffects.ExpireRecoveryAndRuleModifiersAtOwnerTurnStart(ownerSeat, _turnNumber)).Order().ToArray();
+        if (expired.Length > 0)
             AdvanceEventRulesAndQueueFact(new TurnCardUseEffectsExpiredEvent(_turnNumber, ownerSeat, expired));
     }
 
     private void ExpireDeadOwnerDamageModifiers(int ownerSeat)
     {
-        var expired = _turnCardUseEffects.ExpireDamageModifiersOnDeath(ownerSeat);
-        if (expired.Count > 0)
+        ExpireProgramBooleanStateLeasesAtOwnerTurnStart(ownerSeat, ownerDied: true);
+        var expired = _turnCardUseEffects.ExpireDamageModifiersOnDeath(ownerSeat)
+            .Concat(_turnCardUseEffects.ExpireRecoveryAndRuleModifiersOnDeath(ownerSeat)).Order().ToArray();
+        if (expired.Length > 0)
             AdvanceEventRulesAndQueueFact(new TurnCardUseEffectsExpiredEvent(_turnNumber, _currentSeat, expired));
     }
 
@@ -223,7 +229,8 @@ public sealed partial class GameEngine
         SkillRuleOperation operation,
         int amount,
         IReadOnlyList<CardKind> cardKinds,
-        PlayerMarkerKind? amountFromMarker = null)
+        PlayerMarkerKind? amountFromMarker = null,
+        SkillProgramDamageModifierExpiration expiration = SkillProgramDamageModifierExpiration.CurrentTurnEnd)
     {
         ValidateProgramTurnEffectGrant(frame);
         if (amountFromMarker is { } marker)
@@ -240,10 +247,10 @@ public sealed partial class GameEngine
         if (query == SkillRuleQuery.CardUseDistanceLimit && cardKinds.Count > 0 &&
             cardKinds.Distinct().Count() != cardKinds.Count)
             throw new InvalidOperationException("A card-use distance-limit modifier requires distinct card kinds.");
-        if (!valid) throw new InvalidOperationException("The turn rule modifier is unsupported.");
+        if (!valid || !Enum.IsDefined(expiration)) throw new InvalidOperationException("The turn rule modifier is unsupported.");
         var granted = _turnCardUseEffects.GrantRuleModifier(
             _turnNumber, _currentSeat, frame.Id, frame.InstructionIndex - 1,
-            CreateProgramTurnEffectSource(frame), query, operation, amount, cardKinds);
+            CreateProgramTurnEffectSource(frame), query, operation, amount, cardKinds, expiration: expiration);
         AdvanceEventRulesAndQueueFact(new TurnRuleModifierGrantedEvent(granted));
     }
 

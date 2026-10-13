@@ -170,14 +170,11 @@ public sealed partial class GameEngine
 
     private bool ForeignSelectedCardSlashStructuralEdge(ResolutionFrame parent, ResolutionFrame child) =>
         parent is ProgramSkillFrame frame && SelectedForeignCardSlashFirstChild(frame, child);
-    private ProgramSkillFrame? SelectedForeignCardSlashObserverRoot()
-    {
-        for (var index = 0; index + 1 < _resolutionStack.Count; index++)
-            if (_resolutionStack[index] is ProgramSkillFrame frame && frame.ForeignSelectedCardSlash is
-                    { Stage: ForeignSelectedCardSlashStage.SettlementChildren or ForeignSelectedCardSlashStage.DrawChildren } &&
-                SelectedForeignCardSlashFirstChild(frame, _resolutionStack[index + 1]) && SameNameHandObserverSuffix(index)) return frame;
-        return null;
-    }
+    private ProgramSkillFrame? SelectedForeignCardSlashObserverRoot() => FindProgramObserverRoot(
+        static (engine, root, child) => root.ForeignSelectedCardSlash is
+            { Stage: ForeignSelectedCardSlashStage.SettlementChildren or ForeignSelectedCardSlashStage.DrawChildren } &&
+            engine.SelectedForeignCardSlashFirstChild(root, child),
+        static (engine, index) => engine.SameNameHandObserverSuffix(index));
     private bool IsSelectedForeignCardSlashProgramDying() => ActiveDying is { } dying && SelectedForeignCardSlashObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
     private bool HasSelectedForeignCardSlashDamageObserver(long id) => HasSelectedForeignCardSlashObserver(id, false);
@@ -212,19 +209,7 @@ public sealed partial class GameEngine
     private bool TryAdvanceSelectedForeignCardSlashSubtree()
     {
         if (_pendingDecision is not null || SelectedForeignCardSlashObserverRoot() is null) return false;
-        var top = _resolutionStack.LastOrDefault();
-        if (top is ProgramSkillFrame { AttackAttempt: not null } attack)
-        {
-            if (CurrentDamageAttempt?.ResolutionId != attack.Id || ActiveDying is not null || attack.AttackReturn is null ||
-                _resolutionStack.Any(f => f is DamageFrame d && d.ParentFrameId == attack.Id || f is BeforeDamageProgramWindowFrame b &&
-                    (b.ContinuationAttackResolutionId ?? b.ParentFrameId) == attack.Id)) return false;
-            CompleteDamageAttack(new ProgramAttackHandle(this, attack.Id)); AdvanceRulesAndPublishState(); return true;
-        }
-        if (top is ProgramSkillFrame or CardsMovedTriggerWindowFrame or HpChangedTriggerWindowFrame or ProgramLifecycleTriggerWindowFrame or
-            ProgramCardTriggerWindowFrame or BeforeDamageProgramWindowFrame or ProgramDeathTriggerWindowFrame or ProgramKillTriggerWindowFrame or RecoveryReplacementFrame)
-        { AdvanceRuntimeFrame(top.Id); AdvanceRulesAndPublishState(); return true; }
-        if (top is DeathFrame death) { ContinueDeathResolution(death.Id); AdvanceRulesAndPublishState(); return true; }
-        return false;
+        return TryAdvanceObserverSubtree(advanceRecoveryReplacement: true);
     }
 
     private void AssertSelectedForeignCardSlashes()

@@ -127,6 +127,7 @@ public sealed partial class GameEngine
 
     private static bool SameNameHandChoicesEqual(PromptChoice a, PromptChoice b) => a.Id == b.Id && a.Cards.SequenceEqual(b.Cards) &&
         a.Targets.SequenceEqual(b.Targets) && a.Parameters.OrderBy(p => p.Key).SequenceEqual(b.Parameters.OrderBy(p => p.Key));
+    [ProgramContinuation(ProgramContinuationKind.Resume, 170)]
     private bool ResumeSameNameHandDiscardOrDamage(long id)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame { SameNameHandDiscardOrDamage: { } r } f || f.Id != id) return false;
@@ -149,6 +150,7 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new SameNameHandCompletedEvent(f.Id, r.TargetSeat, r.PaidMaterial is not null, r.DamageIssued));
         FinishProgramSkill(f, true);
     }
+    [ProgramContinuation(ProgramContinuationKind.Movement, 150)]
     private bool ReturnSameNameHandDiscardOrDamageMovement(ProgramSkillFrame f)
     {
         if (f.SameNameHandDiscardOrDamage is not { Stage: SameNameHandStage.DiscardChildren } || f.PendingMovementContinuation is null) return false;
@@ -173,6 +175,5 @@ public sealed partial class GameEngine
     private sealed partial class ProgramSkillHost : ISameNameHandDiscardOrDamageProgramHost
     {
         public SkillProgramStepOutcome OfferSameNameHandDiscardOrDamage(ProgramSkillFrame f) => engine.BeginSameNameHandDiscardOrDamage(f);
-        public bool CanContinueSameNameHandDiscardOrDamage(ProgramSkillFrame f) => engine.CanContinueSameNameHandDiscardOrDamage(f);
     }
 }

@@ -27,11 +27,12 @@ public sealed partial class GameEngine
     private Card EntityAtCurrentLocation(int id) => _cardZones.CardsAt(_cardZones.GetLocation(id)).Single(c=>c.Id==id);
     private CardActionContext? ActualRespondedAction(CardActionContext response)
     {
-        if(response.Type!=CardActionType.Response || response.ParentActionId is not {} parentId) return null;
+        if(response.Type!=CardActionType.Response) return null;
         // The old ParentActionId remains the outer trick for compatibility. In a
         // counterspell chain, the directly answered action is the prior counterspell.
         if(response.EffectiveKind==CardKind.Nullification&&ActiveNullificationWindow is {ChainDepth:>1})
-            return ResponseExchangeHistory().OfType<CardActionAcceptedEvent>().Select(e=>e.Action).LastOrDefault(a=>a.ActionId!=response.ActionId&&a.Type==CardActionType.Response&&a.EffectiveKind==CardKind.Nullification&&a.ParentActionId==parentId);
+            return ResponseExchangeHistory().OfType<CardActionAcceptedEvent>().Select(e=>e.Action).LastOrDefault(a=>a.ActionId!=response.ActionId&&a.Type==CardActionType.Response&&a.EffectiveKind==CardKind.Nullification&&a.ParentActionId==response.ParentActionId);
+        if (response.ParentActionId is not { } parentId) return null;
         return ResponseExchangeHistory().OfType<CardActionAcceptedEvent>().Select(e=>e.Action).LastOrDefault(a=>a.ActionId==parentId);
     }
     private bool CanExchangeResponseEntities(int owner,string skill,string instance,string state,CardActionContext response)
@@ -81,6 +82,7 @@ public sealed partial class GameEngine
         if(AwaitProgramBoundCardMovements(frame.Id,frame.OwnerSeat)==SkillProgramStepOutcome.Continue) AdvanceRuntimeProgram(frame.Id);
         return SkillProgramStepOutcome.AwaitChild;
     }
+    [ProgramContinuation(ProgramContinuationKind.Resume, 990)]
     private bool TryResumeResponseEntityExchange(long id)
     {
         if(_resolutionStack.LastOrDefault() is not ProgramSkillFrame frame||frame.Id!=id||frame.PendingMovementContinuation is not null) return false;

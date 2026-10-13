@@ -8,6 +8,7 @@ public sealed partial class GameEngine
         {
             ProgramParticipantRef.Owner => frame.OwnerSeat,
             ProgramParticipantRef.Actor when frame.WindowContext?.CardUse is { } context => context.ActorSeat,
+            ProgramParticipantRef.CardProvider => GuanParentAction(frame).ProviderSeat,
             ProgramParticipantRef.EventTarget when frame.WindowContext?.TargetSeat is { } seat => seat,
             ProgramParticipantRef.EventSource when frame.WindowContext?.SourceSeat is { } seat => seat,
             ProgramParticipantRef.SelectedTarget when frame.SelectedTargetSeats is [var seat] => seat,
@@ -281,11 +282,25 @@ public sealed partial class GameEngine
                 return;
             }
         }
-        if (destination == CardLocation.Hand(ownerSeat) && source == CardLocation.Hand(ownerSeat))
+        var selfProviderReward = effect.AllowSameOwnerHandReturn &&
+            effect.ChooserRef?.Kind == ProgramParticipantRef.CardProvider &&
+            effect.CardOwnerRef?.Kind == ProgramParticipantRef.Owner &&
+            effect.TargetReference?.Kind == ProgramParticipantRef.CardProvider && effect.AwaitMovementTriggers;
+        if (selfProviderReward && destination == source && source == CardLocation.Hand(ownerSeat))
+        {
+            // Obtaining one's own hand card is already satisfied. Do not manufacture
+            // a hand loss/gain pair or unrelated movement-trigger rewards.
+            ClearPendingDecision();
+            if (effect.ResultBind is { } sameHandBind)
+                SetProgramCardSet(frame.Id, sameHandBind, [card.Id], SkillProgramCardSetVisibility.Private, [source]);
+            AdvanceRuntimeProgram(frame.Id);
+            return;
+        }
+        if (destination == CardLocation.Hand(ownerSeat) && source == CardLocation.Hand(ownerSeat) && !selfProviderReward)
             throw new InvalidOperationException("A same-hand card movement is not a payment.");
         if (destination == CardLocation.Hand(ownerSeat) &&
             effect.Destination == SkillProgramCardDestination.SelectedTargetHand &&
-            (!effect.AllowSameOwnerHandReturn || zone is not (CardZoneKind.Equipment or CardZoneKind.Judgment)))
+            (!effect.AllowSameOwnerHandReturn || zone is not (CardZoneKind.Equipment or CardZoneKind.Judgment) && !selfProviderReward))
             throw new InvalidOperationException("A same-owner hand return requires an authorized public source zone.");
         if (effect.CoverageResultBind is not null && zone != CardZoneKind.Equipment)
             throw new InvalidOperationException("Attack-range coverage requires a public equipment movement.");

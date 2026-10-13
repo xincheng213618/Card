@@ -6,10 +6,11 @@ public sealed record OrdinaryTrickCannotNullifyIssuedEvent(OrdinaryTrickCannotNu
 
 public sealed partial class GameEngine
 {
-    private readonly bool _hasOrdinaryTrickCannotNullifyCapability;
+    private bool HasOrdinaryTrickCannotNullifyCapability =>
+        _contentRegistry.ProgramDependencies.HasCardPolicy(SkillProgramCardPolicyKind.CannotNullifyOwnOrdinaryTrick);
     private void ObserveUnnullifiableOrdinaryTrick(IGameEvent payload)
     {
-        if (!_hasOrdinaryTrickCannotNullifyCapability || payload is not CardUseDeclaredEvent declared ||
+        if (!HasOrdinaryTrickCannotNullifyCapability || payload is not CardUseDeclaredEvent declared ||
             LifecycleCardUse(declared.ResolutionId) is not { Action: { Type: CardActionType.Use } action } use ||
             action.EffectiveKind == CardKind.Nullification || !IsOrdinaryTrick(action.EffectiveKind)) return;
         var binding = CardPolicies(_players[action.ActorSeat], SkillProgramCardPolicyKind.CannotNullifyOwnOrdinaryTrick, action.EffectiveKind).FirstOrDefault();
@@ -30,7 +31,7 @@ public sealed partial class GameEngine
     private void AssertOrdinaryTrickCannotNullify(CardUseFrame use)
     {
         if (use.OrdinaryTrickCannotNullify is not { } r) return;
-        if (!_hasOrdinaryTrickCannotNullifyCapability || r.CardUseFrameId != use.Id ||
+        if (!HasOrdinaryTrickCannotNullifyCapability || r.CardUseFrameId != use.Id ||
             use.Action is not { Type: CardActionType.Use } action || r.ActionId != action.ActionId ||
             r.ActorSeat != action.ActorSeat || r.ActorSeat != use.SourceSeat || r.Source.OwnerSeat != r.ActorSeat ||
             r.EffectiveKind != use.CardKind || r.EffectiveKind != action.EffectiveKind ||

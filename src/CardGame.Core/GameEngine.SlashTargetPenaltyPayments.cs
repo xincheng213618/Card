@@ -106,6 +106,7 @@ public sealed partial class GameEngine
         if (f.PendingMovementContinuation is not null) ReplaceRuntimeTop(f = GetActiveProgramFrame(f.Id) with { PendingMovementContinuation = null });
         AdvanceRuntimeProgram(f.Id);
     }
+    [ProgramContinuation(ProgramContinuationKind.Resume, 600)]
     private bool ResumeTargetPenalty(long frameId)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame f || f.Id != frameId || f.SlashTargetPenaltyDraft is not { } d) return false;
@@ -155,6 +156,7 @@ public sealed partial class GameEngine
         ReplaceRuntimeTop(f = f with { SlashTargetPenaltyDraft = null, PendingMovementContinuation = null, ReexecuteParticipantInstruction = false });
         FinishProgramSkill(f, completed);
     }
+    [ProgramContinuation(ProgramContinuationKind.MovementTail, 30)]
     private bool ReturnTargetPenaltyMovement(ProgramSkillFrame f)
     {
         if (f.SlashTargetPenaltyDraft is not { Stage: SlashTargetPenaltyStage.CostChildren or SlashTargetPenaltyStage.RewardChildren }) return false;

@@ -108,6 +108,7 @@ public sealed partial class GameEngine
         }
         throw new InvalidOperationException("Invalid gift response stage.");
     }
+    [ProgramContinuation(ProgramContinuationKind.Resume, 930)]
     private bool TryResumeConvertingGift(long frameId)
     {
         if(_resolutionStack.LastOrDefault() is not ProgramSkillFrame f || f.Id!=frameId || f.ConvertingGift is not {} d)return false;

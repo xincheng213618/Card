@@ -8,7 +8,8 @@ public sealed partial class GameEngine
         int PhaseActor, ActualDiscardRecoveryPhaseKey? Phase, long? Parent, CardConversionSource? Producer,
         CardMoveReason Reason, long Before);
     private bool TracksNativeDrawInvocations =>
-        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DrawAfterActualOutsideDraw);
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DrawAfterActualOutsideDraw) ||
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ExchangeFriendGainForDiscard);
     private long OutsidePhaseMovementSequence => _cardMovements.LastOrDefault()?.Sequence ?? 0;
     private static bool IsOutsidePhaseOperation(SkillProgramEffectOp op) => OutsidePhaseDrawDiscardComposition.IsOperation(op);
     private static string OutsidePhaseMovementReason(ProgramSkillFrame f, bool draw) =>
@@ -252,6 +253,7 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new OutsidePhaseDrawDiscardMovementIssuedEvent(f.Id, r.Op, r.ParticipantSeat!.Value,
             r.ActualCount, r.SequenceBefore, r.SequenceAfter, r.BatchId, r.PaidMaterial));
     }
+    [ProgramContinuation(ProgramContinuationKind.Resume, 100)]
     private bool ResumeOutsidePhaseDrawDiscard(long frameId)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame f || f.Id != frameId || f.OutsidePhaseDrawDiscard is not { } r) return false;
@@ -269,6 +271,7 @@ public sealed partial class GameEngine
         }
         FinishProgramSkill(f, true); return true;
     }
+    [ProgramContinuation(ProgramContinuationKind.Movement, 80)]
     private bool ReturnOutsidePhaseDrawDiscardMovement(ProgramSkillFrame f)
     {
         if (f.OutsidePhaseDrawDiscard is not { MovementIssued: true, Stage: OutsidePhaseDrawDiscardStage.MovementChildren }) return false;
@@ -293,6 +296,5 @@ public sealed partial class GameEngine
     private sealed partial class ProgramSkillHost : IOutsidePhaseDrawDiscardProgramHost
     {
         public SkillProgramStepOutcome OutsidePhaseDrawDiscard(ProgramSkillFrame f, SkillProgramEffectOp op) => engine.BeginOutsidePhaseDrawDiscard(f, op);
-        public bool CanContinueOutsidePhaseDrawDiscard(ProgramSkillFrame f) => engine.CanContinueOutsidePhaseDrawDiscard(f);
     }
 }

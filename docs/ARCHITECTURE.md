@@ -44,7 +44,7 @@
 - 自己：可见身份和完整手牌；
 - 主公：身份公开；
 - 其他存活角色：只有武将、体力和手牌数量；
-- 选将阶段：自己的候选和已选武将可见，其他座位的候选和未公开武将均隐藏；全部完成后武将一次公开；
+- 选将阶段：自己的候选和已选武将可见，其他座位的候选和未公开武将均隐藏。身份局由主公先选并公开武将，本地玩家接着选，其余 AI 随后暗选，全部完成后公开其余武将；队伍局由本地玩家先选，全部完成后统一公开；国战由本地玩家先选完双将，其余 AI 随后暗选，武将继续按明置规则公开；
 - 阵亡角色：身份公开；
 - 普通快照不携带随机种子，也不会携带其他玩家正在处理的私有决定；
 - `ProcessingCardCount` 只公开处理区数量，不公开牌堆顺序或他人暗牌 ID；已装备的牌面通过 `PlayerSnapshot.Equipment` 公开，延时牌通过 `PlayerSnapshot.Judgment` 公开，但装备前的手牌仍只对持有者可见；酒效是公开的 `HasAlcoholEffect` 状态，不扩大任何手牌可见性；五谷丰登的 `PublicRevealedCards` 是规则明确公开的牌面例外，当前 `SelectHarvestCard` prompt 仍只给当前 picker；过河拆桥和顺手牵羊对隐藏手牌继续使用不带牌面/牌 ID 的脱敏事件，对公开装备或判定区目标则在 `TargetCardDiscardedEvent`/`TargetCardTakenEvent` 中携带已公开的实体身份，顺手牵羊取得公开区域牌后只在使用者私有手牌快照中出现；
@@ -324,7 +324,7 @@ public interface IActiveSkill
 - 武魂死亡链：rules v92 在普通死亡提交、身份公开、区域清理、奖惩和模式胜负判定后，只对仍未终局的武魂拥有者压入 `DeathSkillFrame`。该帧保存已死拥有者、来源归属的最大正数候选、可空目标与父 `DeathFrame`；目标选择后复用 `JudgmentFrame` 和既有鬼才／鬼道游标。非桃／桃园结义结果压入无 `DyingFrame`、无 killer 的嵌套 `DeathFrame`，内层死亡技能完成后再返回外层；每层最终只清理该拥有者归属的梦魇。rules v91 仍只重建来源账本。
 - 通用直接死亡：rules v93／skill-program schema 9 允许 `judgmentFinalized` 绑定对判定主体或同序列先选定的目标执行 `causeDeath`。执行器记录独立 cause 审计事件，临时挂起父判定 continuation 并压入统一 `DeathFrame`；该路径没有 Damage、`DyingFrame`、killer 或身份击杀奖惩，但目标自己的合法 `DeathSkillFrame` 仍可内层执行。内层完成后恢复父判定触发游标；若死亡已使模式终局，只做判定牌与父帧必要收尾，不再开放天妒、刚烈惩罚或后续配置候选。rules v92 明确拒绝 schema 9 内容。
 - 持续牌身份：rules v94／skill-program schema 10 以 `cardIdentities` 把拥有者手牌的强制有效牌名与可选 `viewAs` 分开；匹配牌不再发布物理牌名的普通使用／响应入口，动作接受时以 `CardConversionSource` 冻结实体牌、有效牌名和绑定来源。`slashDistanceLimit` 只对引用该身份绑定的杀动作放宽距离，出杀次数、目标数、响应、防具与属性仍走各自规则。rules v93 明确拒绝 schema 10 内容。
-- 本局有效势力：rules v95 将内容层不可变的印刷 `FactionId` 与玩家运行时的 `ChosenFactionId` 分离。身份模式的神将在私有选将结束、统一亮将之前通过通用 `SelectFaction`／`AnswerPromptCommand` 选择魏蜀吴群；快照按亮将边界投影，主公技和配置化势力条件只调用 `GetEffectiveFactionId`，不回写 Registry，也不新增 Checkpoint 字段。
+- 本局有效势力：rules v95 将内容层不可变的印刷 `FactionId` 与玩家运行时的 `ChosenFactionId` 分离。身份模式的神将在所有座位选将结束、公开其余武将之前通过通用 `SelectFaction`／`AnswerPromptCommand` 选择魏蜀吴群；选择询问仅本人可见，已公开的神主公在选择提交后公开本局势力，其他神将在武将亮相前继续隐藏本局势力。主公技和配置化势力条件只调用 `GetEffectiveFactionId`，不回写 Registry，也不新增 Checkpoint 字段。
 - 结构化技能状态：rules v96 将 `SkillTag` 与 `SkillExecutionForm` 分成内容层两条独立轴并写入 hash schema 9 扩展；运行时 `SkillRuntimeStateStore` 按拥有者、稳定技能 ID、用途 ID 和作用域记录限次，阶段／回合边界统一刷新所有拥有者，整局记录只由技能重置清除。标签不从展示文本推断，也不生成优先级或执行效果；正式涅槃先迁移为整局消费者，rules v95 继续历史集合路径。
 - 印刷主公技资格：rules v97 只对武将牌印刷技能应用结构化 `Lord` 资格过滤，并让旧式被动、配置程序、转化来源、快照和 WPF 消费同一拥有结果；Registry／图鉴保持印刷全集，rules v96 保留历史拥有语义。
 - 动态获得技能：rules v98 以玩家运行时的稳定内容 ID 列表表达对局中获得技能，并将它并入被动、配置程序、转化来源和公开快照；获得项不经过印刷主公技过滤。`standard-classic-generals@1.69.0` 的 OL 版 SP 关羽是首个消费者：单骑使用整局觉醒账本并获得马术／怒斩，怒斩只按冻结在 `CardActionContext.ConversionChain` 中的精确 SP 武圣来源修改次数或伤害。Checkpoint 仍由命令前缀重建，rules v97 不执行动态获得路径。

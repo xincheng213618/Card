@@ -123,29 +123,19 @@ public sealed partial class GameEngine
         parent is ProgramSkillFrame root && root.OrderedPrintedSkillLoss is not null && OrderedPrintedSkillLossFirstChild(root, child) ||
         child is ProgramSkillFrame { OrderedPrintedSkillLoss: not null } observer && observer.WindowContext?.ParentFrameId == parent.Id && ValidOrderedPrintedSkillLossReceipt(observer);
 
-    private ProgramSkillFrame? OrderedPrintedSkillLossObserverRoot(long? ownerRootId = null)
+    private ProgramSkillFrame? OrderedPrintedSkillLossObserverRoot(long? ownerRootId = null) => FindProgramObserverRoot(
+        static (engine, root, child) => engine.OrderedPrintedSkillLossFirstChild(root, child),
+        static (host, index) => host.HasObserverSuffix(index,
+            static (engine, child) => engine.OrderedPrintedSkillLossObserverEdge(child),
+            static (engine, child, dying) => engine.IsSuspendedOrPaidRescueObserverSuffix(child, dying)), ownerRootId);
+
+    private bool OrderedPrintedSkillLossObserverEdge(int child)
     {
-        for (var index = 0; index + 1 < _resolutionStack.Count; index++)
-        {
-            if (_resolutionStack[index] is not ProgramSkillFrame root || ownerRootId is { } requestedRoot && root.Id != requestedRoot ||
-                !OrderedPrintedSkillLossFirstChild(root, _resolutionStack[index + 1])) continue;
-            var valid = true;
-            for (var child = index + 2; child < _resolutionStack.Count; child++)
-            {
-                if (OrderedPrintedSkillLossSkillsChangedEdge(_resolutionStack[child - 1], _resolutionStack[child])) continue;
-                if (!DyingSuitsStructuralEdge(_resolutionStack[child - 1], _resolutionStack[child]) &&
-                    !MatchingRecastStructuralEdge(_resolutionStack[child - 1], _resolutionStack[child]) &&
-                    !OverflowTargetCancellationStructuralEdge(_resolutionStack[child - 1], _resolutionStack[child]) &&
-                    !HalfHandPaidDamageObserverEdge(child) && !PaidTargetObserverEdge(child))
-                { valid = false; break; }
-                if (_resolutionStack[child] is DyingFrame dying && child + 1 < _resolutionStack.Count &&
-                    (IsOriginalDyingSuspendedByDyingSuits(dying) || IsOriginalDyingSuspendedByRecipientCategoryMark(dying) || IsOriginalDyingSuspendedByOwnedDeathBenefit(dying) ||
-                     IsPaidHandRepaymentProgramAlcoholRide(child, dying) || IsPaidHandRepaymentRescueRide(child, dying) ||
-                     PolicyCounterspellVirtualAlcoholRide(child, dying) || PaidObserverDamageVirtualAlcoholRide(child, dying))) break;
-            }
-            if (valid) return root;
-        }
-        return null;
+        var parent = _resolutionStack[child - 1];
+        var current = _resolutionStack[child];
+        return OrderedPrintedSkillLossSkillsChangedEdge(parent, current) || DyingSuitsStructuralEdge(parent, current) ||
+            MatchingRecastStructuralEdge(parent, current) || OverflowTargetCancellationStructuralEdge(parent, current) ||
+            HalfHandPaidDamageObserverEdge(child) || PaidTargetObserverEdge(child);
     }
 
     private bool IsOrderedPrintedSkillLossProgramDying() => ActiveDying is { } dying && OrderedPrintedSkillLossObserverRoot() is { } root &&
@@ -182,18 +172,7 @@ public sealed partial class GameEngine
     private bool TryAdvanceOrderedPrintedSkillLossSubtree()
     {
         if (_pendingDecision is not null || OrderedPrintedSkillLossObserverRoot() is null) return false;
-        var top = _resolutionStack.LastOrDefault();
-        if (top is ProgramSkillFrame { AttackAttempt: not null } attack)
-        {
-            if (CurrentDamageAttempt?.ResolutionId != attack.Id || ActiveDying is not null || attack.AttackReturn is null ||
-                _resolutionStack.Any(f => f is DamageFrame d && d.ParentFrameId == attack.Id || f is BeforeDamageProgramWindowFrame b && (b.ContinuationAttackResolutionId ?? b.ParentFrameId) == attack.Id)) return false;
-            CompleteDamageAttack(new ProgramAttackHandle(this, attack.Id)); AdvanceRulesAndPublishState(); return true;
-        }
-        if (top is ProgramSkillFrame or CardsMovedTriggerWindowFrame or HpChangedTriggerWindowFrame or ProgramLifecycleTriggerWindowFrame or ProgramCardTriggerWindowFrame or
-            BeforeDamageProgramWindowFrame or ProgramDeathTriggerWindowFrame or ProgramKillTriggerWindowFrame or RecoveryReplacementFrame)
-        { AdvanceRuntimeFrame(top.Id); AdvanceRulesAndPublishState(); return true; }
-        if (top is DeathFrame death) { ContinueDeathResolution(death.Id); AdvanceRulesAndPublishState(); return true; }
-        return false;
+        return TryAdvanceObserverSubtree(advanceRecoveryReplacement: true);
     }
 
     private void AssertOrderedPrintedSkillLoss(ProgramSkillFrame f)

@@ -63,10 +63,8 @@ public sealed record RecoveryPaidCardUseContinuation(RecoveryPaidCardUseKind Kin
 
 public sealed partial class GameEngine
 {
-    private bool? _hasRecoveryReplacementCapability;
-    private bool HasRecoveryReplacementCapability => _hasRecoveryReplacementCapability ??=
-        _contentRegistry.Skills.Values.Any(s => s.Program?.CardPolicies.Any(p =>
-            p.Kind == SkillProgramCardPolicyKind.RedirectOwnTurnFactionRecovery) == true);
+    private bool HasRecoveryReplacementCapability => _contentRegistry.ProgramDependencies
+        .HasCardPolicy(SkillProgramCardPolicyKind.RedirectOwnTurnFactionRecovery);
 
     private bool TryQueueHengyeRecovery(CharacterState player) => UsesFormalMouLuMeng &&
         player.IsAlive && HasRuntimeSkill(player, HengyeSkillId) && GetHengyeGrowth(player) >= 3 &&
@@ -401,6 +399,7 @@ public sealed partial class GameEngine
         switch (continuation.Continuation)
         {
             case PostEventContinuation.Program: AdvanceRuntimeProgram(continuation.ResumeFrameId!.Value); break;
+            case PostEventContinuation.FriendDuelResponse: ContinueFriendDuelResponse(continuation.ResumeFrameId!.Value); break;
             case PostEventContinuation.AwaitedProgramMovement:
                 if (!TryBeginCardsMovedProgramWindow()) ReturnRuntimeProgramMovement(continuation.ResumeFrameId!.Value); break;
             case PostEventContinuation.CardUse:

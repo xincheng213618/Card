@@ -193,6 +193,7 @@ public sealed partial class GameEngine
         AdvanceRuntimeProgram(frame.Id);
     }
 
+    [ProgramContinuation(ProgramContinuationKind.Resume, 720)]
     private bool ResumeAlternativePhaseCost(long frameId)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame frame || frame.Id != frameId || frame.AlternativePhaseCost is null) return false;

@@ -36,7 +36,7 @@ public sealed partial class GameEngine
                 !HasBeneficiarySuitShield(actor.Seat, actor.Seat, Suit.None))
                 result.Add(new(LegalActionKind.Peach, 0, null, DescribeConversion(source, "视为使用【桃】"), kind) { ConversionSource = source });
             else if (kind == CardKind.Alcohol && !actor.HasAlcoholEffect && !HasSelfCardTargetProhibition(actor.Seat) &&
-                (!actor.UsedPlayPhaseAlcoholThisTurn || HasTargetCardQuotaAllowance(actor.Seat, actor.Seat) || HasNextUnlimitedCard(actor) ||
+                (!actor.UsedPlayPhaseAlcoholThisTurn || HasTargetCardQuotaAllowance(actor.Seat, actor.Seat) || (HasNextUnlimitedCard(actor) || HasMouWujingAllowance(actor) || HasFriendQihuiAllowance(actor)) ||
                  HasCardPolicy(actor, SkillProgramCardPolicyKind.UnlimitedAlcoholUse, CardKind.Alcohol)) &&
                 !HasBeneficiarySuitShield(actor.Seat, actor.Seat, Suit.None))
                 result.Add(new(LegalActionKind.Alcohol, 0, null, DescribeConversion(source, "视为使用【酒】"), kind) { ConversionSource = source });
@@ -139,7 +139,7 @@ public sealed partial class GameEngine
         var id = BeginCardUse(card, actor.Seat, [target.Seat], kind,
             ignoresArmor: HasCardArmorBypass(actor, target, kind), physicalCardIds: [], conversionSource: source);
         var attack = new CardAttackHandle(this, id, actor.Seat, target.Seat, card: null,
-            damageAmount: actor.HasAlcoholEffect ? 2 : 1, playedCardKind: kind,
+            damageAmount: 1 + actor.AlcoholDamageBonus, playedCardKind: kind,
             ignoresArmor: HasCardArmorBypass(actor, target, kind));
         if (borrowed is not null) borrowed.ActiveAttack = attack;
         ActiveCardAttack = attack; CaptureProgramAdjustedSlashBaseDamage(attack);
@@ -198,7 +198,7 @@ public sealed partial class GameEngine
             var targets = LifecycleCardUse(id)!.TargetSeats;
             if (targets.Count == 0) throw new InvalidOperationException("A virtual Slash requires its real selected targets.");
             var attack = new CardAttackHandle(this, id, actor.Seat, targets[0], card: null,
-                damageAmount: actor.HasAlcoholEffect ? 2 : 1, playedCardKind: kind,
+                damageAmount: 1 + actor.AlcoholDamageBonus, playedCardKind: kind,
                 ignoresArmor: HasCardArmorBypass(actor, _players[targets[0]], kind));
             CaptureProgramAlcoholConsumption(id, actor); actor.HasAlcoholEffect = false; ActiveCardAttack = attack;
             CaptureProgramAdjustedSlashBaseDamage(attack);

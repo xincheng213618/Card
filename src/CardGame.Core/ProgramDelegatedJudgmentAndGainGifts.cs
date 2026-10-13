@@ -85,12 +85,7 @@ internal sealed class DelegateJudgmentReplacementDescriptor : ProgramOperationDe
 internal abstract class GainGiftDescriptor : ProgramOperationDescriptorBase
 {
     public override ISkillProgramEffectHandler Handler => new DelegatedJudgmentAndGainGiftHandler(Op);
-    public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
-    {
-        r.AllowOnly("op", "target", "condition");
-        var e = new SkillProgramEffect(Op, FilterBoundCardsProgramOperationDescriptor.Owner(r), 0, r.Condition());
-        RequireAlways(e, r.Path); return e;
-    }
+    public override SkillProgramEffect Parse(ProgramOperationNodeReader r) => ParseOwnerAlways(r);
 }
 internal sealed class GiveAfterBatchGainDescriptor : GainGiftDescriptor
 {

@@ -254,6 +254,7 @@ public sealed partial class GameEngine
         AdvanceRuntimeProgram(frame.Id);
     }
 
+    [ProgramContinuation(ProgramContinuationKind.Resume, 820)]
     private bool TryResumeFixedSlashAndDeclaredDeck(long frameId)
     {
         var frame = GetActiveProgramFrame(frameId);

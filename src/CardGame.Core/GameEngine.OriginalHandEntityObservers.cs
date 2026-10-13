@@ -251,33 +251,26 @@ public sealed partial class GameEngine
                 pair.First.Targets.SequenceEqual(pair.Second.Targets) && pair.First.Parameters.OrderBy(p => p.Key).SequenceEqual(pair.Second.Parameters.OrderBy(p => p.Key)));
     }
 
-    private ProgramSkillFrame? OriginalHandEntityObserverRoot()
+    private ProgramSkillFrame? OriginalHandEntityObserverRoot() => FindProgramObserverRoot(
+        static (engine, root, child) => engine.OriginalHandEntityFirstChild(root, child),
+        static (host, index) => host.HasObserverSuffix(index,
+            static (engine, child) => engine.OriginalHandEntityObserverEdge(child),
+            static (engine, child, dying) => engine.IsSuspendedOrPaidRescueObserverSuffix(child, dying)));
+
+    private bool OriginalHandEntityObserverEdge(int child)
     {
-        for (var index = 0; index + 1 < _resolutionStack.Count; index++)
-        {
-            if (_resolutionStack[index] is not ProgramSkillFrame root || !OriginalHandEntityFirstChild(root, _resolutionStack[index + 1])) continue;
-            var aligned = true;
-            for (var child = index + 2; child < _resolutionStack.Count; child++)
-            {
-                if (_resolutionStack[child] is ProgramLifecycleTriggerWindowFrame changed && _resolutionStack[child - 1] is ProgramSkillFrame owner &&
-                    changed.Window == SkillProgramTriggerWindow.SkillsChanged && changed.ResumeProgramFrameId == owner.Id &&
-                    changed.Continuation == ProgramLifecycleContinuation.ResumeParentProgram && changed.CandidateIndex >= 0 && changed.CandidateIndex <= changed.Candidates.Count) continue;
-                if (!SameNameHandStructuralEdge(_resolutionStack[child - 1], _resolutionStack[child]) &&
-                    !CompletedUndamagedTargetRevealStructuralEdge(_resolutionStack[child - 1], _resolutionStack[child]) && !RecipientCategoryMarkStructuralEdge(_resolutionStack[child - 1], _resolutionStack[child]) && !OffTurnUsedCardGiftStructuralEdge(_resolutionStack[child - 1], _resolutionStack[child]) &&
-                    !CardSupplyCompletionStructuralEdge(_resolutionStack[child - 1], _resolutionStack[child]) &&
-                    !ResponseCompletionStructuralEdge(_resolutionStack[child - 1], _resolutionStack[child]) &&
-                    !OriginalHandEntityStructuralEdge(_resolutionStack[child - 1], _resolutionStack[child]) &&
-                    !OutsidePhaseDrawDiscardStructuralEdge(_resolutionStack[child - 1], _resolutionStack[child]) &&
-                    !DyingSuitsStructuralEdge(_resolutionStack[child - 1], _resolutionStack[child]) &&
-                    !HalfHandPaidDamageObserverEdge(child) && !PaidTargetObserverEdge(child)) { aligned = false; break; }
-                if (_resolutionStack[child] is DyingFrame dying && child + 1 < _resolutionStack.Count &&
-                    ((IsOriginalDyingSuspendedByDyingSuits(dying) || IsOriginalDyingSuspendedByRecipientCategoryMark(dying)) || IsOriginalDyingSuspendedByOwnedDeathBenefit(dying) ||
-                     IsPaidHandRepaymentProgramAlcoholRide(child, dying) || IsPaidHandRepaymentRescueRide(child, dying) ||
-                     PolicyCounterspellVirtualAlcoholRide(child, dying) || PaidObserverDamageVirtualAlcoholRide(child, dying))) break;
-            }
-            if (aligned) return root;
-        }
-        return null;
+        var parent = _resolutionStack[child - 1];
+        var current = _resolutionStack[child];
+        return IsObserverSkillsChangedEdge(parent, current) || SameNameHandStructuralEdge(parent, current) ||
+            CompletedUndamagedTargetRevealStructuralEdge(parent, current) ||
+            RecipientCategoryMarkStructuralEdge(parent, current) ||
+            OffTurnUsedCardGiftStructuralEdge(parent, current) ||
+            CardSupplyCompletionStructuralEdge(parent, current) ||
+            ResponseCompletionStructuralEdge(parent, current) ||
+            OriginalHandEntityStructuralEdge(parent, current) ||
+            OutsidePhaseDrawDiscardStructuralEdge(parent, current) ||
+            DyingSuitsStructuralEdge(parent, current) ||
+            HalfHandPaidDamageObserverEdge(child) || PaidTargetObserverEdge(child);
     }
     private bool IsOriginalHandEntityProgramDying() => ActiveDying is { } dying && OriginalHandEntityObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
@@ -299,18 +292,6 @@ public sealed partial class GameEngine
     private bool TryAdvanceOriginalHandEntitySubtree()
     {
         if (_pendingDecision is not null || OriginalHandEntityObserverRoot() is null) return false;
-        var top = _resolutionStack.LastOrDefault();
-        if (top is ProgramSkillFrame { AttackAttempt: not null } attack)
-        {
-            if (CurrentDamageAttempt?.ResolutionId != attack.Id || ActiveDying is not null || attack.AttackReturn is null ||
-                _resolutionStack.Any(frame => frame is DamageFrame damage && damage.ParentFrameId == attack.Id ||
-                    frame is BeforeDamageProgramWindowFrame before && (before.ContinuationAttackResolutionId ?? before.ParentFrameId) == attack.Id)) return false;
-            CompleteDamageAttack(new ProgramAttackHandle(this, attack.Id)); AdvanceRulesAndPublishState(); return true;
-        }
-        if (top is ProgramSkillFrame or CardsMovedTriggerWindowFrame or HpChangedTriggerWindowFrame or ProgramLifecycleTriggerWindowFrame or
-            ProgramCardTriggerWindowFrame or BeforeDamageProgramWindowFrame or ProgramDeathTriggerWindowFrame or ProgramKillTriggerWindowFrame or RecoveryReplacementFrame)
-        { AdvanceRuntimeFrame(top.Id); AdvanceRulesAndPublishState(); return true; }
-        if (top is DeathFrame death) { ContinueDeathResolution(death.Id); AdvanceRulesAndPublishState(); return true; }
-        return false;
+        return TryAdvanceObserverSubtree(advanceRecoveryReplacement: true);
     }
 }

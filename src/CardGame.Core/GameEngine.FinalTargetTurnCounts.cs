@@ -110,6 +110,7 @@ public sealed partial class GameEngine
         MoveCards(GetHand(_players[frame.OwnerSeat]).Where(c => draft.SelectedIds.Contains(c.Id)).ToArray(), CardLocation.Hand(frame.OwnerSeat), CardLocation.DiscardPile, new("skill-program.named-turn-count.discard"));
         if (!TryBeginCardsMovedProgramWindow()) ReturnRuntimeProgramMovement(frame.Id);
     }
+    [ProgramContinuation(ProgramContinuationKind.Resume, 900)]
     private bool ResumeNamedTurnFlow(long frameId)
     {
         var frame = GetActiveProgramFrame(frameId); var draft = frame.NamedTurnCountFlow; if (draft is null) return false;

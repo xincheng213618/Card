@@ -178,6 +178,7 @@ public sealed partial class GameEngine
         }
         AdvanceRuntimeProgram(f.Id); return SkillProgramStepOutcome.AwaitChild;
     }
+    [ProgramContinuation(ProgramContinuationKind.Resume, 550)]
     private bool ResumeForeignTurnContest(long frameId)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame f || f.Id != frameId || f.ForeignTurnContest is not { } r) return false;
@@ -222,7 +223,7 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new TargetsConfirmedEvent(id, [target.Seat]));
         RecordYingboCardUse(id, actor.Seat, CardKind.Slash); RecordProgramUsedBasicCard(actor.Seat, CardKind.Slash);
         MarkSlashUsedOrPlayedDuringCurrentPlayPhase(actor.Seat, CardKind.Slash); RecordActualPlayPhaseUse(action);
-        var attack = new CardAttackHandle(this, id, actor.Seat, target.Seat, card: null, damageAmount: actor.HasAlcoholEffect ? 2 : 1,
+        var attack = new CardAttackHandle(this, id, actor.Seat, target.Seat, card: null, damageAmount: 1 + actor.AlcoholDamageBonus,
             playedCardKind: CardKind.Slash, ignoresArmor: HasCardArmorBypass(actor, target, CardKind.Slash), programSkillCardUseFrameId: f.Id);
         CaptureProgramAlcoholConsumption(id, actor); actor.HasAlcoholEffect = false; ActiveCardAttack = attack;
         AdvanceEventRulesAndQueueFact(new CardUsedEvent(0, CardKind.Slash, actor.Seat, target.Seat));

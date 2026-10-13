@@ -49,8 +49,11 @@ public sealed partial class GameEngine
         var choices = new List<PromptChoice>();
         void Add(string key, string label, IReadOnlyList<int> targets) => choices.Add(
             new(new($"red-discard-recovery.{f.Id}.{key}"), label, [], targets, RedDiscardRecoveryParameters(f, key)));
-        foreach (var other in _players.Where(p => p.IsAlive && p.Seat != f.OwnerSeat && !d.Selected.Contains(p.Seat)))
-            Add($"seat:{other.Seat}", $"选择 {other.Name}", [other.Seat]);
+        if (d.Selected.Count < d.Budget)
+        {
+            foreach (var other in _players.Where(p => p.IsAlive && p.Seat != f.OwnerSeat && !d.Selected.Contains(p.Seat)))
+                Add($"seat:{other.Seat}", $"选择 {other.Name}", [other.Seat]);
+        }
         if (d.Selected.Count > 0)
             Add("finish", $"确认，依次结算（已选 {d.Selected.Count}/{d.Budget} 名）", d.Selected);
         Add("skip", "不发动", []);
@@ -132,6 +135,7 @@ public sealed partial class GameEngine
         }
         throw new InvalidOperationException("The red discard recovery selection does not match its suspended instruction.");
     }
+    [ProgramContinuation(ProgramContinuationKind.Resume, 980)]
     private bool ResumeRedDiscardRecovery(long id)
     {
         var f = GetActiveProgramFrame(id);

@@ -84,6 +84,7 @@ public sealed partial class GameEngine
         // Draw recipient can differ from owner; generic draw already retains its continuation.
         if(AwaitProgramBoundCardMovements(f.Id,f.OwnerSeat)==SkillProgramStepOutcome.Continue)AdvanceRuntimeProgram(f.Id);
     }
+    [ProgramContinuation(ProgramContinuationKind.Resume, 940)]
     private bool ResumePublicPileColorPayment(long id)
     {
         if(_resolutionStack.LastOrDefault() is not ProgramSkillFrame {PublicPileColorPayment:{}} f||f.Id!=id||f.PendingMovementContinuation is not null)return false;

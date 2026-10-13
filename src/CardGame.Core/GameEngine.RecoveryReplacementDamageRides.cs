@@ -7,6 +7,7 @@ public sealed partial class GameEngine
         recovery.Return.ResumeFrameId == beneath.Id && recovery.Return.Continuation switch
         {
             PostEventContinuation.Program or PostEventContinuation.AwaitedProgramMovement => beneath is ProgramSkillFrame,
+            PostEventContinuation.FriendDuelResponse => beneath is FriendDuelResponseFrame,
             PostEventContinuation.CardUse or PostEventContinuation.GroupRecovery or
                 PostEventContinuation.VirtualBasicCardUse or PostEventContinuation.RecoveryProducer => beneath is CardUseFrame,
             PostEventContinuation.RecoveryPaidCardUse => beneath is CardUseFrame { RecoveryPaidContinuation: not null },

@@ -29,6 +29,7 @@ public sealed partial class GameEngine
             r.PhaseActorSeat, r.PhaseInstanceId, id, card.Kind, before, after));
         AdvanceRuntimeProgram(f.Id); return SkillProgramStepOutcome.AwaitChild;
     }
+    [ProgramContinuation(ProgramContinuationKind.Resume, 440)]
     private bool ResumeEndingPairOrSlashRecast(long id)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame f || f.Id != id) return false;

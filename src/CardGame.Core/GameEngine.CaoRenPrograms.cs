@@ -11,7 +11,8 @@ public sealed partial class GameEngine
                 OwnedCardMoveIntent.Discard))
             .Select(card => card.Id).OrderBy(id => id).ToArray();
         if (candidates.Length == 0) return SkillProgramStepOutcome.Continue;
-        _strategicDrafts[frame.Id] = new(SkillProgramEffectOp.DiscardHandOrUseEquipment, -1, null, candidates, [], 1);
+        ReplaceRuntimeTop(frame = frame with
+        { StrategicDraft = new(SkillProgramEffectOp.DiscardHandOrUseEquipment, -1, null, 1) { Candidates = candidates } });
         PublishStrategicPrompt(frame);
         return _pendingDecision is null ? SkillProgramStepOutcome.Continue : SkillProgramStepOutcome.AwaitChoice;
     }
@@ -56,7 +57,8 @@ public sealed partial class GameEngine
             })
             .Select(card => card.Id).OrderBy(id => id).ToArray();
         if (candidates.Length == 0) return SkillProgramStepOutcome.Continue;
-        _strategicDrafts[frame.Id] = new(SkillProgramEffectOp.MoveFieldEquipment, destination, null, candidates, [], 1);
+        ReplaceRuntimeTop(frame = active with
+        { StrategicDraft = new(SkillProgramEffectOp.MoveFieldEquipment, destination, null, 1) { Candidates = candidates } });
         PublishStrategicPrompt(frame);
         return _pendingDecision is null ? SkillProgramStepOutcome.Continue : SkillProgramStepOutcome.AwaitChoice;
     }

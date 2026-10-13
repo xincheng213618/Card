@@ -66,15 +66,16 @@ public sealed partial class GameEngine
             card, victim.Seat, [victim.Seat], CardKind.Alcohol, conversionSource: source);
         MoveCard(card, location, CardLocation.Processing, reason);
         SetCardUseStep(resolutionId, ResolutionFrameStep.ResolvingEffect);
-        if (TryQueueRecoveryReplacement(resolutionId, victim.Seat, victim.Seat, 1,
+        var recoveryAmount = ApplyIssuedCardRecoveryModifiers(resolutionId, victim.Seat, victim.Seat, 1);
+        if (TryQueueRecoveryReplacement(resolutionId, victim.Seat, victim.Seat, recoveryAmount,
             new(RecoveryAttemptProducer.DyingBoundAlcohol, CardId: card.Id, CardKind: CardKind.Alcohol,
                 MoveReason: reason, ProgramFrameId: active.Id, DyingFrameId: dying.FrameId, SkillId: active.SkillId, SkillOwnerSeat: active.OwnerSeat)))
         { TryBeginQueuedRecoveryReplacement(resolutionId, PostEventContinuation.RecoveryProducer); return; }
-        var recoveryFrameId = BeginRecovery(resolutionId, victim.Seat, victim.Seat, 1);
+        var recoveryFrameId = BeginRecovery(resolutionId, victim.Seat, victim.Seat, recoveryAmount);
         try
         {
-            victim.Hp = Math.Min(victim.MaxHp, victim.Hp + 1);
-            AdvanceEventRulesAndQueueFact(new RecoveryAppliedEvent(victim.Seat, victim.Seat, 1, victim.Hp));
+            victim.Hp = Math.Min(victim.MaxHp, victim.Hp + recoveryAmount);
+            AdvanceEventRulesAndQueueFact(new RecoveryAppliedEvent(victim.Seat, victim.Seat, recoveryAmount, victim.Hp));
         }
         finally
         {
@@ -84,10 +85,10 @@ public sealed partial class GameEngine
         FinishCardUse(resolutionId, card, CardKind.Alcohol);
         AdvanceEventRulesAndQueueFact(new ProgramDyingRescueEvent(
             dying.FrameId, active.SkillId, active.OwnerSeat, victim.Seat,
-            card.Id, 1, victim.Hp));
+            card.Id, recoveryAmount, victim.Hp));
         var skill = _contentRegistry!.GetSkill(active.SkillId);
         AddLog("SkillTriggered",
-            $"{_players[active.OwnerSeat].Name} 发动【{skill.Name}】，令 {victim.Name} 视为使用【酒】并回复1点体力。",
+            $"{_players[active.OwnerSeat].Name} 发动【{skill.Name}】，令 {victim.Name} 视为使用【酒】并回复{recoveryAmount}点体力。",
             active.OwnerSeat, victim.Seat);
     }
 
@@ -114,15 +115,16 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new CardUseDeclaredEvent(resolutionId, 0, CardKind.Alcohol, victim.Seat));
         AdvanceEventRulesAndQueueFact(new TargetsConfirmedEvent(resolutionId, Array.AsReadOnly(new[] { victim.Seat })));
         SetCardUseStep(resolutionId, ResolutionFrameStep.ResolvingEffect);
-        if (TryQueueRecoveryReplacement(resolutionId, victim.Seat, victim.Seat, 1,
+        var recoveryAmount = ApplyIssuedCardRecoveryModifiers(resolutionId, victim.Seat, victim.Seat, 1);
+        if (TryQueueRecoveryReplacement(resolutionId, victim.Seat, victim.Seat, recoveryAmount,
             new(RecoveryAttemptProducer.DyingVirtualAlcohol, CardId: 0, CardKind: CardKind.Alcohol,
                 ProgramFrameId: active.Id, DyingFrameId: dying.FrameId, SkillId: active.SkillId, SkillOwnerSeat: active.OwnerSeat)))
         { TryBeginQueuedRecoveryReplacement(resolutionId, PostEventContinuation.RecoveryProducer); return; }
-        var recoveryFrameId = BeginRecovery(resolutionId, victim.Seat, victim.Seat, 1);
+        var recoveryFrameId = BeginRecovery(resolutionId, victim.Seat, victim.Seat, recoveryAmount);
         try
         {
-            victim.Hp = Math.Min(victim.MaxHp, victim.Hp + 1);
-            AdvanceEventRulesAndQueueFact(new RecoveryAppliedEvent(victim.Seat, victim.Seat, 1, victim.Hp));
+            victim.Hp = Math.Min(victim.MaxHp, victim.Hp + recoveryAmount);
+            AdvanceEventRulesAndQueueFact(new RecoveryAppliedEvent(victim.Seat, victim.Seat, recoveryAmount, victim.Hp));
         }
         finally
         {
@@ -130,10 +132,10 @@ public sealed partial class GameEngine
         }
         AdvanceEventRulesAndQueueFact(new ProgramDyingRescueEvent(
             dying.FrameId, active.SkillId, active.OwnerSeat, victim.Seat,
-            0, 1, victim.Hp));
+            0, recoveryAmount, victim.Hp));
         var skill = _contentRegistry!.GetSkill(active.SkillId);
         AddLog("SkillTriggered",
-            $"{_players[active.OwnerSeat].Name} 发动【{skill.Name}】，视为使用【酒】并回复1点体力。",
+            $"{_players[active.OwnerSeat].Name} 发动【{skill.Name}】，视为使用【酒】并回复{recoveryAmount}点体力。",
             active.OwnerSeat, victim.Seat);
         if (!FinishActualTurnLegacyDyingAlcohol(resolutionId, active.Id))
             PopFinishedCardUse(resolutionId);

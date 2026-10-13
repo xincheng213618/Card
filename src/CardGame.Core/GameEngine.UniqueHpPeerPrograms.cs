@@ -130,6 +130,7 @@ public sealed partial class GameEngine
         else MoveProgramCardsFromMultipleSources(invoice.CardIds, CardLocation.DiscardPile, new(UniqueHpPeerCostReason(f)), (_, records) => Commit(records.Max(m => m.Sequence)));
         AdvanceRuntimeProgram(f.Id);
     }
+    [ProgramContinuation(ProgramContinuationKind.Resume, 370)]
     private bool ResumeUniqueHpPeer(long id)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame f || f.Id != id || f.UniqueHpPeer is not { } r) return false;

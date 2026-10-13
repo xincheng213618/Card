@@ -1,4 +1,4 @@
-namespace CardGame.Core;
+﻿namespace CardGame.Core;
 
 // Snapshot construction and visibility rules live beside the observer projection.
 public sealed partial class GameEngine
@@ -79,6 +79,7 @@ public sealed partial class GameEngine
                 player.GeneralSelected && player.GeneralRevealed,
                 player.HasAlcoholEffect)
             {
+                AlcoholDamageBonus = player.AlcoholDamageBonus >= 2 ? player.AlcoholDamageBonus : null,
                 IsFaceDown = player.IsFaceDown,
                 OriginalHandEntities = ProjectOriginalHandEntities(player.Seat, viewerSeat, revealAll),
                 TeamId = IsTeamMode && player.TeamRevealed ? player.TeamId : null,
@@ -123,6 +124,7 @@ public sealed partial class GameEngine
                 PublicPersistentPiles = CreatePublicPersistentPileSnapshots(player.Seat),
                 PrivateGeneralLibraries = ProjectPrivateGeneralLibraries(player,viewerSeat,revealAll),
                 PrivateTurnHolds = ProjectPrivateTurnHolds(player.Seat, viewerSeat, revealAll),
+                NamedAmbushPiles = ProjectNamedAmbushPiles(player.Seat, viewerSeat, revealAll),
                 PublicDeferredPileName = _deferredPublicPileDeposits.Count > 0 &&
                     _deferredPublicPileDeposits.FirstOrDefault(item => item.OwnerSeat == player.Seat) is { } deposit ? _contentRegistry.GetSkill(deposit.SkillId).ProgramPresentation?.AuthorityName : null,
                 PublicDeferredPileCount = deferredPileCards.Count,
@@ -137,6 +139,7 @@ public sealed partial class GameEngine
                 ChunlaoCards = HasProgramPersistentZone(player, CardZoneKind.Chunlao) || chunlao.Count > 0
                     ? chunlao.Select(ToSnapshot).ToArray()
                     : null,
+                RoundHoldCount = _cardZones.CardsAt(CardLocation.RoundHold(player.Seat)).Count,
                 PojunHoldCount = pojunHold.Count,
                 PojunHoldCards = pojunHold.Count > 0
                     ? pojunHold.Select(ToSnapshot).ToArray()
@@ -180,17 +183,28 @@ public sealed partial class GameEngine
         IReadOnlyList<CardSnapshot> programRevealedCards = lastProgram is null
             ? Array.Empty<CardSnapshot>()
             : GetProgramPublicCards().Concat(GainGiftPublicLostCards()).DistinctBy(card => card.Id).ToArray();
+        programRevealedCards = programRevealedCards.Concat(_resolutionStack.OfType<ProgramSkillFrame>()
+            .Where(f => f.ExtraEffectsAndRankGuess?.Operation == SkillProgramEffectOp.GuessRanksForDrawReplacement)
+            .SelectMany(f => f.ExtraEffectsAndRankGuess!.RevealedCardIds)
+            .Where(id => _cardZones.GetLocation(id) == CardLocation.Processing).Select(id => ToSnapshot(GetAttackCard(id))))
+            .DistinctBy(card => card.Id).ToArray();
         if (lastProgram?.PublicPileDraft is { Stage: "pile" or "distribute" } pileDraft)
             programRevealedCards = programRevealedCards.Concat(PublicPileDraftCards(pileDraft).Select(ToSnapshot)).DistinctBy(card => card.Id).ToArray();
-        if (_resolutionStack.LastOrDefault() is ProgramSkillFrame { InstructionIndex: > 0 } pileFrame &&
-            ProgramInstructionResolver.Default.Resolve(pileFrame,_contentRegistry.GetSkill(pileFrame.SkillId).Program!).GetPausedInstruction(pileFrame.InstructionIndex).Effect.Op == SkillProgramEffectOp.ObtainPublicPileCard)
-            programRevealedCards = programRevealedCards.Concat(ReferencedPublicPileSources(pileFrame.OwnerSeat, ProgramInstructionResolver.Default.Resolve(pileFrame, _contentRegistry.GetSkill(pileFrame.SkillId).Program!).GetPausedInstruction(pileFrame.InstructionIndex).Effect.SkillIds.Single(), pileFrame.SkillInstanceId).SelectMany(PublicPileCards).Select(ToSnapshot)).DistinctBy(card=>card.Id).ToArray();
-        var publicRevealedCards = _resolutionStack.LastOrDefault() is PindianFrame { Result: { } contest }
+        if (_resolutionStack.LastOrDefault() is ProgramSkillFrame { InstructionIndex: > 0 } pileFrame)
+        {
+            var effect = ProgramInstructionResolver.Default.Resolve(pileFrame,
+                _contentRegistry.GetSkill(pileFrame.SkillId).Program!).GetPausedInstruction(pileFrame.InstructionIndex).Effect;
+            if (effect.Op == SkillProgramEffectOp.ObtainPublicPileCard)
+                programRevealedCards = programRevealedCards.Concat(ReferencedPublicPileSources(pileFrame.OwnerSeat,
+                    effect.SkillIds.Single(), pileFrame.SkillInstanceId).SelectMany(PublicPileCards).Select(ToSnapshot))
+                    .DistinctBy(card => card.Id).ToArray();
+        }
+        IReadOnlyList<CardSnapshot> publicRevealedCards = _resolutionStack.LastOrDefault() is PindianFrame { Result: { } contest }
             ? _cardZones.CardsAt(CardLocation.Processing)
                 .Where(card => card.Id == contest.SourceCardId || card.Id == contest.OpponentCardId)
                 .Select(ToSnapshot).ToArray()
             : programRevealedCards.Count > 0
-            ? programRevealedCards.ToArray()
+            ? programRevealedCards
             : ActiveGroupCard is { Effect: GroupCardEffect.PublicDraft } publicDraft
             ? publicDraft.RevealedCardIds
                 .Select(cardId => _cardZones.CardsAt(CardLocation.Processing)
@@ -223,8 +237,9 @@ public sealed partial class GameEngine
             WinnerTeamId = IsTeamMode ? _winnerTeamId : null,
             WinnerFactionId = IsNationalWarMode ? _winnerFactionId : null,
             ModeKind = _modeDefinition.ModeKind,
-            PublicRevealedCards = publicRevealedCards,
+            PublicRevealedCards = publicRevealedCards.Concat(FriendPangTongPublicCards()).DistinctBy(card => card.Id).ToArray(),
             PrivateRevealedCards = GetPrivatelyViewedCards(viewerSeat) is { Length: > 0 } privateCards ? privateCards : null,
+            FriendPredictions = GetFriendPredictionViews(viewerSeat),
             ProgramResponseExchangeStates = GetResponseExchangeStateSnapshots(),
             TurnProhibitedPhysicalCards = GetResponseEntityRestrictionSnapshots()
         });
@@ -250,6 +265,8 @@ public sealed partial class GameEngine
         PendingDecision = snapshot.PendingDecision is { } decision ? CloneDecision(decision) : null,
         PublicRevealedCards = FreezeViewList(snapshot.PublicRevealedCards)!,
         PrivateRevealedCards = FreezeViewList(snapshot.PrivateRevealedCards),
+        FriendPredictions = snapshot.FriendPredictions is { } forecasts
+            ? Array.AsReadOnly(forecasts.Select(forecast => forecast with { Values = FreezeViewList(forecast.Values)! }).ToArray()) : null,
         ProgramResponseExchangeStates = FreezeViewList(snapshot.ProgramResponseExchangeStates),
         TurnProhibitedPhysicalCards = snapshot.TurnProhibitedPhysicalCards is { } restrictions
             ? Array.AsReadOnly(restrictions.Select(item => item with { CardIds = FreezeViewList(item.CardIds)! }).ToArray()) : null
@@ -265,7 +282,8 @@ public sealed partial class GameEngine
 
     private static IReadOnlyDictionary<TKey, TValue>? FreezeViewDictionary<TKey, TValue>(
         IReadOnlyDictionary<TKey, TValue>? values) where TKey : notnull => values is null ? null :
-        new System.Collections.ObjectModel.ReadOnlyDictionary<TKey, TValue>(values.ToDictionary(item => item.Key, item => item.Value));
+        values.Count == 0 ? System.Collections.ObjectModel.ReadOnlyDictionary<TKey, TValue>.Empty :
+            new System.Collections.ObjectModel.ReadOnlyDictionary<TKey, TValue>(values.ToDictionary(item => item.Key, item => item.Value));
 
     private static PlayerSnapshot FreezePlayer(PlayerSnapshot player) => player with
     {
@@ -276,6 +294,8 @@ public sealed partial class GameEngine
         Equipment = FreezeViewList(player.Equipment)!,
         Judgment = FreezeViewList(player.Judgment)!,
         PrivateReserveCards = FreezeViewList(player.PrivateReserveCards),
+        NamedAmbushPiles = player.NamedAmbushPiles is { } ambushes
+            ? Array.AsReadOnly(ambushes.Select(p => p with { Entries = FreezeViewList(p.Entries) }).ToArray()) : null,
         Markers = FreezeViewList(player.Markers),
         WoodenOxGrain = FreezeViewList(player.WoodenOxGrain),
         BuquWounds = FreezeViewList(player.BuquWounds),

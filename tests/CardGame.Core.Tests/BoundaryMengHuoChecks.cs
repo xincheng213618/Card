@@ -126,6 +126,56 @@ internal static class BoundaryMengHuoChecks
         Replay(g,r);
     }
 
+    public static void ZaiqiStopsSelectionAtRedDiscardBudget()
+    {
+        foreach(var budget in new[]{1,2})
+        {
+            var(g,r)=Start("red");
+            for(var i=0;i<budget;i++)Burn(g);
+            Accept(g,new EndPlayPhaseCommand(0,g.Revision));
+            Reach(g,p=>p.Kind==DecisionKind.ProgramTrigger&&p.PlayerSeat==0&&
+                p.Choices.Any(c=>c.Parameters.GetValueOrDefault("mode")=="seat:1"));
+            var extra=P(g)!.Choices.Single(c=>c.Parameters.GetValueOrDefault("mode")=="seat:3").Id;
+            for(var seat=1;seat<=budget;seat++)
+                Answer(g,c=>c.Parameters.GetValueOrDefault("mode")==$"seat:{seat}");
+            Require(P(g)!.Choices.Select(c=>c.Parameters["mode"]).SequenceEqual(["finish","skip"]),
+                "A full red-discard budget offers confirmation and decline while other living seats remain.");
+            ReplayFourViews(g,r);
+            g=GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(g.CreateCheckpoint())),r);
+            var before=GameCheckpointJson.Serialize(g.CreateCheckpoint());
+            var rejected=g.Submit(new AnswerPromptCommand(0,P(g)!.PromptId,extra,g.Revision));
+            Require(!rejected.Accepted&&before==GameCheckpointJson.Serialize(g.CreateCheckpoint()),
+                "An extra target submitted against the current full-budget prompt is rejected atomically.");
+            Answer(g,c=>c.Parameters.GetValueOrDefault("mode")=="finish");
+            Reach(g,p=>g.Events.Select(e=>e.Payload).OfType<ProgramRedDiscardRecoveryChosenEvent>().Count()==budget);
+            Require(g.Events.Select(e=>e.Payload).OfType<ProgramRedDiscardRecoveryCommittedEvent>().Single() is
+                    {OwnerSeat:0} committed&&committed.Budget==budget&&
+                    committed.Seats.SequenceEqual(Enumerable.Range(1,budget))&&
+                    g.Events.Select(e=>e.Payload).OfType<ProgramRedDiscardRecoveryChosenEvent>()
+                        .Select(e=>(e.ChooserSeat,e.Option)).SequenceEqual(Enumerable.Range(1,budget).Select(s=>(s,"draw"))),
+                "Cold confirmation settles exactly the selected budget, once per participant and in order.");
+            ReplayFourViews(g,r);
+        }
+    }
+
+    public static void ZaiqiNativeAiConfirmsFullBudget()
+    {
+        var r=ContentRegistry.Build(new StandardContentPackage(),new StandardActiveSkillExpansionPackage(true),
+            new StandardRescueSkillExpansionPackage(),new StandardClassicGeneralPackage(),new Fixture("ai-red"));
+        var g=GameEngine.CreateStandard(new GameOptions{Seed=37,PlayerCount=4,HumanSeat=-1,HumanRole=null,
+            ModeId="identity:mh",UseInteractiveSetup=true,AdvanceAfterHumanCommands=false,MaxTurns=1},r);
+        Accept(g,new StartGameCommand());
+        var committed=g.Events.Select(e=>e.Payload).OfType<ProgramRedDiscardRecoveryCommittedEvent>().Single();
+        Require(committed.Budget>0&&committed.Budget<g.State.Players.Count(p=>p.IsAlive&&p.Seat!=committed.OwnerSeat),
+            "The fixed native AI fixture has a red-discard budget smaller than its living target pool.");
+        Require(g.State.Status==EngineStatus.Completed&&committed.Seats.Count==committed.Budget&&
+                g.Events.Select(e=>e.Payload).OfType<ProgramRedDiscardRecoveryChosenEvent>()
+                    .Select(e=>e.ChooserSeat).SequenceEqual(committed.Seats)&&
+                !g.AcceptedCommands.Any(c=>c is AnswerPromptCommand or UseProgramSkillCommand),
+            "A native one-turn fixture confirms the full budget and settles every beneficiary once without manual answers.");
+        ReplayFourViews(g,r);
+    }
+
     public static void ZaiqiStaysSilentWithoutRedDiscards()
     {
         var(g,r)=Start("black");
@@ -199,8 +249,9 @@ internal static class BoundaryMengHuoChecks
                 "\"activations\":["+Activation("wound","[{\"op\":\"loseHp\",\"target\":\"owner\",\"amount\":1}]",0)+","+
                 Activation("burn","[{\"op\":\"discardSelected\",\"target\":\"owner\",\"amount\":1}]",1)+"]")});
             b.AddGeneral(new("fixture:mh","界孟获","boundary_meng_huo","boundary:huoshou-current","shu",4,
-                ["boundary:zaiqi-current","fixture:mh-driver"]));
-            for(var i=1;i<4;i++)b.AddGeneral(new($"fixture:mh-{i}","其他"+i,"supporter","standard:none","wei",5,null));
+                scenario=="ai-red"?[Zaiqi]:[Zaiqi,DriverSkill]));
+            for(var i=1;i<4;i++)b.AddGeneral(new($"fixture:mh-{i}","其他"+i,"supporter","standard:none","wei",5,
+                scenario=="ai-red"?[Zaiqi]:null));
             b.AddDeck(new("fixture:mh-deck","固定",4,1,[]){PhysicalCards=Enumerable.Range(0,64).Select(i=>new ContentDeckPhysicalCard(
                 scenario=="barbarian"?"standard:barbarian_assault":"standard:slash",
                 scenario=="black"?Suit.Spade:Suit.Heart,i%13+1)).ToArray()});

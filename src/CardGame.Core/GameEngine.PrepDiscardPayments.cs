@@ -188,6 +188,7 @@ public sealed partial class GameEngine
             !TryBeginHpChangedProgramWindow(f.Id, PostEventContinuation.AwaitedProgramMovement) && !TryBeginCardsMovedProgramWindow(f.Id))
             ReturnRuntimeProgramMovement(f.Id);
     }
+    [ProgramContinuation(ProgramContinuationKind.MovementTail, 40)]
     private bool TryReturnPrepDiscardMovement(ProgramSkillFrame f)
     {
         if (f.PrepDiscard is not { Stage: PrepDiscardStage.TargetChildren or PrepDiscardStage.OwnerChildren } && f.PrepDiscardEndingDraw is null) return false;

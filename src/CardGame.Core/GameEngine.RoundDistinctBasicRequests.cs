@@ -35,7 +35,7 @@ public sealed partial class GameEngine
             }
             else parameters["result-bind"] = resultBind!;
             AddConversionParameters(parameters, selection.Source);
-            choices.Add(FreezeDirectedDistanceChoice(new PromptChoice(
+            choices.Add(PromptChoiceProjection.Freeze(new PromptChoice(
                 new ChoiceId($"program-{action}.frame-{frame.Id}.pair.{selection.Source.SkillId}.{selection.Source.BindingId}.{selection.Source.SkillInstanceId}.{selection.OutputKind}.{string.Join('-', ids)}.seat-{targetSeat}"),
                 DescribeConversion(selection.Source, $"将两张牌当【{CardCatalog.Get(selection.OutputKind).DisplayName}】使用，攻击 {_players[targetSeat].Name}。"),
                 ids, [targetSeat], parameters)));

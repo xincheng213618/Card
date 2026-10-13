@@ -5,8 +5,7 @@ public sealed record LordSkillProjectionChangedEvent(int OwnerSeat, string Grant
 
 public sealed partial class GameEngine
 {
-    private readonly bool _hasLordProjectionCapability;
-    private bool HasLordProjectionCapability => _hasLordProjectionCapability;
+    private bool HasLordProjectionCapability => _contentRegistry.ProgramDependencies.UsesLordSkillProjection;
     private bool _synchronizingLordProjections;
 
     // Pure qualification. Local disable remains on the derived grant; upstream disable is never copied into it.

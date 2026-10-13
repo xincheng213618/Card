@@ -95,6 +95,7 @@ public sealed partial class GameEngine
         { ResumeProgramFrameId = frame.Id, ProgramTarget = commit });
         AdvanceRuntimeTop<ProgramLifecycleTriggerWindowFrame>();
     }
+    [ProgramContinuation(ProgramContinuationKind.Resume, 1010)]
     private bool TryResumeProgramTargetCommit(long id)
     {
         var frame = GetActiveProgramFrame(id);

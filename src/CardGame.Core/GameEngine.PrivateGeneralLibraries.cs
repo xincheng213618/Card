@@ -197,6 +197,7 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new PrivateGeneralLibraryDeclaredEvent(d.Source,d.SelectedGeneralId!,d.SelectedSkillId!,general.Gender,d.SelectedFactionId??general.FactionId));FinishPrivateGeneralLibrarySelection(f);
     }
     private void FinishPrivateGeneralLibrarySelection(ProgramSkillFrame f){ReplaceRuntimeTop(GetActiveProgramFrame(f.Id) with{GeneralLibraryDraft=null});AdvanceRuntimeProgram(f.Id);}
+    [ProgramContinuation(ProgramContinuationKind.Resume, 890)]
     private bool ResumePrivateGeneralLibrarySelection(long id)
     {
         if(_resolutionStack.LastOrDefault() is not ProgramSkillFrame{GeneralLibraryDraft:{}} f||f.Id!=id)return false;

@@ -15,8 +15,8 @@ public sealed partial class GameEngine
     }
 
     private bool HasCommittedSlashFireCapability(CharacterState owner) => owner.IsAlive &&
-        GetSkillBindingShard(owner).ProgramInstances.Any(i => i.Program.Triggers.Any(t =>
-            t.Window == SkillProgramTriggerWindow.CardUseCommitted && t.Effects.Any(e => e.Op == SkillProgramEffectOp.OfferCurrentSlashFireAndExtraTarget)));
+        GetSkillBindingShard(owner).GetInstanceTriggers(SkillProgramTriggerWindow.CardUseCommitted).Any(binding =>
+            ProgramInstructionResolver.Default.Features(binding.Trigger).HasOperation(SkillProgramEffectOp.OfferCurrentSlashFireAndExtraTarget));
 
     private CardUseFrame CurrentSlashFireUse(ProgramSkillFrame f)
     {
@@ -31,7 +31,7 @@ public sealed partial class GameEngine
 
     private bool CanOfferCurrentSlashFire(ProgramTriggerCandidate candidate, SkillProgramTrigger trigger, ProgramSkillWindowContext context)
     {
-        if (!trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.OfferCurrentSlashFireAndExtraTarget)) return true;
+        if (!ProgramInstructionResolver.Default.Features(trigger).HasOperation(SkillProgramEffectOp.OfferCurrentSlashFireAndExtraTarget)) return true;
         if (context.CardUse is not { } card || card.ActorSeat != candidate.OwnerSeat ||
             LifecycleCardUse(card.ParentCardUseFrameId) is not { Action: { } action } use || action.ActionId != card.CardActionId ||
             !SlashKinds.Contains(use.CardKind) || use.CurrentSlashFirePolicy is not null || use.CardAttack is null || use.TargetSeats.Count == 0) return false;
@@ -60,7 +60,7 @@ public sealed partial class GameEngine
     {
         var actor = _players[use.SourceSeat]; var action = use.Action!;
         // A granted virtual use can carry an explicit distance exemption on its exact producer.
-        var ignoreDistance = HasIssuedKuangfuDistance(use.Id, actor.Seat) || use.UnlimitedUse || use.CardAttack?.ProgramSkillCardUseFrameId is { } parentId &&
+        var ignoreDistance = HasIssuedKuangfuDistance(use.Id, actor.Seat) || use.UnlimitedUse && !use.QuotaOnlyUseLimitExemption || use.CardAttack?.ProgramSkillCardUseFrameId is { } parentId &&
             _resolutionStack.OfType<ProgramSkillFrame>().SingleOrDefault(f => f.Id == parentId) is { } parent &&
             ProgramInstructionResolver.Default.Resolve(parent, _contentRegistry.GetSkill(parent.SkillId).Program!)
                 .GetPausedInstruction(parent.InstructionIndex).Effect is { Op: SkillProgramEffectOp.UseVirtualCard, TargetRestriction: SkillProgramCardTargetRestriction.DistanceUnlimitedAgainstTarget };
@@ -163,7 +163,8 @@ public sealed partial class GameEngine
         var confirmed = CompleteProgramEventHistory().OfType<TargetsConfirmedEvent>().Single(e => e.ResolutionId == use.Id);
         var designated = confirmed.TargetSeats.ToList();
         var actual = designated.ToList(); var planned = designated.ToList(); var after = false;
-        foreach (var e in CompleteProgramEventHistory())
+        var history = CompleteProgramEventHistory();
+        foreach (var e in history)
         {
             if (e is ProgramCurrentSlashFireChangedEvent changed && changed.CardUseFrameId == use.Id && changed.ProgramFrameId == p.ProgramFrameId)
             {
@@ -171,6 +172,20 @@ public sealed partial class GameEngine
                     throw new InvalidOperationException("A fire conversion lost its exact earlier target enhancements.");
                 after = true;
                 if (p.ExtraTargetSeat is { } extra) { designated.Add(extra); actual.Add(extra); planned.Add(extra); }
+                continue;
+            }
+            if (e is SoleTargetReplacedEvent replacement && replacement.CardUseFrameId == use.Id)
+            {
+                if (!after || !actual.SequenceEqual(designated) || !IsSoleTargetReplacementFact(use, replacement, actual))
+                    throw new InvalidOperationException("A protected converted Slash lost its exact paid replacement.");
+                designated = replacement.AfterTargets.ToList(); actual = designated.ToList();
+                continue;
+            }
+            if (e is SoleTargetAfterProtectionRedirectedEvent protectedRedirect && protectedRedirect.CardUseFrameId == use.Id)
+            {
+                if (!after || !actual.SequenceEqual(designated) || !IsSoleTargetAfterProtectionRedirectFact(use, protectedRedirect, actual))
+                    throw new InvalidOperationException("A protected converted Slash lost its exact new-target redirect.");
+                designated = protectedRedirect.AfterTargets.ToList(); actual = designated.ToList();
                 continue;
             }
             if (e is ShortRangeSlashTargetResolvedEvent { Added: true } shortRange && shortRange.CardUseFrameId == use.Id)
@@ -200,6 +215,10 @@ public sealed partial class GameEngine
             }
             if (e is ProgramCurrentSlashFireRedirectedEvent redirected && redirected.CardUseFrameId == use.Id)
             {
+                if (HasSoleTargetProtectionCapability && history.OfType<SoleTargetAfterProtectionRedirectedEvent>().Any(f =>
+                    f.ProgramFrameId == redirected.ProgramFrameId && f.CardUseFrameId == use.Id && f.ActionId == redirected.ActionId &&
+                    f.Source == redirected.Source && f.TargetIndex == redirected.TargetIndex &&
+                    f.PreviousTargetSeat == redirected.OriginalTargetSeat && f.NewTargetSeat == redirected.NewTargetSeat)) continue;
                 if (!after || redirected.ActionId != p.OriginalAction.ActionId || redirected.Source.OwnerSeat != redirected.OriginalTargetSeat ||
                     redirected.TargetIndex < 0 || redirected.TargetIndex >= actual.Count || actual[redirected.TargetIndex] != redirected.OriginalTargetSeat)
                     throw new InvalidOperationException("A converted Slash redirection lost its exact original target.");

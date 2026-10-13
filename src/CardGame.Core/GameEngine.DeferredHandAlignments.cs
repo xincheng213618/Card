@@ -13,6 +13,8 @@ public sealed record DeferredTurnEndFrame(long Id,int OwnerSeat,int TurnNumber,b
     public AfterTurnEndedWindow? AfterTurnEnded { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public DeferredTurnEndPrelude? Prelude { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public SoleTargetQuarantineReturnCursor? SoleTargetQuarantineReturns { get; init; }
 }
 public sealed partial class GameEngine
 {
@@ -49,9 +51,11 @@ public sealed partial class GameEngine
     {
         CleanupDeferredHandAlignments();
         var dueIds=_deferredHandAlignments.Where(d=>d.DueKind==DeferredHandAlignmentDueKind.SourceCurrentTurnEnd?d.Source.OwnerSeat==previous.Seat&&d.CreatedTurn==_turnNumber:d.TargetSeat==previous.Seat&&d.CreatedTurn<_turnNumber).OrderBy(d=>d.Id).Select(d=>d.Id).ToArray();
-        if(dueIds.Length==0&&!HasActualTurnEndMovementPrelude)return false;
+        var quarantines = OutstandingSoleTargetQuarantines(_turnNumber, previous.Seat);
+        if(dueIds.Length==0&&!HasActualTurnEndMovementPrelude&&quarantines.Length==0)return false;
         if(_resolutionStack.Count!=0||_pendingDecision is not null||_phase!=TurnPhase.Finished)throw new InvalidOperationException("Actual end alignment requires a clean finalized turn boundary.");
-        PushRuntimeFrame(new DeferredTurnEndFrame(++_resolutionSequence,previous.Seat,_turnNumber,skipped,Array.AsReadOnly(dueIds)){Prelude=HasActualTurnEndMovementPrelude?new():null});ContinueDeferredTurnEnd();return true;
+        PushRuntimeFrame(new DeferredTurnEndFrame(++_resolutionSequence,previous.Seat,_turnNumber,skipped,Array.AsReadOnly(dueIds)){Prelude=HasActualTurnEndMovementPrelude?new():null,
+            SoleTargetQuarantineReturns=quarantines.Length==0?null:new(Array.AsReadOnly(quarantines))});ContinueDeferredTurnEnd();return true;
     }
     private void ContinueDeferredTurnEnd() => AdvanceRuntimeTop<DeferredTurnEndFrame>();
 
@@ -69,6 +73,8 @@ public sealed partial class GameEngine
             if(_winner!=Winner.None){PopResolutionFrame(parent.Id,ResolutionFrameKind.DeferredTurnEnd);CleanupDeferredHandAlignments();return;}
             if(parent.ItemIndex==parent.DueIds.Count)
             {
+                if(ContinueSoleTargetQuarantineReturns(parent))return;
+                parent=(DeferredTurnEndFrame)_resolutionStack[^1];
                 if(ContinueAfterTurnEndedPrograms(parent))return;
                 PopResolutionFrame(parent.Id,ResolutionFrameKind.DeferredTurnEnd);AdvanceAfterDeferredTurnEnd(_players[parent.OwnerSeat],parent.Skipped);return;
             }
@@ -138,6 +144,7 @@ public sealed partial class GameEngine
     {
         if(_resolutionStack.FirstOrDefault() is not DeferredTurnEndFrame frame)return false;
         if(frame.Prelude is {Completed:false})return HasDeferredTurnEndPreludeBoundary(frame);
+        if(frame.SoleTargetQuarantineReturns is {MovementChildFrameId:not null})return HasSoleTargetQuarantineEndBoundary(frame);
         if(frame.AfterTurnEnded is not null)return HasAfterTurnEndedBoundaryFrame(frame);
         if(frame.OwnerSeat!=_currentSeat||frame.TurnNumber!=_turnNumber||_phase!=TurnPhase.Finished||frame.ItemIndex<1||frame.ItemIndex>frame.DueIds.Count||frame.Current is null||_resolutionStack.Count<2||_resolutionStack[1] is not ProgramSkillFrame child||child.WindowContext?.ParentFrameId!=frame.Id||child.SkillId!=frame.Current.Source.SkillId||child.SkillInstanceId!=frame.Current.Source.SkillInstanceId||child.TriggerId!=frame.Current.ContinuationId||child.SelectedTargetSeats is not [var target]||target!=frame.Current.TargetSeat)throw new InvalidOperationException("A deferred end boundary lost its exact active child.");
         return true;

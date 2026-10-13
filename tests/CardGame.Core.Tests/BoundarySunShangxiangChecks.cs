@@ -104,6 +104,10 @@ internal static class BoundarySunShangxiangChecks
         var revision=g.Revision;var rejected=g.Submit(new UseProgramSkillCommand(0,Skill,"place-equipment",[equipped],[0],g.Revision,P(g)!.PromptId));
         Require(!rejected.Accepted&&g.Revision==revision&&Zones(g).GetLocation(equipped)==CardLocation.Equipment(0),"Same-equipment-area self placement is no physical payment.");
         var cost=g.State.Players[0].Hand.First(c=>EquipmentCatalog.IsEquipment(c.Kind)).Id;var hand=g.State.Players[0].Hand.Count;
+        var publicPlacement=g.GetHumanActionView().LegalActions.Single(a=>a.ProgramSkillId==Skill &&a.ProgramActivationId=="place-equipment");
+        Require(publicPlacement.SelectableCardTargets is { } associations &&associations.Contains(new(cost,0)) &&
+            !associations.Contains(new(equipped,0)),
+            "The frozen public selected-equipment action distinguishes real self Hand placement from reusing its current equipment area.");
         Use(g,"place-equipment",cost,0);Settle(g);
         Require(Zones(g).GetLocation(cost)==CardLocation.Equipment(0)&&g.State.Players[0].Hand.Count==hand-1,
             "A real Male self hand placement pays once, with self-pair no reward.");ReplayFourViews(g,r);

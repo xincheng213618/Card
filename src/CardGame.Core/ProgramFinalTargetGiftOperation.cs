@@ -12,11 +12,7 @@ internal sealed class GiveOwnedCardToOtherFinalTargetAndDrawDescriptor : Program
     public override ProgramOperationInteraction Interaction => ProgramOperationInteraction.Choice;
     public override ProgramContextCapability RequiredCapabilities => ProgramContextCapability.CardAction;
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.Gift,static(e,c)=>c.FinalTargetGift());
-    public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
-    {
-        r.AllowOnly("op","target","condition");
-        var e=new SkillProgramEffect(Op,FilterBoundCardsProgramOperationDescriptor.Owner(r),0,r.Condition());RequireAlways(e,r.Path);return e;
-    }
+    public override SkillProgramEffect Parse(ProgramOperationNodeReader r) => ParseOwnerAlways(r);
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new RequireTriggerWindow(SkillProgramTriggerWindow.CardUseTargetsFinalized)];
 }
 public sealed class GiveOwnedCardToOtherFinalTargetAndDrawHandler : ISkillProgramEffectHandler

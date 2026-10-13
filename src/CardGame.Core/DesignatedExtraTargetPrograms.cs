@@ -1,5 +1,3 @@
-using System.Collections.ObjectModel;
-
 namespace CardGame.Core;
 
 /// <summary>The public choice belongs to one paused designation instruction.</summary>
@@ -11,13 +9,7 @@ public sealed record DesignatedExtraTargetDraft(long CardUseFrameId, long Action
     public IReadOnlyList<int> OriginalTargetSeats
     { get => _originalTargetSeats; init => _originalTargetSeats = Array.AsReadOnly(value.ToArray()); }
     public IReadOnlyList<PromptChoice> Choices
-    { get => _choices; init => _choices = Array.AsReadOnly(value.Select(FreezeChoice).ToArray()); }
-    internal static PromptChoice FreezeChoice(PromptChoice choice) => choice with
-    {
-        Cards = Array.AsReadOnly(choice.Cards.ToArray()), Targets = Array.AsReadOnly(choice.Targets.ToArray()),
-        ContentIds = Array.AsReadOnly(choice.ContentIds.ToArray()),
-        Parameters = new ReadOnlyDictionary<string, string>(new Dictionary<string, string>(choice.Parameters))
-    };
+    { get => _choices; init => _choices = Array.AsReadOnly(value.Select(PromptChoiceProjection.Freeze).ToArray()); }
 }
 
 public sealed record DesignatedExtraTargetOfferedEvent(long ProgramFrameId, long CardUseFrameId, long ActionId,
@@ -66,13 +58,7 @@ internal sealed class AddOneDistanceFreeCurrentUseTargetDescriptor : ProgramOper
     public override ProgramContextCapability RequiredCapabilities => ProgramContextCapability.CardAction;
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GrantTurnCardTargetRestriction,
         static (_, context) => context.PublicControlValue(8d));
-    public override SkillProgramEffect Parse(ProgramOperationNodeReader reader)
-    {
-        reader.AllowOnly("op", "target", "condition");
-        var effect = new SkillProgramEffect(Op, FilterBoundCardsProgramOperationDescriptor.Owner(reader), 0, reader.Condition());
-        RequireAlways(effect, reader.Path);
-        return effect;
-    }
+    public override SkillProgramEffect Parse(ProgramOperationNodeReader reader) => ParseOwnerAlways(reader);
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
         [new RequireTriggerWindow(SkillProgramTriggerWindow.CardUseTargetsFinalized), new RequireCardActionActor()];
 }

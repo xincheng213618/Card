@@ -8,7 +8,6 @@ public sealed partial class GameEngine
         public SkillProgramStepOutcome DepositPrivateCardOffer(ProgramSkillFrame f, string bind, string resolver) => engine.DepositPrivateCardOffer(f, bind, resolver);
         public SkillProgramStepOutcome ResolvePrivateCardOffer(ProgramSkillFrame f) => engine.BeginDeferredPrivateOffer(f);
         public SkillProgramStepOutcome ResolveGameTargetHandHp(ProgramSkillFrame f, string state) => engine.BeginGameTargetHandHp(f, state);
-        public bool CanContinueIssuedPrivateOffer(ProgramSkillFrame f) => engine.CanContinueIssuedPrivateOffer(f);
     }
     private long PrivateOfferSequence => _cardMovements.LastOrDefault()?.Sequence ?? 0;
     private static string PrivateOfferReason(ProgramSkillFrame f, string segment) => $"skill-program.{f.SkillId}.{SkillProgramEffectOp.ResolveDeferredPrivateCardOffer}.{segment}";

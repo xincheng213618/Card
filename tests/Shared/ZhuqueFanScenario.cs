@@ -17,13 +17,13 @@ internal static class ZhuqueFanScenario
 {
     private const string ModeId = "identity:classic-zhuque-fan-5";
 
-    public static ZhuqueFanBoundary FindHumanChainedSlash()
+    public static ZhuqueFanBoundary FindHumanChainedSlash(int? knownSeed = null)
     {
         const int sourceSeat = 0;
         const int primaryTargetSeat = 1;
         const int chainedTargetSeat = 2;
         var registry = CreateRegistry();
-        for (var seed = 1; seed <= 8_192; seed++)
+        for (var seed = knownSeed ?? 1; seed <= (knownSeed ?? 8_192); seed++)
         {
             var game = GameEngine.CreateStandard(new GameOptions
             {

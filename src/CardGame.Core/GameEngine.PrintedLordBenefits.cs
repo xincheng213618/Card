@@ -60,6 +60,7 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new PrintedLordMaximumPaidEvent(f.Id, seat, before, after));
         AdvanceRuntimeProgram(f.Id);
     }
+    [ProgramContinuation(ProgramContinuationKind.Resume, 400)]
     private bool ResumePrintedLordBenefit(long id)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame f || f.Id != id || f.PrintedLordBenefit is not { } r) return false;

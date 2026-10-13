@@ -92,9 +92,9 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new TargetsConfirmedEvent(resolutionId, targets));
         if (!(LifecycleCardUse(resolutionId)?.UnlimitedUse == true)) RecordSlashUseDebit(resolutionId, actor.Seat);
         MarkSlashUsedOrPlayedDuringCurrentPlayPhase(actor.Seat, CardKind.Slash);
-        UpdateLifecycleCardUse(resolutionId, frame => frame with { ForeignPublicPileSlashBaseDamage = actor.HasAlcoholEffect ? 2 : 1 });
+        UpdateLifecycleCardUse(resolutionId, frame => frame with { ForeignPublicPileSlashBaseDamage = 1 + actor.AlcoholDamageBonus });
         var attack = new CardAttackHandle(this, resolutionId, actor.Seat, ownerSeat, card: null,
-            damageAmount: actor.HasAlcoholEffect ? 2 : 1, playedCardKind: CardKind.Slash,
+            damageAmount: 1 + actor.AlcoholDamageBonus, playedCardKind: CardKind.Slash,
             ignoresArmor: HasCardArmorBypass(actor, _players[ownerSeat], CardKind.Slash));
         CaptureProgramAlcoholConsumption(resolutionId, actor);
         actor.HasAlcoholEffect = false;

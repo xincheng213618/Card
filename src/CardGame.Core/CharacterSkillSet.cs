@@ -15,7 +15,9 @@ public sealed record SkillGrant(
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     SkillGrantTurnExpiry? TurnExpiry = null,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
-    SkillGrantPhaseExpiry? PhaseExpiry = null);
+    SkillGrantPhaseExpiry? PhaseExpiry = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    HpConditionalSkillGrantSource? HpConditionalSource = null);
 
 /// <summary>
 /// Source-aware skill ownership for one character. Definitions and execution

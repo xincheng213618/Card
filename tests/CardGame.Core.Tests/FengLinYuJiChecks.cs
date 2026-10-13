@@ -15,6 +15,8 @@ internal static partial class FengLinYuJiChecks
         while(g.ResolutionStack.LastOrDefault() is CardDeclarationChallengeFrame){seats.Add(P(g)!.PlayerSeat);Answer(g,"pass");if(g.ResolutionStack.OfType<CardDeclarationFrame>().Any()){Privacy(g,CardKind.Dodge);Replay(g,r);}}
         Require(seats.Count==3&&seats.Distinct().Count()==3&&!seats.Contains(0),"All pass traverses each eligible other seat once and terminates.");
         Settle(g);Require(g.State.Players[0].HandCount==initial+1,"Unchallenged declared DrawTwo resumes the actual two-card effect after one cost.");
+        Require(g.Events.Select(e=>e.Payload).OfType<CardUseDeclaredEvent>().Single(e=>e.CardId==cost).PublicCard is null,
+            "An unchallenged concealed declaration published its printed suit, rank or physical kind.");
         Require(g.CardMovements.Count(m=>m.CardId==cost&&m.From==CardLocation.Hand(0)&&m.To==CardLocation.Processing)==1,"No payment repeated on continuation.");
         Require(!g.GetHumanLegalActions().Any(a=>a.ConversionSource?.SkillId=="classic:guhuo"),"All declaration names share the named Turn quota.");Replay(g,r);Conserve(g);
     }
@@ -26,6 +28,9 @@ internal static partial class FengLinYuJiChecks
             Use(g,CardKind.DrawTwo);var id=g.ResolutionStack.OfType<CardDeclarationFrame>().Single().Payment.Cost.CardId;
             var challenger=P(g)!.PlayerSeat;Replay(g,r);Answer(g,"challenge");Settle(g);
             Require(g.Events.Select(e=>e.Payload).OfType<CardDeclarationRevealedEvent>().Count()==1,"First challenge stops further seats and flips one entity.");
+            if(real) Require(g.Events.Select(e=>e.Payload).OfType<CardUseDeclaredEvent>().Single(e=>e.CardId==id).PublicCard ==
+                g.Events.Select(e=>e.Payload).OfType<CardDeclarationRevealedEvent>().Single().Card,
+                "A successfully revealed declaration lost its actual public printed face at use commitment.");
             Require(g.State.Players[0].HandCount==initial+(real?1:-1),"Only true declaration executes actual DrawTwo.");
             Require(g.CreateSnapshot(challenger).Players[challenger].Skills?.Any(s=>s.ContentId=="classic:chanyuan")==real,"True challenger acquires Chanyuan; fake grants no punishment.");
             Require(g.CardMovements.Count(m=>m.CardId==id&&m.To==CardLocation.DiscardPile)==1,"Both outcomes clean the actual entity once.");Replay(g,r);Conserve(g);
@@ -44,7 +49,11 @@ internal static partial class FengLinYuJiChecks
             var prompt=P(g)!;var choice=prompt.Choices.First(c=>c.Parameters.GetValueOrDefault("conversion-skill-id")=="classic:guhuo");
             Accept(g,new AnswerPromptCommand(0,prompt.PromptId,choice.Id,g.Revision));
             Require(g.ResolutionStack.OfType<CardDeclarationFrame>().Any(),"Actual response/rescue suspends before successful action.");Replay(g,r);
+            var hiddenCost = g.ResolutionStack.OfType<CardDeclarationFrame>().Single().Payment.Cost.CardId;
             while(g.ResolutionStack.LastOrDefault() is CardDeclarationChallengeFrame)Answer(g,"pass");
+            Require(g.Events.Select(e=>e.Payload).OfType<CardRespondedEvent>().Where(e=>e.CardId==hiddenCost&&e.ResponderSeat==0).All(e=>e.PublicCard is null) &&
+                g.Events.Select(e=>e.Payload).OfType<CardUseDeclaredEvent>().Where(e=>e.CardId==hiddenCost&&e.SourceSeat==0).All(e=>e.PublicCard is null),
+                "An unchallenged hidden Dodge, Duel or rescue declaration exposed printed metadata after payment.");
             if(purpose=="dodge")Require(g.State.Players[0].Hp==hp,"Declared Dodge resumes the real incoming Slash without damage.");
             else if(purpose=="duel")Require(g.Events.Select(e=>e.Payload).OfType<DuelResponseEvent>().Any(e=>e.ResponderSeat==0&&e.UsedSlash),"Played Slash returns to real virtual Duel, not Use.");
             else Require(g.State.Players[0].Hp==1&&g.Events.Select(e=>e.Payload).OfType<DyingResponseEvent>().Any(e=>e.ResponderSeat==0&&(e.UsedPeach||e.UsedAlcohol)),"Dying-use returns after real recovery.");
@@ -57,7 +66,10 @@ internal static partial class FengLinYuJiChecks
         Accept(g,new PlayCardCommand(0,a.CardId!.Value,a.TargetSeats.Count>0?a.TargetSeats:[a.TargetSeat!.Value],g.Revision,P(g)!.PromptId));
         Reach(g,p=>p.Kind==DecisionKind.Nullification&&p.PlayerSeat==0);var p=P(g)!;var c=p.Choices.First(c=>c.Parameters.GetValueOrDefault("conversion-skill-id")=="classic:guhuo");
         Accept(g,new AnswerPromptCommand(0,p.PromptId,c.Id,g.Revision));var depth=g.ResolutionStack.OfType<NullificationWindowFrame>().Last().ChainDepth;Replay(g,r);
+        var hiddenCost = g.ResolutionStack.OfType<CardDeclarationFrame>().Single().Payment.Cost.CardId;
         while(g.ResolutionStack.LastOrDefault() is CardDeclarationChallengeFrame)Answer(g,"pass");
+        Require(g.Events.Select(e=>e.Payload).OfType<CardRespondedEvent>().Last(e=>e.CardId==hiddenCost&&e.ResponderSeat==0).PublicCard is null,
+            "An unchallenged hidden counterspell exposed its printed face when the physical cost entered discard.");
         Require(g.Events.Select(e=>e.Payload).OfType<NullificationRespondedEvent>().Any(e=>e.ResponderSeat==0&&e.ChainDepth==depth+1),"Real counterspell commits and toggles its actual window only after verification.");Replay(g,r);Conserve(g);
         var(provider,pr)=Start("standard:draw_two",true);Driver(provider,"request",[3]);
         Reach(provider,p=>provider.ResolutionStack.LastOrDefault() is CardDeclarationChallengeFrame);

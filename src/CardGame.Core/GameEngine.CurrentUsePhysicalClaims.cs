@@ -55,7 +55,7 @@ public sealed partial class GameEngine
         return TryBeginCardsMovedProgramWindow(frame.Id) ? SkillProgramStepOutcome.AwaitChild : SkillProgramStepOutcome.Continue;
     }
 
-    private bool IsClaimedUseCardEntity(long frameId, int cardId) => IsExchangedUseCardClaim(frameId, cardId) || IsCurrentUsePhysicalCardClaim(frameId, cardId);
+    private bool IsClaimedUseCardEntity(long frameId, int cardId) => IsExchangedUseCardClaim(frameId, cardId) || IsCurrentUsePhysicalCardClaim(frameId, cardId) || HasExtraEffectMaterialClaim(frameId, cardId);
 
     private bool IsCurrentUsePhysicalCardClaim(long frameId, int cardId) =>
         IsOverflowTargetCancellationPhysicalClaim(frameId, cardId) ||

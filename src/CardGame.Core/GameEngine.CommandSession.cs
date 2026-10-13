@@ -56,6 +56,7 @@ public sealed partial class GameEngine
             operation();
             SynchronizePrivateGeneralLibraries();
             SynchronizeLordSkillProjections();
+            SynchronizeHpConditionalSkillGrants();
             AssertCoreInvariants();
 
             // Nothing is visible to callbacks yet. Project with the new decision

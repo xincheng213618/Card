@@ -116,7 +116,7 @@ public sealed partial class GameEngine
             _phase == TurnPhase.Play && owner.Seat == _currentSeat;
         if (counted) RecordSlashUseDebit(id, owner.Seat);
         MarkSlashUsedOrPlayedDuringCurrentPlayPhase(owner.Seat, kind);
-        var damage = (owner.HasAlcoholEffect ? 2 : 1) + nuzhan.DamageBonus;
+        var damage = (1 + owner.AlcoholDamageBonus) + nuzhan.DamageBonus;
         CaptureProgramAlcoholConsumption(id, owner); owner.HasAlcoholEffect = false;
         var pending = new FangtianHalberdHandle(this, id, owner.Seat, cards[0], kind, armor, damage, seats, false, counted, conversion);
         ActiveFangtianHalberd = pending;

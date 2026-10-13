@@ -276,7 +276,18 @@ internal static class BoundaryLuSuChecks
                 m.To == CardLocation.DiscardPile) == 1),
             "The native all-owned selection freezes every original HE entity, drains its movement children and clears each entity exactly once.");
     }
-    private static void StartExchange(GameEngine g, int a, int b) => Accept(g, new UseProgramSkillCommand(0, Dimeng, "swap-first", [], [a, b], g.Revision, P(g)!.PromptId));
+    private static void StartExchange(GameEngine g, int a, int b)
+    {
+        var action = g.GetHumanActionView().LegalActions.Single(candidate =>
+            candidate.ProgramSkillId == Dimeng && candidate.ProgramActivationId == "swap-first");
+        Require(action.SelectableTargetSequences is { } sequences &&
+            sequences.Any(sequence => sequence.SequenceEqual([a, b])) &&
+            sequences.Any(sequence => sequence.SequenceEqual([b, a])) &&
+            sequences.All(sequence => sequence.Count == 2 && sequence.Distinct().Count() == 2 &&
+                sequence.All(action.SelectableTargetSeats.Contains)),
+            "The frozen public hand-exchange action publishes the native payable pair in both original orders.");
+        Accept(g, new UseProgramSkillCommand(0, Dimeng, "swap-first", [], [a, b], g.Revision, P(g)!.PromptId));
+    }
     private static void Use(GameEngine g, string id, IReadOnlyList<int>? targets = null) => Accept(g, new UseProgramSkillCommand(0, Driver, id, [], targets ?? [], g.Revision, P(g)!.PromptId));
     private static void ActivateExtra(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate" && c.Parameters.GetValueOrDefault("binding-id") == "extra-draw");
     private static bool IsExtra(PendingDecision p) => p.SkillPrompt?.SkillId == Haoshi && p.Choices.Any(c => c.Parameters.GetValueOrDefault("binding-id") == "extra-draw");

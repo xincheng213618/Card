@@ -15,7 +15,11 @@ public sealed partial class GameEngine
         };
         // Paired responses need the original trick's accepted Use identity even
         // when no target-changing skill subscribes to its finalized window.
-        return _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.OfferPairedColorCardDisposition) &&
+        return _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.JoinAdjacentRedCardTarget) &&
+            (category == SkillProgramCardCategory.Basic || IsOrdinaryTrick(kind)) ||
+            _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DiscardSameCategoryForExtraEffect) && ExtraEffectCardKind(kind) ||
+            HasTargetedOrdinaryTrickAdjustment && IsOrdinaryTrick(kind) ||
+            _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.OfferPairedColorCardDisposition) &&
             category == SkillProgramCardCategory.Trick ||
             TracksCompletedUndamagedUseDamage && IsCompletedUndamagedDamageUse(kind) && IsOrdinaryTrick(kind) ||
             _contentRegistry.ProgramDependencies.HasFinalizedCardTrigger(kind, category) ||

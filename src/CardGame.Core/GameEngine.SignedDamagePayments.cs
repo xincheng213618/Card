@@ -96,6 +96,7 @@ public sealed partial class GameEngine
         });
         AdvanceRuntimeProgram(f.Id);
     }
+    [ProgramContinuation(ProgramContinuationKind.Resume, 480)]
     private bool ResumeSignedDamagePayment(long id)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame f || f.Id != id || f.SignedDamagePayment is not { } r) return false;
@@ -125,6 +126,7 @@ public sealed partial class GameEngine
             r.SourceSeat, r.TargetSeat, r.OriginalAmount, after, r.Delta, cancel));
         AdvanceRuntimeProgram(id); return true;
     }
+    [ProgramContinuation(ProgramContinuationKind.Movement, 460)]
     private bool ReturnSignedDamageMovement(ProgramSkillFrame f)
     {
         if (f.SignedDamagePayment is null) return false;

@@ -62,12 +62,7 @@ internal sealed class ClaimActualTurnDamageEntitiesDescriptor : ProgramOperation
     public override ISkillProgramEffectHandler Handler { get; } = new ClaimActualTurnDamageEntitiesHandler();
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GainCards,
         static (_, c) => c.PublicControlValue(6d));
-    public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
-    {
-        r.AllowOnly("op", "target", "condition");
-        var e = new SkillProgramEffect(Op, FilterBoundCardsProgramOperationDescriptor.Owner(r), 0, r.Condition());
-        RequireAlways(e, r.Path); return e;
-    }
+    public override SkillProgramEffect Parse(ProgramOperationNodeReader r) => ParseOwnerAlways(r);
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e) =>
         [new RequireTriggerWindow(SkillProgramTriggerWindow.TurnEnding)];
 }

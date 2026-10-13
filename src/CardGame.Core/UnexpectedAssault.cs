@@ -16,7 +16,8 @@ public sealed record UnexpectedAssaultRevealReceipt(
     Suit RevealedPrintedSuit,
     int RevealedRank,
     Suit EffectiveUseSuit,
-    Suit EffectiveRevealedSuit)
+    Suit EffectiveRevealedSuit,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)] int ExtraEffectOrdinal = 0)
 {
     // Current official client card text explicitly requires this use to have a
     // suit. A colorless use therefore cannot damage even a suited hand card.

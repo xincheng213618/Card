@@ -16,11 +16,18 @@ public sealed partial class GameEngine
         if (activated is { } activation && !_contentRegistry.GetSkill(activation.Skill).Tags.HasFlag(SkillTag.Locked) &&
             CardPolicies(_players[activation.Seat], SkillProgramCardPolicyKind.NextCardUnlimitedAfterNonLockedSkill).Any())
             _nextUnlimitedCardOwners.Add(activation.Seat);
-        if (payload is CardUseDeclaredEvent declared && _nextUnlimitedCardOwners.Remove(declared.SourceSeat))
-            TryMarkUnlimitedUse(declared.ResolutionId);
+        if (payload is CardUseDeclaredEvent declared)
+        {
+            var friendUnlimited = _friendQihuiUnlimited.Remove(declared.SourceSeat);
+            if (_nextUnlimitedCardOwners.Remove(declared.SourceSeat) || friendUnlimited) TryMarkUnlimitedUse(declared.ResolutionId);
+            if (friendUnlimited) UpdateLifecycleCardUse(declared.ResolutionId, u => u with { QuotaOnlyUseLimitExemption = true });
+        }
+        if (payload is CardActionAcceptedEvent { Action.Type: CardActionType.Response } response && IsFriendActualCardUse(response.Action))
+            _friendQihuiUnlimited.Remove(response.Action.ActorSeat);
     }
     private bool HasNextUnlimitedCard(CharacterState owner) => _nextUnlimitedCardOwners.Contains(owner.Seat) &&
         CardPolicies(owner, SkillProgramCardPolicyKind.NextCardUnlimitedAfterNonLockedSkill).Any();
+    private bool HasFriendQihuiAllowance(CharacterState owner) => _friendQihuiUnlimited.Contains(owner.Seat);
     private int RedBladeDamageBonus(CardAttackHandle attack)
     {
         if (attack.IsChainPropagation || attack.CardUserSeat != attack.SourceSeat || attack.EffectiveCardKind is not
@@ -31,8 +38,8 @@ public sealed partial class GameEngine
         attack.PendingRedBladeDamageBonus = applies;
         return applies ? 1 : 0;
     }
-    private bool IsAdvancedActivationTargetAllowed(CharacterState owner, CharacterState target, string skillId, SkillProgramActivation activation) =>
-        !activation.Effects.Any(effect => effect.Op == SkillProgramEffectOp.DamageFarthestCharacter) ||
+    private bool IsAdvancedActivationTargetAllowed(CharacterState owner, CharacterState target, string skillId, ProgramInstructionFeatures features) =>
+        !features.HasOperation(SkillProgramEffectOp.DamageFarthestCharacter) ||
         IsFarthestInRange(owner, target) && _skillRuntimeState.GetUsage(owner.Seat, skillId, $"target:{target.Seat}", SkillUsageScope.Turn) == 0;
 }
 

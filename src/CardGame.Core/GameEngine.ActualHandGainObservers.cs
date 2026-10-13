@@ -92,27 +92,9 @@ public sealed partial class GameEngine
         moved.Batch.AwaitingProgramFrameId == root.Id && moved.Batch.OriginOwnerSeat == root.OwnerSeat && moved.Batch.OriginSkillId == root.SkillId &&
         moved.Batch.OriginSkillInstanceId == root.SkillInstanceId && moved.Batch.Movements.Count > 0 &&
         moved.Batch.Movements.All(m => _cardMovements.Contains(m) && m.Sequence > r.Before && m.Sequence <= r.After);
-    private ProgramSkillFrame? ActualHandGainObserverRoot()
-    {
-        for (var i = 0; i + 1 < _resolutionStack.Count; i++)
-        {
-            if (_resolutionStack[i] is not ProgramSkillFrame root || !ActualHandGainFirstChild(root, _resolutionStack[i + 1])) continue;
-            var exact = true;
-            for (var j = i + 2; j < _resolutionStack.Count; j++)
-            {
-                if (_resolutionStack[j] is ProgramLifecycleTriggerWindowFrame changed && _resolutionStack[j - 1] is ProgramSkillFrame owner &&
-                    changed.Window == SkillProgramTriggerWindow.SkillsChanged && changed.ResumeProgramFrameId == owner.Id &&
-                    changed.Continuation == ProgramLifecycleContinuation.ResumeParentProgram && changed.CandidateIndex >= 0 && changed.CandidateIndex <= changed.Candidates.Count) continue;
-                if (!(HalfHandPaidDamageObserverEdge(j) || PaidTargetObserverEdge(j) || DyingSuitsStructuralEdge(_resolutionStack[j - 1], _resolutionStack[j])))
-                { exact = false; break; }
-                if (_resolutionStack[j] is DyingFrame dying && j + 1 < _resolutionStack.Count &&
-                    (IsPaidHandRepaymentProgramAlcoholRide(j, dying) || IsPaidHandRepaymentRescueRide(j, dying) ||
-                     PolicyCounterspellVirtualAlcoholRide(j, dying) || PaidObserverDamageVirtualAlcoholRide(j, dying) || (TieredRoundZeroDyingRescueRide(j, dying) || DrawFundedDistinctBasicDyingRescueRide(j, dying)))) break;
-            }
-            if (exact) return root;
-        }
-        return null;
-    }
+    private ProgramSkillFrame? ActualHandGainObserverRoot() => FindProgramObserverRoot(
+        static (engine, root, child) => engine.ActualHandGainFirstChild(root, child),
+        static (engine, index) => engine.HasHandGainDebtObserverSuffix(index));
     private bool AllowsActualHandGainNestedDamage(ProgramSkillFrame observer, int target, int amount,
         ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
@@ -130,18 +112,6 @@ public sealed partial class GameEngine
     private bool TryAdvanceActualHandGainSubtree()
     {
         if (_pendingDecision is not null || ActualHandGainObserverRoot() is null) return false;
-        var top = _resolutionStack.LastOrDefault();
-        if (top is ProgramSkillFrame { AttackAttempt: not null } attack)
-        {
-            if (CurrentDamageAttempt?.ResolutionId != attack.Id || ActiveDying is not null || attack.AttackReturn is null ||
-                _resolutionStack.Any(f => f is DamageFrame damage && damage.ParentFrameId == attack.Id ||
-                    f is BeforeDamageProgramWindowFrame before && (before.ContinuationAttackResolutionId ?? before.ParentFrameId) == attack.Id)) return false;
-            CompleteDamageAttack(new ProgramAttackHandle(this, attack.Id)); AdvanceRulesAndPublishState(); return true;
-        }
-        if (top is ProgramSkillFrame or CardsMovedTriggerWindowFrame or HpChangedTriggerWindowFrame or ProgramLifecycleTriggerWindowFrame or
-            ProgramCardTriggerWindowFrame or BeforeDamageProgramWindowFrame or ProgramDeathTriggerWindowFrame or ProgramKillTriggerWindowFrame)
-        { AdvanceRuntimeFrame(top.Id); AdvanceRulesAndPublishState(); return true; }
-        if (top is DeathFrame death) { ContinueDeathResolution(death.Id); AdvanceRulesAndPublishState(); return true; }
-        return false;
+        return TryAdvanceObserverSubtree(advanceRecoveryReplacement: false);
     }
 }

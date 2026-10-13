@@ -235,6 +235,7 @@ public sealed partial class GameEngine
 
     // Opt in only after this operation's exact physical ledger has paid. A dead
     // forced participant may finish its child and leave the ring's next seat intact.
+    [ProgramContinuation(ProgramContinuationKind.MovementTail, 50)]
     private bool TryReturnSequentialDiscardMovement(ProgramSkillFrame frame)
     {
         if (frame.SequentialDiscard is not { Stage: ProgramSequentialDiscardStage.AwaitingMovement, Payment: not null }) return false;

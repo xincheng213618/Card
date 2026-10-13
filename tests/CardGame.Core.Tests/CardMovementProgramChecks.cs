@@ -16,6 +16,60 @@ internal static class CardMovementProgramChecks
         var play = RequirePrompt(game, DecisionKind.PlayCard);
         var hand = game.CreateSnapshot(HumanSeat, revealAll: true).Players[HumanSeat].Hand;
         Require(hand.Count == 2, "The movement fixture must begin Play with exactly two hand cards.");
+        var zoneField = typeof(GameEngine).GetField("_cardZones", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var store = (CardZoneStore)zoneField.GetValue(game)!;
+        var handLocation = CardLocation.Hand(HumanSeat);
+        var knownHandId = hand[0].Id;
+        var invalidZone = (CardZoneKind)int.MaxValue;
+        var invalidLocation = new CardLocation(invalidZone, HumanSeat);
+        var hostType = typeof(GameEngine).GetNestedType("ProgramSkillHost", BindingFlags.NonPublic)!;
+        var host = (ISkillProgramExecutionHost)hostType.GetConstructors(
+            BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).Single().Invoke([game]);
+        Require(hand.All(card => store.Contains(handLocation, card.Id)) &&
+                !store.Contains(CardLocation.Hand(1), knownHandId) &&
+                !store.Contains(CardLocation.Equipment(HumanSeat), knownHandId) &&
+                !store.Contains(handLocation, int.MaxValue),
+            "Indexed membership must retain the actual owner and zone and reject an unknown identity.");
+        Require(host.OwnsCards(HumanSeat, [], [invalidZone]) &&
+                !host.OwnsCards(HumanSeat, [knownHandId], []) &&
+                host.OwnsCards(HumanSeat, [knownHandId], [CardZoneKind.Hand, invalidZone]) &&
+                !host.OwnsCards(1, [knownHandId], [CardZoneKind.Hand]) &&
+                !host.OwnsCards(HumanSeat, [int.MaxValue], [CardZoneKind.Hand]),
+            "The production host must preserve empty All/Any and short-circuit source order without cross-seat ownership.");
+        ArgumentOutOfRangeException expectedZoneError;
+        try
+        {
+            _ = store.CardsAt(invalidLocation);
+            throw new InvalidOperationException("An unregistered source zone was accepted.");
+        }
+        catch (ArgumentOutOfRangeException error) { expectedZoneError = error; }
+        try
+        {
+            _ = store.Contains(invalidLocation, int.MaxValue);
+            throw new InvalidOperationException("An unknown card bypassed source-zone validation.");
+        }
+        catch (ArgumentOutOfRangeException error)
+        {
+            Require(error.GetType() == expectedZoneError.GetType() && error.ParamName == expectedZoneError.ParamName &&
+                    object.Equals(error.ActualValue, expectedZoneError.ActualValue) && error.Message == expectedZoneError.Message,
+                "Indexed membership must retain the exact CardsAt source-zone exception even for an unknown card.");
+        }
+        var viewsBeforeRejectedMove = Enumerable.Range(0, 4)
+            .Select(seat => SnapshotJson.Serialize(game.CreateSnapshot(seat))).ToArray();
+        try
+        {
+            store.MoveMany([knownHandId, int.MaxValue], handLocation, CardLocation.DiscardPile);
+            throw new InvalidOperationException("A movement batch accepted an unknown physical identity.");
+        }
+        catch (InvalidOperationException error) when (error.Message.Contains("not expected zone", StringComparison.Ordinal)) { }
+        Require(store.Contains(handLocation, knownHandId) && Enumerable.Range(0, 4)
+                .Select(seat => SnapshotJson.Serialize(game.CreateSnapshot(seat))).SequenceEqual(viewsBeforeRejectedMove),
+            "A rejected mixed-known-and-unknown batch must preserve the known member and every player-safe view.");
+        var legacyStore = new CardZoneStore(1);
+        legacyStore.LoadInitialDeck([new Card(0, CardKind.Slash, Suit.Spade, 7), new Card(-1, CardKind.Dodge, Suit.Heart, 2)]);
+        Require(legacyStore.Contains(CardLocation.DrawPile, 0) && legacyStore.Contains(CardLocation.DrawPile, -1) &&
+                !legacyStore.Contains(CardLocation.Hand(0), 0),
+            "Initial-deck identity membership must preserve the existing zero and negative identity API.");
         var action = game.GetHumanLegalActions().Single(candidate =>
             candidate.Kind == LegalActionKind.UseProgramSkill &&
             candidate.ProgramSkillId == ScenarioPackage.SkillId &&
@@ -29,6 +83,10 @@ internal static class CardMovementProgramChecks
             game.Revision,
             play.PromptId));
         Require(used.Accepted, used.Error?.Message ?? "The movement fixture activation was rejected.");
+        Require(hand.All(card => store.Contains(CardLocation.DiscardPile, card.Id) &&
+                !store.Contains(handLocation, card.Id)) &&
+                !host.OwnsCards(HumanSeat, hand.Select(card => card.Id).ToArray(), [CardZoneKind.Hand]),
+            "The real paid discard must update indexed membership before its movement child resumes.");
 
         var prompt = RequireSkillPrompt(game, ScenarioPackage.SkillId);
         var frame = game.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Single();
@@ -87,6 +145,10 @@ internal static class CardMovementProgramChecks
 
         var checkpoint = RoundTrip(game.CreateCheckpoint());
         var replay = GameReplay.Restore(checkpoint, registry);
+        var replayStore = (CardZoneStore)zoneField.GetValue(replay)!;
+        Require(hand.All(card => replayStore.Contains(CardLocation.DiscardPile, card.Id) &&
+                !replayStore.Contains(handLocation, card.Id)),
+            "Cold replay must rebuild the actual paid cards' indexed discard membership.");
         for (var index = 0; index < 3; index++)
         {
             AnswerProgram(game, "activate");

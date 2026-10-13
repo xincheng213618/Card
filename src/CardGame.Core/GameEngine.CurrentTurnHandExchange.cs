@@ -160,6 +160,7 @@ public sealed partial class GameEngine
         var frame = GetActiveProgramFrame(frameId);
         if (!TryDrainCurrentTurnHandExchangeMovement(frame)) ReturnCurrentTurnHandExchangeMovement(frame);
     }
+    [ProgramContinuation(ProgramContinuationKind.Movement, 180)]
     private bool ReturnCurrentTurnHandExchangeMovement(ProgramSkillFrame frame)
     {
         if (frame.CurrentTurnHandExchange is null) return false;
@@ -173,6 +174,7 @@ public sealed partial class GameEngine
         return true;
     }
 
+    [ProgramContinuation(ProgramContinuationKind.Resume, 740)]
     private bool ResumeCurrentTurnHandExchange(long frameId)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame frame || frame.Id != frameId || frame.CurrentTurnHandExchange is not { } receipt)

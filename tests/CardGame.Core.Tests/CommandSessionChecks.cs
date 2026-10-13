@@ -74,6 +74,12 @@ internal static class CommandSessionChecks
         var ids = new[] { 1, 2 };
         var skillIds = new[] { "fixture:original" };
         var armIds = new[] { 7L, 8L };
+        var choiceTargets = new[] { 2, 1, 2 };
+        var contentIds = new[] { "fixture:second", "fixture:first", "fixture:second" };
+        var parameters = new Dictionary<string, string> { ["fixture"] = "value", ["Fixture"] = "other" };
+        var choices = new[] { new PromptChoice(new ChoiceId("fixture"), "fixture", ids, choiceTargets, parameters)
+            { ContentIds = contentIds } };
+        var conversion = new CardConversionSource("fixture", "binding", 0, "instance");
         IGameEvent[] nested =
         [
             new CardActionProhibitionGrantedEvent(new TurnCardActionProhibition(1, 1, 0, 1, 0,
@@ -90,7 +96,9 @@ internal static class CommandSessionChecks
             new ProgramTongxieArmedEvent(1, "fixture", "binding", 0, 1, ids),
             new ProgramYuanziDamageDrawEvent(1, "fixture", "binding", 0, 1, 2, ids),
             new ProgramLiejieSourceDiscardEvent(1, "fixture", "binding", 0, 1, 2, ids),
-            new ProgramTongxieFollowUpResolvedEvent(1, "fixture", "binding", 0, 1, 2, ids, ids, ids)
+            new ProgramTongxieFollowUpResolvedEvent(1, "fixture", "binding", 0, 1, 2, ids, ids, ids),
+            new RoundGainedTrickTargetOfferedEvent(1, 0, conversion,
+                new(conversion, "fixture", "fixture", 1, 0, 2, 3, 0, CardKind.Duel), ids, choices)
         ];
         var bytes = nested.Select(item => JsonSerializer.Serialize(item, item.GetType())).ToArray();
         var frozen = nested.Select(CommittedEventProjection.Freeze).ToArray();
@@ -100,6 +108,10 @@ internal static class CommandSessionChecks
         ids[0] = -1;
         skillIds[0] = "fixture:rewritten";
         armIds[0] = -1;
+        choiceTargets[0] = -1;
+        contentIds[0] = "fixture:rewritten";
+        parameters["fixture"] = "rewritten";
+        choices[0] = choices[0] with { Description = "rewritten" };
         foreach (var item in frozen)
             AttemptCollectionMutation(item, new HashSet<object>(ReferenceEqualityComparer.Instance), ref attempts, ref rejected);
         Require(rejected == attempts && bytes.SequenceEqual(frozen.Select(item => JsonSerializer.Serialize(item, item.GetType()))),
@@ -214,16 +226,31 @@ internal static class CommandSessionChecks
             "Published output and restored committed state must remain identical after mutation attempts.");
         // Exercise populated decision payloads even when this seed's setup has no prompt.
         // Freeze a detached projection; the live engine and content remain untouched.
-        var prompt = new PendingDecision(DecisionKind.ProgramTrigger, 0, "fixture", new[] { 1 }, new[] { 1 })
+        var cardIds = new[] { 3, 1, 3 };
+        var targetSeats = new[] { 2, 1, 2 };
+        var contentIds = new[] { "fixture:second", "fixture:first", "fixture:second" };
+        var parameters = new Dictionary<string, string> { ["fixture"] = "value", ["Fixture"] = "other" };
+        var choices = new[] { new PromptChoice(new ChoiceId("fixture"), "fixture", cardIds, targetSeats, parameters)
+            { ContentIds = contentIds } };
+        var prompt = new PendingDecision(DecisionKind.ProgramTrigger, 0, "fixture", cardIds, targetSeats)
         {
-            ValidContentIds = new[] { "fixture" },
-            Choices = new[] { new PromptChoice(new ChoiceId("fixture"), "fixture", new[] { 1 }, new[] { 1 },
-                new Dictionary<string, string> { ["fixture"] = "value" }) { ContentIds = new[] { "fixture" } } }
+            ValidContentIds = contentIds,
+            Choices = choices
         };
         var detached = game.State with { PendingDecision = prompt };
         var detachedJson = SnapshotJson.Serialize(detached);
-        var frozen = (GameSnapshot)typeof(GameEngine).GetMethod("FreezePlayerView",
-            BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [detached])!;
+        var freezeView = typeof(GameEngine).GetMethod("FreezePlayerView", BindingFlags.NonPublic | BindingFlags.Static)!;
+        var frozen = (GameSnapshot)freezeView.Invoke(null, [detached])!;
+        var refrozen = (GameSnapshot)freezeView.Invoke(null, [frozen])!;
+        var firstChoice = frozen.PendingDecision!.Choices[0];
+        var secondChoice = refrozen.PendingDecision!.Choices[0];
+        Require(!ReferenceEquals(firstChoice, secondChoice) &&
+                !ReferenceEquals(firstChoice.Cards, secondChoice.Cards) &&
+                !ReferenceEquals(firstChoice.Targets, secondChoice.Targets) &&
+                !ReferenceEquals(firstChoice.ContentIds, secondChoice.ContentIds) &&
+                !ReferenceEquals(firstChoice.Parameters, secondChoice.Parameters) &&
+                SnapshotJson.Serialize(refrozen) == detachedJson,
+            "Each projection must detach choices again while preserving IDs, list order, duplicates and parameter keys.");
         AttemptCollectionMutation(frozen, new HashSet<object>(ReferenceEqualityComparer.Instance), ref attempts, ref rejected);
         Require(attempts == rejected && SnapshotJson.Serialize(frozen) == detachedJson &&
                 SnapshotJson.Serialize(detached) == detachedJson,
@@ -240,6 +267,14 @@ internal static class CommandSessionChecks
             AttemptCollectionMutation(exposed, new HashSet<object>(ReferenceEqualityComparer.Instance), ref attempts, ref rejected);
             Require(attempts == rejected && exposedJson == System.Text.Json.JsonSerializer.Serialize(game.PendingDecision),
                 "The decision-only read must detach and freeze every exposed nested collection.");
+            cardIds[0] = -1;
+            targetSeats[0] = -1;
+            contentIds[0] = "fixture:rewritten";
+            parameters["fixture"] = "rewritten";
+            choices[0] = choices[0] with { Description = "rewritten" };
+            Require(SnapshotJson.Serialize(frozen) == detachedJson && SnapshotJson.Serialize(refrozen) == detachedJson &&
+                    System.Text.Json.JsonSerializer.Serialize(exposed) == exposedJson,
+                "Source array, content ID and parameter writes must not change any previously frozen view or decision.");
             pendingField.SetValue(game, prompt with { PlayerSeat = 1 });
             Require(game.PendingDecision is null && game.CreateSnapshot(1).PendingDecision is not null,
                 "Reading the human decision must not disclose another player's private prompt.");

@@ -45,6 +45,7 @@ public sealed partial class GameEngine
         AdvanceRuntimeProgram(frame.Id); return SkillProgramStepOutcome.AwaitChild;
     }
 
+    [ProgramContinuation(ProgramContinuationKind.Resume, 200)]
     private bool ResumeRoundGainedEquipmentDraw(long id)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame frame || frame.Id != id || frame.RoundGainedEquipmentDrawReceipt is null) return false;
@@ -62,6 +63,7 @@ public sealed partial class GameEngine
         FinishProgramSkill(frame, true); return true;
     }
 
+    [ProgramContinuation(ProgramContinuationKind.Movement, 220)]
     private bool ReturnRoundGainedEquipmentDrawMovement(ProgramSkillFrame frame)
     {
         if (frame.RoundGainedEquipmentDrawReceipt is null || frame.PendingMovementContinuation is null) return false;

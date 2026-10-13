@@ -296,6 +296,7 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new CompletedUndamagedTargetRevealCompletedEvent(f.Id, r.SelectedSlots.Count, r.PaidMaterials.Count));
         FinishProgramSkill(f, true);
     }
+    [ProgramContinuation(ProgramContinuationKind.Resume, 180)]
     private bool ResumeCompletedUndamagedTargetReveal(long id)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame f || f.Id != id || f.CompletedUndamagedTargetReveal is not { } r) return false;
@@ -309,6 +310,7 @@ public sealed partial class GameEngine
              TryBeginAdvancedSkillsChanged(id))) return true;
         CompleteCompletedUndamagedTargetReveal(f); return true;
     }
+    [ProgramContinuation(ProgramContinuationKind.Movement, 160)]
     private bool ReturnCompletedUndamagedTargetRevealMovement(ProgramSkillFrame f)
     {
         if (f.CompletedUndamagedTargetReveal is not { MovementIssued: true, Stage: CompletedUndamagedTargetRevealStage.MovementChildren }) return false;
@@ -333,6 +335,5 @@ public sealed partial class GameEngine
     private sealed partial class ProgramSkillHost : ICompletedUndamagedTargetRevealProgramHost
     {
         public SkillProgramStepOutcome CompletedUndamagedTargetReveal(ProgramSkillFrame f) => engine.BeginCompletedUndamagedTargetReveal(f);
-        public bool CanContinueCompletedUndamagedTargetReveal(ProgramSkillFrame f) => engine.CanContinueCompletedUndamagedTargetReveal(f);
     }
 }

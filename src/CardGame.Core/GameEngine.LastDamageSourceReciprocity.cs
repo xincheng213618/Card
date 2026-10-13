@@ -192,6 +192,7 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new LastDamageSourceReciprocityMovementIssuedEvent(f.Id, r.ParticipantSeat, r.Direction,
             r.ActualCount, r.SequenceBefore, r.SequenceAfter, r.BatchId));
     }
+    [ProgramContinuation(ProgramContinuationKind.Resume, 90)]
     private bool ResumeLastDamageSourceReciprocity(long frameId)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame f || f.Id != frameId || f.LastDamageSourceReciprocity is not { } r) return false;
@@ -208,6 +209,7 @@ public sealed partial class GameEngine
         }
         FinishProgramSkill(f, true); return true;
     }
+    [ProgramContinuation(ProgramContinuationKind.Movement, 70)]
     private bool ReturnLastDamageSourceReciprocityMovement(ProgramSkillFrame f)
     {
         if (f.LastDamageSourceReciprocity is not { MovementIssued: true } || f.PendingMovementContinuation is null) return false;
@@ -225,6 +227,5 @@ public sealed partial class GameEngine
     private sealed partial class ProgramSkillHost : ILastDamageSourceReciprocityProgramHost
     {
         public SkillProgramStepOutcome LastDamageSourceReciprocity(ProgramSkillFrame f, string stateId) => engine.BeginLastDamageSourceReciprocity(f, stateId);
-        public bool CanContinueLastDamageSourceReciprocity(ProgramSkillFrame f) => engine.CanContinueLastDamageSourceReciprocity(f);
     }
 }

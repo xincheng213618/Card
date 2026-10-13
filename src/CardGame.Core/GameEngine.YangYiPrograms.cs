@@ -661,7 +661,7 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new CardUseDeclaredEvent(resolutionId, 0, CardKind.Slash, debtorSeat));
         AdvanceEventRulesAndQueueFact(new TargetsConfirmedEvent(resolutionId, [ownerSeat]));
         var attack = new CardAttackHandle(this, resolutionId, debtorSeat, ownerSeat, card: null,
-            damageAmount: debtor.HasAlcoholEffect ? 2 : 1, playedCardKind: CardKind.Slash,
+            damageAmount: 1 + debtor.AlcoholDamageBonus, playedCardKind: CardKind.Slash,
             ignoresArmor: HasCardArmorBypass(debtor, owner, CardKind.Slash),
             programSkillCardUseFrameId: active.Id);
         CaptureProgramAlcoholConsumption(resolutionId, debtor);
@@ -703,6 +703,7 @@ public sealed partial class GameEngine
 
     // Program resume hook: a returned child (duel, program damage or a closed
     // cards-moved window) hands control back to the paused Juanxia instruction.
+    [ProgramContinuation(ProgramContinuationKind.Resume, 570)]
     private bool ResumeJuanxia(long frameId)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame frame || frame.Id != frameId)

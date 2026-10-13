@@ -118,6 +118,7 @@ public sealed partial class GameEngine
         AdvanceRuntimeProgram(f.Id); return SkillProgramStepOutcome.AwaitChild;
     }
 
+    [ProgramContinuation(ProgramContinuationKind.Resume, 520)]
     private bool ResumeAdjacentDiscardStorage(long id)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame f || f.Id != id || f.AdjacentDiscardStorage is not { }) return false;

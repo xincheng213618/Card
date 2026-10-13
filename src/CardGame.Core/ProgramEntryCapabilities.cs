@@ -18,7 +18,8 @@ internal enum ProgramContextCapability
     PhaseSubstitution = 1024,
     PhaseOwner = 2048,
     MovementSource = 4096,
-    ActualUseSource = 8192
+    ActualUseSource = 8192,
+    VirtualSlashUse = 16384
 }
 
 internal static class ProgramEntryCapabilities
@@ -76,7 +77,14 @@ internal static class ProgramEntryCapabilities
         SkillProgramTriggerWindow.ActualSlashTargetPenalty or
         SkillProgramTriggerWindow.SlashDodgeCancelledBenefit;
 
-    internal static ProgramContextCapability For(SkillProgramTriggerWindow? window) => window switch
+    internal static ProgramContextCapability For(SkillProgramTriggerWindow? window)
+    {
+        var supplied = ExistingCapabilities(window);
+        return supplied.HasFlag(ProgramContextCapability.PhaseSubstitution) || window == SkillProgramTriggerWindow.RoundStarting
+            ? supplied | ProgramContextCapability.VirtualSlashUse : supplied;
+    }
+
+    private static ProgramContextCapability ExistingCapabilities(SkillProgramTriggerWindow? window) => window switch
     {
         SkillProgramTriggerWindow.OtherActualTurnStarted => Common | ProgramContextCapability.Pindian,
         SkillProgramTriggerWindow.OtherActualUseTargeted => Common | ProgramContextCapability.ActualUseSource,

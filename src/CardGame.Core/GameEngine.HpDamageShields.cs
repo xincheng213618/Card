@@ -100,6 +100,7 @@ public sealed partial class GameEngine
 
     // Invoked before ordinary executor cancellation. The physical cost is already
     // paid; source death or skill loss cannot invalidate the surviving recipients.
+    [ProgramContinuation(ProgramContinuationKind.Resume, 790)]
     private bool ResumeHpDamageShieldPayment(long frameId)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame frame || frame.Id != frameId ||
@@ -229,6 +230,5 @@ public sealed partial class GameEngine
     {
         public SkillProgramStepOutcome PayHpToGrantOneUseDamageShield(ProgramSkillFrame frame, PlayerMarkerKind marker) =>
             engine.BeginHpDamageShieldPayment(frame, marker);
-        public bool CanContinuePaidDamageShield(ProgramSkillFrame frame) => engine.CanContinuePaidHpDamageShield(frame);
     }
 }

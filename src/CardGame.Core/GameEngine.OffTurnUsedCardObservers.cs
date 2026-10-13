@@ -140,8 +140,4 @@ public sealed partial class GameEngine
                 throw new InvalidOperationException("Off-turn used-card gift lost its exact paid batch and native observer subtree.");
     }
 
-    private sealed partial class ProgramSkillHost
-    {
-        public bool CanContinueOffTurnUsedCardGift(ProgramSkillFrame f) => engine.CanContinueOffTurnUsedCardGift(f);
-    }
 }

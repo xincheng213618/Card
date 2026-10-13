@@ -37,6 +37,8 @@ public static class EquipmentCatalog
     private static readonly IReadOnlyDictionary<CardKind, EquipmentDefinition> Definitions =
         new Dictionary<CardKind, EquipmentDefinition>
         {
+            [CardKind.Xuanjian] = new(CardKind.Xuanjian, "玄剑", EquipmentSlot.Weapon,
+                "你可以将一种花色的所有手牌当普通杀使用。", WeaponAttackRange: 3),
             [CardKind.GeneralWeapon] = new(CardKind.GeneralWeapon, "武将武器", EquipmentSlot.Weapon,
                 "无花色点数，攻击范围为武将体力上限，具有牌上描述含杀的非觉醒、限定、转换、主公技能。离开装备区销毁。", WeaponAttackRange: 1),
             [CardKind.RedBloodBlade] = new(CardKind.RedBloodBlade, "赤血刃", EquipmentSlot.Weapon,

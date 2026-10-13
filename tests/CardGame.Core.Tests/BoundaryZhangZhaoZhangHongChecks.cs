@@ -12,6 +12,10 @@ internal static class BoundaryZhangZhaoZhangHongChecks
     {
         var (g,r)=Create(equipment:true);var recipient=Peer(g);
         var first=g.State.Players[0].Hand.First().Id;
+        var publicPlacement=g.GetHumanActionView().LegalActions.Single(a=>a.ProgramSkillId==Zhijian &&a.ProgramActivationId=="place-equipment");
+        Require(publicPlacement.SelectableCardTargets is { } associations &&associations.Contains(new(first,recipient)) &&
+            associations.All(pair=>publicPlacement.SelectableCardIds.Contains(pair.CardId) &&publicPlacement.SelectableTargetSeats.Contains(pair.TargetSeat)),
+            "The frozen public captured-equipment action keeps each exact payable material/recipient association.");
         Place(g,first,recipient);Play(g);
         var equipment=g.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.Equip);
         var incoming=equipment.CardId!.Value;

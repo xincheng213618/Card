@@ -161,6 +161,7 @@ public sealed partial class GameEngine
         var required=RequestedDeckBasicKind(view.OriginalDecision,r.Intent);
         if(required==CardKind.Slash?!IsSlashCard(card.Kind):card.Kind!=required)return false;
         if(IsCardUseForbidden(actor.Seat,card.Kind,RequestedDeckBasicActionType(r.Intent)))return false;
+        if (required == CardKind.Dodge && !IsRecordedSuitResponseAllowed(actor, [card], required)) return false;
         if(r.Intent is RequestedDeckBasicIntent.BorrowedSword or RequestedDeckBasicIntent.Qinglong or RequestedDeckBasicIntent.ProgramSlash or RequestedDeckBasicIntent.ProgramNearestSlash or RequestedDeckBasicIntent.AssistedSlash or RequestedDeckBasicIntent.NearestLegalSlash)
             return RequestedDeckBasicTargets(view,card).Length>0;
         if(r.Intent==RequestedDeckBasicIntent.FactionSlash && ActiveFactionCardRequest is { } faction)

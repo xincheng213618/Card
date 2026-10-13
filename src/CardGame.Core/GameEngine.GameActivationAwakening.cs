@@ -46,6 +46,7 @@ public sealed partial class GameEngine
         AdvanceRuntimeProgram(f.Id); return SkillProgramStepOutcome.AwaitChild;
     }
 
+    [ProgramContinuation(ProgramContinuationKind.Resume, 220)]
     private bool ResumeGameActivationAwakening(long id)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame f || f.Id != id || f.GameActivationAwakening is not { } r) return false;
@@ -125,7 +126,6 @@ public sealed partial class GameEngine
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
     private sealed partial class ProgramSkillHost : IGameActivationAwakeningProgramHost
     {
-        public bool CanContinueGameActivationAwakening(ProgramSkillFrame f) => engine.CanContinueGameActivationAwakening(f);
         public SkillProgramStepOutcome BeginGameActivationAwakening(ProgramSkillFrame f, SkillProgramEffect e) => engine.BeginGameActivationAwakening(f, e);
     }
 }

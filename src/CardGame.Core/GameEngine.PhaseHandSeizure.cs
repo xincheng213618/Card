@@ -120,6 +120,7 @@ public sealed partial class GameEngine
         if (PhaseHandSeizureTerminalState) { AssertPhaseHandSeizure(frame); return; }
         if (!TryDrainPhaseHandSeizureMovement(frame)) ReturnPhaseHandSeizureMovement(frame);
     }
+    [ProgramContinuation(ProgramContinuationKind.Movement, 260)]
     private bool ReturnPhaseHandSeizureMovement(ProgramSkillFrame frame)
     {
         if (frame.PhaseHandSeizure is null && frame.PhaseHandDebtReturn is null) return false;
@@ -130,6 +131,7 @@ public sealed partial class GameEngine
         if (TryDrainPhaseHandSeizureMovement(frame)) return true;
         ReplaceRuntimeTop(frame with { PendingMovementContinuation = null }); ResumePhaseHandSeizure(frame.Id); return true;
     }
+    [ProgramContinuation(ProgramContinuationKind.Resume, 240)]
     private bool ResumePhaseHandSeizure(long frameId)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame frame || frame.Id != frameId ||
@@ -277,6 +279,5 @@ public sealed partial class GameEngine
     {
         public SkillProgramStepOutcome DiscardTurnOverAndTakeHand(ProgramSkillFrame frame, string continuation) => engine.BeginPhaseHandSeizure(frame, continuation);
         public SkillProgramStepOutcome ReturnIssuedPhaseHandDebt(ProgramSkillFrame frame) => engine.BeginPhaseHandDebtReturn(frame);
-        public bool CanContinueIssuedPhaseHandDebt(ProgramSkillFrame frame) => engine.CanContinuePhaseHandSeizure(frame);
     }
 }

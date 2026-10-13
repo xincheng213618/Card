@@ -98,6 +98,7 @@ public sealed partial class GameEngine
     }
     private bool CanContinuePaidLostHpChain(ProgramSkillFrame frame) => _winner == Winner.None &&
         _players[frame.OwnerSeat].IsAlive && ValidLostHpChainedPayment(frame);
+    [ProgramContinuation(ProgramContinuationKind.Movement, 340)]
     private bool ReturnLostHpChainedMovement(ProgramSkillFrame frame)
     {
         if (frame.LostHpChainedPayment is null) return false;
@@ -112,6 +113,4 @@ public sealed partial class GameEngine
         else AdvanceRuntimeProgram(frame.Id);
         return true;
     }
-    private sealed partial class ProgramSkillHost
-    { public bool CanContinuePaidLostHpChain(ProgramSkillFrame frame) => engine.CanContinuePaidLostHpChain(frame); }
 }

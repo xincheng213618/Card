@@ -134,6 +134,7 @@ public sealed partial class GameEngine
                 m.Sequence==d.ClaimMovementSequence && m.CardId==r.CardId && m.CardKind==r.PrintedKind &&
                 m.From==r.To && m.To==CardLocation.Hand(d.OwnerSeat) && m.Reason.Value=="skill-program.damage-target-mount.claim"));
     }
+    [ProgramContinuation(ProgramContinuationKind.Resume, 840)]
     private bool ResumeDamageTargetMount(long id)
     {
         var f=GetActiveProgramFrame(id);
@@ -164,10 +165,11 @@ public sealed partial class GameEngine
             p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")!="damage-target-mount")))
             throw new InvalidOperationException("Unpaid mount draft lost its owning prompt.");
     }
+    private bool CanContinuePaidDamageTargetMount(ProgramSkillFrame f)=>f.DamageTargetMount?.Receipt is not null &&
+        _players[f.OwnerSeat].IsAlive && IsValidDamageTargetMount(f);
+
     private sealed partial class ProgramSkillHost : IDamageTargetMountProgramHost
     {
         public SkillProgramStepOutcome DiscardDamageTargetAndClaimMount(ProgramSkillFrame f)=>engine.BeginDamageTargetMount(f);
-        public bool CanContinuePaidDamageTargetMount(ProgramSkillFrame f)=>f.DamageTargetMount?.Receipt is not null &&
-            engine._players[f.OwnerSeat].IsAlive && engine.IsValidDamageTargetMount(f);
     }
 }

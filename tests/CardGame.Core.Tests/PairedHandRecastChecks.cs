@@ -3,7 +3,7 @@ using System.Text.Json.Nodes;
 using CardGame.Content.Standard;
 using CardGame.Core;
 
-internal static class PairedHandRecastChecks
+internal static partial class PairedHandRecastChecks
 {
     private const string Recast = "fixture:paired-hand-recast", Driver = "fixture:paired-recast-driver";
     private const string Cost = "fixture:paired-recast-cost", Gain = "fixture:paired-recast-gain";

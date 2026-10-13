@@ -41,7 +41,7 @@ public sealed partial class GameEngine
         public bool OwnsCards(int ownerSeat, IReadOnlyList<int> cardIds,
             IReadOnlyList<CardZoneKind> sourceZones) =>
             cardIds.All(id => sourceZones.Any(zone =>
-                engine._cardZones.CardsAt(new CardLocation(zone, ownerSeat)).Any(card => card.Id == id)));
+                engine._cardZones.Contains(new CardLocation(zone, ownerSeat), id)));
 
         public bool EvaluateCondition(
             ProgramSkillFrame frame,
@@ -227,7 +227,7 @@ public sealed partial class GameEngine
             {
                 var locations = activation.SourceZones
                     .Select(zone => new CardLocation(zone, frame.OwnerSeat))
-                    .Where(location => engine._cardZones.CardsAt(location).Any(card => card.Id == id))
+                    .Where(location => engine._cardZones.Contains(location, id))
                     .ToArray();
                 if (locations.Length != 1)
                     throw new InvalidOperationException("A selected program cost no longer has one valid owner location.");

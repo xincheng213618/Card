@@ -44,6 +44,7 @@ public sealed partial class GameEngine
         var moves = _cardMovements.Where(m => m.Sequence > fact.Before && m.Sequence <= fact.After).ToArray();
         return moves is [var actual] && actual.CardId == id && actual.From == from && actual.To == to && actual.Reason.Value == PrivateOfferReason(f, reason);
     }
+    [ProgramContinuation(ProgramContinuationKind.Resume, 330)]
     private bool ResumePrivateOffer(long id)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame { PrivateOffer: { } r } f || f.Id != id) return false;
@@ -62,6 +63,7 @@ public sealed partial class GameEngine
         f.PrivateOffer is { Stage: not PrivateOfferStage.ChoosingExchange and not PrivateOfferStage.HpLoss } r &&
         effect == GetPausedPrivateOfferEffect(f) && ValidPrivateOfferReceipt(f) && pending.BeforeCount == 0 && pending.CoverageResultBind is null &&
         pending.SubjectSeat == (r.Stage == PrivateOfferStage.DepositChildren ? f.OwnerSeat : r.Location.PrivateTurnHold!.DeferredOffer!.TargetSeat);
+    [ProgramContinuation(ProgramContinuationKind.Movement, 320)]
     private bool ReturnPrivateOfferMovement(ProgramSkillFrame f)
     {
         if (f.PrivateOffer is not { } r) return false;

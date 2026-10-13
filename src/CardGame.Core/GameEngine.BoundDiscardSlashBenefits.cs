@@ -29,6 +29,7 @@ public sealed partial class GameEngine
         AdvanceRuntimeProgram(id);
         return SkillProgramStepOutcome.AwaitChild;
     }
+    [ProgramContinuation(ProgramContinuationKind.Resume, 770)]
     private bool ResumeBoundDiscardSlashBenefits(long id)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame frame || frame.Id != id || frame.BoundDiscardSlashBenefits is not { } paid) return false;

@@ -72,6 +72,8 @@ internal static class BoundaryCaoRenChecks
             c.Parameters.GetValueOrDefault("program-action") == "strategic-choice" &&
             c.Parameters.GetValueOrDefault("choice")!.StartsWith("card-", StringComparison.Ordinal)));
         var used = pick.Choices.First(c => c.Parameters.GetValueOrDefault("choice")!.StartsWith("card-", StringComparison.Ordinal));
+        AssertOwnedStrategicDraft(g, SkillProgramEffectOp.DiscardHandOrUseEquipment);
+        Replay(g, r);
         Accept(g, new AnswerPromptCommand(0, pick.PromptId, used.Id, g.Revision));
         Require(g.CreateSnapshot(0).Players[0].IsFaceDown && HandCount(g, 0) == handBefore + 3 &&
             EquipmentCount(g, 0) == 1 && IsAt(g, used.Cards.Single(), CardLocation.Equipment(0)),
@@ -101,6 +103,8 @@ internal static class BoundaryCaoRenChecks
             c.Parameters.GetValueOrDefault("program-action") == "strategic-choice" &&
             c.Parameters.GetValueOrDefault("choice")!.StartsWith("card-", StringComparison.Ordinal)));
         var move = pick.Choices.First(c => c.Parameters.GetValueOrDefault("choice")!.StartsWith("card-", StringComparison.Ordinal));
+        AssertOwnedStrategicDraft(g, SkillProgramEffectOp.MoveFieldEquipment);
+        Replay(g, r);
         Accept(g, new AnswerPromptCommand(0, pick.PromptId, move.Id, g.Revision));
         Require(!g.CreateSnapshot(0).Players[0].IsFaceDown && EquipmentCount(g, 0) == 0 &&
             EquipmentCount(g, 1) == 1 && IsAt(g, move.Cards.Single(), CardLocation.Equipment(1)),
@@ -143,9 +147,20 @@ internal static class BoundaryCaoRenChecks
     {
         var p = Await(g, pending => pending.Choices.Any(c =>
             c.Parameters.GetValueOrDefault("program-action") == "strategic-choice"));
+        AssertOwnedStrategicDraft(g, SkillProgramEffectOp.DiscardHandOrUseEquipment);
         Accept(g, new AnswerPromptCommand(0, p.PromptId, p.Choices.First(c =>
             c.Parameters.GetValueOrDefault("program-action") == "strategic-choice" &&
             c.Parameters.GetValueOrDefault("choice")!.StartsWith("card-", StringComparison.Ordinal)).Id, g.Revision));
+    }
+
+    private static void AssertOwnedStrategicDraft(GameEngine game, SkillProgramEffectOp op)
+    {
+        var frame = game.ResolutionStack.OfType<ProgramSkillFrame>().Last();
+        Require(frame.StrategicDraft is { } draft && draft.Op == op && draft.Selected.Count == 0 &&
+            draft.Candidates.SequenceEqual(P(game)!.Choices.SelectMany(choice => choice.Cards)),
+            "The suspended strategic prompt must read its candidate set from the owning frame.");
+        ProgramChoiceDraftChecks.Frozen(frame.StrategicDraft!.Candidates);
+        ProgramChoiceDraftChecks.Frozen(frame.StrategicDraft.Selected);
     }
 
     private static void AnswerFirst(GameEngine g, string programAction)

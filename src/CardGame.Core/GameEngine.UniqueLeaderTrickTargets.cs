@@ -126,7 +126,7 @@ public sealed partial class GameEngine
             new($"unique-leader-trick-target.{frame.Id}.{string.Join(".", pair)}"), pair.Count == 2
                 ? $"额外令 {_players[pair[0]].Name} 对 {_players[pair[1]].Name} 使用杀" : $"额外指定 {_players[pair[0]].Name}", [], pair, Parameters())).ToList();
         choices.Add(new(new($"unique-leader-trick-target.{frame.Id}.decline"), "不追加目标", [], [], Parameters()));
-        return Array.AsReadOnly(choices.Select(DesignatedExtraTargetDraft.FreezeChoice).ToArray());
+        return Array.AsReadOnly(choices.Select(PromptChoiceProjection.Freeze).ToArray());
     }
 
     private SkillProgramStepOutcome OfferUniqueLeaderTrickTarget(ProgramSkillFrame supplied, SkillProgramEffectOp operation)
@@ -285,6 +285,5 @@ public sealed partial class GameEngine
         public SkillProgramStepOutcome JoinUniqueLargestHpTrickTargetAndDrawAfterDamage(ProgramSkillFrame frame) =>
             engine.OfferUniqueLeaderTrickTarget(frame, SkillProgramEffectOp.JoinUniqueLargestHpTrickTargetAndDrawAfterDamage);
         public SkillProgramStepOutcome DrawAfterJoinedTrickDamage(ProgramSkillFrame frame) => engine.BeginJoinedTrickDamageReward(frame);
-        public bool CanContinueIssuedJoinedTrickDamageReward(ProgramSkillFrame frame) => engine.CanContinueIssuedJoinedTrickDamageReward(frame);
     }
 }

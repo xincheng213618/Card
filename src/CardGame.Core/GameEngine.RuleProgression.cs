@@ -8,14 +8,19 @@ public sealed partial class GameEngine
     {
         SynchronizePrivateGeneralLibraries();
         SynchronizeLordSkillProjections();
+        SynchronizeHpConditionalSkillGrants();
+        CleanupLostNamedAmbushPiles();
         ObserveProgramHealthChange(payload);
         ObserveAdvancedLifecycleEvent(payload);
+        ObserveMouZhugeEvent(payload);
+        ObserveIssuedCardRecoveryModifiers(payload);
         ObserveBeneficiarySuitShield(payload);
         ObserveNextCardTargetAdjustmentEvent(payload);
         ObserveNextActualUseAdjustment(payload);
         ObservePlayPhaseColorRestriction(payload);
         ObserveFirstTurnCategoryUse(payload);
         ObserveCurrentTurnUseKinds(payload);
+        ObserveFirstSlashDuelDeclaration(payload);
         ObserveTurnDrawDebtUse(payload);
         ObserveActualTurnTrickUse(payload);
         ObserveRoundTrickUse(payload);
@@ -56,9 +61,11 @@ public sealed partial class GameEngine
     {
         SynchronizePrivateGeneralLibraries();
         SynchronizeLordSkillProjections();
+        SynchronizeHpConditionalSkillGrants();
         CleanupIssuedPlayPhaseUseBans();
         CleanupLostDeferredPileSources();
         CleanupLostPublicPersistentPiles();
+        CleanupLostNamedAmbushPiles();
         if (!TryBeginCharacterStateProgramWindow() &&
             !TryBeginHpChangedProgramWindow())
         {

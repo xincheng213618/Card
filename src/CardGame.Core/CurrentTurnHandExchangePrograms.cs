@@ -61,13 +61,7 @@ internal sealed class OfferCurrentTurnHandExchangeProgramOperationDescriptor : P
     public override ProgramOperationInteraction Interaction => ProgramOperationInteraction.Choice;
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(
         ProgramOperationAiSemantic.GainCards, static (_, _) => { });
-    public override SkillProgramEffect Parse(ProgramOperationNodeReader reader)
-    {
-        reader.AllowOnly("op", "target", "condition");
-        var effect = new SkillProgramEffect(Op, FilterBoundCardsProgramOperationDescriptor.Owner(reader), 0, reader.Condition());
-        RequireAlways(effect, reader.Path);
-        return effect;
-    }
+    public override SkillProgramEffect Parse(ProgramOperationNodeReader reader) => ParseOwnerAlways(reader);
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
         [new RequireTriggerWindow(SkillProgramTriggerWindow.TurnEnding)];
 }

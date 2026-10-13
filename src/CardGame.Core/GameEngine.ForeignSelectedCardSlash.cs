@@ -197,9 +197,11 @@ public sealed partial class GameEngine
         return true;
     }
 
+    [ProgramContinuation(ProgramContinuationKind.Resume, 50)]
     private bool ResumeSelectedForeignCardSlash(long id) => _resolutionStack.LastOrDefault() is ProgramSkillFrame frame &&
         frame.Id == id && ResumeSelectedForeignCardSlash(frame);
 
+    [ProgramContinuation(ProgramContinuationKind.Movement, 240)]
     private bool ReturnSelectedForeignCardSlashMovement(ProgramSkillFrame frame)
     {
         if (frame.ForeignSelectedCardSlash is not { Stage: ForeignSelectedCardSlashStage.SettlementChildren or ForeignSelectedCardSlashStage.DrawChildren }) return false;
@@ -221,6 +223,5 @@ public sealed partial class GameEngine
     private sealed partial class ProgramSkillHost : ISelectedForeignCardSlashHost
     {
         public SkillProgramStepOutcome UseSelectedForeignCardAsSlash(ProgramSkillFrame frame, int actorSeat) => engine.BeginSelectedForeignCardSlash(frame, actorSeat);
-        public bool CanContinueSelectedForeignCardSlash(ProgramSkillFrame frame) => engine.CanContinueSelectedForeignCardSlash(frame);
     }
 }

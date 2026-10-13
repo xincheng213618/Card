@@ -203,6 +203,7 @@ public sealed partial class GameEngine
         });
         if (AwaitPairBenefitChildren(f.Id) == SkillProgramStepOutcome.Continue) AdvanceRuntimeProgram(f.Id);
     }
+    [ProgramContinuation(ProgramContinuationKind.MovementTail, 60)]
     private bool TryReturnPairBenefitMovement(ProgramSkillFrame f)
     {
         if (f.PendingMovementContinuation is null || f.PairObtain is not { AwaitingMovement: true } &&

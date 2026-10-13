@@ -80,6 +80,7 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new DynamicDiscardDamagePaidEvent(f.Id,f.OwnerSeat,r.TargetSeat,r.FrozenTargetHp,r.ActualTurn,ids));
         if(AwaitProgramBoundCardMovements(f.Id,f.OwnerSeat)==SkillProgramStepOutcome.Continue)AdvanceRuntimeProgram(f.Id);
     }
+    [ProgramContinuation(ProgramContinuationKind.Movement, 450)]
     private bool ReturnDynamicDiscardDamageMovement(ProgramSkillFrame f)
     {
         if(f.DynamicDiscardDamage is null)return false;
@@ -109,6 +110,7 @@ public sealed partial class GameEngine
         effect?.Op==SkillProgramEffectOp.DiscardTargetHpCardsAndDamage && f.DynamicDiscardDamage is {Stage:DynamicDiscardDamageStage.Paid} r &&
         f.InstructionIndex==r.InstructionIndex && f.SelectedTargetSeats is [var target] && target==r.TargetSeat &&
         movement.SubjectSeat==f.OwnerSeat && movement.BeforeCount==0 && movement.CoverageResultBind is null && ValidDynamicDiscardDamagePayments(f);
+    [ProgramContinuation(ProgramContinuationKind.Resume, 470)]
     private bool ResumeDynamicDiscardDamage(long id)
     {
         var f=GetActiveProgramFrame(id);if(f.DynamicDiscardDamage is not { } r)return false;

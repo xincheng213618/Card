@@ -12,16 +12,20 @@ internal static class StoneAxeScenario
 {
     private const string Mode = "identity:classic-stone-axe-fixture-5";
 
-    public static ContentRegistry CreateRegistry() => ContentRegistry.Build(
+    public static ContentRegistry CreateRegistry(CardKind weapon = CardKind.StoneAxe) => ContentRegistry.Build(
         new StandardContentPackage(),
         new StandardActiveSkillExpansionPackage(includeJijiu: true),
         new StandardRescueSkillExpansionPackage(),
         new StandardClassicGeneralPackage(),
-        new StoneAxeFixturePackage());
+        new StoneAxeFixturePackage(weapon));
 
-    public static StoneAxeBoundary FindHumanTrigger(int seed = 1)
+    public static StoneAxeBoundary FindHumanTrigger(int seed = 1, CardKind weapon = CardKind.StoneAxe,
+        DecisionKind expectedDecision = DecisionKind.StoneAxe)
     {
-        var registry = CreateRegistry();
+        Require(weapon == CardKind.StoneAxe && expectedDecision == DecisionKind.StoneAxe ||
+                weapon == CardKind.QinglongCrescentBlade && expectedDecision == DecisionKind.QinglongCrescentBlade,
+            "The fixed weapon witness supports only its matching Stone Axe or Qinglong decision.");
+        var registry = CreateRegistry(weapon);
         // The small pool/deck keeps seed 1 independent of ordinary roster growth.
         // Real Ma Su retains Zhiman's existing optional pre-damage child.
         var game = GameEngine.CreateStandard(new GameOptions
@@ -63,7 +67,7 @@ internal static class StoneAxeScenario
 
         var full = game.CreateSnapshot(0, revealAll: true);
         var source = full.Players[0];
-        var stoneAxe = source.Hand.FirstOrDefault(card => card.Kind == CardKind.StoneAxe);
+        var stoneAxe = source.Hand.FirstOrDefault(card => card.Kind == weapon);
         if (stoneAxe is null ||
             source.Hand.Count(card => card.Kind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash) == 0)
         {
@@ -136,7 +140,7 @@ internal static class StoneAxeScenario
             "Stone Axe fixture could not use Slash.");
         for (var step = 0; step < 16 && game.State.Status != EngineStatus.Completed; step++)
         {
-            if (game.PendingDecision is { Kind: DecisionKind.StoneAxe, PlayerSeat: 0 })
+            if (game.PendingDecision is { PlayerSeat: 0 } prompt && prompt.Kind == expectedDecision)
             {
                 return new StoneAxeBoundary(
                     game,
@@ -169,6 +173,13 @@ internal static class StoneAxeScenario
 
     private sealed class StoneAxeFixturePackage : IGameContentPackage
     {
+        private readonly string _weapon;
+        public StoneAxeFixturePackage(CardKind weapon) => _weapon = weapon switch
+        {
+            CardKind.StoneAxe => "classic:stone-axe",
+            CardKind.QinglongCrescentBlade => "classic:qinglong-crescent-blade",
+            _ => throw new ArgumentOutOfRangeException(nameof(weapon))
+        };
         public PackageManifest Manifest { get; } = new("fixture-stone-axe", new Version(1, 0, 0), []);
 
         public void Register(IContentRegistryBuilder builder)
@@ -179,7 +190,7 @@ internal static class StoneAxeScenario
             builder.AddDeck(new("fixture:stone-axe-deck", "贯石斧支付与伤害", 4, 2, [])
             {
                 PhysicalCards = Enumerable.Range(0, 60).Select(index => new ContentDeckPhysicalCard(
-                    (index % 3) switch { 0 => "classic:stone-axe", 1 => "standard:slash", _ => "standard:dodge" },
+                    (index % 3) switch { 0 => _weapon, 1 => "standard:slash", _ => "standard:dodge" },
                     Suit.Heart, index % 13 + 1)).ToArray()
             });
             builder.AddMode(new(Mode, "贯石斧支付与伤害", 5, 5,

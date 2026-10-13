@@ -26,6 +26,7 @@ public sealed partial class GameEngine
             var location = new CardLocation(zone, cardOwnerSeat);
             return _cardZones.CardsAt(location)
                 .Where(card => CanSelectSelfDiscardBinding(active, resultBind, cardOwnerSeat, card, location))
+                .Where(card => MatchesTriggeredSlashMaterial(active, resultBind, cardOwnerSeat, card, location))
                 .Where(card => MatchesEquipmentPairOwnedCost(active, resultBind, card, location))
                 .Where(card => MatchesDeferredHandDebtCost(active, resultBind, card, location))
                 .Where(card => MatchesPublicPileStorageSelection(active, resultBind, card, location))
@@ -174,6 +175,11 @@ public sealed partial class GameEngine
             return;
         }
         var ids = finish ? draft.SelectedCardIds.ToArray() : draft.SelectedCardIds.Append(selected.Cards[0]).ToArray();
+        if (HasPhaseAlcoholChain(frame) && !CanUsePhaseOwnerAlcohol(frame.WindowContext))
+        { CancelProgramBindingAndCleanup(frame, "该出牌阶段角色当前不能使用酒，未支付弃牌费用。"); return; }
+        if (ids.Any(id => !MatchesTriggeredSlashMaterial(frame, draft.ResultBind, draft.CardOwnerSeat,
+                GetAttackCard(id), _cardZones.GetLocation(id))))
+        { CancelProgramBindingAndCleanup(frame, "所选实体牌无法合法转化使用，未支付实体牌。"); return; }
         if (ids.Any(id => !CanSelectSelfDiscardBinding(frame, draft.ResultBind, draft.CardOwnerSeat, _cardZones.CardsAt(_cardZones.GetLocation(id)).Single(c => c.Id == id), _cardZones.GetLocation(id))))
         { CancelProgramBindingAndCleanup(frame, "所选手牌不能自行弃置，未移动费用。"); return; }
         if (!finish && ids.Length < draft.RequiredCount)

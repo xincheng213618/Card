@@ -3,6 +3,15 @@ using System.Text.Json.Serialization;
 
 namespace CardGame.Core;
 
+/// <summary>Recorded AI decision policies preserve historical command replay.</summary>
+public static class AiDecisionPolicy
+{
+    public const int CorrelatedActiveSkillVersion = 4;
+    public const int CurrentVersion = CorrelatedActiveSkillVersion;
+
+    public static bool IsSupported(int version) => version >= 1 && version <= CurrentVersion;
+}
+
 /// <summary>
 /// A trusted-host checkpoint for a command-driven match. It stores only the
 /// immutable setup metadata and accepted command prefix needed to reconstruct
@@ -63,7 +72,19 @@ public sealed record GameCheckpoint(
     // window for an ordinary trick declared by its InstantTrick category.
     // 203: Recognize the actual discard payments of category refund,
     // last-damage reciprocity and phase-name prediction in movement triggers.
-    public const int CurrentRulesVersion = 209;
+    // Delayed tricks open counterspell resolution at Judgment, after their
+    // original use and placement have completed.
+    // 211: A granted turn red-Slash benefit skips Dodge responses, including
+    // converted Slashes, while retaining armor and damage resolution.
+    // 212: Red-discard recovery stops offering targets at its frozen budget,
+    // so native AI confirms the selection instead of attempting an extra seat.
+    // 213: Identity selection reveals the Lord first, then the local player
+    // chooses before private AI picks; team/national selection is human-first.
+    // 214: Luochong retains every paid discard in its pending state and final
+    // resolution event instead of reading a stale duplicate collection.
+    // 215: Returning from a turn-start inserted phase restores the normal-flow
+    // phase, so the subsequent real draw can open its after-draw programs.
+    public const int CurrentRulesVersion = 219;
     // 187 was consumed by main-side Zhang He / Shen Zhao Yun work.
 
     public int RulesVersion { get; init; }
@@ -124,6 +145,7 @@ public static class GameReplay
                     EndPlayPhaseCommand endPlay => endPlay.PromptId,
                     DiscardCardsCommand discard => discard.PromptId,
                     SelectGeneralCommand selectGeneral => selectGeneral.PromptId,
+                    RequestGeneralRosterCommand roster => roster.PromptId,
                     UseProgramSkillCommand program => program.PromptId,
                     UseEquipmentEffectCommand equipment => equipment.PromptId,
                     _ => (PromptId?)null

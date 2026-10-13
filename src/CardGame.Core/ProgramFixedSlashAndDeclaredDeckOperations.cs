@@ -45,13 +45,7 @@ internal sealed class DeclareDeckCriterionAndGiveMatchingCardDescriptor : Progra
     public override ProgramOperationInteraction Interaction => ProgramOperationInteraction.Choice;
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GainCards,
         static (effect, context) => context.Draw(new(SkillProgramEffectOp.Draw, SkillProgramEffectTarget.Owner, 1, effect.Condition)));
-    public override SkillProgramEffect Parse(ProgramOperationNodeReader reader)
-    {
-        reader.AllowOnly("op", "target", "condition");
-        var effect = new SkillProgramEffect(Op, FilterBoundCardsProgramOperationDescriptor.Owner(reader), 0, reader.Condition());
-        RequireAlways(effect, reader.Path);
-        return effect;
-    }
+    public override SkillProgramEffect Parse(ProgramOperationNodeReader reader) => ParseOwnerAlways(reader);
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) => [];
 }
 public sealed class DeclareDeckCriterionAndGiveMatchingCardHandler : ISkillProgramEffectHandler

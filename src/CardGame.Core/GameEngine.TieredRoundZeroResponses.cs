@@ -86,13 +86,13 @@ public sealed partial class GameEngine
 
     private void ResolveTieredRoundZeroCounterspell(CharacterState actor, CardConversionSource source)
     {
-        var pending = ActiveNullificationWindow!; var parent = LifecycleCardUse(pending.ParentFrameId)!;
+        var pending = ActiveNullificationWindow!;
         var policy = FreezeUnrespondableCounterspellSource(actor, []);
         ConsumeTieredRoundConversion(source); ClearPendingDecision();
         pending = ReplaceNullificationWindowFrame(pending with { EffectNullified = !pending.EffectNullified,
             ChainDepth = pending.ChainDepth + 1, CandidateSeats = BuildNullificationCandidateSeats(actor.Seat), CandidateIndex = 0,
             Step = ResolutionFrameStep.AwaitingResponse });
-        var action = CaptureFactionAction(new CardActionContext(++_cardActionSequence, parent.Action?.ActionId,
+        var action = CaptureFactionAction(new CardActionContext(++_cardActionSequence, NullificationParentActionId(pending),
             CardActionType.Response, actor.Seat, actor.Seat, null, actor.Seat, pending.SourceSeat, CardKind.Nullification,
             [], [], [source], effectiveSuit: Suit.None, effectiveRank: 0));
         IssueTieredRoundResponse(pending, action, source);
@@ -150,8 +150,8 @@ public sealed partial class GameEngine
             CompleteProgramEventHistory().OfType<TieredRoundConversionUseIssuedEvent>().Count(e => e.Receipt == r) != 1) return false;
         return owner switch
         {
-            NullificationWindowFrame n => r.EffectiveKind == CardKind.Nullification && LifecycleCardUse(n.ParentFrameId) is { } parent &&
-                action.ParentActionId == parent.Action?.ActionId && action.OpponentSeat == n.SourceSeat,
+            NullificationWindowFrame n => r.EffectiveKind == CardKind.Nullification && HasNullificationEffectOwner(n) &&
+                action.ParentActionId == NullificationParentActionId(n) && action.OpponentSeat == n.SourceSeat,
             CardUseFrame use => r.EffectiveKind == CardKind.Dodge && use.CardAttack is { } attack && IsSlashCard(use.CardKind) &&
                 action.ParentActionId == use.Action?.ActionId && action.ActorSeat == attack.TargetSeat && action.OpponentSeat == attack.SourceSeat,
             _ => false

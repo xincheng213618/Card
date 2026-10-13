@@ -257,6 +257,7 @@ public sealed partial class GameEngine
         if (additions.Length > 0) ReplaceRuntimeFrame(window.Id, window with
         { Candidates = Array.AsReadOnly(window.Candidates.Concat(additions).ToArray()) });
     }
+    [ProgramContinuation(ProgramContinuationKind.Resume, 560)]
     private bool ResumeSameTypeAid(long frameId)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame f || f.Id != frameId || f.SameTypeAid is not { } r) return false;

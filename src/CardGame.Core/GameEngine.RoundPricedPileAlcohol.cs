@@ -133,6 +133,7 @@ public sealed partial class GameEngine
         AdvanceRuntimeProgram(f.Id);
     }
 
+    [ProgramContinuation(ProgramContinuationKind.Resume, 540)]
     private bool ResumeRoundPileAlcohol(long id)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame f || f.Id != id || f.RoundPileAlcohol is not { } r) return false;

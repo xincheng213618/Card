@@ -57,6 +57,7 @@ public sealed partial class GameEngine
         BeginSharedPindian(f.Id, new(f.SkillId, skill.Name, skill.Name, skill.Description), r.RecipientSeat, third,
             programResultBind: r.ResultBind, programResultVisibility: SkillProgramCardSetVisibility.Public);
     }
+    [ProgramContinuation(ProgramContinuationKind.Resume, 380)]
     private bool ResumeRecipientContest(long id)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame f || f.Id != id || f.RecipientContest is not { } r) return false;
@@ -118,7 +119,7 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new TargetsConfirmedEvent(useId, [target]));
         RecordYingboCardUse(useId, actor, CardKind.Slash); RecordProgramUsedBasicCard(actor, CardKind.Slash);
         MarkSlashUsedOrPlayedDuringCurrentPlayPhase(actor, CardKind.Slash); RecordActualPlayPhaseUse(action);
-        var attack = new CardAttackHandle(this, useId, actor, target, card: null, damageAmount: winner.HasAlcoholEffect ? 2 : 1,
+        var attack = new CardAttackHandle(this, useId, actor, target, card: null, damageAmount: 1 + winner.AlcoholDamageBonus,
             playedCardKind: CardKind.Slash, ignoresArmor: HasCardArmorBypass(winner, _players[target], CardKind.Slash), programSkillCardUseFrameId: f.Id);
         CaptureProgramAlcoholConsumption(useId, winner); winner.HasAlcoholEffect = false; ActiveCardAttack = attack;
         AdvanceEventRulesAndQueueFact(new CardUsedEvent(0, CardKind.Slash, actor, target)); TryMarkProgramUseCommitted(useId);

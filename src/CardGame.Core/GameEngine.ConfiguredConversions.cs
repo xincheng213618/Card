@@ -6,11 +6,8 @@ public sealed record PhysicalCardNameDeclaredEvent(int OwnerSeat, int DeclarerSe
 
 public sealed partial class GameEngine
 {
-    private sealed record CardDeclarationDraft(string StateId, string Bind, int CardId, int Tier,
-        IReadOnlyList<int> NearestSeats, int? DeclarerSeat = null);
     private readonly Dictionary<(int Seat, string State), int> _configuredConversionTiers = [];
     private readonly Dictionary<(int Seat, string State), (int Turn, int Card, CardKind Kind)> _declaredConversionCards = [];
-    private readonly Dictionary<long, CardDeclarationDraft> _cardDeclarationDrafts = [];
 
     private IReadOnlyDictionary<string, int>? GetConfiguredConversionTierSnapshot(CharacterState owner)
     {
@@ -59,12 +56,13 @@ public sealed partial class GameEngine
             .Select(player => player.Seat).Order().ToArray();
         var tier = _configuredConversionTiers.GetValueOrDefault((frame.OwnerSeat, state));
         if (tier >= 2) throw new InvalidOperationException("The direct tier does not reveal or declare a card.");
-        _cardDeclarationDrafts[frame.Id] = new(state, bind, binding.CardIds[0], tier, nearest);
+        ReplaceRuntimeTop(frame = frame with
+        { CardDeclarationDraft = new(state, bind, binding.CardIds[0], tier) { NearestSeats = nearest } });
         PublishConfiguredCardDeclaration(frame);
         return SkillProgramStepOutcome.AwaitChoice;
     }
 
-    private IReadOnlyList<CardKind> DeclarationNames(ProgramSkillFrame frame, CardDeclarationDraft draft) =>
+    private IReadOnlyList<CardKind> DeclarationNames(ProgramSkillFrame frame, ProgramCardDeclarationDraft draft) =>
         _contentRegistry.GetSkill(frame.SkillId).Program!.ViewAs
             .Where(rule => rule.ConversionStateId == draft.StateId && rule.DeclaredEntity &&
                 rule.MinimumTier <= draft.Tier && rule.MaximumTier >= draft.Tier)
@@ -72,7 +70,7 @@ public sealed partial class GameEngine
 
     private void PublishConfiguredCardDeclaration(ProgramSkillFrame frame)
     {
-        var draft = _cardDeclarationDrafts[frame.Id];
+        var draft = frame.CardDeclarationDraft ?? throw new InvalidOperationException("A declaration lost its draft.");
         var seat = draft.DeclarerSeat ?? frame.OwnerSeat;
         PromptChoice Choice(string key, string label, IReadOnlyList<int> targets) =>
             new(new ChoiceId($"declaration.{frame.Id}.{seat}.{key}"), label, [], targets,
@@ -95,7 +93,7 @@ public sealed partial class GameEngine
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ??
             throw new InvalidOperationException("A declaration lost its frame.");
-        var draft = _cardDeclarationDrafts.GetValueOrDefault(frame.Id) ??
+        var draft = frame.CardDeclarationDraft ??
             throw new InvalidOperationException("A declaration lost its draft.");
         if (choice.Parameters.GetValueOrDefault("frame-id") != frame.Id.ToString() ||
             _cardZones.GetLocation(draft.CardId) != CardLocation.Hand(frame.OwnerSeat))
@@ -106,7 +104,7 @@ public sealed partial class GameEngine
             if (!draft.NearestSeats.Contains(target) || !_players[target].IsAlive)
                 throw new InvalidOperationException("The declarer is not a frozen nearest other character.");
             ClearPendingDecision();
-            _cardDeclarationDrafts[frame.Id] = draft with { DeclarerSeat = target };
+            ReplaceRuntimeTop(frame = frame with { CardDeclarationDraft = draft with { DeclarerSeat = target } });
             PublishConfiguredCardDeclaration(frame);
             return;
         }
@@ -118,13 +116,13 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new PhysicalCardNameDeclaredEvent(frame.OwnerSeat, draft.DeclarerSeat.Value,
             draft.StateId, draft.CardId, kind, _turnNumber));
         AddLog("SkillTriggered", $"{_players[draft.DeclarerSeat.Value].Name} 为 {_players[frame.OwnerSeat].Name} 展示的牌声明【{CardCatalog.Get(kind).DisplayName}】。", draft.DeclarerSeat.Value, frame.OwnerSeat);
-        _cardDeclarationDrafts.Remove(frame.Id);
+        ReplaceRuntimeTop(GetActiveProgramFrame(frame.Id) with { CardDeclarationDraft = null });
         AdvanceRuntimeProgram(frame.Id);
     }
 
     private void AssertConfiguredCardDeclaration(ProgramSkillFrame frame, SkillProgramEffect paused)
     {
-        if (!_cardDeclarationDrafts.TryGetValue(frame.Id, out var draft)) return;
+        if (frame.CardDeclarationDraft is not { } draft) return;
         if (paused.Op != SkillProgramEffectOp.DeclareBoundCardNameUntilTurnEnd ||
             paused.StateId != draft.StateId || paused.SourceBind != draft.Bind ||
             draft.NearestSeats.Count == 0 || draft.NearestSeats.Contains(frame.OwnerSeat) ||

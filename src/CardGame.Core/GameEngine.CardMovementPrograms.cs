@@ -3,9 +3,7 @@ namespace CardGame.Core;
 /// <summary>Generic post-movement program host. It contains no skill ids.</summary>
 public sealed partial class GameEngine
 {
-    private readonly bool _hasGainPhaseQualificationCapability;
-
-    private CardMovementTiming? CaptureMovementTiming() => !(_hasGainPhaseQualificationCapability || TracksRedOwnedLoss || HasActualHandGainCapability ||
+    private CardMovementTiming? CaptureMovementTiming() => !(_contentRegistry.ProgramDependencies.UsesGainPhaseQualification || TracksRedOwnedLoss || HasActualHandGainCapability ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.GiveAfterBatchGain)) && !HasOtherActualBasicDiscardCapability ? null :
         _programPhaseSchedule is { Phase: TurnPhase.Draw } scheduled
             ? new(_turnProgression.OwnerSeat, TurnPhase.Draw, scheduled.Frame.OwnerSeat)
@@ -83,6 +81,7 @@ public sealed partial class GameEngine
         CaptureTurnRedDiscardCount(batch.TurnNumber,movements);
         CaptureActionDiscardFact(batch.Id,batch.TurnNumber,movements);
         CaptureSettledActionCards(batch.Id,batch.TurnNumber,movements);
+        CaptureMouWujingAllowance(batch.Id, movements);
         CaptureOffTurnUsedCards(batch.Id,batch.TurnNumber,movements);
         CaptureFirstGameDomainCrossings(batch.Id,batch.TurnNumber,movements);
         var completed = new CardMovementBatchContext(
@@ -119,6 +118,7 @@ public sealed partial class GameEngine
     {
         var drawFunded = _resolutionStack.LastOrDefault() is DrawFundedDistinctBasicFrame funded &&
             funded.Id == instructionFrameId ? funded : null;
+        var friendResponse = _resolutionStack.LastOrDefault() is FriendDuelResponseFrame friend && friend.Id == instructionFrameId ? friend : null;
         var factionRequestCost = _resolutionStack.LastOrDefault() is { PaidFactionRequestCostRecovery: not null } paidRequest &&
             paidRequest.Id == instructionFrameId ? paidRequest : null;
         var awaitingFrame = factionRequestCost is null && _resolutionStack.LastOrDefault() is ProgramSkillFrame program &&
@@ -129,16 +129,17 @@ public sealed partial class GameEngine
         var equipmentRecast = _resolutionStack.LastOrDefault() is EquipmentRecastFrame recast && recast.Id == instructionFrameId ? recast : null;
         var drawPhase = _resolutionStack.LastOrDefault() is DrawPhaseObligationFrame draw && draw.Id == instructionFrameId ? draw : null;
         var colorFireAttack = _resolutionStack.LastOrDefault() is CardUseFrame { ColorFireAttack.PaidCardId: not null } fire && fire.Id == instructionFrameId ? fire : null;
+        var mouFireAttack = _resolutionStack.LastOrDefault() is CardUseFrame { MouZhitianPayment: not null } mouFire && mouFire.Id == instructionFrameId ? mouFire : null;
         var counterspellPayment = _resolutionStack.LastOrDefault() is NullificationWindowFrame { CounterspellPayment: not null } counter && counter.Id == instructionFrameId ? counter : null;
         var historicalEnding = _resolutionStack.LastOrDefault() is CardUseFrame { EndingHistoricalUseReturn: not null, EndingHistoricalCostDrained: false } history && history.Id == instructionFrameId ? history : null;
         var roundPileAlcohol = _resolutionStack.LastOrDefault() is CardUseFrame { RoundPileAlcoholReturn: not null, RoundPileAlcoholCostDrained: false } wine && wine.Id == instructionFrameId ? wine : null;
         var paidCardUse = _resolutionStack.LastOrDefault() is CardUseFrame { RecoveryPaidContinuation.Kind: RecoveryPaidCardUseKind.CommittedSlash } paidUse && paidUse.Id == instructionFrameId ? paidUse : null;
-        bool Eligible(CardMovementBatchContext batch) => paidCardUse is not null ? IsCardUsePaymentBatch(paidCardUse, batch) : awaitingFrame is not null && IsSelectedForeignCardSlashMovementBatch(awaitingFrame, batch) || (drawFunded is not null ? batch.ParentFrameId == drawFunded.Id && batch.AwaitingProgramFrameId is null : historicalEnding is not null ? batch.ParentFrameId == historicalEnding.Id && batch.AwaitingProgramFrameId is null : roundPileAlcohol is not null ? batch.ParentFrameId == roundPileAlcohol.Id && batch.AwaitingProgramFrameId is null : counterspellPayment is not null ? batch.ParentFrameId == counterspellPayment.Id && batch.AwaitingProgramFrameId is null : colorFireAttack is not null ? batch.ParentFrameId == colorFireAttack.Id && batch.AwaitingProgramFrameId is null : drawPhase is not null ? batch.ParentFrameId == drawPhase.Id || drawPhase.InheritedMovementBatchIds?.Contains(batch.Id) == true : factionRequestCost is not null ? batch.ParentFrameId == factionRequestCost.Id : equipmentRecast is not null ? batch.ParentFrameId == equipmentRecast.Id : recoveryReplacement is not null ? batch.ParentFrameId == recoveryReplacement.Id : declaration is not null ? batch.ParentFrameId == declaration.Id : awaitingFrame is null
+        bool Eligible(CardMovementBatchContext batch) => friendResponse is not null ? batch.ParentFrameId == friendResponse.Id && batch.AwaitingProgramFrameId is null : paidCardUse is not null ? IsCardUsePaymentBatch(paidCardUse, batch) : awaitingFrame is not null && IsSelectedForeignCardSlashMovementBatch(awaitingFrame, batch) || (mouFireAttack is not null ? batch.ParentFrameId == mouFireAttack.Id && batch.AwaitingProgramFrameId is null : drawFunded is not null ? batch.ParentFrameId == drawFunded.Id && batch.AwaitingProgramFrameId is null : historicalEnding is not null ? batch.ParentFrameId == historicalEnding.Id && batch.AwaitingProgramFrameId is null : roundPileAlcohol is not null ? batch.ParentFrameId == roundPileAlcohol.Id && batch.AwaitingProgramFrameId is null : counterspellPayment is not null ? batch.ParentFrameId == counterspellPayment.Id && batch.AwaitingProgramFrameId is null : colorFireAttack is not null ? batch.ParentFrameId == colorFireAttack.Id && batch.AwaitingProgramFrameId is null : drawPhase is not null ? batch.ParentFrameId == drawPhase.Id || drawPhase.InheritedMovementBatchIds?.Contains(batch.Id) == true : factionRequestCost is not null ? batch.ParentFrameId == factionRequestCost.Id : equipmentRecast is not null ? batch.ParentFrameId == equipmentRecast.Id : recoveryReplacement is not null ? batch.ParentFrameId == recoveryReplacement.Id : declaration is not null ? batch.ParentFrameId == declaration.Id : awaitingFrame is null
             ? batch.AwaitingProgramFrameId is null
             : batch.AwaitingProgramFrameId == awaitingFrame.Id ||
               batch.AwaitingProgramFrameId is null && batch.ParentFrameId == awaitingFrame.Id);
         if (_pendingDecision is not null ||
-            (_resolutionStack.Count != 0 && awaitingFrame is null && declaration is null && recoveryReplacement is null && equipmentRecast is null && factionRequestCost is null && drawPhase is null && colorFireAttack is null && counterspellPayment is null && roundPileAlcohol is null && historicalEnding is null && drawFunded is null && paidCardUse is null) ||
+            (_resolutionStack.Count != 0 && friendResponse is null && awaitingFrame is null && declaration is null && recoveryReplacement is null && equipmentRecast is null && factionRequestCost is null && drawPhase is null && colorFireAttack is null && mouFireAttack is null && counterspellPayment is null && roundPileAlcohol is null && historicalEnding is null && drawFunded is null && paidCardUse is null) ||
             _winner != Winner.None || _status == EngineStatus.Completed)
             return false;
 
@@ -158,9 +159,11 @@ public sealed partial class GameEngine
                 window = window with { ResumeProgramFrameId = awaitingFrame.Id };
             if (recoveryReplacement is not null) window = window with { ResumeRecoveryReplacementFrameId = recoveryReplacement.Id };
             if (paidCardUse is not null) window = window with { ResumePaidCardUseFrameId = paidCardUse.Id };
+            if (friendResponse is not null) window = window with { ResumeFriendDuelResponseFrameId = friendResponse.Id, ResumeProgramFrameId = null };
             if (equipmentRecast is not null) window = window with { ResumeEquipmentRecastFrameId = equipmentRecast.Id };
             if (drawPhase is not null) window = window with { ResumeDrawPhaseObligationFrameId = drawPhase.Id };
             if (colorFireAttack is not null) window = window with { ResumeColorFireAttackFrameId = colorFireAttack.Id };
+            if (mouFireAttack is not null) window = window with { ResumeMouZhitianFireFrameId = mouFireAttack.Id };
             if (counterspellPayment is not null) window = window with { ResumeCounterspellPaymentFrameId = counterspellPayment.Id };
             if (historicalEnding is not null) window = window with { ResumeHistoricalEndingUseFrameId = historicalEnding.Id };
             if (roundPileAlcohol is not null) window = window with { ResumeRoundPileAlcoholUseFrameId = roundPileAlcohol.Id };
@@ -231,15 +234,16 @@ public sealed partial class GameEngine
                 }
                 var indexes = MatchingMovementIndexes(batch, candidate, trigger, count.Location);
                 if (indexes.Length == 0) continue;
-                var facts = CaptureCardsMovedTriggerFacts(_players[ownerSeat], indexes.Length, count, window, batch.MovementTiming);
+                var facts = CaptureCardsMovedTriggerFacts(_players[ownerSeat], FriendManjuanMovedCount(batch, ownerSeat, trigger, indexes.Length), count, window, batch.MovementTiming);
                 if (!trigger.Condition.Evaluate(facts, candidate.SkillId, candidate.SkillInstanceId)) continue;
                 // A judgment still in flight (for example while another skill replaces its
                 // card) owns its judgment zone churn; starting a second judgment from that
                 // movement would collide with the pending one and self-feedback the same
                 // judgment, so such triggers wait for a settled zone instead.
                 if (ActiveJudgment is not null &&
-                    trigger.Effects.Any(effect => effect.Op == SkillProgramEffectOp.StartJudgment)) continue;
-                var occurrences = trigger.MovementOccurrence == SkillProgramMovementOccurrence.PerBatch ? [0] : indexes;
+                    ProgramInstructionResolver.Default.Features(trigger).HasOperation(SkillProgramEffectOp.StartJudgment)) continue;
+                var occurrences = trigger.MovementOccurrence == SkillProgramMovementOccurrence.PerBatch
+                    ? new[] { count.Location.Zone == CardZoneKind.PrivatePersistentPile || trigger.Effects is [{ Op: SkillProgramEffectOp.RecoverAfterLastPublicRice }] ? indexes[0] : 0 } : indexes;
                 candidates.AddRange(occurrences.Select(index => candidate with { OccurrenceIndex = index }));
             }
         }
@@ -284,26 +288,32 @@ public sealed partial class GameEngine
     private int[] MatchingDiscardPileIndexes(CardMovementBatchContext batch,
         ProgramTriggerCandidate candidate, SkillProgramTrigger trigger)
     {
-        if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.GiveOffTurnUsedCards))
+        var features = ProgramInstructionResolver.Default.Features(trigger);
+        if (features.HasOperation(SkillProgramEffectOp.MouWujingDraw)) return MatchingMouWujingIndexes(batch, candidate);
+        if (features.HasOperation(SkillProgramEffectOp.GiveOffTurnUsedCards))
             return MatchingOffTurnUsedCardIndexes(batch, candidate);
-        if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.DiscardAfterActualOutsideDiscard))
+        if (features.HasOperation(SkillProgramEffectOp.DiscardAfterActualOutsideDiscard))
             return MatchingOutsideDiscardIndexes(batch, candidate);
         if (IsOtherActualBasicDiscardTrigger(trigger)) return MatchingOtherActualBasicDiscardIndexes(batch, candidate);
-        if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.XunxianGiftUsedCard))
+        if (features.HasOperation(SkillProgramEffectOp.XunxianGiftUsedCard))
             return MatchingOwnSettledActionCardIndexes(batch, candidate);
-        if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.TongxieFollowUp))
+        if (features.HasOperation(SkillProgramEffectOp.TongxieFollowUp))
             return MatchingTongxieSettledSlashIndexes(batch);
-        if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.RestoreActualDiscardBatch))
+        if (features.HasOperation(SkillProgramEffectOp.RestoreActualDiscardBatch))
             return MatchingActualDiscardRecoveryIndexes(batch, candidate);
-        if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.ClaimDiscardedEntityWithProvenance))
+        if (features.HasOperation(SkillProgramEffectOp.ClaimDiscardedEntityWithProvenance))
             return MatchingProvenanceDiscardIndexes(batch, candidate, trigger);
-        if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.StoreAdjacentDiscardedSlash))
+        if (features.HasOperation(SkillProgramEffectOp.StoreAdjacentDiscardedSlash))
             return MatchingAdjacentDiscardIndexes(batch, candidate);
-        if(trigger.Effects.Any(e=>e.Op==SkillProgramEffectOp.RewardDiscardedActionColor))
+        if(features.HasOperation(SkillProgramEffectOp.RewardDiscardedActionColor))
         {
             var action=CompleteProgramEventHistory().OfType<ActionCardsDiscardedEvent>().LastOrDefault(e=>e.BatchId==batch.Id);
             return action?.ActorSeat==candidate.OwnerSeat ? batch.Movements.Select((m,i)=>(m,i)).Where(x=>x.m.To==CardLocation.DiscardPile).Select(x=>x.i).ToArray():[];
         }
+        if (features.HasOperation(SkillProgramEffectOp.ReclaimFriendXuanjian))
+            return batch.Movements.Select((m, i) => (m, i)).Where(x => x.m.To == CardLocation.DiscardPile &&
+                _cardZones.GetLocation(x.m.CardId) == CardLocation.DiscardPile && GetAttackCard(x.m.CardId).Kind == CardKind.Xuanjian)
+                .Select(x => x.i).ToArray();
         if (trigger.IgnoreOwnSkillMovements && batch.OriginOwnerSeat == candidate.OwnerSeat &&
             batch.OriginSkillId == candidate.SkillId &&
             batch.OriginSkillInstanceId == candidate.SkillInstanceId) return [];
@@ -358,19 +368,21 @@ public sealed partial class GameEngine
     private int[] MatchingMovementIndexes(CardMovementBatchContext batch, ProgramTriggerCandidate candidate,
         SkillProgramTrigger trigger, CardLocation location)
     {
-        if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.DrawAfterActualOutsideDraw))
-            return MatchingOutsideDrawIndexes(batch, candidate);
-        if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.GiveAfterBatchGain))
-            return MatchingActualGainGiftIndexes(batch, candidate.OwnerSeat, location);
-        if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.RevealRedLossAndDraw))
-            return MatchingRedOwnerLossIndexes(batch, candidate.OwnerSeat, location);
-        if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.DrawAfterActualOwnHandGain))
-            return MatchingActualHandGainIndexes(batch, candidate.OwnerSeat, location);
-        if(trigger.Effects.Any(e=>e.Op==SkillProgramEffectOp.RewardDiscardedActionColor))
+        var features = ProgramInstructionResolver.Default.Features(trigger);
+        if (features.HasOperation(SkillProgramEffectOp.RecoverAfterLastPublicRice))
         {
-            var action=CompleteProgramEventHistory().OfType<ActionCardsDiscardedEvent>().LastOrDefault(e=>e.BatchId==batch.Id);
-            return action?.ActorSeat==candidate.OwnerSeat ? batch.Movements.Select((m,i)=>(m,i)).Where(x=>x.m.To==CardLocation.DiscardPile).Select(x=>x.i).ToArray():[];
+            var pile = _publicPersistentPiles.GetValueOrDefault((candidate.OwnerSeat, candidate.SkillId, candidate.SkillInstanceId));
+            if (pile is null || pile.Location != location || !RiceProducer(pile) ||
+                !batch.SourceCounts.Any(n => n.Location == location && n.CountBefore > 0 && n.CountAfter == 0)) return [];
         }
+        if (features.HasOperation(SkillProgramEffectOp.DrawAfterActualOutsideDraw))
+            return MatchingOutsideDrawIndexes(batch, candidate);
+        if (features.HasOperation(SkillProgramEffectOp.GiveAfterBatchGain))
+            return MatchingActualGainGiftIndexes(batch, candidate.OwnerSeat, location);
+        if (features.HasOperation(SkillProgramEffectOp.RevealRedLossAndDraw))
+            return MatchingRedOwnerLossIndexes(batch, candidate.OwnerSeat, location);
+        if (features.HasOperation(SkillProgramEffectOp.DrawAfterActualOwnHandGain))
+            return MatchingActualHandGainIndexes(batch, candidate.OwnerSeat, location);
         if (trigger.IgnoreOwnSkillMovements && batch.OriginOwnerSeat == candidate.OwnerSeat &&
             batch.OriginSkillId == candidate.SkillId &&
             batch.OriginSkillInstanceId == candidate.SkillInstanceId) return [];
@@ -416,9 +428,10 @@ public sealed partial class GameEngine
     {
         if (frame.Contexts is { } contexts) return contexts[frame.CandidateIndex];
         var trigger = GetProgramTrigger(candidate);
-        if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.DiscardAfterActualOutsideDiscard))
+        var features = ProgramInstructionResolver.Default.Features(trigger);
+        if (features.HasOperation(SkillProgramEffectOp.DiscardAfterActualOutsideDiscard))
             return CreateOutsideDiscardContext(frame, candidate);
-        if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.RestoreActualDiscardBatch)) return CreateActualDiscardRecoveryContext(frame, candidate);
+        if (features.HasOperation(SkillProgramEffectOp.RestoreActualDiscardBatch)) return CreateActualDiscardRecoveryContext(frame, candidate);
         if (trigger.Window == SkillProgramTriggerWindow.FirstGameDomainCrossing) return CreateFirstDomainContext(frame,candidate);
         if (IsNeighborDiscardTopTrigger(trigger)) return CreateNeighborDiscardContext(frame, candidate);
         if (trigger.Window == SkillProgramTriggerWindow.DiscardPileReceived)
@@ -428,7 +441,7 @@ public sealed partial class GameEngine
                 trigger.Window,
                 frame.Id,
                 candidate.OwnerSeat,
-                SourceSeat: trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.ClaimDiscardedEntityWithProvenance) ? DiscardedProvenanceOrigin(movement)?.SourceSeat : (trigger.MovementDiscardOnly ? GetProgramDiscardSource(movement) : movement.From)?.OwnerSeat,
+                SourceSeat: features.HasOperation(SkillProgramEffectOp.ClaimDiscardedEntityWithProvenance) ? DiscardedProvenanceOrigin(movement)?.SourceSeat : (trigger.MovementDiscardOnly ? GetProgramDiscardSource(movement) : movement.From)?.OwnerSeat,
                 OccurrenceIndex: candidate.OccurrenceIndex,
                 Facts: CaptureCardsMovedTriggerFacts(_players[candidate.OwnerSeat], 1,
                     new CardMovementSourceCount(CardLocation.DiscardPile, 0, 0), trigger.Window),
@@ -485,10 +498,19 @@ public sealed partial class GameEngine
                 MovementIndex: candidate.OccurrenceIndex);
         }
         var gained = trigger.Window == SkillProgramTriggerWindow.CardsGained;
-        var location = new CardLocation((gained ? trigger.DestinationZones : trigger.SourceZones).Single(), candidate.OwnerSeat);
+        var kind = (gained ? trigger.DestinationZones : trigger.SourceZones).Single();
+        var ricePile = trigger.Effects is [{ Op: SkillProgramEffectOp.RecoverAfterLastPublicRice }];
+        var privatePile = kind == CardZoneKind.PrivatePersistentPile || ricePile;
+        if (privatePile && (candidate.OccurrenceIndex < 0 || candidate.OccurrenceIndex >= frame.Batch.Movements.Count))
+            throw new InvalidOperationException("A named private-pile movement lost its exact physical occurrence.");
+        var location = privatePile ? gained ? frame.Batch.Movements[candidate.OccurrenceIndex].To : frame.Batch.Movements[candidate.OccurrenceIndex].From
+            : new CardLocation(kind, candidate.OwnerSeat);
+        if (privatePile && (location.Zone != kind || location.OwnerSeat != candidate.OwnerSeat || !ricePile && string.IsNullOrWhiteSpace(location.PublicPileId)))
+            throw new InvalidOperationException("A named private-pile movement changed its exact pile identity.");
         var count = ProgramMovementSourceCounts(frame.Batch, trigger.Window)
             .Single(item => item.Count.Location == location && (!item.DiscardOriginOnly || trigger.MovementDiscardOnly)).Count;
         var matchingIndexes = MatchingMovementIndexes(frame.Batch, candidate, trigger, location);
+        if (privatePile && !matchingIndexes.Contains(candidate.OccurrenceIndex)) throw new InvalidOperationException("Private pile occurrence no longer matches its trigger.");
         return new ProgramSkillWindowContext(
             trigger.Window,
             frame.Id,
@@ -499,7 +521,7 @@ public sealed partial class GameEngine
             TargetSeat: candidate.OwnerSeat,
             OccurrenceIndex: candidate.OccurrenceIndex,
             Facts: CaptureCardsMovedTriggerFacts(
-                _players[candidate.OwnerSeat], matchingIndexes.Length, count, trigger.Window, frame.Batch.MovementTiming),
+                _players[candidate.OwnerSeat], FriendManjuanMovedCount(frame.Batch, candidate.OwnerSeat, trigger, matchingIndexes.Length), count, trigger.Window, frame.Batch.MovementTiming),
             MovementBatch: frame.Batch,
             MovementIndex: trigger.MovementOccurrence == SkillProgramMovementOccurrence.PerCard
                 ? candidate.OccurrenceIndex
@@ -515,6 +537,12 @@ public sealed partial class GameEngine
                 PopResolutionFrame(frame.Id, ResolutionFrameKind.CardsMovedTriggerWindow);
                 if (ReturnCardResponseCompletionMovement(frame)) return;
                 if (ReturnCardSupplyCompletionMovement(frame)) return;
+                if (frame.ResumeFriendDuelResponseFrameId is { } friendId)
+                {
+                    if (_resolutionStack.LastOrDefault() is not FriendDuelResponseFrame friendParent || !IsFriendDuelResponseMovementReturn(friendParent, frame))
+                        throw new InvalidOperationException("Friend Duel response lost its actual movement return.");
+                    ContinueFriendDuelResponse(friendId); return;
+                }
                 if (frame.ResumePaidCardUseFrameId is { } paidUseId)
                 {
                     if (_resolutionStack.LastOrDefault() is not CardUseFrame paidParent ||
@@ -528,6 +556,8 @@ public sealed partial class GameEngine
                     ReturnDeferredTurnEndPrelude(frame);
                     return;
                 }
+                if (frame.SoleTargetQuarantineEndReturn is not null)
+                { ReturnSoleTargetQuarantineMovement(frame); return; }
                 if (_resolutionStack.LastOrDefault() is ProgramSkillFrame
                     { SelectedCardPayment: { } payment, SelectedCardPaymentResult: null } parent)
                 {
@@ -580,6 +610,7 @@ public sealed partial class GameEngine
                         throw new InvalidOperationException("Counterspell lost its exact payment movement return.");
                     ContinuePolicyCounterspellPayment(counterId); return;
                 }
+                if (frame.ResumeMouZhitianFireFrameId is { } mouFireId) { ContinueMouZhitianFirePayment(mouFireId); return; }
                 if (frame.ResumeColorFireAttackFrameId is { } fireId)
                 {
                     if (_resolutionStack.LastOrDefault() is not CardUseFrame { ColorFireAttack.PaidCardId: not null } fireParent ||

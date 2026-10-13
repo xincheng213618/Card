@@ -5,6 +5,7 @@ public sealed partial class GameEngine
         pending.SubjectSeat == f.OwnerSeat && pending.BeforeCount == 0 && pending.CoverageResultBind is null &&
         (e?.Op == SkillProgramEffectOp.DrawEndingPairThenBlockRoundIfUnequal && f.EndingPairDraw is { AwaitingMovement: true } && ValidEndingPairDraw(f) ||
          e?.Op == SkillProgramEffectOp.RecastSelectedPhysicalSlash && f.PlaySlashRecast is { AwaitingMovement: true } && ValidPlaySlashRecast(f));
+    [ProgramContinuation(ProgramContinuationKind.MovementTail, 70)]
     private bool ReturnEndingPairMovement(ProgramSkillFrame f)
     {
         if (f.PendingMovementContinuation is not { } pending || f.EndingPairDraw is null && f.PlaySlashRecast is null) return false;

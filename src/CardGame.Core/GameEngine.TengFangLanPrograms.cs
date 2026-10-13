@@ -24,10 +24,11 @@ public sealed partial record ProgramSkillFrame
 // The suspension receipt of one accepted 落宠 invocation. A nonzero remaining
 // discard count marks the target's own discard prompts; a zero count on op
 // re-entry marks the resume after a losing-hp dying child.
-public sealed record LuochongPendingState(string OptionId, int TargetSeat,
-    int RemainingDiscards, IReadOnlyList<int>? DiscardedCardIds = null)
+public sealed record LuochongPendingState(string OptionId, int TargetSeat, int RemainingDiscards)
 {
-    public IReadOnlyList<int> Discarded { get; init; } = DiscardedCardIds ?? [];
+    private IReadOnlyList<int> _discardedCardIds = Array.AsReadOnly(Array.Empty<int>());
+    public IReadOnlyList<int> DiscardedCardIds
+    { get => _discardedCardIds; init => _discardedCardIds = Array.AsReadOnly(value.ToArray()); }
 }
 
 public sealed partial class GameEngine
@@ -148,7 +149,11 @@ public sealed partial class GameEngine
             new ChoiceId($"luochong-decline.frame-{frame.Id}"),
             "不发动【落宠】。",
             [], [],
-            new Dictionary<string, string> { ["program-action"] = "luochong-decline" }));
+            new Dictionary<string, string>
+            {
+                ["program-action"] = "luochong-decline",
+                ["frame-id"] = frame.Id.ToString(System.Globalization.CultureInfo.InvariantCulture)
+            }));
         _pendingDecision = new PendingDecision(
             DecisionKind.ProgramTrigger, active.OwnerSeat,
             $"【{presentation.Name}】你可以选择一项，令一名角色执行。每轮每项每名角色限一次。",
@@ -203,12 +208,12 @@ public sealed partial class GameEngine
                 AdvanceRuntimeProgram(active.Id);
                 return;
             case "loseHp" when _players[targetSeat].Hp == 1:
-                // The dying child suspends below this frame; rewinding the cursor
-                // makes the child completion re-enter this instruction, where the
-                // pending state finalizes the resolution.
+                // Keep the paid instruction committed while the real dying child
+                // is live. Its existing repeat flag re-enters this operation only
+                // after the child returns, where the receipt finalizes once.
                 ReplaceRuntimeTop(GetActiveProgramFrame(frame.Id) with
                 {
-                    InstructionIndex = frame.InstructionIndex - 1,
+                    ReexecuteParticipantInstruction = true,
                     LuochongPending = pending
                 });
                 AddLog("SkillTriggered",
@@ -254,7 +259,7 @@ public sealed partial class GameEngine
             pending.OptionId, pending.TargetSeat,
             pending.OptionId == "recover" ? 1 : 0,
             pending.OptionId == "loseHp" ? 1 : 0,
-            pending.Discarded,
+            pending.DiscardedCardIds,
             pending.OptionId == "drawTwo" ? 2 : 0);
 
     // The finalize after a dying child: no card movements belong to this frame,
@@ -262,11 +267,17 @@ public sealed partial class GameEngine
     private SkillProgramStepOutcome FinalizeLuochongResolution(ProgramSkillFrame frame, LuochongPendingState pending)
     {
         var active = GetActiveProgramFrame(frame.Id);
-        ReplaceRuntimeTop(GetActiveProgramFrame(frame.Id) with { LuochongPending = null });
+        ReplaceRuntimeTop(GetActiveProgramFrame(frame.Id) with
+        { LuochongPending = null, ReexecuteParticipantInstruction = false });
         AdvanceEventRulesAndQueueFact(LuochongResolvedEvent(active, pending));
         AdvanceRuntimeProgram(active.Id);
         return SkillProgramStepOutcome.AwaitChild;
     }
+
+    private bool IsValidLuochongDyingContinuation(ProgramSkillFrame frame, SkillProgramEffect paused) =>
+        paused.Op == SkillProgramEffectOp.LuochongResolve && paused.Target == SkillProgramEffectTarget.Owner &&
+        frame.LuochongPending is { OptionId: "loseHp", RemainingDiscards: 0 } pending &&
+        IsValidPlayerSeat(pending.TargetSeat) && pending.DiscardedCardIds.Count == 0;
 
     private void PresentLuochongDiscardPrompt(ProgramSkillFrame frame)
     {
@@ -322,7 +333,7 @@ public sealed partial class GameEngine
         AddLog("CardDiscarded",
             $"{_players[pending.TargetSeat].Name} 因【{_contentRegistry!.GetSkill(active.SkillId).Name}】弃置【{entry.Card.DisplayName}】。",
             pending.TargetSeat, active.OwnerSeat);
-        var discarded = pending.Discarded.Append(cardId).ToArray();
+        var discarded = pending.DiscardedCardIds.Append(cardId).ToArray();
         if (pending.RemainingDiscards > 1)
         {
             ReplaceRuntimeTop(GetActiveProgramFrame(frame.Id) with
@@ -330,7 +341,7 @@ public sealed partial class GameEngine
                 LuochongPending = pending with
                 {
                     RemainingDiscards = pending.RemainingDiscards - 1,
-                    DiscardedCardIds = Array.AsReadOnly(discarded)
+                    DiscardedCardIds = discarded
                 }
             });
             PresentLuochongDiscardPrompt(GetActiveProgramFrame(frame.Id));
@@ -338,7 +349,7 @@ public sealed partial class GameEngine
         }
         ReplaceRuntimeTop(GetActiveProgramFrame(frame.Id) with
         {
-            LuochongPending = pending with { RemainingDiscards = 0, DiscardedCardIds = Array.AsReadOnly(discarded) }
+            LuochongPending = pending with { RemainingDiscards = 0, DiscardedCardIds = discarded }
         });
         CompleteLuochongDiscardStage(GetActiveProgramFrame(frame.Id));
     }

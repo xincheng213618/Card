@@ -130,6 +130,7 @@ public sealed partial class GameEngine
         TryBeginHpChangedProgramWindow(f.Id, movement ? PostEventContinuation.AwaitedProgramMovement : PostEventContinuation.Program) ||
         TryBeginCardsMovedProgramWindow(f.Id) || TryBeginAdvancedSkillsChanged(f.Id);
 
+    [ProgramContinuation(ProgramContinuationKind.Resume, 390)]
     private bool ResumeBlackGiftContest(long id)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame f || f.Id != id || f.BlackGiftContest is not { } r) return false;

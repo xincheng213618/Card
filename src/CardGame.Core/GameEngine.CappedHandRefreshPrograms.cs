@@ -46,6 +46,7 @@ public sealed partial class GameEngine
             !TryBeginCardsMovedProgramWindow()) ReturnRuntimeProgramMovement(frameId);
     }
 
+    [ProgramContinuation(ProgramContinuationKind.Resume, 810)]
     private bool ResumeCappedHandRefresh(long frameId)
     {
         var frame = GetActiveProgramFrame(frameId);
@@ -73,6 +74,7 @@ public sealed partial class GameEngine
         return true;
     }
 
+    [ProgramContinuation(ProgramContinuationKind.Movement, 500)]
     private bool ReturnCappedHandRefreshMovement(ProgramSkillFrame frame)
     {
         if (frame.CappedHandRefresh is not { } draft) return false;

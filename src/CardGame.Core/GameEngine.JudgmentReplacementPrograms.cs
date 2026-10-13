@@ -20,6 +20,8 @@ public sealed partial class GameEngine
         string judgmentReason,
         bool ignoreCurrentColor = false)
     {
+        if (trigger.Effects is [{ Op: SkillProgramEffectOp.ReplaceJudgmentFromPublicRice }])
+            return RiceJudgmentReplacementCards(owner, trigger);
         if (trigger.Window != SkillProgramTriggerWindow.JudgmentReplacing ||
             trigger.Effects.Count == 0 ||
             trigger.Effects[0] is not { Op: SkillProgramEffectOp.ReplaceJudgment or SkillProgramEffectOp.DelegateJudgmentReplacement } replacement ||
@@ -283,13 +285,16 @@ public sealed partial class GameEngine
         Card oldJudgmentCard,
         Card replacement,
         Suit committedSuit,
-        SkillProgramOldJudgmentCardDestination oldDestination)
+        SkillProgramOldJudgmentCardDestination oldDestination,
+        CardLocation? exactRiceLocation = null)
     {
         var oldFrom = CardLocation.Judgment(pending.TargetSeat);
         if (_cardZones.GetLocation(oldJudgmentCard.Id) != oldFrom)
             throw new InvalidOperationException("The current judgment card is no longer in its judgment zone.");
-        var replacementFrom = FindOwnedCardLocation(owner, replacement);
-        if (replacementFrom.Zone is not (CardZoneKind.Hand or CardZoneKind.Equipment))
+        var replacementFrom = exactRiceLocation ?? FindOwnedCardLocation(owner, replacement);
+        if (exactRiceLocation is not null ? replacementFrom.Zone != CardZoneKind.PublicPersistentPile || replacementFrom.OwnerSeat != owner.Seat ||
+                _cardZones.GetLocation(replacement.Id) != replacementFrom || !_publicPersistentPiles.Values.Any(p => p.Location == replacementFrom && RiceProducer(p)) :
+            replacementFrom.Zone is not (CardZoneKind.Hand or CardZoneKind.Equipment))
             throw new InvalidOperationException("The configured replacement card is not in an owned input zone.");
         var oldTo = oldDestination == SkillProgramOldJudgmentCardDestination.OwnerHand
             ? CardLocation.Hand(owner.Seat)

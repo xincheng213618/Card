@@ -107,7 +107,11 @@ public sealed record TurnRuleModifier(
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     int? AffectedSeat = null,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
-    ProgramHpLossModifierOrigin? PaidHpLossOrigin = null);
+    ProgramHpLossModifierOrigin? PaidHpLossOrigin = null)
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public SkillProgramDamageModifierExpiration Expiration { get; init; }
+}
 
 public sealed record TurnCardTargetRestriction(
     long GrantSequence,
@@ -376,7 +380,8 @@ internal sealed partial class TurnCardUseEffectStore
         SkillRuleOperation operation,
         int amount,
         IReadOnlyList<CardKind>? cardKinds = null,
-        int? affectedSeat = null, ProgramHpLossModifierOrigin? hpLossOrigin = null)
+        int? affectedSeat = null, ProgramHpLossModifierOrigin? hpLossOrigin = null,
+        SkillProgramDamageModifierExpiration expiration = SkillProgramDamageModifierExpiration.CurrentTurnEnd)
     {
         IReadOnlyList<CardKind> frozenKinds = cardKinds is null ? [] : Array.AsReadOnly(cardKinds.ToArray());
         var existing = _ruleModifiers.SingleOrDefault(item =>
@@ -385,7 +390,7 @@ internal sealed partial class TurnCardUseEffectStore
         {
             if (existing.TurnNumber != turnNumber || existing.TurnSeat != turnSeat ||
                 existing.Source != source || existing.Query != query ||
-                existing.Operation != operation || existing.Amount != amount || existing.AffectedSeat != affectedSeat || existing.PaidHpLossOrigin != hpLossOrigin ||
+                existing.Operation != operation || existing.Amount != amount || existing.AffectedSeat != affectedSeat || existing.PaidHpLossOrigin != hpLossOrigin || existing.Expiration != expiration ||
                 !(existing.CardKinds ?? []).SequenceEqual(frozenKinds))
                 throw new InvalidOperationException("A turn rule-modifier grant key changed its meaning.");
             return existing;
@@ -393,7 +398,7 @@ internal sealed partial class TurnCardUseEffectStore
 
         var granted = new TurnRuleModifier(
             ++_grantSequence, turnNumber, turnSeat, parentFrameId, effectIndex, source,
-            query, operation, amount, frozenKinds, affectedSeat, hpLossOrigin);
+            query, operation, amount, frozenKinds, affectedSeat, hpLossOrigin) { Expiration = expiration };
         _ruleModifiers.Add(granted);
         return granted;
     }
@@ -524,7 +529,8 @@ internal sealed partial class TurnCardUseEffectStore
         SkillRuleQuery query,
         CardKind? effectiveCardKind = null) =>
         _ruleModifiers.Where(item =>
-                item.TurnNumber == turnNumber && item.TurnSeat == turnSeat &&
+                (item.Expiration == SkillProgramDamageModifierExpiration.NextOwnerTurnStart ||
+                 item.TurnNumber == turnNumber && item.TurnSeat == turnSeat) &&
                 (item.AffectedSeat ?? item.Source.OwnerSeat) == actorSeat && item.Query == query &&
                 (item.CardKinds is null || item.CardKinds.Count == 0 ||
                  effectiveCardKind is { } kind && item.CardKinds.Contains(kind)))
@@ -621,7 +627,12 @@ internal sealed partial class TurnCardUseEffectStore
                 .Where(item => item.TurnNumber == turnNumber && item.TurnSeat == turnSeat)
                 .Select(item => item.GrantSequence))
             .Concat(_ruleModifiers
-                .Where(item => item.TurnNumber == turnNumber && item.TurnSeat == turnSeat)
+                .Where(item => item.Expiration == SkillProgramDamageModifierExpiration.CurrentTurnEnd &&
+                               item.TurnNumber == turnNumber && item.TurnSeat == turnSeat)
+                .Select(item => item.GrantSequence))
+            .Concat(_recoveryModifiers
+                .Where(item => item.Expiration == SkillProgramDamageModifierExpiration.CurrentTurnEnd &&
+                               item.TurnNumber == turnNumber && item.TurnSeat == turnSeat)
                 .Select(item => item.GrantSequence))
             .Concat(_targetRestrictions
                 .Where(item => item.TurnNumber == turnNumber && item.TurnSeat == turnSeat)
@@ -639,6 +650,7 @@ internal sealed partial class TurnCardUseEffectStore
         _actionProhibitions.RemoveAll(item => expiredSet.Contains(item.GrantSequence));
         _handColorRestrictions.RemoveAll(item => expiredSet.Contains(item.GrantSequence));
         _ruleModifiers.RemoveAll(item => expiredSet.Contains(item.GrantSequence));
+        _recoveryModifiers.RemoveAll(item => expiredSet.Contains(item.GrantSequence));
         _targetRestrictions.RemoveAll(item => expiredSet.Contains(item.GrantSequence));
         _conversions.RemoveAll(item => expiredSet.Contains(item.GrantSequence));
         ExpireRedSlashPolicies(expiredSet);
@@ -678,6 +690,7 @@ internal sealed partial class TurnCardUseEffectStore
             .Concat(_actionProhibitions.Select(item => item.GrantSequence))
             .Concat(_handColorRestrictions.Select(item => item.GrantSequence))
             .Concat(_ruleModifiers.Select(item => item.GrantSequence))
+            .Concat(_recoveryModifiers.Select(item => item.GrantSequence))
             .Concat(_targetRestrictions.Select(item => item.GrantSequence))
             .Concat(_conversions.Select(item => item.GrantSequence))
             .Concat(_handCategoryRestrictions.Select(item => item.GrantSequence))
@@ -699,8 +712,8 @@ internal sealed partial class TurnCardUseEffectStore
                 item.CardKinds.Distinct().Count() != item.CardKinds.Count ||
                 item.ActionTypes.Distinct().Count() != item.ActionTypes.Count) ||
             _handColorRestrictions.Any(item => item.AffectedSeat < 0) || HandCategoryRestrictionsAreInvalid() || HandLimitKindExemptionsAreInvalid() || BoundSlashBenefitsAreInvalid() ||
-            _ruleModifiers.Any(item =>
-                item.AffectedSeat is < 0 || item.PaidHpLossOrigin is not null && !PaidHpLossProgram.IsValidModifierOrigin(item) ||
+            RecoveryModifiersAreInvalid() || _ruleModifiers.Any(item =>
+                !Enum.IsDefined(item.Expiration) || item.AffectedSeat is < 0 || item.PaidHpLossOrigin is not null && !PaidHpLossProgram.IsValidModifierOrigin(item) ||
                 item.Query == SkillRuleQuery.HandLimit &&
                     (item.Operation != SkillRuleOperation.Add || item.Amount is < -20 or > 20 || item.Amount == 0 || item.CardKinds is { Count: > 0 }) ||
                 item.Query == SkillRuleQuery.OutgoingDistance &&

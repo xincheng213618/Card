@@ -219,9 +219,4 @@ public sealed partial class GameEngine
         HasValidReplacedPaidHpContinuation(frame, ProgramInstructionResolver.Default.Resolve(frame,
             _contentRegistry.GetSkill(frame.SkillId).Program!));
 
-    private sealed partial class ProgramSkillHost
-    {
-        public bool CanContinueReplacedPaidHpContinuation(ProgramSkillFrame frame) =>
-            engine.CanContinueReplacedPaidHpContinuation(frame);
-    }
 }

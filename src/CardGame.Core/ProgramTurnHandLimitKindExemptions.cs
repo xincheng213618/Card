@@ -1,7 +1,11 @@
 namespace CardGame.Core;
 
 public sealed record TurnHandLimitCardKindExemption(long GrantSequence, int TurnNumber, int TurnSeat,
-    long ParentFrameId, int EffectIndex, CardUseEffectSource Source, IReadOnlyList<CardKind> CardKinds);
+    long ParentFrameId, int EffectIndex, CardUseEffectSource Source, IReadOnlyList<CardKind> CardKinds)
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public SkillProgramDamageModifierExpiration Expiration { get; init; }
+}
 public sealed record TurnHandLimitCardKindExemptionGrantedEvent(TurnHandLimitCardKindExemption Policy) : IGameEvent;
 
 public sealed partial record PlayerSnapshot
@@ -48,31 +52,35 @@ internal sealed partial class TurnCardUseEffectStore
         Array.AsReadOnly(_handLimitKindExemptions.ToArray());
 
     internal TurnHandLimitCardKindExemption GrantHandLimitKindExemption(int turn, int turnSeat, long parent,
-        int effect, CardUseEffectSource source, IReadOnlyList<CardKind> cardKinds)
+        int effect, CardUseEffectSource source, IReadOnlyList<CardKind> cardKinds,
+        SkillProgramDamageModifierExpiration expiration = SkillProgramDamageModifierExpiration.CurrentTurnEnd)
     {
         if (turn <= 0 || turnSeat < 0 || parent <= 0 || effect < 0 || source.OwnerSeat < 0 ||
             string.IsNullOrWhiteSpace(source.SkillId) || string.IsNullOrWhiteSpace(source.BindingId) ||
             string.IsNullOrWhiteSpace(source.SkillInstanceId) || cardKinds.Count == 0 ||
-            cardKinds.Any(kind => !Enum.IsDefined(kind)) || cardKinds.Distinct().Count() != cardKinds.Count)
+            !Enum.IsDefined(expiration) || cardKinds.Any(kind => !Enum.IsDefined(kind)) || cardKinds.Distinct().Count() != cardKinds.Count)
             throw new InvalidOperationException("A hand-limit kind exemption requires a valid actual-turn source and distinct card kinds.");
         var frozenKinds = Array.AsReadOnly(cardKinds.Order().ToArray());
         var existing = _handLimitKindExemptions.SingleOrDefault(policy => policy.ParentFrameId == parent && policy.EffectIndex == effect);
         if (existing is not null)
         {
             if (existing.TurnNumber != turn || existing.TurnSeat != turnSeat || existing.Source != source ||
-                !existing.CardKinds.SequenceEqual(frozenKinds))
+                existing.Expiration != expiration || !existing.CardKinds.SequenceEqual(frozenKinds))
                 throw new InvalidOperationException("A hand-limit kind exemption grant key changed its actual-turn meaning.");
             return existing;
         }
-        var policy = new TurnHandLimitCardKindExemption(++_grantSequence, turn, turnSeat, parent, effect, source, frozenKinds);
+        var policy = new TurnHandLimitCardKindExemption(++_grantSequence, turn, turnSeat, parent, effect, source, frozenKinds)
+        { Expiration = expiration };
         _handLimitKindExemptions.Add(policy);
         return policy;
     }
     internal IReadOnlySet<CardKind> GetHandLimitExemptCardKinds(int turn, int turnSeat, int owner) =>
-        _handLimitKindExemptions.Where(policy => policy.TurnNumber == turn && policy.TurnSeat == turnSeat &&
+        _handLimitKindExemptions.Where(policy =>
+            (policy.Expiration == SkillProgramDamageModifierExpiration.NextOwnerTurnStart || policy.TurnNumber == turn && policy.TurnSeat == turnSeat) &&
             policy.Source.OwnerSeat == owner).SelectMany(policy => policy.CardKinds).ToHashSet();
     private IEnumerable<long> ExpiringHandLimitKindExemptions(int turn, int turnSeat) =>
-        _handLimitKindExemptions.Where(policy => policy.TurnNumber == turn && policy.TurnSeat == turnSeat)
+        _handLimitKindExemptions.Where(policy => policy.Expiration == SkillProgramDamageModifierExpiration.CurrentTurnEnd &&
+            policy.TurnNumber == turn && policy.TurnSeat == turnSeat)
             .Select(policy => policy.GrantSequence);
     private void ExpireHandLimitKindExemptions(HashSet<long> expired) =>
         _handLimitKindExemptions.RemoveAll(policy => expired.Contains(policy.GrantSequence));
@@ -81,5 +89,5 @@ internal sealed partial class TurnCardUseEffectStore
         policy.Source.OwnerSeat < 0 || string.IsNullOrWhiteSpace(policy.Source.SkillId) ||
         string.IsNullOrWhiteSpace(policy.Source.BindingId) || string.IsNullOrWhiteSpace(policy.Source.SkillInstanceId) ||
         policy.CardKinds.Count == 0 || policy.CardKinds.Distinct().Count() != policy.CardKinds.Count ||
-        policy.CardKinds.Any(kind => !Enum.IsDefined(kind)));
+        !Enum.IsDefined(policy.Expiration) || policy.CardKinds.Any(kind => !Enum.IsDefined(kind)));
 }

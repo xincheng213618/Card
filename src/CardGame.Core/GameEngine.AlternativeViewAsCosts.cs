@@ -59,6 +59,7 @@ public sealed partial class GameEngine
 
     private void FinishSingleBasicCardUseCost(CardUseFrame use, Card card)
     {
+        if (HasUnstartedExtraCardEffect(use.Id)) return;
         if (TryFinishRoundDistinctBasicAlcoholCost(use, card)) return;
         if (SkipTieredRoundZeroFinishedMovement(use.Id, card)) return;
         if (SkipChainedStateBasicFinishedMovement(use.Id, card)) return;

@@ -48,6 +48,7 @@ public sealed partial class GameEngine
         AdvanceRuntimeProgram(frame.Id);
         return SkillProgramStepOutcome.AwaitChild;
     }
+    [ProgramContinuation(ProgramContinuationKind.Resume, 730)]
     private bool ResumeAwaitedBlindHandTake(long frameId)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame frame || frame.Id != frameId || frame.BlindHandTake is not { } receipt) return false;

@@ -177,6 +177,7 @@ public sealed partial class GameEngine
         if (!TryBeginCardsMovedProgramWindow()) ReturnRuntimeProgramMovement(frame.Id);
     }
 
+    [ProgramContinuation(ProgramContinuationKind.Resume, 650)]
     private bool ResumeDamageJudgmentSuitPayment(long frameId)
     {
         var frame = GetActiveProgramFrame(frameId);
@@ -238,6 +239,7 @@ public sealed partial class GameEngine
         throw new InvalidOperationException("Unknown damage judgment stage.");
     }
 
+    [ProgramContinuation(ProgramContinuationKind.Movement, 490)]
     private bool ReturnDamageJudgmentSuitPaymentMovement(ProgramSkillFrame frame)
     {
         if (frame.DamageJudgmentSuitPayment is null) return false;

@@ -1,8 +1,14 @@
 namespace CardGame.Core;
+public sealed partial record CardUseFrame
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public bool TurnRedSlashSkipsDodge { get; init; }
+}
+
 public sealed partial class GameEngine
 {
     private bool HasTurnRedSlashCapability=>_contentRegistry?.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.GrantTurnRedSlashBenefits)==true;
-    private bool CapturesActionColor=>HasSourceCurseActionColors||TracksActionDiscardColor||HasTurnRedSlashCapability||HasBlackTrickTargetPolicy||HasComparedBlackSlashPolicies||_contentRegistry.ProgramDependencies.UsesRoundDistinctBasicUse||_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.OfferPairedColorCardDisposition);
+    private bool CapturesActionColor=>TracksDamageTargetBudgetTargets||HasAdjacentRedTargetCapability||HasSoleTargetProtectionCapability||HasTargetedOrdinaryTrickAdjustment||_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.RecordOpeningTurnUse)||_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.RewriteWeilinTargetHand)||HasSourceCurseActionColors||TracksActionDiscardColor||HasTurnRedSlashCapability||HasBlackTrickTargetPolicy||HasComparedBlackSlashPolicies||_contentRegistry.ProgramDependencies.UsesRoundDistinctBasicUse||_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.OfferPairedColorCardDisposition);
     private void GrantTurnRedSlashBenefits(ProgramSkillFrame frame)
     {
         ValidateProgramTurnEffectGrant(frame);

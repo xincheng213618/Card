@@ -69,8 +69,7 @@ internal sealed class DrawThenDiscardSuitsForDyingPeachDescriptor : ProgramOpera
     public override ISkillProgramEffectHandler Handler { get; } = new DrawThenDiscardSuitsForDyingPeachHandler();
     public override ProgramOperationInteraction Interaction => ProgramOperationInteraction.Choice;
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.DyingRescue, static (_, c) => c.PublicControlValue(20d));
-    public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
-    { r.AllowOnly("op", "target", "condition"); var e = new SkillProgramEffect(Op, FilterBoundCardsProgramOperationDescriptor.Owner(r), 0, r.Condition()); RequireAlways(e, r.Path); return e; }
+    public override SkillProgramEffect Parse(ProgramOperationNodeReader r) => ParseOwnerAlways(r);
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e) => [new RequireTriggerWindow(SkillProgramTriggerWindow.DyingEntering)];
 }
 internal sealed class UseOwnPlayHistoryAtEndingDescriptor : ProgramOperationDescriptorBase
@@ -79,8 +78,7 @@ internal sealed class UseOwnPlayHistoryAtEndingDescriptor : ProgramOperationDesc
     public override ISkillProgramEffectHandler Handler { get; } = new UseOwnPlayHistoryAtEndingHandler();
     public override ProgramOperationInteraction Interaction => ProgramOperationInteraction.Choice;
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GainCards, static (_, c) => c.PublicControlValue(12d));
-    public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
-    { r.AllowOnly("op", "target", "condition"); var e = new SkillProgramEffect(Op, FilterBoundCardsProgramOperationDescriptor.Owner(r), 0, r.Condition()); RequireAlways(e, r.Path); return e; }
+    public override SkillProgramEffect Parse(ProgramOperationNodeReader r) => ParseOwnerAlways(r);
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e) => [new RequireTriggerWindow(SkillProgramTriggerWindow.TurnEnding)];
 }
 public sealed class DrawThenDiscardSuitsForDyingPeachHandler : ISkillProgramEffectHandler

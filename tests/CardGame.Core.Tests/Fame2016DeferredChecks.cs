@@ -15,6 +15,10 @@ internal static class Fame2016DeferredChecks
         Answer(game, Prompt(game)!.Choices.Single(c => c.Parameters.GetValueOrDefault("option-id") == "view"));
         Reach(game, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "participant-top-view"));
         var viewing = Prompt(game)!; var ids = viewing.ValidCardIds.ToArray();
+        var viewFrame = game.ResolutionStack.OfType<ProgramSkillFrame>().Last();
+        Require(viewFrame.ParticipantTopView is { Seat: 1 } view && view.CardIds.SequenceEqual(ids),
+            "The suspended frame must own the exact private top-card order and participant.");
+        ProgramChoiceDraftChecks.Frozen(viewFrame.ParticipantTopView!.CardIds);
         Require(viewing.PlayerSeat == 1 && viewing.IsPrivate && ids.Length == 2, "The selected participant alone must privately view two real top cards.");
         Require(game.CreateSnapshot(0, false).PendingDecision is null && game.CreateSnapshot(2, false).PendingDecision is null &&
                 game.CreateSnapshot(1, false).PendingDecision?.ValidCardIds.SequenceEqual(ids) == true &&
@@ -27,6 +31,9 @@ internal static class Fame2016DeferredChecks
         var top = game.CreateCardZoneDiagnostics().Where(z => z.Location == CardLocation.DrawPile).OrderByDescending(z => z.ZoneIndex).Take(returned.Length).Select(z => z.CardId);
         Require(top.SequenceEqual(returned), "Non-basic cards must return to the top in the original viewed order.");
         Require(!game.GetHumanLegalActions().Any(a => a.ProgramSkillId == "classic:duliang"), "The per-play-phase activation must be spent.");
+        Require(game.ResolutionStack.OfType<ProgramSkillFrame>().All(frame => frame.ParticipantTopView is null) &&
+            Enumerable.Range(0, 4).All(seat => game.CreateSnapshot(seat).PrivateRevealedCards is null),
+            "Confirming the view must retire its frame state and private projection after the physical cards move.");
         Replay(game, registry);
     }
 

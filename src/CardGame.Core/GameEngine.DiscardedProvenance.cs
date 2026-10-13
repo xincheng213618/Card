@@ -75,6 +75,7 @@ public sealed partial class GameEngine
         });
         AdvanceRuntimeProgram(f.Id); return SkillProgramStepOutcome.AwaitChild;
     }
+    [ProgramContinuation(ProgramContinuationKind.Resume, 630)]
     private bool ResumeProvenanceClaim(long id)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame f || f.Id!=id || f.ProvenanceClaim is not { } receipt) return false;

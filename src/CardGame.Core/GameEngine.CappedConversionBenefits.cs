@@ -68,12 +68,14 @@ public sealed partial class GameEngine
         FinishProgramSkill(f, qualified);
     }
 
+    [ProgramContinuation(ProgramContinuationKind.Resume, 430)]
     private bool ResumeCappedConversionBenefit(long id)
     {
         if (GetActiveProgramFrame(id).CappedConversionBenefit is null) return false;
         ContinueCappedConversionBenefit(id); return true;
     }
 
+    [ProgramContinuation(ProgramContinuationKind.Movement, 420)]
     private bool ReturnCappedConversionBenefitMovement(ProgramSkillFrame frame)
     {
         if (frame.CappedConversionBenefit is null) return false;

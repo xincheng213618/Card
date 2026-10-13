@@ -3,7 +3,7 @@ using System.Collections.Frozen;
 namespace CardGame.Core;
 
 /// <summary>
-/// Whole-catalog opt-ins compiled once after registry freezing. They deliberately
+/// Whole-catalog skill/program facts compiled once after registry freezing. They deliberately
 /// include programs not owned or currently enabled in a match: narrowing that
 /// scope would change historical nullable facts and emitted event shapes.
 /// </summary>
@@ -11,7 +11,6 @@ internal sealed class SkillProgramDependencies
 {
     private readonly FrozenSet<SkillProgramTriggerConditionKind> _conditions;
     private readonly FrozenSet<SkillProgramTriggerValueKind> _values;
-    private readonly FrozenSet<SkillProgramEffectOp> _triggerOperations;
     private readonly FrozenSet<SkillProgramEffectOp> _activationOperations;
     private readonly FrozenDictionary<SkillProgramEffectOp, IReadOnlyList<string>> _triggerOperationSkillIds;
     private readonly FrozenSet<SkillProgramTriggerWindow> _windows;
@@ -24,6 +23,13 @@ internal sealed class SkillProgramDependencies
         var definitions = skills.ToArray();
         var programs = definitions.Select(skill => skill.Program).OfType<SkillProgram>().ToArray();
         var triggers = programs.SelectMany(program => program.Triggers).ToArray();
+        RequiredProgramRulesVersion = programs.Select(program => program.MinimumRulesVersion).DefaultIfEmpty(0).Max();
+        HpSensitiveSkillIds = definitions.Where(skill => skill.SuppressionRule is not null || skill.Program?.HpSkillGrants.Count > 0)
+            .Select(skill => skill.Id).ToFrozenSet(StringComparer.Ordinal);
+        HpConditionalCapabilitySkillIds = definitions.Where(skill => skill.Program?.HpSkillGrants.Count > 0)
+            .Select(skill => skill.Id).ToFrozenSet(StringComparer.Ordinal);
+        UsesLordSkillProjection = programs.Any(program => program.LordSkillProjection);
+        UsesGainPhaseQualification = triggers.Any(trigger => trigger.GainPhaseQualification is not null);
         UsesOwnerMarkerCount = programs.Any(program => program.Modifiers.Any(modifier => modifier.ValueExpression == SkillRuleValueExpression.OwnerMarkerCount));
         var resolver = ProgramInstructionResolver.Default;
         _conditions = triggers.SelectMany(trigger => resolver.Features(trigger).ConditionKinds).ToFrozenSet();
@@ -32,27 +38,31 @@ internal sealed class SkillProgramDependencies
             program.Modifiers.Any(modifier => modifier.ValueExpression == SkillRuleValueExpression.CurrentTurnUsedHandSuitCount) ||
             program.Triggers.SelectMany(trigger => trigger.Effects).Any(effect => effect.NumberExpression == SkillProgramNumberExpression.CurrentTurnUsedCardCategoryCount)) ||
             UsesTriggerCondition(SkillProgramTriggerConditionKind.TurnOwnerUsedSameSuitCards);
-        _values = triggers.SelectMany(trigger => resolver.Features(trigger).ValueKinds)
-            .Concat(triggers.Any(trigger => trigger.Effects.Any(effect => effect.Op == SkillProgramEffectOp.AddEndingTurnDamageMarker))
-                ? new[] { SkillProgramTriggerValueKind.TurnOwnerDamageDealtThisTurn }
-                : Array.Empty<SkillProgramTriggerValueKind>()).ToFrozenSet();
-        _triggerOperations = triggers.SelectMany(trigger => trigger.Effects).Select(effect => effect.Op).ToFrozenSet();
-        _activationOperations = programs.SelectMany(program => program.Activations)
-            .SelectMany(activation => activation.Effects).Select(effect => effect.Op).ToFrozenSet();
         _triggerOperationSkillIds = definitions.Where(skill => skill.Program is not null)
             .SelectMany(skill => skill.Program!.Triggers.SelectMany(trigger => trigger.Effects)
                 .Select(effect => (effect.Op, SkillId: skill.Id)))
             .GroupBy(entry => entry.Op).ToFrozenDictionary(group => group.Key,
                 group => (IReadOnlyList<string>)Array.AsReadOnly(group.Select(entry => entry.SkillId)
                     .Distinct(StringComparer.Ordinal).ToArray()));
+        _values = triggers.SelectMany(trigger => resolver.Features(trigger).ValueKinds)
+            .Concat(HasTriggerOperation(SkillProgramEffectOp.AddEndingTurnDamageMarker)
+                ? new[] { SkillProgramTriggerValueKind.TurnOwnerDamageDealtThisTurn }
+                : Array.Empty<SkillProgramTriggerValueKind>()).ToFrozenSet();
+        UsesActualTurnDeathBenefits = UsesTriggerValue(SkillProgramTriggerValueKind.ActualTurnDeathCount) ||
+            triggers.Any(trigger => trigger.Effects.Any(e => e.NumberExpression == SkillProgramNumberExpression.ActualTurnDeathBenefits));
+        _activationOperations = programs.SelectMany(program => program.Activations)
+            .SelectMany(activation => activation.Effects).Select(effect => effect.Op).ToFrozenSet();
         _windows = triggers.Select(trigger => trigger.Window).ToFrozenSet();
         _cardPolicyKinds = programs.SelectMany(program => program.CardPolicies).Select(policy => policy.Kind).ToFrozenSet();
+        UsesActualPlayPhaseUseLedger = HasCardPolicy(SkillProgramCardPolicyKind.FirstActualPlayUseDistanceUnlimited) ||
+            HasCardPolicy(SkillProgramCardPolicyKind.StopUsingAfterTrickOrHpCount) ||
+            _triggerOperationSkillIds.Keys.Concat(_activationOperations).Any(op =>
+                ProgramOperationCatalog.Default.Resolve(op) is IActualPlayPhaseUseLedgerOperation);
         UsesTieredRoundConversions = programs.Any(program => program.ViewAs.Any(rule => rule.TieredRoundConversion is not null));
         UsesRoundDistinctBasicUse = programs.Any(program => program.ViewAs.Any(rule => rule.RoundDistinctBasicUse is not null));
         UsesDynamicRoundUsage = triggers.Any(trigger => trigger.DynamicUsageLimit is not null);
-        UsesRoundTracking = HasTriggerOperation(SkillProgramEffectOp.AdjustOneRoundGainedOrdinaryTrickTarget) || HasTriggerOperation(SkillProgramEffectOp.BeginPhaseNamePrediction) || HasTriggerOperation(SkillProgramEffectOp.DrawThenDiscardSuitsForDyingPeach) || UsesTieredRoundConversions || UsesRoundDistinctBasicUse || UsesDynamicRoundUsage || HasActivationOperation(SkillProgramEffectOp.ScheduleFirstRoundGameUsageRefund) || HasTriggerOperation(SkillProgramEffectOp.UseRoundPricedPileDyingAlcohol) || HasTriggerOperation(SkillProgramEffectOp.DrawEndingPairThenBlockRoundIfUnequal) || HasTriggerOperation(SkillProgramEffectOp.ZecaiRoundSettlement) || HasTriggerOperation(SkillProgramEffectOp.FengjiRoundChoice) || HasTriggerOperation(SkillProgramEffectOp.KanggeHealVictim);
-        _maximumCardPolicyKind = programs.SelectMany(program => program.CardPolicies)
-            .Select(policy => (int?)policy.Kind).Max();
+        UsesRoundTracking = UsesTriggerValue(SkillProgramTriggerValueKind.RoundTurnSeatCount) || HasTriggerOperation(SkillProgramEffectOp.HoldRoundFocusCards) || HasTriggerOperation(SkillProgramEffectOp.AdjustOneRoundGainedOrdinaryTrickTarget) || HasTriggerOperation(SkillProgramEffectOp.BeginPhaseNamePrediction) || HasTriggerOperation(SkillProgramEffectOp.DrawThenDiscardSuitsForDyingPeach) || UsesTieredRoundConversions || UsesRoundDistinctBasicUse || UsesDynamicRoundUsage || HasActivationOperation(SkillProgramEffectOp.ScheduleFirstRoundGameUsageRefund) || HasTriggerOperation(SkillProgramEffectOp.UseRoundPricedPileDyingAlcohol) || HasTriggerOperation(SkillProgramEffectOp.DrawEndingPairThenBlockRoundIfUnequal) || HasTriggerOperation(SkillProgramEffectOp.ZecaiRoundSettlement) || HasTriggerOperation(SkillProgramEffectOp.FengjiRoundChoice) || HasTriggerOperation(SkillProgramEffectOp.KanggeHealVictim);
+        _maximumCardPolicyKind = _cardPolicyKinds.Select(kind => (int?)kind).Max();
         var finalized = triggers.Where(trigger => trigger.Window == SkillProgramTriggerWindow.CardUseTargetsFinalized).ToArray();
         _finalizedCards = (from kind in Enum.GetValues<CardKind>()
             from category in Enum.GetValues<SkillProgramCardCategory>()
@@ -74,6 +84,13 @@ internal sealed class SkillProgramDependencies
     }
 
     internal bool UsesOwnerMarkerCount { get; }
+    internal int RequiredProgramRulesVersion { get; }
+    internal IReadOnlySet<string> HpSensitiveSkillIds { get; }
+    internal IReadOnlySet<string> HpConditionalCapabilitySkillIds { get; }
+    internal bool UsesLordSkillProjection { get; }
+    internal bool UsesGainPhaseQualification { get; }
+    internal bool UsesActualTurnDeathBenefits { get; }
+    internal bool UsesActualPlayPhaseUseLedger { get; }
     internal bool TracksCurrentTurnUseKinds { get; }
     internal bool TracksActualTurnUseOrdinal { get; }
     internal bool UsesDynamicRoundUsage { get; }
@@ -84,7 +101,7 @@ internal sealed class SkillProgramDependencies
     internal bool TracksPlayCardHistory { get; }
     internal bool UsesTriggerCondition(SkillProgramTriggerConditionKind kind) => _conditions.Contains(kind);
     internal bool UsesTriggerValue(SkillProgramTriggerValueKind kind) => _values.Contains(kind);
-    internal bool HasTriggerOperation(SkillProgramEffectOp op) => _triggerOperations.Contains(op);
+    internal bool HasTriggerOperation(SkillProgramEffectOp op) => _triggerOperationSkillIds.ContainsKey(op);
     internal bool HasActivationOperation(SkillProgramEffectOp op) => _activationOperations.Contains(op);
     internal IReadOnlyList<string> GetTriggerOperationSkillIds(SkillProgramEffectOp op) =>
         _triggerOperationSkillIds.GetValueOrDefault(op) ?? Array.Empty<string>();

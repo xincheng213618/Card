@@ -37,7 +37,9 @@ public sealed partial class GameEngine
             if (registered.Count == 0) continue;
             var facts = CaptureProgramTriggerFacts(owner) with
             {
-                HpChangeAmount = change.Amount, HpBeforeChange = change.HpBefore, HpAfterChange = change.HpAfter
+                HpChangeAmount = change.Amount, HpBeforeChange = change.HpBefore, HpAfterChange = change.HpAfter,
+                HealthChangeKind = _contentRegistry.ProgramDependencies.UsesTriggerCondition(SkillProgramTriggerConditionKind.HealthChangeKindIs)
+                    ? change.Kind : null
             };
             var candidates = registered.Where(candidate =>
                 GetProgramTrigger(candidate)
@@ -103,6 +105,8 @@ public sealed partial class GameEngine
                     case PostEventContinuation.Program:
                         AdvanceRuntimeProgram(frame.ResumeFrameId!.Value);
                         break;
+                    case PostEventContinuation.FriendDuelResponse:
+                        ContinueFriendDuelResponse(frame.ResumeFrameId!.Value); break;
                     case PostEventContinuation.AwaitedProgramMovement:
                         if (!TryBeginCardsMovedProgramWindow()) ReturnRuntimeProgramMovement(frame.ResumeFrameId!.Value);
                         break;
@@ -197,6 +201,7 @@ public sealed partial class GameEngine
             var parentMatches = hp.Continuation switch
             {
                 PostEventContinuation.Boundary => parent is null,
+                PostEventContinuation.FriendDuelResponse => parent is FriendDuelResponseFrame friend && friend.Id == hp.ResumeFrameId && hp.Change.ParentFrameId == friend.Id && IsFriendResponseParent(friend),
                 PostEventContinuation.Program => parent is ProgramSkillFrame program && program.Id == hp.ResumeFrameId,
                 PostEventContinuation.AwaitedProgramMovement => parent is ProgramSkillFrame awaited &&
                     awaited.Id == hp.ResumeFrameId && (IsAwaitingProgramMovement(awaited) || IsSelectedForeignCardSlashHpChange(awaited.Id, hp.Change)) &&

@@ -40,8 +40,7 @@ public sealed partial class GameEngine
             var ids = claim.CardIds.Where(id => _cardZones.GetLocation(id) == CardLocation.Processing).ToArray();
             if (ids.Length == 0 || !PindianPolicySourceLive(claim.OwnerSeat, claim.Source, claim.Kind))
             { state = state with { Index = state.Index + 1 }; continue; }
-            frame = frame with { PolicyClaims = state, PindianStep = PindianStep.ClaimResult,
-                ClaimSeats = Array.AsReadOnly(state.Claims.Select(c => c.OwnerSeat).ToArray()), ClaimIndex = state.Index };
+            frame = frame with { PolicyClaims = state, PindianStep = PindianStep.ClaimResult };
             ReplaceRuntimeTop(frame);
             var skill = _contentRegistry.GetSkill(claim.Source.SkillId);
             var choices = new[]
@@ -73,7 +72,7 @@ public sealed partial class GameEngine
                 var card = _cardZones.CardsAt(CardLocation.Processing).Single(c => c.Id == id);
                 MoveCard(card, CardLocation.Processing, CardLocation.Hand(claim.OwnerSeat), new CardMoveReason("program.pindian.claim"));
             }
-        frame = frame with { PolicyClaims = state with { Index = state.Index + 1 }, ClaimIndex = state.Index + 1 };
+        frame = frame with { PolicyClaims = state with { Index = state.Index + 1 } };
         ReplaceRuntimeTop(frame);
         if (!BeginMaximumSlashPindianClaims(frame)) CompletePindian((PindianFrame)_resolutionStack[^1]);
     }
@@ -85,8 +84,7 @@ public sealed partial class GameEngine
             state.Index < 0 || state.Index >= state.Claims.Count ||
             state.Claims.Any(c => c.CardIds is not System.Collections.ObjectModel.ReadOnlyCollection<int> ||
                 c.CardIds.Distinct().Count() != c.CardIds.Count ||
-                c.CardIds.Any(id => id != frame.Result!.SourceCardId && id != frame.Result.OpponentCardId)) ||
-            frame.ClaimIndex != state.Index)
+                c.CardIds.Any(id => id != frame.Result!.SourceCardId && id != frame.Result.OpponentCardId)))
             throw new InvalidOperationException("Pindian maximum claim lost its frozen public identities.");
     }
 }

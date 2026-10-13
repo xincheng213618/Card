@@ -171,7 +171,9 @@ public sealed partial class GameEngine
             var cost = batch.Movements[occurrence];
             return _cardMovements.Contains(cost) && cost.To == CardLocation.DiscardPile && cost.From != cost.To &&
                 GetProgramDiscardSource(cost)?.OwnerSeat == delayedProgram.OwnerSeat && delayed.CardId == cost.CardId && delayed.CardKind == CardKind.SupplyShortage &&
-                delayed.SourceSeat == delayedProgram.OwnerSeat && delayed.TargetSeats.SequenceEqual([target]) && delayedAction.Type == CardActionType.Use &&
+                delayed.SourceSeat == delayedProgram.OwnerSeat &&
+                (delayed.TargetSeats.SequenceEqual([target]) || MatchesSoleTargetProtectionOriginalTargets(delayed.Id, [target])) &&
+                delayedAction.Type == CardActionType.Use &&
                 delayedAction.ActorSeat == delayedProgram.OwnerSeat && delayedAction.ProviderSeat == delayedProgram.OwnerSeat && delayedAction.EffectiveKind == CardKind.SupplyShortage &&
                 delayedAction.PhysicalCards is [{ CardId: var physical }] && physical == cost.CardId && delayedAction.ConversionChain.SequenceEqual([DyingSuitsSource(delayedProgram)]) &&
                 CompleteProgramEventHistory().OfType<CardUseDeclaredEvent>().Count(e => e.ResolutionId == delayed.Id && e.CardId == delayed.CardId && e.CardKind == delayed.CardKind && e.SourceSeat == delayed.SourceSeat) == 1;
@@ -219,7 +221,9 @@ public sealed partial class GameEngine
                 moved.Batch.Movements.Count>0 && moved.Batch.Movements.All(m=>m.CardId==ret.PhysicalCardId && m.From==CardLocation.Hand(use.SourceSeat) && m.To==CardLocation.Processing && m.Reason==CardMoveReasons.Use && m.Sequence>use.EndingHistoricalCostBefore && m.Sequence<=use.EndingHistoricalCostAfter && _cardMovements.Contains(m));
             if(child is HpChangedTriggerWindowFrame hp)return hp.Change.ParentFrameId==use.Id && hp.ResumeFrameId==use.Id && (hp.Continuation==PostEventContinuation.CardUse && hp.CardId==use.CardId || hp.Continuation==PostEventContinuation.HistoricalEndingCardUse && use.EndingHistoricalUseReturn is not null && !use.EndingHistoricalCostDrained);
             if(child is ProgramCardTriggerWindowFrame cards)return cards.ParentFrameId==use.Id && cards.Action.ActionId==use.Action!.ActionId &&
-                cards.Continuation is ProgramCardContinuation.CommittedSimpleCard or ProgramCardContinuation.FinalizedSimpleCard or ProgramCardContinuation.CompletedCard or ProgramCardContinuation.CommittedTrick or ProgramCardContinuation.FinalizedTrick or ProgramCardContinuation.CommittedSlash or ProgramCardContinuation.Slash or ProgramCardContinuation.CompletedSlash;
+                (cards.Continuation == ProgramCardContinuation.FinalizedDelayedPlacement
+                    ? IsExactFinalizedDelayedPlacementWindow(cards)
+                    : cards.Continuation is ProgramCardContinuation.CommittedSimpleCard or ProgramCardContinuation.FinalizedSimpleCard or ProgramCardContinuation.CompletedCard or ProgramCardContinuation.CommittedTrick or ProgramCardContinuation.FinalizedTrick or ProgramCardContinuation.CommittedSlash or ProgramCardContinuation.Slash or ProgramCardContinuation.CompletedSlash);
             if(child is RecoveryReplacementFrame recovery)return RecoveryReplacementFrameRidesOn(recovery,use);
         }
         return DyingSuitsStructuralEdge(parent,child) || HalfHandPaidDamageObserverEdge(index) || PaidTargetObserverEdge(index);
@@ -249,16 +253,8 @@ public sealed partial class GameEngine
     }
     private bool TryAdvanceDyingSuitsSubtree()
     {
-        if(_pendingDecision is not null || DyingSuitsObserverRoot() is null)return false;var top=_resolutionStack.LastOrDefault();
-        if(top is ProgramSkillFrame {AttackAttempt:not null} attack)
-        {if(CurrentDamageAttempt?.ResolutionId!=attack.Id || ActiveDying is not null || attack.AttackReturn is null || _resolutionStack.Any(f=>f is DamageFrame damage && damage.ParentFrameId==attack.Id ||
-            f is BeforeDamageProgramWindowFrame before && (before.ContinuationAttackResolutionId ?? before.ParentFrameId)==attack.Id)) return false;
-            CompleteDamageAttack(new ProgramAttackHandle(this,attack.Id));AdvanceRulesAndPublishState();return true;}
-        if(top is CardUseFrame {DyingSuitsPeachReturn:not null})return false;
-        if(top is ProgramSkillFrame or CardsMovedTriggerWindowFrame or HpChangedTriggerWindowFrame or ProgramLifecycleTriggerWindowFrame or ProgramCardTriggerWindowFrame or BeforeDamageProgramWindowFrame or ProgramDeathTriggerWindowFrame or ProgramKillTriggerWindowFrame)
-        {AdvanceRuntimeFrame(top.Id);AdvanceRulesAndPublishState();return true;}
-        if(top is DeathFrame death){ContinueDeathResolution(death.Id);AdvanceRulesAndPublishState();return true;}
-        return false;
+        if (_pendingDecision is not null || DyingSuitsObserverRoot() is null) return false;
+        return TryAdvanceObserverSubtree(advanceRecoveryReplacement: false);
     }
     private bool AssertDyingSuitsSubtree()
     {

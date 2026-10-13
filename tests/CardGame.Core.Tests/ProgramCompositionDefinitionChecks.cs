@@ -121,6 +121,7 @@ internal static class ProgramCompositionDefinitionChecks
 
     public static void MalformedNodesFailBeforeExecution()
     {
+        OwnerOnlyParsersPreserveStrictValidation();
         var missing = new[]
         {
             """{"op":"draw","target":"owner"}""",
@@ -412,6 +413,40 @@ internal static class ProgramCompositionDefinitionChecks
             "at least one effective card kind");
     }
 
+    private static void OwnerOnlyParsersPreserveStrictValidation()
+    {
+        // Cover ordinary, damage-context and inherited turn-effect descriptors
+        // through the same catalog entry used by the rules loader.
+        foreach (var op in new[] { SkillProgramEffectOp.ProtectOtherSoleCardTarget, SkillProgramEffectOp.ResolveUnequalHandHpEnding,
+                     SkillProgramEffectOp.RecordNamedPrivateAmbush, SkillProgramEffectOp.NullifyMatchingHandUse, SkillProgramEffectOp.ResolveDamageSourceHandChoice,
+                     SkillProgramEffectOp.AdjustTargetedOrdinaryTrick, SkillProgramEffectOp.LuochongResolve, SkillProgramEffectOp.PreventCurrentDamage,
+                     SkillProgramEffectOp.ScheduleFirstRoundGameUsageRefund })
+        {
+            var operation = JsonNamingPolicy.CamelCase.ConvertName(op.ToString());
+            string Node(string properties) => $$"""{"op":"{{operation}}",{{properties}}}""";
+            var defaultCondition = Parse(ProgramOperationCatalog.Default, Node("\"target\":\"owner\""));
+            var explicitAlways = Parse(ProgramOperationCatalog.Default,
+                Node("\"target\":\"owner\",\"condition\":{\"kind\":\"always\"}"));
+            Require(defaultCondition.Op == op && defaultCondition.Target == SkillProgramEffectTarget.Owner &&
+                    defaultCondition.Amount == 0 && defaultCondition.Condition.Kind == SkillProgramConditionKind.Always &&
+                    Project(defaultCondition) == Project(explicitAlways),
+                $"The owner-only parser changed its default or explicit always result for {op}.");
+            Reject(() => Parse(ProgramOperationCatalog.Default, Node("\"target\":\"selectedTarget\"")),
+                "Invalid skill program at fixture.effects[0]: operation requires owner.");
+            Reject(() => Parse(ProgramOperationCatalog.Default,
+                Node("\"target\":\"owner\",\"condition\":{\"kind\":\"wounded\"}")),
+                "Invalid skill program at fixture.effects[0].condition: resource operations must be always.");
+            Reject(() => Parse(ProgramOperationCatalog.Default, Node("\"target\":\"owner\",\"amount\":0")),
+                "Invalid skill program at fixture.effects[0].amount: unsupported property.");
+            Reject(() => Parse(ProgramOperationCatalog.Default,
+                Node("\"target\":\"selectedTarget\",\"condition\":{\"kind\":\"wounded\"},\"amount\":0")),
+                "Invalid skill program at fixture.effects[0].amount: unsupported property.");
+            Reject(() => Parse(ProgramOperationCatalog.Default,
+                Node("\"target\":\"selectedTarget\",\"condition\":{\"kind\":\"wounded\"}")),
+                "Invalid skill program at fixture.effects[0]: operation requires owner.");
+        }
+    }
+
     private static SkillProgramEffect Parse(ProgramOperationCatalog catalog, string json)
     {
         using var document = JsonDocument.Parse(json);
@@ -487,9 +522,27 @@ internal static class ProgramCompositionDefinitionChecks
 
         var explicitNone = fourSuitPartition.Replace("\"spade\",\"club\",\"diamond\"", "\"spade\",\"club\",\"diamond\",\"none\"", StringComparison.Ordinal);
         var complete = Load("fixture:complete-domain", Rules("fixture:complete-domain", explicitNone, Entries(explicitNone, false)));
-        var combined = ContentRegistry.Build(new CardDomainPackage([complete, generator], CardKind.GeneralWeapon));
+        var concurrentRegistries = new ContentRegistry[4];
+        Parallel.For(0, concurrentRegistries.Length, index => concurrentRegistries[index] =
+            ContentRegistry.Build(new CardDomainPackage([complete, generator], CardKind.GeneralWeapon)));
+        var combined = concurrentRegistries[0];
         Require(combined.Skills.ContainsKey(complete.Id) && combined.Skills.ContainsKey(generator.Id),
             "A partition explicitly covering suitless cards must load and remain safe when combined with generated equipment.");
+        foreach (var registry in concurrentRegistries.Skip(1))
+            Require(registry.ContentHash == combined.ContentHash && !ReferenceEquals(registry.Skills, combined.Skills) &&
+                    ReferenceEquals(registry.Skills[complete.Id].Program, complete),
+                "Concurrent registries may share an immutable program proof but must keep isolated registered tables and identical fingerprints.");
+        var rebuilt = ContentRegistry.Build(new CardDomainPackage([complete, generator], CardKind.GeneralWeapon));
+        Require(rebuilt.ContentHash == combined.ContentHash && !ReferenceEquals(rebuilt.Skills, combined.Skills),
+            "A later build of the same programs must preserve the fingerprint and registry isolation.");
+
+        var sameIdOrdinary = Load(complete.Id, Rules(complete.Id, fourSuitPartition, Entries(fourSuitPartition, false)));
+        Require(!ReferenceEquals(sameIdOrdinary, complete) && sameIdOrdinary.GameplayHash != complete.GameplayHash,
+            "The conflicting fixture must be a new program with the same id and different rules.");
+        _ = ContentRegistry.Build(new CardDomainPackage([sameIdOrdinary]));
+        for (var retry = 0; retry < 2; retry++)
+            Reject(() => ContentRegistry.Build(new CardDomainPackage([sameIdOrdinary, generator], CardKind.GeneralWeapon)), "more than once");
+        _ = ContentRegistry.Build(new CardDomainPackage([sameIdOrdinary]));
 
         var sameProgramGeneration = fourSuitPartition.Replace(
             "[{\"op\":\"revealTopCards\"", "[{\"op\":\"equipSampledGenerals\",\"target\":\"owner\",\"amount\":1},{\"op\":\"revealTopCards\"", StringComparison.Ordinal);

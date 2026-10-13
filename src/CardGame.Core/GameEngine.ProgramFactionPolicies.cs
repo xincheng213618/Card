@@ -5,7 +5,7 @@ public sealed partial class GameEngine
 
 
     private FactionResponsePolicySource? GetFactionResponsePolicy(CharacterState owner, CardKind requiredKind) =>
-        CardPolicies(owner, SkillProgramCardPolicyKind.FactionResponseRequest, requiredKind: requiredKind)
+        GetDemonDodgeRequest(owner, requiredKind) ?? CardPolicies(owner, SkillProgramCardPolicyKind.FactionResponseRequest, requiredKind: requiredKind)
             .Where(item => GetFactionProviderSeats(owner.Seat, item.Policy.FactionId!).Count > 0)
             .Where(item => item.Policy.DiscardCost == 0 || GetHand(owner).Count + GetEquipment(owner).Count >= item.Policy.DiscardCost)
             .Select(item => new FactionResponsePolicySource(item.Source.SkillId, item.Source.SkillInstanceId,
@@ -13,6 +13,9 @@ public sealed partial class GameEngine
 
     private string FactionPolicyName(FactionResponsePolicySource source) =>
         _contentRegistry!.GetSkill(source.SkillId).Name;
+
+    private string FactionProviderDescription(FactionResponsePolicySource source) =>
+        source.FactionId == "magic-any" ? "其他角色" : $"其他{GetFactionName(source.FactionId)}势力角色";
 
     private IReadOnlyList<int> GetFactionDefenseCandidateSeats(int ownerSeat) =>
         GetFactionResponsePolicy(_players[ownerSeat], CardKind.Dodge) is { } source

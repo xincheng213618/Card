@@ -88,9 +88,13 @@ internal sealed class SelectAndMoveOwnedCardProgramOperationDescriptor : Program
             r.RequiredParticipantReference("targetRef").Kind != ProgramParticipantRef.SelectedTarget ||
             !awaitMovementTriggers || skipIfNoCards))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}: public transfer requires the owner's single hand card, a selected recipient, resultBind and movement continuation.");
+        var providerReward = chooserRef.Kind == ProgramParticipantRef.CardProvider &&
+            cardOwnerRef.Kind == ProgramParticipantRef.Owner &&
+            r.Has("targetRef") && r.RequiredParticipantReference("targetRef").Kind == ProgramParticipantRef.CardProvider &&
+            zones.All(zone => zone is CardZoneKind.Hand or CardZoneKind.Equipment) && awaitMovementTriggers;
         if (allowSameOwnerHandReturn && (destination != SkillProgramCardDestination.SelectedTargetHand ||
-            zones.Any(zone => zone is not (CardZoneKind.Equipment or CardZoneKind.Judgment)) ||
-            r.RequiredParticipantReference("targetRef") != cardOwnerRef))
+            !providerReward && (zones.Any(zone => zone is not (CardZoneKind.Equipment or CardZoneKind.Judgment)) ||
+            r.RequiredParticipantReference("targetRef") != cardOwnerRef)))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}: same-owner hand returns require matching cardOwnerRef/targetRef and public non-hand source zones.");
         if (coverageResultBind is not null && (zones.Count != 1 || zones[0] != CardZoneKind.Equipment ||
             destination is not (SkillProgramCardDestination.SelectedTargetHand or SkillProgramCardDestination.DiscardPile)))

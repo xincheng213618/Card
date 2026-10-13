@@ -12,9 +12,8 @@ public sealed partial class GameEngine
 {
     private sealed record NamedNextSlashReserve(int OwnerSeat, string SkillId, int TurnNumber, int TurnSeat, int Amount);
     private readonly List<NamedNextSlashReserve> _namedNextSlashReserves = [];
-    private bool? _hasNextSlashDamageCapability;
-    private bool HasNextSlashDamageCapability => _hasNextSlashDamageCapability ??= _contentRegistry.Skills.Values.Any(skill =>
-        skill.Program?.Triggers.Any(trigger => trigger.Effects.Any(effect => effect.Op == SkillProgramEffectOp.ReserveNextSlashDamage)) == true);
+    private bool HasNextSlashDamageCapability => _contentRegistry.ProgramDependencies
+        .HasTriggerOperation(SkillProgramEffectOp.ReserveNextSlashDamage);
 
     private sealed partial class ProgramSkillHost : INextSlashProgramHost
     {

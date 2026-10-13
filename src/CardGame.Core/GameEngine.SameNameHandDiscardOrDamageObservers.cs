@@ -114,33 +114,26 @@ public sealed partial class GameEngine
             !IsSameNameHandDiscardOrDamageChoice(f, prompt)) throw new InvalidOperationException("A same-name demand lost its exact private published choice.");
     }
 
-    private bool SameNameHandObserverSuffix(int index)
+    private bool SameNameHandObserverSuffix(int index) => HasObserverSuffix(index,
+        static (engine, child) => engine.IsSameNameHandObserverEdge(child),
+        static (engine, child, dying) => engine.IsSuspendedOrPaidRescueObserverSuffix(child, dying) ||
+            engine.TieredRoundZeroDyingRescueRide(child, dying) || engine.DrawFundedDistinctBasicDyingRescueRide(child, dying));
+
+    private bool IsSameNameHandObserverEdge(int child)
     {
-        for (var child = index + 2; child < _resolutionStack.Count; child++)
-        {
-            var parent = _resolutionStack[child - 1]; var current = _resolutionStack[child];
-            if (current is ProgramLifecycleTriggerWindowFrame skills && parent is ProgramSkillFrame changed &&
-                skills.Window == SkillProgramTriggerWindow.SkillsChanged && skills.ResumeProgramFrameId == changed.Id &&
-                skills.Continuation == ProgramLifecycleContinuation.ResumeParentProgram && skills.CandidateIndex >= 0 && skills.CandidateIndex <= skills.Candidates.Count) continue;
-            if (!RoundGainedEquipmentDrawStructuralEdge(parent, current) && !JoinedTrickDamageRewardStructuralEdge(parent, current) && !PairedColorDispositionStructuralEdge(parent, current) && !SameNameHandStructuralEdge(parent, current) && !ResponseCompletionStructuralEdge(parent, current) && !CardSupplyCompletionStructuralEdge(parent, current) &&
-                !CompletedUndamagedTargetRevealStructuralEdge(parent, current) && !RecipientCategoryMarkStructuralEdge(parent, current) && !OffTurnUsedCardGiftStructuralEdge(parent, current) && !OriginalHandEntityStructuralEdge(parent, current) &&
-                !OutsidePhaseDrawDiscardStructuralEdge(parent, current) && !DyingSuitsStructuralEdge(parent, current) &&
-                !HalfHandPaidDamageObserverEdge(child) && !PaidTargetObserverEdge(child)) return false;
-            if (current is DyingFrame dying && child + 1 < _resolutionStack.Count &&
-                ((IsOriginalDyingSuspendedByDyingSuits(dying) || IsOriginalDyingSuspendedByRecipientCategoryMark(dying)) || IsOriginalDyingSuspendedByOwnedDeathBenefit(dying) ||
-                 IsPaidHandRepaymentProgramAlcoholRide(child, dying) || IsPaidHandRepaymentRescueRide(child, dying) ||
-                 PolicyCounterspellVirtualAlcoholRide(child, dying) || PaidObserverDamageVirtualAlcoholRide(child, dying) ||
-                 TieredRoundZeroDyingRescueRide(child, dying) || DrawFundedDistinctBasicDyingRescueRide(child, dying))) break;
-        }
-        return true;
+        var parent = _resolutionStack[child - 1];
+        var current = _resolutionStack[child];
+        return IsObserverSkillsChangedEdge(parent, current) || RoundGainedEquipmentDrawStructuralEdge(parent, current) ||
+            JoinedTrickDamageRewardStructuralEdge(parent, current) || PairedColorDispositionStructuralEdge(parent, current) ||
+            SameNameHandStructuralEdge(parent, current) || ResponseCompletionStructuralEdge(parent, current) ||
+            CardSupplyCompletionStructuralEdge(parent, current) || CompletedUndamagedTargetRevealStructuralEdge(parent, current) ||
+            RecipientCategoryMarkStructuralEdge(parent, current) || OffTurnUsedCardGiftStructuralEdge(parent, current) ||
+            OriginalHandEntityStructuralEdge(parent, current) || OutsidePhaseDrawDiscardStructuralEdge(parent, current) ||
+            DyingSuitsStructuralEdge(parent, current) || HalfHandPaidDamageObserverEdge(child) || PaidTargetObserverEdge(child);
     }
-    private ProgramSkillFrame? SameNameHandObserverRoot()
-    {
-        for (var index = 0; index + 1 < _resolutionStack.Count; index++)
-            if (_resolutionStack[index] is ProgramSkillFrame root && SameNameHandFirstChild(root, _resolutionStack[index + 1]) &&
-                SameNameHandObserverSuffix(index)) return root;
-        return null;
-    }
+    private ProgramSkillFrame? SameNameHandObserverRoot() => FindProgramObserverRoot(
+        static (engine, root, child) => engine.SameNameHandFirstChild(root, child),
+        static (engine, index) => engine.SameNameHandObserverSuffix(index));
     private ProgramCardTriggerWindowFrame? ResponseCompletionObserverRoot()
     {
         var healthCursor = ProjectTypedResponseCompletionHealthCursor();
@@ -179,18 +172,6 @@ public sealed partial class GameEngine
     private bool TryAdvanceSameNameHandSubtree()
     {
         if (_pendingDecision is not null || SameNameHandObserverRoot() is null && ResponseCompletionObserverRoot() is null && CardSupplyCompletionObserverRoot() is null) return false;
-        var top = _resolutionStack.LastOrDefault();
-        if (top is ProgramSkillFrame { AttackAttempt: not null } attack)
-        {
-            if (CurrentDamageAttempt?.ResolutionId != attack.Id || ActiveDying is not null || attack.AttackReturn is null ||
-                _resolutionStack.Any(f => f is DamageFrame damage && damage.ParentFrameId == attack.Id || f is BeforeDamageProgramWindowFrame before &&
-                    (before.ContinuationAttackResolutionId ?? before.ParentFrameId) == attack.Id)) return false;
-            CompleteDamageAttack(new ProgramAttackHandle(this, attack.Id)); AdvanceRulesAndPublishState(); return true;
-        }
-        if (top is ProgramSkillFrame or CardsMovedTriggerWindowFrame or HpChangedTriggerWindowFrame or ProgramLifecycleTriggerWindowFrame or
-            ProgramCardTriggerWindowFrame or BeforeDamageProgramWindowFrame or ProgramDeathTriggerWindowFrame or ProgramKillTriggerWindowFrame or RecoveryReplacementFrame)
-        { AdvanceRuntimeFrame(top.Id); AdvanceRulesAndPublishState(); return true; }
-        if (top is DeathFrame death) { ContinueDeathResolution(death.Id); AdvanceRulesAndPublishState(); return true; }
-        return false;
+        return TryAdvanceObserverSubtree(advanceRecoveryReplacement: true);
     }
 }

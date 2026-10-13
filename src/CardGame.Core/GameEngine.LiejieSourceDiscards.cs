@@ -230,6 +230,7 @@ public sealed partial class GameEngine
         FinishProgramSkill(frame, true);
     }
 
+    [ProgramContinuation(ProgramContinuationKind.Resume, 690)]
     private bool ResumeLiejieSourceDiscard(long id)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame frame || frame.Id != id || frame.LiejieDiscardPending is not { Paid: true }) return false;
@@ -242,6 +243,7 @@ public sealed partial class GameEngine
         CompleteLiejieSourceDiscard(frame, frame.LiejieDiscardPending.SelectedIds.Count);
         return true;
     }
+    [ProgramContinuation(ProgramContinuationKind.Movement, 170)]
     private bool ReturnLiejieSourceDiscardMovement(ProgramSkillFrame frame)
     {
         if (frame.LiejieDiscardPending is not { Paid: true }) return false;
@@ -369,28 +371,9 @@ public sealed partial class GameEngine
             recovery.Attempt.Completion.Producer == RecoveryAttemptProducer.SilverLion && recovery.Attempt.Completion.MoveReason?.Value == costReason;
     }
 
-    private ProgramSkillFrame? LiejieSourceDiscardObserverRoot()
-    {
-        for (var index = 0; index + 1 < _resolutionStack.Count; index++)
-        {
-            if (_resolutionStack[index] is not ProgramSkillFrame root || !LiejieSourceDiscardFirstChild(root, _resolutionStack[index + 1])) continue;
-            var exact = true;
-            for (var child = index + 2; child < _resolutionStack.Count; child++)
-            {
-                if (_resolutionStack[child] is ProgramLifecycleTriggerWindowFrame changed && _resolutionStack[child - 1] is ProgramSkillFrame owner &&
-                    changed.Window == SkillProgramTriggerWindow.SkillsChanged && changed.ResumeProgramFrameId == owner.Id &&
-                    changed.Continuation == ProgramLifecycleContinuation.ResumeParentProgram && changed.CandidateIndex >= 0 && changed.CandidateIndex <= changed.Candidates.Count) continue;
-                if (!DyingSuitsStructuralEdge(_resolutionStack[child - 1], _resolutionStack[child]) &&
-                    !HalfHandPaidDamageObserverEdge(child) && !PaidTargetObserverEdge(child)) { exact = false; break; }
-                if (_resolutionStack[child] is DyingFrame dying && child + 1 < _resolutionStack.Count &&
-                    ((IsOriginalDyingSuspendedByDyingSuits(dying) || IsOriginalDyingSuspendedByRecipientCategoryMark(dying)) || IsOriginalDyingSuspendedByOwnedDeathBenefit(dying) ||
-                     IsPaidHandRepaymentProgramAlcoholRide(child, dying) || IsPaidHandRepaymentRescueRide(child, dying) ||
-                     PolicyCounterspellVirtualAlcoholRide(child, dying) || PaidObserverDamageVirtualAlcoholRide(child, dying))) break;
-            }
-            if (exact) return root;
-        }
-        return null;
-    }
+    private ProgramSkillFrame? LiejieSourceDiscardObserverRoot() => FindProgramObserverRoot(
+        static (engine, root, child) => engine.LiejieSourceDiscardFirstChild(root, child),
+        static (engine, index) => engine.HasPaidDamageObserverSuffix(index));
 
     private bool IsLiejieSourceDiscardProgramDying() => ActiveDying is { } dying && LiejieSourceDiscardObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);

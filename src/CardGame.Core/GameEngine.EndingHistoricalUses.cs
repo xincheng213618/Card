@@ -105,6 +105,7 @@ public sealed partial class GameEngine
         UpdateLifecycleCardUse(id,u=>u with {EndingHistoricalCostAfter=RecipientContestSequence});
         AdvanceEventRulesAndQueueFact(new EndingHistoricalUseIssuedEvent(ret)); ContinueHistoricalEndingPayment(id);
     }
+    [ProgramContinuation(ProgramContinuationKind.Resume, 420)]
     private bool ResumeEndingHistoricalUses(long id)
     {
         if(_resolutionStack.LastOrDefault() is not ProgramSkillFrame f || f.Id!=id || f.EndingHistoricalUses is not {} r)return false;
@@ -124,7 +125,7 @@ public sealed partial class GameEngine
         {
             var targets=LifecycleCardUse(id)!.TargetSeats;
             var nuzhan=GetNuzhanModifiers(id,actor);
-            var damage=(actor.HasAlcoholEffect ? 2 : 1)+nuzhan.DamageBonus;
+            var damage=(1 + actor.AlcoholDamageBonus)+nuzhan.DamageBonus;
             CaptureProgramAlcoholConsumption(id,actor);actor.HasAlcoholEffect=false;
             // Ending is outside Play: issue a genuine Use without consuming a
             // finite Play quota. The mature ordered owner drains every target.

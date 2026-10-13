@@ -142,6 +142,7 @@ public sealed partial class GameEngine
     private bool IsRecipientConsequencesMovement(ProgramSkillFrame f, SkillProgramEffect? e, ProgramMovementContinuation pending) =>
         f.BlackGiftContest is { Stage: BlackGiftContestStage.GiftPaid or BlackGiftContestStage.DiscardPaid or BlackGiftContestStage.Pindian } &&
         e?.Op == SkillProgramEffectOp.GiveBlackHandAndResolveRecipientContest && pending == f.PendingMovementContinuation && ValidBlackGiftContest(f);
+    [ProgramContinuation(ProgramContinuationKind.Movement, 410)]
     private bool ReturnRecipientConsequencesMovement(ProgramSkillFrame f)
     {
         if (f.BlackGiftContest is null || f.PendingMovementContinuation is null) return false;

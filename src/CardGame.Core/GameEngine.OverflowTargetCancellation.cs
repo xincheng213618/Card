@@ -137,6 +137,7 @@ public sealed partial class GameEngine
         TryBeginHpChangedProgramWindow(frame.Id, PostEventContinuation.AwaitedProgramMovement) ||
         TryBeginCardsMovedProgramWindow(frame.Id) || TryBeginAdvancedSkillsChanged(frame.Id);
 
+    [ProgramContinuation(ProgramContinuationKind.Resume, 130)]
     private bool ResumeOverflowTargetCancellation(long id)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame frame || frame.Id != id || frame.OverflowTargetCancellation is not { } receipt) return false;
@@ -148,6 +149,7 @@ public sealed partial class GameEngine
         return true;
     }
 
+    [ProgramContinuation(ProgramContinuationKind.Movement, 110)]
     private bool ReturnOverflowTargetCancellation(ProgramSkillFrame frame)
     {
         if (frame.OverflowTargetCancellation is null || frame.PendingMovementContinuation is null) return false;
@@ -201,6 +203,5 @@ public sealed partial class GameEngine
     private sealed partial class ProgramSkillHost : IOverflowTargetCancellationHost
     {
         public SkillProgramStepOutcome BeginOverflowTargetCancellation(ProgramSkillFrame frame) => engine.BeginOverflowTargetCancellation(frame);
-        public bool CanContinueOverflowTargetCancellation(ProgramSkillFrame frame) => engine.CanContinueOverflowTargetCancellation(frame);
     }
 }

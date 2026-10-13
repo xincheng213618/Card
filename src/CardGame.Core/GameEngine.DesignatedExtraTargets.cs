@@ -152,7 +152,7 @@ public sealed partial class GameEngine
                 ? $"额外令 {_players[pair[0]].Name} 对 {_players[pair[1]].Name} 使用杀"
                 : $"额外指定 {_players[pair[0]].Name}", [], pair, Parameters())).ToList();
         choices.Add(new(new($"designated-extra-target.{frame.Id}.decline"), "不追加目标", [], [], Parameters()));
-        return Array.AsReadOnly(choices.Select(DesignatedExtraTargetDraft.FreezeChoice).ToArray());
+        return Array.AsReadOnly(choices.Select(PromptChoiceProjection.Freeze).ToArray());
     }
 
     private SkillProgramStepOutcome AddOneDistanceFreeCurrentUseTarget(ProgramSkillFrame supplied)
@@ -304,6 +304,7 @@ public sealed partial class GameEngine
     }
 
     private bool HasDesignatedExtraTargetTail(CardUseFrame use) =>
+        HasDamageTargetBudgetTail(use) || HasAdjacentRedTargetTail(use) ||
         CompleteProgramEventHistory().OfType<DesignatedExtraTargetResolvedEvent>().Any(e =>
             IsDesignatedExtraTargetFact(use, e, e.OriginalTargetSeats) && use.Action!.TargetSeats.Count >= e.ResultTargetSeats.Count &&
             use.Action.TargetSeats.Take(e.ResultTargetSeats.Count).SequenceEqual(e.ResultTargetSeats) &&
@@ -408,20 +409,21 @@ public sealed partial class GameEngine
         {
             if (use.CardKind == CardKind.Peach)
             {
-                if (!TryQueueRecoveryReplacement(id, actor.Seat, target.Seat, continuation.RecoveryAmount, new(RecoveryAttemptProducer.VirtualBasic)))
+                var recoveryAmount = ApplyIssuedCardRecoveryModifiers(id, actor.Seat, target.Seat, continuation.RecoveryAmount);
+                if (!TryQueueRecoveryReplacement(id, actor.Seat, target.Seat, recoveryAmount, new(RecoveryAttemptProducer.VirtualBasic)))
                 {
-                    var recovery = BeginRecovery(id, actor.Seat, target.Seat, continuation.RecoveryAmount);
+                    var recovery = BeginRecovery(id, actor.Seat, target.Seat, recoveryAmount);
                     try
                     {
-                        target.Hp = Math.Min(target.MaxHp, target.Hp + continuation.RecoveryAmount);
-                        AdvanceEventRulesAndQueueFact(new RecoveryAppliedEvent(actor.Seat, target.Seat, continuation.RecoveryAmount, target.Hp));
+                        target.Hp = Math.Min(target.MaxHp, target.Hp + recoveryAmount);
+                        AdvanceEventRulesAndQueueFact(new RecoveryAppliedEvent(actor.Seat, target.Seat, recoveryAmount, target.Hp));
                     }
                     finally { PopResolutionFrame(recovery, ResolutionFrameKind.Recovery); }
                 }
             }
             else
             {
-                target.HasAlcoholEffect = true;
+                ApplyExtraCapableAlcoholEffect(id, target);
                 AdvanceEventRulesAndQueueFact(new AlcoholAppliedEvent(id, target.Seat, 1));
             }
         }

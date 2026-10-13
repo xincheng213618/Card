@@ -64,13 +64,7 @@ internal sealed class ScheduleFirstRoundGameUsageRefundDescriptor : TurnEffectPr
     public override ISkillProgramEffectHandler Handler { get; } = new ScheduleFirstRoundGameUsageRefundHandler();
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GrantTurnRuleModifier,
         static (_, context) => context.PublicControlValue(2d));
-    public override SkillProgramEffect Parse(ProgramOperationNodeReader reader)
-    {
-        reader.AllowOnly("op", "target", "condition");
-        var effect = new SkillProgramEffect(Op, FilterBoundCardsProgramOperationDescriptor.Owner(reader), 0, reader.Condition());
-        RequireAlways(effect, reader.Path);
-        return effect;
-    }
+    public override SkillProgramEffect Parse(ProgramOperationNodeReader reader) => ParseOwnerAlways(reader);
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) => [new RequireFirstLimitedActivation()];
 }
 public sealed class ScheduleFirstRoundGameUsageRefundHandler : ISkillProgramEffectHandler

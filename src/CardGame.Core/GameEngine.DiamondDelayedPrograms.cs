@@ -113,6 +113,7 @@ public sealed partial class GameEngine
         if (AwaitProgramBoundCardMovements(frame.Id, frame.OwnerSeat) == SkillProgramStepOutcome.Continue) AdvanceRuntimeProgram(frame.Id);
     }
 
+    [ProgramContinuation(ProgramContinuationKind.Resume, 860)]
     private bool ResumeDiamondDelayed(long frameId)
     {
         var frame = GetActiveProgramFrame(frameId); if (frame.DiamondDelayed is not { } d) return false;

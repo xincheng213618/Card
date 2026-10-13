@@ -107,7 +107,7 @@ public sealed partial class GameEngine
             }
         }
         var used = state.TopCardIds.Concat(state.BottomCardIds).ToHashSet();
-        if (state.ViewedCardIds.Any(id => !_cardZones.CardsAt(CardLocation.DrawPile).Any(card => card.Id == id)))
+        if (state.ViewedCardIds.Any(id => !_cardZones.Contains(CardLocation.DrawPile, id)))
             throw new InvalidOperationException("Top ordering cards changed before commitment.");
         var action = choice.Parameters.GetValueOrDefault("action");
         if (action == "finish-top" && state.RequiredTopCount is null && !state.ChoosingBottom && choice.Cards.Count == 0)

@@ -8,6 +8,7 @@ public sealed partial class GameEngine
             effect?.Op == SkillProgramEffectOp.DiscardDrawAndOfferUniqueHpPeer && pending.SubjectSeat == peer.ChooserSeat && ValidUniqueHpPeer(f) ||
          f.RecipientContest is { Stage: RecipientContestStage.GiftChildren } && effect?.Op == SkillProgramEffectOp.GiveAllHandAndStartRecipientPindian &&
             pending.SubjectSeat == f.OwnerSeat && ValidRecipientContest(f));
+    [ProgramContinuation(ProgramContinuationKind.Movement, 400)]
     private bool ReturnRecipientContestMovement(ProgramSkillFrame f)
     {
         if (f.UniqueHpPeer is null && f.RecipientContest is null || f.PendingMovementContinuation is not { } pending) return false;

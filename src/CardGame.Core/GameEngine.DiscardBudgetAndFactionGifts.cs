@@ -59,6 +59,7 @@ public sealed partial class GameEngine
             ? $"请选择至多 {d.Budget} 名角色。已选 {d.Selected!.Count} 名。"
             : $"请选择体力值合计为 {d.Budget} 的角色。已选体力合计 {d.Participants.Where(p=>d.Selected!.Contains(p.Seat)).Sum(p=>p.Hp)}。",DiscardBudgetChoices(f));
     }
+    [ProgramContinuation(ProgramContinuationKind.Resume, 970)]
     private bool ResumeBudgetGift(long id)
     {
         var f=GetActiveProgramFrame(id);

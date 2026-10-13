@@ -94,6 +94,7 @@ public sealed partial class GameEngine
         if (AwaitProgramBoundCardMovements(f.Id, f.OwnerSeat) == SkillProgramStepOutcome.Continue) ResumeOwnTrickDraw(f.Id);
         return SkillProgramStepOutcome.AwaitChild;
     }
+    [ProgramContinuation(ProgramContinuationKind.Resume, 490)]
     private bool ResumeOwnTrickDraw(long id)
     {
         var f = GetActiveProgramFrame(id); if (f.OwnTrickDraw is not { } r) return false;
@@ -111,6 +112,7 @@ public sealed partial class GameEngine
         }
         FinishProgramSkill(GetActiveProgramFrame(id), completed: true); return true;
     }
+    [ProgramContinuation(ProgramContinuationKind.Movement, 470)]
     private bool ReturnOwnTrickDrawMovement(ProgramSkillFrame frame)
     {
         if (frame.OwnTrickDraw is null) return false;

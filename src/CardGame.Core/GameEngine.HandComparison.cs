@@ -4,7 +4,8 @@ public sealed partial class GameEngine
  private IEnumerable<IGameEvent> HandComparisonHistory()=>_events.Select(e=>e.Payload).Concat(_pendingEvents);
  private int? HandComparisonPhaseLimit(CharacterState owner,SkillProgram program,SkillProgramActivation activation,string? instanceId = null)
  {
-  var op=activation.Effects.SingleOrDefault(e=>e.Op==SkillProgramEffectOp.CompareSelectedHandWithHpHand);
+  var op=ProgramInstructionResolver.Default.Features(activation).ForOperation(SkillProgramEffectOp.CompareSelectedHandWithHpHand)
+   .SingleOrDefault(e=>e.Op==SkillProgramEffectOp.CompareSelectedHandWithHpHand);
   if(op is null)return activation.UsesPerPhase;
   var instance=instanceId??GetRuntimeSkillInstanceId(owner,program.Id);
   return HandComparisonHistory().OfType<ProgramHandComparisonResolvedEvent>().Any(e=>e.OwnerSeat==owner.Seat&&e.SkillId==program.Id&&e.SkillInstanceId==instance&&e.StateId==op.StateId&&e.TurnNumber==_turnNumber&&e.RankMatched)?2:1;
@@ -50,8 +51,8 @@ public sealed partial class GameEngine
   if(action.Kind==LegalActionKind.BorrowedSword)return action.TargetSeats.Where((_,index)=>index%2==0).ToArray();
   return action.ConversionSource is{} source&&ViewAsRule(source)?.ExcludeOwnerEffects==true?action.TargetSeats:GetDeclaredCardTargets(actor,action.Kind,action.TargetSeats).ToArray();
  }
- private bool CanActivateHandComparison(CharacterState owner,SkillProgramActivation activation)=>!activation.Effects.Any(e=>e.Op==SkillProgramEffectOp.CompareSelectedHandWithHpHand)||GetHand(owner).Count>0&&_players.Any(p=>p.IsAlive&&p.Seat!=owner.Seat&&p.Hp>0&&GetHand(p).Count>0);
- private bool IsHandComparisonTarget(SkillProgramActivation activation,CharacterState p)=>!activation.Effects.Any(e=>e.Op==SkillProgramEffectOp.CompareSelectedHandWithHpHand)||p.Hp>0&&GetHand(p).Count>0;
+ private bool CanActivateHandComparison(CharacterState owner,SkillProgramActivation activation)=>!ProgramInstructionResolver.Default.Features(activation).HasOperation(SkillProgramEffectOp.CompareSelectedHandWithHpHand)||GetHand(owner).Count>0&&_players.Any(p=>p.IsAlive&&p.Seat!=owner.Seat&&p.Hp>0&&GetHand(p).Count>0);
+ private bool IsHandComparisonTarget(SkillProgramActivation activation,CharacterState p)=>!ProgramInstructionResolver.Default.Features(activation).HasOperation(SkillProgramEffectOp.CompareSelectedHandWithHpHand)||p.Hp>0&&GetHand(p).Count>0;
  private IEnumerable<RuleQueryContribution> PersistentHandLimitContributions(CharacterState owner)
  {
   foreach(var g in HandComparisonHistory().OfType<ProgramPersistentHandLimitChangedEvent>().Where(e=>(e.TargetSeat<0?e.OwnerSeat:e.TargetSeat)==owner.Seat&&HasRuntimeSkillInstance(_players[e.OwnerSeat],e.SkillId,e.SkillInstanceId)).GroupBy(e=>(e.SkillId,e.SkillInstanceId,e.StateId)))

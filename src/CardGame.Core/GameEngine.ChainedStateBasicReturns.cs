@@ -43,7 +43,7 @@ public sealed partial class GameEngine
             ignoresArmor: HasCardArmorBypass(actor, _players[targets[0]], kind), physicalCardIds: [], conversionSource: payment.Source, chainedStatePayment: payment);
         var actualTargets = LifecycleCardUse(id)!.TargetSeats;
         var attack = new CardAttackHandle(this, id, actor.Seat, actualTargets[0], card: null,
-            damageAmount: actor.HasAlcoholEffect ? 2 : 1, playedCardKind: kind,
+            damageAmount: 1 + actor.AlcoholDamageBonus, playedCardKind: kind,
             ignoresArmor: HasCardArmorBypass(actor, _players[actualTargets[0]], kind), programSkillCardUseFrameId: programParent);
         if (borrowed is not null) borrowed.ActiveAttack = attack;
         ActiveCardAttack = attack; CaptureProgramAdjustedSlashBaseDamage(attack);

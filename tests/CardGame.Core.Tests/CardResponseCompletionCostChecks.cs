@@ -665,8 +665,14 @@ internal static class CardResponseCompletionCostChecks
     }
 
     public static void SilverLionEquipmentDodgeDrainsHealthBeforeCompletion()
+        => ExerciseSilverLionEquipmentDodge(typedHealthKind: false);
+
+    public static void TypedHealthKindMatchesActualResponseCostRecovery()
+        => ExerciseSilverLionEquipmentDodge(typedHealthKind: true);
+
+    private static void ExerciseSilverLionEquipmentDodge(bool typedHealthKind)
     {
-        var registry = ContentRegistry.Build(new StandardContentPackage(), new Fixture());
+        var registry = ContentRegistry.Build(new StandardContentPackage(), new Fixture(typedHealthKind: typedHealthKind));
         var game = GameEngine.CreateStandard(new GameOptions { Seed = 31, PlayerCount = 4, HumanSeat = 0,
             HumanRole = Role.Lord, ModeId = Mode, UseInteractiveSetup = true, UseInteractiveDiscard = true,
             AdvanceAfterHumanCommands = false, MaxTurns = 4 }, registry);
@@ -707,6 +713,10 @@ internal static class CardResponseCompletionCostChecks
         var hp = game.ResolutionStack.OfType<HpChangedTriggerWindowFrame>().Single();
         var observer = game.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == HpObserver);
         var observerId = observer.Id;
+        Require(typedHealthKind
+                ? hp.Contexts.Single().Facts?.HealthChangeKind == HpChangeKind.Recovery
+                : hp.Contexts.Single().Facts?.HealthChangeKind is null,
+            "The new typed condition receives the actual response-cost recovery; the old fixture retains an omitted optional fact.");
         Require(response is { ActorSeat: 1, ProviderSeat: 1, EffectiveKind: CardKind.Dodge, PhysicalCards.Count: 1 } &&
             response.ParentActionId == useAction && response.PhysicalCards[0].CardId == armor &&
             response.PhysicalCards[0].From == CardLocation.Equipment(1) &&
@@ -761,9 +771,12 @@ internal static class CardResponseCompletionCostChecks
             !game.ResolutionStack.Any(f => f.Id == useId || f.Id == completion.Id || f.Id == hp.Id),
             "Formal Zhefu returns through the original native Slash once without repaying the armor or repeating its recovery.");
         _ = Cold(game, registry);
-        VerifyOrdinaryHealthDyingReturn();
-        VerifyCommittedSlashPaymentDyingReturn();
-        VerifyFactionDefenseDodgeHealthDyingReturn();
+        if (!typedHealthKind)
+        {
+            VerifyOrdinaryHealthDyingReturn();
+            VerifyCommittedSlashPaymentDyingReturn();
+            VerifyFactionDefenseDodgeHealthDyingReturn();
+        }
     }
 
     private static bool IsActivate(PromptChoice c) => c.Parameters.GetValueOrDefault("program-action") == "activate";
@@ -833,7 +846,8 @@ internal static class CardResponseCompletionCostChecks
         Require(State(copy) == State(g), "Cold replay preserves all prepared views, private prompts, typed health invoices, native costs and event order."); return copy;
     }
 
-    private sealed class Fixture(bool ordinaryHealthDying = false, bool losePaidSource = false, bool factionDefense = false) : IGameContentPackage
+    private sealed class Fixture(bool ordinaryHealthDying = false, bool losePaidSource = false, bool factionDefense = false,
+        bool typedHealthKind = false) : IGameContentPackage
     {
         public PackageManifest Manifest { get; } = new("fixture:card-response-completion-cost", "1.0.0", "原生装备响应的回复子窗");
         public void Register(IContentRegistryBuilder b)
@@ -845,6 +859,8 @@ internal static class CardResponseCompletionCostChecks
             b.AddSkill(new(Zhefu, formal.Presentations[Zhefu].Name, formal.Presentations[Zhefu].Description)
                 { Program = formal.Programs[Zhefu], ProgramPresentation = formal.Presentations[Zhefu] });
             var healthDying = ordinaryHealthDying ? ",\"usageScope\":\"game\",\"usageLimit\":1" : "";
+            var healthWindow = typedHealthKind ? "afterHealthChanged" : "afterHpRecovered";
+            var healthCondition = typedHealthKind ? ",\"condition\":{\"kind\":\"healthChangeKindIs\",\"hpChangeKind\":\"recovery\"}" : "";
             var loss = ordinaryHealthDying ? ",{\"op\":\"loseHp\",\"target\":\"owner\",\"amount\":4}" : "";
             var optionalSelfReturn = losePaidSource ? "true" : "false";
             var factionRange = factionDefense ? "\"modifiers\":[{\"id\":\"native-lord-range\",\"query\":\"attackRange\",\"operation\":\"set\",\"value\":3,\"priority\":0}]," : "";
@@ -873,7 +889,7 @@ internal static class CardResponseCompletionCostChecks
                   {"id":"equip-other","minCards":1,"maxCards":1,"sourceZones":["hand"],"cardCategories":["equipment"],"minTargets":1,"maxTargets":1,"targetKind":"otherLiving","usesPerTurn":null,"effects":[{"op":"captureSelectedCards","target":"owner","resultBind":"armor"},{"op":"placeSelectedEquipment","target":"selectedTarget","sourceBind":"armor"}]},
                   {"id":"wound-other","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"otherLiving","usesPerTurn":null,"effects":[{"op":"loseHp","target":"selectedTarget","amount":1}]}{{{factionWound}}}]},
               {"id":"{{{Conversion}}}","revision":1,"viewAs":[{"id":"equipment-dodge","inputKinds":["silverLion"],"inputSuits":[],"sourceZones":["equipment"],"outputKind":"dodge","forPlay":false,"forResponse":true}]},
-              {"id":"{{{HpObserver}}}","revision":1,"triggers":[{"id":"recovered","window":"afterHpRecovered","subject":"owner","optional":false{{{healthDying}}},"effects":[{"op":"chooseOption","target":"owner","resultBind":"health","options":[{"id":"continue"}]}{{{loss}}}]}]}{{{dyingReturn}}}{{{factionPolicy}}}
+              {"id":"{{{HpObserver}}}","revision":1,"triggers":[{"id":"recovered","window":"{{{healthWindow}}}","subject":"owner","optional":false{{{healthDying}}}{{{healthCondition}}},"effects":[{"op":"chooseOption","target":"owner","resultBind":"health","options":[{"id":"continue"}]}{{{loss}}}]}]}{{{dyingReturn}}}{{{factionPolicy}}}
             ]}
             """, JsonSerializer.Serialize(new { schemaVersion = SkillProgramCatalog.PresentationSchemaVersion, skills = presentation }));
             foreach (var (id, program) in catalog.Programs) b.AddSkill(new(id, catalog.Presentations[id].Name, catalog.Presentations[id].Description)

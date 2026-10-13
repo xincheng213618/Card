@@ -252,6 +252,7 @@ public sealed partial class GameEngine
         TryBeginHpChangedProgramWindow(frame.Id, PostEventContinuation.AwaitedProgramMovement) ||
         TryBeginCardsMovedProgramWindow(frame.Id) || TryBeginAdvancedSkillsChanged(frame.Id);
 
+    [ProgramContinuation(ProgramContinuationKind.Resume, 270)]
     private bool ResumeGiftedSlashUseReward(long id)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame frame || frame.Id != id ||
@@ -272,6 +273,7 @@ public sealed partial class GameEngine
         return true;
     }
 
+    [ProgramContinuation(ProgramContinuationKind.Movement, 200)]
     private bool ReturnGiftedSlashUseRewardMovement(ProgramSkillFrame frame)
     {
         if (frame.GiftedSlashGiftReceipt is null && frame.GiftedSlashRewardReceipt is null || frame.PendingMovementContinuation is null) return false;
@@ -369,28 +371,9 @@ public sealed partial class GameEngine
                 move.Sequence > before && move.Sequence <= after && move.Reason.Value == reason);
     }
 
-    private ProgramSkillFrame? GiftedSlashObserverRoot()
-    {
-        for (var index = 0; index + 1 < _resolutionStack.Count; index++)
-        {
-            if (_resolutionStack[index] is not ProgramSkillFrame root || !GiftedSlashFirstChild(root, _resolutionStack[index + 1])) continue;
-            var exact = true;
-            for (var child = index + 2; child < _resolutionStack.Count; child++)
-            {
-                if (_resolutionStack[child] is ProgramLifecycleTriggerWindowFrame changed && _resolutionStack[child - 1] is ProgramSkillFrame owner &&
-                    changed.Window == SkillProgramTriggerWindow.SkillsChanged && changed.ResumeProgramFrameId == owner.Id &&
-                    changed.Continuation == ProgramLifecycleContinuation.ResumeParentProgram && changed.CandidateIndex >= 0 && changed.CandidateIndex <= changed.Candidates.Count) continue;
-                if (!DyingSuitsStructuralEdge(_resolutionStack[child - 1], _resolutionStack[child]) &&
-                    !HalfHandPaidDamageObserverEdge(child) && !PaidTargetObserverEdge(child)) { exact = false; break; }
-                if (_resolutionStack[child] is DyingFrame dying && child + 1 < _resolutionStack.Count &&
-                    ((IsOriginalDyingSuspendedByDyingSuits(dying) || IsOriginalDyingSuspendedByRecipientCategoryMark(dying)) || IsOriginalDyingSuspendedByOwnedDeathBenefit(dying) ||
-                     IsPaidHandRepaymentProgramAlcoholRide(child, dying) || IsPaidHandRepaymentRescueRide(child, dying) ||
-                     PolicyCounterspellVirtualAlcoholRide(child, dying) || PaidObserverDamageVirtualAlcoholRide(child, dying))) break;
-            }
-            if (exact) return root;
-        }
-        return null;
-    }
+    private ProgramSkillFrame? GiftedSlashObserverRoot() => FindProgramObserverRoot(
+        static (engine, root, child) => engine.GiftedSlashFirstChild(root, child),
+        static (engine, index) => engine.HasPaidDamageObserverSuffix(index));
 
     private bool IsGiftedSlashProgramDying() => ActiveDying is { } dying && GiftedSlashObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
@@ -416,6 +399,5 @@ public sealed partial class GameEngine
             engine.BeginGiftedSlashGift(effect, frame, recipientSeat);
         public SkillProgramStepOutcome BeginGiftedSlashUseReward(SkillProgramEffect effect, ProgramSkillFrame frame) =>
             engine.BeginGiftedSlashUseReward(effect, frame);
-        public bool CanContinueIssuedGiftedSlashReward(ProgramSkillFrame frame) => engine.CanContinueIssuedGiftedSlashReward(frame);
     }
 }

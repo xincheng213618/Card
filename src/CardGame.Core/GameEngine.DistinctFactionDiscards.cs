@@ -112,6 +112,7 @@ public sealed partial class GameEngine
         return decision.Choices.OrderBy(c=>c.Cards.Count==1&&visible.TryGetValue(c.Cards[0],out var card)?CardCatalog.Get(card.Kind).HandKeepValue:0d)
             .ThenBy(c=>c.Id.Value,StringComparer.Ordinal).First();
     }
+    [ProgramContinuation(ProgramContinuationKind.Resume, 870)]
     private bool ResumeDistinctFactionDiscards(long id)
     {
         var f=GetActiveProgramFrame(id);var d=f.DistinctFactionDiscards;if(d is null)return false;

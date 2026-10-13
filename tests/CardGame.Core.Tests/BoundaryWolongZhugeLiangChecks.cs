@@ -14,6 +14,7 @@ internal static class BoundaryWolongZhugeLiangChecks
     private const string EquipmentChild = "fixture:wolong-equipment-child";
     private const string FaceChild = "fixture:wolong-face-child";
     private const string AlcoholCompleted = "fixture:wolong-alcohol-completed";
+    private static readonly Lazy<ContentRegistry> FormalBase = new(StandardContentRegistry.CreateWithClassicGenerals);
 
     public static void RandomRevealColorHePaymentAndChildrenCold()
     {
@@ -537,7 +538,9 @@ internal static class BoundaryWolongZhugeLiangChecks
 
     private static (GameEngine, ContentRegistry) Create(bool black = false, bool tricks = false, bool nativeFire = false, bool physicalCounterspell = false, bool nativeCounterspell = false, bool qingxian = false, bool qingxianDying = false, string? otherRescue = null, bool emptyOtherHands = false)
     {
-        var registry = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true), new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage(), new Fixture(black, tricks, nativeFire, physicalCounterspell, nativeCounterspell, qingxian, qingxianDying, otherRescue, emptyOtherHands));
+        var formal = FormalBase.Value;
+        var packages = formal.Packages.Select((manifest, index) => new FrozenBasePackage(manifest, index == 0 ? formal : null));
+        var registry = ContentRegistry.Build([.. packages, new Fixture(black, tricks, nativeFire, physicalCounterspell, nativeCounterspell, qingxian, qingxianDying, otherRescue, emptyOtherHands)]);
         var game = GameEngine.CreateStandard(new GameOptions { Seed = 31, PlayerCount = 4, HumanSeat = 0, HumanRole = Role.Lord, ModeId = Mode, UseInteractiveSetup = true, UseInteractiveDiscard = true, AdvanceAfterHumanCommands = false, MaxTurns = 8 }, registry);
         Accept(game, new StartGameCommand()); Reach(game, prompt => prompt.Kind == DecisionKind.SelectGeneral && prompt.PlayerSeat == 0);
         Accept(game, new SelectGeneralCommand(0, "fixture:wolong-owner", game.Revision, P(game)!.PromptId)); ReachPlay(game);
@@ -545,6 +548,21 @@ internal static class BoundaryWolongZhugeLiangChecks
             Require(Hand(game, 0).Count == 6 && Enumerable.Range(1, 3).All(seat => Hand(game, seat).Count == 0),
                 "A legal zero-card base deal and owner-only initial-hand bonus preserve the owner's six real cards while other participants begin without a hand fallback.");
         return (game, registry);
+    }
+
+    // Replay frozen definitions once while retaining every original package manifest.
+    private sealed class FrozenBasePackage(PackageManifest manifest, ContentRegistry? source) : IGameContentPackage
+    {
+        public PackageManifest Manifest { get; } = manifest;
+        public void Register(IContentRegistryBuilder builder)
+        {
+            if (source is null) return;
+            foreach (var definition in source.Cards.Values) builder.AddCard(definition);
+            foreach (var definition in source.Skills.Values) builder.AddSkill(definition);
+            foreach (var definition in source.Generals.Values) builder.AddGeneral(definition);
+            foreach (var definition in source.Decks.Values) builder.AddDeck(definition);
+            foreach (var definition in source.Modes.Values) builder.AddMode(definition);
+        }
     }
 
     private sealed class Fixture(bool black, bool tricks, bool nativeFire, bool physicalCounterspell, bool nativeCounterspell, bool qingxian, bool qingxianDying, string? otherRescue, bool emptyOtherHands) : IGameContentPackage

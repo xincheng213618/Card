@@ -24,7 +24,7 @@ public sealed partial class GameEngine
     private SkillProgramStepOutcome LuelveProgramCounterSlash(ProgramSkillFrame frame)
     {
         var active = GetActiveProgramFrame(frame.Id);
-        if (active.SelectedTargetSeats is not [var selected] || selected != selected ||
+        if (active.SelectedTargetSeats is not [var selected] ||
             selected == frame.OwnerSeat)
             throw new InvalidOperationException("LueLve lost its selected counterpart.");
         if (!_players[selected].IsAlive || !_players[frame.OwnerSeat].IsAlive ||

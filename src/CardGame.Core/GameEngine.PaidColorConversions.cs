@@ -45,6 +45,7 @@ public sealed partial class GameEngine
         return ResumePaidColorDamageClaims(frame.Id) ? SkillProgramStepOutcome.AwaitChild : SkillProgramStepOutcome.Continue;
     }
 
+    [ProgramContinuation(ProgramContinuationKind.Resume, 760)]
     private bool ResumePaidColorDamageClaims(long id)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame f || f.Id != id ||

@@ -218,8 +218,12 @@ public sealed partial class GameEngine
         if (frame.PindianStep == PindianStep.ClaimResult)
         {
             AssertPindianPolicyClaims(frame);
-            if (frame.Result is null || frame.ClaimSeats is null || frame.ClaimIndex < 0 || frame.ClaimIndex >= frame.ClaimSeats.Count ||
-                decision.PlayerSeat != frame.ClaimSeats[frame.ClaimIndex] ||
+            var claimantSeat = frame.PolicyClaims is { } policyClaims
+                ? (int?)policyClaims.Claims[policyClaims.Index].OwnerSeat
+                : frame.ClaimSeats is { } seats && frame.ClaimIndex >= 0 && frame.ClaimIndex < seats.Count
+                    ? seats[frame.ClaimIndex]
+                    : null;
+            if (frame.Result is null || decision.PlayerSeat != claimantSeat ||
                 decision.Choices.Any(choice => choice.Parameters.GetValueOrDefault("action") != "pindian-claim" ||
                     choice.Cards.Any(id => !contestCards.Contains(id))))
                 throw new InvalidOperationException("Pindian claim lost its public card or claimant.");

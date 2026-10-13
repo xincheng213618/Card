@@ -156,6 +156,7 @@ public sealed partial class GameEngine
         return Exact(frame.OwnerSeat, draft.OwnerCardIds) && Exact(draft.OtherSeat, draft.OtherCardIds);
     }
 
+    [ProgramContinuation(ProgramContinuationKind.Resume, 660)]
     private bool ResumeDualColorDuel(long frameId)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame frame || frame.Id != frameId || frame.DualColorDuel is not { } draft)

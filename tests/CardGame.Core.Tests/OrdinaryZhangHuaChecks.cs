@@ -88,6 +88,9 @@ internal static class OrdinaryZhangHuaChecks
         Reject(mixed, new UseProgramSkillCommand(0, Jianhe, "jianhe", bad, [0], mixed.Revision, P(mixed)!.PromptId));
         Require(E<MatchingRecastStartedEvent>(mixed).Length == 0, "A Basic and Trick group cannot pass the same-name or all-Equipment owner cost contract.");
         var mixedAction = mixed.GetHumanLegalActions().First(a => a.ProgramSkillId == Jianhe);
+        Require(mixedAction.SelectedCardsSameNameOrAllEquipment &&
+            mixed.GetHumanActionView().LegalActions.Single(a => a.ProgramSkillId == Jianhe).SelectedCardsSameNameOrAllEquipment,
+            "Both public action queries preserve the same-name or all-equipment owner cost contract independently of AI policy.");
         var aiCards = new SimpleAiBrain(0, 31).ChooseActiveSkillCards(mixed.CreateSnapshot(0), mixedAction);
         var expectedAi = V(mixed, 0).Hand.Where(c => mixedAction.SelectableCardIds.Contains(c.Id)).GroupBy(c => c.Kind)
             .Where(group => group.Count() >= mixedAction.MinCardCount)

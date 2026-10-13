@@ -46,11 +46,7 @@ internal sealed class UseVirtualAlcoholDescriptor : ProgramOperationDescriptorBa
     public override SkillProgramEffectOp Op => SkillProgramEffectOp.UseVirtualAlcohol;
     public override ISkillProgramEffectHandler Handler { get; } = new UseVirtualAlcoholHandler();
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.UseSelectedCardsAs, static (_, _) => { });
-    public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
-    {
-        r.AllowOnly("op", "target", "condition");
-        var e = new SkillProgramEffect(Op, FilterBoundCardsProgramOperationDescriptor.Owner(r), 0, r.Condition()); RequireAlways(e,r.Path); return e;
-    }
+    public override SkillProgramEffect Parse(ProgramOperationNodeReader r) => ParseOwnerAlways(r);
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e) => [new RequireActivationEntry()];
 }
 public sealed class ClaimDiscardedEntityWithProvenanceHandler : ISkillProgramEffectHandler

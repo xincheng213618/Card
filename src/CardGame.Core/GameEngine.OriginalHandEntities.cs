@@ -241,6 +241,7 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new OriginalHandBenefitCompletedEvent(f.Id, r.TargetSeat, r.Option, r.BonusApplied, r.DrawIssued, r.ActualDrawCount));
         FinishProgramSkill(f, true);
     }
+    [ProgramContinuation(ProgramContinuationKind.Resume, 150)]
     private bool ResumeOriginalHandEntityProgram(long id)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame f || f.Id != id) return false;
@@ -255,6 +256,7 @@ public sealed partial class GameEngine
             TryBeginCardsMovedProgramWindow(id) || TryBeginAdvancedSkillsChanged(id)) return true;
         CompleteOriginalHandBenefit(GetActiveProgramFrame(id)); return true;
     }
+    [ProgramContinuation(ProgramContinuationKind.Movement, 130)]
     private bool ReturnOriginalHandEntityMovement(ProgramSkillFrame f)
     {
         if (f.OriginalHandBenefit is not { Stage: OriginalHandBenefitStage.DrawChildren }) return false;
@@ -273,7 +275,6 @@ public sealed partial class GameEngine
         decision.Choices.FirstOrDefault(c => c.Parameters.GetValueOrDefault("option") == "draw") ?? decision.Choices[0];
     private sealed partial class ProgramSkillHost : IOriginalHandEntitiesProgramHost
     {
-        public bool CanContinueOriginalHandEntityProgram(ProgramSkillFrame f) => engine.CanContinueOriginalHandEntityProgram(f);
         public SkillProgramStepOutcome ExecuteOriginalHandEntityOperation(ProgramSkillFrame f, SkillProgramEffect e) => e.Op switch {
             SkillProgramEffectOp.InitializeOriginalHandEntities => engine.InitializeOriginalHandEntities(f, e.StateId!),
             SkillProgramEffectOp.OfferOriginalHandLossBenefit => engine.BeginOriginalHandBenefit(f, e.StateId!),

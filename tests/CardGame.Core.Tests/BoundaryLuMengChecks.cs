@@ -258,10 +258,12 @@ internal static class BoundaryLuMengChecks
             foreach(var s in source.Skills.Values)
             {
                 var optsIntoRound = s.Program is { } program &&
-                    (program.Triggers.Any(t=>t.DynamicUsageLimit is not null || UsesDiscardSuitHistory(t.Condition)) ||
+                    (program.Triggers.Any(t=>t.Window == SkillProgramTriggerWindow.RoundStarting || t.UsageScope == SkillUsageScope.Round ||
+                         t.DynamicUsageLimit is not null || UsesDiscardSuitHistory(t.Condition)) ||
                      program.ViewAs.Any(rule=>rule.TieredRoundConversion is not null || rule.RoundDistinctBasicUse is not null) ||
                      program.Activations.SelectMany(a=>a.Effects).Any(e=>e.Op==SkillProgramEffectOp.ScheduleFirstRoundGameUsageRefund) ||
                      program.Triggers.SelectMany(t=>t.Effects).Any(e=>e.Op is
+                         SkillProgramEffectOp.HoldRoundFocusCards or
                          SkillProgramEffectOp.BeginPhaseNamePrediction or
                          SkillProgramEffectOp.DrawThenDiscardSuitsForDyingPeach or
                          SkillProgramEffectOp.UseRoundPricedPileDyingAlcohol or

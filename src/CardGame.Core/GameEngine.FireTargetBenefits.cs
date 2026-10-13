@@ -43,6 +43,7 @@ public sealed partial class GameEngine
         TryBeginQueuedRecoveryReplacement(f.Id, PostEventContinuation.AwaitedProgramMovement) ||
         TryBeginHpChangedProgramWindow(f.Id, PostEventContinuation.AwaitedProgramMovement) ||
         TryBeginCardsMovedProgramWindow(f.Id);
+    [ProgramContinuation(ProgramContinuationKind.Resume, 350)]
     private bool ResumeFireTargetBenefit(long id)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame { FireTargetBenefit: { } r } f || f.Id != id) return false;
@@ -68,6 +69,7 @@ public sealed partial class GameEngine
         else AdvanceRuntimeProgram(id);
         return true;
     }
+    [ProgramContinuation(ProgramContinuationKind.Movement, 350)]
     private bool ReturnFireTargetBenefitMovement(ProgramSkillFrame f)
     {
         if (f.FireTargetBenefit is null) return false;

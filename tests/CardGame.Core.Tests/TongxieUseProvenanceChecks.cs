@@ -13,6 +13,7 @@ internal static class TongxieUseProvenanceChecks
 
     public static void LiveFollowUpDoesNotReenterAndReturnedEntityHasIndependentUseOrResponse()
     {
+        PendingCollectionsOwnTheirInputs();
         var registry = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true),
             new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage(), new Fixture());
         var prepared = Prepare(registry);
@@ -73,7 +74,8 @@ internal static class TongxieUseProvenanceChecks
         var rootUse = Facts<TongxieSettledSlashUseEvent>(g).Single(e => e.CardId == root.CardId && e.ActorSeat == 0 && e.TargetSeat == targetEnemy);
         Require(parent.OwnerSeat == 0 && parent.SkillId == Tongxie && parent.InstructionIndex == 1 &&
                 parent.TongxieFollowUp is { ActorSeat: 0 } pending && pending.TargetSeat == targetEnemy && pending.CardId == root.CardId &&
-                pending.PendingResponders.SequenceEqual([allySeat, memberEnemy]) && pending.UsedCards.Count == 0 &&
+                pending.PendingResponders.SequenceEqual([allySeat, memberEnemy]) && pending.UsedBy.Count == 0 &&
+                pending.DeclinedBy.Count == 0 && pending.UsedCardIds.Count == 0 &&
                 rootUse.ParentProgramFrameId is null && parent.WindowContext?.MovementBatch?.Id == rootUse.BatchId,
             "One settled root use pins its original action and movement, with two ordered responders on the exact suspended parent.");
         Private(g, allySeat); Frozen(P(g)!.Choices);
@@ -81,6 +83,7 @@ internal static class TongxieUseProvenanceChecks
         var returnedCard = followChoice.Cards.Single();
         Reject(g, new AnswerPromptCommand(0, P(g)!.PromptId, followChoice.Id, g.Revision));
         g = Cold(g, registry);
+        var beforeChild = Chain(g, parentId).TongxieFollowUp!;
         Step(g); // The actual AI chooses its own published private Slash.
         Reach(g, p => p?.SkillPrompt?.SkillId == Completion && p.PlayerSeat == allySeat);
 
@@ -90,9 +93,11 @@ internal static class TongxieUseProvenanceChecks
         Require(childUse.CardId == returnedCard && childUse.ActorSeat == allySeat && childUse.TargetSeat == targetEnemy &&
                 childUse.ActionId != rootUse.ActionId && childUse.EffectiveKind == CardKind.Slash &&
                 childFrame.Action?.ActionId == childUse.ActionId && childFrame.CardAttack?.ProgramSkillCardUseFrameId == parentId &&
-                liveParent.ReexecuteParticipantInstruction && liveParent.TongxieFollowUp!.Used.SequenceEqual([allySeat]) &&
-                liveParent.TongxieFollowUp.UsedCards.SequenceEqual([returnedCard]) &&
+                liveParent.ReexecuteParticipantInstruction && liveParent.TongxieFollowUp!.UsedBy.SequenceEqual([allySeat]) &&
+                liveParent.TongxieFollowUp.UsedCardIds.SequenceEqual([returnedCard]) && liveParent.TongxieFollowUp.DeclinedBy.Count == 0 &&
                 liveParent.TongxieFollowUp.PendingResponders.SequenceEqual([memberEnemy]) &&
+                beforeChild.PendingResponders.SequenceEqual([allySeat, memberEnemy]) &&
+                beforeChild.UsedBy.Count == 0 && beforeChild.DeclinedBy.Count == 0 && beforeChild.UsedCardIds.Count == 0 &&
                 g.ResolutionStack.OfType<ProgramSkillFrame>().Count(f => f.TongxieFollowUp is not null) == 1 &&
                 !Facts<ProgramTongxieFollowUpResolvedEvent>(g).Any() &&
                 g.CreateCardZoneDiagnostics().Single(c => c.CardId == returnedCard).Location == CardLocation.DiscardPile &&
@@ -109,8 +114,18 @@ internal static class TongxieUseProvenanceChecks
         var completionId = completedChild.Id;
         var completionWindowId = completedChild.WindowContext!.ParentFrameId;
         Private(g, allySeat); g = Cold(g, registry); Step(g);
+        Reach(g, p => HasAction(p, "tongxie-follow-up") && p!.PlayerSeat == memberEnemy);
+        var beforeDecline = Chain(g, parentId).TongxieFollowUp!;
+        Require(beforeDecline.PendingResponders.SequenceEqual([memberEnemy]) && beforeDecline.UsedBy.SequenceEqual([allySeat]) &&
+                beforeDecline.DeclinedBy.Count == 0 && beforeDecline.UsedCardIds.SequenceEqual([returnedCard]) &&
+                !Facts<ProgramTongxieFollowUpResolvedEvent>(g).Any(),
+            "The returned Slash child preserves its accumulated payment before the next genuine responder decides.");
+        Private(g, memberEnemy); g = Cold(g, registry);
+        beforeDecline = Chain(g, parentId).TongxieFollowUp!;
+        Step(g);
         Reach(g, p => HasAction(p, "xunxian-gift") && p!.PlayerSeat == allySeat);
         Require(Facts<ProgramTongxieFollowUpResolvedEvent>(g).Count(e => e.FrameId == parentId) == 1 &&
+                beforeDecline.PendingResponders.SequenceEqual([memberEnemy]) && beforeDecline.DeclinedBy.Count == 0 &&
                 Facts<ProgramCardTriggerResolvedEvent>(g).Count(e => e.FrameId == completionWindowId && e.SkillId == Completion && e.Activated) == 1 &&
                 !g.ResolutionStack.Any(f => f.Id == completionId || f.Id == parentId || f.Id == childUse.CardUseFrameId) &&
                 !g.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.TongxieFollowUp is not null) &&
@@ -162,7 +177,8 @@ internal static class TongxieUseProvenanceChecks
         var diagnosticEngine = g;
         Require(secondId != previous.ParentProgramFrameId && second.TongxieFollowUp!.ActorSeat == 0 &&
                 second.TongxieFollowUp.TargetSeat == targetSeat && second.TongxieFollowUp.CardId == returnedCard &&
-                second.TongxieFollowUp.PendingResponders.SequenceEqual([allySeat]) && newUse.ActionId != previous.ActionId &&
+                second.TongxieFollowUp.PendingResponders.SequenceEqual([allySeat]) && second.TongxieFollowUp.UsedBy.Count == 0 &&
+                second.TongxieFollowUp.DeclinedBy.Count == 0 && second.TongxieFollowUp.UsedCardIds.Count == 0 && newUse.ActionId != previous.ActionId &&
                 newUse.CardUseFrameId != previous.CardUseFrameId && newUse.ActorSeat == 0 && newUse.TargetSeat == targetSeat &&
                 second.WindowContext?.MovementBatch?.Id == newUse.BatchId &&
                 Facts<ProgramTongxieFollowUpResolvedEvent>(g).Count() == 1,
@@ -170,7 +186,10 @@ internal static class TongxieUseProvenanceChecks
         Private(g, allySeat); g = Cold(g, registry); Step(g);
         Reach(g, p => p?.SkillPrompt?.SkillId == Completion && p.PlayerSeat == allySeat);
         var newChild = Facts<TongxieSettledSlashUseEvent>(g).Single(e => e.ParentProgramFrameId == secondId);
+        var secondPending = Chain(g, secondId).TongxieFollowUp!;
         Require(newChild.CardId != returnedCard && newChild.ActorSeat == allySeat && newChild.TargetSeat == targetSeat &&
+                secondPending.PendingResponders.Count == 0 && secondPending.UsedBy.SequenceEqual([allySeat]) &&
+                secondPending.DeclinedBy.Count == 0 && secondPending.UsedCardIds.SequenceEqual([newChild.CardId]) &&
                 g.ResolutionStack.OfType<ProgramSkillFrame>().Count(f => f.TongxieFollowUp is not null) == 1 &&
                 Facts<ProgramTongxieFollowUpResolvedEvent>(g).Count() == 1,
             "The second native AI child also settles once without recursively opening another chain.");
@@ -281,8 +300,10 @@ internal static class TongxieUseProvenanceChecks
     }
     private static void Accept(GameEngine g, GameCommand command)
     {
+        FrozenPending(g);
         var result = g.Submit(CommandJson.Deserialize(CommandJson.Serialize([command])).Single());
         Require(result.Accepted, result.Error?.Message ?? "A real native command was rejected.");
+        FrozenPending(g);
     }
     private static void Reject(GameEngine g, GameCommand command)
     {
@@ -293,6 +314,7 @@ internal static class TongxieUseProvenanceChecks
     {
         var restored = GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(g.CreateCheckpoint())), registry);
         Require(State(restored) == State(g), "Cold accepted-command replay preserves exact live chains, action provenance, private snapshots and already paid entities.");
+        FrozenPending(restored);
         return restored;
     }
     private static string State(GameEngine g) => JsonSerializer.Serialize(new
@@ -312,11 +334,54 @@ internal static class TongxieUseProvenanceChecks
     private static void Private(GameEngine g, int actor) => Require(P(g) is { IsPrivate: true } p && p.PlayerSeat == actor &&
         Enumerable.Range(0, 4).Where(s => s != actor).All(s => g.CreateSnapshot(s).PendingDecision is null && g.CreateSnapshot(s).Players[actor].Hand.Count == 0),
         "Only the actual native chooser sees its private Hand cards and prompt.");
+    private static void PendingCollectionsOwnTheirInputs()
+    {
+        var responders = new[] { 1, 2 };
+        var usedBy = new[] { 3 };
+        var declinedBy = new[] { 2 };
+        var usedCards = new[] { 41 };
+        var original = new TongxieFollowUpState(0, 2, 40, responders)
+        { UsedBy = usedBy, DeclinedBy = declinedBy, UsedCardIds = usedCards };
+        var guard = new TongxieGuardState(0, 1, responders);
+        var replacement = new[] { 2, 1 };
+        var next = original with
+        { PendingResponders = replacement, UsedBy = replacement, DeclinedBy = replacement, UsedCardIds = replacement };
+        var nextGuard = guard with { PendingPreventers = replacement };
+        var before = JsonSerializer.Serialize(new object[] { original, guard, next, nextGuard });
+        responders[0] = usedBy[0] = declinedBy[0] = usedCards[0] = replacement[0] = -1;
+        Require(before == JsonSerializer.Serialize(new object[] { original, guard, next, nextGuard }),
+            "Constructors and with updates must detach every pending list from its caller without rewriting prior states.");
+        Frozen(original); Frozen(next); Frozen(guard.PendingPreventers); Frozen(nextGuard.PendingPreventers);
+        var restored = JsonSerializer.Deserialize<TongxieFollowUpState>(JsonSerializer.Serialize(next))!;
+        var restoredGuard = JsonSerializer.Deserialize<TongxieGuardState>(JsonSerializer.Serialize(nextGuard))!;
+        Require(JsonSerializer.Serialize(restored) == JsonSerializer.Serialize(next) &&
+                JsonSerializer.Serialize(restoredGuard) == JsonSerializer.Serialize(nextGuard),
+            "Diagnostic state JSON must retain each canonical list's current values.");
+        Frozen(restored); Frozen(restoredGuard.PendingPreventers);
+    }
+    private static void FrozenPending(GameEngine game)
+    {
+        foreach (var frame in game.ResolutionStack.OfType<ProgramSkillFrame>())
+        {
+            if (frame.TongxieFollowUp is { } followUp) Frozen(followUp);
+            if (frame.TongxieGuard is { } guard) Frozen(guard.PendingPreventers);
+        }
+    }
+    private static void Frozen(TongxieFollowUpState state)
+    {
+        Frozen(state.PendingResponders); Frozen(state.UsedBy); Frozen(state.DeclinedBy); Frozen(state.UsedCardIds);
+    }
     private static void Frozen<T>(IReadOnlyList<T> list)
     {
-        Require(list.Count > 0 && list is IList<T> { IsReadOnly: true }, "A genuine exposed nonempty collection is readonly.");
-        var blocked = false; try { ((IList<T>)list)[0] = list[0]; } catch (NotSupportedException) { blocked = true; }
-        Require(blocked, "Committed nested collections cannot be changed by an observer.");
+        Require(list is IList<T> { IsReadOnly: true }, "An exposed pending or committed collection is readonly.");
+        var blocked = false;
+        try
+        {
+            if (list.Count == 0) ((IList<T>)list).Add(default!);
+            else ((IList<T>)list)[0] = list[0];
+        }
+        catch (NotSupportedException) { blocked = true; }
+        Require(blocked, "Pending and committed collections cannot be changed by an observer.");
     }
     private static void Require(bool value, string message) { if (!value) throw new InvalidOperationException(message); }
     private static void Require(bool value, Func<string> message) { if (!value) throw new InvalidOperationException(message()); }

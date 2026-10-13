@@ -3,6 +3,7 @@ namespace CardGame.Core;
 /// <summary>Card and turn rules supplied by an enabled program instance.</summary>
 public enum SkillProgramCardPolicyKind
 {
+    OtherParticipantDamageBecomesHpLoss = 20560,
     RoundGainedOtherSourceUse = 9085,
     BypassSlashLimitAgainstOutsideAttackRange = 7308,
     PrivateTopBasicRequest = 7600,
@@ -63,7 +64,8 @@ public enum SkillProgramCardPolicyKind
     ConvertedSlashSameColorResponseOnly = 786,
     IgnoreTurnObtainedHandCardsForDiscard = 1000,
     NullifyBlackSlashByCurrentHp = 6602, ProhibitBlackSlashResponseByCurrentHand = 6603,
-    DyingSelfRescueOnly = 6604}
+    DyingSelfRescueOnly = 6604,
+    StopUsingAfterTrickOrHpCount = 20600}
 
 public sealed record SkillProgramCardPolicy(
     string Id,

@@ -22,7 +22,7 @@ internal static class TacticalAiChecks
             var restored = GameReplay.Restore(checkpoint, StandardContentRegistry.Create());
             Require(string.Join("\n", restored.Events.Select(item => System.Text.Json.JsonSerializer.Serialize(item))) == string.Join("\n", game.Events.Select(item => System.Text.Json.JsonSerializer.Serialize(item))) && SnapshotJson.Serialize(restored.State) == SnapshotJson.Serialize(game.State), "Policy replay changed a match.");
         }
-        foreach (var version in new[] { 0, 4, -1 })
+        foreach (var version in new[] { 0, AiDecisionPolicy.CurrentVersion + 1, -1 })
         {
             try { GameEngine.CreateStandard(new GameOptions { AiPolicyVersion = version }, StandardContentRegistry.Create()); }
             catch (ArgumentOutOfRangeException) { continue; }

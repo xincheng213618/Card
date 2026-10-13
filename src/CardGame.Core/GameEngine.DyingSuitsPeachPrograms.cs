@@ -108,6 +108,7 @@ public sealed partial class GameEngine
         });
         AdvanceRuntimeProgram(f.Id);
     }
+    [ProgramContinuation(ProgramContinuationKind.Resume, 410)]
     private bool ResumeDyingSuits(long id)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame f || f.Id != id || f.DyingSuits is not { } r) return false;
@@ -137,6 +138,7 @@ public sealed partial class GameEngine
     }
     private bool TryDrainDyingSuits(ProgramSkillFrame f) => TryBeginQueuedRecoveryReplacement(f.Id,PostEventContinuation.AwaitedProgramMovement) ||
         TryBeginHpChangedProgramWindow(f.Id,PostEventContinuation.AwaitedProgramMovement) || TryBeginCardsMovedProgramWindow(f.Id);
+    [ProgramContinuation(ProgramContinuationKind.Movement, 430)]
     private bool ReturnDyingSuitsMovement(ProgramSkillFrame f)
     { if (f.DyingSuits is null) return false; if (!IsDyingSuitsMovement(f,null,f.PendingMovementContinuation!)) throw new InvalidOperationException("Dying suits lost its paid movement return."); AdvanceRuntimeProgram(f.Id); return true; }
     private bool IsDyingSuitsMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation pending) => pending is not null &&

@@ -267,6 +267,9 @@ public sealed partial class GameEngine
     private bool HasExactTypedParticipantContinuation(ProgramSkillFrame frame, SkillProgramEffect paused) =>
         paused.Op switch
         {
+            SkillProgramEffectOp.DamageOtherLiving => IsValidStrategicDamageBatchContinuation(frame, paused),
+            SkillProgramEffectOp.LuochongResolve => IsValidLuochongDyingContinuation(frame, paused),
+            SkillProgramEffectOp.ZhuihuanRetaliate => IsValidZhuihuanContinuation(frame, paused),
             SkillProgramEffectOp.DonateAllEquipmentAndOfferRecipientBenefits =>
                 frame.EquipmentDonation is not null && IsValidAllEquipmentDonation(frame),
             SkillProgramEffectOp.ChooseEquipmentOrDrawAfterOtherActualTurn =>

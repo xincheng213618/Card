@@ -82,6 +82,7 @@ public sealed partial class GameEngine
 
     private bool RandomEquipmentFrameRidesOn(ResolutionFrame ride, ResolutionFrame beneath)
     {
+        if (FriendXuanjianFrameRidesOn(ride, beneath)) return true;
         if (ride is ProgramSkillFrame { WindowContext: { } observer } && observer.ParentFrameId == beneath.Id &&
             beneath is HpChangedTriggerWindowFrame or CardsMovedTriggerWindowFrame)
         {

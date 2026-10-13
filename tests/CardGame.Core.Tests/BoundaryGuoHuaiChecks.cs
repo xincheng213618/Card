@@ -92,6 +92,66 @@ internal static class BoundaryGuoHuaiChecks
         Cold(game, registry);
     }
 
+    public static void ForeignPlayEndingUsesOwnerHistoryWhileClassicRemainsOwnTurn()
+    {
+        foreach (var classic in new[] { false, true })
+        {
+            var skill = classic ? "classic:jingce" : Skill;
+            var (game, registry) = Create(observers: !classic, classic: classic, foreignPlay: true);
+            ReachPlay(game); Stock(game);
+            for (var use = 0; use < 5; use++) { PlayKind(game, LegalActionKind.Equip); ReachPlay(game); }
+            EndPlay(game);
+            Reach(game, p => p.SkillPrompt?.SkillId == skill);
+            Answer(game, c => c.Parameters.GetValueOrDefault("program-action") == "activate");
+            if (!classic) { Reach(game, p => p.SkillPrompt?.SkillId == Gain); Continue(game); }
+            ReachDiscard(game);
+            var discard = P(game)!;
+            var kept = game.CreateSnapshot(0).Players[0].Hand.Where(c => c.Kind == CardKind.Nullification)
+                .Take(3).Select(c => c.Id).ToHashSet();
+            Require(kept.Count == 3, "The fixed deck retains three real counterspells for foreign turns.");
+            Accept(game, new DiscardCardsCommand(0, discard.ValidCardIds.Where(id => !kept.Contains(id))
+                .Take(discard.RequiredCardCount).ToArray(), discard.PromptId, game.Revision));
+            Reach(game, p => game.State.CurrentSeat == 1 && p.PlayerSeat == 0 && p.Kind == DecisionKind.Nullification &&
+                p.Choices.Any(c => c.Parameters.GetValueOrDefault("response") == "nullification"));
+            Answer(game, c => c.Parameters.GetValueOrDefault("response") == "nullification");
+            var foreignTurn = game.State.TurnNumber;
+            Require(Facts(game).Where(e => e.TurnNumber == foreignTurn && e.ActorSeat == 0) is var foreign &&
+                foreign.Count() == 1 && foreign.Single() is { TurnOwnerSeat: 1, HandSuitMask: 8, CardCategoryMask: 2 },
+                "A foreign-turn counterspell records the owner's Diamond hand use and Trick type independently of the previous Equipment-only turn.");
+            if (classic)
+            {
+                var afterResponse = game.Events.Count;
+                ReachPlay(game);
+                Require(!game.Events.Skip(afterResponse).Select(e => e.Payload).OfType<ProgramBindingStartedEvent>()
+                    .Any(e => e.SkillId == skill && e.OwnerSeat == 0) &&
+                    game.CardMovements.Count(m => m.Reason.Value == "skill-program." + skill + ".Draw") == 2,
+                    "Classic Jingce draws its two cards in the owner's turn and never activates at foreign Play endings.");
+                Cold(game, registry);
+                continue;
+            }
+            ReachJingce(game);
+            var window = game.ResolutionStack.OfType<ProgramLifecycleTriggerWindowFrame>().Single();
+            Require(window.OwnerSeat == 1 && window.ParticipantFacts![0].CurrentTurnUsedCardCategoryCount == 1 &&
+                window.Facts.CurrentTurnUsedCardCategoryCount > 1,
+                "The foreign Play boundary freezes the owner's one Trick type and one suit separately from the turn player's multiple types.");
+            Cold(game, registry); RejectUnpublished(game);
+            var beforeDraw = DrawMoves(game).Length;
+            Activate(game); Reach(game, p => p.SkillPrompt?.SkillId == Gain);
+            var producer = game.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == Skill);
+            Require(producer.OwnerSeat == 0 && producer.WindowContext is { SourceSeat: 1, TargetSeat: 1 } &&
+                producer.WindowContext.Facts?.CurrentTurnUsedCardCategoryCount == 1 && DrawMoves(game).Length == beforeDraw + 1,
+                "Foreign Jingce draws exactly one real card to its owner before suspending on that owner's gain child.");
+            Cold(game, registry); Continue(game); ReachJingce(game);
+            window = game.ResolutionStack.OfType<ProgramLifecycleTriggerWindowFrame>().Single();
+            Require(window.OwnerSeat == 2 && window.ParticipantFacts![0].CurrentTurnUsedCardCategoryCount == 0 &&
+                !Facts(game).Any(e => e.TurnNumber == game.State.TurnNumber && e.ActorSeat == 0) && DrawMoves(game).Length == beforeDraw + 1,
+                "The gain child returns without paying twice, and the next foreign turn inherits neither types nor suits.");
+            Activate(game);
+            Require(DrawMoves(game).Length == beforeDraw + 1, "Accepting the next turn's X=0 creates no draw entities.");
+            Cold(game, registry);
+        }
+    }
+
     public static void EffectiveConversionsLegacyVirtualUsesAndLostSourcesKeepExactBoundaries()
     {
         var (mixed, mr) = Create(conversion: true); ReachPlay(mixed); Stock(mixed); Use(mixed, "allow-slashes"); ReachPlay(mixed);
@@ -175,7 +235,7 @@ internal static class BoundaryGuoHuaiChecks
         foreach (var body in new[]
         {
             "\"triggers\":[{\"id\":\"invalid\",\"window\":\"turnEnding\",\"subject\":\"owner\",\"optional\":true,\"effects\":[" + effect + "]}]",
-            "\"triggers\":[{\"id\":\"invalid\",\"window\":\"playEnding\",\"subject\":\"owner\",\"turnOwnerScope\":\"otherLiving\",\"optional\":true,\"effects\":[" + effect + "]}]",
+            "\"triggers\":[{\"id\":\"invalid\",\"window\":\"playEnding\",\"subject\":\"any\",\"turnOwnerScope\":\"otherLiving\",\"optional\":true,\"effects\":[" + effect + "]}]",
             "\"triggers\":[{\"id\":\"invalid\",\"window\":\"playEnding\",\"subject\":\"owner\",\"optional\":true,\"effects\":[" + effect.Replace("\"owner\"", "\"selectedTarget\"") + "]}]",
             "\"activations\":[{\"id\":\"invalid\",\"minCards\":0,\"maxCards\":0,\"minTargets\":0,\"maxTargets\":0,\"targetKind\":\"anyLiving\",\"effects\":[" + effect + "]}]",
             "\"modifiers\":[{\"id\":\"invalid\",\"query\":\"slashLimit\",\"operation\":\"add\",\"valueExpression\":\"currentTurnUsedHandSuitCount\",\"priority\":0}]"
@@ -189,10 +249,10 @@ internal static class BoundaryGuoHuaiChecks
     }
 
     private static (GameEngine, ContentRegistry) Create(bool extraPlay = false, bool observers = false,
-        bool conversion = false, bool legacyVirtual = false, bool legacyAlcohol = false, bool native = false)
+        bool conversion = false, bool legacyVirtual = false, bool legacyAlcohol = false, bool native = false, bool classic = false, bool foreignPlay = false)
     {
         var registry = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true),
-            new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage(), new Fixture(extraPlay, observers, conversion, legacyVirtual, legacyAlcohol, native));
+            new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage(), new Fixture(extraPlay, observers, conversion, legacyVirtual, legacyAlcohol, native, classic, foreignPlay));
         var game = GameEngine.CreateStandard(new GameOptions { Seed = 31, PlayerCount = 4, HumanSeat = native ? -1 : 0,
             HumanRole = native ? null : Role.Lord, ModeId = Mode, UseInteractiveSetup = true, UseInteractiveDiscard = true,
             AdvanceAfterHumanCommands = false, MaxTurns = native ? 2 : 8 }, registry);
@@ -269,7 +329,7 @@ internal static class BoundaryGuoHuaiChecks
     { var before = State(game); var p = P(game)!; Require(!game.Submit(new AnswerPromptCommand(p.PlayerSeat, p.PromptId, new ChoiceId("unpublished"), game.Revision)).Accepted && before == State(game), "An unpublished choice cannot change history, draw or the owning cursor."); }
     private static void Require(bool condition, string message) { if (!condition) throw new InvalidOperationException(message); }
 
-    private sealed class Fixture(bool extraPlay, bool observers, bool conversion, bool legacyVirtual, bool legacyAlcohol, bool native) : IGameContentPackage
+    private sealed class Fixture(bool extraPlay, bool observers, bool conversion, bool legacyVirtual, bool legacyAlcohol, bool native, bool classic, bool foreignPlay) : IGameContentPackage
     {
         public PackageManifest Manifest { get; } = new("fixture-boundary-guo-huai", new(1, 0, 0), []);
         public void Register(IContentRegistryBuilder builder)
@@ -283,7 +343,7 @@ internal static class BoundaryGuoHuaiChecks
                   {"id":"opponent-duel","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"otherLiving","usesPerTurn":null,"usesPerPhase":2,"effects":[{"op":"useSelectedActorDuel","target":"owner"}]},
                   {"id":"lose-jingce","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"loseOwnerSkillsAndGrant","target":"owner","skillIds":["{{Skill}}"],"sourceBind":"fixture:gh-selection"}]},
                   {"id":"suppress","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"suppressGeneralSkill","target":"selectedTarget"}]}]},
-                 {"id":"fixture:gh-quiet","revision":1,"triggers":[{"id":"quiet","window":"drawPhaseStarting","subject":"owner","optional":false,"effects":[{"op":"grantTurnRuleModifier","target":"owner","ruleQuery":"slashLimit","ruleOperation":"add","amount":-20}]}]},
+                 {"id":"fixture:gh-quiet","revision":1,"triggers":[{"id":"quiet","window":"drawPhaseStarting","subject":"owner","optional":false,"effects":[{"op":"grantTurnRuleModifier","target":"owner","ruleQuery":"slashLimit","ruleOperation":"add","amount":-20}{{(foreignPlay ? ",{\"op\":\"draw\",\"target\":\"owner\",\"amount\":8}" : "")}}]}]},
                  {"id":"{{Gain}}","revision":1,"triggers":[{"id":"gain","window":"cardsGained","subject":"owner","optional":false,"destinationZones":["hand"],"movementOccurrence":"perBatch","movementReasons":["{{DrawReason}}"],"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]}]}
                 """, JsonSerializer.Serialize(new { schemaVersion = 3, skills = new Dictionary<string, object>
                 { [Driver] = new { name = "真实命令", description = "固定得牌、转换、来源移除与实际决斗" },
@@ -301,7 +361,7 @@ internal static class BoundaryGuoHuaiChecks
             if (conversion) ownerSkills.Add("classic:fuhun");
             if (legacyVirtual) ownerSkills.Add("boundary:shensu");
             if (legacyAlcohol) ownerSkills.Add("classic:jiushi");
-            builder.AddGeneral(new("fixture:gh-owner", "界郭淮机制", "supporter", Skill, "wei", 4, ownerSkills));
+            builder.AddGeneral(new("fixture:gh-owner", "郭淮机制", "supporter", classic ? "classic:jingce" : Skill, "wei", 4, ownerSkills));
             for (var i = 1; i < 4; i++) builder.AddGeneral(new($"fixture:gh-target-{i}", "固定目标", "supporter", "fixture:gh-selection", "shu", 8, ["fixture:gh-quiet"]));
             var ids = new[] { "standard:slash", "standard:draw_two", "standard:crossbow", "standard:nullification" };
             var suits = new[] { Suit.Club, Suit.Spade, Suit.Heart, Suit.Diamond };

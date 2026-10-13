@@ -3,11 +3,8 @@ namespace CardGame.Core;
 public sealed record ProgramSkillSuppressedEvent(int OwnerSeat, int TargetSeat, string SkillId, bool Suppressed) : IGameEvent;
 public sealed partial class GameEngine
 {
-    private sealed record StrategicDraft(SkillProgramEffectOp Op, int TargetSeat, string? Bind,
-        IReadOnlyList<int> Candidates, IReadOnlyList<int> Selected, int Maximum);
     private sealed record ProgramSuppression(int SourceSeat, int TargetSeat, string SkillId, int CreatedTurn,
         IReadOnlyList<string> GrantIds);
-    private readonly Dictionary<long, StrategicDraft> _strategicDrafts = [];
     private readonly List<ProgramSuppression> _programSuppressions = [];
     private int _strategicEndPlayTurn = -1;
     private readonly Dictionary<int, int> _strategicHandLimitPenaltyTurns = [];
@@ -152,13 +149,14 @@ public sealed partial class GameEngine
                 // The automatic instruction repeats until all frozen seats have resolved their complete damage windows.
                 ReplaceRuntimeTop(frame with
                 {
-                    InstructionIndex = frame.InstructionIndex - 1,
+                    ReexecuteParticipantInstruction = true,
                     StrategicDamageBatch = batch with { RemainingTargetSeats = Array.AsReadOnly(remaining[1..]) }
                 });
                 return BeginProgramSkillDamage(frame, damageSeat, effect.Amount == 0 ? 1 : effect.Amount);
             case SkillProgramEffectOp.SelectDistinctSuitHandDiscards:
                 var candidates = GetHand(owner).Where(card => !IsSelfHandCategoryDiscardForbidden(owner.Seat, card, CardLocation.Hand(owner.Seat), OwnedCardMoveIntent.Discard)).Concat(GetHand(_players[targetSeat])).Select(card => card.Id).ToArray();
-                _strategicDrafts[frame.Id] = new(effect.Op, targetSeat, effect.ResultBind, candidates, [], 4);
+                ReplaceRuntimeTop(frame = frame with
+                { StrategicDraft = new(effect.Op, targetSeat, effect.ResultBind, 4) { Candidates = candidates } });
                 PublishStrategicPrompt(frame);
                 return SkillProgramStepOutcome.AwaitChoice;
             case SkillProgramEffectOp.ApplyHandDiscardShare:
@@ -174,12 +172,16 @@ public sealed partial class GameEngine
                 return SkillProgramStepOutcome.Continue;
             case SkillProgramEffectOp.SuppressGeneralSkill:
                 if (_programSuppressions.Any(item => item.SourceSeat == owner.Seat && item.TargetSeat == targetSeat)) return SkillProgramStepOutcome.Continue;
-                _strategicDrafts[frame.Id] = new(effect.Op, targetSeat, null, [], [], 1);
+                ReplaceRuntimeTop(frame = frame with { StrategicDraft = new(effect.Op, targetSeat, null, 1) });
                 PublishStrategicPrompt(frame);
                 return _pendingDecision is null ? SkillProgramStepOutcome.Continue : SkillProgramStepOutcome.AwaitChoice;
             case SkillProgramEffectOp.SelectChainedByMarker:
                 var count = owner.Markers.GetValueOrDefault(effect.Marker!.Value);
-                _strategicDrafts[frame.Id] = new(effect.Op, -1, null, _players.Where(player => player.IsAlive && player.IsChained).Select(player => player.Seat).ToArray(), [], count);
+                ReplaceRuntimeTop(frame = frame with
+                {
+                    StrategicDraft = new(effect.Op, -1, null, count)
+                    { Candidates = _players.Where(player => player.IsAlive && player.IsChained).Select(player => player.Seat).ToArray() }
+                });
                 SetStrategicMarker(owner.Seat, effect.Marker.Value, owner.Seat, 0, frame);
                 PublishStrategicPrompt(frame);
                 return SkillProgramStepOutcome.AwaitChoice;
@@ -192,7 +194,8 @@ public sealed partial class GameEngine
                     ReplaceRuntimeTop(frame = frame with { SelectedTargetSeats = Array.AsReadOnly(live) });
                 }
                 if (frame.SelectedTargetSeats.Count == 0) return SkillProgramStepOutcome.Continue;
-                _strategicDrafts[frame.Id] = new(effect.Op, -1, null, frame.SelectedTargetSeats.ToArray(), [], 1);
+                ReplaceRuntimeTop(frame = frame with
+                { StrategicDraft = new(effect.Op, -1, null, 1) { Candidates = frame.SelectedTargetSeats } });
                 PublishStrategicPrompt(frame);
                 return SkillProgramStepOutcome.AwaitChoice;
             default: throw new InvalidOperationException("Unknown strategic operation.");
@@ -200,7 +203,7 @@ public sealed partial class GameEngine
     }
     private void PublishStrategicPrompt(ProgramSkillFrame frame)
     {
-        var draft = _strategicDrafts[frame.Id];
+        var draft = frame.StrategicDraft ?? throw new InvalidOperationException("Strategic choice lost its draft.");
         var choices = new List<PromptChoice>();
         PromptChoice Choice(string id, string label, IReadOnlyList<int> cards, IReadOnlyList<int> targets) =>
             new(new ChoiceId($"strategic.frame-{frame.Id}.{draft.Selected.Count}.{id}"), label, cards, targets,
@@ -233,7 +236,7 @@ public sealed partial class GameEngine
             var target = _players[draft.TargetSeat];
             foreach (var skill in target.General.Skills.Concat(target.SecondaryGeneral?.Skills ?? []).Where(skill => skill.ContentId is not null).DistinctBy(skill => skill.ContentId))
                 if (target.SkillGrants.Grants.Any(grant => grant.SkillId == skill.ContentId && grant.IsEnabled)) choices.Add(Choice(skill.ContentId!, $"令【{skill.Name}】失效", [], [target.Seat]));
-            if (choices.Count == 0) { _strategicDrafts.Remove(frame.Id); return; }
+            if (choices.Count == 0) { ReplaceRuntimeTop(frame with { StrategicDraft = null }); return; }
         }
         else
         {
@@ -251,7 +254,7 @@ public sealed partial class GameEngine
     private void ResolveStrategicProgramChoice(PromptChoice choice)
     {
         var frame = _resolutionStack.Last() as ProgramSkillFrame ?? throw new InvalidOperationException("Strategic choice lost its frame.");
-        var draft = _strategicDrafts.GetValueOrDefault(frame.Id) ?? throw new InvalidOperationException("Strategic choice lost its draft.");
+        var draft = frame.StrategicDraft ?? throw new InvalidOperationException("Strategic choice lost its draft.");
         if (choice.Parameters["frame-id"] != frame.Id.ToString() || choice.Parameters["selection-index"] != draft.Selected.Count.ToString()) throw new InvalidOperationException("Strategic selection is stale.");
         var id = choice.Parameters["choice"];
         ClearPendingDecision();
@@ -265,13 +268,17 @@ public sealed partial class GameEngine
                 if (!draft.Candidates.Contains(cardId) || location.Zone != CardZoneKind.Hand || location.OwnerSeat is not { } seat || seat != frame.OwnerSeat && seat != draft.TargetSeat) throw new InvalidOperationException("Discard selection no longer owns the card.");
                 var selected = draft.Selected.Append(cardId).ToArray();
                 if (selected.Select(card => _cardZones.CardsAt(_cardZones.GetLocation(card)).Single(item => item.Id == card).Suit).Distinct().Count() != selected.Length) throw new InvalidOperationException("Discard selection repeats a suit.");
-                if (selected.Length < 4) { _strategicDrafts[frame.Id] = draft with { Selected = selected }; PublishStrategicPrompt(frame); return; }
+                if (selected.Length < 4)
+                {
+                    ReplaceRuntimeTop(frame = frame with { StrategicDraft = draft with { Selected = selected } });
+                    PublishStrategicPrompt(frame); return;
+                }
                 SetProgramCardSet(frame.Id, draft.Bind!, selected, SkillProgramCardSetVisibility.Private, selected.Select(card => _cardZones.GetLocation(card)).ToArray());
             }
         }
         else if (draft.Op is SkillProgramEffectOp.DiscardHandOrUseEquipment or SkillProgramEffectOp.MoveFieldEquipment)
         {
-            _strategicDrafts.Remove(frame.Id);
+            ReplaceRuntimeTop(frame = frame with { StrategicDraft = null });
             var cardId = choice.Cards.Single();
             if (draft.Op == SkillProgramEffectOp.DiscardHandOrUseEquipment)
                 ResolveDiscardHandOrUseEquipment(frame, cardId);
@@ -296,17 +303,18 @@ public sealed partial class GameEngine
                 if (!draft.Candidates.Contains(seat) || !_players[seat].IsAlive || draft.Op == SkillProgramEffectOp.SelectChainedByMarker && !_players[seat].IsChained || draft.Selected.Contains(seat) || draft.Selected.Count >= draft.Maximum) throw new InvalidOperationException("Bound target selection is unavailable.");
                 if (draft.Op == SkillProgramEffectOp.SelectOneSelectedTarget)
                 {
-                    ReplaceRuntimeTop(frame with { SelectedTargetSeats = [seat] });
-                    _strategicDrafts.Remove(frame.Id);
+                    ReplaceRuntimeTop(frame with { SelectedTargetSeats = [seat], StrategicDraft = null });
                     AdvanceRuntimeProgram(frame.Id);
                     return;
                 }
-                _strategicDrafts[frame.Id] = draft with { Selected = draft.Selected.Append(seat).ToArray() };
+                ReplaceRuntimeTop(frame = frame with
+                { StrategicDraft = draft with { Selected = draft.Selected.Append(seat).ToArray() } });
                 PublishStrategicPrompt(frame); return;
             }
             ReplaceRuntimeTop(frame with { SelectedTargetSeats = draft.Selected });
         }
-        _strategicDrafts.Remove(frame.Id);
+        // Card-set binding and target selection can already have replaced this frame.
+        ReplaceRuntimeTop(GetActiveProgramFrame(frame.Id) with { StrategicDraft = null });
         AdvanceRuntimeProgram(frame.Id);
     }
     private void ExpireProgramSuppressions(int turnOwnerSeat)
@@ -319,9 +327,16 @@ public sealed partial class GameEngine
             AdvanceEventRulesAndQueueFact(new ProgramSkillSuppressedEvent(suppression.SourceSeat, turnOwnerSeat, suppression.SkillId, false));
         }
     }
+    private bool IsValidStrategicDamageBatchContinuation(ProgramSkillFrame frame, SkillProgramEffect paused) =>
+        paused.Op == SkillProgramEffectOp.DamageOtherLiving &&
+        frame.StrategicDamageBatch is { } batch && batch.InstructionIndex == frame.InstructionIndex &&
+        batch.RemainingTargetSeats.All(seat => IsValidPlayerSeat(seat) && seat != frame.OwnerSeat) &&
+        batch.RemainingTargetSeats.Distinct().Count() == batch.RemainingTargetSeats.Count &&
+        batch.RemainingTargetSeats.SequenceEqual(batch.RemainingTargetSeats.Order());
+
     private void AssertStrategicProgramSelection(ProgramSkillFrame frame, SkillProgramEffect paused)
     {
-        if (!_strategicDrafts.TryGetValue(frame.Id, out var draft)) return;
+        if (frame.StrategicDraft is not { } draft) return;
         if (draft.Op != paused.Op || draft.Selected.Count > draft.Maximum ||
             draft.Selected.Distinct().Count() != draft.Selected.Count || draft.Selected.Any(item => !draft.Candidates.Contains(item)) ||
             !ReferenceEquals(frame, _resolutionStack.LastOrDefault()) ||

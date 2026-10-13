@@ -117,6 +117,7 @@ public sealed partial class GameEngine
         AdvanceRuntimeProgram(f.Id);
     }
 
+    [ProgramContinuation(ProgramContinuationKind.Resume, 210)]
     private bool ResumeDrawDiscardCategoryRefund(long frameId)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame f || f.Id != frameId || f.DrawDiscardCategoryRefund is not { } r) return false;
@@ -280,6 +281,7 @@ public sealed partial class GameEngine
         if (index + 1 < _resolutionStack.Count && !DrawDiscardCategoryFirstChild(f, _resolutionStack[index + 1]))
             throw new InvalidOperationException("Draw/discard refund retained an unrelated first native child.");
     }
+    [ProgramContinuation(ProgramContinuationKind.MovementTail, 10)]
     private bool ReturnDrawDiscardCategoryMovement(ProgramSkillFrame f)
     {
         if (f.DrawDiscardCategoryRefund is null || f.PendingMovementContinuation is null) return false;
@@ -371,7 +373,6 @@ public sealed partial class GameEngine
     }
     private sealed partial class ProgramSkillHost : IDrawDiscardCategoryProgramHost
     {
-        public bool CanContinueDrawDiscardCategoryRefund(ProgramSkillFrame f) => engine.CanContinueDrawDiscardCategoryRefund(f);
         public SkillProgramStepOutcome DrawThenDiscardDistinctCategories(ProgramSkillFrame f, int targetSeat, int amount, string stateId) =>
             engine.BeginDrawDiscardCategoryRefund(f, targetSeat, amount, stateId);
     }

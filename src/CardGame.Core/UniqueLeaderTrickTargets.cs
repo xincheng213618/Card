@@ -16,7 +16,7 @@ public sealed record UniqueLeaderTrickTargetDraft(long CardUseFrameId, long Acti
     public IReadOnlyList<int> OriginalTargetSeats
     { get => _targets; init => _targets = Array.AsReadOnly(value.ToArray()); }
     public IReadOnlyList<PromptChoice> Choices
-    { get => _choices; init => _choices = Array.AsReadOnly(value.Select(DesignatedExtraTargetDraft.FreezeChoice).ToArray()); }
+    { get => _choices; init => _choices = Array.AsReadOnly(value.Select(PromptChoiceProjection.Freeze).ToArray()); }
 }
 
 public sealed record UniqueLeaderTrickTargetOfferedEvent(long ProgramFrameId, long CardUseFrameId, long ActionId,
@@ -98,12 +98,7 @@ internal abstract class UniqueLeaderTrickOperationDescriptor : ProgramOperationD
         ? ProgramOperationInteraction.Automatic : ProgramOperationInteraction.Choice;
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GrantTurnCardTargetRestriction,
         static (_, context) => context.PublicControlValue(8d));
-    public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
-    {
-        r.AllowOnly("op", "target", "condition");
-        var result = new SkillProgramEffect(Op, FilterBoundCardsProgramOperationDescriptor.Owner(r), 0, r.Condition());
-        RequireAlways(result, r.Path); return result;
-    }
+    public override SkillProgramEffect Parse(ProgramOperationNodeReader r) => ParseOwnerAlways(r);
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
         [new RequireTriggerWindow(Op == SkillProgramEffectOp.DrawAfterJoinedTrickDamage
             ? SkillProgramTriggerWindow.CardUseCompleted : SkillProgramTriggerWindow.CardUseTargetsFinalized)];

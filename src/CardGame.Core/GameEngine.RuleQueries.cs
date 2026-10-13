@@ -34,9 +34,10 @@ public sealed partial class GameEngine
         outgoing.AddRange(_turnCardUseEffects.GetRuleModifiers(_turnNumber, _currentSeat, source.Seat, SkillRuleQuery.OutgoingDistance)
             .Select(item => new FiniteRuleQueryContribution(
                 $"turn:{item.TurnNumber}:{item.Source.SkillId}:{item.Source.BindingId}:{item.GrantSequence}", SkillRuleOperation.Add, item.Amount)));
-        var incoming = CollectNumericRuleContributions(target, SkillRuleQuery.IncomingDistance);
-        return ApplyFixedDistanceOne(source, target, ApplyInspectedHandDistance(source, target, ApplyHpOrderedDistance(source, target,
-            ApplyProgramDirectedDistance(source, target, RuleQueryService.EvaluateDirectionalDistance(baseTerms, outgoing, incoming)))));
+        var incoming = CollectNumericRuleContributions(target, SkillRuleQuery.IncomingDistance).ToList();
+        if (source.Seat != target.Seat) incoming.AddRange(IncomingDistanceCourtesyContributions(target.Seat));
+        return ApplyOtherPlayRestrictionDistance(source, target, ApplyFixedDistanceOne(source, target, ApplyInspectedHandDistance(source, target, ApplyHpOrderedDistance(source, target,
+            ApplyProgramDirectedDistance(source, target, RuleQueryService.EvaluateDirectionalDistance(baseTerms, outgoing, incoming))))));
     }
 
     private RuleQueryEvaluation CalculateAttackRange(CharacterState player, int? excludedEquipmentId = null)
@@ -109,6 +110,9 @@ public sealed partial class GameEngine
         };
         var contributions = CollectNumericRuleContributions(player, SkillRuleQuery.SlashLimit).ToList();
         if (HasNextUnlimitedCard(player)) contributions.Add(new UnlimitedRuleQueryContribution($"skill:{player.Seat}:next-card-unlimited"));
+        if (HasFriendQihuiAllowance(player)) contributions.Add(new UnlimitedRuleQueryContribution($"skill:{player.Seat}:friend-qihui"));
+        if (HasMouWujingAllowance(player)) contributions.Add(new UnlimitedRuleQueryContribution($"skill:{player.Seat}:mou-wujing"));
+        if (HasFriendYangmingQuota(player)) contributions.Add(new UnlimitedRuleQueryContribution($"skill:{player.Seat}:friend-yangming"));
         foreach (var card in GetEquipmentRuleCards(player).Where(card => card.Id != excludedEquipmentId))
         {
             var bonus = EquipmentCatalog.Get(card.Kind).SlashLimitBonus;
@@ -250,6 +254,7 @@ public sealed partial class GameEngine
          _slashCountThisTurn < GetSlashUseLimit(player, excludedEquipmentId) ||
          HasRoundGainedBasicBonus(player, effectiveKind, physicalCardIds ?? (physicalCard is { Id: > 0 } ? [physicalCard.Id] : [])) ||
          HasOutsideAttackRangeSlashQuota(player, target, effectiveKind) ||
+         GuanFocusAllowsSlash(player.Seat, target.Seat) || GuanFirstBasicAvailable(player, effectiveKind) ||
          HasJudgedRankSlashQuota(player.Seat, effectiveKind, effectiveRank ??
              (physicalCard is not null ? SpecificSlashRank(player, physicalCard, effectiveKind) : null)) ||
          physicalCard is not null && BypassesSlashLimitBySuit(player, physicalCard, effectiveKind) ||

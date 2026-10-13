@@ -115,6 +115,7 @@ public sealed partial class GameEngine
         TryBeginCharacterStateProgramWindow(f.Id, CharacterStateContinuation.Program) ||
         TryBeginHpChangedProgramWindow(f.Id, PostEventContinuation.AwaitedProgramMovement) ||
         TryBeginCardsMovedProgramWindow(f.Id) || TryBeginAdvancedSkillsChanged(f.Id);
+    [ProgramContinuation(ProgramContinuationKind.Resume, 230)]
     private bool ResumeKuangfu(long id)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame f || f.Id != id || f.Kuangfu is not { } r) return false;
@@ -131,6 +132,7 @@ public sealed partial class GameEngine
         ReplaceRuntimeTop(f = f with { Kuangfu = r with { Stage = KuangfuStage.SlashTargetChoice } });
         PublishKuangfu(f); return true;
     }
+    [ProgramContinuation(ProgramContinuationKind.Movement, 250)]
     private bool ReturnKuangfuMovement(ProgramSkillFrame f)
     {
         if (f.Kuangfu is not { Stage: KuangfuStage.EquipmentChildren or KuangfuStage.OutcomeChildren }) return false;
@@ -160,7 +162,7 @@ public sealed partial class GameEngine
         // This Play activation grants distance only. The native ordinary Slash ledger is debited exactly once.
         if (LifecycleCardUse(useId)?.UnlimitedUse != true) RecordSlashUseDebit(useId, actor.Seat);
         var attack = new CardAttackHandle(this, useId, actor.Seat, targetSeat, card: null,
-            damageAmount: actor.HasAlcoholEffect ? 2 : 1, playedCardKind: CardKind.Slash,
+            damageAmount: 1 + actor.AlcoholDamageBonus, playedCardKind: CardKind.Slash,
             ignoresArmor: HasCardArmorBypass(actor, target, CardKind.Slash), programSkillCardUseFrameId: f.Id);
         CaptureProgramAlcoholConsumption(useId, actor); actor.HasAlcoholEffect = false; ActiveCardAttack = attack;
         AdvanceEventRulesAndQueueFact(new CardUsedEvent(0, CardKind.Slash, actor.Seat, targetSeat));

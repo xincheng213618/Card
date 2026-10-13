@@ -10,12 +10,7 @@ internal sealed class ExchangeOwnedCardThroughDeckEndDescriptor : ProgramOperati
     public override ISkillProgramEffectHandler Handler { get; } = new ExchangeOwnedCardThroughDeckEndHandler();
     public override ProgramOperationInteraction Interaction => ProgramOperationInteraction.Choice;
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.Move, static (effect, context) => context.DeckPrograms(effect));
-    public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
-    {
-        r.AllowOnly("op", "target", "condition");
-        var e = new SkillProgramEffect(Op, FilterBoundCardsProgramOperationDescriptor.Owner(r), 0, r.Condition());
-        RequireAlways(e, r.Path); return e;
-    }
+    public override SkillProgramEffect Parse(ProgramOperationNodeReader r) => ParseOwnerAlways(r);
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) => [new ConsumeSelectedCards(1)];
 }
 internal sealed class UseDeckSlashesThenShuffleDescriptor : ProgramOperationDescriptorBase

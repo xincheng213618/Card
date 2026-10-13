@@ -25,10 +25,17 @@ public sealed partial record ProgramSkillFrame
 // and the remaining damagers each randomly discard up to two hand cards. The
 // punishment evidence accumulates on the owning frame across damage children.
 public sealed record ZhuihuanRetaliateState(int ChosenSeat, IReadOnlyList<int> PendingDamagers,
-    IReadOnlyList<int>? DamagedSeats = null, IReadOnlyList<int>? DiscardedSeats = null, int DiscardedCardCount = 0)
+    int DiscardedCardCount = 0)
 {
-    public IReadOnlyList<int> Damaged { get; init; } = DamagedSeats ?? [];
-    public IReadOnlyList<int> Discarded { get; init; } = DiscardedSeats ?? [];
+    private readonly IReadOnlyList<int> _pendingDamagers = Array.AsReadOnly(PendingDamagers.ToArray());
+    private readonly IReadOnlyList<int> _damagedSeats = Array.AsReadOnly(Array.Empty<int>());
+    private readonly IReadOnlyList<int> _discardedSeats = Array.AsReadOnly(Array.Empty<int>());
+    public IReadOnlyList<int> PendingDamagers
+    { get => _pendingDamagers; init => _pendingDamagers = Array.AsReadOnly(value.ToArray()); }
+    public IReadOnlyList<int> DamagedSeats
+    { get => _damagedSeats; init => _damagedSeats = Array.AsReadOnly(value.ToArray()); }
+    public IReadOnlyList<int> DiscardedSeats
+    { get => _discardedSeats; init => _discardedSeats = Array.AsReadOnly(value.ToArray()); }
 }
 
 public sealed partial class GameEngine
@@ -164,7 +171,7 @@ public sealed partial class GameEngine
 
     // 追还 punishment: runs at the marked character's next preparation phase and
     // repeats one damager per invocation; reflect damage suspends as a child and
-    // the rewound cursor re-enters this instruction until the ledger empties.
+    // its typed continuation re-enters this instruction until the ledger empties.
     private SkillProgramStepOutcome ZhuihuanProgramRetaliate(ProgramSkillFrame frame, SkillProgramEffect effect)
     {
         var active = GetActiveProgramFrame(frame.Id);
@@ -198,12 +205,12 @@ public sealed partial class GameEngine
             var damager = _players[damagerSeat];
             if (damager.Hp > chosen.Hp)
             {
-                // The rewound cursor re-enters this instruction after the child;
-                // the punished evidence stays on the frame across invocations.
+                // Keep the committed cursor while the damage child is active;
+                // the typed receipt resumes this instruction after it returns.
                 ReplaceRuntimeTop(GetActiveProgramFrame(frame.Id) with
                 {
-                    InstructionIndex = frame.InstructionIndex - 1,
-                    ZhuihuanRetaliate = state with { Damaged = state.Damaged.Append(damagerSeat).ToArray() }
+                    ReexecuteParticipantInstruction = true,
+                    ZhuihuanRetaliate = state with { DamagedSeats = state.DamagedSeats.Append(damagerSeat).ToArray() }
                 });
                 return BeginProgramSkillDamage(GetActiveProgramFrame(frame.Id), damagerSeat, 2,
                     explicitSourceSeat: state.ChosenSeat);
@@ -229,20 +236,29 @@ public sealed partial class GameEngine
                 active.OwnerSeat, damagerSeat);
             state = state with
             {
-                Discarded = state.Discarded.Append(damagerSeat).ToArray(),
+                DiscardedSeats = state.DiscardedSeats.Append(damagerSeat).ToArray(),
                 DiscardedCardCount = state.DiscardedCardCount + count
             };
         }
         var pendingArms = PendingZhuihuanArmFrameIds(owner.Seat, chosenSeat);
-        ReplaceRuntimeTop(GetActiveProgramFrame(frame.Id) with { ZhuihuanRetaliate = null });
+        ReplaceRuntimeTop(GetActiveProgramFrame(frame.Id) with
+        { ZhuihuanRetaliate = null, ReexecuteParticipantInstruction = false });
         AdvanceEventRulesAndQueueFact(new ProgramZhuihuanResolvedEvent(active.Id, active.SkillId,
             GetProgramBindingId(active), owner.Seat, chosenSeat, pendingArms,
-            state.Damaged, state.Discarded, state.DiscardedCardCount));
+            state.DamagedSeats, state.DiscardedSeats, state.DiscardedCardCount));
         foreach (var armFrameId in pendingArms) _zhuihuanArmChoices.Remove(armFrameId);
         if (!TryBeginCardsMovedProgramWindow())
             AdvanceRuntimeProgram(active.Id);
         return SkillProgramStepOutcome.AwaitChild;
     }
+
+    private bool IsValidZhuihuanContinuation(ProgramSkillFrame frame, SkillProgramEffect paused) =>
+        paused.Op == SkillProgramEffectOp.ZhuihuanRetaliate && frame.ZhuihuanRetaliate is { } state &&
+        frame.WindowContext is { Window: SkillProgramTriggerWindow.TurnStartBeforeNormalFlow, SourceSeat: { } boundarySeat } &&
+        state.ChosenSeat == boundarySeat && state.ChosenSeat == _currentSeat && IsValidPlayerSeat(state.ChosenSeat) &&
+        state.DamagedSeats.Count > 0 && state.DamagedSeats.All(IsValidPlayerSeat) &&
+        state.PendingDamagers.All(IsValidPlayerSeat) && state.DiscardedSeats.All(IsValidPlayerSeat) &&
+        state.DiscardedCardCount >= 0 && state.DiscardedCardCount <= 2 * state.DiscardedSeats.Count;
 
     // One history pass: every own armed event for this marked seat opens a
     // damage ledger that the matching resolution event closes; damages recorded

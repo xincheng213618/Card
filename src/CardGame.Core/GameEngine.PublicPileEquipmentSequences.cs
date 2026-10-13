@@ -102,6 +102,7 @@ public sealed partial class GameEngine
         throw new InvalidOperationException("Unrecognized domain choice.");
     }
     private void FinishGameDomain(ProgramSkillFrame f){ReplaceRuntimeTop(GetActiveProgramFrame(f.Id) with{DomainCrossing=null,PileEquipment=null});AdvanceRuntimeProgram(f.Id);}
+    [ProgramContinuation(ProgramContinuationKind.Resume, 920)]
     private bool ResumeGameDomain(long id)
     {
         if(_resolutionStack.LastOrDefault() is not ProgramSkillFrame f||f.Id!=id||f.DomainCrossing is null&&f.PileEquipment is null)return false;

@@ -18,7 +18,7 @@ public sealed record RoundGainedTrickTargetDraft(long CardUseFrameId, long Actio
     private readonly IReadOnlyList<PromptChoice> _choices = Array.AsReadOnly(Array.Empty<PromptChoice>());
     public IReadOnlyList<int> OriginalTargetSeats { get => _targets; init => _targets = Array.AsReadOnly(value.ToArray()); }
     public IReadOnlyList<PromptChoice> Choices
-    { get => _choices; init => _choices = Array.AsReadOnly(value.Select(DesignatedExtraTargetDraft.FreezeChoice).ToArray()); }
+    { get => _choices; init => _choices = Array.AsReadOnly(value.Select(PromptChoiceProjection.Freeze).ToArray()); }
 }
 public sealed record RoundGainedTrickTargetOfferedEvent(long ProgramFrameId, int InstructionIndex,
     CardConversionSource Source, RoundGainedUseQualification Qualification, IReadOnlyList<int> OriginalTargetSeats,
@@ -101,12 +101,7 @@ internal abstract class RoundGainedSourceOperationDescriptor : ProgramOperationD
     public override ProgramOperationInteraction Interaction => Op == SkillProgramEffectOp.DrawForRoundGainedEquipmentUse ? ProgramOperationInteraction.Automatic : ProgramOperationInteraction.Choice;
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GainCards,
         static (effect, context) => context.RoundGainedSourceUseValue(effect));
-    public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
-    {
-        r.AllowOnly("op", "target", "condition");
-        var result = new SkillProgramEffect(Op, FilterBoundCardsProgramOperationDescriptor.Owner(r), 0, r.Condition());
-        RequireAlways(result, r.Path); return result;
-    }
+    public override SkillProgramEffect Parse(ProgramOperationNodeReader r) => ParseOwnerAlways(r);
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
         [new RequireTriggerWindow(Op == SkillProgramEffectOp.DrawForRoundGainedEquipmentUse ? SkillProgramTriggerWindow.CardUseCommitted : SkillProgramTriggerWindow.CardUseTargetsFinalized)];
 }

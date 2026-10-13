@@ -10,12 +10,7 @@ internal sealed class CommitConversionPolarityDescriptor : ProgramOperationDescr
     public override bool UsesConversionPolarity => true;
     public override ISkillProgramEffectHandler Handler { get; } = new CommitConversionPolarityHandler();
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.ToggleBooleanState, static (_, _) => { });
-    public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
-    {
-        r.AllowOnly("op", "target", "condition");
-        var effect = new SkillProgramEffect(Op, FilterBoundCardsProgramOperationDescriptor.Owner(r), 0, r.Condition());
-        RequireAlways(effect, r.Path); return effect;
-    }
+    public override SkillProgramEffect Parse(ProgramOperationNodeReader r) => ParseOwnerAlways(r);
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) => [];
 }
 public sealed class CommitConversionPolarityHandler : ISkillProgramEffectHandler

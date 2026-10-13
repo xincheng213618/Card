@@ -49,6 +49,7 @@ public sealed partial class GameEngine
             HasRuntimeSkillInstance(_players[item.Source.OwnerSeat], item.Source.SkillId, item.Source.SkillInstanceId));
 
     private bool IsDirectedCardTargetProhibited(int actorSeat, int targetSeat, CardKind cardKind) =>
+        GuanFocusProhibitsSlash(actorSeat, targetSeat, cardKind) ||
         actorSeat == targetSeat && HasSelfCardTargetProhibition(actorSeat) ||
         HasDirectedTurnCardPolicy(actorSeat, targetSeat, cardKind, DirectedTurnCardPolicyEffect.ForbidTarget);
 

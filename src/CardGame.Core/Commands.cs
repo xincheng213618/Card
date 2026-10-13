@@ -91,6 +91,7 @@ public sealed record CommandError(CommandErrorCode Code, string Message);
 [JsonDerivedType(typeof(EndPlayPhaseCommand), "end-play")]
 [JsonDerivedType(typeof(DiscardCardsCommand), "discard-cards")]
 [JsonDerivedType(typeof(SelectGeneralCommand), "select-general")]
+[JsonDerivedType(typeof(RequestGeneralRosterCommand), "request-general-roster")]
 [JsonDerivedType(typeof(RevealGeneralCommand), "reveal-general")]
 [JsonDerivedType(typeof(AnswerPromptCommand), "answer-prompt")]
 [JsonDerivedType(typeof(UseEquipmentEffectCommand), "use-equipment-effect")]
@@ -99,6 +100,10 @@ public abstract record GameCommand(int ActorSeat, long ExpectedRevision);
 
 /// <summary>Starts an unstarted match. ActorSeat is the trusted host (-1).</summary>
 public sealed record StartGameCommand(long ExpectedRevision = 0) : GameCommand(-1, ExpectedRevision);
+
+/// <summary>Changes the viewer's current setup prompt between candidates and the available mode roster.</summary>
+public sealed record RequestGeneralRosterCommand(int ActorSeat, bool FullRoster, long ExpectedRevision, PromptId PromptId) :
+    GameCommand(ActorSeat, ExpectedRevision);
 
 /// <summary>
 /// Pumps deterministic AI until the next player boundary or game end. ActorSeat

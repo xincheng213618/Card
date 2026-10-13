@@ -38,12 +38,13 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new CardUseDeclaredEvent(resolutionId, 0, CardKind.Slash, source.Seat));
         AdvanceEventRulesAndQueueFact(new TargetsConfirmedEvent(resolutionId, [targetSeat]));
         var attack = new CardAttackHandle(this, resolutionId, source.Seat, targetSeat, card: null,
-            damageAmount: source.HasAlcoholEffect ? 2 : 1, playedCardKind: CardKind.Slash,
+            damageAmount: 1 + source.AlcoholDamageBonus, playedCardKind: CardKind.Slash,
             ignoresArmor: HasCardArmorBypass(source, target, CardKind.Slash), programSkillCardUseFrameId: active.Id);
         CaptureProgramAlcoholConsumption(resolutionId, source);
         source.HasAlcoholEffect = false;
         ActiveCardAttack = attack;
         ObservePhaseNamePredictionUse(action);
+        if (HasPhaseStartCardUseParticipant(source.Seat)) RecordActualPlayPhaseUse(action);
         AdvanceEventRulesAndQueueFact(new CardUsedEvent(0, CardKind.Slash, source.Seat, targetSeat));
         TryMarkProgramUseCommitted(resolutionId);
         if (!TryBeginProgramCardWindow(attack, action, SkillProgramTriggerWindow.CardUseCommitted, action.TargetSeats, ProgramCardContinuation.CommittedSlash))

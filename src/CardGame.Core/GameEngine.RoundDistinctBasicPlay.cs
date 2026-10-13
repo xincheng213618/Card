@@ -54,7 +54,7 @@ public sealed partial class GameEngine
     private bool CanUseRoundDistinctBasicAlcohol(CharacterState owner, IReadOnlyList<Card> cards) =>
         !owner.HasAlcoholEffect && !HasSelfCardTargetProhibition(owner.Seat) &&
         (!owner.UsedPlayPhaseAlcoholThisTurn || HasTargetCardQuotaAllowance(owner.Seat, owner.Seat) ||
-            HasNextUnlimitedCard(owner) || HasCardPolicy(owner, SkillProgramCardPolicyKind.UnlimitedAlcoholUse, CardKind.Alcohol) ||
+            (HasNextUnlimitedCard(owner) || HasMouWujingAllowance(owner) || HasFriendQihuiAllowance(owner)) || HasCardPolicy(owner, SkillProgramCardPolicyKind.UnlimitedAlcoholUse, CardKind.Alcohol) ||
             HasRoundGainedBasicBonus(owner, CardKind.Alcohol, cards.Select(c => c.Id).ToArray())) &&
         !IsCardTargetProhibited(owner, CardKind.Alcohol, PhysicalGroupSuit(owner, cards), PhysicalGroupColor(owner, cards)) &&
         !HasBeneficiarySuitShield(owner.Seat, owner.Seat, PhysicalGroupSuit(owner, cards));

@@ -20,6 +20,29 @@ internal static class ProgramExecutionPlanChecks
             loaded.Contributions, loaded.CardIdentities);
         RequireThrows<InvalidOperationException>(() =>
             new ProgramInstructionResolver().Resolve(duplicate, ProgramInstructionSourceKind.Activation, "draw"));
+
+        var trigger = loaded.Triggers[0];
+        var duplicateTrigger = CopyTrigger(trigger.Id, [null!]);
+        var duplicateError = RequireThrows<InvalidOperationException>(() =>
+            new ProgramInstructionResolver().Resolve(WithTriggers(trigger, duplicateTrigger),
+                ProgramInstructionSourceKind.Trigger, trigger.Id));
+        Require(duplicateError.Message == $"Skill program '{loaded.Id}' contains duplicate binding '{trigger.Id}'.",
+            "A duplicate trigger must fail before its malformed instructions are compiled.");
+        var nullIdError = RequireThrows<ArgumentNullException>(() =>
+            new ProgramInstructionResolver().Resolve(WithTriggers(CopyTrigger(null, trigger.Effects)),
+                ProgramInstructionSourceKind.Trigger, trigger.Id));
+        Require(nullIdError.ParamName == "bindingId",
+            "A null trigger ID must retain the execution plan's original argument boundary.");
+
+        SkillProgram WithTriggers(params SkillProgramTrigger[] triggers) => new(loaded.Id, loaded.Revision,
+            loaded.GameplayHash, loaded.RuntimeVersion, loaded.MinimumRulesVersion, loaded.Modifiers,
+            loaded.ViewAs, loaded.Activations, triggers, loaded.Contributions, loaded.CardIdentities);
+
+        SkillProgramTrigger CopyTrigger(string? id, IReadOnlyList<SkillProgramEffect> instructions) => new(id!,
+            trigger.Window, trigger.SourceSkillId, trigger.SourceViewAsId, trigger.Subject, trigger.Suits,
+            trigger.MinimumRank, trigger.MaximumRank, trigger.ExcludedReasons, trigger.JudgmentReasons,
+            trigger.JudgmentSource, trigger.CardKinds, trigger.SourceZones, trigger.MovementOccurrence,
+            trigger.DamageOccurrence, trigger.DrawPhaseMode, trigger.Optional, trigger.Condition, instructions);
     }
 
     private static ProgramSkillFrame Frame(SkillProgram program) =>
@@ -48,10 +71,10 @@ internal static class ProgramExecutionPlanChecks
         if (!condition) throw new InvalidOperationException(message);
     }
 
-    private static void RequireThrows<TException>(Action action) where TException : Exception
+    private static TException RequireThrows<TException>(Action action) where TException : Exception
     {
         try { action(); }
-        catch (TException) { return; }
+        catch (TException error) { return error; }
         throw new InvalidOperationException($"Expected {typeof(TException).Name}.");
     }
 }

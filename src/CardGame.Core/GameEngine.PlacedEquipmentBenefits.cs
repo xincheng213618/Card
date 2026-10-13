@@ -149,12 +149,14 @@ public sealed partial class GameEngine
             TryBeginHpChangedProgramWindow(f.Id, PostEventContinuation.AwaitedProgramMovement) || TryBeginCardsMovedProgramWindow(f.Id)) return;
         ReplaceRuntimeTop(GetActiveProgramFrame(f.Id) with { PendingMovementContinuation = null }); AdvanceRuntimeProgram(f.Id);
     }
+    [ProgramContinuation(ProgramContinuationKind.Movement, 390)]
     private bool ReturnPlacedEquipmentMovement(ProgramSkillFrame f)
     {
         if (f.PlacedEquipmentBenefit is null) return false;
         if (f.PendingMovementContinuation is null || !ValidPlacedEquipmentBenefit(f)) throw new InvalidOperationException("Equipment benefit lost its paid movement.");
         ContinuePlacedEquipmentMovement(f); return true;
     }
+    [ProgramContinuation(ProgramContinuationKind.Resume, 700)]
     private bool ResumePlacedEquipmentBenefit(long id)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame f || f.Id != id || f.PlacedEquipmentBenefit is not { } r) return false;

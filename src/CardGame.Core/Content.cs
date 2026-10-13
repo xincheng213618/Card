@@ -19,6 +19,7 @@ public static class CardCatalog
     private static readonly IReadOnlyDictionary<CardKind, CardDefinition> Definitions =
         new Dictionary<CardKind, CardDefinition>
         {
+            [CardKind.Xuanjian] = new(CardKind.Xuanjian, "玄剑", "装备牌", "攻击范围3。你可以将一种花色的所有手牌当普通杀使用。", 40, 0, 45),
             [CardKind.GeneralWeapon] = new(CardKind.GeneralWeapon, "武将武器", "装备牌", "无花色点数，离开装备区销毁。", 40, 0, 40),
             [CardKind.RedBloodBlade] = new(CardKind.RedBloodBlade, "赤血刃", "装备牌",
                 "攻击范围3（若你未拥有神御，改为0）。每回合首次你的杀对攻击范围内最远角色造成伤害时，此伤害+1。首次替换其他武器牌后，获得其技能。", 45, 0, 50),

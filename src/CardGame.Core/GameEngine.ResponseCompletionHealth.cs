@@ -37,7 +37,9 @@ public sealed partial class GameEngine
             if (!_pendingHpChanges.Remove(change)) throw new InvalidOperationException("A response cost lost its original native HP-change invoice.");
             var owner = _players[change.TargetSeat];
             var facts = CaptureProgramTriggerFacts(owner) with { HpChangeAmount = change.Amount,
-                HpBeforeChange = change.HpBefore, HpAfterChange = change.HpAfter };
+                HpBeforeChange = change.HpBefore, HpAfterChange = change.HpAfter,
+                HealthChangeKind = _contentRegistry.ProgramDependencies.UsesTriggerCondition(SkillProgramTriggerConditionKind.HealthChangeKindIs)
+                    ? change.Kind : null };
             var candidates = owner.IsAlive ? new[] { SkillProgramTriggerWindow.AfterHpRecovered, SkillProgramTriggerWindow.AfterHealthChanged }
                 .SelectMany(w => CollectProgramTriggerCandidates(owner, w)).Where(c => GetProgramTrigger(c).Condition.Evaluate(facts, c.SkillId, c.SkillInstanceId))
                 .SelectMany(c => Enumerable.Range(0, GetProgramTrigger(c).HpChangeOccurrence == SkillProgramHpChangeOccurrence.PerPoint ? change.Amount : 1)

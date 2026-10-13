@@ -15,6 +15,7 @@ public sealed partial class GameEngine
         SetProgramTargetFaceState(f.Id,f.OwnerSeat,f.OwnerSeat,true);
         AdvanceRuntimeProgram(f.Id); return SkillProgramStepOutcome.AwaitChild;
     }
+    [ProgramContinuation(ProgramContinuationKind.Resume, 640)]
     private bool ResumeProvenanceAlcohol(long id)
     {
         if(_resolutionStack.LastOrDefault() is not ProgramSkillFrame f || f.Id!=id || f.ProvenanceAlcohol is not { } receipt) return false;

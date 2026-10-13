@@ -29,6 +29,12 @@ internal static class HandGuidanceChecks
                 ReadOnly(action.TargetSeats);
                 ReadOnly(action.SelectableCardIds);
                 ReadOnly(action.SelectableTargetSeats);
+                if (action.SelectableCardTargets is { } publishedPairs) ReadOnly(publishedPairs);
+                if (action.SelectableTargetSequences is { } publishedSequences)
+                {
+                    ReadOnly(publishedSequences);
+                    foreach (var sequence in publishedSequences) ReadOnly(sequence);
+                }
                 if (action.AdditionalConversionSources is { } sources) ReadOnly(sources);
             }
             Require(hints.Select(hint => hint.CardId).Order().SequenceEqual(ownHand), "Guidance must contain exactly the local human's hand.");
@@ -46,20 +52,32 @@ internal static class HandGuidanceChecks
         var targets = new List<int> { 1, 2 };
         var cards = new List<int> { 3, 4 };
         var conversions = new List<CardConversionSource> { new("skill", "binding", 0, "instance") };
+        var cardTargets = new List<ActiveSkillCardTarget> { new(3, 1), new(4, 2) };
+        var firstSequence = new List<int> { 1, 2 };
+        var secondSequence = new List<int> { 2, 1 };
+        var targetSequences = new List<IReadOnlyList<int>> { firstSequence, secondSequence };
         var draft = new LegalAction(LegalActionKind.UseProgramSkill, null, null, "draft")
         {
             TargetSeats = targets, SelectableTargetSeats = targets, SelectableCardIds = cards,
-            AdditionalConversionSources = conversions
+            AdditionalConversionSources = conversions, SelectedCardsSameNameOrAllEquipment = true,
+            SelectableCardTargets = cardTargets, SelectableTargetSequences = targetSequences
         };
         var frozen = new HumanActionView(0, [draft], []);
-        targets.Clear(); cards.Clear(); conversions.Clear();
+        targets.Clear(); cards.Clear(); conversions.Clear(); cardTargets.Clear();
+        firstSequence.Clear(); secondSequence.Clear(); targetSequences.Clear();
         var saved = frozen.LegalActions.Single();
         Require(saved.TargetSeats.SequenceEqual([1, 2]) && saved.SelectableTargetSeats.SequenceEqual([1, 2]) &&
-                saved.SelectableCardIds.SequenceEqual([3, 4]) && saved.AdditionalConversionSources?.Count == 1,
+                saved.SelectableCardIds.SequenceEqual([3, 4]) && saved.AdditionalConversionSources?.Count == 1 &&
+                saved.SelectedCardsSameNameOrAllEquipment &&
+                saved.SelectableCardTargets!.SequenceEqual(new[] { new ActiveSkillCardTarget(3, 1), new ActiveSkillCardTarget(4, 2) }) &&
+                saved.SelectableTargetSequences is [var first, var second] && first.SequenceEqual([1, 2]) && second.SequenceEqual([2, 1]),
             "An action view retained a caller-owned nested list.");
         ReadOnly(saved.TargetSeats);
         ReadOnly(saved.SelectableTargetSeats);
         ReadOnly(saved.SelectableCardIds);
+        ReadOnly(saved.SelectableCardTargets!);
+        ReadOnly(saved.SelectableTargetSequences!);
+        foreach (var sequence in saved.SelectableTargetSequences!) ReadOnly(sequence);
         ReadOnly(saved.AdditionalConversionSources!);
     }
 

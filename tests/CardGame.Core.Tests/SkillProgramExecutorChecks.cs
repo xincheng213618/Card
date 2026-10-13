@@ -53,6 +53,145 @@ internal static class SkillProgramExecutorChecks
             "A missing selected cost must cancel before any partial move or later benefit.");
     }
 
+    public static void ContinuationPermissionsKeepDeathAndSkillLossSeparate()
+    {
+        var program = Program("""{"op":"draw","target":"selectedTarget","amount":1}""",
+            minTargets: 1, maxTargets: 1);
+        foreach (var ownerAlive in new[] { false, true })
+        {
+            var denied = Runtime(program, selectedTargets: [1]);
+            denied.SetOwnerAlive(ownerAlive);
+            denied.OwnsCurrentSkill = !ownerAlive;
+            new SkillProgramExecutor().Run(denied.Frame!.Id, denied, denied);
+            Require(denied.Completed is { Completed: false } && denied.Calls.Count == 0 &&
+                    denied.UpdatedCursors.Count == 0,
+                "A host using the default permissions must reject both owner death and lost skill identity.");
+        }
+
+        foreach (var (alive, owns, death, loss, allowed, queryLoss) in new[]
+        {
+            (true, true, false, false, true, false),
+            (true, false, true, false, false, true),
+            (true, false, false, true, true, true),
+            (false, true, false, true, false, false),
+            (false, false, false, true, false, true),
+            (false, false, true, false, true, false)
+        })
+        {
+            var runtime = new ContinuationRuntime(program, Runtime(program, selectedTargets: [1]).Frame!)
+            {
+                OwnsCurrentSkill = owns,
+                AllowAfterOwnerDeath = death,
+                AllowAfterSkillLoss = loss
+            };
+            runtime.SetOwnerAlive(alive);
+            new SkillProgramExecutor().Run(runtime.Frame!.Id, runtime, runtime);
+            Require(runtime.Completed?.Completed == allowed && runtime.Calls.Count == (allowed ? 1 : 0) &&
+                    runtime.OwnerDeathQueries > 0 && (runtime.SkillLossQueries > 0) == queryLoss,
+                $"Continuation permissions changed the death/source-loss boundary ({alive}, {owns}, {death}, {loss}).");
+        }
+    }
+
+    public static void ContinuationMetadataAndDefinitionValidationRemainAuthoritative()
+    {
+        var activation = ProgramWithActivations(
+            """{"id":"run","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"anyLiving","usesPerTurn":1,"continueAfterOwnerDeath":true,"effects":[{"op":"draw","target":"selectedTarget","amount":1}]}""");
+        var dead = Runtime(activation, selectedTargets: [1]);
+        dead.SetOwnerAlive(false);
+        dead.OwnsCurrentSkill = false;
+        new SkillProgramExecutor().Run(dead.Frame!.Id, dead, dead);
+        Require(dead.Completed is { Completed: true } && dead.Calls.Count == 1,
+            "An activation's death-continuation metadata must still allow its living recipient to receive the benefit.");
+
+        var alive = Runtime(activation, selectedTargets: [1]);
+        alive.OwnsCurrentSkill = false;
+        new SkillProgramExecutor().Run(alive.Frame!.Id, alive, alive);
+        Require(alive.Completed is { Completed: false } && alive.Calls.Count == 0,
+            "Death-continuation metadata must not authorize a living actor whose skill source was lost.");
+
+        var triggers = SkillProgramCatalog.Load($$"""
+            {"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[{"id":"fixture:executor","revision":1,"triggers":[
+            {"id":"death","window":"ownerDied","subject":"owner","optional":false,"effects":[
+            {"op":"selectTarget","target":"owner","targetKind":"otherLiving"},{"op":"draw","target":"selectedTarget","amount":1}]},
+            {"id":"participants","window":"afterHpLost","subject":"owner","optional":false,"effects":[
+            {"op":"loseHpParticipants","target":"owner","targetKind":"anyLiving","amount":1}]}]}]}
+            """, """{"schemaVersion":3,"skills":{"fixture:executor":{"name":"Executor","description":"Fixture"}}}""")
+            .Programs["fixture:executor"];
+        foreach (var (id, window, expectedCalls) in new[]
+        {
+            ("death", SkillProgramTriggerWindow.OwnerDied, 1),
+            ("participants", SkillProgramTriggerWindow.AfterHpLost, 0)
+        })
+        {
+            var runtime = Runtime(triggers, selectedTargets: [1], activationId: id);
+            runtime.Frame = runtime.Frame! with
+            {
+                TriggerId = id,
+                InstructionIndex = 1,
+                WindowContext = new(window, 17, 0)
+            };
+            runtime.SetOwnerAlive(false);
+            runtime.OwnsCurrentSkill = false;
+            new SkillProgramExecutor().Run(runtime.Frame.Id, runtime, runtime);
+            Require(runtime.Completed is { Completed: true } && runtime.Calls.Count == expectedCalls,
+                "Owner-death windows and participant HP-loss metadata must retain their existing continuation rights.");
+        }
+
+        foreach (var unknownProgram in new[] { false, true })
+        {
+            var invalid = new ContinuationRuntime(activation, Runtime(activation, selectedTargets: [1]).Frame!)
+            {
+                AllowAfterOwnerDeath = true,
+                AllowAfterSkillLoss = true
+            };
+            invalid.Frame = unknownProgram
+                ? invalid.Frame! with { SkillId = "fixture:unknown" }
+                : invalid.Frame! with { GameplayHash = "changed" };
+            Throws<InvalidOperationException>(() => new SkillProgramExecutor().Run(invalid.Frame.Id, invalid, invalid),
+                unknownProgram ? "Unknown program" : "gameplay hash");
+            Require(invalid.OwnerDeathQueries == 0 && invalid.SkillLossQueries == 0 &&
+                    invalid.UpdatedCursors.Count == 0 && invalid.Calls.Count == 0,
+                "Continuation permission must not run before immutable program lookup and hash validation.");
+        }
+    }
+
+    public static void SourceLossContinuationWaitsForPaidChildExactlyOnce()
+    {
+        var program = Program(
+            """{"op":"discardSelected","target":"owner","amount":1},{"op":"draw","target":"owner","amount":1}""",
+            minCards: 1, maxCards: 1);
+        var runtime = new ContinuationRuntime(program, Runtime(program, selectedCards: [10]).Frame!)
+        {
+            AllowAfterSkillLoss = true,
+            SuspendSelectedPayment = true
+        };
+        var frameId = runtime.Frame!.Id;
+        var executor = new SkillProgramExecutor();
+        executor.Run(frameId, runtime, runtime);
+        Require(runtime.Frame is { InstructionIndex: 1, SelectedCardPayment: not null, SelectedCardPaymentResult: null } &&
+                runtime.HandCards.Count == 0 && runtime.Calls.Count == 1 && runtime.Completed is null,
+            "Selected payment must suspend after the physical cost and advanced cursor are recorded.");
+
+        runtime.OwnsCurrentSkill = false;
+        executor.Run(frameId, runtime, runtime);
+        Require(runtime.Frame is { InstructionIndex: 1 } && runtime.Completed is null &&
+                runtime.Calls.Count == 1 && runtime.UpdatedCursors.SequenceEqual([1]) && runtime.SkillLossQueries == 1,
+            "Source-loss permission must not bypass the unpaid child-return barrier or repeat the committed cost.");
+
+        runtime.Frame = runtime.Frame! with
+        {
+            SelectedCardPaymentResult = new(1, SkillProgramEffectOp.DiscardSelected, 90, true)
+        };
+        executor.Run(frameId, runtime, runtime);
+        executor.Run(frameId, runtime, runtime);
+        Require(runtime.Completed is { Completed: true } && runtime.UpdatedCursors.SequenceEqual([1, 2]) &&
+                runtime.Calls.SequenceEqual([
+                    "move:0:0:10:discard:skill-program.fixture:executor.DiscardSelected",
+                    "draw:0:0:1:::Private:skill-program.fixture:executor.Draw"
+                ]),
+            "Returning the typed payment result must grant the remaining benefit once without repaying the lost source's cost.");
+    }
+
     public static void RejectsChangedProgramsUnknownHandlersAndDuplicates()
     {
         var program = Program("""{"op":"draw","target":"owner","amount":1}""");
@@ -207,7 +346,28 @@ internal static class SkillProgramExecutorChecks
         if (!condition) throw new InvalidOperationException(message);
     }
 
-    private sealed class FakeRuntime : ISkillProgramExecutionHost, ISkillProgramEffectHost
+    private sealed class ContinuationRuntime(SkillProgram program, ProgramSkillFrame frame)
+        : FakeRuntime(program, frame), ISkillProgramExecutionHost
+    {
+        internal bool AllowAfterOwnerDeath { get; init; }
+        internal bool AllowAfterSkillLoss { get; init; }
+        internal int OwnerDeathQueries { get; private set; }
+        internal int SkillLossQueries { get; private set; }
+
+        bool ISkillProgramExecutionHost.CanContinueAfterOwnerDeath(ProgramSkillFrame frame)
+        {
+            OwnerDeathQueries++;
+            return AllowAfterOwnerDeath;
+        }
+
+        bool ISkillProgramExecutionHost.CanContinueAfterSkillLoss(ProgramSkillFrame frame)
+        {
+            SkillLossQueries++;
+            return AllowAfterSkillLoss;
+        }
+    }
+
+    private class FakeRuntime : ISkillProgramExecutionHost, ISkillProgramEffectHost
     {
         public int ResolveParticipant(ProgramSkillFrame frame, ProgramParticipantReference reference) =>
             reference.Kind == ProgramParticipantRef.Owner ? frame.OwnerSeat : 1;
@@ -232,7 +392,11 @@ internal static class SkillProgramExecutorChecks
         internal List<string> Calls { get; } = [];
         internal HashSet<int> HandCards { get; } = [];
         internal SkillProgramStepOutcome LoseHpOutcome { get; set; } = SkillProgramStepOutcome.Continue;
+        internal bool OwnsCurrentSkill { get; set; } = true;
+        internal bool SuspendSelectedPayment { get; init; }
         public bool IsGameOver { get; set; }
+
+        internal void SetOwnerAlive(bool alive) => _actors[0] = _actors[0] with { IsAlive = alive };
 
         public ProgramSkillFrame? GetActiveFrame(long frameId) =>
             Frame?.Id == frameId ? Frame : null;
@@ -250,7 +414,7 @@ internal static class SkillProgramExecutorChecks
             _ => false);
 
         public bool OwnsSkillInstance(int ownerSeat, string skillId, string skillInstanceId) =>
-            ownerSeat == 0 && skillId == _program.Id && skillInstanceId == "fixture-instance";
+            OwnsCurrentSkill && ownerSeat == 0 && skillId == _program.Id && skillInstanceId == "fixture-instance";
 
         public bool OwnsCards(int ownerSeat, IReadOnlyList<int> cardIds,
             IReadOnlyList<CardZoneKind> sourceZones) =>
@@ -402,6 +566,16 @@ internal static class SkillProgramExecutorChecks
             foreach (var cardId in cardIds) HandCards.Remove(cardId);
             Calls.Add($"move:{frame.OwnerSeat}:{targetSeat}:{string.Join(',', cardIds)}:" +
                        $"{(toDiscard ? "discard" : "give")}:{reason.Value}");
+            if (SuspendSelectedPayment)
+            {
+                Frame = frame with
+                {
+                    SelectedCardPayment = new(frame.InstructionIndex,
+                        toDiscard ? SkillProgramEffectOp.DiscardSelected : SkillProgramEffectOp.GiveSelected,
+                        cardIds, targetSeat, MovementCommitted: true, ActiveChildFrameId: 90)
+                };
+                return SkillProgramStepOutcome.AwaitChild;
+            }
             return SkillProgramStepOutcome.Continue;
         }
 

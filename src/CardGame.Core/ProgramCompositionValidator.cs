@@ -167,11 +167,11 @@ internal static class ProgramCompositionValidator
             {
                 if (choiceTargetSelections.Count > 0 &&
                     resource is (ReadSelectedTarget or RequireSelectedTargetKind or ReadVirtualDuelPair or
-                        ReadTargetSet or ReplaceSingleTarget or NarrowTargetSetToSingle or ConsumeTargetSet) &&
+                        ReadTargetSet or ReplaceSingleTarget or NarrowTargetSetToSingle or ConsumeTargetSet or ReleaseTargetSet) &&
                     !choiceTargetSelections.Values.Any(producer => ImpliesChoiceBranch(effect.Condition, producer.Condition)))
                     Fail("conditional selectedTarget requires its matching choice branch");
                 if (hpPairProduced && resource is SelectSingleTarget or ReplaceSingleTarget or SelectTargetSet or
-                    NarrowTargetSetToSingle or ConsumeTargetSet)
+                    NarrowTargetSetToSingle or ConsumeTargetSet or ReleaseTargetSet)
                     Fail("A frozen HP pair cannot rebuild its selected participants.");
                 if (hpPairProduced && effect.Op == SkillProgramEffectOp.InsertPhase)
                     Fail("A frozen HP pair cannot cross an independent inserted phase.");
@@ -662,6 +662,11 @@ internal static class ProgramCompositionValidator
                         if (!targetSetAvailable || targetSetConsumed)
                             Fail("a target set must be selected before use and can be consumed only once");
                         targetSetConsumed = true;
+                        break;
+                    case ReleaseTargetSet:
+                        if (!targetSetAvailable) Fail("a target set must be selected before it is released");
+                        targetSetAvailable = false;
+                        targetSetConsumed = false;
                         break;
                     default:
                         Fail($"unknown resource contract '{resource.GetType().Name}'");

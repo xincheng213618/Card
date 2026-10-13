@@ -18,6 +18,7 @@ public static class JudgmentReasons
 
 public enum ResolutionFrameKind
 {
+    FriendDuelResponse = 20300,
     RequestedDeckBasic = 7600,
     DrawPhaseObligation = 3800,
     EquipmentRecast = 2703,
@@ -68,6 +69,7 @@ public enum ResolutionFrameStep
 /// can inspect and later persist the stack without coupling it to the UI.
 /// </summary>
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "$type")]
+[JsonDerivedType(typeof(FriendDuelResponseFrame), "friend-duel-response")]
 [JsonDerivedType(typeof(RequestedDeckBasicFrame), "requested-deck-basic")]
 [JsonDerivedType(typeof(DrawFundedDistinctBasicFrame), "draw-funded-distinct-basic")]
 [JsonDerivedType(typeof(ChainedStateBasicFrame), "chained-state-basic")]
@@ -620,6 +622,7 @@ public sealed partial record CardUseFrame(
     { get => _slashTargetPenaltyVisits; init => _slashTargetPenaltyVisits = value is null ? null : Array.AsReadOnly(value.ToArray()); }
     public bool SlashTargetsCancelled { get; init; }
     public bool UnlimitedUse { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] public bool QuotaOnlyUseLimitExemption { get; init; }
     public bool YingboUnrespondable { get; init; }
     public bool YingboRepeated { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -810,7 +813,7 @@ public sealed record DeathFrame(
 /// context and the ordered seat cursor; private nullification-card ids remain
 /// in the responder-scoped PendingDecision instead.
 /// </summary>
-public sealed record NullificationWindowFrame(
+public sealed partial record NullificationWindowFrame(
     long Id,
     long ParentFrameId,
     int SourceSeat,
@@ -828,6 +831,8 @@ public sealed record NullificationWindowFrame(
     : ResolutionFrame(Id, ResolutionFrameKind.NullificationWindow, Step)
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public DelayedEffectContinuation? DelayedReturn { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public IssuedCounterspellNode? IssuedNoResponseNode { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public UnrespondableCounterspellReceipt? UnrespondableCounterspell { get; init; }
@@ -842,7 +847,7 @@ public sealed record NullificationWindowFrame(
 /// ids or card kinds, so the frame is safe to inspect as a public resolution
 /// cursor while the actual hand remains private to the trusted host.
 /// </summary>
-public sealed record TargetCardSelectionFrame(
+public sealed partial record TargetCardSelectionFrame(
     long Id,
     long ParentFrameId,
     int SourceSeat,

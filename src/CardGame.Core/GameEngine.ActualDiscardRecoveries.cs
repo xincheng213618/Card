@@ -102,6 +102,7 @@ public sealed partial class GameEngine
         TryBeginCharacterStateProgramWindow(f.Id,CharacterStateContinuation.Program) ||
         TryBeginHpChangedProgramWindow(f.Id,PostEventContinuation.AwaitedProgramMovement) || TryBeginCardsMovedProgramWindow(f.Id);
 
+    [ProgramContinuation(ProgramContinuationKind.Resume, 460)]
     private bool ResumeActualDiscardRecovery(long id)
     {
         if(_resolutionStack.LastOrDefault() is not ProgramSkillFrame f || f.Id!=id || f.ActualDiscardRecovery is not { } r)return false;
@@ -119,6 +120,7 @@ public sealed partial class GameEngine
         ReplaceRuntimeTop(f with { ActualDiscardRecovery=null });AdvanceRuntimeProgram(id);return true;
     }
 
+    [ProgramContinuation(ProgramContinuationKind.Movement, 440)]
     private bool ReturnCapturedEquipmentOrDiscardMovement(ProgramSkillFrame f)
     {
         if(f.ActualDiscardRecovery is null && f.CapturedEquipmentDraw is null)return false;

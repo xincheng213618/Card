@@ -146,6 +146,7 @@ public sealed partial class GameEngine
         if (TryGetShortRangeVirtualPrimaryReturn(use, parent, out primaryTarget)) return true;
         if (TryGetSameTypeAidVirtualPrimaryReturn(use, parent, out primaryTarget)) return true;
         if (TryGetCurrentSlashFirePrimaryReturn(use, parent, out primaryTarget)) return true;
+        if (TryGetCurrentEnhancementVirtualPrimaryReturn(use, parent, out primaryTarget)) return true;
         if (!HasIssuedOriginalTargetAdditionTail(use) || use.CardId != 0 || use.CardKind != CardKind.Slash ||
             use.PhysicalCardIds is not { Count: 0 } || use.CardAttack is not
                 { CardId: null, EffectiveCardKind: CardKind.Slash, PhysicalCardIds.Count: 0 } attack ||
@@ -303,6 +304,5 @@ public sealed partial class GameEngine
     {
         public void GrantOriginalTargetAddition(ProgramSkillFrame frame, int targetSeat) => engine.GrantOriginalTargetAddition(frame, targetSeat);
         public SkillProgramStepOutcome OfferOriginalTargetAddition(ProgramSkillFrame frame) => engine.OfferOriginalTargetAddition(frame);
-        public bool CanContinueIssuedOriginalTargetAddition(ProgramSkillFrame frame) => engine.CanContinueIssuedOriginalTargetAddition(frame);
     }
 }

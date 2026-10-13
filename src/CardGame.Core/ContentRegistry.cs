@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -159,6 +160,10 @@ public sealed record ContentModeDefinition(
 /// </summary>
 public sealed class ContentRegistry
 {
+    // Only the fixed expanded-domain proof is shared. Programs are immutable;
+    // weak keys let a custom catalogue be collected without retaining its rules.
+    private static readonly ConditionalWeakTable<SkillProgram, Lazy<bool>> ExpandedProgramProofs = new();
+
     private readonly IReadOnlyDictionary<string, ContentCardDefinition> _cards;
     private readonly IReadOnlyDictionary<string, ContentSkillDefinition> _skills;
     private readonly IReadOnlyDictionary<string, ContentGeneralDefinition> _generals;
@@ -257,36 +262,52 @@ public sealed class ContentRegistry
 
         builder.ValidateReferences();
         var registry = builder.Freeze(ordered);
-        SkillProgramRules.ValidateSetModifierConflicts(registry.Skills.Values
+        var programs = registry.Skills.Values
             .Select(skill => skill.Program)
-            .OfType<SkillProgram>());
-        ValidateExpandedProgramCardDomain(registry);
+            .OfType<SkillProgram>().ToArray();
+        SkillProgramRules.ValidateSetModifierConflicts(programs);
+        ValidateExpandedProgramCardDomain(registry, programs);
         return registry;
     }
 
-    private static void ValidateExpandedProgramCardDomain(ContentRegistry registry)
+    private static void ValidateExpandedProgramCardDomain(ContentRegistry registry, IReadOnlyList<SkillProgram> programs)
     {
-        var programs = registry.Skills.Values.Select(skill => skill.Program).OfType<SkillProgram>().ToArray();
         if (!registry.Cards.Values.Any(card => card.LegacyKind is { } kind && ProgramCompositionValidator.IsExpandedCardKind(kind)) &&
             !registry.Decks.Values.Any(deck => deck.PhysicalCards?.Any(card => card.Suit == Suit.None) == true) &&
             !programs.Any(program => program.Activations.Any(activation => ProgramCompositionValidator.RequiresExpandedCardDomain(activation.Effects)) ||
                 program.Triggers.Any(trigger => ProgramCompositionValidator.RequiresExpandedCardDomain(trigger.Effects)))) return;
 
-        // New physical cards can pass between skills. Recheck every program in
-        // this distinct content combination, including programs loaded on their
-        // historical ordinary-card domain before the generating package joined.
+        // New physical cards can pass between skills. Every program needs an
+        // expanded-domain proof, even if it loaded on the historical ordinary
+        // domain. This proof depends only on the immutable program, whereas
+        // references, conflicts and fingerprints still belong to each registry.
         foreach (var program in programs)
         {
-            foreach (var activation in program.Activations)
-                ProgramCompositionValidator.Validate($"registry.skills[{program.Id}].activations[{activation.Id}]", activation.Effects,
-                    activation.MinTargets == 1 && activation.MaxTargets == 1, activation.MaxCards,
-                    initialTargetSetCount: activation.MaxTargets > 1 ? activation.MinTargets : 0,
-                    initialTargetSetMaximum: activation.MaxTargets > 1 ? activation.MaxTargets : 0,
-                    expandedCardDomain: true, activationTargetKind: activation.TargetKind, activationSourceZones: activation.SourceZones, activationMinimumCards: activation.MinCards, activationCardCategories: activation.CardCategories);
-            foreach (var trigger in program.Triggers)
-                ProgramCompositionValidator.Validate($"registry.skills[{program.Id}].triggers[{trigger.Id}]", trigger.Effects,
-                    initialSelectedTarget: trigger.DeferredTurnEndOnly, window: trigger.Window, drawPhaseMode: trigger.DrawPhaseMode, expandedCardDomain: true, cardActionRelation: trigger.OwnerRelation, cardKinds: trigger.CardKinds, turnOwnerScope: trigger.TurnOwnerScope);
+            try
+            {
+                _ = ExpandedProgramProofs.GetValue(program, static candidate =>
+                    new Lazy<bool>(() => ValidateExpandedProgramCardDomain(candidate))).Value;
+            }
+            catch
+            {
+                ExpandedProgramProofs.Remove(program);
+                throw;
+            }
         }
+    }
+
+    private static bool ValidateExpandedProgramCardDomain(SkillProgram program)
+    {
+        foreach (var activation in program.Activations)
+            ProgramCompositionValidator.Validate($"registry.skills[{program.Id}].activations[{activation.Id}]", activation.Effects,
+                activation.MinTargets == 1 && activation.MaxTargets == 1, activation.MaxCards,
+                initialTargetSetCount: activation.MaxTargets > 1 ? activation.MinTargets : 0,
+                initialTargetSetMaximum: activation.MaxTargets > 1 ? activation.MaxTargets : 0,
+                expandedCardDomain: true, activationTargetKind: activation.TargetKind, activationSourceZones: activation.SourceZones, activationMinimumCards: activation.MinCards, activationCardCategories: activation.CardCategories);
+        foreach (var trigger in program.Triggers)
+            ProgramCompositionValidator.Validate($"registry.skills[{program.Id}].triggers[{trigger.Id}]", trigger.Effects,
+                initialSelectedTarget: trigger.DeferredTurnEndOnly, window: trigger.Window, drawPhaseMode: trigger.DrawPhaseMode, expandedCardDomain: true, cardActionRelation: trigger.OwnerRelation, cardKinds: trigger.CardKinds, turnOwnerScope: trigger.TurnOwnerScope);
+        return true;
     }
 
     private static IReadOnlyList<PackageManifest> TopologicallyOrderPackages(
@@ -517,6 +538,7 @@ public sealed class ContentRegistry
 
         public void ValidateReferences()
         {
+            RicePileContract.ValidatePrograms(_skills.Values.Where(s => s.Program is not null).ToDictionary(s => s.Id, s => s.Program!, StringComparer.Ordinal));
             foreach (var skill in _skills.Values.Where(item => item.Program is not null))
             {
                 foreach (var schedule in skill.Program!.Triggers.SelectMany(t => t.Effects)
@@ -538,6 +560,18 @@ public sealed class ContentRegistry
                         throw new InvalidOperationException("A declaration validation references an unknown challenge grant skill.");
                 foreach (var trigger in skill.Program!.Triggers.Where(t=>t.IncludeResponseUses && t.Window==SkillProgramTriggerWindow.CardUseCommitted || t.Effects.Any(e=>e.Op==SkillProgramEffectOp.IssueCardNoResponseAndPlayUseBan)))
                 {
+                    if (trigger.Effects is [{ Op: SkillProgramEffectOp.HoldUsedSuitHandAndDraw }])
+                    { FriendEventComposition.ValidateTrigger(skill.Id, trigger); continue; }
+                    if (trigger.Effects is [{ Op: SkillProgramEffectOp.NullifyMatchingHandUse }])
+                    { NamedAmbushContract.ValidateTrigger(skill.Id, trigger); continue; }
+                    if (trigger.Window == SkillProgramTriggerWindow.CardUseCommitted &&
+                        trigger.OwnerRelation == SkillProgramCardActionOwnerRelation.Actor && !trigger.Optional &&
+                        trigger.Effects is [{ Op: SkillProgramEffectOp.RecordOpeningTurnUse }]) continue;
+                    if (trigger.Window == SkillProgramTriggerWindow.CardUseCommitted &&
+                        trigger.OwnerRelation == SkillProgramCardActionOwnerRelation.Actor && !trigger.Optional &&
+                        trigger.Effects.Count == 1 && trigger.Effects[0] is
+                        { Op: SkillProgramEffectOp.SetBooleanState, BooleanValue: true, Condition.Kind: SkillProgramConditionKind.Always } &&
+                        trigger.Condition.Kind == SkillProgramTriggerConditionKind.CardActionSuitIs && trigger.Condition.Suits.Count == 1) continue;
                     if(trigger.Window!=SkillProgramTriggerWindow.CardUseCommitted || trigger.OwnerRelation!=SkillProgramCardActionOwnerRelation.Actor || trigger.Effects.Count!=1 || trigger.Effects[0].Op!=SkillProgramEffectOp.IssueCardNoResponseAndPlayUseBan ||
                        !HasRequiredPositiveCondition(trigger.Condition,SkillProgramTriggerConditionKind.CardActionActorIsCurrentTurn) || !HasRequiredPositiveCondition(trigger.Condition,SkillProgramTriggerConditionKind.CardActionPhaseIsPlay))
                         throw new InvalidOperationException("Issued card policy requires a single own Play actor use.");
@@ -576,9 +610,29 @@ public sealed class ContentRegistry
                             target.Op == SkillProgramEffectOp.ExchangeRespondedCardEntities && target.StateId == effect.StateId) != true)
                         throw new InvalidOperationException($"Skill '{skill.Id}' requires the upgraded skill's matching response-exchange state.");
                 }
+                foreach (var hpGrant in skill.Program!.HpSkillGrants)
+                {
+                    if (!_skills.TryGetValue(hpGrant.SkillId, out var derived) ||
+                        derived.Program?.HpSkillGrants.Count > 0 || derived.SuppressionRule is not null ||
+                        derived.Program?.LordSkillProjection == true ||
+                        derived.Program?.Triggers.Any(trigger => trigger.Effects.Any(effect =>
+                            effect.Op == SkillProgramEffectOp.InitializePrivateGeneralLibrary)) == true)
+                        throw new InvalidOperationException($"Skill '{skill.Id}' must grant a known leaf skill without another projection or suppression capability.");
+                }
+                foreach (var phaseGrant in skill.Program!.Triggers.SelectMany(trigger => trigger.Effects)
+                             .Where(effect => effect.Op == SkillProgramEffectOp.GrantOtherPlayUseRestriction))
+                {
+                    if (!_skills.TryGetValue(phaseGrant.SkillIds.Single(), out var derived) || derived.SuppressionRule is not null ||
+                        derived.Program is not { CardPolicies: [{ Kind: SkillProgramCardPolicyKind.StopUsingAfterTrickOrHpCount }] } leaf ||
+                        leaf.Activations.Count != 0 || leaf.Triggers.Count != 0 || leaf.ViewAs.Count != 0 ||
+                        leaf.Modifiers.Count != 0 || leaf.Contributions.Count != 0 || leaf.CardIdentities.Count != 0 ||
+                        leaf.BooleanStates.Count != 0 || leaf.DamageModifiers.Count != 0 || leaf.HpSkillGrants.Count != 0 ||
+                        leaf.LordSkillProjection || leaf.CannotChallengeDeclarations)
+                        throw new InvalidOperationException($"Skill '{skill.Id}' requires a known leaf with exactly its phase use restriction policy.");
+                }
                 foreach (var grantedSkillId in skill.Program!.Triggers
                              .SelectMany(trigger => trigger.Effects)
-                             .Where(effect => effect.Op is SkillProgramEffectOp.AwakenAfterGameActivations or SkillProgramEffectOp.DiscardHandToNamedTurnCount or SkillProgramEffectOp.GrantSkills or SkillProgramEffectOp.GrantPlayPhaseSkills or SkillProgramEffectOp.GrantRandomSkillAndSuitShield or SkillProgramEffectOp.ExchangePublicPileHand or SkillProgramEffectOp.ObtainPublicPileCard or SkillProgramEffectOp.ExchangePublicPile or SkillProgramEffectOp.DistributePublicPileIfAllSuits or SkillProgramEffectOp.DrawPublicSuitThenEscalatingDiscard)
+                             .Where(effect => effect.Op is SkillProgramEffectOp.DeathRecipientChooseSkill or SkillProgramEffectOp.GrantOtherPlayUseRestriction or SkillProgramEffectOp.AwakenAfterGameActivations or SkillProgramEffectOp.DiscardHandToNamedTurnCount or SkillProgramEffectOp.GrantSkills or SkillProgramEffectOp.GrantPlayPhaseSkills or SkillProgramEffectOp.GrantRandomSkillAndSuitShield or SkillProgramEffectOp.ExchangePublicPileHand or SkillProgramEffectOp.ObtainPublicPileCard or SkillProgramEffectOp.ExchangePublicPile or SkillProgramEffectOp.DistributePublicPileIfAllSuits or SkillProgramEffectOp.DrawPublicSuitThenEscalatingDiscard)
                              .SelectMany(effect => effect.SkillIds)
                              .Concat(skill.Program.Activations.SelectMany(activation => activation.Effects)
                                  .Where(effect => effect.Op is SkillProgramEffectOp.ObtainPublicPileCard or SkillProgramEffectOp.GrantPlayPhaseSkills)

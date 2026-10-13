@@ -60,29 +60,8 @@ public sealed partial class GameEngine
     private bool TryAdvanceOwnedDeathBenefitSubtree()
     {
         if (_pendingDecision is not null || OwnedDeathBenefitObserverRoot() is null) return false;
-        var top = _resolutionStack.LastOrDefault();
-        if (top is ProgramSkillFrame { AttackAttempt: not null } attackProgram)
-        {
-            if (attackProgram.AttackReturn is null || CurrentDamageAttempt?.ResolutionId != attackProgram.Id || ActiveDying is not null ||
-                _resolutionStack.Any(f => f is DamageFrame damage && damage.ParentFrameId == attackProgram.Id ||
-                    f is BeforeDamageProgramWindowFrame before && (before.ContinuationAttackResolutionId ?? before.ParentFrameId) == attackProgram.Id))
-                throw new InvalidOperationException("Owned death-benefit damage must finish its actual damage/Dying children before its program tail.");
-            // Native damage-window and Dying completion normally reach this
-            // synchronously. A restored pending attempt still returns through
-            // the mature attack completion, never through the plain executor.
-            CompleteDamageAttack(new ProgramAttackHandle(this, attackProgram.Id));
-            AdvanceRulesAndPublishState(); return true;
-        }
-        if (top is ProgramSkillFrame or CardsMovedTriggerWindowFrame or HpChangedTriggerWindowFrame or ProgramLifecycleTriggerWindowFrame or
-            ProgramCardTriggerWindowFrame or BeforeDamageProgramWindowFrame or ProgramDeathTriggerWindowFrame or ProgramKillTriggerWindowFrame)
-        {
-            AdvanceRuntimeFrame(top.Id); AdvanceRulesAndPublishState(); return true;
-        }
-        // A real nested death without configured programs can return normally;
-        // its Dying stays visible until that typed child has completed.
-        if (top is DeathFrame death)
-        { ContinueDeathResolution(death.Id); AdvanceRulesAndPublishState(); return true; }
-        return false;
+        return TryAdvanceObserverSubtree(advanceRecoveryReplacement: false,
+            incompleteAttackError: "Owned death-benefit damage must finish its actual damage/Dying children before its program tail.");
     }
 
     private void AssertOwnedDeathBenefitReturns()

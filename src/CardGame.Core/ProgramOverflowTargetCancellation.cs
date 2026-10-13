@@ -57,13 +57,7 @@ internal sealed class CancelOtherCurrentUseTargetsIfOverHandLimitDescriptor : Pr
     public override ISkillProgramEffectHandler Handler { get; } = new OverflowTargetCancellationHandler();
     public override ProgramContextCapability RequiredCapabilities => ProgramContextCapability.CardAction;
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GrantTurnCardTargetRestriction, static (_, _) => { });
-    public override SkillProgramEffect Parse(ProgramOperationNodeReader reader)
-    {
-        reader.AllowOnly("op", "target", "condition");
-        var effect = new SkillProgramEffect(Op, FilterBoundCardsProgramOperationDescriptor.Owner(reader), 0, reader.Condition());
-        RequireAlways(effect, reader.Path);
-        return effect;
-    }
+    public override SkillProgramEffect Parse(ProgramOperationNodeReader reader) => ParseOwnerAlways(reader);
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
         [new RequireTriggerWindow(SkillProgramTriggerWindow.CardUseTargetsFinalized), new RequireCardActionActor()];
 }

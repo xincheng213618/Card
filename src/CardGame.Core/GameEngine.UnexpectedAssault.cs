@@ -37,7 +37,7 @@ public sealed partial class GameEngine
             SkipUnavailableTargetCardEffect(pending, target, CardEffectSkipReason.TargetHandEmpty);
             return;
         }
-        AdvanceEventRulesAndQueueFact(new CardUsedEvent(use.CardId, use.CardKind, use.SourceSeat, targetSeat));
+        if (!IsExtraCardEffectRound(use.Id)) AdvanceEventRulesAndQueueFact(new CardUsedEvent(use.CardId, use.CardKind, use.SourceSeat, targetSeat));
         AddLog("CardUsed", $"{_players[use.SourceSeat].Name} 对 {target.Name} 使用【出其不意】，选择展示其一张手牌。",
             use.SourceSeat, targetSeat);
         BeginTargetCardSelection(pending, target, GetHand(target).Count);
@@ -70,7 +70,7 @@ public sealed partial class GameEngine
 
         var receipt = new UnexpectedAssaultRevealReceipt(use.Id, action.ActionId, use.TargetIndex,
             sourceSeat, targetSeat, targetCard.Id, targetCard.Kind, targetCard.Suit, targetCard.Rank,
-            useSuit, EffectiveSuit(_players[targetSeat], targetCard));
+            useSuit, EffectiveSuit(_players[targetSeat], targetCard), IsExtraCardEffectRound(use.Id) ? 1 : 0);
         ReplaceRuntimeTop(use with { UnexpectedAssaultReveal = receipt });
         AdvanceEventRulesAndQueueFact(new CardsRevealedEvent(use.Id, Array.AsReadOnly(new[] { ToSnapshot(targetCard) })));
         AdvanceEventRulesAndQueueFact(new UnexpectedAssaultRevealedEvent(receipt));

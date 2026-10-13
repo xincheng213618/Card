@@ -18,17 +18,28 @@ internal static class FengLinBoundaryHuangGaiChecks
     }
     public static void RedSlashDistanceDodgeAndColor()
     {
-        foreach(var red in new[]{false,true})
+        foreach(var (red,benefit) in new[]{(false,true),(true,true),(true,false)})
         {
-            var(g,r)=Start(red);Driver(g,"loss2");Settle(g);
+            var(g,r)=Start(red);
+            if(benefit)
+            {
+                var cost=g.State.Players[0].Hand.First().Id;
+                Accept(g,new UseProgramSkillCommand(0,"boundary:kurou","discard-one-and-lose-hp",[cost],[],g.Revision,P(g)!.PromptId));Settle(g);
+            }
+            var skipsDodge=red&&benefit;
             var far=g.GetHumanLegalActions().Where(a=>a.Kind==LegalActionKind.Slash&&a.TargetSeat==2).ToArray();
-            Require(red?far.Length>0:far.Length==0,"Red only ignores real distance to seat2.");
+            Require(skipsDodge?far.Length>0:far.Length==0,"Only a benefited red Slash ignores real distance to seat2.");
             var action=g.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.Slash&&a.TargetSeat==1);
             var before=g.State.Players[1].Hp;
+            var targetHand=g.State.Players[1].HandCount;
+            Require(g.CreateSnapshot(1).Players[1].Hand.Any(c=>c.Kind==CardKind.Dodge),"The target has a real Dodge to test response skipping.");
             Accept(g,new PlayCardCommand(0,action.CardId!.Value,[1],g.Revision,P(g)!.PromptId,action.PlayedCardKind){ConversionSource=action.ConversionSource,AdditionalConversionSources=action.AdditionalConversionSources});Replay(g,r);
-            Settle(g);Require(g.Events.Select(e=>e.Payload).OfType<CardRespondedEvent>().Any(e=>e.ResponderSeat==1&&e.EffectiveCardKind==CardKind.Dodge),"Dodge remains a paid real response.");
-            Require(g.State.Players[1].Hp==before-(red?1:0),"Uncancelable retains damage after Dodge; black is canceled.");
-            Require(!red||g.Log.Any(l=>l.Message.Contains("此杀不能被抵消")),"Public Dodge log reports response without false cancellation.");
+            Settle(g);
+            Require(g.Events.Select(e=>e.Payload).OfType<ResponseRequestedEvent>().Any(e=>e.TargetSeat==1&&e.RequiredCardKind==CardKind.Dodge)==!skipsDodge,"A benefited red Slash never opens a human or AI Dodge response window.");
+            Require(g.Events.Select(e=>e.Payload).OfType<CardRespondedEvent>().Any(e=>e.ResponderSeat==1&&e.EffectiveCardKind==CardKind.Dodge)==!skipsDodge,"A benefited red Slash skips Dodge; black and unbenefited red Slashes retain real responses.");
+            Require(g.State.Players[1].HandCount==targetHand-(skipsDodge?0:1),"Skipping Dodge preserves the target's hand.");
+            Require(g.State.Players[1].Hp==before-(skipsDodge?1:0),"A benefited red Slash deals damage directly; ordinary Slashes can be canceled.");
+            Require(!skipsDodge||g.Log.Any(l=>l.Message.Contains("跳过【闪】响应")),"Public log explains why the Dodge response was skipped.");
             var accepted=g.Events.Select(e=>e.Payload).OfType<CardActionAcceptedEvent>().First(e=>e.Action.ActorSeat==0&&e.Action.EffectiveKind==CardKind.Slash).Action;
             Require(accepted.EffectiveIsRed==red,"Minimal 307-only catalog captures effective color.");Replay(g,r);
         }
@@ -70,7 +81,10 @@ internal static class FengLinBoundaryHuangGaiChecks
             Driver(g,"loss2");Settle(g);
             var action=g.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.Slash&&a.TargetSeat==2&&(scenario=="fan"?a.PlayedCardKind==CardKind.FireSlash:a.ConversionSource?.SkillId=="classic:wusheng"));
             Accept(g,new PlayCardCommand(0,action.CardId!.Value,[2],g.Revision,P(g)!.PromptId,action.PlayedCardKind){ConversionSource=action.ConversionSource,AdditionalConversionSources=action.AdditionalConversionSources});Replay(g,r);
-            var use=g.ResolutionStack.OfType<CardUseFrame>().Single();Require(use.Action?.EffectiveIsRed==true&&use.Enhancements.HasFlag(CurrentCardEnhancement.Uncancelable),"Converted and Fan final Slash share frozen red color and uncancelability.");Settle(g);Replay(g,r);
+            Settle(g);
+            var used=g.Events.Select(e=>e.Payload).OfType<CardActionAcceptedEvent>().Single(e=>e.Action.ActorSeat==0&&e.Action.Type==CardActionType.Use&&e.Action.EffectiveKind==action.PlayedCardKind).Action;
+            Require(used.EffectiveIsRed==true&&g.Events.Select(e=>e.Payload).OfType<DamageAppliedEvent>().Any(e=>e.TargetSeat==2),"Converted and Fan final Slashes preserve frozen red color and deal damage.");
+            Require(!g.Events.Select(e=>e.Payload).OfType<ResponseRequestedEvent>().Any(e=>e.TargetSeat==2&&e.RequiredCardKind==CardKind.Dodge),"Benefited Wusheng and Fan Slashes also skip Dodge responses.");Replay(g,r);
         }
         var(expiry,er)=Start();Driver(expiry,"loss2");Settle(expiry);var turn=expiry.CreateSnapshot(0).TurnNumber;
         Accept(expiry,new EndPlayPhaseCommand(0,expiry.Revision,P(expiry)!.PromptId));
@@ -113,7 +127,9 @@ internal static class FengLinBoundaryHuangGaiChecks
             Accept(g,new PlayCardCommand(0,equip.CardId!.Value,[],g.Revision,P(g)!.PromptId));Settle(g);Driver(g,"loss2");Settle(g);
             var hand=g.State.Players[0].Hand;var pair=new[]{hand.First(c=>c.Suit==Suit.Heart),hand.First(c=>c.Suit==(mixed?Suit.Spade:Suit.Diamond))}.Select(c=>c.Id).ToArray();
             Accept(g,new UseEquipmentEffectCommand(0,CardKind.ZhangbaSerpentSpear,pair,[2],g.Revision,P(g)!.PromptId));Replay(g,r);
-            var use=g.ResolutionStack.OfType<CardUseFrame>().Single();Require(use.Action!.EffectiveSuit is null&&use.Action.EffectiveIsRed==(mixed?(bool?)null:true)&&use.Enhancements.HasFlag(CurrentCardEnhancement.Uncancelable)==!mixed,"Two red different suits are red; mixed red black is unknown and never acquires red benefits.");Settle(g);Replay(g,r);
+            var used=g.Events.Select(e=>e.Payload).OfType<CardActionAcceptedEvent>().Single(e=>e.Action.ActorSeat==0&&e.Action.Type==CardActionType.Use&&e.Action.EffectiveKind==CardKind.Slash).Action;
+            Require(used.EffectiveSuit is null&&used.EffectiveIsRed==(mixed?(bool?)null:true),"Two red different suits are red; mixed red black is unknown.");Settle(g);
+            Require(g.Events.Select(e=>e.Payload).OfType<ResponseRequestedEvent>().Any(e=>e.TargetSeat==2&&e.RequiredCardKind==CardKind.Dodge)==mixed,"Only the two-red Spear Slash receives the Dodge-skip benefit.");Replay(g,r);
         }
         // Direct host lifecycle audit is deliberately separate from accepted-command replay.
         var(host,_)=Start();Driver(host,"loss2");Settle(host);

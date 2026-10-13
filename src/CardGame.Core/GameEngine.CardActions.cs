@@ -7,7 +7,7 @@ public sealed partial class GameEngine
     {
         if (!HasFinalizedTargetProgram(pending.EffectiveCardKind) ||
             !TryMarkFinalizedTrickProgramsStarted(pending.ResolutionId)) return false;
-        var use = _resolutionStack.OfType<CardUseFrame>().Single(frame => frame.Id == pending.ResolutionId);
+        var use = NormalizeImplicitDrawTwoUseTarget(_resolutionStack.OfType<CardUseFrame>().Single(frame => frame.Id == pending.ResolutionId));
         var action = use.Action!;
         AdvanceEventRulesAndQueueFact(new CardActionAcceptedEvent(action));
         return TryBeginProgramCardWindow(null, action, SkillProgramTriggerWindow.CardUseTargetsFinalized,
@@ -106,7 +106,7 @@ public sealed partial class GameEngine
             conversionChain.AddRange(additionalConversions);
         }
         ConsumeProgramViewAsUsage(conversionChain);
-        var trackAppearance = effectiveKind == CardKind.UnexpectedAssault || (TracksUniqueLeaderTrickTargets || TracksRoundGainedSourceUses) && IsOrdinaryTrick(effectiveKind) || HasSourceCurseActionColors || TracksOwnPlayHistory || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.OfferOriginalTargetAddition) || HasBlackTrickTargetPolicy || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DrawByDamageCardColor) || HasShownCardTurnCapability || HasTurnRedSlashCapability || TracksPlayCardHistory || TracksCurrentTurnUseKinds || _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.AlternatingSuitDrawDiscard) || TracksPaidColorUseAppearance(actorSeat, effectiveKind, conversionChain) || HasSameTypeActualUseAid && IsSameTypeAidEffectiveCard(effectiveKind) || HasComparedBlackSlashPolicies && IsSlashCard(effectiveKind);
+        var trackAppearance = TracksDamageTargetBudgetTargets || HasAdjacentRedTargetCapability || HasSoleTargetProtectionCapability || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.RevealRecordedSuitSlash) || effectiveKind == CardKind.UnexpectedAssault || (TracksUniqueLeaderTrickTargets || TracksRoundGainedSourceUses || HasTargetedOrdinaryTrickAdjustment) && IsOrdinaryTrick(effectiveKind) || HasSourceCurseActionColors || TracksOwnPlayHistory || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.OfferOriginalTargetAddition) || HasBlackTrickTargetPolicy || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DrawByDamageCardColor) || HasShownCardTurnCapability || HasTurnRedSlashCapability || TracksPlayCardHistory || TracksCurrentTurnUseKinds || _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.AlternatingSuitDrawDiscard) || TracksPaidColorUseAppearance(actorSeat, effectiveKind, conversionChain) || HasSameTypeActualUseAid && IsSameTypeAidEffectiveCard(effectiveKind) || HasComparedBlackSlashPolicies && IsSlashCard(effectiveKind);
         return CaptureFactionAction(new CardActionContext(++_cardActionSequence,
             _resolutionStack.OfType<CardUseFrame>().LastOrDefault()?.Action?.ActionId,
             CardActionType.Use, actorSeat, provider, provider == actorSeat ? null : actorSeat,
@@ -137,6 +137,7 @@ public sealed partial class GameEngine
             RecordActualPlayPhaseUse(action);
         }
         AdvanceEventRulesAndQueueFact(new CardActionAcceptedEvent(action));
+        CaptureFriendMinimumHandUse(action);
         CaptureOffTurnResponseUseOrigin(attack.ResolutionId, action);
         if (TryBeginCommittedResponseUsePrograms(attack, action, continuation)) return true;
         if (TryBeginProgramCardWindow(attack, action, SkillProgramTriggerWindow.CardResponseAccepted,
@@ -287,6 +288,7 @@ public sealed partial class GameEngine
         foreach (var binding in GetSkillBindingShard(owner)?.GetInstanceTriggers(window) ?? [])
         {
             var trigger = binding.Trigger;
+            if (!CanCollectFirstSlashDuelCandidate(owner.Seat, trigger, action)) continue;
             if (trigger.RequireNoCardConversion == true && !IsUnconvertedActualCardUse(action, window, continuation)) continue;
             var reward = trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.RewardOutOfTurnFactionSlash);
             var rewardChooser = reward ? FactionActionRewardChooser(owner.Seat, trigger, action) : null;
@@ -445,12 +447,18 @@ public sealed partial class GameEngine
             frame = (ProgramCardTriggerWindowFrame)_resolutionStack[^1];
             if (TryDrainCardResponseCompletionCosts(frame)) return;
             frame = (ProgramCardTriggerWindowFrame)_resolutionStack[^1];
+            if (TryBeginSoleTargetRedirect(frame)) continue;
             frame = AppendActorHandLimitTargetCandidates(frame);
             if (frame.CandidateIndex == frame.Candidates.Count)
             {
+                if (TryReturnSoleTargetRedirect(frame)) continue;
+                if (GetCardActionWindow(frame) == SkillProgramTriggerWindow.CardUseTargetsFinalized)
+                    SettleDamageMarkerBudgetTargets(frame.ParentFrameId);
                 var attack = frame.AttackOwnerFrameId is { } attackId ? new CardAttackHandle(this, attackId) : null;
                 PopResolutionFrame(frame.Id, ResolutionFrameKind.ProgramCardTriggerWindow);
                 if (TryCompleteOverflowCanceledUse(frame)) return;
+                if (GetCardActionWindow(frame) == SkillProgramTriggerWindow.CardUseTargetsFinalized &&
+                    TryCompleteSoleTargetQuarantinedUse(frame.ParentFrameId)) return;
                 if (frame.CardSupplyCompletion is not null)
                     ContinueCardSupplyAfterCompletion(attack ?? throw new InvalidOperationException("A supplied card lost its native Slash."), frame);
                 else if (frame.ResponseCompletion is not null)
@@ -491,6 +499,8 @@ public sealed partial class GameEngine
                         throw new InvalidOperationException("A completed Slash trigger lost its attack continuation."));
                 else if (frame.Continuation == ProgramCardContinuation.DelayedCard)
                     ContinueAcceptedDelayedCardUse(frame);
+                else if (frame.Continuation == ProgramCardContinuation.FinalizedDelayedPlacement)
+                    ContinueFinalizedDelayedPlacement(frame);
                 else if (frame.Continuation == ProgramCardContinuation.NullificationResponse)
                     ContinueNullificationAfterResponseUse(frame.Action);
                 else ContinueAcceptedCardResponse(attack ??
@@ -576,7 +586,8 @@ public sealed partial class GameEngine
             action.PhysicalCards.All(cost => cost.CardId != continuation.EffectCardId) &&
                 !MatchesSelectedActorDuelAction(frame.ParentFrameId, action, continuation.EffectCardId) &&
                 !MatchesVirtualOrdinaryTrickUseAction(frame.ParentFrameId, action, continuation.EffectCardId) &&
-                !MatchesTieredRoundZeroUseAction(frame.ParentFrameId, action, continuation.EffectCardId))
+                !MatchesTieredRoundZeroUseAction(frame.ParentFrameId, action, continuation.EffectCardId) &&
+                !MatchesMouZhijueUseAction(frame.ParentFrameId, action, continuation.EffectCardId))
             throw new InvalidOperationException("The trick trigger continuation does not match its card action.");
         var card = GetTrickRepresentation(frame.ParentFrameId, continuation.EffectCardId, requireProcessing: true);
         var pending = new JizhiResolution(
@@ -721,11 +732,11 @@ public sealed partial class GameEngine
                 gift.WindowContext?.ParentFrameId == frame.Id && IsUnselectedCompletedGiftQinglongRide(gift);
             var completedGiftRecipientFollowup = TryGetCompletedGiftRecipientSlashRide(frame, out var recipientUse);
             var drawFundedQinglongFollowup = IsDrawFundedQinglongCompletedWindowRide(frame) || IsChainedStateQinglongCompletedWindowRide(frame);
-            var attackMatches = frame.CardSupplyCompletion is not null && ValidCardSupplyCompletionWindow(frame) || HasPairedColorDispositionCardObserver(frame.ParentFrameId) || HasJoinedTrickDamageRewardCardObserver(frame.ParentFrameId) || HasRoundGainedEquipmentDrawCardObserver(frame.ParentFrameId) || HasSameNameHandCardObserver(frame.ParentFrameId) ||
+            var attackMatches = HasSoleTargetProtectionCardObserver(frame.ParentFrameId) || frame.CardSupplyCompletion is not null && ValidCardSupplyCompletionWindow(frame) || HasPairedColorDispositionCardObserver(frame.ParentFrameId) || HasJoinedTrickDamageRewardCardObserver(frame.ParentFrameId) || HasRoundGainedEquipmentDrawCardObserver(frame.ParentFrameId) || HasSameNameHandCardObserver(frame.ParentFrameId) ||
                 CompletedUndamagedTargetRevealObserverRoot()?.CompletedUndamagedTargetReveal?.CardUseFrameId == frame.ParentFrameId ||
                 OverflowTargetCancellationObserverRoot()?.OverflowTargetCancellation?.CardUseFrameId == frame.ParentFrameId ||
                 frame.ResponseCompletion is not null && ValidResponseCompletionWindow(frame) || HasSameTypeAidTargetObserver(frame.ParentFrameId) || frame != frames[^1] || resolvingProgramJudgmentDamage || suspendedCompletedGiftFollowup || completedGiftRecipientFollowup || drawFundedQinglongFollowup ||
-                (frame.Continuation is ProgramCardContinuation.DelayedCard or
+                (frame.Continuation is ProgramCardContinuation.DelayedCard or ProgramCardContinuation.FinalizedDelayedPlacement or
                         ProgramCardContinuation.BeforeTrickTargetEffects or ProgramCardContinuation.FinalizedTrick or
                         ProgramCardContinuation.NullificationResponse or ProgramCardContinuation.CommittedTrick or
                         ProgramCardContinuation.CommittedSimpleCard or ProgramCardContinuation.FinalizedSimpleCard or ProgramCardContinuation.CompletedCard ||
@@ -748,19 +759,22 @@ public sealed partial class GameEngine
                 child.WindowContext == sharedContext && child.OwnerSeat == candidate!.OwnerSeat &&
                 child.SkillId == candidate.SkillId && child.SkillInstanceId == candidate.SkillInstanceId &&
                 child.TriggerId == candidate.TriggerId && child.GameplayHash == candidate.GameplayHash;
-            var trickContinuationMatches = frame.Continuation is ProgramCardContinuation.BeforeTrickTargetEffects or ProgramCardContinuation.CommittedTrick or ProgramCardContinuation.FinalizedTrick
+            var trickContinuationMatches = frame.Continuation == ProgramCardContinuation.FinalizedDelayedPlacement
+                ? IsExactFinalizedDelayedPlacementWindow(frame)
+                : frame.Continuation is ProgramCardContinuation.BeforeTrickTargetEffects or ProgramCardContinuation.CommittedTrick or ProgramCardContinuation.FinalizedTrick
                 ? frame.TrickContinuation is { } trick &&
                   frame.Action.Type == CardActionType.Use &&
                   (frame.Action.PhysicalCards.Any(cost => cost.CardId == trick.EffectCardId) ||
                    MatchesSelectedActorDuelAction(frame.ParentFrameId, frame.Action, trick.EffectCardId) ||
                    MatchesVirtualOrdinaryTrickUseAction(frame.ParentFrameId, frame.Action, trick.EffectCardId) ||
-                   MatchesTieredRoundZeroUseAction(frame.ParentFrameId, frame.Action, trick.EffectCardId))
+                   MatchesTieredRoundZeroUseAction(frame.ParentFrameId, frame.Action, trick.EffectCardId) ||
+                   MatchesMouZhijueUseAction(frame.ParentFrameId, frame.Action, trick.EffectCardId))
                 : frame.TrickContinuation is null;
             var completedResponseMatches = frame.CardSupplyCompletion is not null ? ValidCardSupplyCompletionWindow(frame) : frame.ResponseCompletion is not null ? ValidResponseCompletionWindow(frame) : frame.CompletedResponseReturn is { } completedResponse
                 ? frame.Continuation is null && IsCompletedResponseUse(frame.Action, completedResponse.Kind) &&
                   IsCompletedResponseParentConsistent(frame)
                 : frame.Continuation is not null;
-            if (!attackMatches ||
+            if (frame.SoleTargetRedirectReturn is not null && !IsExactSoleTargetRedirectReturn(frame) || !attackMatches ||
                 frameIndex < 1 || _resolutionStack[frameIndex - 1].Id != frame.ParentFrameId ||
                 !trickContinuationMatches || !completedResponseMatches ||
                 !candidateCursorValid ||
@@ -771,6 +785,7 @@ public sealed partial class GameEngine
                      !(completedGiftRecipientFollowup && _cardZones.GetLocation(cost.CardId) == CardLocation.Processing &&
                        recipientUse.Action!.PhysicalCards.Any(payment => payment.CardId == cost.CardId)) &&
                      !IsExchangedCardClaim(frame.Action.ActionId,cost.CardId) &&
+                     !IsSoleTargetQuarantinedMaterial(frame.ParentFrameId, cost.CardId) &&
                      !(frame.Action.Type == CardActionType.Use &&
                        LifecycleCardUse(frame.ParentFrameId)?.Action is { } nativeAction &&
                        nativeAction.ActionId == frame.Action.ActionId && nativeAction.PhysicalCards.Contains(cost) &&

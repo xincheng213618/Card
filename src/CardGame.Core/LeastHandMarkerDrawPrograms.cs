@@ -78,6 +78,7 @@ public sealed partial class GameEngine
         if (markerBranch) return SkillProgramStepOutcome.Continue;
         AdvanceRuntimeProgram(frame.Id); return SkillProgramStepOutcome.AwaitChild;
     }
+    [ProgramContinuation(ProgramContinuationKind.Resume, 710)]
     private bool ResumeLeastHandMarkerDraw(long frameId)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame frame || frame.Id != frameId || frame.LeastHandMarkerDraw is not { } receipt) return false;

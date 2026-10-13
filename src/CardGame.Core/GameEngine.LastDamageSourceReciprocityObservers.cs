@@ -144,20 +144,11 @@ public sealed partial class GameEngine
         if (index < 0 || index + 2 >= _resolutionStack.Count || _resolutionStack[index] is not DamageTriggerWindowFrame ||
             _resolutionStack[index + 1] is not ProgramSkillFrame root || root.LastDamageSourceReciprocity?.DamageWindowId != damageWindowId ||
             !ValidLastDamageSourceReceipt(root) || !LastDamageSourceFirstChild(root, _resolutionStack[index + 2])) return null;
-        for (var child = index + 3; child < _resolutionStack.Count; child++)
-        {
-            if (_resolutionStack[child] is ProgramLifecycleTriggerWindowFrame skills && _resolutionStack[child - 1] is ProgramSkillFrame changed &&
-                skills.Window == SkillProgramTriggerWindow.SkillsChanged && skills.ResumeProgramFrameId == changed.Id &&
-                skills.Continuation == ProgramLifecycleContinuation.ResumeParentProgram && skills.CandidateIndex >= 0 &&
-                skills.CandidateIndex <= skills.Candidates.Count) continue;
-            if (!DyingSuitsStructuralEdge(_resolutionStack[child - 1], _resolutionStack[child]) &&
-                !HalfHandPaidDamageObserverEdge(child) && !PaidTargetObserverEdge(child)) return null;
-            if (_resolutionStack[child] is DyingFrame dying && child + 1 < _resolutionStack.Count &&
-                ((IsOriginalDyingSuspendedByDyingSuits(dying) || IsOriginalDyingSuspendedByRecipientCategoryMark(dying)) || IsOriginalDyingSuspendedByOwnedDeathBenefit(dying) ||
-                 IsPaidHandRepaymentProgramAlcoholRide(child, dying) || IsPaidHandRepaymentRescueRide(child, dying) ||
-                 PolicyCounterspellVirtualAlcoholRide(child, dying) || PaidObserverDamageVirtualAlcoholRide(child, dying))) break;
-        }
-        return root;
+        return HasObserverSuffix(index + 1,
+            static (engine, child) => IsObserverSkillsChangedEdge(engine._resolutionStack[child - 1], engine._resolutionStack[child]) ||
+                engine.DyingSuitsStructuralEdge(engine._resolutionStack[child - 1], engine._resolutionStack[child]) ||
+                engine.HalfHandPaidDamageObserverEdge(child) || engine.PaidTargetObserverEdge(child),
+            static (engine, child, dying) => engine.IsSuspendedOrPaidRescueObserverSuffix(child, dying)) ? root : null;
     }
     private bool IsLastDamageSourceReciprocityDying() => ActiveDying is { } dying &&
         _resolutionStack.OfType<DamageTriggerWindowFrame>().Any(window => LastDamageSourceReciprocityObserverRoot(window.Id) is { } root &&
@@ -184,19 +175,7 @@ public sealed partial class GameEngine
     private bool TryAdvanceLastDamageSourceReciprocitySubtree()
     {
         if (_pendingDecision is not null || AnyLastDamageSourceReciprocityObserverRoot() is null) return false;
-        var top = _resolutionStack.LastOrDefault();
-        if (top is ProgramSkillFrame { AttackAttempt: not null } attack)
-        {
-            if (CurrentDamageAttempt?.ResolutionId != attack.Id || ActiveDying is not null || attack.AttackReturn is null ||
-                _resolutionStack.Any(frame => frame is DamageFrame damage && damage.ParentFrameId == attack.Id ||
-                    frame is BeforeDamageProgramWindowFrame before && (before.ContinuationAttackResolutionId ?? before.ParentFrameId) == attack.Id)) return false;
-            CompleteDamageAttack(new ProgramAttackHandle(this, attack.Id)); AdvanceRulesAndPublishState(); return true;
-        }
-        if (top is ProgramSkillFrame or CardsMovedTriggerWindowFrame or HpChangedTriggerWindowFrame or ProgramLifecycleTriggerWindowFrame or
-            ProgramCardTriggerWindowFrame or BeforeDamageProgramWindowFrame or ProgramDeathTriggerWindowFrame or ProgramKillTriggerWindowFrame or RecoveryReplacementFrame)
-        { AdvanceRuntimeFrame(top.Id); AdvanceRulesAndPublishState(); return true; }
-        if (top is DeathFrame death) { ContinueDeathResolution(death.Id); AdvanceRulesAndPublishState(); return true; }
-        return false;
+        return TryAdvanceObserverSubtree(advanceRecoveryReplacement: true);
     }
 
     private bool IsLastDamageSourceReciprocityChoice(ProgramSkillFrame f, PendingDecision decision)

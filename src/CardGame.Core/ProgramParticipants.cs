@@ -12,7 +12,8 @@ public enum ProgramParticipantRef
     SelectedFirst,
     SelectedSecond,
     ResultSource,
-    ResultOpponent
+    ResultOpponent,
+    CardProvider = 9800
 }
 
 public sealed record ProgramParticipantReference
