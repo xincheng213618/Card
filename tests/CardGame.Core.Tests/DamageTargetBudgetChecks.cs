@@ -207,7 +207,7 @@ internal static class DamageTargetBudgetChecks
             if(scenario is "damage" or "loss" or "late-gain")
             {
                 rules["skills"]!.AsArray().Add(JsonNode.Parse($$"""
-                {"id":"{{Watch}}","revision":1,"triggers":[{"id":"real-child","window":"{{(scenario=="damage"?"afterDamageApplied":"cardUseTargetsFinalized")}}",{{(scenario=="damage"?"\"subject\":\"any\",\"damageOccurrence\":\"perDamage\"":"\"ownerRelation\":\"actor\"" )}},"priority":{{(scenario=="damage"?-100:1500)}},"optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"child","options":[{"id":"continue"}]}{{(scenario=="loss"?",{\"op\":\"loseOwnerSkillsAndGrant\",\"target\":\"owner\",\"skillIds\":[\"ol:luanzhan\"],\"sourceBind\":\"standard:none\"}":scenario=="late-gain"?",{\"op\":\"damage\",\"target\":\"owner\",\"amount\":1}":"")}}]}]}
+                {"id":"{{Watch}}","revision":1,"triggers":[{"id":"real-child","window":"{{(scenario=="damage"?"afterDamageApplied":"cardUseTargetsFinalized")}}",{{(scenario=="damage"?"\"subject\":\"any\",\"damageOccurrence\":\"perDamage\"":"\"ownerRelation\":\"actor\"" )}},"priority":{{(scenario=="damage"?-100:950)}},"optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"child","options":[{"id":"continue"}]}{{(scenario=="loss"?",{\"op\":\"loseOwnerSkillsAndGrant\",\"target\":\"owner\",\"skillIds\":[\"ol:luanzhan\"],\"sourceBind\":\"standard:none\"}":scenario=="late-gain"?",{\"op\":\"damage\",\"target\":\"owner\",\"amount\":1}":"")}}]}]}
                 """));labels[Watch]=new{name="实际子窗",description="原生边界实际选择与失源",optionLabels=new Dictionary<string,string>{{"continue","继续"}}};
             }
             if(scenario=="red")
