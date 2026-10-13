@@ -1,0 +1,9 @@
+{
+  "scope": "One filtered native weapon check recording current native frames and controlled audio requests",
+  "status": "passed",
+  "exitCode": 0,
+  "durationMs": 9886,
+  "frameCount": 40,
+  "frameDelayMilliseconds": 40,
+  "foregroundDesktopVerified": false
+}

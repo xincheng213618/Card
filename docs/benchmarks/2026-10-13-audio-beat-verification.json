@@ -1,0 +1,380 @@
+{
+  "date": "2026-10-13",
+  "status": "passed",
+  "objective": "持续迭代交互效果",
+  "goalRemainsActive": true,
+  "focus": "战斗音效与出牌反馈",
+  "changes": [
+    "Battle sound requests use the existing bounded TimedCue visual timeline; no duplicate command/resolution queue.",
+    "New prompt, turn and outcome sounds retain the immediate VM notification path; card launch and a later hit no longer compete in one commit batch.",
+    "Only publicly activated Stone Axe and Qinglong weapon facts produce the two appended original sound effects; declines, inquiries and unknown weapons stay silent.",
+    "Mute, zero volume, background, reset, unload, motion-off, failure and disposal consume interrupted sounds including new delayed cues arriving while silent.",
+    "Fast combat throttle and cold-open deadline scale with the existing animation pace; motion-off/unloaded/no-layer paths preserve immediate audio.",
+    "The fixed effect bank preloads without playback; late cold synchronized opens are discarded; ready effects start immediately; ordinary sound requests retain their existing 750ms grace.",
+    "VM-first motion restoration is covered so a deferred Layer binding cannot leave future battle sounds disabled."
+  ],
+  "verification": {
+    "focused": {
+      "status": "passed",
+      "wpfPassed": 5,
+      "failed": 0,
+      "durationMs": 16911,
+      "summary": "2026-10-13-audio-beat-focused-final-summary.json"
+    },
+    "nativeCodec": {
+      "status": "passed",
+      "wpfPassed": 1,
+      "effectCount": 15,
+      "durationMs": 11027,
+      "volume": 0,
+      "covers": [
+        "silent preloading and reuse",
+        "all WAVs MediaEnded",
+        "expired synchronized cold open",
+        "fresh ready effect",
+        "StopAll pending cancellation",
+        "ordinary cold-open grace",
+        "asynchronous corrupt media failure"
+      ],
+      "summary": "2026-10-13-audio-beat-native-codec-summary.json"
+    },
+    "routine": {
+      "status": "passed",
+      "corePassed": 476,
+      "coreFailed": 0,
+      "coreSkipped": 0,
+      "wpfPassed": 68,
+      "wpfFailed": 0,
+      "durationMs": 165302,
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 1612,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\build.log"
+        },
+        {
+          "name": "Core selected checks (295 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 86350,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\core-selected.log"
+        },
+        {
+          "name": "WPF selected checks (37 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 77075,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\wpf-selected.log"
+        }
+      ],
+      "summary": "2026-10-13-audio-beat-routine-summary.json",
+      "detailedLogs": [
+        "2026-10-13-audio-beat-routine-build.log",
+        "2026-10-13-audio-beat-routine-core-selected.log",
+        "2026-10-13-audio-beat-routine-wpf-selected.log"
+      ]
+    },
+    "motion": {
+      "status": "passed",
+      "wpfPassed": 1,
+      "durationMs": 9886,
+      "frameCount": 40,
+      "frameDelayMs": 40,
+      "summary": "2026-10-13-audio-beat-native-motion-summary.json"
+    },
+    "initialFailure": {
+      "status": "build-failed",
+      "durationMs": 6047,
+      "error": "CS0103: NativeWeaponFeedbackChecks called a missing Bindings helper at lines 207 and 218",
+      "evidenceSource": "Compiler diagnostics recorded in this chat; initial summary preserved",
+      "repair": "Use the existing loaded root Dispatcher DataBind invocation and UpdateLayout; focused and routine subsequently passed.",
+      "summary": "2026-10-13-audio-beat-focused-initial-summary.json"
+    },
+    "fullVerificationRun": false,
+    "releaseOrPublishRun": false,
+    "commitOrPushRun": false
+  },
+  "nativeBoundaries": {
+    "seed": 1,
+    "playerViews": 5,
+    "slashPhysicalId": 8,
+    "actualDodgePhysicalId": 33,
+    "weaponPhysicalId": 31,
+    "originalResolutionId": 27,
+    "stoneAxeCostPhysicalIds": [
+      38,
+      31
+    ],
+    "stoneAxeDamage": "Genuine native Zhiman skip commits HP4->3 immediately; no hit request at239ms, one at240ms; drawing/sounds leave all five safe views and commands unchanged.",
+    "qinglong": "Genuine next Slash38 uses its own resolution35 and sounds once alongside Qinglong; no invented target hit. Native motion-off original Slash is immediate and restoration does not replay it.",
+    "declines": "Both genuine decline commands only finish the original physical Slash once; neither produces a weapon sound or extra card/cost."
+  },
+  "assets": {
+    "manifestCount": 15,
+    "hashMatched": 15,
+    "newSounds": [
+      {
+        "name": "stoneaxe",
+        "seconds": 0.32,
+        "peak": 0.68,
+        "rms": 0.1036,
+        "sha256": "b950b8a59f6ad9f0be15041164e258612c787365c6ed6cd5efc3d72bbe737768"
+      },
+      {
+        "name": "qinglong",
+        "seconds": 0.3,
+        "peak": 0.68,
+        "rms": 0.1292,
+        "sha256": "f178fe9237dc48bb3c81e19fb0c7cdfa40970f33981a657b0419ead09f3a19ac"
+      }
+    ],
+    "previous13WavsUnchanged": "Agent before/after hashes matched individually; live scoped git status shows only the two added WAVs.",
+    "metrics": "2026-10-13-audio-beat-asset-metrics.json"
+  },
+  "preview": {
+    "video": "2026-10-13-audio-beat-native-axe.mp4",
+    "gif": "2026-10-13-audio-beat-native-axe.gif",
+    "soundtrack": "2026-10-13-audio-beat-native-axe.wav",
+    "nativeRequests": "2026-10-13-audio-beat-native-events.json",
+    "soundtrackInputs": "2026-10-13-audio-beat-native-axe-preview-events.json",
+    "source": "Current native WPF hidden-window test frames and a soundtrack mixed from its recorded public sound requests, not a foreground desktop or speaker recording.",
+    "durationSeconds": 1.6,
+    "videoWidth": 728,
+    "videoHeight": 482,
+    "nativeGifHeight": 481,
+    "heightPaddingPixels": 1,
+    "frameCount": 40,
+    "requestGain": 0.4,
+    "soundtrackEvents": [
+      "StoneAxe@0ms",
+      "Prompt@0ms",
+      "Hit@240ms"
+    ],
+    "videoFullyDecoded": true
+  },
+  "limits": [
+    "Timing evidence covers sound requests on the same visual clock. Dispatcher ticks target16ms; UI composition and physical speaker timing are not measured.",
+    "Native windows remain hidden, with 1120x740 and1920x1080 layouts; foreground user play, multiple display DPIs and audible speaker acceptance did not run.",
+    "Routine is the measured representative scope, not every registered check; its165s duration remains above the project one-minute preference."
+  ],
+  "cleanup": {
+    "status": "retained-policy-blocked",
+    "ownershipVerified": true,
+    "strictlyInsideTemp": true,
+    "linkedPaths": false,
+    "verificationLockAvailable": true,
+    "liveConsumers": [],
+    "directories": [
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin",
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\obj",
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders"
+    ],
+    "deletionRetried": false,
+    "reason": "Task-owned reused verification outputs: previous exact-path cleanup was blocked by policy, so automatic deletion retry remains prohibited. Final audio-beat source hashes, routine/focused/native codec summaries, native command event traces, WAV and MP4 previews are preserved in docs/benchmarks; no new external temporary directory was created.",
+    "cleanupQueue": "tools/cleanup_queue.json",
+    "newExternalTemporaryDirectories": []
+  },
+  "sourceHashCount": 15,
+  "sourceHashes": [
+    {
+      "path": "src/CardGame.Wpf/Audio/GameSound.cs",
+      "sha256": "C3975FEE219482DC3384029D01C02B123872FE0BB371845CF31F012FD9E84F7D"
+    },
+    {
+      "path": "src/CardGame.Wpf/Audio/GameAudioController.cs",
+      "sha256": "4FD75A68F2A91201A8E531BD3C915CE9941D00295D877BA8692957EB4B256F40"
+    },
+    {
+      "path": "src/CardGame.Wpf/Audio/MediaPlayerAudioOutput.cs",
+      "sha256": "CA77EE014BEE1615A362086D696035561247E86662160AB199BA610CA14D158C"
+    },
+    {
+      "path": "src/CardGame.Wpf/Controls/BattleFeedbackLayer.cs",
+      "sha256": "82365938F2F4F03C9D3D5D7D7B420D46714CF3301C67FC01D7A03C63D0F03CA7"
+    },
+    {
+      "path": "src/CardGame.Wpf/ViewModels/MainViewModel.Audio.cs",
+      "sha256": "D44AB7E3FFBC615A369A1042E0A78793DDBFD91A3FEEDB884E62435DBEF4894E"
+    },
+    {
+      "path": "src/CardGame.Wpf/MainWindow.xaml.cs",
+      "sha256": "38CEEFBB0884CCE000D1295230AAE41CB0445E331A3FBBB698DCE2901038A609"
+    },
+    {
+      "path": "tools/generate_game_audio.py",
+      "sha256": "63D37FAC34AC085B9F9D8C7426131C2B303C79C0ED154635FA7BBEDD2D07798B"
+    },
+    {
+      "path": "src/CardGame.Wpf/Assets/Audio/stoneaxe.wav",
+      "sha256": "B950B8A59F6AD9F0BE15041164E258612C787365C6ED6CD5EFC3D72BBE737768"
+    },
+    {
+      "path": "src/CardGame.Wpf/Assets/Audio/qinglong.wav",
+      "sha256": "F178FE9237DC48BB3C81E19FB0C7CDFA40970F33981A657B0419EAD09F3A19AC"
+    },
+    {
+      "path": "src/CardGame.Wpf/Assets/Audio/manifest.json",
+      "sha256": "9DE4BFB782D49AA8F706F4D66936B911D15B19A76EBC2DB5A562E805E94439CF"
+    },
+    {
+      "path": "src/CardGame.Wpf/Assets/Audio/README.md",
+      "sha256": "F52D4AEF80067E22D667F4143DD34F209FEF0FD157308EEDDE38497252A8F80E"
+    },
+    {
+      "path": "tests/CardGame.Wpf.Tests/AudioChecks.cs",
+      "sha256": "D12C89168220EE1A321E6781A02F6EB4324C7E052D53CE9605A3A930C39C567B"
+    },
+    {
+      "path": "tests/CardGame.Wpf.Tests/BattleAudioBeatChecks.cs",
+      "sha256": "A3E7126C5B598E08DA2D69825B7D582F75AE6B828DF1791B5309211D755A06B1"
+    },
+    {
+      "path": "tests/CardGame.Wpf.Tests/NativeWeaponFeedbackChecks.cs",
+      "sha256": "9096BEB14FBC8DE5ACEC3B58276BFAC3975B42A6986F621F50C3AED4A02871FD"
+    },
+    {
+      "path": "tests/CardGame.Wpf.Tests/Program.cs",
+      "sha256": "B16C5C2E7DE568C6462B77381FAF8210CDF277CA850FA1E8A5A01D0A3ABBD9F7"
+    }
+  ],
+  "evidenceHashCount": 27,
+  "evidenceHashes": [
+    {
+      "path": "docs/benchmarks/2026-10-13-audio-beat-asset-metrics.json",
+      "bytes": 1175,
+      "sha256": "795B87CB0B485D9E2A622CA1AA68AA9E7D5926693552F08E6014F20058ECF645"
+    },
+    {
+      "path": "docs/benchmarks/2026-10-13-audio-beat-cleanup.json",
+      "bytes": 961,
+      "sha256": "9E8D6361442ECBDC98F8583718ADC917F1411AFD8D73642686DCE8F3B5D40F9F"
+    },
+    {
+      "path": "docs/benchmarks/2026-10-13-audio-beat-component-events.json",
+      "bytes": 7456,
+      "sha256": "D4AE90CCA6EE2C088C825E7221885BFEB87993EC812D73C069BE4AFAF4FC8BD2"
+    },
+    {
+      "path": "docs/benchmarks/2026-10-13-audio-beat-focused-after-build-fix.log",
+      "bytes": 76,
+      "sha256": "823B61D33FF30177525111AB8961029AFC4539D47DC5DC7591E9B8A44781F063"
+    },
+    {
+      "path": "docs/benchmarks/2026-10-13-audio-beat-focused-final-summary.json",
+      "bytes": 1541,
+      "sha256": "C8809AC1A979817561D18B156284D406303F5828BB8A80597A4A1A5E22C4717B"
+    },
+    {
+      "path": "docs/benchmarks/2026-10-13-audio-beat-focused-final.log",
+      "bytes": 76,
+      "sha256": "823B61D33FF30177525111AB8961029AFC4539D47DC5DC7591E9B8A44781F063"
+    },
+    {
+      "path": "docs/benchmarks/2026-10-13-audio-beat-focused-initial-summary.json",
+      "bytes": 1339,
+      "sha256": "455C81D8DAEFC7494ECABCF3F427B02B2427EDA40E6F84345ECDD887F3BDC2D7"
+    },
+    {
+      "path": "docs/benchmarks/2026-10-13-audio-beat-focused-summary.json",
+      "bytes": 1540,
+      "sha256": "D88C8CEE6BE05FE536E1B941C2236314E703A461220F22C85408807AA75D6537"
+    },
+    {
+      "path": "docs/benchmarks/2026-10-13-audio-beat-focused.log",
+      "bytes": 76,
+      "sha256": "823B61D33FF30177525111AB8961029AFC4539D47DC5DC7591E9B8A44781F063"
+    },
+    {
+      "path": "docs/benchmarks/2026-10-13-audio-beat-native-axe-hit-260ms.png",
+      "bytes": 1103746,
+      "sha256": "39FDD85EDF7ADBA1BD9B45D2EE2DA0ACC9CA8798A1719A6DE6BC95F4FD29CE5F"
+    },
+    {
+      "path": "docs/benchmarks/2026-10-13-audio-beat-native-axe-preview-events.json",
+      "bytes": 386,
+      "sha256": "2369AD47F573E4BE91A4BCFBDFA1817B14DFCC1B4A8B6E4A29A2D2CE696F7D38"
+    },
+    {
+      "path": "docs/benchmarks/2026-10-13-audio-beat-native-axe.gif",
+      "bytes": 6967655,
+      "sha256": "C0461B52BD0E398D0C4E2B497FF7039C360EDC6C4B0CC41056788F785411FDCE"
+    },
+    {
+      "path": "docs/benchmarks/2026-10-13-audio-beat-native-axe.mp4",
+      "bytes": 545669,
+      "sha256": "AD33B1DA86CC767EDA42F324A69253E47BAD44BDBA56FB1D2263A240F59736E3"
+    },
+    {
+      "path": "docs/benchmarks/2026-10-13-audio-beat-native-axe.wav",
+      "bytes": 141164,
+      "sha256": "873752803C9CC2423CF19517F31663205B7AC567DB43E6A44469ADA09B48DFDF"
+    },
+    {
+      "path": "docs/benchmarks/2026-10-13-audio-beat-native-codec-summary.json",
+      "bytes": 284,
+      "sha256": "8B87C7865F9F9970F300A46F9AB5032EF4337D59B0BB2EC4968031887A189138"
+    },
+    {
+      "path": "docs/benchmarks/2026-10-13-audio-beat-native-codec.log",
+      "bytes": 336,
+      "sha256": "0F0CA3C9A6334728748511D91FE7F6C54BA2733D856CE020CCC2296B4B675AE1"
+    },
+    {
+      "path": "docs/benchmarks/2026-10-13-audio-beat-native-events.json",
+      "bytes": 1989,
+      "sha256": "D7E5AE1703D4239B892A293A24182F674896D72A89E49DFD86511745690D5D53"
+    },
+    {
+      "path": "docs/benchmarks/2026-10-13-audio-beat-native-motion-summary.json",
+      "bytes": 272,
+      "sha256": "F18A02287C12B9324F796C32D6CCAD279432C964D8247872A096DBCE20EB1C9A"
+    },
+    {
+      "path": "docs/benchmarks/2026-10-13-audio-beat-native-motion.log",
+      "bytes": 2689,
+      "sha256": "0F649A468E210BC81F4EBE07DBC48461C54D785F55E6EAB284D3FAAD4AE75CAE"
+    },
+    {
+      "path": "docs/benchmarks/2026-10-13-audio-beat-native-qinglong-180ms.png",
+      "bytes": 1072788,
+      "sha256": "975A16880D96CDE8675014FF976CABB5308BCAB19CFD6678E93480F3D5DB4381"
+    },
+    {
+      "path": "docs/benchmarks/2026-10-13-audio-beat-native-video-metadata.json",
+      "bytes": 531,
+      "sha256": "230F777C4BEF1C0D1DAF9A9B6C68022C0DFB82E2D68CCCF2CED8068BD3D80868"
+    },
+    {
+      "path": "docs/benchmarks/2026-10-13-audio-beat-routine-build.log",
+      "bytes": 896,
+      "sha256": "2109F08DA104F45AEB38B845CD6F358514771D020B179C09A707EE8609E22A1E"
+    },
+    {
+      "path": "docs/benchmarks/2026-10-13-audio-beat-routine-core-selected.log",
+      "bytes": 36170,
+      "sha256": "0D520F1F33C92EA9CB913881305BC3930896A4ACB7D3DA4A5D753CCC0811685A"
+    },
+    {
+      "path": "docs/benchmarks/2026-10-13-audio-beat-routine-summary.json",
+      "bytes": 16464,
+      "sha256": "42BCAF92664D088CAB83B85996C345828A4BC42F98A3AC695DC19C9B84207C1C"
+    },
+    {
+      "path": "docs/benchmarks/2026-10-13-audio-beat-routine-wpf-selected.log",
+      "bytes": 64637,
+      "sha256": "121A4A6CCC1B57F0B2755A689BEB434876A1E07792FCD1DBF6A49892FB9C25CD"
+    },
+    {
+      "path": "docs/benchmarks/2026-10-13-audio-beat-routine.log",
+      "bytes": 76,
+      "sha256": "823B61D33FF30177525111AB8961029AFC4539D47DC5DC7591E9B8A44781F063"
+    },
+    {
+      "path": "docs/benchmarks/2026-10-13-audio-beat-source-hashes.json",
+      "bytes": 2287,
+      "sha256": "031084334D5975FE9B37E07D71BE05E2C684813289A43731F5AC7C32416F072A"
+    }
+  ]
+}

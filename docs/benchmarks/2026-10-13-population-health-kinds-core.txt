@@ -1,0 +1,7 @@
+[PASS] Population health kinds: typed conditions frozen facts and exact windows
+[PASS] Population health kinds: actual maximum HP once and cold children
+[PASS] Population health kinds: preparation awakening draw and game quota
+[PASS] Population health kinds: other death maximum HP and recovery order
+[PASS] Card response completion cost: typed health kind actual recovery
+
+5 passed, 0 failed, 0 skipped (5 total).

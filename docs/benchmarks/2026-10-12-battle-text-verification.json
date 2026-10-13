@@ -1,0 +1,100 @@
+{
+  "recordedAt": "2026-10-12",
+  "scope": "WPF combat text readability and public result feedback",
+  "changes": [
+    "Damage and recovery text reserve separate rectangles for the complete upward trajectory and pop scale.",
+    "Each transient cue retains its visual offset and chosen font size until expiry; an earlier result expiring does not shift or enlarge later text.",
+    "Cached text relocates when a live command area moves into it. Text avoids current decisions, command areas and HP tracks.",
+    "Public skill banners use measured one/two-line text with explicit trimming and owner attribution; HP results take placement priority.",
+    "Effects preview adds DamageRecovery using the actual shared layer, showing -2 and +1 distinctly with current HP 3/4."
+  ],
+  "validation": {
+    "baseline": {
+      "status": "expected-product-failures",
+      "failed": 2,
+      "durationMs": 3764,
+      "issues": [
+        "Damage and recovery glyph bounds overlap.",
+        "Long public skill glyphs leave the viewport or cover protected health/command areas."
+      ]
+    },
+    "focused": {
+      "passed": 13,
+      "failed": 0,
+      "filters": [
+        "battle feedback",
+        "card flights",
+        "public card table",
+        "reference table layout preserves",
+        "declaration and general library views protect private faces"
+      ]
+    },
+    "finalTextFocused": {
+      "passed": 2,
+      "failed": 0,
+      "durationMs": 3303,
+      "includesNonVacuousAssertionsForRelocatedNumberAndConcurrentSkill": true
+    },
+    "routine": {
+      "status": "passed",
+      "corePassed": 476,
+      "wpfPassed": 49,
+      "failed": 0,
+      "durationMs": 138892,
+      "buildMs": 1706,
+      "coreMs": 86009,
+      "wpfMs": 50832
+    },
+    "motionRecording": {
+      "passed": 1,
+      "failed": 0,
+      "frames": 126,
+      "width": 616,
+      "height": 329,
+      "allFramesDelayMs": 80,
+      "bytes": 9778024
+    },
+    "visibleCoverage": [
+      "Two consecutive HP glyphs remain distinct.",
+      "Nine simultaneous results at top/side/bottom seats stay visible without glyph overlap or command/decision overlap.",
+      "A surviving number retains its unscaled glyph origin when its predecessor expires.",
+      "Moving command controls displaces cached text without dropping the number.",
+      "A long public skill name stays within the scene and off HP tracks; a concurrent damage number remains visible.",
+      "Motion off/reset dispose text placements and stop the shared timer."
+    ],
+    "realBoundControls": [
+      "Native Slash decline: revision 12 to 13, HP 5 to 4; four player-safe snapshots unchanged by rendering.",
+      "Physical Peach rescue: HP 0 to 1/5 with public recovery delta 1; four cold-loaded views unchanged.",
+      "Actual committed Kurou skill: real Core revision and HP cost verified, bound public skill banner rendered."
+    ],
+    "limitations": [
+      "No physical foreground mouse/key, continuous human-play, multi-DPI or audio acceptance was run.",
+      "The native recovery screenshot uses a fixed rules fixture with placeholder portraits and a fixture skill ID; it is diagnostic evidence.",
+      "The native recovery screenshot is at 0.2s, before the scheduled result number appears; the recorded preview separately shows concurrent HP text.",
+      "These changes only schedule drawing. Core rules, command commit and privacy/version contracts are unchanged in this batch."
+    ]
+  },
+  "evidence": [
+    "2026-10-12-battle-text-before-numbers.png",
+    "2026-10-12-battle-text-before-skill.png",
+    "2026-10-12-battle-text-consecutive.png",
+    "2026-10-12-battle-text-edge-crowd.png",
+    "2026-10-12-battle-text-long-skill.png",
+    "2026-10-12-battle-text-skill-and-damage.png",
+    "2026-10-12-battle-text-in-match.png",
+    "2026-10-12-battle-text-native-recovery.png",
+    "2026-10-12-battle-text-preview.png",
+    "2026-10-12-battle-text-preview.gif"
+  ],
+  "cleanup": {
+    "root": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f",
+    "retained": [
+      "bin",
+      "obj",
+      "renders"
+    ],
+    "reason": "An earlier exact-path cleanup was blocked by policy. Reused compatible outputs; automatic deletion retry is prohibited. Exact entries remain queued.",
+    "newTemporaryRoots": 0
+  },
+  "goalStatus": "active"
+}

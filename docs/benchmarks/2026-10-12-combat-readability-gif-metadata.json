@@ -1,0 +1,24 @@
+{
+  "chain": {
+    "file": "2026-10-12-combat-readability-native-chain.gif",
+    "frames": 110,
+    "width": 728,
+    "height": 481,
+    "frameDelayMs": 40,
+    "durationMs": 4400,
+    "distinctFrames": 95,
+    "loop": 0,
+    "bytes": 19503908
+  },
+  "group": {
+    "file": "2026-10-12-combat-readability-native-group.gif",
+    "frames": 84,
+    "width": 728,
+    "height": 481,
+    "frameDelayMs": 40,
+    "durationMs": 3360,
+    "distinctFrames": 42,
+    "loop": 0,
+    "bytes": 15315666
+  }
+}

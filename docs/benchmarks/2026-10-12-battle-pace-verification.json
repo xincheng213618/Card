@@ -1,0 +1,173 @@
+{
+  "date": "2026-10-12",
+  "objective": "持续迭代交互效果",
+  "priority": "战斗动效与出牌反馈",
+  "status": "This iteration is verified; the ongoing game interaction objective is not complete.",
+  "changes": [
+    {
+      "result": "Flying cards, attacks, confirmed impact, health trails and combat text follow the existing playback speed. Normal scale 1, fast scale 2/7, relaxed scale capped at 2. Accepted commands and current decisions remain immediate.",
+      "problem": "Fast autoplay advanced every 100 ms while battle effects retained standard duration, accumulating earlier visual results."
+    },
+    {
+      "result": "Rebase active cue start times using their previous normalized age. Preserve current position, text layout, health remainder and face handoff while changing remaining duration.",
+      "problem": "Switching playback speed could restart an in-progress animation if its time base changed directly."
+    },
+    {
+      "result": "The existing LayoutUpdated handler requests a render only when public face handoff changes. No second subscription or new persistent layout cache.",
+      "problem": "A public card container could complete layout after the layer drew its fallback face; the static face then appeared while the old drawing remained cached."
+    }
+  ],
+  "implementation": {
+    "rulesChanged": false,
+    "files": [
+      "src/CardGame.Wpf/Controls/BattleFeedbackLayer.cs",
+      "src/CardGame.Wpf/ViewModels/MainViewModel.Playback.cs",
+      "src/CardGame.Wpf/MainWindow.xaml"
+    ],
+    "uses": "Existing committed public cues, visible hand origins, public card anchors and playback selection.",
+    "replayOrPackageVersionChanged": false
+  },
+  "baseline": {
+    "evidence": "2026-10-12-battle-pace-before.log",
+    "image": "2026-10-12-battle-pace-fast-before.png",
+    "durationMs": 6148,
+    "status": "test-failed",
+    "failed": 1,
+    "buildMs": 3266,
+    "wpfMs": 2601,
+    "passed": 0
+  },
+  "focused": {
+    "durationMs": 18500,
+    "filters": [
+      "battle feedback",
+      "card flights",
+      "public card table",
+      "audio follows committed",
+      "reference table layout",
+      "playback"
+    ],
+    "failed": 0,
+    "passed": 20,
+    "status": "passed",
+    "evidence": "2026-10-12-battle-pace-focused.log",
+    "phases": [
+      {
+        "name": "Build selected scope",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 1416,
+        "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\build.log"
+      },
+      {
+        "name": "WPF selected checks (6 filters, union)",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 16824,
+        "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\wpf-selected.log"
+      }
+    ]
+  },
+  "routine": {
+    "evidence": "2026-10-12-battle-pace-routine-summary.json",
+    "corePassed": 476,
+    "durationMs": 138073,
+    "status": "passed",
+    "failed": 0,
+    "phases": [
+      {
+        "name": "Build selected scope",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 1429,
+        "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\build.log"
+      },
+      {
+        "name": "Core selected checks (295 filters, union)",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 83973,
+        "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\core-selected.log"
+      },
+      {
+        "name": "WPF selected checks (37 filters, union)",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 52375,
+        "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\wpf-selected.log"
+      }
+    ],
+    "wpfPassed": 55,
+    "scope": "Measured routine from tools/VerificationScopes.psd1; not manual full verification or single-action UI latency."
+  },
+  "checks": [
+    "Real native Slash card 9 commits exactly once; at 120 ms in fast mode no flying face remains and the public face is visible. Effects expire without altering all eight player snapshots.",
+    "Real native Dodge card 45 commits 14 -> 15 once. Normal -> relaxed -> fast keeps moving image bounds within 0.01 DIP on each speed switch; arrival occurs once and four player views remain unchanged.",
+    "Manual save/load retains selected fast speed and restores the binding without replaying historical cues.",
+    "Public HP remainder geometry stays within 0.01 DIP across fast -> relaxed; remaining trail retreats and expires, and motion toggles do not replay history.",
+    "Attack approach, confirmed impact, HP and damage text match normal rendering at corresponding visual ages 0.182, 0.651 and 1.197 seconds with fast times compressed by 2/7; unchanged pixel tolerance is 2 channels.",
+    "Injected frame clock rounds elapsed seconds to timestamp resolution. The diagnostic mismatch at phase 3 came from TimeSpan double conversion truncation by one tick; no product behavior or assertion tolerance was weakened.",
+    "Existing public privacy, distinct effects, skill text, hand origin, single-face handoff, physical suit/rank, rescue completion, playback, sound routing and table controls passed."
+  ],
+  "motion": {
+    "status": "passed",
+    "normal": "2026-10-12-battle-pace-native-normal.gif",
+    "evidence": "2026-10-12-battle-pace-motion.log",
+    "failed": 0,
+    "description": "Fresh native WPF tables, one accepted physical Slash per recording, injected wall clock, 30 frames at 40 ms. Fast animation finishes early and the remaining frames hold the final state.",
+    "metadata": [
+      {
+        "speed": "normal",
+        "frames": 30,
+        "size": [
+          728,
+          481
+        ],
+        "delaysMs": [
+          40
+        ],
+        "distinctFrames": 30,
+        "loop": 0,
+        "bytes": 5712352
+      },
+      {
+        "speed": "fast",
+        "frames": 30,
+        "size": [
+          728,
+          481
+        ],
+        "delaysMs": [
+          40
+        ],
+        "distinctFrames": 9,
+        "loop": 0,
+        "bytes": 5707303
+      }
+    ],
+    "fast": "2026-10-12-battle-pace-native-fast.gif",
+    "passed": 1,
+    "command": "Filtered WPF runner with --record-motion"
+  },
+  "limitations": [
+    "Offscreen native WPF control/render checks and injected clocks do not establish physical foreground mouse/keyboard, multi-DPI or audible speaker acceptance.",
+    "The sound routing regression passed; actual audio device output was not exercised.",
+    "No manual full verification, release, packaging, commit or push.",
+    "The wider battle presentation goal remains active; chained effects and multi-target result staging still need further iteration."
+  ],
+  "cleanup": {
+    "status": "retained-policy-blocked",
+    "root": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f",
+    "retained": [
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin",
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\obj",
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders"
+    ],
+    "matchingOwner": true,
+    "linkedPaths": 0,
+    "activeConsumers": 0,
+    "exclusiveLockVerified": true,
+    "deletionRetried": false,
+    "queue": "tools/cleanup_queue.json"
+  }
+}

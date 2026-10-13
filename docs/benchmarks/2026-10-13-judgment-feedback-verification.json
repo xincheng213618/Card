@@ -1,0 +1,173 @@
+{
+  "status": "ui-verified",
+  "goalStatus": "active",
+  "recordedAt": "2026-10-13T06:21:21.9692186+08:00",
+  "repository": "C:\\Users\\17917\\Desktop\\Card",
+  "scope": "Public WPF judgment reveal, confirmation and protected outcome captions; no Core/rules/version changes by this batch",
+  "changes": [
+    "Dedicated effective judgment card projection and owning judgment stages; ordinary played-card fields remain empty",
+    "180ms flip, .38s neutral target-only confirmation, 1.45s retirement",
+    "One reveal sound request after face reveal; no request/replacement/exhausted fake sound",
+    "Protected names/reasons/result layout; nullification closure and public played cards avoid caption overlap",
+    "Luoshen effective-suit outcome and neutral Ganglie/Leiji/unknown judgments; actual HP facts stay separate",
+    "Judgment reveal preview button; strict native host no-activate style preserves all foreground/visibility guards"
+  ],
+  "targeted": {
+    "failed": 0,
+    "report": "2026-10-13-judgment-feedback-targeted.json",
+    "passed": 6,
+    "durationMs": 34383
+  },
+  "routine": {
+    "coreFailed": 0,
+    "coreFilters": 301,
+    "scopeLimit": "Recorded compiled snapshot in a concurrently modified checkout; not every registered check and not later edits",
+    "coreSkipped": 0,
+    "report": "2026-10-13-judgment-feedback-routine.json",
+    "status": "passed",
+    "wpfPassed": 72,
+    "corePassed": 482,
+    "durationMs": 173119,
+    "wpfFilters": 39,
+    "wpfFailed": 0,
+    "fullVerificationRun": false
+  },
+  "native": {
+    "movie": {
+      "contactSheetVisuallyInspected": true,
+      "width": 728,
+      "height": 482,
+      "framesSource": "Loaded owned message-only actual WPF window, real accepted pass command and controlled forward timeline",
+      "silent": true,
+      "durationSeconds": 2,
+      "frames": 50,
+      "file": "2026-10-13-judgment-feedback-native.mp4",
+      "fps": 25
+    },
+    "safeViewerCount": 4,
+    "recordDurationMs": 8397,
+    "publicJudgment": {
+      "ResolutionId": 56,
+      "ParentResolutionId": 0,
+      "TargetSeat": 1,
+      "Reason": "trick.indulgence",
+      "CardId": 65,
+      "CardKind": 1,
+      "Suit": 0,
+      "Rank": 13,
+      "Succeeded": false
+    },
+    "commandsBefore": 13,
+    "foregroundPhysicalInputVerified": false,
+    "soundRequests": [
+      {
+        "Seconds": 0.2,
+        "Sound": "Card"
+      }
+    ],
+    "actualAiAdvances": 0,
+    "seed": 31,
+    "multiDpiVerified": false,
+    "indulgenceCardId": 61,
+    "speakerAudioVerified": false,
+    "commandsAfter": 14,
+    "pngSizes": [
+      "1120x740",
+      "1920x1080"
+    ],
+    "recordExitCode": 0,
+    "motionLoadUnloadReattach": true,
+    "binaryStabilityReport": "2026-10-13-judgment-feedback-native-binaries.json"
+  },
+  "correctionsAndConcurrentState": [
+    "Initial check compile used inaccessible suit helper; corrected test-local expected suit glyph",
+    "Two early native attempts were rejected by unchanged strict foreground guard; fixed owned host no-activate style instead of weakening the guard",
+    "Actual frame revealed title truncation and public-card overlap; corrected rendering and shared protected placement",
+    "First routine saw transient FriendTrio AddCard inside general-only module; independent concurrent source had already removed it, and fresh rebuild/routine passed. This batch did not edit that content"
+  ],
+  "sourceProof": [
+    {
+      "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Audio\\GameSound.cs",
+      "verifiedSourceSha256": "AA5D11C7642B9B77F08BE8A44FD8B1F4A3266EFB1B551666D23422CF020D5747",
+      "unchangedSinceProof": true,
+      "pdbMatched": true
+    },
+    {
+      "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\BattleEffectPainter.cs",
+      "verifiedSourceSha256": "7B057E768168D4EA5A2B8B22839F080C09CEA3BA9B008454D910099CA3882728",
+      "unchangedSinceProof": true,
+      "pdbMatched": true
+    },
+    {
+      "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\BattleEffectsPreview.cs",
+      "verifiedSourceSha256": "CE2006A73D0080F03574B8EA41C518FB121BA3DE8741E57AF11A1EAA4179F403",
+      "unchangedSinceProof": true,
+      "pdbMatched": true
+    },
+    {
+      "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\BattleFeedbackLayer.cs",
+      "verifiedSourceSha256": "5F72B78562CEC7AF4F6BD34E7E4AD7DF836C81FFB17A89148C50F12F33E8A13C",
+      "unchangedSinceProof": true,
+      "pdbMatched": true
+    },
+    {
+      "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Presentation\\BattleCue.cs",
+      "verifiedSourceSha256": "E1A7EE71C2AC862299F217CD9D157E9B64F2EAE7931B3A6CABB71F37C4E7B3DD",
+      "unchangedSinceProof": true,
+      "pdbMatched": true
+    },
+    {
+      "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\BattleAudioBeatChecks.cs",
+      "verifiedSourceSha256": "6866409CBE0FBC82770A4DE64F58BF1894E28F7A6F464E3C17F64E4542CD940C",
+      "unchangedSinceProof": true,
+      "pdbMatched": true
+    },
+    {
+      "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\BattleEffectsChecks.cs",
+      "verifiedSourceSha256": "ED17EB2333B331144BD8CA464792784E765D95EB4D10C866FD4A247EDB9EAC52",
+      "unchangedSinceProof": true,
+      "pdbMatched": true
+    },
+    {
+      "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\FeedbackChecks.cs",
+      "verifiedSourceSha256": "6A5807FC068EC5A7A9685D27F694323444159FB72F860E1F062DF8FA6BE21AEE",
+      "unchangedSinceProof": true,
+      "pdbMatched": true
+    },
+    {
+      "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\NativeJudgmentFeedbackChecks.cs",
+      "verifiedSourceSha256": "B5DF79E83D61C62CDE78269A89B3357CB5A179ED17E763E8F42E2F87E31BCA86",
+      "unchangedSinceProof": true,
+      "pdbMatched": true
+    },
+    {
+      "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\NativeResponseStatusChecks.cs",
+      "verifiedSourceSha256": "F2C968BE5C0F669C0B8A69FB9D18DE7BEA618E041450A9E3D66192A08EAA82B9",
+      "unchangedSinceProof": true,
+      "pdbMatched": true
+    },
+    {
+      "path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\Program.cs",
+      "verifiedSourceSha256": "8D55EFEF31A9460EFB7B4A1218E9FE91769258DF2AE698C46DB6D9588B8E450C",
+      "unchangedSinceProof": true,
+      "pdbMatched": true
+    }
+  ],
+  "cleanup": {
+    "queuedExactPaths": [
+      "C:/Users/17917/AppData/Local/Temp/CardGame-TestChanged-25f07ed2579f/bin",
+      "C:/Users/17917/AppData/Local/Temp/CardGame-TestChanged-25f07ed2579f/obj",
+      "C:/Users/17917/AppData/Local/Temp/CardGame-TestChanged-25f07ed2579f/renders",
+      "C:/Users/17917/AppData/Local/Temp/CardGame-LifeOutcomeNative-25f07ed2579f"
+    ],
+    "deletionRetried": false,
+    "report": "2026-10-13-judgment-feedback-cleanup.json",
+    "reason": "Prior policy-rejected deletion paths retained; queue registration is not deletion",
+    "deletedBytes": 0
+  },
+  "delivery": {
+    "published": false,
+    "pushed": false,
+    "committed": false
+  }
+}

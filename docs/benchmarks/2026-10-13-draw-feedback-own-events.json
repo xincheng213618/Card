@@ -1,0 +1,24 @@
+{
+  "Seed": 31,
+  "CommandsBefore": 7,
+  "CommandsAfter": 8,
+  "NativePreparationSteps": 0,
+  "ActualDraws": [
+    {
+      "Sequence": 31,
+      "Revision": 8,
+      "OwnerSeat": 0,
+      "DrawCount": 2
+    }
+  ],
+  "DrawCues": [
+    {
+      "Sequence": 31,
+      "Revision": 8,
+      "OwnerSeat": 0,
+      "DrawCount": 2
+    }
+  ],
+  "SafeViewCount": 4,
+  "PlaybackSafeViewsAndCommandsUnchanged": true
+}

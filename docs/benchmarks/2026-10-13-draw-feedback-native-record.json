@@ -1,0 +1,13 @@
+{
+  "status": "passed",
+  "durationMs": 6780,
+  "filter": "draws native public quantities",
+  "frames": 50,
+  "frameMs": 40,
+  "nativeHidden": true,
+  "foregroundInput": false,
+  "physicalAudio": false,
+  "clock": "controlled monotonic",
+  "noPrivateDrawCardFaces": true,
+  "binariesUnchanged": true
+}

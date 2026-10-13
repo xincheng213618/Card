@@ -1,0 +1,45 @@
+{
+  "status": "retained-policy-blocked",
+  "checkedAt": "2026-10-13T01:55:10.0951286+08:00",
+  "root": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f",
+  "verifiedTemporaryRoot": "C:\\Users\\17917\\AppData\\Local\\Temp",
+  "ownershipVerified": true,
+  "linkedPathsFound": false,
+  "activeConsumers": 0,
+  "exclusiveLockAvailable": true,
+  "deletionRetried": false,
+  "newExternalTemporaryDirectories": [],
+  "exactQueuedOutputs": [
+    "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin",
+    "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\obj",
+    "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders"
+  ],
+  "previousPolicyBlockedConsoleLogs": [
+    {
+      "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\card-preparation-initial.log",
+      "present": true
+    },
+    {
+      "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\card-preparation-focused.log",
+      "present": true
+    },
+    {
+      "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\card-preparation-origin-layout-before.log",
+      "present": true
+    },
+    {
+      "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\card-preparation-origin-layout-after.log",
+      "present": true
+    },
+    {
+      "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\card-preparation-motion.log",
+      "present": true
+    },
+    {
+      "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\card-preparation-routine.log",
+      "present": true
+    }
+  ],
+  "reason": "Task-owned reused verification outputs: previous exact-path cleanup was blocked by policy, so automatic deletion retry remains prohibited. Final weapon-feedback summaries, logs, native PNGs and a 40-frame GIF are preserved in docs/benchmarks; no new external temporary directory was created.",
+  "summariesAndMediaPreserved": true
+}

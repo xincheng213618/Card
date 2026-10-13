@@ -1,0 +1,39 @@
+{
+  "status": "build-failed",
+  "mode": "targeted",
+  "repository": "C:\\Users\\17917\\Desktop\\Card",
+  "artifactsPath": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f",
+  "coreFilters": [],
+  "wpfFilters": [
+    "battle feedback exposes only committed public actions",
+    "battle feedback renders distinct combat effects and retires them",
+    "battle feedback sequences public attacks responses and confirmed damage",
+    "battle feedback sequences native dying rescue and death outcomes",
+    "battle feedback health tracks follow committed damage recovery and loaded boundaries",
+    "battle feedback follows playback speed without restarting committed flights",
+    "dual portraits protect hidden slots and retain legacy skill semantics",
+    "combat sounds follow committed native visual beats"
+  ],
+  "startedAt": "2026-10-13T05:04:55.4332698+08:00",
+  "durationMs": 7038,
+  "message": "The selected scope did not build; checks were not started.",
+  "results": [
+    {
+      "name": "Build selected scope",
+      "status": "failed",
+      "exitCode": 1,
+      "durationMs": 6730,
+      "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\build.log"
+    }
+  ],
+  "cleanup": {
+    "status": "queued",
+    "queued": [
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin",
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\obj",
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders"
+    ],
+    "database": "C:\\Users\\17917\\Desktop\\Card\\tools\\cleanup_queue.json",
+    "message": null
+  }
+}

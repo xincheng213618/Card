@@ -1,0 +1,14 @@
+[
+  {
+    "path": "src/CardGame.Wpf/Audio/MediaPlayerAudioOutput.cs",
+    "sha256": "CA77EE014BEE1615A362086D696035561247E86662160AB199BA610CA14D158C"
+  },
+  {
+    "path": "tests/CardGame.Wpf.Tests/AudioChecks.cs",
+    "sha256": "D12C89168220EE1A321E6781A02F6EB4324C7E052D53CE9605A3A930C39C567B"
+  },
+  {
+    "path": "tests/CardGame.Wpf.Tests/NativeWeaponFeedbackChecks.cs",
+    "sha256": "9096BEB14FBC8DE5ACEC3B58276BFAC3975B42A6986F621F50C3AED4A02871FD"
+  }
+]

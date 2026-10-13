@@ -1,0 +1,30 @@
+[
+  {
+    "speed": "normal",
+    "frames": 30,
+    "size": [
+      728,
+      481
+    ],
+    "delaysMs": [
+      40
+    ],
+    "distinctFrames": 30,
+    "loop": 0,
+    "bytes": 5712352
+  },
+  {
+    "speed": "fast",
+    "frames": 30,
+    "size": [
+      728,
+      481
+    ],
+    "delaysMs": [
+      40
+    ],
+    "distinctFrames": 9,
+    "loop": 0,
+    "bytes": 5707303
+  }
+]

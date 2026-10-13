@@ -1,0 +1,22 @@
+[
+  {
+    "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin\\CardGame.Wpf.Tests\\release\\CardGame.Wpf.Tests.dll",
+    "sha256": "AD6670BF27097EE160C151B0A499575FB3B028BE135B7A90B49E6357ADB16709",
+    "unchanged": true
+  },
+  {
+    "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin\\CardGame.Wpf.Tests\\release\\CardGame.Wpf.dll",
+    "sha256": "728BB886534B61CF451C3B41E8CB873F3BCEA215CCA38B5C4FCCE756EF739D7E",
+    "unchanged": true
+  },
+  {
+    "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin\\CardGame.Wpf.Tests\\release\\CardGame.Core.dll",
+    "sha256": "E6852D6429A788F2F2F738BBC8612CB8DA178A4716355CCF028C354B2CDC2CE1",
+    "unchanged": true
+  },
+  {
+    "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin\\CardGame.Wpf.Tests\\release\\CardGame.Content.Standard.dll",
+    "sha256": "B4005C90C0F6914619923B4E64DECA6E63249EDD2F1143DA68BDCB2D9A08D25F",
+    "unchanged": true
+  }
+]

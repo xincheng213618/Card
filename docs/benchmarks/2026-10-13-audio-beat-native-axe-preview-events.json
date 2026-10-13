@@ -1,0 +1,18 @@
+{
+  "Duration": 1.6,
+  "Source": "Native seed1 paid Stone Axe, cropped recorded audio requests from 2000ms to 2240ms; controlled UI timeline, not captured speaker output",
+  "Events": [
+    {
+      "Seconds": 0.0,
+      "Sound": "StoneAxe"
+    },
+    {
+      "Seconds": 0.0,
+      "Sound": "Prompt"
+    },
+    {
+      "Seconds": 0.24,
+      "Sound": "Hit"
+    }
+  ]
+}

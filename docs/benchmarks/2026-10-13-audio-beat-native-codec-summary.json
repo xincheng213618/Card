@@ -1,0 +1,9 @@
+{
+  "scope": "One filtered native WPF audio check at zero volume",
+  "status": "passed",
+  "exitCode": 0,
+  "durationMs": 11027,
+  "checkFilter": "native WPF audio opens and completes every effect at zero volume",
+  "effectCount": 15,
+  "foregroundSpeakersVerified": false
+}

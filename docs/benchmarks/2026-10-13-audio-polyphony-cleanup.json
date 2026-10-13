@@ -1,0 +1,17 @@
+{
+  "status": "retained-policy-blocked",
+  "ownershipVerified": true,
+  "strictlyInsideTemp": true,
+  "linkedPaths": [],
+  "verificationLockAvailable": true,
+  "liveConsumers": [],
+  "directories": [
+    "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin",
+    "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\obj",
+    "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders"
+  ],
+  "deletionRetried": false,
+  "reason": "Task-owned reused verification outputs: previous exact-path cleanup was blocked by policy, so deletion retry remains prohibited. Audio-polyphony source hashes, focused/routine/native summaries, actual request traces and native stage counts are preserved in docs/benchmarks; no new external temporary directory was created.",
+  "cleanupQueue": "tools/cleanup_queue.json",
+  "newExternalTemporaryDirectories": []
+}

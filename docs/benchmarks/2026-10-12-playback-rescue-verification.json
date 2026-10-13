@@ -1,0 +1,142 @@
+{
+  "date": "2026-10-12",
+  "objective": "持续迭代交互效果",
+  "status": "This iteration is verified; the ongoing game interaction objective is not complete.",
+  "changes": [
+    {
+      "problem": "The floating Continue action covered settled public card actor/action captions.",
+      "result": "Continue now belongs to the existing right-hand match controls. Its native command, tutorial enablement and paused-AI visibility conditions remain intact; the central hint points to the right-hand action."
+    },
+    {
+      "problem": "A native rescue declared its card in one command and delivered DyingResponse completion in a later recovery-child command, causing a second public card flight.",
+      "result": "The public row's existing completion deduplication also supplies animation/sound suppression. The first face and printed metadata remain; real recovery feedback remains."
+    }
+  ],
+  "implementation": {
+    "files": [
+      "src/CardGame.Wpf/MainWindow.xaml",
+      "src/CardGame.Wpf/ViewModels/MainViewModel.Feedback.cs",
+      "src/CardGame.Wpf/ViewModels/MainViewModel.Presentation.cs"
+    ],
+    "state": "A local set of duplicate public event sequences is returned from the existing public-row projection; no new persistent cache, private-card lookup, rule frame or rule event.",
+    "rulesChanged": false,
+    "replayOrPackageVersionChanged": false
+  },
+  "baseline": {
+    "status": "test-failed",
+    "durationMs": 8279,
+    "buildMs": 2968,
+    "wpfMs": 4988,
+    "passed": 0,
+    "failed": 2,
+    "issues": [
+      "Continue action covered a committed public actor/action caption.",
+      "Native Peach card 45 produced declaration cue 33 and completion cue 42 in separate commands."
+    ]
+  },
+  "verification": {
+    "focused": {
+      "status": "passed",
+      "durationMs": 25292,
+      "buildMs": 6845,
+      "wpfMs": 18075,
+      "passed": 19,
+      "failed": 0,
+      "buildWarnings": 0,
+      "buildErrors": 0
+    },
+    "routine": {
+      "status": "passed",
+      "durationMs": 156279,
+      "buildMs": 1693,
+      "core": {
+        "passed": 476,
+        "failed": 0,
+        "durationMs": 93654
+      },
+      "wpf": {
+        "passed": 54,
+        "failed": 0,
+        "durationMs": 60575
+      },
+      "buildWarnings": 0,
+      "buildErrors": 0
+    },
+    "nativeMotion": {
+      "status": "passed",
+      "checks": 1,
+      "durationMs": 9188
+    },
+    "boundaries": [
+      "1120x740, 1440x880 and 1920x1080 native WPF layouts expose all actor/action captions outside the Continue button.",
+      "Actual bound Continue button OnClick submits exactly one AdvanceCommand and stops at the next human boundary after save/load.",
+      "Actual native Peach 45 suspends on afterHpRecovered child, completes in the next command and produces only declaration cue 33; completion cue 42 is suppressed.",
+      "Repeat the native recovery flow after saving/loading while the recovery child is pending.",
+      "The initial rescue effects are expired before the later child returns; no Peach ImageDrawing restarts in the overlay.",
+      "No completion Card sound is requested; the actual Recovery cue is retained.",
+      "Public metadata, every player-safe snapshot, physical card conservation and cold replay remain verified.",
+      "Existing card flights, public table, legacy public projection, layout and mute/background/device-failure audio routing checks pass."
+    ],
+    "limitations": {
+      "foregroundPhysicalInput": false,
+      "multiDpiAcceptance": false,
+      "audiblePlayback": false,
+      "fullVerification": false,
+      "capture": "Rendered real WPF controls and actual accepted-command fixtures at 96 DPI with an injected animation clock; button activation uses the WPF OnClick route.",
+      "routineTarget": "156.279 seconds; the measured routine still exceeds the project's approximately one-minute target."
+    },
+    "recordings": [
+      {
+        "file": "2026-10-12-playback-resume-use.gif",
+        "frames": 24,
+        "size": [
+          728,
+          481
+        ],
+        "frameDurationMs": 40,
+        "distinctFrames": 24,
+        "sha256": "7727958f95ec148e9529d6179f2575639b21509029654eaee2cee699543c4e6d"
+      },
+      {
+        "file": "2026-10-12-playback-resume-response.gif",
+        "frames": 24,
+        "size": [
+          728,
+          481
+        ],
+        "frameDurationMs": 40,
+        "distinctFrames": 24,
+        "sha256": "0879e5d061d83ea08a81220856bbe78bd12bd97ad9cdc23cd2fdf0a62fa874d6"
+      }
+    ]
+  },
+  "evidence": [
+    "2026-10-12-playback-rescue-before.log",
+    "2026-10-12-playback-resume-before.png",
+    "2026-10-12-rescue-completion-before.png",
+    "2026-10-12-playback-resume-after.png",
+    "2026-10-12-playback-response-after.png",
+    "2026-10-12-playback-resume-wide.png",
+    "2026-10-12-playback-response-wide.png",
+    "2026-10-12-rescue-completion-after.png",
+    "2026-10-12-rescue-completion-restored-after.png",
+    "2026-10-12-playback-resume-use.gif",
+    "2026-10-12-playback-resume-response.gif"
+  ],
+  "remaining": [
+    "Continue improving pacing and readability of consecutive battle feedback rather than treating these two fixes as a complete game experience.",
+    "Nested rescues that replace the current public row and bulk advancement need separate event-boundary acceptance.",
+    "Foreground physical-input, multi-DPI and audible playback acceptance remain open."
+  ],
+  "cleanup": {
+    "root": "C:/Users/17917/AppData/Local/Temp/CardGame-TestChanged-25f07ed2579f",
+    "retained": [
+      "bin",
+      "obj",
+      "renders"
+    ],
+    "reason": "An earlier exact-path cleanup was blocked by policy. Reused the stable output and did not retry deletion.",
+    "queue": "tools/cleanup_queue.json",
+    "reviewEvidence": "Copied into docs/benchmarks."
+  }
+}

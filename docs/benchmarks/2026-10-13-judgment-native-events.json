@@ -1,0 +1,186 @@
+{
+  "Seed": 31,
+  "IndulgenceCardId": 61,
+  "CommandsBefore": 13,
+  "CommandsAfter": 14,
+  "NativeAdvances": 0,
+  "Events": [
+    {
+      "Sequence": 94,
+      "Kind": "NullificationResolvedEvent",
+      "Payload": {
+        "ResolutionId": 0,
+        "EffectCardId": 61,
+        "EffectCardKind": 24,
+        "EffectNullified": false,
+        "ChainDepth": 0
+      }
+    },
+    {
+      "Sequence": 95,
+      "Kind": "JudgmentRequestedEvent",
+      "Payload": {
+        "ResolutionId": 56,
+        "ParentResolutionId": 0,
+        "TargetSeat": 1,
+        "Reason": "trick.indulgence",
+        "SourceCard": 24
+      }
+    },
+    {
+      "Sequence": 96,
+      "Kind": "CardMovedEvent",
+      "Payload": {
+        "CardId": 65,
+        "CardKind": 1,
+        "From": {
+          "Zone": 0,
+          "OwnerSeat": null
+        },
+        "To": {
+          "Zone": 5,
+          "OwnerSeat": 1
+        },
+        "Reason": {
+          "Value": "judgment.reveal"
+        }
+      }
+    },
+    {
+      "Sequence": 97,
+      "Kind": "ProgramJudgmentEntityOriginEvent",
+      "Payload": {
+        "JudgmentFrameId": 56,
+        "SubjectSeat": 1,
+        "CardId": 65,
+        "EffectiveSuit": 0,
+        "EntryMovementSequence": 51
+      }
+    },
+    {
+      "Sequence": 98,
+      "Kind": "JudgmentResolvedEvent",
+      "Payload": {
+        "ResolutionId": 56,
+        "ParentResolutionId": 0,
+        "TargetSeat": 1,
+        "Reason": "trick.indulgence",
+        "CardId": 65,
+        "CardKind": 1,
+        "Suit": 0,
+        "Rank": 13,
+        "Succeeded": false
+      }
+    },
+    {
+      "Sequence": 99,
+      "Kind": "ProgramDiscardedEntityOriginEvent",
+      "Payload": {
+        "MovementSequence": 52,
+        "SourceSeat": 1,
+        "EffectiveSuit": 0,
+        "JudgmentFrameId": 56
+      }
+    },
+    {
+      "Sequence": 100,
+      "Kind": "CardMovedEvent",
+      "Payload": {
+        "CardId": 65,
+        "CardKind": 1,
+        "From": {
+          "Zone": 5,
+          "OwnerSeat": 1
+        },
+        "To": {
+          "Zone": 3,
+          "OwnerSeat": null
+        },
+        "Reason": {
+          "Value": "judgment.finish"
+        }
+      }
+    },
+    {
+      "Sequence": 101,
+      "Kind": "TurnDiscardSuitMaskChangedEvent",
+      "Payload": {
+        "TurnNumber": 2,
+        "SuitMask": 1
+      }
+    },
+    {
+      "Sequence": 102,
+      "Kind": "CardMovedEvent",
+      "Payload": {
+        "CardId": 61,
+        "CardKind": 24,
+        "From": {
+          "Zone": 5,
+          "OwnerSeat": 1
+        },
+        "To": {
+          "Zone": 3,
+          "OwnerSeat": null
+        },
+        "Reason": {
+          "Value": "card.effect.delayed-finish"
+        }
+      }
+    },
+    {
+      "Sequence": 103,
+      "Kind": "DelayedCardResolvedEvent",
+      "Payload": {
+        "ResolutionId": 56,
+        "CardId": 61,
+        "CardKind": 24,
+        "TargetSeat": 1,
+        "JudgmentCardId": 65,
+        "JudgmentSucceeded": false,
+        "SkippedPlayPhase": true,
+        "SkippedDrawPhase": false
+      }
+    },
+    {
+      "Sequence": 104,
+      "Kind": "ActualDiscardRecoveryPhaseStartedEvent",
+      "Payload": {
+        "Phase": {
+          "Token": 9,
+          "TurnNumber": 2,
+          "ActualTurnOwnerSeat": 1,
+          "ActorSeat": 1,
+          "Kind": 2
+        }
+      }
+    },
+    {
+      "Sequence": 105,
+      "Kind": "ActualDiscardRecoveryPhaseStartedEvent",
+      "Payload": {
+        "Phase": {
+          "Token": 10,
+          "TurnNumber": 2,
+          "ActualTurnOwnerSeat": 1,
+          "ActorSeat": 1,
+          "Kind": 4
+        }
+      }
+    },
+    {
+      "Sequence": 106,
+      "Kind": "PhaseChangedEvent",
+      "Payload": {
+        "Phase": 3,
+        "ActorSeat": 1
+      }
+    }
+  ],
+  "SoundRequests": [
+    {
+      "Seconds": 0.2,
+      "Sound": "Card"
+    }
+  ]
+}

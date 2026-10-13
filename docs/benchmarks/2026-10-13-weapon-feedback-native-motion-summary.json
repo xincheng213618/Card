@@ -1,0 +1,14 @@
+{
+  "mode": "filtered-native-recording",
+  "filter": "battle feedback shows native weapon activations and exact followup costs",
+  "recordMotion": true,
+  "startedAt": "2026-10-13T01:49:25.1545288+08:00",
+  "durationMs": 9421,
+  "exitCode": 0,
+  "status": "passed",
+  "frames": 40,
+  "frameDelayMs": 40,
+  "width": 728,
+  "height": 481,
+  "foregroundAcceptance": false
+}

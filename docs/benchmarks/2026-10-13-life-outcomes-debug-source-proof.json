@@ -1,0 +1,20 @@
+[
+  {
+    "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\BattleEffectPainter.cs",
+    "pdbHash": "e477dafaa139a8338d1a75e63933092418bcbce98cffdd0f164974f0e6b68bd7",
+    "fileHash": "e477dafaa139a8338d1a75e63933092418bcbce98cffdd0f164974f0e6b68bd7",
+    "matches": true
+  },
+  {
+    "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\BattleFeedbackLayer.cs",
+    "pdbHash": "8a9cd09590262651a3b06da114fa3089527500891384e32c21578931dd68cfb6",
+    "fileHash": "8a9cd09590262651a3b06da114fa3089527500891384e32c21578931dd68cfb6",
+    "matches": true
+  },
+  {
+    "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Presentation\\BattleCue.cs",
+    "pdbHash": "967283e609827cce12737db67757de339b04d9abd71cb3accce4b550854d38c0",
+    "fileHash": "967283e609827cce12737db67757de339b04d9abd71cb3accce4b550854d38c0",
+    "matches": true
+  }
+]

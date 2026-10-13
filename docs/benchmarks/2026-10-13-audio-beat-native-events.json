@@ -1,0 +1,86 @@
+[
+  {
+    "Scenario": "native-stone-axe-seed1",
+    "Sound": "Card",
+    "Milliseconds": 0,
+    "Volume": 0.4,
+    "MaximumStartDelayMilliseconds": 120
+  },
+  {
+    "Scenario": "native-stone-axe-seed1",
+    "Sound": "Prompt",
+    "Milliseconds": 0,
+    "Volume": 0.4,
+    "MaximumStartDelayMilliseconds": null
+  },
+  {
+    "Scenario": "native-stone-axe-seed1",
+    "Sound": "StoneAxe",
+    "Milliseconds": 2000,
+    "Volume": 0.4,
+    "MaximumStartDelayMilliseconds": 120
+  },
+  {
+    "Scenario": "native-stone-axe-seed1",
+    "Sound": "Prompt",
+    "Milliseconds": 2000,
+    "Volume": 0.4,
+    "MaximumStartDelayMilliseconds": null
+  },
+  {
+    "Scenario": "native-stone-axe-seed1",
+    "Sound": "Hit",
+    "Milliseconds": 2240,
+    "Volume": 0.4,
+    "MaximumStartDelayMilliseconds": 120
+  },
+  {
+    "Scenario": "native-stone-axe-seed1",
+    "Sound": "Prompt",
+    "Milliseconds": 4000,
+    "Volume": 0.4,
+    "MaximumStartDelayMilliseconds": null
+  },
+  {
+    "Scenario": "native-qinglong-seed1",
+    "Sound": "Card",
+    "Milliseconds": 0,
+    "Volume": 0.4,
+    "MaximumStartDelayMilliseconds": null
+  },
+  {
+    "Scenario": "native-qinglong-seed1",
+    "Sound": "Response",
+    "Milliseconds": 0,
+    "Volume": 0.4,
+    "MaximumStartDelayMilliseconds": 120
+  },
+  {
+    "Scenario": "native-qinglong-seed1",
+    "Sound": "Prompt",
+    "Milliseconds": 0,
+    "Volume": 0.4,
+    "MaximumStartDelayMilliseconds": null
+  },
+  {
+    "Scenario": "native-qinglong-seed1",
+    "Sound": "Qinglong",
+    "Milliseconds": 2000,
+    "Volume": 0.4,
+    "MaximumStartDelayMilliseconds": 120
+  },
+  {
+    "Scenario": "native-qinglong-seed1",
+    "Sound": "Card",
+    "Milliseconds": 2000,
+    "Volume": 0.4,
+    "MaximumStartDelayMilliseconds": 120
+  },
+  {
+    "Scenario": "native-qinglong-seed1",
+    "Sound": "Prompt",
+    "Milliseconds": 3200,
+    "Volume": 0.4,
+    "MaximumStartDelayMilliseconds": null
+  }
+]

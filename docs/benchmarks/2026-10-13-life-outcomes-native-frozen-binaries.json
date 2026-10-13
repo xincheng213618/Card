@@ -1,0 +1,20 @@
+[
+  {
+    "name": "CardGame.Wpf",
+    "source": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\bin\\Debug\\net8.0-windows\\CardGame.Wpf.dll",
+    "sha256": "87c5cda1a93bed6d128602d59731c0a1a2ca4e56870f7287fa4cf208d6856fb6",
+    "lastWriteTime": "2026-10-13T05:20:12.9069424+08:00"
+  },
+  {
+    "name": "CardGame.Core",
+    "source": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\bin\\Debug\\net8.0-windows\\CardGame.Core.dll",
+    "sha256": "656f8b89080b4f43d20ff7ea5acf0c4f41d302f3d0e7fafbc71f697ccbec5e6a",
+    "lastWriteTime": "2026-10-13T05:20:06.5946201+08:00"
+  },
+  {
+    "name": "CardGame.Content.Standard",
+    "source": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\bin\\Debug\\net8.0-windows\\CardGame.Content.Standard.dll",
+    "sha256": "0f0b03d4622cf4dea0be06ece3e5a0c2f48658a59412a567f4289362534a6ae7",
+    "lastWriteTime": "2026-10-13T05:20:07.6528054+08:00"
+  }
+]

@@ -1,0 +1,17 @@
+[
+  {
+    "name": "CardGame.Core",
+    "sha256": "dd77b5c9717f1662e4393bbb89b4085952b989dc87f79496ea83f10bb778434c",
+    "lastWriteTime": "2026-10-13T05:11:14.5391221+08:00"
+  },
+  {
+    "name": "CardGame.Wpf",
+    "sha256": "d7796564a48176f308ce0564715eb0df9561ed7c338b3cc13c43a3fc8b5fef13",
+    "lastWriteTime": "2026-10-13T05:24:30.1328494+08:00"
+  },
+  {
+    "name": "CardGame.Wpf.Tests",
+    "sha256": "21d4d9d5d1bb16469ce5590e5cfc46e5d7166c6d9f276913d8afc521c32eae5e",
+    "lastWriteTime": "2026-10-13T05:24:30.8544358+08:00"
+  }
+]
