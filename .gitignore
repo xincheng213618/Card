@@ -17,3 +17,5 @@ TestResults/
 **/*_wpftmp.csproj
 # One-off diagnostic and repair scripts in the repository root.
 /.tmp_*.py
+/tools/cleanup_queue.json.lock
+/tools/cleanup_queue.json.tmp

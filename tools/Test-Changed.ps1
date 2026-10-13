@@ -1,7 +1,7 @@
 #requires -Version 7.0
 <#
 .SYNOPSIS
-Builds an isolated test scope once, then runs the built test executables directly.
+Builds an isolated test scope once, then registers bulky outputs for manual cleanup.
 
 .EXAMPLE
 ./tools/Test-Changed.ps1
@@ -11,7 +11,8 @@ Builds an isolated test scope once, then runs the built test executables directl
 ./tools/Test-Changed.ps1 -CoreFilter @('draw-phase', 'lifecycle programs')
 
 .EXAMPLE
-./tools/Test-Changed.ps1 -WpfFilter 'public reveal' -ArtifactsPath D:/temp/card-checks
+./tools/Test-Changed.ps1 -WpfFilter 'public reveal'
+# Binaries and renders remain available until the user runs tools/cleanup_temp.py.
 
 .EXAMPLE
 ./tools/Test-Changed.ps1 -Full
@@ -21,7 +22,9 @@ param(
     [string[]] $CoreFilter,
     [string[]] $WpfFilter,
     [switch] $Full,
-    [string] $ArtifactsPath
+    [string] $ArtifactsPath,
+    [switch] $KeepArtifacts,
+    [string] $CleanupDatabase = (Join-Path $PSScriptRoot 'cleanup_queue.json')
 )
 
 $ErrorActionPreference = 'Stop'
@@ -37,11 +40,10 @@ if ([string]::IsNullOrWhiteSpace($ArtifactsPath)) {
     $hash = [Convert]::ToHexString($hashBytes).Substring(0, 12).ToLowerInvariant()
     $ArtifactsPath = Join-Path ([IO.Path]::GetTempPath()) "CardGame-TestChanged-$hash"
 }
-$ArtifactsPath = [IO.Path]::GetFullPath($ArtifactsPath)
-[IO.Directory]::CreateDirectory($ArtifactsPath) | Out-Null
+$ArtifactsPath = [IO.Path]::GetFullPath($ArtifactsPath).TrimEnd([IO.Path]::DirectorySeparatorChar)
 $summaryPath = Join-Path $ArtifactsPath 'summary.json'
 $logRoot = Join-Path $ArtifactsPath 'logs'
-[IO.Directory]::CreateDirectory($logRoot) | Out-Null
+$ownerPath = Join-Path $ArtifactsPath '.test-changed-owner.json'
 
 $started = [DateTimeOffset]::Now
 $steps = [Collections.Generic.List[object]]::new()
@@ -50,7 +52,55 @@ $message = $null
 $exitCode = 1
 $lock = $null
 $ownsLock = $false
+$ownsArtifacts = $false
+$buildStarted = $false
 $routine = $false
+$cleanup = [ordered]@{ status = 'not-needed'; queued = @(); database = [IO.Path]::GetFullPath($CleanupDatabase); message = $null }
+
+function Assert-ArtifactOwnership {
+    # Refuse source roots, drive roots and linked paths before creating or removing anything.
+    $prefix = $ArtifactsPath + [IO.Path]::DirectorySeparatorChar
+    if ($repoRoot.Equals($ArtifactsPath, [StringComparison]::OrdinalIgnoreCase) -or
+        $repoRoot.StartsWith($prefix, [StringComparison]::OrdinalIgnoreCase) -or
+        [string]::IsNullOrEmpty([IO.Path]::GetFileName($ArtifactsPath))) {
+        throw 'ArtifactsPath must be a dedicated output directory, not a source ancestor or drive root.'
+    }
+    for ($ancestor = [IO.DirectoryInfo]::new($ArtifactsPath); $null -ne $ancestor; $ancestor = $ancestor.Parent) {
+        if ($ancestor.Exists -and ($ancestor.Attributes -band [IO.FileAttributes]::ReparsePoint)) {
+            throw "ArtifactsPath cannot pass through a linked directory: '$($ancestor.FullName)'."
+        }
+    }
+    if (Test-Path -LiteralPath $ownerPath) {
+        $owner = Get-Content -LiteralPath $ownerPath -Raw | ConvertFrom-Json
+        if ($owner.formatVersion -ne 1 -or $owner.repository -ne $repoRoot -or $owner.artifactsPath -ne $ArtifactsPath) {
+            throw "ArtifactsPath is owned by a different checkout: '$ArtifactsPath'."
+        }
+    }
+    elseif (Test-Path -LiteralPath $summaryPath) {
+        $previous = Get-Content -LiteralPath $summaryPath -Raw | ConvertFrom-Json
+        if ($previous.repository -ne $repoRoot -or $previous.artifactsPath -ne $ArtifactsPath) {
+            throw "Existing verification outputs have a different owner: '$ArtifactsPath'."
+        }
+    }
+    elseif ((Test-Path -LiteralPath $ArtifactsPath) -and
+        @(Get-ChildItem -LiteralPath $ArtifactsPath -Force | Where-Object Name -ne '.test-changed.lock').Count -gt 0) {
+        throw "ArtifactsPath is not empty and has no matching verification owner: '$ArtifactsPath'."
+    }
+}
+
+function Register-VerificationOutputs {
+    Assert-ArtifactOwnership
+    $resolvedRoot = (Resolve-Path -LiteralPath $ArtifactsPath).Path
+    $targets = @(foreach ($name in @('bin', 'obj', 'renders')) {
+        $candidate = Join-Path $resolvedRoot $name
+        if (Test-Path -LiteralPath $candidate) { $candidate }
+    })
+    if ($targets.Count -eq 0) { return }
+    & python -B (Join-Path $PSScriptRoot 'cleanup_temp.py') --database $cleanup.database --add @targets --root $resolvedRoot --lock-root $resolvedRoot --reason "Test-Changed verification output ($status); safe to clean after inspection."
+    if ($LASTEXITCODE -ne 0) { throw "Could not register outputs in '$($cleanup.database)'. Retained '$ArtifactsPath'." }
+    $cleanup.queued = $targets
+    $cleanup.status = 'queued'
+}
 
 function Invoke-LoggedStep {
     param([string] $Name, [string] $LogName, [scriptblock] $Action)
@@ -103,7 +153,127 @@ function Invoke-TestAssembly {
     }
 }
 
+function Invoke-ParallelTestAssemblies {
+    param([string] $CoreAssembly, [string] $WpfAssembly)
+    $command = Get-Command dotnet -ErrorAction Stop
+    while ($command -is [Management.Automation.AliasInfo]) { $command = $command.ResolvedCommand }
+    $prefixArguments = @()
+    if ($command -is [Management.Automation.ApplicationInfo]) { $executable = $command.Source }
+    elseif ($command -is [Management.Automation.ExternalScriptInfo]) {
+        $executable = Join-Path $PSHOME $(if ($IsWindows) { 'pwsh.exe' } else { 'pwsh' })
+        $prefixArguments = @('-NoLogo', '-NoProfile', '-File', $command.Source)
+    }
+    else { throw 'Parallel verification requires dotnet to resolve to an executable or script.' }
+
+    $children = [Collections.Generic.List[object]]::new()
+    $failed = 0
+    try {
+        foreach ($scope in @('Core', 'WPF')) {
+            $filters = if ($scope -eq 'Core') { $CoreFilter } else { $WpfFilter }
+            $assembly = if ($scope -eq 'Core') { $CoreAssembly } else { $WpfAssembly }
+            $name = if ($Full) { "$scope full checks" } else { "$scope selected checks ($($filters.Count) filters, union)" }
+            $logName = "$($scope.ToLowerInvariant())-$(if ($Full) { 'full' } else { 'selected' }).log"
+            $logPath = Join-Path $logRoot $logName
+            $arguments = @($assembly)
+            if ($scope -eq 'WPF') { $arguments += Join-Path $ArtifactsPath 'renders' }
+            if ($VerbosePreference -eq 'Continue') { $arguments += '--verbose' }
+            if (-not $Full) { $arguments += @($filters | ForEach-Object { "--filter=$_" }) }
+            $info = [Diagnostics.ProcessStartInfo]::new()
+            $info.FileName = $executable
+            $info.UseShellExecute = $false
+            $info.CreateNoWindow = $true
+            $info.WindowStyle = [Diagnostics.ProcessWindowStyle]::Hidden
+            $info.WorkingDirectory = $repoRoot
+            $info.RedirectStandardOutput = $true
+            $info.RedirectStandardError = $true
+            $info.StandardOutputEncoding = [Text.UTF8Encoding]::new($false)
+            $info.StandardErrorEncoding = [Text.UTF8Encoding]::new($false)
+            foreach ($argument in @($prefixArguments) + @($arguments)) { $info.ArgumentList.Add($argument) }
+            $process = [Diagnostics.Process]::new()
+            $process.StartInfo = $info
+            $child = [pscustomobject]@{
+                Name = $name; LogPath = $logPath; Process = $process; StartedAt = [DateTimeOffset]::Now
+                Writer = [IO.StreamWriter]::new($logPath, $false, [Text.UTF8Encoding]::new($false))
+                Started = $false; LaunchFailed = $false; Completed = $false; StdOut = $null; StdErr = $null; Result = $null
+            }
+            $child.Writer.AutoFlush = $true
+            $children.Add($child)
+            Write-Host "==> $name (parallel)"
+            try {
+                [void]$process.Start()
+                $child.Started = $true
+                $child.StdOut = $process.StandardOutput.ReadLineAsync()
+                $child.StdErr = $process.StandardError.ReadLineAsync()
+            }
+            catch {
+                $child.LaunchFailed = $true
+                $child.Writer.WriteLine($_.Exception.ToString())
+                Write-Host $_.Exception.Message
+            }
+        }
+        while (@($children | Where-Object { -not $_.Completed }).Count -gt 0) {
+            foreach ($child in $children) {
+                if ($child.Completed) { continue }
+                foreach ($stream in @('StdOut', 'StdErr')) {
+                    while ($null -ne $child.$stream -and $child.$stream.IsCompleted) {
+                        $line = $child.$stream.GetAwaiter().GetResult()
+                        if ($null -eq $line) { $child.$stream = $null; break }
+                        $child.Writer.WriteLine($line)
+                        Write-Host $line
+                        $child.$stream = if ($stream -eq 'StdOut') { $child.Process.StandardOutput.ReadLineAsync() }
+                            else { $child.Process.StandardError.ReadLineAsync() }
+                    }
+                }
+                if ($child.LaunchFailed -or ($null -eq $child.StdOut -and $null -eq $child.StdErr -and $child.Process.HasExited)) {
+                    $ended = [DateTimeOffset]::Now
+                    $code = if ($child.LaunchFailed) { 1 } else { $child.Process.ExitCode }
+                    if ($code -ne 0) { $failed = 1 }
+                    $child.Result = [ordered]@{
+                        name = $child.Name; status = $(if ($code -eq 0) { 'passed' } else { 'failed' })
+                        exitCode = $code; durationMs = [int64]($ended - $child.StartedAt).TotalMilliseconds
+                        log = $child.LogPath; startedAt = $child.StartedAt.ToString('O'); endedAt = $ended.ToString('O')
+                        processId = $(if ($child.Started) { $child.Process.Id } else { $null })
+                    }
+                    $child.Completed = $true
+                }
+            }
+            if (@($children | Where-Object { -not $_.Completed }).Count -gt 0) { Start-Sleep -Milliseconds 20 }
+        }
+        foreach ($child in $children) { $steps.Add($child.Result) }
+    }
+    finally {
+        # No reader or child may outlive the artifact lease, including an interrupted parent.
+        $cleanupErrors = [Collections.Generic.List[Exception]]::new()
+        foreach ($child in $children) {
+            try {
+                if ($child.Started) {
+                    try {
+                        if (-not $child.Process.HasExited) { $child.Process.Kill($true) }
+                    }
+                    catch { $cleanupErrors.Add($_.Exception) }
+                    # If termination races with exit or fails, keep the lease until
+                    # this child has actually ended before considering the next one.
+                    $child.Process.WaitForExit()
+                }
+            }
+            catch { $cleanupErrors.Add($_.Exception) }
+            finally {
+                try { $child.Writer.Dispose() }
+                catch { $cleanupErrors.Add($_.Exception) }
+                finally {
+                    try { $child.Process.Dispose() }
+                    catch { $cleanupErrors.Add($_.Exception) }
+                }
+            }
+        }
+        if ($cleanupErrors.Count -gt 0) { throw [AggregateException]::new('Parallel runner cleanup failed.', $cleanupErrors) }
+    }
+    return $failed
+}
+
 try {
+    Assert-ArtifactOwnership
+    [IO.Directory]::CreateDirectory($ArtifactsPath) | Out-Null
     try {
         $lockPath = Join-Path $ArtifactsPath '.test-changed.lock'
         $lock = [IO.File]::Open($lockPath, [IO.FileMode]::OpenOrCreate, [IO.FileAccess]::ReadWrite, [IO.FileShare]::None)
@@ -114,6 +284,11 @@ try {
         $message = "Another Test-Changed run owns '$ArtifactsPath'."
         throw
     }
+    Assert-ArtifactOwnership
+    [ordered]@{ formatVersion = 1; repository = $repoRoot; artifactsPath = $ArtifactsPath } |
+        ConvertTo-Json | Set-Content -LiteralPath $ownerPath -Encoding utf8
+    $ownsArtifacts = $true
+    [IO.Directory]::CreateDirectory($logRoot) | Out-Null
 
     $CoreFilter = @($CoreFilter | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
     $WpfFilter = @($WpfFilter | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
@@ -136,9 +311,15 @@ try {
         throw 'The selected verification scope is empty; no build or checks were started.'
     }
 
-    $usesWpf = $Full -or $WpfFilter.Count -gt 0
     $status = 'run-failed'
-    $buildTarget = if ($usesWpf) { $solution } else { $coreProject }
+    $buildTarget = if ($Full -or ($CoreFilter.Count -gt 0 -and $WpfFilter.Count -gt 0)) {
+        $solution
+    } elseif ($WpfFilter.Count -gt 0) {
+        $wpfProject
+    } else {
+        $coreProject
+    }
+    $buildStarted = $true
     $buildCode = Invoke-LoggedStep 'Build selected scope' 'build.log' {
         & dotnet build $buildTarget -c Release --artifacts-path $ArtifactsPath
     }
@@ -148,13 +329,18 @@ try {
     }
     else {
         $testFailed = 0
-        if ($Full -or $CoreFilter.Count -gt 0) {
+        if (($Full -or $CoreFilter.Count -gt 0) -and ($Full -or $WpfFilter.Count -gt 0)) {
             $coreAssembly = Find-TestAssembly 'CardGame.Core.Tests.dll'
-            if ((Invoke-TestAssembly $coreAssembly 'Core' $CoreFilter -RunFull:$Full) -ne 0) { $testFailed = 1 }
-        }
-        if ($Full -or $WpfFilter.Count -gt 0) {
             $wpfAssembly = Find-TestAssembly 'CardGame.Wpf.Tests.dll'
-            if ((Invoke-TestAssembly $wpfAssembly 'WPF' $WpfFilter -RunFull:$Full) -ne 0) { $testFailed = 1 }
+            $testFailed = Invoke-ParallelTestAssemblies $coreAssembly $wpfAssembly
+        }
+        elseif ($CoreFilter.Count -gt 0) {
+            $coreAssembly = Find-TestAssembly 'CardGame.Core.Tests.dll'
+            if ((Invoke-TestAssembly $coreAssembly 'Core' $CoreFilter) -ne 0) { $testFailed = 1 }
+        }
+        elseif ($WpfFilter.Count -gt 0) {
+            $wpfAssembly = Find-TestAssembly 'CardGame.Wpf.Tests.dll'
+            if ((Invoke-TestAssembly $wpfAssembly 'WPF' $WpfFilter) -ne 0) { $testFailed = 1 }
         }
         if ($testFailed -eq 0) { $status = 'passed'; $exitCode = 0 }
         else { $status = 'test-failed'; $message = 'One or more selected checks failed.' }
@@ -165,6 +351,19 @@ catch {
     Write-Host "ERROR: $message" -ForegroundColor Red
 }
 finally {
+    if ($ownsArtifacts -and $buildStarted) {
+        try {
+            Register-VerificationOutputs
+            if ($KeepArtifacts) { Write-Host '-KeepArtifacts is no longer needed; outputs remain until manual cleanup.' }
+        }
+        catch {
+            $cleanup.status = 'registration-failed'
+            $cleanup.message = $_.Exception.Message
+            if ($status -eq 'passed') { $status = 'cleanup-registration-failed'; $message = $cleanup.message }
+            $exitCode = 1
+            Write-Warning "Cleanup registration failed: $($cleanup.message)"
+        }
+    }
     $ended = [DateTimeOffset]::Now
     $summary = [ordered]@{
         status = $status
@@ -177,12 +376,17 @@ finally {
         durationMs = [int64]($ended - $started).TotalMilliseconds
         message = $message
         results = @($steps)
+        cleanup = $cleanup
     }
-    if ($ownsLock) {
-        $summary | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $summaryPath -Encoding utf8
+    try {
+        if ($ownsArtifacts) {
+            $summary | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $summaryPath -Encoding utf8
+            Write-Host "Summary: $summaryPath"
+        }
     }
-    if ($null -ne $lock) { $lock.Dispose() }
-    if ($ownsLock) { Write-Host "Summary: $summaryPath" }
+    finally {
+        if ($null -ne $lock) { $lock.Dispose() }
+    }
     Write-Host "Status: $status"
 }
 exit $exitCode
