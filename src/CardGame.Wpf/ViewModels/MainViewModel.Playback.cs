@@ -28,6 +28,8 @@ public sealed partial class MainViewModel
 
     private PlaybackSpeed _selectedPlaybackSpeed = PlaybackSpeed.Normal;
     public IReadOnlyList<PlaybackSpeed> PlaybackSpeeds => PlaybackSpeed.All;
+    public double BattleAnimationTimeScale => Math.Clamp(SelectedPlaybackSpeed.IntervalMilliseconds /
+        (double)PlaybackSpeed.Normal.IntervalMilliseconds, .25, 2);
     public PlaybackSpeed SelectedPlaybackSpeed
     {
         get => _selectedPlaybackSpeed;
@@ -60,6 +62,7 @@ public sealed partial class MainViewModel
 
     private void RefreshPlaybackPresentation()
     {
+        RaisePropertyChanged(nameof(BattleAnimationTimeScale));
         RaisePropertyChanged(nameof(IsSpectating));
         RaisePropertyChanged(nameof(CanFastSpectate));
         RaisePropertyChanged(nameof(SpectatorHint));

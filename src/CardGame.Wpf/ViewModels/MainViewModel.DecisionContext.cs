@@ -1,3 +1,4 @@
+using CardGame.Core;
 using CardGame.Wpf.Presentation;
 
 namespace CardGame.Wpf.ViewModels;
@@ -7,6 +8,29 @@ public sealed partial class MainViewModel
     public DecisionContext? CurrentDecisionContext { get; private set; }
     public bool HasDecisionContext => CurrentDecisionContext is not null;
     public string TableDecisionTitle => CurrentDecisionContext?.Title ?? TurnHeadline;
+
+    private static string ResponseStatusFor(GameSnapshot? snapshot, int seat)
+    {
+        if (snapshot?.PendingDecision is not { } prompt || prompt.PlayerSeat != snapshot.HumanSeat || prompt.PlayerSeat != seat)
+            return string.Empty;
+        if ((prompt.Kind is DecisionKind.RespondDodge or DecisionKind.RespondSlash) && !DecisionContext.IsResponseCardPrompt(prompt))
+            return string.Empty;
+        return prompt.Kind switch
+        {
+            DecisionKind.RespondDodge or DecisionKind.RespondSlash =>
+                (prompt.RequiredCardKind ?? (prompt.Kind == DecisionKind.RespondDodge ? CardKind.Dodge : CardKind.Slash)) switch
+                {
+                    CardKind.Dodge => "待打闪",
+                    CardKind.Slash => "待打杀",
+                    _ => string.Empty
+                },
+            DecisionKind.RescueDying => "待救援",
+            DecisionKind.Nullification => "待无懈",
+            DecisionKind.FireAttackReveal => "待展示",
+            DecisionKind.FireAttackDiscard => "待弃牌",
+            _ => string.Empty
+        };
+    }
 
     private void RefreshDecisionContext()
     {

@@ -49,6 +49,8 @@ public sealed class SeatViewModel : ObservableObject
     public bool IsTeammate { get; set; }
     public string DecisionRoleLabel { get; set; } = string.Empty;
     public bool HasDecisionRole => DecisionRoleLabel.Length > 0;
+    public string ResponseStatusText { get; set; } = string.Empty;
+    public bool HasResponseStatus => ResponseStatusText.Length > 0;
     public string SeatLabel => IsHuman ? $"你 · {DisplaySeatNumber:00} 号位"
         : IsNationalSeat ? $"{DisplaySeatNumber:00} 号位 · {RelationshipLabel}"
         : TeamId is not null ? $"{DisplaySeatNumber:00} 号位 · {(IsTeammate ? "队友" : "对手")}"
@@ -146,6 +148,7 @@ public sealed class SeatViewModel : ObservableObject
         if (!EqualityComparer<string?>.Default.Equals(TeamId, source.TeamId)) { TeamId = source.TeamId; changed = true; }
         if (!EqualityComparer<bool>.Default.Equals(IsTeammate, source.IsTeammate)) { IsTeammate = source.IsTeammate; changed = true; }
         if (!EqualityComparer<string>.Default.Equals(DecisionRoleLabel, source.DecisionRoleLabel)) { DecisionRoleLabel = source.DecisionRoleLabel; changed = true; }
+        if (!EqualityComparer<string>.Default.Equals(ResponseStatusText, source.ResponseStatusText)) { ResponseStatusText = source.ResponseStatusText; changed = true; }
         if (!EqualityComparer<string>.Default.Equals(Name, source.Name)) { Name = source.Name; changed = true; }
         if (!EqualityComparer<string>.Default.Equals(Kingdom, source.Kingdom)) { Kingdom = source.Kingdom; changed = true; }
         if (!EqualityComparer<string>.Default.Equals(RoleLabel, source.RoleLabel)) { RoleLabel = source.RoleLabel; changed = true; }

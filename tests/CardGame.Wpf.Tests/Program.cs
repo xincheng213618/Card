@@ -31,6 +31,7 @@ internal static class Program
     [STAThread]
     private static int Main(string[] args)
     {
+        Console.OutputEncoding = new System.Text.UTF8Encoding(false);
         if (args.Contains("--filter", StringComparer.OrdinalIgnoreCase))
         {
             Console.Error.WriteLine("Use --filter=<name>; an incomplete filter must not start the full suite.");
@@ -72,13 +73,27 @@ internal static class Program
                 Path.Combine(Path.GetTempPath(), "card-ui-check");
             Directory.CreateDirectory(output);
 
+            Check("Wusheng skill-first red cards use exact Slash source without popup", () => CardConversionTargetUiChecks.WushengSkillFirstSelectsRedCards(output));
+            Check("Delayed trick UI: portrait press conversion targets and automatic Lightning", () => DelayedTrickUiChecks.PortraitPressAndSelfTarget(output));
             Check("table interaction refresh cost and stable presentation", () => TableInteractionChecks.SelectionCost(output));
+            Check("table shortcuts execute once per key press and preserve modal drafts", TableShortcutChecks.SinglePressActions);
+            Check("discard recommendation preserves published material and actual hand limit", () => DiscardRecommendationUiChecks.PublishedMaterialAndLimit(output));
+            Check("table shortcuts respect navigation panels above startup overlays", TableShortcutChecks.OpeningOverlayPriority);
+            Check("table modal focus follows startup and current visible panels", ModalFocusChecks.StartupAndModalTransitions);
+            Check("table modal focus keeps opening log and result navigation inside their panels", () => TableOverlayNavigationChecks.OpeningLogAndResults(output));
+            Check("stale prompt choices cannot answer reloaded or consecutive decisions", () => StalePromptChoiceChecks.ReloadedChoices(output));
+            Check("Edition general gallery: namespaced portraits and real details", () => EditionGeneralGalleryChecks.NamespacedPortraitsAndDetails(output));
+            Check("Alcohol bonus UI: stacked public bonus fallback and clearing", () => AlcoholBonusUiChecks.PublicStackedBonusFallbackAndClearing(output));
+            Check("Named private pile UI: owner pairs public counts and clear", () => NamedPrivatePileUiChecks.OwnerPairsPublicCountsAndClearingUseSharedReadOnlyFaces(output));
+            Check("gallery details restore enabled browse focus and retire stale callbacks", GeneralGalleryFocusChecks.DetailsRestoreEnabledBrowseFocus);
             Check("overlapping hand cards keep stable pointer targets", () => HandPointerChecks.OverlapAndPointer(output));
+            Check("overlapping hand cards keep hover aligned after sorting and resizing", () => HandPointerChecks.HoverFollowsLayout(output));
             Check("stored grain updates its badge without replacing hand controls", () => HandGrainChecks.StoredCardKeepsItsControlAndUpdatesItsZone(output));
             Check("Last zone conversion presentation: restored judgment material uses central controls", () => LastZoneConversionUiChecks.RestoredJudgmentMaterialUsesExistingConversionControls(output));
             Check("Original hand tag presentation: real entity refresh and cold restore", () => OriginalHandTagUiChecks.RefreshAndColdRestore(output));
             Check("original card artwork preserves physical card identity and interaction", () => CardArtworkChecks.FacesAndInteractions(output));
             Check("Program Iron Chain guide follows actual target count and submits set", ProgramIronChainUiChecks.TargetCountGuideAndSubmission);
+            Check("Iron Chain selection preserves all eight portrait bounds when Recast appears", () => ProgramIronChainUiChecks.SelectionKeepsPortraitGeometry(output));
             Check("reference table layout preserves equipment and skill controls", () => TableSurfaceChecks.EquipmentAndSkillControls(output));
             Check("action dock keeps confirm cancel and end stable through real selection", () => TableSurfaceChecks.ActionDockSelection(output));
             Check("player guide renders current actions, private hand hints and searchable card rules", () => PlayerGuideChecks.ControlsAndSearch(output));
@@ -86,7 +101,11 @@ internal static class Program
             Check("general selection previews candidates before one explicit confirmation", () => CheckGeneralSelectionPreview(output));
             Check("general selection input respects overlays and consecutive national prompts", () => GeneralSelectionChecks.InputBoundaries(output));
             Check("identity general choices use two rows and lord-relative seat numbers", () => GeneralSelectionChecks.IdentityRowsAndSeats(output));
+            Check("Opening customization UI: identities roster and hand confirmation", () => OpeningCustomizationUiChecks.RolesRosterAndHandConfirmation(output));
+            Check("general selection includes playable Mou Huang Zhong", () => MouHuangZhongSelectionChecks.RelatedVariant(output));
             Check("general selection switches related editions without consuming candidate slots", () => GeneralSelectionChecks.RelatedVariants(output));
+            Check("Guan variants selection: real edition buttons portraits and skills", () => GuanYuVariantUiChecks.Selection(output));
+            Check("Zhuge and friend series: real edition buttons and all five gallery entries", () => ZhugeFriendRosterUiChecks.SelectionAndGallery(output));
             Check("mode lobby filters real identity, team and national entries without changing the match", () => CheckModeLobby(output));
             Check("selection, target toggle, cancel and play use legal actions", CheckSelections);
             Check("skill conversion is explicit and shares the confirmation flow", CheckConversions);
@@ -101,7 +120,7 @@ internal static class Program
             Check("Program deferred cards preserve private views and public pile ownership", () => DeferredCardsUiChecks.PrivateViewAndPublicPileRestoreThroughSharedControls(output));
             Check("Program conversion tiers restore actual shared skill state", () => ConfiguredConversionsUiChecks.TierRestoresWithActualUpgrade(output));
             Check("zero-entity round conversions use public target drafts and exact PlayCard commands", TieredRoundZeroUseUiChecks.PublicZeroUseTargetsAndRealCardSubmission);
-            Check("Draw-funded zero Use exact source private draw child and stale action", TieredRoundZeroUseUiChecks.DrawFundedZeroUseSubmitsExactSourceAndPrivateDrawChild);
+            Check("Draw-funded zero Use exact source private draw child and stale action", () => TieredRoundZeroUseUiChecks.DrawFundedZeroUseSubmitsExactSourceAndPrivateDrawChild(output));
             Check("chained state basic UI: false marker selects exact source", ChainedStateBasicUiChecks.FalseMarkerSelectsAndConfirmsExactSource);
             Check("Program conversion polarity stays visible with active entry and restore", () => ProgramConversionPolarityUiChecks.PolarityRemainsVisibleWithActiveEntryAndRestore(output));
             Check("Program private damage offers restore exact shared faces", () => ConfiguredConversionsUiChecks.PrivateOfferRestoresThroughSharedFaces(output));
@@ -124,12 +143,14 @@ internal static class Program
             Check("Program owned-card sets render a private shared draft and commit once", () => ProgramOwnedCardsUiChecks.PrivateSetUsesSharedChoiceSurface(output));
             Check("public pile costs use the named foreign pile and shared confirmation draft", () => PublicPileSkillUiChecks.ForeignPublicPileCostsUseSharedDraft(output));
             Check("hand responses select exact cards and confirm through shared controls", () => HandResponseChecks.Controls(output));
+            Check("hand responses label actual decline and retain native press feedback", () => NativeActionFeedbackChecks.ResponseSemantics(output));
             Check("response context distinguishes recipients, opponents and private prompts", DecisionContextChecks.Semantics);
+            Check("response context keeps the current responder and native chain stage visible", () => NativeResponseStatusChecks.PersistentResponses(output));
             Check("device preferences persist before play and survive legacy loads and tutorials", () => PreferencesChecks.StartupAndMigration(output));
             Check("invalid preferences remain recoverable and slider writes coalesce safely", () => PreferencesChecks.FailuresAndDebounce(output));
             Check("playback batches internal steps while preserving human boundaries and replay", PlaybackChecks.AutomaticStepsPreserveCommittedBoundaries);
             Check("opaque target-card slots render privately and commit through WPF commands", () => TargetCardChecks.Controls(output));
-            Check("dual portraits protect hidden slots and retain legacy skill semantics", NationalSeatChecks.PrivacyAndReveal);
+            Check("dual portraits protect hidden slots and retain legacy skill semantics", () => NationalSeatChecks.PrivacyAndReveal(output));
             Check("saved UI boundaries restore and continue through actual files", () => PersistenceChecks.RoundTrips(output));
             Check("failed writes and incompatible reads preserve the active game", () => PersistenceChecks.FailedFilesPreserveGame(output));
             Check("autosave coalesces commands and resumes after closing", PersistenceChecks.AutomaticAndExit);
@@ -137,9 +158,33 @@ internal static class Program
             Check("battle feedback exposes only committed public actions", FeedbackChecks.PublicProjection);
             Check("battle feedback skill effects use public committed identities once", () => BattleEffectsChecks.PublicSkills(output));
             Check("battle feedback renders distinct combat effects and retires them", () => BattleEffectsChecks.RenderEffects(output));
+            Check("battle feedback sequences public attacks responses and confirmed damage", () => BattleFeedbackTimelineChecks.CombatBeats(output));
+            Check("battle feedback sequences native dying rescue and death outcomes", () => NativeLifeOutcomeFeedbackChecks.NativeOutcomes(output));
+            Check("battle feedback reveals native judgment cards and exact outcomes", () => NativeJudgmentFeedbackChecks.NativeJudgment(output));
+            Check("battle feedback draws native public quantities without hidden faces", () => NativeDrawFeedbackChecks.NativeDraw(output));
+            Check("battle feedback health tracks follow committed damage recovery and loaded boundaries", () => HealthFeedbackChecks.CommittedHealth(output));
+            Check("battle feedback floating numbers remain distinct at crowded table edges", () => BattleTextReadabilityChecks.Numbers(output));
+            Check("battle feedback public skill names avoid health and live decisions", () => BattleTextReadabilityChecks.SkillBanners(output));
             Check("battle feedback preview is accessible and stops on close", BattleEffectsChecks.PreviewLifecycle);
             Check("battle feedback retires answered inquiries without dropping results", () => FeedbackChecks.InquiryLifetime(output));
             Check("card flights use public faces and preserve prompts", () => FeedbackChecks.CardFlights(output));
+            Check("card flights launch accepted local uses and responses from visible hand slots", () => HandCardFlightChecks.AcceptedLocalCards(output));
+            Check("card flights follow a continuous native hand lift", () => HandLiftMotionChecks.NativeLiftAndFlight(output));
+            Check("card flights keep local hand origins private and retire cached layout", () => HandCardFlightChecks.OriginBoundaries(output));
+            Check("card flights hand off public faces once and restore interrupted arrivals", () => PublicCardHandoffChecks.ArrivalAndBoundaries(output));
+            Check("card flights preserve public suit rank and converted effective faces", () => PublicCardIdentityChecks.PublicFaces(output));
+            Check("card flights avoid replaying native rescue completion across commands", () => RescueFlightChecks.NativeRecoveryCompletion(output));
+            Check("battle feedback follows playback speed without restarting committed flights", () => BattlePlaybackPaceChecks.NativeFastFeedback(output));
+            Check("battle feedback shows public elemental chains before recipient results", () => BattleChainFeedbackChecks.PublicChain(output));
+            Check("battle feedback preserves a native eight-seat elemental chain", () => LongChainFeedbackChecks.NativeEightSeats(output));
+            Check("battle feedback targeting guides follow reversible native card drafts", () => NativeCardTargetingChecks.NativeDraftGuide(output));
+            Check("battle feedback readability keeps elemental impacts inside portraits", () => ElementalImpactReadabilityChecks.PortraitBoundsAndDecay(output));
+            Check("battle feedback readability keeps the current native chain hit clear", () => CombatBeatHierarchyChecks.NativeChainHierarchy(output));
+            Check("battle feedback readability protects the measured phase HUD", () => BattleHudReadabilityChecks.NativeHudBindingAndBounds(output));
+            Check("battle feedback follows each native group responder", () => MultiTargetBattleFeedbackChecks.NativeGroupTargets(output));
+            Check("battle feedback shows native weapon activations and exact followup costs", () => NativeWeaponFeedbackChecks.NativeWeapons(output));
+            Check("battle feedback audio follows visual beats and discards interrupted sounds", () => BattleAudioBeatChecks.VisualBeats(output));
+            Check("skill target selection previews portrait acquisition without committing", () => TargetSelectionFeedbackChecks.NativePortraitAcquisition(output));
             Check("public card table shows committed uses and responses with actor flights", () => FeedbackChecks.PublicCardTable(output));
             Check("audio follows committed actions and survives mute, background and device failure", AudioChecks.CommandRouting);
             if (args.Contains("--verify-native-audio")) Check("official native audio plays MP3 and converted WAV at zero volume", OfficialAudioChecks.NativeSilentPlayback);
@@ -329,7 +374,7 @@ internal static class Program
             foreach (var child in Find<T>(VisualTreeHelper.GetChild(root, i))) yield return child;
     }
 
-    internal static void Render(FrameworkElement root, int width, int height, string path)
+    internal static void Render(FrameworkElement root, int width, int height, string? path)
     {
         root.Measure(new Size(width, height));
         root.Arrange(new Rect(0, 0, width, height));
@@ -337,6 +382,7 @@ internal static class Program
         root.Dispatcher.Invoke(() => { }, DispatcherPriority.Render);
         var bitmap = new RenderTargetBitmap(width, height, 96, 96, PixelFormats.Pbgra32);
         bitmap.Render(root);
+        if (path is null) return;
         var encoder = new PngBitmapEncoder();
         encoder.Frames.Add(BitmapFrame.Create(bitmap));
         using var file = File.Create(path);
@@ -346,6 +392,7 @@ internal static class Program
     private static void CheckSelections()
     {
         using var vm = NewViewModel();
+        StartLordFixture(vm);
         vm.SelectGeneralChoiceCommand.Execute(vm.GeneralChoices[0]);
         AdvanceToDecision(vm);
         var engine = Engine(vm);
@@ -382,6 +429,7 @@ internal static class Program
     private static void CheckConversions()
     {
         using var vm = NewViewModel();
+        StartLordFixture(vm);
         vm.SelectGeneralChoiceCommand.Execute(vm.GeneralChoices.Single(choice => choice.Name == "关羽"));
         AdvanceToDecision(vm);
         var engine = Engine(vm);
@@ -391,20 +439,78 @@ internal static class Program
         var action = engine.GetHumanLegalActions().First(a =>
             a.CardId == redCard.Id && a.PlayedCardKind == CardKind.Slash &&
             a.ConversionSource?.SkillId == "standard:wusheng");
+        vm.SaveGameCommand.Execute(null);
+        Assert(vm.FlushPendingSave() && vm.HasAnySave, vm.SaveStatus);
         vm.SelectCardCommand.Execute(redCard);
         var conversionChoice = vm.EquipmentPlayChoices.Single(choice =>
             choice.Cards.SequenceEqual([redCard.Id]) &&
             choice.Parameters.GetValueOrDefault("conversion-skill-id") == action.ConversionSource!.SkillId &&
             choice.Parameters.GetValueOrDefault("conversion-binding-id") == action.ConversionSource.BindingId &&
             choice.Parameters.GetValueOrDefault("conversion-instance-id") == action.ConversionSource.SkillInstanceId);
+        vm.LoadManualGameCommand.Execute(null);
+        Assert(!vm.HasSaveError && !ReferenceEquals(engine, Engine(vm)) && !vm.HasSelection,
+            "Manual reload must replace the Wusheng game and clear the client draft.");
+        engine = Engine(vm);
+        RejectConversion(conversionChoice, "A retired conversion source recreated a card draft after manual reload.");
+        redCard = vm.Hand.Single(card => card.Id == redCard.Id);
+        vm.SelectCardCommand.Execute(redCard);
+        var currentSource = vm.EquipmentPlayChoices.Single(choice => choice.Id == conversionChoice.Id);
+        Assert(!ReferenceEquals(currentSource, conversionChoice), "Reload must publish a new same-ID conversion parameter.");
+        RejectConversion(currentSource with { }, "An equal copied conversion record changed the selected source.");
+        conversionChoice = currentSource;
         vm.SelectEquipmentPlayChoiceCommand.Execute(conversionChoice);
         vm.SelectTargetCommand.Execute(vm.Seats.Single(seat => seat.Seat == action.TargetSeat));
         Assert(vm.CanPlaySelectedAsSlash, "The selected Wusheng source should enable this exact converted Slash.");
+        RejectConversion(conversionChoice, "A retired conversion parameter cleared the confirmed source or target.");
+        var cancelledSource = vm.EquipmentPlayChoices.Single(choice => choice.Id == conversionChoice.Id);
+        vm.ClearSelectionCommand.Execute(null);
+        Assert(!vm.HasSelection && vm.EquipmentPlayChoices.All(choice =>
+            choice.Parameters.GetValueOrDefault("action") != "select-card-conversion"),
+            "Cancelling a converted card must withdraw its previously published source buttons.");
+        RejectConversion(cancelledSource, "A cancelled conversion source recreated the old card draft.");
+        vm.SelectCardCommand.Execute(redCard);
+        vm.SelectEquipmentPlayChoiceCommand.Execute(vm.EquipmentPlayChoices.Single(choice => choice.Id == conversionChoice.Id));
+        vm.SelectTargetCommand.Execute(vm.Seats.Single(seat => seat.Seat == action.TargetSeat));
+        vm.SelectEquipmentPlayChoiceCommand.Execute(vm.EquipmentPlayChoices.Single(choice => choice.Id == conversionChoice.Id));
+        Assert(typeof(MainViewModel).GetField("_selectedConversionSource", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(vm) is null &&
+            vm.Hand.Single(card => card.Id == redCard.Id).IsSelected && vm.Seats.All(seat => !seat.IsSelectedTarget),
+            "The current regenerated conversion choice must still toggle off and clear its target.");
+        vm.SelectEquipmentPlayChoiceCommand.Execute(vm.EquipmentPlayChoices.Single(choice => choice.Id == conversionChoice.Id));
+        vm.SelectTargetCommand.Execute(vm.Seats.Single(seat => seat.Seat == action.TargetSeat));
+        Assert(vm.CanPlaySelectedAsSlash, "The current regenerated source must remain selectable after toggling off.");
         var revision = engine.Revision;
+        var commands = engine.AcceptedCommands.Count;
+        var movements = engine.CardMovements.Count;
         vm.PlaySelectedAsSlashCommand.Execute(null);
         Assert(engine.Revision > revision && !vm.HasSelection, "Wusheng did not commit and clear the selected card.");
+        Assert(engine.AcceptedCommands.Count == commands + 1 && engine.AcceptedCommands.Last() is PlayCardCommand submitted &&
+            submitted.CardId == redCard.Id && submitted.ConversionSource == action.ConversionSource &&
+            submitted.TargetSeats.SequenceEqual(action.TargetSeats) &&
+            engine.CardMovements.Skip(movements).Count(move => move.CardId == redCard.Id &&
+                move.From == CardLocation.Hand(0) && move.To == CardLocation.Processing && move.Reason == CardMoveReasons.Use) == 1,
+            "The current Wusheng source must submit its exact physical card, conversion identity and target once.");
         Assert(vm.RecentPlays.Any(play => play.Name == "杀"), "Table should show the effective public card name.");
         Assert(vm.BattleCues.Any(cue => cue.Kind == CardGame.Wpf.Presentation.BattleCueKind.Card && cue.Label == "杀" && cue.CardKind == CardKind.Slash), "Converted Slash feedback exposed the physical card name or artwork.");
+
+        void RejectConversion(PromptChoice input, string message)
+        {
+            var fields = new[] { "_selectedCardId", "_selectedConversionSource", "_selectedTargetSeat" }
+                .Select(name => typeof(MainViewModel).GetField(name, BindingFlags.Instance | BindingFlags.NonPublic)!).ToArray();
+            var values = fields.Select(field => field.GetValue(vm)).ToArray();
+            var selectedCards = vm.Hand.Where(card => card.IsSelected).Select(card => card.Id).ToArray();
+            var selectedTargets = vm.Seats.Where(seat => seat.IsSelectedTarget).Select(seat => seat.Seat).ToArray();
+            var text = vm.SelectedCardText;
+            var state = SnapshotJson.Serialize(engine.CreateSnapshot(0));
+            var priorRevision = engine.Revision;
+            var priorCommands = engine.AcceptedCommands.Count;
+            var priorMovements = engine.CardMovements.Count;
+            vm.SelectEquipmentPlayChoiceCommand.Execute(input);
+            Assert(fields.Select(field => field.GetValue(vm)).SequenceEqual(values) && vm.SelectedCardText == text &&
+                vm.Hand.Where(card => card.IsSelected).Select(card => card.Id).SequenceEqual(selectedCards) &&
+                vm.Seats.Where(seat => seat.IsSelectedTarget).Select(seat => seat.Seat).SequenceEqual(selectedTargets) &&
+                engine.Revision == priorRevision && engine.AcceptedCommands.Count == priorCommands &&
+                engine.CardMovements.Count == priorMovements && SnapshotJson.Serialize(engine.CreateSnapshot(0)) == state, message);
+        }
     }
 
 

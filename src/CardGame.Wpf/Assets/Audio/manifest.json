@@ -89,5 +89,19 @@
     "peak": 0.68,
     "rms": 0.1666,
     "sha256": "1a142d270aa16eaad3321e3fb4158c752e67c7a0e427da800707924831c46dbf"
+  },
+  {
+    "name": "stoneaxe",
+    "seconds": 0.32,
+    "peak": 0.68,
+    "rms": 0.1036,
+    "sha256": "b950b8a59f6ad9f0be15041164e258612c787365c6ed6cd5efc3d72bbe737768"
+  },
+  {
+    "name": "qinglong",
+    "seconds": 0.3,
+    "peak": 0.68,
+    "rms": 0.1292,
+    "sha256": "f178fe9237dc48bb3c81e19fb0c7cdfa40970f33981a657b0419ead09f3a19ac"
   }
 ]

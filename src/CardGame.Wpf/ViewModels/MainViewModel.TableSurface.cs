@@ -8,6 +8,8 @@ public sealed partial class MainViewModel
 {
     private IReadOnlyList<LegalAction> _supplementalActiveSkillActions = [];
     public string ActionDockConfirmText => CanEndTurn ? "确 定" : PlayButtonText;
+    public string ActionDockCancelText => HandResponseDeclineChoice is not null || SkillTargetDeclineChoice is not null
+        ? "放 弃" : "取 消";
     public int HumanSkillColumns => HumanSkillCards.Count > 2 ? 2 : 1;
     public double HumanSkillRailWidth => HumanSkillColumns == 2 ? 216 : 108;
 
@@ -23,7 +25,9 @@ public sealed partial class MainViewModel
             var supplemental = actions.Where(action => !skills.Any(skill => MatchesSkill(action, skill)) ||
                 actions.Count(other => other.ProgramSkillId == action.ProgramSkillId &&
                     other.EquipmentKind == action.EquipmentKind) > 1).ToArray();
-            if (!_supplementalActiveSkillActions.SequenceEqual(supplemental)) _supplementalActiveSkillActions = supplemental;
+            // The buttons carry action parameters; an equal record from a new view is a new parameter.
+            if (!_supplementalActiveSkillActions.SequenceEqual(supplemental, ReferenceEqualityComparer.Instance))
+                _supplementalActiveSkillActions = supplemental;
             return _supplementalActiveSkillActions;
         }
     }
@@ -58,8 +62,10 @@ public sealed partial class MainViewModel
     public ICommand ActivateHumanSkillCommand => _activateHumanSkillCommand ??= new RelayCommand<HumanSkillViewModel>(skill =>
     {
         // Drafts commit only through the primary confirmation; re-clicking a chip must not pay its cost.
-        if (IsActiveSkillSelectionPending) return;
-        // Resolve again against the current legal actions; a stale chip cannot submit an obsolete choice.
+        if (IsActiveSkillSelectionPending ||
+            !HumanSkillCards.Any(current => ReferenceEquals(current, skill))) return;
+        if (skill.IsAvailable && !skill.IsDisabled && TrySelectWusheng(skill)) return;
+        // Resolve the published rail chip against the current legal actions.
         var action = HumanActiveSkillActions.FirstOrDefault(action => MatchesSkill(action, skill));
         if (skill.IsAvailable && !skill.IsDisabled && action is not null) SelectActiveSkillCommand.Execute(action);
     });

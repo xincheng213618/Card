@@ -21,6 +21,7 @@ internal static class PreferencesChecks
         using (var vm = new MainViewModel(false, 721019, true, saves, preferencesStore: store))
         {
             Require(!File.Exists(path), "Merely opening setup must not write preferences.");
+            Require(vm.IsMotionEnabled, "A fresh device must show game effects by default.");
             var window = new MainWindow(vm);
             window.ApplyTemplate();
             var root = (FrameworkElement)window.Content;

@@ -10,13 +10,26 @@ public sealed class CardViewModel : ObservableObject
     private string _availabilityText = string.Empty;
     private string _kindLabel = string.Empty;
     private string _originalHandTag = string.Empty;
+    private bool _isWushengConversion;
 
     public required int Id { get; init; }
     public CardKind? Kind { get; init; }
-    public ImageSource? Artwork => CardArt.Get(Kind);
+    public ImageSource? Artwork => CardArt.Get(IsWushengConversion ? CardKind.Slash : Kind);
     public bool HasArtwork => Artwork is not null;
-    public bool HasDynamicWeaponName => CardArt.NeedsRuntimeNameOverlay(Kind);
+    public bool HasDynamicWeaponName => !IsWushengConversion && CardArt.NeedsRuntimeNameOverlay(Kind);
     public required string Name { get; init; }
+    public bool IsWushengConversion
+    {
+        get => _isWushengConversion;
+        set
+        {
+            if (!SetProperty(ref _isWushengConversion, value)) return;
+            foreach (var property in new[] { nameof(Artwork), nameof(HasArtwork), nameof(HasDynamicWeaponName),
+                nameof(VerticalName), nameof(NameFontSize), nameof(NameLineHeight), nameof(AccentBrush) })
+                RaisePropertyChanged(property);
+        }
+    }
+    private string DisplayName => IsWushengConversion ? "杀" : Name;
     public required string KindLabel
     {
         get => _kindLabel;
@@ -50,9 +63,9 @@ public sealed class CardViewModel : ObservableObject
     public bool IsPublicChoice { get; init; }
     public bool IsPrivateReveal { get; init; }
     public string PublicCardLabel => IsPrivateReveal ? "仅你可见" : IsPublicChoice ? "点击选取" : "公开牌";
-    public string VerticalName => string.Join("\n", Name.ToCharArray());
-    public double NameFontSize => Name.Length > 3 ? 23 : Name.Length == 1 ? 38 : 30;
-    public double NameLineHeight => Name.Length > 3 ? 27 : 34;
+    public string VerticalName => string.Join("\n", DisplayName.ToCharArray());
+    public double NameFontSize => DisplayName.Length > 3 ? 23 : DisplayName.Length == 1 ? 38 : 30;
+    public double NameLineHeight => DisplayName.Length > 3 ? 27 : 34;
     public string AvailabilityText
     {
         get => _availabilityText;
@@ -72,7 +85,7 @@ public sealed class CardViewModel : ObservableObject
         ? new SolidColorBrush(Color.FromRgb(181, 55, 48))
         : new SolidColorBrush(Color.FromRgb(41, 40, 37));
 
-    public Brush AccentBrush => Name switch
+    public Brush AccentBrush => DisplayName switch
     {
         "杀" => new SolidColorBrush(Color.FromRgb(156, 49, 40)),
         "闪" => new SolidColorBrush(Color.FromRgb(45, 113, 89)),

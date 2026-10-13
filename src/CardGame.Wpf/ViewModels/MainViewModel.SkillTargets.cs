@@ -6,6 +6,7 @@ public sealed partial class MainViewModel
 {
     private PromptId? _skillTargetPromptId;
     private IReadOnlyList<PromptChoice> _skillTargetChoices = [];
+    private IReadOnlyList<PromptChoice> _centerSkillChoices = [];
     private HashSet<ChoiceId> _skillTargetChoiceIds = [];
     private HashSet<ChoiceId> _orderedSkillTargetChoiceIds = [];
     private readonly List<int> _selectedSkillTargetSeats = [];
@@ -51,10 +52,25 @@ public sealed partial class MainViewModel
         }
     }
 
-    public IReadOnlyList<PromptChoice> CenterSkillChoices => IsSkillTargetSelectionPending
-        ? SkillChoices.Where(choice => !_skillTargetChoiceIds.Contains(choice.Id) &&
-            choice.Id != SkillTargetDeclineChoice?.Id).ToArray()
-        : SkillChoices;
+    public IReadOnlyList<PromptChoice> CenterSkillChoices
+    {
+        get
+        {
+            if (!IsSkillTargetSelectionPending)
+            {
+                _centerSkillChoices = [];
+                return SkillChoices;
+            }
+            var declineId = SkillTargetDeclineChoice?.Id;
+            var choices = SkillChoices.Where(choice => !_skillTargetChoiceIds.Contains(choice.Id) &&
+                choice.Id != declineId).ToArray();
+            // Hint-only refreshes keep the same native choices and controls.
+            // A new player view still retires every previous choice reference.
+            if (!_centerSkillChoices.SequenceEqual(choices, ReferenceEqualityComparer.Instance))
+                _centerSkillChoices = Array.AsReadOnly(choices);
+            return _centerSkillChoices;
+        }
+    }
 
     private bool CanExtendSkillTargets(PromptChoice choice, IReadOnlyList<int> selected) =>
         selected.Count <= choice.Targets.Count && (_orderedSkillTargetChoiceIds.Contains(choice.Id)
@@ -103,13 +119,15 @@ public sealed partial class MainViewModel
     {
         get
         {
+            var declineHint = SkillTargetDeclineChoice is not null
+                ? $"点击「{ActionDockCancelText}」放弃本次技能选择；Esc 只取消当前选择。" : string.Empty;
             if (_selectedSkillTargetSeats.Count == 0)
-                return $"{_snapshot.PendingDecision!.Prompt} 点选亮起的武将，再点击「确定」。";
+                return $"{_snapshot.PendingDecision!.Prompt} 点选亮起的武将，再点击「确定」。{declineHint}";
             var choice = SelectedSkillTargetChoice;
             var targets = choice?.Targets ?? _selectedSkillTargetSeats;
             var separator = choice is not null && _orderedSkillTargetChoiceIds.Contains(choice.Id) ? " → " : "、";
             return $"已选：{string.Join(separator, targets.Select(seat => Seats.Single(item => item.Seat == seat).GeneralName))} · " +
-                (choice is not null ? "点击「确定」执行；再次点选可取消选择。" : "继续点选亮起的武将；再次点选可取消选择。");
+                (choice is not null ? "点击「确定」执行；再次点选可取消选择。" : "继续点选亮起的武将；再次点选可取消选择。") + declineHint;
         }
     }
 

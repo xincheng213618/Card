@@ -58,6 +58,9 @@ public sealed partial class MainViewModel
             .Where(action => action.ProgramSkillId is not null)
             .Select(action => action.ProgramSkillId!)
             .ToHashSet(StringComparer.Ordinal);
+        availablePrograms.UnionWith(GetViewLegalActions()
+            .Where(action => IsWushengSource(action.ConversionSource))
+            .Select(action => action.ConversionSource!.SkillId));
         if (IsNationalSnapshot)
         {
             var slots = new[]
@@ -70,9 +73,10 @@ public sealed partial class MainViewModel
                 .SelectMany(slot =>
                 {
                     var definition = _contentRegistry.Generals[slot.Id];
-                    var printedSkillIds = (definition.SkillIds
-);
-                    return FilterOwnedSkillIds(printedSkillIds, slot.Skills)
+                    var ownedIds = slot.Skills?.Select(skill => skill.ContentId)
+                        .OfType<string>().ToHashSet(StringComparer.Ordinal);
+                    return definition.SkillIds
+                        .Where(id => ownedIds is null || ownedIds.Contains(id))
                         .Select(_contentRegistry.GetSkill)
                         .Where(skill => skill.Name != "无")
                         .Select(skill =>
@@ -115,17 +119,20 @@ public sealed partial class MainViewModel
                                  skill.Program?.Activations.Count > 0;
                     var isAvailable = availablePrograms.Contains(skill.Id);
                     var isFuhunGranted = runtimeState?.IsAcquired == true &&
+                        (human.Skills?.Any(owned => owned.ContentId == "boundary:fuhun-current") == true ||
                         human.SkillRuntimeStates?.Any(state =>
                             state.SkillId == "classic:fuhun" &&
                             state.Usages.Any(usage =>
                                 usage.UsageId.StartsWith("grant-parent-skills@", StringComparison.Ordinal) &&
                                 usage.Scope == SkillUsageScope.Turn &&
-                                usage.Count > 0)) == true;
+                                usage.Count > 0)) == true);
                     return new HumanSkillViewModel(
                         skill.Name,
                         GetVisibleSkillDescription(skill),
                         GetSkillTypeText(active, skill.Tags, skill.ExecutionForms, skill.ActionForms),
-                        GetSkillStateText(
+                        IsWushengSelectionPending && _selectedConversionSource?.SkillId == skill.Id
+                            ? "已选择 · 红牌当杀"
+                            : GetSkillStateText(
                             active,
                             isAvailable,
                             skill.ExecutionForms,
@@ -165,20 +172,6 @@ public sealed partial class MainViewModel
             .ToArray();
     }
 
-    private static IReadOnlyList<string> FilterOwnedSkillIds(
-        IEnumerable<string> printedSkillIds,
-        IReadOnlyList<GeneralSkillDefinition>? ownedSkills)
-    {
-        var printed = printedSkillIds.ToArray();
-        if (ownedSkills is null) return printed;
-
-        var ownedIds = ownedSkills
-            .Select(skill => skill.ContentId)
-            .OfType<string>()
-            .ToHashSet(StringComparer.Ordinal);
-        return printed.Where(ownedIds.Contains).ToArray();
-    }
-
     private static string GetSkillTypeText(
         bool hasActiveEntry,
         SkillTag tags,
@@ -214,6 +207,8 @@ public sealed partial class MainViewModel
         SkillTag tags = SkillTag.None,
         SkillRuntimeStateSnapshot? runtimeState = null)
     {
+        if (runtimeState?.SkillId == "friend:yance" && HumanFriendPredictionState() is { Length: > 0 } forecast)
+            return forecast;
         var polarityText = runtimeState?.Polarity switch
         {
             SkillPolarity.Yang => "当前：阳",
@@ -336,9 +331,11 @@ public sealed partial class MainViewModel
         }
         foreach (var prohibition in state.ActionProhibitions ?? [])
         {
-            var allSlashes = new[] { CardKind.Slash, CardKind.FireSlash, CardKind.ThunderSlash };
-            var kinds = prohibition.CardKinds.Order().SequenceEqual(allSlashes.Order())
-                ? "杀" : string.Join("／", prohibition.CardKinds.Select(kind => new Card(0, kind, Suit.Spade, 1).DisplayName));
+            var kinds = prohibition.CardKinds.Count == 3 &&
+                prohibition.CardKinds.Contains(CardKind.Slash) &&
+                prohibition.CardKinds.Contains(CardKind.FireSlash) &&
+                prohibition.CardKinds.Contains(CardKind.ThunderSlash)
+                ? "杀" : string.Join("／", prohibition.CardKinds.Select(kind => CardCatalog.Get(kind).DisplayName));
             parts.Add($"本回合：不能{string.Join("／", prohibition.ActionTypes.Select(kind => kind == CardActionType.Use ? "使用" : "打出"))}{kinds}");
         }
         return string.Join(" · ", parts.Distinct());
@@ -368,16 +365,30 @@ public sealed partial class MainViewModel
                 }).ToArray();
         }
     }
-    public IReadOnlyList<LegalAction> AdditionalActiveSkillActions => HumanActiveSkillActions.Skip(1).ToArray();
+
+    private sealed class ActiveSkillSelectionIdentity(CardKind? equipmentKind, string? programSkillId,
+        string? programActivationId, int? programSkillOwnerSeat, IReadOnlyList<int>? targetContract)
+    {
+        private readonly IReadOnlyList<int>? _targetContract = targetContract is null
+            ? null : Array.AsReadOnly(targetContract.ToArray());
+
+        public static ActiveSkillSelectionIdentity Capture(LegalAction action) => new(action.EquipmentKind,
+            action.ProgramSkillId, action.ProgramActivationId, action.ProgramSkillOwnerSeat, action.TargetSeats);
+
+        public bool IsSpecified => equipmentKind is not null || programSkillId is not null;
+
+        public bool Matches(LegalAction action) =>
+            action.EquipmentKind == equipmentKind &&
+            action.ProgramSkillId == programSkillId &&
+            action.ProgramActivationId == programActivationId &&
+            action.ProgramSkillOwnerSeat == programSkillOwnerSeat &&
+            (_targetContract is null || action.TargetSeats.SequenceEqual(_targetContract));
+    }
+
     private LegalAction? HumanActiveSkillAction =>
         _selectedTieredRoundZeroAction is not null ? SelectedTieredRoundZeroAction() :
-        _selectedEquipmentEffectKind is not null || _selectedProgramSkillId is not null
-            ? HumanActiveSkillActions.FirstOrDefault(action =>
-                action.EquipmentKind == _selectedEquipmentEffectKind &&
-                action.ProgramSkillId == _selectedProgramSkillId &&
-                action.ProgramActivationId == _selectedProgramActivationId &&
-                action.ProgramSkillOwnerSeat == _selectedProgramSkillOwnerSeat &&
-                (_selectedActiveSkillTargetContract is null || action.TargetSeats.SequenceEqual(_selectedActiveSkillTargetContract)))
+        _selectedActiveSkillIdentity is { IsSpecified: true } identity
+            ? HumanActiveSkillActions.FirstOrDefault(identity.Matches)
             : HumanActiveSkillActions.FirstOrDefault();
     private bool IsActiveSkillCardSelectionPending =>
         _isSelectingActiveSkillCards &&
@@ -390,7 +401,6 @@ public sealed partial class MainViewModel
     public bool IsActiveSkillSelectionPending =>
         IsActiveSkillCardSelectionPending || IsActiveSkillTargetSelectionPending;
     public bool ShowActiveSkillEntry => CanUseActiveSkill && !IsActiveSkillSelectionPending;
-    public string ActiveSkillEntryText => HumanActiveSkillAction?.Description ?? "发动技能";
     private string HumanActiveSkillName => HumanActiveSkillAction is { } action ? ActiveSkillName(action) : "技能";
 
     private string ActiveSkillName(LegalAction action) => action.ProgramSkillId is { } programSkillId &&
@@ -407,8 +417,48 @@ public sealed partial class MainViewModel
         _selectedActiveSkillTargetSeats.Count >= action.MinTargetCount && _selectedActiveSkillTargetSeats.Count <= action.MaxTargetCount &&
         _selectedActiveSkillCardIds.All(id => action.SelectableCardIds.Contains(id)) &&
         _selectedActiveSkillTargetSeats.All(seat => action.SelectableTargetSeats.Contains(seat)) &&
-        (!action.SelectedCardsSameSuit || Hand.Where(card => _selectedActiveSkillCardIds.Contains(card.Id))
-            .Select(card => card.SuitGlyph).Distinct(StringComparer.Ordinal).Count() == 1));
+        SelectedActiveSkillCardsMatchContract(action) && SelectedActiveSkillCardTargetMatches(action) &&
+        SelectedActiveSkillTargetSequenceMatches(action));
+
+    private bool SelectedActiveSkillTargetSequenceMatches(LegalAction action) =>
+        action.SelectableTargetSequences is not { } sequences ||
+        sequences.Any(sequence => sequence.SequenceEqual(_selectedActiveSkillTargetSeats));
+
+    private bool SelectedActiveSkillCardTargetMatches(LegalAction action) =>
+        action.SelectableCardTargets is not { } pairs ||
+        _selectedActiveSkillCardIds.Count == 1 && _selectedActiveSkillTargetSeats is [var target] &&
+        pairs.Any(pair => _selectedActiveSkillCardIds.Contains(pair.CardId) && pair.TargetSeat == target);
+
+    private bool CanSelectActiveSkillTarget(LegalAction action, int seat) =>
+        ActiveSkillSelectableTargets(action).Contains(seat) &&
+        (action.SelectableCardTargets is not { } pairs || _selectedActiveSkillCardIds.Count == 0 ||
+         _selectedActiveSkillCardIds.Count == 1 &&
+         pairs.Any(pair => _selectedActiveSkillCardIds.Contains(pair.CardId) && pair.TargetSeat == seat)) &&
+        (action.SelectableTargetSequences is not { } sequences || _selectedActiveSkillTargetSeats.Contains(seat) ||
+         sequences.Any(sequence => sequence.Count > _selectedActiveSkillTargetSeats.Count &&
+             sequence.Take(_selectedActiveSkillTargetSeats.Count).SequenceEqual(_selectedActiveSkillTargetSeats) &&
+             sequence[_selectedActiveSkillTargetSeats.Count] == seat));
+
+    private bool SelectedActiveSkillCardsMatchContract(LegalAction action)
+    {
+        if (!action.SelectedCardsSameSuit && !action.SelectedCardsDistinctSuits &&
+            !action.SelectedCardsSameNameOrAllEquipment) return true;
+        // Published costs can include equipment and public piles. Read their
+        // physical faces from the current player view, never trusted engine state.
+        var selectedCards = _snapshot.Players.SelectMany(player => player.Hand.Concat(player.Equipment)
+                .Concat(player.Judgment).Concat(player.WoodenOxGrain ?? []).Concat(player.BuquWounds ?? [])
+                .Concat(player.AuthorityCards ?? []).Concat(player.ChunlaoCards ?? []))
+            .Where(card => _selectedActiveSkillCardIds.Contains(card.Id)).ToArray();
+        if (selectedCards.Length != _selectedActiveSkillCardIds.Count) return false;
+        var distinct = action.SelectedCardsSameSuit || action.SelectedCardsDistinctSuits
+            ? selectedCards.Select(card => card.Suit).Distinct().Count() : 0;
+        return (!action.SelectedCardsSameSuit || distinct == 1) &&
+               (!action.SelectedCardsDistinctSuits || distinct == selectedCards.Length) &&
+               (!action.SelectedCardsSameNameOrAllEquipment || selectedCards.Length >= 2 &&
+                   (selectedCards.All(card => EquipmentCatalog.IsEquipment(card.Kind)) ||
+                    selectedCards.Select(card => card.Kind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash
+                        ? CardKind.Slash : card.Kind).Distinct().Count() == 1));
+    }
     public bool CanUseActiveSkill => HumanActiveSkillAction is not null;
     public string ActiveSkillButtonText
     {
@@ -457,7 +507,7 @@ public sealed partial class MainViewModel
     public bool IsTableIdle => !HasCenterChoices;
     public bool AreTablePlaysVisible => IsTableIdle || IsHandResponsePending && HandResponseExtraChoices.Count == 0 &&
         !HasPublicRevealedCards && !HasPrivatelyViewedCards && !HasDeclaredCards;
-    public bool HasSelection => _selectedCardId.HasValue || _discardCardIds.Count > 0 ||
+    public bool HasSelection => IsWushengSelectionPending || _selectedCardId.HasValue || _discardCardIds.Count > 0 ||
         _isSelectingActiveSkillCards || _selectedActiveSkillCardIds.Count > 0 ||
         _selectedActiveSkillTargetSeats.Count > 0 || _selectedSkillTargetSeats.Count > 0;
     public bool IsDrawPhase => _snapshot?.Phase == TurnPhase.Draw;
@@ -503,13 +553,13 @@ public sealed partial class MainViewModel
         ClearSelectionCommand = new RelayCommand(ClearSelection);
         CancelActionCommand = new RelayCommand(CancelAction, () => CanCancelAction);
         SelectHandResponseChoiceCommand = new RelayCommand<PromptChoice>(SubmitHandResponse,
-            choice => HandResponseExtraChoices.Any(candidate => candidate.Id == choice.Id));
+            choice => HandResponseExtraChoices.Any(candidate => ReferenceEquals(candidate, choice)));
         SelectRevealedCardCommand = new RelayCommand<CardViewModel>(card =>
         {
-            if (card.IsPrivateReveal || !card.IsPublicChoice || RevealedCardChoice(card.Id) is not { } choice) return;
+            if (RevealedCardChoice(card) is not { } choice) return;
             if (IsHarvestSelectionPending) SelectHarvestChoice(choice);
             else SelectSkillChoice(choice);
-        }, card => !card.IsPrivateReveal && card.IsPublicChoice && RevealedCardChoice(card.Id) is not null);
+        }, card => RevealedCardChoice(card) is not null);
         ConfirmSelectedCommand = new RelayCommand(() =>
         {
             if (!CanConfirmSelected) return;
@@ -587,7 +637,7 @@ public sealed partial class MainViewModel
 
     private bool CanAutomaticallyAdvance => IsAutoAdvance && CanStepAi &&
         !IsHelpOpen && !IsNewGameSetupOpen && !IsHistoryOpen && !IsGeneralGalleryOpen &&
-        !IsSettingsOpen && !IsIdentityRevealOpen && !IsOpeningDealVisible;
+        !IsSettingsOpen && !IsLogOpen && !IsIdentityRevealOpen && !IsOpeningDealVisible;
 
     private void ResetPresentation()
     {
@@ -609,7 +659,7 @@ public sealed partial class MainViewModel
         SyncSeats(LeftSeats, opponents.TakeLast(sideCount));
         RefreshBattleLogSeatOptions();
         RaisePropertyChanged(nameof(HumanEquipmentSlots));
-        foreach (var name in new[] { nameof(HumanPlayer), nameof(HumanSkillCards), nameof(LeftPlayer), nameof(RightPlayer), nameof(HandCountText), nameof(AliveText), nameof(TurnHeadline), nameof(HasChoicePrompt), nameof(HasCenterChoices), nameof(IsTableIdle), nameof(IsDrawPhase), nameof(IsPlayPhase), nameof(IsDiscardPhase), nameof(IsFinishedPhase), nameof(CanUseActiveSkill), nameof(HumanActiveSkillActions), nameof(AdditionalActiveSkillActions), nameof(ActiveSkillButtonText) })
+        foreach (var name in new[] { nameof(HumanPlayer), nameof(HumanSkillCards), nameof(LeftPlayer), nameof(RightPlayer), nameof(HandCountText), nameof(AliveText), nameof(TurnHeadline), nameof(HasChoicePrompt), nameof(HasCenterChoices), nameof(IsTableIdle), nameof(IsDrawPhase), nameof(IsPlayPhase), nameof(IsDiscardPhase), nameof(IsFinishedPhase), nameof(CanUseActiveSkill), nameof(HumanActiveSkillActions), nameof(ActiveSkillButtonText) })
             RaisePropertyChanged(name);
         RefreshSelectionHint();
         RefreshGameSetupPresentation();
@@ -639,10 +689,14 @@ public sealed partial class MainViewModel
         var target = Seats.FirstOrDefault(item => item.Seat == _selectedTargetSeat);
         ActionHint = HasGameOver ? "对局结束 · 点击「新对局」再战一局"
             : IsSpectating ? SpectatorHint
-            : IsDiscardSelectionPending ? $"手牌上限 {HumanPlayer?.Hp} · 请弃置 {RequiredDiscardCount} 张，已选 {SelectedDiscardCount} 张。再次点击可取消。"
+            : IsDiscardSelectionPending ? DiscardSelectionHint
             : IsSkillTargetSelectionPending ? SkillTargetSelectionHint
             : IsHandResponsePending ? HandResponseHint
             : IsActiveSkillSelectionPending ? GetActiveSkillSelectionHint()
+            : IsWushengSelectionPending ? _selectedCardId is null
+                ? "武圣 · 选择红色牌当【杀】使用 · 再点技能或按 Esc 取消"
+                : target is null ? $"武圣 · 将【{selectedName}】当【杀】使用 · 选择亮起的武将"
+                    : $"武圣 · 将【{selectedName}】当【杀】 → {target.GeneralName} · 确认后使用"
             : CanEndTurn && _snapshot.Players.FirstOrDefault(player => player.IsHuman) is { } actor && HasIssuedUseProhibition(actor)
                 ? CanUseActiveSkill ? "本阶段不能使用牌 · 可发动技能或结束出牌" : "本阶段不能使用牌 · 可以结束出牌"
             : IsMultiTargetCardSelected ? MultiTargetSelectionHint
@@ -660,7 +714,7 @@ public sealed partial class MainViewModel
                 : $"可发动 {ActiveSkillButtonText}"
             : CanEndTurn ? Hand.Any(item => item.IsPlayable) ? "选择一张手牌，再选择目标" : "当前没有可使用的手牌 · 可以结束出牌"
             : HasChoicePrompt ? _snapshot.PendingDecision!.Prompt
-            : CanStepAi ? IsAutoAdvance ? "其他武将正在行动，请稍候…" : "自动推进已暂停 · 可继续推进或观察单步"
+            : CanStepAi ? IsAutoAdvance ? "其他武将正在行动，请稍候…" : "自动推进已暂停 · 可在右侧继续推进"
             : PromptText;
         RaisePropertyChanged(nameof(PlayButtonText));
         RaisePropertyChanged(nameof(ActionDockConfirmText));
@@ -677,10 +731,10 @@ public sealed partial class MainViewModel
         RaisePropertyChanged(nameof(HandResponseExtraChoices));
         RaisePropertyChanged(nameof(CanCancelAction));
         RaisePropertyChanged(nameof(CancelActionHint));
+        RaisePropertyChanged(nameof(ActionDockCancelText));
         ((RelayCommand)CancelActionCommand).NotifyCanExecuteChanged();
         RaisePropertyChanged(nameof(CanActFromHand));
         RaisePropertyChanged(nameof(ActiveSkillButtonText));
-        RaisePropertyChanged(nameof(ActiveSkillEntryText));
         RaisePropertyChanged(nameof(ShowActiveSkillEntry));
         RaisePropertyChanged(nameof(IsActiveSkillSelectionPending));
         RaisePropertyChanged(nameof(CanConfirmActiveSkill));
@@ -723,28 +777,26 @@ public sealed partial class MainViewModel
     private void ClearSelection()
     {
         var wasSelectingActiveSkillCards = _isSelectingActiveSkillCards;
+        var wasSelectingWusheng = IsWushengSelectionPending;
         _selectedTieredRoundZeroAction = null;
-        _selectedCardId = null;
-        _selectedConversionSource = null;
-        _selectedTargetSeat = null;
-        _selectedCardTargetSeats.Clear();
+        ResetPlayCardSelection();
         _discardCardIds.Clear();
         _selectedActiveSkillCardIds.Clear();
         _selectedActiveSkillTargetSeats.Clear();
         _selectedSkillTargetSeats.Clear();
-        _selectedEquipmentEffectKind = null;
-        _selectedProgramSkillId = null;
-        _selectedProgramActivationId = null;
-        _selectedProgramSkillOwnerSeat = null;
-        _selectedActiveSkillTargetContract = null;
+        _selectedActiveSkillIdentity = null;
         _isSelectingActiveSkillCards = false;
         foreach (var card in Hand) card.IsSelected = false;
         SelectedCardText = "未选择手牌";
-        if (wasSelectingActiveSkillCards)
+        if (wasSelectingActiveSkillCards || wasSelectingWusheng)
         {
+            _humanSkillSnapshot = null;
             RefreshCurrentView();
             return;
         }
+        RebuildEquipmentPlayChoices(
+            _snapshot.Players.Single(player => player.IsHuman),
+            GetViewLegalActions());
         RebuildPublicTargetChoices();
         RebuildTargetCombinationChoices();
         RefreshTargetHighlights();
@@ -804,10 +856,15 @@ public sealed partial class MainViewModel
             var minimum = IsTieredRoundZeroAction(action) ? action.TargetSeats.Count : action.MinTargetCount;
             parts.Add($"目标 {_selectedActiveSkillTargetSeats.Count}/{FormatSelectionRange(minimum, ActiveSkillMaximumTargets(action))}");
         }
+        if (action.SelectedCardsSameSuit) parts.Add("费用牌须为同一花色");
+        if (action.SelectedCardsDistinctSuits) parts.Add("费用牌须花色各不相同");
+        if (action.SelectedCardsSameNameOrAllEquipment) parts.Add("费用牌须同名（杀含火杀、雷杀）或全部为装备");
+        if (action.SelectableCardTargets is not null) parts.Add("目标须能接收所选费用牌；可取消原目标后改选");
+        if (action.SelectableTargetSequences is not null) parts.Add("目标须组成合法组合；点已选目标可取消");
 
         var next = CanConfirmActiveSkill
             ? "点击「确定」或按 Enter 确认。"
-            : "选够牌和目标后即可确认；Esc 取消。";
+            : "按上述要求选牌和目标后即可确认；Esc 取消。";
         return $"【{skillName}】{string.Join(" · ", parts)} · {next}";
     }
 
@@ -836,6 +893,7 @@ public sealed partial class MainViewModel
         }
         FlushMatchHistory();
         _disposed = true;
+        PropertyChanged -= OnOpeningPresentationChanged;
         SoundsReset?.Invoke(this, EventArgs.Empty);
         BattleCues.Clear();
         FlushPendingSave();
@@ -863,6 +921,17 @@ public sealed record TablePlayViewModel(long Sequence, string Name, string Actor
     public CardKind? Kind { get; init; }
     public int SourceSeat { get; init; }
     public int? PublicCardId { get; init; }
+    public CardSnapshot? PublicCard { get; init; }
+    public string Rank => PublicCard?.RankText ?? string.Empty;
+    public string SuitGlyph => PublicCard is { } card ? GetSuitGlyph(card.Suit) : string.Empty;
+    public System.Windows.Media.ImageSource? RankArtwork => CardArt.GetRank(Rank, SuitGlyph);
+    public System.Windows.Media.ImageSource? SuitArtwork => CardArt.GetSuit(SuitGlyph);
+    public bool HasRankArtwork => RankArtwork is not null;
+    public bool HasSuitArtwork => SuitArtwork is not null;
+    public System.Windows.Media.Brush SuitBrush => new System.Windows.Media.SolidColorBrush(
+        SuitGlyph is "♥" or "♦" ? System.Windows.Media.Color.FromRgb(181, 55, 48) : System.Windows.Media.Color.FromRgb(41, 40, 37));
+    internal static string GetSuitGlyph(Suit suit) => suit switch
+    { Suit.Heart => "♥", Suit.Diamond => "♦", Suit.Club => "♣", Suit.Spade => "♠", _ => string.Empty };
     public string ActionLabel { get; init; } = "使用";
     public string Caption => ActorName + ActionLabel;
     public System.Windows.Media.ImageSource? Artwork => CardArt.Get(Kind);

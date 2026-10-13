@@ -3,11 +3,12 @@ using CardGame.Wpf.Presentation;
 
 namespace CardGame.Wpf.Audio;
 
-public enum GameSound { Card, Response, Hit, Fire, Thunder, Recover, YourTurn, Prompt, Dying, Death, Victory, Defeat, Draw }
+public enum GameSound { Card, Response, Hit, Fire, Thunder, Recover, YourTurn, Prompt, Dying, Death, Victory, Defeat, Draw, StoneAxe, Qinglong }
 
-public sealed class GameSoundsEventArgs(IEnumerable<GameSound> sounds) : EventArgs
+public sealed class GameSoundsEventArgs(IEnumerable<GameSound> sounds, IEnumerable<GameSound>? notificationSounds = null) : EventArgs
 {
     public IReadOnlyList<GameSound> Sounds { get; } = Array.AsReadOnly(sounds.ToArray());
+    public IReadOnlyList<GameSound> NotificationSounds { get; } = Array.AsReadOnly(notificationSounds?.ToArray() ?? []);
 }
 
 public static class GameSoundRules
@@ -23,7 +24,15 @@ public static class GameSoundRules
         .Select(cue => cue.Kind switch
         {
             BattleCueKind.Card => GameSound.Card,
+            BattleCueKind.Judgment when cue.HasJudgmentCard => GameSound.Card,
+            BattleCueKind.Draw when cue.HasDrawCards => GameSound.Card,
             BattleCueKind.Response or BattleCueKind.Skill => GameSound.Response,
+            BattleCueKind.Weapon when !cue.IsInquiry && cue.IsWeaponActivated => cue.WeaponKind switch
+            {
+                CardKind.StoneAxe => GameSound.StoneAxe,
+                CardKind.QinglongCrescentBlade => GameSound.Qinglong,
+                _ => (GameSound?)null
+            },
             BattleCueKind.Damage => cue.Nature switch { DamageNature.Fire => GameSound.Fire, DamageNature.Thunder => GameSound.Thunder, _ => GameSound.Hit },
             BattleCueKind.Recovery => GameSound.Recover,
             BattleCueKind.Dying => GameSound.Dying,
@@ -49,6 +58,7 @@ public static class GameSoundRules
         GameSound.YourTurn or GameSound.Prompt => 80,
         GameSound.Hit or GameSound.Fire or GameSound.Thunder => 60,
         GameSound.Recover => 50,
+        GameSound.StoneAxe or GameSound.Qinglong => 40,
         GameSound.Response => 30,
         _ => 10
     };

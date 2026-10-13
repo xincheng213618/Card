@@ -4,11 +4,17 @@ namespace CardGame.Wpf.ViewModels;
 
 public sealed partial class MainViewModel
 {
+    private IReadOnlyList<PromptChoice> _handResponseExtraChoices = [];
+
     private static bool SupportsHandResponse(DecisionKind? kind) => kind is
         DecisionKind.RespondDodge or DecisionKind.RespondSlash or DecisionKind.RescueDying or
         DecisionKind.Nullification or DecisionKind.FireAttackReveal or DecisionKind.FireAttackDiscard;
 
     public bool IsHandResponsePending => SupportsHandResponse(_snapshot?.PendingDecision?.Kind);
+
+    private IEnumerable<CardSnapshot> HandResponseMaterials => _snapshot.Players
+        .Where(player => player.IsHuman)
+        .SelectMany(player => player.Hand.Concat(player.WoodenOxGrain ?? []));
 
     private PromptChoice? HandResponseDeclineChoice
     {
@@ -30,19 +36,24 @@ public sealed partial class MainViewModel
     }
 
     // Keep the full published choices for command routing; the center shows only alternatives
-    // that cannot be answered by selecting one hand card or using the bottom Cancel button.
+    // that cannot be answered by selecting one hand card or using the bottom decline button.
     public IReadOnlyList<PromptChoice> HandResponseExtraChoices
     {
         get
         {
-            if (!IsHandResponsePending) return [];
+            if (!IsHandResponsePending) return _handResponseExtraChoices = [];
             var choices = _snapshot.PendingDecision!.Choices;
-            var handIds = _snapshot.Players.Single(player => player.IsHuman).Hand.Select(card => card.Id).ToHashSet();
+            var handIds = HandResponseMaterials.Select(card => card.Id).ToHashSet();
             var handChoices = choices.Where(choice => choice.Cards.Count == 1 && handIds.Contains(choice.Cards[0]))
                 .GroupBy(choice => choice.Cards[0]).Where(group => group.Count() == 1)
                 .Select(group => group.Single().Id).ToHashSet();
             var decline = HandResponseDeclineChoice?.Id;
-            return choices.Where(choice => choice.Id != decline && !handChoices.Contains(choice.Id)).ToArray();
+            var extraChoices = choices.Where(choice => choice.Id != decline && !handChoices.Contains(choice.Id)).ToArray();
+            // Keep live response controls and their focus across hint updates;
+            // a newly published choice object must still retire the old button.
+            if (!_handResponseExtraChoices.SequenceEqual(extraChoices, ReferenceEqualityComparer.Instance))
+                _handResponseExtraChoices = Array.AsReadOnly(extraChoices);
+            return _handResponseExtraChoices;
         }
     }
 
@@ -57,7 +68,7 @@ public sealed partial class MainViewModel
     private PromptChoice? HandResponseChoice(int? cardId)
     {
         if (!IsHandResponsePending || cardId is null ||
-            !_snapshot.Players.Any(player => player.IsHuman && player.Hand.Any(card => card.Id == cardId))) return null;
+            !HandResponseMaterials.Any(card => card.Id == cardId)) return null;
         var choices = _snapshot.PendingDecision!.Choices
             .Where(choice => choice.Cards.Count == 1 && choice.Cards[0] == cardId).Take(2).ToArray();
         return choices.Length == 1 ? choices[0] : null;
@@ -76,16 +87,16 @@ public sealed partial class MainViewModel
     };
 
     private bool IsSelectedResponseConversion(CardKind required) => SelectedHandResponse is { Cards.Count: 1 } choice &&
-        _snapshot.Players.Single(player => player.IsHuman).Hand.Single(card => card.Id == choice.Cards[0]).Kind is { } physical &&
+        HandResponseMaterials.Single(card => card.Id == choice.Cards[0]).Kind is { } physical &&
         (required == CardKind.Slash ? physical is not (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash) : physical != required);
 
-    private string HandResponseHint => SelectedHandResponse is { } choice
+    private string HandResponseHint => (SelectedHandResponse is { } choice
         ? $"{choice.Description} · 点击「{HandResponseButtonText}」或按 Enter 确认；Esc 取消选择。"
         : (Hand.Any(card => card.IsPlayable)
             ? $"选择一张亮起的手牌，再点击「{HandResponseButtonText}」。"
             : "当前没有可直接选择的手牌。") +
-          (HandResponseExtraChoices.Count > 0 ? "其他技能、装备或响应方式在中央。" : string.Empty) +
-          (HandResponseDeclineChoice is not null ? "点击「取消」放弃本次响应。" : string.Empty);
+          (HandResponseExtraChoices.Count > 0 ? "其他技能、装备或响应方式在中央。" : string.Empty)) +
+          (HandResponseDeclineChoice is not null ? $"点击「{ActionDockCancelText}」放弃本次响应。" : string.Empty);
 
     private string HandResponseUnavailableHint(int cardId) => _snapshot.PendingDecision!.Choices.Count(choice =>
         choice.Cards.Count == 1 && choice.Cards[0] == cardId) > 1
@@ -114,14 +125,6 @@ public sealed partial class MainViewModel
         else ClearSelection();
     }
 
-    private void SubmitHandResponse(PromptChoice choice)
-    {
-        if (!IsHandResponsePending || _snapshot.PendingDecision is not { } prompt) return;
-        ExecuteSafely(() =>
-        {
-            var result = SubmitCommand(new AnswerPromptCommand(_snapshot.HumanSeat, prompt.PromptId, choice.Id, _snapshot.Revision));
-            if (!result.Accepted) { PromptText = $"响应未执行：{result.Error?.Message}"; return; }
-            RefreshCommandResult(result.State);
-        });
-    }
+    private void SubmitHandResponse(PromptChoice choice) =>
+        SubmitPublishedPromptChoice(choice, IsHandResponsePending, "响应未执行");
 }

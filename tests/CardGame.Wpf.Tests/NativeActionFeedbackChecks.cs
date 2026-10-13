@@ -1,0 +1,389 @@
+using System.IO;
+using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Text.Json;
+using System.Windows;
+using System.Windows.Automation;
+using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
+using System.Windows.Input;
+using System.Windows.Interop;
+using System.Windows.Media;
+using System.Windows.Threading;
+using CardGame.Content.Standard;
+using CardGame.Core;
+using CardGame.Wpf;
+using CardGame.Wpf.Persistence;
+using CardGame.Wpf.ViewModels;
+using static Program;
+
+internal static class NativeActionFeedbackChecks
+{
+    public static void ResponseSemantics(string output)
+    {
+        foreach (var kind in new[] { DecisionKind.RespondDodge, DecisionKind.FireAttackReveal })
+        {
+            var (model, registry) = StableHandResponseFixture.Create(kind, output);
+            using (model)
+            {
+                model.IsSoundEnabled = model.IsMusicEnabled = false;
+                foreach (var selected in new[] { false, true })
+                {
+                    model.LoadManualGameCommand.Execute(null);
+                    var game = Engine(model);
+                    var prompt = model.ChoiceSnapshot.PendingDecision!;
+                    var checkpoint = game.CreateCheckpoint();
+                    var before = Boundary(game);
+                    var count = game.AcceptedCommands.Count;
+                    var movements = game.CardMovements.Count;
+                    var card = model.Hand.Last(candidate => candidate.IsPlayable);
+                    var decline = prompt.Choices.SingleOrDefault(choice => choice.Cards.Count == 0);
+                    Assert(prompt.Kind == kind && (decline is not null) == (kind == DecisionKind.RespondDodge),
+                        "The native action fixture must publish its real optional response or mandatory reveal.");
+                    var notifications = new List<string?>();
+                    System.ComponentModel.PropertyChangedEventHandler observe = (_, args) => notifications.Add(args.PropertyName);
+                    model.PropertyChanged += observe;
+                    var window = new MainWindow(model);
+                    try
+                    {
+                        if (selected) model.SelectCardCommand.Execute(card);
+                        var root = (FrameworkElement)window.Content;
+                        Render(root, 1120, 740, Path.Combine(output, $"native-action-{kind}-{selected}-before.png"));
+                        var cancel = (Button)window.FindName("CancelActionButton");
+                        var confirm = (Button)window.FindName("PlayCardButton");
+                        Assert(Boundary(game) == before && model.HasSelection == selected && confirm.IsEnabled == selected,
+                            "Choosing a native response must only prepare a draft and its actual confirmation state.");
+                        AssertCaption(cancel, model, decline is not null ? "放 弃" : "取 消", selected || decline is not null);
+                        if (selected) Assert(notifications.Contains(nameof(MainViewModel.ActionDockCancelText)),
+                            "The actual cancel caption must be refreshed with the response draft.");
+                        if (decline is not null)
+                            Assert(model.ActionHint.Contains($"「{model.ActionDockCancelText}」", StringComparison.Ordinal) &&
+                                model.CancelActionHint.Contains("Esc 仅取消选牌", StringComparison.Ordinal),
+                                "Selected and unselected optional responses must explain the visible decline action and reversible Esc.");
+                        else if (!selected) AssertBackground(cancel, "selfseat__selfSeatCancelBtn_disabled.png");
+                        if (!confirm.IsEnabled) AssertBackground(confirm, "selfseat__selfSeatOkBtn_disabled.png");
+
+                        var clicks = 0;
+                        cancel.Click += (_, _) => clicks++;
+                        if (cancel.IsEnabled)
+                        {
+                            if (kind == DecisionKind.RespondDodge && selected)
+                                PressSpace(window, cancel, game, output);
+                            else Click(cancel);
+                        }
+                        window.UpdateLayout();
+                        if (decline is null)
+                            Assert(Boundary(game) == before && !model.HasSelection && clicks == (selected ? 1 : 0),
+                                "Mandatory native revealing must only clear the selected draft, retaining every command, card and prompt.");
+                        else
+                        {
+                            var reference = GameReplay.Restore(checkpoint, registry);
+                            Assert(reference.Submit(new AnswerPromptCommand(0, prompt.PromptId, decline.Id, reference.Revision)).Accepted,
+                                "The published native decline must be independently accepted.");
+                            var exactDecline = clicks == 1 && game.AcceptedCommands.Count == count + 1 &&
+                                game.Revision == checkpoint.Revision + 1 &&
+                                game.AcceptedCommands.Last() is AnswerPromptCommand answer &&
+                                answer.ActorSeat == 0 && answer.PromptId == prompt.PromptId && answer.Choice == decline.Id &&
+                                answer.ExpectedRevision == checkpoint.Revision && !model.HasSelection &&
+                                !game.CardMovements.Skip(movements).Any(move => move.CardId == card.Id &&
+                                    move.From == CardLocation.Hand(0) && move.To == CardLocation.Processing && move.Reason == CardMoveReasons.Respond) &&
+                                Boundary(game) == Boundary(reference);
+                            Assert(exactDecline,
+                                "The actual native decline button must submit once without paying the previously selected response card." +
+                                (exactDecline ? string.Empty : " Diagnostic: " + DescribeDeclineBoundary(game, reference, model, window,
+                                    cancel, prompt, decline, card.Id, clicks, count, movements, checkpoint.Revision)));
+                            var cold = GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint())), registry);
+                            Assert(Boundary(cold) == Boundary(game), "The native decline must retain every safe viewer boundary after cold replay.");
+                        }
+                        Assert(Equals(cancel.Content, model.ActionDockCancelText) &&
+                            AutomationProperties.GetName(cancel) == model.ActionDockCancelText,
+                            "After an action, the existing button must follow its current caption and accessible name.");
+                        Console.WriteLine($"Native action {kind}: selected={selected}, caption={(decline is null ? "cancel" : "decline")}, clicks={clicks}, added commands={game.AcceptedCommands.Count - count}.");
+                    }
+                    finally
+                    {
+                        model.PropertyChanged -= observe;
+                        if (Mouse.Captured is Button captured && ReferenceEquals(Window.GetWindow(captured), window))
+                            captured.ReleaseMouseCapture();
+                        window.Content = null;
+                        // This fixture reuses the model for the next draft case;
+                        // its enclosing using owns disposal, rather than Window_Closed.
+                        window.DataContext = null;
+                        window.Close();
+                    }
+                }
+            }
+        }
+        OptionalSkill(output);
+        NormalDraft(output);
+    }
+
+    private static void OptionalSkill(string output)
+    {
+        var registry = ContentRegistry.Build(new StandardContentPackage(), new SkillTargetSelectionChecks.TargetFixture("optional", 4));
+        var source = GameEngine.CreateStandard(new GameOptions
+        {
+            Seed = 31, HumanSeat = 0, HumanRole = Role.Lord, PlayerCount = 4,
+            ModeId = SkillTargetSelectionChecks.TargetFixture.ModeId, UseInteractiveSetup = true,
+            AdvanceAfterHumanCommands = false, MaxTurns = 3
+        }, registry);
+        Assert(source.Submit(new StartGameCommand()).Accepted, "The native optional-target fixture must start.");
+        Assert(source.Submit(new SelectGeneralCommand(0, SkillTargetSelectionChecks.TargetFixture.OwnerId,
+            source.Revision, source.PendingDecision!.PromptId)).Accepted, "The native optional-target general must be selected.");
+        for (var step = 0; step < 30 && source.PendingDecision?.SkillPrompt?.SkillId != SkillTargetSelectionChecks.TargetFixture.SkillId; step++)
+            Assert(source.Submit(new AdvanceOneStepCommand(source.Revision)).Accepted, "The native optional-target prefix must advance.");
+        Assert(source.PendingDecision?.SkillPrompt?.SkillId == SkillTargetSelectionChecks.TargetFixture.SkillId,
+            "The verified seed must reach its real optional-target prompt.");
+        var store = new MemorySaveStore();
+        store.Write(GameSaveSlot.Manual, new(GameSaveFile.CurrentFormatVersion, DateTimeOffset.UtcNow, false, source.CreateCheckpoint()));
+        using var model = new MainViewModel(false, source.Seed, true, store, useExpandedContent: false,
+            contentRegistry: registry, historyStore: new MemoryMatchHistoryStore(), preferencesStore: new MemoryPlayerPreferencesStore())
+            { IsMotionEnabled = false, IsSoundEnabled = false, IsMusicEnabled = false };
+        foreach (var selected in new[] { false, true })
+        {
+            model.LoadManualGameCommand.Execute(null);
+            var game = Engine(model);
+            var before = Boundary(game);
+            var checkpoint = game.CreateCheckpoint();
+            var prompt = model.ChoiceSnapshot.PendingDecision!;
+            var decline = prompt.Choices.Single(choice => choice.Cards.Count == 0 && choice.Targets.Count == 0);
+            if (selected) model.SelectTargetCommand.Execute(model.Seats.Single(seat => seat.Seat == 2));
+            var window = new MainWindow(model);
+            try
+            {
+                Render((FrameworkElement)window.Content, 1120, 740, Path.Combine(output, $"native-action-skill-{selected}-before.png"));
+                var cancel = (Button)window.FindName("CancelActionButton");
+                Assert(model.IsSkillTargetSelectionPending && Boundary(game) == before &&
+                    model.ActionHint.Contains($"「{model.ActionDockCancelText}」", StringComparison.Ordinal),
+                    "The optional skill must retain its native prompt and explain its actual decline button for either target draft.");
+                AssertCaption(cancel, model, "放 弃", enabled: true);
+                var clicks = 0;
+                cancel.Click += (_, _) => clicks++;
+                Click(cancel);
+                var reference = GameReplay.Restore(checkpoint, registry);
+                Assert(reference.Submit(new AnswerPromptCommand(0, prompt.PromptId, decline.Id, checkpoint.Revision)).Accepted &&
+                    clicks == 1 && game.Revision == checkpoint.Revision + 1 &&
+                    game.AcceptedCommands.Count == checkpoint.Commands.Count + 1 &&
+                    game.AcceptedCommands.Last() is AnswerPromptCommand answer && answer.Choice == decline.Id &&
+                    answer.PromptId == prompt.PromptId && !model.HasSelection && Boundary(game) == Boundary(reference),
+                    "The optional skill's actual decline button must submit its published empty-target choice once, without confirming drafted targets.");
+            }
+            finally { window.Content = null; window.DataContext = null; window.Close(); }
+        }
+    }
+
+    private static void NormalDraft(string output)
+    {
+        var (registry, source, slash) = LongChainFeedbackChecks.CreateFixture();
+        var store = new MemorySaveStore();
+        store.Write(GameSaveSlot.Manual, new(GameSaveFile.CurrentFormatVersion, DateTimeOffset.UtcNow, false, source.CreateCheckpoint()));
+        using var model = new MainViewModel(false, source.Seed, true, store, useExpandedContent: false,
+            contentRegistry: registry, historyStore: new MemoryMatchHistoryStore(), preferencesStore: new MemoryPlayerPreferencesStore())
+            { IsMotionEnabled = false, IsSoundEnabled = false, IsMusicEnabled = false };
+        model.LoadManualGameCommand.Execute(null);
+        var game = Engine(model);
+        var before = Boundary(game);
+        var window = new MainWindow(model);
+        try
+        {
+            var root = (FrameworkElement)window.Content;
+            Render(root, 1120, 740, Path.Combine(output, "native-action-play-empty.png"));
+            var cancel = (Button)window.FindName("CancelActionButton");
+            AssertCaption(cancel, model, "取 消", enabled: false);
+            AssertBackground(cancel, "selfseat__selfSeatCancelBtn_disabled.png");
+            model.SelectCardCommand.Execute(model.Hand.Single(card => card.Id == slash.Id));
+            model.SelectTargetCommand.Execute(model.Seats.Single(seat => seat.Seat == 1));
+            Render(root, 1120, 740, Path.Combine(output, "native-action-play-draft.png"));
+            Assert(model.CanConfirmSelected && Boundary(game) == before,
+                "The fixed eight-seat native Slash must form a complete, reversible ordinary draft.");
+            AssertCaption(cancel, model, "取 消", enabled: true);
+            var clicks = 0;
+            cancel.Click += (_, _) => clicks++;
+            Click(cancel);
+            window.UpdateLayout();
+            Assert(clicks == 1 && Boundary(game) == before && !model.HasSelection && !model.CanConfirmSelected &&
+                model.Seats.All(seat => !seat.IsSelectedTarget),
+                "Ordinary native cancellation must clear its card and portrait targets without advancing or paying a cost.");
+            AssertCaption(cancel, model, "取 消", enabled: false);
+            AssertBackground(cancel, "selfseat__selfSeatCancelBtn_disabled.png");
+        }
+        finally { window.Content = null; window.DataContext = null; window.Close(); }
+    }
+
+    // Actual Button class handlers in a hidden message-only HWND; the key events
+    // are synthetic and do not claim physical foreground keyboard acceptance.
+    private static void PressSpace(MainWindow window, Button button, GameEngine game, string output)
+    {
+        var commandCountBeforeLoading = game.AcceptedCommands.Count;
+        var revisionBeforeLoading = game.Revision;
+        window.ShowActivated = false;
+        window.ShowInTaskbar = false;
+        window.WindowStartupLocation = WindowStartupLocation.Manual;
+        window.Left = window.Top = -30000;
+        window.Width = 1120;
+        window.Height = 820;
+        var handle = new WindowInteropHelper(window).EnsureHandle();
+        const int extendedStyle = -20, noActivate = 0x08000000;
+        SetWindowLong(handle, extendedStyle, GetWindowLong(handle, extendedStyle) | noActivate);
+        var previous = SetParent(handle, new nint(-3));
+        var error = Marshal.GetLastPInvokeError();
+        Assert((previous != 0 || error == 0) && IsMessageOnlyWindow(handle),
+            "The action-button fixture must own a message-only native Window.");
+        window.Show();
+        ShowWindow(handle, 0);
+        SetFocus(handle);
+        Pump();
+        var focused = button.Focus();
+        Pump();
+        var loadedEvidence = PressBoundary("loaded-and-focused");
+        Assert(focused && window.IsLoaded && window.IsVisible && IsMessageOnlyWindow(handle) &&
+            !IsWindowVisible(handle) && GetForegroundWindow() != handle && GetFocus() == handle &&
+            ReferenceEquals(Keyboard.FocusedElement, button) &&
+            ReferenceEquals(PresentationSource.FromVisual(button), PresentationSource.FromVisual(window)) &&
+            Keyboard.Modifiers == ModifierKeys.None && Mouse.LeftButton == MouseButtonState.Released &&
+            (GetAsyncKeyState(0x01) & 0x8000) == 0 && button.IsEnabled,
+            "Synthetic Space must begin on the focused, enabled actual button with idle devices and no foreground ownership.");
+        var surface = Surface(button);
+        var outline = (Border)button.Template.FindName("ButtonFocusOutline", button);
+        Assert(outline.Visibility == Visibility.Visible && Math.Abs(surface.RenderTransform.Value.OffsetY) < .01,
+            "The focused action must show its focus outline before pressing.");
+        var before = Boundary(game);
+        Route(Keyboard.PreviewKeyDownEvent, Keyboard.KeyDownEvent);
+        Pump();
+        var heldEvidence = PressBoundary("held");
+        Assert(button.IsPressed && Math.Abs(surface.RenderTransform.Value.OffsetY - 2) < .01 &&
+            Math.Abs(surface.Opacity - .7) < .01 && Boundary(game) == before,
+            "Holding Space must visibly depress the native button by two DIP without prematurely committing the response.");
+        Render((FrameworkElement)window.Content, 1120, 740, Path.Combine(output, "native-action-response-space-held.png"));
+        var beforeReleaseEvidence = PressBoundary("rendered-before-release");
+        Route(Keyboard.PreviewKeyUpEvent, Keyboard.KeyUpEvent);
+        Pump();
+        var releasedEvidence = PressBoundary("released");
+        Assert(!button.IsPressed && Math.Abs(surface.RenderTransform.Value.OffsetY) < .01,
+            "Releasing the native action must remove its pressed displacement.");
+        Console.WriteLine("Native action press: hidden HWND, synthetic Space down/up, pressed Y=2, released Y=0.");
+        Console.WriteLine("Native action Space boundary: " + JsonSerializer.Serialize(new
+        {
+            commandCountBeforeLoading, revisionBeforeLoading, loadedEvidence, heldEvidence,
+            beforeReleaseEvidence, releasedEvidence
+        }));
+
+        void Pump() { window.UpdateLayout(); window.Dispatcher.Invoke(() => { }, DispatcherPriority.ContextIdle); window.UpdateLayout(); }
+        object PressBoundary(string stage) => new
+        {
+            stage, game.Revision, CommandCount = game.AcceptedCommands.Count,
+            CommandsAdded = CommandJson.Serialize(game.AcceptedCommands.Skip(commandCountBeforeLoading).ToArray()),
+            Prompt = game.CreateSnapshot(0).PendingDecision?.Kind.ToString(),
+            FocusedButton = ReferenceEquals(Keyboard.FocusedElement, button),
+            FocusName = (Keyboard.FocusedElement as FrameworkElement)?.Name,
+            NativeFocus = GetFocus().ToInt64(), Modifiers = Keyboard.Modifiers.ToString(),
+            button.IsEnabled, button.IsPressed,
+            AutoAdvance = (window.DataContext as MainViewModel)?.IsAutoAdvance
+        };
+        void Route(RoutedEvent preview, RoutedEvent bubble)
+        {
+            var key = new KeyEventArgs(Keyboard.PrimaryDevice, PresentationSource.FromVisual(button)!, 0, Key.Space)
+                { RoutedEvent = preview };
+            button.RaiseEvent(key);
+            if (key.Handled) return;
+            key.RoutedEvent = bubble;
+            button.RaiseEvent(key);
+        }
+    }
+
+    private static void AssertCaption(Button button, MainViewModel model, string caption, bool enabled) =>
+        Assert(button.Visibility == Visibility.Visible && Equals(button.Content, caption) &&
+            AutomationProperties.GetName(button) == caption && model.ActionDockCancelText == caption && button.IsEnabled == enabled,
+            $"The actual action button must expose {caption} with enabled={enabled} and a matching accessible name.");
+
+    private static Border Surface(Button button) => (Border)button.Template.FindName("ButtonSurface", button);
+    private static void AssertBackground(Button button, string asset) =>
+        Assert(Surface(button).Background is ImageBrush brush &&
+            brush.ImageSource.ToString().EndsWith(asset, StringComparison.OrdinalIgnoreCase),
+            $"The actual {(button.IsEnabled ? "enabled" : "disabled")} action surface must use {asset}.");
+    private static void Click(Button button) => typeof(ButtonBase).GetMethod("OnClick", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(button, null);
+    private static string DescribeDeclineBoundary(GameEngine game, GameEngine reference, MainViewModel model,
+        MainWindow window, Button button, PendingDecision prompt, PromptChoice decline, int selectedCard,
+        int clicks, int commandCountBefore, int movementCountBefore, long revisionBefore)
+    {
+        var last = game.AcceptedCommands.LastOrDefault() as AnswerPromptCommand;
+        var paidCard = game.CardMovements.Skip(movementCountBefore).Any(move => move.CardId == selectedCard &&
+            move.From == CardLocation.Hand(0) && move.To == CardLocation.Processing && move.Reason == CardMoveReasons.Respond);
+        var actualBoundary = Boundary(game);
+        var expectedBoundary = Boundary(reference);
+        return JsonSerializer.Serialize(new
+        {
+            clicks, ClicksOnce = clicks == 1,
+            CommandCountBefore = commandCountBefore, CommandCountAfter = game.AcceptedCommands.Count,
+            CommandsOnce = game.AcceptedCommands.Count == commandCountBefore + 1,
+            RevisionBefore = revisionBefore, RevisionAfter = game.Revision, RevisionOnce = game.Revision == revisionBefore + 1,
+            ExactAnswer = last is not null && last.ActorSeat == 0 && last.PromptId == prompt.PromptId &&
+                last.Choice == decline.Id && last.ExpectedRevision == revisionBefore,
+            ActorMatches = last?.ActorSeat == 0, PromptMatches = last?.PromptId == prompt.PromptId,
+            ChoiceMatches = last?.Choice == decline.Id, AnswerRevisionMatches = last?.ExpectedRevision == revisionBefore,
+            LastCommandType = game.AcceptedCommands.LastOrDefault()?.GetType().Name,
+            CommandsAdded = CommandJson.Serialize(game.AcceptedCommands.Skip(commandCountBefore).ToArray()),
+            ExpectedPrompt = prompt.PromptId.Value, ExpectedChoice = decline.Id.Value,
+            selectedCard, paidCard, model.HasSelection, model.IsAutoAdvance,
+            DraftCleared = !model.HasSelection, CardWasNotPaid = !paidCard,
+            SelectedCardMoves = game.CardMovements.Skip(movementCountBefore).Where(move => move.CardId == selectedCard).ToArray(),
+            SameEngine = ReferenceEquals(game, Engine(model)), model.PromptText,
+            FocusedButton = ReferenceEquals(Keyboard.FocusedElement, button),
+            FocusName = (Keyboard.FocusedElement as FrameworkElement)?.Name,
+            window.IsLoaded, window.IsVisible, button.IsEnabled, button.IsPressed,
+            Modifiers = Keyboard.Modifiers.ToString(),
+            NativeBoundaryMatches = actualBoundary == expectedBoundary,
+            BoundaryFirstDifference = FirstBoundaryDifference(actualBoundary, expectedBoundary)
+        });
+    }
+    private static object? FirstBoundaryDifference(string actual, string expected)
+    {
+        if (actual == expected) return null;
+        using var actualDocument = JsonDocument.Parse(actual);
+        using var expectedDocument = JsonDocument.Parse(expected);
+        foreach (var property in actualDocument.RootElement.EnumerateObject())
+        {
+            var actualPart = property.Value.GetRawText();
+            var expectedPart = expectedDocument.RootElement.GetProperty(property.Name).GetRawText();
+            if (actualPart == expectedPart) continue;
+            var index = 0;
+            while (index < actualPart.Length && index < expectedPart.Length && actualPart[index] == expectedPart[index]) index++;
+            var start = Math.Max(0, index - 80);
+            return new
+            {
+                Field = property.Name, Index = index,
+                Actual = actualPart.Substring(start, Math.Min(240, actualPart.Length - start)),
+                Expected = expectedPart.Substring(start, Math.Min(240, expectedPart.Length - start))
+            };
+        }
+        return new { Field = "$", ActualLength = actual.Length, ExpectedLength = expected.Length };
+    }
+    private static string Boundary(GameEngine game) => JsonSerializer.Serialize(new
+    {
+        game.Revision, Commands = CommandJson.Serialize(game.AcceptedCommands), Movements = game.CardMovements,
+        Events = game.Events.Select(item => JsonSerializer.Serialize(item.Payload, item.Payload.GetType())).ToArray(),
+        Views = Enumerable.Range(0, game.CreateSnapshot(0).Players.Count).Select(seat => SnapshotJson.Serialize(game.CreateSnapshot(seat))).ToArray()
+    });
+    private static bool IsMessageOnlyWindow(nint handle)
+    {
+        var cursor = nint.Zero;
+        for (var index = 0; index < 4096; index++)
+        {
+            cursor = FindWindowEx(new nint(-3), cursor, null, null);
+            if (cursor == handle) return true;
+            if (cursor == 0) return false;
+        }
+        return false;
+    }
+    [DllImport("user32.dll")] private static extern short GetAsyncKeyState(int virtualKey);
+    [DllImport("user32.dll")] private static extern nint GetForegroundWindow();
+    [DllImport("user32.dll")] private static extern nint GetFocus();
+    [DllImport("user32.dll")] private static extern nint SetFocus(nint handle);
+    [DllImport("user32.dll")][return: MarshalAs(UnmanagedType.Bool)] private static extern bool ShowWindow(nint handle, int command);
+    [DllImport("user32.dll")][return: MarshalAs(UnmanagedType.Bool)] private static extern bool IsWindowVisible(nint handle);
+    [DllImport("user32.dll", SetLastError = true)] private static extern nint SetParent(nint child, nint parent);
+    [DllImport("user32.dll", EntryPoint = "FindWindowExW", CharSet = CharSet.Unicode)]
+    private static extern nint FindWindowEx(nint parent, nint childAfter, string? className, string? windowName);
+    [DllImport("user32.dll", EntryPoint = "GetWindowLongW")] private static extern int GetWindowLong(nint handle, int index);
+    [DllImport("user32.dll", EntryPoint = "SetWindowLongW")] private static extern int SetWindowLong(nint handle, int index, int value);
+}

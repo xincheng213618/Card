@@ -43,11 +43,11 @@ public sealed class HandScrollViewer : ScrollViewer
 
     private static void SelectionChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
     {
-        if (sender is not FrameworkElement card || e.NewValue is not true) return;
+        if (sender is not FrameworkElement card || e.NewValue is not true || HandPanel.GetIsPointerCard(card)) return;
         // Binding may select a new container before it has a parent or an arranged size.
         card.Dispatcher.BeginInvoke(DispatcherPriority.Loaded, new Action(() =>
         {
-            if (!GetRevealSelection(card)) return;
+            if (!GetRevealSelection(card) || HandPanel.GetIsPointerCard(card)) return;
             DependencyObject? parent = card;
             while (parent is not null && parent is not HandScrollViewer)
                 parent = VisualTreeHelper.GetParent(parent);

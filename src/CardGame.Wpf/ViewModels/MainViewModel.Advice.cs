@@ -36,5 +36,6 @@ public sealed partial class MainViewModel
         if (!CanRequestPlayAdvice || !ReferenceEquals(_adviceGame, _game) || CurrentPlayAdvice?.Revision != _snapshot.Revision)
             CurrentPlayAdvice = null;
         RaisePropertyChanged(nameof(CanRequestPlayAdvice));
+        (RequestPlayAdviceCommand as RelayCommand)?.NotifyCanExecuteChanged();
     }
 }

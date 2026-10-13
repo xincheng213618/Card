@@ -4,7 +4,7 @@ namespace CardGame.Wpf.Presentation;
 // Classification sources and version choices: docs/GENERAL_GALLERY.md.
 public static class GeneralGalleryCatalog
 {
-    public static IReadOnlyList<GallerySeries> Series { get; } =
+    public static IReadOnlyList<GallerySeries> Series { get; } = Array.AsReadOnly<GallerySeries>(
     [
         new("all", "全部", "浏览全部武将"),
         new("standard", "标准", "标准版武将"),
@@ -15,8 +15,9 @@ public static class GeneralGalleryCatalog
         new("god", "神武将", "神将专属图鉴"),
         new("sp", "SP", "SP 武将"),
         new("mou", "谋", "谋系列武将"),
+        new("friend", "友", "友系列武将"),
         new("other", "其他扩展", "其他扩展武将")
-    ];
+    ]);
 
     public static IReadOnlyList<GalleryGroup> Groups { get; } =
     [
@@ -39,6 +40,7 @@ public static class GeneralGalleryCatalog
         new("god", "god", "神武将", "神武将"),
         new("sp", "sp", "SP", "SP 武将"),
         new("mou", "mou", "谋", "谋系列"),
+        new("friend", "friend", "友", "友系列"),
         new("other", "other", "其他", "其他扩展")
     ];
 
@@ -57,6 +59,7 @@ public static class GeneralGalleryCatalog
             {
                 "sp" => "sp",
                 "mou" => "mou",
+                "friend" => "friend",
                 // New formal variants need an explicit assignment; never guess from a shared name.
                 _ => "other"
             };
@@ -223,6 +226,23 @@ public static class GeneralGalleryCatalog
         groups.Add("ol:yang-wan", "other");
         groups.Add("ol:rui-ji", "other");
         groups.Add("ol:teng-fang-lan", "other");
+        groups.Add("mobile:sun-ru", "other");
+        groups.Add("mobile:chen-zhen", "other");
+        groups.Add("ol:han-sui", "other");
+        groups.Add("ol:xiahou-ba", "other");
+        groups.Add("classic:zhuge-dan", "other");
+        groups.Add("ol:he-tai-hou", "other");
+        groups.Add("ol:wen-pin", "other");
+        groups.Add("ol:dong-yun", "other");
+        groups.Add("ol:shen-pei", "other");
+        groups.Add("ol:sun-lu-yu", "other");
+        groups.Add("ol:cheng-yu", "other");
+        groups.Add("ol:zhang-lu", "other");
+        groups.Add("ol:wang-rong", "other");
+        groups.Add("ol:shi-xie", "other");
+        groups.Add("ol:ma-yun-lu", "other");
+        groups.Add("ol:ta-dun", "other");
+        groups.Add("ol:yan-bai-hu", "other");
         return groups;
 
         void Add(string group, string ids)

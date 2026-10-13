@@ -50,6 +50,67 @@ internal static class PublicStateUiChecks
             Program.Assert(model.PublicRevealedCards.Count == 0,
                 "The actual restored reward button submits its current choice and finishes the public comparison.");
         }
+        using (var targetModel = RestoreModel(game, registry))
+        {
+            var targetGame = Program.Engine(targetModel);
+            var rewardSnapshot = targetModel.ChoiceSnapshot;
+            var rewardPrompt = rewardSnapshot.PendingDecision!;
+            var targetChoice = targetModel.SkillChoices.First(choice =>
+                choice.Parameters.GetValueOrDefault("branch") == "target");
+            var target = targetModel.Seats.Single(seat => seat.Seat == targetChoice.Targets.Single());
+            Program.Assert(targetChoice.Cards.Count == 0 && targetChoice.ContentIds.Count == 0 &&
+                rewardPrompt.Choices.Any(choice => ReferenceEquals(choice, targetChoice)) &&
+                targetModel.IsSkillTargetSelectionPending && target.IsLegalTarget &&
+                !targetModel.CenterSkillChoices.Any(choice => ReferenceEquals(choice, targetChoice)) &&
+                targetModel.CenterSkillChoices.Single().Parameters.GetValueOrDefault("branch") == "draw",
+                "The actual cardless discard reward uses a legal portrait while the draw reward stays central.");
+            var revision = targetGame.Revision;
+            var commands = targetGame.AcceptedCommands.Count;
+            var events = targetGame.Events.Count;
+            var movements = targetGame.CardMovements.Count;
+            var views = Enumerable.Range(0, 4).Select(seat =>
+                SnapshotJson.Serialize(targetGame.CreateSnapshot(seat))).ToArray();
+            var targetWindow = new MainWindow(targetModel);
+            try
+            {
+                var root = (FrameworkElement)targetWindow.Content;
+                Program.Render(root, 1120, 740, Path.Combine(output, "240-public-rule-reward-portrait.png"));
+                var portrait = Program.Find<Button>(root).Single(button => button.Name == "SeatButton" &&
+                    ReferenceEquals(button.Command, targetModel.SelectTargetCommand) &&
+                    ReferenceEquals(button.CommandParameter, target));
+                Program.Assert(portrait.Visibility == Visibility.Visible && portrait.IsEnabled &&
+                    portrait.ActualWidth > 0 && portrait.ActualHeight > 0 &&
+                    portrait.Command!.CanExecute(portrait.CommandParameter),
+                    "The current published reward target must have an enabled visible portrait.");
+                portrait.Command!.Execute(portrait.CommandParameter);
+                root.UpdateLayout();
+                Program.Assert(target.IsSelectedTarget && targetModel.CanConfirmSelected && targetModel.HasSelection &&
+                    targetGame.Revision == revision && targetGame.AcceptedCommands.Count == commands &&
+                    targetGame.Events.Count == events && targetGame.CardMovements.Count == movements &&
+                    ReferenceEquals(rewardSnapshot, targetModel.ChoiceSnapshot) &&
+                    Enumerable.Range(0, 4).Select(seat => SnapshotJson.Serialize(targetGame.CreateSnapshot(seat))).SequenceEqual(views),
+                    "Selecting the actual reward portrait changes only its draft and preserves every player-safe view.");
+                var confirm = (Button)targetWindow.FindName("PlayCardButton");
+                Program.Assert(ReferenceEquals(confirm.Command, targetModel.ConfirmSelectedCommand) &&
+                    confirm.Visibility == Visibility.Visible && confirm.IsEnabled &&
+                    confirm.ActualWidth > 0 && confirm.ActualHeight > 0 &&
+                    confirm.Command!.CanExecute(confirm.CommandParameter),
+                    "The ordinary confirmation button must enable the prepared portrait reward.");
+                confirm.Command!.Execute(confirm.CommandParameter);
+                var following = targetModel.ChoiceSnapshot.PendingDecision;
+                Program.Assert(targetGame.Revision == revision + 1 && targetGame.AcceptedCommands.Count == commands + 1 &&
+                    targetGame.AcceptedCommands.Last() is AnswerPromptCommand submitted &&
+                    submitted.ActorSeat == rewardPrompt.PlayerSeat && submitted.PromptId == rewardPrompt.PromptId &&
+                    submitted.Choice == targetChoice.Id && submitted.ExpectedRevision == revision &&
+                    !targetModel.HasSelection && targetGame.CardMovements.Count == movements &&
+                    following is { Kind: DecisionKind.ProgramTrigger, SkillPrompt.SkillId: "classic:zhongjian" } &&
+                    following.PromptId != rewardPrompt.PromptId && following.Choices.Count > 0 &&
+                    following.Choices.All(choice => choice.Parameters.GetValueOrDefault("branch") == "discard" &&
+                        choice.Targets.SequenceEqual(targetChoice.Targets)),
+                    "Confirmation submits the exact published target once and reaches its unpaid discard follow-up.");
+            }
+            finally { targetWindow.Content = null; targetWindow.DataContext = null; targetWindow.Close(); }
+        }
         Answer(game, choice => choice.Parameters.GetValueOrDefault("branch") == "draw");
         Reach(game, prompt => prompt.Kind == DecisionKind.PlayCard);
         Accept(game, new UseProgramSkillCommand(0, "fixture:ui-rule-driver", "hurt", [], [],
@@ -90,9 +151,9 @@ internal static class PublicStateUiChecks
             var panel = Program.Find<ItemsControl>((FrameworkElement)window.Content)
                 .Single(control => control.Name == "PinnedPublicModuleChoices");
             Program.Assert(panel.Visibility == Visibility.Visible && Program.Find<Button>(panel).Count(button =>
-                button.Command == model.SelectSkillChoiceCommand && button.IsEnabled &&
-                button.ActualWidth > 0 && button.ActualHeight > 0) == model.SkillChoices.Count,
-                "Every actual reward choice has a visible enabled button above the public card viewport.");
+                button.Command == model.SelectSkillChoiceCommand && button.Visibility == Visibility.Visible && button.IsEnabled &&
+                button.ActualWidth > 0 && button.ActualHeight > 0) == model.CenterSkillChoices.Count,
+                "Every current central reward choice has a visible enabled button above the public card viewport.");
         }
         window.Content = null;
         window.Close();

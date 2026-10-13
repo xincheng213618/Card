@@ -24,9 +24,7 @@ public sealed partial class MainViewModel
         new("wu", "吴"), new("qun", "群"), new("jin", "晋"), new("god", "神")
     ];
 
-    public IReadOnlyList<GeneralGallerySeriesOption> GeneralGallerySeries { get; } =
-        GeneralGalleryCatalog.Series.Select(series =>
-            new GeneralGallerySeriesOption(series.Id, series.Name, series.Description)).ToArray();
+    public IReadOnlyList<GallerySeries> GeneralGallerySeries => GeneralGalleryCatalog.Series;
 
     public bool IsGeneralGalleryOpen
     {

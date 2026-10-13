@@ -5,30 +5,25 @@ namespace CardGame.Wpf.ViewModels;
 public sealed partial class MainViewModel
 {
     private GameEngine? _legalActionGame;
-    private long _legalActionRevision = -1;
-    private IReadOnlyList<LegalAction> _viewLegalActions = [];
-    private IReadOnlyList<HandCardGuidance> _viewHandGuidance = [];
+    private HumanActionView? _viewAction;
 
     // A card/target preview changes no rules. Share this expensive query across
     // bindings until the engine commits a new revision (or a new game is loaded).
-    private IReadOnlyList<LegalAction> GetViewLegalActions()
+    private HumanActionView GetViewAction()
     {
-        if (!ReferenceEquals(_legalActionGame, _game) || _legalActionRevision != _game.Revision)
+        var view = _viewAction;
+        if (!ReferenceEquals(_legalActionGame, _game) || view is null || view.Revision != _game.Revision)
         {
-            var view = _game.GetHumanActionView();
-            _viewLegalActions = view.LegalActions;
-            _viewHandGuidance = view.HandGuidance;
+            view = _game.GetHumanActionView();
+            _viewAction = view;
             _legalActionGame = _game;
-            _legalActionRevision = view.Revision;
         }
-        return _viewLegalActions;
+        return view;
     }
 
-    private IReadOnlyList<HandCardGuidance> GetViewHandGuidance()
-    {
-        GetViewLegalActions();
-        return _viewHandGuidance;
-    }
+    private IReadOnlyList<LegalAction> GetViewLegalActions() => GetViewAction().LegalActions;
+
+    private IReadOnlyList<HandCardGuidance> GetViewHandGuidance() => GetViewAction().HandGuidance;
 
     private void RefreshCommandResult(GameSnapshot snapshot)
     {

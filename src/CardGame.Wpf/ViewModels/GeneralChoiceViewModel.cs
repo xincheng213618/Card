@@ -64,8 +64,6 @@ public sealed class GeneralGalleryEntryViewModel
 
 public sealed record GeneralGalleryFactionOption(string Id, string Name);
 
-public sealed record GeneralGallerySeriesOption(string Id, string Name, string Description);
-
 public sealed record GeneralGalleryGroupViewModel(string Id, string Title,
     IReadOnlyList<GeneralGalleryEntryViewModel> Entries, string EmptyMessage)
 {

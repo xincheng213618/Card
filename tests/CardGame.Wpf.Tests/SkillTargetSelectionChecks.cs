@@ -1,6 +1,9 @@
 using System.IO;
+using System.Reflection;
+using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using CardGame.Content.Standard;
 using CardGame.Core;
 using CardGame.Wpf;
@@ -63,7 +66,7 @@ internal static class SkillTargetSelectionChecks
                     "Cancel must clear a mandatory target draft and retain its current prompt.");
             }
         }
-        finally { window.Content = null; window.Close(); }
+        finally { window.Content = null; window.DataContext = null; window.Close(); }
 
         vm.SelectTargetCommand.Execute(vm.Seats.Single(seat => seat.Seat == targetSeats[0]));
         vm.SaveGameCommand.Execute(null);
@@ -73,7 +76,18 @@ internal static class SkillTargetSelectionChecks
             "Loading a pending target prompt must clear the local draft and restore legal portrait candidates.");
         var choice = game.PendingDecision!.Choices.Single(item => item.Targets.SequenceEqual([targetSeats[1]]));
         vm.SelectTargetCommand.Execute(vm.Seats.Single(seat => seat.Seat == targetSeats[1]));
-        vm.ConfirmSelectedCommand.Execute(null);
+        var confirmWindow = new MainWindow(vm);
+        try
+        {
+            TutorialRoundTrip(vm, confirmWindow, "Zhefu target");
+            var checkpoint = game.CreateCheckpoint();
+            var reference = GameReplay.Restore(checkpoint, fixture.Registry);
+            Accept(reference, new AnswerPromptCommand(0, game.PendingDecision!.PromptId, choice.Id, revision));
+            Click((Button)confirmWindow.FindName("PlayCardButton"));
+            Program.Assert(Boundary(game) == Boundary(reference),
+                "The resumed real Zhefu confirmation must execute the original published choice and match an independent native command in every safe view and journal.");
+        }
+        finally { confirmWindow.Content = null; confirmWindow.DataContext = null; confirmWindow.Close(); }
         Program.Assert(game.Revision == revision + 1 && game.AcceptedCommands.Last() is AnswerPromptCommand answer &&
             answer.Choice == choice.Id && !vm.HasSelection,
             "Confirm must submit exactly the original published choice once and clear the draft.");
@@ -112,15 +126,63 @@ internal static class SkillTargetSelectionChecks
             Program.Assert(!vm.HasSelection && game.Revision == revision, "Esc must clear a pair without answering its prompt.");
             vm.SelectTargetCommand.Execute(vm.Seats.Single(seat => seat.Seat == 2));
             vm.SelectTargetCommand.Execute(vm.Seats.Single(seat => seat.Seat == 1));
-            if (kind == "optional")
+            var confirmWindow = new MainWindow(vm);
+            try
             {
-                choice = game.PendingDecision!.Choices.Single(candidate => candidate.Targets.Count == 0);
-                vm.CancelActionCommand.Execute(null);
+                TutorialRoundTrip(vm, confirmWindow, $"{kind} target pair");
+                if (kind == "optional") choice = game.PendingDecision!.Choices.Single(candidate => candidate.Targets.Count == 0);
+                var reference = GameReplay.Restore(game.CreateCheckpoint(), registry);
+                Accept(reference, new AnswerPromptCommand(0, game.PendingDecision!.PromptId, choice.Id, revision));
+                if (kind == "optional") Click((Button)confirmWindow.FindName("CancelActionButton"));
+                else Program.Assert(TableShortcutChecks.Input(confirmWindow, Key.Enter),
+                    "Enter must confirm the actual resumed complete target draft.");
+                Program.Assert(Boundary(game) == Boundary(reference),
+                    "The resumed ordered/set confirmation or optional cancellation must preserve its native choice, target order and every player-safe view and journal.");
             }
-            else vm.ConfirmSelectedCommand.Execute(null);
+            finally { confirmWindow.Content = null; confirmWindow.DataContext = null; confirmWindow.Close(); }
             Program.Assert(game.Revision == revision + 1 && game.AcceptedCommands.Last() is AnswerPromptCommand answer && answer.Choice == choice.Id,
                 "Shared confirmation must preserve ordered pairs, canonical sets and the engine's optional decline choice.");
         }
+    }
+
+    private static void TutorialRoundTrip(MainViewModel vm, MainWindow window, string label)
+    {
+        var game = Program.Engine(vm);
+        var before = Boundary(game);
+        var prompt = game.CreateSnapshot(0).PendingDecision!.PromptId;
+        var selected = vm.Seats.Where(seat => seat.IsSelectedTarget).Select(seat => seat.Seat).ToArray();
+        var hint = vm.ActionHint;
+        Program.Assert(selected.Length > 0 && vm.IsSkillTargetSelectionPending && vm.CanConfirmSelected,
+            "The tutorial regression must start with a real complete portrait draft.");
+        vm.StartTutorialCommand.Execute(null);
+        Program.Assert(vm.IsTutorialActive && !ReferenceEquals(Program.Engine(vm), game),
+            "The real tutorial command must independently suspend the original target prompt.");
+        vm.ExitTutorialCommand.Execute(null);
+        var root = (FrameworkElement)window.Content;
+        root.Measure(new Size(1120, 740)); root.Arrange(new Rect(0, 0, 1120, 740)); root.UpdateLayout();
+        Console.WriteLine($"Tutorial resume {label}: selected={string.Join(',', vm.Seats.Where(seat => seat.IsSelectedTarget).Select(seat => seat.Seat))}, confirm={vm.CanConfirmSelected}.");
+        Program.Assert(!vm.IsTutorialActive && ReferenceEquals(Program.Engine(vm), game) && Boundary(game) == before &&
+            game.CreateSnapshot(0).PendingDecision!.PromptId == prompt && vm.IsSkillTargetSelectionPending &&
+            vm.Seats.Where(seat => seat.IsSelectedTarget).Select(seat => seat.Seat).SequenceEqual(selected) &&
+            vm.ActionHint == hint && vm.CanConfirmSelected &&
+            ((Button)window.FindName("PlayCardButton")).IsEnabled &&
+            ((Button)window.FindName("CancelActionButton")).IsEnabled,
+            $"Tutorial return must preserve the complete {label} draft, its exact ordered hint, enabled native controls and untouched original prompt/journals.");
+    }
+
+    private static string Boundary(GameEngine game) => JsonSerializer.Serialize(new
+    {
+        game.Revision, Commands = CommandJson.Serialize(game.AcceptedCommands), Movements = game.CardMovements,
+        Events = game.Events.Select(item => JsonSerializer.Serialize(item.Payload, item.Payload.GetType())).ToArray(),
+        Views = Enumerable.Range(0, game.CreateSnapshot(0).Players.Count).Select(seat => SnapshotJson.Serialize(game.CreateSnapshot(seat))).ToArray()
+    });
+
+    private static void Click(Button button)
+    {
+        Program.Assert(button.IsEnabled && button.Command!.CanExecute(button.CommandParameter),
+            "The resumed target route must use its actual enabled bound button.");
+        typeof(System.Windows.Controls.Primitives.ButtonBase).GetMethod("OnClick", BindingFlags.Instance | BindingFlags.NonPublic)!
+            .Invoke(button, null);
     }
 
     private static void CheckEightSeatSize(MainViewModel vm, string output)
@@ -143,7 +205,7 @@ internal static class SkillTargetSelectionChecks
                 vm.ClearSelectionCommand.Execute(null);
             }
         }
-        finally { window.Content = null; window.Close(); }
+        finally { window.Content = null; window.DataContext = null; window.Close(); }
     }
 
     private static void Reach(MainViewModel vm, Func<PendingDecision, bool> predicate)
@@ -163,7 +225,7 @@ internal static class SkillTargetSelectionChecks
         Program.Assert(result.Accepted, result.Error?.Message ?? "Expected a real accepted fixture command.");
     }
 
-    private sealed class TargetFixture(string kind, int playerCount) : IGameContentPackage
+    internal sealed class TargetFixture(string kind, int playerCount) : IGameContentPackage
     {
         internal const string ModeId = "identity:skill-target-ui";
         internal const string OwnerId = "fixture:skill-target-owner";

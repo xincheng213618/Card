@@ -11,12 +11,12 @@ public static class CardArt
     private static readonly Dictionary<string, ImageSource?> Cache = [];
 
     public static bool NeedsRuntimeNameOverlay(CardKind? kind) =>
-        kind is CardKind.GeneralWeapon or CardKind.ScarletBloodSword;
+        kind is CardKind.GeneralWeapon or CardKind.ScarletBloodSword or CardKind.Xuanjian;
 
     public static ImageSource? Get(CardKind? kind)
     {
         if (kind is not { } key || !Enum.IsDefined(key)) return null;
-        return Load($"{key}.png");
+        return Load($"{(key == CardKind.Xuanjian ? CardKind.GeneralWeapon : key)}.png");
     }
 
     public static ImageSource? GetRank(string rank, string suit) =>
@@ -30,7 +30,7 @@ public static class CardArt
     };
 
     public static ImageSource? GetEquipment(CardKind kind) =>
-        EquipmentCatalog.IsEquipment(kind) ? Load($"equip-{kind}.png") : null;
+        EquipmentCatalog.IsEquipment(kind) ? Load($"equip-{(kind == CardKind.Xuanjian ? CardKind.GeneralWeapon : kind)}.png") : null;
 
     private static ImageSource? Load(string key)
     {

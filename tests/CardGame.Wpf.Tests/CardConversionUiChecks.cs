@@ -40,6 +40,7 @@ internal static class CardConversionUiChecks
 
         TrustedActionDetailsStayOutOfPlayerProjections(secondSource);
         ProgramCardTriggerChoicesRemainActionable();
+        CardConversionTargetUiChecks.RedIronChainUsesSelectedSlashMode();
     }
 
     private static void ProgramCardTriggerChoicesRemainActionable()

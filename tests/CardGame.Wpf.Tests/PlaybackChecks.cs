@@ -2,6 +2,9 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Text.Json;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
+using System.Windows.Input;
 using System.Windows.Threading;
 using CardGame.Core;
 using CardGame.Wpf;
@@ -57,6 +60,7 @@ internal static class PlaybackChecks
                     Program.Assert(Program.Engine(automatic).AcceptedCommands.Count == before,
                         "Automatic batching advanced behind an open guide.");
                     automatic.IsHelpOpen = false;
+                    VerifyBattleLogPause();
                     checkedPause = true;
                 }
                 var wasAi = automatic.CanStepAi;
@@ -183,6 +187,87 @@ internal static class PlaybackChecks
             automaticWindow.Close();
             singleWindow.Close();
         }
+
+        void VerifyBattleLogPause()
+        {
+            var game = Program.Engine(automatic);
+            var boundary = PauseBoundary(game);
+            var feedback = automaticFeedback.ToArray();
+            var open = Program.Find<Button>(automaticRoot).Single(button =>
+                ReferenceEquals(button.Command, automatic.ToggleLogCommand) &&
+                Equals(button.Content, "战报 / 存档"));
+            Click(open);
+            automaticRoot.UpdateLayout();
+            var close = (Button)automaticWindow.FindName("CloseBattleLogButton");
+            Program.Assert(automatic.IsLogOpen && automatic.IsAutoAdvance && automatic.CanStepAi &&
+                close.Visibility == Visibility.Visible && close.IsEnabled && close.ActualHeight > 0,
+                "The real battle-log control must expose its close action at a native automatic-advance boundary.");
+            tick.Invoke(automatic, [null, EventArgs.Empty]);
+            Console.WriteLine($"Battle log pause: seed=17, revision={game.Revision}, commands={game.AcceptedCommands.Count}, " +
+                $"viewers={game.CreateSnapshot(0).Players.Count}, same boundary={PauseBoundary(game) == boundary}, " +
+                $"automatic={automatic.IsAutoAdvance}, can step={automatic.CanStepAi}, interval={timer.Interval.TotalMilliseconds}.");
+            Program.Assert(ReferenceEquals(Program.Engine(automatic), game) && PauseBoundary(game) == boundary &&
+                automaticFeedback.SequenceEqual(feedback) && timer.Interval.TotalMilliseconds ==
+                    automatic.SelectedPlaybackSpeed.IntervalMilliseconds,
+                "Opening the actual battle log must pause automatic advancement without changing any safe view, journal or feedback.");
+            Program.Assert(timer.IsEnabled, "The battle-log pause fixture must retain its actual enabled automatic timer.");
+            var timerTicks = 0;
+            var frame = new DispatcherFrame();
+            var timeout = new DispatcherTimer(DispatcherPriority.Send) { Interval = TimeSpan.FromSeconds(2) };
+            var interval = timer.Interval;
+            EventHandler observeTick = (_, _) => { timerTicks++; frame.Continue = false; };
+            EventHandler endWait = (_, _) => frame.Continue = false;
+            timer.Tick += observeTick;
+            timeout.Tick += endWait;
+            try
+            {
+                timer.Interval = TimeSpan.FromMilliseconds(1);
+                timeout.Start();
+                Dispatcher.PushFrame(frame);
+            }
+            finally
+            {
+                timeout.Stop();
+                timeout.Tick -= endWait;
+                timer.Tick -= observeTick;
+                timer.Interval = interval;
+            }
+            Program.Assert(timerTicks == 1 && automatic.IsLogOpen && automatic.IsAutoAdvance &&
+                ReferenceEquals(Program.Engine(automatic), game) && PauseBoundary(game) == boundary &&
+                automaticFeedback.SequenceEqual(feedback),
+                "The actual DispatcherTimer tick must fire without advancing the match or feedback behind the battle log.");
+            Console.WriteLine($"Battle log real timer: observed ticks={timerTicks}, revision={game.Revision}, commands={game.AcceptedCommands.Count}, " +
+                $"same boundary={PauseBoundary(game) == boundary}, automatic={automatic.IsAutoAdvance}.");
+            Click(close);
+            automaticRoot.UpdateLayout();
+            Program.Assert(!automatic.IsLogOpen && automatic.IsAutoAdvance && automatic.CanStepAi &&
+                PauseBoundary(game) == boundary,
+                "Closing the actual battle log must resume the existing automatic setting at the untouched native boundary.");
+            automatic.IsAutoAdvance = false;
+            Click(open);
+            automaticRoot.UpdateLayout();
+            tick.Invoke(automatic, [null, EventArgs.Empty]);
+            Program.Assert(automatic.IsLogOpen && !automatic.IsAutoAdvance && !timer.IsEnabled &&
+                TableShortcutChecks.Input(automaticWindow, Key.Escape) && !automatic.IsLogOpen &&
+                !automatic.IsAutoAdvance && !timer.IsEnabled && PauseBoundary(game) == boundary,
+                "Escape from the battle log must preserve a manually paused automatic setting and every native boundary.");
+            Console.WriteLine($"Battle log manual pause: automatic={automatic.IsAutoAdvance}, timer enabled={timer.IsEnabled}, same boundary={PauseBoundary(game) == boundary}.");
+            automatic.IsAutoAdvance = true;
+        }
+
+        static void Click(Button button)
+        {
+            Program.Assert(button.Visibility == Visibility.Visible && button.IsEnabled && button.Command is not null &&
+                button.Command.CanExecute(button.CommandParameter), "The actual playback control must be available before OnClick.");
+            typeof(ButtonBase).GetMethod("OnClick", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(button, null);
+        }
+
+        static string PauseBoundary(GameEngine game) => JsonSerializer.Serialize(new
+        {
+            game.Revision, Commands = CommandJson.Serialize(game.AcceptedCommands), Movements = game.CardMovements,
+            Events = game.Events.Select(item => JsonSerializer.Serialize(item.Payload, item.Payload.GetType())).ToArray(),
+            Views = game.CreateSnapshot(0).Players.Select(player => SnapshotJson.Serialize(game.CreateSnapshot(player.Seat))).ToArray()
+        });
 
         static MainViewModel Create(MemorySaveStore store) => new(false, 17, false, store,
             historyStore: new MemoryMatchHistoryStore(), preferencesStore: new MemoryPlayerPreferencesStore())

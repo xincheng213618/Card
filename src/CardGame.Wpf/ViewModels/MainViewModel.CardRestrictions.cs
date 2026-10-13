@@ -5,12 +5,18 @@ namespace CardGame.Wpf.ViewModels;
 public sealed partial class MainViewModel
 {
     private static string PublicStateBadge(PlayerSnapshot player) =>
-        string.Join(" · ", new[] { PublicPileBadge(player), PublicMarkerBadge(player), DeferredHandAlignmentBadge(player), IssuedUseProhibitionBadge(player), PhaseSuitAllowanceBadge(player), SuitShieldBadge(player) }
+        string.Join(" · ", new[] { AlcoholEffectBadge(player), PublicPileBadge(player), NamedPrivatePileBadge(player), PublicMarkerBadge(player), DeferredHandAlignmentBadge(player), IssuedUseProhibitionBadge(player), PhaseSuitAllowanceBadge(player), SuitShieldBadge(player) }
             .Where(text => text.Length > 0));
 
     private static string PublicStateTooltip(PlayerSnapshot player) =>
-        string.Join("\n", new[] { PublicPileTooltip(player), PublicMarkerBadge(player), DeferredHandAlignmentTooltip(player), IssuedUseProhibitionTooltip(player), PhaseSuitAllowanceTooltip(player), SuitShieldTooltip(player) }
+        string.Join("\n", new[] { AlcoholEffectTooltip(player), PublicPileTooltip(player), NamedPrivatePileTooltip(player), PublicMarkerBadge(player), DeferredHandAlignmentTooltip(player), IssuedUseProhibitionTooltip(player), PhaseSuitAllowanceTooltip(player), SuitShieldTooltip(player) }
             .Where(text => text.Length > 0));
+
+    private static string AlcoholEffectBadge(PlayerSnapshot player) =>
+        player.HasAlcoholEffect ? $"酒效+{PublicAlcoholDamageBonus(player)}" : string.Empty;
+
+    private static string AlcoholEffectTooltip(PlayerSnapshot player) =>
+        player.HasAlcoholEffect ? $"下一张【杀】的伤害+{PublicAlcoholDamageBonus(player)}；使用后或回合结束时清除。" : string.Empty;
 
     private static string PublicMarkerBadge(PlayerSnapshot player) =>
         string.Join(" · ", (player.Markers ?? []).Where(marker => marker.Count > 0)

@@ -168,16 +168,22 @@ public sealed partial class MainViewModel
                 IsTeamSnapshot ? "队友仍可争取胜利。保持自动推进，观看剩余角色行动直到队伍胜负确定。" : "身份已公开。保持自动推进可观看剩余角色行动，直到阵营胜负确定。";
             steps = ["点击「快速观战」开启快速自动推进；取消「自动推进」可随时暂停。右下角可选择从容、标准或快速节奏。", "关闭指南后，牌局会按你原来的自动推进设置继续；本局结束后按你的阵营显示结果。"];
         }
+        else if (CanRerollOpeningHand)
+        {
+            CurrentGuideTitle = "确认起手牌再开局";
+            CurrentGuideBody = OpeningDealSummary;
+            steps = ["查看起手牌，牌面仅对你可见。", "点击「重新随机手牌」将自己的牌放回牌堆，洗牌后抽取同样数量；其他玩家手牌不变。", "点击「进入牌局」开始对局，此后不能再重新随机起手牌或改选身份。"];
+        }
         else if (IsGeneralSelectionPending)
         {
             CurrentGuideTitle = "选择一位武将出征";
             CurrentGuideBody = GeneralSelectionSubtitle;
-            steps = ["查看三张候选的体力和技能说明；候选只对你可见。", "点击一位武将完成选择，其他玩家选完后一起亮相。", IsTeamSnapshot ? "魏、蜀、吴等武将势力不决定队伍；请看青队、赤队和队友标识。" : "武将技能与身份目标是两件事；始终按你的身份决定胜利目标。"];
+            steps = ["查看候选的体力和技能说明，也可点击「自选武将」搜索当前模式的完整可用武将库。", "预览一位武将后确认出征；身份场还可在确认前改选身份。", IsTeamSnapshot ? "魏、蜀、吴等武将势力不决定队伍；请看青队、赤队和队友标识。" : "武将技能与身份目标是两件事；始终按你的身份决定胜利目标。"];
         }
         else if (IsDiscardSelectionPending)
         {
             CurrentGuideTitle = SelectedDiscardCount == RequiredDiscardCount ? "数量已够，确认弃牌" : "选出本回合要弃置的牌";
-            CurrentGuideBody = $"手牌上限为当前体力 {human?.Hp}，本次要弃置 {RequiredDiscardCount} 张，已选 {SelectedDiscardCount} 张。";
+            CurrentGuideBody = DiscardSelectionHint;
             steps = ["点击多张手牌选为弃牌，再次点击可取消；未确认前不会失去牌。", "「推荐弃牌」只替你选中候选，你可以修改。", "选够指定数量后点击确认。弃牌完成后进入下一名角色的回合。"];
         }
         else if (IsActiveSkillSelectionPending && HumanActiveSkillAction is { } skillAction)
@@ -246,13 +252,13 @@ public sealed partial class MainViewModel
                     choice.Parameters.GetValueOrDefault("response") == "faction-slash-request") => ("决定是否发动激将", new[] { "发动后，会按当前行动顺序依次询问其他存活的蜀势力角色。", "若无人代出杀，你仍可使用自己的杀或放弃响应。" }),
                 DecisionKind.RespondSlash when prompt.Choices.Any(choice =>
                     choice.Parameters.GetValueOrDefault("response") == "faction-slash-slash") => ("响应刘备的激将", new[] { "你可以打出自己的一张杀；成功后视为刘备打出杀。", "也可以拒绝，系统会继续询问下一名蜀势力角色。" }),
-                DecisionKind.RespondDodge or DecisionKind.RespondSlash => ("选择手牌并确认响应", new[] { "读清这次需要杀还是闪，选择亮起的手牌后点击下方确认。其他技能、装备或多牌响应仍在中央选择。", "点击下方「取消」放弃响应，可能受到伤害；Esc 只取消当前选牌。" }),
+                DecisionKind.RespondDodge or DecisionKind.RespondSlash => ("选择手牌并确认响应", new[] { "读清这次需要杀还是闪，选择亮起的手牌后点击下方确认。其他技能、装备或多牌响应仍在中央选择。", HandResponseDeclineChoice is not null ? $"点击下方「{ActionDockCancelText}」放弃响应，可能受到伤害；Esc 只取消当前选牌。" : "Esc 只取消当前选牌；确认前手牌不会消耗。" }),
 DecisionKind.RescueDying => ("决定是否救援濒死角色", (new[] { "桃可用于救援当前濒死角色；只有濒死者本人可额外使用酒自救。庞统还可发动一次限定技涅槃。", "选择使用哪张牌、发动涅槃或不救援；按当前模式的阵营关系决定希望保护谁。" }
 )),                                DecisionKind.SelectHarvestCard => ("从公开牌中取走一张", new[] { "点击中央的一张公开牌，它会加入你的手牌。", "这是选牌，不需要再选择武将或点击出牌。" }),
                 DecisionKind.SelectTargetCard => ("选择一张暗牌位", new[] { "目标手牌的牌面不会展示；每个按钮只代表一个不透明的牌位。", "选择后，拆桥会弃置该牌，顺手会将该牌交给你。" }),
-                DecisionKind.Nullification => ("决定是否使用无懈可击", new[] { "看清本次是使锦囊失效，还是恢复已被无懈的效果。", "选择亮起的无懈并点击「确认无懈」；点击「取消」跳过并保留手牌。" }),
+                DecisionKind.Nullification => ("决定是否使用无懈可击", new[] { "看清本次是使锦囊失效，还是恢复已被无懈的效果。", HandResponseDeclineChoice is not null ? $"选择亮起的无懈并点击「确认无懈」；点击「{ActionDockCancelText}」跳过并保留手牌。" : "选择亮起的无懈并点击「确认无懈」；Esc 只取消当前选牌。" }),
                 DecisionKind.FireAttackReveal => ("展示一张手牌", new[] { "点选底部手牌，再点击「展示此牌」；此时只是展示，并非主动弃牌，也不能跳过展示。", "随后由火攻使用者决定是否弃置同花色牌造成伤害。" }),
-                DecisionKind.FireAttackDiscard => ("决定是否为火攻弃牌", new[] { "选择亮起的同花色手牌，再点击「弃牌火攻」支付代价。", "点击「取消」保留手牌并结束这次火攻。" }),
+                DecisionKind.FireAttackDiscard => ("决定是否为火攻弃牌", new[] { "选择亮起的同花色手牌，再点击「弃牌火攻」支付代价。", HandResponseDeclineChoice is not null ? $"点击「{ActionDockCancelText}」保留手牌并结束这次火攻。" : "Esc 只取消当前选牌；确认前手牌不会消耗。" }),
 
 
 

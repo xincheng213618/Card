@@ -4,6 +4,7 @@ using System.Windows.Input;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
+using CardGame.Core;
 using CardGame.Wpf.ViewModels;
 using CardGame.Wpf.Audio;
 using CardGame.Wpf.Persistence;
@@ -19,22 +20,28 @@ public partial class MainWindow : Window
     private IInputElement? _focusBeforeGeneralGallery;
     private IInputElement? _focusBeforeSettings;
     private IInputElement? _focusBeforeIdentityReveal;
+    private IInputElement? _focusBeforeLobby;
+    private int _overlayFocusRequest;
+    private TargetCardFocus? _targetCardFocus;
+    private sealed record TargetCardFocus(PendingDecision Prompt, ChoiceId ChoiceId);
     public MainWindow() : this(new MainViewModel(useExpandedContent: true, historyStore: new FileMatchHistoryStore(),
-        preferencesStore: new FilePlayerPreferencesStore()))
+        preferencesStore: new FilePlayerPreferencesStore(), confirmOpeningHand: true))
     { }
 
     public MainWindow(MainViewModel viewModel)
     {
         InitializeComponent();
         DataContext = viewModel;
-        _audio = new GameAudioController(viewModel, () => new MediaPlayerAudioOutput());
+        _audio = new GameAudioController(viewModel, () => new MediaPlayerAudioOutput(), feedbackLayer: BattleFeedback);
         Activated += (_, _) => _audio.SetActive(true);
         Deactivated += (_, _) => _audio.SetActive(false);
         PreviewMouseDown += TableMouseDown;
+        InitializeCardAim();
     }
 
     private void Battlefield_SizeChanged(object sender, SizeChangedEventArgs e)
     {
+        if (_cardAim is { Started: true }) CancelCardAim();
         if (DataContext is not MainViewModel vm) return;
         // Match all three sides to the space available for the side portraits.
         var rows = Math.Max(1, Math.Max(vm.LeftSeats.Count, vm.RightSeats.Count));
@@ -48,6 +55,7 @@ public partial class MainWindow : Window
 
     private void TableMouseDown(object sender, MouseButtonEventArgs e)
     {
+        if (e.ChangedButton == MouseButton.Right) CancelCardAim();
         if (DataContext is not MainViewModel vm || IsTableModalOpen(vm)) return;
         var source = e.OriginalSource as DependencyObject;
         Button? button = null;
@@ -68,30 +76,54 @@ public partial class MainWindow : Window
         }
         else if (e.ChangedButton == MouseButton.Left && e.ClickCount == 2 &&
                  button?.DataContext is { } item)
+        {
+            CancelCardAim();
             e.Handled = TryQuickConfirm(item);
+        }
+        else if (e.ChangedButton == MouseButton.Left && hand is not null)
+            ArmCardAim(hand, e.GetPosition(hand));
+        else if (e.ChangedButton == MouseButton.Left &&
+                 ReferenceEquals(button?.Command, vm.SelectTargetCommand) &&
+                 button.CommandParameter is SeatViewModel { IsLegalTarget: true } seat && vm.Seats.Contains(seat))
+        {
+            // Resolve the portrait on press, just like the hand. Updating a
+            // draft must not depend on a later release over the same visual.
+            button.Focus();
+            vm.SelectTargetCommand.Execute(seat);
+            e.Handled = true;
+        }
     }
 
-    private static bool IsBlockingTableOverlayOpen(MainViewModel vm) => vm.IsNewGameSetupOpen || vm.IsHelpOpen ||
-        vm.IsHistoryOpen || vm.IsGeneralGalleryOpen || vm.IsSettingsOpen || vm.IsIdentityRevealOpen ||
+    private static bool IsNavigationOverlayOpen(MainViewModel vm) => vm.IsNewGameSetupOpen || vm.IsHelpOpen ||
+        vm.IsHistoryOpen || vm.IsGeneralGalleryOpen || vm.IsSettingsOpen;
+
+    // Root navigation panels cover both startup overlays; the log and result
+    // panels also cover the opening cards inside the table surface.
+    private static bool IsStartupOverlayActive(MainViewModel vm) => !IsNavigationOverlayOpen(vm) &&
+        (vm.IsIdentityRevealOpen || vm.IsOpeningDealVisible && !vm.IsLogOpen && !vm.HasGameOver);
+
+    private static bool IsBlockingTableOverlayOpen(MainViewModel vm) => IsNavigationOverlayOpen(vm) || vm.IsIdentityRevealOpen ||
         vm.IsOpeningDealVisible || vm.HasGameOver || vm.IsLogOpen;
 
     private static bool IsTableModalOpen(MainViewModel vm) =>
         IsBlockingTableOverlayOpen(vm) || vm.IsGeneralSelectionPending;
 
-    private void GeneralCandidateCards_PreviewMouseDoubleClick(object sender, MouseButtonEventArgs e)
+    private void GeneralChoices_PreviewMouseDoubleClick(object sender, MouseButtonEventArgs e)
     {
         if (e.ChangedButton != MouseButton.Left || DataContext is not MainViewModel vm ||
-            !vm.IsGeneralSelectionPending || IsBlockingTableOverlayOpen(vm)) return;
+            !vm.IsGeneralSelectionPending || IsBlockingTableOverlayOpen(vm) || sender is not ItemsControl items ||
+            !ReferenceEquals(items, vm.IsCustomGeneralSelectionOpen ? CustomGeneralRoster : GeneralCandidateCards)) return;
+        var choices = vm.IsCustomGeneralSelectionOpen ? vm.CustomGeneralChoices : vm.GeneralChoices;
         var source = e.OriginalSource as DependencyObject;
-        while (source is not null && !ReferenceEquals(source, GeneralCandidateCards))
+        while (source is not null && !ReferenceEquals(source, items))
         {
             if (source is Button button)
             {
                 // Confirm only the current prompt's preview. The first click stays reversible;
                 // a stale event from a primary general cannot select the secondary slot.
-                if (button.IsEnabled && button.Command == vm.PreviewGeneralChoiceCommand &&
+                if (button.IsEnabled && button.IsDescendantOf(items) && button.Command == vm.PreviewGeneralChoiceCommand &&
                     button.DataContext is GeneralChoiceViewModel choice &&
-                    ReferenceEquals(choice, vm.SelectedGeneralChoice) && vm.GeneralChoices.Contains(choice) &&
+                    ReferenceEquals(choice, vm.SelectedGeneralChoice) && choices.Contains(choice) && items.Items.Contains(choice) &&
                     vm.ConfirmGeneralChoiceCommand.CanExecute(null))
                 {
                     e.Handled = true;
@@ -120,6 +152,9 @@ public partial class MainWindow : Window
 
     private void Window_Closed(object? sender, EventArgs e)
     {
+        ObserveCardAimModel(null);
+        _overlayFocusRequest++;
+        _targetCardFocus = null;
         _audio.Dispose();
         (DataContext as MainViewModel)?.Dispose();
     }
@@ -133,91 +168,283 @@ public partial class MainWindow : Window
     }
 
     private void NewGameSetupPanel_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
-    {
-        if (!IsLoaded) return;
-        Dispatcher.BeginInvoke(DispatcherPriority.Input, new Action(() =>
-        {
-            if (NewGameSetupPanel.IsVisible)
-            {
-                if (DataContext is MainViewModel { IsLobbyConfigurationOpen: false })
-                {
-                    LobbyHome.FocusPrimary();
-                    return;
-                }
-                if (TableModeChoices.ItemContainerGenerator.ContainerFromItem(TableModeChoices.SelectedItem) is UIElement choice)
-                    choice.Focus();
-                else
-                    TableModeChoices.Focus();
-            }
-            else
-            {
-                TableSurface.MoveFocus(new TraversalRequest(FocusNavigationDirection.First));
-            }
-        }));
-    }
+        => QueueOverlayFocus(NewGameSetupPanel, ref _focusBeforeLobby);
 
     private void Window_Loaded(object sender, RoutedEventArgs e) =>
         NewGameSetupPanel_IsVisibleChanged(NewGameSetupPanel, default);
 
     private void FocusLobby()
     {
-        if (DataContext is MainViewModel { IsLobbyConfigurationOpen: true }) TableModeChoices.Focus();
+        if (DataContext is MainViewModel { IsLobbyConfigurationOpen: true })
+        {
+            if (TableModeChoices.SelectedItem is { } selected &&
+                TableModeChoices.ItemContainerGenerator.ContainerFromItem(selected) is UIElement choice) choice.Focus();
+            else TableModeChoices.Focus();
+        }
         else LobbyHome.FocusPrimary();
     }
 
     private void PlayerGuideOverlay_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        => QueueOverlayFocus(PlayerGuideOverlay, ref _focusBeforeGuide);
+
+    private void QueueOverlayFocus(FrameworkElement overlay, ref IInputElement? returnFocus)
     {
-        if (!IsLoaded) return;
-        if (PlayerGuideOverlay.IsVisible) _focusBeforeGuide = Keyboard.FocusedElement;
+        if (!IsLoaded || DataContext is not MainViewModel viewModel) return;
+        // A close/reopen can happen before WPF reevaluates keyboard focus. Keep
+        // the external return target rather than remembering this overlay itself.
+        if (overlay.IsVisible && Keyboard.FocusedElement is UIElement focused &&
+            !focused.IsDescendantOf(overlay)) returnFocus = focused;
+        var previous = returnFocus;
+        var request = ++_overlayFocusRequest;
         Dispatcher.BeginInvoke(DispatcherPriority.Input, new Action(() =>
         {
-            if (PlayerGuideOverlay.IsVisible) PlayerGuide.FocusGuide();
-            else if (_focusBeforeGuide is UIElement { IsVisible: true, IsEnabled: true } previous) previous.Focus();
-            else if (NewGameSetupPanel.IsVisible) FocusLobby();
-            else TableSurface.MoveFocus(new TraversalRequest(FocusNavigationDirection.First));
+            if (request != _overlayFocusRequest || !IsLoaded || !IsVisible ||
+                !ReferenceEquals(DataContext, viewModel)) return;
+            // Focus is deferred for bindings. Keep a live action the user
+            // reached while waiting, excluding controls in the closing layer.
+            if (!(Keyboard.FocusedElement is UIElement { IsVisible: true, IsEnabled: true, Focusable: true } focused &&
+                  (overlay.IsVisible || !focused.IsDescendantOf(overlay)) &&
+                  focused.IsDescendantOf(CurrentFocusSurface(viewModel))))
+                FocusCurrentSurface(viewModel, overlay.IsVisible ? null : previous);
+            if (!PlayerGuideOverlay.IsVisible) _focusBeforeGuide = null;
+            if (!HistoryOverlay.IsVisible) _focusBeforeHistory = null;
+            if (!GeneralGalleryOverlay.IsVisible) _focusBeforeGeneralGallery = null;
+            if (!SettingsOverlay.IsVisible) _focusBeforeSettings = null;
+            if (!IdentityRevealOverlay.IsVisible) _focusBeforeIdentityReveal = null;
+            if (!NewGameSetupPanel.IsVisible) _focusBeforeLobby = null;
         }));
+    }
+
+    private void TableOverlay_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+    {
+        var overlay = (FrameworkElement)sender;
+        // A lower layer can complete while the user is typing or navigating a
+        // covering panel. Preserve focus already held by the active surface.
+        // Closing parents raise this event before child visibility is updated.
+        if (DataContext is MainViewModel viewModel &&
+            Keyboard.FocusedElement is UIElement { IsVisible: true, IsEnabled: true } focused &&
+            (overlay.IsVisible || !focused.IsDescendantOf(overlay)) &&
+            focused.IsDescendantOf(CurrentFocusSurface(viewModel))) return;
+        IInputElement? previous = null;
+        QueueOverlayFocus(overlay, ref previous);
+    }
+
+    private FrameworkElement CurrentFocusSurface(MainViewModel viewModel) => viewModel.IsSettingsOpen ? SettingsOverlay :
+            viewModel.IsHistoryOpen ? HistoryOverlay :
+            viewModel.IsGeneralGalleryOpen ? GeneralGalleryOverlay :
+            viewModel.IsHelpOpen ? PlayerGuideOverlay :
+            viewModel.IsNewGameSetupOpen ? NewGameSetupPanel :
+            viewModel.IsIdentityRevealOpen ? IdentityRevealOverlay :
+            viewModel.IsLogOpen ? BattleLogOverlay :
+            viewModel.HasGameOver ? MatchResultPanel :
+            viewModel.IsGeneralSelectionPending ? GeneralSelectionOverlay :
+            viewModel.IsOpeningDealVisible ? OpeningDealOverlay : TableSurface;
+
+    private void GeneralSelectionPanel_IsKeyboardFocusWithinChanged(object sender, DependencyPropertyChangedEventArgs e)
+    {
+        if (e.NewValue is not false || !IsLoaded || DataContext is not MainViewModel viewModel ||
+            !ReferenceEquals(CurrentFocusSurface(viewModel), GeneralSelectionOverlay)) return;
+        var request = _overlayFocusRequest;
+        Dispatcher.BeginInvoke(DispatcherPriority.Input, new Action(() =>
+        {
+            if (request != _overlayFocusRequest || !IsLoaded || !IsVisible ||
+                !ReferenceEquals(DataContext, viewModel) ||
+                !ReferenceEquals(CurrentFocusSurface(viewModel), GeneralSelectionOverlay)) return;
+            // Rebuilding prompt controls can leave only the HWND focused. Wait
+            // for binding to finish, and preserve a live action the user chose.
+            if (ReferenceEquals(Keyboard.FocusedElement, this) ||
+                Keyboard.FocusedElement is UIElement focused && focused.IsDescendantOf(GeneralSelectionPanel) &&
+                (!focused.IsVisible || !focused.IsEnabled)) FocusCurrentSurface(viewModel, null);
+        }));
+    }
+
+    private void TargetCardChoiceCards_PreviewGotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+    {
+        if (DataContext is not MainViewModel vm ||
+            vm.ChoiceSnapshot.PendingDecision is not { Kind: DecisionKind.SelectTargetCard } prompt ||
+            e.NewFocus is not Button { CommandParameter: PromptChoice choice } button ||
+            !ReferenceEquals(button.Command, vm.SelectTargetCardChoiceCommand) ||
+            !prompt.Choices.Any(current => ReferenceEquals(current, choice))) return;
+        _targetCardFocus = new(prompt, choice.Id);
+    }
+
+    private void TargetCardChoiceCards_IsKeyboardFocusWithinChanged(object sender, DependencyPropertyChangedEventArgs e)
+    {
+        if (e.NewValue is not false || !IsLoaded || _targetCardFocus is not { } previous ||
+            DataContext is not MainViewModel vm || !ReferenceEquals(CurrentFocusSurface(vm), TableSurface)) return;
+        var request = _overlayFocusRequest;
+        Dispatcher.BeginInvoke(DispatcherPriority.Input, new Action(() =>
+        {
+            if (request != _overlayFocusRequest || !IsLoaded || !IsVisible || !IsKeyboardFocusWithin ||
+                !ReferenceEquals(DataContext, vm) || !ReferenceEquals(CurrentFocusSurface(vm), TableSurface) ||
+                vm.ChoiceSnapshot.PendingDecision is not { Kind: DecisionKind.SelectTargetCard } prompt ||
+                !SameTargetCardPrompt(previous.Prompt, prompt)) return;
+            // A full snapshot refresh retires parameters. Restore only the current
+            // slot, leaving a live control the user reached while waiting alone.
+            if (Keyboard.FocusedElement is UIElement { IsVisible: true, IsEnabled: true } focused &&
+                !ReferenceEquals(focused, this) && focused.IsDescendantOf(this)) return;
+            var choice = prompt.Choices.SingleOrDefault(current => current.Id == previous.ChoiceId);
+            if (choice is not null && TargetCardChoiceCards.ItemContainerGenerator.ContainerFromItem(choice) is UIElement slot)
+                slot.MoveFocus(new TraversalRequest(FocusNavigationDirection.First));
+        }));
+    }
+
+    private static bool SameTargetCardPrompt(PendingDecision previous, PendingDecision current) =>
+        previous.PromptId == current.PromptId && previous.Kind == current.Kind && previous.PlayerSeat == current.PlayerSeat &&
+        previous.Prompt == current.Prompt && previous.Revision == current.Revision && previous.SourceSeat == current.SourceSeat &&
+        previous.TargetSeat == current.TargetSeat && previous.IncomingCard == current.IncomingCard &&
+        previous.RequiredCardKind == current.RequiredCardKind && previous.RequiredCardCount == current.RequiredCardCount &&
+        previous.IsPrivate == current.IsPrivate && previous.SkillPrompt == current.SkillPrompt &&
+        previous.ValidCardIds.SequenceEqual(current.ValidCardIds) && previous.ValidTargetSeats.SequenceEqual(current.ValidTargetSeats) &&
+        previous.ValidContentIds.SequenceEqual(current.ValidContentIds) && SameTargetCardChoices(previous.Choices, current.Choices);
+
+    private static bool SameTargetCardChoices(IReadOnlyList<PromptChoice> previous, IReadOnlyList<PromptChoice> current)
+    {
+        if (previous.Count != current.Count) return false;
+        for (var index = 0; index < previous.Count; index++)
+        {
+            var before = previous[index];
+            var after = current[index];
+            if (before.Id != after.Id || before.Description != after.Description ||
+                !before.Cards.SequenceEqual(after.Cards) || !before.Targets.SequenceEqual(after.Targets) ||
+                !before.ContentIds.SequenceEqual(after.ContentIds) || before.Parameters.Count != after.Parameters.Count ||
+                !before.Parameters.All(pair => after.Parameters.TryGetValue(pair.Key, out var value) && value == pair.Value)) return false;
+        }
+        return true;
+    }
+
+    private void FocusCurrentSurface(MainViewModel viewModel, IInputElement? previous)
+    {
+        var surface = CurrentFocusSurface(viewModel);
+        if (!surface.IsVisible || !surface.IsEnabled) return;
+        if (previous is UIElement { IsVisible: true, IsEnabled: true, Focusable: true } target &&
+            target.IsDescendantOf(surface))
+        {
+            target.Focus();
+            return;
+        }
+        if (ReferenceEquals(surface, SettingsOverlay)) SettingsSoundToggle.Focus();
+        else if (ReferenceEquals(surface, HistoryOverlay)) HistoryPanel.FocusHistory();
+        else if (ReferenceEquals(surface, GeneralGalleryOverlay)) GeneralGallery.FocusCurrentView();
+        else if (ReferenceEquals(surface, PlayerGuideOverlay)) PlayerGuide.FocusGuide();
+        else if (ReferenceEquals(surface, NewGameSetupPanel)) FocusLobby();
+        else if (ReferenceEquals(surface, IdentityRevealOverlay)) ContinueFromIdentityRevealButton.Focus();
+        else if (ReferenceEquals(surface, BattleLogOverlay)) CloseBattleLogButton.Focus();
+        else if (ReferenceEquals(surface, MatchResultPanel)) ResultRematchButton.Focus();
+        else if (ReferenceEquals(surface, GeneralSelectionOverlay))
+        {
+            if (viewModel.IsCustomGeneralSelectionOpen)
+            {
+                if (viewModel.SelectedGeneralChoice is { } selected && viewModel.CustomGeneralChoices.Contains(selected))
+                {
+                    CustomGeneralRoster.ScrollIntoView(selected);
+                    CustomGeneralRoster.UpdateLayout();
+                    // First lands on the focusable ListBoxItem itself; its next
+                    // tab stop is the actual preview button inside the row.
+                    if (CustomGeneralRoster.ItemContainerGenerator.ContainerFromItem(selected) is UIElement row &&
+                        row.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next))) return;
+                }
+                CustomGeneralSearchBox.Focus();
+                return;
+            }
+            if (viewModel.SelectedGeneralChoice is { } choice &&
+                GeneralCandidateCards.ItemContainerGenerator.ContainerFromItem(choice) is UIElement candidate &&
+                candidate.MoveFocus(new TraversalRequest(FocusNavigationDirection.First))) return;
+            ConfirmGeneralChoiceButton.Focus();
+        }
+        else if (ReferenceEquals(surface, OpeningDealOverlay)) DismissOpeningDealButton.Focus();
+        else TableSurface.MoveFocus(new TraversalRequest(FocusNavigationDirection.First));
     }
 
     private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
     {
-        if (HandleShortcut(e.Key, Keyboard.Modifiers)) e.Handled = true;
+        if (HandleKeyInput(e.Key, Keyboard.Modifiers, e.IsRepeat)) e.Handled = true;
+    }
+
+    private bool HandleKeyInput(Key key, ModifierKeys modifiers, bool isRepeat)
+    {
+        CancelCardAim();
+        if (DataContext is not MainViewModel viewModel) return false;
+        // The roster search owns text input, including repeated digits and Enter.
+        if (viewModel.IsCustomGeneralSelectionOpen &&
+            ReferenceEquals(CurrentFocusSurface(viewModel), GeneralSelectionOverlay) &&
+            ReferenceEquals(Keyboard.FocusedElement, CustomGeneralSearchBox) && modifiers == ModifierKeys.None &&
+            (key is Key.Enter or Key.Space || key is >= Key.D0 and <= Key.D9 || key is >= Key.NumPad0 and <= Key.NumPad9))
+            return false;
+        // Consume repeats before routing reaches a focused Button. A held key must
+        // not toggle a draft, close the next overlay, or confirm the next prompt.
+        if (isRepeat &&
+            (key is Key.Enter or Key.Escape ||
+             modifiers == ModifierKeys.None && key is Key.F1 or Key.F5 ||
+             modifiers == ModifierKeys.Control && key == Key.M ||
+             modifiers == ModifierKeys.None && key == Key.Space &&
+                 (IsStartupOverlayActive(viewModel) || !IsBlockingTableOverlayOpen(viewModel)) ||
+             modifiers == ModifierKeys.None && key is >= Key.D1 and <= Key.D9 &&
+                 !IsBlockingTableOverlayOpen(viewModel))) return true;
+        return HandleShortcut(key, modifiers);
     }
 
     private bool HandleShortcut(Key key, ModifierKeys modifiers)
     {
         if (DataContext is not MainViewModel viewModel) return false;
-        if (viewModel.IsOpeningDealVisible)
+        // Shortcut ownership follows the same top surface as deferred focus.
+        // A retained lower panel must not intercept the visible panel's keys.
+        var surface = CurrentFocusSurface(viewModel);
+        if (key == Key.Enter && modifiers == ModifierKeys.Control &&
+            (ReferenceEquals(surface, TableSurface) || ReferenceEquals(surface, GeneralSelectionOverlay) ||
+             ReferenceEquals(surface, IdentityRevealOverlay) || ReferenceEquals(surface, OpeningDealOverlay) ||
+             ReferenceEquals(surface, MatchResultPanel)))
         {
+            // An unavailable End Turn shortcut must not activate the focused
+            // response, general confirmation or startup action instead.
+            if (ReferenceEquals(surface, TableSurface) && viewModel.CanEndTurn)
+                viewModel.EndTurnCommand.Execute(null);
+            return true;
+        }
+        if (IsStartupOverlayActive(viewModel))
+        {
+            // Only unmodified keys activate the overlay's default action.
+            // Modified keys belong to the focused control; Ctrl+Enter is
+            // deliberately consumed by the End Turn guard above.
+            if (modifiers != ModifierKeys.None) return false;
+            // Added setup actions keep their native keyboard activation; the
+            // default continue/enter action still supports the overlay shortcut.
+            var defaultCommand = viewModel.IsIdentityRevealOpen
+                ? viewModel.ContinueFromIdentityRevealCommand : viewModel.DismissOpeningDealCommand;
+            if (key is Key.Enter or Key.Space && modifiers == ModifierKeys.None &&
+                Keyboard.FocusedElement is Button { IsVisible: true, IsEnabled: true } startupButton &&
+                startupButton.IsDescendantOf(surface) && !ReferenceEquals(startupButton.Command, defaultCommand))
+                return false;
+            if (viewModel.IsIdentityRevealOpen)
+            {
+                if (key is Key.Enter or Key.Space)
+                {
+                    viewModel.ContinueFromIdentityRevealCommand.Execute(null);
+                    return true;
+                }
+                return false;
+            }
             if (key is Key.Enter or Key.Space or Key.Escape)
             {
                 viewModel.DismissOpeningDealCommand.Execute(null);
                 return true;
             }
-            return true;
+            return key != Key.Tab;
         }
-        if (viewModel.IsIdentityRevealOpen)
-        {
-            if (key is Key.Enter or Key.Space)
-            {
-                viewModel.ContinueFromIdentityRevealCommand.Execute(null);
-                return true;
-            }
-            return false;
-        }
-        if (viewModel.IsGeneralGalleryOpen)
+        if (ReferenceEquals(surface, GeneralGalleryOverlay))
         {
             if (key != Key.Escape) return false;
             if (viewModel.HasGeneralGallerySelection) viewModel.CloseGeneralGalleryDetailsCommand.Execute(null);
             else viewModel.IsGeneralGalleryOpen = false;
             return true;
         }
-        if (viewModel.IsSettingsOpen && !(key == Key.M && modifiers == ModifierKeys.Control))
+        if (ReferenceEquals(surface, SettingsOverlay) && !(key == Key.M && modifiers == ModifierKeys.Control))
         {
             if (key != Key.Escape) return false;
             viewModel.IsSettingsOpen = false;
             return true;
         }
-        if (viewModel.IsHistoryOpen && !(key == Key.M && modifiers == ModifierKeys.Control))
+        if (ReferenceEquals(surface, HistoryOverlay) && !(key == Key.M && modifiers == ModifierKeys.Control))
         {
             if (key != Key.Escape) return false;
             viewModel.IsHistoryOpen = false;
@@ -245,6 +472,23 @@ public partial class MainWindow : Window
         if (viewModel.IsGeneralSelectionPending && !IsBlockingTableOverlayOpen(viewModel) &&
             key == Key.Enter && modifiers == ModifierKeys.None && viewModel.CanConfirmGeneralChoice)
         {
+            // Arrow navigation can focus the row container instead of its
+            // button. Preview that current row before any confirmation.
+            if (viewModel.IsCustomGeneralSelectionOpen &&
+                Keyboard.FocusedElement is ListBoxItem { IsVisible: true, IsEnabled: true } row &&
+                ReferenceEquals(ItemsControl.ItemsControlFromItemContainer(row), CustomGeneralRoster) &&
+                row.DataContext is GeneralChoiceViewModel choice && viewModel.CustomGeneralChoices.Contains(choice))
+            {
+                viewModel.PreviewGeneralChoiceCommand.Execute(choice);
+                FocusCurrentSurface(viewModel, null);
+                return true;
+            }
+            // Preview a newly focused candidate or edition before confirming it.
+            // Other focused actions keep their own native Button behavior.
+            if (Keyboard.FocusedElement is Button { IsVisible: true, IsEnabled: true } generalButton &&
+                generalButton.IsDescendantOf(this) &&
+                (!ReferenceEquals(generalButton.Command, viewModel.PreviewGeneralChoiceCommand) ||
+                 !ReferenceEquals(generalButton.CommandParameter, viewModel.SelectedGeneralChoice))) return false;
             viewModel.ConfirmGeneralChoiceCommand.Execute(null);
             return true;
         }
@@ -252,9 +496,11 @@ public partial class MainWindow : Window
             key is >= Key.D1 and <= Key.D9 && modifiers == ModifierKeys.None)
         {
             var generalIndex = key - Key.D1;
-            if (generalIndex < viewModel.GeneralChoices.Count)
+            var choices = viewModel.IsCustomGeneralSelectionOpen ? viewModel.CustomGeneralChoices : viewModel.GeneralChoices;
+            if (generalIndex < choices.Count)
             {
-                viewModel.PreviewGeneralChoiceCommand.Execute(viewModel.GeneralChoices[generalIndex]);
+                viewModel.PreviewGeneralChoiceCommand.Execute(choices[generalIndex]);
+                if (IsLoaded) FocusCurrentSurface(viewModel, null);
                 return true;
             }
         }
@@ -268,10 +514,17 @@ public partial class MainWindow : Window
             return false;
         }
         if (viewModel.IsHelpOpen || viewModel.IsLogOpen || viewModel.IsNewGameSetupOpen || viewModel.IsGeneralGalleryOpen || viewModel.IsSettingsOpen || viewModel.HasGameOver || viewModel.IsGeneralSelectionPending) return false;
-        if (key == Key.Enter && modifiers == ModifierKeys.Control && viewModel.CanEndTurn)
+        // Only a current selected hand card or portrait confirms its draft.
+        // Other focused choices and actions keep their own Button behavior.
+        if (key == Key.Enter && modifiers == ModifierKeys.None &&
+            Keyboard.FocusedElement is Button { IsVisible: true, IsEnabled: true } focusedButton &&
+            focusedButton.IsDescendantOf(this))
         {
-            viewModel.EndTurnCommand.Execute(null);
-            return true;
+            var selectedChoice = ReferenceEquals(focusedButton.Command, viewModel.SelectCardCommand) &&
+                focusedButton.CommandParameter is CardViewModel { IsSelected: true } focusedCard && viewModel.Hand.Contains(focusedCard) ||
+                ReferenceEquals(focusedButton.Command, viewModel.SelectTargetCommand) &&
+                focusedButton.CommandParameter is SeatViewModel { IsSelectedTarget: true } focusedSeat && viewModel.Seats.Contains(focusedSeat);
+            if (!selectedChoice) return false;
         }
         if (key == Key.Enter && modifiers == ModifierKeys.None && viewModel.CanConfirmSelected)
         {
@@ -283,7 +536,10 @@ public partial class MainWindow : Window
             var index = key - Key.D1;
             if (index < viewModel.Hand.Count && viewModel.Hand[index].IsPlayable)
             {
-                viewModel.SelectCardCommand.Execute(viewModel.Hand[index]);
+                var card = viewModel.Hand[index];
+                viewModel.SelectCardCommand.Execute(card);
+                if (IsLoaded && HandCards.ItemContainerGenerator.ContainerFromItem(card) is UIElement handCard)
+                    handCard.MoveFocus(new TraversalRequest(FocusNavigationDirection.First));
                 return true;
             }
         }
@@ -291,53 +547,14 @@ public partial class MainWindow : Window
     }
 
     private void HistoryOverlay_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
-    {
-        if (!IsLoaded) return;
-        if (HistoryOverlay.IsVisible) _focusBeforeHistory = Keyboard.FocusedElement;
-        Dispatcher.BeginInvoke(DispatcherPriority.Input, new Action(() =>
-        {
-            if (HistoryOverlay.IsVisible) HistoryPanel.FocusHistory();
-            else if (_focusBeforeHistory is UIElement { IsVisible: true, IsEnabled: true } previous) previous.Focus();
-            else if (NewGameSetupPanel.IsVisible) FocusLobby();
-            else TableSurface.MoveFocus(new TraversalRequest(FocusNavigationDirection.First));
-        }));
-    }
+        => QueueOverlayFocus(HistoryOverlay, ref _focusBeforeHistory);
 
     private void GeneralGalleryOverlay_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
-    {
-        if (!IsLoaded) return;
-        if (GeneralGalleryOverlay.IsVisible) _focusBeforeGeneralGallery = Keyboard.FocusedElement;
-        Dispatcher.BeginInvoke(DispatcherPriority.Input, new Action(() =>
-        {
-            if (GeneralGalleryOverlay.IsVisible) GeneralGallery.FocusSearch();
-            else if (_focusBeforeGeneralGallery is UIElement { IsVisible: true, IsEnabled: true } previous) previous.Focus();
-            else if (NewGameSetupPanel.IsVisible) FocusLobby();
-            else TableSurface.MoveFocus(new TraversalRequest(FocusNavigationDirection.First));
-        }));
-    }
+        => QueueOverlayFocus(GeneralGalleryOverlay, ref _focusBeforeGeneralGallery);
 
     private void IdentityRevealOverlay_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
-    {
-        if (!IsLoaded) return;
-        if (IdentityRevealOverlay.IsVisible) _focusBeforeIdentityReveal = Keyboard.FocusedElement;
-        Dispatcher.BeginInvoke(DispatcherPriority.Input, new Action(() =>
-        {
-            if (IdentityRevealOverlay.IsVisible) ContinueFromIdentityRevealButton.Focus();
-            else if (_focusBeforeIdentityReveal is UIElement { IsVisible: true, IsEnabled: true } previous) previous.Focus();
-            else TableSurface.MoveFocus(new TraversalRequest(FocusNavigationDirection.First));
-        }));
-    }
+        => QueueOverlayFocus(IdentityRevealOverlay, ref _focusBeforeIdentityReveal);
 
     private void SettingsOverlay_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
-    {
-        if (!IsLoaded) return;
-        if (SettingsOverlay.IsVisible) _focusBeforeSettings = Keyboard.FocusedElement;
-        Dispatcher.BeginInvoke(DispatcherPriority.Input, new Action(() =>
-        {
-            if (SettingsOverlay.IsVisible) SettingsSoundToggle.Focus();
-            else if (_focusBeforeSettings is UIElement { IsVisible: true, IsEnabled: true } previous) previous.Focus();
-            else if (NewGameSetupPanel.IsVisible) FocusLobby();
-            else TableSurface.MoveFocus(new TraversalRequest(FocusNavigationDirection.First));
-        }));
-    }
+        => QueueOverlayFocus(SettingsOverlay, ref _focusBeforeSettings);
 }

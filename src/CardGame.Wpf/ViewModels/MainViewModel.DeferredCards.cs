@@ -7,11 +7,20 @@ public sealed record DeferredPublicPileViewModel(int OwnerSeat, string Title, IR
 
 public sealed partial class MainViewModel
 {
+    private GameEngine? _publicCardViewGame;
+    private long _publicCardViewRevision = -1;
+    private IReadOnlyList<(CardSnapshot Card, bool IsChoice)> _publicCardViewSource = [];
+
     public ObservableCollection<CardViewModel> PrivatelyViewedCards { get; } = [];
     public ObservableCollection<DeferredPublicPileViewModel> DeferredPublicPiles { get; } = [];
     public bool HasPrivatelyViewedCards => PrivatelyViewedCards.Count > 0;
     public bool HasDeferredPublicPiles => DeferredPublicPiles.Count > 0;
     public string PrivateRevealTitle => $"{_snapshot.PendingDecision?.SkillPrompt?.Name ?? "观看的牌"} · 仅你可见";
+
+    private PromptChoice? RevealedCardChoice(CardViewModel card) =>
+        card.IsPrivateReveal || !card.IsPublicChoice ||
+        !PublicRevealedCards.Any(current => ReferenceEquals(current, card))
+            ? null : RevealedCardChoice(card.Id);
 
     private PromptChoice? RevealedCardChoice(int cardId)
     {
@@ -26,8 +35,41 @@ public sealed partial class MainViewModel
         return candidates.Length == 1 ? candidates[0] : null;
     }
 
+    private void RebuildPublicRevealedCards()
+    {
+        var game = _game;
+        var revision = _snapshot.Revision;
+        var source = _snapshot.PublicRevealedCards.Select(card => (Card: card, IsChoice: RevealedCardChoice(card.Id) is not null)).ToArray();
+        if (ReferenceEquals(_publicCardViewGame, game) && _publicCardViewRevision == revision &&
+            _publicCardViewSource.SequenceEqual(source)) return;
+
+        PublicRevealedCards.Clear();
+        foreach (var (card, isChoice) in source)
+        {
+            var definition = CardCatalog.Get(card.Kind);
+            PublicRevealedCards.Add(new CardViewModel
+            {
+                Id = card.Id,
+                Kind = card.Kind,
+                Name = card.DisplayName,
+                KindLabel = definition.CategoryName,
+                SuitGlyph = GetSuitGlyph(card.Suit),
+                Rank = card.RankText,
+                Description = GetCardDescription(card.Kind),
+                IsPlayable = false,
+                IsPublicChoice = isChoice,
+                IsSelected = false
+            });
+        }
+        HasPublicRevealedCards = PublicRevealedCards.Count > 0;
+        _publicCardViewGame = game;
+        _publicCardViewRevision = revision;
+        _publicCardViewSource = source;
+    }
+
     private void RebuildDeferredCardViews()
     {
+        RebuildNamedPrivatePileViews();
         PrivatelyViewedCards.Clear();
         foreach (var card in _snapshot.PrivateRevealedCards ?? [])
             PrivatelyViewedCards.Add(CreateViewedCard(card, privateView: true));

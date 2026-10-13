@@ -23,6 +23,7 @@ public sealed partial class MainViewModel
     public string NationalHealthRuleText => !IsNewGameSetupOpen && IsNationalSnapshot && false
         ? "此存档沿用旧规则：体力上限固定为 4。"
         : "双将基础体力取平均、向下取整；选副将时可预览组合上限。开局满体力，明置不改变体力；当前国战切片没有半体力奖励。";
+    private IReadOnlyList<LegalAction> _nationalRevealActions = [];
     public ObservableCollection<NationalRevealChoice> NationalRevealChoices { get; } = [];
     public ICommand RevealNationalGeneralCommand { get; private set; } = null!;
     private static string FactionName(string? faction) => faction switch
@@ -60,10 +61,18 @@ public sealed partial class MainViewModel
 
     private void RefreshNationalPresentation()
     {
-        NationalRevealChoices.Clear();
-        if (IsNationalSnapshot && !IsTutorialActive)
-            foreach (var action in GetViewLegalActions().Where(action => action.Kind == LegalActionKind.RevealGeneral))
+        IReadOnlyList<LegalAction> actions = IsNationalSnapshot && !IsTutorialActive
+            ? GetViewLegalActions().Where(action => action.Kind == LegalActionKind.RevealGeneral && action.GeneralSlot is not null).ToArray()
+            : [];
+        // Keep controls alive within the same legal view, but retire their parameters
+        // on a new view or when the tutorial withdraws the suspended game's actions.
+        if (!_nationalRevealActions.SequenceEqual(actions, ReferenceEqualityComparer.Instance))
+        {
+            _nationalRevealActions = actions;
+            NationalRevealChoices.Clear();
+            foreach (var action in actions)
                 if (action.GeneralSlot is { } slot) NationalRevealChoices.Add(new(slot, action.Description));
+        }
         RaisePropertyChanged(nameof(IsNationalSnapshot));
         RaisePropertyChanged(nameof(NationalHealthRuleText));
         RaisePropertyChanged(nameof(NationalSetupText));
@@ -73,6 +82,7 @@ public sealed partial class MainViewModel
     private void RevealNationalGeneral(NationalRevealChoice choice)
     {
         if (!IsNationalSnapshot || IsTutorialActive ||
+            !NationalRevealChoices.Any(current => ReferenceEquals(current, choice)) ||
             _snapshot.PendingDecision is not
             {
                 Kind: DecisionKind.PlayCard or DecisionKind.RespondDodge or DecisionKind.RespondSlash
@@ -90,6 +100,8 @@ public sealed partial class MainViewModel
     {
         var identitySkills = player.Skills is null ? "武将技能未公开。" :
             string.Join("\n\n", player.Skills.Select(skill => $"{skill.Name}：{skill.Description}"));
+        if (FriendPredictionText(player.Seat) is { Length: > 0 } prediction)
+            identitySkills += "\n\n" + prediction;
         if (!IsNationalSnapshot) return identitySkills;
         return GeneralSlotViewModel.FromPlayer(player, false).DetailText + "\n\n" +
             GeneralSlotViewModel.FromPlayer(player, true).DetailText;

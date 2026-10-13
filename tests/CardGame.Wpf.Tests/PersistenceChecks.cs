@@ -24,7 +24,7 @@ internal static class PersistenceChecks
         using var original = Create(store);
         original.IsMotionEnabled = !System.Windows.SystemParameters.ClientAreaAnimation;
         original.StartNewGameCommand.Execute(null);
-        Require(Engine(original).CreateCheckpoint().Options.AiPolicyVersion == 3, "New UI games must use the current public-evidence AI.");
+        Require(Engine(original).CreateCheckpoint().Options.AiPolicyVersion == AiDecisionPolicy.CurrentVersion, "New UI games must use the current public-evidence AI.");
         var seen = new HashSet<string>();
         for (var step = 0; step < 6000; step++)
         {
@@ -45,7 +45,7 @@ internal static class PersistenceChecks
                 restored.LoadManualGameCommand.Execute(null);
                 Require(!restored.HasSaveError && !restored.IsNewGameSetupOpen, $"{label}: {restored.SaveStatus}");
                 Require(State(restored) == expected && restored.GameLog.SequenceEqual(expectedLog), $"Restored {label} state or public log differs.");
-                Require(Engine(restored).CreateCheckpoint().Options.AiPolicyVersion == 3, "Restoring a new game lost its public-evidence AI policy.");
+                Require(Engine(restored).CreateCheckpoint().Options.AiPolicyVersion == AiDecisionPolicy.CurrentVersion, "Restoring a new game lost its public-evidence AI policy.");
                 Require(restored.RecentPlays.SequenceEqual(expectedPlays), $"Restored {label} public card display differs.");
                 Require(restored.IsMotionEnabled == System.Windows.SystemParameters.ClientAreaAnimation,
                     "A restored match must preserve the current device's animation preference.");
@@ -94,7 +94,7 @@ internal static class PersistenceChecks
                 File.ReadAllText(legacyPath) == oldFileText,
             "The exact-rules loader accepted a JSON save without a rules marker, changed the active game, or rewrote the protected file.");
         resumedLegacy.StartNewGameCommand.Execute(null);
-        Require(Engine(resumedLegacy).CreateCheckpoint().Options.AiPolicyVersion == 3, "Starting another game should opt into the current public-evidence AI.");
+        Require(Engine(resumedLegacy).CreateCheckpoint().Options.AiPolicyVersion == AiDecisionPolicy.CurrentVersion, "Starting another game should opt into the current public-evidence AI.");
     }
 
     public static void FailedFilesPreserveGame(string output)

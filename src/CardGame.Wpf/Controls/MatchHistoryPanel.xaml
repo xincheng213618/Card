@@ -9,7 +9,7 @@
                 </StackPanel>
                 <Button x:Name="HistoryCloseButton" Content="返回牌桌  Esc" Command="{Binding CloseHistoryCommand}" Style="{StaticResource ToolbarButton}" HorizontalAlignment="Right" VerticalAlignment="Top" />
             </Grid>
-            <Grid Grid.Row="1">
+            <Grid x:Name="HistoryContent" Grid.Row="1" IsEnabled="{Binding HasMatchHistory}" IsEnabledChanged="HistoryContent_IsEnabledChanged">
                 <Grid.ColumnDefinitions><ColumnDefinition Width="265" /><ColumnDefinition Width="18" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
                 <ListBox x:Name="HistoryList" ItemsSource="{Binding MatchHistory}" SelectedItem="{Binding SelectedHistoryEntry, Mode=TwoWay}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" HorizontalContentAlignment="Stretch" Background="#101E23" BorderThickness="0" AutomationProperties.Name="最近战绩">
                     <ListBox.ItemContainerStyle>

@@ -57,15 +57,12 @@ public sealed partial class MainViewModel
             _selectedTieredRoundZeroAction = action;
             _selectedCardId = null;
             _selectedConversionSource = null;
+            _isSelectingWusheng = false;
             _selectedTargetSeat = null;
             _selectedCardTargetSeats.Clear();
             _selectedActiveSkillCardIds.Clear();
             _selectedActiveSkillTargetSeats.Clear();
-            _selectedEquipmentEffectKind = null;
-            _selectedProgramSkillId = null;
-            _selectedProgramActivationId = null;
-            _selectedProgramSkillOwnerSeat = null;
-            _selectedActiveSkillTargetContract = null;
+            _selectedActiveSkillIdentity = null;
             _isSelectingActiveSkillCards = action.TargetSeats.Count > 0;
             if (_isSelectingActiveSkillCards)
             {

@@ -211,13 +211,134 @@ internal static class TableInteractionChecks
         var permitted = engine.CreateSnapshot(0);
         Program.Assert(vm.Seats.All(seat => permitted.Players[seat.Seat].Role is not null || seat.RoleLabel == "?"),
             "Reusing seat instances retained a hidden role from the developer view.");
-        vm.NewGameCommand.Execute(null);
-        vm.StartNewGameCommand.Execute(null);
-        Program.Assert(!ReferenceEquals(engine, Program.Engine(vm)) &&
-                       ((IReadOnlyList<LegalAction>)query.Invoke(vm, null)!).Count == 0 &&
-                       ((IReadOnlyList<HandCardGuidance>)guidanceQuery.Invoke(vm, null)!).Count == 0,
-            "A new match reused the previous engine's cached actions.");
-        window.Content = null;
-        window.Close();
+        try
+        {
+            VerifyRetiredHand(vm, window);
+            VerifyRetiredTarget();
+            engine = Program.Engine(vm);
+            vm.NewGameCommand.Execute(null);
+            vm.StartNewGameCommand.Execute(null);
+            Program.Assert(!ReferenceEquals(engine, Program.Engine(vm)) &&
+                           ((IReadOnlyList<LegalAction>)query.Invoke(vm, null)!).Count == 0 &&
+                           ((IReadOnlyList<HandCardGuidance>)guidanceQuery.Invoke(vm, null)!).Count == 0,
+                "A new match reused the previous engine's cached actions.");
+        }
+        finally { window.Content = null; window.Close(); }
+    }
+
+    private static void VerifyRetiredHand(MainViewModel vm, MainWindow window)
+    {
+        Program.AdvanceToDecision(vm);
+        var engine = Program.Engine(vm);
+        var retiredCard = vm.Hand.First(card => card.IsPlayable);
+        var items = (ItemsControl)window.FindName("HandCards");
+        items.UpdateLayout();
+        var button = Program.Find<Button>(items).Single(candidate => ReferenceEquals(candidate.DataContext, retiredCard));
+        var capturedCommand = button.Command!;
+        var capturedParameter = button.CommandParameter;
+        Program.Assert(button.IsEnabled && ReferenceEquals(capturedParameter, retiredCard),
+            "The retired-input fixture must capture the actual enabled hand button and parameter.");
+        vm.SaveGameCommand.Execute(null);
+        vm.LoadManualGameCommand.Execute(null);
+        engine = Program.Engine(vm);
+        var revision = engine.Revision;
+        var state = SnapshotJson.Serialize(engine.CreateSnapshot(0));
+        var currentCard = vm.Hand.Single(card => card.Id == retiredCard.Id);
+        Program.Assert(!ReferenceEquals(currentCard, retiredCard), "A real load must retire the old hand parameter.");
+        capturedCommand.Execute(capturedParameter);
+        Program.Assert(!vm.HasSelection && !currentCard.IsSelected && engine.Revision == revision &&
+                       SnapshotJson.Serialize(engine.CreateSnapshot(0)) == state,
+            "A captured retired hand-button parameter changed the current play draft after load.");
+
+        capturedCommand.Execute(currentCard);
+        Program.Assert(currentCard.IsSelected && vm.HasSelection && engine.Revision == revision &&
+                       SnapshotJson.Serialize(engine.CreateSnapshot(0)) == state,
+            "The current hand-button parameter must still prepare its selection after a real load.");
+        var quickConfirm = typeof(MainWindow).GetMethod("TryQuickConfirm", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        Program.Assert(quickConfirm.Invoke(window, [retiredCard]) is false && currentCard.IsSelected && engine.Revision == revision,
+            "A retired hand object must not quick-confirm or disturb the current draft.");
+        vm.ClearSelectionCommand.Execute(null);
+        Program.Assert(!vm.HasSelection, "The current hand draft must still cancel normally.");
+    }
+
+    private static void VerifyRetiredTarget()
+    {
+        // Reuse the existing first-play Wusheng fixture; no seed search or complete match is needed.
+        var saveStore = new MemorySaveStore();
+        using var vm = new MainViewModel(false, 721019, false, saveStore) { IsMotionEnabled = false };
+        Program.StartLordFixture(vm);
+        vm.SelectGeneralChoiceCommand.Execute(vm.GeneralChoices.Single(choice => choice.Name == "关羽"));
+        Program.AdvanceToDecision(vm);
+        var engine = Program.Engine(vm);
+        var redCard = vm.Hand.First(card => card.Name != "杀" && card.SuitGlyph is "♥" or "♦");
+        var action = engine.GetHumanLegalActions().First(candidate => candidate.CardId == redCard.Id &&
+            candidate.PlayedCardKind == CardKind.Slash && candidate.ConversionSource?.SkillId == "standard:wusheng" &&
+            candidate.TargetSeats.Count == 1 && candidate.TargetSeats[0] >= 5);
+        void PrepareConversion()
+        {
+            vm.SelectCardCommand.Execute(vm.Hand.Single(card => card.Id == action.CardId));
+            var conversionChoice = vm.EquipmentPlayChoices.Single(choice =>
+                choice.Cards.SequenceEqual([redCard.Id]) &&
+                choice.Parameters.GetValueOrDefault("conversion-skill-id") == action.ConversionSource!.SkillId &&
+                choice.Parameters.GetValueOrDefault("conversion-binding-id") == action.ConversionSource.BindingId &&
+                choice.Parameters.GetValueOrDefault("conversion-instance-id") == action.ConversionSource.SkillInstanceId);
+            vm.SelectEquipmentPlayChoiceCommand.Execute(conversionChoice);
+        }
+        PrepareConversion();
+        var retiredSeat = vm.Seats.Single(seat => seat.Seat == action.TargetSeat);
+        var capturedCommand = vm.SelectTargetCommand;
+        capturedCommand.Execute(retiredSeat);
+        Program.Assert(redCard.IsSelected && retiredSeat.IsLegalTarget && retiredSeat.IsSelectedTarget && vm.CanConfirmSelected,
+            "The fixed eight-player fixture must prepare its real legal target before shrinking the table.");
+        Console.WriteLine($"Retired target fixture: seed 721019, Wusheng target seat {retiredSeat.Seat}, eight to five players.");
+        var original = engine.CreateCheckpoint();
+        var revision = engine.Revision;
+        var state = SnapshotJson.Serialize(engine.CreateSnapshot(0));
+        var selectedTarget = typeof(MainViewModel).GetField("_selectedTargetSeat", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var registry = (ContentRegistry)typeof(MainViewModel).GetField("_contentRegistry", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(vm)!;
+        var smaller = GameEngine.CreateStandard(new GameOptions
+        {
+            Seed = 1, PlayerCount = 5, HumanSeat = 0, HumanRole = Role.Lord,
+            UseInteractiveSetup = true, AdvanceAfterHumanCommands = false
+        }, registry);
+        Program.Assert(smaller.Submit(new StartGameCommand()).Accepted, "The five-player checkpoint must start through a real command.");
+        for (var step = 0; step < 16 && smaller.PendingDecision?.Kind != DecisionKind.SelectGeneral; step++)
+            Program.Assert(smaller.Submit(new AdvanceOneStepCommand(smaller.Revision)).Accepted,
+                "The five-player checkpoint must reach its actual general-selection boundary.");
+        Program.Assert(smaller.PendingDecision is { Kind: DecisionKind.SelectGeneral, PlayerSeat: 0 },
+            "The smaller-table fixture must contain a real human pending selection.");
+        saveStore.Write(GameSaveSlot.Manual, new(1, DateTimeOffset.UtcNow, false, smaller.CreateCheckpoint()));
+        vm.LoadManualGameCommand.Execute(null);
+        var smallerEngine = Program.Engine(vm);
+        var smallerState = SnapshotJson.Serialize(smallerEngine.CreateSnapshot(0));
+        Program.Assert(vm.Seats.Count == 5 && !vm.Seats.Contains(retiredSeat) && retiredSeat.IsLegalTarget &&
+                       !vm.HasSelection && selectedTarget.GetValue(vm) is null,
+            "Loading five players must remove the formerly legal outer target and clear its old draft.");
+        capturedCommand.Execute(retiredSeat);
+        Program.Assert(selectedTarget.GetValue(vm) is null && !vm.HasSelection && vm.Seats.All(seat => !seat.IsSelectedTarget) &&
+                       SnapshotJson.Serialize(smallerEngine.CreateSnapshot(0)) == smallerState,
+            "A removed target parameter left a ghost draft on the smaller table.");
+
+        saveStore.Write(GameSaveSlot.Manual, new(1, DateTimeOffset.UtcNow, false, original));
+        vm.LoadManualGameCommand.Execute(null);
+        engine = Program.Engine(vm);
+        var restoredCard = vm.Hand.Single(card => card.Id == action.CardId);
+        var restoredSeat = vm.Seats.Single(seat => seat.Seat == action.TargetSeats[0]);
+        Program.Assert(!ReferenceEquals(restoredSeat, retiredSeat), "Returning to eight players must create a current outer-seat object.");
+        PrepareConversion();
+        capturedCommand.Execute(restoredSeat);
+        Program.Assert(restoredCard.IsSelected && restoredSeat.IsSelectedTarget && vm.CanConfirmSelected &&
+                       engine.Revision == revision && SnapshotJson.Serialize(engine.CreateSnapshot(0)) == state,
+            "Current hand and target objects stopped preparing the exact restored legal action.");
+        capturedCommand.Execute(retiredSeat);
+        Program.Assert(restoredSeat.IsSelectedTarget && vm.CanConfirmSelected &&
+                       (int?)selectedTarget.GetValue(vm) == restoredSeat.Seat && engine.Revision == revision,
+            "A retired target with the same seat number disturbed the restored current draft.");
+        capturedCommand.Execute(restoredSeat);
+        Program.Assert(!restoredSeat.IsSelectedTarget && !vm.CanConfirmSelected && selectedTarget.GetValue(vm) is null,
+            "The restored current target must still toggle off normally.");
+        vm.ClearSelectionCommand.Execute(null);
+        Program.Assert(!vm.HasSelection && selectedTarget.GetValue(vm) is null,
+            "The restored current draft must still cancel normally.");
     }
 }

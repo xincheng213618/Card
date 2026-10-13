@@ -62,11 +62,18 @@ public sealed partial class MainViewModel
             _isSelectingActiveSkillCards, _activeSkillPromptId, _selectedActiveSkillCardIds.ToArray(), _selectedActiveSkillTargetSeats.ToArray(), _selectedCardTargetSeats.ToArray())
         {
             ConversionSource = _selectedConversionSource,
-            EquipmentEffectKind = _selectedEquipmentEffectKind,
-            ProgramSkillId = _selectedProgramSkillId,
-            ProgramActivationId = _selectedProgramActivationId,
-            ProgramSkillOwnerSeat = _selectedProgramSkillOwnerSeat,
-            TargetContract = _selectedActiveSkillTargetContract?.ToArray()
+            SelectingWusheng = IsWushengSelectionPending,
+            ActiveSkillIdentity = _selectedActiveSkillIdentity,
+            SkillTargetPromptId = _skillTargetPromptId,
+            SkillTargetSeats = _selectedSkillTargetSeats.ToArray(),
+            TieredRoundZeroAction = SelectedTieredRoundZeroAction(),
+            GeneralPreviewPromptId = _previewGeneralPromptId,
+            GeneralChoiceIds = GeneralChoices.Select(choice => choice.GeneralId).ToArray(),
+            SelectedGeneralId = SelectedGeneralChoice?.GeneralId,
+            IdentityRevealOpen = IsIdentityRevealOpen,
+            OpeningDealArmed = _openingDealArmed,
+            OpeningDealVisible = IsOpeningDealVisible,
+            OpeningCardIds = OpeningHandCards.Select(card => card.Id).ToArray()
         };
         _saveTimer?.Stop();
         _isDeveloperView = false;
@@ -126,24 +133,47 @@ public sealed partial class MainViewModel
         }
         _selectedCardId = original.CardId;
         _selectedConversionSource = original.ConversionSource;
+        _isSelectingWusheng = original.SelectingWusheng;
+        _humanSkillSnapshot = null;
         _selectedTargetSeat = original.TargetSeat;
         _selectedCardTargetSeats.UnionWith(original.CardTargets);
         _discardCardIds.UnionWith(original.DiscardIds);
         _isSelectingActiveSkillCards = original.SelectingActiveSkill;
         _activeSkillPromptId = original.ActiveSkillPromptId;
-        _selectedEquipmentEffectKind = original.EquipmentEffectKind;
-        _selectedProgramSkillId = original.ProgramSkillId;
-        _selectedProgramActivationId = original.ProgramActivationId;
-        _selectedProgramSkillOwnerSeat = original.ProgramSkillOwnerSeat;
-        _selectedActiveSkillTargetContract = original.TargetContract?.ToArray();
+        _selectedActiveSkillIdentity = original.ActiveSkillIdentity;
+        _selectedTieredRoundZeroAction = original.TieredRoundZeroAction is { } zero &&
+            _snapshot.PendingDecision?.PromptId == original.ActiveSkillPromptId
+                ? HumanActiveSkillActions.FirstOrDefault(action => SameTieredRoundZeroAction(action, zero)) : null;
         _selectedActiveSkillCardIds.UnionWith(original.ActiveSkillCardIds);
         _selectedActiveSkillTargetSeats.AddRange(original.ActiveSkillTargets.Distinct());
+        if (original.SkillTargetPromptId is { } targetPrompt && _snapshot.PendingDecision?.PromptId == targetPrompt)
+        {
+            _skillTargetPromptId = targetPrompt;
+            _selectedSkillTargetSeats.AddRange(original.SkillTargetSeats);
+        }
         SelectedCardText = original.SelectedCardText;
         RefreshCurrentView();
         IsNewGameSetupOpen = original.SetupOpen;
         IsLogOpen = original.LogOpen;
         _suspendedMatch = null;
         RefreshCurrentView();
+        // Rebind the saved preview IDs to this prompt's fresh choice objects.
+        // All candidate families retain their edition; only the original one is selected.
+        if (original.GeneralPreviewPromptId is { } previewPrompt &&
+            _snapshot.PendingDecision?.PromptId == previewPrompt && IsGeneralSelectionPending)
+        {
+            foreach (var id in original.GeneralChoiceIds)
+                if (_generalSelectionChoices.TryGetValue(id, out var choice)) PreviewGeneralChoice(choice);
+            if (original.SelectedGeneralId is { } selectedId &&
+                _generalSelectionChoices.TryGetValue(selectedId, out var selected)) PreviewGeneralChoice(selected);
+        }
+        // Rebuild faces from the resumed hand, rather than keeping objects from
+        // the suspended table. Practice never consumes its pending first deal.
+        _openingDealArmed = original.OpeningDealArmed && IsMotionEnabled;
+        if (original.OpeningDealVisible && IsMotionEnabled)
+            ShowOpeningDeal(original.OpeningCardIds.Select(id => Hand.Single(card => card.Id == id)));
+        else RefreshOpeningDeal();
+        IsIdentityRevealOpen = original.IdentityRevealOpen;
         RefreshTutorialPresentation();
     }
 
@@ -234,10 +264,17 @@ public sealed partial class MainViewModel
         bool SelectingActiveSkill, PromptId? ActiveSkillPromptId, int[] ActiveSkillCardIds, int[] ActiveSkillTargets, int[] CardTargets)
     {
         public CardConversionSource? ConversionSource { get; init; }
-        public CardKind? EquipmentEffectKind { get; init; }
-        public string? ProgramSkillId { get; init; }
-        public string? ProgramActivationId { get; init; }
-        public int? ProgramSkillOwnerSeat { get; init; }
-        public IReadOnlyList<int>? TargetContract { get; init; }
+        public bool SelectingWusheng { get; init; }
+        public ActiveSkillSelectionIdentity? ActiveSkillIdentity { get; init; }
+        public PromptId? SkillTargetPromptId { get; init; }
+        public int[] SkillTargetSeats { get; init; } = [];
+        public LegalAction? TieredRoundZeroAction { get; init; }
+        public PromptId? GeneralPreviewPromptId { get; init; }
+        public string[] GeneralChoiceIds { get; init; } = [];
+        public string? SelectedGeneralId { get; init; }
+        public bool IdentityRevealOpen { get; init; }
+        public bool OpeningDealArmed { get; init; }
+        public bool OpeningDealVisible { get; init; }
+        public int[] OpeningCardIds { get; init; } = [];
     }
 }

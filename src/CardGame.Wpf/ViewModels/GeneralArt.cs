@@ -1,4 +1,4 @@
-using System.Windows.Media;
+﻿using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace CardGame.Wpf.ViewModels;
@@ -28,6 +28,38 @@ public static class GeneralArt
     private static readonly IReadOnlyDictionary<string, string> StandalonePortraits =
         new Dictionary<string, string>(StringComparer.Ordinal)
         {
+            // Mobile editions and source hashes: docs/content/sources/mobile-{sun-ru,chen-zhen}-2026-10-13.json.
+            ["mobile-sun-ru"] = "official-mobile-sun-ru.jpg",
+            ["mobile-chen-zhen"] = "wiki-mobile-chen-zhen.jpg",
+            // Official OL editions and source hashes: docs/content/sources/ol-{han-sui,xiahou-ba}-2026-10-13.json.
+            ["ol-han-sui"] = "official-ol-han-sui.png",
+            ["ol-xiahou-ba"] = "official-ol-xiahou-ba.png",
+            // Complete official classic edition: docs/content/sources/classic-zhuge-dan-2026-10-13.json.
+            ["zhuge-dan"] = "official-classic-zhuge-dan.png",
+            // Current official OL edition: docs/content/sources/ol-he-tai-hou-2026-10-13.json.
+            ["ol-he-tai-hou"] = "official-ol-he-tai-hou.png",
+            ["ol-wen-pin"] = "official-ol-wen-pin.png",
+            ["ol-dong-yun"] = "official-ol-dong-yun.png",
+            ["ol-shen-pei"] = "official-ol-shen-pei.png",
+            ["ol-sun-lu-yu"] = "official-ol-sun-lu-yu.png",
+            ["ol-cheng-yu"] = "official-ol-cheng-yu.png",
+            ["ol-zhang-lu"] = "official-ol-zhang-lu.png",
+            ["ol-wang-rong"] = "official-ol-wang-rong.png",
+            ["ol-shi-xie"] = "official-ol-shi-xie.png",
+            ["ol-ma-yun-lu"] = "official-ol-ma-yun-lu.png",
+            ["ol-ta-dun"] = "official-ol-ta-dun.png",
+            ["ol-yan-bai-hu"] = "official-ol-yan-bai-hu.png",
+            // Published editions, source photographs and hashes: docs/content/sources/guan-yu-variants-2026-10-13.json.
+            ["magic-guan-yu"] = "magic-guan-yu-card.jpg",
+            ["mou-guan-yu-mobile"] = "official-mou-guan-yu-mobile.png",
+            ["mou-guan-yu-ol"] = "official-mou-guan-yu-ol.png",
+            // Source editions, official images and hashes: docs/content/sources/zhuge-and-friends-2026-10-13.json.
+            ["mou-zhuge-liang"] = "Generals/official-mou-zhuge-liang.png",
+            ["friend-zhuge-liang"] = "Generals/official-friend-zhuge-liang.jpg",
+            ["friend-pang-tong"] = "Generals/official-friend-pang-tong.jpg",
+            ["friend-xu-shu"] = "Generals/official-friend-xu-shu.jpg",
+            ["friend-shi-tao"] = "Generals/official-friend-shi-tao.jpg",
+            ["friend-cui-jun"] = "Generals/wiki-friend-cui-jun-classic.png",
             // Official artwork and hashes: docs/content/sources/fame-2011-2026-09-30.json.
             ["cao-rui"] = "official-cao-rui.png",
             ["cao-xiu"] = "official-cao-xiu.png",
@@ -217,6 +249,8 @@ public static class GeneralArt
             ["sp-le-jin"] = "official-sp-le-jin.png",
             // Official artwork URL and hash: docs/content/sources/yan-yan-c24-2026-09-21.json.
             ["yan-yan"] = "official-yan-yan.png",
+            // Official artwork URL and hash: docs/content/sources/mou-huang-zhong-2026-10-13.json.
+            ["mou-huang-zhong"] = "official-mou-huang-zhong.jpg",
             // Official artwork URL and hash: docs/content/sources/mou-lu-meng-c22-2026-09-21.json.
             ["mou-lu-meng"] = "official-mou-lu-meng.png",
             // Official artwork URL and hash: docs/content/sources/cao-zhang-a54-2026-09-21.json.
@@ -410,6 +444,8 @@ public static class GeneralArt
             Stretch = Stretch.UniformToFill,
             AlignmentY = AlignmentY.Top
         };
+        if (NormalizeKey(id) == "magic-guan-yu")
+            brush.Viewbox = new System.Windows.Rect(0.105, 0.064, 0.69, 0.575);
         brush.Freeze();
         return brush;
     }
@@ -441,7 +477,7 @@ public static class GeneralArt
         var key = id;
         foreach (var prefix in new[] { "standard:", "classic:", "national:wei-", "national:shu-", "national:ambitious-", "national:" })
             if (key.StartsWith(prefix, StringComparison.Ordinal)) { key = key[prefix.Length..]; break; }
-        foreach (var prefix in new[] { "mou:", "boundary:", "sp:", "ol:" })
+        foreach (var prefix in new[] { "mou:", "boundary:", "sp:", "ol:", "friend:", "magic:", "mobile:" })
             if (key.StartsWith(prefix, StringComparison.Ordinal)) { key = prefix[..^1] + "-" + key[prefix.Length..]; break; }
         return PortraitAliases.GetValueOrDefault(key, key);
     }

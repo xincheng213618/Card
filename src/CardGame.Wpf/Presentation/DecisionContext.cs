@@ -1,3 +1,4 @@
+using System.Globalization;
 using CardGame.Core;
 
 namespace CardGame.Wpf.Presentation;
@@ -5,6 +6,9 @@ namespace CardGame.Wpf.Presentation;
 /// <summary>UI context projected solely from the viewer's own prompt and visible players.</summary>
 public sealed record DecisionContext(string Title, string Description, int? SourceSeat, int? TargetSeat, string TargetLabel)
 {
+    public string ResponseStatusTitle { get; init; } = string.Empty;
+    public bool HasResponseStatus => ResponseStatusTitle.Length > 0;
+
     public static DecisionContext? From(GameSnapshot? snapshot)
     {
         if (snapshot?.PendingDecision is not { } prompt || prompt.PlayerSeat != snapshot.HumanSeat ||
@@ -75,6 +79,38 @@ public sealed record DecisionContext(string Title, string Description, int? Sour
                 title = $"当前技能选择 · {Name(prompt.PlayerSeat)}";
                 break;
         }
-        return new(title, description, source, target, targetLabel);
+        return new(title, description, source, target, targetLabel) { ResponseStatusTitle = ResponseTitle(prompt) };
     }
+
+    private static string ResponseTitle(PendingDecision prompt)
+    {
+        if (prompt.Kind is DecisionKind.RespondDodge or DecisionKind.RespondSlash)
+        {
+            if (!IsResponseCardPrompt(prompt)) return string.Empty;
+            var required = prompt.RequiredCardKind ?? (prompt.Kind == DecisionKind.RespondDodge ? CardKind.Dodge : CardKind.Slash);
+            return required is CardKind.Dodge or CardKind.Slash ? $"等待你打出【{CardCatalog.Get(required).DisplayName}】" : string.Empty;
+        }
+        if (prompt.Kind == DecisionKind.Nullification)
+        {
+            // The public prompt supplies the chain depth. Do not infer the current
+            // trick's validity from parity, card identities or a previous animation.
+            var responses = prompt.Choices.Where(choice => choice.Parameters.GetValueOrDefault("response") == "nullification").ToArray();
+            var depths = responses.Select(choice => int.TryParse(choice.Parameters.GetValueOrDefault("chain-depth"),
+                NumberStyles.None, CultureInfo.InvariantCulture, out var depth) && depth is >= 0 and < int.MaxValue ? (int?)depth : null)
+                .Distinct().Take(2).ToArray();
+            return depths is [int chainDepth] ? $"等待你的无懈 · 第{chainDepth + 1}层" : "等待你的无懈";
+        }
+        return prompt.Kind switch
+        {
+            DecisionKind.RescueDying => "等待你的救援",
+            DecisionKind.FireAttackReveal => "等待你展示手牌",
+            DecisionKind.FireAttackDiscard => "等待你弃牌 · 火攻",
+            _ => string.Empty
+        };
+    }
+
+    internal static bool IsResponseCardPrompt(PendingDecision prompt) =>
+        (prompt.Kind is DecisionKind.RespondDodge or DecisionKind.RespondSlash) && !prompt.Choices.Any(choice =>
+            choice.Parameters.GetValueOrDefault("declaration-answer") is "pass" or "challenge" ||
+            choice.Parameters.GetValueOrDefault("response") == "faction-request-cost");
 }

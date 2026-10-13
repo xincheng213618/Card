@@ -7,6 +7,7 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\Shared\DelayedTrickScenario.cs" Link="DelayedTrickScenario.cs" />
     <Compile Include="..\Shared\LastZoneConversionScenario.cs" Link="LastZoneConversionScenario.cs" />
     <Compile Include="..\Shared\PopulationTopReorderScenario.cs" Link="PopulationTopReorderScenario.cs" />
     <Compile Include="..\Shared\WushengResponseScenario.cs" Link="WushengResponseScenario.cs" />
@@ -15,6 +16,8 @@
     <Compile Include="..\Shared\CixiongDoubleSwordsScenario.cs" Link="CixiongDoubleSwordsScenario.cs" />
     <Compile Include="..\Shared\IceSwordScenario.cs" Link="IceSwordScenario.cs" />
     <Compile Include="..\Shared\FangtianHalberdScenario.cs" Link="FangtianHalberdScenario.cs" />
+    <Compile Include="..\Shared\ZhuqueFanScenario.cs" Link="ZhuqueFanScenario.cs" />
+    <Compile Include="..\Shared\StoneAxeScenario.cs" Link="StoneAxeScenario.cs" />
     <EmbeddedResource Include="Fixtures\national-v7.json" />
     <ProjectReference Include="..\..\src\CardGame.Wpf\CardGame.Wpf.csproj" />
   </ItemGroup>

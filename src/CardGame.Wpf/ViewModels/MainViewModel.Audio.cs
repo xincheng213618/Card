@@ -53,13 +53,15 @@ public sealed partial class MainViewModel
     private void PublishGameSounds(IReadOnlyList<BattleCue> cues, GameSnapshot snapshot)
     {
         var sounds = GameSoundRules.FromPublicCues(cues).ToList();
+        var notifications = new List<GameSound>();
         var prompt = snapshot.PendingDecision;
         if (prompt is not null && prompt.PlayerSeat == snapshot.HumanSeat && prompt.PromptId != _audioPromptId)
-            sounds.Add(prompt.Kind == DecisionKind.PlayCard ? GameSound.YourTurn : GameSound.Prompt);
+            notifications.Add(prompt.Kind == DecisionKind.PlayCard ? GameSound.YourTurn : GameSound.Prompt);
         _audioPromptId = prompt?.PromptId;
         if (snapshot.Status == EngineStatus.Completed && !_audioCompleted)
-            sounds.Add(GameSoundRules.Outcome(snapshot));
+            notifications.Add(GameSoundRules.Outcome(snapshot));
         _audioCompleted = snapshot.Status == EngineStatus.Completed;
-        if (sounds.Count > 0) SoundsRequested?.Invoke(this, new GameSoundsEventArgs(GameSoundRules.SelectBatch(sounds)));
+        sounds.AddRange(notifications);
+        if (sounds.Count > 0) SoundsRequested?.Invoke(this, new GameSoundsEventArgs(GameSoundRules.SelectBatch(sounds), notifications));
     }
 }

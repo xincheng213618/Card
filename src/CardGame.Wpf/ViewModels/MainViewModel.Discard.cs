@@ -12,6 +12,7 @@ public sealed partial class MainViewModel
     public int RequiredDiscardCount => IsDiscardSelectionPending ? _snapshot.PendingDecision!.RequiredCardCount : 0;
     public int SelectedDiscardCount => _discardCardIds.Count;
     public ICommand RecommendDiscardCommand { get; private set; } = null!;
+    private string DiscardSelectionHint => $"{_snapshot.PendingDecision!.Prompt} 已选 {SelectedDiscardCount} 张。再次点击可取消。";
 
     private void SyncDiscardSelection()
     {
@@ -35,7 +36,9 @@ public sealed partial class MainViewModel
     {
         if (!IsDiscardSelectionPending) return;
         var human = _snapshot.Players.Single(player => player.IsHuman);
-        var recommended = human.Hand.OrderBy(card => CardCatalog.Get(card.Kind).HandKeepValue +
+        var validCardIds = _snapshot.PendingDecision!.ValidCardIds.ToHashSet();
+        var recommended = human.Hand.Where(card => validCardIds.Contains(card.Id))
+            .OrderBy(card => CardCatalog.Get(card.Kind).HandKeepValue +
                 (card.Kind == CardKind.Peach && human.Hp < human.MaxHp ? 50 : 0))
             .ThenBy(card => card.Id).Take(RequiredDiscardCount);
         _discardCardIds.Clear();

@@ -52,7 +52,11 @@ public sealed partial class MainViewModel
 
     public IReadOnlyList<StartingRoleOption> StartingRoles { get; } =
     [
-        new("随机身份", null, "开局随机分配身份；主公固定为 1 号位，沿右手方向依次编号。")
+        new("随机身份", null, "开局随机分配身份；主公固定为 1 号位，沿右手方向依次编号。"),
+        new("主公", Role.Lord, "消灭所有反贼与内奸。"),
+        new("忠臣", Role.Loyalist, "保护主公，消灭反贼与内奸。"),
+        new("反贼", Role.Rebel, "击败主公。"),
+        new("内奸", Role.Renegade, "先消灭其他人，最后击败主公。")
     ];
     public IReadOnlyList<TableModeOption> TableModes { get; private set; } = null!;
     public IReadOnlyList<DeckOption> DeckOptions { get; private set; } = null!;
@@ -138,12 +142,22 @@ public sealed partial class MainViewModel
         : IsTeamSnapshot
             ? "群雄逐鹿 · 2v2公开阵营"
             : $"群雄逐鹿 · {(_snapshot?.Players.Count == 5 ? "五人" : "八人")}身份牌局";
-    public string GeneralSelectionSubtitle => IsNationalSnapshot ? NationalSelectionSubtitle : IsTeamSnapshot
-        ? $"你是{HumanPlayer?.RoleLabel} · 与 1 位队友合作，迎战 2 位对手"
-        : $"你是{HumanPlayer?.RoleLabel} · 选择一位武将，迎战 {Seats.Count - 1} 位对手";
+    public string GeneralSelectionSubtitle
+    {
+        get
+        {
+            if (IsNationalSnapshot) return NationalSelectionSubtitle;
+            if (IsTeamSnapshot) return $"你是{HumanPlayer?.RoleLabel} · 与 1 位队友合作，迎战 2 位对手";
+            var lord = _snapshot?.Players.FirstOrDefault(player => player.Role == Role.Lord && player.IsGeneralPublic);
+            return lord is null
+                ? $"你是{HumanPlayer?.RoleLabel} · 选择一位武将，迎战 {Seats.Count - 1} 位对手"
+                : $"你是{HumanPlayer?.RoleLabel} · 主公：{lord.GeneralName} · 选择一位武将";
+        }
+    }
     public string GeneralSelectionFooter => IsNationalSnapshot
         ? "候选仅对你可见 · 双将暗置登场，可在出牌或杀响应时分别明置"
-        : "候选仅对你可见 · 所有玩家选将结束后，武将同时亮相";
+        : IsTeamSnapshot ? "候选仅对你可见 · 所有玩家选将结束后，武将同时亮相"
+        : "候选仅对你可见 · 主公先选并公开，其余玩家选完后亮相";
     public string IdentityObjective => IsNationalSnapshot ? $"你的目标：与{FactionName(_snapshot.Players.Single(player => player.IsHuman).FactionId)}势力同伴合作，消灭其他势力；未明置角色的势力尚不公开。" : IsTeamSnapshot
         ? $"你的目标：与{HumanPlayer?.RoleLabel}队友合作，击败{(HumanPlayer?.TeamId == "team:blue" ? "赤队" : "青队")}"
         : HumanPlayer?.RoleLabel switch
@@ -193,11 +207,11 @@ public sealed partial class MainViewModel
     private void StartConfiguredGame(bool showOpeningDeal)
     {
         if (IsTutorialActive) return;
-        if (showOpeningDeal) ArmOpeningDeal();
         IsNewGameSetupOpen = false;
         IsLogOpen = false;
         IsHelpOpen = false;
         NewGame();
+        if (showOpeningDeal) ArmOpeningDeal();
         IsIdentityRevealOpen = true;
     }
 

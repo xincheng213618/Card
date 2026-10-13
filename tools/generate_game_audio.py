@@ -1,6 +1,7 @@
 """Original short PCM effects for this project; Python standard library only.
 
-Run without arguments to regenerate Assets/Audio. --preview writes a listening reel;
+Run without arguments to regenerate Assets/Audio. --only regenerates selected effects;
+--preview writes a listening reel;
 --timeline reads the actual UI test's audio-preview-events.json and mixes a soundtrack.
 """
 import argparse
@@ -16,7 +17,7 @@ RATE = 44100
 BANK = Path(__file__).resolve().parents[1] / "src/CardGame.Wpf/Assets/Audio"
 LENGTHS = {"card": .23, "response": .28, "hit": .34, "fire": .5, "thunder": .65,
            "recover": .72, "yourturn": .58, "prompt": .38, "dying": .8, "death": .9,
-           "victory": 1.35, "defeat": 1.15, "draw": .8}
+           "victory": 1.35, "defeat": 1.15, "draw": .8, "stoneaxe": .32, "qinglong": .3}
 
 
 def pluck(t, frequency, decay=9, metallic=False):
@@ -65,6 +66,13 @@ def synth(name, duration):
         elif name == "defeat":
             value = sum(.4 * pluck(t - offset, frequency, 7) for offset, frequency in [(0, 293.66), (.2, 261.63), (.42, 220)])
             value += .22 * pluck(t, 65.41, 5, True)
+        elif name == "stoneaxe":
+            value = .5 * pluck(t, 330, 23, True) + .28 * pluck(t - .022, 660, 30, True)
+            value += .08 * (noise - low_noise) * math.exp(-70 * t)
+        elif name == "qinglong":
+            value = .38 * pluck(t, 720, 25, True) + .4 * pluck(t - .055, 1080, 24, True)
+            value += .12 * (noise - low_noise) * math.sin(math.pi * t / duration) ** 2 * math.exp(-18 * t)
+            value += .08 * math.sin(math.tau * (440 * t + 900 * t * t)) * math.exp(-22 * t)
         else:
             value = .45 * pluck(t, 293.66, 7) + .35 * pluck(t - .18, 220, 8)
         edge = min(1, t / .003, max(0, (duration - t - 1 / RATE) / .016))
@@ -89,10 +97,22 @@ def load_wav(name):
     return [value / 32768 for value in struct.unpack(f"<{len(frames) // 2}h", frames)]
 
 
+def describe_wav(name):
+    path = BANK / f"{name}.wav"
+    samples = load_wav(name)
+    return {"name": name, "seconds": round(len(samples) / RATE, 4),
+            "peak": round(max(abs(value) for value in samples), 4),
+            "rms": round(math.sqrt(sum(value * value for value in samples) / len(samples)), 4),
+            "sha256": hashlib.sha256(path.read_bytes()).hexdigest()}
+
+
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--preview", type=Path)
-    parser.add_argument("--timeline", type=Path)
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument("--preview", type=Path)
+    mode.add_argument("--timeline", type=Path)
+    mode.add_argument("--only", nargs="+", choices=tuple(LENGTHS), metavar="NAME",
+                      help="regenerate only these named effects, preserving other WAVs and manifest entries")
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
     if args.timeline:
@@ -118,16 +138,19 @@ def main():
         args.preview.with_suffix(".json").write_text(json.dumps(markers, indent=2), encoding="utf-8")
         print(f"Created {len(markers)}-sound reel: {args.preview}")
     else:
-        manifest = []
-        for name, duration in LENGTHS.items():
-            samples = synth(name, duration)
+        manifest_path = BANK / "manifest.json"
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8-sig")) if args.only and manifest_path.exists() else []
+        entries = {item["name"]: item for item in manifest}
+        names = list(dict.fromkeys(args.only or LENGTHS))
+        for name in names:
+            samples = synth(name, LENGTHS[name])
             path = BANK / f"{name}.wav"
             write_wav(path, samples)
-            manifest.append({"name": name, "seconds": duration, "peak": round(max(abs(value) for value in samples), 4),
-                             "rms": round(math.sqrt(sum(value * value for value in samples) / len(samples)), 4),
-                             "sha256": hashlib.sha256(path.read_bytes()).hexdigest()})
-        (BANK / "manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
-        print(f"Generated {len(manifest)} original PCM effects in {BANK}")
+            entries[name] = describe_wav(name)
+        manifest = [entries[name] for name in LENGTHS if name in entries]
+        manifest.extend(item for name, item in entries.items() if name not in LENGTHS)
+        manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+        print(f"Generated {len(names)} original PCM effects in {BANK}; manifest has {len(manifest)} entries")
 
 
 if __name__ == "__main__":

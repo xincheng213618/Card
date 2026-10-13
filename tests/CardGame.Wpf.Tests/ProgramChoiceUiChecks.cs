@@ -36,8 +36,12 @@ internal static class ProgramChoiceUiChecks
         Program.Render((FrameworkElement)window.Content, 1120, 740,
             Path.Combine(output, "230-program-named-choice.png"));
         var before = game.CreateSnapshot(0).Players[0].HandCount;
-        model.SelectSkillChoiceCommand.Execute(model.SkillChoices.Single(choice =>
-            choice.Parameters.GetValueOrDefault("option-id") == "draw"));
+        var drawChoice = model.SkillChoices.Single(choice => choice.Parameters.GetValueOrDefault("option-id") == "draw");
+        var revision = game.Revision;
+        model.SelectSkillChoiceCommand.Execute(drawChoice with { });
+        Program.Assert(game.Revision == revision && game.CreateSnapshot(0).Players[0].HandCount == before,
+            "A copied skill choice must not be rebound to the active program prompt.");
+        model.SelectSkillChoiceCommand.Execute(drawChoice);
         Program.Assert(game.CreateSnapshot(0).Players[0].HandCount == before + 2 &&
                        game.Events.Count(item => item.Payload is ProgramOptionChosenEvent { SkillId: SkillId, OptionId: "draw" }) == 1 &&
                        model.BattleCues.Any(cue => cue.Label == "公共选择 · 摸两张牌") &&

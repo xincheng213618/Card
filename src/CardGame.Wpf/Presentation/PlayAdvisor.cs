@@ -21,20 +21,22 @@ public static class PlayAdvisor
         var brain = new SimpleAiBrain(
             view.HumanSeat,
             721019,
-            policyVersion: 2);
+            policyVersion: AiDecisionPolicy.CurrentVersion,
+            includeJudgmentMaterials: true);
         foreach (var id in recastCardIds) brain.ObserveRecast(view.TurnNumber, id);
         var (action, thought) = brain.ChoosePlay(view, actions, 1);
         var self = view.Players.Single(player => player.Seat == view.HumanSeat);
+        var materials = self.Hand.Concat(self.Equipment).Concat(self.AuthorityCards ?? [])
+            .Concat(self.WoodenOxGrain ?? []).Concat(self.Judgment);
         var specialAction = action.Kind is LegalActionKind.UseProgramSkill or LegalActionKind.UseEquipmentEffect;
         var cards = specialAction ? brain.ChooseActiveSkillCards(view, action)
             : action.CardId is { } cardId ? new[] { cardId } : [];
-        var targets = specialAction ? brain.ChooseActiveSkillTargets(view, action) : action.TargetSeats;
+        var targets = specialAction ? brain.ChooseActiveSkillTargets(view, action, cards) : action.TargetSeats;
         var parts = new List<string>();
         if (cards.Count > 0)
             parts.Add("选牌：" + string.Join("、", cards.Select(id =>
             {
-                var card = self.Hand.Concat(self.Equipment).Concat(self.AuthorityCards ?? [])
-                    .Concat(self.WoodenOxGrain ?? []).Single(card => card.Id == id);
+                var card = materials.Single(card => card.Id == id);
                 var suit = card.Suit switch { Suit.Spade => "♠", Suit.Heart => "♥", Suit.Club => "♣", _ => "♦" };
                 return $"【{card.DisplayName}】{suit}{card.RankText}";
             })));
@@ -45,7 +47,7 @@ public static class PlayAdvisor
         else if (action.Kind == LegalActionKind.RevealGeneral) parts.Add("返回牌桌后点击对应的明置武将按钮，启用该武将技能并公开势力。");
         else if (action.Kind == LegalActionKind.EndPlay) parts.Add("返回牌桌后点击「结束出牌」；仍可自行选择其他合法行动。");
         else if (specialAction) parts.Add("返回牌桌后发动对应技能，再按提示选牌和目标。");
-        else if (action.PlayedCardKind is { } effective && action.CardId is { } physicalId && self.Hand.Single(card => card.Id == physicalId).Kind != effective)
+        else if (action.PlayedCardKind is { } effective && action.CardId is { } physicalId && materials.Single(card => card.Id == physicalId).Kind != effective)
             parts.Add($"通过转化技能当作【{CardCatalog.Get(effective).DisplayName}】使用。");
         var reason = thought.Candidates.Single(candidate => candidate.Action == action).Reason.Trim();
         if (reason.StartsWith("卡牌策略值", StringComparison.Ordinal) && action.TargetSeat is { } targetSeat)

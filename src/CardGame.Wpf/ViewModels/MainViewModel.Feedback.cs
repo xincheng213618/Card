@@ -1,5 +1,4 @@
 using System.Collections.ObjectModel;
-using System.Windows;
 using CardGame.Core;
 using CardGame.Wpf.Presentation;
 
@@ -9,7 +8,7 @@ public sealed partial class MainViewModel
 {
     private int _feedbackEventCursor;
     private long _feedbackRevision;
-    private bool _isMotionEnabled = SystemParameters.ClientAreaAnimation;
+    private bool _isMotionEnabled = true;
 
     public ObservableCollection<BattleCue> BattleCues { get; } = [];
     public long FeedbackRevision
@@ -39,8 +38,11 @@ public sealed partial class MainViewModel
         if (_initializing) return;
         FeedbackRevision = snapshot.Revision;
         var committed = events.Skip(start).ToArray();
-        RecordPublicPlays(committed, snapshot);
-        var cues = BattleCueProjector.Project(committed, snapshot);
+        var repeatedCompletions = RecordPublicPlays(committed, snapshot);
+        // A later rescue return is the result of the face already shown in the
+        // public row. Use that same decision for animation and sound feedback.
+        var cues = BattleCueProjector.Project(committed, snapshot)
+            .Where(cue => !repeatedCompletions.Contains(cue.Sequence)).ToArray();
         foreach (var cue in cues)
         {
             BattleCues.Add(cue);
@@ -51,8 +53,9 @@ public sealed partial class MainViewModel
             VoiceRequested?.Invoke(this, new(voice));
     }
 
-    private void RecordPublicPlays(IEnumerable<EventEnvelope> events, GameSnapshot? snapshot = null)
+    private HashSet<long> RecordPublicPlays(IEnumerable<EventEnvelope> events, GameSnapshot? snapshot = null)
     {
+        var repeatedCompletions = new HashSet<long>();
         // The current use stays at the left while committed responses arrive on its right.
         var plays = BattleCueProjector.ProjectCardPlays(events, snapshot ?? _snapshot);
         var lastUse = plays.ToList().FindLastIndex(cue => cue.Kind == BattleCueKind.Card && !cue.IsUseCompletion);
@@ -62,16 +65,21 @@ public sealed partial class MainViewModel
             {
                 // A rescue completion can arrive after its declaration in another command.
                 if (cue.IsUseCompletion && RecentPlays.Any(play => play.PublicCardId == cue.PublicCardId &&
-                    play.SourceSeat == cue.SourceSeat && play.Kind == cue.CardKind && play.ActionLabel == cue.CardActionLabel)) continue;
+                    play.SourceSeat == cue.SourceSeat && play.Kind == cue.CardKind && play.ActionLabel == cue.CardActionLabel))
+                {
+                    repeatedCompletions.Add(cue.Sequence);
+                    continue;
+                }
                 RecentPlays.Clear();
             }
             RecentPlays.Add(new TablePlayViewModel(cue.Sequence,
                 cue.CardKind is { } kind ? CardCatalog.Get(kind).DisplayName : cue.Label, cue.ActorName)
             {
                 Kind = cue.CardKind, SourceSeat = cue.SourceSeat,
-                PublicCardId = cue.PublicCardId, ActionLabel = cue.CardActionLabel
+                PublicCardId = cue.PublicCardId, PublicCard = cue.PublicCard, ActionLabel = cue.CardActionLabel
             });
             while (RecentPlays.Count > 5) RecentPlays.RemoveAt(RecentPlays[0].ActionLabel == "打出" ? 0 : 1);
         }
+        return repeatedCompletions;
     }
 }

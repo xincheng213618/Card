@@ -1,9 +1,12 @@
 using System.IO;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Threading;
 using CardGame.Content.Standard;
 using CardGame.Core;
 using CardGame.Wpf;
+using CardGame.Wpf.Controls;
 using CardGame.Wpf.Persistence;
 using CardGame.Wpf.ViewModels;
 
@@ -31,7 +34,7 @@ internal static class HandGrainChecks
         vm.LoadManualGameCommand.Execute(null);
         Program.Assert(!vm.HasSaveError, vm.SaveStatus);
         game = Program.Engine(vm);
-        var action = game.GetHumanLegalActions().Single(item => item.EquipmentKind == CardKind.WoodenOx);
+        var action = vm.HumanActiveSkillActions.Single(item => item.EquipmentKind == CardKind.WoodenOx);
         var id = action.SelectableCardIds.First(candidate => vm.Hand.Single(card => card.Id == candidate).Kind == CardKind.Slash);
         var card = vm.Hand.Single(card => card.Id == id);
         var window = new MainWindow(vm);
@@ -43,7 +46,26 @@ internal static class HandGrainChecks
             var container = items.ItemContainerGenerator.ContainerFromItem(card);
             var hint = card.CardHint;
             var count = vm.Hand.Count;
-            vm.SelectActiveSkillCommand.Execute(action);
+            var panel = Program.Find<HandPanel>(items).Single();
+            var clock = new GrainClock();
+            panel.Clock = clock;
+            // Component Loaded establishes the visible baseline of this
+            // unshown window; the actual storage/load commands remain real.
+            foreach (var surface in Program.Find<CardLiftSurface>(items))
+            {
+                surface.Clock = clock;
+                surface.RaiseEvent(new RoutedEventArgs(FrameworkElement.LoadedEvent));
+            }
+            panel.RaiseEvent(new RoutedEventArgs(FrameworkElement.LoadedEvent));
+            vm.IsMotionEnabled = true;
+            root.Dispatcher.Invoke(() => { }, DispatcherPriority.DataBind);
+            root.UpdateLayout();
+            Program.Assert(panel.ArrivalEnabled && Program.Find<CardLiftSurface>(items).All(surface => surface.MotionEnabled),
+                "The real grain/load commands must be checked with table arrival and card motion enabled.");
+            AssertNoArrival("The loaded grain fixture replayed its restored initial hand.");
+            var activeButton = Program.Find<Button>(root).Single(button =>
+                ReferenceEquals(button.Command, vm.SelectActiveSkillCommand) && ReferenceEquals(button.CommandParameter, action));
+            activeButton.Command!.Execute(activeButton.CommandParameter);
             vm.SelectCardCommand.Execute(card);
             Program.Assert(vm.CanConfirmActiveSkill, "The real Wooden Ox action did not accept a hand card without transfer.");
             vm.UseActiveSkillCommand.Execute(null);
@@ -55,6 +77,7 @@ internal static class HandGrainChecks
             Program.Assert(ReferenceEquals(card, vm.Hand.Single(item => item.Id == id)) &&
                            ReferenceEquals(container, items.ItemContainerGenerator.ContainerFromItem(card)) && vm.Hand.Count == count,
                 "Storing a still-visible card recreated its hand control or removed its physical card.");
+            AssertNoArrival("Moving an existing visible physical card into Wooden Ox replayed it as incoming hand material.");
             Console.WriteLine($"Stored card {id}: marker={card.IsStoredGrain}, label={card.KindLabel}, hand={human.Hand.Count}, grain={human.WoodenOxGrainCount}, header={vm.HandCountText}");
             Program.Assert(card.IsStoredGrain && card.KindLabel.StartsWith("粮 ·", StringComparison.Ordinal) &&
                            card.CardHint != hint && card.CardHint.Contains(card.KindLabel),
@@ -74,6 +97,7 @@ internal static class HandGrainChecks
             root.UpdateLayout();
             Program.Assert(zoneNotifications == 0 && ReferenceEquals(container, items.ItemContainerGenerator.ContainerFromItem(card)),
                 "An unchanged hand refresh repeated zone notifications or rebuilt the grain control.");
+            AssertNoArrival("An unchanged current-view refresh replayed the stored-grain surface.");
 
             var storedState = SnapshotJson.Serialize(game.CreateSnapshot(0));
             vm.SaveGameCommand.Execute(null);
@@ -85,6 +109,8 @@ internal static class HandGrainChecks
             card = vm.Hand.Single(item => item.Id == id);
             Program.Assert(card.IsStoredGrain && vm.HandCountText == $"手牌  {human.Hand.Count:00} · 粮 01",
                 "Reloading the stored card changed the zone marker or counts.");
+            Program.Render(root, 1120, 740, Path.Combine(output, "grain-restored-without-arrival.png"));
+            AssertNoArrival("The real save/load replacement replayed restored hand/grain cards as fresh gains.");
             var play = game.GetHumanLegalActions().First(item => item.CardId == id && item.TargetSeat is not null);
             vm.SelectCardCommand.Execute(card);
             foreach (var seat in play.TargetSeats) vm.SelectTargetCommand.Execute(vm.Seats.Single(item => item.Seat == seat));
@@ -93,11 +119,30 @@ internal static class HandGrainChecks
             Program.Assert(vm.Hand.All(item => item.Id != id) && !vm.HandCountText.Contains("粮") &&
                            game.CardMovements.Any(move => move.CardId == id && move.From == CardLocation.WoodenOxGrain(0)),
                 "Playing stored grain retained a stale badge/count or spent a different physical card.");
+
+            void AssertNoArrival(string message)
+            {
+                root.Dispatcher.Invoke(() => { }, DispatcherPriority.DataBind);
+                root.UpdateLayout();
+                var surfaces = Program.Find<CardLiftSurface>(items).ToArray();
+                var arrival = typeof(CardLiftSurface).GetProperty("IsArrivalAnimating", BindingFlags.Instance | BindingFlags.NonPublic)!;
+                var opacity = typeof(CardLiftSurface).GetProperty("ArrivalOpacity", BindingFlags.Instance | BindingFlags.NonPublic)!;
+                foreach (var surface in surfaces) surface.Clock = clock;
+                Program.Assert(surfaces.Length == vm.Hand.Count && surfaces.All(surface =>
+                    !(bool)arrival.GetValue(surface)! && Math.Abs((double)opacity.GetValue(surface)! - 1) < .001 &&
+                    surface.OpacityMask is null), message);
+            }
         }
         finally { window.Content = null; window.Close(); }
     }
 
     private static void Accept(CommandResult result) => Program.Assert(result.Accepted, result.Error?.Message ?? "Fixture command rejected.");
+
+    private sealed class GrainClock : TimeProvider
+    {
+        public override long TimestampFrequency => TimeSpan.TicksPerSecond;
+        public override long GetTimestamp() => 0;
+    }
 
     private sealed class Fixture : IGameContentPackage
     {

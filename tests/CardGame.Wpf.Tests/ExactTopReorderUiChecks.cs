@@ -56,7 +56,10 @@ internal static class ExactTopReorderUiChecks
         var game=Program.Engine(model);var revision=game.Revision;
         var choice=model.SkillChoices.Single(c=>c.Cards.SequenceEqual([id]));
         var window=new MainWindow(model);window.ApplyTemplate();var root=(FrameworkElement)window.Content;
-        Program.Render(root,1120,740,Path.Combine(output,file));
+        // Materialize the controls before scrolling; only the final visible
+        // state needs a bitmap (the earlier PNG was immediately overwritten).
+        root.Measure(new Size(1120,740));root.Arrange(new Rect(0,0,1120,740));root.UpdateLayout();
+        root.Dispatcher.Invoke(() => { },System.Windows.Threading.DispatcherPriority.Render);
         var controls=Program.Find<ItemsControl>(root).Single(c=>c.Name=="ScrollingSkillChoices");
         var button=Program.Find<Button>(controls).Single(b=>b.Command==model.SelectSkillChoiceCommand &&
             b.CommandParameter is PromptChoice parameter && parameter.Id==choice.Id && b.ActualWidth>0);
