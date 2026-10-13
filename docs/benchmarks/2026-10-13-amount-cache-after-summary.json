@@ -1,0 +1,20 @@
+{
+  "Status": "passed",
+  "Variant": "after",
+  "Source": {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\BattleFeedbackLayer.cs",
+    "Hash": "35D413568ADC87C5A149747AAC913704000967B7640039F7E66F4CAF515A0DA9"
+  },
+  "DependencyHashCount": 6,
+  "DependenciesUnchanged": true,
+  "ControlSourceCount": 186,
+  "ControlSourcesUnchanged": true,
+  "Runs": 2,
+  "SamplesPerRun": 3,
+  "FramesPerSample": 128,
+  "FilteredChecks": 3,
+  "LastBuiltVariant": "after",
+  "HarnessHash": "3988213C1086D9A60BD4829D1960B8E513C0ACF99F5CA7F80E4283339223CC70",
+  "HarnessWpfBinaryHash": "CA75C001BC0E45DB9944787C21B9669B7E412D57EDE5DDFD2590DDD84F49E4B3",
+  "RecordedAt": "2026-10-13T13:45:33.2158239+08:00"
+}

@@ -1,0 +1,22 @@
+[
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\BattleFeedbackLayer.cs",
+    "Hash": "35D413568ADC87C5A149747AAC913704000967B7640039F7E66F4CAF515A0DA9"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\BattleTextReadabilityChecks.cs",
+    "Hash": "671371962F1463AA6AA1CA374469C3C4B0D31AF5FC128F49185136DCA7958467"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\MainWindow.xaml.cs",
+    "Hash": "E32A46C7D390953269887779F718632223C6D86DDED47DD28EE1C10BC5E1D638"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\GeneralSelectionChecks.cs",
+    "Hash": "B765DD639F345F29DB5E847A33A3748A48E9EEECC783F8B700C2ED55F3B12EC2"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\OpeningCustomizationUiChecks.cs",
+    "Hash": "E5C441C1136410EFDFEC1BBD7E04F04B288F8136831252A43245DAF9E1064397"
+  }
+]

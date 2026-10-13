@@ -1,0 +1,33 @@
+{
+  "directoryStillExists": true,
+  "exactCleanupQueueRecords": 1,
+  "verificationReasonsPreserved": true,
+  "archiveUnchanged": true,
+  "ownedSources": [
+    {
+      "path": "src/CardGame.Wpf/ViewModels/MainViewModel.cs",
+      "matchesVerifiedSource": true
+    },
+    {
+      "path": "src/CardGame.Wpf/ViewModels/MainViewModel.Presentation.cs",
+      "matchesVerifiedSource": true
+    },
+    {
+      "path": "src/CardGame.Wpf/ViewModels/MainViewModel.ViewQueries.cs",
+      "matchesVerifiedSource": true
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.CurrentTurnShownCardBenefits.cs",
+      "matchesVerifiedSource": true
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.ShownEntityTurnPolicies.cs",
+      "matchesVerifiedSource": true
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.ProgramLifecycle.cs",
+      "matchesVerifiedSource": true
+    }
+  ],
+  "summary": "C:\\Users\\17917\\Desktop\\Card\\docs\\benchmarks\\2026-10-13-architecture-view-authority\\summary.json"
+}

@@ -1,0 +1,302 @@
+[
+  {
+    "path": ".owner",
+    "length": 103,
+    "sha256": "2666D750E295891A0209511466C8900E4B438C0B37B686079E5F2745ED93DA54"
+  },
+  {
+    "path": "allocation-probe/.owner",
+    "length": 63,
+    "sha256": "06E1EC5AD80A2E4849315D3F73FC728CE92D64DB264E7F69CA8EA83E76E55491"
+  },
+  {
+    "path": "allocation-probe/AllocationProbe.csproj",
+    "length": 237,
+    "sha256": "031DA6A6F6D810B9F23FFE7818F3ACEFB7B0FF54B0EB8C6752735AD58D254904"
+  },
+  {
+    "path": "allocation-probe/Program.cs",
+    "length": 2601,
+    "sha256": "88FF37ADAD14161010C15A8B636626978AECA138A46AB1914604E40FB66B5ED4"
+  },
+  {
+    "path": "AllocationProbe.deps.json",
+    "length": 437,
+    "sha256": "68C63B13A85DCFC4876251D169B7BDA13087EA66F6DB0B318BBDA750F5D2A3DF"
+  },
+  {
+    "path": "AllocationProbe.dll",
+    "length": 13824,
+    "sha256": "9066EF9D0A25FC42D4AF7FBC75D366A6E0BA20777C35D32D98B80EACDF6A0573"
+  },
+  {
+    "path": "AllocationProbe.runtimeconfig.json",
+    "length": 340,
+    "sha256": "28329CF08F6505E73806B17558B187C02F0C1C516FE47EBFB7A013D082AAA306"
+  },
+  {
+    "path": "archive.ps1",
+    "length": 4538,
+    "sha256": "B5E06B6E6E13CF3A4585D4BCC12E14D4D4D54FBA6BF90FA94BE98FC2443CE43C"
+  },
+  {
+    "path": "before-source-hashes.json",
+    "length": 526,
+    "sha256": "A5463644D8FDCDBA0E60CF50065F79C9C0A897B7C5D3C841B9A3FB60BEB53894"
+  },
+  {
+    "path": "CardGame.Core.probe.dll",
+    "length": 12179968,
+    "sha256": "23CA13942A030144747B0335CDED0F0A5620E652F2FFA14BA999EDA007FB8A41"
+  },
+  {
+    "path": "ContentRegistry.cs.before",
+    "length": 58935,
+    "sha256": "49D2CC9BC0B74CEB4066273F8CDC6FE506F76EC7AD7BC43EC8598AE8A9ACAB4F"
+  },
+  {
+    "path": "ContentRegistry.cs.candidate",
+    "length": 58915,
+    "sha256": "7C4D76289C21BCB485133315A1CD6DAC4B2044E02F1A16681D8A22C5EEF85449"
+  },
+  {
+    "path": "ContentRegistry.cs.patch",
+    "length": 1737,
+    "sha256": "503BB2F76A5251C18205D0D9CDFC1B8B3EEA3011306252EE69C6FFD6DD898900"
+  },
+  {
+    "path": "EditionGeneralGalleryChecks.cs.before",
+    "length": 3302,
+    "sha256": "69EA83AB6D5A9CF4012A35DCEF3AB0D680B4F00B83995BF2FA9591C4B97B41F8"
+  },
+  {
+    "path": "empty-dictionary-allocation.json",
+    "length": 2820,
+    "sha256": "102B24556B009706C78815AED98AC9666BF7FFBAAE33B863CC1AF82BF4C6FFFB"
+  },
+  {
+    "path": "focused-build.log",
+    "length": 9621,
+    "sha256": "19C9032876646A392C880BDC6C20BDBD23D53680003F64A3E0C9B9CF90A803D8"
+  },
+  {
+    "path": "focused-core.log",
+    "length": 1845,
+    "sha256": "ECDA8C9602786E3630A986994D278F6558F00C20B1CB04BC5B6DA21C2C5036B1"
+  },
+  {
+    "path": "focused-final-input-hashes.json",
+    "length": 398063,
+    "sha256": "971BEF539FCF4E8FC4CB6E9A39A08EDF0E10736317F54D16BAB0FA5316931423"
+  },
+  {
+    "path": "focused-input-hashes.json",
+    "length": 398063,
+    "sha256": "35F289DEFC6B3661C9AE5A4563252003889562F4D2F9AB3A9468FAAB87E05A8F"
+  },
+  {
+    "path": "focused-source-drift.json",
+    "length": 201,
+    "sha256": "EBD73CA14CEF91E56DFBDF8F7398373DD77FEF69227A05491800A1C34171E9E4"
+  },
+  {
+    "path": "focused-summary.json",
+    "length": 2389,
+    "sha256": "307F09E69DF26D2D8D45B2CCFAA2555497BA4AC92C560DC3841AA770500F4C91"
+  },
+  {
+    "path": "focused-wpf.log",
+    "length": 806,
+    "sha256": "42BEFC35606F0DBBCB00EA386510549DADD67A42D55EDFC35B9D7397644C5C86"
+  },
+  {
+    "path": "GameEngine.HandComparison.cs.before",
+    "length": 16655,
+    "sha256": "255B80DEFC0AAAFA19873127857BDB990486E1AD5B69132D53EA87AA3D0946B5"
+  },
+  {
+    "path": "GameEngine.HandComparison.cs.candidate",
+    "length": 16836,
+    "sha256": "8B56EB15ADB6D3A178C5634A39C1B5E67914BCC82F3FCF5F4D30BA08DAA560E6"
+  },
+  {
+    "path": "GameEngine.HandComparison.cs.patch",
+    "length": 3208,
+    "sha256": "4F47A7E55C61331C474828D1C6A82B8A69CF6D3EEDF76C8D8684F6451352949B"
+  },
+  {
+    "path": "GeneralChoiceViewModel.cs.before",
+    "length": 3659,
+    "sha256": "11D869571E88F92DFC6D05334DDDE04AA1D9DE261DA771AA98117FBAF50AACBC"
+  },
+  {
+    "path": "GeneralChoiceViewModel.cs.candidate",
+    "length": 3565,
+    "sha256": "2C002A12FAEC72291ECC00641722E4FD228E8A5C0894BDAC77C193140D1A6C2D"
+  },
+  {
+    "path": "GeneralChoiceViewModel.cs.patch",
+    "length": 812,
+    "sha256": "C9E4FAA3CB48EACEA79F3844F347B936291FDDB6743FC3C2C08B311EF6A1DAAB"
+  },
+  {
+    "path": "GeneralGalleryCatalog.cs.before",
+    "length": 13529,
+    "sha256": "BFA36FD6A3CFE845BBF7FD25AC1DB2D5C85976BD39E611709A5FD5AADB03DC56"
+  },
+  {
+    "path": "GeneralGalleryCatalog.cs.candidate",
+    "length": 13563,
+    "sha256": "0B06CB2A5C71DA772D4E60D2CD3CF14310D393E8AFD6DF3E3AAA18045CC4060F"
+  },
+  {
+    "path": "GeneralGalleryCatalog.cs.patch",
+    "length": 1181,
+    "sha256": "14F4AEEEC8825DCA9FCB375501F4ECD743B8E198AA1F7036D6785ACBF5510168"
+  },
+  {
+    "path": "GeneralGalleryFocusChecks.cs.before",
+    "length": 6171,
+    "sha256": "80123DAB64EEF24D4AB504E5959B42DEA542B5662C374CD9A634A2EC33E87042"
+  },
+  {
+    "path": "GeneralGalleryFocusChecks.cs.candidate",
+    "length": 6599,
+    "sha256": "E26A8EADE284C0ED3E374E82B7CDB662479D4F53CE529AA6D93284CFFCCDE54C"
+  },
+  {
+    "path": "GeneralGalleryFocusChecks.cs.patch",
+    "length": 1413,
+    "sha256": "25786C328E869DCA816453D7FB6B8D2E70F4919A9FE75171F780FB136286BA33"
+  },
+  {
+    "path": "MainViewModel.GeneralGallery.cs.before",
+    "length": 11068,
+    "sha256": "A90BF3DC4B554AAF7257C9D5202F47ECB03FC914D9D44A728FE2FD7EC87849F1"
+  },
+  {
+    "path": "MainViewModel.GeneralGallery.cs.candidate",
+    "length": 10924,
+    "sha256": "3AF7FEB2F3BFF47F2E797EB5B47B4393CA5B9A785748AB24DF62F293128876A0"
+  },
+  {
+    "path": "MainViewModel.GeneralGallery.cs.patch",
+    "length": 974,
+    "sha256": "BD16AE5B100920B7670EC86F54E87C87314F68BD54239B894593E9A61B3C048F"
+  },
+  {
+    "path": "owned-final-source-hashes.json",
+    "length": 2298,
+    "sha256": "57DB676C92F1A0DF26D4101D9288E9C3FA3CD8FE4CA0F6392234772E625C3FC7"
+  },
+  {
+    "path": "PlayerViewProjector.cs.before",
+    "length": 23223,
+    "sha256": "8B07F7EB24A669C253CE4C276BA0BDBAFC91B5FDF9ED63530B8125F546CC4FA4"
+  },
+  {
+    "path": "PlayerViewProjector.cs.candidate",
+    "length": 23295,
+    "sha256": "40637B963613B418C3CF06C33F09B23E226A92C470E3015860A5185D4A26F67E"
+  },
+  {
+    "path": "PlayerViewProjector.cs.patch",
+    "length": 3283,
+    "sha256": "822184684C64CC37E17CC5CE83DE68BADE1156293F0426353E76781B0796B4CC"
+  },
+  {
+    "path": "probe-build.log",
+    "length": 436,
+    "sha256": "DFF29ACB5351EF24D84D7B3065DD94CC54955E4C5E4417E56CFC80E8709608DB"
+  },
+  {
+    "path": "ProgramStateProjectionChecks.cs.before",
+    "length": 16393,
+    "sha256": "B19BFB964CD4B17663C6A2D4A480DF4C4B4362F249F0BC9C5B6CB6B8DA1EE84E"
+  },
+  {
+    "path": "ProgramStateProjectionChecks.cs.candidate",
+    "length": 18220,
+    "sha256": "0AFF550652FF29BD8369C51E5FC0DD040B87C49F397ED7BDF13BF7F7D1F1CDB0"
+  },
+  {
+    "path": "ProgramStateProjectionChecks.cs.patch",
+    "length": 3129,
+    "sha256": "9FDC7D79E3E4D4D2A5ECB6BE45D268610D18F8A1D1E41CE7470C72EF387FD1A5"
+  },
+  {
+    "path": "review-catalog-candidates.json",
+    "length": 20931,
+    "sha256": "68182A437922A68D92D11C931F5010CB148C0CDEB7DB52E63E847340CBF21E16"
+  },
+  {
+    "path": "review-consumer-candidates.json",
+    "length": 11810,
+    "sha256": "AEB061D171ED877684CAEC486AEE42B48F2B829A5ED7581974DD1CE160C93F3E"
+  },
+  {
+    "path": "review-wpf-candidates.json",
+    "length": 11902,
+    "sha256": "00ED6A022E7A9F7A190EA9AC85AE2996942B728EBA223383C5B3B16C6C658EB9"
+  },
+  {
+    "path": "routine-build.log",
+    "length": 926,
+    "sha256": "CE6E69A02EDF32A2D2A491790D48C454C16CEB9E6269369E836B4C8235D2FD75"
+  },
+  {
+    "path": "routine-core.log",
+    "length": 92444,
+    "sha256": "8EEEB7BD5C48092728FE148B2136CEB6B0C476C64B946CB52F8A0626DF67BF44"
+  },
+  {
+    "path": "routine-failures.json",
+    "length": 450,
+    "sha256": "60E55D3EF5C03A285A400A67DBDBA7777EA99DA37898195C7BF93934F735B73B"
+  },
+  {
+    "path": "routine-final-input-hashes.json",
+    "length": 398063,
+    "sha256": "5205AFBC72409B43B60CB766F295FDCC81F0026CFEC600BA0F6BCF89E1EAE9BC"
+  },
+  {
+    "path": "routine-input-hashes.json",
+    "length": 398063,
+    "sha256": "971BEF539FCF4E8FC4CB6E9A39A08EDF0E10736317F54D16BAB0FA5316931423"
+  },
+  {
+    "path": "routine-source-drift.json",
+    "length": 380,
+    "sha256": "E6D89F7833169DA0F61212ACFB15788A59471E44BEDD8BF9CE7D37F88970059B"
+  },
+  {
+    "path": "routine-summary.json",
+    "length": 17856,
+    "sha256": "A05160F9F67DD6D0BD09344EA03E798E21D647EEE807E9C4B019C40C30566A4B"
+  },
+  {
+    "path": "routine-wpf.log",
+    "length": 91063,
+    "sha256": "FBB2EBAA3E0EFBFE49933D4428D08FAF638344BAD8AD2D1ED2928063C00177F6"
+  },
+  {
+    "path": "structural-results.json",
+    "length": 1686,
+    "sha256": "529B69D6263528EDA46C786DB7F57DFDB69F6945B3365314E9C97417AFB205CD"
+  },
+  {
+    "path": "Test-Changed.invoked.ps1",
+    "length": 19004,
+    "sha256": "F010EEF5CA911570F55419757FEB1B23D292BAAE7E53384D86F23AB04BA1A91D"
+  },
+  {
+    "path": "VerificationScopes.invoked.psd1",
+    "length": 16989,
+    "sha256": "B3D52E6BE7FC3468A34F00B3352A2B4AA4A7AF185872E635B4BE22DF1BEBC822"
+  },
+  {
+    "path": "verify.ps1",
+    "length": 2593,
+    "sha256": "A8F5FCDD6D362AF46F00A285295EE0D42A9DB7DCBD1BA2CAF6058ED96A540D85"
+  }
+]

@@ -1,0 +1,54 @@
+{
+  "status": "passed",
+  "mode": "targeted",
+  "repository": "C:\\Users\\17917\\Desktop\\Card",
+  "artifactsPath": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-architecture-01a13336\\verification",
+  "coreFilters": [
+    "Luochong lethal loss:",
+    "Luochong discard:",
+    "First strategic damage:",
+    "skill executor retires strategic damage batches",
+    "Feng Lin Lu Ji",
+    "Zhuihuan retaliation:",
+    "content registry compiles whole catalog dependencies",
+    "boundary Xiahou Dun",
+    "Feng Lin Yuan Shu exact sources independent disable",
+    "Feng Lin Yuan Shu command loss regrant source suppression",
+    "Feng Lin Zuo Ci borrowed Lord projection sources",
+    "Feng Lin Zuo Ci layered suppression and local disable",
+    "empty binding queries preserve",
+    "Ol Liang Xing",
+    "program continuation registration",
+    "Forced phase Wine:"
+  ],
+  "wpfFilters": [],
+  "startedAt": "2026-10-13T13:16:23.3976109+08:00",
+  "durationMs": 19966,
+  "message": null,
+  "results": [
+    {
+      "name": "Build selected scope",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 15080,
+      "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-architecture-01a13336\\verification\\logs\\build.log"
+    },
+    {
+      "name": "Core selected checks (16 filters, union)",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 4650,
+      "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-architecture-01a13336\\verification\\logs\\core-selected.log"
+    }
+  ],
+  "cleanup": {
+    "status": "queued",
+    "queued": [
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-architecture-01a13336\\verification\\bin",
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-architecture-01a13336\\verification\\obj",
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-architecture-01a13336\\verification\\renders"
+    ],
+    "database": "C:\\Users\\17917\\Desktop\\Card\\tools\\cleanup_queue.json",
+    "message": null
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "status": "passed",
+  "mode": "targeted",
+  "repository": "C:\\Users\\17917\\Desktop\\Card",
+  "artifactsPath": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-architecture-01a13336\\verification",
+  "coreFilters": [
+    "program continuation registration",
+    "Observer subtree:",
+    "frame-owned choices",
+    "Paired hand recast:",
+    "Outside phase draw discard:",
+    "Fame 2016 conversion",
+    "Fame 2016 deferred private top",
+    "Boundary Cao Ren"
+  ],
+  "wpfFilters": [
+    "stale prompt choices",
+    "Wusheng skill-first",
+    "selection, target toggle, cancel and play",
+    "skill conversion is explicit",
+    "table interaction refresh cost"
+  ],
+  "startedAt": "2026-10-13T11:24:19.1104739+08:00",
+  "durationMs": 34689,
+  "message": null,
+  "results": [
+    {
+      "name": "Build selected scope",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 20412,
+      "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-architecture-01a13336\\verification\\logs\\build.log"
+    },
+    {
+      "name": "Core selected checks (8 filters, union)",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 3581,
+      "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-architecture-01a13336\\verification\\logs\\core-selected.log"
+    },
+    {
+      "name": "WPF selected checks (5 filters, union)",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 10373,
+      "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-architecture-01a13336\\verification\\logs\\wpf-selected.log"
+    }
+  ],
+  "cleanup": {
+    "status": "queued",
+    "queued": [
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-architecture-01a13336\\verification\\bin",
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-architecture-01a13336\\verification\\obj",
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-architecture-01a13336\\verification\\renders"
+    ],
+    "database": "C:\\Users\\17917\\Desktop\\Card\\tools\\cleanup_queue.json",
+    "message": null
+  }
+}

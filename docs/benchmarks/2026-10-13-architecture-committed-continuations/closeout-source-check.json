@@ -1,0 +1,92 @@
+[
+  {
+    "path": "src/CardGame.Core/GameEngine.cs",
+    "verifiedSha256": "3ac10773872989f0ffb5305b3509dfc961a1fbd7f7b8c86f8e986253104aa181",
+    "currentSha256": "ef8e25c969b51922b61181ca4a4064e635c018ca5bbf1574a1ac1c5b255cbb0e",
+    "unchanged": false
+  },
+  {
+    "path": "src/CardGame.Core/SkillProgramDependencies.cs",
+    "verifiedSha256": "2f01fa93c705dca49304d44404e8f3c9e1ff1c2367003bffe2dc367c4c335cbe",
+    "currentSha256": "2f01fa93c705dca49304d44404e8f3c9e1ff1c2367003bffe2dc367c4c335cbe",
+    "unchanged": true
+  },
+  {
+    "path": "src/CardGame.Core/GameEngine.CardMovementPrograms.cs",
+    "verifiedSha256": "ff71842787283939b5fc46d75949ec2593d6a25697fe755a2f0abcf4c31a3253",
+    "currentSha256": "e0277d7f9ea514ff09111767e3f4c1c62c56dee5bf8fa0b2df6876acb769fb7f",
+    "unchanged": false
+  },
+  {
+    "path": "src/CardGame.Core/GameEngine.LordSkillProjections.cs",
+    "verifiedSha256": "e2e8ce6e76abb25a9249aa5acb46b8617a395702adc5048534cff30fae119973",
+    "currentSha256": "e2e8ce6e76abb25a9249aa5acb46b8617a395702adc5048534cff30fae119973",
+    "unchanged": true
+  },
+  {
+    "path": "src/CardGame.Core/GameEngine.LiangXingPrograms.cs",
+    "verifiedSha256": "836f016968097c053175bf852358a5c5014d3ac0e380b2dee88393e2f8d1b78e",
+    "currentSha256": "836f016968097c053175bf852358a5c5014d3ac0e380b2dee88393e2f8d1b78e",
+    "unchanged": true
+  },
+  {
+    "path": "src/CardGame.Core/GameEngine.StrategicPrograms.cs",
+    "verifiedSha256": "9e6f3d7afe583b933ef4bf773cbb9f95c1ba1e5315744b6ba0f0e04a6a8c98a6",
+    "currentSha256": "9e6f3d7afe583b933ef4bf773cbb9f95c1ba1e5315744b6ba0f0e04a6a8c98a6",
+    "unchanged": true
+  },
+  {
+    "path": "src/CardGame.Core/GameEngine.TengFangLanPrograms.cs",
+    "verifiedSha256": "058e0181d90025d73585fa03d99b88d4ed376f394b45b8591e93b0f857200427",
+    "currentSha256": "058e0181d90025d73585fa03d99b88d4ed376f394b45b8591e93b0f857200427",
+    "unchanged": true
+  },
+  {
+    "path": "src/CardGame.Core/GameEngine.ParticipantAndReservePrograms.cs",
+    "verifiedSha256": "a4c43c7f285372bfb893fa77520d4928169e7371eb5923647e53b43598cf8f14",
+    "currentSha256": "a4c43c7f285372bfb893fa77520d4928169e7371eb5923647e53b43598cf8f14",
+    "unchanged": true
+  },
+  {
+    "path": "src/CardGame.Core/Replay.cs",
+    "verifiedSha256": "797b9247d1ac880575b15bcd96b155d78635734776454ffe8b422ebb47b84611",
+    "currentSha256": "797b9247d1ac880575b15bcd96b155d78635734776454ffe8b422ebb47b84611",
+    "unchanged": true
+  },
+  {
+    "path": "tests/CardGame.Core.Tests/CompiledSkillMetadataChecks.cs",
+    "verifiedSha256": "97cb5d1528651fa2e6115e9b94bc777bed4b09e4b4f036728e3cab8c83aefed5",
+    "currentSha256": "97cb5d1528651fa2e6115e9b94bc777bed4b09e4b4f036728e3cab8c83aefed5",
+    "unchanged": true
+  },
+  {
+    "path": "tests/CardGame.Core.Tests/FrameOwnedBatchChecks.cs",
+    "verifiedSha256": "3b92341a0b3b08d5095a4783e741d5d4de5573b3f1502d7d62f48c033bfe062f",
+    "currentSha256": "3b92341a0b3b08d5095a4783e741d5d4de5573b3f1502d7d62f48c033bfe062f",
+    "unchanged": true
+  },
+  {
+    "path": "tests/CardGame.Core.Tests/LuochongDiscardChecks.cs",
+    "verifiedSha256": "2ff3e2e5d53deb49e267b521655f5d35fa22d5ec253da96ef0da369c49229c8b",
+    "currentSha256": "2ff3e2e5d53deb49e267b521655f5d35fa22d5ec253da96ef0da369c49229c8b",
+    "unchanged": true
+  },
+  {
+    "path": "tests/CardGame.Core.Tests/ZhuihuanRetaliationChecks.cs",
+    "verifiedSha256": "d8a5064bb5306ac274cb006984523a4a45a01edcc1cc1c4b1a7466920f4f46f8",
+    "currentSha256": "d8a5064bb5306ac274cb006984523a4a45a01edcc1cc1c4b1a7466920f4f46f8",
+    "unchanged": true
+  },
+  {
+    "path": "tests/CardGame.Core.Tests/Program.cs",
+    "verifiedSha256": "6b74300e90b083e5c8d8a0dcf68ba9db0159fe221c3e6f452cbd3967d5a41b23",
+    "currentSha256": "6b74300e90b083e5c8d8a0dcf68ba9db0159fe221c3e6f452cbd3967d5a41b23",
+    "unchanged": true
+  },
+  {
+    "path": "tools/VerificationScopes.psd1",
+    "verifiedSha256": "ef443dccd7daa5686f9ee06af0e2489ac15ec06146b2104de7ccca4c3dc2ff9a",
+    "currentSha256": "ef443dccd7daa5686f9ee06af0e2489ac15ec06146b2104de7ccca4c3dc2ff9a",
+    "unchanged": true
+  }
+]

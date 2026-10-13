@@ -1,0 +1,746 @@
+[
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\App.xaml",
+    "Hash": "26B060DDF4EA140EFEB9609C80A61759DC8B1B778947B56D6B253C9BC485EC8F"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\App.xaml.cs",
+    "Hash": "61FEA5DB9F95DD01D35E31D9824DC3DAE96D0B56162673DF9C59F4E961674011"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Audio\\GameAudioCatalog.cs",
+    "Hash": "3923D2F4957638D02A27D49865DB52B5919ED2EFF898BBA9C300FBFD6A6C757F"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Audio\\GameAudioController.cs",
+    "Hash": "4FD75A68F2A91201A8E531BD3C915CE9941D00295D877BA8692957EB4B256F40"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Audio\\GameSound.cs",
+    "Hash": "03B53F7C406D21B1842911135E18E33A6EF6BD218825146473DE2ADF7D4BE8AF"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Audio\\GeneralVoiceProjector.cs",
+    "Hash": "2C3BCA380A0E2CC4D3C0845C3F8831095C1F7D0A197D9195E7EBB09FDEE46F56"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Audio\\MediaPlayerAudioOutput.cs",
+    "Hash": "89610A59F6B9606FEDE50E73665CCD942280E819ABBA33EBDF5031C1DE523A4D"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\BattleEffectsPreviewWindow.cs",
+    "Hash": "014911E0FFE8C9DFA974DFAE2BB505402B41EFC9452F8D86F6BAD3476B009BF6"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\CardGame.Wpf.csproj",
+    "Hash": "9063CBC1C90457A216ACCC6B454C656DB254D129E32AB4C070ECE132D1048747"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\BattleEffectPainter.cs",
+    "Hash": "7B057E768168D4EA5A2B8B22839F080C09CEA3BA9B008454D910099CA3882728"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\BattleEffectsPreview.cs",
+    "Hash": "334F672A20EC20D79DF27BE0BA542080001EF8958821CE82E0E1F2A48635C177"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\BattleTextLayout.cs",
+    "Hash": "661379A82182CB1977CDAC1C5C3D4F57BF8DB75329AAAFF35231084372EE3CC9"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\CardLiftSurface.cs",
+    "Hash": "F4437897DAD67EB73AE03BCD4C4CED9316174A39FF082C0AB5C30E7ACF3005EC"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\CardTargetingLayer.cs",
+    "Hash": "1364A56B33B22A90BABC890442E72C8995A7C54F53B899E92667E91D2BBF5A1D"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\GeneralGalleryPanel.xaml",
+    "Hash": "A88FEACF4A93E14EFEF569F5D04E6DDA0B08814CB2F2B7409DB17E6752371245"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\GeneralGalleryPanel.xaml.cs",
+    "Hash": "6AE6B6D5C69D4090394D9D758FDC40028C1229CE68DA8BC7ED5A84B64A8AA8B1"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\HandPanel.cs",
+    "Hash": "CD26B490E9CBDC81E242FA6C8C1462835316CF36661342CF05F9E88F475A0D17"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\HandScrollViewer.cs",
+    "Hash": "BD93B3360551F22C4A73229FC2A432E1C61C3C3843C76BADE06F2350C79E7259"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\HealthMeter.cs",
+    "Hash": "3A82DFD387CA21993E24B3A99325D7B9ABDEBC327F4237E51E73DB166DD9D64B"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\HomeLobby.xaml",
+    "Hash": "CA5C92ED83FD3CEF0DF5D94BD0CAF294CEF7C7927D489E9E7CCAA1F355639116"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\HomeLobby.xaml.cs",
+    "Hash": "F2D7D2E56F38639DD9FB13E62A8354561732E840D1886B736976C08509CB26F3"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\MatchHistoryPanel.xaml",
+    "Hash": "B2A7D70CEE8B3750C6B5F342AEE15B616404291093F004EBB924EB84A34322A8"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\MatchHistoryPanel.xaml.cs",
+    "Hash": "BB1F8030B25FD480515BE418D1A54C353F29A03619DB73313859AECBC43DD8E1"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\PlayerGuidePanel.xaml",
+    "Hash": "9012341ACB3739D3B641F77CD8DDCD56EC2CF475AB0CB06EB199A0DBE139F614"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\PlayerGuidePanel.xaml.cs",
+    "Hash": "0D762880E822E691AA6575A18A56A0D8AB5D98549D6E92096A59971C1F05D5B3"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\PromptCardChoiceConverter.cs",
+    "Hash": "0742AFDBC9B9B97B7AB3B7796B12EB879F63C18B25D5923BF138AA81FA43A28B"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\SelectionMatchConverter.cs",
+    "Hash": "D542A6F3AECEBA2DB612F534AF8F584EA852524AC3B7EEE43820DF3BD9861856"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Diagnostics\\PackageVerification.cs",
+    "Hash": "A64B6CB379BCD6D46B549705232F4777CAAB1D6EF624BA8EDBADCF365A84136F"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\MainWindow.CardAim.cs",
+    "Hash": "E673821FDB5D37BB2E72086F8C1A08069E1A96828DDF4184B744620A3D9C03F0"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\MainWindow.xaml",
+    "Hash": "F340319FC0504B771C9577560D1C0710B972EDA2DAC2609345BD073CF8850A57"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\MainWindow.xaml.cs",
+    "Hash": "E32A46C7D390953269887779F718632223C6D86DDED47DD28EE1C10BC5E1D638"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Persistence\\GameSaveStore.cs",
+    "Hash": "2A33386CFBA4AE870D5C4A6C58754181AB923F2A1BAE906C30249243A5160A1B"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Persistence\\MatchHistoryStore.cs",
+    "Hash": "8677A6760E16334B403AEF4BBAB0177C67774837D9638DB98F58D0EE1BD3956F"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Persistence\\PlayerPreferencesStore.cs",
+    "Hash": "9DD0B377668953CDA27C0BFCCF4A92888CCF102D61CA5B56F84994F01B9E0B7A"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Presentation\\BattleCue.cs",
+    "Hash": "5CCD5B706662B4B721D6B6DD8A11617863491CCA62C54FB6AD365C73612080F6"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Presentation\\DecisionContext.cs",
+    "Hash": "BCF66FC2BC6E28F3DFCE657C3BA889D9000BBD6A2259FD7C2CFDB364128EBDCC"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Presentation\\GeneralGalleryCatalog.cs",
+    "Hash": "892F9C81A0E253E132667179A9DAF789C1D004D9C0C4CCB5510E943EBD1C79B0"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Presentation\\MatchSummary.cs",
+    "Hash": "D7E874B67ADDD8BFDD315BC820B1DDF525F241A461A2D900D72E1BB07E4B6F07"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Presentation\\PlayAdvisor.cs",
+    "Hash": "C582926FDF84EEF5F6C3E59774CA485E7A97D1C223171A9FD7B31716CABFE229"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Presentation\\PlaybackSpeed.cs",
+    "Hash": "B4CC6C613B5E0FA1005081FBBA5888E73AA216353F214997166A7BD1E822DDDF"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Themes\\TableTheme.xaml",
+    "Hash": "8ECF66011F9A1FE6A12326E259498FBC75AF15C680CCB0970FB0F34AAE6E8A92"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Training\\TutorialScenario.cs",
+    "Hash": "1AE07141C5EC0189E7D600DCE3682D7B932E015C5CB0F207A6505B09498731F2"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\CardArt.cs",
+    "Hash": "2BC7FC2714A85FF1698BA36973D0A6EB728CA0E802DEB5FD760DFF6938D740BD"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\CardViewModel.cs",
+    "Hash": "D5B3C968B411C610D190228BB532348A76864D8A9BFC1B313C3D512DA14D7EF6"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\GeneralArt.cs",
+    "Hash": "8CA41ECC14FDC90E2F4194BBAA58ADF108C33BD18FC1947A27B1BF47BA06433C"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\GeneralChoiceViewModel.cs",
+    "Hash": "11D869571E88F92DFC6D05334DDDE04AA1D9DE261DA771AA98117FBAF50AACBC"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\GeneralPortraitViewModel.cs",
+    "Hash": "D14DD8132ECF77CC71AEBCBFB972CA17B43E3C665BD0F82F686868C532C17157"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\GeneralSlotViewModel.cs",
+    "Hash": "C206D3117184EB2E0D4EC02C55058D8C50F4C49C4A2A420EA43C5F89C16704B0"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\HumanSkillViewModel.cs",
+    "Hash": "7AE072708979F3831900A0770A03FD48BC9641A82E31A26F59919DF891CA639D"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.Advice.cs",
+    "Hash": "C6CC08BEE5784BBA2DB44135332A5DD02F63D4985E6D3139DDFC56EE9759EBDD"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.Audio.cs",
+    "Hash": "D44AB7E3FFBC615A369A1042E0A78793DDBFD91A3FEEDB884E62435DBEF4894E"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.BattleLog.cs",
+    "Hash": "6E3AAD17C36FFF7CEE1B2ABE3749D3D8BD5897EC3964319862E970F13D85432F"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.CardAim.cs",
+    "Hash": "C1A24D1E938ECD14712E4B3621F309EA6C7F7AC034624602AFBD558381097F5C"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.CardChoices.cs",
+    "Hash": "C76D99288B3D0AD3722B1EB7A42FBBFD52FBFC2BF2557311EE3B3BA3730C0790"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.CardRestrictions.cs",
+    "Hash": "5DAB8D24C92C54881D854FD9AB1A231A54F3C5F6C08BE41180C7ECDA559CBF99"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.CardTargets.cs",
+    "Hash": "4E5EA8908B56F9AE2B445D2A76B4E9588101F2CF4A8F0BDF0ACD4B6A5562DFA5"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.cs",
+    "Hash": "74E5074A16B458908A4DCBA6E230867CE256DF5677E3318B0BC68769343AAD63"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.DecisionContext.cs",
+    "Hash": "C6BEF5ED18A57445B14A51500EB581CC566269DD57AE69F39C9D5F95C4C8CF89"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.DeferredCards.cs",
+    "Hash": "56E58B6C81FB90965E3939F3ABB3871C49D29E3BE3B59929107BF7F681E887C5"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.Discard.cs",
+    "Hash": "1017A62259E7187620D26347433600480F55D6B859B95EC5824ED9704E2676D8"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.Feedback.cs",
+    "Hash": "B32541253B62395BE421FA0DDE2A474A571FFDA8D491EA60239A605074D84D98"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.FriendPredictions.cs",
+    "Hash": "72E3386984732C14D02E2DD30F46CA1056B1E9114DDA909C0602190080245E2F"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.GameSetup.cs",
+    "Hash": "42F10AC1AEDB269442C2AD00B7EC91DCB86E6A27FC6051405431D872F985E4E6"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.GeneralGallery.cs",
+    "Hash": "A90BF3DC4B554AAF7257C9D5202F47ECB03FC914D9D44A728FE2FD7EC87849F1"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.GeneralSelection.cs",
+    "Hash": "514B6DBA7497D6A859C7A60F5DFCE910388A11D422C3845F377B29735F2D3675"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.GeneralSkins.cs",
+    "Hash": "C73C6C410CDE7CF426360B542B684142F2D4C841B3624DF4B368CAABC6075ABA"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.GeneralVoices.cs",
+    "Hash": "0F02AD8430EFE1FA6015BD1D04CDDF394AFFA1A6CBEA4620F5E93635DBBF6422"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.HandResponses.cs",
+    "Hash": "974C57719FF4B1CED78A2999AEFF5B5C009BEADFCF3E3FE522391389BBA7B09E"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.History.cs",
+    "Hash": "7D0DE96EA1431916265BF9A29A6A757FCCCD834178E154C05E4383B64EC51D7D"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.MatchSummary.cs",
+    "Hash": "492BF0632EB8AE12C863FA263C270DD8D60F9731C013B056F6E4C0D0BF873936"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.NationalWar.cs",
+    "Hash": "2C2E6C8D62EBEE93BBDAA86AB8394F63AB8A57147199D7CEFE8D6DA06CD41F90"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.OpeningCustomization.cs",
+    "Hash": "0615496083F7AA8FB854F16AA4AE9A508E6797AF18D0501498E21D0E2761C646"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.OpeningDeal.cs",
+    "Hash": "336EBEE1371B8EFEE38DF6FD9890A1437B1743F10EF3E6974F9107E4C43D3A9F"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.Persistence.cs",
+    "Hash": "110D7C52872314E6ECB9143F95E98D1C8564BD7D0F302FEE4AEE124CEC3FD5DC"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.Playback.cs",
+    "Hash": "1575C358D5390963681DD49D95948DE771DFC4C163289E6F856C28424C647B58"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.PlayerGuide.cs",
+    "Hash": "8341EF4707F90384BD6FFD318250D570DE531BF9E8CB2AE9C473E63A91583AC2"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.Preferences.cs",
+    "Hash": "32F28A8A7F65A778C076C02B7E4B73DCE9746A90A9D01C5BEC10B0A0F5B60236"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.Presentation.cs",
+    "Hash": "3D2A9A96A5AF1CEE808A446002178E1854E5B4083BF22C4B43288F0B4DA4F441"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.RuleInformation.cs",
+    "Hash": "EDA03CC460BD6A472AB337BC1B3AFE380781AF923EC3583D9DB72764C74A3656"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.Settings.cs",
+    "Hash": "52C65B0F8A5960EE2DA8958802EDDB8D0FE95EEFFA5BA30847E553AB3E28B505"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.SkillTargets.cs",
+    "Hash": "8E71480A908ED564FB3C9E1CFC734722F00624AAC7CAA9E0E9391CABE36D760F"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.TableSurface.cs",
+    "Hash": "F7F6E9E70C878BD310FE2E88CA9E6A1E35173ACB7E4DC1481952871A471190F8"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.TieredRoundZeroActions.cs",
+    "Hash": "48145ECBEE107D8A7FBD9D435F3C9138474F99064AB2BD1D1AEB54F9A85CE873"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.TurnHandHolds.cs",
+    "Hash": "BB1408A1832854318B14BEA5F206282026D1CEAE3F1AEA602EC614DF34CF592D"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.Tutorial.cs",
+    "Hash": "190654C8972B77F66D0E53AD74446BB429CB34008763B7BFC3503227C30518BD"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.ViewQueries.cs",
+    "Hash": "F17EB63C1A0A0D0FB13490E5871F8A21EBF11D073AF5C2D409ED6B664703C45D"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\MainViewModel.Wusheng.cs",
+    "Hash": "CB0CF11377D2A6EDEC2590C197C9F7C35815E2F2961EC0724BE967ABD4BF371B"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\ObservableObject.cs",
+    "Hash": "A1B086AEB0336F557827C6244677A3ABB4A28599E5FE5489DFAB23F4AD791A38"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\RelayCommand.cs",
+    "Hash": "A75432F4EAF45B2EE1D246A9304F9B2EF00A1F391FA45A328BFF62757FFB2ED7"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\ViewModels\\SeatViewModel.cs",
+    "Hash": "611D6114A329D1364EF2BE09291B178940D02CD78E2E4BC4DC2957DCA166C338"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\ActiveSkillCardTargetUiChecks.cs",
+    "Hash": "EBE3D76B1FB770B8D83236354B76E48661850FEBEB810DC4352B1EA6F0FEFCF3"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\ActiveSkillChecks.cs",
+    "Hash": "407CEA0BE3B63824E11F3ACD886D7301CC10D0CA1753D1B85154664270C28C42"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\ActiveSkillMatchingCostUiChecks.cs",
+    "Hash": "6BD4907525BE47ED49C59624749D9D0F3BF1C7FEAA8216A78ED83FB920531C1D"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\ActiveSkillSuitUiChecks.cs",
+    "Hash": "3445F613FE1E9329F9F30DE5B77603ADAD51E5EBF2CE99D14ECD4D1668780951"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\ActiveSkillTargetPairUiChecks.cs",
+    "Hash": "0FDF6195CD52E55A19F2C88D6B0792DEA6363DABB667E04684AA8B99E53981EC"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\AudioChecks.cs",
+    "Hash": "AF45C4DE343B341505E834443B8D7EB75B8C0E2437B3B48FC2DD293A35C92007"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\BattleAudioBeatChecks.cs",
+    "Hash": "3DFB1031BC8EEB0E2293FC267FF7B2C4B84F08749E493EA53C610B0B53F0CBC4"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\BattleChainFeedbackChecks.cs",
+    "Hash": "840E5D027181E0DB1E01E3E76D3F55F6EB5231A0F0B34681B3334E0A2D508B97"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\BattleEffectsChecks.cs",
+    "Hash": "F8DC5D9A0A4E47A940856CBC69B9930670150AB848F940523C39F085195AE972"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\BattleFeedbackTimelineChecks.cs",
+    "Hash": "AAFEE55C339A55F300D36BD2A40A8952FD7A9A9F14E620343914FF781622105F"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\BattleHudReadabilityChecks.cs",
+    "Hash": "12973D8F9DB881AB5D58778F07E1D40D100F22719ACE2E7542127BDAFB6556A9"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\BattlePlaybackPaceChecks.cs",
+    "Hash": "7B48CC3CCA471A9AA32133793A611192C5C16D81DD0994AD6169D81BED7E6BAB"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\BattleTextReadabilityChecks.cs",
+    "Hash": "671371962F1463AA6AA1CA374469C3C4B0D31AF5FC128F49185136DCA7958467"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\BeneficiaryStateUiChecks.cs",
+    "Hash": "EB6A67338C7F48EA564B5661BA05A3C91C43205036C78FD0CE1683F9740F6D7B"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\CardArtworkChecks.cs",
+    "Hash": "D3D312468D220B7DB3101050B13E3ADF74F40C4662FC5D6597DDE78C22E5D9AD"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\CardConversionTargetUiChecks.cs",
+    "Hash": "C0DF7DD7C0E8516187C6024B6B545DF4969AA10A5FED484B862EFDE97F2B8BAF"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\CardConversionUiChecks.cs",
+    "Hash": "728591A704F8AF405133C26CB3D58D74CA50DFE829FBD66FB9C8AB6DBB6F522C"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\CardGame.Wpf.Tests.csproj",
+    "Hash": "14C4F95D791A30F493AD7EA22534AC18B7AA3396BDACF0E8B8092A185CB83BB3"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\ChainedStateBasicUiChecks.cs",
+    "Hash": "115589A7B4EDA0BA4391B285D638B97A3624175F36D9CCC67DBFAA2D0AFC3D97"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\CombatBeatHierarchyChecks.cs",
+    "Hash": "2EA606E3E4557FBF568683DA16A07965DF2C8AF8C5973E4E1BD9663E36B314E9"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\ConfiguredConversionsUiChecks.cs",
+    "Hash": "D3C3A58272BEC24BF1F3C7DA06B845648717EC1FEC4547C5B068BF8727E502A1"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\DecisionContextChecks.cs",
+    "Hash": "B2400231B57EB6D899C6D572D8A608BB07271CFDC4C5829A4258D8DC54AB339C"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\DeferredCardsUiChecks.cs",
+    "Hash": "B3958F2F9396198FA232B40560ECD53E5AA0DC2654BABDD19909D3BD5A3DC811"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\DeferredHandAlignmentUiChecks.cs",
+    "Hash": "D1F8BC631F6341492EA21C655F6A0C02DA57C094D126351C896E59551D90B935"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\DelayedTrickUiChecks.cs",
+    "Hash": "6FDA030B44BABEA10AD267998DDE74A4F8CC6BA1850878D01A5593A13873C904"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\DiscardRecommendationUiChecks.cs",
+    "Hash": "5C3BC989CF9096B032B6A8D0E7630AA883AEC56E1E5253FD006718DCACD9B9DD"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\EditionGeneralGalleryChecks.cs",
+    "Hash": "6EC928FCC61761C24B9863F3F11E328D1BFECDB3CDC9420A5C1B4FA32DC0B204"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\ElementalImpactReadabilityChecks.cs",
+    "Hash": "FFA376E3781EA7D1CCE5A3A94FCEC686CB44ABB83428B49250D99934A20AFFBD"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\ExactTopReorderUiChecks.cs",
+    "Hash": "56D528D60D519D8B7B221950A4DAFDED066E6D298F878F433B45174F1B33573B"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\FeedbackChecks.cs",
+    "Hash": "4FF8CDE9064754462EEFE35005526DAC5C10F16F39F4C64CFBD02C9415CED206"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\GeneralGalleryFocusChecks.cs",
+    "Hash": "6C9A060E87C37D3AE3A7F338008055FA168A0E572151BDA73F77BF1CAE4A9901"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\GeneralSelectionChecks.cs",
+    "Hash": "B765DD639F345F29DB5E847A33A3748A48E9EEECC783F8B700C2ED55F3B12EC2"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\GuanYuVariantUiChecks.cs",
+    "Hash": "8F52FF772E936205F85E82A6B1E62A92A0B74F00715F5FAD0B610DBDC0E9446B"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\HandCardFlightChecks.cs",
+    "Hash": "D304CDD7FD1F4AF4ADB4D15ED0FE6DA8595CEB5B17A671DFD26959C58250CA4A"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\HandGrainChecks.cs",
+    "Hash": "4FEA62AAA2F267B0F23857110B08DDDC1171F29C414AA7CE1FD9997A2795179C"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\HandLiftMotionChecks.cs",
+    "Hash": "60054B2C0C9499144BE9516B7B30C3852A1D2F86AAB9F83ECD09283617D0321E"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\HandPointerChecks.cs",
+    "Hash": "A1A89CAFCA7D80880B491AA3BEDCEC3E2CE67C5979D1B6B7D11B4C462EECBB2C"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\HandResponseChecks.cs",
+    "Hash": "B4B0920EFD6A11A404C6FE03DAFA37D202122D0203813FEFBAE3AC77BBCC17F1"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\HealthFeedbackChecks.cs",
+    "Hash": "53E8E1C5E86386881C1581E1EEE4FF5F5E1C2AB16924FE649C5BD0456EB0CF0C"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\JijiuChecks.cs",
+    "Hash": "F2A6A98C03B3752A3649A64FDF3E82774B1C1ECF54A1E666E4AB4B9D2FF2925C"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\JinFactionPresentationChecks.cs",
+    "Hash": "D295DED07062909301BC5CF262CB4283CDB1CA78C6D7264536C2C76981993D83"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\LastZoneConversionUiChecks.cs",
+    "Hash": "A3487B5ED29169BD5C242F80DD53F3AE7DD71396CA98DA20212D88589F971DA2"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\LongChainFeedbackChecks.cs",
+    "Hash": "0EE3F76564614FA91CA4B11F3D995571BCC36BBE7734237EEE4B5C0D45E11CCE"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\MemorySaveStore.cs",
+    "Hash": "9AFD024805845726600581F7167DBDE785265F8B283FC10BD6F37468A1AAA722"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\ModalFocusChecks.cs",
+    "Hash": "C6C05C83385905A60A72006A8A09C11FF6E9FB75A03A0A5F86F6ABD3845BF53A"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\ModeSelectionChecks.cs",
+    "Hash": "ED1ED7A1C77B0C84AA4F1E91EE1A52EEFA5E72256FA40B9232B5497DBA5AFC4B"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\MouHuangZhongSelectionChecks.cs",
+    "Hash": "C9EB385E3E17C6047517C1D8649974BA69E4A3FD4103E4E519A19C1362968285"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\MultiTargetBattleFeedbackChecks.cs",
+    "Hash": "078DE90ADB567D6D492041530E898C96F7923651B3F362DFBCB6A45A4A1B55A8"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\NationalSeatChecks.cs",
+    "Hash": "7FD26DAF5AEC4FD958C65B15881D0A9BA01EF7D2FF7AFA6D3233BA2842B82648"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\NativeActionFeedbackChecks.cs",
+    "Hash": "14F9A561D40E885048E65E4B9056B727C5601C8625FCEDB5700653AFB4770F01"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\NativeCardTargetingChecks.cs",
+    "Hash": "BA7AB61F947D93EF1B33B96B14231B60997024AF9E1775C567916BFAABEFA1E2"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\NativeDrawFeedbackChecks.cs",
+    "Hash": "EFB017CB2B609290F6DA83F3719F9FE99A014678A9ADF9E530A2875F02BC352D"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\NativeJudgmentFeedbackChecks.cs",
+    "Hash": "B5DF79E83D61C62CDE78269A89B3357CB5A179ED17E763E8F42E2F87E31BCA86"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\NativeLifeOutcomeFeedbackChecks.cs",
+    "Hash": "016389DAB317F02CA2380040F745159473B3C95C4992A4D15774774E388AF0D6"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\NativeResponseStatusChecks.cs",
+    "Hash": "F2C968BE5C0F669C0B8A69FB9D18DE7BEA618E041450A9E3D66192A08EAA82B9"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\NativeWeaponFeedbackChecks.cs",
+    "Hash": "F79C99B3F7F0BD815C8E7DA9CDF66C3F827EDB46F32A3E7D72591DD5293F8106"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\OfficialAudioChecks.cs",
+    "Hash": "56627A80E3CBE9B70D27A3EBD8416E491D5403EED882594944C510DAEAF4D87E"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\OpeningCustomizationUiChecks.cs",
+    "Hash": "E5C441C1136410EFDFEC1BBD7E04F04B288F8136831252A43245DAF9E1064397"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\OriginalHandTagUiChecks.cs",
+    "Hash": "183975BCBAB216F6675A2C5D49139E0C3A69C6E4CA695B0F43E914F0ECC20225"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\PersistenceChecks.cs",
+    "Hash": "354E39E94A66E23CDB7683A4EC7AA387D5D256371BFE58957E7B8A42B3BF8E2C"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\PhaseGiftUiChecks.cs",
+    "Hash": "98E28557052FB5B80C337EB4ABB366185B89BDFA45FA1F009F4AE9A8BA6DC5B5"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\PhaseSuitAllowanceUiChecks.cs",
+    "Hash": "DDA8A0DC7D72BEF0DD6627E821B99A63EC230C540062EE2ADBF189900B390CBE"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\PlaybackChecks.cs",
+    "Hash": "F393FF77F3FBF56481CB0B4933B9ED9348A4BE1D3E67E9893EA80E842F78A0E8"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\PlayerGuideChecks.cs",
+    "Hash": "B5F28B84FBDB5C3A4401EDAA2F3D5705F96B9992C2CB6923E8026EF939A1E84E"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\PopulationTopReorderUiChecks.cs",
+    "Hash": "F86FB9CADF628CFB0ECA186CDB3EA003A54FEC02E3F1A4FAAB5AA8DF517CFDFB"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\PreferencesChecks.cs",
+    "Hash": "EB045037B8BB912066B5C4531B0EFA80538C1B02FE1742C7E70AD5D820CC78D1"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\Program.cs",
+    "Hash": "F7D72A3E1BB73C423F3146D9230F487BC9C700CBFFCB52B0B9DF672925CE125E"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\ProgramChoiceUiChecks.cs",
+    "Hash": "4F38F1647DC77E0262410DF122C3F5CD7CDA950C88CEADD8B70EAEA8E721766C"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\ProgramConversionPolarityUiChecks.cs",
+    "Hash": "2ACCE0C4DE9CA2BAB72D9BC2A0310B2298440685263295912E0862D098869DB1"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\ProgramIronChainUiChecks.cs",
+    "Hash": "D48A3EC8E4CF3A595F1FA526E0341510CACBEC8226D2BE4060E9A970F9C812CE"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\ProgramOwnedCardsUiChecks.cs",
+    "Hash": "0C2D4E5EB1A3D95F8D64622DBC0FBAECE9CE1199FF6DE2B58698D87099093E69"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\ProgramPaidChoiceUiChecks.cs",
+    "Hash": "1F1696DE01C325F131C1D58EFD617F5FA7F84DF97913DA97FFB3348C62154594"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\PublicCardHandoffChecks.cs",
+    "Hash": "5133752130E432AB5E2B1A5B6611DED33DAD017D35DBDF38FA70C33B5B48B343"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\PublicCardIdentityChecks.cs",
+    "Hash": "2DF2D5F4ACAA1F6DF1B775C1F23752862CF1BE0D5B5E30A26E5EFF7BC6F884E4"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\PublicMarkerUiChecks.cs",
+    "Hash": "53BEAF68BEDB31A717585B2CF39D59E7EEF468C84ABD2CB9C0A764B8F6D49EF6"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\PublicPileExchangeUiChecks.cs",
+    "Hash": "60CD8363073EA911478AF8A7F9BA205B62EB73AA072D884C49DBBF1691D889B6"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\PublicPileSkillUiChecks.cs",
+    "Hash": "9041F190ABD5FB6F0E8F01047E563A4F1845A5763863D17EF4915529E914052D"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\PublicProgramCardsUiChecks.cs",
+    "Hash": "60B9A4E0FB7D0A99E0EFBC098F9B4FDED2E57A758619207859CF30BCF6D7FC95"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\PublicStateUiChecks.cs",
+    "Hash": "43157A756E3A7B6FA86D49B5480522B29654192CE603F22C1C9E0C51447888BD"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\QuotaTopUiChecks.cs",
+    "Hash": "EE51179884FF08D07F9AB36B460799D94155D5DB4B805D33CAA3D6C95F4CB6C5"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\RescueFlightChecks.cs",
+    "Hash": "36E00127FAD3046903E64CCD35FE86B806BCCCA9813467E0814223F2A042EEDC"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\ResponseExchangeStateUiChecks.cs",
+    "Hash": "CA53A4A7260C535CFC352ADE97564D8C328EF50E5BAEC94674CDE2E799ACF5E1"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\RuleInformationUiChecks.cs",
+    "Hash": "2961457E1E25A62922150A6AE3E69BB87F3C9FE6ECC437A0C9464CBAACFC7F47"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\SkillProgramUiChecks.cs",
+    "Hash": "658BAFE957BC947AF66D32539A4E4B9616EF447C80C805571176EABF5BF96FFA"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\SkillTargetSelectionChecks.cs",
+    "Hash": "2BDEF64C5D22AC61D18771CCFC83D93BB5DBCE96E51782699D1A6045C61E8090"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\StableHandResponseFixture.cs",
+    "Hash": "C3F2E379DEE727E37D5E11CBE16D3A27ADA10818BE66C2E3DAFEE90E0E2575A5"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\StalePromptChoiceChecks.cs",
+    "Hash": "A05BCFD2E2EE3A3F5894E3E5A2E2B0A1AE9B2E182AD3BA49E25AD38F627A9F5A"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\StoredGrainResponseUiChecks.cs",
+    "Hash": "63C074BA9E81A2A676CC91EDFDE1E8727869B87D882E141399A6B4CA45E4EF6F"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\TableInteractionChecks.cs",
+    "Hash": "6FE00098892EB63C9F95237C234984A1D7DD9FEEF8DDF19B8122215866224DE2"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\TableOverlayNavigationChecks.cs",
+    "Hash": "0F4AA07CFAEECFAF35765886AD5C6C413C6D35E3757B2F742FEF547BA2A52DBF"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\TableShortcutChecks.cs",
+    "Hash": "7D00FD33FB532A425B7FFE93F44CF37D5DC68F940547A74D404C9371F37B084A"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\TableSurfaceChecks.cs",
+    "Hash": "D15245FE78AC1DA4B6E13E14CD795520C269AE6E24AC16F8121B19EA2D10ABC4"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\TargetCardChecks.cs",
+    "Hash": "BED25E087AAA887D82483C92FE77D1A2CC1F85C9C015E5A1CA753BDC73E49217"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\TargetSelectionFeedbackChecks.cs",
+    "Hash": "03CA66DFB6B53AFBA84195696251093D008A4C7561D8A78B2F747CCAF03690E6"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\TieredRoundZeroUseUiChecks.cs",
+    "Hash": "E777E587644692FFEE87F14F2C3977EC62BF7157966C16D37722E0AFF7011B5E"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\ZhugeFriendRosterUiChecks.cs",
+    "Hash": "1377DE42D325743674E6390022EC7322F33DB6FB56FE7BEA8D38BC8AC543B00F"
+  }
+]

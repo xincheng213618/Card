@@ -1,0 +1,497 @@
+[
+  {
+    "path": ".owner",
+    "length": 103,
+    "sha256": "20FB075CF87C6D235A93C33E9587F6B38B056E11376E894789EC0F98F4208C6B"
+  },
+  {
+    "path": "after/src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+    "length": 119227,
+    "sha256": "78FBD972B24E12B75864FA06E64AC877CBBF368F84A95C6F5E236F76081C511F"
+  },
+  {
+    "path": "after/src/CardGame.Core/GameEngine.ProgramLifecycle.cs",
+    "length": 337090,
+    "sha256": "A4F34B4ACB1C885200859B862921BDB997B7864CE01EE70251F89338F1EE04FE"
+  },
+  {
+    "path": "after/src/CardGame.Core/Projection/CommittedEventProjection.cs",
+    "length": 21507,
+    "sha256": "2DF0689D7642A1D322C93134D29AD5785E112AA6B86A6CFF1E059C6E81ED96F2"
+  },
+  {
+    "path": "after/src/CardGame.Wpf/ViewModels/MainViewModel.CardAim.cs",
+    "length": 6049,
+    "sha256": "A9E7AE6708EFD6ACCA04C15F5EA38C4B372ADFDD948CC3B22EEDFA1EB1E356DD"
+  },
+  {
+    "path": "after/src/CardGame.Wpf/ViewModels/MainViewModel.CardTargets.cs",
+    "length": 4939,
+    "sha256": "577F9FDDED8ED350013AE282A5230CBCB296EAC1EA9B76EE6C728FDBEDF8D16E"
+  },
+  {
+    "path": "after/tests/CardGame.Core.Tests/IncomingDistanceCourtesyChecks.cs",
+    "length": 22739,
+    "sha256": "36121F3CC85E79AA9DBEB21521C47ADE3F94F7FECE94AE4945F0D840D6E89ADC"
+  },
+  {
+    "path": "archive.ps1",
+    "length": 4401,
+    "sha256": "F441CE09E4FC5F4ED5E1969B5D73D1E320EFB5BA9EA9DA9125987B0A0C1D5BDB"
+  },
+  {
+    "path": "catalog-failure-focused-build.log",
+    "length": 9333,
+    "sha256": "A1C7512D64CACE1CF01E49F98F80603D4B49A2851FC28582D860C7AAA4A9B2A2"
+  },
+  {
+    "path": "catalog-failure-focused-core.log",
+    "length": 148266,
+    "sha256": "3AA34427CAA3C7E6A763BDF4EAC170AC00FF7A56295087181B629941962F66C2"
+  },
+  {
+    "path": "catalog-failure-focused-final-input-hashes.json",
+    "length": 402109,
+    "sha256": "157C5A6F18B595660F4FA1CEBB4843EF01ED89437051F35E7550F41D45BE5FFE"
+  },
+  {
+    "path": "catalog-failure-focused-input-hashes.json",
+    "length": 402109,
+    "sha256": "E0BE4E280D8A7E44F2A161AEDA4D01D7A1CCEA039C5A5C64FB31AC65F7CDE7F5"
+  },
+  {
+    "path": "catalog-failure-focused-source-drift.json",
+    "length": 201,
+    "sha256": "5DB5CDF90B9E912A8E109AF4F827ED6D43769294274ADF2FF2A6FF78DB2905D5"
+  },
+  {
+    "path": "catalog-failure-focused-summary.json",
+    "length": 1987,
+    "sha256": "2E8D2696139FEA2E3E79DB38B885B57F18BB14A78A2996C1B63C0890EF247CB4"
+  },
+  {
+    "path": "committed-event-before.json",
+    "length": 507,
+    "sha256": "D581887AD9E4B351EC4D27335BE43F5AD447D10EFF8D91AC4C5C0B5FA9674BA4"
+  },
+  {
+    "path": "committed-event-concurrent.diff",
+    "length": 3075,
+    "sha256": "E5B7FB2E63A3A75C8E80FB2E6077BDE9E09A82CEDF81A2C37613196A16A24518"
+  },
+  {
+    "path": "committed-event-current-owned.diff",
+    "length": 5041,
+    "sha256": "7BCC1F34EC51884EF224FF7600F34C5FED0B064D72FD41C31F2B8A547F1B273B"
+  },
+  {
+    "path": "committed-event-current-proof.json",
+    "length": 714,
+    "sha256": "92F09CBD5E8F1F3C6839655B4749AAB10A6BF31C2D48221BF4C849BA5207D489"
+  },
+  {
+    "path": "committed-event.diff",
+    "length": 4820,
+    "sha256": "BBB891502585432D41973CA4258E43043C42A84D22C1B9AB9ACDEBA2B43DEE3B"
+  },
+  {
+    "path": "CommittedEventProjection.before.cs",
+    "length": 19768,
+    "sha256": "FBD98A4B837F1D48467E61D13B396A05A55D4236CDB0DA0B04D188C2C3136304"
+  },
+  {
+    "path": "CommittedEventProjection.candidate.cs",
+    "length": 21507,
+    "sha256": "2DF0689D7642A1D322C93134D29AD5785E112AA6B86A6CFF1E059C6E81ED96F2"
+  },
+  {
+    "path": "CommittedEventProjection.concurrent-baseline.cs",
+    "length": 21465,
+    "sha256": "0A6996FE6ACE72B9784987CC277FF7A34FED12E977E2BCFD2CAA06E9DA1B64BC"
+  },
+  {
+    "path": "courtesy-fixture-after.json",
+    "length": 510,
+    "sha256": "4051F3CBC7A9B0570CBBD2DA3875909229AD943636F10215E04A39C77EAB6B32"
+  },
+  {
+    "path": "courtesy-fixture-before.json",
+    "length": 403,
+    "sha256": "35DF4B30EA40543619A062EA4D7C39A097D19452BA119EF27D708F564A581699"
+  },
+  {
+    "path": "courtesy-fixture.diff",
+    "length": 2432,
+    "sha256": "F6AEA447A1C1F6AD5F7E58BF40717F69FED34E63D5EBEBB89BFE91A88A0455FE"
+  },
+  {
+    "path": "failed-build-focused-build.log",
+    "length": 3571,
+    "sha256": "E8D02B1766E1188F9BEC924F64E70B8D0C733738A81294F4FF9A3523915136F4"
+  },
+  {
+    "path": "failed-build-focused-final-input-hashes.json",
+    "length": 402109,
+    "sha256": "E2C23B4A97E7189B05415A1D81F647DA7240377910301DDC15D2DACF381A0FD2"
+  },
+  {
+    "path": "failed-build-focused-input-hashes.json",
+    "length": 402109,
+    "sha256": "94DDB7785ADF91550AA3E2A859555A8D180E27C5C1B36F7D6D8BFCE471CD2FF6"
+  },
+  {
+    "path": "failed-build-focused-source-drift.json",
+    "length": 531,
+    "sha256": "1E8E9B16443155688C7AE5012A6A26E6ABBB53A3F7BBC2BD8EF575E9115746AD"
+  },
+  {
+    "path": "failed-build-focused-summary.json",
+    "length": 1737,
+    "sha256": "5BCE5745832490DF622C92566D0C1ACD146EDD49529451EBD63229958DB87581"
+  },
+  {
+    "path": "final-input-discovery.json",
+    "length": 31,
+    "sha256": "25335E26ED40CECAC7EE57685A7D1CE04537CB4E8A7F3FCF3C6485CB79D01EDE"
+  },
+  {
+    "path": "focused-build.log",
+    "length": 7423,
+    "sha256": "F5170E48B98A46D4E87F89E6C4BA951BDE67EF39AB3568A5C4E55493A97762BD"
+  },
+  {
+    "path": "focused-core.log",
+    "length": 5844,
+    "sha256": "B817AB88469C68DB107960C1A85745D026283050D09B6F359C8DCB3635CEC867"
+  },
+  {
+    "path": "focused-final-input-hashes.json",
+    "length": 402264,
+    "sha256": "46A1130C84771424858F45C9BA773B15CE5E79C1B25DCFAFE594189D71EBB32B"
+  },
+  {
+    "path": "focused-input-hashes.json",
+    "length": 402264,
+    "sha256": "677C9FE185068EB2058C62F09E48304CF391ACE964C2EB5BB22CC4E6C0A8D338"
+  },
+  {
+    "path": "focused-source-drift.json",
+    "length": 201,
+    "sha256": "47D31692859F4D95752DE3880A84B58D13DE64604BDD30C626B8BBCD9BB6FD0C"
+  },
+  {
+    "path": "focused-summary.json",
+    "length": 1948,
+    "sha256": "96C9DA039C92DD77D97C2F07BC8F91EF0696FB12F3CDD2B02E7C52F4EF873871"
+  },
+  {
+    "path": "focused-wpf.log",
+    "length": 3180,
+    "sha256": "3129E4F279B4898DC5E9ED48FF9D6564A4D522E350CA83D58BC4F3FA68D7EAC3"
+  },
+  {
+    "path": "GameEngine.ProgramLifecycle.cs.before",
+    "length": 335796,
+    "sha256": "F9A9B5269FCB592B980E29CF19F706B1AEA45153D20926A729487825631DD8AA"
+  },
+  {
+    "path": "GameEngine.ProgramLifecycle.cs.candidate",
+    "length": 336529,
+    "sha256": "068F096450DB4C23579EC797FD27DBA689F66779646D185BFF4680403A4F563B"
+  },
+  {
+    "path": "GameEngine.ProgramLifecycle.cs.concurrent-baseline",
+    "length": 336651,
+    "sha256": "D146AC110291E3E220B0A54A6F47503E5DBF301BFD1BEA73A2C8039314E98F1B"
+  },
+  {
+    "path": "GameEngine.ProgramLifecycle.cs.patch",
+    "length": 9839,
+    "sha256": "B52F9D4B05A63510C2EC3BE03C7D488420FC26F4EAE4ACB800AC06FE8236DEC6"
+  },
+  {
+    "path": "IncomingDistanceCourtesyChecks.cs.before",
+    "length": 22572,
+    "sha256": "630308A17BD32D96249842290D5E338015406167574F75A64BFC486AE2428EC6"
+  },
+  {
+    "path": "initial-focused-build.log",
+    "length": 9621,
+    "sha256": "72383D5E0C28EF049759FBDB88AA9FD86DD3F7AFD816D6DC737FAEC2031556C7"
+  },
+  {
+    "path": "initial-focused-core.log",
+    "length": 44,
+    "sha256": "33325B1216933A5CBC4FC38E6FAA7FE3D6B7269370240074D6976287B6974F66"
+  },
+  {
+    "path": "initial-focused-final-input-hashes.json",
+    "length": 401778,
+    "sha256": "BE34E4A289419D8BC1E1B6ED85C20D97630959AE2E663B6DA1BB0721D297FB45"
+  },
+  {
+    "path": "initial-focused-input-hashes.json",
+    "length": 401778,
+    "sha256": "209AC5D920C71087E00FF3BFAB0A726FCAC684D03D8E0C677DF9FB0D186DE7AE"
+  },
+  {
+    "path": "initial-focused-source-drift.json",
+    "length": 366,
+    "sha256": "F9AEFB1B4CD38919A827593B2A054E11961C4073AC12DB89973F54475B9392A7"
+  },
+  {
+    "path": "initial-focused-summary.json",
+    "length": 2733,
+    "sha256": "45F82FDC9273FE717CC0181D26E86F87733B655F68DBED462CFC3FFEF8FF1C26"
+  },
+  {
+    "path": "initial-focused-wpf.log",
+    "length": 3180,
+    "sha256": "3129E4F279B4898DC5E9ED48FF9D6564A4D522E350CA83D58BC4F3FA68D7EAC3"
+  },
+  {
+    "path": "initial-routine-build.log",
+    "length": 9621,
+    "sha256": "F5AF59E0607421FCEF4417609550D91F85A625330864D9C8CD945EB8C39BED20"
+  },
+  {
+    "path": "initial-routine-core.log",
+    "length": 102973,
+    "sha256": "53207ECA58BEB705CDB07F5C0CD8BC7FAF73DF2C0696B745A05844A01DC36681"
+  },
+  {
+    "path": "initial-routine-failures.json",
+    "length": 206,
+    "sha256": "FEEA0C4147F09AACC3A8C77E87894DBFADBB0408D4018D8E837895B3609715C3"
+  },
+  {
+    "path": "initial-routine-final-input-hashes.json",
+    "length": 402264,
+    "sha256": "3ACB4589ECA92532258F6A7FEC97AE58102BA2AF7B807086B8BFCD3DBAAEB634"
+  },
+  {
+    "path": "initial-routine-input-hashes.json",
+    "length": 402264,
+    "sha256": "443B4016D77058336F7C15621194A9BA379E08D4CB9FE3E579EAB684A581F488"
+  },
+  {
+    "path": "initial-routine-source-drift.json",
+    "length": 860,
+    "sha256": "494F30894CB6EE7261B076C5627956B66B194C386D7B35F73AA423CE12A0CD55"
+  },
+  {
+    "path": "initial-routine-summary.json",
+    "length": 17937,
+    "sha256": "1C82134CA8AD1845B8CF2AC4FE4AC8988C7EDFD54A6AFB0D6786DA26CE167356"
+  },
+  {
+    "path": "initial-routine-wpf.log",
+    "length": 93489,
+    "sha256": "A1021DF3B8E3C111C1B3E34EF14E707FA1E0E8C331404FDDF402B5900CA3FAD9"
+  },
+  {
+    "path": "lifecycle-before.json",
+    "length": 169,
+    "sha256": "564C2D4DE07C1067F25A3C4AC0A674A458F4557C04126F07C4AA8FCB7C702150"
+  },
+  {
+    "path": "lifecycle-concurrent.diff",
+    "length": 5318,
+    "sha256": "13D720BF00AB17B3C625809E82292ED3CEEE213B273219DA6995CEF3492EB43A"
+  },
+  {
+    "path": "lifecycle-owned-proof.json",
+    "length": 550,
+    "sha256": "7C66A8AD33467449EB61B59131D5CE5089B6BB625B79BAC074BA1E3AEA8395C0"
+  },
+  {
+    "path": "lifecycle-owned.diff",
+    "length": 5698,
+    "sha256": "8811C94A67E24C8F8202F6EE5FA2BA8DE89BD4F16C76BB98154E2F27C29BCCC5"
+  },
+  {
+    "path": "MainViewModel.CardAim.cs.before",
+    "length": 6050,
+    "sha256": "C1A24D1E938ECD14712E4B3621F309EA6C7F7AC034624602AFBD558381097F5C"
+  },
+  {
+    "path": "MainViewModel.CardAim.cs.before.json",
+    "length": 672,
+    "sha256": "E5AD43862729BDC0A315F3DDCA899977CE73C02CA6CC38A296A2BCD9605B2993"
+  },
+  {
+    "path": "MainViewModel.CardTargets.cs.before",
+    "length": 4936,
+    "sha256": "4E5EA8908B56F9AE2B445D2A76B4E9588101F2CF4A8F0BDF0ACD4B6A5562DFA5"
+  },
+  {
+    "path": "MainViewModel.CardTargets.cs.before.json",
+    "length": 679,
+    "sha256": "AB57F6E26B5DDC5C92644EEEF2F3EB612663B2687D77E1A7FF824E9142A2721C"
+  },
+  {
+    "path": "ol-wang-rong-registration.diff",
+    "length": 811,
+    "sha256": "0873192278724A2265B5EC0A670ADDCC8E98D10A0F881027321809B05412105C"
+  },
+  {
+    "path": "owned-source-changes.json",
+    "length": 1496,
+    "sha256": "EBE36C55BB783285E9C78CC7A5C3B7AB1B6AFF5124DB8100D5ECF6D593DA1A05"
+  },
+  {
+    "path": "owned-verification-proof.json",
+    "length": 2282,
+    "sha256": "2FE21AB826203C86D984D53993C0DB237D535E39C4180AC3FD26B3A852FD3326"
+  },
+  {
+    "path": "recheck-build.log",
+    "length": 9621,
+    "sha256": "22FCEF7A959F6E479336249FF79651D3626F2994A125148B9C654EAF851F788F"
+  },
+  {
+    "path": "recheck-core.log",
+    "length": 21506,
+    "sha256": "0C197719E180C1F345FE77EC01CF88148B6CD65F4CD5E95D18FA233D3CCF67FF"
+  },
+  {
+    "path": "recheck-final-input-hashes.json",
+    "length": 402435,
+    "sha256": "AB97D5F9E9C3012FD28D80BB34C0BDF1AB38C144B56254BEC2C21B3C42CE1014"
+  },
+  {
+    "path": "recheck-input-hashes.json",
+    "length": 402435,
+    "sha256": "33AC9861986C6A235FC15E78FBA360D0C786800CCC8F72ECC2393EC2987F1A26"
+  },
+  {
+    "path": "recheck-source-drift.json",
+    "length": 201,
+    "sha256": "8AA518CE0E728ABB3411FE94BA7D3CF5A6AE3116DCE4F573020A7F6FCA4E7C45"
+  },
+  {
+    "path": "recheck-summary.json",
+    "length": 2257,
+    "sha256": "C34C4FD2F9A4B125431836E6C06851739013B706E3E7CF875BF300F86915D351"
+  },
+  {
+    "path": "recheck-wpf.log",
+    "length": 278,
+    "sha256": "C5CE8FF5AD2CC70BFA447D296BAD041CEA2A1F0987733C73C66F0FC20B1F5828"
+  },
+  {
+    "path": "recheck.ps1",
+    "length": 2505,
+    "sha256": "439114494219EE14FC3F06F6C50475E38AF1D464222929BE55E16C9D733384C8"
+  },
+  {
+    "path": "repair-attribution.json",
+    "length": 160,
+    "sha256": "29014918F312C5FAFFCF886DC53E0C2306C1AB6842D97B64E02E79839658AC50"
+  },
+  {
+    "path": "review-courtesy-fixture-fix.json",
+    "length": 4058,
+    "sha256": "779C0BABE4636FD99FAAD535F4661DF5AD1A8BCE0C59A680136ED1F38A2B8E19"
+  },
+  {
+    "path": "review-frozen-projection.json",
+    "length": 10565,
+    "sha256": "25B657B1D04C8DB5A8BDB693E55D6D9F6A5BC29F25A900EA0C251CBD25BFCF3C"
+  },
+  {
+    "path": "review-gallery-failure.json",
+    "length": 4692,
+    "sha256": "C9A1511FEAE4CF95DE8CB193E3830B983304693CC773343454C14DEDE4E46959"
+  },
+  {
+    "path": "review-gallery-registration-fix.json",
+    "length": 2739,
+    "sha256": "60B620EE4C7A6C11B8D217F885C3ED3F085C0D8136D8E3D523DB7E8D7E5A5D05"
+  },
+  {
+    "path": "review-lifecycle-features.json",
+    "length": 9484,
+    "sha256": "F6F54C479157E367843A9D5C6B0B330900D687561BB6CBD927CDA050CC385C4D"
+  },
+  {
+    "path": "review-wpf-candidate.json",
+    "length": 7883,
+    "sha256": "3E34B57629A0454CD2887C961CB4E93D743F130FA76CA44F8AFDA99028BD85AE"
+  },
+  {
+    "path": "review-wpf-implementation.json",
+    "length": 6830,
+    "sha256": "99E9DAD8B7EC9E135E64030FC03FDB0A31E9EC562448D97DFBB6845CAAB2D147"
+  },
+  {
+    "path": "routine-build.log",
+    "length": 926,
+    "sha256": "487427899AE21D188317A4D69EB121C5FF510C4FD3F5BC17DF419C77DD87DC75"
+  },
+  {
+    "path": "routine-core.log",
+    "length": 116499,
+    "sha256": "DD6A02FF402466D8A63E24D1DA255EB51341CD9AD12EC3C071509921933C76A2"
+  },
+  {
+    "path": "routine-final-input-hashes.json",
+    "length": 402435,
+    "sha256": "AB97D5F9E9C3012FD28D80BB34C0BDF1AB38C144B56254BEC2C21B3C42CE1014"
+  },
+  {
+    "path": "routine-input-hashes.json",
+    "length": 402435,
+    "sha256": "33AC9861986C6A235FC15E78FBA360D0C786800CCC8F72ECC2393EC2987F1A26"
+  },
+  {
+    "path": "routine-source-drift.json",
+    "length": 201,
+    "sha256": "8AA518CE0E728ABB3411FE94BA7D3CF5A6AE3116DCE4F573020A7F6FCA4E7C45"
+  },
+  {
+    "path": "routine-summary.json",
+    "length": 17898,
+    "sha256": "C63D09E402776CB22403E0C7FA120904F69C2C60631C101058594176E9A06160"
+  },
+  {
+    "path": "routine-wpf.log",
+    "length": 92812,
+    "sha256": "2DAA0F743F19A3BC0F613C27B092DFBC2A3E93BBDE6DE4DC15B43754383F5E4A"
+  },
+  {
+    "path": "StandardClassicGeneralPackage.cs.before",
+    "length": 119185,
+    "sha256": "31FD561AF988DDDFB8EC9EA0D31FC0465399990532C191284610592D3B6EE5FA"
+  },
+  {
+    "path": "StandardClassicGeneralPackage.cs.before.json",
+    "length": 694,
+    "sha256": "9675859FDDB5D900BB597964376CFAF51FEFCA34FF8411C8F7BE73FBA58CA62A"
+  },
+  {
+    "path": "structural-results.json",
+    "length": 1646,
+    "sha256": "03785AF79DFAC8380F3BF1306E3BAB320CD9E1A09734412F90FF92AD1099ABDC"
+  },
+  {
+    "path": "Test-Changed.invoked.ps1",
+    "length": 19004,
+    "sha256": "F010EEF5CA911570F55419757FEB1B23D292BAAE7E53384D86F23AB04BA1A91D"
+  },
+  {
+    "path": "VerificationScopes.invoked.psd1",
+    "length": 17082,
+    "sha256": "C4ABD2AECF4510AF912F53EF78782C59E5962682479430387355D67E990FB000"
+  },
+  {
+    "path": "verify.ps1",
+    "length": 2684,
+    "sha256": "CF85FADF1B2AAC2A4335DF63D4EB1806D468F294F2BEAA11D26937AEFC15B7C2"
+  },
+  {
+    "path": "wpf-canonical-targets.diff",
+    "length": 2312,
+    "sha256": "1378871DC284E249F5D185BD2A796CCDCC2E2435AD171317F8ADAA7F5E46FE2D"
+  }
+]

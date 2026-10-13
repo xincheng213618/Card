@@ -1,0 +1,114 @@
+{
+  "Mode": "Full decoded RGBA pixel comparison, including alpha",
+  "Comparisons": [
+    {
+      "Name": "consecutive before-after",
+      "Left": "docs\\benchmarks\\2026-10-13-amount-cache-before-battle-text-consecutive.png",
+      "Right": "docs\\benchmarks\\2026-10-13-amount-cache-after-battle-text-consecutive.png",
+      "Size": [
+        850,
+        500
+      ],
+      "ChangedPixels": 0,
+      "MaxChannelDelta": 0,
+      "DifferenceBounds": null
+    },
+    {
+      "Name": "crowd before-after",
+      "Left": "docs\\benchmarks\\2026-10-13-amount-cache-before-battle-text-edge-crowd.png",
+      "Right": "docs\\benchmarks\\2026-10-13-amount-cache-after-battle-text-edge-crowd.png",
+      "Size": [
+        850,
+        500
+      ],
+      "ChangedPixels": 0,
+      "MaxChannelDelta": 0,
+      "DifferenceBounds": null
+    },
+    {
+      "Name": "drawing scene before-after",
+      "Left": "docs\\benchmarks\\2026-10-13-amount-cache-before-drawing-1-before.png",
+      "Right": "docs\\benchmarks\\2026-10-13-amount-cache-after-drawing-1-before.png",
+      "Size": [
+        850,
+        500
+      ],
+      "ChangedPixels": 0,
+      "MaxChannelDelta": 0,
+      "DifferenceBounds": null
+    },
+    {
+      "Name": "before process agreement",
+      "Left": "docs\\benchmarks\\2026-10-13-amount-cache-before-drawing-1-before.png",
+      "Right": "docs\\benchmarks\\2026-10-13-amount-cache-before-drawing-2-before.png",
+      "Size": [
+        850,
+        500
+      ],
+      "ChangedPixels": 0,
+      "MaxChannelDelta": 0,
+      "DifferenceBounds": null
+    },
+    {
+      "Name": "after process agreement",
+      "Left": "docs\\benchmarks\\2026-10-13-amount-cache-after-drawing-1-before.png",
+      "Right": "docs\\benchmarks\\2026-10-13-amount-cache-after-drawing-2-before.png",
+      "Size": [
+        850,
+        500
+      ],
+      "ChangedPixels": 0,
+      "MaxChannelDelta": 0,
+      "DifferenceBounds": null
+    },
+    {
+      "Name": "before run1 measurement stable",
+      "Left": "docs\\benchmarks\\2026-10-13-amount-cache-before-drawing-1-before.png",
+      "Right": "docs\\benchmarks\\2026-10-13-amount-cache-before-drawing-1-after.png",
+      "Size": [
+        850,
+        500
+      ],
+      "ChangedPixels": 0,
+      "MaxChannelDelta": 0,
+      "DifferenceBounds": null
+    },
+    {
+      "Name": "before run2 measurement stable",
+      "Left": "docs\\benchmarks\\2026-10-13-amount-cache-before-drawing-2-before.png",
+      "Right": "docs\\benchmarks\\2026-10-13-amount-cache-before-drawing-2-after.png",
+      "Size": [
+        850,
+        500
+      ],
+      "ChangedPixels": 0,
+      "MaxChannelDelta": 0,
+      "DifferenceBounds": null
+    },
+    {
+      "Name": "after run1 measurement stable",
+      "Left": "docs\\benchmarks\\2026-10-13-amount-cache-after-drawing-1-before.png",
+      "Right": "docs\\benchmarks\\2026-10-13-amount-cache-after-drawing-1-after.png",
+      "Size": [
+        850,
+        500
+      ],
+      "ChangedPixels": 0,
+      "MaxChannelDelta": 0,
+      "DifferenceBounds": null
+    },
+    {
+      "Name": "after run2 measurement stable",
+      "Left": "docs\\benchmarks\\2026-10-13-amount-cache-after-drawing-2-before.png",
+      "Right": "docs\\benchmarks\\2026-10-13-amount-cache-after-drawing-2-after.png",
+      "Size": [
+        850,
+        500
+      ],
+      "ChangedPixels": 0,
+      "MaxChannelDelta": 0,
+      "DifferenceBounds": null
+    }
+  ],
+  "AllEqual": true
+}

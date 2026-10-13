@@ -1,0 +1,257 @@
+[
+  {
+    "path": ".owner",
+    "length": 103,
+    "sha256": "61C1157041BF4BD8255108A75ED3BFF460819E64887287897552422B3FB4F385"
+  },
+  {
+    "path": "after/src/CardGame.Core/GameEngine.CurrentTurnShownCardBenefits.cs",
+    "length": 4849,
+    "sha256": "34182669C128F7791C6CBDCCDDD178F2B6D5DD5871F2865ADE0BF99AAC4027DF"
+  },
+  {
+    "path": "after/src/CardGame.Core/GameEngine.ProgramLifecycle.cs",
+    "length": 335407,
+    "sha256": "1DA28FC53F67A40FFA3E8A07A93FBF7C05D01DF016DAE2ED3655634CFF993DEC"
+  },
+  {
+    "path": "after/src/CardGame.Core/GameEngine.ShownEntityTurnPolicies.cs",
+    "length": 14411,
+    "sha256": "AC15A07B278E65A99706257BA8919832B853FA12CE9E0E1C0218298724965DAE"
+  },
+  {
+    "path": "after/src/CardGame.Wpf/ViewModels/MainViewModel.cs",
+    "length": 101218,
+    "sha256": "B7C6AEF064F7FF73639062B5A4B1DDA9F727ED879FACB4CFBA2F7A6273951940"
+  },
+  {
+    "path": "after/src/CardGame.Wpf/ViewModels/MainViewModel.Presentation.cs",
+    "length": 51253,
+    "sha256": "B6A21A594D411B1904DE67C302C5F2A68D6ECEED0DA6D85FD9D6487229C2B8AE"
+  },
+  {
+    "path": "after/src/CardGame.Wpf/ViewModels/MainViewModel.ViewQueries.cs",
+    "length": 2018,
+    "sha256": "66ADBB2959498DE44EFA2FA8C99DE61CA1265D4C8696AAA8CA726F979BEC0402"
+  },
+  {
+    "path": "archive.ps1",
+    "length": 3652,
+    "sha256": "88F65801BCD9942651D3E6AD2ABF056B1C6EC6CA3F825BAF6E473328A67728D6"
+  },
+  {
+    "path": "before/src/CardGame.Core/GameEngine.CurrentTurnShownCardBenefits.cs",
+    "length": 4853,
+    "sha256": "73D95566EC4470E72940CBD03B3EB595BA581015032D4805814BB0A5127B5134"
+  },
+  {
+    "path": "before/src/CardGame.Core/GameEngine.ProgramLifecycle.cs",
+    "length": 335398,
+    "sha256": "2853002BE6A4F3C8268AAB5DB1A46E3DA06A8DB1632684DD8E82F9A37A65292E"
+  },
+  {
+    "path": "before/src/CardGame.Core/GameEngine.ShownEntityTurnPolicies.cs",
+    "length": 14367,
+    "sha256": "41F0BC89C7EBEBF51AB7DFC4A37695530F44A0C2281CB328E1A755D62A137F75"
+  },
+  {
+    "path": "final-input-discovery.json",
+    "length": 31,
+    "sha256": "25335E26ED40CECAC7EE57685A7D1CE04537CB4E8A7F3FCF3C6485CB79D01EDE"
+  },
+  {
+    "path": "focused-build.log",
+    "length": 9621,
+    "sha256": "C21CA01C1A17D6673DD87F3233546FD3D165C72CBE9CB7E8FA5D8B0DD6C34461"
+  },
+  {
+    "path": "focused-core.log",
+    "length": 1508,
+    "sha256": "0AB498A88C14E247B2DCEEBB1A4D807AEEDAD0CDED971F3F1377F17E0FC610A5"
+  },
+  {
+    "path": "focused-final-input-hashes.json",
+    "length": 398063,
+    "sha256": "A7A2B0784E2175F04C977EC2F83E2A9AD464DD6495E8585AC32C3A7820DC0E0B"
+  },
+  {
+    "path": "focused-input-hashes.json",
+    "length": 398063,
+    "sha256": "C4806E37DB8B7729806E003C554095F4D220657FED68860B8313CEE81DD3DFCD"
+  },
+  {
+    "path": "focused-source-drift.json",
+    "length": 201,
+    "sha256": "5AA139F51175BA008E97F3BBA0DC910E15BC0A86E4090FB044B9486C465360F3"
+  },
+  {
+    "path": "focused-summary.json",
+    "length": 2592,
+    "sha256": "D093562E38F22E62836DFF3E8B9ABB41DF40641CE1E08DB846E8E54E3263E2E6"
+  },
+  {
+    "path": "focused-wpf.log",
+    "length": 4279,
+    "sha256": "FB555C099AD6A5A6B0FF7C058E10F6A6919C0705F7AE5D212DD650D5CADD35F9"
+  },
+  {
+    "path": "MainViewModel.cs.before",
+    "length": 101377,
+    "sha256": "E128A7D9F6642E34FD8CFE14507F74F05BCD19A93412E825AB91EF3F8846B294"
+  },
+  {
+    "path": "MainViewModel.cs.before.json",
+    "length": 641,
+    "sha256": "12FC7C0F9029CCE39B358A2EA03787B30F634930FC9D42F7D2AE2746307B20C1"
+  },
+  {
+    "path": "MainViewModel.Presentation.cs.before",
+    "length": 51564,
+    "sha256": "D1D1AA515CEE3D0903FB818D95AA7B63863DC4DFAC7666F0465403C82CB3FDCB"
+  },
+  {
+    "path": "MainViewModel.Presentation.cs.patch",
+    "length": 3271,
+    "sha256": "45E24368999467436842317C6A6E3277577F255F3DD12AFEB170C8853F32A0E2"
+  },
+  {
+    "path": "MainViewModel.ViewQueries.cs.before",
+    "length": 2213,
+    "sha256": "F17EB63C1A0A0D0FB13490E5871F8A21EBF11D073AF5C2D409ED6B664703C45D"
+  },
+  {
+    "path": "MainViewModel.ViewQueries.cs.patch",
+    "length": 2170,
+    "sha256": "93C9D3D5D3DBCAA189F7DED972F404669D25ABB6BAA60619046190547C12127B"
+  },
+  {
+    "path": "owned-source-changes.json",
+    "length": 1678,
+    "sha256": "7CEABEE8584EA1307D910BC810E1FF16FAC3DD889C9BD2BDCC8A09EA185D2846"
+  },
+  {
+    "path": "owned-verification-proof.json",
+    "length": 2269,
+    "sha256": "FB33B91FBD250F44F3E6592D3402364CF30E8593181CA3A59A08FD3F6531AD3D"
+  },
+  {
+    "path": "policy-after.json",
+    "length": 1148,
+    "sha256": "4B5FFB392D376AD83D4F7D983511DBE3FE92F0AC5AB0A017CCE9EC2A4036273D"
+  },
+  {
+    "path": "policy-before.json",
+    "length": 1609,
+    "sha256": "955360DA027962B6C3AA98ABA5C1FAD1B6AD37CA63C7A2FA6CA0F2207D8D060D"
+  },
+  {
+    "path": "policy-query.diff",
+    "length": 3396,
+    "sha256": "3567305940F35DEC118F716B7B1B8F6E95AA6E5B7552FEB6E83CDA4880727EEE"
+  },
+  {
+    "path": "presentation-before.json",
+    "length": 177,
+    "sha256": "D5C2C9F58A0AFAFEA3CC7A35F29BF99DB4749A3175F0FBDD88FD073DA0FACC2E"
+  },
+  {
+    "path": "presentation-candidate.json",
+    "length": 178,
+    "sha256": "B27713D6464AF0AC51921BF38E791440D6BB21ADBF5F567A97379DD1AD5DCD5C"
+  },
+  {
+    "path": "review-policy-implementation.json",
+    "length": 9640,
+    "sha256": "517522186BFE9037427BCC9E621121FD678A4F3671A534B386377FCDF7E8E264"
+  },
+  {
+    "path": "review-presentation-properties.json",
+    "length": 12312,
+    "sha256": "EE725DD430A2759B1D398A4EED63AF68D8D98C33F7AC7E6B102451A6F2996617"
+  },
+  {
+    "path": "review-view-query-authority.json",
+    "length": 1283,
+    "sha256": "02C8B086D681AE0C02684601DA4F50AA8D69838B46D4D247429AFDC6E2DA7626"
+  },
+  {
+    "path": "review-wpf-active-skill-toggle.json",
+    "length": 6594,
+    "sha256": "DF59B46F649C3C37CA9D941401BB7D1E832CD551D6FA60978B1ABC7B4699BAF2"
+  },
+  {
+    "path": "root-source-changes.json",
+    "length": 570,
+    "sha256": "0239B7108CA042AF1541653BB69DE25AFA6D060533C3098AFF468BE0A62D69F4"
+  },
+  {
+    "path": "routine-build.log",
+    "length": 926,
+    "sha256": "C7E7BAEE4D724F7ACC3EB48AC4F330FFC3E74765C79756EB32EC74E414F8FF46"
+  },
+  {
+    "path": "routine-core.log",
+    "length": 90262,
+    "sha256": "3CFA494BC1BA2F5464E3E9A28CB1615FB9855E6A0F7E5EB973FD27D8FDDF08D7"
+  },
+  {
+    "path": "routine-final-input-hashes.json",
+    "length": 398063,
+    "sha256": "A7A2B0784E2175F04C977EC2F83E2A9AD464DD6495E8585AC32C3A7820DC0E0B"
+  },
+  {
+    "path": "routine-input-hashes.json",
+    "length": 398063,
+    "sha256": "C4806E37DB8B7729806E003C554095F4D220657FED68860B8313CEE81DD3DFCD"
+  },
+  {
+    "path": "routine-source-drift.json",
+    "length": 201,
+    "sha256": "5AA139F51175BA008E97F3BBA0DC910E15BC0A86E4090FB044B9486C465360F3"
+  },
+  {
+    "path": "routine-summary.json",
+    "length": 17816,
+    "sha256": "EB8E9329523D18660EC870E7A309D2168EE065B28F6984975503317AABDE4441"
+  },
+  {
+    "path": "routine-wpf.log",
+    "length": 92677,
+    "sha256": "E31112001164FCAAF5B6FE6AD5EFB40BC2ABE8C932A1F71A72649C0A93E568BD"
+  },
+  {
+    "path": "structural-results.json",
+    "length": 1379,
+    "sha256": "CB10D4F497040610329D6C967BCA600DB21865A2CB44D6FAB357C22C2AC31CCB"
+  },
+  {
+    "path": "Test-Changed.invoked.ps1",
+    "length": 19004,
+    "sha256": "F010EEF5CA911570F55419757FEB1B23D292BAAE7E53384D86F23AB04BA1A91D"
+  },
+  {
+    "path": "VerificationScopes.invoked.psd1",
+    "length": 16989,
+    "sha256": "B3D52E6BE7FC3468A34F00B3352A2B4AA4A7AF185872E635B4BE22DF1BEBC822"
+  },
+  {
+    "path": "verify.ps1",
+    "length": 2802,
+    "sha256": "10C1A71DD8635DAFC89703DE192580C0A2CA63B34C4072B8BC6831DDA3C8D91C"
+  },
+  {
+    "path": "view-query-before.json",
+    "length": 157,
+    "sha256": "DBD98CFA60B5E6965C9875CB15527DB838E3E3D5E3252DBF2B57209EA1553E84"
+  },
+  {
+    "path": "view-query-structure.json",
+    "length": 304,
+    "sha256": "CE3CAC9B94C28FAA82BC0CEF05C11878FB7810058A9542416413DB265473D696"
+  },
+  {
+    "path": "wpf-active-skill-toggle.diff",
+    "length": 1619,
+    "sha256": "5D3DADD9B783084D0FE617164D189D787F145D7F80072B2FED4BD2BF608FF7B0"
+  }
+]

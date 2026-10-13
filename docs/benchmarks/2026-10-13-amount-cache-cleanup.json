@@ -1,0 +1,34 @@
+{
+  "AuditedAt": "2026-10-13T16:34:37.0324553+08:00",
+  "Root": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-Startup-01a13324",
+  "OwnerVerified": true,
+  "Consumers": [],
+  "ExclusiveLockVerified": true,
+  "LinkedPaths": false,
+  "DeletionAttempted": false,
+  "RetryAttempted": false,
+  "FreedBytes": 0,
+  "Retained": [
+    {
+      "Path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-Startup-01a13324",
+      "Present": true
+    },
+    {
+      "Path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-Startup-01a13324\\bin",
+      "Present": true
+    },
+    {
+      "Path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-Startup-01a13324\\obj",
+      "Present": true
+    },
+    {
+      "Path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-Startup-01a13324\\renders",
+      "Present": true
+    },
+    {
+      "Path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-Startup-01a13324\\amount-cache-harness",
+      "Present": true
+    }
+  ],
+  "Reason": "Prior blocked-by-policy root deletion rejection; no retry. Controlled measurement, full decoded pixel comparisons, red/green behavior proofs and final routine logs preserved in docs/benchmarks."
+}

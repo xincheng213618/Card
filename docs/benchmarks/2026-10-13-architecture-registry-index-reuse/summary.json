@@ -1,0 +1,59 @@
+{
+  "scope": "Architecture iteration8: frozen registry/index reuse",
+  "sourceChanges": [
+    "src/CardGame.Core/SkillProgramDependencies.cs",
+    "tests/CardGame.Wpf.Tests/StableHandResponseFixture.cs"
+  ],
+  "removedMirror": "Trigger operation membership set; existing frozen operation-to-skill dictionary is now the sole trigger-op index.",
+  "registryReuse": {
+    "avoidedBuilds": 21,
+    "successfulIndependentCreates": 33,
+    "registryBuildsBefore": 33,
+    "exceptionSemantics": "Original guards precede cache lookup; entries added only after successful Build.",
+    "registryBuildsAfter": 12,
+    "tradeoff": "The test process retains 12 frozen registries. Live games, views, checkpoints and stores are never shared.",
+    "uniqueTuples": 12,
+    "key": "DecisionKind plus all six booleans; output path excluded"
+  },
+  "focused": {
+    "durationMs": 50366,
+    "wpfPassed": 5,
+    "corePassed": 7
+  },
+  "compiledCatalogFocused": {
+    "corePassed": 1,
+    "durationMs": 20040
+  },
+  "routine": {
+    "coreMs": 96871,
+    "durationMs": 205777,
+    "buildMs": 7126,
+    "manualFull": false,
+    "wpfPassed": 74,
+    "sourceInputs": 2292,
+    "sourceDrifts": 0,
+    "wpfFailed": 0,
+    "status": "passed",
+    "corePassed": 535,
+    "wpfMs": 101411,
+    "coreFailed": 0
+  },
+  "rulesVersionChangedByThisBatch": false,
+  "foregroundDesktopAcceptance": false,
+  "performanceLimit": "21 duplicate registry constructions removed; no isolated cache timing benchmark or end-to-end speedup claim. Routine exceeds the one-minute target.",
+  "evidence": {
+    "files": 34,
+    "bytes": 302301,
+    "sha256": "2B5FEFAD77333E4469AB0E4C967500783AAC512B0D9E12EF4AEBA71C3CC3CDA9"
+  },
+  "retention": {
+    "taskRoot": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-architecture-01a13336",
+    "measuredBytes": 3579893562.0,
+    "iteration8Bytes": 1103502.0,
+    "disposedOutputDirsCreatedThisBatch": 0,
+    "priorBlockedOutputsRetained": true,
+    "newBlockedOutput": "iteration7/causal-output",
+    "newBlockedOutputBytes": 100682402,
+    "deletionOccurred": false
+  }
+}

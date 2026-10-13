@@ -1,0 +1,1122 @@
+[
+  {
+    "kind": "Resume",
+    "order": 10,
+    "method": "ResumeFriendTrio",
+    "path": "src/CardGame.Core/GameEngine.FriendTrio.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 20,
+    "method": "ResumeFriendPangTong",
+    "path": "src/CardGame.Core/GameEngine.FriendPangTong.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 30,
+    "method": "ResumeFriendEvent",
+    "path": "src/CardGame.Core/GameEngine.FriendEvents.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 40,
+    "method": "ResumeMouZhijue",
+    "path": "src/CardGame.Core/GameEngine.MouZhugePrograms.cs",
+    "parameter": "ProgramSkillFrame"
+  },
+  {
+    "kind": "Resume",
+    "order": 50,
+    "method": "ResumeSelectedForeignCardSlash",
+    "path": "src/CardGame.Core/GameEngine.ForeignSelectedCardSlash.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 60,
+    "method": "ResumeMatchingRecast",
+    "path": "src/CardGame.Core/GameEngine.MatchingRecasts.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 70,
+    "method": "ResumePairedHandRecast",
+    "path": "src/CardGame.Core/GameEngine.PairedHandRecast.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 80,
+    "method": "ResumePhaseNamePrediction",
+    "path": "src/CardGame.Core/GameEngine.PhaseNamePrediction.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 90,
+    "method": "ResumeLastDamageSourceReciprocity",
+    "path": "src/CardGame.Core/GameEngine.LastDamageSourceReciprocity.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 100,
+    "method": "ResumeOutsidePhaseDrawDiscard",
+    "path": "src/CardGame.Core/GameEngine.OutsidePhaseDrawDiscard.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 110,
+    "method": "ResumeOffTurnUsedCardGift",
+    "path": "src/CardGame.Core/GameEngine.OffTurnUsedCards.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 120,
+    "method": "ResumeOrderedPrintedSkillLoss",
+    "path": "src/CardGame.Core/GameEngine.OrderedPrintedSkillLoss.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 130,
+    "method": "ResumeOverflowTargetCancellation",
+    "path": "src/CardGame.Core/GameEngine.OverflowTargetCancellation.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 140,
+    "method": "ResumeRecipientCategoryMark",
+    "path": "src/CardGame.Core/GameEngine.RecipientCategoryMarks.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 150,
+    "method": "ResumeOriginalHandEntityProgram",
+    "path": "src/CardGame.Core/GameEngine.OriginalHandEntities.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 160,
+    "method": "ResumePairedColorDisposition",
+    "path": "src/CardGame.Core/GameEngine.PairedColorResponses.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 170,
+    "method": "ResumeSameNameHandDiscardOrDamage",
+    "path": "src/CardGame.Core/GameEngine.SameNameHandDiscardOrDamage.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 180,
+    "method": "ResumeCompletedUndamagedTargetReveal",
+    "path": "src/CardGame.Core/GameEngine.CompletedUndamagedTargetReveal.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 190,
+    "method": "ResumeJoinedTrickDamageReward",
+    "path": "src/CardGame.Core/GameEngine.JoinedTrickDamageRewards.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 200,
+    "method": "ResumeRoundGainedEquipmentDraw",
+    "path": "src/CardGame.Core/GameEngine.RoundGainedEquipmentDraws.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 210,
+    "method": "ResumeDrawDiscardCategoryRefund",
+    "path": "src/CardGame.Core/GameEngine.DrawDiscardCategoryRefund.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 220,
+    "method": "ResumeGameActivationAwakening",
+    "path": "src/CardGame.Core/GameEngine.GameActivationAwakening.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 230,
+    "method": "ResumeKuangfu",
+    "path": "src/CardGame.Core/GameEngine.Kuangfu.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 240,
+    "method": "ResumePhaseHandSeizure",
+    "path": "src/CardGame.Core/GameEngine.PhaseHandSeizure.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 250,
+    "method": "ResumePublicPilePreparation",
+    "path": "src/CardGame.Core/GameEngine.PublicPilePreparation.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 260,
+    "method": "ResumePublicPileCashOut",
+    "path": "src/CardGame.Core/GameEngine.PublicPileCashOut.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 270,
+    "method": "ResumeGiftedSlashUseReward",
+    "path": "src/CardGame.Core/GameEngine.GiftedSlashUseRewards.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 280,
+    "method": "ResumeDrawAdvice",
+    "path": "src/CardGame.Core/GameEngine.DrawAdvicePrograms.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 290,
+    "method": "ResumeSourceCurse",
+    "path": "src/CardGame.Core/GameEngine.SourceCurses.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 300,
+    "method": "ResumeGainGift",
+    "path": "src/CardGame.Core/GameEngine.GainGiftPrograms.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 310,
+    "method": "ResumeFixedDistanceOneDebt",
+    "path": "src/CardGame.Core/GameEngine.FixedDistanceOneDebt.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 320,
+    "method": "ResumeActualHandGain",
+    "path": "src/CardGame.Core/GameEngine.ActualHandGainPrograms.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 330,
+    "method": "ResumePrivateOffer",
+    "path": "src/CardGame.Core/GameEngine.PrivateOfferReturns.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 340,
+    "method": "ResumeGameHandHp",
+    "path": "src/CardGame.Core/GameEngine.GameTargetHandHpChoices.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 350,
+    "method": "ResumeFireTargetBenefit",
+    "path": "src/CardGame.Core/GameEngine.FireTargetBenefits.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 360,
+    "method": "ResumeNamedCardAcquisition",
+    "path": "src/CardGame.Core/GameEngine.NamedCardAcquisitions.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 370,
+    "method": "ResumeUniqueHpPeer",
+    "path": "src/CardGame.Core/GameEngine.UniqueHpPeerPrograms.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 380,
+    "method": "ResumeRecipientContest",
+    "path": "src/CardGame.Core/GameEngine.RecipientContests.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 390,
+    "method": "ResumeBlackGiftContest",
+    "path": "src/CardGame.Core/GameEngine.BlackGiftContests.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 400,
+    "method": "ResumePrintedLordBenefit",
+    "path": "src/CardGame.Core/GameEngine.PrintedLordBenefits.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 410,
+    "method": "ResumeDyingSuits",
+    "path": "src/CardGame.Core/GameEngine.DyingSuitsPeachPrograms.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 420,
+    "method": "ResumeEndingHistoricalUses",
+    "path": "src/CardGame.Core/GameEngine.EndingHistoricalUses.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 430,
+    "method": "ResumeCappedConversionBenefit",
+    "path": "src/CardGame.Core/GameEngine.CappedConversionBenefits.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 440,
+    "method": "ResumeEndingPairOrSlashRecast",
+    "path": "src/CardGame.Core/GameEngine.PlaySlashRecasts.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 450,
+    "method": "ResumeCapturedEquipmentAndDraw",
+    "path": "src/CardGame.Core/GameEngine.CapturedEquipmentDraws.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 460,
+    "method": "ResumeActualDiscardRecovery",
+    "path": "src/CardGame.Core/GameEngine.ActualDiscardRecoveries.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 470,
+    "method": "ResumeDynamicDiscardDamage",
+    "path": "src/CardGame.Core/GameEngine.DynamicDiscardDamagePayments.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 480,
+    "method": "ResumeSignedDamagePayment",
+    "path": "src/CardGame.Core/GameEngine.SignedDamagePayments.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 490,
+    "method": "ResumeOwnTrickDraw",
+    "path": "src/CardGame.Core/GameEngine.OwnTrickDrawTargets.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 500,
+    "method": "ResumeSuitPreventionBenefit",
+    "path": "src/CardGame.Core/GameEngine.SuitDamagePreventionBenefits.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 510,
+    "method": "ResumeMatchedJudgmentPlacement",
+    "path": "src/CardGame.Core/GameEngine.MatchedJudgmentPlacements.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 520,
+    "method": "ResumeAdjacentDiscardStorage",
+    "path": "src/CardGame.Core/GameEngine.AdjacentDiscardStorage.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 530,
+    "method": "ResumeCompletedUsePayment",
+    "path": "src/CardGame.Core/GameEngine.CompletedUsePayments.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 540,
+    "method": "ResumeRoundPileAlcohol",
+    "path": "src/CardGame.Core/GameEngine.RoundPricedPileAlcohol.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 550,
+    "method": "ResumeForeignTurnContest",
+    "path": "src/CardGame.Core/GameEngine.ForeignTurnContests.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 560,
+    "method": "ResumeSameTypeAid",
+    "path": "src/CardGame.Core/GameEngine.SameTypeActualUseAid.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 570,
+    "method": "ResumeJuanxia",
+    "path": "src/CardGame.Core/GameEngine.YangYiPrograms.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 580,
+    "method": "ResumeSharedSlashOffer",
+    "path": "src/CardGame.Core/GameEngine.SharedSlashOffers.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 590,
+    "method": "ResumeSlashTargetBenefit",
+    "path": "src/CardGame.Core/GameEngine.SlashTargetBenefitPayments.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 600,
+    "method": "ResumeTargetPenalty",
+    "path": "src/CardGame.Core/GameEngine.SlashTargetPenaltyPayments.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 610,
+    "method": "ResumeGrantedEntityPhaseTrailer",
+    "path": "src/CardGame.Core/GameEngine.GrantedEntityPhases.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 620,
+    "method": "ResumeGrantedPhaseSlashClaim",
+    "path": "src/CardGame.Core/GameEngine.GrantedEntityPhases.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 630,
+    "method": "ResumeProvenanceClaim",
+    "path": "src/CardGame.Core/GameEngine.DiscardedProvenance.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 640,
+    "method": "ResumeProvenanceAlcohol",
+    "path": "src/CardGame.Core/GameEngine.ProvenanceVirtualAlcohol.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 650,
+    "method": "ResumeDamageJudgmentSuitPayment",
+    "path": "src/CardGame.Core/GameEngine.DamageJudgmentSuitPayments.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 660,
+    "method": "ResumeDualColorDuel",
+    "path": "src/CardGame.Core/GameEngine.DualColorDuelPrograms.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 670,
+    "method": "ResumeConditionalDiscardDuel",
+    "path": "src/CardGame.Core/GameEngine.ConditionalDiscardDuels.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 680,
+    "method": "ResumeInspectedHandSlash",
+    "path": "src/CardGame.Core/GameEngine.InspectedHandSlashes.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 690,
+    "method": "ResumeLiejieSourceDiscard",
+    "path": "src/CardGame.Core/GameEngine.LiejieSourceDiscards.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 700,
+    "method": "ResumePlacedEquipmentBenefit",
+    "path": "src/CardGame.Core/GameEngine.PlacedEquipmentBenefits.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 710,
+    "method": "ResumeLeastHandMarkerDraw",
+    "path": "src/CardGame.Core/LeastHandMarkerDrawPrograms.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 720,
+    "method": "ResumeAlternativePhaseCost",
+    "path": "src/CardGame.Core/AlternativePhaseCostPrograms.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 730,
+    "method": "ResumeAwaitedBlindHandTake",
+    "path": "src/CardGame.Core/AwaitedBlindHandTakePrograms.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 740,
+    "method": "ResumeCurrentTurnHandExchange",
+    "path": "src/CardGame.Core/GameEngine.CurrentTurnHandExchange.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 750,
+    "method": "ResumeParticipantHandPayment",
+    "path": "src/CardGame.Core/ParticipantHandPrograms.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 760,
+    "method": "ResumePaidColorDamageClaims",
+    "path": "src/CardGame.Core/GameEngine.PaidColorConversions.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 770,
+    "method": "ResumeBoundDiscardSlashBenefits",
+    "path": "src/CardGame.Core/GameEngine.BoundDiscardSlashBenefits.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 780,
+    "method": "ResumeProgramBoundCardRecast",
+    "path": "src/CardGame.Core/RecastBoundCardPrograms.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 790,
+    "method": "ResumeHpDamageShieldPayment",
+    "path": "src/CardGame.Core/GameEngine.HpDamageShields.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 800,
+    "method": "ResumeProgramEquipmentRecast",
+    "path": "src/CardGame.Core/GameEngine.ProgramEquipmentRecastRecoveries.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 810,
+    "method": "ResumeCappedHandRefresh",
+    "path": "src/CardGame.Core/GameEngine.CappedHandRefreshPrograms.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 820,
+    "method": "TryResumeFixedSlashAndDeclaredDeck",
+    "path": "src/CardGame.Core/GameEngine.FixedSlashAndDeclaredDeckPrograms.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 830,
+    "method": "ResumeDamageTargetObtain",
+    "path": "src/CardGame.Core/GameEngine.DamageTargetObtainPrograms.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 840,
+    "method": "ResumeDamageTargetMount",
+    "path": "src/CardGame.Core/GameEngine.DamageTargetMountPrograms.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 850,
+    "method": "ResumeProgramSlashSuitDiscard",
+    "path": "src/CardGame.Core/GameEngine.SlashSuitDiscard.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 860,
+    "method": "ResumeDiamondDelayed",
+    "path": "src/CardGame.Core/GameEngine.DiamondDelayedPrograms.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 870,
+    "method": "ResumeDistinctFactionDiscards",
+    "path": "src/CardGame.Core/GameEngine.DistinctFactionDiscards.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 880,
+    "method": "ResumePrivateTurnHold",
+    "path": "src/CardGame.Core/GameEngine.PrivateTurnHolds.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 890,
+    "method": "ResumePrivateGeneralLibrarySelection",
+    "path": "src/CardGame.Core/GameEngine.PrivateGeneralLibraries.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 900,
+    "method": "ResumeNamedTurnFlow",
+    "path": "src/CardGame.Core/GameEngine.FinalTargetTurnCounts.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 910,
+    "method": "ResumeFinalTargetGift",
+    "path": "src/CardGame.Core/GameEngine.FinalTargetGifts.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 920,
+    "method": "ResumeGameDomain",
+    "path": "src/CardGame.Core/GameEngine.PublicPileEquipmentSequences.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 930,
+    "method": "TryResumeConvertingGift",
+    "path": "src/CardGame.Core/GameEngine.ConvertingGifts.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 940,
+    "method": "ResumePublicPileColorPayment",
+    "path": "src/CardGame.Core/GameEngine.PublicPileColors.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 950,
+    "method": "ResumeAlternatingSuitTop",
+    "path": "src/CardGame.Core/GameEngine.AlternatingSuitAndCompletedTop.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 960,
+    "method": "TryResumeQuotaTop",
+    "path": "src/CardGame.Core/GameEngine.QuotaTopPrograms.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 970,
+    "method": "ResumeBudgetGift",
+    "path": "src/CardGame.Core/GameEngine.DiscardBudgetAndFactionGifts.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 980,
+    "method": "ResumeRedDiscardRecovery",
+    "path": "src/CardGame.Core/GameEngine.RedDiscardRecovery.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 990,
+    "method": "TryResumeResponseEntityExchange",
+    "path": "src/CardGame.Core/GameEngine.ResponseEntityExchange.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 1000,
+    "method": "TryResumeDeckPrograms",
+    "path": "src/CardGame.Core/GameEngine.DeckPrograms.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 1010,
+    "method": "TryResumeProgramTargetCommit",
+    "path": "src/CardGame.Core/GameEngine.ProgramTargetCommit.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 1020,
+    "method": "TryResumeNamedDefenseAndPublicDraft",
+    "path": "src/CardGame.Core/GameEngine.NamedDefenseAndPublicDraft.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Resume",
+    "order": 1030,
+    "method": "TryContinueFactionRecoveryDebts",
+    "path": "src/CardGame.Core/GameEngine.DeferredBenefitsPrograms.cs",
+    "parameter": "long"
+  },
+  {
+    "kind": "Movement",
+    "order": 10,
+    "method": "ReturnFriendTrioMovement",
+    "path": "src/CardGame.Core/GameEngine.FriendTrio.cs",
+    "parameter": "ProgramSkillFrame"
+  },
+  {
+    "kind": "Movement",
+    "order": 20,
+    "method": "ReturnFriendPangTongMovement",
+    "path": "src/CardGame.Core/GameEngine.FriendPangTong.cs",
+    "parameter": "ProgramSkillFrame"
+  },
+  {
+    "kind": "Movement",
+    "order": 30,
+    "method": "ReturnFriendEventMovement",
+    "path": "src/CardGame.Core/GameEngine.FriendEvents.cs",
+    "parameter": "ProgramSkillFrame"
+  },
+  {
+    "kind": "Movement",
+    "order": 40,
+    "method": "ReturnMatchingRecastMovement",
+    "path": "src/CardGame.Core/GameEngine.MatchingRecasts.cs",
+    "parameter": "ProgramSkillFrame"
+  },
+  {
+    "kind": "Movement",
+    "order": 50,
+    "method": "ReturnPairedHandRecastMovement",
+    "path": "src/CardGame.Core/GameEngine.PairedHandRecast.cs",
+    "parameter": "ProgramSkillFrame"
+  },
+  {
+    "kind": "Movement",
+    "order": 60,
+    "method": "ReturnPhaseNamePredictionMovement",
+    "path": "src/CardGame.Core/GameEngine.PhaseNamePrediction.cs",
+    "parameter": "ProgramSkillFrame"
+  },
+  {
+    "kind": "Movement",
+    "order": 70,
+    "method": "ReturnLastDamageSourceReciprocityMovement",
+    "path": "src/CardGame.Core/GameEngine.LastDamageSourceReciprocity.cs",
+    "parameter": "ProgramSkillFrame"
+  },
+  {
+    "kind": "Movement",
+    "order": 80,
+    "method": "ReturnOutsidePhaseDrawDiscardMovement",
+    "path": "src/CardGame.Core/GameEngine.OutsidePhaseDrawDiscard.cs",
+    "parameter": "ProgramSkillFrame"
+  },
+  {
+    "kind": "Movement",
+    "order": 90,
+    "method": "ReturnOffTurnUsedCardGiftMovement",
+    "path": "src/CardGame.Core/GameEngine.OffTurnUsedCards.cs",
+    "parameter": "ProgramSkillFrame"
+  },
+  {
+    "kind": "Movement",
+    "order": 100,
+    "method": "ReturnOrderedPrintedSkillLossMovement",
+    "path": "src/CardGame.Core/GameEngine.OrderedPrintedSkillLoss.cs",
+    "parameter": "ProgramSkillFrame"
+  },
+  {
+    "kind": "Movement",
+    "order": 110,
+    "method": "ReturnOverflowTargetCancellation",
+    "path": "src/CardGame.Core/GameEngine.OverflowTargetCancellation.cs",
+    "parameter": "ProgramSkillFrame"
+  },
+  {
+    "kind": "Movement",
+    "order": 120,
+    "method": "ReturnRecipientCategoryMarkMovement",
+    "path": "src/CardGame.Core/GameEngine.RecipientCategoryMarks.cs",
+    "parameter": "ProgramSkillFrame"
+  },
+  {
+    "kind": "Movement",
+    "order": 130,
+    "method": "ReturnOriginalHandEntityMovement",
+    "path": "src/CardGame.Core/GameEngine.OriginalHandEntities.cs",
+    "parameter": "ProgramSkillFrame"
+  },
+  {
+    "kind": "Movement",
+    "order": 140,
+    "method": "ReturnPairedColorDispositionMovement",
+    "path": "src/CardGame.Core/GameEngine.PairedColorResponses.cs",
+    "parameter": "ProgramSkillFrame"
+  },
+  {
+    "kind": "Movement",
+    "order": 150,
+    "method": "ReturnSameNameHandDiscardOrDamageMovement",
+    "path": "src/CardGame.Core/GameEngine.SameNameHandDiscardOrDamage.cs",
+    "parameter": "ProgramSkillFrame"
+  },
+  {
+    "kind": "Movement",
+    "order": 160,
+    "method": "ReturnCompletedUndamagedTargetRevealMovement",
+    "path": "src/CardGame.Core/GameEngine.CompletedUndamagedTargetReveal.cs",
+    "parameter": "ProgramSkillFrame"
+  },
+  {
+    "kind": "Movement",
+    "order": 170,
+    "method": "ReturnLiejieSourceDiscardMovement",
+    "path": "src/CardGame.Core/GameEngine.LiejieSourceDiscards.cs",
+    "parameter": "ProgramSkillFrame"
+  },
+  {
+    "kind": "Movement",
+    "order": 180,
+    "method": "ReturnCurrentTurnHandExchangeMovement",
+    "path": "src/CardGame.Core/GameEngine.CurrentTurnHandExchange.cs",
+    "parameter": "ProgramSkillFrame"
+  },
+  {
+    "kind": "Movement",
+    "order": 190,
+    "method": "ReturnPublicPileCashOutMovement",
+    "path": "src/CardGame.Core/GameEngine.PublicPileCashOut.cs",
+    "parameter": "ProgramSkillFrame"
+  },
+  {
+    "kind": "Movement",
+    "order": 200,
+    "method": "ReturnGiftedSlashUseRewardMovement",
+    "path": "src/CardGame.Core/GameEngine.GiftedSlashUseRewards.cs",
+    "parameter": "ProgramSkillFrame"
+  },
+  {
+    "kind": "Movement",
+    "order": 210,
+    "method": "ReturnJoinedTrickDamageRewardMovement",
+    "path": "src/CardGame.Core/GameEngine.JoinedTrickDamageRewards.cs",
+    "parameter": "ProgramSkillFrame"
+  },
+  {
+    "kind": "Movement",
+    "order": 220,
+    "method": "ReturnRoundGainedEquipmentDrawMovement",
+    "path": "src/CardGame.Core/GameEngine.RoundGainedEquipmentDraws.cs",
+    "parameter": "ProgramSkillFrame"
+  },
+  {
+    "kind": "Movement",
+    "order": 230,
+    "method": "ReturnDrawAdviceMovement",
+    "path": "src/CardGame.Core/GameEngine.DrawAdvicePrograms.cs",
+    "parameter": "ProgramSkillFrame"
+  },
+  {
+    "kind": "Movement",
+    "order": 240,
+    "method": "ReturnSelectedForeignCardSlashMovement",
+    "path": "src/CardGame.Core/GameEngine.ForeignSelectedCardSlash.cs",
+    "parameter": "ProgramSkillFrame"
+  },
+  {
+    "kind": "Movement",
+    "order": 250,
+    "method": "ReturnKuangfuMovement",
+    "path": "src/CardGame.Core/GameEngine.Kuangfu.cs",
+    "parameter": "ProgramSkillFrame"
+  },
+  {
+    "kind": "Movement",
+    "order": 260,
+    "method": "ReturnPhaseHandSeizureMovement",
+    "path": "src/CardGame.Core/GameEngine.PhaseHandSeizure.cs",
+    "parameter": "ProgramSkillFrame"
+  },
+  {
+    "kind": "Movement",
+    "order": 270,
+    "method": "ReturnPublicPilePreparationMovement",
+    "path": "src/CardGame.Core/GameEngine.PublicPilePreparation.cs",
+    "parameter": "ProgramSkillFrame"
+  },
+  {
+    "kind": "Movement",
+    "order": 280,
+    "method": "ReturnSourceCurseMovement",
+    "path": "src/CardGame.Core/GameEngine.SourceCurses.cs",
+    "parameter": "ProgramSkillFrame"
+  },
+  {
+    "kind": "Movement",
+    "order": 290,
+    "method": "ReturnGainGiftMovement",
+    "path": "src/CardGame.Core/GameEngine.GainGiftPrograms.cs",
+    "parameter": "ProgramSkillFrame"
+  },
+  {
+    "kind": "Movement",
+    "order": 300,
+    "method": "ReturnFixedDistanceOneDebtMovement",
+    "path": "src/CardGame.Core/GameEngine.FixedDistanceOneDebt.cs",
+    "parameter": "ProgramSkillFrame"
+  },
+  {
+    "kind": "Movement",
+    "order": 310,
+    "method": "ReturnActualHandGainMovement",
+    "path": "src/CardGame.Core/GameEngine.ActualHandGainPrograms.cs",
+    "parameter": "ProgramSkillFrame"
+  },
+  {
+    "kind": "Movement",
+    "order": 320,
+    "method": "ReturnPrivateOfferMovement",
+    "path": "src/CardGame.Core/GameEngine.PrivateOfferReturns.cs",
+    "parameter": "ProgramSkillFrame"
+  },
+  {
+    "kind": "Movement",
+    "order": 330,
+    "method": "ReturnGameTargetHandHpMovement",
+    "path": "src/CardGame.Core/GameEngine.GameTargetHandHpChoices.cs",
+    "parameter": "ProgramSkillFrame"
+  },
+  {
+    "kind": "Movement",
+    "order": 340,
+    "method": "ReturnLostHpChainedMovement",
+    "path": "src/CardGame.Core/ProgramLostHpChainedPayments.cs",
+    "parameter": "ProgramSkillFrame"
+  },
+  {
+    "kind": "Movement",
+    "order": 350,
+    "method": "ReturnFireTargetBenefitMovement",
+    "path": "src/CardGame.Core/GameEngine.FireTargetBenefits.cs",
+    "parameter": "ProgramSkillFrame"
+  },
+  {
+    "kind": "Movement",
+    "order": 360,
+    "method": "ReturnNamedCardAcquisitionMovement",
+    "path": "src/CardGame.Core/GameEngine.NamedCardAcquisitions.cs",
+    "parameter": "ProgramSkillFrame"
+  },
+  {
+    "kind": "Movement",
+    "order": 370,
+    "method": "ReturnConditionalDuelMovement",
+    "path": "src/CardGame.Core/GameEngine.ConditionalDiscardDuels.cs",
+    "parameter": "ProgramSkillFrame"
+  },
+  {
+    "kind": "Movement",
+    "order": 380,
+    "method": "ReturnInspectedHandMovement",
+    "path": "src/CardGame.Core/GameEngine.InspectedHandSlashes.cs",
+    "parameter": "ProgramSkillFrame"
+  },
+  {
+    "kind": "Movement",
+    "order": 390,
+    "method": "ReturnPlacedEquipmentMovement",
+    "path": "src/CardGame.Core/GameEngine.PlacedEquipmentBenefits.cs",
+    "parameter": "ProgramSkillFrame"
+  },
+  {
+    "kind": "Movement",
+    "order": 400,
+    "method": "ReturnRecipientContestMovement",
+    "path": "src/CardGame.Core/GameEngine.RecipientContestObservers.cs",
+    "parameter": "ProgramSkillFrame"
+  },
+  {
+    "kind": "Movement",
+    "order": 410,
+    "method": "ReturnRecipientConsequencesMovement",
+    "path": "src/CardGame.Core/GameEngine.RecipientConsequencesReceipts.cs",
+    "parameter": "ProgramSkillFrame"
+  },
+  {
+    "kind": "Movement",
+    "order": 420,
+    "method": "ReturnCappedConversionBenefitMovement",
+    "path": "src/CardGame.Core/GameEngine.CappedConversionBenefits.cs",
+    "parameter": "ProgramSkillFrame"
+  },
+  {
+    "kind": "Movement",
+    "order": 430,
+    "method": "ReturnDyingSuitsMovement",
+    "path": "src/CardGame.Core/GameEngine.DyingSuitsPeachPrograms.cs",
+    "parameter": "ProgramSkillFrame"
+  },
+  {
+    "kind": "Movement",
+    "order": 440,
+    "method": "ReturnCapturedEquipmentOrDiscardMovement",
+    "path": "src/CardGame.Core/GameEngine.ActualDiscardRecoveries.cs",
+    "parameter": "ProgramSkillFrame"
+  },
+  {
+    "kind": "Movement",
+    "order": 450,
+    "method": "ReturnDynamicDiscardDamageMovement",
+    "path": "src/CardGame.Core/GameEngine.DynamicDiscardDamagePayments.cs",
+    "parameter": "ProgramSkillFrame"
+  },
+  {
+    "kind": "Movement",
+    "order": 460,
+    "method": "ReturnSignedDamageMovement",
+    "path": "src/CardGame.Core/GameEngine.SignedDamagePayments.cs",
+    "parameter": "ProgramSkillFrame"
+  },
+  {
+    "kind": "Movement",
+    "order": 470,
+    "method": "ReturnOwnTrickDrawMovement",
+    "path": "src/CardGame.Core/GameEngine.OwnTrickDrawTargets.cs",
+    "parameter": "ProgramSkillFrame"
+  },
+  {
+    "kind": "Movement",
+    "order": 480,
+    "method": "ReturnSuitPlacementMovement",
+    "path": "src/CardGame.Core/GameEngine.SuitDamagePreventionBenefits.cs",
+    "parameter": "ProgramSkillFrame"
+  },
+  {
+    "kind": "Movement",
+    "order": 490,
+    "method": "ReturnDamageJudgmentSuitPaymentMovement",
+    "path": "src/CardGame.Core/GameEngine.DamageJudgmentSuitPayments.cs",
+    "parameter": "ProgramSkillFrame"
+  },
+  {
+    "kind": "Movement",
+    "order": 500,
+    "method": "ReturnCappedHandRefreshMovement",
+    "path": "src/CardGame.Core/GameEngine.CappedHandRefreshPrograms.cs",
+    "parameter": "ProgramSkillFrame"
+  },
+  {
+    "kind": "MovementTail",
+    "order": 10,
+    "method": "ReturnDrawDiscardCategoryMovement",
+    "path": "src/CardGame.Core/GameEngine.DrawDiscardCategoryRefund.cs",
+    "parameter": "ProgramSkillFrame"
+  },
+  {
+    "kind": "MovementTail",
+    "order": 20,
+    "method": "ReturnSlashBenefitMovement",
+    "path": "src/CardGame.Core/GameEngine.SlashTargetBenefitPayments.cs",
+    "parameter": "ProgramSkillFrame"
+  },
+  {
+    "kind": "MovementTail",
+    "order": 30,
+    "method": "ReturnTargetPenaltyMovement",
+    "path": "src/CardGame.Core/GameEngine.SlashTargetPenaltyPayments.cs",
+    "parameter": "ProgramSkillFrame"
+  },
+  {
+    "kind": "MovementTail",
+    "order": 40,
+    "method": "TryReturnPrepDiscardMovement",
+    "path": "src/CardGame.Core/GameEngine.PrepDiscardPayments.cs",
+    "parameter": "ProgramSkillFrame"
+  },
+  {
+    "kind": "MovementTail",
+    "order": 50,
+    "method": "TryReturnSequentialDiscardMovement",
+    "path": "src/CardGame.Core/GameEngine.SequentialDiscardPrograms.cs",
+    "parameter": "ProgramSkillFrame"
+  },
+  {
+    "kind": "MovementTail",
+    "order": 60,
+    "method": "TryReturnPairBenefitMovement",
+    "path": "src/CardGame.Core/GameEngine.PairObtainShownGifts.cs",
+    "parameter": "ProgramSkillFrame"
+  },
+  {
+    "kind": "MovementTail",
+    "order": 70,
+    "method": "ReturnEndingPairMovement",
+    "path": "src/CardGame.Core/GameEngine.EndingPairSlashObservers.cs",
+    "parameter": "ProgramSkillFrame"
+  }
+]

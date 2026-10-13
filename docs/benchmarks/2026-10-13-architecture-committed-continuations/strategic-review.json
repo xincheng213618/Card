@@ -1,0 +1,92 @@
+{
+  "reviewer": "catalog_review_sol",
+  "reviewed_at_utc": "2026-10-13T05:12:26.829120+00:00",
+  "workspace": "C:\\Users\\17917\\Desktop\\Card",
+  "baseline_archive": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-architecture-01a13336\\iteration4\\strategic-before.zip",
+  "mode": "Independent static read-only review; no product edits, builds, tests, Full, commits or release outputs.",
+  "result": "No unresolved implementation finding in the strategic cursor repair or typed continuation validator. Root has separately been asked to assess rules-version compatibility for this behavior fix.",
+  "findings": [],
+  "checks": [
+    {
+      "check": "committed parent cursor",
+      "result": "pass",
+      "evidence": "DamageOtherLiving sets ReexecuteParticipantInstruction=true while keeping the executor-committed InstructionIndex. The batch records that committed index and frozen remaining seat suffix before BeginProgramSkillDamage pushes a genuine child."
+    },
+    {
+      "check": "executor return order",
+      "result": "pass",
+      "evidence": "SkillProgramExecutor.Run: TryStartPostInstructionWindow first, then current actor/program/hash and live skill-instance qualification, selected-payment barrier, repeat flag decrement/reset, cursor validation, stale batch retirement, terminal completion, next instruction commit, condition evaluation, handler invocation. Repetition therefore occurs only when the owning program is again topmost after post-instruction child windows."
+    },
+    {
+      "check": "source loss cancels remaining work",
+      "result": "pass",
+      "evidence": "Qualification occurs before repeat decrement. Strategic damage has no new CanContinueAfterSkillLoss exception. A lost source completes false before another target or later draw. Existing cancels=true Duanchang child fixture and all its damage/draw/replay assertions remain unchanged."
+    },
+    {
+      "check": "condition changes and retirement",
+      "result": "pass",
+      "evidence": "After rewinding the cursor, batch.InstructionIndex is greater than the rewound index, so the active batch survives. The executor recommits the repeated instruction then evaluates its live condition. False condition clears the batch when its index equals the newly committed cursor; the next mass-damage instruction creates its own fresh batch. Empty remaining suffix clears the batch and proceeds to the following instruction once. Existing conditionChanges fixture bodies are byte-equivalent after newline normalization."
+    },
+    {
+      "check": "typed validator and pending order",
+      "result": "pass",
+      "evidence": "HasExactTypedParticipantContinuation now dispatches only DamageOtherLiving to IsValidStrategicDamageBatchContinuation. Validator binds paused op, owning batch and committed instruction index, valid non-owner seats, uniqueness and ascending order. Frozen seats are generated from _players, constructed by ascending seat loops. Empty suffix is valid while the last target child is active."
+    },
+    {
+      "check": "legal death transfer and prevention",
+      "result": "pass",
+      "evidence": "Validator does not demand current liveness of remaining seats; the handler skips dead seats at the head when each remaining target is reached. It does not bind an active damage handle to original target, amount, source, HP or survival, preserving legal redirection, prevention, death and nested damage changes. Existing attack/return ownership checks remain responsible for the child."
+    },
+    {
+      "check": "first instruction genuine child fixture",
+      "result": "pass",
+      "evidence": "New fixture removes the marker prefix and verifies effects[0]==DamageOtherLiving. Two independent variants use actual beforeDamageApplied and afterDamageApplied pause triggers. At each of three windows it checks parent cursor=1, batch index=1, exact unprocessed suffix, current attack target, real child window, committed damage prefix and target HP boundary. It verifies no early draw/RNG use, each target once, parent completion once, later draw once, unchanged owner HP and final retirement."
+    },
+    {
+      "check": "replay privacy and historical coverage",
+      "result": "pass",
+      "evidence": "New Cold helper round-trips checkpoint JSON and compares Revision, RNG, all four safe view JSON values, frame JSON, typed event JSON, movements, accepted commands, zones and checkpoint. Foreign hand privacy is checked at pauses and completion. Existing StrategicDamageCompletesAndCancelsWithItsFrame and ConditionalBatchRetiresBeforeFollowingInstruction are unchanged; only fixture optional parameters/transformations were extended."
+    }
+  ],
+  "existing_test_bodies_unchanged_sha256": "972b53dc3335a734694fa8b15f97a9062373e35b57a99835a479ec840f3ca14e",
+  "recommended_core_filters": [
+    "First strategic damage:",
+    "skill executor retires strategic damage batches"
+  ],
+  "source_hashes": [
+    {
+      "path": "src/CardGame.Core/GameEngine.StrategicPrograms.cs",
+      "sha256": "9e6f3d7afe583b933ef4bf773cbb9f95c1ba1e5315744b6ba0f0e04a6a8c98a6"
+    },
+    {
+      "path": "tests/CardGame.Core.Tests/FrameOwnedBatchChecks.cs",
+      "sha256": "3b92341a0b3b08d5095a4783e741d5d4de5573b3f1502d7d62f48c033bfe062f"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.ParticipantAndReservePrograms.cs",
+      "sha256": "a4c43c7f285372bfb893fa77520d4928169e7371eb5923647e53b43598cf8f14"
+    },
+    {
+      "path": "src/CardGame.Core/SkillProgramExecutor.cs",
+      "sha256": "55defbe69c007fb577938d5f59166a6c2a4360866049b9de4861cdca52c0e8d2"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.SkillProgramHost.cs",
+      "sha256": "433725e94e61d77b969afb812dcd02ae329be3da4a2197842e6eb3930ee94550"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.ProgramContinuationPermissions.cs",
+      "sha256": "79a59aef76b0003fb0353f47431d2b2e5e88d82cb7778313f5dc02a6ffe25c8f"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.SkillPrograms.cs",
+      "sha256": "89c88f90fb0500cec78851f92e5f154d8bb0419b8bfa7b8807083100522c2d56"
+    }
+  ],
+  "compatibility_note": {
+    "current_rules_version_at_review": 216,
+    "assessment": "The cache-only refactor is equivalent; this cursor bug repair can change suspended frames or the outcome of the same command prefix under the same content fingerprint. AGENTS.md says rules-version changes are warranted for changed replay behavior. Root was notified to make the integration decision; this reviewer did not edit Replay.cs."
+  },
+  "verification_boundary": "Static review only. No green runtime result is claimed; root owns focused and routine verification.",
+  "only_created_output": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-architecture-01a13336\\iteration4\\strategic-review.json"
+}

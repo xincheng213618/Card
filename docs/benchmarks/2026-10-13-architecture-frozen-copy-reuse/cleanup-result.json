@@ -1,0 +1,33 @@
+{
+  "directoryStillExists": true,
+  "exactCleanupQueueRecords": 1,
+  "verificationReasonsPreserved": true,
+  "archiveUnchanged": true,
+  "ownedSources": [
+    {
+      "path": "src/CardGame.Core/GameEngine.ProgramLifecycle.cs",
+      "matchesVerifiedSource": true
+    },
+    {
+      "path": "src/CardGame.Core/Projection/CommittedEventProjection.cs",
+      "matchesVerifiedSource": true
+    },
+    {
+      "path": "src/CardGame.Wpf/ViewModels/MainViewModel.CardTargets.cs",
+      "matchesVerifiedSource": true
+    },
+    {
+      "path": "src/CardGame.Wpf/ViewModels/MainViewModel.CardAim.cs",
+      "matchesVerifiedSource": true
+    },
+    {
+      "path": "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+      "matchesVerifiedSource": true
+    },
+    {
+      "path": "tests/CardGame.Core.Tests/IncomingDistanceCourtesyChecks.cs",
+      "matchesVerifiedSource": true
+    }
+  ],
+  "summary": "C:\\Users\\17917\\Desktop\\Card\\docs\\benchmarks\\2026-10-13-architecture-frozen-copy-reuse\\summary.json"
+}

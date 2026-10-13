@@ -1,0 +1,192 @@
+[
+  {
+    "path": ".owner",
+    "length": 103,
+    "sha256": "CDF69F07849920BA2388D91AC40DA8463D33580E22E00AC98E14DA5DB9D82002"
+  },
+  {
+    "path": "after/src/CardGame.Core/GameEngine.CardMovementPrograms.cs",
+    "length": 48984,
+    "sha256": "E96234B21004243EEB2D5FE0E04226A3482186B2B1EA7C993E67C9360F6E2CD0"
+  },
+  {
+    "path": "after/src/CardGame.Core/GameEngine.SkillPrograms.cs",
+    "length": 133623,
+    "sha256": "0EB49CFA86856E42C243C58F2E2BD54C2C7E22EABE7ADB1AD84C8159AA713ECC"
+  },
+  {
+    "path": "after/src/CardGame.Core/GameEngine.TurnHandCategoryRestrictions.cs",
+    "length": 5086,
+    "sha256": "C11D13ADB6568D9DC009D9B8CED42921C4C0A3BAF637A7AA2F49541A25CF1A93"
+  },
+  {
+    "path": "archive.ps1",
+    "length": 3593,
+    "sha256": "28C00DB9EEAFDA9B8EB490293C47D5965357C17AB7FE1AC12BBEAE8D6253B0C4"
+  },
+  {
+    "path": "before/src/CardGame.Core/GameEngine.SkillPrograms.cs",
+    "length": 133425,
+    "sha256": "53988D42ECBB24D2CC9C0CE82F3CC1699956CC80387E9C2757074B53A8C0782A"
+  },
+  {
+    "path": "before/src/CardGame.Core/GameEngine.TurnHandCategoryRestrictions.cs",
+    "length": 5429,
+    "sha256": "71847DD538216962A736C0E726C4DAE8A8B53BFEDBC70EABA1AE062B79C926FB"
+  },
+  {
+    "path": "card-movement-before.json",
+    "length": 474,
+    "sha256": "A68AD66BAD88963BE117B99951E6122965C8AE61A0C1EA8CF266D5E748B4E583"
+  },
+  {
+    "path": "card-movement.diff",
+    "length": 8909,
+    "sha256": "638A6A435AFE00758DE610E2058F2A89751397835963FAA996D1D902F471E156"
+  },
+  {
+    "path": "final-input-discovery.json",
+    "length": 31,
+    "sha256": "25335E26ED40CECAC7EE57685A7D1CE04537CB4E8A7F3FCF3C6485CB79D01EDE"
+  },
+  {
+    "path": "focused-build.log",
+    "length": 9333,
+    "sha256": "FFC2B325D13A525A16E3AC00F4DBD5E325F38DC976908DF05F0D8514FAC2BFA4"
+  },
+  {
+    "path": "focused-core.log",
+    "length": 2651,
+    "sha256": "2B50EC1C554AEA4EED0D71ECA23192844F3EC39E5B63FB298D4BE13088E66709"
+  },
+  {
+    "path": "focused-final-input-hashes.json",
+    "length": 398063,
+    "sha256": "0C5EDFAE5FFD96BC4F07BE7176FFCFC984206D480BF921AF8C2E3F014C28E9FC"
+  },
+  {
+    "path": "focused-input-hashes.json",
+    "length": 398063,
+    "sha256": "5E17700973E93EF1DC971E0EE546175F53EC4D42A62FF143F40363EE41FF3DDE"
+  },
+  {
+    "path": "focused-source-drift.json",
+    "length": 201,
+    "sha256": "9C99A9281B92D16B2C6FA8CEE2DFFAA6FB2A0274B469BFDB7744AA9FC69C1C50"
+  },
+  {
+    "path": "focused-summary.json",
+    "length": 1693,
+    "sha256": "5FA68269D1B6AD13200EDE70FD599BFA1F23D5C908C938246903949DDB18F145"
+  },
+  {
+    "path": "GameEngine.CardMovementPrograms.before.cs",
+    "length": 49322,
+    "sha256": "5DF5E10413081CAA9626DC3CC7494EBEA1367DD50B6EC99EAB31BE2AC48C83A9"
+  },
+  {
+    "path": "GameEngine.CardMovementPrograms.cs.patch",
+    "length": 8835,
+    "sha256": "FCB07DBA16CA42BE2BF7442339BC54672F59253376F41455E1D68463F033C527"
+  },
+  {
+    "path": "GameEngine.SkillPrograms.cs.patch",
+    "length": 6610,
+    "sha256": "3110A678CDF9A43DCFCD7E1D833EDEB3BD061125C2301B25926350BA7E225BF4"
+  },
+  {
+    "path": "GameEngine.TurnHandCategoryRestrictions.cs.patch",
+    "length": 1217,
+    "sha256": "53904AE0040F0CED417BC058F5B67A20AC523AE2CA1D51FE72961F993A682D81"
+  },
+  {
+    "path": "owned-source-changes.json",
+    "length": 839,
+    "sha256": "773BCBF85FB3288C09FCEB82B1CCA49CBCBFB61605BEBC097BD4B6A4C5CBF1BE"
+  },
+  {
+    "path": "owned-verification-proof.json",
+    "length": 1134,
+    "sha256": "B2E9947C434809D4DC718A6A29CA67E2F6381BAA0E262C4BDEE6F8F50764AE41"
+  },
+  {
+    "path": "review-consumer-candidates.json",
+    "length": 19434,
+    "sha256": "D0663969D14342B7C7AD9297F62408147306EDBEB17E2442127B661BB8C928DF"
+  },
+  {
+    "path": "review-policy-candidates.json",
+    "length": 15103,
+    "sha256": "4EDC0F3AB25F860A1340A8FDD9B6A9ECC3F37D720A3F4832846F929BBA6867A1"
+  },
+  {
+    "path": "review-selector-equivalence.json",
+    "length": 15202,
+    "sha256": "D63C252E3F199036DABA001E114C7839F4CCA993CC89A0FEA512A41B8C4367F4"
+  },
+  {
+    "path": "review-wpf-candidates.json",
+    "length": 15875,
+    "sha256": "FE330B31A84824D44B93910CDB99CF1B67B8EE35139A6BD4752D1D000F724853"
+  },
+  {
+    "path": "root-before.json",
+    "length": 372,
+    "sha256": "23CF35F5BCAC616E372109EA0B7A22ABD400C1AB7F9B3DDF758CA68C565B351D"
+  },
+  {
+    "path": "routine-build.log",
+    "length": 926,
+    "sha256": "649468E84F146A9FF88D10D10E1031FFC1C9D6C3299B89C5A11BE2D51418AD5B"
+  },
+  {
+    "path": "routine-core.log",
+    "length": 90249,
+    "sha256": "598DECF62FCE0978059C156E676811E1734D4784B92A81A7502F179521CB7372"
+  },
+  {
+    "path": "routine-final-input-hashes.json",
+    "length": 398063,
+    "sha256": "0C5EDFAE5FFD96BC4F07BE7176FFCFC984206D480BF921AF8C2E3F014C28E9FC"
+  },
+  {
+    "path": "routine-input-hashes.json",
+    "length": 398063,
+    "sha256": "5E17700973E93EF1DC971E0EE546175F53EC4D42A62FF143F40363EE41FF3DDE"
+  },
+  {
+    "path": "routine-source-drift.json",
+    "length": 201,
+    "sha256": "9C99A9281B92D16B2C6FA8CEE2DFFAA6FB2A0274B469BFDB7744AA9FC69C1C50"
+  },
+  {
+    "path": "routine-summary.json",
+    "length": 17816,
+    "sha256": "8DD545AC41082BAB0269217A0AA8B40A11C39E3C2047B604ED47E0C9F61418D5"
+  },
+  {
+    "path": "routine-wpf.log",
+    "length": 92667,
+    "sha256": "BCAB9D972814083632CD2E993E6CEF350C9761071D2FBBDBCCBC6B61753A0105"
+  },
+  {
+    "path": "structural-results.json",
+    "length": 1039,
+    "sha256": "1D662D08C2E41EB02BE9DB3279B65FAD7D70C0AE80E8F4CFD7245B329CF2332C"
+  },
+  {
+    "path": "Test-Changed.invoked.ps1",
+    "length": 19004,
+    "sha256": "F010EEF5CA911570F55419757FEB1B23D292BAAE7E53384D86F23AB04BA1A91D"
+  },
+  {
+    "path": "VerificationScopes.invoked.psd1",
+    "length": 16989,
+    "sha256": "B3D52E6BE7FC3468A34F00B3352A2B4AA4A7AF185872E635B4BE22DF1BEBC822"
+  },
+  {
+    "path": "verify.ps1",
+    "length": 2465,
+    "sha256": "B7421446443030A7B989469F3E18D3366C370D9797B8E8ECFC4ABE70CDFFB8EB"
+  }
+]

@@ -1,0 +1,202 @@
+[
+  {
+    "path": ".owner",
+    "length": 103,
+    "sha256": "A33328F1F61E54390AD671492E7E6C28069A3F9A1A3B004F98F257BB2F9013D4"
+  },
+  {
+    "path": "archive.ps1",
+    "length": 5804,
+    "sha256": "9787363CABF82AA485495BC06C0B6C87F711F28A1C2754BC9F7E98CBAD403D01"
+  },
+  {
+    "path": "final-input-discovery.json",
+    "length": 3130,
+    "sha256": "26EAFD9AEFB4D516E2C00228D826D82FDBA6962799555DB9DA987F5788EAAD3A"
+  },
+  {
+    "path": "focused-build.log",
+    "length": 9621,
+    "sha256": "417D1A2780D868F986D3A1037D517C794B8A2EA967E3697B7BA83B9FF0CB3FC0"
+  },
+  {
+    "path": "focused-core.log",
+    "length": 1042,
+    "sha256": "1089813B1F2F80E9E592C4D7C3E909008FC0DBE767C4E2B1324BF08318EE719F"
+  },
+  {
+    "path": "focused-final-input-hashes.json",
+    "length": 402776,
+    "sha256": "478A37C766C0B837B42EB45E70341A32E3D3B5B14C08F5217EC289F49BAD7CFE"
+  },
+  {
+    "path": "focused-input-hashes.json",
+    "length": 402776,
+    "sha256": "6184515BA9ECA59075F50437146B54D408E585A37A32B276C3B7966F07C54291"
+  },
+  {
+    "path": "focused-source-drift.json",
+    "length": 201,
+    "sha256": "9701E84F4C415843FA3624E9396945801896D57FA1047B38D40C2B120170E69B"
+  },
+  {
+    "path": "focused-summary.json",
+    "length": 2410,
+    "sha256": "52A7ABB3383A24E90C43BC268DBB22569E77F0D0502F287388B402E527DC4734"
+  },
+  {
+    "path": "focused-wpf.log",
+    "length": 1669,
+    "sha256": "9974A6D54C56B37181BB080AB36DFE8F5720D8790AF93DEC3916D2C6B45758A0"
+  },
+  {
+    "path": "iteration17-README.before.md",
+    "length": 4066,
+    "sha256": "8226318A73B4885D64C7493CE3F0810702D2F13C6A65A5DFA667BCF6DE4A3424"
+  },
+  {
+    "path": "MainViewModel.CardAim.cs.after",
+    "length": 5934,
+    "sha256": "E18C1DAE4F71DC1195C817ECADB616AEBCDE167A14E95FC6514656B5380B1F55"
+  },
+  {
+    "path": "MainViewModel.CardAim.cs.before",
+    "length": 6049,
+    "sha256": "A9E7AE6708EFD6ACCA04C15F5EA38C4B372ADFDD948CC3B22EEDFA1EB1E356DD"
+  },
+  {
+    "path": "MainViewModel.CardAim.cs.diff",
+    "length": 1595,
+    "sha256": "BA7E06DA59E6F2A0E26843DACD53F784F551471CBBA830E44765A9EC8514E63A"
+  },
+  {
+    "path": "MatchSkillBindingIndex.cs.after",
+    "length": 22187,
+    "sha256": "C616FAF2AE8416B0B77A55E8204673E86702A8EB36C0B7907230C9F61D6FA385"
+  },
+  {
+    "path": "MatchSkillBindingIndex.cs.before",
+    "length": 22306,
+    "sha256": "CC1A1A26BDC5B03A835AF255BB4F476A26369864C9F8DCD67FE1978A8BCFD59A"
+  },
+  {
+    "path": "MatchSkillBindingIndex.cs.diff",
+    "length": 1567,
+    "sha256": "1C0F327496D99368C873E7BCC6F3A6704346777B5D122C80D41C66C054A3AE64"
+  },
+  {
+    "path": "owned-before.json",
+    "length": 886,
+    "sha256": "9DE679E3DD81D9D1E0BD8202484C3D68CAE5CA154E08209EF8D8B5AD5C69A265"
+  },
+  {
+    "path": "owned-source-changes.json",
+    "length": 819,
+    "sha256": "644FA459FEACDC794D5EF7315D67038C55A619F62BA27E97A9C6C0916BC31A98"
+  },
+  {
+    "path": "owned-verification-proof.json",
+    "length": 681,
+    "sha256": "66911EEE1B5F222C005E8856290810B05BD4C3750BCAA32FFF39499251E8DCDD"
+  },
+  {
+    "path": "previous-evidence-precision.diff",
+    "length": 1185,
+    "sha256": "1AEB465AF8735C1FAD88C0B9983400A8007CA8167D857D9627F645DC4AA1E642"
+  },
+  {
+    "path": "previous-evidence-precision.json",
+    "length": 494,
+    "sha256": "FC8C471CF214A79B6D948601817246C02F5D3258C294040658C5FF5B53A9F565"
+  },
+  {
+    "path": "ProgramExecutionPlan.cs.after",
+    "length": 8814,
+    "sha256": "4BCF6E27521E80D8E5D53E243830B85CF3C860387B90EF5A46EC6EF50C15CFCC"
+  },
+  {
+    "path": "ProgramExecutionPlan.cs.before",
+    "length": 8961,
+    "sha256": "61AAFA268A01A671308FF2EFDB4A883A2C7DF77A8A4CDDE821C40F8F1C1C9A25"
+  },
+  {
+    "path": "ProgramExecutionPlan.cs.diff",
+    "length": 1252,
+    "sha256": "9119699EF0DE367AADA19B8F07B37967E16433F07F78A916EBEECDB73176F4DC"
+  },
+  {
+    "path": "review-layering-candidates.json",
+    "length": 5726,
+    "sha256": "815297E3FC66B4CD7F6519CB0635625E12AAC50C9BB3514E1D6B31FA2740FB38"
+  },
+  {
+    "path": "review-program-host-candidates.json",
+    "length": 78126,
+    "sha256": "05D89A02B2A0D066E5C3434305F100D8A8B6E15D70609EB24B630F7CCC10CA18"
+  },
+  {
+    "path": "review-three-applied-sources-final.json",
+    "length": 3731,
+    "sha256": "BC7CE52FE1D5E2BF8024B8CF9F94D85193FFBC774156140B9AD06AC70081716F"
+  },
+  {
+    "path": "review-wpf-routing.json",
+    "length": 4842,
+    "sha256": "13923495390FE6C2054D3F7F5282DDB0BDDD16C774E9F149F58B9392B9CAF1DF"
+  },
+  {
+    "path": "routine-build.log",
+    "length": 926,
+    "sha256": "AA3718B87A969E9A5EC986EF5AA673380F86FEDCE0EC7395C329284B90EB1981"
+  },
+  {
+    "path": "routine-core.log",
+    "length": 95222,
+    "sha256": "51126455C87358E43159440C7B8807DA02B99C41CA18C1D941812EE5B08CBF5B"
+  },
+  {
+    "path": "routine-final-input-hashes.json",
+    "length": 402776,
+    "sha256": "84E942EA5EF0DCB17A38E364F4316C498D4CD45C2C7ED35C9B30A5013A4C84B4"
+  },
+  {
+    "path": "routine-input-hashes.json",
+    "length": 402776,
+    "sha256": "6184515BA9ECA59075F50437146B54D408E585A37A32B276C3B7966F07C54291"
+  },
+  {
+    "path": "routine-source-drift.json",
+    "length": 502,
+    "sha256": "20BA383742C9371D228EC0F6ABBC9531F70119B9CCD2D0D92CB838D86E630FE3"
+  },
+  {
+    "path": "routine-summary.json",
+    "length": 17939,
+    "sha256": "E0B8D5B8C0B01D7E37EE5516E3B545FBAF461B9AEC9A2FFEEFC6BB6C3DB71265"
+  },
+  {
+    "path": "routine-wpf.log",
+    "length": 92824,
+    "sha256": "97F0857F4430CAFE5ACDFE691DAB94E0BE0D842589E6BD648FF8AEE6A7856672"
+  },
+  {
+    "path": "structural-results.json",
+    "length": 1260,
+    "sha256": "5C37A0175A4973BA3FCF25372BDB36126A4E641F21D78A2BAF808D9B590D74C5"
+  },
+  {
+    "path": "Test-Changed.invoked.ps1",
+    "length": 19004,
+    "sha256": "F010EEF5CA911570F55419757FEB1B23D292BAAE7E53384D86F23AB04BA1A91D"
+  },
+  {
+    "path": "VerificationScopes.invoked.psd1",
+    "length": 17128,
+    "sha256": "B3FD6A4322B12E4AB7F6A2ACE9E6AC7E7D68DADE875D87650DF9BB70A9F8C4B3"
+  },
+  {
+    "path": "verify.ps1",
+    "length": 2648,
+    "sha256": "63DC27F79DDA4764A4E93D6D52BF50946279CF96A6F4889A5700755CDCD42FFB"
+  }
+]

@@ -1,0 +1,82 @@
+{
+  "purpose": "Bounded architecture consolidation and extensibility; current concurrent workspace preserved.",
+  "changes": {
+    "observerEntryPoints": 23,
+    "continuations": {
+      "Resume": 103,
+      "Movement": 50,
+      "MovementTail": 7
+    },
+    "frameOwnedDrafts": 3,
+    "sharedPhysicalPlaySubmissionEntrypoints": 3,
+    "sourceFilesTouchedByThisTask": 155
+  },
+  "validation": {
+    "focused": {
+      "corePassed": 19,
+      "wpfPassed": 5,
+      "failed": 0,
+      "durationMs": 34689
+    },
+    "routine": {
+      "corePassed": 493,
+      "wpfPassed": 74,
+      "failed": 0,
+      "durationMs": 218743
+    },
+    "baseline": {
+      "corePassed": 482,
+      "coreFailed": 2,
+      "wpfPassed": 71,
+      "wpfFailed": 2,
+      "durationMs": 260188,
+      "note": "Four pre-existing opening-selection/overlay failures; concurrent changes repaired these. Scope and source differ; no performance attribution."
+    },
+    "differential": {
+      "scenarios": [
+        "Normal",
+        "SourceLoss"
+      ],
+      "boundaries": 49,
+      "coldRestores": 11,
+      "result": "byte-identical",
+      "sha256": "9488b1a2500f4e2e6e1bd6685dbf81eee9026bdb5d0468d8efcfc4fc8de4f031",
+      "scope": "Same currently shared sources minus only this architecture iteration; frame representation intentionally excluded."
+    },
+    "scopedGitDiffCheck": "passed",
+    "sourceChangedAfterFinalVerification": [
+      "docs/RUNTIME_REFACTOR_IMPLEMENTATION.md (verification results and cleanup status only)"
+    ]
+  },
+  "limitations": [
+    "No manual Full or unfiltered runner executed.",
+    "No foreground desktop, physical multi-DPI or speaker acceptance.",
+    "Representative differential traces do not exhaust every mechanism.",
+    "Continuation dispatch remains an ordered linear scan; no runtime speedup is claimed.",
+    "Current default routine remains above the approximately one-minute target; this iteration did not prune coverage."
+  ],
+  "evidence": {
+    "verificationLogs": "verification-evidence.zip",
+    "traceAndReproduction": "trace-evidence.zip",
+    "sourceHashes": "owned-source-hashes.json",
+    "registrationOrder": "continuation-order.json"
+  },
+  "cleanup": {
+    "status": "blocked by policy; registered for manual cleanup",
+    "taskRoot": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-architecture-01a13336",
+    "recoveryBackup": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-architecture-01a13336\\source-before.zip",
+    "reason": "Pre-change recovery snapshot retained because the checkout already contained extensive concurrent uncommitted work.",
+    "retainedDisposableDirectories": [
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-architecture-01a13336\\comparison",
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-architecture-01a13336\\baseline",
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-architecture-01a13336\\focused-initial",
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-architecture-01a13336\\focused-final",
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-architecture-01a13336\\verification\\bin",
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-architecture-01a13336\\verification\\obj",
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-architecture-01a13336\\verification\\renders"
+    ],
+    "retainedTotalBytes": 3333868207,
+    "queue": "tools/cleanup_queue.json",
+    "deletionPerformed": false
+  }
+}

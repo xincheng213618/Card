@@ -1,0 +1,81 @@
+{
+  "review_date": "2026-10-13",
+  "status": "source review only; no reproduction, product edits, build or test run",
+  "candidates": [
+    {
+      "id": "strategic-first-instruction-child-cursor",
+      "priority": 1,
+      "status": "source-level risk, not a reproduced bug",
+      "source": "src/CardGame.Core/GameEngine.StrategicPrograms.cs:134-155",
+      "finding": "DamageOtherLiving replaces the committed cursor with InstructionIndex-1 before BeginProgramSkillDamage. A first instruction can therefore leave cursor 0 while a real before/after-damage or dying child is suspended.",
+      "boundary": "Executor commits cursor before handlers (SkillProgramExecutor.cs:1475); BeginProgramSkillDamage keeps the current rewound parent when attaching AttackAttempt. Every command checks all ProgramSkillFrame cursors >=1 (GameEngine.SkillPrograms.cs:1099). Synchronous damage that fully returns and reexecutes before commit can mask the risk; a child crossing a command boundary cannot rely on that.",
+      "coverage_gap": "FrameOwnedBatchChecks exercises real children, replay, source loss and condition-change retirement, but deliberately puts a setMarkerAmount node before damageOtherLiving (batch cursor 2 or 3). The current ol:cuike and FengLinLuJi fixture also put another node first. No first-node child fixture found; descriptor does not require that prelude.",
+      "next_step": "First add a focused first-node variant with a genuine child prompt and cold replay. Preserve existing condition-change/source-loss checks. Only after reproduction consider committed-cursor repeat state with exact typed continuation validation; do not relax the global cursor invariant.",
+      "filters": [
+        "skill executor retires strategic damage batches",
+        "Feng Lin Lu Ji suppression and source death"
+      ]
+    },
+    {
+      "id": "luochong-lethal-hp-child-cursor",
+      "priority": 1,
+      "status": "source-level risk, not a reproduced bug",
+      "source": "src/CardGame.Core/GameEngine.TengFangLanPrograms.cs:206-219",
+      "finding": "The loseHp branch at target HP=1 rewinds InstructionIndex before saving LuochongPending and calling LoseHp. Both native luochong bindings contain only this operation, so the suspended parent can have cursor 0.",
+      "boundary": "LoseHp -> BeginProgramSkillDying pushes a DyingFrame and may expose a rescue or dying-entry child. CompleteProgramSkillAfterDying later re-enters the parent; only a fully synchronous completion before command validation avoids the suspended-cursor boundary. Recovery/nonlethal loss, discard and draw branches do not use this rewind.",
+      "coverage_gap": "LuochongDiscardChecks tests two/one actual discarded cards, frozen pending lists and replay; it does not test the lethal loseHp branch. No other registered Luochong behavior fixture was found.",
+      "next_step": "Add a small real-command HP=1 target fixture, select loseHp, pause in rescue or Aichen dying entry, and replay before finishing. Assert exactly one HP loss, one resolution event, no duplicate round ledger and one final parent retirement; test owner/other-target distinction as needed. Do not label as confirmed until a red run exists.",
+      "filters": [
+        "Luochong discard: accumulated payments remain frozen across replay"
+      ],
+      "new_filter_needed": "A newly registered focused Luochong lethal-loss child check; reuse the existing runner."
+    },
+    {
+      "id": "catalog-gain-phase-qualification",
+      "priority": 2,
+      "status": "equivalent consolidation candidate",
+      "source": [
+        "src/CardGame.Core/GameEngine.cs:327",
+        "src/CardGame.Core/GameEngine.CardMovementPrograms.cs:6-11"
+      ],
+      "finding": "No current dependency index represents trigger.GainPhaseQualification. CardsGained window or an operation cannot substitute: the same trigger may omit qualification.",
+      "minimal_change": "Compile UsesGainPhaseQualification = triggers.Any(t => t.GainPhaseQualification is not null) on SkillProgramDependencies; remove the engine readonly mirror and constructor scan; substitute the first CaptureMovementTiming OR item in place. Keep scheduled Draw phase actor semantics and all other opt-ins unchanged.",
+      "verification": "Extend the existing catalog predicate/isolation check with unowned positive and same-trigger/no-field negative. Preserve the legacy null MovementTiming assertion in QingjianNarrowParserAndLegacyNullBoundary.",
+      "filters": [
+        "content registry compiles whole catalog dependencies",
+        "boundary Xiahou Dun"
+      ]
+    },
+    {
+      "id": "catalog-lord-projection",
+      "priority": 2,
+      "status": "equivalent consolidation candidate",
+      "source": [
+        "src/CardGame.Core/GameEngine.cs:324",
+        "src/CardGame.Core/GameEngine.LordSkillProjections.cs:8-9"
+      ],
+      "finding": "No current index represents Program.LordSkillProjection; a pure capability program with zero triggers/operations is legal. Lord skill tags are a different concept.",
+      "minimal_change": "Compile UsesLordSkillProjection = programs.Any(p => p.LordSkillProjection); remove only the engine readonly mirror and constructor scan; redirect HasLordProjectionCapability. Keep ProjectionDependency arrays/revisions and dynamic grant/HP/death/mode checks and stale projection cleanup.",
+      "verification": "Shared catalog equivalence/unowned/isolation assertions; preserve disabled sources, local disable and dynamic grant cleanup behavior.",
+      "filters": [
+        "content registry compiles whole catalog dependencies",
+        "empty binding queries preserve exact states and issued obligations",
+        "Feng Lin Yuan Shu",
+        "Feng Lin Zuo Ci borrowed Lord projection sources",
+        "Feng Lin Zuo Ci layered suppression and local disable"
+      ]
+    },
+    {
+      "id": "liangxing-self-comparison",
+      "priority": 3,
+      "status": "confirmed dead condition; no demonstrated rule defect",
+      "source": "src/CardGame.Core/GameEngine.LiangXingPrograms.cs:27",
+      "finding": "selected is int; selected != selected is always false. CounterSlash has no separate targetSeat argument; there is no evidence of a missing intended variable.",
+      "minimal_change": "Remove only that OR item, keeping singleton selection, selected != owner, liveness, active attack and target/range guards.",
+      "verification": "Warning disappears and existing Ol Liang Xing filter remains green. The existing AI-driven behavior test chooses either branch, so any future target-rule change requires an explicit flip-slash child fixture rather than treating this check as guaranteed branch coverage.",
+      "filters": [
+        "Ol Liang Xing"
+      ]
+    }
+  ]
+}

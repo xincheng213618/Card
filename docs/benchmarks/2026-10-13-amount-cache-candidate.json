@@ -1,0 +1,11 @@
+{
+  "Source": "src/CardGame.Wpf/Controls/BattleFeedbackLayer.cs",
+  "Status": "audited candidate, no implementation",
+  "Candidate": "Cache caption and number layout plus frozen geometry per TimedCue",
+  "Key": "Immutable Cue text, Kind, Nature and ActorName; replace whole cue cache on PixelsPerDip change. Current culture is hard-coded zh-CN",
+  "Bound": "At most 3 font sizes per active cue; existing active limit24; expire/clear/unload discards cue cache",
+  "Preserve": "Every frame must still compute font-size choice, PlaceText, occupied areas, owner/viewport, point, scale, opacity",
+  "TestRisk": "Current Numbers helper uses raw Geometry.Bounds.X as pre-pop origin. External translation of an origin0 geometry would weaken stability assertion; preserve absolute geometry bounds or strengthen helper with translated pre-scale origin",
+  "EvidenceRequired": "Fixed cue/clock full decoded BGRA32 comparison of existing consecutive/crowd renders; drawing-frame managed allocations and CPU over fixed loops with stable dependency hashes. Existing numbers/committed-health checks remain",
+  "AcceptanceLimit": "Drawing allocation or CPU improvement is not a foreground FPS or physical multi-DPI acceptance result"
+}

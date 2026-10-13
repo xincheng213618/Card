@@ -1,0 +1,227 @@
+[
+  {
+    "path": ".owner",
+    "length": 103,
+    "sha256": "EB47280EB1A0C9CD40F058BD2710DD5F3C6E037D940180EE3DC89166BFF22DEF"
+  },
+  {
+    "path": "archive.ps1",
+    "length": 3638,
+    "sha256": "0578B8751AF1270226C445AAC3B37CFFD14796A81B6130CB0D60D2B041D7AF91"
+  },
+  {
+    "path": "before-source-hashes.json",
+    "length": 1084,
+    "sha256": "B702DC77A3896905E07627628C22B585E1FF7BD80126E4853D217CEB28222BB4"
+  },
+  {
+    "path": "CompiledSkillMetadataChecks.cs.before",
+    "length": 49009,
+    "sha256": "E5B199F8D5E622B4C362A4A47A0AE4DBF74DC2B2ABCE7A6DBD4EC9A4BC3FE512"
+  },
+  {
+    "path": "CompiledSkillMetadataChecks.cs.candidate",
+    "length": 50098,
+    "sha256": "6483BCDED1317B3A1AAC0BE89E466111F9FCD246E3A977170F91A40833340323"
+  },
+  {
+    "path": "CompiledSkillMetadataChecks.cs.patch",
+    "length": 1884,
+    "sha256": "264898E6BFCED4E028AE8B45722A112E8A0BBF98B9292229F0AABA019319BA63"
+  },
+  {
+    "path": "final-input-discovery.json",
+    "length": 74,
+    "sha256": "DC8B2108DC8B33B5A5FCA05EE4FBD72605A0850E2A582B25BA413FF0C5E21B73"
+  },
+  {
+    "path": "focused-build.log",
+    "length": 9621,
+    "sha256": "157E8DC8EE1501EC0EA487CBCC5DBFEA3F9BB1693583A089781F1A204CCD80B0"
+  },
+  {
+    "path": "focused-core.log",
+    "length": 1994,
+    "sha256": "7384E5A90FF3C93BD1FA62559170DAFAED2E37B521EE0A75735A31FDFFB0C660"
+  },
+  {
+    "path": "focused-final-input-hashes.json",
+    "length": 398063,
+    "sha256": "D5EB9A6810A3D9432615EBE21D3988C4597A7107F4F95BB482AA8E4987DB12A6"
+  },
+  {
+    "path": "focused-input-hashes.json",
+    "length": 398063,
+    "sha256": "4E5C676EE64C9002906DCB7AD23C871A6FE690CF7E2B8C8393580EA1B76CA885"
+  },
+  {
+    "path": "focused-source-drift.json",
+    "length": 201,
+    "sha256": "3E544D403AEDB36C178332DC25758E5EBADC854FF88597EA4B662D0C853F9252"
+  },
+  {
+    "path": "focused-summary.json",
+    "length": 2221,
+    "sha256": "8AA41429CB54E290D552820D4AA1786D3EADC0DF7A3B671D919647B2BF0FCDDE"
+  },
+  {
+    "path": "focused-wpf.log",
+    "length": 889,
+    "sha256": "1C22411147AEBF912310175274B6E24CD59717126D5F5C1D5D0D1D7475E79146"
+  },
+  {
+    "path": "GameEngine.AdvancedPolicies.cs.before",
+    "length": 3132,
+    "sha256": "76D26C76AD3334924D3F73233322E2B203AACCE3C85F5F5D170EBE08061B9B55"
+  },
+  {
+    "path": "GameEngine.AdvancedPolicies.cs.candidate",
+    "length": 3110,
+    "sha256": "E95C88DB7EB1168A515FEAB674B135FB4A5BEA5224BEB335152DC7ADFEF9073B"
+  },
+  {
+    "path": "GameEngine.AdvancedPolicies.cs.patch",
+    "length": 1207,
+    "sha256": "F81F50920B848BFDD212CD3DD939BEB2CA5A399701F00F49A5CC63D8AD241F3E"
+  },
+  {
+    "path": "GameEngine.CurrentSlashFireOffers.cs.before",
+    "length": 27665,
+    "sha256": "CF3D3C572BC8A67246064D1E7114AFA0409A6DA4EEC14DED1F5F9F9B55B4F5A7"
+  },
+  {
+    "path": "GameEngine.CurrentSlashFireOffers.cs.candidate",
+    "length": 27711,
+    "sha256": "5CD674EA4571EDB02CCB4027FA237AFBCCEC0EA6B1DF04B85EE5BB90FF8EB864"
+  },
+  {
+    "path": "GameEngine.CurrentSlashFireOffers.cs.patch",
+    "length": 2057,
+    "sha256": "0CCFE97981DFA5ADAAC781E0497A8DE4D92A59B63CC38E7BEDAD3C3BC61E817D"
+  },
+  {
+    "path": "GameEngine.SkillPrograms.cs.before",
+    "length": 133427,
+    "sha256": "1D1CE11FFEF3CA63F29DC9F3E5D8A8E225B06694C8CDF3478579A0D32A11534A"
+  },
+  {
+    "path": "GameEngine.SkillPrograms.cs.candidate",
+    "length": 133425,
+    "sha256": "53988D42ECBB24D2CC9C0CE82F3CC1699956CC80387E9C2757074B53A8C0782A"
+  },
+  {
+    "path": "GameEngine.SkillPrograms.cs.patch",
+    "length": 1484,
+    "sha256": "06FF08A3A266C2A051E61492A31C72D3CD075E5885EF9FE40B52D825FC30A167"
+  },
+  {
+    "path": "MainViewModel.Presentation.cs.before",
+    "length": 51932,
+    "sha256": "3D2A9A96A5AF1CEE808A446002178E1854E5B4083BF22C4B43288F0B4DA4F441"
+  },
+  {
+    "path": "MainViewModel.Presentation.cs.candidate",
+    "length": 51564,
+    "sha256": "D1D1AA515CEE3D0903FB818D95AA7B63863DC4DFAC7666F0465403C82CB3FDCB"
+  },
+  {
+    "path": "MainViewModel.Presentation.cs.patch",
+    "length": 1951,
+    "sha256": "BA744D1A60146ACB67E1AC576ED4F161CB47F872142C4A9307A064FCF21CAB1E"
+  },
+  {
+    "path": "owned-final-source-hashes.json",
+    "length": 1721,
+    "sha256": "E188211B66CF2D2D59C982885C0EBC2DC1B93E69435FB9D913C85F5A7BB58FAD"
+  },
+  {
+    "path": "review-applied-index.json",
+    "length": 11199,
+    "sha256": "D1ACC09AEB725733EDE410D9A204C531C89A181CB17E54779A8349D27CC923BE"
+  },
+  {
+    "path": "review-compiled-consumers.json",
+    "length": 13892,
+    "sha256": "1BCE34FAA7EB3ADFB5B1E173916DE7360DF5A75A2897EE9D60BCDD3F1D20C4A9"
+  },
+  {
+    "path": "review-operation-index.json",
+    "length": 15035,
+    "sha256": "CCE94543C9CB7B5E242BD1FC4BBB33DB2F3F96B63F42079F2F2576B4489E683B"
+  },
+  {
+    "path": "review-presentation-filter.json",
+    "length": 9353,
+    "sha256": "4EC0AA71F09AEF687462F5DAC35C5FF9DF105CD626A4389FBDC26558C5D7D2F2"
+  },
+  {
+    "path": "routine-build.log",
+    "length": 926,
+    "sha256": "FD69801A2FECA1DA002F8FBC7E7F626087F86735590FE51204283FE387E54994"
+  },
+  {
+    "path": "routine-core.log",
+    "length": 90248,
+    "sha256": "A93EE30FCCD236EFFC61DA18D6BF7350AA7E7C45C0C71479DEEB6A31FBCDA547"
+  },
+  {
+    "path": "routine-final-input-hashes.json",
+    "length": 398063,
+    "sha256": "D5EB9A6810A3D9432615EBE21D3988C4597A7107F4F95BB482AA8E4987DB12A6"
+  },
+  {
+    "path": "routine-input-hashes.json",
+    "length": 398063,
+    "sha256": "D5EB9A6810A3D9432615EBE21D3988C4597A7107F4F95BB482AA8E4987DB12A6"
+  },
+  {
+    "path": "routine-source-drift.json",
+    "length": 55,
+    "sha256": "7213A7424D40413D52CE93BD089CC19F3009C7966AEB11A8866A127D97C6528E"
+  },
+  {
+    "path": "routine-summary.json",
+    "length": 17816,
+    "sha256": "48A05D1BD1D4112BD9BF447E41CC5459932D4C23B3D94CA98C5F54FF521763D9"
+  },
+  {
+    "path": "routine-wpf.log",
+    "length": 92678,
+    "sha256": "4AD340251A8C6E199A3117F59193DF1FC225903D04E16DE90B9B4C4607F60F7A"
+  },
+  {
+    "path": "SkillProgramDependencies.cs.before",
+    "length": 9956,
+    "sha256": "61E46F9CB479D581A01297D4B4FBCF293BB88F72F3270B543618047A362D7C85"
+  },
+  {
+    "path": "SkillProgramDependencies.cs.candidate",
+    "length": 9908,
+    "sha256": "59296D3B62DB77F8EC3960937235A665AAFCC73C9EB7624B67C295D31C22D263"
+  },
+  {
+    "path": "SkillProgramDependencies.cs.patch",
+    "length": 3149,
+    "sha256": "A6561CE14B22ED7C375E3943D908CE184755D4496754147261812E7094A615C1"
+  },
+  {
+    "path": "structural-results.json",
+    "length": 1798,
+    "sha256": "B69563CA53D11CE7390C2C88E8402DF938A6EF2DF7CCC4D933FD69BC6BAB6EE9"
+  },
+  {
+    "path": "Test-Changed.invoked.ps1",
+    "length": 19004,
+    "sha256": "F010EEF5CA911570F55419757FEB1B23D292BAAE7E53384D86F23AB04BA1A91D"
+  },
+  {
+    "path": "VerificationScopes.invoked.psd1",
+    "length": 16989,
+    "sha256": "B3D52E6BE7FC3468A34F00B3352A2B4AA4A7AF185872E635B4BE22DF1BEBC822"
+  },
+  {
+    "path": "verify.ps1",
+    "length": 2451,
+    "sha256": "2D6DF1D3947476B3E4076EF26BFE87F7FE63BD1FD825165397093832091815B0"
+  }
+]

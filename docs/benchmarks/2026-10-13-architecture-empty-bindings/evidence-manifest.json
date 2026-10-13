@@ -1,0 +1,392 @@
+[
+  {
+    "path": ".owner",
+    "length": 108,
+    "sha256": "9A2F3F56D9EFCC8F580DA2438E69755BEE5D0821B2F94D8F0202003412EB03E2"
+  },
+  {
+    "path": "allocation-after.json",
+    "length": 1290,
+    "sha256": "D69A5E1CB72ABCEBAC2A2EB1422F42447633C09B6F006FE6A08C294EA6C9A561"
+  },
+  {
+    "path": "allocation-before.json",
+    "length": 1304,
+    "sha256": "8BF4C244B19AC3B62C283EAA439896DF06DC2E1566C88005D26859983C9F1B71"
+  },
+  {
+    "path": "allocation-comparison.json",
+    "length": 509,
+    "sha256": "5F6C3956E094145DA75E9190AE66D6F1DB35255EE71F5501541B77AA2F690C6E"
+  },
+  {
+    "path": "allocation-probe/.owner",
+    "length": 67,
+    "sha256": "2F65E4337AE7DF92DE4910F6911D4CC96F1CD8E274007A76EFB08087228C721B"
+  },
+  {
+    "path": "allocation-probe/AllocationProbe.csproj",
+    "length": 211,
+    "sha256": "587C631E7C19F86F00A043C76D6C9B6A1E66F0392EE9A7ECD48005AA6F90422C"
+  },
+  {
+    "path": "allocation-probe/Program.cs",
+    "length": 1543,
+    "sha256": "3A2699C8D7E31E4CCC04D34C6FBA964F39BDEAF9C840A4CD44E66333211E9254"
+  },
+  {
+    "path": "AllocationProbe.deps.json",
+    "length": 437,
+    "sha256": "68C63B13A85DCFC4876251D169B7BDA13087EA66F6DB0B318BBDA750F5D2A3DF"
+  },
+  {
+    "path": "AllocationProbe.dll",
+    "length": 9728,
+    "sha256": "CB4669B8558CAC233375144A2A2825BB414B00D21AA5B39E51A4CD573ED741EF"
+  },
+  {
+    "path": "AllocationProbe.runtimeconfig.json",
+    "length": 340,
+    "sha256": "28329CF08F6505E73806B17558B187C02F0C1C516FE47EBFB7A013D082AAA306"
+  },
+  {
+    "path": "ambush-recheck-build.log",
+    "length": 638,
+    "sha256": "62099C5BAB250E2B21F3028628A09F1AFE40043982284951E23E69635CE0254E"
+  },
+  {
+    "path": "ambush-recheck-core.log",
+    "length": 24566,
+    "sha256": "B83742BDD04449D0EFCC95B08D81A44983707D613D1021F1A04B0D0A8002AD45"
+  },
+  {
+    "path": "ambush-recheck-summary.json",
+    "length": 1424,
+    "sha256": "41659B4C51663F2B9E77CBA5684E0BE126F65068A5E9D184600E12D4F1F73757"
+  },
+  {
+    "path": "archive-evidence.ps1",
+    "length": 5756,
+    "sha256": "268A7D6A83D5C9CFFB7302D88DE0A25BB6BC8FE7D4E37F24E71740AC516D87FE"
+  },
+  {
+    "path": "before-source-hashes.json",
+    "length": 325,
+    "sha256": "A7F857A0EAEC632AFE0B8E76CD1A7B973097DB41E0B102CB49F3C385E2093F31"
+  },
+  {
+    "path": "capture-recheck-build.log",
+    "length": 770,
+    "sha256": "572DC6644C21EA2977117F8B1B1C7898EFA519B1AB46813C4812FF98F3844401"
+  },
+  {
+    "path": "capture-recheck-summary.json",
+    "length": 1424,
+    "sha256": "6E015F4E9C88AC3B010367EEB6C93E786693A5920354FDA4980D2BE8C6F4643C"
+  },
+  {
+    "path": "capture-recheck-wpf.log",
+    "length": 2146,
+    "sha256": "966FACA833BAC38EAD189406E57C62826C65DF3A0192D88B6E538FCA436EA0E4"
+  },
+  {
+    "path": "checks-diff.patch",
+    "length": 6259,
+    "sha256": "4688D1BC9CAA1F16121B8AE6ABC80F5593D15B59A369A100877AEB8B80E25BDF"
+  },
+  {
+    "path": "cleanup-registrations.json",
+    "length": 9170,
+    "sha256": "796AE5BA7BB365482A83A59792F43F7170B2093547DCF2104DBFB5D495AF6723"
+  },
+  {
+    "path": "final-input-discovery.json",
+    "length": 180,
+    "sha256": "08776A8AC1E35EE7D08B2D39C18C797F3099B78719AC5FD3CA2F804B4CC6664B"
+  },
+  {
+    "path": "final-routine-failures.json",
+    "length": 535,
+    "sha256": "DB7AE5B140BA56C669CE110C9048D806713E4F482B2F3B520B2C0BBAD9E0CA04"
+  },
+  {
+    "path": "focused-build-red-summary.json",
+    "length": 1384,
+    "sha256": "CA343AC79AC5C318BF33841126CE00F70C0CEDE5B06654F4732485329C18054C"
+  },
+  {
+    "path": "focused-build-red.log",
+    "length": 3033,
+    "sha256": "7BFC9C083A5787A0BF9C27E662DC25B961CC661607357F257DC62AFCB6A00F16"
+  },
+  {
+    "path": "focused-build.log",
+    "length": 9333,
+    "sha256": "01845EE718905B4B41187FF8EAC5B54C48FA98242E67157C856E895CD42AF845"
+  },
+  {
+    "path": "focused-core.log",
+    "length": 828,
+    "sha256": "4BA1D2E9544A5FD261ED62693400AB9DFEF015D657FB83434A4FD61770D87CCF"
+  },
+  {
+    "path": "focused-input-hashes.json",
+    "length": 397517,
+    "sha256": "4A5652993C7E1EB868668D9D72811156EA0A1319E0BA2F0350DA6390D2E77FF9"
+  },
+  {
+    "path": "focused-invoke.ps1",
+    "length": 448,
+    "sha256": "3E897CF86145E6978042243AC3FA0DDA5C59653C3CDFD2BBC01BBB01FDBB483F"
+  },
+  {
+    "path": "focused-summary.json",
+    "length": 1593,
+    "sha256": "9D6DDCC52EB56B46CD5871779F87C2191326B5010C52E84E88E6FE66F39265C5"
+  },
+  {
+    "path": "initial-routine-build.log",
+    "length": 926,
+    "sha256": "268150AE7BB2288B2744C0F3FAB8658647853D240AC1D3957BF365193E0327FE"
+  },
+  {
+    "path": "initial-routine-core.log",
+    "length": 135011,
+    "sha256": "C2A45B5A38FC0CB70470C26AFBA07F124FE0952CA0295795417F696812E79B7D"
+  },
+  {
+    "path": "initial-routine-failures.json",
+    "length": 3891,
+    "sha256": "FDE86B98F9BCBD75D4D7AE851C788785256E2CD13262FE2F8BF778B203CBAF21"
+  },
+  {
+    "path": "initial-routine-final-input-hashes.json",
+    "length": 398063,
+    "sha256": "3EC9BE9F078B436FAE36F1F2AA81E9D0A4436A66D55F2A7C97FDDCDB5667BDC3"
+  },
+  {
+    "path": "initial-routine-input-hashes.json",
+    "length": 398063,
+    "sha256": "7C7EBA3D002AD1B847163ED0970FEA2D8A5D6055F734DE1C6F640815A119E80C"
+  },
+  {
+    "path": "initial-routine-invoke.ps1",
+    "length": 2372,
+    "sha256": "1DD7F802534C5BB35E7A7F124950771C80B6C5C61C860435CCB4A10B029BD990"
+  },
+  {
+    "path": "initial-routine-source-drift.json",
+    "length": 201,
+    "sha256": "E6E1F28C4EF21FB3A60002EF1B6D2B7FC71AA9D9DBB861A2B588B4E9B9E74D1A"
+  },
+  {
+    "path": "initial-routine-summary.json",
+    "length": 17855,
+    "sha256": "2599197FE34C3532E321FD5DA60006FF455E2B88D0E0720DEE7592217555D719"
+  },
+  {
+    "path": "initial-routine-wpf.log",
+    "length": 91331,
+    "sha256": "491B284F6FC5898B18530500F233AAE5C49FD012F4FBAFCCA2806D211779B59E"
+  },
+  {
+    "path": "integration-recheck-build.log",
+    "length": 9333,
+    "sha256": "78FF9F79AAAF1856B738F560517060F6869516333581FE5A53758454C228C299"
+  },
+  {
+    "path": "integration-recheck-core.log",
+    "length": 2018,
+    "sha256": "C98F5FF93663EC205632DD0221E78B7A6BF2049040E994748540128395509849"
+  },
+  {
+    "path": "integration-recheck-summary.json",
+    "length": 1627,
+    "sha256": "87CD5ABB4D8A221E0F4E28EC37554E458A238E93EFDC021C234E58BE9959940A"
+  },
+  {
+    "path": "integration-recheck.ps1",
+    "length": 1067,
+    "sha256": "08FC1C6F9993943D66AFAD667289A28D0916FF66BA7C1BD3127F6E9FD2C041B3"
+  },
+  {
+    "path": "lifecycle-compile-refresh.json",
+    "length": 465,
+    "sha256": "51A9BF69EACAA0971CC049FB304A4E150446807D33A5078B7CB698D365C8905D"
+  },
+  {
+    "path": "MatchSkillBindingIndex.before.cs",
+    "length": 22978,
+    "sha256": "16701AC60046354305B9ED8C98C353F10C1984BEE2BA0842076827F6439CCEA9"
+  },
+  {
+    "path": "MatchSkillBindingIndex.candidate.cs",
+    "length": 22306,
+    "sha256": "CC1A1A26BDC5B03A835AF255BB4F476A26369864C9F8DCD67FE1978A8BCFD59A"
+  },
+  {
+    "path": "MatchSkillBindingIndexChecks.before.cs",
+    "length": 22880,
+    "sha256": "9AF64D71AC42A1DFF9022EF85E2729A9CC2EECB8D657AA338980FD4075C2C77A"
+  },
+  {
+    "path": "MatchSkillBindingIndexChecks.candidate.cs",
+    "length": 27972,
+    "sha256": "EDAE237789FEF33361A91EB6114CC65D92FD1B6418AC93C2F10A1241FB4FB341"
+  },
+  {
+    "path": "NamedAmbushAndSourceHandChecks.before-syntax-fix.cs",
+    "length": 25003,
+    "sha256": "31D22C74C7E2770A6008EB95AEDFF82A280F72CABE8544D8C9D0AE4E0653B6C0"
+  },
+  {
+    "path": "NamedAmbushAndSourceHandChecks.current.cs",
+    "length": 29983,
+    "sha256": "F595DBF9837F476924FB3EAB28E5E4365E84CB5AFE8C47BA416B7D1A89BE81F9"
+  },
+  {
+    "path": "opening-check-diff.patch",
+    "length": 3092,
+    "sha256": "E5435D4540B70314ED3C1E1CE1A30C8039299DC655C7957A03E47F0D6A89DBBA"
+  },
+  {
+    "path": "opening-recheck-build.log",
+    "length": 770,
+    "sha256": "EAB05ECA8446532FA35498FFD9C90E12DF34166D18F4CFECBD3D6DB29C1F27E8"
+  },
+  {
+    "path": "opening-recheck-summary.json",
+    "length": 1419,
+    "sha256": "ED4CB310BB015562403C8D4F6656BCBD3898054B3A47764C9C9DF32825EA15F9"
+  },
+  {
+    "path": "opening-recheck-wpf.log",
+    "length": 1144,
+    "sha256": "FB2251CFE34DB567D7625AA5875DB007BA582D690BE3C934842695489F7DB982"
+  },
+  {
+    "path": "owned-before-final-routine.json",
+    "length": 249,
+    "sha256": "F59A28C8DD73035E052EFB068B364F61371D2CA326ACAC5470389D69F11534D5"
+  },
+  {
+    "path": "owned-final-source-hashes.json",
+    "length": 605,
+    "sha256": "E8BA2A41700608FB09AB4A875B97300F9EB72D2C03AAC3DCBD29F56A40511A9F"
+  },
+  {
+    "path": "probe-cleanup-preconditions.json",
+    "length": 505,
+    "sha256": "DF7DE18C4FCF4F365C8A69CED3405E7184F271507C7745905A4383F7B9878F31"
+  },
+  {
+    "path": "probe-cleanup-result.json",
+    "length": 337,
+    "sha256": "364F5F3BDA7CFC02BA157EBC7C82DCC2709237CE7B760F02313EBC11AAF0E309"
+  },
+  {
+    "path": "review-empty-shard.json",
+    "length": 49199,
+    "sha256": "C806CF38E85F2E61C4BC9E70C88A57A1B208448403368003C8F530B0FA26375B"
+  },
+  {
+    "path": "review-final-boundaries.json",
+    "length": 11803,
+    "sha256": "8B661DD98DDE2F1C349408F88DAAABDEAE4644BF42ECD4FEEF7BED12B62D56FB"
+  },
+  {
+    "path": "review-phase-start-failures.json",
+    "length": 10314,
+    "sha256": "B0F859A4E39BDF217E507859D26B2C0416C2EA644893FAF2F59177062283265A"
+  },
+  {
+    "path": "review-trigger-buckets.json",
+    "length": 10896,
+    "sha256": "59BFAFF044C21CEDE4528B1C5F195481CEF83D77CEE14D091157BDB376AF59DD"
+  },
+  {
+    "path": "review-wpf-failures.json",
+    "length": 14235,
+    "sha256": "B94040FB8833283792EAE0F62D99CB20BCEA85D8BE04DEAF4A5C740D975567C0"
+  },
+  {
+    "path": "routine-build.log",
+    "length": 10071,
+    "sha256": "0214357DD8BA6CF2DC52F07CB835201A3C001621D62C2E08C6560B6B09FBD5F3"
+  },
+  {
+    "path": "routine-core.log",
+    "length": 92588,
+    "sha256": "9522D38032E8A2ED00F78959DEECC226FF497178012AACA7F3BC9C09E0F10875"
+  },
+  {
+    "path": "routine-final-input-hashes.json",
+    "length": 398063,
+    "sha256": "6C20FA95497508711765D5E8F520763F40EA4D24DF0461D5918BD084A2A5464E"
+  },
+  {
+    "path": "routine-input-hashes.json",
+    "length": 398063,
+    "sha256": "CE5D3A4057ECB899D8505FDD89C502CB051888F193C3E3AED4F5E95945B67336"
+  },
+  {
+    "path": "routine-invoke.ps1",
+    "length": 2372,
+    "sha256": "1DD7F802534C5BB35E7A7F124950771C80B6C5C61C860435CCB4A10B029BD990"
+  },
+  {
+    "path": "routine-source-drift.json",
+    "length": 237,
+    "sha256": "A0AD3EA6317C0D332A6A699766F0153A351E1EDAD31A81F62D05F1327512B907"
+  },
+  {
+    "path": "routine-summary.json",
+    "length": 17856,
+    "sha256": "3AF45A5AAD85AB117B773B6449CB5960BD6523C0C220844D25853E6A2288BF61"
+  },
+  {
+    "path": "routine-wpf.log",
+    "length": 91062,
+    "sha256": "B4A5A34D38A8E8BCF65EE1D126A2FD2058E003A58670134E849C87015013A67C"
+  },
+  {
+    "path": "source-diff.patch",
+    "length": 14127,
+    "sha256": "C232B16516AD782D1AFDF825E8F8B17AE401D590588B38AD925E9DB3C9E5E866"
+  },
+  {
+    "path": "structural-results.json",
+    "length": 201,
+    "sha256": "DDFE220BB96472EFDD6F6B5EBE149B8436302FD613A48D280B02B88D529CD582"
+  },
+  {
+    "path": "syntax-fix-before-hash.json",
+    "length": 193,
+    "sha256": "ADA13B523610FCF9614BD7724DCDFE459E936F0074A3D0FCAAA4AD32F5C1F16E"
+  },
+  {
+    "path": "syntax-fix-diff.patch",
+    "length": 2602,
+    "sha256": "55EFA1337D79B7622A117053879811F1475C95534816BD6AC4EC53FC2B164BE0"
+  },
+  {
+    "path": "TableShortcutChecks.before.cs",
+    "length": 48569,
+    "sha256": "7D00FD33FB532A425B7FFE93F44CF37D5DC68F940547A74D404C9371F37B084A"
+  },
+  {
+    "path": "TableShortcutChecks.candidate.cs",
+    "length": 50063,
+    "sha256": "DC32F17EF35C8D9FFE5AB976C677F7EF56714F0C919477AC91F2780976FF6F0A"
+  },
+  {
+    "path": "Test-Changed.invoked.ps1",
+    "length": 19004,
+    "sha256": "F010EEF5CA911570F55419757FEB1B23D292BAAE7E53384D86F23AB04BA1A91D"
+  },
+  {
+    "path": "VerificationScopes.invoked.psd1",
+    "length": 16989,
+    "sha256": "B3D52E6BE7FC3468A34F00B3352A2B4AA4A7AF185872E635B4BE22DF1BEBC822"
+  }
+]

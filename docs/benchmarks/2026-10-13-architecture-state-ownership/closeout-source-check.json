@@ -1,0 +1,92 @@
+[
+  {
+    "path": "src/CardGame.Core/GameEngine.cs",
+    "verifiedSha256": "dbc22ff427a467bea60bd6b4962173b5f69524d731a36892ebdd3bd40005a1f3",
+    "currentSha256": "dbc22ff427a467bea60bd6b4962173b5f69524d731a36892ebdd3bd40005a1f3",
+    "unchanged": true
+  },
+  {
+    "path": "src/CardGame.Core/ForeignEquipmentDiscardPolicies.cs",
+    "verifiedSha256": "99270e00620c772baad3873efbc324ed103e656ae8a2592bc65966cdbb572ddd",
+    "currentSha256": "99270e00620c772baad3873efbc324ed103e656ae8a2592bc65966cdbb572ddd",
+    "unchanged": true
+  },
+  {
+    "path": "src/CardGame.Core/GameEngine.UnnullifiableOrdinaryTricks.cs",
+    "verifiedSha256": "28b824439c88784c5ec95efd170798751017fc1393fc04fc292ce805f3ff9684",
+    "currentSha256": "28b824439c88784c5ec95efd170798751017fc1393fc04fc292ce805f3ff9684",
+    "unchanged": true
+  },
+  {
+    "path": "src/CardGame.Core/GameEngine.DamagePreventionPrograms.cs",
+    "verifiedSha256": "8c2871e8b241ac127ad58319468cdf84a1849e8fb5b573dfc26ab6294e8df3cf",
+    "currentSha256": "8c2871e8b241ac127ad58319468cdf84a1849e8fb5b573dfc26ab6294e8df3cf",
+    "unchanged": true
+  },
+  {
+    "path": "src/CardGame.Core/GameEngine.ActualPlayPhaseCardUses.cs",
+    "verifiedSha256": "8d4cfdede648fd353a2779000daea5dcee08fae511bf4584d8bf39a17dca93e4",
+    "currentSha256": "8d4cfdede648fd353a2779000daea5dcee08fae511bf4584d8bf39a17dca93e4",
+    "unchanged": true
+  },
+  {
+    "path": "src/CardGame.Core/SkillProgramDependencies.cs",
+    "verifiedSha256": "d556c5e2f5d871ff9efec3902945752083f475a004dcef02a462e3b260f40761",
+    "currentSha256": "d556c5e2f5d871ff9efec3902945752083f475a004dcef02a462e3b260f40761",
+    "unchanged": true
+  },
+  {
+    "path": "src/CardGame.Core/GameEngine.ZhaoYanPrograms.cs",
+    "verifiedSha256": "9c5be2378473c19da45a8d73c578822da434a7856a6d2a2b117fbcc98513aea2",
+    "currentSha256": "9c5be2378473c19da45a8d73c578822da434a7856a6d2a2b117fbcc98513aea2",
+    "unchanged": true
+  },
+  {
+    "path": "src/CardGame.Core/GameEngine.YangWanPrograms.cs",
+    "verifiedSha256": "d31ead2ceda30706e8e7129d2945abc449cbbe3bbec4c328802c7286d24b9a5d",
+    "currentSha256": "d31ead2ceda30706e8e7129d2945abc449cbbe3bbec4c328802c7286d24b9a5d",
+    "unchanged": true
+  },
+  {
+    "path": "src/CardGame.Core/GameEngine.ParticipantAndReservePrograms.cs",
+    "verifiedSha256": "66d7620448ff9e9fa5e444f807a73c62ceff99a92e57bc98391725ed6f17d91f",
+    "currentSha256": "66d7620448ff9e9fa5e444f807a73c62ceff99a92e57bc98391725ed6f17d91f",
+    "unchanged": true
+  },
+  {
+    "path": "src/CardGame.Core/Replay.cs",
+    "verifiedSha256": "4a8dda5cccdbd6ff072648f6f8cc91fdcf953531c3b93a802eed052042d4f7c7",
+    "currentSha256": "4a8dda5cccdbd6ff072648f6f8cc91fdcf953531c3b93a802eed052042d4f7c7",
+    "unchanged": true
+  },
+  {
+    "path": "tests/CardGame.Core.Tests/CompiledSkillMetadataChecks.cs",
+    "verifiedSha256": "02cc0316645adcaf8e10ac95972bc5a4dbf9ffa4963842b9deb21e0be21d7238",
+    "currentSha256": "02cc0316645adcaf8e10ac95972bc5a4dbf9ffa4963842b9deb21e0be21d7238",
+    "unchanged": true
+  },
+  {
+    "path": "tests/CardGame.Core.Tests/TongxieUseProvenanceChecks.cs",
+    "verifiedSha256": "0dc33be87389ca17f55ef97c522c020811ab7d3633065bd6c13cab7d3920eccb",
+    "currentSha256": "0dc33be87389ca17f55ef97c522c020811ab7d3633065bd6c13cab7d3920eccb",
+    "unchanged": true
+  },
+  {
+    "path": "tests/CardGame.Core.Tests/ZhuihuanRetaliationChecks.cs",
+    "verifiedSha256": "d8a5064bb5306ac274cb006984523a4a45a01edcc1cc1c4b1a7466920f4f46f8",
+    "currentSha256": "d8a5064bb5306ac274cb006984523a4a45a01edcc1cc1c4b1a7466920f4f46f8",
+    "unchanged": true
+  },
+  {
+    "path": "tests/CardGame.Core.Tests/Program.cs",
+    "verifiedSha256": "cdb1ca27618bff9b4affb66713ca54045d4f02ee368dfdc9e0bf1b5673ec842b",
+    "currentSha256": "47f3fc0be03da137a1bf7c253d3fcc103b6d6131babde3cc177c8167ecf8463b",
+    "unchanged": false
+  },
+  {
+    "path": "tools/VerificationScopes.psd1",
+    "verifiedSha256": "7b072bf40bef6901bdbf745b465ffe0338e2827b4c29f91d6ecb067333abe74d",
+    "currentSha256": "7b072bf40bef6901bdbf745b465ffe0338e2827b4c29f91d6ecb067333abe74d",
+    "unchanged": true
+  }
+]

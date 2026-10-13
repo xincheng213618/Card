@@ -1,0 +1,153 @@
+{
+  "purpose": "Continue simplifying the existing architecture while preserving concurrent dirty work.",
+  "changes": {
+    "mechanismSpecificExecutionHostPermissionsBefore": 30,
+    "semanticExecutionHostPermissionsAfter": 2,
+    "additionalSharedObserverSuffixCallers": 4,
+    "removedNullableCapabilityCaches": 5,
+    "promptChoiceFreezersBefore": 3,
+    "promptChoiceFreezersAfter": 1,
+    "sharedPromptSubmissionRoutes": 8,
+    "wpfIdentityFieldsBefore": 5,
+    "wpfIdentityObjectsAfter": 1,
+    "wpfIdentityProductLinesRemovedNet": 37,
+    "equivalentOwnerParsersShared": 94,
+    "ownerParserProductLinesRemovedNet": 450,
+    "bugFix": "Luochong uses one frozen cumulative discard collection for pending state and resolution events."
+  },
+  "validation": {
+    "focused": {
+      "corePassed": 56,
+      "coreFailed": 0,
+      "wpfPassed": 10,
+      "wpfFailed": 0,
+      "durationMs": 59351,
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "durationMs": 19011
+        },
+        {
+          "name": "Core selected checks (18 filters, union)",
+          "status": "passed",
+          "durationMs": 13196
+        },
+        {
+          "name": "WPF selected checks (10 filters, union)",
+          "status": "passed",
+          "durationMs": 26868
+        }
+      ]
+    },
+    "routine": {
+      "corePassed": 509,
+      "coreFailed": 0,
+      "wpfPassed": 74,
+      "wpfFailed": 0,
+      "durationMs": 200113,
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "durationMs": 2784
+        },
+        {
+          "name": "Core selected checks (309 filters, union)",
+          "status": "passed",
+          "durationMs": 90221
+        },
+        {
+          "name": "WPF selected checks (40 filters, union)",
+          "status": "passed",
+          "durationMs": 106791
+        }
+      ]
+    },
+    "luochongRed": {
+      "compiled": true,
+      "passed": 0,
+      "failed": 1,
+      "failure": "Final real two-card discard resolution omitted the complete paid prefix."
+    },
+    "scopedDiffCheck": "passed",
+    "ownedSourceChangedAfterFocused": [
+      "docs/RUNTIME_REFACTOR_IMPLEMENTATION.md"
+    ]
+  },
+  "compatibility": {
+    "structuralChanges": "No rules schema or package version change. Original continuation guard order and parser diagnostics preserved.",
+    "luochong": "Actual event correction advances the rules epoch in Replay.cs; old rules checkpoints remain rejected by the existing exact-version gate.",
+    "concurrentWork": "HP conditional continuation permission and inserted-phase return fix were preserved. The latter has its own rules-epoch increment. ZhuLing test raw-string delimiter was narrowly repaired to restore compilation."
+  },
+  "evidence": {
+    "sourceHashes": "owned-source-hashes.json",
+    "reviewsBackupsAndLogs": "evidence.zip",
+    "staticReviewFiles": [
+      "executor-review.json",
+      "owner-parser-review.json",
+      "owner-parser-methods.json",
+      "identity-review.json",
+      "choice-freeze-review.json",
+      "independent-review.json"
+    ]
+  },
+  "limitations": [
+    "Routine still exceeds the approximately one-minute target; no performance improvement is claimed.",
+    "No manual Full or unfiltered direct runners.",
+    "No foreground desktop, physical multi-DPI or audio acceptance.",
+    "Scoped behavior checks and static equivalence reviews do not prove every possible game execution."
+  ],
+  "cleanup": {
+    "status": "Prior policy rejection preserved; no deletion retry. Recovery and diagnostic evidence retained.",
+    "taskRoot": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-architecture-01a13336",
+    "totalBytesAtCapture": 3349084233,
+    "registeredDirectories": [
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-architecture-01a13336\\verification\\bin",
+        "bytes": 1841644357,
+        "reason": "Automatic cleanup was rejected as blocked by policy earlier in this architecture task; verification outputs were reused, evidence saved, and deletion was not retried."
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-architecture-01a13336\\verification\\obj",
+        "bytes": 770280515,
+        "reason": "Automatic cleanup was rejected as blocked by policy earlier in this architecture task; verification outputs were reused, evidence saved, and deletion was not retried."
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-architecture-01a13336\\verification\\renders",
+        "bytes": 518444879,
+        "reason": "Automatic cleanup was rejected as blocked by policy earlier in this architecture task; verification outputs were reused, evidence saved, and deletion was not retried."
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-architecture-01a13336\\comparison",
+        "bytes": 177827530,
+        "reason": "This architecture task finished verification and archived evidence, but automatic cleanup was rejected: blocked by policy. Do not retry automatically."
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-architecture-01a13336\\baseline",
+        "bytes": 26799405,
+        "reason": "This architecture task finished verification and archived evidence, but automatic cleanup was rejected: blocked by policy. Do not retry automatically."
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-architecture-01a13336\\focused-initial",
+        "bytes": 18536,
+        "reason": "This architecture task finished verification and archived evidence, but automatic cleanup was rejected: blocked by policy. Do not retry automatically."
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-architecture-01a13336\\focused-final",
+        "bytes": 16073,
+        "reason": "This architecture task finished verification and archived evidence, but automatic cleanup was rejected: blocked by policy. Do not retry automatically."
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-architecture-01a13336\\iteration2",
+        "bytes": 1374796,
+        "reason": "Architecture simplification recovery backups, red-green diagnostics and source audits retained; durable evidence archive also saved in docs/benchmarks/2026-10-13-architecture-simplification."
+      }
+    ],
+    "recoveryArchive": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-architecture-01a13336\\source-before.zip"
+  },
+  "nextCandidates": [
+    "Replace remaining whole-catalog capability mirrors with existing compiled index answers.",
+    "Unify YangWan/ZhaoYan diagnostic aliases with frozen backing after adding missing actual-child behavior coverage."
+  ]
+}

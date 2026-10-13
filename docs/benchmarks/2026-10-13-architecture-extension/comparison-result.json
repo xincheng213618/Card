@@ -1,0 +1,201 @@
+{
+  "result": "byte-identical",
+  "probe": "Same temporary console source with private fixture helpers and committed-state capture; no unfiltered tests executed.",
+  "control": "Current source with only this architecture iteration reversed using the recorded source-before.zip and a narrow transformation whitelist.",
+  "boundaryCount": 49,
+  "traceBytesEach": 6188204,
+  "traceSha256": "9488b1a2500f4e2e6e1bd6685dbf81eee9026bdb5d0468d8efcfc4fc8de4f031",
+  "scenarios": [
+    {
+      "scenario": "Normal",
+      "boundariesCompared": 27,
+      "committedBoundariesCompared": 9,
+      "coldRestoresCompared": 6,
+      "finalRevision": 19,
+      "finalEvents": 58,
+      "finalAcceptedCommands": 19,
+      "rulesVersions": [
+        213
+      ],
+      "contentHashes": [
+        "1A2A15EA87C9C5242E61921A749BF921CFC5E768C6D30DFF41686064DF437145"
+      ],
+      "finalRandomState": 446899305,
+      "fieldsCompared": [
+        "Scenario",
+        "Sequence",
+        "Boundary",
+        "Revision",
+        "Prompt",
+        "Commands",
+        "Events",
+        "Movements",
+        "Zones",
+        "Views",
+        "Checkpoint",
+        "RandomState"
+      ],
+      "boundaries": [
+        "fixture-ready",
+        "begin:committed",
+        "begin:settled",
+        "cold-partner-choice:restored",
+        "select-partner:committed",
+        "select-partner:settled",
+        "owner-cost:settled",
+        "cold-owner-cost:restored",
+        "continue-owner-cost:committed",
+        "continue-owner-cost:settled",
+        "owner-gain:settled",
+        "cold-owner-gain:restored",
+        "finish-owner-gain:committed",
+        "finish-owner-gain:committed",
+        "finish-owner-gain:settled",
+        "partner-cost:settled",
+        "cold-partner-cost:restored",
+        "continue-partner-cost:committed",
+        "continue-partner-cost:settled",
+        "partner-gain:settled",
+        "cold-partner-gain:restored",
+        "finish-partner-gain:committed",
+        "finish-partner-gain:committed",
+        "finish-partner-gain:settled",
+        "return-play:committed",
+        "return-play:settled",
+        "cold-completed:restored"
+      ]
+    },
+    {
+      "scenario": "SourceLoss",
+      "boundariesCompared": 22,
+      "committedBoundariesCompared": 7,
+      "coldRestoresCompared": 5,
+      "finalRevision": 17,
+      "finalEvents": 57,
+      "finalAcceptedCommands": 17,
+      "rulesVersions": [
+        213
+      ],
+      "contentHashes": [
+        "A6FD5584C38B213386301CFF08B580EE402019B668370416C793E6727AC3A05D"
+      ],
+      "finalRandomState": 446899305,
+      "fieldsCompared": [
+        "Scenario",
+        "Sequence",
+        "Boundary",
+        "Revision",
+        "Prompt",
+        "Commands",
+        "Events",
+        "Movements",
+        "Zones",
+        "Views",
+        "Checkpoint",
+        "RandomState"
+      ],
+      "boundaries": [
+        "fixture-ready",
+        "begin:committed",
+        "begin:settled",
+        "cold-partner-choice:restored",
+        "select-partner:committed",
+        "select-partner:settled",
+        "owner-cost:settled",
+        "cold-owner-cost:restored",
+        "continue-owner-cost:committed",
+        "continue-owner-cost:settled",
+        "partner-cost:settled",
+        "cold-partner-cost:restored",
+        "continue-partner-cost:committed",
+        "continue-partner-cost:settled",
+        "partner-gain:settled",
+        "cold-partner-gain:restored",
+        "finish-partner-gain:committed",
+        "finish-partner-gain:committed",
+        "finish-partner-gain:settled",
+        "return-play:committed",
+        "return-play:settled",
+        "cold-completed:restored"
+      ]
+    }
+  ],
+  "excludedRepresentation": "ResolutionStack/internal frame representation; all public player snapshots and typed event payloads are compared.",
+  "sourceMap": {
+    "sha256": "f08b7bb050173baa781dc5f14ed70e1e6b3d3ce9da17e3d9f5742b7ecfdb37a9",
+    "copiedFiles": 2034,
+    "restoredFiles": 32,
+    "excludedFiles": 6,
+    "continuationAttributesRemoved": 160,
+    "unexpectedSourceChangesAtBinaryCapture": [],
+    "ownedSourceChangesAtBinaryCapture": [
+      {
+        "path": "src/CardGame.Core/GameEngine.ObserverSubtrees.cs",
+        "operation": "excluded architecture addition",
+        "copyTimeSha256": "c8d0229d46fb5ef9a3fe845b1ba5d65ead511a0fef9b414afc1307ed5049ca00",
+        "captureTimeSha256": "6658e42925b42a68b2a5dfb8ecb813a9c58839ed2ef7371321cd3b65cce5b946"
+      },
+      {
+        "path": "src/CardGame.Core/GameEngine.RecipientConsequencesObservers.cs",
+        "operation": "restore architecture baseline",
+        "copyTimeSha256": "f20a9dac0fbc6f83968924819214042fb523ea89c527b7cfcfbc449ac73146aa",
+        "captureTimeSha256": "87dc1429a8087baf166c8230a876af50d0ea70037ed6f519330eca962a1446e2"
+      }
+    ]
+  },
+  "probeSourceSha256": "c9726ccc6e866867a1299df806ef4904b068703a2ead1086f615ba52c091d1c8",
+  "controlAssemblies": [
+    {
+      "name": "CardGame.Core.dll",
+      "sha256": "56e76309fb1af93643ec7c122dd2292801ea1072da04df8a6b61e1762440727b"
+    },
+    {
+      "name": "CardGame.Content.Standard.dll",
+      "sha256": "6751b39e04460137f6fbe5c84f960f2a3e5942d2504d0f629e791e4503e51658"
+    },
+    {
+      "name": "CardGame.Core.Tests.dll",
+      "sha256": "64baa1ccee233d31a5da1f2da1b670d88f11f12ad1f4755ca1e538c7b963b249"
+    }
+  ],
+  "currentAssemblies": [
+    {
+      "name": "CardGame.Core.dll",
+      "source": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-architecture-01a13336\\verification\\bin\\CardGame.Core.Tests\\release\\CardGame.Core.dll",
+      "sha256": "00ef056547837790141b5cd2c3d103f87cc91b91d16a376b029cd5fca0b25731",
+      "size": 11782656,
+      "lastWriteNanoseconds": 1791862100798554200
+    },
+    {
+      "name": "CardGame.Content.Standard.dll",
+      "source": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-architecture-01a13336\\verification\\bin\\CardGame.Core.Tests\\release\\CardGame.Content.Standard.dll",
+      "sha256": "2fe39eb1e7ab82b818ae449ddf9e8e4b344b15c4846fde7e2e4075d3f0f0e700",
+      "size": 1378304,
+      "lastWriteNanoseconds": 1791861874242181700
+    },
+    {
+      "name": "CardGame.Core.Tests.dll",
+      "source": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-architecture-01a13336\\verification\\bin\\CardGame.Core.Tests\\release\\CardGame.Core.Tests.dll",
+      "sha256": "cd51c9dca07e1679db9285963c13f15cc6a02eae9e263aa4ce3d1953fb372c4a",
+      "size": 9662976,
+      "lastWriteNanoseconds": 1791861876972383800
+    }
+  ],
+  "buildResults": {
+    "control": {
+      "errors": 0,
+      "warnings": 18,
+      "seconds": 33.58
+    },
+    "probeControl": {
+      "errors": 0,
+      "warnings": 0,
+      "seconds": 2.82
+    },
+    "probeCurrent": {
+      "errors": 0,
+      "warnings": 0,
+      "seconds": 3.53
+    }
+  }
+}

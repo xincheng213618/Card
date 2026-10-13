@@ -1,0 +1,34 @@
+[
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Controls\\BattleFeedbackLayer.cs",
+    "Hash": "35D413568ADC87C5A149747AAC913704000967B7640039F7E66F4CAF515A0DA9"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\MainWindow.xaml.cs",
+    "Hash": "C2DDD03308F097F7702248CE4D648FA1AFC7823472469F1B6A0C9DFABE145C11"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\BattleTextReadabilityChecks.cs",
+    "Hash": "785003B6B282A7AEB7B7D212F05E8785D89AEA9636EE7080155AA2726F7F8DF6"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\ModalFocusChecks.cs",
+    "Hash": "E428BC1BF4CB66E23791EBA1D92B7280903A8B92917C9E3E9458AF8BC08FC8ED"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Wpf.Tests\\GeneralGalleryFocusChecks.cs",
+    "Hash": "80123DAB64EEF24D4AB504E5959B42DEA542B5662C374CD9A634A2EC33E87042"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\GameEngine.ProgramTurnPhase.cs",
+    "Hash": "199C407C24C5E21F801B3AF92A417F958AD314520B80CC01014BDFC120FCD072"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\GameEngine.SoleTargetProtection.cs",
+    "Hash": "9ABC0A48BFA7A9DE279776836921E6041FC43FE3DBDB519447658AF832C342B0"
+  },
+  {
+    "Path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\Replay.cs",
+    "Hash": "C64E9C7F136A2E079489DF6427C514DEADC1C694DD9FDDCD94D80F408F817DE6"
+  }
+]

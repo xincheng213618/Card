@@ -1,0 +1,74 @@
+{
+  "review_date": "2026-10-13",
+  "status": "source review only; no product or test edits, build, test run, or dynamic reproduction",
+  "scope": "Two concrete record-state examples, plus one computed-projection rejection; no general rewrite recommendation",
+  "positional_alias_search": "No remaining collection-constructor alias with a separate init collection was confirmed in the inspected stable files. An explicit property with the same name as its positional parameter replaces the generated property and is not two independently stored states.",
+  "candidates": [
+    {
+      "id": "pindian-policy-claim-mirrors",
+      "classification": "true duplicate state in the PolicyClaims branch; ordinary-claim fields remain necessary",
+      "status": "source-confirmed synchronized mirrors; no demonstrated gameplay or replay defect",
+      "source": [
+        "src/CardGame.Core/PindianModules.cs:17-36",
+        "src/CardGame.Core/PindianPolicySelections.cs:14-16",
+        "src/CardGame.Core/GameEngine.PindianMaximumSlashClaims.cs:34-44",
+        "src/CardGame.Core/GameEngine.PindianMaximumSlashClaims.cs:64-89",
+        "src/CardGame.Core/GameEngine.PindianClaims.cs:5-14",
+        "src/CardGame.Core/GameEngine.PindianClaims.cs:51-69",
+        "src/CardGame.Core/GameEngine.Pindian.cs:217-226"
+      ],
+      "finding": "When PolicyClaims is present, ClaimSeats is a stored projection of PolicyClaims.Claims.OwnerSeat and ClaimIndex is copied from PolicyClaims.Index. The producer writes both cursors at each accepted policy answer, and an invariant requires their equality. The shared prompt invariant consumes the copies.",
+      "preserve": "The ordinary claim branch still owns ClaimSeats/ClaimIndex, including PindianClaimAllWhenSourceWins behavior. Preserve those semantics, claimant order, frozen source/card identities, processing-card movement, old accepted-command checkpoint/replay boundaries, and visibility. Do not globally delete the ordinary fields or substitute policy-claim rules for ordinary claims.",
+      "minimal_next_step": "Consider deriving claimant and cursor from PolicyClaims only in that branch, updating the shared prompt invariant and all policy writes together. Keep the ordinary path intact, and decide compatibility for exposed/serialized diagnostic frames explicitly. Do not start this change during the current routine run.",
+      "verification": [
+        "Reuse Maximum Slash Pindian claim effective ranks deferred top cold replay",
+        "Reuse Random Pindian both strategies exact RNG tied Slash claims cold replay",
+        "Preserve an ordinary claim path and a mixed policy claimant path; one participant may own more than one ordered claim"
+      ]
+    },
+    {
+      "id": "actual-discard-recovery-null-payment-list",
+      "classification": "semantic stage boundary and frozen payment receipt; retain",
+      "status": "rejected as duplicate state; source review only",
+      "source": [
+        "src/CardGame.Core/ProgramActualDiscardRecoveryOperations.cs:11-20",
+        "src/CardGame.Core/GameEngine.ActualDiscardRecoveries.cs:81-98",
+        "src/CardGame.Core/GameEngine.ActualDiscardRecoveries.cs:155-189"
+      ],
+      "finding": "The nullable ClaimedCardIds positional parameter and the explicit same-name init property share one frozen backing field. Null means no claim payment has been accepted yet. A real decline reaches ClaimPaid with a nonnull empty collection; an accepted claim may also have an empty collection if the original remaining entities are no longer available. ClaimRemaining distinguishes the accepted choice, while stage, sequence bounds, movements, and committed fact establish its completed payment.",
+      "preserve": "Do not normalize every null list to empty or remove it merely because Stage also exists: the current invariant deliberately rejects paid-tail data before ClaimPaid and requires an immutable nonnull tail afterward. Retain replay construction and the distinction between unissued, declined, and zero-entity accepted payments.",
+      "minimal_next_step": "No consolidation recommended from this review. Any later redesign needs a concrete replacement for the accepted-payment boundary and focused replay/decline checks first."
+    }
+  ],
+  "excluded_projections": [
+    {
+      "id": "deck-slash-used-count",
+      "classification": "computed semantic projection; no duplicate backing state",
+      "source": [
+        "src/CardGame.Core/ProgramDeckOperations.cs:41-42",
+        "src/CardGame.Core/GameEngine.DeckPrograms.cs:171-193",
+        "src/CardGame.Core/GameEngine.DeckPrograms.cs:217-221"
+      ],
+      "finding": "ProgramDeckSlashSequence.UsedCount is an expression-bodied DeclaredIds.Count getter, not a second stored counter. ActiveCardId marks the actual child still using the latest declaration and is not interchangeable with the declaration history. Retain both meanings.",
+      "separate_source_risk": "DeclaredIds is a positional IReadOnlyList and the real resume path assigns Append(...).ToArray(). ResolutionStack exposes the trusted frame objects through an outer read-only collection, so collection freezing could merit a separate focused review. No mutation/replay reproduction was performed and this is not a confirmed dynamic bug or a state-duplication fix."
+    }
+  ],
+  "source_hashes": [
+    {
+      "path": "src/CardGame.Core/PindianModules.cs",
+      "sha256": "DD98A158E27CAE5A60570216968299ED4854CEC6F8A92C1C89AEEE5994F85FF0"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.PindianMaximumSlashClaims.cs",
+      "sha256": "2C3681C74AA8EC63B407B445DF21D0B31747A0E0C91C8637BD220A3D3B5D5935"
+    },
+    {
+      "path": "src/CardGame.Core/ProgramActualDiscardRecoveryOperations.cs",
+      "sha256": "F43BCE6CFC7B8FE58702B659DDDF32BA2C06EDB6C182A608A1BADFF484AB4DDD"
+    },
+    {
+      "path": "src/CardGame.Core/ProgramDeckOperations.cs",
+      "sha256": "48A8010A94FE376577E1DC5F889559B926704B0F66BD2BDC763225593ABFD09E"
+    }
+  ]
+}

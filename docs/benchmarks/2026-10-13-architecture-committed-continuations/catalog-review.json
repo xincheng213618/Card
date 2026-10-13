@@ -1,0 +1,164 @@
+{
+  "reviewer": "catalog_review_sol",
+  "reviewed_at_utc": "2026-10-13T13:06:24.372865+08:00",
+  "workspace": "C:\\Users\\17917\\Desktop\\Card",
+  "baseline_archive": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-architecture-01a13336\\iteration4\\root-before.zip",
+  "mode": "read-only source review; no source edits, builds, tests, full verification, commits or release workflows",
+  "result": "No unresolved findings in the six scoped live files after the amount=1 fixture correction.",
+  "findings": [],
+  "resolved_findings": [
+    {
+      "location": "tests/CardGame.Core.Tests/CompiledSkillMetadataChecks.cs:121",
+      "finding": "The new cardsGained fixture originally used draw amount=0; normal draw parsing permits zero only for draw-phase replacement context.",
+      "proof": [
+        "src/CardGame.Core/ProgramOperationDefinitions.cs:443",
+        "src/CardGame.Core/ProgramOperationDefinitions.cs:494-499",
+        "src/CardGame.Core/SkillPrograms.cs:3767-3770"
+      ],
+      "resolution": "Root changed the fixture to amount=1. The program is unowned, so this creates no running draw trigger in the match."
+    }
+  ],
+  "review_checks": [
+    {
+      "check": "construction and freezing",
+      "result": "pass",
+      "evidence": "ContentRegistry constructor assigns frozen _skills then compiles ProgramDependencies once per registry at ContentRegistry.cs:187. RegistryBuilder.Freeze copies every skill dictionary entry at :900-906; no match-owner filtering is introduced."
+    },
+    {
+      "check": "whole-catalog predicates",
+      "result": "pass",
+      "evidence": "SkillProgramDependencies.cs:25-28 enumerates all non-null registered programs. UsesLordSkillProjection == programs.Any(p => p.LordSkillProjection); UsesGainPhaseQualification == all registered triggers.Any(t => t.GainPhaseQualification is not null), equivalent to the deleted engine constructor scans."
+    },
+    {
+      "check": "initialization and engine use",
+      "result": "pass",
+      "evidence": "_contentRegistry is assigned in GameEngine construction before any consumers. Both new properties have get-only backing storage, and no global shared mutable flag or registry cross-contamination was added."
+    },
+    {
+      "check": "gain timing legacy and scheduled actor",
+      "result": "pass",
+      "evidence": "GameEngine.CardMovementPrograms.cs:6-10 changes only the source of the gain qualification bool. Other timing opt-ins, null branch, actual turn owner, Draw phase scheduled.Frame.OwnerSeat and ordinary current actor branches are unchanged. IsGainPhaseQualified remains unchanged."
+    },
+    {
+      "check": "Lord dynamic projection boundary",
+      "result": "pass",
+      "evidence": "GameEngine.LordSkillProjections.cs diff replaces only the readonly flag and forwarding expression. ProjectionDependency, skill-grant revision, alive, HP, role, selection/reveal dependencies, dependency revision, source/instance qualification and synchronization retain their existing code."
+    },
+    {
+      "check": "parser and shared positive-negative fixtures",
+      "result": "pass",
+      "evidence": "Pure lordSkillProjection=true is accepted by SkillPrograms.cs:1961-1964 and passed into SkillProgram at :2094-2098. Gain qualification is valid only on cardsGained (:3163-3167), with Hand destination and PerBatch allowed (:3404-3412). Corrected draw amount=1 is valid. Shared fixture covers Lord-only, qualified gain-only, same-window same-operation unqualified gain, and a separate plain negative registry. ProgramOnlyPackage adds no general ownership. Existing ledger cases share the loader helper without changing their JSON capabilities."
+    },
+    {
+      "check": "Liang Xing self-comparison removal",
+      "result": "pass",
+      "evidence": "selected is one int produced by the singleton SelectedTargetSeats pattern in LuelveProgramCounterSlash; no distinct expected-target local or targetSeat argument exists there. selected != selected is always false. The singleton and owner-exclusion checks remain. GiveProgramSelectedTargetHand still validates selected != targetSeat. ILuelveCounterSlashProgramHost and handler accept only the owning frame, confirming no hidden independent target variable was removed."
+    },
+    {
+      "check": "review scope and replay epoch",
+      "result": "pass",
+      "evidence": "The six scoped files contain only equivalent bool-source relocation, corresponding shared fixtures, and the self-comparison removal. Replay.cs and ParticipantAndReservePrograms match the archive. No executable rule predicate changed and no epoch or content-format bump is required by this equivalent directory-fact relocation."
+    }
+  ],
+  "recommended_existing_core_filters": [
+    "content registry compiles whole catalog dependencies",
+    "boundary Xiahou Dun narrow parser legacy null boundary",
+    "boundary Xiahou Dun real phases skip quota expiry",
+    "Feng Lin Yuan Shu exact sources independent disable",
+    "Feng Lin Yuan Shu command loss regrant source suppression",
+    "Feng Lin Zuo Ci borrowed Lord projection sources",
+    "Ol Liang Xing luelve choice and zhuanxi amplification"
+  ],
+  "additional_optional_existing_core_filter": "Feng Lin Yuan Shu projection gameplay fingerprint",
+  "verification_boundary": "Static independent review only. Parent/root owns focused and routine verification. No Full or unfiltered test runner was executed by this reviewer.",
+  "archive_comparisons": [
+    {
+      "path": "src/CardGame.Core/GameEngine.cs",
+      "changed": true,
+      "reviewed_scope": true,
+      "baseline_sha256": "dbc22ff427a467bea60bd6b4962173b5f69524d731a36892ebdd3bd40005a1f3",
+      "reviewed_sha256": "3ac10773872989f0ffb5305b3509dfc961a1fbd7f7b8c86f8e986253104aa181"
+    },
+    {
+      "path": "src/CardGame.Core/SkillProgramDependencies.cs",
+      "changed": true,
+      "reviewed_scope": true,
+      "baseline_sha256": "d556c5e2f5d871ff9efec3902945752083f475a004dcef02a462e3b260f40761",
+      "reviewed_sha256": "2f01fa93c705dca49304d44404e8f3c9e1ff1c2367003bffe2dc367c4c335cbe"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.CardMovementPrograms.cs",
+      "changed": true,
+      "reviewed_scope": true,
+      "baseline_sha256": "e0dc2bf65f43cdeb19661d2d48c6debe02d666247d33acb8703b18f7d153e5ce",
+      "reviewed_sha256": "ff71842787283939b5fc46d75949ec2593d6a25697fe755a2f0abcf4c31a3253"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.LordSkillProjections.cs",
+      "changed": true,
+      "reviewed_scope": true,
+      "baseline_sha256": "7cd0f4705dfcf61ad24863a7a5ac63fa35fe6b190456fa83ef9b0a2db4067d97",
+      "reviewed_sha256": "e2e8ce6e76abb25a9249aa5acb46b8617a395702adc5048534cff30fae119973"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.LiangXingPrograms.cs",
+      "changed": true,
+      "reviewed_scope": true,
+      "baseline_sha256": "c142dab835d303c5cb73567bd68d164cdfcbedcc06504c4dee9cffacd0c0ab04",
+      "reviewed_sha256": "836f016968097c053175bf852358a5c5014d3ac0e380b2dee88393e2f8d1b78e"
+    },
+    {
+      "path": "tests/CardGame.Core.Tests/CompiledSkillMetadataChecks.cs",
+      "changed": true,
+      "reviewed_scope": true,
+      "baseline_sha256": "02cc0316645adcaf8e10ac95972bc5a4dbf9ffa4963842b9deb21e0be21d7238",
+      "reviewed_sha256": "97cb5d1528651fa2e6115e9b94bc777bed4b09e4b4f036728e3cab8c83aefed5"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.ParticipantAndReservePrograms.cs",
+      "changed": false,
+      "reviewed_scope": false,
+      "baseline_sha256": "66d7620448ff9e9fa5e444f807a73c62ceff99a92e57bc98391725ed6f17d91f",
+      "reviewed_sha256": "66d7620448ff9e9fa5e444f807a73c62ceff99a92e57bc98391725ed6f17d91f"
+    },
+    {
+      "path": "src/CardGame.Core/Replay.cs",
+      "changed": false,
+      "reviewed_scope": false,
+      "baseline_sha256": "4a8dda5cccdbd6ff072648f6f8cc91fdcf953531c3b93a802eed052042d4f7c7",
+      "reviewed_sha256": "4a8dda5cccdbd6ff072648f6f8cc91fdcf953531c3b93a802eed052042d4f7c7"
+    },
+    {
+      "path": "tests/CardGame.Core.Tests/Program.cs",
+      "changed": true,
+      "reviewed_scope": false,
+      "baseline_sha256": "47f3fc0be03da137a1bf7c253d3fcc103b6d6131babde3cc177c8167ecf8463b",
+      "reviewed_sha256": "0a92702326379073ae4b442b51669f6a43f9d90a7c3ef5e6a6cc41f6071fa491"
+    },
+    {
+      "path": "tools/VerificationScopes.psd1",
+      "changed": true,
+      "reviewed_scope": false,
+      "baseline_sha256": "7b072bf40bef6901bdbf745b465ffe0338e2827b4c29f91d6ecb067333abe74d",
+      "reviewed_sha256": "1ff14ac2c36d19aebc87f48aa011a0d65e5be67a8237386f43af0cea10148c39"
+    },
+    {
+      "path": "docs/RUNTIME_REFACTOR_IMPLEMENTATION.md",
+      "changed": false,
+      "reviewed_scope": false,
+      "baseline_sha256": "ff5d9c8a00d9ec3ee41974a3dce282fe2a92d3a988bc48c02b9ffca04cc155c7",
+      "reviewed_sha256": "ff5d9c8a00d9ec3ee41974a3dce282fe2a92d3a988bc48c02b9ffca04cc155c7"
+    }
+  ],
+  "concurrent_out_of_scope_changes": {
+    "paths": [
+      "tests/CardGame.Core.Tests/Program.cs",
+      "tools/VerificationScopes.psd1"
+    ],
+    "observation": "Root confirmed Program.cs and VerificationScopes.psd1 are independently owned additions for First strategic damage focused behavior coverage and later Luochong lethal-loss registration. They are concurrent context outside the six-file directory-cache implementation review; this reviewer did not edit them or impose a global file lock."
+  },
+  "outputs": {
+    "only_created_file": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-architecture-01a13336\\iteration4\\catalog-review.json",
+    "retention": "Requested independent review evidence; no disposable output was created."
+  }
+}
