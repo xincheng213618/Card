@@ -1,0 +1,18 @@
+[PASS] Friend trio prediction privacy full reward and cold replay
+[PASS] Friend trio zero prediction penalty and stale input
+[PASS] Friend trio Xuanjian whole suit Qihui and reclaim
+[PASS] Friend trio true Dodge Nullification and pure Duel responses
+[PASS] Friend events recast Duel shared discard budget and cold replay
+[PASS] Friend events maximum discard refund and ascending rank
+[PASS] Friend events minimum suit private hold and actual return
+[PASS] Mou Zhuge Liang private top yang payment and cold replay
+[PASS] Mou Zhuge Liang rejects wrong program entries
+[PASS] Friend Pang Tong manjuan ordered current gain cold replay
+[PASS] Friend Pang Tong yangming real held use unique suits
+[PASS] Mou Zhuge Liang undamaged copy draw and color limit
+[PASS] Mou Zhuge Liang global nonhand discard and quota only
+[PASS] boundary Lu Meng opt in usage legacy shape
+[PASS] after turn ended return movement prelude ordering
+[PASS] standard package builds an immutable isolated registry
+
+16 passed, 0 failed, 0 skipped (16 total).

@@ -1,0 +1,62 @@
+[
+  {
+    "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\mou-zhuge\\bin",
+    "root": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\mou-zhuge",
+    "status": "retained",
+    "reason": "bulk cleanup rejected as blocked by policy"
+  },
+  {
+    "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\mou-zhuge\\obj",
+    "root": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\mou-zhuge",
+    "status": "retained",
+    "reason": "bulk cleanup rejected as blocked by policy"
+  },
+  {
+    "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\mou-zhuge\\renders",
+    "root": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\mou-zhuge",
+    "status": "retained",
+    "reason": "bulk cleanup rejected as blocked by policy"
+  },
+  {
+    "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\friend-trio\\bin",
+    "root": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\friend-trio",
+    "status": "retained",
+    "reason": "bulk cleanup rejected as blocked by policy"
+  },
+  {
+    "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\friend-trio\\obj",
+    "root": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\friend-trio",
+    "status": "retained",
+    "reason": "bulk cleanup rejected as blocked by policy"
+  },
+  {
+    "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\friend-events\\bin",
+    "root": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\friend-events",
+    "status": "retained",
+    "reason": "bulk cleanup rejected as blocked by policy"
+  },
+  {
+    "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\friend-events\\obj",
+    "root": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\friend-events",
+    "status": "retained",
+    "reason": "bulk cleanup rejected as blocked by policy"
+  },
+  {
+    "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\zhuge-friends\\bin",
+    "root": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\zhuge-friends",
+    "status": "retained",
+    "reason": "bulk cleanup rejected as blocked by policy"
+  },
+  {
+    "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\zhuge-friends\\obj",
+    "root": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\zhuge-friends",
+    "status": "retained",
+    "reason": "bulk cleanup rejected as blocked by policy"
+  },
+  {
+    "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\zhuge-friends\\renders",
+    "root": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\zhuge-friends",
+    "status": "retained",
+    "reason": "bulk cleanup rejected as blocked by policy"
+  }
+]

@@ -1,0 +1,3050 @@
+{
+  "capturedAt": "2026-10-13T20:24:30.4212005+08:00",
+  "assembly": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin\\CardGame.Core\\release\\CardGame.Core.dll",
+  "assemblySha256": "4C8F7E5731F32D7BF05C917608D4D4C44D6F28B4509709AE22E3CB8EA80F824E",
+  "enums": [
+    {
+      "name": "CardGame.Core.ActualDiscardRecoveryPhaseKind",
+      "values": {
+        "Preparation": 0,
+        "Judgment": 1,
+        "Draw": 2,
+        "Play": 3,
+        "Discard": 4,
+        "Ending": 5
+      }
+    },
+    {
+      "name": "CardGame.Core.ActualDiscardRecoveryStage",
+      "values": {
+        "SelectingReturn": 0,
+        "ReturnPaid": 1,
+        "SelectingClaim": 2,
+        "ClaimPaid": 3
+      }
+    },
+    {
+      "name": "CardGame.Core.ActualEndedTurnEquipmentStage",
+      "values": {
+        "Offering": 0,
+        "Moving": 1,
+        "Complete": 2
+      }
+    },
+    {
+      "name": "CardGame.Core.ActualHandGainProgramStage",
+      "values": {
+        "Choosing": 0,
+        "MovementChildren": 1
+      }
+    },
+    {
+      "name": "CardGame.Core.ActualTurnKind",
+      "values": {
+        "Normal": 0,
+        "Extra": 1
+      }
+    },
+    {
+      "name": "CardGame.Core.ActualUseTargetReturnKind",
+      "values": {
+        "Slash": 5600,
+        "LegacyVirtualSlash": 5601,
+        "OrdinaryTrick": 5602
+      }
+    },
+    {
+      "name": "CardGame.Core.BeforeDamageProgramContinuation",
+      "values": {
+        "Attack": 0
+      }
+    },
+    {
+      "name": "CardGame.Core.BlackGiftContestStage",
+      "values": {
+        "GiftPaid": 0,
+        "ChoosingSecond": 1,
+        "Pindian": 2,
+        "ChoosingDiscard": 3,
+        "DiscardPaid": 4,
+        "LossReady": 5,
+        "LossPaid": 6,
+        "Complete": 7
+      }
+    },
+    {
+      "name": "CardGame.Core.CapturedEquipmentDrawStage",
+      "values": {
+        "Placed": 0,
+        "Drawn": 1
+      }
+    },
+    {
+      "name": "CardGame.Core.CardActionType",
+      "values": {
+        "Use": 0,
+        "Response": 1
+      }
+    },
+    {
+      "name": "CardGame.Core.CardColor",
+      "values": {
+        "Red": 0,
+        "Black": 1
+      }
+    },
+    {
+      "name": "CardGame.Core.CardDeclarationPurpose",
+      "values": {
+        "Use": 0,
+        "Dodge": 1,
+        "Duel": 2,
+        "Group": 3,
+        "Counterspell": 4,
+        "Recovery": 5,
+        "FactionDefense": 6,
+        "FactionSlash": 7,
+        "ProvidedSlash": 8,
+        "BorrowedSword": 9,
+        "BorrowedSwordProvidedSlash": 10,
+        "QinglongProvidedSlash": 11
+      }
+    },
+    {
+      "name": "CardGame.Core.CardDeclarationStage",
+      "values": {
+        "Paying": 0,
+        "Challenging": 1,
+        "Granting": 2,
+        "Cleaning": 3,
+        "Returning": 4,
+        "Applying": 5
+      }
+    },
+    {
+      "name": "CardGame.Core.CardEffectSkipReason",
+      "values": {
+        "TargetHandEmpty": 0,
+        "PublicTargetMissing": 1,
+        "SkillNullified": 2
+      }
+    },
+    {
+      "name": "CardGame.Core.CardKind",
+      "values": {
+        "Slash": 0,
+        "Dodge": 1,
+        "Peach": 2,
+        "Duel": 3,
+        "DrawTwo": 4,
+        "BarbarianAssault": 5,
+        "ArrowBarrage": 6,
+        "PeachGarden": 7,
+        "FiveGrains": 8,
+        "Dismantlement": 9,
+        "Snatch": 10,
+        "FireSlash": 11,
+        "ThunderSlash": 12,
+        "Alcohol": 13,
+        "FireAttack": 14,
+        "Crossbow": 15,
+        "BaguaFormation": 16,
+        "RenwangShield": 17,
+        "OffensiveHorse": 18,
+        "DefensiveHorse": 19,
+        "JadeSeal": 20,
+        "QinggangSword": 21,
+        "Nullification": 22,
+        "IronChain": 23,
+        "Indulgence": 24,
+        "SupplyShortage": 25,
+        "Lightning": 26,
+        "BorrowedSword": 27,
+        "StoneAxe": 28,
+        "ZhangbaSerpentSpear": 29,
+        "CixiongDoubleSwords": 30,
+        "QinglongCrescentBlade": 31,
+        "IceSword": 32,
+        "QilinBow": 33,
+        "FangtianHalberd": 34,
+        "GudingBlade": 35,
+        "ZhuqueFan": 36,
+        "Tengjia": 37,
+        "SilverLion": 38,
+        "WoodenOx": 39,
+        "Dawan": 40,
+        "Zixing": 41,
+        "Dilu": 42,
+        "Zhaohuangfeidian": 43,
+        "Hualiu": 44,
+        "GhostDragonCrescentBlade": 45,
+        "ScarletBloodSword": 46,
+        "XingtianAxe": 47,
+        "RedBloodBlade": 500,
+        "GeneralWeapon": 501,
+        "UnexpectedAssault": 502,
+        "Xuanjian": 503
+      }
+    },
+    {
+      "name": "CardGame.Core.CardUseCategories",
+      "values": {
+        "None": 0,
+        "Basic": 1,
+        "InstantTrick": 2,
+        "DelayedTrick": 4,
+        "Equipment": 8
+      }
+    },
+    {
+      "name": "CardGame.Core.CardZoneKind",
+      "values": {
+        "DrawPile": 0,
+        "Hand": 1,
+        "Processing": 2,
+        "DiscardPile": 3,
+        "Equipment": 4,
+        "Judgment": 5,
+        "WoodenOxGrain": 6,
+        "BuquWound": 7,
+        "Authority": 8,
+        "OutsideGame": 9,
+        "Chunlao": 10,
+        "PojunHold": 11,
+        "PrivateReserve": 400,
+        "PublicDeferredPile": 1000,
+        "PublicPersistentPile": 1140,
+        "PrivateTurnHold": 1700,
+        "RoundHold": 9800,
+        "PrivatePersistentPile": 20700
+      }
+    },
+    {
+      "name": "CardGame.Core.ChainedStateBasicIntent",
+      "values": {
+        "Play": 0,
+        "OwnSlashDodge": 1,
+        "BorrowedSword": 2,
+        "Qinglong": 3,
+        "ProgramSlash": 4,
+        "ProgramNearestSlash": 5,
+        "AssistedSlash": 6,
+        "NearestLegalSlash": 7
+      }
+    },
+    {
+      "name": "CardGame.Core.ChainedStateBasicStage",
+      "values": {
+        "ChangingState": 0,
+        "StateChildren": 1
+      }
+    },
+    {
+      "name": "CardGame.Core.CharacterStateContinuation",
+      "values": {
+        "Boundary": 0,
+        "Program": 1,
+        "CardUse": 2,
+        "SkippedTurn": 3,
+        "VirtualBasicCardUse": 4,
+        "ChainedStateBasic": 5
+      }
+    },
+    {
+      "name": "CardGame.Core.CixiongDoubleSwordsStage",
+      "values": {
+        "SourceActivation": 0,
+        "TargetChoice": 1
+      }
+    },
+    {
+      "name": "CardGame.Core.CommandErrorCode",
+      "values": {
+        "None": 0,
+        "NullCommand": 1,
+        "NotStarted": 2,
+        "AlreadyStarted": 3,
+        "Completed": 4,
+        "StaleRevision": 5,
+        "InvalidActor": 6,
+        "NotActorTurn": 7,
+        "InvalidPrompt": 8,
+        "InvalidChoice": 9,
+        "InvalidCard": 10,
+        "InvalidTarget": 11,
+        "InvalidGeneral": 12,
+        "IllegalAction": 13,
+        "UnsupportedCommand": 14,
+        "ReentrantOperation": 15
+      }
+    },
+    {
+      "name": "CardGame.Core.CompletedUndamagedTargetRevealStage",
+      "values": {
+        "ChoosingTarget": 0,
+        "ChoosingCards": 1,
+        "MovementChildren": 2,
+        "Complete": 3
+      }
+    },
+    {
+      "name": "CardGame.Core.CompletedUsePaymentStage",
+      "values": {
+        "Choosing": 0,
+        "Paid": 1
+      }
+    },
+    {
+      "name": "CardGame.Core.ConditionalDiscardDuelStage",
+      "values": {
+        "OwnerChoice": 0,
+        "OwnerChildren": 1,
+        "TargetChoice": 2,
+        "TargetChildren": 3,
+        "DuelIssued": 4
+      }
+    },
+    {
+      "name": "CardGame.Core.ContentModeKind",
+      "values": {
+        "Identity": 0,
+        "Team": 1,
+        "NationalWarLite": 2
+      }
+    },
+    {
+      "name": "CardGame.Core.CurrentCardEnhancement",
+      "values": {
+        "None": 0,
+        "ExtraTarget": 1,
+        "IgnoreArmor": 2,
+        "Uncancelable": 4,
+        "DrawAfterDamage": 8
+      }
+    },
+    {
+      "name": "CardGame.Core.CurrentTurnHandExchangeStage",
+      "values": {
+        "Offered": 0,
+        "DrawChildren": 1,
+        "GiftChildren": 2,
+        "SelectingReturn": 3,
+        "ReturnChildren": 4
+      }
+    },
+    {
+      "name": "CardGame.Core.DamageNature",
+      "values": {
+        "Normal": 0,
+        "Fire": 1,
+        "Thunder": 2
+      }
+    },
+    {
+      "name": "CardGame.Core.DamageSourceHandChoiceStage",
+      "values": {
+        "Branch": 0,
+        "DiscardSelection": 1,
+        "MovementChildren": 2,
+        "DamageIssued": 3,
+        "Completed": 4
+      }
+    },
+    {
+      "name": "CardGame.Core.DamageTriggerScope",
+      "values": {
+        "DamagedPlayer": 0,
+        "OtherLivingPlayer": 1,
+        "AnyLivingPlayer": 2,
+        "DamageSource": 3
+      }
+    },
+    {
+      "name": "CardGame.Core.DeathReturnKind",
+      "values": {
+        "Dying": 0,
+        "ProgramSkill": 1
+      }
+    },
+    {
+      "name": "CardGame.Core.DecisionKind",
+      "values": {
+        "SelectGeneral": 0,
+        "PlayCard": 1,
+        "RespondDodge": 2,
+        "RespondSlash": 3,
+        "RescueDying": 4,
+        "SelectHarvestCard": 5,
+        "FireAttackReveal": 6,
+        "FireAttackDiscard": 7,
+        "Nullification": 8,
+        "DiscardCards": 9,
+        "SelectTargetCard": 10,
+        "SkipDiscardPolicy": 11,
+        "Yingbo": 12,
+        "StoneAxe": 13,
+        "CixiongDoubleSwords": 14,
+        "QinglongCrescentBlade": 15,
+        "IceSword": 16,
+        "QilinBow": 17,
+        "ZhuqueFan": 18,
+        "ProgramJudgmentTrigger": 19,
+        "ProgramJudgmentReplacement": 20,
+        "ProgramTopReorder": 21,
+        "ProgramRepeatJudgment": 22,
+        "SelectFaction": 23,
+        "SkillModule": 24,
+        "ProgramTrigger": 25,
+        "OpeningHand": 26,
+        "RecoveryReplacement": 2700
+      }
+    },
+    {
+      "name": "CardGame.Core.DeferredHandAlignmentDueKind",
+      "values": {
+        "SourceCurrentTurnEnd": 1300,
+        "TargetNextActualTurnEnd": 1301
+      }
+    },
+    {
+      "name": "CardGame.Core.DelegatedJudgmentStage",
+      "values": {
+        "Offered": 0,
+        "Choosing": 1,
+        "Chosen": 2,
+        "Paid": 3
+      }
+    },
+    {
+      "name": "CardGame.Core.DirectedTurnCardPolicyEffect",
+      "values": {
+        "None": 0,
+        "ForbidTarget": 1,
+        "IgnoreDistance": 2,
+        "BypassSlashLimit": 4,
+        "IgnoreArmor": 8
+      }
+    },
+    {
+      "name": "CardGame.Core.DrawAdviceStage",
+      "values": {
+        "Drawing": 0,
+        "ChoosingDiscard": 1,
+        "Discarding": 2
+      }
+    },
+    {
+      "name": "CardGame.Core.DrawDiscardCategoryStage",
+      "values": {
+        "Drawing": 0,
+        "ChoosingDiscard": 1,
+        "DiscardChildren": 2,
+        "BonusChildren": 3,
+        "Complete": 4
+      }
+    },
+    {
+      "name": "CardGame.Core.DrawFundedDistinctBasicIntent",
+      "values": {
+        "Play": 0,
+        "BorrowedSword": 1,
+        "Qinglong": 2,
+        "OwnSlashDodge": 3,
+        "Dying": 4,
+        "ProgramSlash": 5,
+        "ProgramNearestSlash": 6,
+        "AssistedSlash": 7,
+        "NearestLegalSlash": 8
+      }
+    },
+    {
+      "name": "CardGame.Core.DrawFundedDistinctBasicStage",
+      "values": {
+        "Drawing": 0,
+        "DrawChildren": 1
+      }
+    },
+    {
+      "name": "CardGame.Core.DrawPhaseObligationStage",
+      "values": {
+        "Starting": 0,
+        "Drawing": 1,
+        "DrawChildren": 2,
+        "EndObservers": 3,
+        "SkipObservers": 4,
+        "ConsumeMarker": 5,
+        "Finished": 6
+      }
+    },
+    {
+      "name": "CardGame.Core.DyingContinuationKind",
+      "values": {
+        "Damage": 0,
+        "ProgramSkill": 1,
+        "AttackHpLoss": 2
+      }
+    },
+    {
+      "name": "CardGame.Core.DyingSuitsStage",
+      "values": {
+        "Recipient": 0,
+        "Drawing": 1,
+        "SelectingDiscard": 2,
+        "Discarding": 3,
+        "PeachIssued": 4,
+        "Complete": 5
+      }
+    },
+    {
+      "name": "CardGame.Core.DynamicDiscardDamageStage",
+      "values": {
+        "Choosing": 0,
+        "Paid": 1,
+        "DamageIssued": 2,
+        "DamageCompleted": 3,
+        "PenaltyIssued": 4,
+        "Finished": 5
+      }
+    },
+    {
+      "name": "CardGame.Core.EndRefillNextTurnStage",
+      "values": {
+        "Target": 0,
+        "MovementChildren": 1
+      }
+    },
+    {
+      "name": "CardGame.Core.EngineStatus",
+      "values": {
+        "NotStarted": 0,
+        "Running": 1,
+        "AwaitingHumanGeneralSelection": 2,
+        "AwaitingHumanPlay": 3,
+        "AwaitingHumanResponse": 4,
+        "AwaitingHumanDying": 5,
+        "AwaitingHumanCardSelection": 6,
+        "Completed": 7,
+        "AwaitingHumanDiscard": 8,
+        "AwaitingHumanFactionSelection": 9,
+        "Faulted": 10,
+        "AwaitingHumanOpeningHand": 11
+      }
+    },
+    {
+      "name": "CardGame.Core.EquipmentDonationStage",
+      "values": {
+        "PaidMovement": 0,
+        "RecipientChoice": 1,
+        "SelectingTargets": 2,
+        "Damaging": 3,
+        "RecoveryIssued": 4,
+        "Complete": 5
+      }
+    },
+    {
+      "name": "CardGame.Core.EquipmentSlot",
+      "values": {
+        "Weapon": 0,
+        "Armor": 1,
+        "OffensiveHorse": 2,
+        "DefensiveHorse": 3,
+        "Treasure": 4
+      }
+    },
+    {
+      "name": "CardGame.Core.FactionCardRequestPurpose",
+      "values": {
+        "ProgramSkillUse": 0,
+        "DuelResponse": 1,
+        "GroupResponse": 2,
+        "BorrowedSwordUse": 3,
+        "QinglongCrescentBladeUse": 4,
+        "AssistedProgramUse": 701
+      }
+    },
+    {
+      "name": "CardGame.Core.FengjiOptionKind",
+      "values": {
+        "Draw": 1,
+        "Slash": 2
+      }
+    },
+    {
+      "name": "CardGame.Core.ForeignSelectedCardSlashStage",
+      "values": {
+        "ChoosingCard": 0,
+        "IssuingUse": 1,
+        "UseIssued": 2,
+        "SettlementChildren": 3,
+        "DrawChildren": 4
+      }
+    },
+    {
+      "name": "CardGame.Core.ForeignTurnContestStage",
+      "values": {
+        "ClaimChildren": 0,
+        "SlashIssued": 1,
+        "Complete": 2
+      }
+    },
+    {
+      "name": "CardGame.Core.FriendEventFlowStage",
+      "values": {
+        "RecastCost": 0,
+        "RecastDraw": 1,
+        "DuelIssued": 2,
+        "MaximumCost": 3,
+        "TargetDiscard": 4,
+        "AscendingCost": 5,
+        "AscendingDraw": 6,
+        "SuitHold": 7,
+        "SuitDraw": 8,
+        "Configuration": 9
+      }
+    },
+    {
+      "name": "CardGame.Core.FriendPangTongStage",
+      "values": {
+        "Select": 0,
+        "Placement": 1,
+        "Exchange": 2,
+        "Use": 3,
+        "Issued": 4,
+        "Returned": 5,
+        "Cleanup": 6,
+        "Reward": 7,
+        "Complete": 8,
+        "Movement": 9
+      }
+    },
+    {
+      "name": "CardGame.Core.FriendTrioStage",
+      "values": {
+        "Branch": 0,
+        "Mode": 1,
+        "Prediction": 2,
+        "Reveal": 3,
+        "Reward": 4,
+        "Discard": 5,
+        "RemoveMarks": 6,
+        "Benefit": 7,
+        "Movement": 8,
+        "HpLoss": 9,
+        "Settle": 10,
+        "FullReward": 11,
+        "Complete": 12,
+        "EquipmentUse": 13
+      }
+    },
+    {
+      "name": "CardGame.Core.GainGiftStage",
+      "values": {
+        "Choosing": 0,
+        "GiftChildren": 1,
+        "RedDrawChildren": 2,
+        "ReplacementChildren": 3
+      }
+    },
+    {
+      "name": "CardGame.Core.GameActivationAwakeningStage",
+      "values": {
+        "MaximumPaid": 0,
+        "GrantsIssued": 1,
+        "Complete": 2
+      }
+    },
+    {
+      "name": "CardGame.Core.GeneralGender",
+      "values": {
+        "Male": 0,
+        "Female": 1
+      }
+    },
+    {
+      "name": "CardGame.Core.GeneralLibraryStep",
+      "values": {
+        "SelectGeneral": 0,
+        "SelectSkill": 1,
+        "SelectFaction": 2
+      }
+    },
+    {
+      "name": "CardGame.Core.GeneralSelectionSlot",
+      "values": {
+        "Primary": 0,
+        "Secondary": 1
+      }
+    },
+    {
+      "name": "CardGame.Core.GrantedEntityPhaseStage",
+      "values": {
+        "Scheduled": 0,
+        "Active": 1,
+        "Returning": 2,
+        "DamagePaid": 3,
+        "Complete": 4
+      }
+    },
+    {
+      "name": "CardGame.Core.GroupCardEffect",
+      "values": {
+        "ResponseAttack": 0,
+        "Recovery": 1,
+        "PublicDraft": 2
+      }
+    },
+    {
+      "name": "CardGame.Core.HandGuidanceReason",
+      "values": {
+        "Playable": 0,
+        "ConversionOnly": 1,
+        "ResponseOnly": 2,
+        "HealthFull": 3,
+        "SlashLimitReached": 4,
+        "AlcoholAlreadyActive": 5,
+        "NoLegalTarget": 6,
+        "WaitingForTurn": 7,
+        "ResolveCurrentPrompt": 8,
+        "SelectDiscard": 9,
+        "GameFinished": 10
+      }
+    },
+    {
+      "name": "CardGame.Core.HpChangeKind",
+      "values": {
+        "Loss": 0,
+        "Recovery": 1,
+        "Damage": 600,
+        "MaximumHp": 601
+      }
+    },
+    {
+      "name": "CardGame.Core.InspectedHandSlashStage",
+      "values": {
+        "HpChildren": 0,
+        "Viewing": 1,
+        "DiscardChildren": 2,
+        "SlashIssued": 3
+      }
+    },
+    {
+      "name": "CardGame.Core.JiangchiMode",
+      "values": {
+        "Skipped": 0,
+        "DrawMore": 1,
+        "Assault": 2
+      }
+    },
+    {
+      "name": "CardGame.Core.JuanxiaStage",
+      "values": {
+        "Choice": 0,
+        "Card": 1,
+        "Fire": 2,
+        "Child": 3,
+        "Retaliate": 4,
+        "Slash": 5
+      }
+    },
+    {
+      "name": "CardGame.Core.JudgmentContinuationKind",
+      "values": {
+        "Bagua": 0,
+        "FactionDefenseBagua": 1,
+        "ProgramSkill": 2,
+        "Indulgence": 3,
+        "SupplyShortage": 4,
+        "Lightning": 5
+      }
+    },
+    {
+      "name": "CardGame.Core.KuangfuStage",
+      "values": {
+        "EquipmentChoice": 0,
+        "EquipmentChildren": 1,
+        "SlashTargetChoice": 2,
+        "SlashIssued": 3,
+        "HandDiscardChoice": 4,
+        "OutcomeChildren": 5
+      }
+    },
+    {
+      "name": "CardGame.Core.LastDamageSourceReciprocityDirection",
+      "values": {
+        "DrawOwner": 0,
+        "DiscardSource": 1
+      }
+    },
+    {
+      "name": "CardGame.Core.LastDamageSourceReciprocityStage",
+      "values": {
+        "ChoosingDiscard": 0,
+        "MovementChildren": 1,
+        "Complete": 2
+      }
+    },
+    {
+      "name": "CardGame.Core.LegalActionKind",
+      "values": {
+        "Slash": 0,
+        "Peach": 1,
+        "Duel": 2,
+        "DrawTwo": 3,
+        "BarbarianAssault": 4,
+        "ArrowBarrage": 5,
+        "PeachGarden": 6,
+        "FiveGrains": 7,
+        "Dismantlement": 8,
+        "Snatch": 9,
+        "FireAttack": 10,
+        "FireAttackReveal": 11,
+        "FireAttackDiscard": 12,
+        "SkipFireAttack": 13,
+        "SelectHarvestCard": 14,
+        "EndPlay": 15,
+        "Alcohol": 16,
+        "Yuanhu": 17,
+        "SkipYuanhu": 18,
+        "Equip": 19,
+        "Nullification": 20,
+        "SkipNullification": 21,
+        "IronChain": 22,
+        "Indulgence": 23,
+        "SupplyShortage": 24,
+        "Lightning": 25,
+        "Ganglie": 26,
+        "SkipGanglie": 27,
+        "GanglieDiscardTwo": 28,
+        "GanglieLoseHp": 29,
+        "Guicai": 30,
+        "SkipGuicai": 31,
+        "Tuxi": 32,
+        "SkipTuxi": 33,
+        "Luoyi": 34,
+        "SkipLuoyi": 35,
+        "SkillChoice": 36,
+        "RevealGeneral": 37,
+        "Recast": 38,
+        "BorrowedSword": 39,
+        "UseEquipmentEffect": 40,
+        "UseProgramSkill": 41,
+        "UnexpectedAssault": 502
+      }
+    },
+    {
+      "name": "CardGame.Core.LostHpOwnedGiftStage",
+      "values": {
+        "Drawing": 0,
+        "Offering": 1,
+        "Moving": 2,
+        "Complete": 3
+      }
+    },
+    {
+      "name": "CardGame.Core.MatchedJudgmentPlacementStage",
+      "values": {
+        "ChoosingDestination": 0,
+        "Placed": 1,
+        "ChoosingSelfDiscard": 2,
+        "SelfDiscarded": 3
+      }
+    },
+    {
+      "name": "CardGame.Core.MatchingRecastStage",
+      "values": {
+        "OwnerReady": 0,
+        "OwnerCostChildren": 1,
+        "OwnerDrawChildren": 2,
+        "ChoosingPeer": 3,
+        "ChoosingPeerCards": 4,
+        "PeerCostChildren": 5,
+        "PeerDrawChildren": 6,
+        "DamageIssued": 7,
+        "Complete": 8
+      }
+    },
+    {
+      "name": "CardGame.Core.NamedAmbushStage",
+      "values": {
+        "SelectCard": 0,
+        "SelectName": 1,
+        "SelectDeposit": 2,
+        "MovementChildren": 3,
+        "Completed": 4
+      }
+    },
+    {
+      "name": "CardGame.Core.NamedCardAcquisitionStage",
+      "values": {
+        "Selecting": 0,
+        "MovementChildren": 1
+      }
+    },
+    {
+      "name": "CardGame.Core.OffTurnUsedCardGiftStage",
+      "values": {
+        "ChoosingRecipient": 0,
+        "GiftChildren": 1
+      }
+    },
+    {
+      "name": "CardGame.Core.OffTurnUsedCardKind",
+      "values": {
+        "CardUse": 0,
+        "DodgeUse": 1,
+        "NullificationUse": 2
+      }
+    },
+    {
+      "name": "CardGame.Core.OrderedPrintedSkillLossStage",
+      "values": {
+        "LossChildren": 0,
+        "DrawChildren": 1,
+        "Complete": 2
+      }
+    },
+    {
+      "name": "CardGame.Core.OriginalHandAwakeningStage",
+      "values": {
+        "MaximumPaid": 0,
+        "GrantsIssued": 1,
+        "Complete": 2
+      }
+    },
+    {
+      "name": "CardGame.Core.OriginalHandBenefitKind",
+      "values": {
+        "HandLimit": 0,
+        "AttackRange": 1,
+        "Draw": 2
+      }
+    },
+    {
+      "name": "CardGame.Core.OriginalHandBenefitStage",
+      "values": {
+        "ChoosingTarget": 0,
+        "ChoosingOption": 1,
+        "DrawChildren": 2,
+        "Complete": 3
+      }
+    },
+    {
+      "name": "CardGame.Core.OriginalHandInheritanceStage",
+      "values": {
+        "ChoosingTarget": 0,
+        "Complete": 1
+      }
+    },
+    {
+      "name": "CardGame.Core.OutsidePhaseDrawDiscardStage",
+      "values": {
+        "Choosing": 0,
+        "MovementChildren": 1,
+        "Complete": 2
+      }
+    },
+    {
+      "name": "CardGame.Core.PairedColorDispositionStage",
+      "values": {
+        "ChoosingCard": 0,
+        "MovementChildren": 1
+      }
+    },
+    {
+      "name": "CardGame.Core.PairedHandRecastSkipReason",
+      "values": {
+        "ParticipantUnavailable": 0,
+        "MaterialUnavailable": 1,
+        "MatchEnded": 2
+      }
+    },
+    {
+      "name": "CardGame.Core.PairedHandRecastStage",
+      "values": {
+        "ChoosingPartner": 0,
+        "Ready": 1,
+        "CostChildren": 2,
+        "DrawChildren": 3,
+        "Complete": 4
+      }
+    },
+    {
+      "name": "CardGame.Core.PhaseHandDebtReturnStage",
+      "values": {
+        "Choosing": 8005,
+        "MovementChildren": 8006
+      }
+    },
+    {
+      "name": "CardGame.Core.PhaseHandSeizureStage",
+      "values": {
+        "PaymentChildren": 8002,
+        "FlipChildren": 8003,
+        "TakeChildren": 8004
+      }
+    },
+    {
+      "name": "CardGame.Core.PhaseNamePredictionStage",
+      "values": {
+        "ChoosingCost": 0,
+        "CostChildren": 1,
+        "Revealing": 2,
+        "Guessing": 3,
+        "ClaimChildren": 4,
+        "DamageIssued": 5
+      }
+    },
+    {
+      "name": "CardGame.Core.PhaseStartCardControlKind",
+      "values": {
+        "OtherPlayRestriction": 0,
+        "StartingEquipment": 1
+      }
+    },
+    {
+      "name": "CardGame.Core.PhaseStartCardControlStage",
+      "values": {
+        "Choosing": 0,
+        "MovementChildren": 1,
+        "GrantChildren": 2,
+        "Completed": 3
+      }
+    },
+    {
+      "name": "CardGame.Core.PindianStep",
+      "values": {
+        "ChooseParticipants": 0,
+        "ChooseSourceCard": 1,
+        "ChooseOpponentCard": 2,
+        "ClaimResult": 780
+      }
+    },
+    {
+      "name": "CardGame.Core.PlacedEquipmentBenefitStage",
+      "values": {
+        "EquipmentChoice": 0,
+        "RecipientChoice": 1,
+        "PlacementChildren": 2,
+        "WeaponTarget": 3,
+        "WeaponCard": 4,
+        "DiscardChildren": 5,
+        "DrawChildren": 6,
+        "RecoveryChildren": 7
+      }
+    },
+    {
+      "name": "CardGame.Core.PlayerMarkerKind",
+      "values": {
+        "Nightmare": 0,
+        "Ren": 1,
+        "Rage": 400,
+        "Gale": 401,
+        "Mist": 402,
+        "Junlue": 450,
+        "Camp": 451,
+        "Huang": 500,
+        "Orange": 1280,
+        "Yi": 2600,
+        "Lie": 3000,
+        "LiuShi": 3100,
+        "MouShi": 3150,
+        "GengZhan": 3200,
+        "XiZhen": 3250,
+        "Bian": 3500,
+        "Zi": 3800,
+        "ShenJiao": 3900,
+        "Kangge": 4040,
+        "Jue": 4050,
+        "CategoryLei": 4060,
+        "CategoryFu": 4061,
+        "CategorySong": 4062,
+        "QihuiBasic": 20100,
+        "QihuiTrick": 20101,
+        "QihuiEquipment": 20102
+      }
+    },
+    {
+      "name": "CardGame.Core.PostEventContinuation",
+      "values": {
+        "Boundary": 0,
+        "Program": 1,
+        "CardUse": 2,
+        "GroupRecovery": 3,
+        "AwaitedProgramMovement": 4,
+        "VirtualBasicCardUse": 5,
+        "RecoveryReplacement": 2700,
+        "RecoveryProducer": 2701,
+        "RecoveryPaidCardUse": 2702,
+        "EquipmentRecast": 2703,
+        "FactionRequestCost": 2705,
+        "DrawPhaseObligation": 3800,
+        "ColorFireAttackPayment": 4400,
+        "CounterspellPayment": 4401,
+        "HistoricalEndingCardUse": 7901,
+        "DrawFundedDistinctBasic": 8800,
+        "ResponseCompletion": 9050,
+        "CardSupplyCompletion": 9051,
+        "FriendDuelResponse": 20300
+      }
+    },
+    {
+      "name": "CardGame.Core.PrepDiscardStage",
+      "values": {
+        "ChoosingTarget": 0,
+        "SelectingTargetCards": 1,
+        "TargetChildren": 2,
+        "ChoosingBenefit": 3,
+        "SelectingOwnerCards": 4,
+        "OwnerChildren": 5,
+        "Complete": 6
+      }
+    },
+    {
+      "name": "CardGame.Core.PrintedLordBenefitStage",
+      "values": {
+        "ChoosingBeneficiary": 0,
+        "MaximumPaid": 1,
+        "RecoveryPaid": 2,
+        "Qualifying": 3,
+        "Complete": 4
+      }
+    },
+    {
+      "name": "CardGame.Core.PrivateOfferStage",
+      "values": {
+        "DepositChildren": 0,
+        "ChoosingExchange": 1,
+        "ExchangeChildren": 2,
+        "ObtainChildren": 3,
+        "RemovalChildren": 4,
+        "HpLoss": 5,
+        "Complete": 6
+      }
+    },
+    {
+      "name": "CardGame.Core.ProgramAlternativePhaseCostKind",
+      "values": {
+        "DiscardCard": 0,
+        "RemoveMarker": 1
+      }
+    },
+    {
+      "name": "CardGame.Core.ProgramCappedHandRefreshStage",
+      "values": {
+        "Drawing": 0,
+        "Selecting": 1,
+        "Discarding": 2
+      }
+    },
+    {
+      "name": "CardGame.Core.ProgramCardContinuation",
+      "values": {
+        "Slash": 0,
+        "BeforeTargetEffects": 1,
+        "BeforeTrickTargetEffects": 2,
+        "CommittedSlash": 3,
+        "Dodge": 4,
+        "DuelSlash": 5,
+        "GroupResponse": 6,
+        "FactionDefenseDodge": 7,
+        "FactionSlashDuelSlash": 8,
+        "FactionSlashGroupResponse": 9,
+        "DelayedCard": 10,
+        "CompletedSlash": 11,
+        "NullificationResponse": 12,
+        "SlashTargetRedirecting": 13,
+        "SlashBeforeResponse": 14,
+        "SlashFullyDodged": 15,
+        "CommittedTrick": 16,
+        "CommittedSimpleCard": 17,
+        "CompletedCard": 18,
+        "FinalizedTrick": 824,
+        "FinalizedSimpleCard": 900,
+        "FinalizedDelayedPlacement": 20480
+      }
+    },
+    {
+      "name": "CardGame.Core.ProgramCompletedResponseKind",
+      "values": {
+        "Dodge": 0,
+        "Nullification": 1
+      }
+    },
+    {
+      "name": "CardGame.Core.ProgramDamageJudgmentPaymentStage",
+      "values": {
+        "Judging": 0,
+        "ChoosingPayment": 1,
+        "PaymentChildren": 2,
+        "SuitEffectChildren": 3,
+        "ChoosingSourceDiscard": 4,
+        "SourceDiscardChildren": 5,
+        "MatchingClaims": 6,
+        "ClaimChildren": 7,
+        "CleanupChildren": 8,
+        "Complete": 9
+      }
+    },
+    {
+      "name": "CardGame.Core.ProgramDamageTargetObtainStage",
+      "values": {
+        "SelectingCard": 0,
+        "ObtainChildren": 1,
+        "BranchReady": 2,
+        "DrawChildren": 3,
+        "SelectingDuelTarget": 4,
+        "DuelIssued": 5,
+        "Complete": 6
+      }
+    },
+    {
+      "name": "CardGame.Core.ProgramDiamondDelayedStage",
+      "values": {
+        "Choosing": 0,
+        "Using": 1,
+        "Moving": 2,
+        "Drawing": 3
+      }
+    },
+    {
+      "name": "CardGame.Core.ProgramDualColorDuelStage",
+      "values": {
+        "ChoosingOwner": 0,
+        "ChoosingOther": 1,
+        "PaymentChildren": 2,
+        "DuelIssued": 3
+      }
+    },
+    {
+      "name": "CardGame.Core.ProgramFinalTargetComparison",
+      "values": {
+        "TargetHandAtMostActor": 0,
+        "TargetHpAtLeastActor": 1,
+        "Always": 2
+      }
+    },
+    {
+      "name": "CardGame.Core.ProgramLifecycleContinuation",
+      "values": {
+        "NormalTurnStart": 0,
+        "CompleteDrawPhase": 1,
+        "CompletePlayPhase": 2,
+        "CompleteAfterNormalDraw": 3,
+        "CompleteDiscardPhase": 4,
+        "EndTurnAfterDiscardPhase": 5,
+        "CompleteGameStarting": 6,
+        "ResumeParentProgram": 500,
+        "ResumeDyingEntry": 660,
+        "CompleteJudgmentPhaseStarting": 800,
+        "ResumeCharacterStateChange": 820,
+        "CompleteDrawPhaseEnded": 1140,
+        "ResumeCardDeclaration": 1600,
+        "ResumeDrawPhaseObligation": 3800,
+        "ResumeAfterDeferredPrivateOffers": 7700,
+        "CompletePhaseHandDebtForcedEnd": 8007,
+        "RoundProgramsTurnStart": 8040
+      }
+    },
+    {
+      "name": "CardGame.Core.ProgramNextActualUseAdjustmentKind",
+      "values": {
+        "AddSlashTarget": 0,
+        "RemoveGlobalTarget": 1,
+        "AddRecoveryTarget": 2
+      }
+    },
+    {
+      "name": "CardGame.Core.ProgramNextActualUseAdjustmentStage",
+      "values": {
+        "Selected": 0,
+        "Applied": 1,
+        "Canceled": 2
+      }
+    },
+    {
+      "name": "CardGame.Core.ProgramParticipantRef",
+      "values": {
+        "Owner": 0,
+        "Actor": 1,
+        "EventTarget": 2,
+        "EventSource": 3,
+        "SelectedTarget": 4,
+        "SelectedFirst": 5,
+        "SelectedSecond": 6,
+        "ResultSource": 7,
+        "ResultOpponent": 8,
+        "CardProvider": 9800
+      }
+    },
+    {
+      "name": "CardGame.Core.ProgramPhaseAlcoholStage",
+      "values": {
+        "Paid": 0,
+        "WineIssued": 1,
+        "DamageIssued": 2
+      }
+    },
+    {
+      "name": "CardGame.Core.ProgramProvenanceAlcoholStage",
+      "values": {
+        "FaceCost": 0,
+        "WineUse": 1
+      }
+    },
+    {
+      "name": "CardGame.Core.ProgramProvenanceClaimStage",
+      "values": {
+        "Claiming": 0,
+        "Claimed": 1,
+        "Choosing": 2,
+        "Flipping": 3
+      }
+    },
+    {
+      "name": "CardGame.Core.ProgramPublicRuleStateKind",
+      "values": {
+        "ActivationLimit": 1160,
+        "PersistentHandLimit": 1161,
+        "SelfTargetProhibition": 1162
+      }
+    },
+    {
+      "name": "CardGame.Core.ProgramSequentialDiscardKind",
+      "values": {
+        "CategoryOrSequential": 0,
+        "SelectedStartEscalating": 1
+      }
+    },
+    {
+      "name": "CardGame.Core.ProgramSequentialDiscardStage",
+      "values": {
+        "BranchChoice": 0,
+        "CardChoice": 1,
+        "SelectingBatch": 2,
+        "AwaitingMovement": 3,
+        "AwaitingDamage": 4,
+        "Complete": 5
+      }
+    },
+    {
+      "name": "CardGame.Core.ProgramShownPairGiftStage",
+      "values": {
+        "ChoosingRecipient": 0,
+        "AwaitingGift": 1,
+        "AwaitingReward": 2,
+        "Complete": 3
+      }
+    },
+    {
+      "name": "CardGame.Core.ProgramSlashSuitDiscardStage",
+      "values": {
+        "Judging": 0,
+        "JudgmentMovement": 1,
+        "Choosing": 2,
+        "PaymentMovement": 3
+      }
+    },
+    {
+      "name": "CardGame.Core.PublicAttackKind",
+      "values": {
+        "Slash": 0,
+        "Duel": 1,
+        "GroupAttack": 2,
+        "FireAttack": 3
+      }
+    },
+    {
+      "name": "CardGame.Core.PublicPileCashOutStage",
+      "values": {
+        "PaymentChildren": 0,
+        "DrawChildren": 1
+      }
+    },
+    {
+      "name": "CardGame.Core.PublicPilePreparationStage",
+      "values": {
+        "Choosing": 0,
+        "PaymentChildren": 1,
+        "RecoveryChildren": 2,
+        "DrawChildren": 3
+      }
+    },
+    {
+      "name": "CardGame.Core.RecipientCategoryMarkKind",
+      "values": {
+        "Rescue": 0,
+        "Discard": 1,
+        "ExtraTargets": 2
+      }
+    },
+    {
+      "name": "CardGame.Core.RecipientCategoryMarkStage",
+      "values": {
+        "ChoosingGift": 0,
+        "GiftChildren": 1,
+        "ChoosingTarget": 2,
+        "ChoosingCards": 3,
+        "RecoveryChildren": 4,
+        "DrawChildren": 5,
+        "DiscardChildren": 6,
+        "ChoosingSlashTargets": 7,
+        "Complete": 8
+      }
+    },
+    {
+      "name": "CardGame.Core.RecipientContestStage",
+      "values": {
+        "GiftChildren": 0,
+        "ChoosingThird": 1,
+        "Pindian": 2,
+        "ResultReady": 3,
+        "SlashIssued": 4,
+        "Complete": 5
+      }
+    },
+    {
+      "name": "CardGame.Core.RecoveryAttemptProducer",
+      "values": {
+        "Program": 0,
+        "ProgramMaximum": 1,
+        "SilverLion": 2,
+        "CardUse": 3,
+        "GroupCard": 4,
+        "VirtualBasic": 5,
+        "DyingBoundAlcohol": 6,
+        "DyingVirtualAlcohol": 7,
+        "Hengye": 8
+      }
+    },
+    {
+      "name": "CardGame.Core.RecoveryPaidCardUseKind",
+      "values": {
+        "Trick": 0,
+        "Simple": 1,
+        "CommittedSlash": 2,
+        "SlashTarget": 3,
+        "AttackDamage": 4,
+        "EquipmentUse": 5,
+        "DodgeCompletion": 6
+      }
+    },
+    {
+      "name": "CardGame.Core.RecoveryReplacementStage",
+      "values": {
+        "Choosing": 0,
+        "RecoveryApplied": 1,
+        "RewardApplied": 2
+      }
+    },
+    {
+      "name": "CardGame.Core.RequestedDeckBasicIntent",
+      "values": {
+        "Dodge": 0,
+        "Group": 1,
+        "Duel": 2,
+        "Dying": 3,
+        "FactionSlash": 4,
+        "FactionDodge": 5,
+        "BorrowedSword": 6,
+        "Qinglong": 7,
+        "ProgramSlash": 8,
+        "ProgramNearestSlash": 9,
+        "AssistedSlash": 10,
+        "NearestLegalSlash": 11
+      }
+    },
+    {
+      "name": "CardGame.Core.ResolutionFrameKind",
+      "values": {
+        "CardUse": 0,
+        "ResponseWindow": 1,
+        "Judgment": 2,
+        "Damage": 3,
+        "DamageTriggerWindow": 4,
+        "Recovery": 5,
+        "Dying": 6,
+        "Death": 7,
+        "NullificationWindow": 8,
+        "TargetCardSelection": 9,
+        "ProgramSkill": 10,
+        "ProgramCardTriggerWindow": 11,
+        "ProgramJudgmentTriggerWindow": 12,
+        "Pindian": 13,
+        "ProgramLifecycleTriggerWindow": 14,
+        "TurnEndingBoundary": 15,
+        "PlayPhaseStartingBoundary": 16,
+        "CardsMovedTriggerWindow": 17,
+        "BeforeDamageProgramWindow": 18,
+        "ProgramDeathTriggerWindow": 19,
+        "HpChangedTriggerWindow": 20,
+        "DeferredTurnEnd": 1300,
+        "CardDeclaration": 1600,
+        "CardDeclarationChallenge": 1601,
+        "CardEffectBeforeApply": 1700,
+        "RecoveryReplacement": 2700,
+        "EquipmentRecast": 2703,
+        "DrawPhaseObligation": 3800,
+        "ActualUseTargetWindow": 5600,
+        "ForeignActualTurnStartWindow": 6400,
+        "SlashTargetBenefitWindow": 7000,
+        "SlashTargetPenaltyWindow": 7340,
+        "RequestedDeckBasic": 7600,
+        "DrawFundedDistinctBasic": 8800,
+        "ChainedStateBasic": 9089,
+        "FriendDuelResponse": 20300
+      }
+    },
+    {
+      "name": "CardGame.Core.ResolutionFrameStep",
+      "values": {
+        "Declared": 0,
+        "AwaitingResponse": 1,
+        "ResolvingEffect": 2,
+        "Completed": 3
+      }
+    },
+    {
+      "name": "CardGame.Core.Role",
+      "values": {
+        "Lord": 0,
+        "Loyalist": 1,
+        "Rebel": 2,
+        "Renegade": 3,
+        "TeamA": 4,
+        "TeamB": 5
+      }
+    },
+    {
+      "name": "CardGame.Core.RoundPileAlcoholStage",
+      "values": {
+        "Choosing": 0,
+        "Paid": 1,
+        "Issued": 2,
+        "Finished": 3
+      }
+    },
+    {
+      "name": "CardGame.Core.SameNameHandStage",
+      "values": {
+        "ChoosingTarget": 0,
+        "ChoosingPayment": 1,
+        "DiscardChildren": 2,
+        "DamageIssued": 3,
+        "Complete": 4
+      }
+    },
+    {
+      "name": "CardGame.Core.SameTypeAidStage",
+      "values": {
+        "ChoosingRecipient": 0,
+        "ChoosingAnswer": 1,
+        "GiftChildren": 2,
+        "Complete": 3
+      }
+    },
+    {
+      "name": "CardGame.Core.SharedSlashOfferStage",
+      "values": {
+        "GiftChildren": 0,
+        "ChoosingOption": 1,
+        "ChoosingTarget": 2,
+        "SlashIssued": 3,
+        "OwnerDrawIssued": 4,
+        "RecipientDrawIssued": 5,
+        "Complete": 6
+      }
+    },
+    {
+      "name": "CardGame.Core.SignedDamagePaymentStage",
+      "values": {
+        "ChoosingCost": 0,
+        "Paid": 1,
+        "Adjusted": 2
+      }
+    },
+    {
+      "name": "CardGame.Core.SimpleCardUseEffect",
+      "values": {
+        "Equipment": 0,
+        "Alcohol": 1,
+        "Recovery": 2,
+        "EquipmentPlacement": 900
+      }
+    },
+    {
+      "name": "CardGame.Core.SkillActionForm",
+      "values": {
+        "None": 0,
+        "Active": 1
+      }
+    },
+    {
+      "name": "CardGame.Core.SkillExecutionForm",
+      "values": {
+        "None": 0,
+        "State": 1,
+        "Trigger": 2
+      }
+    },
+    {
+      "name": "CardGame.Core.SkillImplementationStatus",
+      "values": {
+        "Complete": 0,
+        "Partial": 1,
+        "Planned": 2
+      }
+    },
+    {
+      "name": "CardGame.Core.SkillPolarity",
+      "values": {
+        "Yang": 0,
+        "Yin": 1
+      }
+    },
+    {
+      "name": "CardGame.Core.SkillProgramCardActionOwnerRelation",
+      "values": {
+        "Actor": 0,
+        "Target": 1,
+        "Observer": 2,
+        "ConversionSource": 4
+      }
+    },
+    {
+      "name": "CardGame.Core.SkillProgramCardCategory",
+      "values": {
+        "Basic": 0,
+        "Trick": 1,
+        "Equipment": 2,
+        "InstantTrick": 3
+      }
+    },
+    {
+      "name": "CardGame.Core.SkillProgramCardColorRelation",
+      "values": {
+        "OppositeBoundCard": 0
+      }
+    },
+    {
+      "name": "CardGame.Core.SkillProgramCardCountExpression",
+      "values": {
+        "NextPhaseActivationOrdinal": 760
+      }
+    },
+    {
+      "name": "CardGame.Core.SkillProgramCardDestination",
+      "values": {
+        "OwnerHand": 0,
+        "DiscardPile": 1,
+        "SelectedTargetHand": 2,
+        "OwnerPersistentZone": 3,
+        "DrawPileBottom": 4,
+        "PhaseOwnerHand": 5,
+        "SelectedTargetEquipment": 6,
+        "SelectedTargetCorrespondingZone": 7,
+        "DrawPileTop": 8
+      }
+    },
+    {
+      "name": "CardGame.Core.SkillProgramCardPolicyKind",
+      "values": {
+        "ProhibitTarget": 0,
+        "IgnoreUseDistance": 1,
+        "MinimumResponseCount": 2,
+        "OfferSkipDiscard": 3,
+        "ExcludeGlobalTarget": 4,
+        "AttributeGlobalDamage": 5,
+        "ClaimResolvedGlobalCard": 6,
+        "RewriteSuit": 7,
+        "VirtualEquipment": 8,
+        "FactionResponseRequest": 9,
+        "RescueRecoveryBonus": 10,
+        "FactionHandLimitBonus": 11,
+        "PreventTrickDamage": 12,
+        "NullifyBlackSlashWithoutArmor": 13,
+        "ProhibitNearbyTargetResponse": 14,
+        "ProhibitTargetSlashResponseBySuit": 15,
+        "PreventIncomingTrickDamage": 16,
+        "MinimumResponseCountAsTarget": 17,
+        "ProhibitTargetBySuit": 18,
+        "ForceChained": 450,
+        "ChainedHandLimitAura": 451,
+        "MarkerTurnBonuses": 452,
+        "WoundedPopulationBonuses": 453,
+        "WoundedInRangeHandLimitPenalty": 454,
+        "NextCardUnlimitedAfterNonLockedSkill": 500,
+        "ExclusiveDyingPeachRescue": 550,
+        "BypassSlashLimitBySuit": 551,
+        "DamageBecomesHpLoss": 600,
+        "ForeignPublicPileSlash": 781,
+        "PindianClaim": 784,
+        "PindianClaimAllWhenSourceWins": 785,
+        "ConvertedSlashSameColorResponseOnly": 786,
+        "IgnoreTurnObtainedHandCardsForDiscard": 1000,
+        "PindianTopCardChoice": 1180,
+        "PindianRankBySuit": 1181,
+        "FirstActualPlayUseDistanceUnlimited": 1340,
+        "PreventEnteringChain": 1400,
+        "ProhibitPindianTarget": 1401,
+        "ProhibitDelayedTrickTarget": 1402,
+        "DrawFromBottom": 1420,
+        "IgnoreSlashUseDistanceBySuit": 1860,
+        "PreventForeignEquipmentDiscard": 1980,
+        "SlashRangeFromEffectiveRank": 2100,
+        "RedirectOwnTurnFactionRecovery": 2700,
+        "PindianOpponentRandomHand": 3100,
+        "PindianMaximumSlashClaim": 3101,
+        "IgnoreUseDistanceBeforeDealingDamage": 3800,
+        "UnlimitedAlcoholUse": 3900,
+        "SuppressOthersNonLockedDuringDying": 4000,
+        "ExclusiveTurnPeachUse": 4001,
+        "ProhibitBlackTrickTarget": 4002,
+        "RandomRevealColorFireAttack": 4400,
+        "UnrespondableNullification": 4401,
+        "ClaimedEntitiesFaceDownUse": 4500,
+        "AlcoholKingIdentityRank": 4902,
+        "ForeignTurnAlcoholUseProhibition": 4903,
+        "EquipmentSuitHandLimitAtMaxHp": 5900,
+        "NullifyBlackSlashByCurrentHp": 6602,
+        "ProhibitBlackSlashResponseByCurrentHand": 6603,
+        "DyingSelfRescueOnly": 6604,
+        "BypassSlashLimitAgainstOutsideAttackRange": 7308,
+        "DistanceOneToNotHigherHp": 7340,
+        "SlashExtraTargetsByLostHp": 7341,
+        "PrivateTopBasicRequest": 7600,
+        "CannotNullifyOwnOrdinaryTrick": 8102,
+        "MinimumSlashResponseAtDistanceOne": 8600,
+        "RoundGainedOtherSourceUse": 9085,
+        "OtherParticipantDamageBecomesHpLoss": 20560,
+        "StopUsingAfterTrickOrHpCount": 20600
+      }
+    },
+    {
+      "name": "CardGame.Core.SkillProgramCardSetVisibility",
+      "values": {
+        "Private": 0,
+        "Public": 1
+      }
+    },
+    {
+      "name": "CardGame.Core.SkillProgramCardSource",
+      "values": {
+        "DamageSource": 0,
+        "Owner": 1,
+        "EventTarget": 2
+      }
+    },
+    {
+      "name": "CardGame.Core.SkillProgramCardTargetRestriction",
+      "values": {
+        "SelfOnly": 0,
+        "DistanceUnlimitedAgainstTarget": 1,
+        "SlashCountUnlimitedAgainstTarget": 2,
+        "IgnoreArmorAgainstTarget": 3,
+        "ArmorIneffectiveForTurn": 400,
+        "NormalSlashTarget": 500
+      }
+    },
+    {
+      "name": "CardGame.Core.SkillProgramClaimHandLimitExemption",
+      "values": {
+        "ActualTurn": 0
+      }
+    },
+    {
+      "name": "CardGame.Core.SkillProgramComparisonOperator",
+      "values": {
+        "Equal": 0,
+        "NotEqual": 1,
+        "LessThan": 2,
+        "LessThanOrEqual": 3,
+        "GreaterThan": 4,
+        "GreaterThanOrEqual": 5
+      }
+    },
+    {
+      "name": "CardGame.Core.SkillProgramConditionKind",
+      "values": {
+        "Always": 0,
+        "OwnTurn": 1,
+        "NotOwnTurn": 2,
+        "Wounded": 3,
+        "HpAtLeast": 4,
+        "HandCountAtLeast": 5,
+        "CardUseIsRed": 6,
+        "SelectedTargetIsOther": 7,
+        "SelectedTargetHandGreaterThanOwner": 8,
+        "PindianWon": 9,
+        "PindianNotWon": 10,
+        "BooleanState": 11,
+        "All": 12,
+        "Any": 13,
+        "Not": 14,
+        "FaceDown": 15,
+        "Chained": 16,
+        "ChoiceIs": 17,
+        "BoundCardsSameColor": 18,
+        "BoundCardsMatchCategories": 19,
+        "BoundCardsMatchKinds": 20,
+        "HasClaimableDamageCards": 21,
+        "AttackRangeCoverageDecreased": 22,
+        "HasOwnedCardCategory": 23,
+        "BoundCardCountAtLeast": 24,
+        "ActivationCardCountAtLeast": 25,
+        "ClassicIdentityMode": 26,
+        "BoundCardSuitMatchesChoice": 27,
+        "BoundCardsMatchSuits": 28,
+        "BoundCardCategoryMatchesCardAction": 29,
+        "EventTargetGenderIs": 30,
+        "EventSourceGenderIs": 31,
+        "RuntimeBooleanState": 450,
+        "PublicCounterAtLeast": 451,
+        "PublicCounterOdd": 452,
+        "SelectedTargetWounded": 820,
+        "HandCountGreaterThanHp": 1020,
+        "PositiveHandLimit": 1021,
+        "HasUsableHandCard": 1022,
+        "RequestedSlashDamagedOwner": 1023,
+        "PreviousPlayCardIsBasic": 1024,
+        "NoWeapon": 11300
+      }
+    },
+    {
+      "name": "CardGame.Core.SkillProgramDamageModifierCondition",
+      "values": {
+        "Always": 0,
+        "SourceOutsideTargetAttackRange": 1,
+        "SourceNotFewerHandAndEquipmentThanTarget": 2,
+        "OwnerUniqueMaximumHand": 3,
+        "ChainedFirePropagationOrigin": 1020,
+        "FaceStatesDiffer": 1021,
+        "DamageSourceAttackRangeBelowThree": 1030,
+        "DamageSourceAttackRangeAboveThree": 1031
+      }
+    },
+    {
+      "name": "CardGame.Core.SkillProgramDamageModifierExpiration",
+      "values": {
+        "CurrentTurnEnd": 0,
+        "NextOwnerTurnStart": 1
+      }
+    },
+    {
+      "name": "CardGame.Core.SkillProgramDamageModifierSourceScope",
+      "values": {
+        "OwnerUsed": 0,
+        "DamageSource": 1,
+        "DamageParticipant": 2
+      }
+    },
+    {
+      "name": "CardGame.Core.SkillProgramDamageOccurrence",
+      "values": {
+        "PerDamage": 0,
+        "PerDamagePoint": 1
+      }
+    },
+    {
+      "name": "CardGame.Core.SkillProgramDiscardOwnerScope",
+      "values": {
+        "Other": 0,
+        "Own": 1
+      }
+    },
+    {
+      "name": "CardGame.Core.SkillProgramDrawPhaseMode",
+      "values": {
+        "Additive": 0,
+        "Replacement": 1
+      }
+    },
+    {
+      "name": "CardGame.Core.SkillProgramDynamicUsageLimitKind",
+      "values": {
+        "AlivePlayersCapped": 0
+      }
+    },
+    {
+      "name": "CardGame.Core.SkillProgramEffectOp",
+      "values": {
+        "Draw": 0,
+        "Recover": 1,
+        "LoseHp": 2,
+        "Damage": 3,
+        "Pindian": 4,
+        "GiveSelected": 5,
+        "DiscardSelected": 6,
+        "InsertPhase": 7,
+        "RecoverTo": 8,
+        "TurnOver": 9,
+        "RevealTopCards": 10,
+        "SelectCardSubset": 11,
+        "MoveBoundCards": 12,
+        "SetFaceState": 13,
+        "SelectTarget": 14,
+        "SelectTargets": 15,
+        "SelectSourceCard": 16,
+        "GiveBoundCard": 17,
+        "ClaimDamageCards": 18,
+        "TakeRandomHandCardFromSelectedTargets": 19,
+        "FilterBoundCards": 20,
+        "AdjustNormalDraw": 21,
+        "GrantTurnCardDamageModifier": 22,
+        "GrantTurnCardActionProhibition": 23,
+        "GrantTurnRuleModifier": 24,
+        "GrantTurnCardTargetRestriction": 25,
+        "StartJudgment": 26,
+        "GrantTurnCardConversion": 27,
+        "DiscardOwnedZoneCards": 28,
+        "SetChainedState": 29,
+        "SelectAndMoveOwnedCard": 30,
+        "RefundCardUseDebit": 31,
+        "StartPindian": 32,
+        "SetBooleanState": 33,
+        "ToggleBooleanState": 34,
+        "GrantDirectedTurnCardPolicy": 35,
+        "ChangeMaximumHp": 36,
+        "GrantSkills": 37,
+        "ChooseOption": 38,
+        "SelectOwnedCards": 39,
+        "GrantTurnHandColorRestriction": 40,
+        "PreventCurrentDamage": 41,
+        "CaptureSelectedCards": 42,
+        "RevealBoundCards": 43,
+        "ChooseDifferentCategoryDiscard": 44,
+        "UseSelectedCardsAs": 45,
+        "UseAllHandCardsAsOrdinaryTrick": 46,
+        "GrantTurnSkills": 47,
+        "ChangeAttributedMarker": 48,
+        "CauseDeathUnlessBoundCardKind": 49,
+        "UseBoundCardAsDyingAlcohol": 50,
+        "ChooseOtherOwnedCardDiscard": 51,
+        "DistributeOwnedCards": 52,
+        "RequestAttackRangeAid": 53,
+        "NullifyCurrentCardEffect": 54,
+        "NullifySelectedCardEffects": 55,
+        "ReplaceJudgment": 56,
+        "StartVirtualDuel": 57,
+        "RequestFactionCard": 58,
+        "TransferRandomOwnedCard": 59,
+        "AccumulateSelectedCardCount": 60,
+        "ClaimJudgmentCard": 61,
+        "ReorderTopCards": 62,
+        "RepeatJudgment": 63,
+        "SkipTurnPhases": 64,
+        "UseVirtualCard": 65,
+        "RevealUniqueRankForDying": 70,
+        "ProhibitCurrentResponse": 71,
+        "RedirectCurrentAttack": 72,
+        "RedirectCurrentDamage": 75,
+        "HoldTargetCards": 76,
+        "RevealTargetHandCard": 77,
+        "UseBoundCardByTarget": 78,
+        "PendExtraTurn": 79,
+        "ClaimDeathCleanupCards": 80,
+        "GrantTurnHandCardProhibition": 81,
+        "AbolishOwnerAreas": 82,
+        "LoseDeathSourceSkills": 83,
+        "ChooseOwnCardDiscard": 84,
+        "ExchangeSelectedTargetHands": 85,
+        "RequestSlashByTarget": 86,
+        "BindDiscardPhaseDiscards": 87,
+        "RestorePhaseHandDiscards": 88,
+        "ClaimMovedCards": 89,
+        "TakeRandomCardFromEveryOtherCharacter": 90,
+        "UseVirtualDyingAlcohol": 91,
+        "DamageParticipants": 400,
+        "LoseHpParticipants": 401,
+        "DiscardParticipantCards": 402,
+        "InitializePrivatePile": 403,
+        "ExchangePrivatePile": 404,
+        "GrantAttributedNatureEffect": 405,
+        "RecoverAllLiving": 406,
+        "SpendMarkerOrLoseHp": 407,
+        "LoseHpUnclamped": 408,
+        "RequestSlashByNearest": 409,
+        "SelectDistinctSuitHandDiscards": 450,
+        "ApplyHandDiscardShare": 451,
+        "SuppressGeneralSkill": 452,
+        "SetMarkerAmount": 453,
+        "MoveUniqueMarker": 454,
+        "ClaimMarkedHand": 455,
+        "DamageOtherLiving": 456,
+        "SelectChainedByMarker": 457,
+        "DiscardTargetEquipment": 458,
+        "EndCurrentPlay": 459,
+        "SelectOneSelectedTarget": 460,
+        "AlterEquipmentSlots": 500,
+        "AbolishRandomEquipmentSlot": 501,
+        "SampleFactionSkills": 502,
+        "ExpireSampledSkills": 503,
+        "ReplaceSkillsOnAwakening": 504,
+        "AccumulateCardRank": 505,
+        "ObtainDeckRankSum": 506,
+        "DamageAfterDeckShuffle": 507,
+        "EquipSampledGenerals": 508,
+        "DamageFarthestCharacter": 509,
+        "PlaceNamedWeapon": 510,
+        "ReclaimNamedWeapon": 511,
+        "InheritWeapon": 512,
+        "BalanceHandAttackTricks": 513,
+        "ReplaceJudgmentPhase": 514,
+        "DrawAllHandSelectedBonus": 550,
+        "OfferVirtualSlashOrDraw": 630,
+        "GrantTurnCardEffectImmunity": 631,
+        "ExchangeSelectedTargetEquipment": 660,
+        "RequestSlashAgainstChosenTarget": 701,
+        "TakeSelectedTargetCards": 702,
+        "ChooseCategoryAlternativeDiscard": 740,
+        "EscalatingDiscardOrDamage": 741,
+        "PutDiscardedCardsOnDrawPileTop": 760,
+        "CollectPublicPile": 780,
+        "GrantNextCardTargetAdjustment": 782,
+        "UseDiscardedCardAsDelayedTrick": 800,
+        "UseVirtualSlash": 801,
+        "PayEquipmentColorDiscard": 802,
+        "GrantPlayPhaseColorRestriction": 803,
+        "OfferCompletedCardGift": 810,
+        "ApplyCurrentCardEnhancements": 811,
+        "ConsumeCategoryTargetLedger": 820,
+        "ReplaceCurrentCardUseActor": 821,
+        "AddCurrentCardUseTarget": 822,
+        "ReduceCurrentDamage": 823,
+        "RequestFactionRecovery": 900,
+        "SetNextTurnRuleModifier": 901,
+        "WeaponDiscardOrDamageBonus": 902,
+        "ResolveJudgmentColorBenefit": 903,
+        "RecastSelectedCards": 920,
+        "DrawCompletedCardParticipants": 921,
+        "RevealSelectedHandAgainstTarget": 922,
+        "ChooseHandCountIntervention": 940,
+        "RevealHandColorDiscardAndTake": 941,
+        "DrawThenPutOwnedCardOnTopParticipants": 942,
+        "LoseOwnerSkillsAndGrant": 943,
+        "SetTurnHandLimitFromPlayDamage": 944,
+        "GrantGameFactionAttackRangeTargets": 945,
+        "DrawTurnOwnerThenDiscardMaximumHandForDodge": 946,
+        "ViewTopCardsAndObtainMatchingCards": 1000,
+        "DepositBoundCardsUntilNextTurn": 1001,
+        "ObtainDeferredPile": 1002,
+        "RewardDeferredProviders": 1003,
+        "GrowMaximumHpAndHp": 1020,
+        "ConsumeTargetPhaseLedger": 1021,
+        "GrantTurnBoundSuitUseProhibition": 1022,
+        "DiscardSelectedParticipantCards": 1023,
+        "OfferBoundCardsForDamagePrevention": 1024,
+        "DeclareBoundCardNameUntilTurnEnd": 1040,
+        "UpgradeConversionTier": 1041,
+        "ChooseDifferentActionCategoryGift": 1080,
+        "ApplyAlternatingChoiceBenefit": 1100,
+        "ObtainDeckCardWithConsecutiveTarget": 1101,
+        "DeclareNameForTargetDefense": 1120,
+        "DrawAndDraftLowHandPopulation": 1121,
+        "StoreTopCardInPublicPile": 1140,
+        "ExchangePublicPile": 1141,
+        "DistributePublicPileIfAllSuits": 1142,
+        "CompareSelectedHandWithHpHand": 1160,
+        "AdjustPersistentHandLimit": 1161,
+        "ProhibitSelfCardTargetsForTurn": 1162,
+        "ReplaceAllSlashTargets": 1180,
+        "StartCardActionPindian": 1181,
+        "ExchangeRespondedCardEntities": 1200,
+        "DrawPublicSuitThenEscalatingDiscard": 1201,
+        "ExchangeOwnedCardThroughDeckEnd": 1220,
+        "UseDeckSlashesThenShuffle": 1221,
+        "UseRandomDeckEquipment": 1240,
+        "GrantRandomSkillAndSuitShield": 1241,
+        "SelectRelativeZoneDemandTarget": 1260,
+        "DrawOnFirstProgramTargetEncounter": 1261,
+        "ChangeParticipantMarker": 1280,
+        "ConsumeMarkerPreventDamage": 1281,
+        "AddMarkerSubjectNormalDraw": 1282,
+        "ScheduleDeferredHandAlignment": 1300,
+        "ResolveDeferredHandAlignment": 1301,
+        "PeekTurnQuotaTop": 1320,
+        "NullifyFirstTurnTargetByHand": 1321,
+        "IssueCardNoResponseAndPlayUseBan": 1340,
+        "ResolveDiscardBudgetParticipants": 1360,
+        "PreventOwnPlayOutsideTargetRangeDamage": 1361,
+        "DiscardOutsideRangeAfterInsufficientUses": 1362,
+        "OfferCompletedFactionCostGift": 1363,
+        "CollectFinalTargetCardInPublicPile": 1380,
+        "ExchangePublicPileHand": 1381,
+        "ObtainPublicPileCard": 1382,
+        "DiscardPublicZoneAfterHandPayment": 1383,
+        "AbolishEquipmentSlotGroup": 1400,
+        "RecastSelectedEquipment": 1401,
+        "ReplaceSkillsOnPreparation": 1402,
+        "AlternatingSuitDrawDiscard": 1420,
+        "FirstCategoryCompletedTop": 1421,
+        "DiscardNonFinalTargetCardThenDraw": 1440,
+        "DiscardHandToNamedTurnCount": 1441,
+        "CommitConversionPolarity": 1460,
+        "GiveSelectedOwnedCardAndDamage": 1461,
+        "ObserveDamageSourceHandAndGive": 1462,
+        "DrawToHandCount": 1463,
+        "StoreBoundHandInPublicPile": 1480,
+        "PublicPileColorDamage": 1481,
+        "RewardDiscardedActionColor": 1482,
+        "AwaitOwnedCardMovement": 1483,
+        "AwaitBoundCardMovements": 1484,
+        "UseVirtualDuel": 1486,
+        "ResolveFirstGameDomainCrossing": 1540,
+        "StoreArbitraryOwnedPublicPile": 1541,
+        "UsePublicPileEquipmentSequence": 1542,
+        "GiveOwnedCardToOtherFinalTargetAndDraw": 1580,
+        "InitializePrivateGeneralLibrary": 1640,
+        "AcquirePrivateGeneralAvatar": 1641,
+        "ChoosePrivateGeneralAvatar": 1642,
+        "GrantTurnRedSlashBenefits": 1680,
+        "HoldOwnerHandUntilTurnEnd": 1700,
+        "AccumulatePaidPhaseGift": 1740,
+        "OfferVirtualBasicCard": 1741,
+        "RewardOutOfTurnFactionSlash": 1742,
+        "UseDiamondDelayedOrDiscard": 1780,
+        "DiscardDistinctFactionParticipants": 1820,
+        "RevealOwnedBoundCardAppearance": 1860,
+        "IssueCurrentTurnNonLockedSkillSuppression": 1861,
+        "GrantCurrentTurnDirectedHeartSlashBonus": 1862,
+        "RecoverToMaximum": 1900,
+        "DrawRecoveryReceipt": 1901,
+        "ReserveNextSlashDamage": 1902,
+        "SuppressCurrentSlashTargetAndJudgeSuitDiscard": 1940,
+        "GiveShownBoundCardsAndGrantTurnHandLimit": 1960,
+        "PlaceSelectedEquipment": 2000,
+        "FreezeSelectedHpPair": 2001,
+        "PreventCurrentTargetSlashCancellation": 2100,
+        "AddCurrentTargetSlashDamage": 2101,
+        "ChooseOwnerHpLoss": 2200,
+        "DrawPaidHpLoss": 2201,
+        "GrantPaidHpLossDistance": 2202,
+        "GrantPaidHpLossSlashLimit": 2203,
+        "DiscardDamageTargetAndClaimMount": 2300,
+        "OfferRedDiscardRecoveryChoice": 2340,
+        "DrawByDamageCardColor": 2400,
+        "UseSelectedActorDuel": 2401,
+        "ObtainDamageTargetCardAndResolveCategory": 2500,
+        "GrantFactionPopulationMarker": 2600,
+        "RemoveSelectedCurrentArrowBarrageTarget": 2601,
+        "UseOwnerSlashAgainstTurnOwner": 2800,
+        "DeclareDeckCriterionAndGiveMatchingCard": 2801,
+        "DrawThenDiscardHandToMaximumHp": 2900,
+        "PayHpToGrantOneUseDamageShield": 3000,
+        "RecastBoundCard": 3100,
+        "GrantTurnHandLimitCardKindExemption": 3101,
+        "ClaimCurrentUsePhysicalCards": 3200,
+        "PreventCurrentTargetSlashCancellationByRule": 3201,
+        "ViewAndTakeSelectedTargetHand": 3300,
+        "RequestHandBySuitsOrLoseHp": 3301,
+        "DiscardBoundCardForTurnSlashBenefits": 3400,
+        "ScheduleFirstRoundGameUsageRefund": 3401,
+        "PayOwnedCardOrMarker": 3500,
+        "RecordEndHandCountAndGrantMarker": 3501,
+        "RevealTopCardsWithNextBooleanBonus": 3600,
+        "ObtainBoundCardsAndArmNextRevealBonus": 3601,
+        "RecoverOtherDyingVictimTo": 3602,
+        "GrantLeastHandMarkerOrDraw": 3800,
+        "SuppressOwnSkillAfterAlcoholSlashDamage": 3900,
+        "StartOwnedDamagePointJudgment": 3901,
+        "PreventCurrentDamageAndDrawMultiple": 4000,
+        "RequestLegalSlashByNearest": 4002,
+        "OfferUnlimitedVirtualSlash": 4003,
+        "ReceiveOwnerDamage": 4100,
+        "ConsumeDistinctTurnTarget": 4101,
+        "DrawOwnerAtAppliedDamage": 4102,
+        "JudgeDamageTargetThenOfferSuitDiscard": 4200,
+        "ChoosePrivateColorsDiscardAndDuel": 4300,
+        "ClaimDiscardedEntityWithProvenance": 4500,
+        "UseVirtualAlcohol": 4501,
+        "OfferFaceUpForOutsideClaims": 4502,
+        "GrantNextActualUseTargetAdjustment": 4700,
+        "UsePhaseOwnerVirtualAlcohol": 4721,
+        "InsertGrantedEntityPlayPhase": 4800,
+        "ClaimGrantedPhaseSlash": 4801,
+        "FreezeLivingFactionRecovery": 4802,
+        "DrawToFrozenFactionCount": 4803,
+        "TurnOverIfFrozenFactionCountExceedsGameDamage": 4804,
+        "GrantTurnOriginalTargetAddition": 4900,
+        "OfferOriginalTargetAddition": 4901,
+        "GiveBoundCardThenOfferVirtualSlashOrSharedDraw": 5100,
+        "DrawExtraAndArmTurnDamageUseDebt": 5200,
+        "SelectTurnDamageUseDebtPayment": 5201,
+        "PreventDamageAndConsumeSourceFaction": 5202,
+        "PutOwnOrPreviousFirstDiscardOnTop": 5300,
+        "LoseHpIfRevealedNonEquipmentDiffers": 5301,
+        "StoreAdjacentDiscardedSlash": 5400,
+        "PayCompletedUseDiscardOrLoseHp": 5401,
+        "UseRoundPricedPileDyingAlcohol": 5402,
+        "OfferCurrentSlashFireAndExtraTarget": 5403,
+        "SelectEquipmentPairAndPayment": 5500,
+        "SelectDyingOwnedCard": 5501,
+        "PayHpThenNullifyOwnActualUseTarget": 5600,
+        "ScheduleEarnedActualEndingBenefit": 5601,
+        "DrawLostHpThenOfferOwnedCardsUpTo": 5602,
+        "ChooseCategoryOrSequentialDiscard": 5700,
+        "EscalatingDiscardOrDamageFromSelected": 5701,
+        "DonateAllEquipmentAndOfferRecipientBenefits": 5800,
+        "ChooseEquipmentOrDrawAfterOtherActualTurn": 5801,
+        "DiscardSuitPreventDamageAndBenefit": 5900,
+        "PlaceMatchedJudgmentCard": 5901,
+        "DrawExtraAndArmHalfHandSupport": 6000,
+        "GiveHalfHandAndIssueTargetSupport": 6001,
+        "ExchangeHandsAndArmPhaseDebt": 6002,
+        "SelectFrozenHandExchangeDebtPayment": 6003,
+        "OfferHalfHandRecipientSupport": 6004,
+        "DiscardBoundCardForOppositeTurnDuel": 6100,
+        "ClaimActualTurnDamageEntities": 6101,
+        "PlaceCapturedEquipmentAndDraw": 6200,
+        "RestoreActualDiscardBatch": 6201,
+        "ObtainOneFromEachSelectedTarget": 6300,
+        "GiveShownCardToLeastOriginalTarget": 6301,
+        "IssueFixedRecipientBenefit": 6302,
+        "SelectIssuedFixedRecipient": 6303,
+        "ResolveForeignTurnPindian": 6400,
+        "OfferSameTypeDifferentNameOrExtraTarget": 6401,
+        "IssueShownEntityTurnPolicy": 6500,
+        "ResolvePrepDiscardOrEnding": 6600,
+        "DrawPrepDiscardEnding": 6601,
+        "DrawEndingPairThenBlockRoundIfUnequal": 6700,
+        "RecastSelectedPhysicalSlash": 6701,
+        "SelectIssuedFixedRecipientWithDeathReturn": 6800,
+        "DrawBeforeCappedConversionTierUpgrade": 6900,
+        "OfferSlashTargetBenefit": 7000,
+        "SettleDodgeCancelledSlashBenefit": 7001,
+        "DiscardOwnedCardToAdjustCurrentDamage": 7100,
+        "DiscardHandOrUseEquipment": 7150,
+        "MoveFieldEquipment": 7151,
+        "GiveDrawPileBottomCard": 7160,
+        "GivePindianCard": 7161,
+        "GiveSelectedTargetHand": 7162,
+        "XiZhenResponseBenefit": 7163,
+        "SelectedTargetVirtualSlashAgainstOwner": 7164,
+        "YanjiaoRevealTopCards": 7165,
+        "YanjiaoSplitRevealedCards": 7166,
+        "ShenShenDrawAndArmBonus": 7167,
+        "TunanUseRevealedCard": 7168,
+        "BijingMarkHandCards": 7169,
+        "BijingRecastMarkedCards": 7170,
+        "BijingPunishDiscardPhase": 7171,
+        "DaoshuGuessAndTake": 7172,
+        "DuanfaDiscardAndDraw": 7180,
+        "YoudiBaitDiscard": 7181,
+        "GuanchaoChoosePattern": 7196,
+        "GuanchaoRankDraw": 7197,
+        "XunxianGiftUsedCard": 7198,
+        "DiscardDrawAndOfferUniqueHpPeer": 7200,
+        "GiveAllHandAndStartRecipientPindian": 7201,
+        "UsePindianWinnerSlash": 7202,
+        "ZhirenReorderTopByLength": 7204,
+        "ZhirenResolveFieldTiers": 7205,
+        "YanerResolvePairBenefit": 7206,
+        "JiezhenReplaceSkills": 7212,
+        "JiezhenRestoreSkills": 7213,
+        "ZecaiRoundSettlement": 7214,
+        "YinshiPreventSourcelessDamage": 7215,
+        "YinshiClaimBaguaJudgmentCard": 7216,
+        "JuanxiaDeclareTricks": 7220,
+        "JuanxiaRetaliation": 7221,
+        "ZhuLingZhanyiChooseCategory": 7228,
+        "ZhuLingZhanyiEquipmentPunish": 7229,
+        "ShiYuanTargetDraw": 7236,
+        "DuShiGrantSkill": 7237,
+        "YuWeiMarkActiveTurn": 7238,
+        "FengjiRoundChoice": 7244,
+        "XuanhuiSwapEffects": 7245,
+        "ChangjiEndingDamageChoice": 7252,
+        "ZengouNullifyDodge": 7253,
+        "QiaoliWeaponDuel": 7260,
+        "QiaoliArmorDuel": 7261,
+        "QiaoliWeaponDamageDraw": 7262,
+        "QiaoliEndingEquipmentGain": 7263,
+        "QingliangChooseOption": 7264,
+        "YouyanGainSuitCards": 7268,
+        "ZhuihuanArm": 7269,
+        "ZhuihuanRetaliate": 7270,
+        "LuochongResolve": 7276,
+        "AichenRemoveOption": 7277,
+        "KanggeChooseTarget": 7284,
+        "KanggeGainDraw": 7285,
+        "KanggeHealVictim": 7286,
+        "KanggeDeathPrice": 7287,
+        "JieliePreventAndGift": 7288,
+        "TongxieArm": 7292,
+        "TongxieFollowUp": 7293,
+        "TongxieGuard": 7294,
+        "DrawThenNullifyOwnMultiTargetTrick": 7300,
+        "RestrictDamageSourceHandCategory": 7301,
+        "YujueResolve": 7302,
+        "ZhihuExpire": 7303,
+        "TuxingArmGameDamage": 7304,
+        "ZhuiLieEscalateTargetDamage": 7308,
+        "SaodiExpandTargets": 7316,
+        "ZhuitaoMarkTarget": 7317,
+        "ZhuitaoRevoke": 7318,
+        "DiscardSlashThenOtherCardAndUseDuel": 7320,
+        "YuanziResolve": 7325,
+        "YuanziDamageDraw": 7326,
+        "LiejieSourceDiscard": 7327,
+        "RequireTargetDiscardOrEquipmentRecast": 7340,
+        "DrawFireTargetAndGrantTurnUseQuota": 7401,
+        "LoseSkillsAndObtainNamedCard": 7402,
+        "PlaceOwnedEquipmentThenResolveSlotBenefit": 7500,
+        "DiscardTargetHpCardsAndDamage": 7601,
+        "DepositBoundPrivateCardOffer": 7700,
+        "ResolveDeferredPrivateCardOffer": 7701,
+        "ResolveGameTargetHandHpChoice": 7702,
+        "PayHpInspectHandThenDiscardOrSlash": 7800,
+        "DrawThenDiscardSuitsForDyingPeach": 7900,
+        "UseOwnPlayHistoryAtEnding": 7901,
+        "DiscardTurnOverAndTakeHand": 8000,
+        "ReturnIssuedPhaseHandDebt": 8001,
+        "GiveBlackHandAndResolveRecipientContest": 8100,
+        "RaiseMaximumRecoverAndQualifyPrintedLord": 8101,
+        "DepositSelectedSourceCurse": 8200,
+        "DrawForSourceCurseUse": 8201,
+        "LoseHpForLostSourceCurses": 8202,
+        "DelegateJudgmentReplacement": 8300,
+        "GiveAfterBatchGain": 8301,
+        "RevealRedLossAndDraw": 8302,
+        "GrantJudgedRankSplitSlashTurnPolicy": 8400,
+        "DrawFromOtherActualBasicDiscard": 8401,
+        "StoreNonBasicOwnedPublicPile": 8500,
+        "RemovePublicPileAfterAttackDamage": 8501,
+        "ResolvePreparationPublicPile": 8502,
+        "OfferShortRangeSlashTarget": 8600,
+        "GrantFixedDistanceOneTurnPolicy": 8601,
+        "SettleFixedDistanceOneEndingDebt": 8602,
+        "DiscardEquipmentThenSlashAndOwnershipOutcome": 8700,
+        "DrawAfterActualOwnHandGain": 8800,
+        "DiscardForeignTurnHandGains": 8801,
+        "GiveSameCategoryFromDeck": 8802,
+        "DrawThenDiscardDistinctCategories": 8900,
+        "AwakenAfterGameActivations": 8901,
+        "LastDamageSourceReciprocity": 9000,
+        "BeginPhaseNamePrediction": 9010,
+        "SettlePhaseNamePrediction": 9011,
+        "PairedHandRecast": 9020,
+        "InitializeOriginalHandEntities": 9030,
+        "OfferOriginalHandLossBenefit": 9031,
+        "InheritOriginalHandBonuses": 9032,
+        "AwakenWhenOriginalHandEmpty": 9033,
+        "DrawAfterActualOutsideDraw": 9040,
+        "DiscardAfterActualOutsideDiscard": 9041,
+        "OfferSameNameHandDiscardOrDamage": 9050,
+        "RevealUndamagedUseTargetHandAndDiscardSameColor": 9060,
+        "AllocateCurrentTurnDefaultStats": 9070,
+        "IncreaseNextTurnDefaultStatMinimum": 9071,
+        "GiveHandAndGrantCategoryMark": 9072,
+        "SpendCategoryMarkForDyingRecovery": 9073,
+        "SpendCategoryMarkForAreaDiscard": 9074,
+        "SpendCategoryMarkForSlashTargets": 9075,
+        "GiveOffTurnUsedCards": 9076,
+        "CancelOtherCurrentUseTargetsIfOverHandLimit": 9077,
+        "RecastMatchingCardsThenPeerChoice": 9078,
+        "LoseFirstPrintedSkillsUntilTurnEndAndDraw": 9079,
+        "OfferPairedColorCardDisposition": 9080,
+        "RecordDamageCounterpartAcquisition": 9081,
+        "OfferUniqueLargestHandTrickTargetAddition": 9082,
+        "JoinUniqueLargestHpTrickTargetAndDrawAfterDamage": 9083,
+        "DrawAfterJoinedTrickDamage": 9084,
+        "AdjustOneRoundGainedOrdinaryTrickTarget": 9085,
+        "DrawForRoundGainedEquipmentUse": 9086,
+        "GrantPlayPhaseSkills": 9087,
+        "GrantActorHandLimitPenalty": 9088,
+        "UseSelectedForeignCardAsSlash": 9089,
+        "SelectOwnedHandRankSum": 9100,
+        "OfferCurrentTurnHandExchange": 9200,
+        "StoreBoundCardsInPublicPile": 9300,
+        "CashOutPublicPile": 9301,
+        "GiveBoundHandAsSlashWithUseReward": 9400,
+        "RewardGiftedSlashUse": 9401,
+        "DrawTwoThenDiscardTwoIfOverMaxHp": 9500,
+        "AddOneDistanceFreeCurrentUseTarget": 9600,
+        "AddEndingTurnDamageMarker": 9700,
+        "ArmPhaseSlashFocus": 9800,
+        "RecordPhaseFocusedSlash": 9801,
+        "SpareFirstLethalTarget": 9802,
+        "CancelSparedCardTargets": 9803,
+        "RecordOpeningTurnUse": 9804,
+        "RewriteWeilinTargetHand": 9805,
+        "HoldRoundFocusCards": 9806,
+        "KillRoundFocusSlashVictim": 9807,
+        "GrantExclusiveRende": 9808,
+        "GrantExclusiveQingnang": 9809,
+        "GrantExclusiveLongyin": 9810,
+        "UseVirtualOrdinaryTrick": 11200,
+        "RevealRecordedSuitSlash": 11300,
+        "UseBoundCardsAsSlash": 11400,
+        "MouZhitianView": 20000,
+        "MouWujingDraw": 20001,
+        "MouZhijueUse": 20002,
+        "BeginFriendPrediction": 20100,
+        "ObserveFriendPrediction": 20101,
+        "EquipFriendXuanjian": 20102,
+        "ReclaimFriendXuanjian": 20103,
+        "GainFriendCategoryMark": 20104,
+        "ExchangeFriendGainForDiscard": 20200,
+        "UseFriendDeckSuitsAtPlayEnd": 20201,
+        "RecastOwnedCardsAndDuel": 20300,
+        "DiscardMaximumAndPunishHigherHand": 20301,
+        "DiscardAscendingMaximumAndDraw": 20302,
+        "HoldUsedSuitHandAndDraw": 20303,
+        "ConfigureFriendDuelCategories": 20304,
+        "ConfigureFriendUseSuits": 20305,
+        "ProtectOtherSoleCardTarget": 20340,
+        "ResolveUnequalHandHpEnding": 20400,
+        "AdjustTargetedOrdinaryTrick": 20401,
+        "RefillAndScheduleNextTurnSelfOnly": 20560,
+        "GrantOtherPlayUseRestriction": 20600,
+        "ChooseStartingEquipmentControl": 20601,
+        "RecordNamedPrivateAmbush": 20700,
+        "NullifyMatchingHandUse": 20701,
+        "ResolveDamageSourceHandChoice": 20702
+      }
+    },
+    {
+      "name": "CardGame.Core.SkillProgramEffectTarget",
+      "values": {
+        "Owner": 0,
+        "Actor": 1,
+        "SelectedTarget": 2,
+        "SelectedTargets": 3,
+        "HpPairHigher": 2000,
+        "HpPairLower": 2001
+      }
+    },
+    {
+      "name": "CardGame.Core.SkillProgramGainPhaseQualification",
+      "values": {
+        "OutsideOwnerDraw": 0
+      }
+    },
+    {
+      "name": "CardGame.Core.SkillProgramHpChangeOccurrence",
+      "values": {
+        "PerEvent": 0,
+        "PerPoint": 1
+      }
+    },
+    {
+      "name": "CardGame.Core.SkillProgramMovementOccurrence",
+      "values": {
+        "PerBatch": 0,
+        "PerCard": 1,
+        "PerSourceOwner": 700,
+        "PerOwnerBatch": 761,
+        "PerThirdPartyHandGain": 762,
+        "PerOwnerSourceHandGain": 763,
+        "PerOtherLastHandLoss": 1031
+      }
+    },
+    {
+      "name": "CardGame.Core.SkillProgramNumberExpression",
+      "values": {
+        "LivingFactionCount": 0,
+        "TargetMaxHpMinusHandCount": 1,
+        "OwnerLostHp": 2,
+        "BoundCardCount": 3,
+        "AllOwnedZoneCards": 4,
+        "CurrentHandCount": 5,
+        "IntegerConstant": 6,
+        "PlannedNormalDrawCount": 7,
+        "SelectedTargetCount": 8,
+        "LivingPlayerCount": 9,
+        "EventTargetHp": 10,
+        "CurrentAttackRange": 11,
+        "HandHalfFloor": 12,
+        "SelectedPairHandDifference": 13,
+        "LivingPlayersMinHp": 14,
+        "HandLimitMinusHandCount": 15,
+        "LostHpMinusHandCount": 600,
+        "CategoryTargetTurnUsage": 820,
+        "CurrentHp": 1020,
+        "SelectedTargetsHandGreaterThanLord": 1021,
+        "PhaseSkillUsage": 1022,
+        "EventMovedCardCount": 1700,
+        "TurnOwnerDiscardPhaseHandDiscardCount": 3100,
+        "CurrentTurnUsedCardCategoryCount": 4600,
+        "ActualTurnDeathBenefits": 4721,
+        "OwnerLostHpAtLeastOne": 7400,
+        "CurrentHandEmptyTwoOtherwiseOne": 8008,
+        "EquipmentHalfCeilingPlusOne": 9000
+      }
+    },
+    {
+      "name": "CardGame.Core.SkillProgramOldJudgmentCardDestination",
+      "values": {
+        "DiscardPile": 0,
+        "OwnerHand": 1
+      }
+    },
+    {
+      "name": "CardGame.Core.SkillProgramPhaseContinuation",
+      "values": {
+        "BeforeNormalPreparation": 0
+      }
+    },
+    {
+      "name": "CardGame.Core.SkillProgramRevealMode",
+      "values": {
+        "Random": 0,
+        "Chooser": 1,
+        "SelfChoiceOtherwiseRandom": 660
+      }
+    },
+    {
+      "name": "CardGame.Core.SkillProgramStateReacquirePolicy",
+      "values": {
+        "PreserveUntilGameEnd": 0
+      }
+    },
+    {
+      "name": "CardGame.Core.SkillProgramStateResetScope",
+      "values": {
+        "Game": 0,
+        "PlayPhase": 450,
+        "Turn": 1081
+      }
+    },
+    {
+      "name": "CardGame.Core.SkillProgramStateVisibility",
+      "values": {
+        "Public": 0,
+        "Private": 1
+      }
+    },
+    {
+      "name": "CardGame.Core.SkillProgramStepOutcome",
+      "values": {
+        "Continue": 0,
+        "AwaitChild": 1,
+        "AwaitChoice": 2
+      }
+    },
+    {
+      "name": "CardGame.Core.SkillProgramSubsetAiOrder",
+      "values": {
+        "MostCardsThenRankSum": 0
+      }
+    },
+    {
+      "name": "CardGame.Core.SkillProgramSuitSource",
+      "values": {
+        "DamageCard": 0
+      }
+    },
+    {
+      "name": "CardGame.Core.SkillProgramTargetAiOrder",
+      "values": {
+        "Stable": 0,
+        "HostileThenHandCount": 1,
+        "SupportFirstThenOpposeSecond": 2,
+        "SupportDraw": 3,
+        "CardEffectIntervention": 4,
+        "SupportRecovery": 5
+      }
+    },
+    {
+      "name": "CardGame.Core.SkillProgramTargetKind",
+      "values": {
+        "OtherLiving": 0,
+        "OtherLivingWithHand": 1,
+        "CurrentCardUseTargets": 13,
+        "OtherLivingInBoundParticipantAttackRange": 14,
+        "OtherLivingWithHandHpGreaterThanOwner": 15,
+        "OtherLivingMale": 16,
+        "OtherWoundedMale": 17,
+        "OtherLivingInAttackRange": 18,
+        "OtherLivingSlashable": 19,
+        "OtherLivingVirtualSlashTarget": 20,
+        "SlashRedirectable": 21,
+        "OtherLivingPair": 22,
+        "OtherLivingLeastHandCount": 23,
+        "OtherLivingWhoseAttackRangeIncludesOwner": 24,
+        "EventSource": 25,
+        "OtherLivingWithQinggangSword": 26,
+        "LivingPairDistinct": 27,
+        "CurrentTurnPlayer": 400,
+        "EquipmentExchangePair": 660,
+        "EventTargetWithHand": 661,
+        "AnyLivingHighestHp": 730,
+        "AnyLivingHighestHand": 731,
+        "OtherLivingEmptyHand": 742,
+        "OtherLivingDelayedTrickTarget": 800,
+        "OtherLegalCurrentCardTarget": 820,
+        "OtherLivingWithHandOrEquipment": 940,
+        "OtherLivingWithDiscardableHandOrEquipment": 941,
+        "AnyLivingWithHand": 1020,
+        "LivingWhoseAttackRangeIncludesLord": 1021,
+        "AnyLivingLeastHandCount": 1460,
+        "OtherLivingHighestHand": 1461,
+        "OtherLivingWithFewerHandCards": 1462,
+        "OtherLivingAtDistanceOne": 1463,
+        "AnyLiving": 1464,
+        "OtherWounded": 1465,
+        "AnyWounded": 1466,
+        "AnyLivingHandBelowMaxHp": 1467,
+        "EventTarget": 1468,
+        "OtherLivingExceptSource": 1469,
+        "MaximumAttributedMarker": 1470,
+        "OtherLivingUnequalHandPair": 1471,
+        "OtherLivingHandAtLeastOwner": 1472,
+        "AnyLivingMale": 2000,
+        "OtherLivingWuFactionWithHand": 2001,
+        "CurrentArrowBarrageTargets": 2601,
+        "OtherLivingHandAtMostOwner": 5700,
+        "OtherLivingNonLord": 9800,
+        "OtherLivingNotLastRoundFocus": 9801,
+        "ExclusiveRendeBeneficiary": 9802,
+        "OtherLivingWithoutEndingSupport": 9803,
+        "ExclusiveQingnangBeneficiary": 9804
+      }
+    },
+    {
+      "name": "CardGame.Core.SkillProgramTriggerConditionKind",
+      "values": {
+        "Always": 0,
+        "Compare": 1,
+        "ClassicIdentityMode": 2,
+        "BooleanState": 3,
+        "CardActionActorIsCurrentTurn": 4,
+        "CardActionActorIsOwner": 5,
+        "CardActionPhaseIsPlay": 6,
+        "CardUseCausedDamage": 7,
+        "CardUseConversionSkillIs": 8,
+        "LordGeneralNotIn": 9,
+        "All": 10,
+        "Any": 11,
+        "Not": 12,
+        "OtherDamageParticipantAlive": 13,
+        "DirectCardUseDamage": 14,
+        "DamageCardIsRed": 15,
+        "DamageTargetIsOther": 16,
+        "CardActionCategoryIs": 17,
+        "CardActionTargetIsOwner": 18,
+        "DeathKillerIsOwner": 19,
+        "DeathVictimHasCards": 20,
+        "CardActionCardIsRed": 21,
+        "DamageCardIsSlash": 22,
+        "OwnerIsTurnPlayer": 23,
+        "CardActionFromOwnerHand": 24,
+        "DamageSourceIsOwner": 25,
+        "DamageSourceFactionIs": 26,
+        "FaceDown": 27,
+        "CardActionMatchesPreviousPlayCard": 28,
+        "OwnerKilledThisTurn": 550,
+        "CardActionCardIsBlack": 800,
+        "DamageSourceGenderIs": 801,
+        "HasUnfulfilledPlayPhaseColorRestriction": 803,
+        "DamageNatureIs": 804,
+        "CardActionSuitIs": 901,
+        "DeathExtinguishedFaction": 1020,
+        "DiscardPhaseSuitsAllDistinct": 1021,
+        "OtherDamageSourceAlive": 1022,
+        "DamageSourcePairUnused": 1023,
+        "PreviousPlayCardIsBasic": 1024,
+        "PhaseIsPlay": 1025,
+        "CardActionOpponentIsOwner": 1026,
+        "TurnOwnerFactionIs": 1027,
+        "FengjiRoundChoicePending": 1028,
+        "FengjiSwapAvailable": 1029,
+        "TurnOwnerUsedSameSuitCards": 1030,
+        "TurnDiscardIncludesAllSuits": 1660,
+        "CardActionActualTurnUseOrdinalIs": 11000,
+        "HealthChangeKindIs": 20321
+      }
+    },
+    {
+      "name": "CardGame.Core.SkillProgramTriggerSubject",
+      "values": {
+        "Owner": 0,
+        "Any": 1,
+        "Source": 2,
+        "DamageSource": 3,
+        "DamageTarget": 4
+      }
+    },
+    {
+      "name": "CardGame.Core.SkillProgramTriggerValueKind",
+      "values": {
+        "IntegerConstant": 0,
+        "CardsUsedThisTurn": 1,
+        "CurrentHp": 2,
+        "CurrentMaxHp": 3,
+        "CurrentHandCount": 4,
+        "CurrentOwnedZoneCount": 5,
+        "MovedCardCount": 6,
+        "SourceZoneCountBefore": 7,
+        "SourceZoneCountAfter": 8,
+        "EventTargetHp": 9,
+        "CardUseDesignatedTargetCount": 10,
+        "SourceToTargetDistanceAtDamage": 11,
+        "EventTargetMaxHp": 12,
+        "EventTargetHandCount": 13,
+        "CurrentAttackRange": 14,
+        "PlayPhaseKillCountByTurnOwner": 15,
+        "PlayPhaseDamageDealtByTurnOwner": 16,
+        "OwnerEventTargetDistance": 17,
+        "DestinationZoneCountBefore": 18,
+        "DestinationZoneCountAfter": 19,
+        "HpChangeAmount": 20,
+        "HpBeforeChange": 21,
+        "HpAfterChange": 22,
+        "OwnerAttributedMarkerCount": 23,
+        "CardsUsedOrRespondedThisTurn": 24,
+        "LivingPlayersMinHp": 25,
+        "TurnOwnerDiscardPhaseHandDiscardCount": 26,
+        "DamageInstancesTakenThisTurn": 27,
+        "CardActionPhysicalCardCount": 400,
+        "MarkerParity": 450,
+        "LivingWoundedCount": 451,
+        "GlobalMarkerCount": 452,
+        "OwnerLostHp": 600,
+        "CardActionHandCardCount": 601,
+        "PlayPhaseDamageTakenByAny": 900,
+        "CurrentTurnNonConvertedUseCount": 1030,
+        "EventTargetMarkerCount": 1280,
+        "CurrentAvailableEquipmentSlotCount": 1400,
+        "CurrentHandCountMinusHp": 1660,
+        "TurnOwnerDamageDealtThisTurn": 2800,
+        "EventSourceMarkerCount": 3101,
+        "TurnOwnerSlashUseCount": 3102,
+        "TurnOwnerHp": 3103,
+        "RoundTurnSeatCount": 3104,
+        "EventTargetDamageInstancesTakenThisTurn": 4100,
+        "OwnerTrickUsesThisActualTurn": 4400,
+        "ActualTurnDeathCount": 4721,
+        "MovedEquipmentCardCount": 5000,
+        "CurrentActualPlayPhysicalSlashLossCount": 6700,
+        "LivingPlayerCount": 20320
+      }
+    },
+    {
+      "name": "CardGame.Core.SkillProgramTriggerWindow",
+      "values": {
+        "CardUseTargetsFinalized": 0,
+        "CardResponseAccepted": 1,
+        "CardUseBeforeTargetEffects": 2,
+        "CardUseCommitted": 3,
+        "JudgmentReplacing": 4,
+        "JudgmentFinalized": 5,
+        "TurnStartBeforeNormalFlow": 6,
+        "DrawPhaseStarting": 7,
+        "AfterNormalDraw": 8,
+        "SelfDyingResponse": 9,
+        "BeforeDamageApplied": 10,
+        "AfterDamageApplied": 11,
+        "PlayEnding": 12,
+        "DiscardPhaseStarting": 13,
+        "DiscardPhaseEnded": 14,
+        "TurnEnding": 15,
+        "CardsMoved": 16,
+        "OwnerDied": 17,
+        "DyingResponse": 18,
+        "CardUseCompleted": 19,
+        "DamageAppliedBeforeDying": 20,
+        "SlashTargetRedirecting": 21,
+        "SlashBeforeResponse": 22,
+        "SlashFullyDodged": 23,
+        "PlayPhaseStarting": 24,
+        "CardsGained": 25,
+        "DiscardPileReceived": 26,
+        "AfterHpLost": 27,
+        "AfterHpRecovered": 28,
+        "CharacterDied": 29,
+        "GameStarting": 400,
+        "DyingEntered": 401,
+        "DyingExited": 402,
+        "SkillsChanged": 500,
+        "AfterHealthChanged": 600,
+        "DyingEntering": 660,
+        "JudgmentPhaseStarting": 800,
+        "CharacterTurnedFaceUp": 820,
+        "CharacterEnteredChain": 821,
+        "DrawPhaseEnded": 1140,
+        "ProgramTargetCommitted": 1260,
+        "FirstGameDomainCrossing": 1540,
+        "AfterTurnEnded": 1643,
+        "CardEffectBeforeApply": 1700,
+        "CharacterTurnedOver": 2900,
+        "DrawPhaseSkipped": 3800,
+        "OtherActualUseTargeted": 5600,
+        "OtherActualTurnStarted": 6400,
+        "ActualSlashTargetBenefit": 7000,
+        "SlashDodgeCancelledBenefit": 7001,
+        "ActualSlashTargetPenalty": 7340,
+        "RoundStarting": 7341,
+        "CardResponseCompleted": 9050,
+        "CardSupplyCompleted": 9051
+      }
+    },
+    {
+      "name": "CardGame.Core.SkillProgramTurnOwnerScope",
+      "values": {
+        "Own": 0,
+        "OtherLiving": 1,
+        "AnyLiving": 4720,
+        "OwnOrPreviousLiving": 5300,
+        "EarnedActualEnding": 5601,
+        "PaidPrepDiscardEnding": 6600,
+        "IssuedFixedDistanceEnding": 8600
+      }
+    },
+    {
+      "name": "CardGame.Core.SkillProgramTurnPhase",
+      "values": {
+        "Judgment": 0,
+        "Draw": 1,
+        "Play": 2,
+        "Discard": 3
+      }
+    },
+    {
+      "name": "CardGame.Core.SkillProgramTurnSkillExpiry",
+      "values": {
+        "ActualTurnEnd": 1
+      }
+    },
+    {
+      "name": "CardGame.Core.SkillRuleOperation",
+      "values": {
+        "Add": 0,
+        "Set": 1,
+        "Unlimited": 2
+      }
+    },
+    {
+      "name": "CardGame.Core.SkillRuleQuery",
+      "values": {
+        "DrawCount": 0,
+        "HandLimit": 1,
+        "SlashLimit": 2,
+        "OutgoingDistance": 3,
+        "IncomingDistance": 4,
+        "SlashDistanceLimit": 5,
+        "AttackRange": 6,
+        "CardTargetCount": 7,
+        "CardUseDistanceLimit": 8,
+        "CardEffectImmunity": 630,
+        "InitialHandSize": 5600
+      }
+    },
+    {
+      "name": "CardGame.Core.SkillRuleQueryDependency",
+      "values": {
+        "MarkerState": 0
+      }
+    },
+    {
+      "name": "CardGame.Core.SkillRuleValueExpression",
+      "values": {
+        "LivingFactionCount": 0,
+        "OwnedZoneCount": 1,
+        "OwnerLostHp": 2,
+        "NegatedOwnedZoneCount": 3,
+        "NegatedOwnerLostHp": 900,
+        "OwnerMarkerCount": 2600,
+        "CurrentTurnUsedHandSuitCount": 4600,
+        "PublicLivingFactionCount": 5200,
+        "OwnerMaxHp": 5600
+      }
+    },
+    {
+      "name": "CardGame.Core.SkillTag",
+      "values": {
+        "None": 0,
+        "Lord": 1,
+        "Locked": 2,
+        "Limited": 4,
+        "Awakening": 8,
+        "Conversion": 16
+      }
+    },
+    {
+      "name": "CardGame.Core.SkillUsageScope",
+      "values": {
+        "Game": 0,
+        "Round": 1,
+        "Turn": 2,
+        "Phase": 3,
+        "Event": 4
+      }
+    },
+    {
+      "name": "CardGame.Core.SlashTargetBenefitDraftStage",
+      "values": {
+        "ChoosingBenefit": 0,
+        "ChoosingDiscard": 1,
+        "PaidChildren": 2,
+        "Complete": 3
+      }
+    },
+    {
+      "name": "CardGame.Core.SlashTargetBenefitReturn",
+      "values": {
+        "FinalizedSlash": 0,
+        "LegacyVirtualSlash": 1,
+        "DodgeCancelled": 2,
+        "AfterActualTargetsSlash": 3,
+        "AfterActualTargetsLegacy": 4
+      }
+    },
+    {
+      "name": "CardGame.Core.SlashTargetBenefitStage",
+      "values": {
+        "Offered": 0,
+        "Declined": 1,
+        "Paid": 2,
+        "CancellationQualified": 3,
+        "Settled": 4,
+        "Cancelled": 5
+      }
+    },
+    {
+      "name": "CardGame.Core.SlashTargetPenaltyReturn",
+      "values": {
+        "FinalizedSlash": 0,
+        "LegacySlash": 1,
+        "AfterActualTargetsSlash": 2,
+        "AfterActualTargetsLegacy": 3
+      }
+    },
+    {
+      "name": "CardGame.Core.SlashTargetPenaltyStage",
+      "values": {
+        "Offered": 0,
+        "CostChildren": 1,
+        "RewardChildren": 2,
+        "Complete": 3,
+        "Cancelled": 4
+      }
+    },
+    {
+      "name": "CardGame.Core.SoleTargetProtectionStage",
+      "values": {
+        "ChoosingCost": 0,
+        "CostChildren": 1,
+        "ChoosingBranch": 2,
+        "DrawChildren": 3,
+        "QuarantineChildren": 4,
+        "Finished": 5
+      }
+    },
+    {
+      "name": "CardGame.Core.SourceCurseStage",
+      "values": {
+        "DepositChildren": 0,
+        "DrawChildren": 1,
+        "ObtainChildren": 2,
+        "LossHpChildren": 3
+      }
+    },
+    {
+      "name": "CardGame.Core.Suit",
+      "values": {
+        "Spade": 0,
+        "Heart": 1,
+        "Club": 2,
+        "Diamond": 3,
+        "None": 500
+      }
+    },
+    {
+      "name": "CardGame.Core.SuitPreventionBenefitBranch",
+      "values": {
+        "DamageAndDraw": 0,
+        "LoseHpAndGift": 1
+      }
+    },
+    {
+      "name": "CardGame.Core.SuitPreventionBenefitStage",
+      "values": {
+        "ChoosingCost": 0,
+        "ChoosingRecipient": 1,
+        "CostPaid": 2,
+        "Damaging": 3,
+        "LosingHp": 4,
+        "Drawing": 5,
+        "Gifting": 6,
+        "Finished": 7
+      }
+    },
+    {
+      "name": "CardGame.Core.TurnDefaultStatKind",
+      "values": {
+        "DrawCount": 0,
+        "AttackRange": 1,
+        "SlashLimit": 2,
+        "HandLimit": 3
+      }
+    },
+    {
+      "name": "CardGame.Core.TurnEndingBoundaryItemKind",
+      "values": {
+        "Program": 0,
+        "GiftRetention": 1460
+      }
+    },
+    {
+      "name": "CardGame.Core.TurnPhase",
+      "values": {
+        "NotStarted": 0,
+        "Draw": 1,
+        "Play": 2,
+        "Discard": 3,
+        "Finished": 4
+      }
+    },
+    {
+      "name": "CardGame.Core.UnequalHandHpStage",
+      "values": {
+        "Target": 0,
+        "Action": 1,
+        "Discard": 2,
+        "AdjustmentChildren": 3,
+        "RewardChildren": 4,
+        "Gift": 5,
+        "GiftChildren": 6
+      }
+    },
+    {
+      "name": "CardGame.Core.UniqueHpPeerStage",
+      "values": {
+        "SelectingCost": 0,
+        "CostChildren": 1,
+        "DrawChildren": 2,
+        "PeerOffer": 3,
+        "Complete": 4
+      }
+    },
+    {
+      "name": "CardGame.Core.Winner",
+      "values": {
+        "None": 0,
+        "LordAndLoyalists": 1,
+        "Rebels": 2,
+        "Renegade": 3,
+        "Draw": 4,
+        "TeamA": 5,
+        "TeamB": 6,
+        "NationalFactionA": 7,
+        "NationalFactionB": 8,
+        "NationalFactionC": 9
+      }
+    },
+    {
+      "name": "CardGame.Core.YingboGiftContinuation",
+      "values": {
+        "Attack": 0,
+        "GroupAttack": 1
+      }
+    },
+    {
+      "name": "CardGame.Core.YujuePendingStage",
+      "values": {
+        "SlotPaid": 0,
+        "GiftPaid": 1
+      }
+    }
+  ]
+}

@@ -1,0 +1,324 @@
+{
+  "date": "2026-10-13",
+  "status": "batch-complete",
+  "objective": "持续增加完整武将并检查共享机制；本组完成，持续目标保持 active",
+  "generals": [
+    {
+      "id": "ol:zhang-lu",
+      "name": "张鲁·OL",
+      "officialHeroId": 343,
+      "skills": [
+        "义舍",
+        "布施",
+        "米道"
+      ],
+      "mechanismChecks": 6,
+      "source": "docs/content/sources/ol-zhang-lu-2026-10-13.json"
+    },
+    {
+      "id": "ol:wang-rong",
+      "name": "王荣·OL",
+      "officialHeroId": 344,
+      "skills": [
+        "丰姿",
+        "吉占",
+        "赋颂"
+      ],
+      "mechanismChecks": 16,
+      "source": "docs/content/sources/ol-wang-rong-2026-10-13.json",
+      "checkCountNote": "15 owned checks plus the independently authored paid source-loss/owner-death mechanism check."
+    },
+    {
+      "id": "ol:shi-xie",
+      "name": "士燮·OL",
+      "officialHeroId": 345,
+      "skills": [
+        "避乱",
+        "礼下"
+      ],
+      "mechanismChecks": 6,
+      "source": "docs/content/sources/ol-shi-xie-2026-10-13.json"
+    }
+  ],
+  "entrypoints": "Complete content, namespaced official portraits, art catalogue and playable gallery details are registered for all three. Gallery grouping remains other; exact official pack classification is not asserted.",
+  "focused": {
+    "summary": "docs/benchmarks/2026-10-13-batch-5-final-focused-summary.json",
+    "status": "passed",
+    "mode": "targeted",
+    "durationMs": 9529,
+    "core": {
+      "passed": 29,
+      "failed": 0,
+      "evidence": "docs/benchmarks/2026-10-13-batch-5-final-focused-core-selected.log.txt"
+    },
+    "wpf": {
+      "passed": 2,
+      "failed": 0,
+      "evidence": "docs/benchmarks/2026-10-13-batch-5-final-focused-wpf-selected.log.txt"
+    },
+    "scope": "28 new shared-mechanism behavior checks plus existing typed continuation registration, and one new actual bound Wine badge check plus extended existing edition-gallery coverage.",
+    "steps": [
+      {
+        "name": "Build selected scope",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 5644,
+        "log": "docs/benchmarks/2026-10-13-batch-5-final-focused-build.log.txt",
+        "originalRuntimeLog": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\build.log"
+      },
+      {
+        "name": "Core selected checks (4 filters, union)",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 3455,
+        "log": "docs/benchmarks/2026-10-13-batch-5-final-focused-core-selected.log.txt",
+        "startedAt": "2026-10-13T21:54:09.2457599+08:00",
+        "endedAt": "2026-10-13T21:54:12.7007786+08:00",
+        "processId": 7932,
+        "originalRuntimeLog": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\core-selected.log"
+      },
+      {
+        "name": "WPF selected checks (2 filters, union)",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 3563,
+        "log": "docs/benchmarks/2026-10-13-batch-5-final-focused-wpf-selected.log.txt",
+        "startedAt": "2026-10-13T21:54:09.2624694+08:00",
+        "endedAt": "2026-10-13T21:54:12.8250242+08:00",
+        "processId": 35952,
+        "originalRuntimeLog": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\wpf-selected.log"
+      }
+    ]
+  },
+  "routine": {
+    "summary": "docs/benchmarks/2026-10-13-batch-5-routine-summary.json",
+    "status": "passed",
+    "mode": "routine",
+    "durationMs": 88356,
+    "core": {
+      "passed": 586,
+      "failed": 0,
+      "evidence": "docs/benchmarks/2026-10-13-batch-5-routine-core-selected.log.txt"
+    },
+    "wpf": {
+      "passed": 76,
+      "failed": 0,
+      "evidence": "docs/benchmarks/2026-10-13-batch-5-routine-wpf-selected.log.txt"
+    },
+    "scope": "Prescribed name-filter union from tools/VerificationScopes.psd1 via tools/Test-Changed.ps1 without explicit filters. Not Full or unfiltered test assembly execution.",
+    "steps": [
+      {
+        "name": "Build selected scope",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 1205,
+        "log": "docs/benchmarks/2026-10-13-batch-5-routine-build.log.txt",
+        "originalRuntimeLog": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\build.log"
+      },
+      {
+        "name": "Core selected checks (322 filters, union)",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 81770,
+        "log": "docs/benchmarks/2026-10-13-batch-5-routine-core-selected.log.txt",
+        "startedAt": "2026-10-13T21:54:34.5023501+08:00",
+        "endedAt": "2026-10-13T21:55:56.2721123+08:00",
+        "processId": 90532,
+        "originalRuntimeLog": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\core-selected.log"
+      },
+      {
+        "name": "WPF selected checks (42 filters, union)",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 86808,
+        "log": "docs/benchmarks/2026-10-13-batch-5-routine-wpf-selected.log.txt",
+        "startedAt": "2026-10-13T21:54:34.5228143+08:00",
+        "endedAt": "2026-10-13T21:56:01.3308763+08:00",
+        "processId": 74376,
+        "originalRuntimeLog": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\wpf-selected.log"
+      }
+    ],
+    "acceptanceBoundary": "586 Core / 76 WPF passing is evidence for the recorded earlier stable source snapshot. Two shared files subsequently changed; the current source is covered by the fresh 40 Core / 5 WPF related focused run, not another complete routine or Full."
+  },
+  "rulesAndMechanisms": [
+    "Rice uses real source-instance public piles, true Ending draw/HE storage, one incoming/outgoing beneficiary option per damage point, exact public-rice judgment replacement and recovery after the last actual rice movement.",
+    "Courtesy and faction distance changes are permanent directed numeric adjustments; issued benefits survive source removal, use current live-faction count after paid children, and coexist with fixed-distance priority.",
+    "Fengzi performs one extra complete effect round under the same actual Use and ActionId with one hand cost, one native acceptance and completion; second responses/nullification are actual new native windows.",
+    "Stacked Wine uses numeric damage bonus while preserving the original boolean 0/1 meaning. Optional public AlcoholDamageBonus is emitted only for stacked values; actual WPF bound badges show the public bonus and clear normally.",
+    "Rank guessing resets the current actual Draw plan, preserves later same-window independent draw adjustments, reveals real top entities, uses strict comparisons including ties, supports optional continuation after a correct guess, and gains all revealed entities including failed comparison.",
+    "Death granting preserves the dead owner's optional recipient choice, then requires the chosen recipient to select exactly Fengzi or Jizhan. Real recipient-owned selection, permanent grants, owner decline and cold recovery are verified."
+  ],
+  "concreteRepairs": [
+    {
+      "issue": "New ordinary extra-effect content could commit a real global trick without CardActionAcceptedEvent.",
+      "repair": "The new operation explicitly opts eligible basic/ordinary-trick actions into the existing finalized native acceptance window, retaining once-only gates and the no-new-cap historical route.",
+      "evidence": "docs/benchmarks/2026-10-13-batch-5-eighth-focused-core-selected.log.txt"
+    },
+    {
+      "issue": "The new death-grant binding started but its dead-owner target was skipped by the executor.",
+      "repair": "Add only DeathRecipientChooseSkill in the existing exact OwnerDied dead-target allowlist.",
+      "evidence": "docs/benchmarks/2026-10-13-batch-5-ninth-focused-core-selected.log.txt"
+    },
+    {
+      "issue": "First-round legitimate Jianxiong material acquisition conflicted with extra-round Processing requirements.",
+      "repair": "Store immutable scalar claim receipts on the owning extra-use frame. Require the same use/action, exact damage candidate and producer, actual claim event and exact Processing-to-recipient-Hand movement; reuse this proof for second trick/group/nullification and Slash material validation.",
+      "red": "docs/benchmarks/2026-10-13-batch-5-claimed-material-red-core-selected.log.txt",
+      "oldFlowControl": "docs/benchmarks/2026-10-13-batch-5-claimed-material-old-flow-core-selected.log.txt",
+      "green": "docs/benchmarks/2026-10-13-batch-5-claimed-material-green-core-selected.log.txt",
+      "causalityLimit": "The red exception surfaced as a top-Damage-frame mismatch in a nested native continuation. The red stack alone is not proof of a historical damage-frame bug. No Damage pop or global historical flow was loosened; the old no-new-cap control passed, and the exact same claimed-extra fixture plus claimed Slash passed after the scoped proof repair."
+    },
+    {
+      "issue": "Wine bonus text initially existed only in view-model properties unused by the real main-window bindings.",
+      "repair": "Expose stacked bonus through the actual bound public-state/deferred badge properties, including tooltip, old boolean fallback and clearing.",
+      "evidence": "docs/benchmarks/2026-10-13-batch-5-third-focused-wpf-selected.log.txt"
+    }
+  ],
+  "developmentEvidence": {
+    "initialCompleteFocused": "docs/benchmarks/2026-10-13-batch-5-before-claimed-material-focused-summary.json",
+    "initialCompleteCounts": "26 Core and 2 WPF passed before the audit-discovered claim combination was added.",
+    "earlierFailures": "First through ninth focused logs and the courtesy diagnostic logs are retained. Early loader/capability failures were corrected in fixtures/content without relaxing loader contracts or removing behavior assertions.",
+    "courtesyLimit": "Earlier three actual movement-watch fixtures initially failed, then instrumented and clean current source passed. No specific production root cause or repair is confirmed, and all temporary production diagnostics were removed."
+  },
+  "sourceStability": {
+    "before": "docs/benchmarks/2026-10-13-batch-5-final-source-before.json",
+    "after": "docs/benchmarks/2026-10-13-batch-5-final-source-after.json",
+    "comparison": "docs/benchmarks/2026-10-13-batch-5-final-source-comparison.json",
+    "paths": 2365,
+    "changed": 0,
+    "scope": "Repository CSharp, rules/resources JSON, XAML, projects/build configuration and verification-tool sources, plus three portraits/art catalogue. Cleanup queue is deliberately excluded; external SDK/native dependencies and ignored build inputs are not captured."
+  },
+  "enumCompatibility": {
+    "oldEnums": 211,
+    "oldMembers": 1988,
+    "differences": [],
+    "evidence": "docs/benchmarks/2026-10-13-batch-5-final-enum-compatibility.json",
+    "coreAssemblySha256": "7069CADB1EDE1DAB69D48DC8F22EA55E01D1F35BD15C88A57B15E03F0D1D72F4",
+    "snapshot": "Latest shared-source refresh rebuilt binary; earlier routine binary evidence is separately retained.",
+    "earlierRoutineEvidence": "docs/benchmarks/2026-10-13-batch-5-routine-enum-compatibility.json"
+  },
+  "roster": {
+    "before": 378,
+    "after": 381,
+    "added": [
+      "ol:zhang-lu",
+      "ol:wang-rong",
+      "ol:shi-xie"
+    ],
+    "removed": [],
+    "evidence": "docs/benchmarks/2026-10-13-batch-5-roster-comparison.json",
+    "registryEvidence": "docs/benchmarks/2026-10-13-batch-5-final-roster.json"
+  },
+  "versions": {
+    "rulesVersion": 219,
+    "rulesSchemaVersion": 62,
+    "sources": [
+      "src/CardGame.Core/Replay.cs",
+      "src/CardGame.Core/SkillPrograms.cs"
+    ],
+    "policy": "No per-character epoch, schema or package-version increment. New operation paths are explicit opt-ins; the tested no-new-cap native claim route remains unchanged."
+  },
+  "officialEvidence": {
+    "localHashedFiles": 14,
+    "comparedToRecordedExpectedHashes": 11,
+    "hashMismatches": 0,
+    "report": "docs/benchmarks/2026-10-13-batch-5-source-evidence-hashes.json",
+    "scope": "Three extracted client/release excerpts have local current hashes without separate recorded expected hashes; unretained full raw client/config/news hashes are provenance-only."
+  },
+  "audits": [
+    "docs/benchmarks/2026-10-13-batch-5-extra-effects-readonly-audit.json",
+    "docs/benchmarks/2026-10-13-shi-xie-extra-effect-readonly-audit.json",
+    "docs/benchmarks/2026-10-13-extra-foreign-selection-readonly-audit.json",
+    "docs/benchmarks/2026-10-13-extra-effect-material-claims-readonly-audit.json"
+  ],
+  "visuallyInspectedRenders": [
+    "docs/benchmarks/2026-10-13-ol-zhang-lu-gallery.png",
+    "docs/benchmarks/2026-10-13-ol-wang-rong-gallery.png",
+    "docs/benchmarks/2026-10-13-ol-shi-xie-gallery.png",
+    "docs/benchmarks/2026-10-13-alcohol-stacked-bonus.png"
+  ],
+  "timingLimit": "88.356-second prescribed routine includes an incremental build and remains above the approximately one-minute target. No arbitrary coverage pruning or Full was used.",
+  "acceptanceLimits": [
+    "Real accepted Core commands, cold restored-engine continuations, frozen committed events and actual WPF controls/renders are scoped evidence. No manual complete match, foreground desktop, multi-DPI or physical speaker acceptance was performed.",
+    "Whole first-target-round then whole second-target-round ordering is an explicit implementation interpretation; no same-current-version official combination FAQ was found.",
+    "Optional stop after a correct rank guess is supported by the official 2021 same ordinary OL release; current client text is abbreviated. This is not a current official combination FAQ.",
+    "Pure played Dodge and standalone response-use Nullification are excluded through existing response boundaries; same-version primary classification FAQ was not located.",
+    "Representative actual extra effects cover Slash, zero-entity Slash, Peach, stacked Wine, global attacks, second Snatch, second nullification and Five Grains leftovers. Other ordinary-trick handlers, Fangtian/redirect/actual-actor-change combinations and all multi-material claim combinations were statically integrated/reviewed rather than individually exercised.",
+    "Legitimate single physical material claims are exercised with native Slash and ArrowBarrage, including second global counterspell and cold recovery. This does not claim every later material movement, material conversion or supplied-use combination is exercised.",
+    "The alcohol screenshot uses a public DTO sample through the actual bound MainWindow. Real engine stacked Wine/next Slash and snapshot bonus are verified separately; the render is not a manual foreground match.",
+    "586 Core / 76 WPF passing is evidence for the recorded earlier stable source snapshot. Two shared files subsequently changed; the current source is covered by the fresh 40 Core / 5 WPF related focused run, not another complete routine or Full."
+  ],
+  "cleanup": {
+    "status": "retained-policy-blocked",
+    "noDeletionRetry": true,
+    "newTemporaryDirectories": 0,
+    "queue": "tools/cleanup_queue.json",
+    "evidence": "docs/benchmarks/2026-10-13-batch-5-retained-output-check.json",
+    "paths": [
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin",
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\obj",
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders",
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\card-ui-check"
+    ],
+    "reason": "Earlier automatic approval review rejected recursive cleanup as blocked by policy. All four exact paths still exist and are registered; unrelated queue records were preserved, no deletion was retried and no freed-space claim is made.",
+    "entries": [
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin",
+        "added_at": "2026-10-13T05:30:23.701278+08:00",
+        "root": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f",
+        "reason": "Automatic approval review rejected recursive removal as blocked by policy; no deletion retry. Exact shared verification output retained for manual cleanup.",
+        "lock_root": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f"
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\obj",
+        "added_at": "2026-10-13T05:30:23.701308+08:00",
+        "root": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f",
+        "reason": "Automatic approval review rejected recursive removal as blocked by policy; no deletion retry. Exact shared verification output retained for manual cleanup.",
+        "lock_root": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f"
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders",
+        "added_at": "2026-10-13T05:50:19.837803+08:00",
+        "root": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f",
+        "reason": "Automatic approval review rejected recursive removal as blocked by policy; no deletion retry. Exact shared verification output retained for manual cleanup.",
+        "lock_root": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f"
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\card-ui-check",
+        "added_at": "2026-10-13T18:07:45.171195+08:00",
+        "root": "C:\\Users\\17917\\AppData\\Local\\Temp",
+        "reason": "Automatic approval review rejected recursive removal as blocked by policy; no deletion retry. Earlier direct WPF render output is retained; required screenshots are preserved in docs/benchmarks.",
+        "lock_root": "C:\\Users\\17917\\AppData\\Local\\Temp\\card-ui-check"
+      }
+    ],
+    "unrelatedQueueEntriesPreserved": true
+  },
+  "notPerformed": [
+    "manual Full",
+    "release/publish/packaging",
+    "commit",
+    "push"
+  ],
+  "goalStatus": "active",
+  "completedAt": "2026-10-13T22:07:54.6107739+08:00",
+  "latestSharedSourceRefresh": {
+    "status": "passed",
+    "corePassed": 40,
+    "wpfPassed": 5,
+    "failed": 0,
+    "durationMs": 22940,
+    "summary": "docs/benchmarks/2026-10-13-batch-5-latest-focused-summary.json",
+    "coreEvidence": "docs/benchmarks/2026-10-13-batch-5-latest-focused-core-selected.log.txt",
+    "wpfEvidence": "docs/benchmarks/2026-10-13-batch-5-latest-focused-wpf-selected.log.txt",
+    "sourceBefore": "docs/benchmarks/2026-10-13-batch-5-latest-source-before.json",
+    "sourceAfter": "docs/benchmarks/2026-10-13-batch-5-latest-source-after.json",
+    "comparison": "docs/benchmarks/2026-10-13-batch-5-latest-source-comparison.json",
+    "sourcePaths": 2365,
+    "sourceChangedDuringRun": 0,
+    "changedSinceEarlierRoutine": [
+      "src/CardGame.Core/GameEngine.SequentialTrickTargets.cs",
+      "src/CardGame.Wpf/ViewModels/MainViewModel.Presentation.cs"
+    ],
+    "scope": "Whole new batch plus existing targeted/unique-leader sequential tricks and actual composed/conversion UI state checks.",
+    "ownership": "Later changes were preserved; their author is not inferred from time stamps."
+  }
+}

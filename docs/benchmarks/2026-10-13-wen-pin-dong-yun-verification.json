@@ -1,0 +1,121 @@
+{
+  "task": "01a13335-a035-7480-bc21-c675f0ea06a5",
+  "date": "2026-10-13",
+  "scope": "持续武将扩展的完成检查点：当前官网版本文聘和董允完整接入，持续目标保持active。",
+  "addedGenerals": [
+    {
+      "id": "ol:wen-pin",
+      "name": "文聘·OL",
+      "skills": [
+        "镇卫"
+      ],
+      "edition": "官网hero/136当前完整版本，杀或黑色锦囊，含黑色延时锦囊。",
+      "source": "docs/content/sources/ol-wen-pin-2026-10-13.json",
+      "render": "docs/benchmarks/2026-10-13-ol-wen-pin-gallery.png"
+    },
+    {
+      "id": "ol:dong-yun",
+      "name": "董允·OL",
+      "skills": [
+        "秉正",
+        "舍宴"
+      ],
+      "edition": "官网hero/369当前完整版本，舍宴包含追加和对目标无效，借刀不套用旧版排除。",
+      "source": "docs/content/sources/ol-dong-yun-2026-10-13.json",
+      "render": "docs/benchmarks/2026-10-13-ol-dong-yun-gallery.png"
+    }
+  ],
+  "mechanisms": [
+    "镇卫依据当前实际用牌者、唯一存活主目标和HP资格发动，支付一张真实本人手牌或装备并排空成本子结算；借刀副目标不计为锦囊主目标。",
+    "摸牌后替换保留同Use/action/provider/materials，更新原生攻击、预备攻击和真实目标，跳过被移走的旧目标候选，再为新目标收集真实目标技能。已付精确源每次Use只发动一次，独立来源可以连续保护。",
+    "镇卫替换后重新开放新目标的流离：拥有帧保存已递增的finalized候选游标、实际目标槽和原生攻击游标，临时复用原有重定向窗口，真实付款后恢复；不重开已处理的旧候选、不重复镇卫费用。界疠火的原有目标重建也消费精确新替换和重定向事实。",
+    "隔离分支令本次Use无效，把真实在用实体移至OutsideGame，零实体不虚构材料，多实体沿同一精确收据处理。原生完成路径承认已隔离材料，仍产生一次真正用牌完成。",
+    "黑色延时牌placement新增可选typed桥，实际成本子结算与CardUseCommitted先结束，再进入目标保护，返回真实原生放置；同时覆盖原生实体与既有转换生产者。",
+    "隔离收据按实际TurnEnded进入DeferredTurnEnd拥有游标，归还真实存活用牌者并排空真实获得子窗，再进入AfterTurnEnded；provider与用牌者不同仍归还用牌者。使用者死亡或游戏结束则进入弃牌堆，技能来源消失不撤销已付权益。",
+    "秉正允许本人或其他手牌数与HP不同的存活角色；拥有者选择摸或弃，目标私下选择自己的实际手牌。真实移动、回复、伤害、濒死及技能丢失子窗返回后，再以最新手牌/HP判断一次奖励和可选手牌/装备赠牌。",
+    "舍宴追加合法目标或令任意当前主目标效果无效，保留原目标身份和Use材料；选择时重新计算至少保留一个有效主目标。借刀按pair追加，但牌效只按主目标判无效，随后出杀有自己的实际目标和防御。五谷保留原目标数用于亮牌。",
+    "两项董允操作的AI以安全快照公开手牌数量、HP及既有牌效估值选择，不检查敌方手牌身份。仅含新能力的独立目录也捕获真实花色、点数与牌色，避免完整目录其他能力掩盖遗漏。",
+    "新付款、材料、目标和选择收据冻结嵌套集合，公开事件在commit preparation深冻结；实际观察者修改尝试、错误角色输入和冷恢复均有聚焦覆盖。"
+  ],
+  "focused": {
+    "status": "passed",
+    "passed": 17,
+    "failed": 0,
+    "durationMs": 18451,
+    "buildMs": 14223,
+    "coreMs": 3915,
+    "ownNewBehaviorChecks": 11,
+    "ownNewBehaviorBreakdown": {
+      "soleTargetProtection": 4,
+      "targetedTrickHandHp": 7
+    },
+    "relatedChecks": "3项既有共享continuation/composition检查，以及并行amount-cache会话加入同前缀的3项legacyBenxi返回回归。不得将这3项其他会话的修复归为本任务独立实现。",
+    "summary": "docs/benchmarks/2026-10-13-wen-pin-dong-yun-focused-summary.json",
+    "log": "docs/benchmarks/2026-10-13-wen-pin-dong-yun-focused-core.txt"
+  },
+  "routine": {
+    "status": "passed",
+    "durationMs": 187400,
+    "buildMs": 6189,
+    "core": {
+      "passed": 535,
+      "failed": 0,
+      "durationMs": 87168
+    },
+    "wpf": {
+      "passed": 74,
+      "failed": 0,
+      "durationMs": 93724
+    },
+    "scope": "tools/Test-Changed.ps1的指定routine（316个Core名字过滤、40个WPF名字过滤的各自并集），不是全部注册检查或manual Full。",
+    "oneMinuteTargetMet": false,
+    "summary": "docs/benchmarks/2026-10-13-wen-pin-dong-yun-routine-summary.json",
+    "coreLog": "docs/benchmarks/2026-10-13-wen-pin-dong-yun-routine-core.txt",
+    "wpfLog": "docs/benchmarks/2026-10-13-wen-pin-dong-yun-routine-wpf.txt"
+  },
+  "compatibility": {
+    "oldEnumValues": "对照本批前保存的git HEAD公开枚举基线，53个枚举的968个既有成员数值全部保持。新节点使用显式尾部值。",
+    "enumEvidence": "docs/benchmarks/2026-10-13-wen-pin-dong-yun-enum-compatibility.json",
+    "sourceHashes": "docs/benchmarks/2026-10-13-wen-pin-dong-yun-source-hashes.json",
+    "sourceStability": "常规验证结束后52个记录的相关源码/测试/注册/规则/立绘文件哈希仍与记录一致。",
+    "versions": "本任务未按新增人物提高规则epoch、规则JSON schema或内容包版本；新增能力由内容指纹区分，旧目录没有新能力时保留旧路径。",
+    "concurrentRulesCorrection": "并行amount-cache会话修复相同内容指纹下旧虚拟用牌派发和Benxi/流离返回，已按回放边界提升Replay.cs规则epoch并加入3项回归。本任务保留其工作，并在当前共同源码上复验；版本数值只以源文件为准。",
+    "concurrentEvidence": "docs/benchmarks/2026-10-13-amount-cache-verification.json: CoreCompatibilityCorrection",
+    "sourceEvidence": "docs/benchmarks/2026-10-13-wen-pin-dong-yun-source-evidence.json"
+  },
+  "intermediateFailures": [
+    "初版目标替换引用了不存在的SequentialTrickTail字段，移除并改用精确已付目标事实证明。",
+    "新Resume排序曾与旧NamedDefense处理器重号；改新处理器的唯一序号，旧顺序不动，continuation注册检查通过。",
+    "早期夹具使用不支持的active虚拟杀、非法trigger技能替换及未知continue标签；改为现有真实合法入口，没有放宽loader或生产校验。",
+    "起手数量、LordHP、自动AI推进及真实濒死选择边界按观察纠正；实际source-loss改为原生濒死入口恢复后终结替换，保留冷恢复和费用/收益次数断言。",
+    "独立董允能力目录漏牌色捕获开关，完整目录掩盖；补可选依赖并验证真实牌面。借刀副目标误参与主目标无效判断也已修复并有真实出杀/武器转移证据。",
+    "镇卫的新目标流离及界疠火重建缺口由只读审查指出，已加入帧内typed返回和精确事实消费；原始失败、各阶段摘要及最终全绿日志分别保留。"
+  ],
+  "sourceAndAcceptanceLimits": [
+    "镇卫替换后重新询问新目标技能的明确时机证据来自2015手游官方公告；当前OL未找到同组合FAQ，适用于当前OL的部分明确标为推断。",
+    "付款/摸牌后延时牌接收者死亡、废判定区、重复延时牌或新增禁用时跳过放置并保留已付效果，是现有合法性和续接合同的解释，不称为已查得专门官方FAQ。",
+    "新重定向返回保存原多目标的实际槽与原生游标，死目标槽处理已静态复核；本组没有单独构造其他目标全部死亡后的多目标fixture，不把该组合声称为实际验收。",
+    "常规约187秒，仍未达到项目约一分钟目标；未削减代表性覆盖以掩盖耗时。",
+    "WPF自动化、真实画廊控件和两张详情图已验证；未执行人工完整对局、多DPI前台验收或实际扬声器验收。",
+    "孙鲁育当前同版本止息明文仍未确认，未注册不完整武将；新来源进展见ol-sun-lu-yu-current-derived-source-assessment-2026-10-13.json。"
+  ],
+  "cleanup": {
+    "status": "retained-and-queued",
+    "root": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f",
+    "paths": [
+      "bin",
+      "obj",
+      "renders"
+    ],
+    "reason": "此前自动审批拒绝本任务渲染删除，返回blocked by policy且未给更具体原因；未重试。共享根还包含其他并行会话输出。",
+    "queue": "tools/cleanup_queue.json",
+    "otherDisposablePaths": "无本批独占临时目录；来源原文、立绘、验证摘要、日志、编号/哈希记录和画廊图为交付证据。"
+  },
+  "delivery": {
+    "commit": false,
+    "push": false,
+    "release": false,
+    "publish": false,
+    "manualFull": false
+  }
+}

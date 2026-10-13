@@ -1,0 +1,98 @@
+{
+  "capturedAtUtc": "2026-10-13T14:44:15.469871+00:00",
+  "ownedFiles": [
+    {
+      "path": "src/CardGame.Core/ProgramDamageTargetBudget.cs",
+      "sha256": "664431e52bca0c1f31b3d8af58e30724553ab3d409a2fc4fd33f10d481caa51b"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.DamageTargetBudget.cs",
+      "sha256": "4761e0348f9f8e1c15b3c5055a95a283debd80aefdbafa419806ec30818637dd"
+    },
+    {
+      "path": "src/CardGame.Content.Standard/OlTaDunContent.cs",
+      "sha256": "9c98e50174cf8ac4af2d863c276c72fc1f6b242beb708518f89846ab11da26f2"
+    },
+    {
+      "path": "src/CardGame.Content.Standard/SkillPrograms/ol-ta-dun.rules.json",
+      "sha256": "3aa35708b38be3e6061f654853afd1b5c86c70dcdfd5d8d76bf8ac37af4f79d8"
+    },
+    {
+      "path": "src/CardGame.Content.Standard/SkillPrograms/ol-ta-dun.presentation.json",
+      "sha256": "b3c19e2aebf535b515db5a8b8c095710a8081bc2a1efcaee46c26d5f0a226aa0"
+    },
+    {
+      "path": "tests/CardGame.Core.Tests/DamageTargetBudgetChecks.cs",
+      "sha256": "05f3cd95ee8568f81d86e51ba2941e5228725972ff0ae2584a616c65e3ae9e52"
+    },
+    {
+      "path": "src/CardGame.Wpf/Assets/official-ol-ta-dun.png",
+      "sha256": "7de2b5358cfa5e3e4017a05c6427404475ae1349fac031685e31228240ceb85c"
+    },
+    {
+      "path": "docs/content/sources/ol-ta-dun-2026-10-13.json",
+      "sha256": "d95d9932dc033f74bac29e7d648d7895865f4af29bac6bef907c2871e348610a"
+    },
+    {
+      "path": "docs/content/sources/evidence/ol-ta-dun-347-client-2026-10-13.json",
+      "sha256": "89cb77ef2ea7586b6fb2ceb2fc7a52f81127be43bf010e466381c75b83369f4f"
+    },
+    {
+      "path": "docs/content/sources/evidence/ol-ta-dun-347-info-2026-10-13.json",
+      "sha256": "eeaf55899ce79d98768c400cea98d9cc770e2d547a80ec2efc9e8baf57927570"
+    },
+    {
+      "path": "docs/content/sources/evidence/ol-ta-dun-347-page-2026-10-13.html",
+      "sha256": "f78ea64505763c56ac4fba2ca79680f0f331b7b2c487fff874d519784647ceb5"
+    },
+    {
+      "path": "docs/content/sources/evidence/ol-ta-dun-client-rule-search-2026-10-13.json",
+      "sha256": "b7b5466e4916e5265b9c66e0dce1b7b737036c28e96ba29d187b7739f913c383"
+    }
+  ],
+  "sharedFilesPointInTime": [
+    {
+      "path": "src/CardGame.Core/SkillPrograms.cs",
+      "sha256": "b917a040591fb378005d305d1d44aa69657af150955eca893345d7b800bfe8d1"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.ProgramLifecycle.cs",
+      "sha256": "400d92f8d58290283f8df00b106643cebb0a80ef62a8ada8e8e9a7fc6242eedf"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.SkillPrograms.cs",
+      "sha256": "e2353ac7ca83ad4caadb408a93021c43d50bb149db0bc7c12322d46448b83a86"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.CardActions.cs",
+      "sha256": "48e94ebc433e99e28b463f191c97e8f6b66d0a7c928330128e771ea42f59a6c3"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.DesignatedExtraTargets.cs",
+      "sha256": "204556d982eb78a118084ce73b41c9db3efc166d6307b54135efc8794f02a3b5"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.CompletedCategoryUseProof.cs",
+      "sha256": "6cd5d21db5f707e5ec38151fab9570afd2ef85110dcaeae525ce47c79eb68287"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.SequentialTrickTargets.cs",
+      "sha256": "cac6a01bf9b18fec59eca18709b98d8ff3b65cd0e63a663a08b6a22519422377"
+    },
+    {
+      "path": "src/CardGame.Core/Projection/CommittedEventProjection.cs",
+      "sha256": "bb58cc49061a9f71c512eab8d96045b78dde43f2cfff97e73b61ed222f7232a6"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.ProgramCardUseRoles.cs",
+      "sha256": "f36205b89800b4391af38776f288a430c8a0475d3065db3e33020e912523354b"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.TurnRedSlashBenefits.cs",
+      "sha256": "52ddf7b8fd154be45c26cb23fc642ac0bf057180501fd61b519f92a647a650d1"
+    }
+  ],
+  "scope": "Owned implementation and evidence ready for root centralized compilation; shared hashes are point-in-time and may change during parallel integration, not whole-worktree stability.",
+  "verificationStatus": "no child build/tests; root alone coordinates execution",
+  "temporaryOutputsCreated": []
+}

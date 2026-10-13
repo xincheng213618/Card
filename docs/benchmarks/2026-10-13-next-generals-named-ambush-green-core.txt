@@ -1,0 +1,11 @@
+[PASS] Named ambush and source hand: private names all targets and cold recovery
+[PASS] Named ambush and source hand: delayed and Alcohol finish without effects
+[PASS] Named ambush and source hand: Dodge counterspell retain completed use
+[PASS] Named ambush and source hand: current branches and zero draw
+[PASS] Named ambush and source hand: paid source loss and zero entity eligibility
+[PASS] Named ambush and source hand: consumed entity recorded with new name
+[PASS] Named ambush and source hand: multiple deposits true source loss cleans once
+[PASS] Named ambush and source hand: paid retaliation skill loss and owner death
+[PASS] Named ambush and source hand: invalidated use real actor replacement
+
+9 passed, 0 failed, 0 skipped (9 total).

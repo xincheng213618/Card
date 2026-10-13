@@ -1,0 +1,156 @@
+{
+  "date": "2026-10-13",
+  "reviewer": "general_batch5_shi_xie",
+  "scope": "Read-only static review of the extra-effect same-use material-claim helper and its relevant collection projections. No build, test execution, production/test edits, foreground UI or new fixture verification was performed by this reviewer.",
+  "outcome": "No confirmed material-provenance or collection-projection defect was found in the inspected reachable command/replay paths.",
+  "evidenceBoundary": {
+    "redLog": "docs/benchmarks/2026-10-13-batch-5-claimed-material-red-core-selected.log.txt",
+    "redObservation": "The recorded failure surfaced as a top-Damage-frame mismatch during actual native ArrowBarrage continuation. The red stack alone does not independently prove a causal fix.",
+    "parentReported": "Parent reported the no-extra-effect baseline passing, then native claimed AOE, baseline and claimed Slash passing with the new helper; later reported the full focused scope as 29 Core / 2 WPF passing. This reviewer did not rerun those checks.",
+    "restore": "GameReplay.Restore replays accepted commands against exact rules/content/package metadata; it does not hydrate supplied material-claim frames or event history from a mutable checkpoint."
+  },
+  "findings": [
+    {
+      "paths": [
+        "src/CardGame.Core/GameEngine.ProgramLifecycle.cs",
+        "src/CardGame.Core/GameEngine.ExtraEffectMaterialClaims.cs"
+      ],
+      "lines": [
+        1439,
+        1461,
+        5
+      ],
+      "result": "The first native claim still selects only physical cards on the actual owning damage attempt whose current location is Processing. It moves Processing to the producer owner's Hand, emits the original ProgramDamageCardsClaimedEvent, then captures an extra-effect receipt. Without ExtraCardEffect, capture immediately returns and does not alter ordinary claim selection."
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.ExtraEffectMaterialClaims.cs",
+      "lines": [
+        5,
+        24
+      ],
+      "result": "Capture ties the live CardUse/Action/extra ActionId, exact AfterDamageApplied parent window and damage ID, actual damaged recipient, original physical-cost IDs and one-time movement sequences. Duplicate material capture is rejected. Reuse checks the catalog gameplay hash, exact ClaimDamageCards instruction, original physical cost, matching damage-window candidate, ProgramBindingStartedEvent, ProgramDamageCardsClaimedEvent and exact Processing-to-recipient-Hand movement."
+    },
+    {
+      "paths": [
+        "src/CardGame.Core/GameEngine.ExtraEffectMaterialClaims.cs",
+        "src/CardGame.Core/GameEngine.ExtraCardEffectRounds.cs"
+      ],
+      "lines": [
+        24,
+        98
+      ],
+      "result": "The same-use material receipt is reached only with a live matching ExtraCardEffectState and Action; the existing global receipt invariant also requires a Use action and the one ExtraCardEffectIssuedEvent. Accepted-use provenance is supplied by the original native commitment path and owner invariants, rather than a separate direct CardActionAcceptedEvent predicate inside HasExtraEffectMaterialClaim."
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.ExtraEffectMaterialClaims.cs",
+      "lines": [
+        24,
+        47
+      ],
+      "result": "Only a proven original material may be represented from current Hand, DrawPile or DiscardPile. There is no unconditional fallback for a foreign card or arbitrary zone. Equipment, Judgment, public/private piles and unproven materials keep the strict Processing path. An already claimed card may later change hand owner through ordinary valid movement; the claim does not initiate a new material payment or move."
+    },
+    {
+      "paths": [
+        "src/CardGame.Core/GameEngine.cs",
+        "src/CardGame.Core/GameEngine.SequentialTrickTargets.cs",
+        "src/CardGame.Core/GameEngine.DamageColorDuelPrograms.cs"
+      ],
+      "lines": [
+        4780,
+        5372,
+        17810,
+        19436,
+        55,
+        40
+      ],
+      "result": "The exact helper is reused for restored group claimed IDs, physical representations, retained Slash material IDs, second Nullification expected Processing IDs and sequential trick material checks. No generic Damage pop or broad destination bypass was added in this helper."
+    },
+    {
+      "paths": [
+        "src/CardGame.Core/ProgramExtraEffectsAndRankGuessing.cs",
+        "src/CardGame.Core/Projection/CommittedEventProjection.cs"
+      ],
+      "lines": [
+        31,
+        32,
+        58,
+        21,
+        23,
+        174,
+        234
+      ],
+      "result": "MaterialClaims copies to Array.AsReadOnly and contains scalar immutable records. No new material-claim collection event was introduced. The existing ProgramDamageCardsClaimedEvent.CardIds and DamageTriggerWindowOpenedEvent.Candidates are explicitly frozen. The two new rank/extra receipt events explicitly freeze RevealedCardIds and deep-freeze nested PromptChoice collections, while other new B events have scalar payloads or scalar CardConversionSource records."
+    }
+  ],
+  "limitations": [
+    "This is static source review, not independent execution or mutation testing.",
+    "No independent proof was added for combinations involving all virtual/multimaterial cards, further chained/nested uses, or claimed materials later moved into Equipment, Judgment or piles.",
+    "The existing ordinary engine claim/completion boundaries were reviewed only at the relevant entry and handoff points; this is not a full engine audit."
+  ],
+  "sourceSnapshot": [
+    {
+      "path": "src/CardGame.Core/GameEngine.ExtraEffectMaterialClaims.cs",
+      "sha256": "72fe4b4936345d9f24eeafac4db0371afaf5d0792690c19412ea83505f5c04b4"
+    },
+    {
+      "path": "src/CardGame.Core/ProgramExtraEffectsAndRankGuessing.cs",
+      "sha256": "a8a067e7f96960027f67914f1f3325a9c6d515fb1da58c8e346ae46801b1f041"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.ProgramLifecycle.cs",
+      "sha256": "ad1745ae7f7885232071055ef2fd10915af13c111e2cf88e22d63bffe4d8eb62"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.ExtraEffectsAndRankGuessing.cs",
+      "sha256": "129db7986e738622ea082aef69832e7f2eb7c49e7911ad7c95b751dc35b7c173"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.CurrentUsePhysicalClaims.cs",
+      "sha256": "d3200473a7f5585fcc251cbc18f5a008409ab006d63efde696b6eff3bee2efd4"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.DamageColorDuelPrograms.cs",
+      "sha256": "c9049d2bd8a95000c2b2fb986605b82860c3353b9ae9d2aea1601fc04e7a0a90"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.SequentialTrickTargets.cs",
+      "sha256": "d3f99b038cfb3ff6c819624f63fba087341bb42ebfab09103ae5659ec1e92a1c"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.ExtraCardEffectRounds.cs",
+      "sha256": "1e603ea76c827eb1a7da852a2a7db8cab1e18a712e84dd15ac3e9dadb2aac924"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.cs",
+      "sha256": "bd5e05a674f7d2335df4220f5c7928a2981cbe591b3e612d3f200134134c8dbf"
+    },
+    {
+      "path": "src/CardGame.Core/Projection/CommittedEventProjection.cs",
+      "sha256": "262676df2dfc7edb6977b03c6d515104b6025e42534fb602e96ca9bfc16ad21a"
+    },
+    {
+      "path": "src/CardGame.Core/CardActions.cs",
+      "sha256": "d40f9ec278e5769f61ba9d239f0753389a89d7eefec5503e371d2911c5e5d7f2"
+    },
+    {
+      "path": "src/CardGame.Core/ProgramLifecycle.cs",
+      "sha256": "3df2c9de1e3d6b71d0ec46ab655dae7a7480afc3af1d5dbc98c1a1df71f4e8b5"
+    },
+    {
+      "path": "src/CardGame.Core/Triggers.cs",
+      "sha256": "d30fc9c8e8374657360275477f29e354ad884316a97dc272e4192578dbd81d03"
+    },
+    {
+      "path": "src/CardGame.Core/Replay.cs",
+      "sha256": "4421250b9eda44b165564f012b48dbe408dbaae84223bcc94d1a5add6c685a1e"
+    },
+    {
+      "path": "tests/CardGame.Core.Tests/ExtraEffectsAndRankGuessChecks.cs",
+      "sha256": "c0a57d8c5085c919f6e861257caf88b87346782efb20d4de5b56b93368b33c03"
+    },
+    {
+      "path": "docs/benchmarks/2026-10-13-batch-5-claimed-material-red-core-selected.log.txt",
+      "sha256": "c78a8ecd04d18e20a7c9faea6b30629247ec9353e7766579d114e193618b4d16"
+    }
+  ]
+}

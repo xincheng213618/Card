@@ -1,0 +1,2 @@
+[PASS] Edition general gallery: namespaced portraits and real details
+1 WPF checks passed, 0 failed. Renders: C:\Users\17917\AppData\Local\Temp\card-ui-check

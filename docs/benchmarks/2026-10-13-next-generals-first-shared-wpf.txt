@@ -1,0 +1,64 @@
+[FAIL] Edition general gallery: namespaced portraits and real details: System.TypeInitializationException: The type initializer for 'CardGame.Content.Standard.StandardClassicGeneralPackage' threw an exception.
+ ---> System.InvalidOperationException: Invalid skill program at skill 'ol:shefu' (rules.skills[0]).triggers[1]: committed response uses require the single issued card-policy operation.
+   at CardGame.Core.SkillProgramCatalog.Fail(String path, String message) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 4811
+   at CardGame.Core.SkillProgramCatalog.ParseTrigger(JsonElement node, String path) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 3801
+   at CardGame.Core.SkillProgramCatalog.ReadArray[T](JsonElement owner, String name, String path, Func`3 parser, Boolean optional) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 4654
+   at CardGame.Core.SkillProgramCatalog.LoadPrograms(JsonElement root) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 1964
+   at CardGame.Core.SkillProgramCatalog.Load(String rulesJson, String presentationJson) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 1896
+   at CardGame.Content.Standard.EmbeddedSkillProgramCatalog.Load(String bundleResourceName) in C:\Users\17917\Desktop\Card\src\CardGame.Content.Standard\EmbeddedSkillProgramCatalog.cs:line 91
+   at CardGame.Content.Standard.EmbeddedSkillProgramCatalog.<>c__DisplayClass4_0.<Catalog>b__1() in C:\Users\17917\Desktop\Card\src\CardGame.Content.Standard\EmbeddedSkillProgramCatalog.cs:line 76
+   at System.Lazy`1.ViaFactory(LazyThreadSafetyMode mode)
+   at System.Lazy`1.ExecutionAndPublication(LazyHelper executionAndPublication, Boolean useDefaultConstructor)
+   at System.Lazy`1.CreateValue()
+   at CardGame.Content.Standard.EmbeddedSkillProgramCatalog.Catalog(String bundleResourceName) in C:\Users\17917\Desktop\Card\src\CardGame.Content.Standard\EmbeddedSkillProgramCatalog.cs:line 75
+   at CardGame.Content.Standard.EmbeddedSkillProgramCatalog.RegisterBundle(IContentRegistryBuilder builder, String bundleResourceName, Func`2 configure, IReadOnlyDictionary`2 tagOverrides) in C:\Users\17917\Desktop\Card\src\CardGame.Content.Standard\EmbeddedSkillProgramCatalog.cs:line 28
+   at CardGame.Content.Standard.OlChengYuContent.Register(IContentRegistryBuilder builder) in C:\Users\17917\Desktop\Card\src\CardGame.Content.Standard\OlChengYuContent.cs:line 7
+   at CardGame.Content.Standard.GeneralContentModule.<>c__DisplayClass3_0.<.ctor>b__0() in C:\Users\17917\Desktop\Card\src\CardGame.Content.Standard\GeneralContentModule.cs:line 28
+   at System.Lazy`1.ViaFactory(LazyThreadSafetyMode mode)
+   at System.Lazy`1.ExecutionAndPublication(LazyHelper executionAndPublication, Boolean useDefaultConstructor)
+   at System.Lazy`1.CreateValue()
+   at CardGame.Content.Standard.GeneralContentModule.get_GeneralIds() in C:\Users\17917\Desktop\Card\src\CardGame.Content.Standard\GeneralContentModule.cs:line 36
+   at CardGame.Content.Standard.StandardClassicGeneralPackage.<>c.<.cctor>b__90_1(GeneralContentModule module) in C:\Users\17917\Desktop\Card\src\CardGame.Content.Standard\StandardClassicGeneralPackage.cs:line 2557
+   at System.Linq.Enumerable.SelectManySingleSelectorIterator`2.MoveNext()
+   at System.Collections.Generic.List`1.AddRange(IEnumerable`1 collection)
+   at CardGame.Content.Standard.StandardClassicGeneralPackage..cctor() in C:\Users\17917\Desktop\Card\src\CardGame.Content.Standard\StandardClassicGeneralPackage.cs:line 2442
+   --- End of inner exception stack trace ---
+   at CardGame.Content.Standard.StandardClassicGeneralPackage.get_CurrentVersion() in C:\Users\17917\Desktop\Card\src\CardGame.Content.Standard\StandardClassicGeneralPackage.cs:line 260
+   at CardGame.Content.Standard.StandardClassicGeneralPackage..ctor() in C:\Users\17917\Desktop\Card\src\CardGame.Content.Standard\StandardClassicGeneralPackage.cs:line 264
+   at CardGame.Content.Standard.StandardContentRegistry.CreateWithClassicGenerals() in C:\Users\17917\Desktop\Card\src\CardGame.Content.Standard\StandardContentPackage.cs:line 486
+0 WPF checks passed, 2 failed. Renders: C:\Users\17917\AppData\Local\Temp\CardGame-TestChanged-25f07ed2579f\renders
+   at EditionGeneralGalleryChecks.NamespacedPortraitsAndDetails(String output) in C:\Users\17917\Desktop\Card\tests\CardGame.Wpf.Tests\EditionGeneralGalleryChecks.cs:line 12
+   at Program.<>c__DisplayClass12_0.<Main>b__12() in C:\Users\17917\Desktop\Card\tests\CardGame.Wpf.Tests\Program.cs:line 84
+   at Program.Check(String name, Action action) in C:\Users\17917\Desktop\Card\tests\CardGame.Wpf.Tests\Program.cs:line 223
+[FAIL] Named private pile UI: owner pairs public counts and clear: System.TypeInitializationException: The type initializer for 'CardGame.Content.Standard.StandardClassicGeneralPackage' threw an exception.
+ ---> System.InvalidOperationException: Invalid skill program at skill 'ol:shefu' (rules.skills[0]).triggers[1]: committed response uses require the single issued card-policy operation.
+   at CardGame.Core.SkillProgramCatalog.Fail(String path, String message) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 4811
+   at CardGame.Core.SkillProgramCatalog.ParseTrigger(JsonElement node, String path) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 3801
+   at CardGame.Core.SkillProgramCatalog.ReadArray[T](JsonElement owner, String name, String path, Func`3 parser, Boolean optional) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 4654
+   at CardGame.Core.SkillProgramCatalog.LoadPrograms(JsonElement root) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 1964
+   at CardGame.Core.SkillProgramCatalog.Load(String rulesJson, String presentationJson) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 1896
+   at CardGame.Content.Standard.EmbeddedSkillProgramCatalog.Load(String bundleResourceName) in C:\Users\17917\Desktop\Card\src\CardGame.Content.Standard\EmbeddedSkillProgramCatalog.cs:line 91
+   at CardGame.Content.Standard.EmbeddedSkillProgramCatalog.<>c__DisplayClass4_0.<Catalog>b__1() in C:\Users\17917\Desktop\Card\src\CardGame.Content.Standard\EmbeddedSkillProgramCatalog.cs:line 76
+   at System.Lazy`1.ViaFactory(LazyThreadSafetyMode mode)
+   at System.Lazy`1.ExecutionAndPublication(LazyHelper executionAndPublication, Boolean useDefaultConstructor)
+   at System.Lazy`1.CreateValue()
+   at CardGame.Content.Standard.EmbeddedSkillProgramCatalog.Catalog(String bundleResourceName) in C:\Users\17917\Desktop\Card\src\CardGame.Content.Standard\EmbeddedSkillProgramCatalog.cs:line 75
+   at CardGame.Content.Standard.EmbeddedSkillProgramCatalog.RegisterBundle(IContentRegistryBuilder builder, String bundleResourceName, Func`2 configure, IReadOnlyDictionary`2 tagOverrides) in C:\Users\17917\Desktop\Card\src\CardGame.Content.Standard\EmbeddedSkillProgramCatalog.cs:line 28
+   at CardGame.Content.Standard.OlChengYuContent.Register(IContentRegistryBuilder builder) in C:\Users\17917\Desktop\Card\src\CardGame.Content.Standard\OlChengYuContent.cs:line 7
+   at CardGame.Content.Standard.GeneralContentModule.<>c__DisplayClass3_0.<.ctor>b__0() in C:\Users\17917\Desktop\Card\src\CardGame.Content.Standard\GeneralContentModule.cs:line 28
+   at System.Lazy`1.ViaFactory(LazyThreadSafetyMode mode)
+   at System.Lazy`1.ExecutionAndPublication(LazyHelper executionAndPublication, Boolean useDefaultConstructor)
+   at System.Lazy`1.CreateValue()
+   at CardGame.Content.Standard.GeneralContentModule.get_GeneralIds() in C:\Users\17917\Desktop\Card\src\CardGame.Content.Standard\GeneralContentModule.cs:line 36
+   at CardGame.Content.Standard.StandardClassicGeneralPackage.<>c.<.cctor>b__90_1(GeneralContentModule module) in C:\Users\17917\Desktop\Card\src\CardGame.Content.Standard\StandardClassicGeneralPackage.cs:line 2557
+   at System.Linq.Enumerable.SelectManySingleSelectorIterator`2.MoveNext()
+   at System.Collections.Generic.List`1.AddRange(IEnumerable`1 collection)
+   at CardGame.Content.Standard.StandardClassicGeneralPackage..cctor() in C:\Users\17917\Desktop\Card\src\CardGame.Content.Standard\StandardClassicGeneralPackage.cs:line 2442
+   --- End of inner exception stack trace ---
+   at CardGame.Content.Standard.StandardClassicGeneralPackage.get_CurrentVersion() in C:\Users\17917\Desktop\Card\src\CardGame.Content.Standard\StandardClassicGeneralPackage.cs:line 260
+   at CardGame.Content.Standard.StandardClassicGeneralPackage..ctor() in C:\Users\17917\Desktop\Card\src\CardGame.Content.Standard\StandardClassicGeneralPackage.cs:line 264
+   at CardGame.Content.Standard.ComposedSkillContentRegistry.CreateShowcase(Boolean includeNationalZhangJiao) in C:\Users\17917\Desktop\Card\src\CardGame.Content.Standard\ComposedSkillContentPackage.cs:line 128
+   at CardGame.Wpf.ViewModels.MainViewModel..ctor(Boolean autoAdvance, Nullable`1 seed, Boolean showSetup, IGameSaveStore saveStore, Boolean useExpandedContent, IMatchHistoryStore historyStore, IPlayerPreferencesStore preferencesStore, ContentRegistry contentRegistry, Boolean confirmOpeningHand) in C:\Users\17917\Desktop\Card\src\CardGame.Wpf\ViewModels\MainViewModel.cs:line 96
+   at NamedPrivatePileUiChecks.OwnerPairsPublicCountsAndClearingUseSharedReadOnlyFaces(String output) in C:\Users\17917\Desktop\Card\tests\CardGame.Wpf.Tests\NamedPrivatePileUiChecks.cs:line 14
+   at Program.<>c__DisplayClass12_0.<Main>b__13() in C:\Users\17917\Desktop\Card\tests\CardGame.Wpf.Tests\Program.cs:line 85
+   at Program.Check(String name, Action action) in C:\Users\17917\Desktop\Card\tests\CardGame.Wpf.Tests\Program.cs:line 223

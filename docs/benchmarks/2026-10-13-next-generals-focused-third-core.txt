@@ -1,0 +1,173 @@
+[PASS] End refill next turn: exact entry and frozen issued events
+[PASS] End refill next turn: capped actual refill and tied greatest hand
+[PASS] End refill next turn: actual gain children cold and paid source loss
+[PASS] End refill next turn: skipped actual turn consumes and restriction expires
+[PASS] End refill next turn: bidirectional HP replacement self source-less and chain
+[PASS] End refill next turn: real alcohol Slash materials and damage-only armor
+[PASS] Phase start card control: exact entry and derived resource contracts
+[FAIL] Phase start card control: payment privacy directed distance and actual expiry
+       InvalidOperationException: The program prompt has no parent trigger candidate.
+   at CardGame.Core.GameEngine.GetPendingProgramTriggerCandidate() in C:\Users\17917\Desktop\Card\src\CardGame.Core\GameEngine.ProgramLifecycle.cs:line 4428
+   at CardGame.Core.GameEngine.ResolveProgramTriggerChoice(PromptChoice selected) in C:\Users\17917\Desktop\Card\src\CardGame.Core\GameEngine.ProgramLifecycle.cs:line 3918
+   at CardGame.Core.GameEngine.<>c__DisplayClass4697_0.<SubmitProgramTriggerAnswer>b__1() in C:\Users\17917\Desktop\Card\src\CardGame.Core\GameEngine.ProgramLifecycle.cs:line 3500
+   at CardGame.Core.GameEngine.<>c__DisplayClass1181_0.<Accept>b__0() in C:\Users\17917\Desktop\Card\src\CardGame.Core\GameEngine.cs:line 1669
+   at CardGame.Core.GameEngine.ExecuteCommandOperation(Action operation, Func`1 project, Action`1 deliver) in C:\Users\17917\Desktop\Card\src\CardGame.Core\GameEngine.CommandSession.cs:line 56
+   at CardGame.Core.GameEngine.ExecuteExclusive(Action operation) in C:\Users\17917\Desktop\Card\src\CardGame.Core\GameEngine.CommandSession.cs:line 37
+   at CardGame.Core.GameEngine.Accept(Action operation) in C:\Users\17917\Desktop\Card\src\CardGame.Core\GameEngine.cs:line 1667
+   at CardGame.Core.GameEngine.SubmitProgramTriggerAnswer(Int32 actorSeat, PromptId promptId, ChoiceId choiceId) in C:\Users\17917\Desktop\Card\src\CardGame.Core\GameEngine.ProgramLifecycle.cs:line 3498
+   at CardGame.Core.GameEngine.SubmitPromptAnswer(Int32 actorSeat, PromptId prompt, ChoiceId choice) in C:\Users\17917\Desktop\Card\src\CardGame.Core\GameEngine.cs:line 920
+   at CardGame.Core.GameEngine.Submit(GameCommand command) in C:\Users\17917\Desktop\Card\src\CardGame.Core\GameEngine.cs:line 670
+   at PhaseStartCardControlChecks.Accept(GameEngine g, GameCommand command) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\PhaseStartCardControlChecks.cs:line 227
+   at PhaseStartCardControlChecks.Answer(GameEngine g, Func`2 choose) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\PhaseStartCardControlChecks.cs:line 229
+   at PhaseStartCardControlChecks.MeibuPaymentPrivacyDirectedDistanceAndActualTurnExpiry() in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\PhaseStartCardControlChecks.cs:line 56
+   at Program.<Main>$(String[] args) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\Program.cs:line 1231
+[FAIL] Phase start card control: paid source loss death and grant children cold
+       InvalidOperationException: Invalid skill program at skill 'fixture:phase-control-watch' (rules.skills[2]).triggers[0].sourceZones: cardsMoved requires exactly one owner-scoped source zone.
+   at CardGame.Core.SkillProgramCatalog.Fail(String path, String message) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 4811
+   at CardGame.Core.SkillProgramCatalog.ParseTrigger(JsonElement node, String path) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 3446
+   at CardGame.Core.SkillProgramCatalog.ReadArray[T](JsonElement owner, String name, String path, Func`3 parser, Boolean optional) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 4654
+   at CardGame.Core.SkillProgramCatalog.LoadPrograms(JsonElement root) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 1964
+   at CardGame.Core.SkillProgramCatalog.Load(String rulesJson, String presentationJson) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 1896
+   at PhaseStartCardControlChecks.Fixture.Register(IContentRegistryBuilder b) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\PhaseStartCardControlChecks.cs:line 339
+   at CardGame.Core.ContentRegistry.Build(IGameContentPackage[] packages) in C:\Users\17917\Desktop\Card\src\CardGame.Core\ContentRegistry.cs:line 259
+   at PhaseStartCardControlChecks.Start(String card, String scenario, String child, Suit suit, String equipment, Role humanRole, Boolean stopAtDriver) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\PhaseStartCardControlChecks.cs:line 274
+   at PhaseStartCardControlChecks.PaidSourceLossDeathAndGrantChildrenColdReturn() in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\PhaseStartCardControlChecks.cs:line 80
+   at Program.<Main>$(String[] args) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\Program.cs:line 1231
+[FAIL] Phase start card control: protected discard self armor and Slash ban
+       InvalidOperationException: The program prompt has no parent trigger candidate.
+   at CardGame.Core.GameEngine.GetPendingProgramTriggerCandidate() in C:\Users\17917\Desktop\Card\src\CardGame.Core\GameEngine.ProgramLifecycle.cs:line 4428
+   at CardGame.Core.GameEngine.ResolveProgramTriggerChoice(PromptChoice selected) in C:\Users\17917\Desktop\Card\src\CardGame.Core\GameEngine.ProgramLifecycle.cs:line 3918
+   at CardGame.Core.GameEngine.<>c__DisplayClass4697_0.<SubmitProgramTriggerAnswer>b__1() in C:\Users\17917\Desktop\Card\src\CardGame.Core\GameEngine.ProgramLifecycle.cs:line 3500
+   at CardGame.Core.GameEngine.<>c__DisplayClass1181_0.<Accept>b__0() in C:\Users\17917\Desktop\Card\src\CardGame.Core\GameEngine.cs:line 1669
+   at CardGame.Core.GameEngine.ExecuteCommandOperation(Action operation, Func`1 project, Action`1 deliver) in C:\Users\17917\Desktop\Card\src\CardGame.Core\GameEngine.CommandSession.cs:line 56
+   at CardGame.Core.GameEngine.ExecuteExclusive(Action operation) in C:\Users\17917\Desktop\Card\src\CardGame.Core\GameEngine.CommandSession.cs:line 37
+   at CardGame.Core.GameEngine.Accept(Action operation) in C:\Users\17917\Desktop\Card\src\CardGame.Core\GameEngine.cs:line 1667
+   at CardGame.Core.GameEngine.SubmitProgramTriggerAnswer(Int32 actorSeat, PromptId promptId, ChoiceId choiceId) in C:\Users\17917\Desktop\Card\src\CardGame.Core\GameEngine.ProgramLifecycle.cs:line 3498
+   at CardGame.Core.GameEngine.SubmitPromptAnswer(Int32 actorSeat, PromptId prompt, ChoiceId choice) in C:\Users\17917\Desktop\Card\src\CardGame.Core\GameEngine.cs:line 920
+   at CardGame.Core.GameEngine.Submit(GameCommand command) in C:\Users\17917\Desktop\Card\src\CardGame.Core\GameEngine.cs:line 670
+   at PhaseStartCardControlChecks.Accept(GameEngine g, GameCommand command) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\PhaseStartCardControlChecks.cs:line 227
+   at PhaseStartCardControlChecks.Answer(GameEngine g, Func`2 choose) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\PhaseStartCardControlChecks.cs:line 229
+   at PhaseStartCardControlChecks.MumuProtectedDiscardSelfArmorAndSlashBan() in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\PhaseStartCardControlChecks.cs:line 121
+   at Program.<Main>$(String[] args) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\Program.cs:line 1231
+[PASS] Phase start card control: vanilla virtual uses dynamic HP and phase reset
+[PASS] Phase start card control: trick delayed and counterspell actual uses
+[FAIL] Phase start card control: played response excluded and native AI
+       InvalidOperationException: The program prompt has no parent trigger candidate.
+   at CardGame.Core.GameEngine.GetPendingProgramTriggerCandidate() in C:\Users\17917\Desktop\Card\src\CardGame.Core\GameEngine.ProgramLifecycle.cs:line 4428
+   at CardGame.Core.GameEngine.ResolveProgramTriggerChoice(PromptChoice selected) in C:\Users\17917\Desktop\Card\src\CardGame.Core\GameEngine.ProgramLifecycle.cs:line 3918
+   at CardGame.Core.GameEngine.ResolvePendingAiProgramTrigger() in C:\Users\17917\Desktop\Card\src\CardGame.Core\GameEngine.ProgramLifecycle.cs:line 4770
+   at CardGame.Core.GameEngine.RunOneEngineStep() in C:\Users\17917\Desktop\Card\src\CardGame.Core\GameEngine.Runtime.cs:line 259
+   at CardGame.Core.GameEngine.AdvanceOneStepCore() in C:\Users\17917\Desktop\Card\src\CardGame.Core\GameEngine.Runtime.cs:line 202
+   at CardGame.Core.GameEngine.<>c__DisplayClass1181_0.<Accept>b__0() in C:\Users\17917\Desktop\Card\src\CardGame.Core\GameEngine.cs:line 1669
+   at CardGame.Core.GameEngine.ExecuteCommandOperation(Action operation, Func`1 project, Action`1 deliver) in C:\Users\17917\Desktop\Card\src\CardGame.Core\GameEngine.CommandSession.cs:line 56
+   at CardGame.Core.GameEngine.ExecuteExclusive(Action operation) in C:\Users\17917\Desktop\Card\src\CardGame.Core\GameEngine.CommandSession.cs:line 37
+   at CardGame.Core.GameEngine.Accept(Action operation) in C:\Users\17917\Desktop\Card\src\CardGame.Core\GameEngine.cs:line 1667
+   at CardGame.Core.GameEngine.SubmitAdvance(GameCommand command, Boolean singleStep) in C:\Users\17917\Desktop\Card\src\CardGame.Core\GameEngine.cs:line 710
+   at CardGame.Core.GameEngine.Submit(GameCommand command) in C:\Users\17917\Desktop\Card\src\CardGame.Core\GameEngine.cs:line 660
+   at PhaseStartCardControlChecks.Accept(GameEngine g, GameCommand command) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\PhaseStartCardControlChecks.cs:line 227
+   at PhaseStartCardControlChecks.Reach(GameEngine g, Func`2 done) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\PhaseStartCardControlChecks.cs:line 249
+   at PhaseStartCardControlChecks.Play(GameEngine g) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\PhaseStartCardControlChecks.cs:line 233
+   at PhaseStartCardControlChecks.Start(String card, String scenario, String child, Suit suit, String equipment, Role humanRole, Boolean stopAtDriver) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\PhaseStartCardControlChecks.cs:line 279
+   at PhaseStartCardControlChecks.PlayedSlashResponseExcludedAndNativeAiControl() in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\PhaseStartCardControlChecks.cs:line 204
+   at Program.<Main>$(String[] args) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\Program.cs:line 1231
+[FAIL] Named ambush and source hand: private names all targets and cold recovery
+       InvalidOperationException: Invalid skill program at skill 'fixture:ambush-driver' (rules.skills[0]).activations[0]: missing required property 'targetKind'.
+   at CardGame.Core.SkillProgramCatalog.Fail(String path, String message) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 4811
+   at CardGame.Core.SkillProgramCatalog.Required(JsonElement owner, String name, JsonValueKind kind, String path) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 4763
+   at CardGame.Core.SkillProgramCatalog.EnumValue[T](JsonElement owner, String name, String path) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 4681
+   at CardGame.Core.SkillProgramCatalog.ParseActivation(JsonElement node, String path) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 2863
+   at CardGame.Core.SkillProgramCatalog.ReadArray[T](JsonElement owner, String name, String path, Func`3 parser, Boolean optional) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 4654
+   at CardGame.Core.SkillProgramCatalog.LoadPrograms(JsonElement root) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 1962
+   at CardGame.Core.SkillProgramCatalog.Load(String rulesJson, String presentationJson) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 1896
+   at NamedAmbushAndSourceHandChecks.Fixture.<>c__DisplayClass10_0.<Register>g__Add|1(String id, String body, Boolean label) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\NamedAmbushAndSourceHandChecks.cs:line 217
+   at NamedAmbushAndSourceHandChecks.Fixture.Register(IContentRegistryBuilder b) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\NamedAmbushAndSourceHandChecks.cs:line 219
+   at CardGame.Core.ContentRegistry.Build(IGameContentPackage[] packages) in C:\Users\17917\Desktop\Card\src\CardGame.Core\ContentRegistry.cs:line 259
+   at NamedAmbushAndSourceHandChecks.Start(CardKind kind, Boolean mixed, Boolean benyu, Boolean sourceLoss, Boolean zero, Boolean reuse) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\NamedAmbushAndSourceHandChecks.cs:line 146
+   at NamedAmbushAndSourceHandChecks.PrivateNamesAndAllTargetUseStateSurviveColdRecovery() in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\NamedAmbushAndSourceHandChecks.cs:line 10
+   at Program.<Main>$(String[] args) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\Program.cs:line 1231
+[FAIL] Named ambush and source hand: delayed and Alcohol finish without effects
+       InvalidOperationException: Invalid skill program at skill 'fixture:ambush-driver' (rules.skills[0]).activations[0]: missing required property 'targetKind'.
+   at CardGame.Core.SkillProgramCatalog.Fail(String path, String message) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 4811
+   at CardGame.Core.SkillProgramCatalog.Required(JsonElement owner, String name, JsonValueKind kind, String path) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 4763
+   at CardGame.Core.SkillProgramCatalog.EnumValue[T](JsonElement owner, String name, String path) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 4681
+   at CardGame.Core.SkillProgramCatalog.ParseActivation(JsonElement node, String path) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 2863
+   at CardGame.Core.SkillProgramCatalog.ReadArray[T](JsonElement owner, String name, String path, Func`3 parser, Boolean optional) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 4654
+   at CardGame.Core.SkillProgramCatalog.LoadPrograms(JsonElement root) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 1962
+   at CardGame.Core.SkillProgramCatalog.Load(String rulesJson, String presentationJson) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 1896
+   at NamedAmbushAndSourceHandChecks.Fixture.<>c__DisplayClass10_0.<Register>g__Add|1(String id, String body, Boolean label) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\NamedAmbushAndSourceHandChecks.cs:line 217
+   at NamedAmbushAndSourceHandChecks.Fixture.Register(IContentRegistryBuilder b) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\NamedAmbushAndSourceHandChecks.cs:line 219
+   at CardGame.Core.ContentRegistry.Build(IGameContentPackage[] packages) in C:\Users\17917\Desktop\Card\src\CardGame.Core\ContentRegistry.cs:line 259
+   at NamedAmbushAndSourceHandChecks.Start(CardKind kind, Boolean mixed, Boolean benyu, Boolean sourceLoss, Boolean zero, Boolean reuse) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\NamedAmbushAndSourceHandChecks.cs:line 146
+   at NamedAmbushAndSourceHandChecks.DelayedAndAlcoholUsesFinishWithoutEffects() in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\NamedAmbushAndSourceHandChecks.cs:line 31
+   at Program.<Main>$(String[] args) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\Program.cs:line 1231
+[FAIL] Named ambush and source hand: Dodge counterspell retain completed use
+       InvalidOperationException: Invalid skill program at skill 'fixture:ambush-driver' (rules.skills[0]).activations[0]: missing required property 'targetKind'.
+   at CardGame.Core.SkillProgramCatalog.Fail(String path, String message) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 4811
+   at CardGame.Core.SkillProgramCatalog.Required(JsonElement owner, String name, JsonValueKind kind, String path) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 4763
+   at CardGame.Core.SkillProgramCatalog.EnumValue[T](JsonElement owner, String name, String path) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 4681
+   at CardGame.Core.SkillProgramCatalog.ParseActivation(JsonElement node, String path) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 2863
+   at CardGame.Core.SkillProgramCatalog.ReadArray[T](JsonElement owner, String name, String path, Func`3 parser, Boolean optional) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 4654
+   at CardGame.Core.SkillProgramCatalog.LoadPrograms(JsonElement root) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 1962
+   at CardGame.Core.SkillProgramCatalog.Load(String rulesJson, String presentationJson) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 1896
+   at NamedAmbushAndSourceHandChecks.Fixture.<>c__DisplayClass10_0.<Register>g__Add|1(String id, String body, Boolean label) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\NamedAmbushAndSourceHandChecks.cs:line 217
+   at NamedAmbushAndSourceHandChecks.Fixture.Register(IContentRegistryBuilder b) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\NamedAmbushAndSourceHandChecks.cs:line 219
+   at CardGame.Core.ContentRegistry.Build(IGameContentPackage[] packages) in C:\Users\17917\Desktop\Card\src\CardGame.Core\ContentRegistry.cs:line 259
+   at NamedAmbushAndSourceHandChecks.Start(CardKind kind, Boolean mixed, Boolean benyu, Boolean sourceLoss, Boolean zero, Boolean reuse) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\NamedAmbushAndSourceHandChecks.cs:line 146
+   at NamedAmbushAndSourceHandChecks.DodgeAndCounterspellRetainRealCompletedUse() in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\NamedAmbushAndSourceHandChecks.cs:line 48
+   at Program.<Main>$(String[] args) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\Program.cs:line 1231
+[FAIL] Named ambush and source hand: current branches and zero draw
+       InvalidOperationException: Invalid skill program at skill 'fixture:ambush-driver' (rules.skills[0]).activations[0]: missing required property 'targetKind'.
+   at CardGame.Core.SkillProgramCatalog.Fail(String path, String message) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 4811
+   at CardGame.Core.SkillProgramCatalog.Required(JsonElement owner, String name, JsonValueKind kind, String path) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 4763
+   at CardGame.Core.SkillProgramCatalog.EnumValue[T](JsonElement owner, String name, String path) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 4681
+   at CardGame.Core.SkillProgramCatalog.ParseActivation(JsonElement node, String path) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 2863
+   at CardGame.Core.SkillProgramCatalog.ReadArray[T](JsonElement owner, String name, String path, Func`3 parser, Boolean optional) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 4654
+   at CardGame.Core.SkillProgramCatalog.LoadPrograms(JsonElement root) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 1962
+   at CardGame.Core.SkillProgramCatalog.Load(String rulesJson, String presentationJson) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 1896
+   at NamedAmbushAndSourceHandChecks.Fixture.<>c__DisplayClass10_0.<Register>g__Add|1(String id, String body, Boolean label) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\NamedAmbushAndSourceHandChecks.cs:line 217
+   at NamedAmbushAndSourceHandChecks.Fixture.Register(IContentRegistryBuilder b) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\NamedAmbushAndSourceHandChecks.cs:line 219
+   at CardGame.Core.ContentRegistry.Build(IGameContentPackage[] packages) in C:\Users\17917\Desktop\Card\src\CardGame.Core\ContentRegistry.cs:line 259
+   at NamedAmbushAndSourceHandChecks.Start(CardKind kind, Boolean mixed, Boolean benyu, Boolean sourceLoss, Boolean zero, Boolean reuse) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\NamedAmbushAndSourceHandChecks.cs:line 146
+   at NamedAmbushAndSourceHandChecks.SourceHandChoicesKeepCurrentTwoBranchesAndZeroDraw() in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\NamedAmbushAndSourceHandChecks.cs:line 75
+   at Program.<Main>$(String[] args) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\Program.cs:line 1231
+[FAIL] Named ambush and source hand: paid source loss and zero entity eligibility
+       InvalidOperationException: Invalid skill program at skill 'fixture:ambush-driver' (rules.skills[0]).activations[0]: missing required property 'targetKind'.
+   at CardGame.Core.SkillProgramCatalog.Fail(String path, String message) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 4811
+   at CardGame.Core.SkillProgramCatalog.Required(JsonElement owner, String name, JsonValueKind kind, String path) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 4763
+   at CardGame.Core.SkillProgramCatalog.EnumValue[T](JsonElement owner, String name, String path) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 4681
+   at CardGame.Core.SkillProgramCatalog.ParseActivation(JsonElement node, String path) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 2863
+   at CardGame.Core.SkillProgramCatalog.ReadArray[T](JsonElement owner, String name, String path, Func`3 parser, Boolean optional) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 4654
+   at CardGame.Core.SkillProgramCatalog.LoadPrograms(JsonElement root) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 1962
+   at CardGame.Core.SkillProgramCatalog.Load(String rulesJson, String presentationJson) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 1896
+   at NamedAmbushAndSourceHandChecks.Fixture.<>c__DisplayClass10_0.<Register>g__Add|1(String id, String body, Boolean label) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\NamedAmbushAndSourceHandChecks.cs:line 217
+   at NamedAmbushAndSourceHandChecks.Fixture.Register(IContentRegistryBuilder b) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\NamedAmbushAndSourceHandChecks.cs:line 219
+   at CardGame.Core.ContentRegistry.Build(IGameContentPackage[] packages) in C:\Users\17917\Desktop\Card\src\CardGame.Core\ContentRegistry.cs:line 259
+   at NamedAmbushAndSourceHandChecks.Start(CardKind kind, Boolean mixed, Boolean benyu, Boolean sourceLoss, Boolean zero, Boolean reuse) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\NamedAmbushAndSourceHandChecks.cs:line 146
+   at NamedAmbushAndSourceHandChecks.PaidSourceLossAndZeroEntityEligibilityAreExact() in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\NamedAmbushAndSourceHandChecks.cs:line 108
+   at Program.<Main>$(String[] args) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\Program.cs:line 1231
+[FAIL] Named ambush and source hand: consumed entity recorded with new name
+       InvalidOperationException: Invalid skill program at skill 'fixture:ambush-driver' (rules.skills[0]).activations[0]: missing required property 'targetKind'.
+   at CardGame.Core.SkillProgramCatalog.Fail(String path, String message) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 4811
+   at CardGame.Core.SkillProgramCatalog.Required(JsonElement owner, String name, JsonValueKind kind, String path) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 4763
+   at CardGame.Core.SkillProgramCatalog.EnumValue[T](JsonElement owner, String name, String path) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 4681
+   at CardGame.Core.SkillProgramCatalog.ParseActivation(JsonElement node, String path) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 2863
+   at CardGame.Core.SkillProgramCatalog.ReadArray[T](JsonElement owner, String name, String path, Func`3 parser, Boolean optional) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 4654
+   at CardGame.Core.SkillProgramCatalog.LoadPrograms(JsonElement root) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 1962
+   at CardGame.Core.SkillProgramCatalog.Load(String rulesJson, String presentationJson) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 1896
+   at NamedAmbushAndSourceHandChecks.Fixture.<>c__DisplayClass10_0.<Register>g__Add|1(String id, String body, Boolean label) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\NamedAmbushAndSourceHandChecks.cs:line 217
+   at NamedAmbushAndSourceHandChecks.Fixture.Register(IContentRegistryBuilder b) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\NamedAmbushAndSourceHandChecks.cs:line 219
+   at CardGame.Core.ContentRegistry.Build(IGameContentPackage[] packages) in C:\Users\17917\Desktop\Card\src\CardGame.Core\ContentRegistry.cs:line 259
+   at NamedAmbushAndSourceHandChecks.Start(CardKind kind, Boolean mixed, Boolean benyu, Boolean sourceLoss, Boolean zero, Boolean reuse) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\NamedAmbushAndSourceHandChecks.cs:line 146
+   at NamedAmbushAndSourceHandChecks.ConsumedEntityCanBeRecordedAgainWithNewName() in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\NamedAmbushAndSourceHandChecks.cs:line 127
+   at Program.<Main>$(String[] args) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\Program.cs:line 1231
+[PASS] program continuation registration preserves ordered typed returns
+[FAIL] content registry compiles whole catalog dependencies
+       InvalidOperationException: Issued card policy requires a single own Play actor use.
+   at CardGame.Core.ContentRegistry.RegistryBuilder.ValidateReferences() in C:\Users\17917\Desktop\Card\src\CardGame.Core\ContentRegistry.cs:line 574
+   at CardGame.Core.ContentRegistry.Build(IGameContentPackage[] packages) in C:\Users\17917\Desktop\Card\src\CardGame.Core\ContentRegistry.cs:line 263
+   at CardGame.Content.Standard.StandardContentRegistry.CreateWithClassicGenerals() in C:\Users\17917\Desktop\Card\src\CardGame.Content.Standard\StandardContentPackage.cs:line 486
+   at CompiledSkillMetadataChecks.CatalogDependenciesPreserveWholeRegistryAnswersAndIsolation() in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\CompiledSkillMetadataChecks.cs:line 11
+   at Program.<Main>$(String[] args) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\Program.cs:line 1231
+[PASS] general content modules preserve roster and registry boundaries
+
+11 passed, 11 failed, 0 skipped (22 total).

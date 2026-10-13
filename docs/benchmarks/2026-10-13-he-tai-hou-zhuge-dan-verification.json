@@ -1,0 +1,114 @@
+{
+  "task": "01a13335-a035-7480-bc21-c675f0ea06a5",
+  "date": "2026-10-13",
+  "scope": "继续增加武将并并行检查共享机制；本记录为当前两名武将的完成检查点，持续目标保持 active。",
+  "addedGenerals": [
+    {
+      "id": "ol:he-tai-hou",
+      "name": "何太后·OL",
+      "skills": ["鸩毒", "戚乱"],
+      "edition": "官网 hero/131 当前完整版本，鸩毒包含自身；戚乱按总死亡数加本人击杀数的两倍。",
+      "source": "docs/content/sources/ol-he-tai-hou-2026-10-13.json",
+      "render": "docs/benchmarks/2026-10-13-ol-he-tai-hou-gallery.png"
+    },
+    {
+      "id": "classic:zhuge-dan",
+      "name": "诸葛诞·经典",
+      "skills": ["功獒", "举义", "派生威重", "复用经典崩坏"],
+      "edition": "官方2016完整经典版，举义要求受伤且手牌摸至体力上限；界面明确标注经典，未混合官网当前不同举义及未知派生技能。",
+      "source": "docs/content/sources/classic-zhuge-dan-2026-10-13.json",
+      "render": "docs/benchmarks/2026-10-13-classic-zhuge-dan-gallery.png"
+    }
+  ],
+  "mechanisms": [
+    "鸩毒先支付真实本人手牌并排空成本子结算，再由实际阶段角色使用零实体酒；真实使用者与技能供应者分别记录，酒额度在真实使用确认时支付。",
+    "已付收据位于 ProgramSkillFrame，关联原父窗、费用实体、真实移动序列和精确技能来源；成本子结算失去技能后不重复付款，参与者死亡或游戏结束停止。",
+    "戚乱冻结本实际回合 TurnStarted 至 TurnEnded 的死亡事实；死去的回合角色不会阻断存活拥有者的奖励，结束后子结算新增死亡不回计，无死亡不询问。",
+    "AI只使用公开的实际阶段角色与冻结死亡/击杀事实；真实 native AI 接受正数死亡奖励，不检查敌方私有手牌。",
+    "healthChangeKindIs 读取真实 HpChangeContext.Kind，三个原生事实构造入口按内容依赖采集可选类型；不以HP前后相等猜测最大HP变化。",
+    "威重每个非零最大HP变化事件摸一张，变化幅度不改变次数；零变化、损伤、失血和回复排除。功獒先排空最大HP子结算再回复。",
+    "举义在实际准备边界冻结存活人数，复用真实摸至上限、游戏限次与派生授予；冷恢复及技能来源丢失后重新获得不重置觉醒次数。"
+  ],
+  "compatibility": {
+    "enumFix": "收尾复核发现新 ActualTurnDeathBenefits 曾插入隐式编号枚举首部；已移至尾部，并在新能力合同检查中断言旧 LivingFactionCount=0、EventTargetHp=10。修正后逐项对照 git HEAD 的44个旧公开枚举，既有成员编号变化数为0。",
+    "rulesEpoch": "本批没有改变旧配置的回放语义，不提高规则epoch。",
+    "contentVersions": "新增内容和可选事实由内容指纹区分；规则JSON schema和内容包版本未按人物递增。"
+  },
+  "focused": [
+    {
+      "filter": "Forced phase Wine:",
+      "corePassed": 4,
+      "failed": 0,
+      "durationMs": 6080,
+      "summary": "docs/benchmarks/2026-10-13-forced-phase-wine-focused-summary.json",
+      "log": "docs/benchmarks/2026-10-13-forced-phase-wine-focused-core.txt",
+      "finalHead": "上述聚焦运行早于最后枚举修正；同4项及新增编号断言已在最终519项Core常规运行中再次通过。"
+    },
+    {
+      "filters": ["Population health kinds:", "Card response completion cost: typed health kind actual recovery"],
+      "corePassed": 5,
+      "failed": 0,
+      "durationMs": 16942,
+      "summary": "docs/benchmarks/2026-10-13-population-health-kinds-focused-summary.json",
+      "log": "docs/benchmarks/2026-10-13-population-health-kinds-focused-core.txt"
+    },
+    {
+      "scope": "共享注册与现有 Edition general gallery 检查",
+      "corePassed": 2,
+      "wpfPassed": 1,
+      "failed": 0,
+      "summary": "docs/benchmarks/2026-10-13-he-tai-hou-zhuge-dan-gallery-summary.json"
+    }
+  ],
+  "routine": {
+    "status": "one-ui-prerequisite-failure-followed-by-passing-targeted-recheck",
+    "durationMs": 186135,
+    "buildMs": 17301,
+    "core": {"passed": 519, "failed": 0, "durationMs": 80292},
+    "wpf": {"passed": 73, "failed": 1, "durationMs": 88274},
+    "scope": "tools/Test-Changed.ps1 的指定routine；未运行-Full或未过滤测试程序集。",
+    "oneMinuteTargetMet": false,
+    "summary": "docs/benchmarks/2026-10-13-he-tai-hou-zhuge-dan-routine-summary.json",
+    "coreLog": "docs/benchmarks/2026-10-13-he-tai-hou-zhuge-dan-routine-core.txt",
+    "wpfLog": "docs/benchmarks/2026-10-13-he-tai-hou-zhuge-dan-routine-wpf.txt",
+    "failure": {
+      "check": "hand responses select exact cards and confirm through shared controls",
+      "observed": "VerifyFocusedCancelEnter前置条件中的Keyboard.Modifiers实际为Control；其余焦点、窗口、命令和边界前置条件均为True。",
+      "interpretation": "键盘状态干扰的证据，未证明本批产品回归；未强制释放用户Ctrl或放宽有意义的测试断言。"
+    },
+    "targetedRecheck": {
+      "filter": "hand responses select exact cards",
+      "status": "passed",
+      "passed": 1,
+      "failed": 0,
+      "durationMs": 31933,
+      "buildMs": 15754,
+      "wpfMs": 15875,
+      "scope": "同一源码单项复查，包含Enter/Ctrl+Enter响应和出牌分支；不把两次运行合并声称单次最终routine全部通过。",
+      "summary": "docs/benchmarks/2026-10-13-he-tai-hou-zhuge-dan-hand-response-recheck-summary.json",
+      "log": "docs/benchmarks/2026-10-13-he-tai-hou-zhuge-dan-hand-response-recheck-wpf.txt"
+    }
+  },
+  "limits": [
+    "现有酒流程不开放CardUseBeforeTargetEffects取消窗口；本批没有添加或测试该窗口，不将假设的取消行为称作实际旧缺陷。",
+    "已付成本后新增禁酒时，酒不能使用，对其他角色的独立尾伤害仍继续；由当前顺序文本解释，未声称找到专门官方组合FAQ。",
+    "文聘、孙鲁育与董允仍有来源或能力缺口，未注册不完整人物；文聘/孙鲁育证据保存在ol-wen-pin-sun-lu-yu-capability-assessment-2026-10-13.json。",
+    "WPF自动检查和两张画廊详情图已验证；未执行人工完整对局、实际扬声器、多DPI前台验收。",
+    "routine约186秒，未达到项目约一分钟的目标；本批未削减代表性覆盖以掩盖耗时。"
+  ],
+  "cleanup": {
+    "status": "retained-and-queued",
+    "root": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f",
+    "paths": ["bin", "obj", "renders"],
+    "reason": "此前自动审批拒绝本任务渲染删除，返回blocked by policy且未给更具体原因；不重试。共享根还含其他并行会话构建和渲染输出。",
+    "queue": "tools/cleanup_queue.json",
+    "otherDisposablePaths": "无其他独占临时目录；来源原文、立绘、摘要、日志、校验记录及画廊图为交付证据。"
+  },
+  "delivery": {
+    "commit": false,
+    "push": false,
+    "release": false,
+    "publish": false,
+    "sourceHashes": "docs/benchmarks/2026-10-13-he-tai-hou-zhuge-dan-source-hashes.json"
+  }
+}

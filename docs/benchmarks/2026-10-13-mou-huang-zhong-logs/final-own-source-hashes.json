@@ -1,0 +1,26 @@
+[
+  {
+    "sha256": "804a50a039125821074d41cbff38f6656054cc69838001932c90eb0188c36e31",
+    "path": "src/CardGame.Content.Standard/MouHuangZhongContent.cs"
+  },
+  {
+    "sha256": "c9a5aa2aae439679ff77b27c6330162e4ee3b1592c18b830608d93d02de3a8e0",
+    "path": "src/CardGame.Core/GameEngine.RecordedSuitSlash.cs"
+  },
+  {
+    "sha256": "6f9d45fe0b02af3165e52c9b2333121471e280506bd9bb57dcfdf83d6f4a009c",
+    "path": "src/CardGame.Core/ProgramRecordedSuitSlash.cs"
+  },
+  {
+    "sha256": "7f433e3e5228a290363cc004f637d2260a9ebc33e93ae4657bec9a0a66259ec7",
+    "path": "src/CardGame.Content.Standard/SkillPrograms/mou-huang-zhong.rules.json"
+  },
+  {
+    "sha256": "e0766746de60893bee8db33b6ea88e1adc3898f16967e9b093218d972acd86d7",
+    "path": "tests/CardGame.Core.Tests/RecordedSuitSlashChecks.cs"
+  },
+  {
+    "sha256": "c9eb385e3e17c6047517c1d8649974ba69e4a3fd4103e4e519a19c1362968285",
+    "path": "tests/CardGame.Wpf.Tests/MouHuangZhongSelectionChecks.cs"
+  }
+]

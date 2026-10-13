@@ -1,0 +1,40 @@
+{
+  "status": "build-failed",
+  "mode": "targeted",
+  "repository": "C:\\Users\\17917\\Desktop\\Card",
+  "artifactsPath": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f",
+  "coreFilters": [
+    "content registry compiles whole catalog dependencies",
+    "general content modules preserve roster and registry boundaries",
+    "program continuation registration",
+    "End refill next turn:",
+    "Phase start card control:",
+    "Named ambush and source hand:"
+  ],
+  "wpfFilters": [
+    "Named private pile UI:",
+    "Edition general gallery:"
+  ],
+  "startedAt": "2026-10-13T18:38:40.9261670+08:00",
+  "durationMs": 25441,
+  "message": "The selected scope did not build; checks were not started.",
+  "results": [
+    {
+      "name": "Build selected scope",
+      "status": "failed",
+      "exitCode": 1,
+      "durationMs": 25002,
+      "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\logs\\build.log"
+    }
+  ],
+  "cleanup": {
+    "status": "queued",
+    "queued": [
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin",
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\obj",
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders"
+    ],
+    "database": "C:\\Users\\17917\\Desktop\\Card\\tools\\cleanup_queue.json",
+    "message": null
+  }
+}

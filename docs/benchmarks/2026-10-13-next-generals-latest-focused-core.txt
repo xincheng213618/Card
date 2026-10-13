@@ -1,0 +1,35 @@
+[PASS] Sole target protection: actual Slash and black trick substitution
+[PASS] Sole target protection: black delayed quarantine committed use and actual end
+[PASS] Sole target protection: real paid source loss resumes once
+[PASS] Sole target protection: exact eligibility and private cost
+[PASS] Sole target protection: replacement Liuli reenters completed target episode cold
+[PASS] Sole target protection: legacy Benxi primary redirect accepted duplicate pair
+[PASS] Sole target protection: legacy Benxi accepted tail redirect exact return
+[PASS] Sole target protection: legacy Benxi duplicate pair tail actual cursor
+[PASS] End refill next turn: exact entry and frozen issued events
+[PASS] End refill next turn: capped actual refill and tied greatest hand
+[PASS] End refill next turn: actual gain children cold and paid source loss
+[PASS] End refill next turn: skipped actual turn consumes and restriction expires
+[PASS] End refill next turn: bidirectional HP replacement self source-less and chain
+[PASS] End refill next turn: real alcohol Slash materials and damage-only armor
+[PASS] Phase start card control: exact entry and derived resource contracts
+[PASS] Phase start card control: payment privacy directed distance and actual expiry
+[PASS] Phase start card control: paid source loss death and grant children cold
+[PASS] Phase start card control: protected discard self armor and Slash ban
+[PASS] Phase start card control: vanilla virtual uses dynamic HP and phase reset
+[PASS] Phase start card control: trick delayed and counterspell actual uses
+[PASS] Phase start card control: played response excluded and native AI
+[PASS] Named ambush and source hand: private names all targets and cold recovery
+[PASS] Named ambush and source hand: delayed and Alcohol finish without effects
+[PASS] Named ambush and source hand: Dodge counterspell retain completed use
+[PASS] Named ambush and source hand: current branches and zero draw
+[PASS] Named ambush and source hand: paid source loss and zero entity eligibility
+[PASS] Named ambush and source hand: consumed entity recorded with new name
+[PASS] Named ambush and source hand: multiple deposits true source loss cleans once
+[PASS] Named ambush and source hand: paid retaliation skill loss and owner death
+[PASS] Named ambush and source hand: invalidated use real actor replacement
+[PASS] program continuation registration preserves ordered typed returns
+[PASS] content registry compiles whole catalog dependencies
+[PASS] general content modules preserve roster and registry boundaries
+
+33 passed, 0 failed, 0 skipped (33 total).

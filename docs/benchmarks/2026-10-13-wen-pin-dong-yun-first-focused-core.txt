@@ -1,0 +1,99 @@
+[FAIL] Sole target protection: actual Slash and black trick substitution
+       InvalidOperationException: Invalid skill program at skill 'fixture:sole-driver' (rules.skills[0]).activations[1].effects[0]: operation requires context VirtualSlashUse, supplied Judgment, TurnEffects, Pindian.
+   at CardGame.Core.ProgramCompositionValidator.Validate(String path, IReadOnlyList`1 effects, Boolean initialSelectedTarget, Int32 selectedCardCount, Nullable`1 window, SkillProgramDrawPhaseMode drawPhaseMode, Int32 initialTargetSetCount, Int32 initialTargetSetMaximum, Boolean expandedCardDomain, Nullable`1 cardActionRelation, IReadOnlyList`1 cardKinds, Nullable`1 turnOwnerScope, Nullable`1 activationTargetKind, IReadOnlyList`1 activationSourceZones, Nullable`1 activationMinimumCards, IReadOnlyList`1 activationCardCategories) in C:\Users\17917\Desktop\Card\src\CardGame.Core\ProgramCompositionValidator.cs:line 157
+   at CardGame.Core.SkillProgramCatalog.ParseActivation(JsonElement node, String path) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 3018
+   at CardGame.Core.SkillProgramCatalog.ReadArray[T](JsonElement owner, String name, String path, Func`3 parser, Boolean optional) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 4640
+   at CardGame.Core.SkillProgramCatalog.LoadPrograms(JsonElement root) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 1956
+   at CardGame.Core.SkillProgramCatalog.Load(String rulesJson, String presentationJson) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 1890
+   at SoleTargetProtectionChecks.Fixture.<>c__DisplayClass12_0.<Register>g__Add|0(String id, String body) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\SoleTargetProtectionChecks.cs:line 251
+   at SoleTargetProtectionChecks.Fixture.Register(IContentRegistryBuilder b) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\SoleTargetProtectionChecks.cs:line 256
+   at CardGame.Core.ContentRegistry.Build(IGameContentPackage[] packages) in C:\Users\17917\Desktop\Card\src\CardGame.Core\ContentRegistry.cs:line 259
+   at SoleTargetProtectionChecks.Start(CardKind kind, Boolean substitute, Boolean sourceLoss, Boolean red, Boolean ownSkill, Boolean multi, Boolean chain, Boolean foreignActor) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\SoleTargetProtectionChecks.cs:line 185
+   at SoleTargetProtectionChecks.SubstitutionChangesActualSlashAndBlackTrickTarget() in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\SoleTargetProtectionChecks.cs:line 15
+   at Program.<Main>$(String[] args) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\Program.cs:line 1206
+[FAIL] Sole target protection: black delayed quarantine committed use and actual end
+       InvalidOperationException: Invalid skill program at skill 'fixture:sole-driver' (rules.skills[0]).activations[1].effects[0]: operation requires context VirtualSlashUse, supplied Judgment, TurnEffects, Pindian.
+   at CardGame.Core.ProgramCompositionValidator.Validate(String path, IReadOnlyList`1 effects, Boolean initialSelectedTarget, Int32 selectedCardCount, Nullable`1 window, SkillProgramDrawPhaseMode drawPhaseMode, Int32 initialTargetSetCount, Int32 initialTargetSetMaximum, Boolean expandedCardDomain, Nullable`1 cardActionRelation, IReadOnlyList`1 cardKinds, Nullable`1 turnOwnerScope, Nullable`1 activationTargetKind, IReadOnlyList`1 activationSourceZones, Nullable`1 activationMinimumCards, IReadOnlyList`1 activationCardCategories) in C:\Users\17917\Desktop\Card\src\CardGame.Core\ProgramCompositionValidator.cs:line 157
+   at CardGame.Core.SkillProgramCatalog.ParseActivation(JsonElement node, String path) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 3018
+   at CardGame.Core.SkillProgramCatalog.ReadArray[T](JsonElement owner, String name, String path, Func`3 parser, Boolean optional) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 4640
+   at CardGame.Core.SkillProgramCatalog.LoadPrograms(JsonElement root) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 1956
+   at CardGame.Core.SkillProgramCatalog.Load(String rulesJson, String presentationJson) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 1890
+   at SoleTargetProtectionChecks.Fixture.<>c__DisplayClass12_0.<Register>g__Add|0(String id, String body) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\SoleTargetProtectionChecks.cs:line 251
+   at SoleTargetProtectionChecks.Fixture.Register(IContentRegistryBuilder b) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\SoleTargetProtectionChecks.cs:line 256
+   at CardGame.Core.ContentRegistry.Build(IGameContentPackage[] packages) in C:\Users\17917\Desktop\Card\src\CardGame.Core\ContentRegistry.cs:line 259
+   at SoleTargetProtectionChecks.Start(CardKind kind, Boolean substitute, Boolean sourceLoss, Boolean red, Boolean ownSkill, Boolean multi, Boolean chain, Boolean foreignActor) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\SoleTargetProtectionChecks.cs:line 185
+   at SoleTargetProtectionChecks.BlackDelayedQuarantineFinishesCommittedUseAndReturnsAfterActualTurn() in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\SoleTargetProtectionChecks.cs:line 59
+   at Program.<Main>$(String[] args) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\Program.cs:line 1206
+[FAIL] Sole target protection: real paid source loss resumes once
+       InvalidOperationException: Invalid skill program at skill 'fixture:sole-driver' (rules.skills[0]).activations[1].effects[0]: operation requires context VirtualSlashUse, supplied Judgment, TurnEffects, Pindian.
+   at CardGame.Core.ProgramCompositionValidator.Validate(String path, IReadOnlyList`1 effects, Boolean initialSelectedTarget, Int32 selectedCardCount, Nullable`1 window, SkillProgramDrawPhaseMode drawPhaseMode, Int32 initialTargetSetCount, Int32 initialTargetSetMaximum, Boolean expandedCardDomain, Nullable`1 cardActionRelation, IReadOnlyList`1 cardKinds, Nullable`1 turnOwnerScope, Nullable`1 activationTargetKind, IReadOnlyList`1 activationSourceZones, Nullable`1 activationMinimumCards, IReadOnlyList`1 activationCardCategories) in C:\Users\17917\Desktop\Card\src\CardGame.Core\ProgramCompositionValidator.cs:line 157
+   at CardGame.Core.SkillProgramCatalog.ParseActivation(JsonElement node, String path) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 3018
+   at CardGame.Core.SkillProgramCatalog.ReadArray[T](JsonElement owner, String name, String path, Func`3 parser, Boolean optional) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 4640
+   at CardGame.Core.SkillProgramCatalog.LoadPrograms(JsonElement root) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 1956
+   at CardGame.Core.SkillProgramCatalog.Load(String rulesJson, String presentationJson) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 1890
+   at SoleTargetProtectionChecks.Fixture.<>c__DisplayClass12_0.<Register>g__Add|0(String id, String body) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\SoleTargetProtectionChecks.cs:line 251
+   at SoleTargetProtectionChecks.Fixture.Register(IContentRegistryBuilder b) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\SoleTargetProtectionChecks.cs:line 256
+   at CardGame.Core.ContentRegistry.Build(IGameContentPackage[] packages) in C:\Users\17917\Desktop\Card\src\CardGame.Core\ContentRegistry.cs:line 259
+   at SoleTargetProtectionChecks.Start(CardKind kind, Boolean substitute, Boolean sourceLoss, Boolean red, Boolean ownSkill, Boolean multi, Boolean chain, Boolean foreignActor) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\SoleTargetProtectionChecks.cs:line 185
+   at SoleTargetProtectionChecks.PaidProtectionSurvivesActualSourceLossWithoutRepayment() in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\SoleTargetProtectionChecks.cs:line 120
+   at Program.<Main>$(String[] args) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\Program.cs:line 1206
+[FAIL] Sole target protection: exact eligibility and private cost
+       InvalidOperationException: Invalid skill program at skill 'fixture:sole-driver' (rules.skills[0]).activations[1].effects[0]: operation requires context VirtualSlashUse, supplied Judgment, TurnEffects, Pindian.
+   at CardGame.Core.ProgramCompositionValidator.Validate(String path, IReadOnlyList`1 effects, Boolean initialSelectedTarget, Int32 selectedCardCount, Nullable`1 window, SkillProgramDrawPhaseMode drawPhaseMode, Int32 initialTargetSetCount, Int32 initialTargetSetMaximum, Boolean expandedCardDomain, Nullable`1 cardActionRelation, IReadOnlyList`1 cardKinds, Nullable`1 turnOwnerScope, Nullable`1 activationTargetKind, IReadOnlyList`1 activationSourceZones, Nullable`1 activationMinimumCards, IReadOnlyList`1 activationCardCategories) in C:\Users\17917\Desktop\Card\src\CardGame.Core\ProgramCompositionValidator.cs:line 157
+   at CardGame.Core.SkillProgramCatalog.ParseActivation(JsonElement node, String path) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 3018
+   at CardGame.Core.SkillProgramCatalog.ReadArray[T](JsonElement owner, String name, String path, Func`3 parser, Boolean optional) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 4640
+   at CardGame.Core.SkillProgramCatalog.LoadPrograms(JsonElement root) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 1956
+   at CardGame.Core.SkillProgramCatalog.Load(String rulesJson, String presentationJson) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 1890
+   at SoleTargetProtectionChecks.Fixture.<>c__DisplayClass12_0.<Register>g__Add|0(String id, String body) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\SoleTargetProtectionChecks.cs:line 251
+   at SoleTargetProtectionChecks.Fixture.Register(IContentRegistryBuilder b) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\SoleTargetProtectionChecks.cs:line 256
+   at CardGame.Core.ContentRegistry.Build(IGameContentPackage[] packages) in C:\Users\17917\Desktop\Card\src\CardGame.Core\ContentRegistry.cs:line 259
+   at SoleTargetProtectionChecks.Start(CardKind kind, Boolean substitute, Boolean sourceLoss, Boolean red, Boolean ownSkill, Boolean multi, Boolean chain, Boolean foreignActor) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\SoleTargetProtectionChecks.cs:line 185
+   at SoleTargetProtectionChecks.EligibilityRejectsRedTrickAndOwnUseAndPreservesPrivateCost() in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\SoleTargetProtectionChecks.cs:line 156
+   at Program.<Main>$(String[] args) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\Program.cs:line 1206
+[PASS] Targeted trick hand HP: exact entry contracts and frozen nested events
+[FAIL] Targeted trick hand HP: actual ending adjustment reward gift and cold
+       InvalidOperationException: The unequal own hand/HP is a legal ending participant.
+   at TargetedTrickHandHpChecks.Need(Boolean okay, String message) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\TargetedTrickHandHpChecks.cs:line 318
+   at TargetedTrickHandHpChecks.ActualEndingDrawDiscardSelfAndOptionalGiftColdReturn() in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\TargetedTrickHandHpChecks.cs:line 53
+   at Program.<Main>$(String[] args) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\Program.cs:line 1206
+[FAIL] Targeted trick hand HP: paid children dynamic equality and source loss
+       InvalidOperationException: Invalid skill program at skill 'fixture:target-hand-hp-watch' (rules.skills[1]).triggers[0].effects[1]: Owner skill replacement must terminate an activation..
+   at CardGame.Core.ProgramCompositionValidator.Validate(String path, IReadOnlyList`1 effects, Boolean initialSelectedTarget, Int32 selectedCardCount, Nullable`1 window, SkillProgramDrawPhaseMode drawPhaseMode, Int32 initialTargetSetCount, Int32 initialTargetSetMaximum, Boolean expandedCardDomain, Nullable`1 cardActionRelation, IReadOnlyList`1 cardKinds, Nullable`1 turnOwnerScope, Nullable`1 activationTargetKind, IReadOnlyList`1 activationSourceZones, Nullable`1 activationMinimumCards, IReadOnlyList`1 activationCardCategories) in C:\Users\17917\Desktop\Card\src\CardGame.Core\ProgramCompositionValidator.cs:line 94
+   at CardGame.Core.SkillProgramCatalog.ParseTrigger(JsonElement node, String path) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 4043
+   at CardGame.Core.SkillProgramCatalog.ReadArray[T](JsonElement owner, String name, String path, Func`3 parser, Boolean optional) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 4640
+   at CardGame.Core.SkillProgramCatalog.LoadPrograms(JsonElement root) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 1958
+   at CardGame.Core.SkillProgramCatalog.Load(String rulesJson, String presentationJson) in C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillPrograms.cs:line 1890
+   at TargetedTrickHandHpChecks.Fixture.Register(IContentRegistryBuilder b) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\TargetedTrickHandHpChecks.cs:line 358
+   at CardGame.Core.ContentRegistry.Build(IGameContentPackage[] packages) in C:\Users\17917\Desktop\Card\src\CardGame.Core\ContentRegistry.cs:line 259
+   at TargetedTrickHandHpChecks.Start(String card, Int32 peerHp, String child, Boolean aiDong) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\TargetedTrickHandHpChecks.cs:line 322
+   at TargetedTrickHandHpChecks.ActualAdjustmentChildrenRecheckHpAndPreservePaidSourceLoss() in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\TargetedTrickHandHpChecks.cs:line 94
+   at Program.<Main>$(String[] args) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\Program.cs:line 1206
+[FAIL] Targeted trick hand HP: actual trick targets ineffective and physical completion
+       InvalidOperationException: A catalog containing only the new target ability captures the real card appearance for added-target suit and color legality.
+   at TargetedTrickHandHpChecks.Need(Boolean okay, String message) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\TargetedTrickHandHpChecks.cs:line 318
+   at TargetedTrickHandHpChecks.TargetedTrickAdditionIneffectivenessAndCompletePhysicalUse() in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\TargetedTrickHandHpChecks.cs:line 123
+   at Program.<Main>$(String[] args) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\Program.cs:line 1206
+[FAIL] Targeted trick hand HP: compound targets fresh candidates and last effective
+       InvalidOperationException: Sequence contains no elements
+   at System.Linq.ThrowHelper.ThrowNoElementsException()
+   at System.Linq.Enumerable.Single[TSource](IEnumerable`1 source)
+   at TargetedTrickHandHpChecks.CompoundTargetsFreshCandidatesAndLastEffectiveDraft() in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\TargetedTrickHandHpChecks.cs:line 170
+   at Program.<Main>$(String[] args) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\Program.cs:line 1206
+[FAIL] Targeted trick hand HP: equipment recovery and nested damage dying children
+       InvalidOperationException: Unexpected native target/hand-HP prompt PlayCard: 请选择一张牌和目标，或结束出牌阶段。
+   at TargetedTrickHandHpChecks.Reach(GameEngine g, Func`2 done) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\TargetedTrickHandHpChecks.cs:line 272
+   at TargetedTrickHandHpChecks.PaidEquipmentRecoveryAndNestedDamageDyingChildren() in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\TargetedTrickHandHpChecks.cs:line 215
+   at Program.<Main>$(String[] args) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\Program.cs:line 1206
+[FAIL] Targeted trick hand HP: native AI uses public ending and target scores
+       InvalidOperationException: The game is already completed.
+   at TargetedTrickHandHpChecks.Need(Boolean okay, String message) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\TargetedTrickHandHpChecks.cs:line 318
+   at TargetedTrickHandHpChecks.Accept(GameEngine g, GameCommand command) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\TargetedTrickHandHpChecks.cs:line 253
+   at TargetedTrickHandHpChecks.Reach(GameEngine g, Func`2 done) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\TargetedTrickHandHpChecks.cs:line 273
+   at TargetedTrickHandHpChecks.ReachStage(GameEngine g, UnequalHandHpStage stage) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\TargetedTrickHandHpChecks.cs:line 250
+   at TargetedTrickHandHpChecks.NativeAiActivatesPublicEndingAndTargetInterventions() in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\TargetedTrickHandHpChecks.cs:line 233
+   at Program.<Main>$(String[] args) in C:\Users\17917\Desktop\Card\tests\CardGame.Core.Tests\Program.cs:line 1206
+[PASS] program continuation registration preserves ordered typed returns
+[PASS] composition kernel resource graph safety
+[PASS] composition kernel malformed nodes
+
+4 passed, 10 failed, 0 skipped (14 total).

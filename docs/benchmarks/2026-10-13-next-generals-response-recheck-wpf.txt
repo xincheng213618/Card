@@ -1,0 +1,12 @@
+  Original VerifyBoundary branches RespondDodge: invalid 2, ambiguous 0.
+  Stable fixture RespondDodge: seed 31, 12 accepted setup commands, actual turn seat 1.
+Native action RespondDodge: selected=False, caption=decline, clicks=1, added commands=1.
+Native action press: hidden HWND, synthetic Space down/up, pressed Y=2, released Y=0.
+Native action RespondDodge: selected=True, caption=decline, clicks=1, added commands=1.
+  Original VerifyBoundary branches FireAttackReveal: invalid 0, ambiguous 0.
+  Stable fixture FireAttackReveal: seed 31, 15 accepted setup commands, actual turn seat 1.
+Native action FireAttackReveal: selected=False, caption=cancel, clicks=0, added commands=0.
+Native action FireAttackReveal: selected=True, caption=cancel, clicks=1, added commands=0.
+Native eight-seat initial hand: 37:ThunderSlash, 65:IronChain, 10:IronChain, 16:IronChain, 4:ThunderSlash, 94:ThunderSlash, 48:IronChain, 88:ThunderSlash
+[PASS] hand responses label actual decline and retain native press feedback
+1 WPF checks passed, 0 failed. Renders: C:\Users\17917\AppData\Local\Temp\CardGame-TestChanged-25f07ed2579f\renders

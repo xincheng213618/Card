@@ -1,0 +1,9 @@
+{
+  "capturedAt": "2026-10-13T18:42:02.2281911+08:00",
+  "baseline": "docs/benchmarks/2026-10-13-next-generals-enum-baseline.json",
+  "assembly": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin\\CardGame.Core\\release\\CardGame.Core.dll",
+  "assemblySha256": "A3B07FCEAD218292380B0F5985BB29979A5AF8D7C52A2E734E44B898E0E39A2A",
+  "oldEnumCount": 206,
+  "oldMemberCount": 1961,
+  "differences": []
+}

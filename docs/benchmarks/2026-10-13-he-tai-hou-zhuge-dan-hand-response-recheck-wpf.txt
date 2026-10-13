@@ -1,0 +1,56 @@
+  Original VerifyBoundary branches RespondDodge: invalid 2, ambiguous 0.
+  Stable fixture RespondDodge: seed 31, 12 accepted setup commands, actual turn seat 1.
+  Hand response verified: RespondDodge, 打出【闪】，抵消这次【杀】。
+Focused Cancel Enter: seed=31, prompt=3, selected=respond.dodge.card-24, expected=respond.take-damage, actual=respond.take-damage, preview=1, preview handled=False, bubble=1, handled=True, same native decline=True.
+Focused hand Enter: choice=respond.dodge.card-24, preview handled=True, same native response=True.
+Focused confirm Enter: choice=respond.dodge.card-24, preview handled=False, same native response=True.
+Focused response number then Enter: index=3, card=24, expected=respond.dodge.card-24, actual=respond.dodge.card-24, exact hand focus=True, number preview handled=True, Enter preview handled=True, Enter bubble=0, handled=True, same native response=True.
+Focused response ignored numbers: unplayable and out-of-range, same action focus=True, added commands=0, same native boundary=True.
+Focused response fresh number toggles: card=24, exact hand focus=True, added commands=1, same native response=True, cold boundary=True.
+Focused Play number then Enter: card=45, target=1, exact hand focus=True, added commands=1, same native Slash=True, cold boundary=True.
+Focused other hand Enter: previous card=24, focused card=32, previous choice=respond.dodge.card-24, expected preview choice=respond.dodge.card-32, actual answer=, preview handled=False, bubble=1, handled=True, previous selected=False, focused selected=True, added commands=0, same native boundary=True, preview succeeded=True.
+Focused other hand second Enter: card=32, choice=respond.dodge.card-32, retained focus=True, added commands=1, same native response=True, cold boundary=True.
+Focused other portrait Enter: card=45, previous target=1, focused target=3, actual play card=, actual targets=, preview handled=False, bubble=1, handled=True, previous selected=False, focused selected=True, added commands=0, same native boundary=True, preview succeeded=True.
+Focused other portrait second Enter: card=45, target=3, retained focus=True, added commands=1, same native Slash=True, cold boundary=True.
+Focused illegal portrait Enter: card=45, retained target=1, focused target=0, fresh presses=2, added commands=0, same native boundary=True, cold boundary=True.
+Focused response Ctrl+Enter confirm: selected card=24, actual answer=, preview handled=True, bubble=0, handled=True, selected=True, can confirm=True, added commands=0, same native boundary=True, preserved=True, modifiers restored=True.
+Focused response after Ctrl+Enter confirm: choice=respond.dodge.card-24, retained focus=True, added commands=1, same native action=True, cold boundary=True.
+Focused response Ctrl+Enter cancel: selected card=24, actual answer=, preview handled=True, bubble=0, handled=True, selected=True, can confirm=True, added commands=0, same native boundary=True, preserved=True, modifiers restored=True.
+Focused response after Ctrl+Enter cancel: choice=respond.take-damage, retained focus=True, added commands=1, same native action=True, cold boundary=True.
+Focused response Ctrl+Enter hand: selected card=24, actual answer=, preview handled=True, bubble=0, handled=True, selected=True, can confirm=True, added commands=0, same native boundary=True, preserved=True, modifiers restored=True.
+Focused response after Ctrl+Enter hand: choice=respond.dodge.card-24, retained focus=True, added commands=1, same native action=True, cold boundary=True.
+Focused Play Ctrl+Enter: selected card=45, target=1, actual command=EndPlayPhaseCommand, added commands=1, same native end=True, cold boundary=True, modifiers restored=True.
+Focused log Ctrl+Enter: preview handled=False, bubble=1, closed=True, draft preserved=True, added commands=0, same native boundary=True, cold boundary=True, modifiers restored=True.
+Focused Play cancel Enter: preview handled=False, added commands=0, same native action=True.
+Focused Play end Enter: preview handled=False, added commands=1, same native action=True.
+Focused Play portrait Enter: preview handled=True, added commands=1, same native action=True.
+Focused Enter baseline reuse: actual loads=17, independent baselines=3.
+  Original VerifyBoundary branches RespondSlash: invalid 0, ambiguous 0.
+  Stable fixture RespondSlash: seed 31, 14 accepted setup commands, actual turn seat 1.
+  Hand response verified: RespondSlash, 打出【杀】，响应【南蛮入侵】。
+  Original VerifyBoundary branches RescueDying: invalid 2, ambiguous 0.
+  Stable fixture RescueDying: seed 31, 9 accepted setup commands, actual turn seat 0.
+  Hand response verified: RescueDying, 使用【桃】救援 你。
+  Original VerifyBoundary branches Nullification: invalid 1, ambiguous 0.
+  Stable fixture Nullification: seed 31, 14 accepted setup commands, actual turn seat 0.
+  Hand response verified: Nullification, 使用【无懈可击】恢复【桃园结义】效果。
+  Original VerifyBoundary branches FireAttackReveal: invalid 0, ambiguous 0.
+  Stable fixture FireAttackReveal: seed 31, 15 accepted setup commands, actual turn seat 1.
+  Hand response verified: FireAttackReveal, 展示【火攻】（A）
+  Original VerifyBoundary branches FireAttackDiscard: invalid 0, ambiguous 0.
+  Stable fixture FireAttackDiscard: seed 31, 10 accepted setup commands, actual turn seat 0.
+  Hand response verified: FireAttackDiscard, 弃置【杀】（A），造成 1 点火焰伤害。
+  Original VerifyBoundary branches Jijiu: invalid 0, ambiguous 0.
+  Stable fixture Jijiu: seed 31, 14 accepted setup commands, actual turn seat 1.
+  Hand response verified: Jijiu, 发动【急救】，将【闪】当作【桃】救援 AI 2。
+  Original VerifyBoundary branches ArrowBarrage: invalid 0, ambiguous 0.
+  Stable fixture ArrowBarrage: seed 31, 14 accepted setup commands, actual turn seat 1.
+  Hand response verified: ArrowBarrage, 打出【闪】，响应【万箭齐发】。
+Stored Slash: card=32, native choice=respond.slash.card-32, grain=True, playable=True, button=True, extra=0, commands=18.
+Stored Dodge: card=32, native choice=respond.dodge.card-32, grain=True, playable=True, button=True, extra=0, commands=18.
+Stored Taoluan: card=32, native choice=respond.dodge.card-32.conversion-0, grain=True, playable=True, button=True, extra=1, commands=16.
+Taoluan extra speed=fast: choice45=respond.dodge.card-45.conversion-0, extras=1, same button=True, exact WPF focus=True, native focus=6627580, native hidden=True, owns foreground=False.
+Taoluan extra speed=slow: choice45=respond.dodge.card-45.conversion-0, extras=1, same button=True, exact WPF focus=True, native focus=6627580, native hidden=True, owns foreground=False.
+Taoluan extra speed=normal: choice45=respond.dodge.card-45.conversion-0, extras=1, same button=True, exact WPF focus=True, native focus=6627580, native hidden=True, owns foreground=False.
+[PASS] hand responses select exact cards and confirm through shared controls
+1 WPF checks passed, 0 failed. Renders: C:\Users\17917\AppData\Local\Temp\CardGame-TestChanged-25f07ed2579f\renders

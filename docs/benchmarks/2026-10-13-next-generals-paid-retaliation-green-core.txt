@@ -1,0 +1,3 @@
+[PASS] Named ambush and source hand: paid retaliation skill loss and owner death
+
+1 passed, 0 failed, 0 skipped (1 total).

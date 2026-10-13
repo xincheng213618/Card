@@ -1,0 +1,128 @@
+{
+  "date": "2026-10-13",
+  "objective": "持续增加完整武将并检查共享机制，目标保持 active",
+  "status": "batch-complete",
+  "verifiedProgress": {
+    "soleTargetEpisode": {
+      "passed": 9,
+      "failed": 0,
+      "report": "docs/benchmarks/2026-10-13-sole-target-episode-verification.json",
+      "readonlyAudit": "docs/benchmarks/2026-10-13-sole-target-episode-readonly-audit.json"
+    },
+    "shenPei": {
+      "id": "ol:shen-pei",
+      "skills": [
+        "刚直",
+        "备战"
+      ],
+      "contentAndGalleryRegistered": true,
+      "officialSource": "docs/content/sources/ol-shen-pei-2026-10-13.json",
+      "focused": {
+        "passed": 6,
+        "failed": 0,
+        "summary": "docs/benchmarks/2026-10-13-next-generals-focused-third-summary.json",
+        "scope": "All current Core/Content successfully rebuilt in the whole group; six behavior methods passed. The group still has other focused failures."
+      },
+      "addedExtraTurn": {
+        "passed": 1,
+        "failed": 0,
+        "summary": "docs/benchmarks/2026-10-13-end-refill-extra-turn-summary.json"
+      },
+      "gallery": {
+        "passed": 1,
+        "failed": 0,
+        "scope": "Real gallery control, rebuilt WPF and tests with the preceding verified Core/Content; not a manual foreground match.",
+        "log": "docs/benchmarks/2026-10-13-shen-pei-gallery-wpf.txt",
+        "inspectedRender": "docs/benchmarks/2026-10-13-ol-shen-pei-gallery.png"
+      }
+    },
+    "sunLuyuSource": {
+      "status": "complete-current-version-bound",
+      "source": "docs/content/sources/ol-sun-lu-yu-2026-10-13.json",
+      "derivedBinding": "Official current character 135 -> Meibu 246 -> Zhixi 258, with matching complete current main texts and the derived rule from the public current client."
+    }
+  },
+  "ongoing": [],
+  "outstanding": [],
+  "verificationLimits": [
+    "Real Core commands, cold recovery, committed-observer immutability and actual WPF controls/renders are scoped evidence. No manual full match, foreground desktop, multi-DPI or speaker/physical-input acceptance is claimed.",
+    "Mixed hand/equipment, Wooden Ox grain and another provider supplied-use eligibility are explicit captured-origin interpretations, without individual actual-command combination fixtures or a matching current official FAQ.",
+    "The actual later actor replacement is tested; later Slash nature conversion and native extra-target prepared duplicate slots remain static review rather than separate actual regression fixtures.",
+    "Shen Pei original issuer death, already-dead incoming damage source and Beizhan target-death combinations have static evidence only. Paid source skill loss and actual extra/skipped turns are tested.",
+    "Damage replacement order and paid-owner-death continuation are explicit rule interpretations; no dedicated same-version official combination FAQ was found.",
+    "The 558/75 complete prescribed routine is evidence for its recorded earlier source snapshot. Later concurrent shared source is covered by this fresh 33/2 focused run, not an additional complete routine or Full."
+  ],
+  "cleanup": {
+    "status": "retained-policy-blocked",
+    "noDeletionRetry": true,
+    "queue": "tools/cleanup_queue.json",
+    "paths": [
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin",
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\obj",
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders",
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\card-ui-check"
+    ],
+    "entries": [
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\bin",
+        "added_at": "2026-10-12T21:30:23.701278+00:00",
+        "root": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f",
+        "reason": "Automatic approval review rejected recursive removal as blocked by policy; no deletion retry. Exact shared verification output retained for manual cleanup.",
+        "lock_root": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f"
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\obj",
+        "added_at": "2026-10-12T21:30:23.701308+00:00",
+        "root": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f",
+        "reason": "Automatic approval review rejected recursive removal as blocked by policy; no deletion retry. Exact shared verification output retained for manual cleanup.",
+        "lock_root": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f"
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f\\renders",
+        "added_at": "2026-10-12T21:50:19.837803+00:00",
+        "root": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f",
+        "reason": "Automatic approval review rejected recursive removal as blocked by policy; no deletion retry. Exact shared verification output retained for manual cleanup.",
+        "lock_root": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f"
+      },
+      {
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\card-ui-check",
+        "added_at": "2026-10-13T10:07:45.171195+00:00",
+        "root": "C:\\Users\\17917\\AppData\\Local\\Temp",
+        "reason": "Automatic approval review rejected recursive removal as blocked by policy; no deletion retry. Earlier direct WPF render output is retained; required screenshots are preserved in docs/benchmarks.",
+        "lock_root": "C:\\Users\\17917\\AppData\\Local\\Temp\\card-ui-check"
+      }
+    ],
+    "reason": "Earlier automatic approval review rejected recursive cleanup as blocked by policy. All four exact paths still exist and are registered; no retry or freed-space claim."
+  },
+  "latestFocused": {
+    "corePassed": 33,
+    "wpfPassed": 2,
+    "failed": 0,
+    "summary": "docs/benchmarks/2026-10-13-next-generals-final-focused-summary.json"
+  },
+  "finalRoutine": {
+    "corePassed": 558,
+    "wpfPassed": 75,
+    "failed": 0,
+    "durationMs": 107768,
+    "summary": "docs/benchmarks/2026-10-13-next-generals-routine-final-summary.json"
+  },
+  "finalReport": "docs/benchmarks/2026-10-13-shen-pei-sun-lu-yu-cheng-yu-verification.json",
+  "goalStatus": "active",
+  "latestSharedSourceRefresh": {
+    "status": "passed",
+    "corePassed": 33,
+    "wpfPassed": 2,
+    "failed": 0,
+    "durationMs": 23239,
+    "summary": "docs/benchmarks/2026-10-13-next-generals-latest-focused-summary.json",
+    "coreEvidence": "docs/benchmarks/2026-10-13-next-generals-latest-focused-core.txt",
+    "wpfEvidence": "docs/benchmarks/2026-10-13-next-generals-latest-focused-wpf.txt",
+    "sourceBefore": "docs/benchmarks/2026-10-13-next-generals-latest-focused-source-before.json",
+    "sourceAfter": "docs/benchmarks/2026-10-13-next-generals-latest-focused-source-after.json",
+    "sourcePaths": 80,
+    "sourceChangedDuringRun": 0,
+    "reason": "Continuing concurrent edits changed GameEngine.CardMovementPrograms.cs and GameEngine.SkillPrograms.cs after the completed 558/75 routine. Rebuild latest source and revalidate this group and relevant shared contracts, retaining all concurrent work.",
+    "scopeLimit": "The 558/75 complete prescribed routine is evidence for its recorded earlier source snapshot. Later concurrent shared source is covered by this fresh 33/2 focused run, not an additional complete routine or Full."
+  }
+}

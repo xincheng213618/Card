@@ -1,0 +1,680 @@
+{
+  "capturedAt": "2026-10-13T11:07:32.729Z",
+  "status": "paths-only-owners-still-editing",
+  "scope": "Task-owned sources and actual shared changes for OL Shen Pei, Sun Lu Yu, Cheng Yu, named private pile UI, and the three-file Liuli target episode fix; final hashes are intentionally captured by root around final verification.",
+  "owners": {
+    "A": "/root/general_batch3_a",
+    "B": "/root/general_batch3_b",
+    "C": "/root/general_batch4_c",
+    "root": "/root"
+  },
+  "pathCount": 80,
+  "paths": [
+    "docs/content/general-art-catalog.json",
+    "src/CardGame.Content.Standard/OlChengYuContent.cs",
+    "src/CardGame.Content.Standard/OlShenPeiContent.cs",
+    "src/CardGame.Content.Standard/OlSunLuYuContent.cs",
+    "src/CardGame.Content.Standard/SkillPrograms/ol-cheng-yu.presentation.json",
+    "src/CardGame.Content.Standard/SkillPrograms/ol-cheng-yu.rules.json",
+    "src/CardGame.Content.Standard/SkillPrograms/ol-shen-pei.presentation.json",
+    "src/CardGame.Content.Standard/SkillPrograms/ol-shen-pei.rules.json",
+    "src/CardGame.Content.Standard/SkillPrograms/ol-sun-lu-yu.presentation.json",
+    "src/CardGame.Content.Standard/SkillPrograms/ol-sun-lu-yu.rules.json",
+    "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+    "src/CardGame.Content.Standard/StandardContentPackage.cs",
+    "src/CardGame.Core/CardActions.cs",
+    "src/CardGame.Core/CardZones.cs",
+    "src/CardGame.Core/ContentRegistry.cs",
+    "src/CardGame.Core/GameEngine.ActualPlayPhaseCardUses.cs",
+    "src/CardGame.Core/GameEngine.CardMovementPrograms.cs",
+    "src/CardGame.Core/GameEngine.CardUseModules.cs",
+    "src/CardGame.Core/GameEngine.CompletedCategoryUseProof.cs",
+    "src/CardGame.Core/GameEngine.cs",
+    "src/CardGame.Core/GameEngine.DamageSourceHandChoice.cs",
+    "src/CardGame.Core/GameEngine.DelayedPlacementTargetPrograms.cs",
+    "src/CardGame.Core/GameEngine.EndRefillNextTurn.cs",
+    "src/CardGame.Core/GameEngine.EndRefillNextTurnObservers.cs",
+    "src/CardGame.Core/GameEngine.ExtendedViewAs.cs",
+    "src/CardGame.Core/GameEngine.NamedAmbush.cs",
+    "src/CardGame.Core/GameEngine.NamedAmbushInvalidation.cs",
+    "src/CardGame.Core/GameEngine.NamedHandChoiceObservers.cs",
+    "src/CardGame.Core/GameEngine.OtherParticipantHealthReplacement.cs",
+    "src/CardGame.Core/GameEngine.PhaseStartCardControl.cs",
+    "src/CardGame.Core/GameEngine.PhaseStartCardControlObservers.cs",
+    "src/CardGame.Core/GameEngine.PhaseStartControlPolicies.cs",
+    "src/CardGame.Core/GameEngine.ProgramCardTargetEffects.cs",
+    "src/CardGame.Core/GameEngine.ProgramContinuationPermissions.cs",
+    "src/CardGame.Core/GameEngine.ProgramLifecycle.cs",
+    "src/CardGame.Core/GameEngine.ProgramTurnPhase.cs",
+    "src/CardGame.Core/GameEngine.RuleProgression.cs",
+    "src/CardGame.Core/GameEngine.RuleQueries.cs",
+    "src/CardGame.Core/GameEngine.Runtime.cs",
+    "src/CardGame.Core/GameEngine.SkillPrograms.cs",
+    "src/CardGame.Core/GameEngine.SoleTargetRedirect.cs",
+    "src/CardGame.Core/GameEngine.SoleTargetReplacementCandidates.cs",
+    "src/CardGame.Core/GameEngine.TriggeredCardPrograms.cs",
+    "src/CardGame.Core/PhaseStartCardControlPrograms.cs",
+    "src/CardGame.Core/ProgramCompositionAi.cs",
+    "src/CardGame.Core/ProgramDamageSourceHandChoice.cs",
+    "src/CardGame.Core/ProgramEndRefillNextTurn.cs",
+    "src/CardGame.Core/ProgramNamedAmbush.cs",
+    "src/CardGame.Core/ProgramPhaseStartCardControlOperations.cs",
+    "src/CardGame.Core/ProgramSoleTargetRedirect.cs",
+    "src/CardGame.Core/Projection/CommittedEventProjection.cs",
+    "src/CardGame.Core/Projection/PlayerViewProjector.cs",
+    "src/CardGame.Core/Replay.cs",
+    "src/CardGame.Core/Resolution.cs",
+    "src/CardGame.Core/SkillProgramCardPolicies.cs",
+    "src/CardGame.Core/SkillProgramDependencies.cs",
+    "src/CardGame.Core/SkillPrograms.cs",
+    "src/CardGame.Wpf/Assets/official-ol-cheng-yu.png",
+    "src/CardGame.Wpf/Assets/official-ol-shen-pei.png",
+    "src/CardGame.Wpf/Assets/official-ol-sun-lu-yu.png",
+    "src/CardGame.Wpf/CardGame.Wpf.csproj",
+    "src/CardGame.Wpf/MainWindow.xaml",
+    "src/CardGame.Wpf/Presentation/GeneralGalleryCatalog.cs",
+    "src/CardGame.Wpf/ViewModels/GeneralArt.cs",
+    "src/CardGame.Wpf/ViewModels/MainViewModel.CardRestrictions.cs",
+    "src/CardGame.Wpf/ViewModels/MainViewModel.cs",
+    "src/CardGame.Wpf/ViewModels/MainViewModel.DeferredCards.cs",
+    "src/CardGame.Wpf/ViewModels/MainViewModel.NamedPrivatePiles.cs",
+    "tests/CardGame.Core.Tests/EndRefillNextTurnChecks.cs",
+    "tests/CardGame.Core.Tests/NamedAmbushAndSourceHandChecks.cs",
+    "tests/CardGame.Core.Tests/PhaseStartCardControlChecks.cs",
+    "tests/CardGame.Core.Tests/Program.cs",
+    "tests/CardGame.Core.Tests/ProgramCompositionDefinitionChecks.cs",
+    "tests/CardGame.Core.Tests/SoleTargetProtectionChecks.cs",
+    "tests/CardGame.Wpf.Tests/EditionGeneralGalleryChecks.cs",
+    "tests/CardGame.Wpf.Tests/NamedPrivatePileUiChecks.cs",
+    "tests/CardGame.Wpf.Tests/NativeActionFeedbackChecks.cs",
+    "tests/CardGame.Wpf.Tests/Program.cs",
+    "tools/Test-Changed.ps1",
+    "tools/VerificationScopes.psd1"
+  ],
+  "sources": [
+    {
+      "path": "docs/content/general-art-catalog.json",
+      "owners": [
+        "root"
+      ],
+      "scope": "embedded-runtime-art-catalog-dependency"
+    },
+    {
+      "path": "src/CardGame.Content.Standard/OlChengYuContent.cs",
+      "owners": [
+        "A"
+      ],
+      "scope": "owner-mechanism-content-ui-or-check"
+    },
+    {
+      "path": "src/CardGame.Content.Standard/OlShenPeiContent.cs",
+      "owners": [
+        "C"
+      ],
+      "scope": "owner-mechanism-content-ui-or-check"
+    },
+    {
+      "path": "src/CardGame.Content.Standard/OlSunLuYuContent.cs",
+      "owners": [
+        "B"
+      ],
+      "scope": "owner-mechanism-content-ui-or-check"
+    },
+    {
+      "path": "src/CardGame.Content.Standard/SkillPrograms/ol-cheng-yu.presentation.json",
+      "owners": [
+        "A"
+      ],
+      "scope": "owner-mechanism-content-ui-or-check"
+    },
+    {
+      "path": "src/CardGame.Content.Standard/SkillPrograms/ol-cheng-yu.rules.json",
+      "owners": [
+        "A"
+      ],
+      "scope": "owner-mechanism-content-ui-or-check"
+    },
+    {
+      "path": "src/CardGame.Content.Standard/SkillPrograms/ol-shen-pei.presentation.json",
+      "owners": [
+        "C"
+      ],
+      "scope": "owner-mechanism-content-ui-or-check"
+    },
+    {
+      "path": "src/CardGame.Content.Standard/SkillPrograms/ol-shen-pei.rules.json",
+      "owners": [
+        "C"
+      ],
+      "scope": "owner-mechanism-content-ui-or-check"
+    },
+    {
+      "path": "src/CardGame.Content.Standard/SkillPrograms/ol-sun-lu-yu.presentation.json",
+      "owners": [
+        "B"
+      ],
+      "scope": "owner-mechanism-content-ui-or-check"
+    },
+    {
+      "path": "src/CardGame.Content.Standard/SkillPrograms/ol-sun-lu-yu.rules.json",
+      "owners": [
+        "B"
+      ],
+      "scope": "owner-mechanism-content-ui-or-check"
+    },
+    {
+      "path": "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+      "owners": [
+        "root"
+      ],
+      "scope": "concentrated-integration"
+    },
+    {
+      "path": "src/CardGame.Content.Standard/StandardContentPackage.cs",
+      "owners": [
+        "root"
+      ],
+      "scope": "package-build-dependency"
+    },
+    {
+      "path": "src/CardGame.Core/CardZones.cs",
+      "owners": [
+        "A"
+      ],
+      "scope": "shared-source-integration"
+    },
+    {
+      "path": "src/CardGame.Core/ContentRegistry.cs",
+      "owners": [
+        "A",
+        "B"
+      ],
+      "scope": "shared-source-integration"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.ActualPlayPhaseCardUses.cs",
+      "owners": [
+        "B"
+      ],
+      "scope": "shared-source-integration"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.CardMovementPrograms.cs",
+      "owners": [
+        "A"
+      ],
+      "scope": "shared-source-integration"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.CardUseModules.cs",
+      "owners": [
+        "B"
+      ],
+      "scope": "shared-source-integration"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.cs",
+      "owners": [
+        "A",
+        "B",
+        "C"
+      ],
+      "scope": "shared-source-integration"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.DamageSourceHandChoice.cs",
+      "owners": [
+        "A",
+        "root"
+      ],
+      "scope": "owner-mechanism-content-ui-or-check"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.DelayedPlacementTargetPrograms.cs",
+      "owners": [
+        "A"
+      ],
+      "scope": "shared-source-integration"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.EndRefillNextTurn.cs",
+      "owners": [
+        "C"
+      ],
+      "scope": "owner-mechanism-content-ui-or-check"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.EndRefillNextTurnObservers.cs",
+      "owners": [
+        "C"
+      ],
+      "scope": "owner-mechanism-content-ui-or-check"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.ExtendedViewAs.cs",
+      "owners": [
+        "A"
+      ],
+      "scope": "shared-source-integration"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.NamedAmbush.cs",
+      "owners": [
+        "A"
+      ],
+      "scope": "owner-mechanism-content-ui-or-check"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.NamedAmbushInvalidation.cs",
+      "owners": [
+        "A"
+      ],
+      "scope": "owner-mechanism-content-ui-or-check"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.NamedHandChoiceObservers.cs",
+      "owners": [
+        "A"
+      ],
+      "scope": "owner-mechanism-content-ui-or-check"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.OtherParticipantHealthReplacement.cs",
+      "owners": [
+        "C"
+      ],
+      "scope": "owner-mechanism-content-ui-or-check"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.PhaseStartCardControl.cs",
+      "owners": [
+        "B"
+      ],
+      "scope": "owner-mechanism-content-ui-or-check"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.PhaseStartCardControlObservers.cs",
+      "owners": [
+        "B"
+      ],
+      "scope": "owner-mechanism-content-ui-or-check"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.PhaseStartControlPolicies.cs",
+      "owners": [
+        "B"
+      ],
+      "scope": "owner-mechanism-content-ui-or-check"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.ProgramCardTargetEffects.cs",
+      "owners": [
+        "A"
+      ],
+      "scope": "shared-source-integration"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.ProgramContinuationPermissions.cs",
+      "owners": [
+        "A",
+        "B",
+        "C"
+      ],
+      "scope": "shared-source-integration"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.ProgramLifecycle.cs",
+      "owners": [
+        "A",
+        "B",
+        "C"
+      ],
+      "scope": "shared-source-integration"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.ProgramTurnPhase.cs",
+      "owners": [
+        "B"
+      ],
+      "scope": "shared-source-integration"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.RuleProgression.cs",
+      "owners": [
+        "A"
+      ],
+      "scope": "shared-source-integration"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.RuleQueries.cs",
+      "owners": [
+        "B"
+      ],
+      "scope": "shared-source-integration"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.Runtime.cs",
+      "owners": [
+        "A",
+        "B",
+        "C"
+      ],
+      "scope": "shared-source-integration"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.SkillPrograms.cs",
+      "owners": [
+        "A",
+        "B",
+        "C"
+      ],
+      "scope": "shared-source-integration"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.SoleTargetRedirect.cs",
+      "owners": [
+        "A"
+      ],
+      "scope": "owner-mechanism-content-ui-or-check"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.SoleTargetReplacementCandidates.cs",
+      "owners": [
+        "A"
+      ],
+      "scope": "owner-mechanism-content-ui-or-check"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.TriggeredCardPrograms.cs",
+      "owners": [
+        "B"
+      ],
+      "scope": "shared-source-integration"
+    },
+    {
+      "path": "src/CardGame.Core/PhaseStartCardControlPrograms.cs",
+      "owners": [
+        "B"
+      ],
+      "scope": "owner-mechanism-content-ui-or-check"
+    },
+    {
+      "path": "src/CardGame.Core/ProgramCompositionAi.cs",
+      "owners": [
+        "C"
+      ],
+      "scope": "shared-source-integration"
+    },
+    {
+      "path": "src/CardGame.Core/ProgramDamageSourceHandChoice.cs",
+      "owners": [
+        "A"
+      ],
+      "scope": "owner-mechanism-content-ui-or-check"
+    },
+    {
+      "path": "src/CardGame.Core/ProgramEndRefillNextTurn.cs",
+      "owners": [
+        "C"
+      ],
+      "scope": "owner-mechanism-content-ui-or-check"
+    },
+    {
+      "path": "src/CardGame.Core/ProgramNamedAmbush.cs",
+      "owners": [
+        "A"
+      ],
+      "scope": "owner-mechanism-content-ui-or-check"
+    },
+    {
+      "path": "src/CardGame.Core/ProgramPhaseStartCardControlOperations.cs",
+      "owners": [
+        "B"
+      ],
+      "scope": "owner-mechanism-content-ui-or-check"
+    },
+    {
+      "path": "src/CardGame.Core/ProgramSoleTargetRedirect.cs",
+      "owners": [
+        "A"
+      ],
+      "scope": "owner-mechanism-content-ui-or-check"
+    },
+    {
+      "path": "src/CardGame.Core/Projection/CommittedEventProjection.cs",
+      "owners": [
+        "A",
+        "C"
+      ],
+      "scope": "shared-source-integration"
+    },
+    {
+      "path": "src/CardGame.Core/Projection/PlayerViewProjector.cs",
+      "owners": [
+        "A"
+      ],
+      "scope": "shared-source-integration"
+    },
+    {
+      "path": "src/CardGame.Core/Replay.cs",
+      "owners": [
+        "root"
+      ],
+      "scope": "concentrated-integration"
+    },
+    {
+      "path": "src/CardGame.Core/Resolution.cs",
+      "owners": [
+        "A"
+      ],
+      "scope": "shared-source-integration"
+    },
+    {
+      "path": "src/CardGame.Core/SkillProgramCardPolicies.cs",
+      "owners": [
+        "B",
+        "C"
+      ],
+      "scope": "shared-source-integration"
+    },
+    {
+      "path": "src/CardGame.Core/SkillProgramDependencies.cs",
+      "owners": [
+        "B"
+      ],
+      "scope": "shared-source-integration"
+    },
+    {
+      "path": "src/CardGame.Core/SkillPrograms.cs",
+      "owners": [
+        "A",
+        "B",
+        "C"
+      ],
+      "scope": "shared-source-integration"
+    },
+    {
+      "path": "src/CardGame.Wpf/Assets/official-ol-cheng-yu.png",
+      "owners": [
+        "A"
+      ],
+      "scope": "owner-mechanism-content-ui-or-check"
+    },
+    {
+      "path": "src/CardGame.Wpf/Assets/official-ol-shen-pei.png",
+      "owners": [
+        "C"
+      ],
+      "scope": "owner-mechanism-content-ui-or-check"
+    },
+    {
+      "path": "src/CardGame.Wpf/Assets/official-ol-sun-lu-yu.png",
+      "owners": [
+        "B"
+      ],
+      "scope": "owner-mechanism-content-ui-or-check"
+    },
+    {
+      "path": "src/CardGame.Wpf/CardGame.Wpf.csproj",
+      "owners": [
+        "root"
+      ],
+      "scope": "portrait-resource-build-dependency"
+    },
+    {
+      "path": "src/CardGame.Wpf/MainWindow.xaml",
+      "owners": [
+        "C"
+      ],
+      "scope": "owner-mechanism-content-ui-or-check"
+    },
+    {
+      "path": "src/CardGame.Wpf/Presentation/GeneralGalleryCatalog.cs",
+      "owners": [
+        "root"
+      ],
+      "scope": "concentrated-integration"
+    },
+    {
+      "path": "src/CardGame.Wpf/ViewModels/GeneralArt.cs",
+      "owners": [
+        "root"
+      ],
+      "scope": "concentrated-integration"
+    },
+    {
+      "path": "src/CardGame.Wpf/ViewModels/MainViewModel.CardRestrictions.cs",
+      "owners": [
+        "C"
+      ],
+      "scope": "owner-mechanism-content-ui-or-check"
+    },
+    {
+      "path": "src/CardGame.Wpf/ViewModels/MainViewModel.cs",
+      "owners": [
+        "C"
+      ],
+      "scope": "owner-mechanism-content-ui-or-check"
+    },
+    {
+      "path": "src/CardGame.Wpf/ViewModels/MainViewModel.DeferredCards.cs",
+      "owners": [
+        "C"
+      ],
+      "scope": "owner-mechanism-content-ui-or-check"
+    },
+    {
+      "path": "src/CardGame.Wpf/ViewModels/MainViewModel.NamedPrivatePiles.cs",
+      "owners": [
+        "C"
+      ],
+      "scope": "owner-mechanism-content-ui-or-check"
+    },
+    {
+      "path": "tests/CardGame.Core.Tests/EndRefillNextTurnChecks.cs",
+      "owners": [
+        "C"
+      ],
+      "scope": "owner-mechanism-content-ui-or-check"
+    },
+    {
+      "path": "tests/CardGame.Core.Tests/NamedAmbushAndSourceHandChecks.cs",
+      "owners": [
+        "A"
+      ],
+      "scope": "owner-mechanism-content-ui-or-check"
+    },
+    {
+      "path": "tests/CardGame.Core.Tests/PhaseStartCardControlChecks.cs",
+      "owners": [
+        "B"
+      ],
+      "scope": "owner-mechanism-content-ui-or-check"
+    },
+    {
+      "path": "tests/CardGame.Core.Tests/Program.cs",
+      "owners": [
+        "root"
+      ],
+      "scope": "concentrated-integration"
+    },
+    {
+      "path": "tests/CardGame.Core.Tests/ProgramCompositionDefinitionChecks.cs",
+      "owners": [
+        "A"
+      ],
+      "scope": "owner-mechanism-content-ui-or-check"
+    },
+    {
+      "path": "tests/CardGame.Core.Tests/SoleTargetProtectionChecks.cs",
+      "owners": [
+        "A"
+      ],
+      "scope": "owner-mechanism-content-ui-or-check"
+    },
+    {
+      "path": "tests/CardGame.Wpf.Tests/EditionGeneralGalleryChecks.cs",
+      "owners": [
+        "root"
+      ],
+      "scope": "concentrated-integration"
+    },
+    {
+      "path": "tests/CardGame.Wpf.Tests/NamedPrivatePileUiChecks.cs",
+      "owners": [
+        "C"
+      ],
+      "scope": "owner-mechanism-content-ui-or-check"
+    },
+    {
+      "path": "tests/CardGame.Wpf.Tests/Program.cs",
+      "owners": [
+        "root"
+      ],
+      "scope": "concentrated-integration"
+    },
+    {
+      "path": "tools/Test-Changed.ps1",
+      "owners": [
+        "root"
+      ],
+      "scope": "verification-driver-dependency"
+    },
+    {
+      "path": "tools/VerificationScopes.psd1",
+      "owners": [
+        "root"
+      ],
+      "scope": "concentrated-integration"
+    },
+    {
+      "path": "src/CardGame.Core/CardActions.cs",
+      "owners": [
+        "root"
+      ],
+      "scope": "immutable-action-and-mutation-proof-dependency"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.CompletedCategoryUseProof.cs",
+      "owners": [
+        "root"
+      ],
+      "scope": "immutable-action-and-mutation-proof-dependency"
+    },
+    {
+      "path": "tests/CardGame.Wpf.Tests/NativeActionFeedbackChecks.cs",
+      "owners": [
+        "C",
+        "root"
+      ],
+      "scope": "routine-response-fixture-lifecycle-fix"
+    }
+  ],
+  "limitations": [
+    "The list is bounded to this batch and is not the entire transitive build-input closure or a list of all concurrent dirty files.",
+    "A supplied its exact touched list; B supplied its exact shared list through root; C supplied its own touched list. Multi-owner shared files preserve every reported batch owner.",
+    "Root integration entries and the four supporting dependencies are retained for final verification stability. Dependency ownership names the central verifier and does not assert that this batch exclusively modified that file.",
+    "Source metadata and raw official docs/content/sources evidence, benchmark logs, renders and audits are deliverables rather than build-source stability inputs and are excluded. docs/content/general-art-catalog.json is included because WPF embeds it at runtime.",
+    "No final source hashes, build acceptance, verification freeze, or attribution of unrelated dirty changes is claimed. Owners must append any newly touched path before root captures final before/after hashes."
+  ]
+}

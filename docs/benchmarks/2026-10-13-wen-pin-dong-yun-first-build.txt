@@ -1,0 +1,21 @@
+  正在确定要还原的项目…
+  所有项目均是最新的，无法还原。
+C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillProgramExecutor.cs(1120,41): warning CS8602: 解引用可能出现空引用。 [C:\Users\17917\Desktop\Card\src\CardGame.Core\CardGame.Core.csproj]
+C:\Users\17917\Desktop\Card\src\CardGame.Core\GameEngine.EndingHistoricalUses.cs(99,69): warning CS8604: “IEnumerable<int> Enumerable.Where<int>(IEnumerable<int> source, Func<int, int, bool> predicate)”中的形参“source”可能传入 null 引用实参。 [C:\Users\17917\Desktop\Card\src\CardGame.Core\CardGame.Core.csproj]
+C:\Users\17917\Desktop\Card\src\CardGame.Core\GameEngine.PublicPilePreparation.cs(75,131): warning CS8602: 解引用可能出现空引用。 [C:\Users\17917\Desktop\Card\src\CardGame.Core\CardGame.Core.csproj]
+C:\Users\17917\Desktop\Card\src\CardGame.Core\GameEngine.SameTypeActualUseAid.cs(178,35): warning CS8602: 解引用可能出现空引用。 [C:\Users\17917\Desktop\Card\src\CardGame.Core\CardGame.Core.csproj]
+C:\Users\17917\Desktop\Card\src\CardGame.Core\GameEngine.SoleTargetProtection.cs(222,54): error CS0117: “CardUseFrame”未包含“SequentialTrickTail”的定义 [C:\Users\17917\Desktop\Card\src\CardGame.Core\CardGame.Core.csproj]
+C:\Users\17917\Desktop\Card\src\CardGame.Core\GameEngine.SoleTargetProtection.cs(222,80): error CS1061: “CardUseFrame”未包含“SequentialTrickTail”的定义，并且找不到可接受第一个“CardUseFrame”类型参数的可访问扩展方法“SequentialTrickTail”(是否缺少 using 指令或程序集引用?) [C:\Users\17917\Desktop\Card\src\CardGame.Core\CardGame.Core.csproj]
+
+生成失败。
+
+C:\Users\17917\Desktop\Card\src\CardGame.Core\SkillProgramExecutor.cs(1120,41): warning CS8602: 解引用可能出现空引用。 [C:\Users\17917\Desktop\Card\src\CardGame.Core\CardGame.Core.csproj]
+C:\Users\17917\Desktop\Card\src\CardGame.Core\GameEngine.EndingHistoricalUses.cs(99,69): warning CS8604: “IEnumerable<int> Enumerable.Where<int>(IEnumerable<int> source, Func<int, int, bool> predicate)”中的形参“source”可能传入 null 引用实参。 [C:\Users\17917\Desktop\Card\src\CardGame.Core\CardGame.Core.csproj]
+C:\Users\17917\Desktop\Card\src\CardGame.Core\GameEngine.PublicPilePreparation.cs(75,131): warning CS8602: 解引用可能出现空引用。 [C:\Users\17917\Desktop\Card\src\CardGame.Core\CardGame.Core.csproj]
+C:\Users\17917\Desktop\Card\src\CardGame.Core\GameEngine.SameTypeActualUseAid.cs(178,35): warning CS8602: 解引用可能出现空引用。 [C:\Users\17917\Desktop\Card\src\CardGame.Core\CardGame.Core.csproj]
+C:\Users\17917\Desktop\Card\src\CardGame.Core\GameEngine.SoleTargetProtection.cs(222,54): error CS0117: “CardUseFrame”未包含“SequentialTrickTail”的定义 [C:\Users\17917\Desktop\Card\src\CardGame.Core\CardGame.Core.csproj]
+C:\Users\17917\Desktop\Card\src\CardGame.Core\GameEngine.SoleTargetProtection.cs(222,80): error CS1061: “CardUseFrame”未包含“SequentialTrickTail”的定义，并且找不到可接受第一个“CardUseFrame”类型参数的可访问扩展方法“SequentialTrickTail”(是否缺少 using 指令或程序集引用?) [C:\Users\17917\Desktop\Card\src\CardGame.Core\CardGame.Core.csproj]
+    4 个警告
+    2 个错误
+
+已用时间 00:00:08.15
