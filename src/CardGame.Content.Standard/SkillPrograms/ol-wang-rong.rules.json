@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:fengzi",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "same-category-extra-effect",
+          "window": "cardUseCommitted",
+          "ownerRelation": "actor",
+          "optional": true,
+          "usageScope": "phase",
+          "usageLimit": 1,
+          "effects": [
+            {
+              "op": "discardSameCategoryForExtraEffect",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:jizhan",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "guess-ranks-replace-draw",
+          "window": "drawPhaseStarting",
+          "subject": "owner",
+          "optional": true,
+          "drawPhaseMode": "replacement",
+          "effects": [
+            {
+              "op": "guessRanksForDrawReplacement",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:fusong",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "death-recipient-skill-choice",
+          "window": "ownerDied",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "deathRecipientChooseSkill",
+              "target": "owner",
+              "skillIds": [
+                "ol:fengzi",
+                "ol:jizhan"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

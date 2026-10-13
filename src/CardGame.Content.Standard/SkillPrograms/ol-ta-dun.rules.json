@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "ol:luanzhan", "revision": 1, "triggers": [
+      { "id": "applied-damage-budget", "window": "afterDamageApplied", "subject": "any", "damageOccurrence": "perDamage", "optional": false,
+        "effects": [{ "op": "gainDamageOccurrenceTargetBudget", "target": "owner", "marker": "luanZhan" }] },
+      { "id": "actual-use-target-budget", "window": "cardUseTargetsFinalized", "ownerRelation": "actor", "priority": 1000, "optional": false,
+        "effects": [{ "op": "addDamageMarkerBudgetTargets", "target": "owner", "marker": "luanZhan" }] }
+    ] }
+  ]
+}

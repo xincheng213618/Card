@@ -1,0 +1,477 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mou-mobile:wusheng",
+      "revision": 1,
+      "viewAs": [
+        {
+          "id": "as-slash",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "slash",
+          "forPlay": true,
+          "forResponse": true,
+          "allowSameKind": true
+        }
+      ],
+      "triggers": [
+        {
+          "id": "focus",
+          "window": "playPhaseStarting",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "otherLivingNonLord"
+            },
+            {
+              "op": "armPhaseSlashFocus",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "focus-use",
+          "window": "cardUseTargetsFinalized",
+          "optional": false,
+          "effects": [
+            {
+              "op": "recordPhaseFocusedSlash",
+              "target": "owner"
+            }
+          ],
+          "ownerRelation": "actor",
+          "cardKinds": [
+            "slash",
+            "fireSlash",
+            "thunderSlash"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mou-mobile:yijue",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "spare",
+          "window": "beforeDamageApplied",
+          "subject": "damageSource",
+          "optional": false,
+          "effects": [
+            {
+              "op": "spareFirstLethalTarget",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "cancel-spared",
+          "window": "cardUseTargetsFinalized",
+          "optional": false,
+          "effects": [
+            {
+              "op": "cancelSparedCardTargets",
+              "target": "owner"
+            }
+          ],
+          "ownerRelation": "actor"
+        }
+      ]
+    },
+    {
+      "id": "mou-ol:weilin",
+      "revision": 1,
+      "viewAs": [
+        {
+          "id": "as-slash",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "slash",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "useOnly": true
+        },
+        {
+          "id": "as-fireSlash",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "fireSlash",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "useOnly": true
+        },
+        {
+          "id": "as-thunderSlash",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "thunderSlash",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "useOnly": true
+        },
+        {
+          "id": "as-alcohol",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "alcohol",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "useOnly": true
+        }
+      ],
+      "triggers": [
+        {
+          "id": "rewrite",
+          "window": "cardUseTargetsFinalized",
+          "optional": false,
+          "effects": [
+            {
+              "op": "rewriteWeilinTargetHand",
+              "target": "owner"
+            }
+          ],
+          "ownerRelation": "actor"
+        }
+      ]
+    },
+    {
+      "id": "mou-ol:duoshou",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "opening-use",
+          "window": "cardUseCommitted",
+          "optional": false,
+          "effects": [
+            {
+              "op": "recordOpeningTurnUse",
+              "target": "owner"
+            }
+          ],
+          "ownerRelation": "actor",
+          "includeResponseUses": true
+        },
+        {
+          "id": "first-damage",
+          "window": "afterDamageApplied",
+          "subject": "damageSource",
+          "optional": false,
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 1
+            }
+          ],
+          "usageScope": "turn",
+          "usageLimit": 1,
+          "damageOccurrence": "perDamage"
+        }
+      ]
+    },
+    {
+      "id": "magic:hanguo",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "round-focus",
+          "window": "roundStarting",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "otherLivingNotLastRoundFocus"
+            },
+            {
+              "op": "holdRoundFocusCards",
+              "target": "owner"
+            }
+          ],
+          "usageScope": "round",
+          "usageLimit": 1
+        },
+        {
+          "id": "execute",
+          "window": "damageAppliedBeforeDying",
+          "subject": "damageSource",
+          "optional": false,
+          "effects": [
+            {
+              "op": "killRoundFocusSlashVictim",
+              "target": "owner"
+            }
+          ],
+          "damageOccurrence": "perDamage"
+        },
+        {
+          "id": "aid-reward",
+          "window": "cardResponseAccepted",
+          "ownerRelation": "observer",
+          "cardKinds": [
+            "dodge"
+          ],
+          "optional": false,
+          "effects": [
+            {
+              "op": "selectAndMoveOwnedCard",
+              "target": "owner",
+              "chooserRef": {
+                "kind": "cardProvider"
+              },
+              "cardOwnerRef": {
+                "kind": "owner"
+              },
+              "zones": [
+                "hand",
+                "equipment"
+              ],
+              "count": 1,
+              "destination": "selectedTargetHand",
+              "targetRef": {
+                "kind": "cardProvider"
+              },
+              "skipIfNoCards": true,
+              "allowSameOwnerHandReturn": true,
+              "awaitMovementTriggers": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "magic:weiwo",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "support",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "selectTargets",
+              "target": "owner",
+              "targetKind": "otherLivingWithoutEndingSupport",
+              "minimumTargets": 0,
+              "maximumTargets": 1,
+              "targetAiOrder": "supportDraw"
+            },
+            {
+              "op": "grantExclusiveRende",
+              "target": "owner"
+            },
+            {
+              "op": "selectTargets",
+              "target": "owner",
+              "targetKind": "otherLivingWithoutEndingSupport",
+              "minimumTargets": 0,
+              "maximumTargets": 1,
+              "targetAiOrder": "supportDraw"
+            },
+            {
+              "op": "grantExclusiveQingnang",
+              "target": "owner"
+            },
+            {
+              "op": "selectTargets",
+              "target": "owner",
+              "targetKind": "otherLivingWithoutEndingSupport",
+              "minimumTargets": 0,
+              "maximumTargets": 1,
+              "targetAiOrder": "supportDraw"
+            },
+            {
+              "op": "grantExclusiveLongyin",
+              "target": "owner"
+            },
+            {
+              "op": "grantSkills",
+              "target": "owner",
+              "skillIds": [
+                "magic:wushen"
+              ]
+            }
+          ],
+          "usageScope": "game",
+          "usageLimit": 1
+        }
+      ]
+    },
+    {
+      "id": "magic:wushen",
+      "revision": 1,
+      "cardIdentities": [
+        {
+          "id": "heart-hand-slash",
+          "zones": [
+            "hand"
+          ],
+          "inputKinds": [],
+          "inputSuits": [
+            "heart"
+          ],
+          "outputKind": "slash"
+        }
+      ],
+      "modifiers": [
+        {
+          "id": "heart-distance",
+          "query": "slashDistanceLimit",
+          "operation": "unlimited",
+          "value": 0,
+          "priority": 0,
+          "sourceCardIdentityId": "heart-hand-slash"
+        }
+      ]
+    },
+    {
+      "id": "magic:rende",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "give-and-heal-after-two",
+          "usesPerTurn": null,
+          "minCards": 1,
+          "maxCards": null,
+          "sourceZones": [
+            "hand"
+          ],
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "exclusiveRendeBeneficiary",
+          "effects": [
+            {
+              "op": "giveSelected",
+              "target": "selectedTarget"
+            },
+            {
+              "op": "accumulateSelectedCardCount",
+              "target": "owner",
+              "usageId": "cards-given",
+              "threshold": 2,
+              "resultBind": "gift-threshold"
+            },
+            {
+              "op": "recover",
+              "target": "owner",
+              "amount": 1,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "gift-threshold",
+                "optionId": "crossed"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "magic:qingnang",
+      "revision": 2,
+      "activations": [
+        {
+          "id": "discard-and-heal",
+          "minCards": 1,
+          "maxCards": 1,
+          "sourceZones": [
+            "hand"
+          ],
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "exclusiveQingnangBeneficiary",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "effects": [
+            {
+              "op": "discardSelected",
+              "target": "owner",
+              "amount": 1
+            },
+            {
+              "op": "recover",
+              "target": "selectedTarget",
+              "amount": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "magic:longyin",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "support-slash",
+          "window": "cardUseCommitted",
+          "optional": true,
+          "effects": [
+            {
+              "op": "selectOwnedCards",
+              "target": "owner",
+              "zones": [
+                "hand",
+                "equipment"
+              ],
+              "amount": 1,
+              "resultBind": "payment"
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "payment",
+              "destination": "discardPile",
+              "awaitMovementTriggers": true
+            },
+            {
+              "op": "refundCardUseDebit",
+              "target": "owner"
+            },
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 1,
+              "condition": {
+                "kind": "cardUseIsRed"
+              }
+            }
+          ],
+          "ownerRelation": "observer",
+          "cardKinds": [
+            "slash",
+            "fireSlash",
+            "thunderSlash"
+          ]
+        }
+      ]
+    }
+  ]
+}

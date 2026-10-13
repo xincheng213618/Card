@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "ol:zhendu", "revision": 1, "triggers": [
+      { "id": "self-play-start-wine", "window": "playPhaseStarting", "subject": "owner", "turnOwnerScope": "own", "optional": true,
+        "effects": [
+          { "op": "selectOwnedCards", "target": "owner", "zones": ["hand"], "minimumCards": 1, "maximumCards": 1, "resultBind": "wine-cost" },
+          { "op": "moveBoundCards", "target": "owner", "sourceBind": "wine-cost", "destination": "discardPile", "awaitMovementTriggers": true },
+          { "op": "usePhaseOwnerVirtualAlcohol", "target": "owner", "damageToOther": 1 }
+        ] },
+      { "id": "other-play-start-wine", "window": "playPhaseStarting", "subject": "owner", "turnOwnerScope": "otherLiving", "optional": true,
+        "effects": [
+          { "op": "selectOwnedCards", "target": "owner", "zones": ["hand"], "minimumCards": 1, "maximumCards": 1, "resultBind": "wine-cost" },
+          { "op": "moveBoundCards", "target": "owner", "sourceBind": "wine-cost", "destination": "discardPile", "awaitMovementTriggers": true },
+          { "op": "usePhaseOwnerVirtualAlcohol", "target": "owner", "damageToOther": 1 }
+        ] }
+    ] },
+    { "id": "ol:qiluan", "revision": 1, "triggers": [
+      { "id": "self-actual-turn-deaths", "window": "afterTurnEnded", "subject": "owner", "turnOwnerScope": "own", "optional": true,
+        "condition": { "kind": "compare", "left": { "kind": "actualTurnDeathCount" }, "operator": "greaterThan", "right": { "kind": "integerConstant", "value": 0 } },
+        "effects": [{ "op": "draw", "target": "owner", "numberExpression": "actualTurnDeathBenefits" }] },
+      { "id": "other-actual-turn-deaths", "window": "afterTurnEnded", "subject": "owner", "turnOwnerScope": "otherLiving", "optional": true,
+        "condition": { "kind": "compare", "left": { "kind": "actualTurnDeathCount" }, "operator": "greaterThan", "right": { "kind": "integerConstant", "value": 0 } },
+        "effects": [{ "op": "draw", "target": "owner", "numberExpression": "actualTurnDeathBenefits" }] }
+    ] }
+  ]
+}

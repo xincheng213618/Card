@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "ol:biluan", "revision": 1, "triggers": [
+      { "id": "ending-faction-distance", "window": "turnEnding", "subject": "owner", "turnOwnerScope": "own", "optional": true,
+        "effects": [{ "op": "adjustIncomingDistanceByLivingFactions", "target": "owner" }] }
+    ] },
+    { "id": "ol:lixia", "revision": 1, "triggers": [
+      { "id": "other-ending-courtesy", "window": "turnEnding", "subject": "owner", "turnOwnerScope": "otherLiving", "optional": false,
+        "effects": [{ "op": "chooseEndingCourtesyBenefits", "target": "owner" }] }
+    ] }
+  ]
+}

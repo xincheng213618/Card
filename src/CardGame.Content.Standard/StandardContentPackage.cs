@@ -322,6 +322,8 @@ public sealed class StandardContentPackage : IGameContentPackage
             CardCatalog.Get(CardKind.RedBloodBlade).Description, CardKind.RedBloodBlade));
         builder.AddCard(new ContentCardDefinition("ol:general-weapon", "武将武器", "装备牌",
             CardCatalog.Get(CardKind.GeneralWeapon).Description, CardKind.GeneralWeapon));
+        builder.AddCard(new ContentCardDefinition("standard:xuanjian", "玄剑", "装备牌",
+            CardCatalog.Get(CardKind.Xuanjian).Description, CardKind.Xuanjian));
 
         builder.AddSkill(new ContentSkillDefinition(
             "standard:none", "无", "演示版暂未启用技能。"));

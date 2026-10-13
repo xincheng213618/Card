@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "friend:qinying", "revision": 1,
+      "activations": [{
+        "id": "recast-duel", "minCards": 0, "maxCards": null, "sourceZones": ["hand", "equipment"],
+        "minTargets": 1, "maxTargets": 1, "targetKind": "otherLiving", "usesPerTurn": null, "usesPerPhase": 1,
+        "effects": [{ "op": "recastOwnedCardsAndDuel", "target": "owner" }]
+      }]
+    },
+    {
+      "id": "friend:lunxiong", "revision": 1,
+      "triggers": [
+        { "id": "after-caused", "window": "afterDamageApplied", "subject": "damageSource", "optional": true, "damageOccurrence": "perDamage",
+          "effects": [{ "op": "discardAscendingMaximumAndDraw", "target": "owner" }] },
+        { "id": "after-received", "window": "afterDamageApplied", "subject": "owner", "optional": true, "damageOccurrence": "perDamage",
+          "effects": [{ "op": "discardAscendingMaximumAndDraw", "target": "owner" }] }
+      ]
+    },
+    {
+      "id": "friend:shi-tao-gongli", "revision": 1,
+      "triggers": [{ "id": "opening-categories", "window": "gameStarting", "subject": "owner", "optional": false,
+        "effects": [{ "op": "configureFriendDuelCategories", "target": "owner" }] }]
+    },
+    {
+      "id": "friend:shunyi", "revision": 1,
+      "triggers": [{ "id": "minimum-hand-use", "window": "cardUseCommitted", "optional": true,
+        "ownerRelation": "actor", "includeResponseUses": true, "condition": { "kind": "cardActionFromOwnerHand" },
+        "effects": [{ "op": "holdUsedSuitHandAndDraw", "target": "owner" }] }]
+    },
+    {
+      "id": "friend:biwei", "revision": 1,
+      "activations": [{ "id": "discard-highest", "minCards": 1, "maxCards": 1, "sourceZones": ["hand"],
+        "minTargets": 1, "maxTargets": 1, "targetKind": "otherLiving", "usesPerTurn": null, "usesPerPhase": 1,
+        "effects": [{ "op": "discardMaximumAndPunishHigherHand", "target": "owner" }] }]
+    },
+    {
+      "id": "friend:cui-jun-gongli", "revision": 1,
+      "triggers": [{ "id": "opening-suits", "window": "gameStarting", "subject": "owner", "optional": false,
+        "effects": [{ "op": "configureFriendUseSuits", "target": "owner" }] }]
+    }
+  ]
+}

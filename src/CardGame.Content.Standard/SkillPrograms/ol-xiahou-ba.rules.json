@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:baobian",
+      "revision": 1,
+      "hpSkillGrants": [
+        { "id": "taunt", "skillId": "classic:tiaoxin", "maximumHp": 3 },
+        { "id": "roar", "skillId": "classic:paoxiao", "maximumHp": 2 },
+        { "id": "swift", "skillId": "classic:shensu", "minimumHp": 1, "maximumHp": 1 }
+      ]
+    }
+  ]
+}

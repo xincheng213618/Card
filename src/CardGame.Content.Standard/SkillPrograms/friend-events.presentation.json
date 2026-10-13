@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "friend:qinying": { "name": "钦英", "description": "出牌阶段限一次，你可以重铸任意张牌，视为使用一张【决斗】。若如此做，此【决斗】结算过程中限X次（X为你以此法重铸的牌数），你或目标角色可以弃置区域中的一张牌，视为打出一张普通【杀】。", "activationLabels": { "recast-duel": "重铸并决斗" } },
+    "friend:lunxiong": { "name": "论雄", "description": "当你造成或者受到伤害后，你可以弃置点数唯一最大的手牌，然后你摸三张牌且你本局游戏以此法弃置的点数必须大于此牌。" },
+    "friend:shi-tao-gongli": { "name": "共砺", "description": "锁定技，游戏开始时，你令本局“钦英”减少X个可用于弃置的类别的牌（X为全场友武将数）。" },
+    "friend:shunyi": { "name": "顺逸", "description": "当你使用点数唯一最小的手牌时，若此牌的花色为红桃且点数大于X（X为你本回合发动此技能的次数），你可以将此花色的所有手牌扣置于武将牌上直至当前回合结束，然后你摸一张牌。" },
+    "friend:biwei": { "name": "鄙位", "description": "出牌阶段限一次，你可以弃置一张点数唯一最大的手牌并选择一名其他角色，令其弃置所有点数大于等于此牌的手牌。若其未因此弃置牌，复原此技能。", "activationLabels": { "discard-highest": "弃置最大点数" } },
+    "friend:cui-jun-gongli": { "name": "共砺", "description": "锁定技，游戏开始时，你令本局“顺逸”添加X个可触发的花色（X为全场友武将数）。" }
+  }
+}

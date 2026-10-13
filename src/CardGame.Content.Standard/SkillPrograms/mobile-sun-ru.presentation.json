@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "mobile:yingjian": {
+      "name": "影箭",
+      "description": "准备阶段，你可以视为使用一张无距离限制的【杀】。"
+    },
+    "mobile:shixin": {
+      "name": "释衅",
+      "description": "锁定技，你不会受到火焰伤害。"
+    }
+  }
+}

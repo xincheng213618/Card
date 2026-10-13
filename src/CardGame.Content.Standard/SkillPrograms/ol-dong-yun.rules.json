@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "ol:bingzheng", "revision": 1, "triggers": [{
+      "id": "unequal-hand-hp-ending", "window": "playEnding", "subject": "owner", "turnOwnerScope": "own", "optional": true,
+      "effects": [{ "op": "resolveUnequalHandHpEnding", "target": "owner" }]
+    }] },
+    { "id": "ol:sheyan", "revision": 1, "triggers": [{
+      "id": "targeted-trick-adjustment", "window": "cardUseTargetsFinalized", "ownerRelation": "target",
+      "cardCategories": ["instantTrick"], "optional": true,
+      "effects": [{ "op": "adjustTargetedOrdinaryTrick", "target": "owner" }]
+    }] }
+  ]
+}

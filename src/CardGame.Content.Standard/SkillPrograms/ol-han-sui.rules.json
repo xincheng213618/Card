@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:niluan", "revision": 1,
+      "triggers": [{
+        "id": "ending-black-slash", "window": "turnEnding", "subject": "owner", "turnOwnerScope": "otherLiving", "optional": true,
+        "condition": { "kind": "all", "children": [
+          { "kind": "compare", "left": { "kind": "turnOwnerHp" }, "operator": "greaterThan", "right": { "kind": "currentHp" } },
+          { "kind": "compare", "left": { "kind": "turnOwnerSlashUseCount" }, "operator": "greaterThanOrEqual", "right": { "kind": "integerConstant", "value": 1 } }
+        ] },
+        "effects": [
+          { "op": "selectOwnedCards", "target": "owner", "minimumCards": 1, "maximumCards": 1,
+            "zones": ["hand", "equipment"], "suits": ["spade", "club"], "resultBind": "slash-material" },
+          { "op": "useBoundCardsAsSlash", "target": "owner", "sourceBind": "slash-material" }
+        ]
+      }]
+    },
+    {
+      "id": "ol:xiaoxi", "revision": 1,
+      "triggers": [{
+        "id": "round-first-turn-slash", "window": "roundStarting", "subject": "owner", "optional": true,
+        "condition": { "kind": "compare", "left": { "kind": "roundTurnSeatCount" }, "operator": "equal", "right": { "kind": "integerConstant", "value": 1 } },
+        "effects": [
+          { "op": "selectTarget", "target": "owner", "targetKind": "otherLivingVirtualSlashTarget" },
+          { "op": "useVirtualCard", "target": "selectedTarget", "outputKind": "slash",
+            "useCardActionWindows": true, "targetRestriction": "distanceUnlimitedAgainstTarget" }
+        ]
+      }]
+    }
+  ]
+}

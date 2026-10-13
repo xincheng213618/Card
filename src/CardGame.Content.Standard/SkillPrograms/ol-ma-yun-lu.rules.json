@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 62,
+  "skills": [{
+    "id": "ol:fengpo", "revision": 1,
+    "triggers": [{
+      "id": "first-slash-duel-diamond-benefit", "window": "cardUseTargetsFinalized",
+      "ownerRelation": "actor", "optional": true, "priority": -1000,
+      "effects": [{ "op": "chooseFirstSlashDuelDiamondBenefit", "target": "owner" }]
+    }]
+  }]
+}

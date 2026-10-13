@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "classic:gongao", "revision": 1,
+      "triggers": [{
+        "id": "other-death-grow-and-recover", "window": "characterDied", "subject": "owner", "optional": false,
+        "effects": [
+          { "op": "changeMaximumHp", "target": "owner", "amount": 1 },
+          { "op": "recover", "target": "owner", "amount": 1 }
+        ]
+      }]
+    },
+    {
+      "id": "classic:juyi", "revision": 1,
+      "triggers": [{
+        "id": "wounded-over-population-awaken", "window": "turnStartBeforeNormalFlow", "subject": "owner", "optional": false,
+        "usageScope": "game", "usageLimit": 1,
+        "condition": { "kind": "all", "children": [
+          { "kind": "compare", "left": { "kind": "ownerLostHp" }, "operator": "greaterThan", "right": { "kind": "integerConstant", "value": 0 } },
+          { "kind": "compare", "left": { "kind": "currentMaxHp" }, "operator": "greaterThan", "right": { "kind": "livingPlayerCount" } }
+        ] },
+        "effects": [
+          { "op": "draw", "target": "owner", "numberExpression": "targetMaxHpMinusHandCount" },
+          { "op": "grantSkills", "target": "owner", "skillIds": ["classic:benghuai", "classic:weizhong"] }
+        ]
+      }]
+    },
+    {
+      "id": "classic:weizhong", "revision": 1,
+      "triggers": [{
+        "id": "actual-maximum-hp-change-draw", "window": "afterHealthChanged", "subject": "owner", "optional": false,
+        "hpChangeOccurrence": "perEvent",
+        "condition": { "kind": "healthChangeKindIs", "hpChangeKind": "maximumHp" },
+        "effects": [{ "op": "draw", "target": "owner", "amount": 1 }]
+      }]
+    }
+  ]
+}

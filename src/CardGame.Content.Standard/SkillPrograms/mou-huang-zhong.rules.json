@@ -1,0 +1,320 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mou:liegong",
+      "revision": 1,
+      "states": [
+        {
+          "id": "recorded-spade",
+          "initialValue": false,
+          "visibility": "public",
+          "resetScope": "game",
+          "reacquirePolicy": "preserveUntilGameEnd"
+        },
+        {
+          "id": "recorded-heart",
+          "initialValue": false,
+          "visibility": "public",
+          "resetScope": "game",
+          "reacquirePolicy": "preserveUntilGameEnd"
+        },
+        {
+          "id": "recorded-club",
+          "initialValue": false,
+          "visibility": "public",
+          "resetScope": "game",
+          "reacquirePolicy": "preserveUntilGameEnd"
+        },
+        {
+          "id": "recorded-diamond",
+          "initialValue": false,
+          "visibility": "public",
+          "resetScope": "game",
+          "reacquirePolicy": "preserveUntilGameEnd"
+        }
+      ],
+      "cardIdentities": [
+        {
+          "id": "unarmed-ordinary-slash",
+          "zones": [
+            "hand",
+            "woodenOxGrain"
+          ],
+          "inputKinds": [
+            "fireSlash",
+            "thunderSlash"
+          ],
+          "outputKind": "slash",
+          "condition": {
+            "kind": "noWeapon"
+          },
+          "inputSuits": []
+        }
+      ],
+      "triggers": [
+        {
+          "id": "record-use-spade",
+          "window": "cardUseCommitted",
+          "ownerRelation": "actor",
+          "optional": false,
+          "priority": 100,
+          "condition": {
+            "kind": "cardActionSuitIs",
+            "suits": [
+              "spade"
+            ]
+          },
+          "effects": [
+            {
+              "op": "setBooleanState",
+              "target": "owner",
+              "stateId": "recorded-spade",
+              "value": true
+            }
+          ],
+          "includeResponseUses": true
+        },
+        {
+          "id": "record-target-spade",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "target",
+          "optional": false,
+          "priority": 100,
+          "condition": {
+            "kind": "all",
+            "children": [
+              {
+                "kind": "cardActionSuitIs",
+                "suits": [
+                  "spade"
+                ]
+              },
+              {
+                "kind": "not",
+                "children": [
+                  {
+                    "kind": "cardActionActorIsOwner"
+                  }
+                ]
+              }
+            ]
+          },
+          "effects": [
+            {
+              "op": "setBooleanState",
+              "target": "owner",
+              "stateId": "recorded-spade",
+              "value": true
+            }
+          ]
+        },
+        {
+          "id": "record-use-heart",
+          "window": "cardUseCommitted",
+          "ownerRelation": "actor",
+          "optional": false,
+          "priority": 100,
+          "condition": {
+            "kind": "cardActionSuitIs",
+            "suits": [
+              "heart"
+            ]
+          },
+          "effects": [
+            {
+              "op": "setBooleanState",
+              "target": "owner",
+              "stateId": "recorded-heart",
+              "value": true
+            }
+          ],
+          "includeResponseUses": true
+        },
+        {
+          "id": "record-target-heart",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "target",
+          "optional": false,
+          "priority": 100,
+          "condition": {
+            "kind": "all",
+            "children": [
+              {
+                "kind": "cardActionSuitIs",
+                "suits": [
+                  "heart"
+                ]
+              },
+              {
+                "kind": "not",
+                "children": [
+                  {
+                    "kind": "cardActionActorIsOwner"
+                  }
+                ]
+              }
+            ]
+          },
+          "effects": [
+            {
+              "op": "setBooleanState",
+              "target": "owner",
+              "stateId": "recorded-heart",
+              "value": true
+            }
+          ]
+        },
+        {
+          "id": "record-use-club",
+          "window": "cardUseCommitted",
+          "ownerRelation": "actor",
+          "optional": false,
+          "priority": 100,
+          "condition": {
+            "kind": "cardActionSuitIs",
+            "suits": [
+              "club"
+            ]
+          },
+          "effects": [
+            {
+              "op": "setBooleanState",
+              "target": "owner",
+              "stateId": "recorded-club",
+              "value": true
+            }
+          ],
+          "includeResponseUses": true
+        },
+        {
+          "id": "record-target-club",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "target",
+          "optional": false,
+          "priority": 100,
+          "condition": {
+            "kind": "all",
+            "children": [
+              {
+                "kind": "cardActionSuitIs",
+                "suits": [
+                  "club"
+                ]
+              },
+              {
+                "kind": "not",
+                "children": [
+                  {
+                    "kind": "cardActionActorIsOwner"
+                  }
+                ]
+              }
+            ]
+          },
+          "effects": [
+            {
+              "op": "setBooleanState",
+              "target": "owner",
+              "stateId": "recorded-club",
+              "value": true
+            }
+          ]
+        },
+        {
+          "id": "record-use-diamond",
+          "window": "cardUseCommitted",
+          "ownerRelation": "actor",
+          "optional": false,
+          "priority": 100,
+          "condition": {
+            "kind": "cardActionSuitIs",
+            "suits": [
+              "diamond"
+            ]
+          },
+          "effects": [
+            {
+              "op": "setBooleanState",
+              "target": "owner",
+              "stateId": "recorded-diamond",
+              "value": true
+            }
+          ],
+          "includeResponseUses": true
+        },
+        {
+          "id": "record-target-diamond",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "target",
+          "optional": false,
+          "priority": 100,
+          "condition": {
+            "kind": "all",
+            "children": [
+              {
+                "kind": "cardActionSuitIs",
+                "suits": [
+                  "diamond"
+                ]
+              },
+              {
+                "kind": "not",
+                "children": [
+                  {
+                    "kind": "cardActionActorIsOwner"
+                  }
+                ]
+              }
+            ]
+          },
+          "effects": [
+            {
+              "op": "setBooleanState",
+              "target": "owner",
+              "stateId": "recorded-diamond",
+              "value": true
+            }
+          ]
+        },
+        {
+          "id": "sole-target-liegong",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "actor",
+          "cardKinds": [
+            "slash",
+            "fireSlash",
+            "thunderSlash"
+          ],
+          "optional": true,
+          "condition": {
+            "kind": "compare",
+            "left": {
+              "kind": "cardUseDesignatedTargetCount"
+            },
+            "operator": "equal",
+            "right": {
+              "kind": "integerConstant",
+              "value": 1
+            }
+          },
+          "effects": [
+            {
+              "op": "revealRecordedSuitSlash",
+              "target": "owner",
+              "stateId": "recorded",
+              "resultBind": "revealed"
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "revealed",
+              "destination": "discardPile",
+              "awaitMovementTriggers": true
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

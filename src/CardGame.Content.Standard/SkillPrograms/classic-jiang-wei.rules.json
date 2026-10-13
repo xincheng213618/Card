@@ -3,7 +3,7 @@
   "skills": [
     {
       "id": "classic:tiaoxin",
-      "revision": 1,
+      "revision": 2,
       "minimumRulesVersion": 185,
       "modifiers": [],
       "viewAs": [],
@@ -16,8 +16,8 @@
           "minTargets": 1,
           "maxTargets": 1,
           "targetKind": "otherLivingWhoseAttackRangeIncludesOwner",
-          "usesPerTurn": 1,
-          "usesPerPhase": null,
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
           "usesPerGame": null,
           "condition": {
             "kind": "always"

@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "ol:shefu", "revision": 1, "triggers": [
+      { "id": "record-ending-ambush", "window": "turnEnding", "subject": "owner", "optional": true,
+        "effects": [{ "op": "recordNamedPrivateAmbush", "target": "owner" }] },
+      { "id": "invalidate-recorded-hand-use", "window": "cardUseCommitted", "ownerRelation": "observer", "includeResponseUses": true, "optional": true,
+        "effects": [{ "op": "nullifyMatchingHandUse", "target": "owner" }] }
+    ] },
+    { "id": "ol:benyu", "revision": 1, "triggers": [
+      { "id": "source-hand-choice-after-damage", "window": "afterDamageApplied", "subject": "owner", "damageOccurrence": "perDamage", "requireDamageSource": true, "optional": true,
+        "effects": [{ "op": "resolveDamageSourceHandChoice", "target": "owner" }] }
+    ] }
+  ]
+}

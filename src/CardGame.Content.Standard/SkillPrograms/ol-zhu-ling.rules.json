@@ -3,7 +3,7 @@
   "skills": [
     {
       "id": "ol:zhanyi",
-      "revision": 1,
+      "revision": 3,
       "states": [
         { "id": "zhanyi-basic", "initialValue": false, "visibility": "private", "resetScope": "game", "reacquirePolicy": "preserveUntilGameEnd" },
         { "id": "zhanyi-trick", "initialValue": false, "visibility": "private", "resetScope": "game", "reacquirePolicy": "preserveUntilGameEnd" },
@@ -16,7 +16,7 @@
           "subject": "owner",
           "optional": true,
           "effects": [
-            { "op": "zhuLingZhanyiChooseCategory", "target": "owner" }
+            { "op": "zhuLingZhanyiChooseCategory", "target": "owner", "recoveryBonus": 1, "expires": "nextOwnerTurnStart", "expireBooleanStatesAtOwnerTurnStart": true }
           ]
         },
         {
@@ -37,15 +37,13 @@
         },
         {
           "id": "zhanyi-equipment-punish",
-          "window": "cardUseCommitted",
-          "ownerRelation": "actor",
+          "window": "cardsGained",
+          "subject": "owner",
+          "destinationZones": ["equipment"],
+          "movementOccurrence": "perCard",
           "optional": true,
           "condition": {
-            "kind": "all",
-            "children": [
-              { "kind": "cardActionCategoryIs", "categories": ["equipment"] },
-              { "kind": "booleanState", "stateId": "zhanyi-equipment", "expectedValue": true }
-            ]
+            "kind": "booleanState", "stateId": "zhanyi-equipment", "expectedValue": true
           },
           "effects": [
             { "op": "zhuLingZhanyiEquipmentPunish", "target": "owner" }

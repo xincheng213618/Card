@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "ol:yishe", "revision": 1, "triggers": [
+      { "id": "empty-rice-at-ending", "window": "turnEnding", "subject": "owner", "optional": true,
+        "effects": [{ "op": "drawAndStoreTwoPublicRice", "target": "owner" }] },
+      { "id": "last-rice-lost", "window": "cardsMoved", "subject": "owner", "sourceZones": ["publicPersistentPile"], "movementOccurrence": "perBatch", "optional": false,
+        "effects": [{ "op": "recoverAfterLastPublicRice", "target": "owner" }] }
+    ] },
+    { "id": "ol:bushi", "revision": 1, "triggers": [
+      { "id": "incoming-damage-point", "window": "afterDamageApplied", "subject": "owner", "damageOccurrence": "perDamagePoint", "optional": true,
+        "effects": [{ "op": "offerRiceAfterDamagePoint", "target": "owner", "skillIds": ["ol:yishe"] }] },
+      { "id": "outgoing-other-damage-point", "window": "afterDamageApplied", "subject": "damageSource", "damageOccurrence": "perDamagePoint", "optional": true,
+        "effects": [{ "op": "offerRiceAfterDamagePoint", "target": "owner", "skillIds": ["ol:yishe"] }] }
+    ] },
+    { "id": "ol:midao", "revision": 1, "triggers": [
+      { "id": "replace-any-judgment-with-rice", "window": "judgmentReplacing", "subject": "any", "excludedReasons": [], "optional": true,
+        "effects": [{ "op": "replaceJudgmentFromPublicRice", "target": "owner", "skillIds": ["ol:yishe"] }] }
+    ] }
+  ]
+}

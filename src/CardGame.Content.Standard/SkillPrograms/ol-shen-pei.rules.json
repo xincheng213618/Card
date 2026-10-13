@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "ol:gangzhi", "revision": 1, "cardPolicies": [
+      { "id": "other-participant-hp-loss", "kind": "otherParticipantDamageBecomesHpLoss", "condition": { "kind": "always" } }
+    ] },
+    { "id": "ol:beizhan", "revision": 1, "triggers": [
+      { "id": "end-refill-next-turn", "window": "afterTurnEnded", "subject": "owner", "turnOwnerScope": "own", "optional": true,
+        "effects": [{ "op": "refillAndScheduleNextTurnSelfOnly", "target": "owner" }] }
+    ] }
+  ]
+}

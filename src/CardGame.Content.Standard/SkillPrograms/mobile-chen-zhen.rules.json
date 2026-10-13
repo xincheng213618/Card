@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mobile:shameng",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "discard-red-pair",
+          "usageGroup": "shameng",
+          "minCards": 2,
+          "maxCards": 2,
+          "sourceZones": ["hand"],
+          "cardSuits": ["heart", "diamond"],
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "effects": [
+            { "op": "discardSelected", "target": "owner", "amount": 2 },
+            { "op": "draw", "target": "selectedTarget", "amount": 2 },
+            { "op": "draw", "target": "owner", "amount": 3 }
+          ]
+        },
+        {
+          "id": "discard-black-pair",
+          "usageGroup": "shameng",
+          "minCards": 2,
+          "maxCards": 2,
+          "sourceZones": ["hand"],
+          "cardSuits": ["spade", "club"],
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "effects": [
+            { "op": "discardSelected", "target": "owner", "amount": 2 },
+            { "op": "draw", "target": "selectedTarget", "amount": 2 },
+            { "op": "draw", "target": "owner", "amount": 3 }
+          ]
+        }
+      ]
+    }
+  ]
+}

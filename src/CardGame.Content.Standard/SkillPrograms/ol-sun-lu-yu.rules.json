@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "ol:meibu", "revision": 1, "triggers": [{
+      "id": "other-play-discard-restriction", "window": "playPhaseStarting", "subject": "owner", "turnOwnerScope": "otherLiving", "optional": true,
+      "effects": [{ "op": "grantOtherPlayUseRestriction", "target": "owner", "skillId": "ol:zhixi" }]
+    }] },
+    { "id": "ol:mumu", "revision": 1, "triggers": [{
+      "id": "starting-equipment-control", "window": "playPhaseStarting", "subject": "owner", "turnOwnerScope": "own", "optional": true,
+      "effects": [{ "op": "chooseStartingEquipmentControl", "target": "owner" }]
+    }] },
+    { "id": "ol:zhixi", "revision": 1, "cardPolicies": [{ "id": "actual-play-use-limit", "kind": "stopUsingAfterTrickOrHpCount" }] }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "friend:yance", "revision": 1, "triggers": [
+      { "id": "first-round", "window": "roundStarting", "subject": "owner", "optional": true,
+        "usageScope": "round", "usageLimit": 1, "namedUsageGroup": "yance",
+        "effects": [{ "op": "beginFriendPrediction", "target": "owner" }] },
+      { "id": "preparation", "window": "turnStartBeforeNormalFlow", "subject": "owner", "optional": true,
+        "usageScope": "round", "usageLimit": 1, "namedUsageGroup": "yance",
+        "effects": [{ "op": "beginFriendPrediction", "target": "owner" }] },
+      { "id": "verify-use", "window": "cardUseCommitted", "ownerRelation": "observer", "optional": false, "singleActionInstance": true,
+        "effects": [{ "op": "observeFriendPrediction", "target": "owner" }] },
+      { "id": "verify-response-use", "window": "cardResponseAccepted", "ownerRelation": "observer", "optional": false, "singleActionInstance": true,
+        "effects": [{ "op": "observeFriendPrediction", "target": "owner" }] }
+    ] },
+    { "id": "friend:manjuan", "revision": 1, "triggers": [
+      { "id": "exchange-gain", "window": "cardsGained", "subject": "owner", "optional": true,
+        "movementOccurrence": "perBatch", "destinationZones": ["hand"], "usageScope": "round", "usageLimit": 5,
+        "condition": { "kind": "compare", "left": { "kind": "movedCardCount" }, "operator": "greaterThanOrEqual", "right": { "kind": "integerConstant", "value": 2 } },
+        "effects": [{ "op": "exchangeFriendGainForDiscard", "target": "owner" }] }
+    ] },
+    { "id": "friend:yangming", "revision": 1, "triggers": [
+      { "id": "use-deck-suits", "window": "playEnding", "subject": "owner", "optional": true,
+        "effects": [{ "op": "useFriendDeckSuitsAtPlayEnd", "target": "owner" }] }
+    ] },
+    { "id": "friend:xiaxing", "revision": 1, "triggers": [
+      { "id": "initial-xuanjian", "window": "gameStarting", "subject": "owner", "optional": false,
+        "effects": [{ "op": "equipFriendXuanjian", "target": "owner" }] },
+      { "id": "reclaim-xuanjian", "window": "discardPileReceived", "subject": "owner", "optional": true,
+        "movementOccurrence": "perCard", "cardKinds": ["xuanjian"],
+        "effects": [{ "op": "reclaimFriendXuanjian", "target": "owner" }] }
+    ] },
+    { "id": "friend:qihui", "revision": 1, "triggers": [
+      { "id": "category-use", "window": "cardUseCommitted", "ownerRelation": "actor", "optional": false, "singleActionInstance": true,
+        "effects": [{ "op": "gainFriendCategoryMark", "target": "owner" }] },
+      { "id": "category-response-use", "window": "cardResponseAccepted", "ownerRelation": "actor", "optional": false, "singleActionInstance": true,
+        "effects": [{ "op": "gainFriendCategoryMark", "target": "owner" }] }
+    ] },
+    { "id": "equipment:xuanjian", "revision": 1,
+      "viewAs": [{ "id": "suit-slash", "inputKinds": [], "inputSuits": [], "inputCount": null,
+        "sourceZones": ["hand"], "outputKind": "slash", "forPlay": true, "forResponse": false,
+        "allHandCardsOfSelectedSuit": true }],
+      "activations": [{ "id": "suit-slash", "minCards": 1, "maxCards": null, "sourceZones": ["hand"],
+        "minTargets": 1, "maxTargets": 1, "targetKind": "otherLiving", "usesPerTurn": null,
+        "effects": [{ "op": "useSelectedCardsAs", "target": "selectedTarget", "sourceBind": "suit-slash", "outputKind": "slash" }] }]
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "ol:zhidao", "revision": 1, "triggers": [
+      { "id": "damage-zone-acquisition", "window": "afterDamageApplied", "subject": "any", "turnOwnerScope": "own", "optional": false,
+        "damageOccurrence": "perDamage", "effects": [{ "op": "obtainEachDamageTargetZoneThenSelfOnly", "target": "owner" }] }
+    ] },
+    { "id": "ol:jili", "revision": 1, "triggers": [
+      { "id": "adjacent-red-target", "window": "cardUseTargetsFinalized", "subject": "any", "ownerRelation": "observer",
+        "turnOwnerScope": "anyLiving", "optional": false, "priority": 1000,
+        "effects": [{ "op": "joinAdjacentRedCardTarget", "target": "owner" }] }
+    ] }
+  ]
+}

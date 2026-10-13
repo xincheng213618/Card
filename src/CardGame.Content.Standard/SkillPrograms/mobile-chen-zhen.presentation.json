@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "mobile:shameng": {
+      "name": "歃盟",
+      "description": "出牌阶段限一次，你可以弃置两张颜色相同的手牌，令一名其他角色摸两张牌，然后你摸三张牌。",
+      "activationLabels": {
+        "discard-red-pair": "弃置两张红色手牌",
+        "discard-black-pair": "弃置两张黑色手牌"
+      }
+    }
+  }
+}

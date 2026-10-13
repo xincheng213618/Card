@@ -3,7 +3,7 @@
   "skills": [
     {
       "id": "boundary:fuhun-current",
-      "revision": 1,
+      "revision": 2,
       "minimumRulesVersion": 193,
       "modifiers": [],
       "viewAs": [
@@ -59,7 +59,7 @@
             {
               "op": "grantTurnSkills",
               "target": "owner",
-              "skillIds": ["classic:wusheng", "classic:paoxiao"]
+              "skillIds": ["boundary:wusheng", "boundary:paoxiao"]
             }
           ]
         }

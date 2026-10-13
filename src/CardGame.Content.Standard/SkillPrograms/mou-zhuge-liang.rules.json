@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "mou:zhitian", "revision": 1, "activations": [
+      { "id": "view-top", "usesPerTurn": null, "minCards": 0, "maxCards": 0, "minTargets": 0, "maxTargets": 0, "targetKind": "anyLiving",
+        "effects": [{ "op": "mouZhitianView", "target": "owner" }] }
+    ] },
+    { "id": "mou:wujing", "revision": 1, "triggers": [
+      { "id": "first-nonhand-discard", "window": "discardPileReceived", "subject": "owner", "optional": false,
+        "effects": [{ "op": "mouWujingDraw", "target": "owner" }] }
+    ] },
+    { "id": "mou:zhijue", "revision": 1, "states": [{ "id": "yang", "initialValue": true, "visibility": "public", "resetScope": "game", "reacquirePolicy": "preserveUntilGameEnd" }], "activations": [
+      { "id": "alternate", "usesPerTurn": null, "minCards": 0, "maxCards": 0, "minTargets": 0, "maxTargets": 0, "targetKind": "anyLiving",
+        "effects": [{ "op": "mouZhijueUse", "target": "owner" }] }
+    ] }
+  ]
+}

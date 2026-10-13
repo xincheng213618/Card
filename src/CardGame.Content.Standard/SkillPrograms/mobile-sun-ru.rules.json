@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mobile:yingjian",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "preparation-slash",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            { "op": "selectTarget", "target": "owner", "targetKind": "otherLivingVirtualSlashTarget" },
+            { "op": "useVirtualCard", "target": "selectedTarget", "outputKind": "slash",
+              "useCardActionWindows": true, "targetRestriction": "distanceUnlimitedAgainstTarget" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mobile:shixin",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "prevent-fire-damage",
+          "window": "beforeDamageApplied",
+          "subject": "damageTarget",
+          "optional": false,
+          "condition": { "kind": "damageNatureIs", "damageNature": "fire" },
+          "effects": [ { "op": "preventCurrentDamage", "target": "owner" } ]
+        }
+      ]
+    }
+  ]
+}

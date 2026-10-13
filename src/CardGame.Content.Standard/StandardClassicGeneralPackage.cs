@@ -10,6 +10,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private static readonly IReadOnlyList<GeneralContentModule> GeneralModules =
     [
         new(OlGodContent.Register),
+        new(GuanYuVariantsContent.Register),
         new(Fame2011Content.Register),
         new(Fame2013Content.Register),
         new(Fame2014Content.Register),
@@ -59,6 +60,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         new(BoundaryZhugeLiangContent.Register),
         new(BoundarySunShangxiangContent.Register),
         new(BoundaryHuangZhongContent.Register),
+        new(MouHuangZhongContent.Register),
         new(BoundaryWeiYanContent.Register),
         new(BoundaryDengAiContent.Register),
         new(BoundaryJiangWeiContent.Register),
@@ -190,7 +192,27 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         new(OrdinarySimaZhouContent.Register),
         new(OrdinaryXinChangContent.Register),
         new(OrdinaryShiBaoContent.Register),
-        new(OrdinaryYangYanContent.Register)
+        new(OrdinaryYangYanContent.Register),
+        new(MouZhugeLiangContent.Register),
+        new(FriendTrioContent.Register),
+        new(FriendEventContent.Register),
+        new(MobileSunRuContent.Register),
+        new(MobileChenZhenContent.Register),
+        new(OlHanSuiContent.Register),
+        new(OlXiahouBaContent.Register),
+        new(ClassicZhugeDanContent.Register),
+        new(OlHeTaiHouContent.Register),
+        new(OlWenPinContent.Register),
+        new(OlDongYunContent.Register),
+        new(OlShenPeiContent.Register),
+        new(OlSunLuYuContent.Register),
+        new(OlChengYuContent.Register),
+        new(OlZhangLuContent.Register),
+        new(OlWangRongContent.Register),
+        new(OlShiXieContent.Register),
+        new(OlMaYunLuContent.Register),
+        new(OlTaDunContent.Register),
+        new(OlYanBaiHuContent.Register)
     ];
 
     private static SkillProgramCatalog ClassicShenLuMengCatalog =>

@@ -57,7 +57,7 @@
       }]
     },
     {
-      "id": "classic:shensu", "revision": 1, "minimumRulesVersion": 172,
+      "id": "classic:shensu", "revision": 2, "minimumRulesVersion": 172,
       "triggers": [
         {
           "id": "skip-judgment-and-draw", "window": "turnStartBeforeNormalFlow",
@@ -76,7 +76,7 @@
             { "op": "selectTarget", "target": "owner", "targetKind": "otherLivingVirtualSlashTarget" },
             { "op": "selectAndMoveOwnedCard", "target": "owner",
               "chooserRef": { "kind": "owner" }, "cardOwnerRef": { "kind": "owner" },
-              "zones": ["equipment"], "count": 1, "destination": "discardPile",
+              "zones": ["hand", "equipment"], "cardCategories": ["equipment"], "count": 1, "destination": "discardPile",
               "awaitMovementTriggers": true },
             { "op": "skipTurnPhases", "target": "owner", "phases": ["play"] },
             { "op": "useVirtualCard", "target": "selectedTarget", "outputKind": "slash",
