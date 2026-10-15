@@ -127,6 +127,7 @@ dotnet run --project .\tests\CardGame.Core.Tests\CardGame.Core.Tests.csproj -c R
 | 牌、身份、阶段、快照等领域模型 | `src/CardGame.Core/Domain.cs` |
 | 基础牌、装备定义、标准牌堆与发牌配置 | `src/CardGame.Core/Content.cs`、`src/CardGame.Core/Equipment.cs` |
 | 内容包、命名空间 ID、经典正式武将与不可变 Registry | `src/CardGame.Core/ContentRegistry.cs`、`src/CardGame.Content.Standard/StandardContentPackage.cs`、`src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs` |
+| 人物基础资料、技能配置和独立规则模块 | `src/Characters/<character>/<variant>/Content/`、`Skills/`、`Runtime/`；共享配置在 `src/Characters/_shared/Skills/`；[注册约定](docs/CHARACTER_MODULES.md) |
 | 卡牌区域、原子移动与可信诊断 | `src/CardGame.Core/CardZones.cs` |
 | 模式开局、私有选将、距离/范围查询与兼容结算状态机 | `src/CardGame.Core/GameEngine.cs` |
 | 数据型结算帧与结算事件 | `src/CardGame.Core/Resolution.cs`、`src/CardGame.Core/Events.cs` |

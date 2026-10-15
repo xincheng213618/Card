@@ -1,5 +1,7 @@
 # 架构说明
 
+人物源码按 `src/Characters/<character>/<variant>/` 组织：`Content/` 放基础资料和注册清单，`Skills/` 放规则与展示配置，`Runtime/` 放注册规则模块，可选 `Wpf/` 放人物界面适配。它们仍分别编译或嵌入现有 Content、Core、WPF 程序集；通用流程与结算边界留在原项目。技能嵌入资源保留原逻辑名称，目录调整不改变内容 ID、注册次序和内容指纹。具体入口见 [人物模块与注册](CHARACTER_MODULES.md)。
+
 ## 1. 边界
 
 ```text

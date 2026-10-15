@@ -1,0 +1,66 @@
+# 人物模块与注册
+
+新增人物优先复用已有技能 JSON 能力。人物资料、技能定义与专属运行代码放在 `src/Characters` 的同一人物目录，由主程序的内容和运行注册表接入。
+
+## 内容声明
+
+目录先按人物身份分组，再按版本分组。例如：
+
+```text
+src/Characters/wang-can/
+  ol/
+    Content/ol-wang-can.character.json
+    Skills/ol-wang-can.rules.json
+    Skills/ol-wang-can.presentation.json
+    Runtime/GameEngine.WangCanPrograms.cs
+```
+
+`Content/*.character.json` 是人物的基础资料和技能元信息声明，包含 `packageId`、人物身份、武将版本、技能名称与说明、标签、执行形式、AI 权重以及注册顺序。技能通过 `programBundle` 引用同目录 `Skills` 中的规则和展示文件；多个角色复用的规则放在 `_shared/Skills`。授予或升级后才获得的技能也要声明，不能只注册武将的初始技能。
+
+同一人物跨版本共用的专属运行代码可放在人物直属的 `Runtime` 中；多人复用的通用机制继续由 Core 管理。人物肖像和音频仍通过现有资源目录、目录表和 `portraitKey` 引用，保留素材工具与 WPF 的资源约定。
+
+`CharacterContentCatalog` 发现编入内容程序集的资料，校验后按各包的 `registrationOrder` 顺序注册技能和武将。内容包只调用目录注册器，并声明共用卡牌、牌堆、模式和依赖。人物自己的 `pools` 指定其选将池及位置，经典包的当前人物池和标准演示池从这些声明生成，不再另维护人物列表。
+
+新增人物在自己的文件夹添加资料和技能文件；复用现有能力时无需修改 `GameEngine`、项目文件或中央人物清单。选择该包未占用的注册顺序值和选将池顺序值。顺序会影响确定性的选将结果，不能为了整理目录而重排。加载器拒绝重复身份、重复顺序、错误格式和缺失的规则引用；最终内容注册器继续校验技能依赖和模式约束。
+
+文件物理位置与程序集职责分开：`Runtime/**/*.cs` 链接编译进 Core；内容 JSON 嵌入 Content.Standard；可选 `Wpf/**/*.cs` 链接进 WPF。专属 partial 和私有适配器仍在原程序集内，不开放引擎可变状态。技能 JSON 保留原文件名和逻辑资源名，目录变动不会改变历史规则资源身份。
+
+## 运行能力
+
+通用 `ProgramSkillHost` 只实现 `ISkillProgramExecutionHost` 与 `ISkillProgramEffectHost`。人物或共享机制的专用接口由独立的 `[ProgramCapability]` 适配器实现，效果处理器通过 `host.GetCapability<IExampleProgramHost>()` 获取能力；可选能力使用 `TryGetCapability`。
+
+每个适配器有且仅有一个接收 `GameEngine` 的构造函数。注册元数据只保存类型与工厂；实际适配器按对局惰性创建、缓存，不跨对局共享。注册只扫描引擎显式标记的私有嵌套适配器，不扫描外部程序集或文件。适配器保留在能力实现附近，利用私有嵌套类型访问受信任的引擎操作，避免开放玩家、牌区和结算栈的可变状态。
+
+这是运行能力接口的组合边界。结算状态仍属于引擎与对应帧，适配器不保存另一套 pending 状态，不自行提交命令或通知 UI。已有实现专用接口的测试宿主仍可通过通用宿主的默认能力解析使用自身实现。
+
+## 规则观察与资格检查
+
+事件规则在实现方法旁使用 `[ProgramRuleObserver(phase, order)]` 注册。`BeforeEvent` 在事实进入输出队列前运行，`AfterEvent` 在入队后运行，`BeforeStatePublish` 在打开原有状态窗口前运行。无参数方法用于同步状态；单个事件参数会按事件类型过滤。递归产生的事实仍先完整处理后返回父调用。
+
+激活与触发资格分别通过 `[ProgramActivationLegality]` 和 `[ProgramTriggerLegality]` 声明阶段、顺序和适用操作。资格方法与原能力放在一起；多个阶段对应通用条件、次数限制和支付检查的原有位置，不能随意合并或重排。未限定操作的检查对该阶段全部程序适用。
+
+私有选择与 AI 策略继续使用已有 `[ProgramAnswer]`、`[ProgramAiChoice]`，子帧返回继续使用 `[ProgramContinuation]`。新增能力应在自己的模块声明相应入口，不修改集中人物分派表。
+
+## 卡牌、目标与动作筛选
+
+人物选择规则由独立的无状态类实现，使用 `[ProgramSelectionModule(stage, order, operations)]` 自行注册。注册表只扫描 Core 自身程序集中的显式声明，拒绝重复阶段顺序、错误接口、泛型类型和携带实例字段的模块。共享缓存只保存不可变的模块清单；候选结果不缓存，每次查询重新读取当前事实。
+
+模块按职责实现 `IProgramSelectionCardFilter`、`IProgramSelectionTargetFilter`、`IProgramSelectionSourceProvider`、`IProgramSelectionCandidateFilter`、`IProgramSelectionSuitProvider`、`IProgramSelectionPhaseLimitProvider` 或 `IProgramSelectionAiDecorator`。仅为现有能力增加人物时，仍只修改内容和技能 JSON；新增机制才需要新选择模块。
+
+选择模块只接收 `ProgramSelectionContext`、本次动作的 `ProgramSelectionCandidates` 草稿和 `IProgramSelectionQueries`。查询接口必须继承 `IProgramSelectionQuery`，由所属能力的私有适配器提供只读事实或单个通用合法性查询；选择模块不能取得引擎、可变角色、效果宿主或提交命令的入口。卡牌事实连同授予技能列表一起冻结，避免只读外层仍携带可变内容。
+
+阶段保留原有求值位置：卡牌来源先生成卡牌，`AfterCards` 后才生成来源对应的目标；普通来源才运行 `OrdinaryTarget`。来源返回已处理且结果为空时，不回退到普通来源。`AfterTargets` 支持目标重建、卡牌和目标双向过滤；通用数量检查之后才运行最终排序和目标调整，最后生成关联关系、次数及 AI 提示。
+
+不能把有序目标组合或卡牌目标关系简化成两个独立集合。`TargetSequences` 表示有顺序的合法目标组合，`CardTargets` 表示实际允许的卡牌目标配对；发布时仍使用现有不可变合法动作边界。人物模块不能支付代价、移动牌、压入结算帧或发布事件。
+
+提交重验通过 `[ProgramSelectionValidator(stage, order, operations)]` 独立注册，保留通用数量、重复项、候选成员、花色及公开条件校验之间的原有位置，以及最先返回的错误代码和文案。带人物状态的目标域通过 `[ProgramTargetResolver]` 自行提供，通用目标选择继续负责生命周期、隐藏信息和选择提交边界。
+
+额外动作来源使用 `[ProgramActionSource]`，特殊动作的提交、执行及贡献入口使用 `[ProgramActionHandler]`，声明仍放在所属能力实现旁。动作发布和命令处理有各自的显式顺序；命令处理只由可信命令会话调用，选择查询模块不能调用这些入口。
+
+修改已有物理用牌动作的能力使用 `[ProgramCardAction]`，分别在程序动作生成之前和之后接入。它复用已有可信动作构建器参数，不把这些可变参数开放给只读选择模块；新增能力不再向通用动作方法追加人物函数调用。
+
+## 验证与兼容
+
+纯人物配置复用内容加载和注册验证；新增机制或缺陷修复增加实际行为检查。开发时使用 `tools/Test-Changed.ps1 -CoreFilter <名称>`，批次结束运行无过滤器的常规范围。完整验证仍需用户明确要求。
+
+注册重构必须保留声明顺序、资格短路顺序、事件时机、技能实例与帧身份、支付次数、隐私投影、牌移动和回放结果。仅调整接口组织不提升规则版本、技能 JSON schema 或内容包版本；实际行为或格式变化仍按现有兼容规则处理。

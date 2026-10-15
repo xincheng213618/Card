@@ -2,7 +2,7 @@
 
 本文件说明已经接入引擎的配置格式。相邻的 `skills.example.json` 是完整架构的设计草案，不能交给 v1 加载器。
 
-实际示例在 `src/CardGame.Content.Standard/SkillPrograms/`。启动 WPF 后选择“技能组合体验”模式。它是独立内容包；旧标准内容包保持原有定义及回放指纹。JSON 目前作为嵌入资源随构建发布，修改后需要重新编译，没有热加载。
+体验模式的实际示例在 `src/Characters/_shared/Skills/`，人物配置位于 `src/Characters/<character>/<variant>/Skills/`。启动 WPF 后选择“技能组合体验”模式。它是独立内容包；旧标准内容包保持原有定义及回放指纹。JSON 作为嵌入资源随构建发布，物理目录调整仍保留原资源逻辑名称；修改后需要重新编译，没有热加载。
 
 ## 文件和身份
 

@@ -24,7 +24,7 @@
 - [独立中文描述](content/skill-composition/zh-CN.example.json)：只负责名字、说明和提示文案。
 - [BWIKI 概念与协作边界](content/skill-composition/BWIKI_RULE_ALIGNMENT.md)：资料版本、标签与执行语义、下一批通用机制和内容任务分工。
 
-这些旧 JSON 是完整设计契约的示例，当前加载器不会解析它们。示例中的 example 命名空间不会进入正式选将池；基础能力名称也不代表当前已经实现。可运行内容位于 `src/CardGame.Content.Standard/SkillPrograms/`：体验内容由独立的 `standard-composed-skills` 包注册，已验收的正式武将程序也可由自己的版本化内容包注册。
+这些旧 JSON 是完整设计契约的示例，当前加载器不会解析它们。示例中的 example 命名空间不会进入正式选将池；基础能力名称也不代表当前已经实现。人物的可运行配置位于 `src/Characters/<character>/<variant>/Skills/`，共享配置位于 `src/Characters/_shared/Skills/`。人物资料与注册清单位于同级 `Content/`，运行模块位于同级 `Runtime/`；程序集仍保留原技能资源逻辑名称。体验内容由独立的 `standard-composed-skills` 包注册，已验收的正式武将程序也可由自己的版本化内容包注册。
 
 ### 1.1 当前 v1 已实现范围
 
