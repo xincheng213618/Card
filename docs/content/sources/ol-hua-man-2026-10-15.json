@@ -1,5 +1,5 @@
 {
-  "status": "implementation-frozen-awaiting-root-build-and-focused-verification",
+  "status": "root-verified-focused-and-routine",
   "identity": {
     "id": "ol:hua-man",
     "characterId": "character:hua-man",
@@ -207,10 +207,10 @@
     "Souying claims only exact original-use physical entities still in Processing after the real discard children; incoming cancellation removes only the actual sole designated target. BorrowedSword preserves the full original target pair in the mutation invoice before cancellation.",
     "Zhanyuan runs at actual Preparation, increases maximum HP and recovers before the optional other-living-male choice. Declining the male still performs the printed subsequent Mansi loss; this ordering interpretation is not a separately verified official combination FAQ.",
     "Xili requires another actual-turn source with current Xili and a target without Xili; no source-less placeholder authority. Each participant separately receives native draw children, and paid tails survive subsequent source loss.",
-    "Mansi has no printed 64-hand upper limit. Only its exact all-hand Barbarian activation receives the additive open maximum; old all-hand definitions retain their existing contracts. A 65-real-Hand command scenario is included but not yet executed.",
+    "Mansi has no printed 64-hand upper limit. Only its exact all-hand Barbarian activation receives the additive open maximum; old all-hand definitions retain their existing contracts. A 65-real-Hand command scenario passed in the root focused runner.",
     "Own discard includes formally usable WoodenOx grain under the same equipped-Ox capability boundary as mature Guolun. It preserves the physical grain source and native discard reason rather than treating grain as Hand.",
     "No server verification or exhaustive combination FAQ is claimed. Source-loss/death, male-decline, conversions and nested combinations are limited by the precise native receipts and the focused scenarios listed below.",
-    "The added Souying grain scenario uses real native equipment and storage commands, then consumes the remaining physical Hand through native Slash uses. At payment Hand is empty and the recipient selects the exact stored grain; the equipped Ox honestly remains another legal discard. There is no artificial equipment lock or sole-material claim. The scenario retains cold recovery, exact grain-to-discard bounds, original Slash claim and successful binding once assertions; execution remains pending the root runner."
+    "The added Souying grain scenario uses real native equipment and storage commands, then consumes the remaining physical Hand through native Slash uses. At payment Hand is empty and the recipient selects the exact stored grain; the equipped Ox honestly remains another legal discard. There is no artificial equipment lock or sole-material claim. The scenario retains cold recovery, exact grain-to-discard bounds, original Slash claim and successful binding once assertions; the root focused runner passed this scenario."
   ],
   "officialSupplement": {
     "url": "https://www.sanguosha.com/news/20220111_9614_5113",
@@ -241,28 +241,28 @@
   "verification": {
     "workerBuildRun": false,
     "workerTestRun": false,
-    "status": "root-third-focused-six-of-seven-pass-incoming-program-virtual-Slash-cancellation-return-proof-added-awaiting-rerun"
+    "status": "root-focused-and-routine-passed"
   },
   "ownedFiles": [
     {
       "path": "src/CardGame.Core/ProgramHuaManOperations.cs",
-      "sha256": "b627c51b17e846bf86a609b012d525144dcb4ddb406253741ab64f3c1b12e8fa"
+      "sha256": "3cc8e68da80a68a5b92fda690b4b8060d1fc4f3b8c1edb15e73be205f88105aa"
     },
     {
       "path": "src/CardGame.Core/GameEngine.HuaManPrograms.cs",
-      "sha256": "253a9d0314b40c5cefb8388318b6644199e64e41455ce1a9a208052841b914ac"
+      "sha256": "90256b44cf398131197bdf4eb3669e40e287e5d484f5abb57ff0f192c6759b99"
     },
     {
       "path": "src/CardGame.Core/GameEngine.HuaManObservers.cs",
-      "sha256": "ec2da2f490b011fa97c37be376bc3e5574a417d00e342453957d368d6a400122"
+      "sha256": "ec5b83831cafcf6cb676da3e77a6fd0062c2550e06ba1d04f3e29e9ae803e7ba"
     },
     {
       "path": "src/CardGame.Core/GameEngine.HuaManSouying.cs",
-      "sha256": "5bacc8bceaf4de952b25e558a9784d42354f7081037c64319f4f67a04fbaa410"
+      "sha256": "3cfb16366eecdb3ece24e74737abe227920d99efbe4985c5427bbc4ecb92f449"
     },
     {
       "path": "src/CardGame.Content.Standard/OlHuaManContent.cs",
-      "sha256": "a64968532477524f732869cc074b0ad63a6933ba94b2dc78860ac95983a8c343"
+      "sha256": "8e7020186383c4a4004fa2af720d891bed1e4da0a632bc363c9696e5bedc09d5"
     },
     {
       "path": "src/CardGame.Content.Standard/SkillPrograms/ol-hua-man.rules.json",
@@ -270,7 +270,7 @@
     },
     {
       "path": "src/CardGame.Content.Standard/SkillPrograms/ol-hua-man.presentation.json",
-      "sha256": "e33da71ad00ba1df56e0cdb5941c02d9120bdad249bedfb6ab4de730b1631cbe"
+      "sha256": "1988418a9a48c4045e6af58ef1c148646bbb00bb99f133cd535ad01dbf902681"
     },
     {
       "path": "tests/CardGame.Core.Tests/HuaManChecks.cs",
@@ -281,5 +281,19 @@
       "sha256": "8841437e6f7213d75db0b79633e1d863417318af995886b4b1ed20bb796fa1ce"
     }
   ],
-  "paymentResumeCorrection": "After all actual movement bounds/counter facts are frozen, each synchronous payment producer immediately calls AdvanceRuntimeProgram on its exact owning frame, following mature SpPangTong. This drains native children or completes the terminal instruction before the external damage/card producer can advance again. No observer guard or assertion was weakened."
+  "paymentResumeCorrection": "After all actual movement bounds/counter facts are frozen, each synchronous payment producer immediately calls AdvanceRuntimeProgram on its exact owning frame, following mature SpPangTong. This drains native children or completes the terminal instruction before the external damage/card producer can advance again. No observer guard or assertion was weakened.",
+  "virtualReturnCorrection": "Read-only native producer inspection confirms BeginProgramVirtualCardUse always captures an exact issuer conversion source even with useCardActionWindows:true. The Souying return proof now requires precisely this issuer chain, rather than incorrectly requiring an empty chain. Existing accepted/committed flags, original target, source/hash, history and payment proof remain mandatory.",
+  "rootVerification": {
+    "verifiedAtUtc": "2026-10-15T10:51:51.544339+00:00",
+    "behaviorMethodsPassed": 7,
+    "focusedCorePassed": 34,
+    "focusedWpfPassed": 1,
+    "routineCorePassed": 124,
+    "routineWpfPassed": 20,
+    "routineDurationMs": 29669,
+    "manualFullRun": false,
+    "foregroundOrServerAcceptance": false,
+    "concurrentRefactor": "Final checks include the concurrent content-module, capability, event-observer and legality registrations. Five routine mechanism checks were added by that task; all prior routine filters remain."
+  },
+  "rootPresentationRepair": "Removed only the literal official-client <font href> hyperlink markup from the Zhanyuan presentation description. Final real WPF skill-scroller bottom render inspected; gameplay hash and printed primary evidence unchanged."
 }

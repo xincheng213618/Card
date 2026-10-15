@@ -1,6 +1,6 @@
 {
   "date": "2026-10-15",
-  "status": "implemented-awaiting-root-build-and-focused-verification",
+  "status": "root-verified-focused-and-routine",
   "officialId": 434,
   "generalId": "ol:lv-kuang-lv-xiang",
   "characterId": "character:lv-kuang-lv-xiang",
@@ -187,8 +187,8 @@
   "verification": {
     "workerBuilt": false,
     "workerRanTests": false,
-    "focused": "pending root sole runner",
-    "routine": "not added to default scope; pending batch routine by root",
+    "focused": "Root focused checks passed; see rootVerification.",
+    "routine": "Root prescribed routine passed; new character checks were not added to the default scope.",
     "limits": [
       "Seven representative small fixed-seed7 real-command checks; no seed scan, whole-match simulation, Full or unfiltered runner.",
       "Checks cover actual Dodge, autonomous foreign native conversion, self nomination/ordinary quota, decline, source-loss paid native return, Hand relay/source loss, native weapon removal range reevaluation, genuine declaration pass/false challenge and cold command replay.",
@@ -204,33 +204,33 @@
     },
     {
       "path": "src/CardGame.Core/GameEngine.LvKuangLvXiangNativeUses.cs",
-      "sha256": "e4a8443a48a9d341a43b4f16e732cd71302d0756eda669c3b9c14a27c858dc82",
-      "bytes": 14162
+      "sha256": "ca9aa0ecd681ba3d615356dcd162b2d32677eebd9839267c1ed3f7dab508ea97",
+      "bytes": 14150
     },
     {
       "path": "src/CardGame.Core/GameEngine.LvKuangLvXiangObservers.cs",
-      "sha256": "f88454d124e260bc125a252cb013f860ef474b0efd92e636b066e00b0e126ac5",
-      "bytes": 10461
+      "sha256": "0b25637b3981c16d163ba25258e39423953f1c63a3ba1bea441989cb412e3809",
+      "bytes": 11650
     },
     {
       "path": "src/CardGame.Core/GameEngine.LvKuangLvXiangPrograms.cs",
-      "sha256": "2dbc6a517c486f6a27c91dab859c71cdf62aca28c6dc4c547338a5c836eff237",
-      "bytes": 11550
+      "sha256": "2a3f65518ffec4010166b784ffef8fc6e194c8cd78cb6daccd16de8059cfb75e",
+      "bytes": 11941
     },
     {
       "path": "src/CardGame.Core/GameEngine.LvKuangLvXiangRequestAdapters.cs",
-      "sha256": "8ce46857c410ea700cd080d3486b72fb75f6345e407d28df458c2242853381b7",
-      "bytes": 7322
+      "sha256": "a5ccf84011020833a1ce43196df6172abd3f29c9a9f6c60126011d025345dcf4",
+      "bytes": 7319
     },
     {
       "path": "src/CardGame.Core/ProgramLvKuangLvXiangOperations.cs",
-      "sha256": "11c0f810dcc00bf2826a5c73461a6162f3683ae011db92b12e1e71025f63eae2",
-      "bytes": 6870
+      "sha256": "712991c2f71357178175e69b0fcdadcc53e72f7f7e13ac95c16dc75f207dfdca",
+      "bytes": 6884
     },
     {
       "path": "src/CardGame.Content.Standard/OlLvKuangLvXiangContent.cs",
-      "sha256": "12b926f0aae4d5eb78981305ee0220debb446ede2247ee9769c85455c4662e47",
-      "bytes": 643
+      "sha256": "32d3d9e2d667c122e1564777d8be4c2b51c0fd7105adb83337430999639470e8",
+      "bytes": 672
     },
     {
       "path": "src/CardGame.Content.Standard/SkillPrograms/ol-lv-kuang-lv-xiang.rules.json",
@@ -244,8 +244,8 @@
     },
     {
       "path": "tests/CardGame.Core.Tests/LvKuangLvXiangChecks.cs",
-      "sha256": "7f26c59e6c3912f084c8139fe64c56cc3e6947ef470b3cddc1abd5027021cdf2",
-      "bytes": 26022
+      "sha256": "11ddc9dc12ce258b755a5d525a7a7e670af769341e015a417c8e5c9c2eb708ce",
+      "bytes": 26014
     },
     {
       "path": "src/CardGame.Wpf/Assets/official-ol-lv-kuang-lv-xiang.png",
@@ -261,6 +261,21 @@
     "Second focused evidence isolated the paid child Slash completed-window guard: child material has already left Processing while the original fully-Dodged outer Slash must retain its own material. IsQigongCompletedAttackProcessing proves exact completed paid native use, current window/action, observer lineage and precisely the retained original physical entities; root integrates only that narrow native invariant branch.",
     "Decline permits only each original Slash material native UseFinished cleanup once, and still forbids any new requested use/payment or duplicate binding/finish. The earlier fixture incorrectly expected zero total movements after the parent continued.",
     "The private-deck scene removes eight original AI hand cards through eight genuine selectAndMoveOwnedCard choices owned by that participant, preserving parser owner-only operation boundaries.",
-    "The private top-basic fixture follows the existing strict four-needs Slash/Dodge/Peach/Alcohol policy with two-card private viewing; the actual Qigong need still selects and pays only its requested native Slash."
-  ]
+    "The private top-basic fixture follows the existing strict four-needs Slash/Dodge/Peach/Alcohol policy with two-card private viewing; the actual Qigong need still selects and pays only its requested native Slash.",
+    "Fourth focused isolated an actual empty-hand requested-deck target supply gap: all real deck cards are Slash, but the base decline-only prompt supplied zero ValidTargetSeats, which the native AssistedSlash deck chooser reads. The owning Qigong Slash-stage prompt now retains exactly its already-frozen target even before a physical Slash is selected, enabling real private deck selection without waiving legality or fabricating a target/entity.",
+    "The owning root distinguishes its canonical private ProgramTrigger from an exact native faction provider RespondSlash prompt that temporarily occupies the same top frame. The latter requires the original faction request receipt, current live provider/faction, source/target/required-card header and exact native response choices; no generic foreign chooser exception is added. Publish and own canonical validation share one frozen-target helper. Failure diagnostics identify stage, actor, prompt kind, chooser and faction presence without dumping private identities.",
+    "Seventh focused identified a mistaken fixture-independent native prompt assumption: PendingDecision.IsPrivate defaults true and AdvanceFactionSlashCandidate does not override it. The exact faction guard now requires true, matching native RespondSlash, provider seat, owner source/target, Slash incoming/required kind, empty target list and generated native response choices; all privacy and chooser checks remain strict."
+  ],
+  "rootVerification": {
+    "verifiedAtUtc": "2026-10-15T10:51:51.523586+00:00",
+    "behaviorMethodsPassed": 7,
+    "focusedCorePassed": 34,
+    "focusedWpfPassed": 1,
+    "routineCorePassed": 124,
+    "routineWpfPassed": 20,
+    "routineDurationMs": 29669,
+    "manualFullRun": false,
+    "foregroundOrServerAcceptance": false,
+    "concurrentRefactor": "Final checks include the concurrent content-module, capability, event-observer and legality registrations. Five routine mechanism checks were added by that task; all prior routine filters remain."
+  }
 }

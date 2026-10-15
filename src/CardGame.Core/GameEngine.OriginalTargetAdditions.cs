@@ -143,6 +143,7 @@ public sealed partial class GameEngine
         ProgramSkillFrame parent, out IReadOnlyList<int> primaryTarget)
     {
         primaryTarget = Array.Empty<int>();
+        if (TryGetSouyingCancelledVirtualPrimaryReturn(use, parent, out primaryTarget)) return true;
         if (TryGetDesignatedExtraTargetVirtualPrimaryReturn(use, parent, out primaryTarget)) return true;
         if (TryGetShortRangeVirtualPrimaryReturn(use, parent, out primaryTarget)) return true;
         if (TryGetSameTypeAidVirtualPrimaryReturn(use, parent, out primaryTarget)) return true;

@@ -1,25 +1,25 @@
 {
-  "status": "frozen-awaiting-root-verification",
+  "status": "root-verified-focused-and-routine",
   "ownedFiles": [
     {
       "path": "src/CardGame.Core/ProgramHuaManOperations.cs",
-      "sha256": "b627c51b17e846bf86a609b012d525144dcb4ddb406253741ab64f3c1b12e8fa"
+      "sha256": "3cc8e68da80a68a5b92fda690b4b8060d1fc4f3b8c1edb15e73be205f88105aa"
     },
     {
       "path": "src/CardGame.Core/GameEngine.HuaManPrograms.cs",
-      "sha256": "253a9d0314b40c5cefb8388318b6644199e64e41455ce1a9a208052841b914ac"
+      "sha256": "90256b44cf398131197bdf4eb3669e40e287e5d484f5abb57ff0f192c6759b99"
     },
     {
       "path": "src/CardGame.Core/GameEngine.HuaManObservers.cs",
-      "sha256": "ec2da2f490b011fa97c37be376bc3e5574a417d00e342453957d368d6a400122"
+      "sha256": "ec5b83831cafcf6cb676da3e77a6fd0062c2550e06ba1d04f3e29e9ae803e7ba"
     },
     {
       "path": "src/CardGame.Core/GameEngine.HuaManSouying.cs",
-      "sha256": "5bacc8bceaf4de952b25e558a9784d42354f7081037c64319f4f67a04fbaa410"
+      "sha256": "3cfb16366eecdb3ece24e74737abe227920d99efbe4985c5427bbc4ecb92f449"
     },
     {
       "path": "src/CardGame.Content.Standard/OlHuaManContent.cs",
-      "sha256": "a64968532477524f732869cc074b0ad63a6933ba94b2dc78860ac95983a8c343"
+      "sha256": "8e7020186383c4a4004fa2af720d891bed1e4da0a632bc363c9696e5bedc09d5"
     },
     {
       "path": "src/CardGame.Content.Standard/SkillPrograms/ol-hua-man.rules.json",
@@ -27,7 +27,7 @@
     },
     {
       "path": "src/CardGame.Content.Standard/SkillPrograms/ol-hua-man.presentation.json",
-      "sha256": "e33da71ad00ba1df56e0cdb5941c02d9120bdad249bedfb6ab4de730b1631cbe"
+      "sha256": "1988418a9a48c4045e6af58ef1c148646bbb00bb99f133cd535ad01dbf902681"
     },
     {
       "path": "tests/CardGame.Core.Tests/HuaManChecks.cs",
@@ -39,7 +39,19 @@
     },
     {
       "path": "docs/content/sources/ol-hua-man-2026-10-15.json",
-      "sha256": "b7188081815ae1b2851b864de22eec1f3c879ee4ad88de913151438569899a65"
+      "sha256": "7195517fe945acb09a4f61c4fa9770983e214d6de40001428db0cd10391bd49c"
     }
-  ]
+  ],
+  "rootVerification": {
+    "verifiedAtUtc": "2026-10-15T10:51:51.544339+00:00",
+    "behaviorMethodsPassed": 7,
+    "focusedCorePassed": 34,
+    "focusedWpfPassed": 1,
+    "routineCorePassed": 124,
+    "routineWpfPassed": 20,
+    "routineDurationMs": 29669,
+    "manualFullRun": false,
+    "foregroundOrServerAcceptance": false,
+    "concurrentRefactor": "Final checks include the concurrent content-module, capability, event-observer and legality registrations. Five routine mechanism checks were added by that task; all prior routine filters remain."
+  }
 }

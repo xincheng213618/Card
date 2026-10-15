@@ -1,5 +1,5 @@
 {
-  "status": "owned-frozen-worker-unverified-await-root-runner",
+  "status": "root-verified-focused-and-routine",
   "officialId": 435,
   "generalId": "ol:xin-pi",
   "characterId": "character:xin-pi",
@@ -166,23 +166,23 @@
     "notSeparatelyVerified": [
       "Dedicated delayed-trick/native actor-provider replacement combination",
       "Dedicated Tunan reveal/processing special producer combination",
-      "Dedicated multi-material converted claim and recovery replacement policy composition; strict existing producer paths are reused, awaiting root focused/runtime results",
-      "No manual full verification or worker runner executed; all focused fixture outcomes await the root runner."
+      "Dedicated multi-material converted claim and recovery replacement policy composition; strict existing producer paths are reused; this dedicated composition remains outside the focused scenarios",
+      "No manual Full or worker runner executed. The root focused and routine checks passed; see rootVerification."
     ],
     "additionalCoverageIntent": "Existing ChijieAppliedGroupDamageStopsRemainingEffectsCold also executes real SetChainedState commands and a physical FireSlash, freezes after first actual damage with an already queued chained recipient, then verifies exact native remaining-damage suppression after cold restore."
   },
   "implementationFiles": [
     {
       "path": "src/CardGame.Core/ProgramXinPiOperations.cs",
-      "sha256": "1fe9c38f07fac794fdbbc1412d290b667f79cf5ebb57c4ba2de018ed3f39b474"
+      "sha256": "824eb166b5418ad0df634fd91972e7598f738537c38207fe1660cbd7c79df43f"
     },
     {
       "path": "src/CardGame.Core/GameEngine.XinPiPrograms.cs",
-      "sha256": "a77a02e90a95afe026151be45f4cf8111dd8732b8c2d3cab7b3ab0b0eee8149d"
+      "sha256": "e99de2961e6600e5575250ef38bf1cd122913180179dcf88d446e2bf3dbe1927"
     },
     {
       "path": "src/CardGame.Core/GameEngine.XinPiProofs.cs",
-      "sha256": "c6e2058f877d780afa612b230bd4c8c2c928155fdf9908b9d0216d751fd146c2"
+      "sha256": "8864784b5322ac44cdab53435c0316701fbdb9510503034be7b70be506383a63"
     },
     {
       "path": "src/CardGame.Core/GameEngine.XinPiCandidates.cs",
@@ -194,7 +194,7 @@
     },
     {
       "path": "src/CardGame.Content.Standard/OlXinPiContent.cs",
-      "sha256": "845db90275e6be4fcf8c03ea43ae534d1cafe3f99bd71469e39a687758f2bcf7"
+      "sha256": "6727353f032f124850fbc7ab88d530011477285b8b13cd18bfd72f63f5753661"
     },
     {
       "path": "src/CardGame.Content.Standard/SkillPrograms/ol-xin-pi.rules.json",
@@ -213,5 +213,17 @@
       "sha256": "b7a448f28298f67fa7179a70b46ffe5a57a6b694e648430576bd06434992e27b"
     }
   ],
-  "secondFocusedCorrection": "Actual activations publish ProgramSkillStartedEvent, not trigger-only ProgramBindingStartedEvent. Yinju validates its exact activation frame/owner/skill/binding plus the unique source/hash-bearing armed receipt and exact activation operation. Existing real damage, native use, cold source-loss/death assertions retained; worker did not run verification."
+  "secondFocusedCorrection": "Actual activations publish ProgramSkillStartedEvent, not trigger-only ProgramBindingStartedEvent. Yinju validates its exact activation frame/owner/skill/binding plus the unique source/hash-bearing armed receipt and exact activation operation. Existing real damage, native use, cold source-loss/death assertions retained; worker did not run verification.",
+  "rootVerification": {
+    "verifiedAtUtc": "2026-10-15T10:51:51.534580+00:00",
+    "behaviorMethodsPassed": 5,
+    "focusedCorePassed": 34,
+    "focusedWpfPassed": 1,
+    "routineCorePassed": 124,
+    "routineWpfPassed": 20,
+    "routineDurationMs": 29669,
+    "manualFullRun": false,
+    "foregroundOrServerAcceptance": false,
+    "concurrentRefactor": "Final checks include the concurrent content-module, capability, event-observer and legality registrations. Five routine mechanism checks were added by that task; all prior routine filters remain."
+  }
 }

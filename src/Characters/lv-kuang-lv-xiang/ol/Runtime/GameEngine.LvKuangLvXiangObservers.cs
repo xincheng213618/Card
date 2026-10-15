@@ -1,4 +1,4 @@
-namespace CardGame.Core;
+﻿namespace CardGame.Core;
 public sealed partial class GameEngine
 {
  private bool QigongPaidAdapterChild(ProgramSkillFrame f,ResolutionFrame child)=>child switch
@@ -23,7 +23,17 @@ public sealed partial class GameEngine
   {
    var live=LifecycleCardUse(issued.UseId);if(!r.Returned?(live is null||!ValidQigongNativeUse(live)):live is not null||!issued.Paid||CompleteProgramEventHistory().OfType<QigongNativeReturnedEvent>().Count(e=>e.ProgramId==f.Id&&e.UseId==issued.UseId&&e.ActionId==issued.ActionId)!=1)throw new InvalidOperationException("Qigong lost its typed native card-use return.");
   }
-  if(_resolutionStack.LastOrDefault()?.Id==f.Id&&_pendingDecision is{}p&&r.Stage is "receive" or "give" or "actor" or "slash"&&(p.PlayerSeat!=LvChooser(f)||!p.IsPrivate||!AssistedChoicesEqual(RoundOnceCardlessProgramNativeDecision(ChainedStateBasicNativeDecision(DrawFundedDistinctBasicNativeDecision(RequestedDeckBasicNativeDecision(p)))).Choices,LvKuangLvXiangChoices(f))))throw new InvalidOperationException("The relay's private chooser or candidate list changed.");
+  if(_resolutionStack.LastOrDefault()?.Id==f.Id&&_pendingDecision is{}p&&r.Stage is "receive" or "give" or "actor" or "slash"&&!LvKuangLvXiangDecisionMatches(f,p))throw new InvalidOperationException($"The relay's exact chooser or candidate list changed (stage={r.Stage}, actor={r.Actor}, prompt={p.Kind}, chooser={p.PlayerSeat}, faction={r.Faction is not null}).");
+ }
+ private bool LvKuangLvXiangDecisionMatches(ProgramSkillFrame f,PendingDecision prompt)
+ {
+  var native=RoundOnceCardlessProgramNativeDecision(ChainedStateBasicNativeDecision(DrawFundedDistinctBasicNativeDecision(RequestedDeckBasicNativeDecision(prompt))));
+  if(f.LvKuangLvXiang is{Stage:"slash",Faction:not null}&&ActiveFactionCardRequest is{AwaitingProviders:true}request)
+  {
+   if(!ValidateQigongFactionSlashParent(request,f)||prompt.Kind!=DecisionKind.RespondSlash||prompt.PlayerSeat!=request.CurrentCandidateSeat||prompt.SourceSeat!=request.OwnerSeat||prompt.TargetSeat!=request.OwnerSeat||prompt.IncomingCard!=CardKind.Slash||prompt.RequiredCardKind!=CardKind.Slash||!prompt.IsPrivate||prompt.ValidTargetSeats.Count!=0)return false;
+   var provider=_players[request.CurrentCandidateSeat];return provider.IsAlive&&GetEffectiveFactionId(provider)==request.ProviderFactionId&&AssistedChoicesEqual(native.Choices,CreateFactionSlashResponseChoices(provider,request,GetFactionSlashSlashCards(request,provider)));
+  }
+  var choices=LvKuangLvXiangChoices(f);return prompt.Kind==DecisionKind.ProgramTrigger&&prompt.PlayerSeat==LvChooser(f)&&prompt.IsPrivate&&prompt.ValidTargetSeats.SequenceEqual(LvKuangLvXiangValidTargets(f,choices))&&AssistedChoicesEqual(native.Choices,choices);
  }
  private bool CanContinueLvKuangLvXiang(ProgramSkillFrame f)
  {
