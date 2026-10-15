@@ -8,6 +8,7 @@ public sealed partial class GameEngine
         .Any(frame => frame.Id == resolutionId && frame.CardId == 0 && frame.Action is { } action &&
             action.PhysicalCards.Count == 2 && action.PhysicalCards.All(cost => cost.From.Zone == CardZoneKind.Authority) &&
             action.PhysicalCards.Select(cost => cost.From.OwnerSeat).Distinct().Count() == 1);
+    [ProgramActionSource(ProgramActionSourcePhase.Cardless, 10)]
     private IEnumerable<LegalAction> BuildForeignPublicPileSlashActions(CharacterState actor)
     {
         if (!actor.IsAlive || actor.Seat != _currentSeat || _phase != TurnPhase.Play) yield break;
@@ -42,6 +43,7 @@ public sealed partial class GameEngine
         }
     }
 
+    [ProgramActionHandler(ProgramActionHandlerKind.Submit, 20)]
     private bool TrySubmitForeignPublicPileSlash(UseProgramSkillCommand command, out CommandResult result)
     {
         result = null!;
@@ -66,6 +68,7 @@ public sealed partial class GameEngine
         return true;
     }
 
+    [ProgramActionHandler(ProgramActionHandlerKind.Execute, 20)]
     private bool TryExecuteForeignPublicPileSlash(CharacterState actor, LegalAction selected,
         IReadOnlyList<int> cards, IReadOnlyList<int> targets)
     {

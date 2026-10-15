@@ -2,6 +2,15 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 180)]
+    private bool AllowsRegisteredIsOtherActualBasicDiscardTrigger(ProgramTriggerLegalityContext gate)
+    {
+        var candidate = gate.Candidate;
+        var trigger = gate.Trigger;
+        var context = gate.Context;
+        return !(IsOtherActualBasicDiscardTrigger(trigger) && !CanRunOtherActualBasicDiscard(candidate, context));
+    }
+
     private bool HasOtherActualBasicDiscardCapability =>
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DrawFromOtherActualBasicDiscard);
     private bool HasJudgedRankSlashCapability =>
@@ -85,6 +94,7 @@ public sealed partial class GameEngine
         IsSlashCard(kind) && CurrentJudgedRankSlashPolicy(actor) is { Rank: < 13 };
     private JudgedRankSlashThresholdSnapshot? JudgedRankSlashSnapshot(int actor) => CurrentJudgedRankSlashPolicy(actor) is { } grant
         ? new(grant.TurnNumber, grant.Rank) : null;
+    [ProgramRuleObserver(ProgramRulePhase.BeforeEvent, 380)]
     private void ObserveJudgedRankSlashUse(IGameEvent payload)
     {
         if (!HasJudgedRankSlashCapability || payload is not CardUseDeclaredEvent declared || !IsSlashCard(declared.CardKind)) return;
@@ -155,7 +165,8 @@ public sealed partial class GameEngine
                 throw new InvalidOperationException("An issued basic discard draw lost its exact physical origin and accepted binding.");
         }
     }
-    private sealed partial class ProgramSkillHost : IJudgedRankSlashProgramHost
+    [ProgramCapability]
+    private sealed class JudgedRankSlashProgramCapability(GameEngine engine) : IJudgedRankSlashProgramHost
     {
         public void GrantJudgedRankSplitSlashTurnPolicy(ProgramSkillFrame frame, string bind) => engine.GrantOriginalJudgedRankSlashPolicy(frame, bind);
         public void DrawFromOtherActualBasicDiscard(ProgramSkillFrame frame) => engine.DrawFromOriginalOtherBasicDiscard(frame);

@@ -119,7 +119,7 @@ internal sealed class RoundGainedSourceOperationHandler(SkillProgramEffectOp ope
 {
     public SkillProgramEffectOp Op => operation;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat, ISkillProgramEffectHost host) =>
-        host is IRoundGainedSourceUseHost typed ? operation switch
+        host.TryGetCapability<IRoundGainedSourceUseHost>(out var typed) ? operation switch
         {
             SkillProgramEffectOp.AdjustOneRoundGainedOrdinaryTrickTarget => typed.AdjustOneRoundGainedOrdinaryTrickTarget(frame),
             SkillProgramEffectOp.DrawForRoundGainedEquipmentUse => typed.DrawForRoundGainedEquipmentUse(frame),

@@ -62,7 +62,7 @@ public sealed class JudgeDamageTargetThenOfferSuitDiscardHandler : ISkillProgram
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.JudgeDamageTargetThenOfferSuitDiscard;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat,
-        ISkillProgramEffectHost host) => ((IDamageJudgmentSuitPaymentHost)host).JudgeDamageTargetThenOfferSuitDiscard(frame, effect);
+        ISkillProgramEffectHost host) => host.GetCapability<IDamageJudgmentSuitPaymentHost>().JudgeDamageTargetThenOfferSuitDiscard(frame, effect);
 }
 
 internal sealed partial class ProgramAiEstimateContext

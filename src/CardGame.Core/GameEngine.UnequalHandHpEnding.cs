@@ -3,13 +3,15 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private sealed partial class ProgramSkillHost : ITargetedTrickAndHandHpHost
+    [ProgramCapability]
+    private sealed class TargetedTrickAndHandHpCapability(GameEngine engine) : ITargetedTrickAndHandHpHost
     {
         public SkillProgramStepOutcome ResolveUnequalHandHpEnding(ProgramSkillFrame frame) => engine.BeginUnequalHandHpEnding(frame);
         public SkillProgramStepOutcome AdjustTargetedOrdinaryTrick(ProgramSkillFrame frame) => engine.BeginTargetedOrdinaryTrick(frame);
     }
     private CardConversionSource TargetedTrickHandHpSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
     private int[] UnequalHandHpTargets(int owner) => _players.Where(p => p.IsAlive && GetHand(p).Count != p.Hp).Select(p => p.Seat).ToArray();
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeCondition, 100)]
     private bool CanOfferUnequalHandHp(SkillProgramTrigger trigger, ProgramSkillWindowContext context, int owner) =>
         !trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.ResolveUnequalHandHpEnding) ||
         context.Window == SkillProgramTriggerWindow.PlayEnding && owner == _currentSeat && _players[owner].IsAlive && UnequalHandHpTargets(owner).Length > 0;

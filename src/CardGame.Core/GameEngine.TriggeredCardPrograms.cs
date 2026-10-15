@@ -138,7 +138,8 @@ public sealed partial class GameEngine
         if (!TryBeginCardsMovedProgramWindow()) AdvanceRuntimeProgram(frame.Id);
     }
 
-    private sealed partial class ProgramSkillHost : ITriggeredCardProgramHost
+    [ProgramCapability]
+    private sealed class TriggeredCardProgramCapability(GameEngine engine) : ITriggeredCardProgramHost
     {
         public SkillProgramStepOutcome UseTriggeredVirtualSlash(ProgramSkillFrame frame, int targetSeat) => engine.UseTriggeredProgramVirtualSlash(frame, targetSeat);
         public SkillProgramStepOutcome UseDiscardedCardAsDelayedTrick(ProgramSkillFrame frame, int targetSeat, CardKind kind) => engine.UseProgramDiscardedCardAsDelayedTrick(frame, targetSeat, kind);

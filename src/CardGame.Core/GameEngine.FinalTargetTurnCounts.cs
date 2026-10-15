@@ -2,7 +2,8 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private sealed partial class ProgramSkillHost : IFinalTargetTurnCountHost
+    [ProgramCapability]
+    private sealed class FinalTargetTurnCountCapability(GameEngine engine) : IFinalTargetTurnCountHost
     {
         public SkillProgramStepOutcome ExecuteFinalTargetTurnCount(SkillProgramEffect effect, ProgramSkillFrame frame) =>
             engine.ExecuteFinalTargetTurnCount(effect, frame);
@@ -20,6 +21,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("Non-final-target payment lost its actual own-turn non-equipment use.");
         return parent;
     }
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.AfterInitialPayments, 40, SkillProgramEffectOp.DiscardNonFinalTargetCardThenDraw)]
     private bool CanOfferNonFinalTargetPayment(ProgramTriggerCandidate candidate, ProgramSkillWindowContext context) =>
         context.CardUse is { ActorSeat: var actor, EffectiveKind: var kind } use && actor == candidate.OwnerSeat && actor == _currentSeat &&
         !EquipmentCatalog.IsEquipment(kind) && !NamedTurnActionAlreadyCommitted(actor, candidate.SkillId, use.CardActionId) &&

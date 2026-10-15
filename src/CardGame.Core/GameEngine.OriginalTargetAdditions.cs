@@ -92,6 +92,7 @@ public sealed partial class GameEngine
         frame.WindowContext is { } context && HasIssuedOriginalTargetCandidate(
             new(frame.OwnerSeat, frame.SkillId, binding, frame.SkillInstanceId, frame.GameplayHash, 0), context);
 
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 810)]
     private bool CanOfferOriginalTargetAddition(ProgramTriggerCandidate candidate, SkillProgramTrigger trigger, ProgramSkillWindowContext context) =>
         !trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.OfferOriginalTargetAddition) || HasIssuedOriginalTargetCandidate(candidate, context) &&
             _resolutionStack.OfType<CardUseFrame>().Single(f => f.Id == context.CardUse!.ParentCardUseFrameId).OriginalTargetAddition is { Added: false };
@@ -302,7 +303,8 @@ public sealed partial class GameEngine
 
     private void ExpireOriginalTargetAdditionGrants(int turn, int seat) => _originalTargetAdditionGrants.RemoveAll(g => g.TurnNumber == turn && g.TurnSeat == seat);
 
-    private sealed partial class ProgramSkillHost : IOriginalTargetAdditionProgramHost
+    [ProgramCapability]
+    private sealed class OriginalTargetAdditionProgramCapability(GameEngine engine) : IOriginalTargetAdditionProgramHost
     {
         public void GrantOriginalTargetAddition(ProgramSkillFrame frame, int targetSeat) => engine.GrantOriginalTargetAddition(frame, targetSeat);
         public SkillProgramStepOutcome OfferOriginalTargetAddition(ProgramSkillFrame frame) => engine.OfferOriginalTargetAddition(frame);

@@ -24,6 +24,7 @@ public sealed partial class GameEngine
             !MountObserverCandidateMatches(f, window.Candidates[window.CandidateIndex])) return false;
         return GetProgramTrigger(f).Effects is [{ Op: SkillProgramEffectOp.ResolvePrepDiscardOrEnding }];
     }
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 720)]
     private bool CanRunPrepDiscard(ProgramTriggerCandidate c, SkillProgramTrigger trigger, ProgramSkillWindowContext context) =>
         !trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.ResolvePrepDiscardOrEnding) ||
         c.OwnerSeat == _currentSeat && context.Window == SkillProgramTriggerWindow.TurnStartBeforeNormalFlow &&
@@ -215,7 +216,8 @@ public sealed partial class GameEngine
         return decision.Choices.OrderBy(c => c.Cards.Count == 1 ? GetKeepValue(GetAttackCard(c.Cards[0]), _players[f.OwnerSeat]) : 5d)
             .ThenBy(c => c.Id.Value, StringComparer.Ordinal).First();
     }
-    private sealed partial class ProgramSkillHost : IPrepDiscardEndingProgramHost
+    [ProgramCapability]
+    private sealed class PrepDiscardEndingProgramCapability(GameEngine engine) : IPrepDiscardEndingProgramHost
     {
         public SkillProgramStepOutcome ResolvePrepDiscardOrEnding(ProgramSkillFrame f, string binding) => engine.ResolvePrepDiscardOrEnding(f, binding);
         public SkillProgramStepOutcome DrawPrepDiscardEnding(ProgramSkillFrame f) => engine.DrawPrepDiscardEnding(f);

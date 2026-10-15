@@ -46,6 +46,7 @@ public sealed partial class GameEngine
         if(sourceLess || o.AttackAttempt is not null || o.InstructionIndex<1 || _resolutionStack.LastOrDefault()?.Id!=o.Id || JiqiaoObserverRoot() is not {} root || root.Id==o.Id)return false;
         var e=GetPausedPrivateOfferEffect(o);return e is {Op:SkillProgramEffectOp.Damage} && amount==e.Amount && source==e.ActorReference && nature==e.DamageNature && target==(e.TargetReference is {} p?ResolveProgramParticipant(o,p):ResolveProgramEffectTarget(o,e.Target));
     }
-    private sealed partial class ProgramSkillHost:IJiqiaoProgramHost
+    [ProgramCapability]
+    private sealed class JiqiaoProgramCapability(GameEngine engine) : IJiqiaoProgramHost
     {public SkillProgramStepOutcome ExecutePaidJiqiao(ProgramSkillFrame f,SkillProgramEffect e)=>engine.ExecutePaidJiqiao(f,e);}
 }

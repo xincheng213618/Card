@@ -26,7 +26,7 @@ internal sealed class AlternatingSuitDrawDiscardDescriptor : AlternatingSuitAndC
 public sealed class AlternatingSuitDrawDiscardHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op=>SkillProgramEffectOp.AlternatingSuitDrawDiscard;
-    public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int seat,ISkillProgramEffectHost h)=>((IAlternatingSuitAndCompletedTopHost)h).BeginAlternatingSuitDrawDiscard(f);
+    public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int seat,ISkillProgramEffectHost h)=>h.GetCapability<IAlternatingSuitAndCompletedTopHost>().BeginAlternatingSuitDrawDiscard(f);
 }
 internal sealed class FirstCategoryCompletedTopDescriptor : AlternatingSuitAndCompletedTopDescriptor
 {
@@ -38,7 +38,7 @@ internal sealed class FirstCategoryCompletedTopDescriptor : AlternatingSuitAndCo
 public sealed class FirstCategoryCompletedTopHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op=>SkillProgramEffectOp.FirstCategoryCompletedTop;
-    public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int seat,ISkillProgramEffectHost h)=>((IAlternatingSuitAndCompletedTopHost)h).BeginFirstCategoryCompletedTop(f);
+    public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int seat,ISkillProgramEffectHost h)=>h.GetCapability<IAlternatingSuitAndCompletedTopHost>().BeginFirstCategoryCompletedTop(f);
 }
 public sealed record AlternatingSuitTopDraft(string Mode,string Stage,int Required,IReadOnlyList<int> CardIds,IReadOnlyList<int> SelectedIds,long? ActionId=null,IReadOnlyList<Suit>? PaidSuits=null);
 public sealed record AlternatingSuitStateCommittedEvent(int OwnerSeat,string SkillId,string SkillInstanceId,bool NextYin,int TurnNumber,int PhaseInstanceId) : IGameEvent;

@@ -63,20 +63,20 @@ internal sealed class OfferCompletedFactionCostGiftDescriptor : DiscardBudgetAnd
 public sealed class ResolveDiscardBudgetParticipantsHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveDiscardBudgetParticipants;
-    public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int seat,ISkillProgramEffectHost h)=>((IDiscardBudgetAndFactionGiftHost)h).ResolveDiscardBudgetParticipants(f);
+    public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int seat,ISkillProgramEffectHost h)=>h.GetCapability<IDiscardBudgetAndFactionGiftHost>().ResolveDiscardBudgetParticipants(f);
 }
 public sealed class PreventOwnPlayOutsideTargetRangeDamageHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op=>SkillProgramEffectOp.PreventOwnPlayOutsideTargetRangeDamage;
-    public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int seat,ISkillProgramEffectHost h)=>((IDiscardBudgetAndFactionGiftHost)h).PreventOwnPlayOutsideTargetRangeDamage(f);
+    public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int seat,ISkillProgramEffectHost h)=>h.GetCapability<IDiscardBudgetAndFactionGiftHost>().PreventOwnPlayOutsideTargetRangeDamage(f);
 }
 public sealed class DiscardOutsideRangeAfterInsufficientUsesHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op=>SkillProgramEffectOp.DiscardOutsideRangeAfterInsufficientUses;
-    public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int seat,ISkillProgramEffectHost h)=>((IDiscardBudgetAndFactionGiftHost)h).DiscardOutsideRangeAfterInsufficientUses(f);
+    public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int seat,ISkillProgramEffectHost h)=>h.GetCapability<IDiscardBudgetAndFactionGiftHost>().DiscardOutsideRangeAfterInsufficientUses(f);
 }
 public sealed class OfferCompletedFactionCostGiftHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op=>SkillProgramEffectOp.OfferCompletedFactionCostGift;
-    public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int seat,ISkillProgramEffectHost h)=>((IDiscardBudgetAndFactionGiftHost)h).OfferCompletedFactionCostGift(f,e.ProviderFactionId!);
+    public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int seat,ISkillProgramEffectHost h)=>h.GetCapability<IDiscardBudgetAndFactionGiftHost>().OfferCompletedFactionCostGift(f,e.ProviderFactionId!);
 }

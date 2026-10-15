@@ -37,23 +37,6 @@ public sealed partial class GameEngine
             (frame.AcceptedDeclarationPayment==payment || frame is CardDeclarationFrame {Stage:CardDeclarationStage.Applying,Succeeded:true} declaration &&
                 declaration.Id==payment.DeclarationId && declaration.OwnerSeat==owner.Seat && declaration.Return.ActorSeat==owner.Seat && declaration.Payment==payment));
     }
-    private CommandError? ValidateProvenanceSelectedCardUse(LegalAction action, SkillProgramEffect? effect,
-        IReadOnlyList<int> cards, IReadOnlyList<int> targets)
-    {
-        var owner = _players[_currentSeat];
-        if (!TracksDiscardedEntityProvenance || !owner.IsFaceDown || action.ProgramSkillId is not { } skill ||
-            effect is not { OutputKind: CardKind.Slash or CardKind.FireSlash, SourceBind: { } binding } ||
-            !CardPolicies(owner, SkillProgramCardPolicyKind.ClaimedEntitiesFaceDownUse).Any()) return null;
-        var source = new CardConversionSource(skill, binding, owner.Seat, GetRuntimeSkillInstanceId(owner, skill));
-        var selection = FindProgramMultiCardViewAsSelection(owner, cards, effect.OutputKind.Value, false, source);
-        if (selection is null)
-            return new CommandError(CommandErrorCode.InvalidCard, "The selected physical cards no longer satisfy this view-as rule.");
-        if (targets.Count != 1 || targets[0] < 0 || targets[0] >= _players.Count ||
-            !CanUseVirtualSlashTarget(owner, _players[targets[0]], physicalSuit: PhysicalGroupSuit(owner, selection.Cards),
-                effectiveColor: PhysicalGroupColor(owner, selection.Cards), physicalCardIds: selection.Cards.Select(c => c.Id).ToArray()))
-            return new CommandError(CommandErrorCode.InvalidTarget, "The complete selected material set cannot use Slash on this target.");
-        return null;
-    }
     private bool HasProvenanceUseDistance(CharacterState owner,IReadOnlyList<int>? physicalIds)=>physicalIds is {Count:>0} && FreezeProvenanceCardSource(owner,physicalIds) is not null;
     private bool HasPotentialProvenanceSlash(CharacterState owner)=>TracksDiscardedEntityProvenance && owner.IsFaceDown && (GetSlashUseCards(owner).Any(c=>HasProvenanceUseDistance(owner,c)) || GetZhangbaSlashPairs(owner).Any(pair=>HasProvenanceUseDistance(owner,pair.Select(c=>c.Id).ToArray())) || GetProgramMultiCardViewAsSelections(owner,CardKind.Slash,false).Any(s=>HasProvenanceUseDistance(owner,s.Cards.Select(c=>c.Id).ToArray())));
     private bool HasProvenanceUseDistance(CharacterState owner,Card card)=>card.Id>0 && HasProvenanceUseDistance(owner,new[]{card.Id});

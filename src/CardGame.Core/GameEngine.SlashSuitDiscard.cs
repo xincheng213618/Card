@@ -2,7 +2,8 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private sealed partial class ProgramSkillHost : ISlashSuitDiscardProgramHost
+    [ProgramCapability]
+    private sealed class SlashSuitDiscardProgramCapability(GameEngine engine) : ISlashSuitDiscardProgramHost
     {
         public SkillProgramStepOutcome SuppressCurrentSlashTargetAndJudgeSuitDiscard(ProgramSkillFrame frame, SkillProgramEffect effect) =>
             engine.BeginProgramSlashSuitDiscard(frame, effect);

@@ -96,7 +96,7 @@ public sealed class DrawThenDiscardDistinctCategoriesHandler : ISkillProgramEffe
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.DrawThenDiscardDistinctCategories;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int seat, ISkillProgramEffectHost host) =>
-        ((IDrawDiscardCategoryProgramHost)host).DrawThenDiscardDistinctCategories(frame, seat, effect.Amount, effect.StateId!);
+        host.GetCapability<IDrawDiscardCategoryProgramHost>().DrawThenDiscardDistinctCategories(frame, seat, effect.Amount, effect.StateId!);
 }
 internal static class DrawDiscardCategoryComposition
 {

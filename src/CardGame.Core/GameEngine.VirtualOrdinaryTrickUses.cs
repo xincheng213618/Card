@@ -10,7 +10,8 @@ public sealed record ProgramVirtualOrdinaryTrickOrigin(long ParentProgramFrameId
 
 public sealed partial class GameEngine
 {
-    private sealed partial class ProgramSkillHost : IVirtualOrdinaryTrickProgramHost
+    [ProgramCapability]
+    private sealed class VirtualOrdinaryTrickProgramCapability(GameEngine engine) : IVirtualOrdinaryTrickProgramHost
     {
         public SkillProgramStepOutcome UseVirtualOrdinaryTrick(ProgramSkillFrame frame, SkillProgramEffect effect) =>
             engine.BeginProgramVirtualOrdinaryTrick(frame, effect);

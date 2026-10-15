@@ -103,7 +103,7 @@ internal sealed class UseSelectedForeignCardAsSlashHandler : ISkillProgramEffect
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.UseSelectedForeignCardAsSlash;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat,
-        ISkillProgramEffectHost host) => host is ISelectedForeignCardSlashHost selected
+        ISkillProgramEffectHost host) => host.TryGetCapability<ISelectedForeignCardSlashHost>(out var selected)
         ? selected.UseSelectedForeignCardAsSlash(frame, targetSeat)
         : throw new InvalidOperationException("A selected foreign-card Slash requires its owning program host.");
 }

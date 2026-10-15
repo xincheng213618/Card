@@ -1,4 +1,4 @@
-﻿namespace CardGame.Core;
+namespace CardGame.Core;
 
 internal interface ITurnRedSlashProgramHost { void GrantTurnRedSlashBenefits(ProgramSkillFrame frame); }
 internal sealed class GrantTurnRedSlashBenefitsDescriptor : ProgramOperationDescriptorBase
@@ -13,7 +13,7 @@ public sealed class GrantTurnRedSlashBenefitsHandler : ISkillProgramEffectHandle
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.GrantTurnRedSlashBenefits;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat, ISkillProgramEffectHost host)
-    { ((ITurnRedSlashProgramHost)host).GrantTurnRedSlashBenefits(frame); return SkillProgramStepOutcome.Continue; }
+    { host.GetCapability<ITurnRedSlashProgramHost>().GrantTurnRedSlashBenefits(frame); return SkillProgramStepOutcome.Continue; }
 }
 
 public sealed record TurnRedSlashPolicy(long GrantSequence, int TurnNumber, int TurnSeat, long ParentFrameId, int EffectIndex, CardUseEffectSource Source);

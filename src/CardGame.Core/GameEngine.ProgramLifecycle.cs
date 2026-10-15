@@ -756,16 +756,8 @@ public sealed partial class GameEngine
         }
         if (targetKind == SkillProgramTargetKind.OtherLivingNonLord)
             return _players.Where(p => p.IsAlive && p.Seat != ownerSeat && p.Role != Role.Lord).Select(p => p.Seat).ToArray();
-        if (targetKind == SkillProgramTargetKind.OtherLivingNotLastRoundFocus)
-            return _players.Where(p => p.IsAlive && p.Seat != ownerSeat && !CompleteProgramEventHistory().OfType<DemonRoundFocusEvent>().Any(e => e.Source.OwnerSeat == ownerSeat && e.TargetSeat == p.Seat && e.RoundNumber == _roundNumber - 1)).Select(p => p.Seat).ToArray();
-        if (targetKind is SkillProgramTargetKind.ExclusiveRendeBeneficiary or SkillProgramTargetKind.ExclusiveQingnangBeneficiary)
-            return ExclusiveSupportTargets(ownerSeat, targetKind == SkillProgramTargetKind.ExclusiveRendeBeneficiary ? "magic:rende" : "magic:qingnang")
-                .Where(seat => targetKind != SkillProgramTargetKind.ExclusiveQingnangBeneficiary || _players[seat].HasHpValue && _players[seat].Hp < _players[seat].MaxHp).ToArray();
-        if (targetKind == SkillProgramTargetKind.OtherLivingWithoutEndingSupport)
-        {
-            var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame;
-            return _players.Where(p => p.IsAlive && p.Seat != ownerSeat && !CompleteProgramEventHistory().OfType<DemonSupportGrantedEvent>().Any(e => e.FrameId == frame?.Id && e.RecipientSeat == p.Seat)).Select(p => p.Seat).ToArray();
-        }
+        if (ProgramTargetResolvers.TryResolve(new(ownerSeat, targetKind), out var resolvedTargets))
+            return resolvedTargets;
         if (targetKind == SkillProgramTargetKind.CurrentTurnPlayer)
             return _players[_currentSeat].IsAlive ? [_currentSeat] : [];
         windowContext ??= _resolutionStack.LastOrDefault() switch
@@ -997,7 +989,7 @@ public sealed partial class GameEngine
         var cappedMaximum = Math.Min(Math.Min(maximumTargets, expressionMaximum), targetSeats.Count);
         if (numberExpression == SkillProgramNumberExpression.BoundCardCount)
             minimumTargets = expressionMaximum;
-        if ((minimumTargets < 1 && !(minimumTargets == 0 && targetKind is SkillProgramTargetKind.OtherLivingWithHand or SkillProgramTargetKind.OtherLivingWithoutEndingSupport)) || cappedMaximum < minimumTargets)
+        if (minimumTargets < ProgramTargetResolvers.MinimumTargets(targetKind) || cappedMaximum < minimumTargets)
         {
             CancelProgramBindingAndCleanup(frame, "没有足够的合法技能目标，技能结算已取消。");
             return SkillProgramStepOutcome.AwaitChild;
@@ -1060,7 +1052,7 @@ public sealed partial class GameEngine
                 seat.ToString(System.Globalization.CultureInfo.InvariantCulture)));
             return new PromptChoice(
                 new ChoiceId($"program-targets.frame-{frameId}.seats-{id}"),
-                seats.Length == 0 ? (targetKind == SkillProgramTargetKind.OtherLivingWithoutEndingSupport ? "不授予此技能。" : "不获得手牌。") : $"选择 {names}。",
+                seats.Length == 0 ? ProgramTargetResolvers.EmptySelectionLabel(targetKind) : $"选择 {names}。",
                 [],
                 seats,
                 new Dictionary<string, string>
@@ -1992,9 +1984,14 @@ public sealed partial class GameEngine
         return candidates
             .Where(candidate =>
             {
-                var trigger = GetProgramTrigger(candidate);
-                return !IsPhaseNamePredictionResolver(candidate, _contentRegistry.GetSkill(candidate.SkillId).Program!) && !trigger.DeferredTurnEndOnly && (!IsPhaseHandDebtResolver(candidate) || CurrentPhaseHandSeizureDebt(candidate.OwnerSeat, candidate.SkillId, candidate.SkillInstanceId, candidate.GameplayHash, candidate.BindingId) is not null) && (trigger.EvaluateConditionAtResolution || trigger.Condition.Evaluate(facts, candidate.SkillId, candidate.SkillInstanceId)) &&
-                    HasInitialOwnedCardSelectionCandidates(owner, trigger) && CanOfferGameActivationAwakening(owner.Seat, trigger);
+                var program = _contentRegistry.GetSkill(candidate.SkillId).Program!;
+                var plan = ProgramInstructionResolver.Default.Resolve(program,
+                    ProgramInstructionSourceKind.Trigger, candidate.BindingId);
+                var trigger = plan.Trigger!;
+                return !IsPhaseNamePredictionResolver(candidate, program) && !trigger.DeferredTurnEndOnly && (!IsPhaseHandDebtResolver(candidate) || CurrentPhaseHandSeizureDebt(candidate.OwnerSeat, candidate.SkillId, candidate.SkillInstanceId, candidate.GameplayHash, candidate.BindingId) is not null) && (trigger.EvaluateConditionAtResolution || trigger.Condition.Evaluate(facts, candidate.SkillId, candidate.SkillInstanceId)) &&
+                    HasInitialOwnedCardSelectionCandidates(owner, trigger) &&
+                    ProgramLegality.CanTrigger(ProgramTriggerLegalityPhase.Collection,
+                        new(owner, program, plan, candidate, null));
             })
             .ToArray();
     }
@@ -2037,135 +2034,21 @@ public sealed partial class GameEngine
             return false;
         if (_resolutionStack.OfType<FirstSlashDuelLegacyWindowFrame>().Any(w => w.Id == context.ParentFrameId))
             return CanRunFirstLegacyBenefit(candidate, context);
-        if (!CanRunSoleTargetReplacementTargetCandidate(candidate, trigger, context)) return false;
-        if (!CanOfferPhaseStartCardControl(candidate, trigger, context)) return false;
-        if (!CanOfferDongZhao(candidate, trigger, context)) return false;
-        if (!CanOfferIncomingDistanceCourtesy(candidate, trigger, context)) return false;
-        if (!CanRunTurnDrawDebtPayment(candidate, trigger, context) || !CanRunSourceFactionPrevention(candidate, trigger, context)) return false;
-        if (!CanRunDyingSuitsAndEndingHistory(candidate, trigger, context)) return false;
-        if (!CanRunDyingOwnedCard(candidate, trigger, context)) return false;
-        if (!CanRunSourceCurseTrigger(candidate, trigger, context)) return false;
-        if (!CanRunGainGiftTrigger(candidate, trigger, context)) return false;
-        if (!CanRunShortRangeSlash(candidate, trigger, context)) return false;
-        if (!CanRunActualHandGainTrigger(candidate, trigger, context)) return false;
-        if (!CanRunShiYuanTargetDraw(candidate, trigger, context)) return false;
-        var features = ProgramInstructionResolver.Default.Features(trigger);
-        if (features.HasOperation(SkillProgramEffectOp.LuochongResolve) &&
-            !CanRunLuochongResolve(candidate.OwnerSeat)) return false;
-        if (features.HasOperation(SkillProgramEffectOp.TongxieArm) &&
-            !CanRunTongxieArm(candidate.OwnerSeat)) return false;
-        if (features.HasOperation(SkillProgramEffectOp.TongxieFollowUp) &&
-            !CanRunTongxieFollowUp(candidate.OwnerSeat, context)) return false;
-        if (features.HasOperation(SkillProgramEffectOp.TongxieGuard) &&
-            !CanRunTongxieGuard(candidate.OwnerSeat, context)) return false;
-        if (IsOtherActualBasicDiscardTrigger(trigger) && !CanRunOtherActualBasicDiscard(candidate, context)) return false;
-        if (!CanRunPublicPilePreparation(candidate, trigger, context)) return false;
-        if (!CanRunPublicPileCashOut(candidate, trigger, context)) return false;
-        if (!CanOfferGiftedSlashUseReward(candidate, trigger, context)) return false;
-        if (!CanOfferDesignatedExtraTarget(candidate, trigger, context)) return false;
-        if (!CanOfferDamageTargetBudget(candidate, trigger, context)) return false;
-        if (!CanRunPindianReveal(candidate,context)) return false;
-        if (!CanOfferSoleTargetProtection(candidate, trigger, context)) return false;
-        if (!CanOfferNamedAmbush(candidate, trigger, context) || !CanOfferDamageSourceHandChoice(candidate, trigger, context)) return false;
-        if (!CanOfferRicePile(candidate, trigger, context)) return false;
-        if (!CanOfferExtraEffectsAndRankGuess(candidate, trigger, context)) return false;
-        if (!CanOfferFirstSlashDuelBenefit(candidate, trigger, context)) return false;
-        if (!CanOfferDeathGrowthSkill(candidate, trigger, context)) return false;
-        if (!CanOfferBao2025(candidate, trigger, context)) return false;
-        if (!CanOfferCaoYing(candidate, trigger, context)) return false;
-        if (!CanOfferPrivateWhirl(candidate, trigger, context)) return false;
-        if (ProgramInstructionResolver.Default.Features(trigger).HasOperation(SkillProgramEffectOp.GiveAllHandAndResolveXiashu) &&
-            !CanOfferXiashu(candidate.OwnerSeat)) return false;
-        if (!CanAwakenWangYun(candidate.OwnerSeat, trigger)) return false;
-        if (!CanOfferZhugeGuo(candidate, trigger, context)) return false;
-        if (!CanOfferLiuQi(candidate, trigger, context) || !CanOfferBeiMiHuLifecycle(candidate.OwnerSeat, trigger, context) || !CanOfferBeiMiHuCardAction(candidate, trigger, context)) return false;
-        if (!CanOfferSimaHuiLifecycle(candidate, trigger, context) || !CanPreventSimaHuiDamage(candidate.OwnerSeat, trigger, context) ||
-            !CanOfferXuRongLifecycle(candidate, context) || !CanOfferLiJue(candidate, trigger, context) || !CanOfferSuFei(candidate, trigger, context) || !CanOfferFanChou(candidate, trigger, context) || !CanOfferGuoSi(candidate, trigger, context) || !CanOfferZhangQiYing(candidate, trigger, context) || !CanOfferCaoChun(candidate, trigger, context) || !CanOfferWangCan(candidate, trigger, context) || !CanOfferSpPangTong(candidate, trigger, context) || !CanOfferNeifa(candidate, trigger, context) || !CanOfferLvQian(candidate, trigger, context) || !CanOfferLvKuangLvXiang(candidate, trigger, context) || !CanOfferXinPi(candidate, trigger, context) || !CanOfferHuaMan(candidate, trigger, context)) return false;
-        if (ProgramInstructionResolver.Default.Features(trigger).HasOperation(SkillProgramEffectOp.SettleQingzhongActualPlayDebt) &&
-            !HasIssuedQingzhongDebtCandidate(candidate, context)) return false;
-        if (features.HasOperation(SkillProgramEffectOp.DistributeTopCardsAfterElementalChainOrigin) &&
-            !TrySimaHuiChainOrigin(candidate.OwnerSeat, trigger, context, out _)) return false;
-        if (IsXianfuEchoTrigger(trigger) && !CanRunXianfuEcho(candidate, context)) return false;
-        if (IsDianhuDrawTrigger(trigger) && !CanRunDianhu(candidate, context)) return false;
-        if (!CanOfferZhaoXiangExchange(candidate.OwnerSeat, trigger) ||
-            !CanOfferMeiYingConversionDraw(candidate, trigger, context)) return false;
-        if (!CanOfferUniqueLeaderTrickTarget(candidate, trigger, context)) return false;
-        if (!CanOfferRoundGainedTrickTarget(candidate, trigger, context)) return false;
-        if (!CanOfferRoundGainedEquipmentDraw(candidate, trigger, context)) return false;
-        if (!CanOfferFriendTrio(candidate, trigger, context) || !CanOfferFriendPangTong(candidate, trigger, context)) return false;
-        if (!CanOfferJoinedTrickDamageReward(candidate, trigger, context)) return false;
-        if (!CanRunFireTargetBenefit(candidate, trigger, context)) return false;
-        if (!CanRunPaidColorDamageClaim(candidate, trigger, context)) return false;
-        if (!CanRunSameTypeAid(candidate, trigger, context)) return false;
-        if (!CanRunPrepDiscard(candidate, trigger, context)) return false;
-        if (!CanRunUniqueHpPeer(candidate, trigger, context)) return false;
-        if (!CanRunRecipientConsequences(candidate, trigger)) return false;
-        if (!CanRunHalfHandPhaseDebt(candidate, trigger, context)) return false;
-        if (!CanRunFixedRecipientBenefit(candidate, trigger, context)) return false;
-        if (!CanRunEndingPair(candidate, trigger, context)) return false;
-        if (!CanRunPlacedEquipmentBenefit(candidate, trigger, context)) return false;
-        if (!CanRunActualUseTarget(candidate, context) || !CanOfferOwnTrickOrHandCategory(candidate, trigger, context)) return false;
-        if (!CanOfferOriginalTargetAddition(candidate, trigger, context)) return false;
-        if (!CanOfferDamageZoneAndAdjacentTarget(candidate, trigger, context)) return false;
-        if (!CanOfferActorHandLimitPenalty(candidate, trigger, context)) return false;
-        if (!CanRunProgramDyingAlcoholPolicy(trigger, context, candidate.OwnerSeat)) return false;
-        if (!CanOfferRoundPileAlcohol(candidate, trigger, context) || !CanOfferCurrentSlashFire(candidate, trigger, context) || !CanOfferSuitPreventionBenefit(candidate, trigger, context) || !CanOfferSignedDamagePayment(candidate, trigger, context)) return false;
-        if (!CanOfferActualDiscardRecovery(candidate, context)) return false;
-        if (!CanOfferFriendEvent(candidate, trigger, context)) return false;
-        if (!CanOfferShownEntityTurnPolicy(candidate, trigger, context)) return false;
-        if (!CanOfferFinalTargetSlash(candidate, trigger, context)) return false;
-        if (!CanRunOtherDyingVictimRecovery(trigger, context, candidate.OwnerSeat)) return false;
-        if (!CanRunAlcoholSlashSuppression(trigger, context, candidate.OwnerSeat)) return false;
-        if (!CanOfferGameActivationAwakening(candidate.OwnerSeat, trigger)) return false;
-        if (!CanOfferTurnDefaultStatProgram(candidate.OwnerSeat, candidate.SkillId, trigger, context)) return false;
-        if (!CanOfferOffTurnUsedCards(candidate, context)) return false;
-        if (!CanOfferOrderedPrintedSkillLoss(candidate.OwnerSeat, trigger, context)) return false;
-        if (!CanOfferOverflowTargetCancellation(candidate, trigger, context)) return false;
-        if (!CanOfferGuanVariant(candidate, trigger, context)) return false;
-        if (!CanOfferDamageCounterpartAcquisition(candidate, trigger, context)) return false;
-        if (!CanOfferPairedColorDisposition(candidate, trigger, context)) return false;
-        if (!CanOfferRecipientCategoryMarkProgram(candidate, trigger, context)) return false;
-        if (!CanRunOutsidePhaseDrawDiscardTrigger(candidate, trigger, context)) return false;
-        if (!CanOfferSameNameHandDiscardOrDamage(candidate, trigger, context) ||
-            !CanOfferCompletedUndamagedTargetReveal(candidate.OwnerSeat, trigger, context)) return false;
-        if (!CanOfferOriginalHandEntityProgram(candidate.OwnerSeat, candidate.SkillId, trigger, context, candidate.SkillInstanceId)) return false;
-        if (!CanOfferLastDamageSourceReciprocity(candidate.OwnerSeat, candidate.SkillId, trigger, context)) return false;
-        if (trigger.Effects is [{ Op: SkillProgramEffectOp.SettlePhaseNamePrediction }] && !HasIssuedPhaseNamePrediction(candidate, context)) return false;
-        if (!CanRunOwnedDamagePointJudgment(trigger, context, candidate.OwnerSeat)) return false;
-        if (!CanRunDamageJudgmentSuitPayment(trigger, context, candidate.OwnerSeat)) return false;
-        if (features.HasOperation(SkillProgramEffectOp.ObtainDamageTargetCardAndResolveCategory) &&
-            !CanOfferDamageTargetObtain(candidate.OwnerSeat, context)) return false;
-        if (features.HasOperation(SkillProgramEffectOp.DiscardDamageTargetAndClaimMount) &&
-            !CanOfferDamageTargetMount(candidate.OwnerSeat, context)) return false;
+        var plan = ProgramInstructionResolver.Default.Resolve(program, ProgramInstructionSourceKind.Trigger, candidate.BindingId);
+        var features = plan.Features;
+        var legality = new ProgramTriggerLegalityContext(owner, program, plan, candidate, context);
+        if (!ProgramLegality.CanTrigger(ProgramTriggerLegalityPhase.BeforeGainQualification, legality)) return false;
         if (!IsGainPhaseQualified(trigger, candidate.OwnerSeat, context.MovementBatch?.MovementTiming)) return false;
-        if (!CanOfferFinalTargetGift(candidate, context, features)) return false;
-        if (!CanOfferConvertingGift(candidate, context, features)) return false;
-        if (!CanOfferPublicPileColor(owner,candidate,trigger,context)) return false;
+        if (!ProgramLegality.CanTrigger(ProgramTriggerLegalityPhase.BeforeAdvancedPrerequisites, legality)) return false;
         if (!AdvancedTriggerPrerequisites(owner, candidate.SkillId, trigger)) return false;
-        if (!CanRunFactionActionReward(candidate, trigger, context)) return false;
-        if (!CanOfferCardActionContest(owner,trigger,context)) return false;
-        if (features.HasOperation(SkillProgramEffectOp.UseDeckSlashesThenShuffle) &&
-            (context.TargetSeat is not { } deckTarget || _players[deckTarget].Gender != GeneralGender.Male ||
-             owner.Hp <= 0 || _cardZones.Count(CardLocation.DrawPile) > owner.Hp * 10)) return false;
-        if (features.HasOperation(SkillProgramEffectOp.NullifyFirstTurnTargetByHand) && !IsFirstTurnTarget(candidate, context)) return false;
-        if (features.HasOperation(SkillProgramEffectOp.QiaoliEndingEquipmentGain) &&
-            !HasQiaoliEndingGainPending(candidate.OwnerSeat)) return false;
-        if (!CanOfferProgramHandControl(owner, trigger)) return false;
-        if (!CanOfferResponseExchange(candidate, trigger, context)) return false;
-        if (!CanOfferAttributedEvent(trigger,context)) return false;
-        if (!CanOfferPhaseAlcohol(trigger, context)) return false;
-        if (!CanOfferUnequalHandHp(trigger, context, candidate.OwnerSeat)) return false;
-        if (!CanOfferTargetedOrdinaryTrick(candidate, trigger, context)) return false;
+        if (!ProgramLegality.CanTrigger(ProgramTriggerLegalityPhase.BeforeCondition, legality)) return false;
         if (trigger.NoDyingAtActivation && (ActiveDying is not null || _players.Any(p => p.IsAlive && p.Hp <= 0))) return false;
-        if (features.HasOperation(SkillProgramEffectOp.SuppressGeneralSkill) &&
-            (_phase != TurnPhase.Play || owner.Seat != _currentSeat || context.TargetSeat is not { } target ||
-             _programSuppressions.Any(item => item.SourceSeat == owner.Seat && item.TargetSeat == target))) return false;
+        if (!ProgramLegality.CanTrigger(ProgramTriggerLegalityPhase.AfterDyingCheck, legality)) return false;
         if (!trigger.Condition.Evaluate(trigger.EvaluateConditionAtResolution ? CaptureProgramTriggerFacts(owner) : context.Facts ?? CaptureProgramTriggerFacts(owner),
                 candidate.SkillId, candidate.SkillInstanceId))
             return false;
         if (!HasInitialOwnedCardSelectionCandidates(owner, trigger)) return false;
-        if (!CanOfferGrantedPhaseSlash(candidate, trigger)) return false;
-        if (!CanOfferAlternativePhaseCost(owner, trigger, candidate)) return false;
+        if (!ProgramLegality.CanTrigger(ProgramTriggerLegalityPhase.AfterCondition, legality)) return false;
         if (IsConfirmedActualStartingSubstitution(context)) return false;
         if (trigger.UsageScope is { } scope && ProgramTriggerUsageLimit(trigger) is { } limit &&
             _skillRuntimeState.GetUsage(
@@ -2211,11 +2094,7 @@ public sealed partial class GameEngine
              program.Modifiers.Any(modifier => modifier.ValueExpression == SkillRuleValueExpression.OwnerMarkerCount) &&
              _contentRegistry.GetSkill(candidate.SkillId).Tags.HasFlag(SkillTag.Lord)) &&
             !HasSkillRoleQualification(owner, candidate.SkillId, candidate.SkillInstanceId, Role.Lord)) return false;
-        if (features.HasOperation(SkillProgramEffectOp.RemoveSelectedCurrentArrowBarrageTarget) && GetCurrentArrowBarrageTargets(owner.Seat, context).Count == 0) return false;
-        if (features.HasOperation(SkillProgramEffectOp.GrantFactionPopulationMarker) && HasInitialPopulationMarkerGrant(owner.Seat, candidate.SkillId, context)) return false;
-        if (features.HasOperation(SkillProgramEffectOp.CollectFinalTargetCardInPublicPile) && !CanCollectFinalTargetPile(owner.Seat, context)) return false;
-        if (features.HasOperation(SkillProgramEffectOp.DiscardNonFinalTargetCardThenDraw) && !CanOfferNonFinalTargetPayment(candidate, context)) return false;
-        if (features.HasOperation(SkillProgramEffectOp.UseBoundCardsAsSlash) && !CanOfferTriggeredSlashConversion(candidate, trigger, context)) return false;
+        if (!ProgramLegality.CanTrigger(ProgramTriggerLegalityPhase.AfterInitialPayments, legality)) return false;
         if (features.ForOperation(SkillProgramEffectOp.SelectTarget).Any(effect =>
             effect.Condition.Kind != SkillProgramConditionKind.ChoiceIs &&
             effect.TargetKind is { } kind && !GetProgramTargetSeats(owner.Seat, kind, context, effect.Marker).Any(seat =>

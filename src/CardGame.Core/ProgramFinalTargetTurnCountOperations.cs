@@ -39,7 +39,7 @@ public abstract class FinalTargetTurnCountHandler : ISkillProgramEffectHandler
 {
     public abstract SkillProgramEffectOp Op { get; }
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int seat, ISkillProgramEffectHost host) =>
-        ((IFinalTargetTurnCountHost)host).ExecuteFinalTargetTurnCount(effect, frame);
+        host.GetCapability<IFinalTargetTurnCountHost>().ExecuteFinalTargetTurnCount(effect, frame);
 }
 public sealed class DiscardNonFinalTargetCardThenDrawHandler : FinalTargetTurnCountHandler
 { public override SkillProgramEffectOp Op => SkillProgramEffectOp.DiscardNonFinalTargetCardThenDraw; }

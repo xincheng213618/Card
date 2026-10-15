@@ -51,8 +51,8 @@ public sealed partial class GameEngine
   if(action.Kind==LegalActionKind.BorrowedSword)return action.TargetSeats.Where((_,index)=>index%2==0).ToArray();
   return action.ConversionSource is{} source&&ViewAsRule(source)?.ExcludeOwnerEffects==true?action.TargetSeats:GetDeclaredCardTargets(actor,action.Kind,action.TargetSeats).ToArray();
  }
+ [ProgramActivationLegality(ProgramActivationLegalityPhase.BeforeCondition, 150)]
  private bool CanActivateHandComparison(CharacterState owner,SkillProgramActivation activation)=>!ProgramInstructionResolver.Default.Features(activation).HasOperation(SkillProgramEffectOp.CompareSelectedHandWithHpHand)||GetHand(owner).Count>0&&_players.Any(p=>p.IsAlive&&p.Seat!=owner.Seat&&p.Hp>0&&GetHand(p).Count>0);
- private bool IsHandComparisonTarget(SkillProgramActivation activation,CharacterState p)=>!ProgramInstructionResolver.Default.Features(activation).HasOperation(SkillProgramEffectOp.CompareSelectedHandWithHpHand)||p.Hp>0&&GetHand(p).Count>0;
  private IEnumerable<RuleQueryContribution> PersistentHandLimitContributions(CharacterState owner)
  {
   foreach(var g in HandComparisonHistory().OfType<ProgramPersistentHandLimitChangedEvent>().Where(e=>(e.TargetSeat<0?e.OwnerSeat:e.TargetSeat)==owner.Seat&&HasRuntimeSkillInstance(_players[e.OwnerSeat],e.SkillId,e.SkillInstanceId)).GroupBy(e=>(e.SkillId,e.SkillInstanceId,e.StateId)))
@@ -67,7 +67,8 @@ public sealed partial class GameEngine
   return designated.Contains(actor.Seat)||targets.Count==0&&IsImplicitSelfCardUse(kind);
  }
  private IEnumerable<int> HandComparisonPublicIds()=>_resolutionStack.OfType<ProgramSkillFrame>().Where(f=>f.HandComparisonDraft is not null).SelectMany(f=>f.HandComparisonDraft!.RevealedIds.Prepend(f.HandComparisonDraft.SourceCardId)).Distinct();
- private sealed partial class ProgramSkillHost : IHandComparisonProgramHost
+ [ProgramCapability]
+ private sealed class HandComparisonProgramCapability(GameEngine engine) : IHandComparisonProgramHost
  {
   public SkillProgramStepOutcome CompareSelectedHandWithHpHand(ProgramSkillFrame f,SkillProgramEffect e)=>engine.CompareSelectedHandWithHpHand(f,e);
   public void AdjustPersistentHandLimit(ProgramSkillFrame f,int targetSeat,int amount,string stateId)=>engine.AdjustPersistentHandLimit(f,targetSeat,amount,stateId);

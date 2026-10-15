@@ -64,6 +64,7 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new SkillUsageConsumedEvent(actor.Seat, source.SkillId, source.BindingId, scope, 1));
     }
 
+    [ProgramRuleObserver(ProgramRulePhase.BeforeEvent, 320)]
     private void ObserveTrueRoundCardNames(IGameEvent payload)
     {
         if (!TracksTrueRoundCardNames || _roundNumber < 1) return;

@@ -170,7 +170,7 @@ public abstract class OriginalHandEntityHandler : ISkillProgramEffectHandler
 {
     public abstract SkillProgramEffectOp Op { get; }
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int seat, ISkillProgramEffectHost host) =>
-        ((IOriginalHandEntitiesProgramHost)host).ExecuteOriginalHandEntityOperation(frame, effect);
+        host.GetCapability<IOriginalHandEntitiesProgramHost>().ExecuteOriginalHandEntityOperation(frame, effect);
 }
 public sealed class InitializeOriginalHandEntitiesHandler : OriginalHandEntityHandler
 { public override SkillProgramEffectOp Op => SkillProgramEffectOp.InitializeOriginalHandEntities; }

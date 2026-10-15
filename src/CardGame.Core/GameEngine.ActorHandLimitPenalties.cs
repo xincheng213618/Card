@@ -10,7 +10,8 @@ public sealed partial class GameEngine
     private bool HasActorHandLimitPenaltyCapability =>
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.GrantActorHandLimitPenalty);
 
-    private sealed partial class ProgramSkillHost : IActorHandLimitPenaltyHost
+    [ProgramCapability]
+    private sealed class ActorHandLimitPenaltyCapability(GameEngine engine) : IActorHandLimitPenaltyHost
     {
         public void GrantActorHandLimitPenalty(ProgramSkillFrame frame, int amount) =>
             engine.GrantProgramActorHandLimitPenalty(frame, amount);
@@ -71,6 +72,7 @@ public sealed partial class GameEngine
         return true;
     }
 
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 830)]
     private bool CanOfferActorHandLimitPenalty(ProgramTriggerCandidate candidate, SkillProgramTrigger trigger,
         ProgramSkillWindowContext context)
     {
@@ -142,6 +144,7 @@ public sealed partial class GameEngine
             yield return new FiniteRuleQueryContribution($"actor-hand-limit-penalty:{penalty.GrantSequence}", SkillRuleOperation.Add, -penalty.Amount);
     }
 
+    [ProgramRuleObserver(ProgramRulePhase.AfterEvent, 10)]
     private void ExpireActorHandLimitPenalties(TurnEndedEvent ended)
     {
         if (!HasActorHandLimitPenaltyCapability || _actorHandLimitPenalties.Count == 0 ||
@@ -160,6 +163,10 @@ public sealed partial class GameEngine
             AdvanceEventRulesAndQueueFact(new ProgramActorHandLimitPenaltyExpiredEvent(penalty, ended.TurnNumber, ended.ActorSeat, "actor-turn-ended"));
         }
     }
+
+    [ProgramRuleObserver(ProgramRulePhase.AfterEvent, 60)]
+    private void ExpireActorHandLimitPenaltiesAfterGameEnded(GameEndedEvent ended) =>
+        ExpireAllActorHandLimitPenalties("game-ended");
 
     private void ExpireAllActorHandLimitPenalties(string reason)
     {

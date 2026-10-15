@@ -20,24 +20,7 @@ public sealed partial class GameEngine
         Math.Min(_players.Count(p => p.IsAlive && p.Seat != owner.Seat), original + ConvertRuleValue(EvaluateCardTargetCount(owner, kind)) - 1 +
             (CurrentNextActualUseAdjustment(owner.Seat) is not null ? 1 : 0));
     private static SkillProgramEffect? HpLossSlashProgramProducer(ProgramExecutionPlan plan) =>
-        plan.Activation is { MinTargets: 1, MaxTargets: 1 } && plan.Instructions is
-            [{ Op: SkillProgramEffectOp.UseSelectedCardsAs, OutputKind: CardKind.Slash or CardKind.FireSlash } effect] ? effect : null;
-    private int HpLossSlashProgramMaximum(CharacterState owner, ProgramExecutionPlan plan, int original) =>
-        HasHpLossSlashTargets(owner) && HpLossSlashProgramProducer(plan) is { OutputKind: { } kind }
-            ? Math.Max(original, HpLossSlashMaximum(owner, kind)) : original;
-    private CommandError? ValidateHpLossSlashProgramSelection(LegalAction action, ProgramExecutionPlan plan,
-        IReadOnlyList<int> ids, IReadOnlyList<int> targets)
-    {
-        var owner = _players[_currentSeat];
-        if (targets.Count <= plan.Activation!.MaxTargets || !HasHpLossSlashTargets(owner)) return null;
-        var effect = HpLossSlashProgramProducer(plan);
-        var source = effect is null ? null : new CardConversionSource(action.ProgramSkillId!, effect.SourceBind!, owner.Seat,
-            GetRuntimeSkillInstanceId(owner, action.ProgramSkillId!));
-        var selection = source is null ? null : FindProgramMultiCardViewAsSelection(owner, ids, effect!.OutputKind!.Value, false, source);
-        return selection is not null && selection.Cards.All(c => !c.IsGeneralWeapon) && targets.Count <= HpLossSlashMaximum(owner, selection.OutputKind) &&
-            targets.Distinct().Count() == targets.Count && targets.All(t => IsValidPlayerSeat(t) && CanUseNextActualUseSelectedSlash(owner, _players[t], selection))
-            ? null : new(CommandErrorCode.InvalidTarget, "The HP-based Slash targets lost their real materials or current legal target count.");
-    }
+        ConvertedCardSelectionSource.HpLossProducer(plan);
     private HpLossSlashSelection? FreezeHpLossSlashSelection(CharacterState owner, ProgramExecutionPlan plan, IReadOnlyList<int> targets) =>
         targets.Count > plan.Activation!.MaxTargets && HpLossSlashProgramProducer(plan) is { OutputKind: { } kind } &&
         HpLossSlashTargetSource(owner) is { } policy ? new(policy.Source, policy.Hash, HpLossSlashMaximum(owner, kind), kind) : null;
@@ -56,6 +39,7 @@ public sealed partial class GameEngine
             e.ParentProgramFrameId == f.Id && e.PolicySource == r.PolicySource && e.PolicyHash == r.PolicyHash && !e.IsZhangba) == 1 &&
             CompleteProgramEventHistory().OfType<CardUseFinishedEvent>().Count(e => e.ResolutionId == r.CardUseFrameId) == 1;
     }
+    [ProgramCardAction(ProgramCardActionPhase.AfterProgram, 30)]
     private void AddHpLossSlashEquipmentActions(List<LegalAction> actions, CharacterState owner)
     {
         if (!HasHpLossSlashTargets(owner)) return;

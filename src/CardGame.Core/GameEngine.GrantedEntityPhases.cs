@@ -2,7 +2,8 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private sealed partial class ProgramSkillHost : IGrantedEntityPhaseProgramHost
+    [ProgramCapability]
+    private sealed class GrantedEntityPhaseProgramCapability(GameEngine engine) : IGrantedEntityPhaseProgramHost
     {
         public SkillProgramStepOutcome InsertGrantedEntityPlayPhase(ProgramSkillFrame f) => engine.BeginGrantedEntityPlayPhase(f);
         public SkillProgramStepOutcome ClaimGrantedPhaseSlash(ProgramSkillFrame f) => engine.BeginGrantedPhaseSlashClaim(f);
@@ -31,6 +32,7 @@ public sealed partial class GameEngine
     private bool IsGrantedEntityPhaseActive(int owner) => _programPhaseSchedule is { Phase: TurnPhase.Play } schedule &&
         schedule.Frame.OwnerSeat == owner && schedule.Frame.IssuedEntityPhase is { Stage: GrantedEntityPhaseStage.Active } receipt &&
         _phase == TurnPhase.Play && _currentSeat == owner && receipt.TurnNumber == _turnNumber && receipt.PhaseInstanceId == _cardUseDebitPhaseInstanceId;
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.AfterCondition, 10)]
     private bool CanOfferGrantedPhaseSlash(ProgramTriggerCandidate candidate, SkillProgramTrigger trigger)
     {
         if (!trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.ClaimGrantedPhaseSlash)) return true;

@@ -7,6 +7,7 @@ public sealed partial class GameEngine
 
     // Use the accepted action, not a play-phase counter or material movement.
     // Counterspells are uses even though their accepted action type is Response.
+    [ProgramRuleObserver(ProgramRulePhase.BeforeEvent, 280)]
     private void ObserveActualTurnTrickUse(IGameEvent payload)
     {
         if (!TracksActualTurnTrickUses) return;

@@ -4,7 +4,8 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private sealed partial class ProgramSkillHost : IPhaseStartCardControlHost
+    [ProgramCapability]
+    private sealed class PhaseStartCardControlCapability(GameEngine engine) : IPhaseStartCardControlHost
     {
         public SkillProgramStepOutcome GrantOtherPlayUseRestriction(ProgramSkillFrame frame, string skillId) =>
             engine.BeginPhaseStartCardControl(frame, PhaseStartCardControlKind.OtherPlayRestriction, skillId);
@@ -23,6 +24,7 @@ public sealed partial class GameEngine
         _players[owner].IsAlive && _players[actor].IsAlive &&
         (kind == PhaseStartCardControlKind.OtherPlayRestriction ? actor != owner : actor == owner) &&
         _resolutionStack.OfType<PlayPhaseStartingBoundaryFrame>().Any(p => p.Id == context.ParentFrameId && p.OwnerSeat == actor);
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 20)]
     private bool CanOfferPhaseStartCardControl(ProgramTriggerCandidate candidate, SkillProgramTrigger trigger, ProgramSkillWindowContext context)
     {
         if (trigger.Effects is [{ Op: SkillProgramEffectOp.GrantOtherPlayUseRestriction }])

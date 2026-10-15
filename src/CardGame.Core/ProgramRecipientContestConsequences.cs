@@ -73,12 +73,12 @@ internal sealed class RaiseMaximumRecoverAndQualifyPrintedLordDescriptor : Progr
 public sealed class GiveBlackHandAndResolveRecipientContestHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.GiveBlackHandAndResolveRecipientContest;
-    public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost host) => ((IRecipientContestConsequencesHost)host).BlackGiftContest(f, seat);
+    public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost host) => host.GetCapability<IRecipientContestConsequencesHost>().BlackGiftContest(f, seat);
 }
 public sealed class RaiseMaximumRecoverAndQualifyPrintedLordHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.RaiseMaximumRecoverAndQualifyPrintedLord;
-    public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost host) => ((IRecipientContestConsequencesHost)host).PrintedLordBenefit(f);
+    public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost host) => host.GetCapability<IRecipientContestConsequencesHost>().PrintedLordBenefit(f);
 }
 internal static class RecipientContestConsequencesComposition
 {

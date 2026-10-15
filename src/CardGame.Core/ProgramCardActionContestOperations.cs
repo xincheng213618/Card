@@ -26,6 +26,6 @@ internal sealed class StartCardActionPindianDescriptor : ProgramOperationDescrip
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new RequireTriggerWindow(e.OpponentReference!.Kind==ProgramParticipantRef.Actor?SkillProgramTriggerWindow.CardUseBeforeTargetEffects:SkillProgramTriggerWindow.SlashBeforeResponse),new CreatePindianResult(e.ResultBind!)];
 }
 public sealed class ReplaceAllSlashTargetsHandler : ISkillProgramEffectHandler
-{public SkillProgramEffectOp Op=>SkillProgramEffectOp.ReplaceAllSlashTargets;public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int seat,ISkillProgramEffectHost h){((ICardActionContestProgramHost)h).ReplaceAllSlashTargets(f,e.SourceBind!);return SkillProgramStepOutcome.Continue;}}
+{public SkillProgramEffectOp Op=>SkillProgramEffectOp.ReplaceAllSlashTargets;public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int seat,ISkillProgramEffectHost h){h.GetCapability<ICardActionContestProgramHost>().ReplaceAllSlashTargets(f,e.SourceBind!);return SkillProgramStepOutcome.Continue;}}
 public sealed class StartCardActionPindianHandler : ISkillProgramEffectHandler
-{public SkillProgramEffectOp Op=>SkillProgramEffectOp.StartCardActionPindian;public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int seat,ISkillProgramEffectHost h)=>((ICardActionContestProgramHost)h).StartCardActionPindian(f,e);}
+{public SkillProgramEffectOp Op=>SkillProgramEffectOp.StartCardActionPindian;public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int seat,ISkillProgramEffectHost h)=>h.GetCapability<ICardActionContestProgramHost>().StartCardActionPindian(f,e);}

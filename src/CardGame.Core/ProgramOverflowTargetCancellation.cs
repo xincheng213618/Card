@@ -66,6 +66,6 @@ internal sealed class OverflowTargetCancellationHandler : ISkillProgramEffectHan
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.CancelOtherCurrentUseTargetsIfOverHandLimit;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat, ISkillProgramEffectHost host) =>
-        host is IOverflowTargetCancellationHost cancellation ? cancellation.BeginOverflowTargetCancellation(frame) :
+        host.TryGetCapability<IOverflowTargetCancellationHost>(out var cancellation) ? cancellation.BeginOverflowTargetCancellation(frame) :
             throw new InvalidOperationException("The program host does not support overflow target cancellation.");
 }

@@ -38,6 +38,7 @@ public sealed partial class GameEngine
         identity = new(window.Id, window.ParentFrameId, action.ActionId, action.ActorSeat, action.ProviderSeat, action.EffectiveKind, response);
         return true;
     }
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 260)]
     private bool CanOfferNamedAmbush(ProgramTriggerCandidate candidate, SkillProgramTrigger trigger, ProgramSkillWindowContext context)
     {
         if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.RecordNamedPrivateAmbush))
@@ -189,6 +190,8 @@ public sealed partial class GameEngine
         if (f.NamedAmbush is not { Stage: NamedAmbushStage.MovementChildren }) return false;
         RequireNamedAmbushReceipt(f); return true;
     }
+    [ProgramRuleObserver(ProgramRulePhase.BeforeEvent, 70)]
+    [ProgramRuleObserver(ProgramRulePhase.BeforeStatePublish, 80)]
     private void CleanupLostNamedAmbushPiles()
     {
         if (!HasNamedAmbushCapability || !_cardZones.HasPrivatePersistentCards()) return;
@@ -215,6 +218,7 @@ public sealed partial class GameEngine
             return decision.Choices.FirstOrDefault(c => c.Parameters["recorded-kind"] == CardKind.Slash.ToString()) ?? decision.Choices[0];
         return decision.Choices.Where(c => c.Cards.Count == 1).OrderBy(c => GetKeepValue(GetAttackCard(c.Cards[0]), _players[f.OwnerSeat])).FirstOrDefault() ?? decision.Choices[0];
     }
-    private sealed partial class ProgramSkillHost : INamedAmbushHost
+    [ProgramCapability]
+    private sealed class NamedAmbushCapability(GameEngine engine) : INamedAmbushHost
     { public SkillProgramStepOutcome ExecuteNamedAmbush(SkillProgramEffect e, ProgramSkillFrame f) => engine.BeginNamedAmbush(e, f); }
 }

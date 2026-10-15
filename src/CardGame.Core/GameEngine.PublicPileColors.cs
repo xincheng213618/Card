@@ -1,7 +1,8 @@
 namespace CardGame.Core;
 public sealed partial class GameEngine
 {
-    private sealed partial class ProgramSkillHost:IPublicPileColorHost
+    [ProgramCapability]
+    private sealed class PublicPileColorCapability(GameEngine engine) : IPublicPileColorHost
     {public SkillProgramStepOutcome ExecutePublicPileColor(SkillProgramEffect e,ProgramSkillFrame f)=>engine.ExecutePublicPileColor(e,f);}
     private IEnumerable<PublicPersistentPileSource> SameGrantColorPiles(int seat,string sourceSkill,string consumerInstance)
     {
@@ -10,6 +11,7 @@ public sealed partial class GameEngine
     }
     private static bool? SuitColor(Suit? suit)=>suit is Suit.Heart or Suit.Diamond ? true : suit is Suit.Club or Suit.Spade ? false : null;
     private bool? PileColor(PublicPersistentPileSource s)=>SuitColor(EffectiveSuit(_players[s.OwnerSeat],PublicPileCards(s).Single()));
+    [ProgramActivationLegality(ProgramActivationLegalityPhase.BeforeCondition, 120)]
     private bool CanActivatePublicPileColor(CharacterState owner,string skill,ProgramInstructionFeatures features)
     {
         if(!features.HasOperation(SkillProgramEffectOp.PublicPileColorDamage))return true;
@@ -26,6 +28,7 @@ public sealed partial class GameEngine
         return result;
     }
     private ActionCardsDiscardedEvent? ColorActionFact(ProgramSkillWindowContext c)=>c.MovementBatch is {} b?CompleteProgramEventHistory().OfType<ActionCardsDiscardedEvent>().LastOrDefault(e=>e.BatchId==b.Id):null;
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeAdvancedPrerequisites, 30)]
     private bool CanOfferPublicPileColor(CharacterState owner,ProgramTriggerCandidate candidate,SkillProgramTrigger trigger,ProgramSkillWindowContext context)
     {
         if(!trigger.Effects.Any(e=>e.Op==SkillProgramEffectOp.RewardDiscardedActionColor))return true;

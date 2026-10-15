@@ -42,7 +42,8 @@ public sealed partial class GameEngine
             _programNextTurnRuleModifiers.RemoveAll(item => item.TargetSeat == current.Seat && item.Query == SkillRuleQuery.DrawCount);
     }
 
-    private sealed partial class ProgramSkillHost : IDeferredCardProgramHost
+    [ProgramCapability]
+    private sealed class DeferredCardProgramCapability(GameEngine engine) : IDeferredCardProgramHost
     {
         public SkillProgramStepOutcome ViewTopCardsAndObtainMatchingCards(ProgramSkillFrame frame, int seat, int amount, IReadOnlyList<SkillProgramCardCategory> categories) =>
             engine.BeginParticipantTopView(frame, seat, amount);
@@ -164,6 +165,7 @@ public sealed partial class GameEngine
                 DrawProgramCards(frame.Id, reward.Seat, reward.Count, null, null, SkillProgramCardSetVisibility.Private, new("skill-program.deferred-pile.provider-reward"));
     }
 
+    [ProgramRuleObserver(ProgramRulePhase.BeforeStatePublish, 60)]
     private void CleanupLostDeferredPileSources()
     {
         foreach (var deposit in _deferredPublicPileDeposits.Where(item => !_players[item.OwnerSeat].IsAlive ||

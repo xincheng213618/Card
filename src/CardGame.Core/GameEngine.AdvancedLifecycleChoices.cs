@@ -1,6 +1,17 @@
 ﻿namespace CardGame.Core;
 public sealed partial class GameEngine
 {
+    [ProgramActivationLegality(ProgramActivationLegalityPhase.AfterCommonStart, 10, SkillProgramEffectOp.DamageFarthestCharacter)]
+    private bool AllowsDamageFarthestCharacterActivation(ProgramActivationLegalityContext gate)
+    {
+        var owner = gate.Owner;
+        var program = gate.Program;
+        var features = gate.Features;
+        return !(features.HasOperation(SkillProgramEffectOp.DamageFarthestCharacter) &&
+                    !_players.Any(target => target.IsAlive && target.Seat != owner.Seat && IsFarthestInRange(owner, target) &&
+                        _skillRuntimeState.GetUsage(owner.Seat, program.Id, $"target:{target.Seat}", SkillUsageScope.Turn) == 0));
+    }
+
     private void PromptAdvancedSelection(long frameId)
     {
         var frame = GetActiveProgramFrame(frameId);

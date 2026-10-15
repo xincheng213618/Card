@@ -4,6 +4,7 @@ public sealed partial class GameEngine
 {
     private const string RoundGainedEquipmentDrawReason = "skill-program.round-gained.equipment-draw";
 
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 650)]
     private bool CanOfferRoundGainedEquipmentDraw(ProgramTriggerCandidate candidate, SkillProgramTrigger trigger, ProgramSkillWindowContext context) =>
         !trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.DrawForRoundGainedEquipmentUse) ||
         ExactIssuedRoundGainedUseCandidate(candidate, context) is { } q &&

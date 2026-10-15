@@ -23,6 +23,12 @@ public sealed partial class GameEngine
 
     // Dying entry and exit are mandatory immediate boundaries. Definitions are
     // restricted to automatic draws so the rescue cursor never exposes stale hands.
+    [ProgramRuleObserver(ProgramRulePhase.AfterEvent, 70)]
+    private void ObserveAutomaticDyingTransitions(IGameEvent payload)
+    {
+        if (_started) ResolveAutomaticDyingTransitionPrograms(payload);
+    }
+
     private void ResolveAutomaticDyingTransitionPrograms(IGameEvent payload)
     {
         var transition = payload switch
@@ -40,7 +46,8 @@ public sealed partial class GameEngine
                     DrawCards(owner, effect.Amount, log: true, new CardMoveReason("program.dying-transition.draw"));
     }
 
-    private sealed partial class ProgramSkillHost : IParticipantReserveProgramHost
+    [ProgramCapability]
+    private sealed class ParticipantReserveProgramCapability(GameEngine engine) : IParticipantReserveProgramHost
     {
         public SkillProgramStepOutcome ExecuteParticipantReserve(SkillProgramEffect effect, ProgramSkillFrame frame) =>
             engine.ExecuteParticipantReserve(effect, frame);

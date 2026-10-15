@@ -33,6 +33,6 @@ public sealed class ChooseDifferentActionCategoryGiftProgramHandler : ISkillProg
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.ChooseDifferentActionCategoryGift;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat, ISkillProgramEffectHost host) =>
-        ((IActionCategoryGiftProgramHost)host).ChooseDifferentActionCategoryGift(frame, targetSeat,
+        host.GetCapability<IActionCategoryGiftProgramHost>().ChooseDifferentActionCategoryGift(frame, targetSeat,
             effect.ResultBind!, effect.Zones);
 }

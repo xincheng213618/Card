@@ -82,13 +82,13 @@ public sealed class OfferSlashTargetBenefitHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.OfferSlashTargetBenefit;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost h) =>
-        ((ISlashTargetBenefitProgramHost)h).OfferSlashTargetBenefit(f, e.StateId!);
+        h.GetCapability<ISlashTargetBenefitProgramHost>().OfferSlashTargetBenefit(f, e.StateId!);
 }
 public sealed class SettleDodgeCancelledSlashBenefitHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.SettleDodgeCancelledSlashBenefit;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost h) =>
-        ((ISlashTargetBenefitProgramHost)h).SettleDodgeCancelledSlashBenefit(f);
+        h.GetCapability<ISlashTargetBenefitProgramHost>().SettleDodgeCancelledSlashBenefit(f);
 }
 internal static class SlashTargetBenefitComposition
 {

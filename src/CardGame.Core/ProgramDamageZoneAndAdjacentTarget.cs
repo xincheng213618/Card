@@ -73,8 +73,8 @@ internal sealed class DamageZoneAndAdjacentTargetHandler(SkillProgramEffectOp op
     public SkillProgramEffectOp Op => op;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost host) =>
         op == SkillProgramEffectOp.ObtainEachDamageTargetZoneThenSelfOnly
-            ? ((IDamageZoneAndAdjacentTargetHost)host).ObtainEachDamageTargetZoneThenSelfOnly(f)
-            : ((IDamageZoneAndAdjacentTargetHost)host).JoinAdjacentRedCardTarget(f);
+            ? host.GetCapability<IDamageZoneAndAdjacentTargetHost>().ObtainEachDamageTargetZoneThenSelfOnly(f)
+            : host.GetCapability<IDamageZoneAndAdjacentTargetHost>().JoinAdjacentRedCardTarget(f);
 }
 internal static class DamageZoneAndAdjacentTargetContract
 {

@@ -2,7 +2,8 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private sealed partial class ProgramSkillHost : IFinalTargetGiftHost
+    [ProgramCapability]
+    private sealed class FinalTargetGiftCapability(GameEngine engine) : IFinalTargetGiftHost
     {
         public SkillProgramStepOutcome GiveOwnedCardToOtherFinalTargetAndDraw(ProgramSkillFrame frame)=>engine.BeginFinalTargetGift(frame);
     }
@@ -15,6 +16,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("Final-target gift lost its actual multi-target Trick action.");
         return parent;
     }
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeAdvancedPrerequisites, 10)]
     private bool CanOfferFinalTargetGift(ProgramTriggerCandidate candidate,ProgramSkillWindowContext context,ProgramInstructionFeatures features)
     {
         if(!features.HasOperation(SkillProgramEffectOp.GiveOwnedCardToOtherFinalTargetAndDraw))return true;

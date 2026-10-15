@@ -5,13 +5,11 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    [ProgramActivationLegality(ProgramActivationLegalityPhase.BeforeOwnerFacts, 10)]
     private bool CanStartOwnedHandRankSum(CharacterState owner, ProgramExecutionPlan plan) =>
         plan.Instructions.FirstOrDefault() is not { Op: SkillProgramEffectOp.SelectOwnedHandRankSum } selector ||
         RankSubsetSearch.CanComplete(GetHand(owner).Select(c => c.Rank), selector.ExactRankSum!.Value);
 
-    private CommandError? ValidateOwnedHandRankSumActivation(ProgramExecutionPlan? plan, int ownerSeat) =>
-        plan is not null && !CanStartOwnedHandRankSum(_players[ownerSeat], plan)
-            ? new(CommandErrorCode.IllegalAction, "自己的手牌中不存在满足精确点数和的选牌方案。") : null;
 
     private SkillProgramStepOutcome BeginOwnedHandRankSum(ProgramSkillFrame frame, int exactRankSum, string resultBind)
     {
@@ -174,7 +172,8 @@ public sealed partial class GameEngine
             .ThenBy(c => c.Id.Value, StringComparer.Ordinal).First();
     }
 
-    private sealed partial class ProgramSkillHost : IOwnedHandRankSumHost
+    [ProgramCapability]
+    private sealed class OwnedHandRankSumCapability(GameEngine engine) : IOwnedHandRankSumHost
     {
         public SkillProgramStepOutcome BeginOwnedHandRankSum(ProgramSkillFrame frame, int exactRankSum, string resultBind) =>
             engine.BeginOwnedHandRankSum(frame, exactRankSum, resultBind);

@@ -37,7 +37,7 @@ public sealed class SetTurnHandLimitFromPlayDamageHandler : ISkillProgramEffectH
     public SkillProgramEffectOp Op => SkillProgramEffectOp.SetTurnHandLimitFromPlayDamage;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat, ISkillProgramEffectHost host)
     {
-        ((IPersistentCombatPolicyProgramHost)host).SetTurnHandLimitFromPlayDamage(frame);
+        host.GetCapability<IPersistentCombatPolicyProgramHost>().SetTurnHandLimitFromPlayDamage(frame);
         return SkillProgramStepOutcome.Continue;
     }
 }
@@ -46,7 +46,7 @@ public sealed class GrantGameFactionAttackRangeTargetsHandler : ISkillProgramEff
     public SkillProgramEffectOp Op => SkillProgramEffectOp.GrantGameFactionAttackRangeTargets;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat, ISkillProgramEffectHost host)
     {
-        ((IPersistentCombatPolicyProgramHost)host).GrantGameFactionAttackRangeTargets(frame, effect.ProviderFactionId!);
+        host.GetCapability<IPersistentCombatPolicyProgramHost>().GrantGameFactionAttackRangeTargets(frame, effect.ProviderFactionId!);
         return SkillProgramStepOutcome.Continue;
     }
 }

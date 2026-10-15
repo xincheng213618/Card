@@ -74,7 +74,7 @@ internal sealed class FinalTargetSlashHandler(SkillProgramEffectOp op) : ISkillP
     public SkillProgramEffectOp Op => op;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat, ISkillProgramEffectHost host)
     {
-        ((IFinalTargetSlashProgramHost)host).IssueFinalTargetSlashReceipt(frame, effect);
+        host.GetCapability<IFinalTargetSlashProgramHost>().IssueFinalTargetSlashReceipt(frame, effect);
         return SkillProgramStepOutcome.Continue;
     }
 }

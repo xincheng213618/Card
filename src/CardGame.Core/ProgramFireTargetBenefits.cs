@@ -53,8 +53,8 @@ internal sealed class FireTargetBenefitHandler(SkillProgramEffectOp op) : ISkill
     public SkillProgramEffectOp Op => op;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost host) =>
         op == SkillProgramEffectOp.DrawFireTargetAndGrantTurnUseQuota
-            ? ((IFireTargetBenefitProgramHost)host).DrawFireTargetAndGrantTurnUseQuota(f)
-            : ((IFireTargetBenefitProgramHost)host).LoseSkillsAndObtainNamedCard(f, e);
+            ? host.GetCapability<IFireTargetBenefitProgramHost>().DrawFireTargetAndGrantTurnUseQuota(f)
+            : host.GetCapability<IFireTargetBenefitProgramHost>().LoseSkillsAndObtainNamedCard(f, e);
 }
 
 internal static class FireTargetBenefitComposition

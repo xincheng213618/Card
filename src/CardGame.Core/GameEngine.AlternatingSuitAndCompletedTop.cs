@@ -6,6 +6,7 @@ public sealed record IssuedPlayPhaseSuitUseAllowance(int OwnerSeat, string Skill
 public sealed partial class GameEngine
 {
     private readonly Dictionary<(int Turn,int Actor,string Skill,SkillProgramCardCategory Category),long> _firstTurnCategoryUses=[];
+    [ProgramRuleObserver(ProgramRulePhase.BeforeEvent, 240)]
     private void ObserveFirstTurnCategoryUse(IGameEvent payload)
     {
         if(payload is not CardUseDeclaredEvent declared)return;
@@ -41,7 +42,8 @@ public sealed partial class GameEngine
     }
     private Suit? PhysicalGroupSuit(CharacterState owner,IReadOnlyList<Card> cards) { var suits=cards.Select(c=>EffectiveSuit(owner,c)).Distinct().ToArray(); return suits.Length==1?suits[0]:null; }
     private bool HasPhaseSuitAllowance(CharacterState owner,Card card)=>HasPhaseSuitAllowance(owner.Seat,EffectiveSuit(owner,card));
-    private sealed partial class ProgramSkillHost : IAlternatingSuitAndCompletedTopHost
+    [ProgramCapability]
+    private sealed class AlternatingSuitAndCompletedTopCapability(GameEngine engine) : IAlternatingSuitAndCompletedTopHost
     {
         public SkillProgramStepOutcome BeginAlternatingSuitDrawDiscard(ProgramSkillFrame f)=>engine.BeginAlternatingSuitDrawDiscard(f);
         public SkillProgramStepOutcome BeginFirstCategoryCompletedTop(ProgramSkillFrame f)=>engine.BeginFirstCategoryCompletedTop(f);

@@ -15,6 +15,7 @@ public sealed partial class GameEngine
         return history.OfType<PrivateWhirlDepositedEvent>().Select(e => e.Deposit).Where(d => d.Source.OwnerSeat == owner && (skill is null || d.Source.SkillId == skill) && (instance is null || d.Source.SkillInstanceId == instance) && !removed.Contains((d.DepositId, d.Source, d.CardId)) && _cardZones.GetLocation(d.CardId) == d.Location).ToArray();
     }
     private bool WhirlSourceCurrent(ProgramSkillFrame f) => _players[f.OwnerSeat].IsAlive && HasRuntimeSkillInstance(_players[f.OwnerSeat], f.SkillId, f.SkillInstanceId) && _contentRegistry.GetSkill(f.SkillId).Program?.GameplayHash == f.GameplayHash;
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 340)]
     private bool CanOfferPrivateWhirl(ProgramTriggerCandidate candidate, SkillProgramTrigger trigger, ProgramSkillWindowContext context)
     {
         if (trigger.Effects is not [var effect]) return true;
@@ -125,6 +126,8 @@ public sealed partial class GameEngine
         { if (fact.Count != r.DrawCount || _cardMovements.Count(m => m.Sequence > r.Before && m.Sequence <= r.After && m.From == CardLocation.DrawPile && m.To == CardLocation.Hand(f.OwnerSeat) && m.Reason.Value == "skill-program.private-whirl.draw") != r.DrawCount) throw new InvalidOperationException("Whirl draw lost its once-paid native movement."); }
         else if (fact.Count != r.Deposits.Count || r.Deposits.Any(d => _cardMovements.Count(m => m.CardId == d.CardId && m.Sequence > r.Before && m.Sequence <= r.After && m.From == (r.Stage == PrivateWhirlStage.DepositChildren ? CardLocation.Hand(f.OwnerSeat) : d.Location) && m.To == (r.Stage == PrivateWhirlStage.DepositChildren ? d.Location : CardLocation.DiscardPile)) != 1)) throw new InvalidOperationException("Whirl deposit/removal lost its physical invoice.");
     }
+    [ProgramRuleObserver(ProgramRulePhase.BeforeEvent, 80)]
+    [ProgramRuleObserver(ProgramRulePhase.BeforeStatePublish, 90)]
     private void CleanupLostPrivateWhirlPiles()
     {
         if (!HasPrivateWhirlCapability || !_cardZones.HasPrivatePersistentCards()) return;
@@ -138,5 +141,7 @@ public sealed partial class GameEngine
         var deposits = LiveWhirl(owner); if (deposits.Length == 0) return null;
         return Array.AsReadOnly(deposits.GroupBy(d => (d.Source.SkillId, d.Source.SkillInstanceId)).Select(g => new PrivateWhirlPileSnapshot { SkillId = g.Key.SkillId, Count = g.Count(), Cards = owner == viewer || revealAll ? g.Select(d => ToSnapshot(GetAttackCard(d.CardId))).ToArray() : null }).ToArray());
     }
-    private sealed partial class ProgramSkillHost : IPrivateWhirlHost { public SkillProgramStepOutcome BeginPrivateWhirl(ProgramSkillFrame f, SkillProgramEffect effect) => engine.BeginPrivateWhirl(f, effect); }
+    [ProgramCapability]
+    private sealed class PrivateWhirlCapability(GameEngine engine) : IPrivateWhirlHost
+    { public SkillProgramStepOutcome BeginPrivateWhirl(ProgramSkillFrame f, SkillProgramEffect effect) => engine.BeginPrivateWhirl(f, effect); }
 }

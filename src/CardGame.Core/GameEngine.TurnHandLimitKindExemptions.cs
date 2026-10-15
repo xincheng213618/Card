@@ -2,7 +2,8 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private sealed partial class ProgramSkillHost : ITurnHandLimitKindExemptionProgramHost
+    [ProgramCapability]
+    private sealed class TurnHandLimitKindExemptionProgramCapability(GameEngine engine) : ITurnHandLimitKindExemptionProgramHost
     {
         public void GrantTurnHandLimitCardKindExemption(ProgramSkillFrame frame, IReadOnlyList<CardKind> cardKinds) =>
             engine.GrantProgramTurnHandLimitCardKindExemption(frame, cardKinds);

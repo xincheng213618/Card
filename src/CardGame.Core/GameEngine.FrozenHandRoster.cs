@@ -170,6 +170,7 @@ public sealed partial class GameEngine
         if(r.Stage=="damage" && (candidates.Length==0 || candidates[0].Score<=0))return p.Choices.Single(c=>c.Parameters["branch"]=="skip-damage");
         return candidates[0].Choice;
     }
-    private sealed partial class ProgramSkillHost:IFrozenHandRosterHost
+    [ProgramCapability]
+    private sealed class FrozenHandRosterCapability(GameEngine engine) : IFrozenHandRosterHost
     {public SkillProgramStepOutcome ResolveFrozenHandRosterEndingExchange(ProgramSkillFrame f)=>engine.ResolveFrozenHandRosterEndingExchange(f);}
 }

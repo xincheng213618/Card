@@ -109,17 +109,17 @@ internal sealed class UsePindianWinnerSlashDescriptor : ProgramOperationDescript
 public sealed class DiscardDrawAndOfferUniqueHpPeerHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.DiscardDrawAndOfferUniqueHpPeer;
-    public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost host) => ((IRecipientContestProgramHost)host).DiscardDrawPeer(f);
+    public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost host) => host.GetCapability<IRecipientContestProgramHost>().DiscardDrawPeer(f);
 }
 public sealed class GiveAllHandAndStartRecipientPindianHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.GiveAllHandAndStartRecipientPindian;
-    public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost host) => ((IRecipientContestProgramHost)host).GiveAllHandContest(f, seat, e.ResultBind!);
+    public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost host) => host.GetCapability<IRecipientContestProgramHost>().GiveAllHandContest(f, seat, e.ResultBind!);
 }
 public sealed class UsePindianWinnerSlashHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.UsePindianWinnerSlash;
-    public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost host) => ((IRecipientContestProgramHost)host).UseContestWinnerSlash(f, e.SourceBind!);
+    public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost host) => host.GetCapability<IRecipientContestProgramHost>().UseContestWinnerSlash(f, e.SourceBind!);
 }
 internal sealed partial class ProgramAiEstimateContext
 {

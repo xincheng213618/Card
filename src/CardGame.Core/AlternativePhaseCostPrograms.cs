@@ -25,7 +25,7 @@ public sealed class PayOwnedCardOrMarkerHandler : ISkillProgramEffectHandler
     public SkillProgramEffectOp Op => SkillProgramEffectOp.PayOwnedCardOrMarker;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,
         int targetSeat, ISkillProgramEffectHost host) =>
-        ((IAlternativePhaseCostProgramHost)host).PayOwnedCardOrMarker(frame, effect.Zones, effect.Marker!.Value);
+        host.GetCapability<IAlternativePhaseCostProgramHost>().PayOwnedCardOrMarker(frame, effect.Zones, effect.Marker!.Value);
 }
 internal sealed class PayOwnedCardOrMarkerDescriptor : ProgramOperationDescriptorBase
 {
@@ -86,13 +86,15 @@ internal static class AlternativePhaseCostCompositionContract
 
 public sealed partial class GameEngine
 {
-    private sealed partial class ProgramSkillHost : IAlternativePhaseCostProgramHost
+    [ProgramCapability]
+    private sealed class AlternativePhaseCostProgramCapability(GameEngine engine) : IAlternativePhaseCostProgramHost
     {
         public SkillProgramStepOutcome PayOwnedCardOrMarker(ProgramSkillFrame frame,
             IReadOnlyList<CardZoneKind> zones, PlayerMarkerKind marker) =>
             engine.BeginAlternativePhaseCost(frame, zones, marker);
     }
 
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.AfterCondition, 20)]
     private bool CanOfferAlternativePhaseCost(CharacterState owner, SkillProgramTrigger trigger, ProgramTriggerCandidate candidate)
     {
         var effect = trigger.Effects.FirstOrDefault(e => e.Op == SkillProgramEffectOp.PayOwnedCardOrMarker);

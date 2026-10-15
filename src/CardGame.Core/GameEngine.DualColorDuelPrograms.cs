@@ -6,7 +6,8 @@ public sealed partial class GameEngine
 {
     private static readonly CardMoveReason DualColorDiscardReason = new("skill-program.dual-color.discard");
 
-    private sealed partial class ProgramSkillHost : IDualColorDuelProgramHost
+    [ProgramCapability]
+    private sealed class DualColorDuelProgramCapability(GameEngine engine) : IDualColorDuelProgramHost
     {
         public SkillProgramStepOutcome ChoosePrivateColorsDiscardAndDuel(ProgramSkillFrame frame) =>
             engine.BeginDualColorDuel(frame);

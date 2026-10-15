@@ -77,7 +77,7 @@ internal sealed class DirectedDistanceDebtHandler(SkillProgramEffectOp operation
     public SkillProgramEffectOp Op => operation;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int target, ISkillProgramEffectHost host)
     {
-        var typed = (IDirectedDistanceDebtHost)host;
+        var typed = host.GetCapability<IDirectedDistanceDebtHost>();
         if (Op == SkillProgramEffectOp.OfferShortRangeSlashTarget) return typed.OfferShortRangeSlashTarget(frame);
         if (Op == SkillProgramEffectOp.SettleFixedDistanceOneEndingDebt) return typed.SettleFixedDistanceOneEndingDebt(frame);
         typed.GrantFixedDistanceOneTurnPolicy(frame, target); return SkillProgramStepOutcome.Continue;

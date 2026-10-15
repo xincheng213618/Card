@@ -70,7 +70,8 @@ public sealed partial class GameEngine
 
     private SkillProgram AppliedDamageProgramDefinition(string skillId) => _contentRegistry.GetSkill(skillId).Program!;
 
-    private sealed partial class ProgramSkillHost : IAppliedDamageBenefitProgramHost
+    [ProgramCapability]
+    private sealed class AppliedDamageBenefitProgramCapability(GameEngine engine) : IAppliedDamageBenefitProgramHost
     {
         public SkillProgramStepOutcome ReceiveOwnerDamage(ProgramSkillFrame frame, int amount) => engine.ReceiveProgramOwnerDamage(frame, amount);
         public void ConsumeDistinctTurnTarget(ProgramSkillFrame frame, string usageId) => engine.ConsumeDistinctProgramTurnTarget(frame, usageId);

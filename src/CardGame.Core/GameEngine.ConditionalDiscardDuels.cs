@@ -8,6 +8,7 @@ public sealed partial class GameEngine
     private const string ConditionalDuelTargetReason = "skill-program.conditional-discard-duel.target-cost";
     private bool ConditionalDuelSourceCurrent(ProgramSkillFrame f) => _winner == Winner.None && _players[f.OwnerSeat].IsAlive &&
         HasRuntimeSkillInstance(_players[f.OwnerSeat], f.SkillId, f.SkillInstanceId);
+    [ProgramActivationLegality(ProgramActivationLegalityPhase.BeforeCardCount, 60, SkillProgramEffectOp.DiscardSlashThenOtherCardAndUseDuel)]
     private bool CanStartConditionalDiscardDuel(CharacterState owner) => GetHand(owner).Concat(GetEquipment(owner))
         .Any(c => IsSlashCard(c.Kind) && !c.IsGeneralWeapon && !IsForeignEquipmentDiscardPrevented(owner.Seat,
             c, _cardZones.GetLocation(c.Id), OwnedCardMoveIntent.Discard));
@@ -171,6 +172,7 @@ public sealed partial class GameEngine
             .ThenBy(c => c.Parameters.GetValueOrDefault("source-zone") == nameof(CardZoneKind.Equipment) ? 1 : 0)
             .ThenBy(c => c.Id.Value, StringComparer.Ordinal).First();
     }
-    private sealed partial class ProgramSkillHost : IConditionalDiscardDuelProgramHost
+    [ProgramCapability]
+    private sealed class ConditionalDiscardDuelProgramCapability(GameEngine engine) : IConditionalDiscardDuelProgramHost
     { public SkillProgramStepOutcome DiscardSlashThenOtherCardAndUseDuel(ProgramSkillFrame frame) => engine.BeginConditionalDiscardDuel(frame); }
 }

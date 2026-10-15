@@ -87,7 +87,7 @@ public sealed class PairedHandRecastHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.PairedHandRecast;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int seat, ISkillProgramEffectHost host) =>
-        ((IPairedHandRecastProgramHost)host).PairedHandRecast(frame, seat);
+        host.GetCapability<IPairedHandRecastProgramHost>().PairedHandRecast(frame, seat);
 }
 internal static class PairedHandRecastComposition
 {

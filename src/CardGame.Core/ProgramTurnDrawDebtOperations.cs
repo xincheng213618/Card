@@ -35,7 +35,7 @@ public sealed class DrawExtraAndArmTurnDamageUseDebtHandler : ISkillProgramEffec
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.DrawExtraAndArmTurnDamageUseDebt;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat, ISkillProgramEffectHost host) =>
-        ((ITurnDrawDebtProgramHost)host).DrawExtraAndArmTurnDamageUseDebt(frame, effect.StateId!);
+        host.GetCapability<ITurnDrawDebtProgramHost>().DrawExtraAndArmTurnDamageUseDebt(frame, effect.StateId!);
 }
 internal sealed class SelectTurnDamageUseDebtPaymentDescriptor : ProgramOperationDescriptorBase
 {
@@ -58,7 +58,7 @@ public sealed class SelectTurnDamageUseDebtPaymentHandler : ISkillProgramEffectH
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.SelectTurnDamageUseDebtPayment;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat, ISkillProgramEffectHost host) =>
-        ((ITurnDrawDebtProgramHost)host).SelectTurnDamageUseDebtPayment(frame, effect);
+        host.GetCapability<ITurnDrawDebtProgramHost>().SelectTurnDamageUseDebtPayment(frame, effect);
 }
 
 internal sealed partial class ProgramAiEstimateContext

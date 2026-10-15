@@ -25,6 +25,7 @@ public sealed partial class GameEngine
             window.Action.Type == CardActionType.Use && LifecycleCardUse(window.ParentFrameId) is { } card && card.Action?.ActionId == window.Action.ActionId &&
             CompleteProgramEventHistory().OfType<CardUseFinishedEvent>().Count(e => e.ResolutionId == card.Id && e.CardKind == use.EffectiveKind) == 1;
     }
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 1050)]
     private bool CanOfferSameNameHandDiscardOrDamage(ProgramTriggerCandidate candidate, SkillProgramTrigger trigger, ProgramSkillWindowContext context)
     {
         if (!trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.OfferSameNameHandDiscardOrDamage)) return true;
@@ -174,7 +175,8 @@ public sealed partial class GameEngine
         var discard = decision.Choices.Where(c => c.Cards.Count == 1).OrderBy(c => GetKeepValue(GetAdvancedCard(c.Cards[0]), _players[decision.PlayerSeat])).ThenBy(c => c.Cards[0]).FirstOrDefault();
         return discard ?? decision.Choices.Single(c => c.Parameters["step"] == "damage");
     }
-    private sealed partial class ProgramSkillHost : ISameNameHandDiscardOrDamageProgramHost
+    [ProgramCapability]
+    private sealed class SameNameHandDiscardOrDamageProgramCapability(GameEngine engine) : ISameNameHandDiscardOrDamageProgramHost
     {
         public SkillProgramStepOutcome OfferSameNameHandDiscardOrDamage(ProgramSkillFrame f) => engine.BeginSameNameHandDiscardOrDamage(f);
     }

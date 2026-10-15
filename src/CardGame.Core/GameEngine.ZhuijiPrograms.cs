@@ -35,6 +35,7 @@ public sealed partial class GameEngine
     {
         return _players.SelectMany(p=>p.ZhuijiPlayDebts);
     }
+    [ProgramRuleObserver(ProgramRulePhase.BeforeEvent, 590)]
     private void ObserveZhuijiDebtTermination(IGameEvent payload)
     {
         var ended=payload as TurnEndedEvent;

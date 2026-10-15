@@ -26,7 +26,7 @@ internal sealed class DiscardSelectedParticipantCardsDescriptor : ProgramOperati
 public sealed class DiscardSelectedParticipantCardsHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op=>SkillProgramEffectOp.DiscardSelectedParticipantCards;
-    public SkillProgramStepOutcome Execute(SkillProgramEffect effect,ProgramSkillFrame frame,int seat,ISkillProgramEffectHost host)=>((IPrivateOfferProgramEffectHost)host).DiscardSelectedParticipantCards(frame);
+    public SkillProgramStepOutcome Execute(SkillProgramEffect effect,ProgramSkillFrame frame,int seat,ISkillProgramEffectHost host)=>host.GetCapability<IPrivateOfferProgramEffectHost>().DiscardSelectedParticipantCards(frame);
 }
 internal sealed class OfferBoundCardsForDamagePreventionDescriptor : ProgramOperationDescriptorBase
 {
@@ -44,7 +44,7 @@ internal sealed class OfferBoundCardsForDamagePreventionDescriptor : ProgramOper
 public sealed class OfferBoundCardsForDamagePreventionHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op=>SkillProgramEffectOp.OfferBoundCardsForDamagePrevention;
-    public SkillProgramStepOutcome Execute(SkillProgramEffect effect,ProgramSkillFrame frame,int seat,ISkillProgramEffectHost host)=>((IPrivateOfferProgramEffectHost)host).OfferBoundCardsForDamagePrevention(frame,effect.SourceBind!);
+    public SkillProgramStepOutcome Execute(SkillProgramEffect effect,ProgramSkillFrame frame,int seat,ISkillProgramEffectHost host)=>host.GetCapability<IPrivateOfferProgramEffectHost>().OfferBoundCardsForDamagePrevention(frame,effect.SourceBind!);
 }
 public sealed partial class GameEngine
 {
@@ -195,7 +195,8 @@ public sealed partial class GameEngine
             if(ReferenceEquals(frame,_resolutionStack.LastOrDefault()) && (_pendingDecision is not {IsPrivate:true} prompt || prompt.PlayerSeat!=offer.SourceSeat || !AssistedChoicesEqual(prompt.Choices,DamageCardOfferChoices(frame)))) throw new InvalidOperationException("Private offer lost its private source prompt.");
         }
     }
-    private sealed partial class ProgramSkillHost : IPrivateOfferProgramEffectHost
+    [ProgramCapability]
+    private sealed class PrivateOfferProgramEffectCapability(GameEngine engine) : IPrivateOfferProgramEffectHost
     {
         public SkillProgramStepOutcome DiscardSelectedParticipantCards(ProgramSkillFrame frame)=>engine.DiscardProgramSelectedParticipantCards(frame);
         public SkillProgramStepOutcome OfferBoundCardsForDamagePrevention(ProgramSkillFrame frame,string bind)=>engine.OfferProgramBoundCardsForDamagePrevention(frame,bind);

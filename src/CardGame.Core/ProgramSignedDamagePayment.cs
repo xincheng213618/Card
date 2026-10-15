@@ -73,7 +73,7 @@ internal sealed class SignedDamagePaymentHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.DiscardOwnedCardToAdjustCurrentDamage;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost host) =>
-        ((ISignedDamagePaymentHost)host).DiscardOwnedCardToAdjustCurrentDamage(f);
+        host.GetCapability<ISignedDamagePaymentHost>().DiscardOwnedCardToAdjustCurrentDamage(f);
 }
 internal static class SignedDamagePaymentComposition
 {

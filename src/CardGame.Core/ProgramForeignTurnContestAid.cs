@@ -82,13 +82,13 @@ public sealed class ResolveForeignTurnPindianHandler : ISkillProgramEffectHandle
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveForeignTurnPindian;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int s, ISkillProgramEffectHost h) =>
-        ((IForeignTurnContestAidProgramHost)h).ResolveForeignTurnPindian(f, e.SourceBind!);
+        h.GetCapability<IForeignTurnContestAidProgramHost>().ResolveForeignTurnPindian(f, e.SourceBind!);
 }
 public sealed class OfferSameTypeDifferentNameOrExtraTargetHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.OfferSameTypeDifferentNameOrExtraTarget;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int s, ISkillProgramEffectHost h) =>
-        ((IForeignTurnContestAidProgramHost)h).OfferSameTypeDifferentNameOrExtraTarget(f);
+        h.GetCapability<IForeignTurnContestAidProgramHost>().OfferSameTypeDifferentNameOrExtraTarget(f);
 }
 internal static class ForeignTurnContestAidComposition
 {

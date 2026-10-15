@@ -60,13 +60,13 @@ public sealed class GrantJudgedRankSplitSlashTurnPolicyHandler : ISkillProgramEf
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.GrantJudgedRankSplitSlashTurnPolicy;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int target, ISkillProgramEffectHost host)
-    { ((IJudgedRankSlashProgramHost)host).GrantJudgedRankSplitSlashTurnPolicy(frame, effect.SourceBind!); return SkillProgramStepOutcome.Continue; }
+    { host.GetCapability<IJudgedRankSlashProgramHost>().GrantJudgedRankSplitSlashTurnPolicy(frame, effect.SourceBind!); return SkillProgramStepOutcome.Continue; }
 }
 public sealed class DrawFromOtherActualBasicDiscardHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.DrawFromOtherActualBasicDiscard;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int target, ISkillProgramEffectHost host)
-    { ((IJudgedRankSlashProgramHost)host).DrawFromOtherActualBasicDiscard(frame); return SkillProgramStepOutcome.Continue; }
+    { host.GetCapability<IJudgedRankSlashProgramHost>().DrawFromOtherActualBasicDiscard(frame); return SkillProgramStepOutcome.Continue; }
 }
 internal static class JudgedRankSlashComposition
 {

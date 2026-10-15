@@ -111,7 +111,7 @@ public abstract class RecipientCategoryMarkHandler : ISkillProgramEffectHandler
 {
     public abstract SkillProgramEffectOp Op { get; }
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost host) =>
-        ((IRecipientCategoryMarksProgramHost)host).ExecuteRecipientCategoryMark(f, e);
+        host.GetCapability<IRecipientCategoryMarksProgramHost>().ExecuteRecipientCategoryMark(f, e);
 }
 public sealed class GiveHandAndGrantCategoryMarkHandler : RecipientCategoryMarkHandler { public override SkillProgramEffectOp Op => SkillProgramEffectOp.GiveHandAndGrantCategoryMark; }
 public sealed class SpendCategoryMarkForDyingRecoveryHandler : RecipientCategoryMarkHandler { public override SkillProgramEffectOp Op => SkillProgramEffectOp.SpendCategoryMarkForDyingRecovery; }

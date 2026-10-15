@@ -119,6 +119,6 @@ internal sealed class PublicPileCashOutHandler(SkillProgramEffectOp op) : ISkill
 {
     public SkillProgramEffectOp Op => op;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat, ISkillProgramEffectHost host) =>
-        host is IPublicPileCashOutHost pile ? pile.ExecutePublicPileCashOut(effect, frame) :
+        host.TryGetCapability<IPublicPileCashOutHost>(out var pile) ? pile.ExecutePublicPileCashOut(effect, frame) :
             throw new InvalidOperationException("The program host does not support public pile cash-out.");
 }

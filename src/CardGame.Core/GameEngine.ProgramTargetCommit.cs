@@ -2,31 +2,11 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private sealed partial class ProgramSkillHost : IProgramTargetCommitHost
+    [ProgramCapability]
+    private sealed class ProgramTargetCommitCapability(GameEngine engine) : IProgramTargetCommitHost
     {
         public SkillProgramStepOutcome SelectRelativeZoneDemandTarget(SkillProgramEffect effect, ProgramSkillFrame frame) => engine.BeginRelativeZoneDemand(effect, frame);
         public SkillProgramStepOutcome DrawOnFirstProgramTargetEncounter(SkillProgramEffect effect, ProgramSkillFrame frame) => engine.DrawFirstProgramTargetReward(effect, frame);
-    }
-    private SkillProgramAiHint EstimateProgramTargetReward(CharacterState owner, SkillProgram program,
-        SkillProgramActivation activation, SkillProgramAiHint hint)
-    {
-        if (!activation.Effects.Any(effect => effect.Op == SkillProgramEffectOp.SelectRelativeZoneDemandTarget)) return hint;
-        var hand = GetHand(owner).Count; var equipment = GetEquipment(owner).Count;
-        var possible = _players.Where(target => target.IsAlive && target.Seat != owner.Seat &&
-            (GetHand(target).Count > hand - (hand > 0 ? 1 : 0) || GetEquipment(target).Count > equipment - (equipment > 0 ? 1 : 0))).ToArray();
-        if (possible.Length == 0) return hint with { ValueAdjustment = hint.ValueAdjustment - 20d };
-        var prior = CompleteProgramEventHistory().OfType<ProgramTargetCommittedEvent>().Select(item => item.Declaration)
-            .Where(item => item.OwnerSeat == owner.Seat && item.SourceProgramId == program.Id && item.SourceActivationId == activation.Id)
-            .Select(item => item.TargetSeat).ToHashSet();
-        if (possible.All(target => prior.Contains(target.Seat))) return hint;
-        var facts = CaptureProgramTriggerFacts(owner);
-        var reward = CollectEligibleProgramTriggerCandidates(owner, SkillProgramTriggerWindow.ProgramTargetCommitted, facts)
-            .Where(candidate => EnabledSkillPrograms(owner).Any(item => item.Id == candidate.SkillId))
-            .SelectMany(candidate => GetProgramTrigger(candidate).Effects)
-            .Where(effect => effect.Op == SkillProgramEffectOp.DrawOnFirstProgramTargetEncounter &&
-                effect.SkillIds.Single() == program.Id && effect.StateId == activation.Id).Sum(effect => effect.Amount);
-        // Only public relative counts, declaration history and the owner's enabled grants enter this estimate.
-        return hint with { ValueAdjustment = hint.ValueAdjustment + reward * 8d };
     }
     private bool ProgramTargetSourceValid(ProgramSkillFrame frame) => _players[frame.OwnerSeat].IsAlive &&
         HasRuntimeSkillInstance(_players[frame.OwnerSeat], frame.SkillId, frame.SkillInstanceId) &&

@@ -68,6 +68,7 @@ public sealed partial class GameEngine
             !sourceLess && target == (effect.TargetReference is { } reference ? ResolveProgramParticipant(observer, reference) : ResolveProgramEffectTarget(observer, effect.Target));
     }
 
+    [ProgramActivationLegality(ProgramActivationLegalityPhase.BeforeCardCount, 40)]
     private bool CanStartLostHpTargetSelection(CharacterState owner, SkillProgramActivation activation)
     {
         if (!activation.Effects.Any(e => e.NumberExpression == SkillProgramNumberExpression.OwnerLostHpAtLeastOne)) return true;

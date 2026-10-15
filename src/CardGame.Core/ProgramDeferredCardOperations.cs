@@ -68,7 +68,7 @@ public abstract class DeferredCardHandler : ISkillProgramEffectHandler
     public abstract SkillProgramEffectOp Op { get; }
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int seat, ISkillProgramEffectHost host)
     {
-        var deferred = (IDeferredCardProgramHost)host;
+        var deferred = host.GetCapability<IDeferredCardProgramHost>();
         switch (Op)
         {
             case SkillProgramEffectOp.ViewTopCardsAndObtainMatchingCards:

@@ -404,7 +404,8 @@ public sealed partial class GameEngine
             replacement.Attempt.TargetSeat == frame.OwnerSeat && replacement.Attempt.Amount == 1;
     }
 
-    private sealed partial class ProgramSkillHost : ICurrentTurnHandExchangeHost
+    [ProgramCapability]
+    private sealed class CurrentTurnHandExchangeCapability(GameEngine engine) : ICurrentTurnHandExchangeHost
     {
         public SkillProgramStepOutcome OfferCurrentTurnHandExchange(ProgramSkillFrame frame) => engine.BeginCurrentTurnHandExchange(frame);
     }

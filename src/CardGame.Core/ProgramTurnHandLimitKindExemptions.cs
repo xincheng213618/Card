@@ -40,7 +40,7 @@ public sealed class GrantTurnHandLimitCardKindExemptionHandler : ISkillProgramEf
     public SkillProgramEffectOp Op => SkillProgramEffectOp.GrantTurnHandLimitCardKindExemption;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat, ISkillProgramEffectHost host)
     {
-        ((ITurnHandLimitKindExemptionProgramHost)host).GrantTurnHandLimitCardKindExemption(frame, effect.CardKinds);
+        host.GetCapability<ITurnHandLimitKindExemptionProgramHost>().GrantTurnHandLimitCardKindExemption(frame, effect.CardKinds);
         return SkillProgramStepOutcome.Continue;
     }
 }

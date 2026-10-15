@@ -48,17 +48,17 @@ internal sealed class RecoverToMaximumHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.RecoverToMaximum;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat, ISkillProgramEffectHost host)
-    { ((INextSlashProgramHost)host).RecoverToMaximum(frame); return SkillProgramStepOutcome.Continue; }
+    { host.GetCapability<INextSlashProgramHost>().RecoverToMaximum(frame); return SkillProgramStepOutcome.Continue; }
 }
 internal sealed class DrawRecoveryReceiptHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.DrawRecoveryReceipt;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat, ISkillProgramEffectHost host)
-    { ((INextSlashProgramHost)host).DrawRecoveryReceipt(frame); return SkillProgramStepOutcome.Continue; }
+    { host.GetCapability<INextSlashProgramHost>().DrawRecoveryReceipt(frame); return SkillProgramStepOutcome.Continue; }
 }
 internal sealed class ReserveNextSlashDamageHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.ReserveNextSlashDamage;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat, ISkillProgramEffectHost host)
-    { ((INextSlashProgramHost)host).ReserveNextSlashDamage(frame); return SkillProgramStepOutcome.Continue; }
+    { host.GetCapability<INextSlashProgramHost>().ReserveNextSlashDamage(frame); return SkillProgramStepOutcome.Continue; }
 }

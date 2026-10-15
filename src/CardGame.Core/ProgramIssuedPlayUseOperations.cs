@@ -28,7 +28,7 @@ public sealed class IssueCardNoResponseAndPlayUseBanHandler : ISkillProgramEffec
     public SkillProgramEffectOp Op => SkillProgramEffectOp.IssueCardNoResponseAndPlayUseBan;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int seat, ISkillProgramEffectHost host)
     {
-        ((IIssuedPlayUseProgramHost)host).IssueCardNoResponseAndPlayUseBan(frame);
+        host.GetCapability<IIssuedPlayUseProgramHost>().IssueCardNoResponseAndPlayUseBan(frame);
         return SkillProgramStepOutcome.Continue;
     }
 }

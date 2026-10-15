@@ -73,7 +73,7 @@ public sealed class ConsumeCategoryTargetLedgerHandler : ISkillProgramEffectHand
     public SkillProgramEffectOp Op => SkillProgramEffectOp.ConsumeCategoryTargetLedger;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat, ISkillProgramEffectHost host)
     {
-        ((IControlProgramEffectHost)host).ConsumeCategoryTargetLedger(frame, effect.StateId!);
+        host.GetCapability<IControlProgramEffectHost>().ConsumeCategoryTargetLedger(frame, effect.StateId!);
         return SkillProgramStepOutcome.Continue;
     }
 }
@@ -82,7 +82,7 @@ public sealed class ReplaceCurrentCardUseActorHandler : ISkillProgramEffectHandl
     public SkillProgramEffectOp Op => SkillProgramEffectOp.ReplaceCurrentCardUseActor;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat, ISkillProgramEffectHost host)
     {
-        ((IControlProgramEffectHost)host).ReplaceCurrentCardUseActor(frame, targetSeat);
+        host.GetCapability<IControlProgramEffectHost>().ReplaceCurrentCardUseActor(frame, targetSeat);
         return SkillProgramStepOutcome.Continue;
     }
 }
@@ -91,7 +91,7 @@ public sealed class AddCurrentCardUseTargetHandler : ISkillProgramEffectHandler
     public SkillProgramEffectOp Op => SkillProgramEffectOp.AddCurrentCardUseTarget;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat, ISkillProgramEffectHost host)
     {
-        return ((IControlProgramEffectHost)host).AddCurrentCardUseTarget(frame, targetSeat);
+        return host.GetCapability<IControlProgramEffectHost>().AddCurrentCardUseTarget(frame, targetSeat);
     }
 }
 public sealed class ReduceCurrentDamageHandler : ISkillProgramEffectHandler
@@ -99,7 +99,7 @@ public sealed class ReduceCurrentDamageHandler : ISkillProgramEffectHandler
     public SkillProgramEffectOp Op => SkillProgramEffectOp.ReduceCurrentDamage;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat, ISkillProgramEffectHost host)
     {
-        ((IControlProgramEffectHost)host).ReduceCurrentDamage(frame, effect.Amount);
+        host.GetCapability<IControlProgramEffectHost>().ReduceCurrentDamage(frame, effect.Amount);
         return SkillProgramStepOutcome.Continue;
     }
 }

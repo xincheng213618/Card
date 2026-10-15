@@ -31,7 +31,7 @@ public sealed class UseVirtualSlashProgramHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.UseVirtualSlash;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat, ISkillProgramEffectHost host) =>
-        ((ITriggeredCardProgramHost)host).UseTriggeredVirtualSlash(frame,
+        host.GetCapability<ITriggeredCardProgramHost>().UseTriggeredVirtualSlash(frame,
             effect.TargetReference is { } reference ? host.ResolveParticipant(frame, reference) : targetSeat);
 }
 
@@ -57,7 +57,7 @@ public sealed class UseDiscardedCardAsDelayedTrickProgramHandler : ISkillProgram
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.UseDiscardedCardAsDelayedTrick;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat, ISkillProgramEffectHost host) =>
-        ((ITriggeredCardProgramHost)host).UseDiscardedCardAsDelayedTrick(frame, targetSeat, effect.OutputKind!.Value);
+        host.GetCapability<ITriggeredCardProgramHost>().UseDiscardedCardAsDelayedTrick(frame, targetSeat, effect.OutputKind!.Value);
 }
 
 internal sealed class PayEquipmentColorDiscardProgramOperationDescriptor : ProgramOperationDescriptorBase
@@ -82,7 +82,7 @@ public sealed class PayEquipmentColorDiscardProgramHandler : ISkillProgramEffect
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.PayEquipmentColorDiscard;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat, ISkillProgramEffectHost host) =>
-        ((ITriggeredCardProgramHost)host).PayEquipmentColorDiscard(frame, effect.ResultBind!);
+        host.GetCapability<ITriggeredCardProgramHost>().PayEquipmentColorDiscard(frame, effect.ResultBind!);
 }
 
 internal sealed class GrantPlayPhaseColorRestrictionProgramOperationDescriptor : ProgramOperationDescriptorBase
@@ -106,7 +106,7 @@ public sealed class GrantPlayPhaseColorRestrictionProgramHandler : ISkillProgram
     public SkillProgramEffectOp Op => SkillProgramEffectOp.GrantPlayPhaseColorRestriction;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat, ISkillProgramEffectHost host)
     {
-        ((ITriggeredCardProgramHost)host).GrantPlayPhaseColorRestriction(frame, effect.SourceBind!, host.ResolveParticipant(frame, effect.TargetReference!));
+        host.GetCapability<ITriggeredCardProgramHost>().GrantPlayPhaseColorRestriction(frame, effect.SourceBind!, host.ResolveParticipant(frame, effect.TargetReference!));
         return SkillProgramStepOutcome.Continue;
     }
 }

@@ -24,6 +24,7 @@ public sealed partial class GameEngine
     private bool IsParticipantPreventionDraw(ProgramSkillFrame f) => f.InstructionIndex>0 &&
         ProgramInstructionResolver.Default.Resolve(f,_contentRegistry.GetSkill(f.SkillId).Program!).GetPausedInstruction(f.InstructionIndex).Effect.Op==
         SkillProgramEffectOp.PreventParticipantDamageDrawActualSource;
-    private sealed partial class ProgramSkillHost:IParticipantPreventionHost
+    [ProgramCapability]
+    private sealed class ParticipantPreventionCapability(GameEngine engine) : IParticipantPreventionHost
     {public SkillProgramStepOutcome PreventParticipantDamageDrawActualSource(ProgramSkillFrame f)=>engine.PreventParticipantDamageDrawActualSource(f);}
 }

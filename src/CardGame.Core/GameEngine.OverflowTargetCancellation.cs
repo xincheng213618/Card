@@ -52,6 +52,7 @@ public sealed partial class GameEngine
             e.SkillInstanceId == frame.SkillInstanceId && e.Window == context.Window) == 1;
     }
 
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 990)]
     private bool CanOfferOverflowTargetCancellation(ProgramTriggerCandidate candidate, SkillProgramTrigger trigger, ProgramSkillWindowContext context)
     {
         if (!trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.CancelOtherCurrentUseTargetsIfOverHandLimit)) return true;
@@ -201,7 +202,8 @@ public sealed partial class GameEngine
         return true;
     }
 
-    private sealed partial class ProgramSkillHost : IOverflowTargetCancellationHost
+    [ProgramCapability]
+    private sealed class OverflowTargetCancellationCapability(GameEngine engine) : IOverflowTargetCancellationHost
     {
         public SkillProgramStepOutcome BeginOverflowTargetCancellation(ProgramSkillFrame frame) => engine.BeginOverflowTargetCancellation(frame);
     }

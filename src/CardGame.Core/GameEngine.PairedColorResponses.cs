@@ -74,6 +74,7 @@ public sealed partial class GameEngine
         window = actual; pair = link; counterpart = context.OwnerSeat == link.ResponseSeat ? link.PairedSeat : link.ResponseSeat; return true;
     }
 
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 1020)]
     private bool CanOfferPairedColorDisposition(ProgramTriggerCandidate candidate, SkillProgramTrigger trigger, ProgramSkillWindowContext context)
     {
         if (!trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.OfferPairedColorCardDisposition)) return true;
@@ -226,7 +227,8 @@ public sealed partial class GameEngine
             ? GetKeepValue(GetAttackCard(c.Cards[0]), _players[f.PairedColorDisposition!.CounterpartSeat]) : 3)
         .ThenBy(c => c.Id.Value, StringComparer.Ordinal).First();
 
-    private sealed partial class ProgramSkillHost : IPairedColorResponseHost
+    [ProgramCapability]
+    private sealed class PairedColorResponseCapability(GameEngine engine) : IPairedColorResponseHost
     {
         public SkillProgramStepOutcome OfferPairedColorCardDisposition(ProgramSkillFrame frame, string stateId) => engine.OfferPairedColorCardDisposition(frame, stateId);
     }

@@ -84,8 +84,8 @@ internal sealed class ActualDiscardRecoveryHandler(SkillProgramEffectOp op) : IS
     public SkillProgramEffectOp Op => op;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int target, ISkillProgramEffectHost host) =>
         op == SkillProgramEffectOp.PlaceCapturedEquipmentAndDraw
-            ? ((IActualDiscardRecoveryProgramHost)host).PlaceCapturedEquipmentAndDraw(f,target,e.SourceBind!,e.Amount)
-            : ((IActualDiscardRecoveryProgramHost)host).RestoreActualDiscardBatch(f,e.StateId!);
+            ? host.GetCapability<IActualDiscardRecoveryProgramHost>().PlaceCapturedEquipmentAndDraw(f,target,e.SourceBind!,e.Amount)
+            : host.GetCapability<IActualDiscardRecoveryProgramHost>().RestoreActualDiscardBatch(f,e.StateId!);
 }
 internal static class ActualDiscardRecoveryComposition
 {

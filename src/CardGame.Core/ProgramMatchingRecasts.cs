@@ -79,7 +79,7 @@ public sealed class MatchingRecastHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.RecastMatchingCardsThenPeerChoice;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost host) =>
-        ((IMatchingRecastProgramHost)host).RecastMatchingCardsThenPeerChoice(f, seat, e.StateId!);
+        host.GetCapability<IMatchingRecastProgramHost>().RecastMatchingCardsThenPeerChoice(f, seat, e.StateId!);
 }
 internal static class MatchingRecastComposition
 {

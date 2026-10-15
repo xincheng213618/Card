@@ -64,5 +64,5 @@ public sealed class DiscardTargetHpCardsAndDamageHandler : ISkillProgramEffectHa
 {
     public SkillProgramEffectOp Op=>SkillProgramEffectOp.DiscardTargetHpCardsAndDamage;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int seat,ISkillProgramEffectHost h)
-        =>((IDynamicDiscardDamageHost)h).DiscardTargetHpCardsAndDamage(f);
+        =>h.GetCapability<IDynamicDiscardDamageHost>().DiscardTargetHpCardsAndDamage(f);
 }

@@ -52,7 +52,7 @@ internal sealed class DiscardPublicZoneAfterHandPaymentDescriptor : FinalTargetP
 public abstract class FinalTargetPublicPileHandler : ISkillProgramEffectHandler
 {
     public abstract SkillProgramEffectOp Op { get; }
-    public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost h) => ((IFinalTargetPublicPileHost)h).ExecuteFinalTargetPublicPile(e,f);
+    public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost h) => h.GetCapability<IFinalTargetPublicPileHost>().ExecuteFinalTargetPublicPile(e,f);
 }
 public sealed class CollectFinalTargetCardInPublicPileHandler : FinalTargetPublicPileHandler { public override SkillProgramEffectOp Op => SkillProgramEffectOp.CollectFinalTargetCardInPublicPile; }
 public sealed class ExchangePublicPileHandHandler : FinalTargetPublicPileHandler { public override SkillProgramEffectOp Op => SkillProgramEffectOp.ExchangePublicPileHand; }

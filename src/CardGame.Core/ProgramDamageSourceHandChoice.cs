@@ -58,5 +58,5 @@ internal sealed class ResolveDamageSourceHandChoiceHandler : ISkillProgramEffect
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveDamageSourceHandChoice;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost h) =>
-        ((IDamageSourceHandChoiceHost)h).ResolveDamageSourceHandChoice(f);
+        h.GetCapability<IDamageSourceHandChoiceHost>().ResolveDamageSourceHandChoice(f);
 }

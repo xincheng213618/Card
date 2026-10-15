@@ -45,6 +45,7 @@ public sealed partial class GameEngine
     }
 
     // Hook only when the trigger contains the new op, before any equipment cost.
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 930)]
     private bool CanRunOtherDyingVictimRecovery(SkillProgramTrigger trigger, ProgramSkillWindowContext context, int ownerSeat) =>
         !trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.RecoverOtherDyingVictimTo) || TryOtherDyingVictim(context, ownerSeat, out _);
 
@@ -63,7 +64,8 @@ public sealed partial class GameEngine
             SkillProgramNumberExpression.IntegerConstant, hp, true);
     }
 
-    private sealed partial class ProgramSkillHost : IBoundRankBonusProgramHost
+    [ProgramCapability]
+    private sealed class BoundRankBonusProgramCapability(GameEngine engine) : IBoundRankBonusProgramHost
     {
         public void RevealTopCardsWithNextBooleanBonus(ProgramSkillFrame f, SkillProgramEffect e) => engine.RevealWithNextBooleanBonus(f, e);
         public SkillProgramStepOutcome ObtainBoundCardsAndArmNextRevealBonus(ProgramSkillFrame f, SkillProgramEffect e) => engine.ObtainAndArmNextRevealBonus(f, e);

@@ -228,7 +228,8 @@ public sealed partial class GameEngine
             .DefaultIfEmpty(-1000d).Max();
     }
 
-    private sealed partial class ProgramSkillHost : IHpDamageShieldProgramHost
+    [ProgramCapability]
+    private sealed class HpDamageShieldProgramCapability(GameEngine engine) : IHpDamageShieldProgramHost
     {
         public SkillProgramStepOutcome PayHpToGrantOneUseDamageShield(ProgramSkillFrame frame, PlayerMarkerKind marker) =>
             engine.BeginHpDamageShieldPayment(frame, marker);

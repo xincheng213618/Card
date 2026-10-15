@@ -84,12 +84,12 @@ internal sealed class UseOwnPlayHistoryAtEndingDescriptor : ProgramOperationDesc
 public sealed class DrawThenDiscardSuitsForDyingPeachHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.DrawThenDiscardSuitsForDyingPeach;
-    public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost host) => ((IDyingSuitsAndEndingHistoryHost)host).DrawDiscardSuits(f);
+    public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost host) => host.GetCapability<IDyingSuitsAndEndingHistoryHost>().DrawDiscardSuits(f);
 }
 public sealed class UseOwnPlayHistoryAtEndingHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.UseOwnPlayHistoryAtEnding;
-    public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost host) => ((IDyingSuitsAndEndingHistoryHost)host).EndingHistoricalUses(f);
+    public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost host) => host.GetCapability<IDyingSuitsAndEndingHistoryHost>().EndingHistoricalUses(f);
 }
 internal static class DyingSuitsAndEndingHistoryComposition
 {

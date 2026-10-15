@@ -17,6 +17,7 @@ public sealed partial class GameEngine
         CompleteProgramEventHistory().OfType<LastDamageSourceRecordedEvent>().LastOrDefault(e =>
             e.OwnerSeat == owner && e.SkillId == skillId && e.StateId == stateId)?.SourceSeat;
 
+    [ProgramRuleObserver(ProgramRulePhase.BeforeEvent, 610)]
     private void ObserveLastDamageSourceReciprocity(IGameEvent payload)
     {
         if (!_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.LastDamageSourceReciprocity) ||
@@ -77,6 +78,7 @@ public sealed partial class GameEngine
             _resolutionStack.LastOrDefault() is not DamageFrame damage || damage.ParentFrameId != attack.ResolutionId) return false;
         return CanOfferLastDamageSourceEligibility(LastDamageSourceEligibility(ownerSeat, skillId, trigger, damage.Id));
     }
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 1080)]
     private bool CanOfferLastDamageSourceReciprocity(int ownerSeat, string skillId, SkillProgramTrigger trigger, ProgramSkillWindowContext context)
     {
         if (!IsLastDamageSourceTrigger(trigger)) return true;
@@ -226,7 +228,8 @@ public sealed partial class GameEngine
         .OrderBy(c => GetKeepValue(GetAdvancedCard(c.Cards.Single()), _players[f.LastDamageSourceReciprocity!.ParticipantSeat]))
         .ThenBy(c => c.Cards.Single()).First();
 
-    private sealed partial class ProgramSkillHost : ILastDamageSourceReciprocityProgramHost
+    [ProgramCapability]
+    private sealed class LastDamageSourceReciprocityProgramCapability(GameEngine engine) : ILastDamageSourceReciprocityProgramHost
     {
         public SkillProgramStepOutcome LastDamageSourceReciprocity(ProgramSkillFrame f, string stateId) => engine.BeginLastDamageSourceReciprocity(f, stateId);
     }

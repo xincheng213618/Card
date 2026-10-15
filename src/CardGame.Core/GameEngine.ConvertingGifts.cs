@@ -3,14 +3,17 @@ public sealed partial class GameEngine
 {
     private readonly List<GiftHandRetentionObligation> _giftHandRetentionObligations = [];
     private long _giftHandRetentionSequence;
-    private sealed partial class ProgramSkillHost : IConvertingGiftProgramHost
+    [ProgramCapability]
+    private sealed class ConvertingGiftProgramCapability(GameEngine engine) : IConvertingGiftProgramHost
     {
         public SkillProgramStepOutcome GiveSelectedOwnedCardAndDamage(ProgramSkillFrame f,int limit)=>engine.BeginConvertingGiftDamage(f,limit);
         public SkillProgramStepOutcome ObserveDamageSourceHandAndGive(ProgramSkillFrame f,int limit)=>engine.BeginDamageSourceObservationGift(f,limit);
         public SkillProgramStepOutcome DrawToHandCount(ProgramSkillFrame f,int seat,int limit)=>engine.DrawProgramToHandCount(f,seat,limit);
     }
+    [ProgramActivationLegality(ProgramActivationLegalityPhase.BeforeCondition, 110)]
     private bool CanActivateConvertingGift(CharacterState owner,string skillId,ProgramInstructionFeatures features) =>
         !features.HasOperation(SkillProgramEffectOp.GiveSelectedOwnedCardAndDamage) || GetProgramConversionPolarity(owner.Seat,skillId)==SkillPolarity.Yang;
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeAdvancedPrerequisites, 20)]
     private bool CanOfferConvertingGift(ProgramTriggerCandidate candidate,ProgramSkillWindowContext context,ProgramInstructionFeatures features) =>
         !features.HasOperation(SkillProgramEffectOp.ObserveDamageSourceHandAndGive) ||
         GetProgramConversionPolarity(candidate.OwnerSeat,candidate.SkillId)==SkillPolarity.Yin &&

@@ -54,13 +54,13 @@ public sealed class DrawThenNullifyOwnMultiTargetTrickHandler : ISkillProgramEff
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.DrawThenNullifyOwnMultiTargetTrick;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int target, ISkillProgramEffectHost h) =>
-        ((IOwnTrickAndHandCategoryProgramHost)h).DrawThenNullifyOwnMultiTargetTrick(f);
+        h.GetCapability<IOwnTrickAndHandCategoryProgramHost>().DrawThenNullifyOwnMultiTargetTrick(f);
 }
 public sealed class RestrictDamageSourceHandCategoryHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.RestrictDamageSourceHandCategory;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int target, ISkillProgramEffectHost h)
-    { ((IOwnTrickAndHandCategoryProgramHost)h).RestrictDamageSourceHandCategory(f, e.CardCategories.Single()); return SkillProgramStepOutcome.Continue; }
+    { h.GetCapability<IOwnTrickAndHandCategoryProgramHost>().RestrictDamageSourceHandCategory(f, e.CardCategories.Single()); return SkillProgramStepOutcome.Continue; }
 }
 internal static class OwnTrickAndHandCategoryComposition
 {

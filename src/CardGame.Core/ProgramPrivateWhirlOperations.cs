@@ -53,7 +53,7 @@ internal sealed class ClearPrivateWhirlAtNextPlayEndingDescriptor : PrivateWhirl
 internal sealed class PrivateWhirlHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => op;
-    public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int seat, ISkillProgramEffectHost host) => ((IPrivateWhirlHost)host).BeginPrivateWhirl(frame, effect);
+    public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int seat, ISkillProgramEffectHost host) => host.GetCapability<IPrivateWhirlHost>().BeginPrivateWhirl(frame, effect);
 }
 internal static class PrivateWhirlContract
 {

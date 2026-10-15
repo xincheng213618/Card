@@ -91,6 +91,7 @@ public sealed partial class GameEngine
         use.ForeignSelectedCardSlashReturn is { GeneralWeapon: true } r && r.CardId == cardId && IsSelectedForeignCardSlashUse(use) &&
         _cardZones.GetLocation(cardId) == CardLocation.OutsideGame;
 
+    [ProgramRuleObserver(ProgramRulePhase.BeforeEvent, 600)]
     private void ObserveSelectedForeignCardSlashAppliedDamage(IGameEvent payload)
     {
         if (payload is not DamageAppliedEvent { Amount: > 0 } applied || CurrentDamageAttempt is not CardAttackHandle attack ||

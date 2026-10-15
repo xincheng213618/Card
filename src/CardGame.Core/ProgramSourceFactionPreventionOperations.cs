@@ -31,5 +31,5 @@ public sealed class PreventDamageAndConsumeSourceFactionHandler : ISkillProgramE
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.PreventDamageAndConsumeSourceFaction;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat, ISkillProgramEffectHost host) =>
-        ((ISourceFactionPreventionProgramHost)host).PreventDamageAndConsumeSourceFaction(frame, effect.StateId!);
+        host.GetCapability<ISourceFactionPreventionProgramHost>().PreventDamageAndConsumeSourceFaction(frame, effect.StateId!);
 }

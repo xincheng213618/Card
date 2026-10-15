@@ -67,7 +67,7 @@ public sealed class RecastSelectedCardsProgramHandler : ISkillProgramEffectHandl
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.RecastSelectedCards;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat, ISkillProgramEffectHost host) =>
-        ((IRevealRecastProgramHost)host).RecastSelectedCards(frame, effect.StateId!, effect.Amount);
+        host.GetCapability<IRevealRecastProgramHost>().RecastSelectedCards(frame, effect.StateId!, effect.Amount);
 }
 
 public sealed class DrawCompletedCardParticipantsProgramHandler : ISkillProgramEffectHandler
@@ -75,7 +75,7 @@ public sealed class DrawCompletedCardParticipantsProgramHandler : ISkillProgramE
     public SkillProgramEffectOp Op => SkillProgramEffectOp.DrawCompletedCardParticipants;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat, ISkillProgramEffectHost host)
     {
-        ((IRevealRecastProgramHost)host).DrawCompletedCardParticipants(frame, effect.StateId!, effect.Amount);
+        host.GetCapability<IRevealRecastProgramHost>().DrawCompletedCardParticipants(frame, effect.StateId!, effect.Amount);
         return SkillProgramStepOutcome.Continue;
     }
 }
@@ -84,5 +84,5 @@ public sealed class RevealSelectedHandAgainstTargetProgramHandler : ISkillProgra
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.RevealSelectedHandAgainstTarget;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat, ISkillProgramEffectHost host) =>
-        ((IRevealRecastProgramHost)host).RevealSelectedHandAgainstTarget(frame, effect.ResultBind!);
+        host.GetCapability<IRevealRecastProgramHost>().RevealSelectedHandAgainstTarget(frame, effect.ResultBind!);
 }

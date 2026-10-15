@@ -5,6 +5,7 @@ public sealed partial class GameEngine
     private FixedRecipientBenefitIssuedEvent? OriginalFixedRecipient(int owner, string skill, string hash, string state) =>
         CompleteProgramEventHistory().OfType<FixedRecipientBenefitIssuedEvent>().SingleOrDefault(e => e.Source.OwnerSeat == owner &&
             e.Source.SkillId == skill && e.GameplayHash == hash && e.StateId == state);
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 760)]
     private bool CanRunFixedRecipientBenefit(ProgramTriggerCandidate candidate, SkillProgramTrigger trigger, ProgramSkillWindowContext context)
     {
         if (trigger.Effects.FirstOrDefault(e => e.Op == SkillProgramEffectOp.IssueFixedRecipientBenefit) is { } issue)

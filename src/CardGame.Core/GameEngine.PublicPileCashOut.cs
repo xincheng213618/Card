@@ -19,6 +19,7 @@ public sealed partial class GameEngine
         return frame.InstructionIndex == 1 && PublicPileStorageCard(frame.OwnerSeat, frame.SkillId, frame.SkillInstanceId, card, location);
     }
 
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 200)]
     private bool CanRunPublicPileCashOut(ProgramTriggerCandidate candidate, SkillProgramTrigger trigger, ProgramSkillWindowContext context)
     {
         if (!trigger.Effects.Any(effect => PublicPileCashOutContract.IsOperation(effect.Op))) return true;
@@ -326,7 +327,8 @@ public sealed partial class GameEngine
             target == (effect.TargetReference is { } reference ? ResolveProgramParticipant(frame, reference) : ResolveProgramEffectTarget(frame, effect.Target));
     }
 
-    private sealed partial class ProgramSkillHost : IPublicPileCashOutHost
+    [ProgramCapability]
+    private sealed class PublicPileCashOutCapability(GameEngine engine) : IPublicPileCashOutHost
     {
         public SkillProgramStepOutcome ExecutePublicPileCashOut(SkillProgramEffect effect, ProgramSkillFrame frame) =>
             engine.BeginPublicPileCashOut(effect, frame);

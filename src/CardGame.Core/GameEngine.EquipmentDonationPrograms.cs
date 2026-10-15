@@ -155,7 +155,8 @@ public sealed partial class GameEngine
             .Where(c => c.Value > 0).OrderByDescending(c => c.Value).ThenBy(c => c.Choice.Targets.Single())
             .Select(c => c.Choice).FirstOrDefault() ?? decision.Choices.Single(c => c.Parameters["option"] == "confirm");
     }
-    private sealed partial class ProgramSkillHost : IEquipmentDonationProgramHost
+    [ProgramCapability]
+    private sealed class EquipmentDonationProgramCapability(GameEngine engine) : IEquipmentDonationProgramHost
     {
         public SkillProgramStepOutcome DonateAllEquipmentAndOfferRecipientBenefits(ProgramSkillFrame f, string usageId) => engine.RunAllEquipmentDonation(f, usageId);
         public SkillProgramStepOutcome ChooseEquipmentOrDrawAfterOtherActualTurn(ProgramSkillFrame f) => engine.RunActualEndedTurnEquipment(f);

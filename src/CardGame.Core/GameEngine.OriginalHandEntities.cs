@@ -4,6 +4,15 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 1070)]
+    private bool AllowsRegisteredCanOfferOriginalHandEntityProgram(ProgramTriggerLegalityContext gate)
+    {
+        var candidate = gate.Candidate;
+        var trigger = gate.Trigger;
+        var context = gate.Context;
+        return CanOfferOriginalHandEntityProgram(candidate.OwnerSeat, candidate.SkillId, trigger, context, candidate.SkillInstanceId);
+    }
+
     private sealed record OriginalHandStateKey(int OwnerSeat, string SkillId, string StateId);
     private sealed record OriginalHandEntity(int CardId, long DealSequence, long? FirstLossSequence);
     private sealed record OriginalHandEntityState(long InitializationFrameId, CardConversionSource Source,
@@ -271,7 +280,8 @@ public sealed partial class GameEngine
         f.OriginalHandBenefit is { DrawIssued: true } && ValidOriginalHandBenefitReceipt(f) ||
         f.OriginalHandInheritance is not null && ValidOriginalHandInheritanceReceipt(f) ||
         f.OriginalHandAwakening is not null && ValidOriginalHandAwakeningReceipt(f);
-    private sealed partial class ProgramSkillHost : IOriginalHandEntitiesProgramHost
+    [ProgramCapability]
+    private sealed class OriginalHandEntitiesProgramCapability(GameEngine engine) : IOriginalHandEntitiesProgramHost
     {
         public SkillProgramStepOutcome ExecuteOriginalHandEntityOperation(ProgramSkillFrame f, SkillProgramEffect e) => e.Op switch {
             SkillProgramEffectOp.InitializeOriginalHandEntities => engine.InitializeOriginalHandEntities(f, e.StateId!),

@@ -82,8 +82,8 @@ internal sealed class PhaseNamePredictionHandler(SkillProgramEffectOp op) : ISki
     public SkillProgramEffectOp Op => op;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost host) =>
         Op == SkillProgramEffectOp.BeginPhaseNamePrediction
-            ? ((IPhaseNamePredictionHost)host).BeginPhaseNamePrediction(f, e.StateId!)
-            : ((IPhaseNamePredictionHost)host).SettlePhaseNamePrediction(f, e.StateId!);
+            ? host.GetCapability<IPhaseNamePredictionHost>().BeginPhaseNamePrediction(f, e.StateId!)
+            : host.GetCapability<IPhaseNamePredictionHost>().SettlePhaseNamePrediction(f, e.StateId!);
 }
 internal static class PhaseNamePredictionComposition
 {

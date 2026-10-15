@@ -107,5 +107,5 @@ internal sealed class DelegatedJudgmentAndGainGiftHandler(SkillProgramEffectOp o
 {
     public SkillProgramEffectOp Op => op;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost host) =>
-        ((IDelegatedJudgmentAndGainGiftHost)host).ExecuteGainGift(f, e);
+        host.GetCapability<IDelegatedJudgmentAndGainGiftHost>().ExecuteGainGift(f, e);
 }

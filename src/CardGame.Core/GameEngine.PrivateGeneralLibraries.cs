@@ -5,7 +5,8 @@ public sealed partial class GameEngine
     private readonly Dictionary<PrivateGeneralLibrarySource,PrivateGeneralLibrary> _privateGeneralLibraries=[];
     private long _privateGeneralLibraryRevision;
     private bool HasPrivateGeneralLibraryCapability=>_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.InitializePrivateGeneralLibrary);
-    private sealed partial class ProgramSkillHost:IPrivateGeneralLibraryProgramHost
+    [ProgramCapability]
+    private sealed class PrivateGeneralLibraryProgramCapability(GameEngine engine) : IPrivateGeneralLibraryProgramHost
     {public SkillProgramStepOutcome ExecutePrivateGeneralLibrary(SkillProgramEffect e,ProgramSkillFrame f)=>engine.ExecutePrivateGeneralLibrary(e,f);}
 
     private bool LibraryBaseSourceLive(PrivateGeneralLibrarySource source)
@@ -64,6 +65,8 @@ public sealed partial class GameEngine
     private GeneralGender? GetPrivateGeneralLibraryGender(CharacterState owner)=>EffectiveGeneralLibrary(owner) is {} l?_contentRegistry.Generals[l.RevealedGeneralId!].Gender:null;
     private string? GetPrivateGeneralLibraryFaction(CharacterState owner)=>EffectiveGeneralLibrary(owner) is {} l?l.SelectedFactionId??_contentRegistry.Generals[l.RevealedGeneralId!].FactionId:null;
     private bool _synchronizingPrivateGeneralLibraries;
+    [ProgramRuleObserver(ProgramRulePhase.BeforeEvent, 30)]
+    [ProgramRuleObserver(ProgramRulePhase.BeforeStatePublish, 10)]
     private void SynchronizePrivateGeneralLibraries()
     {
         if(!HasPrivateGeneralLibraryCapability||_synchronizingPrivateGeneralLibraries)return;

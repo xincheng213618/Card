@@ -170,7 +170,8 @@ public sealed partial class GameEngine
         return _resolutionStack[parentIndex].Id == root.Id;
     }
 
-    private sealed partial class ProgramSkillHost:IDamageColorDuelProgramHost
+    [ProgramCapability]
+    private sealed class DamageColorDuelProgramCapability(GameEngine engine) : IDamageColorDuelProgramHost
     {
         public SkillProgramStepOutcome DrawByDamageCardColor(ProgramSkillFrame frame)=>engine.BeginDamageAppearanceDraw(frame);
         public SkillProgramStepOutcome UseSelectedActorDuel(ProgramSkillFrame frame)=>engine.BeginSelectedActorDuel(frame);

@@ -120,7 +120,7 @@ internal sealed class GiftedSlashUseRewardHandler(SkillProgramEffectOp op) : ISk
 {
     public SkillProgramEffectOp Op => op;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat, ISkillProgramEffectHost host) =>
-        host is not IGiftedSlashUseRewardHost gift ? throw new InvalidOperationException("The program host does not support gifted Slash rewards.") :
+        !host.TryGetCapability<IGiftedSlashUseRewardHost>(out var gift) ? throw new InvalidOperationException("The program host does not support gifted Slash rewards.") :
             effect.Op == SkillProgramEffectOp.GiveBoundHandAsSlashWithUseReward ? gift.BeginGiftedSlashGift(effect, frame, targetSeat) :
             gift.BeginGiftedSlashUseReward(effect, frame);
 }

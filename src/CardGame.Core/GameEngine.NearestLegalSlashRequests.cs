@@ -338,7 +338,8 @@ public sealed partial class GameEngine
                 TryGetOriginalTargetVirtualSlashReturn(virtualUse, frame, out _));
     }
 
-    private sealed partial class ProgramSkillHost : INearestLegalSlashProgramHost
+    [ProgramCapability]
+    private sealed class NearestLegalSlashProgramCapability(GameEngine engine) : INearestLegalSlashProgramHost
     {
         public SkillProgramStepOutcome RequestLegalNearestSlashes(SkillProgramEffect effect, ProgramSkillFrame frame) => engine.RequestLegalNearestSlashes(effect, frame);
         public SkillProgramStepOutcome OfferUnlimitedVirtualSlash(ProgramSkillFrame frame) => engine.OfferUnlimitedVirtualSlash(frame);

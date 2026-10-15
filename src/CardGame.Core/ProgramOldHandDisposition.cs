@@ -51,7 +51,7 @@ internal sealed class OldHandDispositionHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.ReplaceDiscardWithOldHandDisposition;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost h) =>
-        ((IOldHandDispositionHost)h).ReplaceDiscardWithOldHandDisposition(f);
+        h.GetCapability<IOldHandDispositionHost>().ReplaceDiscardWithOldHandDisposition(f);
 }
 internal static class OldHandDispositionComposition
 {

@@ -45,7 +45,7 @@ public sealed class DeclareBoundCardNameUntilTurnEndProgramHandler : ISkillProgr
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.DeclareBoundCardNameUntilTurnEnd;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat, ISkillProgramEffectHost host) =>
-        ((IConfiguredConversionProgramHost)host).DeclareBoundCardName(frame, effect.SourceBind!, effect.StateId!);
+        host.GetCapability<IConfiguredConversionProgramHost>().DeclareBoundCardName(frame, effect.SourceBind!, effect.StateId!);
 }
 
 public sealed class UpgradeConversionTierProgramHandler : ISkillProgramEffectHandler
@@ -53,7 +53,7 @@ public sealed class UpgradeConversionTierProgramHandler : ISkillProgramEffectHan
     public SkillProgramEffectOp Op => SkillProgramEffectOp.UpgradeConversionTier;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat, ISkillProgramEffectHost host)
     {
-        ((IConfiguredConversionProgramHost)host).UpgradeConversionTier(frame, effect.StateId!);
+        host.GetCapability<IConfiguredConversionProgramHost>().UpgradeConversionTier(frame, effect.StateId!);
         return SkillProgramStepOutcome.Continue;
     }
 }

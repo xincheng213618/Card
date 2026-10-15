@@ -35,7 +35,7 @@ public sealed class PlaceOwnedEquipmentThenResolveSlotBenefitHandler : ISkillPro
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.PlaceOwnedEquipmentThenResolveSlotBenefit;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost host) =>
-        ((IPlacedEquipmentBenefitProgramHost)host).PlaceOwnedEquipmentThenResolveSlotBenefit(f);
+        host.GetCapability<IPlacedEquipmentBenefitProgramHost>().PlaceOwnedEquipmentThenResolveSlotBenefit(f);
 }
 internal static class PlacedEquipmentBenefitComposition
 {

@@ -30,7 +30,7 @@ public sealed class AccumulatePaidPhaseGiftHandler : ISkillProgramEffectHandler
     public SkillProgramEffectOp Op => SkillProgramEffectOp.AccumulatePaidPhaseGift;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int seat, ISkillProgramEffectHost host)
     {
-        ((IPhaseGiftBasicProgramHost)host).AccumulatePaidPhaseGift(frame, effect.ResultBind!, effect.Amount);
+        host.GetCapability<IPhaseGiftBasicProgramHost>().AccumulatePaidPhaseGift(frame, effect.ResultBind!, effect.Amount);
         return SkillProgramStepOutcome.Continue;
     }
 }
@@ -51,5 +51,5 @@ internal sealed class OfferVirtualBasicCardDescriptor : ProgramOperationDescript
 public sealed class OfferVirtualBasicCardHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.OfferVirtualBasicCard;
-    public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int seat, ISkillProgramEffectHost host) => ((IPhaseGiftBasicProgramHost)host).OfferVirtualBasicCard(frame);
+    public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int seat, ISkillProgramEffectHost host) => host.GetCapability<IPhaseGiftBasicProgramHost>().OfferVirtualBasicCard(frame);
 }

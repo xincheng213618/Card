@@ -129,7 +129,8 @@ public sealed partial class GameEngine
                     throw new InvalidOperationException("The paid target scalar cost receipt is not backed by its original HP fact.");
         }
     }
-    private sealed partial class ProgramSkillHost : IPaidTargetEndingProgramHost
+    [ProgramCapability]
+    private sealed class PaidTargetEndingProgramCapability(GameEngine engine) : IPaidTargetEndingProgramHost
     {
         public SkillProgramStepOutcome PayHpThenNullifyOwnActualUseTarget(ProgramSkillFrame f) => engine.PayOwnActualUseTarget(f);
         public void ScheduleEarnedActualEndingBenefit(ProgramSkillFrame f, string skill, string binding) => engine.IssueEarnedActualEnding(f, skill, binding);

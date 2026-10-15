@@ -77,7 +77,7 @@ internal sealed class GrantActorHandLimitPenaltyHandler : ISkillProgramEffectHan
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,
         int targetSeat, ISkillProgramEffectHost host)
     {
-        if (targetSeat != frame.OwnerSeat || host is not IActorHandLimitPenaltyHost penaltyHost)
+        if (targetSeat != frame.OwnerSeat || !host.TryGetCapability<IActorHandLimitPenaltyHost>(out var penaltyHost))
             throw new InvalidOperationException("An actor hand-limit penalty requires its exact owner program host.");
         penaltyHost.GrantActorHandLimitPenalty(frame, effect.Amount);
         return SkillProgramStepOutcome.Continue;

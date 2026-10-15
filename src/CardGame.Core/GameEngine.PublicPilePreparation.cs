@@ -53,6 +53,7 @@ public sealed partial class GameEngine
             start.Window == c.Window && start.Continuation == ProgramLifecycleContinuation.NormalTurnStart && start.OwnerSeat == f.OwnerSeat &&
             start.CandidateIndex >= 0 && start.CandidateIndex < start.Candidates.Count && MountObserverCandidateMatches(f, start.Candidates[start.CandidateIndex]);
     }
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 190)]
     private bool CanRunPublicPilePreparation(ProgramTriggerCandidate candidate, SkillProgramTrigger trigger, ProgramSkillWindowContext context)
     {
         if (trigger.Effects is not [{ Op: SkillProgramEffectOp.RemovePublicPileAfterAttackDamage } e]) return true;
@@ -210,6 +211,7 @@ public sealed partial class GameEngine
             .OrderByDescending(item => item.Value).ThenBy(item => item.Choice.Targets.Single()).FirstOrDefault();
         return bestGift.Choice is not null && bestGift.Value > fillValue ? bestGift.Choice : fill;
     }
-    private sealed partial class ProgramSkillHost : IPublicPilePreparationHost
+    [ProgramCapability]
+    private sealed class PublicPilePreparationCapability(GameEngine engine) : IPublicPilePreparationHost
     { public SkillProgramStepOutcome ExecutePublicPilePreparation(SkillProgramEffect e, ProgramSkillFrame f) => engine.BeginPublicPilePreparation(e, f); }
 }

@@ -96,7 +96,7 @@ internal sealed class DrawAdviceHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.DrawTwoThenDiscardTwoIfOverMaxHp;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat,
-        ISkillProgramEffectHost host) => host is IDrawAdviceProgramHost advice
+        ISkillProgramEffectHost host) => host.TryGetCapability<IDrawAdviceProgramHost>(out var advice)
         ? advice.BeginDrawAdvice(frame, targetSeat)
         : throw new InvalidOperationException("The program host does not support draw advice.");
 }

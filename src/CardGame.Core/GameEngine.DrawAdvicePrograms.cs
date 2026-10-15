@@ -344,7 +344,8 @@ public sealed partial class GameEngine
         return effect.Op == SkillProgramEffectOp.Damage && amount == effect.Amount && source == effect.ActorReference && nature == effect.DamageNature &&
             target == (effect.TargetReference is { } reference ? ResolveProgramParticipant(frame, reference) : ResolveProgramEffectTarget(frame, effect.Target));
     }
-    private sealed partial class ProgramSkillHost : IDrawAdviceProgramHost
+    [ProgramCapability]
+    private sealed class DrawAdviceProgramCapability(GameEngine engine) : IDrawAdviceProgramHost
     {
         public SkillProgramStepOutcome BeginDrawAdvice(ProgramSkillFrame frame, int recipientSeat) => engine.BeginDrawAdvice(frame, recipientSeat);
     }

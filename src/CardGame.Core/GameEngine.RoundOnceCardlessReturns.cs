@@ -5,6 +5,7 @@ public sealed record RoundOnceCardlessRequestedOwnerDamagedEvent(
 
 public sealed partial class GameEngine
 {
+    [ProgramRuleObserver(ProgramRulePhase.BeforeEvent, 120)]
     private void ObserveRoundOnceCardlessRequestedOwnerDamage(DamageAppliedEvent damage)
     {
         if (damage.Amount <= 0 || damage.SourceLess || CurrentDamageAttempt is not { } attack ||

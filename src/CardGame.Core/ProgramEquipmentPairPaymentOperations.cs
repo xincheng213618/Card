@@ -32,7 +32,7 @@ public sealed class SelectEquipmentPairAndPaymentHandler : ISkillProgramEffectHa
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.SelectEquipmentPairAndPayment;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost host) =>
-        ((IEquipmentPairPaymentProgramHost)host).SelectEquipmentPairAndPayment(f, e);
+        host.GetCapability<IEquipmentPairPaymentProgramHost>().SelectEquipmentPairAndPayment(f, e);
 }
 
 internal sealed partial class ProgramAiEstimateContext

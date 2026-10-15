@@ -7,7 +7,8 @@ internal interface IBoundCardMovementContinuationHost
 
 public sealed partial class GameEngine
 {
-    private sealed partial class ProgramSkillHost : IBoundCardMovementContinuationHost
+    [ProgramCapability]
+    private sealed class BoundCardMovementContinuationCapability(GameEngine engine) : IBoundCardMovementContinuationHost
     {
         public SkillProgramStepOutcome AwaitBoundCardMovements(long frameId, int ownerSeat) =>
             engine.AwaitProgramBoundCardMovements(frameId, ownerSeat);

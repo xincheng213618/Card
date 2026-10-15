@@ -52,17 +52,17 @@ internal sealed class UseVirtualAlcoholDescriptor : ProgramOperationDescriptorBa
 public sealed class ClaimDiscardedEntityWithProvenanceHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.ClaimDiscardedEntityWithProvenance;
-    public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost host) => ((IDiscardedProvenanceProgramHost)host).ClaimDiscardedEntityWithProvenance(f,e.SourceBind!);
+    public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost host) => host.GetCapability<IDiscardedProvenanceProgramHost>().ClaimDiscardedEntityWithProvenance(f,e.SourceBind!);
 }
 public sealed class OfferFaceUpForOutsideClaimsHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.OfferFaceUpForOutsideClaims;
-    public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost host) => ((IDiscardedProvenanceProgramHost)host).OfferFaceUpForOutsideClaims(f,e.SourceBind!);
+    public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost host) => host.GetCapability<IDiscardedProvenanceProgramHost>().OfferFaceUpForOutsideClaims(f,e.SourceBind!);
 }
 public sealed class UseVirtualAlcoholHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.UseVirtualAlcohol;
-    public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost host) => ((IDiscardedProvenanceProgramHost)host).UseVirtualAlcohol(f);
+    public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost host) => host.GetCapability<IDiscardedProvenanceProgramHost>().UseVirtualAlcohol(f);
 }
 internal static class DiscardedProvenanceComposition
 {

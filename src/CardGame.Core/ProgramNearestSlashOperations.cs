@@ -57,13 +57,13 @@ public sealed class RequestLegalSlashByNearestHandler : ISkillProgramEffectHandl
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.RequestLegalSlashByNearest;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat, ISkillProgramEffectHost host) =>
-        ((INearestLegalSlashProgramHost)host).RequestLegalNearestSlashes(effect, frame);
+        host.GetCapability<INearestLegalSlashProgramHost>().RequestLegalNearestSlashes(effect, frame);
 }
 public sealed class OfferUnlimitedVirtualSlashHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.OfferUnlimitedVirtualSlash;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat, ISkillProgramEffectHost host) =>
-        ((INearestLegalSlashProgramHost)host).OfferUnlimitedVirtualSlash(frame);
+        host.GetCapability<INearestLegalSlashProgramHost>().OfferUnlimitedVirtualSlash(frame);
 }
 
 internal sealed partial class ProgramAiEstimateContext

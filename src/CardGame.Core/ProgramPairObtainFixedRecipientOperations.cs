@@ -95,20 +95,20 @@ internal sealed class SelectIssuedFixedRecipientDescriptor : PairObtainFixedReci
 public sealed class ObtainOneFromEachSelectedTargetHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.ObtainOneFromEachSelectedTarget;
-    public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost h) => ((IPairObtainFixedRecipientProgramHost)h).ObtainOneFromEachSelectedTarget(f, e);
+    public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost h) => h.GetCapability<IPairObtainFixedRecipientProgramHost>().ObtainOneFromEachSelectedTarget(f, e);
 }
 public sealed class GiveShownCardToLeastOriginalTargetHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.GiveShownCardToLeastOriginalTarget;
-    public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost h) => ((IPairObtainFixedRecipientProgramHost)h).GiveShownCardToLeastOriginalTarget(f, e);
+    public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost h) => h.GetCapability<IPairObtainFixedRecipientProgramHost>().GiveShownCardToLeastOriginalTarget(f, e);
 }
 public sealed class IssueFixedRecipientBenefitHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.IssueFixedRecipientBenefit;
-    public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost h) => ((IPairObtainFixedRecipientProgramHost)h).IssueFixedRecipientBenefit(f, e);
+    public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost h) => h.GetCapability<IPairObtainFixedRecipientProgramHost>().IssueFixedRecipientBenefit(f, e);
 }
 public sealed class SelectIssuedFixedRecipientHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.SelectIssuedFixedRecipient;
-    public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost h) => ((IPairObtainFixedRecipientProgramHost)h).SelectIssuedFixedRecipient(f, e);
+    public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost h) => h.GetCapability<IPairObtainFixedRecipientProgramHost>().SelectIssuedFixedRecipient(f, e);
 }

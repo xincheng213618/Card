@@ -15,7 +15,7 @@ public sealed class RecastBoundCardSkillProgramEffectHandler : ISkillProgramEffe
     public SkillProgramEffectOp Op => SkillProgramEffectOp.RecastBoundCard;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,
         int targetSeat, ISkillProgramEffectHost host) =>
-        ((IRecastBoundCardProgramEffectHost)host).RecastBoundCard(frame, effect.SourceBind!);
+        host.GetCapability<IRecastBoundCardProgramEffectHost>().RecastBoundCard(frame, effect.SourceBind!);
 }
 
 internal sealed class RecastBoundCardProgramOperationDescriptor : ProgramOperationDescriptorBase
@@ -52,7 +52,8 @@ internal sealed class RecastBoundCardProgramOperationDescriptor : ProgramOperati
 
 public sealed partial class GameEngine
 {
-    private sealed partial class ProgramSkillHost : IRecastBoundCardProgramEffectHost
+    [ProgramCapability]
+    private sealed class RecastBoundCardProgramEffectCapability(GameEngine engine) : IRecastBoundCardProgramEffectHost
     {
         public SkillProgramStepOutcome RecastBoundCard(ProgramSkillFrame frame, string sourceBind) =>
             engine.BeginProgramBoundCardRecast(frame.Id, sourceBind);

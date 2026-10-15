@@ -94,6 +94,7 @@ public sealed partial class GameEngine
     private bool HasIssuedJoinedTrickDamageRewardCandidate(ProgramTriggerCandidate candidate, ProgramSkillWindowContext context) =>
         ExactIssuedJoinedTrickDamageRewardCandidate(candidate, context, false) is not null;
 
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 680)]
     private bool CanOfferJoinedTrickDamageReward(ProgramTriggerCandidate candidate, SkillProgramTrigger trigger, ProgramSkillWindowContext context) =>
         !trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.DrawAfterJoinedTrickDamage) ||
         ExactIssuedJoinedTrickDamageRewardCandidate(candidate, context, false) is { } benefit &&

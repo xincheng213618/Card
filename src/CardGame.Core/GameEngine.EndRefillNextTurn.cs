@@ -3,7 +3,8 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private sealed partial class ProgramSkillHost : IEndRefillNextTurnProgramHost
+    [ProgramCapability]
+    private sealed class EndRefillNextTurnProgramCapability(GameEngine engine) : IEndRefillNextTurnProgramHost
     {
         public SkillProgramStepOutcome RefillAndScheduleNextTurnSelfOnly(ProgramSkillFrame f) => engine.BeginEndRefillNextTurn(f);
     }

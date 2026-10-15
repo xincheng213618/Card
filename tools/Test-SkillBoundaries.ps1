@@ -45,14 +45,20 @@ foreach ($directory in @('src', 'tests')) {
     foreach ($file in Get-ChildItem -LiteralPath $path -Filter '*.cs' -File -Recurse) {
         $relative = [IO.Path]::GetRelativePath($root, $file.FullName).Replace('\', '/')
         if ($relative -match '/(?:bin|obj|\.artifacts)/') { continue }
+        # Character runtime files are linked into Core even though their source
+        # paths live beside each character's content and skill definitions.
+        $isCharacterRuntime = $relative -match '^src/Characters/(?:[^/]+/)*Runtime/'
+        $isCoreSource = $relative.StartsWith('src/CardGame.Core/') -or $isCharacterRuntime
+        $isEngineSource = $file.Name -like 'GameEngine*.cs' -or
+            ($isCharacterRuntime -and [IO.File]::ReadAllText($file.FullName) -cmatch '\bclass\s+GameEngine\b')
         $lineNumber = 0
         foreach ($line in [IO.File]::ReadLines($file.FullName)) {
             $lineNumber++
             # Comments may explain what was retired; they do not bind a contract.
             if ($line.TrimStart().StartsWith('//')) { continue }
             foreach ($check in $checks) {
-                if ($check.Scope -eq 'core' -and !$relative.StartsWith('src/CardGame.Core/')) { continue }
-                if ($check.Scope -eq 'engine' -and $file.Name -notlike 'GameEngine*.cs') { continue }
+                if ($check.Scope -eq 'core' -and !$isCoreSource) { continue }
+                if ($check.Scope -eq 'engine' -and !$isEngineSource) { continue }
                 if ($check.Scope -eq 'pindian' -and $relative -ne 'src/CardGame.Core/GameEngine.Pindian.cs') { continue }
                 if ($line -cmatch $check.Pattern) {
                     $violations.Add([pscustomobject]@{

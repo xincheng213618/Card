@@ -7,6 +7,8 @@ public sealed partial class GameEngine
             e.ActivationId == activation && e.FrameId < beforeFrame).Select(e => e.FrameId).Distinct().Order().ToArray();
     private int GameProgramActivationCount(int ownerSeat, string skillId, string activationId) =>
         GameProgramActivationFrames(ownerSeat, skillId, activationId).Length;
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 950)]
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.Collection, 10)]
     private bool CanOfferGameActivationAwakening(int ownerSeat, SkillProgramTrigger trigger) =>
         !trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.AwakenAfterGameActivations) ||
         trigger.Effects is [{ Op: SkillProgramEffectOp.AwakenAfterGameActivations } effect] &&
@@ -124,7 +126,8 @@ public sealed partial class GameEngine
     }
     private bool IsGameActivationAwakeningProgramDying() => ActiveDying is { } dying && CategoryActivationObserverRoot(true) is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
-    private sealed partial class ProgramSkillHost : IGameActivationAwakeningProgramHost
+    [ProgramCapability]
+    private sealed class GameActivationAwakeningProgramCapability(GameEngine engine) : IGameActivationAwakeningProgramHost
     {
         public SkillProgramStepOutcome BeginGameActivationAwakening(ProgramSkillFrame f, SkillProgramEffect e) => engine.BeginGameActivationAwakening(f, e);
     }

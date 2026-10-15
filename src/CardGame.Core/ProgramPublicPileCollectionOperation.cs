@@ -34,5 +34,5 @@ public sealed class CollectPublicPileHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.CollectPublicPile;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat, ISkillProgramEffectHost host) =>
-        ((IPublicPileCollectionProgramHost)host).ExecutePublicPileCollection(effect, frame);
+        host.GetCapability<IPublicPileCollectionProgramHost>().ExecutePublicPileCollection(effect, frame);
 }

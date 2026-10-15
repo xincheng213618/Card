@@ -7,6 +7,7 @@ public sealed partial class GameEngine
     private IReadOnlyList<int> RoundGainedOriginalTargets(CardUseFrame use) =>
         use.CardKind == CardKind.DrawTwo && use.TargetSeats.Count == 0 ? Array.AsReadOnly(new[] { use.Action!.ActorSeat }) : use.TargetSeats;
 
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 640)]
     private bool CanOfferRoundGainedTrickTarget(ProgramTriggerCandidate candidate, SkillProgramTrigger trigger, ProgramSkillWindowContext context) =>
         !trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.AdjustOneRoundGainedOrdinaryTrickTarget) ||
         ExactIssuedRoundGainedUseCandidate(candidate, context) is { } q &&
@@ -200,7 +201,8 @@ public sealed partial class GameEngine
         CompleteProgramEventHistory().OfType<RoundGainedTrickTargetResolvedEvent>().Any(e => e.RemovedTargetSeats.Count > 0 && e.ResultTargetSeats.Count == 0 &&
             IsRoundGainedTrickTargetFact(use, e, e.OriginalTargetSeats));
 
-    private sealed partial class ProgramSkillHost : IRoundGainedSourceUseHost
+    [ProgramCapability]
+    private sealed class RoundGainedSourceUseCapability(GameEngine engine) : IRoundGainedSourceUseHost
     {
         public SkillProgramStepOutcome AdjustOneRoundGainedOrdinaryTrickTarget(ProgramSkillFrame frame) => engine.OfferRoundGainedTrickTarget(frame);
         public SkillProgramStepOutcome DrawForRoundGainedEquipmentUse(ProgramSkillFrame frame) => engine.BeginRoundGainedEquipmentDraw(frame);

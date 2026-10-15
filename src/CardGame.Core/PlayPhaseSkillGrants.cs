@@ -42,7 +42,7 @@ public sealed class GrantPlayPhaseSkillsSkillProgramEffectHandler : ISkillProgra
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,
         int targetSeat, ISkillProgramEffectHost host)
     {
-        if (targetSeat != frame.OwnerSeat || host is not IPlayPhaseSkillGrantHost phaseHost)
+        if (targetSeat != frame.OwnerSeat || !host.TryGetCapability<IPlayPhaseSkillGrantHost>(out var phaseHost))
             throw new InvalidOperationException("A play-phase skill grant requires its exact owner host.");
         phaseHost.GrantPlayPhaseSkills(frame, effect.SkillIds);
         return SkillProgramStepOutcome.Continue;

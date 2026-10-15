@@ -9,6 +9,7 @@ public sealed partial class GameEngine
     private bool HasIssuedDyingSuitsRound(int owner, string skill) => CompleteProgramEventHistory().OfType<DyingSuitsDrawIssuedEvent>()
         .Any(e => e.Source.OwnerSeat == owner && e.Source.SkillId == skill && e.ActualRound == _roundNumber);
     private int[] DyingSuitsRecipients(int owner, int victim) => _players.Where(p => p.IsAlive && p.Seat != owner && p.Seat != victim).Select(p => p.Seat).ToArray();
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 70)]
     private bool CanRunDyingSuitsAndEndingHistory(ProgramTriggerCandidate candidate, SkillProgramTrigger trigger, ProgramSkillWindowContext context)
     {
         if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.DrawThenDiscardSuitsForDyingPeach))
@@ -178,7 +179,8 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("Original-Dying Peach returned without its complete exact use.");
         ReplaceRuntimeTop(f with { DyingSuits=r with { Stage=DyingSuitsStage.Complete } }); AdvanceEventRulesAndQueueFact(new DyingSuitsPeachReturnedEvent(ret)); AdvanceRuntimeProgram(f.Id);
     }
-    private sealed partial class ProgramSkillHost : IDyingSuitsAndEndingHistoryHost
+    [ProgramCapability]
+    private sealed class DyingSuitsAndEndingHistoryCapability(GameEngine engine) : IDyingSuitsAndEndingHistoryHost
     {
         public SkillProgramStepOutcome DrawDiscardSuits(ProgramSkillFrame f) => engine.BeginDyingSuits(f);
         public SkillProgramStepOutcome EndingHistoricalUses(ProgramSkillFrame f) => engine.BeginEndingHistoricalUses(f);

@@ -71,7 +71,7 @@ internal sealed class FriendTrioHandler(SkillProgramEffectOp op) : ISkillProgram
 {
     public SkillProgramEffectOp Op => op;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost host) =>
-        ((IFriendTrioProgramHost)host).ExecuteFriendTrio(f, Op);
+        host.GetCapability<IFriendTrioProgramHost>().ExecuteFriendTrio(f, Op);
 }
 
 internal static class FriendTrioComposition

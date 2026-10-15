@@ -42,13 +42,13 @@ internal sealed class GrantOtherPlayUseRestrictionHandler : ISkillProgramEffectH
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.GrantOtherPlayUseRestriction;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int seat, ISkillProgramEffectHost host) =>
-        ((IPhaseStartCardControlHost)host).GrantOtherPlayUseRestriction(frame, effect.SkillIds.Single());
+        host.GetCapability<IPhaseStartCardControlHost>().GrantOtherPlayUseRestriction(frame, effect.SkillIds.Single());
 }
 internal sealed class ChooseStartingEquipmentControlHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.ChooseStartingEquipmentControl;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int seat, ISkillProgramEffectHost host) =>
-        ((IPhaseStartCardControlHost)host).ChooseStartingEquipmentControl(frame);
+        host.GetCapability<IPhaseStartCardControlHost>().ChooseStartingEquipmentControl(frame);
 }
 internal static class PhaseStartCardControlContract
 {

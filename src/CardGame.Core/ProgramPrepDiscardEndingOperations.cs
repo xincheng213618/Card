@@ -80,13 +80,13 @@ public sealed class ResolvePrepDiscardOrEndingHandler : ISkillProgramEffectHandl
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.ResolvePrepDiscardOrEnding;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost h) =>
-        ((IPrepDiscardEndingProgramHost)h).ResolvePrepDiscardOrEnding(f, e.StateId!);
+        h.GetCapability<IPrepDiscardEndingProgramHost>().ResolvePrepDiscardOrEnding(f, e.StateId!);
 }
 public sealed class DrawPrepDiscardEndingHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.DrawPrepDiscardEnding;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost h) =>
-        ((IPrepDiscardEndingProgramHost)h).DrawPrepDiscardEnding(f);
+        h.GetCapability<IPrepDiscardEndingProgramHost>().DrawPrepDiscardEnding(f);
 }
 internal static class PrepDiscardEndingComposition
 {

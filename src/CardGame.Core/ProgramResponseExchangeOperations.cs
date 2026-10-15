@@ -24,7 +24,7 @@ internal sealed class ExchangeRespondedCardEntitiesDescriptor : ProgramOperation
 public sealed class ExchangeRespondedCardEntitiesHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.ExchangeRespondedCardEntities;
-    public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,int targetSeat,ISkillProgramEffectHost host) => ((IResponseExchangeProgramHost)host).ExchangeRespondedCardEntities(frame,effect.StateId!);
+    public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,int targetSeat,ISkillProgramEffectHost host) => host.GetCapability<IResponseExchangeProgramHost>().ExchangeRespondedCardEntities(frame,effect.StateId!);
 }
 internal sealed class DrawPublicSuitThenEscalatingDiscardDescriptor : ProgramOperationDescriptorBase
 {
@@ -45,7 +45,7 @@ internal sealed class DrawPublicSuitThenEscalatingDiscardDescriptor : ProgramOpe
 public sealed class DrawPublicSuitThenEscalatingDiscardHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.DrawPublicSuitThenEscalatingDiscard;
-    public SkillProgramStepOutcome Execute(SkillProgramEffect effect,ProgramSkillFrame frame,int targetSeat,ISkillProgramEffectHost host)=>((IResponseExchangeProgramHost)host).DrawPublicSuitThenEscalatingDiscard(frame,effect);
+    public SkillProgramStepOutcome Execute(SkillProgramEffect effect,ProgramSkillFrame frame,int targetSeat,ISkillProgramEffectHost host)=>host.GetCapability<IResponseExchangeProgramHost>().DrawPublicSuitThenEscalatingDiscard(frame,effect);
 }
 public sealed record ProgramResponseEntityExchangeDraft(long RespondedActionId,long ResponseActionId,int RecipientSeat,IReadOnlyList<int> OriginalCardIds,IReadOnlyList<int> ResponseCardIds,string StateId,int Stage=0);
 public sealed record ProgramPublicSuitDiscardDraft(int TargetSeat,int Required,string StateId,string UpgradeSkillId,int Stage=0,IReadOnlyList<int>? SelectedIds=null,bool Exhausted=false);

@@ -105,7 +105,8 @@ public sealed partial class GameEngine
             m.Reason.Value == $"skill-program.{f.SkillId}.capped-conversion-draw") == r.ActualDrawCount;
     }
 
-    private sealed partial class ProgramSkillHost : ICappedConversionBenefitHost
+    [ProgramCapability]
+    private sealed class CappedConversionBenefitCapability(GameEngine engine) : ICappedConversionBenefitHost
     {
         public SkillProgramStepOutcome DrawBeforeCappedConversionTierUpgrade(ProgramSkillFrame f, string state) => engine.BeginCappedConversionBenefit(f, state);
     }

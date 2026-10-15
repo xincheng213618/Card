@@ -10,6 +10,7 @@ public sealed partial class GameEngine
     private static bool IsTurnDebtDamageCard(CardKind kind) => kind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or
         CardKind.Duel or CardKind.BarbarianAssault or CardKind.ArrowBarrage or CardKind.FireAttack or CardKind.Lightning;
 
+    [ProgramRuleObserver(ProgramRulePhase.BeforeEvent, 270)]
     private void ObserveTurnDrawDebtUse(IGameEvent payload)
     {
         if (!TracksTurnDrawDebt || payload is not CardUseDeclaredEvent declared || !IsTurnDebtDamageCard(declared.CardKind)) return;
@@ -65,6 +66,7 @@ public sealed partial class GameEngine
             e.GameplayHash == hash && e.StateId == stateId && e.ActualCount > 0);
     }
 
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 50)]
     private bool CanRunTurnDrawDebtPayment(ProgramTriggerCandidate candidate, SkillProgramTrigger trigger, ProgramSkillWindowContext context)
     {
         var payment = trigger.Effects.FirstOrDefault(e => e.Op == SkillProgramEffectOp.SelectTurnDamageUseDebtPayment);
@@ -145,7 +147,8 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("The ending debt lost its exact source, frozen amount or once-only payment.");
     }
 
-    private sealed partial class ProgramSkillHost : ITurnDrawDebtProgramHost
+    [ProgramCapability]
+    private sealed class TurnDrawDebtProgramCapability(GameEngine engine) : ITurnDrawDebtProgramHost
     {
         public SkillProgramStepOutcome DrawExtraAndArmTurnDamageUseDebt(ProgramSkillFrame f, string stateId) => engine.DrawExtraAndArmTurnDebt(f, stateId);
         public SkillProgramStepOutcome SelectTurnDamageUseDebtPayment(ProgramSkillFrame f, SkillProgramEffect effect) => engine.SelectTurnDrawDebtPayment(f, effect);

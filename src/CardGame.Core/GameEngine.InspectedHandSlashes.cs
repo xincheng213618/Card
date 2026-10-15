@@ -4,6 +4,14 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    [ProgramActivationLegality(ProgramActivationLegalityPhase.BeforeCardCount, 70, SkillProgramEffectOp.PayHpInspectHandThenDiscardOrSlash)]
+    private bool AllowsPayHpInspectHandThenDiscardOrSlashActivation(ProgramActivationLegalityContext gate)
+    {
+        var owner = gate.Owner;
+        var features = gate.Features;
+        return !(features.HasOperation(SkillProgramEffectOp.PayHpInspectHandThenDiscardOrSlash) && owner.Hp < 1);
+    }
+
     private const string InspectedHandDiscardReason = "program.hp-hand-inspection.discard";
     private CardConversionSource InspectedHandSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
     private SkillProgramStepOutcome BeginInspectedHandSlash(ProgramSkillFrame supplied)
@@ -121,6 +129,7 @@ public sealed partial class GameEngine
         ReplaceRuntimeTop(f = GetActiveProgramFrame(f.Id) with { InspectedHandSlash = null, PendingMovementContinuation = null });
         FinishProgramSkill(f, true);
     }
-    private sealed partial class ProgramSkillHost : IInspectedHandSlashProgramHost
+    [ProgramCapability]
+    private sealed class InspectedHandSlashProgramCapability(GameEngine engine) : IInspectedHandSlashProgramHost
     { public SkillProgramStepOutcome PayHpInspectHandThenDiscardOrSlash(ProgramSkillFrame f) => engine.BeginInspectedHandSlash(f); }
 }

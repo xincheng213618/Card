@@ -6,7 +6,8 @@ public sealed partial class GameEngine
     private const string DeclaredDeckCardBind = "declared-deck-card";
     private static readonly string[] DeckCriteria = ["basic", "trick", "equipment", "red", "black"];
 
-    private sealed partial class ProgramSkillHost : IFixedSlashAndDeclaredDeckProgramHost
+    [ProgramCapability]
+    private sealed class FixedSlashAndDeclaredDeckProgramCapability(GameEngine engine) : IFixedSlashAndDeclaredDeckProgramHost
     {
         public SkillProgramStepOutcome UseOwnerSlashAgainstTurnOwner(ProgramSkillFrame frame, bool ignoreDistance) =>
             engine.BeginOwnerSlashAgainstTurnOwner(frame, ignoreDistance);

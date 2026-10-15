@@ -89,13 +89,13 @@ public sealed class ChooseCategoryOrSequentialDiscardHandler : ISkillProgramEffe
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.ChooseCategoryOrSequentialDiscard;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost host) =>
-        ((ISequentialDiscardProgramHost)host).RunSequentialDiscard(f, e, seat);
+        host.GetCapability<ISequentialDiscardProgramHost>().RunSequentialDiscard(f, e, seat);
 }
 public sealed class EscalatingDiscardOrDamageFromSelectedHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.EscalatingDiscardOrDamageFromSelected;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost host) =>
-        ((ISequentialDiscardProgramHost)host).RunSequentialDiscard(f, e, seat);
+        host.GetCapability<ISequentialDiscardProgramHost>().RunSequentialDiscard(f, e, seat);
 }
 
 internal static class SequentialDiscardComposition

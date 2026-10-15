@@ -54,16 +54,35 @@ public sealed class GrantFactionPopulationMarkerHandler : ISkillProgramEffectHan
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.GrantFactionPopulationMarker;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int targetSeat, ISkillProgramEffectHost host)
-    { ((IPopulationAndArrowBarrageProgramHost)host).GrantFactionPopulationMarker(f, e); return SkillProgramStepOutcome.Continue; }
+    { host.GetCapability<IPopulationAndArrowBarrageProgramHost>().GrantFactionPopulationMarker(f, e); return SkillProgramStepOutcome.Continue; }
 }
 public sealed class RemoveSelectedCurrentArrowBarrageTargetHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.RemoveSelectedCurrentArrowBarrageTarget;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int targetSeat, ISkillProgramEffectHost host)
-    { ((IPopulationAndArrowBarrageProgramHost)host).RemoveSelectedCurrentArrowBarrageTarget(f); return SkillProgramStepOutcome.Continue; }
+    { host.GetCapability<IPopulationAndArrowBarrageProgramHost>().RemoveSelectedCurrentArrowBarrageTarget(f); return SkillProgramStepOutcome.Continue; }
 }
 public sealed partial class GameEngine
 {
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.AfterInitialPayments, 20, SkillProgramEffectOp.GrantFactionPopulationMarker)]
+    private bool AllowsGrantFactionPopulationMarkerTrigger(ProgramTriggerLegalityContext gate)
+    {
+        var owner = gate.Owner;
+        var features = gate.Features;
+        var candidate = gate.Candidate;
+        var context = gate.Context;
+        return !(features.HasOperation(SkillProgramEffectOp.GrantFactionPopulationMarker) && HasInitialPopulationMarkerGrant(owner.Seat, candidate.SkillId, context));
+    }
+
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.AfterInitialPayments, 10, SkillProgramEffectOp.RemoveSelectedCurrentArrowBarrageTarget)]
+    private bool AllowsRemoveSelectedCurrentArrowBarrageTargetTrigger(ProgramTriggerLegalityContext gate)
+    {
+        var owner = gate.Owner;
+        var features = gate.Features;
+        var context = gate.Context;
+        return !(features.HasOperation(SkillProgramEffectOp.RemoveSelectedCurrentArrowBarrageTarget) && GetCurrentArrowBarrageTargets(owner.Seat, context).Count == 0);
+    }
+
     private bool HasInitialPopulationMarkerGrant(int ownerSeat, string skillId, ProgramSkillWindowContext context) =>
         _resolutionStack.OfType<ProgramLifecycleTriggerWindowFrame>().SingleOrDefault(f => f.Id == context.ParentFrameId)
             ?.PopulationMarkerGrants?.Contains(new(ownerSeat, skillId)) == true;
@@ -127,7 +146,8 @@ public sealed partial class GameEngine
                     CardUse = current with { ActorSeat = action.ActorSeat, DesignatedTargetSeats = targets } } });
         AdvanceEventRulesAndQueueFact(new ProgramArrowBarrageTargetRemovedEvent(use.Id, action.ActionId, active.OwnerSeat, active.SkillId, targetSeat));
     }
-    private sealed partial class ProgramSkillHost : IPopulationAndArrowBarrageProgramHost
+    [ProgramCapability]
+    private sealed class PopulationAndArrowBarrageProgramCapability(GameEngine engine) : IPopulationAndArrowBarrageProgramHost
     {
         public void GrantFactionPopulationMarker(ProgramSkillFrame frame, SkillProgramEffect effect) => engine.GrantProgramFactionPopulationMarker(frame, effect);
         public void RemoveSelectedCurrentArrowBarrageTarget(ProgramSkillFrame frame) => engine.RemoveProgramSelectedCurrentArrowBarrageTarget(frame);

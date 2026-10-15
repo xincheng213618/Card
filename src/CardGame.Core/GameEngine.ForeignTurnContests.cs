@@ -270,7 +270,8 @@ public sealed partial class GameEngine
             !CompleteProgramEventHistory().OfType<ForeignTurnContestSlashIssuedEvent>().Any(e => e.Return == returned)))
             throw new InvalidOperationException("A foreign contest lost its exact issued Slash child.");
     }
-    private sealed partial class ProgramSkillHost : IForeignTurnContestAidProgramHost
+    [ProgramCapability]
+    private sealed class ForeignTurnContestAidProgramCapability(GameEngine engine) : IForeignTurnContestAidProgramHost
     {
         public SkillProgramStepOutcome ResolveForeignTurnPindian(ProgramSkillFrame frame, string resultBind) =>
             engine.ResolveForeignTurnPindian(frame, resultBind);

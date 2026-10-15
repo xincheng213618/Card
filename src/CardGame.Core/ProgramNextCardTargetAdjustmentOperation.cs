@@ -25,7 +25,7 @@ public sealed class GrantNextCardTargetAdjustmentHandler : ISkillProgramEffectHa
     public SkillProgramEffectOp Op => SkillProgramEffectOp.GrantNextCardTargetAdjustment;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat, ISkillProgramEffectHost host)
     {
-        ((INextCardTargetAdjustmentProgramHost)host).GrantNextCardTargetAdjustment(frame);
+        host.GetCapability<INextCardTargetAdjustmentProgramHost>().GrantNextCardTargetAdjustment(frame);
         return SkillProgramStepOutcome.Continue;
     }
 }

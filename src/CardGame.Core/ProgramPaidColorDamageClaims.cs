@@ -70,13 +70,13 @@ public sealed class DiscardBoundCardForOppositeTurnDuelHandler : ISkillProgramEf
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.DiscardBoundCardForOppositeTurnDuel;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int t, ISkillProgramEffectHost h) =>
-        ((IPaidColorDamageClaimProgramHost)h).DiscardBoundCardForOppositeTurnDuel(f, e.SourceBind!);
+        h.GetCapability<IPaidColorDamageClaimProgramHost>().DiscardBoundCardForOppositeTurnDuel(f, e.SourceBind!);
 }
 public sealed class ClaimActualTurnDamageEntitiesHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.ClaimActualTurnDamageEntities;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int t, ISkillProgramEffectHost h) =>
-        ((IPaidColorDamageClaimProgramHost)h).ClaimActualTurnDamageEntities(f);
+        h.GetCapability<IPaidColorDamageClaimProgramHost>().ClaimActualTurnDamageEntities(f);
 }
 internal static class PaidColorDamageClaimComposition
 {

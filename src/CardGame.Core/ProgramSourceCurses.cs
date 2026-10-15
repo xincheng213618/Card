@@ -126,7 +126,7 @@ internal sealed class SourceCurseHandler(SkillProgramEffectOp op) : ISkillProgra
 {
     public SkillProgramEffectOp Op => op;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f,
-        int seat, ISkillProgramEffectHost h) => ((ISourceCurseProgramHost)h).ExecuteSourceCurse(e, f);
+        int seat, ISkillProgramEffectHost h) => h.GetCapability<ISourceCurseProgramHost>().ExecuteSourceCurse(e, f);
 }
 internal static class SourceCurseComposition
 {

@@ -51,7 +51,8 @@ public sealed partial class GameEngine
         return cards.FirstOrDefault() ?? decision.Choices.First();
     }
 
-    private sealed partial class ProgramSkillHost : IDiscardChallengeProgramHost
+    [ProgramCapability]
+    private sealed class DiscardChallengeProgramCapability(GameEngine engine) : IDiscardChallengeProgramHost
     {
         public SkillProgramStepOutcome ExecuteDiscardChallenge(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat) =>
             engine.ExecuteDiscardChallenge(effect, frame, targetSeat);

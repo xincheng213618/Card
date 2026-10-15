@@ -101,7 +101,8 @@ public sealed partial class GameEngine
         return true;
     }
 
-    private sealed partial class ProgramSkillHost : IRevealedCardHpComparisonHost
+    [ProgramCapability]
+    private sealed class RevealedCardHpComparisonCapability(GameEngine engine) : IRevealedCardHpComparisonHost
     {
         public SkillProgramStepOutcome LoseHpIfRevealedNonEquipmentDiffers(ProgramSkillFrame frame, string sourceBind) =>
             engine.LoseHpIfRevealedNonEquipmentDiffers(frame, sourceBind);

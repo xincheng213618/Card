@@ -35,6 +35,6 @@ public sealed class DiscardDamageTargetAndClaimMountHandler : ISkillProgramEffec
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.DiscardDamageTargetAndClaimMount;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost h) =>
-        h is IDamageTargetMountProgramHost host ? host.DiscardDamageTargetAndClaimMount(f) :
+        h.TryGetCapability<IDamageTargetMountProgramHost>(out var host) ? host.DiscardDamageTargetAndClaimMount(f) :
             throw new NotSupportedException("Actual damage-target mount payment is unavailable.");
 }

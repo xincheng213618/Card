@@ -82,6 +82,10 @@ public sealed partial class GameEngine
 
     // The caller runs this only after queuing the matching actual TurnEnded fact,
     // before any deferred after-turn-ended program can observe an expired grant.
+    [ProgramRuleObserver(ProgramRulePhase.AfterEvent, 30)]
+    private void ExpireActualTurnSkillGrantsAfterTurnEnded(TurnEndedEvent ended) =>
+        ExpireActualTurnSkillGrants(ended.TurnNumber, ended.ActorSeat);
+
     private void ExpireActualTurnSkillGrants(int turnNumber, int turnOwnerSeat)
     {
         var expiry = new SkillGrantTurnExpiry(turnNumber, turnOwnerSeat);

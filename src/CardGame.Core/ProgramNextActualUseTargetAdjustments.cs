@@ -70,7 +70,7 @@ public sealed class GrantNextActualUseTargetAdjustmentHandler : ISkillProgramEff
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,
         int targetSeat, ISkillProgramEffectHost host)
     {
-        ((INextActualUseTargetAdjustmentProgramHost)host).GrantNextActualUseTargetAdjustment(frame, effect);
+        host.GetCapability<INextActualUseTargetAdjustmentProgramHost>().GrantNextActualUseTargetAdjustment(frame, effect);
         return SkillProgramStepOutcome.Continue;
     }
 }

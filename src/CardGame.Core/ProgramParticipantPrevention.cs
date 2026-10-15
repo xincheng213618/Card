@@ -16,7 +16,7 @@ internal sealed class ParticipantPreventionHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.PreventParticipantDamageDrawActualSource;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int seat,ISkillProgramEffectHost h) =>
-        ((IParticipantPreventionHost)h).PreventParticipantDamageDrawActualSource(f);
+        h.GetCapability<IParticipantPreventionHost>().PreventParticipantDamageDrawActualSource(f);
 }
 internal static class ParticipantPreventionComposition
 {

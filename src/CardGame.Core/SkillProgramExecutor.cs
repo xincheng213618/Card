@@ -36,6 +36,17 @@ public interface ISkillProgramExecutionHost
 /// <summary>Primitive rules operations exposed to reusable effect handlers.</summary>
 public interface ISkillProgramEffectHost
 {
+    /// <summary>Resolves a dedicated capability; existing custom hosts may implement it directly.</summary>
+    T GetCapability<T>() where T : class => TryGetCapability<T>(out var capability)
+        ? capability
+        : throw new NotSupportedException($"This program host does not provide capability '{typeof(T).FullName}'.");
+
+    bool TryGetCapability<T>([System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out T? capability) where T : class
+    {
+        capability = this as T;
+        return capability is not null;
+    }
+
     SkillProgramStepOutcome ChooseOwnerHpLoss(ProgramSkillFrame frame, string resultBind) => throw new NotSupportedException();
     SkillProgramStepOutcome DrawPaidHpLoss(ProgramSkillFrame frame, string sourceBind) => throw new NotSupportedException();
     void GrantPaidHpLoss(ProgramSkillFrame frame, string sourceBind, bool distance) => throw new NotSupportedException();
@@ -474,7 +485,7 @@ public sealed class TakeRandomHandCardFromSelectedTargetsSkillProgramEffectHandl
         ISkillProgramEffectHost host)
     {
         if (effect.AwaitMovementTriggers)
-            return ((IAwaitedBlindHandTakeProgramHost)host).TakeRandomHandCardsAndAwait(frame, effect.Amount,
+            return host.GetCapability<IAwaitedBlindHandTakeProgramHost>().TakeRandomHandCardsAndAwait(frame, effect.Amount,
                 new CardMoveReason($"skill-program.{frame.SkillId}.{effect.Op}"));
         host.TakeRandomHandCardFromSelectedTargets(
             frame.Id,
@@ -940,7 +951,7 @@ public sealed class SelectCardSubsetSkillProgramEffectHandler : ISkillProgramEff
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,
         int targetSeat, ISkillProgramEffectHost host) =>
         effect.AvailableAtSourceOnly == true
-            ? ((IAvailableBoundSubsetProgramEffectHost)host).SelectAvailableBoundSubset(frame, effect)
+            ? host.GetCapability<IAvailableBoundSubsetProgramEffectHost>().SelectAvailableBoundSubset(frame, effect)
             : host.SelectCardSubset(frame.Id, frame.OwnerSeat,
             effect.SourceBind ?? throw new InvalidOperationException("selectCardSubset has no source bind."),
             effect.ResultBind ?? throw new InvalidOperationException("selectCardSubset has no result bind."),
@@ -962,7 +973,7 @@ public sealed class MoveBoundCardsSkillProgramEffectHandler : ISkillProgramEffec
             effect.DestinationZone,
             new CardMoveReason($"skill-program.{frame.SkillId}.{effect.Op}"));
         return effect.AwaitMovementTriggers && outcome == SkillProgramStepOutcome.Continue
-            ? ((IBoundCardMovementContinuationHost)host).AwaitBoundCardMovements(frame.Id, frame.OwnerSeat)
+            ? host.GetCapability<IBoundCardMovementContinuationHost>().AwaitBoundCardMovements(frame.Id, frame.OwnerSeat)
             : outcome;
     }
 }
@@ -1326,9 +1337,9 @@ public sealed class ReorderTopCardsSkillProgramEffectHandler : ISkillProgramEffe
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,
         int targetSeat, ISkillProgramEffectHost host) =>
         effect.PopulationThresholdCount is { } population
-            ? ((IPopulationTopReorderProgramEffectHost)host).ReorderTopCardsByPopulation(frame, effect.Amount, population, effect.AllBottomStateId)
+            ? host.GetCapability<IPopulationTopReorderProgramEffectHost>().ReorderTopCardsByPopulation(frame, effect.Amount, population, effect.AllBottomStateId)
             : effect.ExactTopCount is { } exact
-            ? ((IExactTopReorderProgramEffectHost)host).ReorderTopCardsExactly(frame, effect.Amount, effect.NumberExpression, exact)
+            ? host.GetCapability<IExactTopReorderProgramEffectHost>().ReorderTopCardsExactly(frame, effect.Amount, effect.NumberExpression, exact)
             : host.ReorderTopCards(frame, effect.Amount, effect.NumberExpression);
 }
 
@@ -1338,7 +1349,7 @@ public sealed class RepeatJudgmentSkillProgramEffectHandler : ISkillProgramEffec
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,
         int targetSeat, ISkillProgramEffectHost host) =>
         effect.ClaimHandLimitExemption is { } policy
-            ? ((IRepeatedJudgmentClaimPolicyProgramHost)host).RepeatJudgmentWithClaimPolicy(frame, effect.JudgmentReason!, effect.ResultBind!, effect.Suits, policy)
+            ? host.GetCapability<IRepeatedJudgmentClaimPolicyProgramHost>().RepeatJudgmentWithClaimPolicy(frame, effect.JudgmentReason!, effect.ResultBind!, effect.Suits, policy)
             : host.RepeatJudgment(frame, effect.JudgmentReason!, effect.ResultBind!, effect.Suits);
 }
 

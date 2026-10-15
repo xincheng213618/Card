@@ -2,6 +2,7 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 10)]
     private bool CanRunSoleTargetReplacementTargetCandidate(ProgramTriggerCandidate candidate,
         SkillProgramTrigger trigger, ProgramSkillWindowContext context)
     {

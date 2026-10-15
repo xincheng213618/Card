@@ -52,6 +52,7 @@ public sealed partial class GameEngine
             (LegacyDamageJudgmentVirtualProducer(use, identity.OriginalOwnerTarget) == producer ||
              HasSameTypeAidTargetTail(use) && MatchesSameTypeAidLegacyProducer(use, producer));
     }
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 710)]
     private bool CanRunSameTypeAid(ProgramTriggerCandidate candidate, SkillProgramTrigger trigger, ProgramSkillWindowContext context)
     {
         if (!trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.OfferSameTypeDifferentNameOrExtraTarget)) return true;

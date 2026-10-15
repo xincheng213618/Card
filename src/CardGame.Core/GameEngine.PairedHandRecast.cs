@@ -193,7 +193,8 @@ public sealed partial class GameEngine
     private PromptChoice SelectAiPairedHandRecast(PendingDecision decision, ProgramSkillFrame f) => decision.Choices
         .OrderBy(c => GetKeepValue(GetAdvancedCard(c.Cards.Single()), _players[f.PairedHandRecast!.Partner.Seat]))
         .ThenBy(c => c.Cards.Single()).First();
-    private sealed partial class ProgramSkillHost : IPairedHandRecastProgramHost
+    [ProgramCapability]
+    private sealed class PairedHandRecastProgramCapability(GameEngine engine) : IPairedHandRecastProgramHost
     {
         public SkillProgramStepOutcome PairedHandRecast(ProgramSkillFrame f, int partnerSeat) => engine.BeginPairedHandRecast(f, partnerSeat);
     }

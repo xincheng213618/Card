@@ -230,7 +230,8 @@ public sealed partial class GameEngine
             ? GetKeepValue(_cardZones.CardsAt(_cardZones.GetLocation(id)).Single(card => card.Id == id), _players[f.OwnerSeat]) : 0)
             .ThenBy(c => c.Id.Value, StringComparer.Ordinal).First();
     }
-    private sealed partial class ProgramSkillHost : IPairObtainFixedRecipientProgramHost
+    [ProgramCapability]
+    private sealed class PairObtainFixedRecipientProgramCapability(GameEngine engine) : IPairObtainFixedRecipientProgramHost
     {
         public SkillProgramStepOutcome ObtainOneFromEachSelectedTarget(ProgramSkillFrame f, SkillProgramEffect e) => engine.ObtainOneFromEachSelectedTarget(f, e);
         public SkillProgramStepOutcome GiveShownCardToLeastOriginalTarget(ProgramSkillFrame f, SkillProgramEffect e) => engine.GiveShownCardToLeastOriginalTarget(f, e);

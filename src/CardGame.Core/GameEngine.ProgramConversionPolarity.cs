@@ -17,11 +17,12 @@ public sealed class CommitConversionPolarityHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.CommitConversionPolarity;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int seat, ISkillProgramEffectHost host)
-    { ((IConversionPolarityProgramHost)host).CommitConversionPolarity(frame); return SkillProgramStepOutcome.Continue; }
+    { host.GetCapability<IConversionPolarityProgramHost>().CommitConversionPolarity(frame); return SkillProgramStepOutcome.Continue; }
 }
 public sealed partial class GameEngine
 {
-    private sealed partial class ProgramSkillHost : IConversionPolarityProgramHost
+    [ProgramCapability]
+    private sealed class ConversionPolarityProgramCapability(GameEngine engine) : IConversionPolarityProgramHost
     { public void CommitConversionPolarity(ProgramSkillFrame frame) => engine.CommitProgramConversionPolarity(frame); }
     private SkillPolarity GetProgramConversionPolarity(int ownerSeat, string skillId) =>
         _skillRuntimeState.GetConversionState(ownerSeat, skillId);

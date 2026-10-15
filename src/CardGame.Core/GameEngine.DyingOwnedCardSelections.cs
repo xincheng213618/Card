@@ -2,6 +2,7 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 80)]
     private bool CanRunDyingOwnedCard(ProgramTriggerCandidate candidate, SkillProgramTrigger trigger, ProgramSkillWindowContext context)
     {
         var effect = trigger.Effects.FirstOrDefault(e => e.Op == SkillProgramEffectOp.SelectDyingOwnedCard);
@@ -132,7 +133,8 @@ public sealed partial class GameEngine
         .OrderBy(c => c.Cards.Count == 1 && _cardZones.CardsAt(_cardZones.GetLocation(c.Cards[0])).Any(card => card.Id == c.Cards[0] &&
             !MatchesProgramCardCategory(card.Kind, [SkillProgramCardCategory.Basic])) ? 0 : 1)
         .ThenBy(c => c.Id.Value, StringComparer.Ordinal).First();
-    private sealed partial class ProgramSkillHost : IDyingOwnedCardProgramHost
+    [ProgramCapability]
+    private sealed class DyingOwnedCardProgramCapability(GameEngine engine) : IDyingOwnedCardProgramHost
     {
         public SkillProgramStepOutcome SelectDyingOwnedCard(ProgramSkillFrame f, SkillProgramEffect e) => engine.SelectDyingOwnedCard(f, e);
     }

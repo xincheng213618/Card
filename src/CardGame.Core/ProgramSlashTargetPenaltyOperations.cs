@@ -54,7 +54,7 @@ public sealed class RequireTargetDiscardOrEquipmentRecastHandler : ISkillProgram
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.RequireTargetDiscardOrEquipmentRecast;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost host) =>
-        ((ISlashTargetPenaltyProgramHost)host).RequireTargetDiscardOrEquipmentRecast(f);
+        host.GetCapability<ISlashTargetPenaltyProgramHost>().RequireTargetDiscardOrEquipmentRecast(f);
 }
 internal static class SlashTargetPenaltyComposition
 {

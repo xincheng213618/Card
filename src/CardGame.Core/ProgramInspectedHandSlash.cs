@@ -44,7 +44,7 @@ public sealed class PayHpInspectHandThenDiscardOrSlashHandler : ISkillProgramEff
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.PayHpInspectHandThenDiscardOrSlash;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int target, ISkillProgramEffectHost host) =>
-        ((IInspectedHandSlashProgramHost)host).PayHpInspectHandThenDiscardOrSlash(f);
+        host.GetCapability<IInspectedHandSlashProgramHost>().PayHpInspectHandThenDiscardOrSlash(f);
 }
 internal static class InspectedHandSlashComposition
 {

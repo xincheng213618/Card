@@ -106,23 +106,23 @@ public sealed class RequestFactionRecoveryHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.RequestFactionRecovery;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost host) =>
-        ((IDeferredBenefitsProgramHost)host).RequestFactionRecovery(f, e.ProviderFactionId!);
+        host.GetCapability<IDeferredBenefitsProgramHost>().RequestFactionRecovery(f, e.ProviderFactionId!);
 }
 public sealed class SetNextTurnRuleModifierHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.SetNextTurnRuleModifier;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost host)
-    { ((IDeferredBenefitsProgramHost)host).SetNextTurnRuleModifier(f, seat, e.RuleQuery!.Value, e.Amount); return SkillProgramStepOutcome.Continue; }
+    { host.GetCapability<IDeferredBenefitsProgramHost>().SetNextTurnRuleModifier(f, seat, e.RuleQuery!.Value, e.Amount); return SkillProgramStepOutcome.Continue; }
 }
 public sealed class WeaponDiscardOrDamageBonusHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.WeaponDiscardOrDamageBonus;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost host) =>
-        ((IDeferredBenefitsProgramHost)host).WeaponDiscardOrDamageBonus(f, e.Amount);
+        host.GetCapability<IDeferredBenefitsProgramHost>().WeaponDiscardOrDamageBonus(f, e.Amount);
 }
 public sealed class ResolveJudgmentColorBenefitHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveJudgmentColorBenefit;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost host)
-    { ((IDeferredBenefitsProgramHost)host).ResolveJudgmentColorBenefit(f, seat, e.SourceBind!, e.Amount); return SkillProgramStepOutcome.Continue; }
+    { host.GetCapability<IDeferredBenefitsProgramHost>().ResolveJudgmentColorBenefit(f, seat, e.SourceBind!, e.Amount); return SkillProgramStepOutcome.Continue; }
 }

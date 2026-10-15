@@ -37,10 +37,10 @@ internal sealed class ResolveDeferredHandAlignmentDescriptor : ProgramOperationD
 public sealed class ScheduleDeferredHandAlignmentHandler:ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op=>SkillProgramEffectOp.ScheduleDeferredHandAlignment;
-    public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int seat,ISkillProgramEffectHost h){((IDeferredAlignmentProgramHost)h).ScheduleDeferredHandAlignment(f,e.StateId!);return SkillProgramStepOutcome.Continue;}
+    public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int seat,ISkillProgramEffectHost h){h.GetCapability<IDeferredAlignmentProgramHost>().ScheduleDeferredHandAlignment(f,e.StateId!);return SkillProgramStepOutcome.Continue;}
 }
 public sealed class ResolveDeferredHandAlignmentHandler:ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveDeferredHandAlignment;
-    public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int seat,ISkillProgramEffectHost h)=>((IDeferredAlignmentProgramHost)h).ResolveDeferredHandAlignment(f);
+    public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int seat,ISkillProgramEffectHost h)=>h.GetCapability<IDeferredAlignmentProgramHost>().ResolveDeferredHandAlignment(f);
 }

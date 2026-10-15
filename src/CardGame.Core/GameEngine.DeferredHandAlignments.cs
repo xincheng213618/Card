@@ -20,7 +20,8 @@ public sealed partial class GameEngine
 {
     private readonly List<DeferredHandAlignment> _deferredHandAlignments=[];
     private long _deferredHandAlignmentSequence;
-    private sealed partial class ProgramSkillHost:IDeferredAlignmentProgramHost
+    [ProgramCapability]
+    private sealed class DeferredAlignmentProgramCapability(GameEngine engine) : IDeferredAlignmentProgramHost
     {
         public void ScheduleDeferredHandAlignment(ProgramSkillFrame frame,string continuationId)=>engine.ScheduleDeferredHandAlignment(frame,continuationId);
         public SkillProgramStepOutcome ResolveDeferredHandAlignment(ProgramSkillFrame frame)=>engine.ResolveDeferredHandAlignment(frame);

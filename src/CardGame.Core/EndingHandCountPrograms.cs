@@ -15,7 +15,7 @@ public sealed class RecordEndHandCountAndGrantMarkerHandler : ISkillProgramEffec
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,
         int targetSeat, ISkillProgramEffectHost host)
     {
-        ((IEndingHandCountProgramHost)host).RecordEndHandCountAndGrantMarker(frame, effect.StateId!, effect.Marker!.Value);
+        host.GetCapability<IEndingHandCountProgramHost>().RecordEndHandCountAndGrantMarker(frame, effect.StateId!, effect.Marker!.Value);
         return SkillProgramStepOutcome.Continue;
     }
 }
@@ -39,7 +39,8 @@ internal sealed class RecordEndHandCountAndGrantMarkerDescriptor : ProgramOperat
 public sealed partial class GameEngine
 {
     private readonly Dictionary<(int Owner, string Skill, string Instance, string State), ProgramEndingHandCountHistory> _endingHandCountHistories = [];
-    private sealed partial class ProgramSkillHost : IEndingHandCountProgramHost
+    [ProgramCapability]
+    private sealed class EndingHandCountProgramCapability(GameEngine engine) : IEndingHandCountProgramHost
     {
         public void RecordEndHandCountAndGrantMarker(ProgramSkillFrame frame, string stateId, PlayerMarkerKind marker) =>
             engine.RecordProgramEndingHandCount(frame, stateId, marker);

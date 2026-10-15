@@ -222,7 +222,8 @@ public sealed partial class GameEngine
         decision.Choices.OrderByDescending(choice => choice.Cards.Count == 0 ? 0 : CardCatalog.Get(GetAttackCard(choice.Cards.Single()).Kind).HandKeepValue)
             .ThenBy(choice => choice.Id.Value, StringComparer.Ordinal).First(); // Foreign Hand choices remain opaque and equally scored.
 
-    private sealed partial class ProgramSkillHost : ISelectedForeignCardSlashHost
+    [ProgramCapability]
+    private sealed class SelectedForeignCardSlashCapability(GameEngine engine) : ISelectedForeignCardSlashHost
     {
         public SkillProgramStepOutcome UseSelectedForeignCardAsSlash(ProgramSkillFrame frame, int actorSeat) => engine.BeginSelectedForeignCardSlash(frame, actorSeat);
     }

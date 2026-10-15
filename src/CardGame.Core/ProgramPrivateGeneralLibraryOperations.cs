@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 namespace CardGame.Core;
 
 public sealed record PrivateGeneralLibrarySource(int OwnerSeat,string CapabilitySkillId,string CapabilityGrantId,string CapabilitySkillInstanceId);
@@ -54,7 +54,7 @@ internal sealed class ChoosePrivateGeneralAvatarDescriptor:PrivateGeneralLibrary
 public abstract class PrivateGeneralLibraryHandler:ISkillProgramEffectHandler
 {
     public abstract SkillProgramEffectOp Op{get;}
-    public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int seat,ISkillProgramEffectHost host)=>((IPrivateGeneralLibraryProgramHost)host).ExecutePrivateGeneralLibrary(e,f);
+    public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int seat,ISkillProgramEffectHost host)=>host.GetCapability<IPrivateGeneralLibraryProgramHost>().ExecutePrivateGeneralLibrary(e,f);
 }
 public sealed class InitializePrivateGeneralLibraryHandler:PrivateGeneralLibraryHandler{public override SkillProgramEffectOp Op=>SkillProgramEffectOp.InitializePrivateGeneralLibrary;}
 public sealed class AcquirePrivateGeneralAvatarHandler:PrivateGeneralLibraryHandler{public override SkillProgramEffectOp Op=>SkillProgramEffectOp.AcquirePrivateGeneralAvatar;}

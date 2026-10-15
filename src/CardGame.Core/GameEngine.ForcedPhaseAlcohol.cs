@@ -13,6 +13,7 @@ public sealed partial class GameEngine
         IsValidPlayerSeat(seat) && VirtualBasicOptions(seat).Contains((CardKind.Alcohol, seat)) &&
         _resolutionStack.OfType<PlayPhaseStartingBoundaryFrame>().Any(p => p.Id == context.ParentFrameId && p.OwnerSeat == seat);
 
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeCondition, 90)]
     private bool CanOfferPhaseAlcohol(SkillProgramTrigger trigger, ProgramSkillWindowContext context) =>
         !trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.UsePhaseOwnerVirtualAlcohol) || CanUsePhaseOwnerAlcohol(context);
 
@@ -157,7 +158,8 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("Death benefit draw requires exact frozen deaths from its completed actual turn.");
         return checked(deaths + 2 * kills);
     }
-    private sealed partial class ProgramSkillHost : IForcedPhaseAlcoholHost
+    [ProgramCapability]
+    private sealed class ForcedPhaseAlcoholCapability(GameEngine engine) : IForcedPhaseAlcoholHost
     {
         public SkillProgramStepOutcome UsePhaseOwnerVirtualAlcohol(ProgramSkillFrame f, int damageToOther) =>
             engine.BeginPhaseOwnerAlcohol(f, damageToOther);

@@ -81,7 +81,7 @@ internal sealed class RicePileHandler(SkillProgramEffectOp op) : ISkillProgramEf
 {
     public SkillProgramEffectOp Op => op;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost host) =>
-        ((IRicePileProgramHost)host).ExecuteRicePile(e, f);
+        host.GetCapability<IRicePileProgramHost>().ExecuteRicePile(e, f);
 }
 internal static class RicePileContract
 {

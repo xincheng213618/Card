@@ -2,7 +2,8 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private sealed partial class ProgramSkillHost : IBoundDiscardSlashBenefitsHost
+    [ProgramCapability]
+    private sealed class BoundDiscardSlashBenefitsCapability(GameEngine engine) : IBoundDiscardSlashBenefitsHost
     {
         public SkillProgramStepOutcome DiscardBoundCardForTurnSlashBenefits(ProgramSkillFrame frame, string sourceBind) =>
             engine.BeginBoundDiscardSlashBenefits(frame.Id, sourceBind);

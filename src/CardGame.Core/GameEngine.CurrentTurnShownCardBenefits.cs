@@ -50,7 +50,8 @@ public sealed partial class GameEngine
             .GetCardPolicies(SkillProgramCardPolicyKind.IgnoreSlashUseDistanceBySuit)
             .Any(item => item.Policy.InputSuit == value && item.Policy.CardKinds.Contains(kind) &&
                 item.Policy.Condition.Evaluate(CreateSkillContext(owner)));
-    private sealed partial class ProgramSkillHost : ICurrentTurnShownCardProgramHost
+    [ProgramCapability]
+    private sealed class CurrentTurnShownCardProgramCapability(GameEngine engine) : ICurrentTurnShownCardProgramHost
     {
         public void RevealOwnedBoundCardAppearance(ProgramSkillFrame f, string bind) => engine.RevealOwnedBoundCardAppearance(f, bind);
         public void IssueCurrentTurnNonLockedSkillSuppression(ProgramSkillFrame f, int seat) => engine.IssueCurrentTurnNonLockedSkillSuppression(f, seat);

@@ -41,6 +41,7 @@ public sealed partial class GameEngine
             e.ActualTurnNumber == _turnNumber && e.TurnOwnerSeat == owner && e.PhaseInstanceId == _cardUseDebitPhaseInstanceId);
         return issued is not null && !history.OfType<PhaseHandExchangeDebtPaymentStartedEvent>().Any(e => e.ExchangeProgramFrameId == issued.ProgramFrameId) ? issued : null;
     }
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 750)]
     private bool CanRunHalfHandPhaseDebt(ProgramTriggerCandidate candidate, SkillProgramTrigger trigger, ProgramSkillWindowContext context)
     {
         if (trigger.Effects.FirstOrDefault(e => e.Op == SkillProgramEffectOp.GiveHalfHandAndIssueTargetSupport) is { } gift)
@@ -176,7 +177,8 @@ public sealed partial class GameEngine
         return new(SkillProgramEffectOp.SelectOwnedCards, SkillProgramEffectTarget.Owner, paid.RequiredPaymentCount, effect.Condition,
             zones: [CardZoneKind.Hand, CardZoneKind.Equipment], resultBind: effect.ResultBind);
     }
-    private sealed partial class ProgramSkillHost : IHalfHandPhaseDebtProgramHost
+    [ProgramCapability]
+    private sealed class HalfHandPhaseDebtProgramCapability(GameEngine engine) : IHalfHandPhaseDebtProgramHost
     {
         public SkillProgramStepOutcome DrawExtraAndArmHalfHandSupport(ProgramSkillFrame f, SkillProgramEffect e) => engine.DrawExtraHalfHandSupport(f, e);
         public SkillProgramStepOutcome GiveHalfHandAndIssueTargetSupport(ProgramSkillFrame f, SkillProgramEffect e) => engine.GiveHalfHandSupport(f, e);

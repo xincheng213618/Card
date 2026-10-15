@@ -36,6 +36,7 @@ public sealed partial class GameEngine
         if (_resolutionStack.LastOrDefault() is not PindianRevealWindowFrame w || w.CandidateIndex >= w.Candidates.Count) return false;
         candidate = w.Candidates[w.CandidateIndex]; context = PindianRevealContext(w,candidate); return true;
     }
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 240)]
     private bool CanRunPindianReveal(ProgramTriggerCandidate c,ProgramSkillWindowContext context)
     {
         if (context.Window != SkillProgramTriggerWindow.PindianCardsRevealed) return true;

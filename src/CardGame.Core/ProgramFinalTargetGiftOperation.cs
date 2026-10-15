@@ -18,7 +18,7 @@ internal sealed class GiveOwnedCardToOtherFinalTargetAndDrawDescriptor : Program
 public sealed class GiveOwnedCardToOtherFinalTargetAndDrawHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op=>SkillProgramEffectOp.GiveOwnedCardToOtherFinalTargetAndDraw;
-    public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int seat,ISkillProgramEffectHost h)=>((IFinalTargetGiftHost)h).GiveOwnedCardToOtherFinalTargetAndDraw(f);
+    public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int seat,ISkillProgramEffectHost h)=>h.GetCapability<IFinalTargetGiftHost>().GiveOwnedCardToOtherFinalTargetAndDraw(f);
 }
 public sealed record ProgramFinalTargetGiftDraft(long ActionId,string Stage,int? RecipientSeat=null,int? CardId=null,int Reward=0,int? ReceiptOrdinal=null);
 public sealed record ProgramFinalTargetGiftCommittedEvent(long FrameId,long ActionId,int OwnerSeat,string SkillId,string SkillInstanceId,int RecipientSeat,int CardId,int Reward,int? ReceiptOrdinal) : IGameEvent;

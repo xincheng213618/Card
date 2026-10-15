@@ -66,6 +66,6 @@ internal sealed class AddOneDistanceFreeCurrentUseTargetHandler : ISkillProgramE
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.AddOneDistanceFreeCurrentUseTarget;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat, ISkillProgramEffectHost host) =>
-        host is IDesignatedExtraTargetProgramHost targetHost ? targetHost.AddOneDistanceFreeCurrentUseTarget(frame) :
+        host.TryGetCapability<IDesignatedExtraTargetProgramHost>(out var targetHost) ? targetHost.AddOneDistanceFreeCurrentUseTarget(frame) :
             throw new InvalidOperationException("The program host does not support a distance-free designated extra target.");
 }

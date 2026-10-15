@@ -103,7 +103,8 @@ public sealed partial class GameEngine
         }
     }
 
-    private sealed partial class ProgramSkillHost : ICurrentUsePhysicalClaimProgramHost
+    [ProgramCapability]
+    private sealed class CurrentUsePhysicalClaimProgramCapability(GameEngine engine) : ICurrentUsePhysicalClaimProgramHost
     {
         public SkillProgramStepOutcome ClaimCurrentUsePhysicalCards(ProgramSkillFrame frame) => engine.ClaimCurrentUsePhysicalCards(frame);
         public void PreventCurrentTargetSlashCancellationByRule(ProgramSkillFrame frame) => engine.PreventCurrentTargetSlashCancellationByRule(frame);

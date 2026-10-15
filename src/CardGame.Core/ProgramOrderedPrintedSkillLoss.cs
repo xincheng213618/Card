@@ -88,7 +88,7 @@ public sealed class LoseFirstPrintedSkillsUntilTurnEndAndDrawHandler : ISkillPro
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.LoseFirstPrintedSkillsUntilTurnEndAndDraw;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat, ISkillProgramEffectHost host) =>
-        ((IOrderedPrintedSkillLossProgramHost)host).ExecuteOrderedPrintedSkillLoss(frame);
+        host.GetCapability<IOrderedPrintedSkillLossProgramHost>().ExecuteOrderedPrintedSkillLoss(frame);
 }
 
 internal static class OrderedPrintedSkillLossComposition

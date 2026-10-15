@@ -30,12 +30,12 @@ internal sealed class UseDeckSlashesThenShuffleDescriptor : ProgramOperationDesc
 public sealed class ExchangeOwnedCardThroughDeckEndHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.ExchangeOwnedCardThroughDeckEnd;
-    public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int seat, ISkillProgramEffectHost host) => ((IDeckProgramHost)host).ExecuteDeckProgram(effect, frame);
+    public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int seat, ISkillProgramEffectHost host) => host.GetCapability<IDeckProgramHost>().ExecuteDeckProgram(effect, frame);
 }
 public sealed class UseDeckSlashesThenShuffleHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.UseDeckSlashesThenShuffle;
-    public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int seat, ISkillProgramEffectHost host) => ((IDeckProgramHost)host).ExecuteDeckProgram(effect, frame);
+    public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int seat, ISkillProgramEffectHost host) => host.GetCapability<IDeckProgramHost>().ExecuteDeckProgram(effect, frame);
 }
 public sealed record ProgramDeckEndExchange(int ProviderSeat, int CardId, CardLocation OriginalLocation, string Stage, bool? PlacedOnTop = null, int DrawIndex = 0);
 public sealed record ProgramDeckSlashSequence(int TargetSeat, IReadOnlyList<int> DeclaredIds, int Limit, int? ActiveCardId = null, bool Shuffled = false)

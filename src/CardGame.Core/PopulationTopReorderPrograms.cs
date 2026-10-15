@@ -13,7 +13,8 @@ public interface IPopulationTopReorderProgramEffectHost
 
 public sealed partial class GameEngine
 {
-    private sealed partial class ProgramSkillHost : IPopulationTopReorderProgramEffectHost
+    [ProgramCapability]
+    private sealed class PopulationTopReorderProgramEffectCapability(GameEngine engine) : IPopulationTopReorderProgramEffectHost
     {
         public SkillProgramStepOutcome ReorderTopCardsByPopulation(ProgramSkillFrame frame, int maximumCards,
             ProgramPopulationThresholdCount population, string? allBottomStateId) =>

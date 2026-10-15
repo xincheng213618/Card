@@ -6,7 +6,8 @@ public sealed partial class GameEngine
     private const string RankGuessRevealReason = "skill-program.rank-guess.reveal";
     private const string RankGuessGainReason = "skill-program.rank-guess.gain";
     private const string ExtraEffectCostReason = "skill-program.extra-effect.cost";
-    private sealed partial class ProgramSkillHost : IExtraEffectsAndRankGuessHost
+    [ProgramCapability]
+    private sealed class ExtraEffectsAndRankGuessCapability(GameEngine engine) : IExtraEffectsAndRankGuessHost
     {
         public SkillProgramStepOutcome BeginExtraEffectsAndRankGuess(SkillProgramEffect effect, ProgramSkillFrame frame) =>
             engine.BeginExtraEffectsAndRankGuess(effect, frame);
@@ -31,6 +32,7 @@ public sealed partial class GameEngine
         !IsSelfHandCategoryDiscardForbidden(owner, c, CardLocation.Hand(owner), OwnedCardMoveIntent.Discard)).OrderBy(c => c.Id).ToArray();
     private int[] DeathSkillRecipients(int owner) => _players.Where(p => p.IsAlive && p.MaxHp > _players[owner].MaxHp)
         .Select(p => p.Seat).Order().ToArray();
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 290)]
     private bool CanOfferExtraEffectsAndRankGuess(ProgramTriggerCandidate candidate, SkillProgramTrigger trigger, ProgramSkillWindowContext context)
     {
         if (trigger.Effects is [{ Op: SkillProgramEffectOp.DiscardSameCategoryForExtraEffect }])

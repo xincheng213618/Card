@@ -16,7 +16,7 @@ internal sealed class DiscardEquipmentAndResolveJiqiaoDescriptor:ProgramOperatio
 internal sealed class JiqiaoHandler:ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op=>SkillProgramEffectOp.DiscardEquipmentAndResolveJiqiao;
-    public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int s,ISkillProgramEffectHost h)=>((IJiqiaoProgramHost)h).ExecutePaidJiqiao(f,e);
+    public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int s,ISkillProgramEffectHost h)=>h.GetCapability<IJiqiaoProgramHost>().ExecutePaidJiqiao(f,e);
 }
 internal static class JiqiaoContract
 {

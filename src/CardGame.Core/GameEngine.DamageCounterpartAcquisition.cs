@@ -8,6 +8,7 @@ public sealed partial class GameEngine
         IsValidPlayerSeat(attack.SourceSeat) && IsValidPlayerSeat(attack.TargetSeat) && attack.SourceSeat != attack.TargetSeat &&
         (owner == attack.SourceSeat || owner == attack.TargetSeat);
 
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 1010)]
     private bool CanOfferDamageCounterpartAcquisition(ProgramTriggerCandidate candidate, SkillProgramTrigger trigger,
         ProgramSkillWindowContext context)
     {
@@ -70,7 +71,8 @@ public sealed partial class GameEngine
             targetSkill == skillId && effect.StateId == stateId);
     }
 
-    private sealed partial class ProgramSkillHost : IDamageCounterpartAcquisitionHost
+    [ProgramCapability]
+    private sealed class DamageCounterpartAcquisitionCapability(GameEngine engine) : IDamageCounterpartAcquisitionHost
     {
         public SkillProgramStepOutcome RecordDamageCounterpartAcquisition(ProgramSkillFrame f, string stateId, string skillId) =>
             engine.RecordDamageCounterpartAcquisition(f, stateId, skillId);

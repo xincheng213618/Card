@@ -2,6 +2,7 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private bool TracksShownEntityTurnPolicies=>_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.IssueShownEntityTurnPolicy);
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 910)]
     private bool CanOfferShownEntityTurnPolicy(ProgramTriggerCandidate candidate,SkillProgramTrigger trigger,ProgramSkillWindowContext context)=>
         !ProgramInstructionResolver.Default.Features(trigger).HasOperation(SkillProgramEffectOp.IssueShownEntityTurnPolicy) ||
         context.Window==SkillProgramTriggerWindow.PlayPhaseStarting &&candidate.OwnerSeat==_turnProgression.OwnerSeat &&
@@ -160,6 +161,7 @@ public sealed partial class GameEngine
     }
     private void AssertShownEntityTurnPrograms()
     {foreach(var use in _resolutionStack.OfType<CardUseFrame>())AssertShownEntityUseBenefits(use);}
-    private sealed partial class ProgramSkillHost:IShownEntityTurnPolicyHost
+    [ProgramCapability]
+    private sealed class ShownEntityTurnPolicyCapability(GameEngine engine) : IShownEntityTurnPolicyHost
     {public void IssueShownEntityTurnPolicy(ProgramSkillFrame f,string bind,string stateId)=>engine.IssueShownEntityTurnPolicy(f,bind,stateId);}
 }

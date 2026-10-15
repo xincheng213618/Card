@@ -7,6 +7,7 @@ public sealed partial class GameEngine
             .Where(e => e.Source.OwnerSeat == ownerSeat && e.Source.SkillId == skillId && e.StateId == stateId && e.ActualRoundNumber == _roundNumber)
             .Select(e => e.Price).DefaultIfEmpty(0).Max();
 
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 850)]
     private bool CanOfferRoundPileAlcohol(ProgramTriggerCandidate candidate, SkillProgramTrigger trigger, ProgramSkillWindowContext context)
     {
         var effect = trigger.Effects.SingleOrDefault(e => e.Op == SkillProgramEffectOp.UseRoundPricedPileDyingAlcohol);

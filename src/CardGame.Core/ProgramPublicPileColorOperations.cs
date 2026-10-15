@@ -41,7 +41,7 @@ internal sealed class RewardDiscardedActionColorDescriptor : PublicPileColorDesc
 public abstract class PublicPileColorHandler : ISkillProgramEffectHandler
 {
     public abstract SkillProgramEffectOp Op {get;}
-    public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int seat,ISkillProgramEffectHost h)=>((IPublicPileColorHost)h).ExecutePublicPileColor(e,f);
+    public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int seat,ISkillProgramEffectHost h)=>h.GetCapability<IPublicPileColorHost>().ExecutePublicPileColor(e,f);
 }
 public sealed class StoreBoundHandInPublicPileHandler:PublicPileColorHandler {public override SkillProgramEffectOp Op=>SkillProgramEffectOp.StoreBoundHandInPublicPile;}
 public sealed class PublicPileColorDamageHandler:PublicPileColorHandler {
@@ -62,7 +62,7 @@ internal sealed class AwaitOwnedCardMovementDescriptor:ProgramOperationDescripto
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[new RequirePrecedingOwnerDraw()];
 }
 public sealed class AwaitOwnedCardMovementHandler:ISkillProgramEffectHandler
-{public SkillProgramEffectOp Op=>SkillProgramEffectOp.AwaitOwnedCardMovement;public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int s,ISkillProgramEffectHost h)=>((IBoundCardMovementContinuationHost)h).AwaitBoundCardMovements(f.Id,f.OwnerSeat);}
+{public SkillProgramEffectOp Op=>SkillProgramEffectOp.AwaitOwnedCardMovement;public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int s,ISkillProgramEffectHost h)=>h.GetCapability<IBoundCardMovementContinuationHost>().AwaitBoundCardMovements(f.Id,f.OwnerSeat);}
 internal sealed class AwaitBoundCardMovementsDescriptor:ProgramOperationDescriptorBase
 {
     public override SkillProgramEffectOp Op=>SkillProgramEffectOp.AwaitBoundCardMovements;
@@ -72,4 +72,4 @@ internal sealed class AwaitBoundCardMovementsDescriptor:ProgramOperationDescript
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[];
 }
 public sealed class AwaitBoundCardMovementsHandler:ISkillProgramEffectHandler
-{public SkillProgramEffectOp Op=>SkillProgramEffectOp.AwaitBoundCardMovements;public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int s,ISkillProgramEffectHost h)=>((IBoundCardMovementContinuationHost)h).AwaitBoundCardMovements(f.Id,f.OwnerSeat);}
+{public SkillProgramEffectOp Op=>SkillProgramEffectOp.AwaitBoundCardMovements;public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int s,ISkillProgramEffectHost h)=>h.GetCapability<IBoundCardMovementContinuationHost>().AwaitBoundCardMovements(f.Id,f.OwnerSeat);}

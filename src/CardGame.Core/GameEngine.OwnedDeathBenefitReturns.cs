@@ -116,7 +116,8 @@ public sealed partial class GameEngine
         // Do not clear the receipt early and accidentally expose the original dying while the root remains active.
     }
 
-    private sealed partial class ProgramSkillHost : IOwnedDeathBenefitProgramHost
+    [ProgramCapability]
+    private sealed class OwnedDeathBenefitProgramCapability(GameEngine engine) : IOwnedDeathBenefitProgramHost
     {
         public SkillProgramStepOutcome SelectIssuedFixedRecipientWithDeathReturn(ProgramSkillFrame frame, SkillProgramEffect effect) =>
             engine.SelectIssuedFixedRecipientWithDeathReturn(frame, effect);

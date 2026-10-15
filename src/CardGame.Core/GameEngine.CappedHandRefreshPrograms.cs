@@ -3,7 +3,8 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private sealed partial class ProgramSkillHost : ICappedHandRefreshProgramHost
+    [ProgramCapability]
+    private sealed class CappedHandRefreshProgramCapability(GameEngine engine) : ICappedHandRefreshProgramHost
     {
         public SkillProgramStepOutcome DrawThenDiscardHandToMaximumHp(ProgramSkillFrame frame, int targetSeat, int cap) =>
             engine.BeginCappedHandRefresh(frame, targetSeat, cap);

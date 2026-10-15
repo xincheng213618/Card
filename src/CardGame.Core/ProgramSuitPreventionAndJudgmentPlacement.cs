@@ -83,8 +83,8 @@ internal sealed class SuitPreventionAndJudgmentPlacementHandler(SkillProgramEffe
     public SkillProgramEffectOp Op => op;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost host) =>
         op == SkillProgramEffectOp.DiscardSuitPreventDamageAndBenefit
-            ? ((ISuitPreventionAndJudgmentPlacementHost)host).DiscardSuitPreventDamageAndBenefit(f)
-            : ((ISuitPreventionAndJudgmentPlacementHost)host).PlaceMatchedJudgmentCard(f, e.SourceBind!, e.Suits);
+            ? host.GetCapability<ISuitPreventionAndJudgmentPlacementHost>().DiscardSuitPreventDamageAndBenefit(f)
+            : host.GetCapability<ISuitPreventionAndJudgmentPlacementHost>().PlaceMatchedJudgmentCard(f, e.SourceBind!, e.Suits);
 }
 internal static class SuitPreventionAndJudgmentPlacementComposition
 {

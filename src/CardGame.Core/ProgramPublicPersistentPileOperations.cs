@@ -1,4 +1,4 @@
-﻿namespace CardGame.Core;
+namespace CardGame.Core;
 
 internal interface IPublicPersistentPileProgramHost
 {
@@ -44,7 +44,7 @@ public abstract class PublicPileHandler : ISkillProgramEffectHandler
 {
     public abstract SkillProgramEffectOp Op { get; }
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int seat, ISkillProgramEffectHost host) =>
-        ((IPublicPersistentPileProgramHost)host).ExecutePublicPile(effect, frame);
+        host.GetCapability<IPublicPersistentPileProgramHost>().ExecutePublicPile(effect, frame);
 }
 public sealed class StoreTopCardInPublicPileHandler : PublicPileHandler { public override SkillProgramEffectOp Op => SkillProgramEffectOp.StoreTopCardInPublicPile; }
 public sealed class ExchangePublicPileHandler : PublicPileHandler { public override SkillProgramEffectOp Op => SkillProgramEffectOp.ExchangePublicPile; }

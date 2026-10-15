@@ -3,7 +3,8 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private sealed partial class ProgramSkillHost : IIncomingDistanceCourtesyHost
+    [ProgramCapability]
+    private sealed class IncomingDistanceCourtesyCapability(GameEngine engine) : IIncomingDistanceCourtesyHost
     {
         public SkillProgramStepOutcome BeginIncomingDistanceCourtesy(ProgramSkillFrame f, IncomingDistanceCourtesyKind kind) =>
             engine.BeginIncomingDistanceCourtesy(f, kind);
@@ -19,6 +20,7 @@ public sealed partial class GameEngine
     private Card[] IncomingDistanceCosts(int owner) => GetHand(_players[owner]).Concat(GetEquipment(_players[owner]))
         .Where(card => !IsSelfHandCategoryDiscardForbidden(owner, card, _cardZones.GetLocation(card.Id), OwnedCardMoveIntent.Discard) &&
             !IsForeignEquipmentDiscardPrevented(owner, card, _cardZones.GetLocation(card.Id), OwnedCardMoveIntent.Discard)).ToArray();
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 40)]
     private bool CanOfferIncomingDistanceCourtesy(ProgramTriggerCandidate candidate, SkillProgramTrigger t, ProgramSkillWindowContext c)
     {
         if (t.Effects is not [var effect] || !IncomingDistanceCourtesyContract.IsOperation(effect.Op)) return true;

@@ -85,7 +85,7 @@ public sealed class LastDamageSourceReciprocityHandler : ISkillProgramEffectHand
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.LastDamageSourceReciprocity;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int seat, ISkillProgramEffectHost host) =>
-        ((ILastDamageSourceReciprocityProgramHost)host).LastDamageSourceReciprocity(frame, effect.StateId!);
+        host.GetCapability<ILastDamageSourceReciprocityProgramHost>().LastDamageSourceReciprocity(frame, effect.StateId!);
 }
 internal static class LastDamageSourceReciprocityComposition
 {

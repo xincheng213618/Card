@@ -34,7 +34,7 @@ public sealed class UseOwnerSlashAgainstTurnOwnerHandler : ISkillProgramEffectHa
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.UseOwnerSlashAgainstTurnOwner;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat,
-        ISkillProgramEffectHost host) => ((IFixedSlashAndDeclaredDeckProgramHost)host)
+        ISkillProgramEffectHost host) => host.GetCapability<IFixedSlashAndDeclaredDeckProgramHost>()
             .UseOwnerSlashAgainstTurnOwner(frame, effect.BooleanValue!.Value);
 }
 
@@ -52,5 +52,5 @@ public sealed class DeclareDeckCriterionAndGiveMatchingCardHandler : ISkillProgr
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.DeclareDeckCriterionAndGiveMatchingCard;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat,
-        ISkillProgramEffectHost host) => ((IFixedSlashAndDeclaredDeckProgramHost)host).DeclareDeckCriterionAndGiveMatchingCard(frame);
+        ISkillProgramEffectHost host) => host.GetCapability<IFixedSlashAndDeclaredDeckProgramHost>().DeclareDeckCriterionAndGiveMatchingCard(frame);
 }

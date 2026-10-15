@@ -2,7 +2,8 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private sealed partial class ProgramSkillHost : IProgramDiscardTopPlacementHost
+    [ProgramCapability]
+    private sealed class ProgramDiscardTopPlacementCapability(GameEngine engine) : IProgramDiscardTopPlacementHost
     {
         public SkillProgramStepOutcome PutDiscardedCardsOnDrawPileTop(ProgramSkillFrame frame) =>
             engine.PutProgramDiscardedCardsOnDrawPileTop(frame);

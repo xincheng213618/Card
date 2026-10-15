@@ -2,11 +2,24 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private sealed partial class ProgramSkillHost : IDeckProgramHost
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeCondition, 30, SkillProgramEffectOp.UseDeckSlashesThenShuffle)]
+    private bool AllowsUseDeckSlashesThenShuffleTrigger(ProgramTriggerLegalityContext gate)
+    {
+        var owner = gate.Owner;
+        var features = gate.Features;
+        var context = gate.Context;
+        return !(features.HasOperation(SkillProgramEffectOp.UseDeckSlashesThenShuffle) &&
+            (context.TargetSeat is not { } deckTarget || _players[deckTarget].Gender != GeneralGender.Male ||
+             owner.Hp <= 0 || _cardZones.Count(CardLocation.DrawPile) > owner.Hp * 10));
+    }
+
+    [ProgramCapability]
+    private sealed class DeckProgramCapability(GameEngine engine) : IDeckProgramHost
     {
         public SkillProgramStepOutcome ExecuteDeckProgram(SkillProgramEffect effect, ProgramSkillFrame frame) => engine.ExecuteDeckProgram(effect, frame);
     }
 
+    [ProgramActionSource(ProgramActionSourcePhase.ProgramTail, 10)]
     private IEnumerable<LegalAction> BuildDeckEndExchangeActions(CharacterState provider)
     {
         foreach (var owner in _players.Where(player => player.IsAlive && player.Seat != provider.Seat))
@@ -26,6 +39,7 @@ public sealed partial class GameEngine
         }
     }
 
+    [ProgramActionHandler(ProgramActionHandlerKind.Contribution, 10)]
     private bool TryExecuteDeckEndContribution(CharacterState provider, CharacterState owner, LegalAction action, int cardId)
     {
         var program = GetEnabledSkillProgram(owner, action.ProgramSkillId!);

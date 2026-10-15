@@ -69,6 +69,8 @@ public sealed partial class GameEngine
         .Where(g => g.IsEnabled && (g.LordProjection is null || IsProjectedGrantQualified(owner, g)) && IsGeneralLibraryGrantQualified(owner,g))
         .Select(g => g.SkillId).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray();
 
+    [ProgramRuleObserver(ProgramRulePhase.BeforeEvent, 40)]
+    [ProgramRuleObserver(ProgramRulePhase.BeforeStatePublish, 20)]
     private void SynchronizeLordSkillProjections()
     {
         if (!HasLordProjectionCapability || _synchronizingLordProjections) return;

@@ -66,5 +66,5 @@ internal sealed class FriendEventOperationHandler(SkillProgramEffectOp operation
 {
     public SkillProgramEffectOp Op => operation;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat, ISkillProgramEffectHost host) =>
-        ((IFriendEventProgramHost)host).ExecuteFriendEvent(frame, operation);
+        host.GetCapability<IFriendEventProgramHost>().ExecuteFriendEvent(frame, operation);
 }

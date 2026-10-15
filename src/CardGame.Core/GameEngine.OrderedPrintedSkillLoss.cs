@@ -20,6 +20,7 @@ public sealed partial class GameEngine
         OrderedPrintedLossActualTurnOwner() is not null && attack.DamageWasApplied && attack.DamageAmount > 0 &&
         (ownerSeat == attack.TargetSeat || !attack.IsSourceLess && ownerSeat == attack.SourceSeat);
 
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 980)]
     private bool CanOfferOrderedPrintedSkillLoss(int ownerSeat, SkillProgramTrigger trigger, ProgramSkillWindowContext context) =>
         !IsOrderedPrintedSkillLossTrigger(trigger) || IsValidPlayerSeat(ownerSeat) && _players[ownerSeat].IsAlive &&
         OrderedPrintedLossActualTurnOwner() is not null && context is { Window: SkillProgramTriggerWindow.AfterDamageApplied, Amount: > 0 } &&
@@ -121,6 +122,10 @@ public sealed partial class GameEngine
         effect?.Op == SkillProgramEffectOp.LoseFirstPrintedSkillsUntilTurnEndAndDraw && pending.SubjectSeat == f.OwnerSeat &&
         pending.BeforeCount == 0 && pending.CoverageResultBind is null && f.PendingMovementContinuation == pending && CanContinueOrderedPrintedSkillLoss(f);
 
+    [ProgramRuleObserver(ProgramRulePhase.AfterEvent, 40)]
+    private void RestoreOrderedPrintedSkillsAfterTurnEnded(TurnEndedEvent ended) =>
+        RestoreOrderedPrintedSkillsAtTurnEnd(ended.TurnNumber, ended.ActorSeat);
+
     private void RestoreOrderedPrintedSkillsAtTurnEnd(int turnNumber, int turnOwnerSeat)
     {
         var due = _orderedPrintedSkillLossLeases.Where(l => l.ActualTurnNumber == turnNumber && l.ActualTurnOwnerSeat == turnOwnerSeat).ToArray();
@@ -155,7 +160,8 @@ public sealed partial class GameEngine
                 decisions.Count(d => d.Lease == lease && d.Restore), decisions.Count(d => d.Lease == lease && !d.Restore)));
     }
 
-    private sealed partial class ProgramSkillHost : IOrderedPrintedSkillLossProgramHost
+    [ProgramCapability]
+    private sealed class OrderedPrintedSkillLossProgramCapability(GameEngine engine) : IOrderedPrintedSkillLossProgramHost
     {
         public SkillProgramStepOutcome ExecuteOrderedPrintedSkillLoss(ProgramSkillFrame frame) => engine.ExecuteOrderedPrintedSkillLoss(frame);
     }

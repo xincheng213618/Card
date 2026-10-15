@@ -2,7 +2,8 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private sealed partial class ProgramSkillHost : INamedDefenseAndPublicDraftHost
+    [ProgramCapability]
+    private sealed class NamedDefenseAndPublicDraftCapability(GameEngine engine) : INamedDefenseAndPublicDraftHost
     {
         public SkillProgramStepOutcome BeginNamedTargetDefense(ProgramSkillFrame frame, string ledgerId, IReadOnlyList<CardKind> names) => engine.BeginNamedTargetDefense(frame, ledgerId, names);
         public SkillProgramStepOutcome BeginLowHandPublicDraft(ProgramSkillFrame frame) => engine.BeginLowHandPublicDraft(frame);

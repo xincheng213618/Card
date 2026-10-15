@@ -40,6 +40,7 @@ public sealed partial class GameEngine
         choices.Add(new(new($"targeted-trick.{frameId}.decline"), "不改变效果", [], [], Parameters("decline")));
         return Array.AsReadOnly(choices.Select(PromptChoiceProjection.Freeze).ToArray());
     }
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeCondition, 110)]
     private bool CanOfferTargetedOrdinaryTrick(ProgramTriggerCandidate candidate, SkillProgramTrigger trigger, ProgramSkillWindowContext context)
     {
         if (!trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.AdjustTargetedOrdinaryTrick)) return true;

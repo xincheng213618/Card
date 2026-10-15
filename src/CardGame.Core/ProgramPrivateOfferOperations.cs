@@ -87,7 +87,7 @@ internal sealed class PrivateOfferHandler(SkillProgramEffectOp op) : ISkillProgr
     public SkillProgramEffectOp Op => op;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost host)
     {
-        var h = (IPrivateOfferProgramHost)host;
+        var h = host.GetCapability<IPrivateOfferProgramHost>();
         return op switch
         {
             SkillProgramEffectOp.DepositBoundPrivateCardOffer => h.DepositPrivateCardOffer(f, e.SourceBind!, e.StateId!),

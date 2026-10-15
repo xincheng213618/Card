@@ -65,5 +65,5 @@ internal sealed class UseBoundCardsAsSlashHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.UseBoundCardsAsSlash;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat,
-        ISkillProgramEffectHost host) => ((ITriggeredCardConversionHost)host).UseBoundCardsAsSlash(frame, effect);
+        ISkillProgramEffectHost host) => host.GetCapability<ITriggeredCardConversionHost>().UseBoundCardsAsSlash(frame, effect);
 }

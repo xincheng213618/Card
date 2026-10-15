@@ -32,7 +32,7 @@ public sealed class DeclareNameForTargetDefenseProgramHandler : ISkillProgramEff
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.DeclareNameForTargetDefense;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat, ISkillProgramEffectHost host) =>
-        ((INamedDefenseAndPublicDraftHost)host).BeginNamedTargetDefense(frame, effect.StateId!, effect.CardKinds);
+        host.GetCapability<INamedDefenseAndPublicDraftHost>().BeginNamedTargetDefense(frame, effect.StateId!, effect.CardKinds);
 }
 internal sealed class DrawAndDraftLowHandPopulationProgramDescriptor : ProgramOperationDescriptorBase
 {
@@ -55,7 +55,7 @@ public sealed class DrawAndDraftLowHandPopulationProgramHandler : ISkillProgramE
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.DrawAndDraftLowHandPopulation;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat, ISkillProgramEffectHost host) =>
-        ((INamedDefenseAndPublicDraftHost)host).BeginLowHandPublicDraft(frame);
+        host.GetCapability<INamedDefenseAndPublicDraftHost>().BeginLowHandPublicDraft(frame);
 }
 
 public sealed record ProgramNamedTargetDefense(string LedgerId, CardKind? Name = null, int Stage = 0);

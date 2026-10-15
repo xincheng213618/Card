@@ -5,6 +5,7 @@ public sealed partial class GameEngine
 {
     private const string DamageSourceHandDrawReason = "skill-program.damage-source-hand.draw";
     private const string DamageSourceHandDiscardReason = "skill-program.damage-source-hand.discard";
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 270)]
     private bool CanOfferDamageSourceHandChoice(ProgramTriggerCandidate c, SkillProgramTrigger t, ProgramSkillWindowContext context)
     {
         if (!t.Effects.Any(e => e.Op == SkillProgramEffectOp.ResolveDamageSourceHandChoice)) return true;
@@ -159,6 +160,7 @@ public sealed partial class GameEngine
         return d.Choices.FirstOrDefault(c => c.Parameters["branch"] == "pay") ?? d.Choices.Where(c => c.Cards.Count == 1)
             .OrderBy(c => GetKeepValue(GetAttackCard(c.Cards[0]), _players[f.OwnerSeat])).FirstOrDefault() ?? d.Choices[0];
     }
-    private sealed partial class ProgramSkillHost : IDamageSourceHandChoiceHost
+    [ProgramCapability]
+    private sealed class DamageSourceHandChoiceCapability(GameEngine engine) : IDamageSourceHandChoiceHost
     { public SkillProgramStepOutcome ResolveDamageSourceHandChoice(ProgramSkillFrame f) => engine.BeginDamageSourceHandChoice(f); }
 }

@@ -21,6 +21,7 @@ public sealed partial class GameEngine
         }
     }
 
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeCondition, 40, SkillProgramEffectOp.NullifyFirstTurnTargetByHand)]
     private bool IsFirstTurnTarget(ProgramTriggerCandidate candidate, ProgramSkillWindowContext context) =>
         context.CardUse is { } use && use.ActorSeat != candidate.OwnerSeat && use.EventTargetSeat == candidate.OwnerSeat &&
         _firstTurnTargetActions.GetValueOrDefault((_turnNumber, candidate.OwnerSeat, candidate.SkillId), -1) == use.CardActionId;
@@ -196,7 +197,8 @@ public sealed partial class GameEngine
         .SelectMany(frame => frame.QuotaTop!.ViewedIds.Except(frame.QuotaTop.ObtainedIds))
         .Where(id => _cardZones.GetLocation(id) == CardLocation.DrawPile)
         .Select(id => ToSnapshot(_cardZones.CardsAt(CardLocation.DrawPile).Single(card => card.Id == id))).ToArray();
-    private sealed partial class ProgramSkillHost : IQuotaTopProgramHost
+    [ProgramCapability]
+    private sealed class QuotaTopProgramCapability(GameEngine engine) : IQuotaTopProgramHost
     {
         public SkillProgramStepOutcome PeekTurnQuotaTop(ProgramSkillFrame frame, int count) => engine.BeginQuotaTop(frame, count);
         public void NullifyFirstTurnTargetByHand(ProgramSkillFrame frame) => engine.NullifyProgramFirstTurnTarget(frame);

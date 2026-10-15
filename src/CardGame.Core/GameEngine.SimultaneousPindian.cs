@@ -261,9 +261,6 @@ public sealed partial class GameEngine
     }
     private bool CanContinueSimultaneousPindian(ProgramSkillFrame f) => f.SimultaneousPindian is { Revealed: true } && IsSimultaneousReceiptSource(f);
     private bool IsSimultaneousReceiptSource(ProgramSkillFrame f) => f.SimultaneousPindian is { } r && r.ProgramFrameId == f.Id && r.Source == SimultaneousSource(f) && r.GameplayHash == f.GameplayHash;
-    private int[] OrderSimultaneousPindianCards(CharacterState owner,SkillProgramActivation activation,int[] cards) =>
-        activation.Effects is [{ Op: SkillProgramEffectOp.StartSimultaneousPindian }]
-            ? cards.OrderByDescending(id => EffectivePindianRank(owner,GetHand(owner).Single(c => c.Id == id))).ThenBy(id => id).ToArray() : cards;
     [ProgramAiChoice(SkillProgramEffectOp.StartSimultaneousPindian)]
     private PromptChoice SelectAiSimultaneousChoice(PendingDecision p,ProgramSkillFrame f)
     {
@@ -275,7 +272,8 @@ public sealed partial class GameEngine
         return AreProgramDistributionAllies(_players[seat],_players[f.OwnerSeat]) || !p.Choices.Any(c => c.Parameters["branch"] == "discard") ?
             p.Choices.Single(c => c.Parameters["branch"] == "draw") : p.Choices.First(c => c.Parameters["branch"] == "discard");
     }
-    private sealed partial class ProgramSkillHost : ISimultaneousPindianHost
+    [ProgramCapability]
+    private sealed class SimultaneousPindianCapability(GameEngine engine) : ISimultaneousPindianHost
     {
         public SkillProgramStepOutcome StartSimultaneousPindian(ProgramSkillFrame f) => engine.StartSimultaneousPindian(f);
         public void AddRaoshePindianRankAndRestoreGushe(ProgramSkillFrame f,string skillId) => engine.AddRaoshePindianRankAndRestoreGushe(f,skillId);

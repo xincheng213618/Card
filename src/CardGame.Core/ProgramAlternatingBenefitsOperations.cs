@@ -39,10 +39,10 @@ public sealed class ApplyAlternatingChoiceBenefitHandler : ISkillProgramEffectHa
 {
     public SkillProgramEffectOp Op=>SkillProgramEffectOp.ApplyAlternatingChoiceBenefit;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int seat,ISkillProgramEffectHost host)
-    {((IAlternatingBenefitsProgramHost)host).ApplyAlternatingChoiceBenefit(f,e.SourceBind!,e.StateId!);return SkillProgramStepOutcome.Continue;}
+    {host.GetCapability<IAlternatingBenefitsProgramHost>().ApplyAlternatingChoiceBenefit(f,e.SourceBind!,e.StateId!);return SkillProgramStepOutcome.Continue;}
 }
 public sealed class ObtainDeckCardWithConsecutiveTargetHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op=>SkillProgramEffectOp.ObtainDeckCardWithConsecutiveTarget;
-    public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int seat,ISkillProgramEffectHost host)=>((IAlternatingBenefitsProgramHost)host).ObtainDeckCardWithConsecutiveTarget(f,seat,e);
+    public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int seat,ISkillProgramEffectHost host)=>host.GetCapability<IAlternatingBenefitsProgramHost>().ObtainDeckCardWithConsecutiveTarget(f,seat,e);
 }

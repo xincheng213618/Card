@@ -6,6 +6,7 @@ public sealed partial class GameEngine
  private bool IsMarkerSourceEnabled(int source,PlayerMarkerKind marker)=>_players[source].IsAlive && GetSkillBindingShard(_players[source]).GetInstanceTriggers(SkillProgramTriggerWindow.BeforeDamageApplied).Any(b=>ProgramInstructionResolver.Default.Features(b.Trigger).ForOperation(SkillProgramEffectOp.ConsumeMarkerPreventDamage).Any(e=>e.Marker==marker));
  private int ActiveSubjectMarkerCount(int subject,PlayerMarkerKind marker)=>!_players[subject].IsAlive ? 0 : _players[subject].MarkerSourceCounts.Where(p=>p.Key.Marker==marker&&IsMarkerSourceEnabled(p.Key.SkillOwnerSeat,marker)).Sum(p=>p.Value);
  private bool MarkerEventApplied(long parent,int subject,PlayerMarkerKind marker,SkillProgramEffectOp op)=>_events.Select(e=>e.Payload).Concat(_pendingEvents).OfType<ProgramMarkerEventAppliedEvent>().Any(e=>e.ParentFrameId==parent&&e.SubjectSeat==subject&&e.Marker==marker&&e.Operation==op);
+ [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeCondition, 80)]
  private bool CanOfferAttributedEvent(SkillProgramTrigger trigger,ProgramSkillWindowContext context)
  {
   foreach(var e in ProgramInstructionResolver.Default.Features(trigger).AttributedEventOperations)
@@ -38,5 +39,7 @@ public sealed partial class GameEngine
   else {if(_resolutionStack.Count<2||_resolutionStack[^2] is not ProgramLifecycleTriggerWindowFrame parent||parent.Id!=context.ParentFrameId||parent.Window!=SkillProgramTriggerWindow.DrawPhaseStarting||parent.OwnerSeat!=subject||parent.NormalDrawReplaced)throw new InvalidOperationException("Marker draw lost its actual normal draw parent.");AdjustProgramNormalDraw(active,1);}
   AdvanceEventRulesAndQueueFact(new ProgramMarkerEventAppliedEvent(context.ParentFrameId,subject,marker,effect.Op,active.OwnerSeat,active.SkillId,active.SkillInstanceId));
  }
- private sealed partial class ProgramSkillHost:IAttributedEventProgramHost { public void ApplyAttributedEvent(ProgramSkillFrame f,SkillProgramEffect e,int target)=>engine.ApplyAttributedEvent(f,e,target); }
+ [ProgramCapability]
+ private sealed class AttributedEventProgramCapability(GameEngine engine) : IAttributedEventProgramHost
+ { public void ApplyAttributedEvent(ProgramSkillFrame f,SkillProgramEffect e,int target)=>engine.ApplyAttributedEvent(f,e,target); }
 }

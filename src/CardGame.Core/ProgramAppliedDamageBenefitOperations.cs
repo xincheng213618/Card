@@ -68,7 +68,7 @@ internal sealed class AppliedDamageBenefitHandler(SkillProgramEffectOp op) : ISk
     public SkillProgramEffectOp Op => op;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat, ISkillProgramEffectHost host)
     {
-        var applied = (IAppliedDamageBenefitProgramHost)host;
+        var applied = host.GetCapability<IAppliedDamageBenefitProgramHost>();
         if (op == SkillProgramEffectOp.ReceiveOwnerDamage) return applied.ReceiveOwnerDamage(frame, effect.Amount);
         if (op == SkillProgramEffectOp.DrawOwnerAtAppliedDamage) return applied.DrawOwnerAtAppliedDamage(frame, effect.Amount);
         applied.ConsumeDistinctTurnTarget(frame, effect.StateId!); return SkillProgramStepOutcome.Continue;

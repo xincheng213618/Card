@@ -177,7 +177,8 @@ public sealed partial class GameEngine
         return recast is not null && (discard is null || recastCost < (discard.Cards.Count == 1 ? GetKeepValue(GetAttackCard(discard.Cards[0]), target) : 10))
             ? recast : discard ?? recast ?? throw new InvalidOperationException("A target penalty has no published legal choice.");
     }
-    private sealed partial class ProgramSkillHost : ISlashTargetPenaltyProgramHost
+    [ProgramCapability]
+    private sealed class SlashTargetPenaltyProgramCapability(GameEngine engine) : ISlashTargetPenaltyProgramHost
     {
         public SkillProgramStepOutcome RequireTargetDiscardOrEquipmentRecast(ProgramSkillFrame f) => engine.RequireTargetDiscardOrEquipmentRecast(f);
     }

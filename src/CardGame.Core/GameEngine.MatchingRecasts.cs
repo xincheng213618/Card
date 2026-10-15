@@ -11,14 +11,6 @@ public sealed partial class GameEngine
         materials.Select(m => m.CardId).Distinct().Count() == materials.Count &&
         (materials.All(m => EquipmentCatalog.IsEquipment(m.PrintedKind)) ||
          materials.All(m => ProgramBasicCardName(m.PrintedKind) == ProgramBasicCardName(materials[0].PrintedKind)));
-    private int[] MatchingRecastSelectableCards(int seat)
-    {
-        var available = MatchingRecastMaterials(seat);
-        var equipmentCount = available.Count(m => EquipmentCatalog.IsEquipment(m.PrintedKind));
-        var names = available.GroupBy(m => ProgramBasicCardName(m.PrintedKind)).ToDictionary(g => g.Key, g => g.Count());
-        return available.Where(m => EquipmentCatalog.IsEquipment(m.PrintedKind) ? equipmentCount >= 2 : names[ProgramBasicCardName(m.PrintedKind)] >= 2)
-            .Select(m => m.CardId).ToArray();
-    }
     private bool ValidMatchingRecastSelection(int seat, IReadOnlyList<int> ids)
     {
         var available = MatchingRecastMaterials(seat);
@@ -210,7 +202,8 @@ public sealed partial class GameEngine
         .OrderBy(c => c.Parameters["step"] == "damage" ? 1 : 0)
         .ThenBy(c => c.Cards.Count == 1 ? GetKeepValue(GetAdvancedCard(c.Cards[0]), _players[decision.PlayerSeat]) : 0)
         .ThenBy(c => c.Id.Value).First();
-    private sealed partial class ProgramSkillHost : IMatchingRecastProgramHost
+    [ProgramCapability]
+    private sealed class MatchingRecastProgramCapability(GameEngine engine) : IMatchingRecastProgramHost
     {
         public SkillProgramStepOutcome RecastMatchingCardsThenPeerChoice(ProgramSkillFrame f, int peer, string ledger) => engine.BeginMatchingRecast(f, peer, ledger);
     }

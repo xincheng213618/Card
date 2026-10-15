@@ -6,6 +6,7 @@ public sealed partial class GameEngine
 
     // The mature active-skill command already carries two cards. These are
     // conversion menus, not content activations or artificial ProgramSkillFrames.
+    [ProgramActionSource(ProgramActionSourcePhase.Cardless, 20)]
     private IEnumerable<LegalAction> BuildRoundDistinctBasicPlayActions(CharacterState owner)
     {
         if (!_contentRegistry.ProgramDependencies.UsesRoundDistinctBasicUse || !owner.IsAlive ||
@@ -77,6 +78,7 @@ public sealed partial class GameEngine
         return null;
     }
 
+    [ProgramActionHandler(ProgramActionHandlerKind.Submit, 10)]
     private bool TrySubmitRoundDistinctBasicPlay(UseProgramSkillCommand command, out CommandResult result)
     {
         result = null!;
@@ -102,6 +104,7 @@ public sealed partial class GameEngine
         return true;
     }
 
+    [ProgramActionHandler(ProgramActionHandlerKind.Execute, 10)]
     private bool TryExecuteRoundDistinctBasicPlay(CharacterState owner, LegalAction selected,
         IReadOnlyList<int> cards, IReadOnlyList<int> targets)
     {

@@ -3,6 +3,18 @@
     # Character work uses focused name filters; new content does not expand this lane.
     # All retained registrations remain available for an explicitly requested manual full run.
     Core = @(
+        'program selection transforms requery facts without mutating sources',
+        'program selection relations preserve ordered pairs and card targets',
+        'program selection ordering reads current ranks and preserves source order',
+        'program selection validation and target resolvers preserve ordered errors and isolated queries',
+        'program selection registration preserves ordered stateless modules and failures',
+        'program selection claimed sources preserve card and target stages',
+        'program selection sources requery private facts and freeze inputs',
+        'program action registration preserves source and command boundaries',
+        'program capability registration isolates adapters and preserves typed host compatibility',
+        'program rule observer registration preserves ordered recursive boundaries',
+        'program rule observer registration rejects invalid metadata',
+        'program legality registration preserves ordered capability gates',
         'program interaction registration preserves dispatch boundaries',
         'program interaction AI preserves published choices and conditional policies',
         'Identity concealment: UndefinedHpRejectsNativeRecoveryAndMaxHpNumberCalculation',

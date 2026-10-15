@@ -2,6 +2,15 @@ using System.Globalization;
 namespace CardGame.Core;
 public sealed partial class GameEngine
 {
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 1090)]
+    private bool AllowsSettlePhaseNamePredictionTrigger(ProgramTriggerLegalityContext gate)
+    {
+        var candidate = gate.Candidate;
+        var trigger = gate.Trigger;
+        var context = gate.Context;
+        return !(trigger.Effects is [{ Op: SkillProgramEffectOp.SettlePhaseNamePrediction }] && !HasIssuedPhaseNamePrediction(candidate, context));
+    }
+
     private readonly List<PhaseNamePredictionPolicy> _phaseNamePredictions = [];
     private bool TracksPhaseNamePredictions => _contentRegistry.ProgramDependencies
         .HasTriggerOperation(SkillProgramEffectOp.BeginPhaseNamePrediction);
@@ -282,7 +291,8 @@ public sealed partial class GameEngine
                 throw new InvalidOperationException("Prediction movement lost its one exact paid interval.");
         }
     }
-    private sealed partial class ProgramSkillHost : IPhaseNamePredictionHost
+    [ProgramCapability]
+    private sealed class PhaseNamePredictionCapability(GameEngine engine) : IPhaseNamePredictionHost
     {
         public SkillProgramStepOutcome BeginPhaseNamePrediction(ProgramSkillFrame f, string state) => engine.BeginPhaseNamePrediction(f, state);
         public SkillProgramStepOutcome SettlePhaseNamePrediction(ProgramSkillFrame f, string state) => engine.SettlePhaseNamePrediction(f, state);

@@ -40,5 +40,5 @@ public sealed class SuppressCurrentSlashTargetAndJudgeSuitDiscardHandler : ISkil
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.SuppressCurrentSlashTargetAndJudgeSuitDiscard;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat,
-        ISkillProgramEffectHost host) => ((ISlashSuitDiscardProgramHost)host).SuppressCurrentSlashTargetAndJudgeSuitDiscard(frame, effect);
+        ISkillProgramEffectHost host) => host.GetCapability<ISlashSuitDiscardProgramHost>().SuppressCurrentSlashTargetAndJudgeSuitDiscard(frame, effect);
 }

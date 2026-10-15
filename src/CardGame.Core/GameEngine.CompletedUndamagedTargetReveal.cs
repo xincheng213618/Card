@@ -158,6 +158,7 @@ public sealed partial class GameEngine
         !CompleteProgramEventHistory().OfType<CompletedUndamagedUseDamageRecordedEvent>().Any(e =>
             e.CardUseFrameId == use.Id && e.TargetSeat == seat && e.Amount > 0)).ToArray();
 
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 1060)]
     private bool CanOfferCompletedUndamagedTargetReveal(int owner, SkillProgramTrigger trigger, ProgramSkillWindowContext context)
     {
         if (!trigger.Effects.Any(e => CompletedUndamagedTargetRevealComposition.IsOperation(e.Op))) return true;
@@ -328,7 +329,8 @@ public sealed partial class GameEngine
         f.CompletedUndamagedTargetReveal is { MovementIssued: true, Stage: CompletedUndamagedTargetRevealStage.MovementChildren } r &&
         pending.SubjectSeat == r.TargetSeat && pending.BeforeCount == 0 && pending.CoverageResultBind is null &&
         f.PendingMovementContinuation == pending && ValidCompletedUndamagedTargetRevealReceipt(f);
-    private sealed partial class ProgramSkillHost : ICompletedUndamagedTargetRevealProgramHost
+    [ProgramCapability]
+    private sealed class CompletedUndamagedTargetRevealProgramCapability(GameEngine engine) : ICompletedUndamagedTargetRevealProgramHost
     {
         public SkillProgramStepOutcome CompletedUndamagedTargetReveal(ProgramSkillFrame f) => engine.BeginCompletedUndamagedTargetReveal(f);
     }

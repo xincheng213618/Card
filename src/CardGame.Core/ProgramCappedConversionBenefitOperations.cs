@@ -44,7 +44,7 @@ public sealed class DrawBeforeCappedConversionTierUpgradeHandler : ISkillProgram
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.DrawBeforeCappedConversionTierUpgrade;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int targetSeat, ISkillProgramEffectHost host) =>
-        ((ICappedConversionBenefitHost)host).DrawBeforeCappedConversionTierUpgrade(f, e.StateId!);
+        host.GetCapability<ICappedConversionBenefitHost>().DrawBeforeCappedConversionTierUpgrade(f, e.StateId!);
 }
 
 internal static class CappedConversionBenefitComposition

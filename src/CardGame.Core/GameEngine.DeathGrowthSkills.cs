@@ -6,6 +6,7 @@ public sealed partial class GameEngine
 {
     private const string DeathGrowthDrawReason = "skill-program.other-death-growth.draw";
     private CardConversionSource DeathGrowthSource(ProgramSkillFrame f) => new(f.SkillId, f.TriggerId!, f.OwnerSeat, f.SkillInstanceId);
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 310)]
     private bool CanOfferDeathGrowthSkill(ProgramTriggerCandidate candidate, SkillProgramTrigger trigger, ProgramSkillWindowContext context)
     {
         if (trigger.Effects is not [{ Op: SkillProgramEffectOp.DrawAfterOtherDeathThenChooseMissingSkill }]) return true;
@@ -96,6 +97,7 @@ public sealed partial class GameEngine
     private bool IsDeathGrowthMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation p) =>
         f.DeathGrowthSkill is { Stage: DeathGrowthSkillStage.DrawChildren } r && r.InstructionIndex == f.InstructionIndex &&
         effect?.Op == SkillProgramEffectOp.DrawAfterOtherDeathThenChooseMissingSkill && p.SubjectSeat == f.OwnerSeat && p.BeforeCount == 0 && p.CoverageResultBind is null;
-    private sealed partial class ProgramSkillHost : IDeathGrowthSkillHost
+    [ProgramCapability]
+    private sealed class DeathGrowthSkillCapability(GameEngine engine) : IDeathGrowthSkillHost
     { public SkillProgramStepOutcome DrawAfterOtherDeathThenChooseMissingSkill(ProgramSkillFrame f, SkillProgramEffect e) => engine.BeginDeathGrowthSkill(f, e); }
 }

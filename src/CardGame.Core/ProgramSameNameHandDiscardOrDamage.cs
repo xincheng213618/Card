@@ -67,7 +67,7 @@ public sealed class OfferSameNameHandDiscardOrDamageHandler : ISkillProgramEffec
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.OfferSameNameHandDiscardOrDamage;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost host) =>
-        ((ISameNameHandDiscardOrDamageProgramHost)host).OfferSameNameHandDiscardOrDamage(f);
+        host.GetCapability<ISameNameHandDiscardOrDamageProgramHost>().OfferSameNameHandDiscardOrDamage(f);
 }
 internal static class SameNameHandDiscardOrDamageComposition
 {

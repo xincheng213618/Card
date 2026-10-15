@@ -9,6 +9,7 @@ public sealed partial class GameEngine
     private bool IsActualEndedEquipmentTrigger(SkillProgramTrigger trigger) => trigger.Effects.Any(e =>
         e.Op == SkillProgramEffectOp.ChooseEquipmentOrDrawAfterOtherActualTurn);
 
+    [ProgramRuleObserver(ProgramRulePhase.BeforeEvent, 300)]
     private void ObserveActualForeignUseTargets(IGameEvent payload)
     {
         if (!TracksActualForeignUseTargets || payload is not TargetsConfirmedEvent targets) return;

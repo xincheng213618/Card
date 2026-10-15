@@ -90,7 +90,7 @@ internal sealed class SimultaneousPindianHandler(SkillProgramEffectOp op) : ISki
 {
     public SkillProgramEffectOp Op => op;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost host)
-    { var h = (ISimultaneousPindianHost)host; if (op == SkillProgramEffectOp.StartSimultaneousPindian) return h.StartSimultaneousPindian(f); h.AddRaoshePindianRankAndRestoreGushe(f,e.SourceBind!); return SkillProgramStepOutcome.Continue; }
+    { var h = host.GetCapability<ISimultaneousPindianHost>(); if (op == SkillProgramEffectOp.StartSimultaneousPindian) return h.StartSimultaneousPindian(f); h.AddRaoshePindianRankAndRestoreGushe(f,e.SourceBind!); return SkillProgramStepOutcome.Continue; }
 }
 internal static class SimultaneousPindianContract
 {

@@ -39,6 +39,18 @@ if (unknownArguments.Length > 0)
 // Default/manual discard validation and complete-match coverage live in ManualDiscardChecks.
 var tests = new (string Name, Action Body)[]
 {
+    ("program selection transforms requery facts without mutating sources", ProgramSelectionTransformChecks.CandidateTransformsRequeryFactsAndPreserveReadOnlySources),
+    ("program selection relations preserve ordered pairs and card targets", ProgramSelectionTransformChecks.CorrelatedSelectionsPreserveOrderedPairsAndCardTargets),
+    ("program selection ordering reads current ranks and preserves source order", ProgramSelectionTransformChecks.PindianOrderingUsesCurrentFactsWithoutMutatingInputs),
+    ("program selection validation and target resolvers preserve ordered errors and isolated queries", ProgramSelectionValidationChecks.RegisteredValidationAndTargetResolversPreserveBoundaries),
+    ("program selection registration preserves ordered stateless modules and failures", ProgramSelectionRegistrationChecks.CatalogRegistrationPreservesOrderFilteringAndFailures),
+    ("program selection claimed sources preserve card and target stages", ProgramSelectionRegistrationChecks.ClaimedSourcesKeepCardAndTargetStagesSeparate),
+    ("program selection sources requery private facts and freeze inputs", ProgramSelectionRegistrationChecks.ConvertedAndAllHandSourcesRequeryPrivateFacts),
+    ("program action registration preserves source and command boundaries", ProgramActionRegistrationChecks.RegistrationAndDispatchPreserveBoundaries),
+    ("program capability registration isolates adapters and preserves typed host compatibility", ProgramCapabilityChecks.RegistrationAndIsolationPreserveBoundaries),
+    ("program rule observer registration preserves ordered recursive boundaries", ProgramRuleObserverChecks.RegistrationPreservesOrderReentrancyAndIsolation),
+    ("program rule observer registration rejects invalid metadata", ProgramRuleObserverChecks.InvalidRegistrationsFailBeforeDispatch),
+    ("program legality registration preserves ordered capability gates", ProgramLegalityChecks.RegistrationAndDispatchPreserveBoundaries),
     ("program interaction registration preserves dispatch boundaries", ProgramInteractionChecks.RegistrationAndDispatchPreserveBoundaries),
     ("program interaction AI preserves published choices and conditional policies", ProgramInteractionChecks.AiSelectionPreservesPublishedOrderAndConditionalPolicies),
     ("SP Pang Tong: ActualOpaqueRevealOptionalExchangeAndEqualRanksCold", SpPangTongChecks.ActualOpaqueRevealOptionalExchangeAndEqualRanksCold),

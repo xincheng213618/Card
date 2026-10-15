@@ -2,7 +2,8 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private sealed partial class ProgramSkillHost : IRepeatedJudgmentClaimPolicyProgramHost
+    [ProgramCapability]
+    private sealed class RepeatedJudgmentClaimPolicyProgramCapability(GameEngine engine) : IRepeatedJudgmentClaimPolicyProgramHost
     {
         public SkillProgramStepOutcome RepeatJudgmentWithClaimPolicy(ProgramSkillFrame frame, string reason, string bind,
             IReadOnlyList<Suit> suits, SkillProgramClaimHandLimitExemption policy) =>

@@ -7,6 +7,7 @@ public sealed partial class GameEngine
     private const string FirstSlashDuelDrawReason = "skill-program.first-slash-duel.draw";
     private bool HasFirstSlashDuelBenefitCapability => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ChooseFirstSlashDuelDiamondBenefit);
     private static bool IsFirstSlashDuelKind(CardKind kind) => IsSlashCard(kind) || kind == CardKind.Duel;
+    [ProgramRuleObserver(ProgramRulePhase.BeforeEvent, 260)]
     private void ObserveFirstSlashDuelDeclaration(IGameEvent payload)
     {
         if (!HasFirstSlashDuelBenefitCapability || payload is not CardUseDeclaredEvent declared ||
@@ -45,6 +46,7 @@ public sealed partial class GameEngine
         var use = _resolutionStack.OfType<CardUseFrame>().SingleOrDefault(f => f.Action?.ActionId == action.ActionId);
         return use is not null && IsFirstSlashDuelAction(owner, action, use);
     }
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 300)]
     private bool CanOfferFirstSlashDuelBenefit(ProgramTriggerCandidate candidate, SkillProgramTrigger trigger, ProgramSkillWindowContext context)
     {
         if (!trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.ChooseFirstSlashDuelDiamondBenefit)) return true;
@@ -146,6 +148,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("A same-use first Slash/Duel damage benefit lost its actual issued facts.");
         return bonus;
     }
-    private sealed partial class ProgramSkillHost : IFirstSlashDuelBenefitHost
+    [ProgramCapability]
+    private sealed class FirstSlashDuelBenefitCapability(GameEngine engine) : IFirstSlashDuelBenefitHost
     { public SkillProgramStepOutcome ChooseFirstSlashDuelDiamondBenefit(ProgramSkillFrame frame) => engine.BeginFirstSlashDuelBenefit(frame); }
 }

@@ -2,7 +2,8 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private sealed partial class ProgramSkillHost : IFinalTargetPublicPileHost
+    [ProgramCapability]
+    private sealed class FinalTargetPublicPileCapability(GameEngine engine) : IFinalTargetPublicPileHost
     {
         public SkillProgramStepOutcome ExecuteFinalTargetPublicPile(SkillProgramEffect e, ProgramSkillFrame f) => engine.ExecuteFinalTargetPublicPile(e,f);
     }
@@ -15,9 +16,11 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("Final-target collection lost its actual finalized card use.");
         return parent;
     }
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.AfterInitialPayments, 30, SkillProgramEffectOp.CollectFinalTargetCardInPublicPile)]
     private bool CanCollectFinalTargetPile(int ownerSeat, ProgramSkillWindowContext context) =>
         GetProgramTargetSeats(ownerSeat, SkillProgramTargetKind.CurrentCardUseTargets, context).Any(seat =>
             GetHand(_players[seat]).Count >= GetHand(_players[ownerSeat]).Count && GetHand(_players[seat]).Count + GetEquipment(_players[seat]).Count > 0);
+    [ProgramActivationLegality(ProgramActivationLegalityPhase.BeforeCondition, 130)]
     private bool CanActivatePublicPileFlow(CharacterState owner, ProgramInstructionFeatures features) =>
         !features.HasOperation(SkillProgramEffectOp.ObtainPublicPileCard) ||
         features.ForOperation(SkillProgramEffectOp.ObtainPublicPileCard).All(e =>

@@ -46,8 +46,8 @@ internal sealed class ProhibitSelfCardTargetsForTurnDescriptor : ProgramOperatio
  public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[];
 }
 public sealed class CompareSelectedHandWithHpHandHandler : ISkillProgramEffectHandler
-{public SkillProgramEffectOp Op=>SkillProgramEffectOp.CompareSelectedHandWithHpHand;public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int seat,ISkillProgramEffectHost host)=>((IHandComparisonProgramHost)host).CompareSelectedHandWithHpHand(f,e);}
+{public SkillProgramEffectOp Op=>SkillProgramEffectOp.CompareSelectedHandWithHpHand;public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int seat,ISkillProgramEffectHost host)=>host.GetCapability<IHandComparisonProgramHost>().CompareSelectedHandWithHpHand(f,e);}
 public sealed class AdjustPersistentHandLimitHandler : ISkillProgramEffectHandler
-{public SkillProgramEffectOp Op=>SkillProgramEffectOp.AdjustPersistentHandLimit;public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int seat,ISkillProgramEffectHost host){((IHandComparisonProgramHost)host).AdjustPersistentHandLimit(f,seat,e.Amount,e.StateId!);return SkillProgramStepOutcome.Continue;}}
+{public SkillProgramEffectOp Op=>SkillProgramEffectOp.AdjustPersistentHandLimit;public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int seat,ISkillProgramEffectHost host){host.GetCapability<IHandComparisonProgramHost>().AdjustPersistentHandLimit(f,seat,e.Amount,e.StateId!);return SkillProgramStepOutcome.Continue;}}
 public sealed class ProhibitSelfCardTargetsForTurnHandler : ISkillProgramEffectHandler
-{public SkillProgramEffectOp Op=>SkillProgramEffectOp.ProhibitSelfCardTargetsForTurn;public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int seat,ISkillProgramEffectHost host){((IHandComparisonProgramHost)host).ProhibitSelfCardTargetsForTurn(f);return SkillProgramStepOutcome.Continue;}}
+{public SkillProgramEffectOp Op=>SkillProgramEffectOp.ProhibitSelfCardTargetsForTurn;public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int seat,ISkillProgramEffectHost host){host.GetCapability<IHandComparisonProgramHost>().ProhibitSelfCardTargetsForTurn(f);return SkillProgramStepOutcome.Continue;}}

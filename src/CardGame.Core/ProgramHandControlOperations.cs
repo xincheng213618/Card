@@ -83,7 +83,7 @@ public abstract class HandControlHandler : ISkillProgramEffectHandler
 {
     public abstract SkillProgramEffectOp Op { get; }
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,
-        int targetSeat, ISkillProgramEffectHost host) => ((IHandControlProgramHost)host).ExecuteHandControl(effect, frame);
+        int targetSeat, ISkillProgramEffectHost host) => host.GetCapability<IHandControlProgramHost>().ExecuteHandControl(effect, frame);
 }
 public sealed class ChooseHandCountInterventionHandler : HandControlHandler { public override SkillProgramEffectOp Op => SkillProgramEffectOp.ChooseHandCountIntervention; }
 public sealed class RevealHandColorDiscardAndTakeHandler : HandControlHandler { public override SkillProgramEffectOp Op => SkillProgramEffectOp.RevealHandColorDiscardAndTake; }

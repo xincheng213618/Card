@@ -32,7 +32,8 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("A shown gift lost its actual-turn hand-limit fact.");
     }
 
-    private sealed partial class ProgramSkillHost : IShownBoundGiftProgramHost
+    [ProgramCapability]
+    private sealed class ShownBoundGiftProgramCapability(GameEngine engine) : IShownBoundGiftProgramHost
     {
         public SkillProgramStepOutcome GiveShownBoundCardsAndGrantTurnHandLimit(ProgramSkillFrame f,string bind) => engine.GiveProgramShownBoundGift(f,bind);
     }

@@ -54,6 +54,7 @@ public sealed partial class GameEngine
         MoveCard(card, CardLocation.Hand(f.OwnerSeat), CardLocation.Processing, CardMoveReasons.EquipmentUse);
         if (!TryBeginEquipmentTargetPrograms(owner, card, id)) CompleteEquipmentUse(owner, card, id);
     }
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 660)]
     private bool CanOfferFriendTrio(ProgramTriggerCandidate candidate, SkillProgramTrigger trigger, ProgramSkillWindowContext context)
     {
         if (trigger.Effects is not [var e] || !IsFriendTrioOperation(e.Op)) return true;
@@ -373,6 +374,7 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new FriendTrioMovementPaidEvent(f.Id, r.Operation, r.Before, _movementSequence));
         ReturnFriendTrioMovement(f);
     }
-    private sealed partial class ProgramSkillHost : IFriendTrioProgramHost
+    [ProgramCapability]
+    private sealed class FriendTrioProgramCapability(GameEngine engine) : IFriendTrioProgramHost
     { public SkillProgramStepOutcome ExecuteFriendTrio(ProgramSkillFrame f, SkillProgramEffectOp op) => engine.ExecuteFriendTrio(f, op); }
 }

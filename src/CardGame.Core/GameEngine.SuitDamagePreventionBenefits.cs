@@ -12,6 +12,7 @@ public sealed partial class GameEngine
                 !c.IsGeneralWeapon && !IsActiveProgramSourceEquipmentCard(ownerSeat, skillId, instance, c) &&
                 !IsForeignEquipmentDiscardPrevented(ownerSeat, c, _cardZones.GetLocation(c.Id), OwnedCardMoveIntent.Discard)).ToArray();
 
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 870)]
     private bool CanOfferSuitPreventionBenefit(ProgramTriggerCandidate candidate, SkillProgramTrigger trigger, ProgramSkillWindowContext context)
     {
         if (!trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.DiscardSuitPreventDamageAndBenefit)) return true;
@@ -283,7 +284,8 @@ public sealed partial class GameEngine
             (_pendingDecision is not { IsPrivate: true } p || p.PlayerSeat != f.OwnerSeat || !AssistedChoicesEqual(p.Choices, SuitPreventionBenefitChoices(f))))
             throw new InvalidOperationException("Suit prevention lost its private frozen prompt.");
     }
-    private sealed partial class ProgramSkillHost : ISuitPreventionAndJudgmentPlacementHost
+    [ProgramCapability]
+    private sealed class SuitPreventionAndJudgmentPlacementCapability(GameEngine engine) : ISuitPreventionAndJudgmentPlacementHost
     {
         public SkillProgramStepOutcome DiscardSuitPreventDamageAndBenefit(ProgramSkillFrame f) => engine.BeginSuitPreventionBenefit(f);
         public SkillProgramStepOutcome PlaceMatchedJudgmentCard(ProgramSkillFrame f, string bind, IReadOnlyList<Suit> suits) => engine.BeginMatchedJudgmentPlacement(f, bind, suits);

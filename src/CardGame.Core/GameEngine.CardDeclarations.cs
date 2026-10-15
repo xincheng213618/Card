@@ -77,6 +77,7 @@ public sealed partial class GameEngine
         return ordinaryDescription;
     }
 
+    [ProgramCardAction(ProgramCardActionPhase.BeforeProgram, 30)]
     private void AddDeclarationSlashActions(List<LegalAction> actions, CharacterState actor, IReadOnlyList<Card> playable)
     {
         actions.RemoveAll(action => action.ConversionSource is { } source && ViewAsRule(source)?.DeclarationValidation is not null &&

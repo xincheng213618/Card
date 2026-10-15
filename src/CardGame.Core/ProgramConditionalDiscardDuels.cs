@@ -59,7 +59,7 @@ public sealed class DiscardSlashThenOtherCardAndUseDuelHandler : ISkillProgramEf
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.DiscardSlashThenOtherCardAndUseDuel;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int seat, ISkillProgramEffectHost host) =>
-        ((IConditionalDiscardDuelProgramHost)host).DiscardSlashThenOtherCardAndUseDuel(frame);
+        host.GetCapability<IConditionalDiscardDuelProgramHost>().DiscardSlashThenOtherCardAndUseDuel(frame);
 }
 internal static class ConditionalDiscardDuelComposition
 {

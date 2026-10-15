@@ -19,6 +19,7 @@ public sealed partial class GameEngine
         .OrderBy(p => p.Seat).SelectMany(p => GetJudgment(p).Where(c => GetJudgmentEffectiveCardKind(c) == CardKind.Indulgence)
             .OrderBy(c => c.Id).Select(c => (p.Seat, c)));
 
+    [ProgramActivationLegality(ProgramActivationLegalityPhase.BeforeCondition, 100)]
     private bool CanActivateDiamondDelayed(CharacterState owner, SkillProgramActivation activation, string skillId) =>
         !activation.Effects.Any(e => e.Op == SkillProgramEffectOp.UseDiamondDelayedOrDiscard) ||
         GetHand(owner).Concat(GetEquipment(owner)).Where(c => DiamondPaymentLegal(owner.Seat, c, skillId))
@@ -149,6 +150,7 @@ public sealed partial class GameEngine
             (_pendingDecision is not { Kind: DecisionKind.ProgramTrigger, IsPrivate: true } prompt || prompt.PlayerSeat != frame.OwnerSeat || prompt.Choices.Count == 0 || prompt.Choices.Any(c => !IsDiamondDelayedChoiceLegal(c))))
             throw new InvalidOperationException("Diamond delayed draft lost its exact choice.");
     }
-    private sealed partial class ProgramSkillHost : IDiamondDelayedProgramHost
+    [ProgramCapability]
+    private sealed class DiamondDelayedProgramCapability(GameEngine engine) : IDiamondDelayedProgramHost
     { public SkillProgramStepOutcome UseDiamondDelayedOrDiscard(ProgramSkillFrame frame) => engine.BeginDiamondDelayed(frame); }
 }

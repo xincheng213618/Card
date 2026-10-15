@@ -34,7 +34,7 @@ internal sealed class CurrentTurnShownCardHandler(SkillProgramEffectOp op) : ISk
     public SkillProgramEffectOp Op => op;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost host)
     {
-        var h = (ICurrentTurnShownCardProgramHost)host;
+        var h = host.GetCapability<ICurrentTurnShownCardProgramHost>();
         if (op == SkillProgramEffectOp.RevealOwnedBoundCardAppearance) h.RevealOwnedBoundCardAppearance(f, e.SourceBind!);
         else if (op == SkillProgramEffectOp.IssueCurrentTurnNonLockedSkillSuppression) h.IssueCurrentTurnNonLockedSkillSuppression(f, seat);
         else h.GrantCurrentTurnDirectedHeartSlashBonus(f, seat);

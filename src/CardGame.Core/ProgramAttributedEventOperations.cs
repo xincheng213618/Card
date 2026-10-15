@@ -26,7 +26,7 @@ internal sealed class AddMarkerSubjectNormalDrawDescriptor:AttributedEventDescri
 public abstract class AttributedEventHandler:ISkillProgramEffectHandler
 {
  public abstract SkillProgramEffectOp Op {get;}
- public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int target,ISkillProgramEffectHost host){((IAttributedEventProgramHost)host).ApplyAttributedEvent(f,e,target);return SkillProgramStepOutcome.Continue;}
+ public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int target,ISkillProgramEffectHost host){host.GetCapability<IAttributedEventProgramHost>().ApplyAttributedEvent(f,e,target);return SkillProgramStepOutcome.Continue;}
 }
 public sealed record ProgramMarkerEventAppliedEvent(long ParentFrameId,int SubjectSeat,PlayerMarkerKind Marker,SkillProgramEffectOp Operation,int OwnerSeat,string SkillId,string SkillInstanceId):IGameEvent;
 

@@ -16,6 +16,7 @@ public sealed partial class GameEngine
         _resolutionStack.OfType<CardUseFrame>().SingleOrDefault(frame => frame.Id == id)?.FirstOwnPlayUseDistanceUnlimited == true;
     private bool HasIssuedPlayPhaseUseBan(int seat) => _winner == Winner.None && _phase == TurnPhase.Play && seat == _currentSeat &&
         _issuedPlayPhaseUseProhibitions.Any(policy => policy.ActorSeat == seat && policy.TurnNumber == _turnNumber && policy.PhaseInstanceId == _cardUseDebitPhaseInstanceId);
+    [ProgramRuleObserver(ProgramRulePhase.BeforeStatePublish, 50)]
     private void CleanupIssuedPlayPhaseUseBans() => _issuedPlayPhaseUseProhibitions.RemoveAll(policy =>
         _winner != Winner.None || _phase != TurnPhase.Play || policy.ActorSeat != _currentSeat || policy.TurnNumber != _turnNumber || policy.PhaseInstanceId != _cardUseDebitPhaseInstanceId);
     private bool HasIssuedPolicyForAction(long actionId) => _issuedPlayPhaseUseProhibitions.Any(policy => policy.CardActionId == actionId);
@@ -24,7 +25,8 @@ public sealed partial class GameEngine
         _resolutionStack.OfType<CardUseFrame>().SingleOrDefault(frame => frame.Id == frameId) is { Action: { } action, IssuedNoResponse: { } issued } &&
         issued.CardActionId == action.ActionId && issued.ParentFrameId == frameId;
 
-    private sealed partial class ProgramSkillHost : IIssuedPlayUseProgramHost
+    [ProgramCapability]
+    private sealed class IssuedPlayUseProgramCapability(GameEngine engine) : IIssuedPlayUseProgramHost
     {
         public void IssueCardNoResponseAndPlayUseBan(ProgramSkillFrame frame) => engine.IssueCardNoResponseAndPlayUseBan(frame);
     }

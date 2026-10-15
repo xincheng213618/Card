@@ -97,19 +97,19 @@ public sealed class PayHpThenNullifyOwnActualUseTargetHandler : ISkillProgramEff
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.PayHpThenNullifyOwnActualUseTarget;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int s, ISkillProgramEffectHost h) =>
-        ((IPaidTargetEndingProgramHost)h).PayHpThenNullifyOwnActualUseTarget(f);
+        h.GetCapability<IPaidTargetEndingProgramHost>().PayHpThenNullifyOwnActualUseTarget(f);
 }
 public sealed class ScheduleEarnedActualEndingBenefitHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.ScheduleEarnedActualEndingBenefit;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int s, ISkillProgramEffectHost h)
-    { ((IPaidTargetEndingProgramHost)h).ScheduleEarnedActualEndingBenefit(f, e.SourceBind!, e.StateId!); return SkillProgramStepOutcome.Continue; }
+    { h.GetCapability<IPaidTargetEndingProgramHost>().ScheduleEarnedActualEndingBenefit(f, e.SourceBind!, e.StateId!); return SkillProgramStepOutcome.Continue; }
 }
 public sealed class DrawLostHpThenOfferOwnedCardsUpToHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.DrawLostHpThenOfferOwnedCardsUpTo;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int s, ISkillProgramEffectHost h) =>
-        ((IPaidTargetEndingProgramHost)h).DrawLostHpThenOfferOwnedCardsUpTo(f);
+        h.GetCapability<IPaidTargetEndingProgramHost>().DrawLostHpThenOfferOwnedCardsUpTo(f);
 }
 
 internal static class PaidTargetEndingComposition

@@ -8,6 +8,7 @@ public sealed partial class GameEngine
 {
     private bool HasOrdinaryTrickCannotNullifyCapability =>
         _contentRegistry.ProgramDependencies.HasCardPolicy(SkillProgramCardPolicyKind.CannotNullifyOwnOrdinaryTrick);
+    [ProgramRuleObserver(ProgramRulePhase.BeforeEvent, 370)]
     private void ObserveUnnullifiableOrdinaryTrick(IGameEvent payload)
     {
         if (!HasOrdinaryTrickCannotNullifyCapability || payload is not CardUseDeclaredEvent declared ||

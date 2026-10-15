@@ -33,7 +33,8 @@ public sealed partial class GameEngine
             receipt.PreviousCount < threshold && receipt.PreviousCount + receipt.ActualCount >= threshold ? "crossed" : "not-crossed", active.OwnerSeat)).ToArray()) });
     }
 
-    private sealed partial class ProgramSkillHost : IPhaseGiftBasicProgramHost
+    [ProgramCapability]
+    private sealed class PhaseGiftBasicProgramCapability(GameEngine engine) : IPhaseGiftBasicProgramHost
     {
         public void AccumulatePaidPhaseGift(ProgramSkillFrame frame, string resultBind, int threshold) => engine.AccumulatePaidPhaseGift(frame, resultBind, threshold);
         public SkillProgramStepOutcome OfferVirtualBasicCard(ProgramSkillFrame frame) => engine.OfferVirtualBasicCard(frame);

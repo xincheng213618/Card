@@ -36,7 +36,7 @@ public sealed class SuppressOwnSkillAfterAlcoholSlashDamageHandler : ISkillProgr
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat,
         ISkillProgramEffectHost host)
     {
-        ((IAlcoholSlashSuppressionProgramHost)host).SuppressOwnSkillAfterAlcoholSlashDamage(frame, effect.SkillIds.Single());
+        host.GetCapability<IAlcoholSlashSuppressionProgramHost>().SuppressOwnSkillAfterAlcoholSlashDamage(frame, effect.SkillIds.Single());
         return SkillProgramStepOutcome.Continue;
     }
 }
@@ -69,5 +69,5 @@ public sealed class StartOwnedDamagePointJudgmentHandler : ISkillProgramEffectHa
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.StartOwnedDamagePointJudgment;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat,
-        ISkillProgramEffectHost host) => ((IAlcoholSlashSuppressionProgramHost)host).StartOwnedDamagePointJudgment(frame, effect);
+        ISkillProgramEffectHost host) => host.GetCapability<IAlcoholSlashSuppressionProgramHost>().StartOwnedDamagePointJudgment(frame, effect);
 }

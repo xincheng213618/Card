@@ -76,5 +76,5 @@ internal sealed class PairedColorDispositionHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.OfferPairedColorCardDisposition;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat, ISkillProgramEffectHost host) =>
-        ((IPairedColorResponseHost)host).OfferPairedColorCardDisposition(frame, effect.StateId!);
+        host.GetCapability<IPairedColorResponseHost>().OfferPairedColorCardDisposition(frame, effect.StateId!);
 }

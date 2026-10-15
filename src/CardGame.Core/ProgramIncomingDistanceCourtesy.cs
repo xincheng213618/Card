@@ -57,7 +57,7 @@ internal sealed class IncomingDistanceCourtesyHandler(SkillProgramEffectOp op) :
 {
     public SkillProgramEffectOp Op => op;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost host) =>
-        ((IIncomingDistanceCourtesyHost)host).BeginIncomingDistanceCourtesy(f, op == SkillProgramEffectOp.AdjustIncomingDistanceByLivingFactions
+        host.GetCapability<IIncomingDistanceCourtesyHost>().BeginIncomingDistanceCourtesy(f, op == SkillProgramEffectOp.AdjustIncomingDistanceByLivingFactions
             ? IncomingDistanceCourtesyKind.FactionDistance : IncomingDistanceCourtesyKind.Courtesy);
 }
 internal static class IncomingDistanceCourtesyContract

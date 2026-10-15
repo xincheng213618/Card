@@ -4,6 +4,7 @@ public sealed partial class GameEngine
 {
     private const string ActualTurnDamageClaimReason = "program.actual-turn-damage-entity.claim";
     private bool TracksActualTurnDamageEntities => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ClaimActualTurnDamageEntities);
+    [ProgramRuleObserver(ProgramRulePhase.BeforeEvent, 310)]
     private void ObserveActualTurnDamageEntities(IGameEvent payload)
     {
         if (!TracksActualTurnDamageEntities || _turnNumber <= 0 || payload is not DamageAppliedEvent { Amount: > 0 } applied ||
@@ -140,6 +141,7 @@ public sealed partial class GameEngine
         return AwaitPaidColorDamageClaimMovements(frame.Id);
     }
 
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 700)]
     private bool CanRunPaidColorDamageClaim(ProgramTriggerCandidate candidate, SkillProgramTrigger trigger, ProgramSkillWindowContext context)
     {
         if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.DiscardBoundCardForOppositeTurnDuel))

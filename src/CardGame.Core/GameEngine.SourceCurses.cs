@@ -65,6 +65,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("A terminal curse diagnostic requires the actual final game-end fact.");
         return true;
     }
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 90)]
     private bool CanRunSourceCurseTrigger(ProgramTriggerCandidate candidate,
         SkillProgramTrigger trigger, ProgramSkillWindowContext context)
     {
@@ -242,7 +243,8 @@ public sealed partial class GameEngine
         r.InstructionIndex == f.InstructionIndex && effect == SourceCursePausedEffect(f) &&
         effect?.Op == (r.Stage == SourceCurseStage.DepositChildren ? SkillProgramEffectOp.DepositSelectedSourceCurse : SkillProgramEffectOp.DrawForSourceCurseUse) &&
         pending.SubjectSeat == f.OwnerSeat && pending.BeforeCount == 0 && pending.CoverageResultBind is null;
-    private sealed partial class ProgramSkillHost : ISourceCurseProgramHost
+    [ProgramCapability]
+    private sealed class SourceCurseProgramCapability(GameEngine engine) : ISourceCurseProgramHost
     {
         public SkillProgramStepOutcome ExecuteSourceCurse(SkillProgramEffect effect, ProgramSkillFrame frame) =>
             engine.ExecuteSourceCurse(effect, frame);

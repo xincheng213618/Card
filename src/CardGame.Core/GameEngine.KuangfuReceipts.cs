@@ -79,6 +79,7 @@ public sealed partial class GameEngine
         ShownEntityUseActorMatches(use, root.OwnerSeat, action.ProviderSeat) && action.ConversionChain.Count == 0;
     private bool HasIssuedKuangfuDistance(long? id, int actor) => id is { } useId && LifecycleCardUse(useId) is { } use &&
         use.KuangfuSlashReturn?.Source.OwnerSeat == actor && IsKuangfuSlashUse(use);
+    [ProgramRuleObserver(ProgramRulePhase.BeforeEvent, 390)]
     private void ObserveKuangfuAppliedDamage(IGameEvent payload)
     {
         if (payload is not DamageAppliedEvent { Amount: > 0 } applied || CurrentDamageAttempt is not { } attack ||

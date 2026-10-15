@@ -35,6 +35,7 @@ public sealed partial class GameEngine
         return Array.AsReadOnly(existing.Concat(added).Distinct().OrderBy(c => (c.OwnerSeat - drawOwner.Seat + _playerCount) % _playerCount)
             .ThenByDescending(c => c.Priority).ThenBy(c => c.SkillId, StringComparer.Ordinal).ThenBy(c => c.BindingId, StringComparer.Ordinal).ToArray());
     }
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 1030)]
     private bool CanOfferRecipientCategoryMarkProgram(ProgramTriggerCandidate c, SkillProgramTrigger trigger, ProgramSkillWindowContext context)
     {
         if (trigger.Effects is not [var e] || !RecipientCategoryMarksComposition.IsOperation(e.Op)) return true;
@@ -290,7 +291,8 @@ public sealed partial class GameEngine
     private PromptChoice SelectAiRecipientCategoryMarkChoice(PendingDecision p, ProgramSkillFrame f) =>
         p.Choices.FirstOrDefault(c => c.Parameters.GetValueOrDefault("mark-action") != "finish" &&
             (c.Targets.Count == 0 || !AreProgramDistributionAllies(_players[f.OwnerSeat], _players[c.Targets[0]]))) ?? p.Choices[0];
-    private sealed partial class ProgramSkillHost : IRecipientCategoryMarksProgramHost
+    [ProgramCapability]
+    private sealed class RecipientCategoryMarksProgramCapability(GameEngine engine) : IRecipientCategoryMarksProgramHost
     {
         public SkillProgramStepOutcome ExecuteRecipientCategoryMark(ProgramSkillFrame f, SkillProgramEffect e) => engine.ExecuteRecipientCategoryMark(f, e);
     }

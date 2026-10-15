@@ -74,7 +74,7 @@ public sealed class OfferCurrentTurnHandExchangeSkillProgramEffectHandler : ISki
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.OfferCurrentTurnHandExchange;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,
-        int targetSeat, ISkillProgramEffectHost host) => host is ICurrentTurnHandExchangeHost exchange
+        int targetSeat, ISkillProgramEffectHost host) => host.TryGetCapability<ICurrentTurnHandExchangeHost>(out var exchange)
         ? exchange.OfferCurrentTurnHandExchange(frame)
         : throw new InvalidOperationException("The program host does not support current-turn hand exchange.");
 }

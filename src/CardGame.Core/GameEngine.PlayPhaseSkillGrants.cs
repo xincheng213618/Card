@@ -6,7 +6,8 @@ public sealed partial class GameEngine
         _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.GrantPlayPhaseSkills) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.GrantPlayPhaseSkills);
 
-    private sealed partial class ProgramSkillHost : IPlayPhaseSkillGrantHost
+    [ProgramCapability]
+    private sealed class PlayPhaseSkillGrantCapability(GameEngine engine) : IPlayPhaseSkillGrantHost
     {
         public void GrantPlayPhaseSkills(ProgramSkillFrame frame, IReadOnlyList<string> skillIds) =>
             engine.GrantProgramPlayPhaseSkills(frame, skillIds);
@@ -111,6 +112,10 @@ public sealed partial class GameEngine
         ClosePlayPhaseSkillGrants(expiry, reason);
     }
 
+    [ProgramRuleObserver(ProgramRulePhase.AfterEvent, 20)]
+    private void ExpirePlayPhaseSkillGrantsAfterTurnEnded(TurnEndedEvent ended) =>
+        ExpirePlayPhaseSkillGrantsForEndedTurn(ended.TurnNumber);
+
     private void ExpirePlayPhaseSkillGrantsForEndedTurn(int turnNumber)
     {
         if (!HasPlayPhaseSkillGrantCapability) return;
@@ -121,6 +126,10 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("Play-phase fallback expiry requires its real turn-ended fact.");
         foreach (var expiry in expiries) ClosePlayPhaseSkillGrants(expiry, "turn-ended");
     }
+
+    [ProgramRuleObserver(ProgramRulePhase.AfterEvent, 50)]
+    private void ExpirePlayPhaseSkillGrantsAfterGameEnded(GameEndedEvent ended) =>
+        ExpireAllPlayPhaseSkillGrants("game-ended");
 
     private void ExpireAllPlayPhaseSkillGrants(string reason)
     {

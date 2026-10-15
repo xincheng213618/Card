@@ -55,13 +55,13 @@ public sealed class InsertGrantedEntityPlayPhaseHandler : ISkillProgramEffectHan
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.InsertGrantedEntityPlayPhase;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int s, ISkillProgramEffectHost h) =>
-        ((IGrantedEntityPhaseProgramHost)h).InsertGrantedEntityPlayPhase(f);
+        h.GetCapability<IGrantedEntityPhaseProgramHost>().InsertGrantedEntityPlayPhase(f);
 }
 public sealed class ClaimGrantedPhaseSlashHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.ClaimGrantedPhaseSlash;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int s, ISkillProgramEffectHost h) =>
-        ((IGrantedEntityPhaseProgramHost)h).ClaimGrantedPhaseSlash(f);
+        h.GetCapability<IGrantedEntityPhaseProgramHost>().ClaimGrantedPhaseSlash(f);
 }
 
 internal static class GrantedEntityPhaseComposition

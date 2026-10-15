@@ -88,6 +88,7 @@ public sealed partial class GameEngine
         return Array.AsReadOnly(result.ToArray());
     }
 
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 630)]
     private bool CanOfferUniqueLeaderTrickTarget(ProgramTriggerCandidate candidate, SkillProgramTrigger trigger, ProgramSkillWindowContext context)
     {
         if (trigger.Effects is not [{ } effect] || !UniqueLeaderTrickTargetContract.IsTargetOperation(effect.Op)) return true;
@@ -282,7 +283,8 @@ public sealed partial class GameEngine
         e.AddedTargetSeats.Count > 0 && IsUniqueLeaderTrickTargetFact(use, e, e.OriginalTargetSeats) && use.Action!.TargetSeats.Count >= e.ResultTargetSeats.Count &&
         use.Action.TargetSeats.Take(e.ResultTargetSeats.Count).SequenceEqual(e.ResultTargetSeats) && use.TargetSeats.SequenceEqual(use.Action.TargetSeats));
 
-    private sealed partial class ProgramSkillHost : IUniqueLeaderTrickTargetHost
+    [ProgramCapability]
+    private sealed class UniqueLeaderTrickTargetCapability(GameEngine engine) : IUniqueLeaderTrickTargetHost
     {
         public SkillProgramStepOutcome OfferUniqueLargestHandTrickTargetAddition(ProgramSkillFrame frame) =>
             engine.OfferUniqueLeaderTrickTarget(frame, SkillProgramEffectOp.OfferUniqueLargestHandTrickTargetAddition);

@@ -24,6 +24,7 @@ public sealed partial class GameEngine
         !IsSelfHandCategoryDiscardForbidden(owner, card, location, OwnedCardMoveIntent.Discard) &&
         !IsForeignEquipmentDiscardPrevented(owner, card, location, OwnedCardMoveIntent.Discard) &&
         !(location.Zone == CardZoneKind.Equipment && IsActiveProgramSourceEquipmentCard(owner, skill, GetRuntimeSkillInstanceId(_players[owner], skill), card));
+    [ProgramActivationLegality(ProgramActivationLegalityPhase.BeforeCondition, 80)]
     private bool CanActivatePhaseHandSeizure(CharacterState owner, SkillProgram program) =>
         !program.Activations.Any(a => a.Effects.Any(e => e.Op == SkillProgramEffectOp.DiscardTurnOverAndTakeHand)) ||
         !CompleteProgramEventHistory().OfType<PhaseHandSeizurePaidEvent>().Any(e => e.Source.OwnerSeat == owner.Seat && e.Source.SkillId == program.Id &&
@@ -250,6 +251,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("One issued phase-hand debt cannot settle twice.");
         AdvanceEventRulesAndQueueFact(new PhaseHandDebtSettledEvent(due.FrameId, returnFrame, due.Source.OwnerSeat, due.TargetSeat, reason, required, actual, before, after));
     }
+    [ProgramRuleObserver(ProgramRulePhase.BeforeEvent, 360)]
     private void ObservePhaseHandSeizureDeath(IGameEvent payload)
     {
         if (payload is GameEndedEvent ended && _status == EngineStatus.Completed && _phase == TurnPhase.Finished && ended.Winner == _winner && _winner != Winner.None)
@@ -277,7 +279,8 @@ public sealed partial class GameEngine
     [ProgramAiChoice(SkillProgramEffectOp.ReturnIssuedPhaseHandDebt)]
     private PromptChoice SelectAiPhaseHandDebt(PendingDecision decision, ProgramSkillFrame frame) => decision.Choices
         .OrderBy(c => GetKeepValue(GetAdvancedCard(c.Cards.Single()), _players[frame.OwnerSeat])).ThenBy(c => c.Id.Value, StringComparer.Ordinal).First();
-    private sealed partial class ProgramSkillHost : IPhaseHandSeizureProgramHost
+    [ProgramCapability]
+    private sealed class PhaseHandSeizureProgramCapability(GameEngine engine) : IPhaseHandSeizureProgramHost
     {
         public SkillProgramStepOutcome DiscardTurnOverAndTakeHand(ProgramSkillFrame frame, string continuation) => engine.BeginPhaseHandSeizure(frame, continuation);
         public SkillProgramStepOutcome ReturnIssuedPhaseHandDebt(ProgramSkillFrame frame) => engine.BeginPhaseHandDebtReturn(frame);

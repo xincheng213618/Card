@@ -31,7 +31,7 @@ public sealed class SelectDyingOwnedCardHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.SelectDyingOwnedCard;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost host) =>
-        ((IDyingOwnedCardProgramHost)host).SelectDyingOwnedCard(f, e);
+        host.GetCapability<IDyingOwnedCardProgramHost>().SelectDyingOwnedCard(f, e);
 }
 internal sealed partial class ProgramAiEstimateContext
 {

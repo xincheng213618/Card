@@ -100,6 +100,7 @@ public sealed partial class GameEngine
                 g.Source.OwnerSeat, g.Source.SkillInstanceId)).Distinct().ToArray();
     }
 
+    [ProgramCardAction(ProgramCardActionPhase.AfterProgram, 40)]
     private void AddPaidColorEquipmentDuelActions(List<LegalAction> actions, CharacterState owner,
         int? selectedPhysicalCardId = null)
     {
@@ -153,7 +154,8 @@ public sealed partial class GameEngine
             .All(m => p.CardKind == CardKind.WoodenOx && p.From == CardLocation.Equipment(owner) &&
                 m.From == CardLocation.WoodenOxGrain(owner) && m.To == CardLocation.DiscardPile && m.Reason == CardMoveReasons.WoodenOxGrainDiscard);
 
-    private sealed partial class ProgramSkillHost : IPaidColorDamageClaimProgramHost
+    [ProgramCapability]
+    private sealed class PaidColorDamageClaimProgramCapability(GameEngine engine) : IPaidColorDamageClaimProgramHost
     {
         public SkillProgramStepOutcome DiscardBoundCardForOppositeTurnDuel(ProgramSkillFrame f, string bind) => engine.BeginPaidColorConversion(f, bind);
         public SkillProgramStepOutcome ClaimActualTurnDamageEntities(ProgramSkillFrame f) => engine.BeginActualTurnDamageClaim(f);

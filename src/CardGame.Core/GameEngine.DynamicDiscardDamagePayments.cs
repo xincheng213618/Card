@@ -5,7 +5,8 @@ public sealed partial class GameEngine
 {
     private const string DynamicDiscardDamageBlocked = "dynamic-discard-damage-blocked";
     private const string DynamicDiscardDamageReason = "program.dynamic-target-hp.discard";
-    private sealed partial class ProgramSkillHost : IDynamicDiscardDamageHost
+    [ProgramCapability]
+    private sealed class DynamicDiscardDamageCapability(GameEngine engine) : IDynamicDiscardDamageHost
     { public SkillProgramStepOutcome DiscardTargetHpCardsAndDamage(ProgramSkillFrame f) => engine.BeginDynamicDiscardDamage(f); }
 
     private bool DynamicDiscardDamageSourceValid(ProgramSkillFrame f) => _players[f.OwnerSeat].IsAlive &&
@@ -16,6 +17,7 @@ public sealed partial class GameEngine
             !c.IsGeneralWeapon &&
             !IsForeignEquipmentDiscardPrevented(owner,c,_cardZones.GetLocation(c.Id),OwnedCardMoveIntent.Discard) &&
             !IsActiveProgramSourceEquipmentCard(owner,skill,instance,c)).ToArray();
+    [ProgramActivationLegality(ProgramActivationLegalityPhase.BeforeCardCount, 50, SkillProgramEffectOp.DiscardTargetHpCardsAndDamage)]
     private bool CanStartDynamicDiscardDamage(CharacterState owner,string skill) =>
         _skillRuntimeState.GetUsage(owner.Seat,skill,DynamicDiscardDamageBlocked,SkillUsageScope.Turn)==0 &&
         _players.Any(p=>CanSelectDynamicDiscardDamageTarget(owner,skill,p.Seat));

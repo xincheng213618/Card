@@ -37,6 +37,6 @@ public sealed class DrawThenDiscardHandToMaximumHpHandler : ISkillProgramEffectH
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.DrawThenDiscardHandToMaximumHp;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat,
-        ISkillProgramEffectHost host) => ((ICappedHandRefreshProgramHost)host)
+        ISkillProgramEffectHost host) => host.GetCapability<ICappedHandRefreshProgramHost>()
             .DrawThenDiscardHandToMaximumHp(frame, targetSeat, effect.Amount);
 }

@@ -24,7 +24,7 @@ public sealed class DiamondDelayedHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.UseDiamondDelayedOrDiscard;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat, ISkillProgramEffectHost host) =>
-        ((IDiamondDelayedProgramHost)host).UseDiamondDelayedOrDiscard(frame);
+        host.GetCapability<IDiamondDelayedProgramHost>().UseDiamondDelayedOrDiscard(frame);
 }
 public enum ProgramDiamondDelayedStage { Choosing, Using, Moving, Drawing }
 public sealed record ProgramDiamondDelayedDraft(int CardId, CardLocation Source, Suit EffectiveSuit,

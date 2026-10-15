@@ -67,7 +67,7 @@ public sealed class AwakenAfterGameActivationsHandler : ISkillProgramEffectHandl
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.AwakenAfterGameActivations;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int seat, ISkillProgramEffectHost host) =>
-        ((IGameActivationAwakeningProgramHost)host).BeginGameActivationAwakening(frame, effect);
+        host.GetCapability<IGameActivationAwakeningProgramHost>().BeginGameActivationAwakening(frame, effect);
 }
 internal static class GameActivationAwakeningComposition
 {

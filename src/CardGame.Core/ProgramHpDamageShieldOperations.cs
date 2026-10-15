@@ -62,5 +62,5 @@ public sealed class PayHpToGrantOneUseDamageShieldHandler : ISkillProgramEffectH
     public SkillProgramEffectOp Op => SkillProgramEffectOp.PayHpToGrantOneUseDamageShield;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,
         int targetSeat, ISkillProgramEffectHost host) =>
-        ((IHpDamageShieldProgramHost)host).PayHpToGrantOneUseDamageShield(frame, effect.Marker!.Value);
+        host.GetCapability<IHpDamageShieldProgramHost>().PayHpToGrantOneUseDamageShield(frame, effect.Marker!.Value);
 }

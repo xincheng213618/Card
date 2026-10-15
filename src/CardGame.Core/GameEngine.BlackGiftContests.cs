@@ -3,6 +3,15 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    [ProgramActivationLegality(ProgramActivationLegalityPhase.BeforeCondition, 20, SkillProgramEffectOp.GiveBlackHandAndResolveRecipientContest)]
+    private bool AllowsGiveBlackHandAndResolveRecipientContestActivation(ProgramActivationLegalityContext gate)
+    {
+        var owner = gate.Owner;
+        var program = gate.Program;
+        var features = gate.Features;
+        return !(features.HasOperation(SkillProgramEffectOp.GiveBlackHandAndResolveRecipientContest) && BlackGiftGameIssued(owner.Seat, program.Id));
+    }
+
     private static CardConversionSource RecipientConsequencesSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
     private static string BlackGiftReason(ProgramSkillFrame f) => $"skill-program.{f.SkillId}.{SkillProgramEffectOp.GiveBlackHandAndResolveRecipientContest}.gift";
     private static string BlackGiftDiscardReason(ProgramSkillFrame f) => $"skill-program.{f.SkillId}.{SkillProgramEffectOp.GiveBlackHandAndResolveRecipientContest}.discard";
@@ -183,7 +192,8 @@ public sealed partial class GameEngine
         FinishProgramSkill(f, true); return true;
     }
 
-    private sealed partial class ProgramSkillHost : IRecipientContestConsequencesHost
+    [ProgramCapability]
+    private sealed class RecipientContestConsequencesCapability(GameEngine engine) : IRecipientContestConsequencesHost
     {
         public SkillProgramStepOutcome BlackGiftContest(ProgramSkillFrame f, int recipient) => engine.BeginBlackGiftContest(f, recipient);
         public SkillProgramStepOutcome PrintedLordBenefit(ProgramSkillFrame f) => engine.BeginPrintedLordBenefit(f);

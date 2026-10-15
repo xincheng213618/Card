@@ -95,5 +95,5 @@ internal sealed class ProtectOtherSoleCardTargetDescriptor : ProgramOperationDes
 internal sealed class ProtectOtherSoleCardTargetHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.ProtectOtherSoleCardTarget;
-    public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost h) => ((ISoleTargetProtectionHost)h).ProtectOtherSoleCardTarget(f);
+    public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost h) => h.GetCapability<ISoleTargetProtectionHost>().ProtectOtherSoleCardTarget(f);
 }

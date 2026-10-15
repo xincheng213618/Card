@@ -2,7 +2,8 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private sealed partial class ProgramSkillHost : IControlProgramEffectHost
+    [ProgramCapability]
+    private sealed class ControlProgramEffectCapability(GameEngine engine) : IControlProgramEffectHost
     {
         public void ConsumeCategoryTargetLedger(ProgramSkillFrame frame, string usageId) => engine.ConsumeProgramCategoryTargetLedger(frame, usageId);
         public void ReplaceCurrentCardUseActor(ProgramSkillFrame frame, int actorSeat) => engine.ReplaceCurrentProgramCardUseActor(frame, actorSeat);

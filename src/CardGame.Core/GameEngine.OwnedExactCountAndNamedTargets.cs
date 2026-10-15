@@ -2,6 +2,7 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    [ProgramActivationLegality(ProgramActivationLegalityPhase.BeforeOwnerFacts, 20)]
     private bool CanStartExactOwnedCardCount(CharacterState owner, ProgramExecutionPlan plan)
     {
         if (plan.Instructions.FirstOrDefault() is not { RequireExactCount: true } effect) return true;
@@ -17,9 +18,6 @@ public sealed partial class GameEngine
         return available >= required;
     }
 
-    private CommandError? ValidateExactOwnedCardCountActivation(ProgramExecutionPlan? plan, int ownerSeat) =>
-        plan is not null && !CanStartExactOwnedCardCount(_players[ownerSeat], plan)
-            ? new(CommandErrorCode.IllegalAction, "没有足额的合法区域牌支付精确费用。") : null;
 
     private void FreezeExactOwnedSelectionSuits(long frameId, SkillProgramEffect effect,
         IReadOnlyList<int> cardIds, IReadOnlyList<CardLocation> locations)

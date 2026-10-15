@@ -1,8 +1,9 @@
-﻿namespace CardGame.Core;
+namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private sealed partial class ProgramSkillHost:IGameDomainProgramHost
+    [ProgramCapability]
+    private sealed class GameDomainProgramCapability(GameEngine engine) : IGameDomainProgramHost
     {public SkillProgramStepOutcome ExecuteGameDomain(SkillProgramEffect e,ProgramSkillFrame f)=>engine.ExecuteGameDomain(e,f);}
     private IEnumerable<Card> DomainOwnedCards(ProgramSkillFrame f,int seat)=>GetHand(_players[seat]).Concat(GetEquipment(_players[seat])).Where(c=>seat!=f.OwnerSeat||!IsActiveProgramSourceEquipmentCard(seat,f.SkillId,f.SkillInstanceId,c));
     // Association is fixed once: exact instance first, otherwise the ordinal-first

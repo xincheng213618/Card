@@ -2,7 +2,8 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private sealed partial class ProgramSkillHost : IDiscardBudgetAndFactionGiftHost
+    [ProgramCapability]
+    private sealed class DiscardBudgetAndFactionGiftCapability(GameEngine engine) : IDiscardBudgetAndFactionGiftHost
     {
         public SkillProgramStepOutcome ResolveDiscardBudgetParticipants(ProgramSkillFrame f)=>engine.BeginDiscardBudget(f);
         public SkillProgramStepOutcome PreventOwnPlayOutsideTargetRangeDamage(ProgramSkillFrame f)=>engine.PreventOwnPlayOutsideRange(f);

@@ -112,28 +112,28 @@ internal sealed class OfferHalfHandRecipientSupportDescriptor : HalfHandPhaseDeb
 public sealed class DrawExtraAndArmHalfHandSupportHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.DrawExtraAndArmHalfHandSupport;
-    public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int target, ISkillProgramEffectHost h) => ((IHalfHandPhaseDebtProgramHost)h).DrawExtraAndArmHalfHandSupport(f, e);
+    public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int target, ISkillProgramEffectHost h) => h.GetCapability<IHalfHandPhaseDebtProgramHost>().DrawExtraAndArmHalfHandSupport(f, e);
 }
 public sealed class GiveHalfHandAndIssueTargetSupportHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.GiveHalfHandAndIssueTargetSupport;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int target, ISkillProgramEffectHost h) =>
-        ((IHalfHandPhaseDebtProgramHost)h).GiveHalfHandAndIssueTargetSupport(f, e);
+        h.GetCapability<IHalfHandPhaseDebtProgramHost>().GiveHalfHandAndIssueTargetSupport(f, e);
 }
 public sealed class ExchangeHandsAndArmPhaseDebtHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.ExchangeHandsAndArmPhaseDebt;
-    public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int target, ISkillProgramEffectHost h) => ((IHalfHandPhaseDebtProgramHost)h).ExchangeHandsAndArmPhaseDebt(f, e);
+    public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int target, ISkillProgramEffectHost h) => h.GetCapability<IHalfHandPhaseDebtProgramHost>().ExchangeHandsAndArmPhaseDebt(f, e);
 }
 public sealed class SelectFrozenHandExchangeDebtPaymentHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.SelectFrozenHandExchangeDebtPayment;
-    public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int target, ISkillProgramEffectHost h) => ((IHalfHandPhaseDebtProgramHost)h).SelectFrozenHandExchangeDebtPayment(f, e);
+    public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int target, ISkillProgramEffectHost h) => h.GetCapability<IHalfHandPhaseDebtProgramHost>().SelectFrozenHandExchangeDebtPayment(f, e);
 }
 public sealed class OfferHalfHandRecipientSupportHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.OfferHalfHandRecipientSupport;
-    public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int target, ISkillProgramEffectHost h) => ((IHalfHandPhaseDebtProgramHost)h).OfferHalfHandRecipientSupport(f, e);
+    public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int target, ISkillProgramEffectHost h) => h.GetCapability<IHalfHandPhaseDebtProgramHost>().OfferHalfHandRecipientSupport(f, e);
 }
 
 internal static class HalfHandPhaseDebtComposition

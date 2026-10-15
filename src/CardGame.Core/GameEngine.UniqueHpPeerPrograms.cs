@@ -27,6 +27,7 @@ public sealed partial class GameEngine
         return MountObserverCandidateMatches(f, parent.Candidates[parent.CandidateIndex]) &&
             parent.Contexts[parent.CandidateIndex].ActualUseTarget == identity && parent.Contexts[parent.CandidateIndex] == context;
     }
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 730)]
     private bool CanRunUniqueHpPeer(ProgramTriggerCandidate c, SkillProgramTrigger trigger, ProgramSkillWindowContext context) =>
         !trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.DiscardDrawAndOfferUniqueHpPeer) ||
         context.ActualUseTarget is { } identity && IsSlashCard(identity.EffectiveKind) && identity.TargetSeat == c.OwnerSeat &&

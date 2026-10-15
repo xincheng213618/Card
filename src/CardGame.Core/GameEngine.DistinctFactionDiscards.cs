@@ -2,8 +2,14 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private sealed partial class ProgramSkillHost : IDistinctFactionDiscardHost
+    [ProgramCapability]
+    private sealed class DistinctFactionDiscardCapability(GameEngine engine) : IDistinctFactionDiscardHost
     { public SkillProgramStepOutcome BeginDistinctFactionDiscards(ProgramSkillFrame f) => engine.BeginDistinctFactionDiscards(f); }
+    [ProgramActivationLegality(ProgramActivationLegalityPhase.BeforeCardCount, 20, SkillProgramEffectOp.DiscardDistinctFactionParticipants)]
+    private bool CanStartDistinctFactionDiscard(ProgramActivationLegalityContext gate) =>
+        HasPayableDistinctFactionOwnerHe(gate.Owner.Seat, gate.Program.Id,
+            GetRuntimeSkillInstanceId(gate.Owner, gate.Program.Id));
+
     private bool HasPayableDistinctFactionOwnerHe(int seat,string skillId,string instanceId) =>
         GetHand(_players[seat]).Count>0 || GetEquipment(_players[seat]).Any(c=>!IsActiveProgramSourceEquipmentCard(seat,skillId,instanceId,c));
     private bool DistinctFactionPlanValid(int owner,IReadOnlyList<int> seats) => seats.Distinct().Count()==seats.Count &&

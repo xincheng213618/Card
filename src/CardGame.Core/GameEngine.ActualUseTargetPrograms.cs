@@ -78,6 +78,7 @@ public sealed partial class GameEngine
         return true;
     }
 
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 790)]
     private bool CanRunActualUseTarget(ProgramTriggerCandidate candidate, ProgramSkillWindowContext context)
     {
         if (context.Window != SkillProgramTriggerWindow.OtherActualUseTargeted) return true;

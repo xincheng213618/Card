@@ -38,6 +38,7 @@ public sealed partial class GameEngine
         return instances.Length == 0 ? null : instances;
     }
 
+    [ProgramRuleObserver(ProgramRulePhase.BeforeEvent, 230)]
     private void ObservePlayPhaseColorRestriction(IGameEvent payload)
     {
         if (payload is TurnStartedEvent) _programPhaseColorRestrictions.Clear();

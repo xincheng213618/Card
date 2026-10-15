@@ -49,14 +49,14 @@ public sealed class UseRandomDeckEquipmentHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.UseRandomDeckEquipment;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost h) =>
-        ((IDeckEquipmentProgramHost)h).UseRandomDeckEquipment(f, f.SelectedTargetSeats.Single(), e.ResultBind!);
+        h.GetCapability<IDeckEquipmentProgramHost>().UseRandomDeckEquipment(f, f.SelectedTargetSeats.Single(), e.ResultBind!);
 }
 public sealed class GrantRandomSkillAndSuitShieldHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.GrantRandomSkillAndSuitShield;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost h)
     {
-        ((IDeckEquipmentProgramHost)h).GrantRandomSkillAndSuitShield(f, seat, e.SkillIds, e.Suits[0]);
+        h.GetCapability<IDeckEquipmentProgramHost>().GrantRandomSkillAndSuitShield(f, seat, e.SkillIds, e.Suits[0]);
         return SkillProgramStepOutcome.Continue;
     }
 }

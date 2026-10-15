@@ -14,6 +14,7 @@ public sealed partial class GameEngine
         ProgramOperationLegalityPolicy.HandContest.CanSelectTarget(
             new(sourceSeat, GetHand(_players[sourceSeat]).Count), CreateProgramLegalityParticipant(targetSeat));
 
+    [ProgramActivationLegality(ProgramActivationLegalityPhase.BeforeCondition, 140)]
     private bool CanPayEquipmentSlotGroup(CharacterState owner, SkillProgramActivation activation) =>
         ProgramInstructionResolver.Default.Features(activation).ForOperation(SkillProgramEffectOp.AbolishEquipmentSlotGroup)
             .All(e => e.EquipmentSlots.Any(slot => owner.EquipmentSlotCapacity(slot) > 0));
@@ -36,7 +37,8 @@ public sealed partial class GameEngine
             return false;
         return true;
     }
-    private sealed partial class ProgramSkillHost : IEquipmentSlotGroupProgramHost
+    [ProgramCapability]
+    private sealed class EquipmentSlotGroupProgramCapability(GameEngine engine) : IEquipmentSlotGroupProgramHost
     {
         public void AbolishEquipmentSlotGroup(ProgramSkillFrame frame, IReadOnlyList<EquipmentSlot> slots) =>
             engine.AbolishProgramEquipmentSlotGroup(frame, slots);

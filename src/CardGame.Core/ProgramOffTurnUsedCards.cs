@@ -69,7 +69,7 @@ internal sealed class GiveOffTurnUsedCardsHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.GiveOffTurnUsedCards;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int target, ISkillProgramEffectHost host) =>
-        ((IOffTurnUsedCardsProgramHost)host).GiveOffTurnUsedCards(f);
+        host.GetCapability<IOffTurnUsedCardsProgramHost>().GiveOffTurnUsedCards(f);
 }
 
 internal static class OffTurnUsedCardsComposition

@@ -206,6 +206,7 @@ public sealed partial class GameEngine
         frame.TriggerId is { } binding && frame.WindowContext is { } context && HasIssuedGiftedSlashRewardCandidate(
             new(frame.OwnerSeat, frame.SkillId, binding, frame.SkillInstanceId, frame.GameplayHash, 0), context);
 
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 210)]
     private bool CanOfferGiftedSlashUseReward(ProgramTriggerCandidate candidate, SkillProgramTrigger trigger, ProgramSkillWindowContext context) =>
         !trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.RewardGiftedSlashUse) || HasIssuedGiftedSlashRewardCandidate(candidate, context) &&
             !CompleteProgramEventHistory().OfType<GiftedSlashRewardDrawIssuedEvent>().Any(e => e.Benefit.CardUseFrameId == context.CardUse!.ParentCardUseFrameId);
@@ -393,7 +394,8 @@ public sealed partial class GameEngine
             target == (effect.TargetReference is { } reference ? ResolveProgramParticipant(frame, reference) : ResolveProgramEffectTarget(frame, effect.Target));
     }
 
-    private sealed partial class ProgramSkillHost : IGiftedSlashUseRewardHost
+    [ProgramCapability]
+    private sealed class GiftedSlashUseRewardCapability(GameEngine engine) : IGiftedSlashUseRewardHost
     {
         public SkillProgramStepOutcome BeginGiftedSlashGift(SkillProgramEffect effect, ProgramSkillFrame frame, int recipientSeat) =>
             engine.BeginGiftedSlashGift(effect, frame, recipientSeat);

@@ -4,6 +4,7 @@ public sealed partial class GameEngine
 {
     private const string DamageTargetObtainReason = "skill-program.damage-target-obtain.obtain";
     private const string DamageTargetBenefitReason = "skill-program.damage-target-obtain.benefit-draw";
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 1120, SkillProgramEffectOp.ObtainDamageTargetCardAndResolveCategory)]
     private bool CanOfferDamageTargetObtain(int owner, ProgramSkillWindowContext c) =>
         c.TargetSeat is { } victim && victim != owner && IsValidPlayerSeat(victim) &&
         _players[owner].IsAlive && _players[victim].IsAlive && ActualDamageTargetMountUse(owner, c) is not null &&
@@ -215,7 +216,8 @@ public sealed partial class GameEngine
     private bool CanContinuePaidDamageTargetObtain(ProgramSkillFrame f)=>f.DamageTargetObtain is {Receipt:not null} && IsValidDamageTargetObtain(f) &&
         (_players[f.OwnerSeat].IsAlive || f.DamageTargetObtain is {Receipt.IsEquipment:false,Stage:ProgramDamageTargetObtainStage.DrawChildren or ProgramDamageTargetObtainStage.Complete});
 
-    private sealed partial class ProgramSkillHost : IDamageTargetObtainProgramHost
+    [ProgramCapability]
+    private sealed class DamageTargetObtainProgramCapability(GameEngine engine) : IDamageTargetObtainProgramHost
     {
         public SkillProgramStepOutcome ObtainDamageTargetCardAndResolveCategory(ProgramSkillFrame f)=>engine.BeginDamageTargetObtain(f);
     }

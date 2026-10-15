@@ -12,6 +12,7 @@ public sealed partial class GameEngine
         .Any(e => e.OwnerSeat == owner && e.SkillId == skill);
     private bool PrintedLordGameIssued(int owner, string skill, string binding) => CompleteProgramEventHistory().OfType<ProgramBindingStartedEvent>()
         .Any(e => e.OwnerSeat == owner && e.SkillId == skill && e.BindingId == binding);
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 740)]
     private bool CanRunRecipientConsequences(ProgramTriggerCandidate c, SkillProgramTrigger trigger) =>
         !trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.RaiseMaximumRecoverAndQualifyPrintedLord) ||
         c.OwnerSeat == _currentSeat && !PrintedLordGameIssued(c.OwnerSeat, c.SkillId, c.BindingId) &&

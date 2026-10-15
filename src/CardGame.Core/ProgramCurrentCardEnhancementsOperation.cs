@@ -28,5 +28,5 @@ public sealed class ApplyCurrentCardEnhancementsHandler : ISkillProgramEffectHan
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.ApplyCurrentCardEnhancements;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat, ISkillProgramEffectHost host) =>
-        ((ICurrentCardEnhancementProgramHost)host).ApplyCurrentCardEnhancements(frame, effect.Amount);
+        host.GetCapability<ICurrentCardEnhancementProgramHost>().ApplyCurrentCardEnhancements(frame, effect.Amount);
 }

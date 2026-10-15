@@ -64,5 +64,5 @@ public sealed class GiveBoundCardThenOfferVirtualSlashOrSharedDrawHandler : ISki
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.GiveBoundCardThenOfferVirtualSlashOrSharedDraw;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int targetSeat, ISkillProgramEffectHost host) =>
-        ((ISharedSlashOfferProgramHost)host).GiveBoundCardThenOffer(f, targetSeat, e.SourceBind!);
+        host.GetCapability<ISharedSlashOfferProgramHost>().GiveBoundCardThenOffer(f, targetSeat, e.SourceBind!);
 }

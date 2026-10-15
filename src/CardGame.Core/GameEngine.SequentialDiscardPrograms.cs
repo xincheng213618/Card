@@ -250,7 +250,8 @@ public sealed partial class GameEngine
         return true;
     }
 
-    private sealed partial class ProgramSkillHost : ISequentialDiscardProgramHost
+    [ProgramCapability]
+    private sealed class SequentialDiscardProgramCapability(GameEngine engine) : ISequentialDiscardProgramHost
     {
         public SkillProgramStepOutcome RunSequentialDiscard(ProgramSkillFrame f, SkillProgramEffect e, int target) => engine.RunSequentialDiscard(f, e, target);
     }

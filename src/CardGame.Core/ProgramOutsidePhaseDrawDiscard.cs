@@ -101,7 +101,7 @@ public abstract class OutsidePhaseDrawDiscardHandler(SkillProgramEffectOp op) : 
 {
     public SkillProgramEffectOp Op => op;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int seat, ISkillProgramEffectHost host) =>
-        ((IOutsidePhaseDrawDiscardProgramHost)host).OutsidePhaseDrawDiscard(frame, op);
+        host.GetCapability<IOutsidePhaseDrawDiscardProgramHost>().OutsidePhaseDrawDiscard(frame, op);
 }
 public sealed class DrawAfterActualOutsideDrawHandler : OutsidePhaseDrawDiscardHandler
 { public DrawAfterActualOutsideDrawHandler() : base(SkillProgramEffectOp.DrawAfterActualOutsideDraw) { } }

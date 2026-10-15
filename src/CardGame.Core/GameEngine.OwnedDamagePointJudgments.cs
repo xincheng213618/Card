@@ -5,6 +5,7 @@ public sealed record ProgramOwnedDamagePointJudgment(int InstructionIndex, long 
 
 public sealed partial class GameEngine
 {
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 1100)]
     private bool CanRunOwnedDamagePointJudgment(SkillProgramTrigger trigger, ProgramSkillWindowContext context,
         int ownerSeat)
     {

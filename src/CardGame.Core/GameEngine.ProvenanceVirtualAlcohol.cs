@@ -4,6 +4,7 @@ public enum ProgramProvenanceAlcoholStage { FaceCost, WineUse }
 public sealed record ProgramProvenanceAlcoholReceipt(int InstructionIndex, ProgramProvenanceAlcoholStage Stage, long? ChildFrameId=null);
 public sealed partial class GameEngine
 {
+    [ProgramActivationLegality(ProgramActivationLegalityPhase.BeforeCondition, 30, SkillProgramEffectOp.UseVirtualAlcohol)]
     private bool CanStartProvenanceAlcohol(CharacterState owner)=>!owner.IsFaceDown && VirtualBasicOptions(owner.Seat).Contains((CardKind.Alcohol,owner.Seat));
     private SkillProgramStepOutcome BeginProvenanceVirtualAlcohol(ProgramSkillFrame input)
     {

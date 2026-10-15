@@ -1,8 +1,9 @@
-﻿namespace CardGame.Core;
+namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private sealed partial class ProgramSkillHost : IPublicPersistentPileProgramHost
+    [ProgramCapability]
+    private sealed class PublicPersistentPileProgramCapability(GameEngine engine) : IPublicPersistentPileProgramHost
     {
         public SkillProgramStepOutcome ExecutePublicPile(SkillProgramEffect effect, ProgramSkillFrame frame) => engine.ExecutePublicPile(effect, frame);
     }
@@ -231,6 +232,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("Public pile draft lost its chooser and visibility.");
     }
 
+    [ProgramRuleObserver(ProgramRulePhase.BeforeStatePublish, 70)]
     private void CleanupLostPublicPersistentPiles()
     {
         foreach (var source in _publicPersistentPiles.Values.Where(source => !_players[source.OwnerSeat].IsAlive ||

@@ -34,7 +34,8 @@ public sealed partial class GameEngine
         return true;
     }
 
-    private sealed partial class ProgramSkillHost : INextCardTargetAdjustmentProgramHost
+    [ProgramCapability]
+    private sealed class NextCardTargetAdjustmentProgramCapability(GameEngine engine) : INextCardTargetAdjustmentProgramHost
     {
         public void GrantNextCardTargetAdjustment(ProgramSkillFrame frame) => engine.GrantNextCardTargetAdjustment(frame);
     }
@@ -45,6 +46,7 @@ public sealed partial class GameEngine
         _nextCardTargetAdjustmentOwners[frame.OwnerSeat] = new(frame.SkillId, "next-card-target-adjustment", frame.OwnerSeat, frame.SkillInstanceId);
     }
 
+    [ProgramRuleObserver(ProgramRulePhase.BeforeEvent, 210)]
     private void ObserveNextCardTargetAdjustmentEvent(IGameEvent payload)
     {
         if (payload is TurnStartedEvent)
@@ -60,6 +62,7 @@ public sealed partial class GameEngine
         _nextCardTargetAdjustmentOwners.TryGetValue(owner.Seat, out var source) &&
         HasRuntimeSkillInstance(owner, source.SkillId, source.SkillInstanceId);
 
+    [ProgramCardAction(ProgramCardActionPhase.AfterProgram, 10)]
     private void AddNextCardTargetAdjustmentActions(List<LegalAction> actions, CharacterState actor)
     {
         if (!HasLegacyNextCardTargetAdjustment(actor)) return;

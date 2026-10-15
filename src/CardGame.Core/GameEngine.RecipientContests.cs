@@ -4,6 +4,7 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private static string RecipientContestGiftReason(ProgramSkillFrame f) => $"skill-program.{f.SkillId}.{SkillProgramEffectOp.GiveAllHandAndStartRecipientPindian}";
+    [ProgramActivationLegality(ProgramActivationLegalityPhase.BeforeCondition, 10, SkillProgramEffectOp.GiveAllHandAndStartRecipientPindian)]
     private bool CanStartRecipientContest(CharacterState owner) => owner.IsAlive && GetHand(owner).Count > 0;
     private SkillProgramStepOutcome BeginRecipientContest(ProgramSkillFrame supplied, int recipient, string bind)
     {
@@ -140,7 +141,8 @@ public sealed partial class GameEngine
         ReplaceRuntimeTop(f = f with { RecipientContest = r with { Stage = RecipientContestStage.Complete } });
         AdvanceEventRulesAndQueueFact(new PindianWinnerSlashReturnedEvent(returned)); FinishProgramSkill(f, true);
     }
-    private sealed partial class ProgramSkillHost : IRecipientContestProgramHost
+    [ProgramCapability]
+    private sealed class RecipientContestProgramCapability(GameEngine engine) : IRecipientContestProgramHost
     {
         public SkillProgramStepOutcome DiscardDrawPeer(ProgramSkillFrame f) => engine.BeginUniqueHpPeer(f);
         public SkillProgramStepOutcome GiveAllHandContest(ProgramSkillFrame f, int seat, string bind) => engine.BeginRecipientContest(f, seat, bind);

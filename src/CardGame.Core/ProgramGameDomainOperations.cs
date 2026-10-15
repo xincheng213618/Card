@@ -1,4 +1,4 @@
-﻿namespace CardGame.Core;
+namespace CardGame.Core;
 
 public sealed record FirstGameDomainCrossingEvent(int TurnNumber,long BatchId,bool MovedOut,int MovementOrdinal):IGameEvent;
 public sealed record ProgramDomainCrossingDraft(string Stage,bool MovedOut,int OtherSeat=-1,int ParticipantIndex=0,
@@ -40,7 +40,7 @@ internal sealed class UsePublicPileEquipmentSequenceDescriptor:GameDomainOperati
 public abstract class GameDomainOperationHandler:ISkillProgramEffectHandler
 {
     public abstract SkillProgramEffectOp Op{get;}
-    public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int seat,ISkillProgramEffectHost h)=>((IGameDomainProgramHost)h).ExecuteGameDomain(e,f);
+    public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int seat,ISkillProgramEffectHost h)=>h.GetCapability<IGameDomainProgramHost>().ExecuteGameDomain(e,f);
 }
 public sealed class ResolveFirstGameDomainCrossingHandler:GameDomainOperationHandler{public override SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveFirstGameDomainCrossing;}
 public sealed class StoreArbitraryOwnedPublicPileHandler:GameDomainOperationHandler{public override SkillProgramEffectOp Op=>SkillProgramEffectOp.StoreArbitraryOwnedPublicPile;}

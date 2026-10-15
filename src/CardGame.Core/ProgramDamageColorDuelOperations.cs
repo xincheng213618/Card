@@ -42,5 +42,5 @@ internal sealed class DamageColorDuelHandler(SkillProgramEffectOp op):ISkillProg
 {
     public SkillProgramEffectOp Op=>op;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect,ProgramSkillFrame frame,int targetSeat,ISkillProgramEffectHost host)=>
-        op==SkillProgramEffectOp.DrawByDamageCardColor ? ((IDamageColorDuelProgramHost)host).DrawByDamageCardColor(frame) : ((IDamageColorDuelProgramHost)host).UseSelectedActorDuel(frame);
+        op==SkillProgramEffectOp.DrawByDamageCardColor ? host.GetCapability<IDamageColorDuelProgramHost>().DrawByDamageCardColor(frame) : host.GetCapability<IDamageColorDuelProgramHost>().UseSelectedActorDuel(frame);
 }

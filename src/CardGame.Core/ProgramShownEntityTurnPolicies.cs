@@ -41,7 +41,7 @@ internal sealed class IssueShownEntityTurnPolicyHandler:ISkillProgramEffectHandl
 {
     public SkillProgramEffectOp Op=>SkillProgramEffectOp.IssueShownEntityTurnPolicy;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int target,ISkillProgramEffectHost host)
-    {((IShownEntityTurnPolicyHost)host).IssueShownEntityTurnPolicy(f,e.SourceBind!,e.StateId!);return SkillProgramStepOutcome.Continue;}
+    {host.GetCapability<IShownEntityTurnPolicyHost>().IssueShownEntityTurnPolicy(f,e.SourceBind!,e.StateId!);return SkillProgramStepOutcome.Continue;}
 }
 internal static class ShownEntityTurnPolicyComposition
 {

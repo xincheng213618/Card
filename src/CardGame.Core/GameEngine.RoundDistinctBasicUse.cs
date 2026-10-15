@@ -44,6 +44,7 @@ public sealed partial class GameEngine
         return color is not null && SuitColor(EffectiveSuit(owner, cards[1])) == color;
     }
 
+    [ProgramRuleObserver(ProgramRulePhase.BeforeEvent, 330)]
     private void ObserveRoundDistinctBasicUse(IGameEvent payload)
     {
         if (!_contentRegistry.ProgramDependencies.UsesRoundDistinctBasicUse) return;

@@ -38,7 +38,7 @@ internal sealed class UsePhaseOwnerVirtualAlcoholHandler : ISkillProgramEffectHa
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.UsePhaseOwnerVirtualAlcohol;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost h) =>
-        ((IForcedPhaseAlcoholHost)h).UsePhaseOwnerVirtualAlcohol(f, e.Amount);
+        h.GetCapability<IForcedPhaseAlcoholHost>().UsePhaseOwnerVirtualAlcohol(f, e.Amount);
 }
 internal static class ForcedPhaseAlcoholContract
 {

@@ -36,7 +36,7 @@ public sealed class AddEndingTurnDamageMarkerSkillProgramEffectHandler : ISkillP
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,
         int targetSeat, ISkillProgramEffectHost host)
     {
-        if (targetSeat != frame.OwnerSeat || host is not ITurnEndDamageMarkerProgramHost markerHost)
+        if (targetSeat != frame.OwnerSeat || !host.TryGetCapability<ITurnEndDamageMarkerProgramHost>(out var markerHost))
             throw new InvalidOperationException("Ending-turn damage marker requires its actual owner host.");
         markerHost.AddEndingTurnDamageMarker(frame, effect.Marker!.Value);
         return SkillProgramStepOutcome.Continue;

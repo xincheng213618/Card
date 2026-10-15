@@ -54,7 +54,7 @@ internal sealed class RevealRecordedSuitSlashHandler : ISkillProgramEffectHandle
     public SkillProgramEffectOp Op => SkillProgramEffectOp.RevealRecordedSuitSlash;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat, ISkillProgramEffectHost host)
     {
-        ((IRecordedSuitSlashProgramHost)host).RevealRecordedSuitSlash(frame, effect);
+        host.GetCapability<IRecordedSuitSlashProgramHost>().RevealRecordedSuitSlash(frame, effect);
         return SkillProgramStepOutcome.Continue;
     }
 }

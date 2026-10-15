@@ -2,6 +2,7 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private readonly HashSet<int> _nextUnlimitedCardOwners = [];
+    [ProgramRuleObserver(ProgramRulePhase.BeforeEvent, 170)]
     private void ObserveAdvancedLifecycleEvent(IGameEvent payload)
     {
         if (payload is TurnStartedEvent) { _nextUnlimitedCardOwners.Clear(); }
@@ -38,8 +39,5 @@ public sealed partial class GameEngine
         attack.PendingRedBladeDamageBonus = applies;
         return applies ? 1 : 0;
     }
-    private bool IsAdvancedActivationTargetAllowed(CharacterState owner, CharacterState target, string skillId, ProgramInstructionFeatures features) =>
-        !features.HasOperation(SkillProgramEffectOp.DamageFarthestCharacter) ||
-        IsFarthestInRange(owner, target) && _skillRuntimeState.GetUsage(owner.Seat, skillId, $"target:{target.Seat}", SkillUsageScope.Turn) == 0;
 }
 

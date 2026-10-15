@@ -62,12 +62,12 @@ internal sealed class RecastSelectedPhysicalSlashDescriptor : ProgramOperationDe
 public sealed class DrawEndingPairThenBlockRoundIfUnequalHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.DrawEndingPairThenBlockRoundIfUnequal;
-    public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost h) => ((IEndingPairSlashLossHost)h).DrawEndingPair(f, e.StateId!);
+    public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost h) => h.GetCapability<IEndingPairSlashLossHost>().DrawEndingPair(f, e.StateId!);
 }
 public sealed class RecastSelectedPhysicalSlashHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.RecastSelectedPhysicalSlash;
-    public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost h) => ((IEndingPairSlashLossHost)h).RecastSelectedPhysicalSlash(f);
+    public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost h) => h.GetCapability<IEndingPairSlashLossHost>().RecastSelectedPhysicalSlash(f);
 }
 
 internal static class EndingPairSlashLossComposition

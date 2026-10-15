@@ -304,6 +304,14 @@ public sealed partial class GameEngine
         ArgumentNullException.ThrowIfNull(contentRegistry);
         _options = options;
         _contentRegistry = contentRegistry;
+        _programCapabilities = new(this, ProgramCapabilityMetadata.Value);
+        _programRuleObservers = new ProgramRuleObservers(ProgramRuleObserverRegistrations.Value,
+            (method, type) => method.CreateDelegate(type, this));
+        _programLegality = new(ProgramLegalityMetadata.Value, this);
+        _programSelections = new(ProgramSelectionMetadata.Value, ProgramSelectionQueries);
+        _programSelectionValidators = new(ProgramSelectionValidationMetadata.Value, ProgramSelectionQueries);
+        _programTargetResolvers = new(ProgramTargetResolverMetadata.Value, ProgramSelectionQueries);
+        _programActions = new(ProgramActionMetadata.Value, (method, type) => method.CreateDelegate(type, this));
         var requiredProgramRulesVersion = contentRegistry.ProgramDependencies.RequiredProgramRulesVersion;
         if (GameCheckpoint.CurrentRulesVersion < requiredProgramRulesVersion)
             throw new InvalidOperationException(
@@ -3937,8 +3945,7 @@ public sealed partial class GameEngine
         SelectUseConversion(action);
         if (action.Kind == LegalActionKind.UseProgramSkill)
         {
-            if (TryExecuteRoundDistinctBasicPlay(actor, action, activeSkillCardIds ?? [], activeSkillTargetSeats ?? [])) return;
-            if (TryExecuteForeignPublicPileSlash(actor, action, activeSkillCardIds ?? [], activeSkillTargetSeats ?? [])) return;
+            if (ProgramActions.TryExecute(actor, action, activeSkillCardIds ?? [], activeSkillTargetSeats ?? [])) return;
             ExecuteProgramSkill(actor, action, activeSkillCardIds ?? [], activeSkillTargetSeats ?? []);
             return;
         }
@@ -15090,20 +15097,13 @@ public sealed partial class GameEngine
             });
         }
 
-        AddPhaseLimitedBasicCardActions(actions, actor, allPhysicalCardCandidates, selectedPhysicalCardId);
-        AddSingleCardTrickConversionActions(actions, actor, allPhysicalCardCandidates, selectedPhysicalCardId);
-        AddDeclarationSlashActions(actions, actor, allPhysicalCardCandidates);
+        ProgramActions.Augment(ProgramCardActionPhase.BeforeProgram, actions, actor, allPhysicalCardCandidates, selectedPhysicalCardId);
         if (selectedPhysicalCardId is null)
         {
             if (includeProgramActions) actions.AddRange(BuildProgramActions(actor));
-            actions.AddRange(BuildForeignPublicPileSlashActions(actor));
-            actions.AddRange(BuildRoundDistinctBasicPlayActions(actor));
+            actions.AddRange(ProgramActions.Build(ProgramActionSourcePhase.Cardless, actor));
         }
-        AddNextCardTargetAdjustmentActions(actions, actor);
-        AddNextActualUseAdjustmentActions(actions, actor);
-        AddHpLossSlashEquipmentActions(actions, actor);
-        AddPaidColorEquipmentDuelActions(actions, actor, selectedPhysicalCardId);
-        AddRedAdditionalTargetActions(actions, actor);
+        ProgramActions.Augment(ProgramCardActionPhase.AfterProgram, actions, actor, allPhysicalCardCandidates, selectedPhysicalCardId);
         if (selectedPhysicalCardId is null)
             actions.Add(new LegalAction(LegalActionKind.EndPlay, null, null, "结束出牌"));
         var physicalKinds = allPhysicalPlayableCards.ToDictionary(card => card.Id, card => card.Kind);

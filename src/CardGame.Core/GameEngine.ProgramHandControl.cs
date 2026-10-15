@@ -2,6 +2,16 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    [ProgramActivationLegality(ProgramActivationLegalityPhase.BeforeCardCount, 10)]
+    private bool AllowsDrawTurnOwnerThenDiscardMaximumHandForDodgeActivation(ProgramActivationLegalityContext gate)
+    {
+        var owner = gate.Owner;
+        var program = gate.Program;
+        var features = gate.Features;
+        return !(features.HasOperation(SkillProgramEffectOp.DrawTurnOwnerThenDiscardMaximumHandForDodge) ||
+                    !HasSkillRoleQualification(owner, program.Id, null, Role.Lord) && features.HasOperation(SkillProgramEffectOp.GrantGameFactionAttackRangeTargets));
+    }
+
     // Public only while the real revealed hand awaits its color payment. The
     // shared snapshot projection resolves these IDs through the physical zones.
     private IEnumerable<int> GetProgramHandControlPublicCardIds() =>
@@ -10,11 +20,13 @@ public sealed partial class GameEngine
                 { Operation: SkillProgramEffectOp.RevealHandColorDiscardAndTake, Stage: "color", RevealedCardIds: not null })
             .SelectMany(frame => frame.HandControlDraft!.RevealedCardIds!);
 
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeCondition, 60)]
     private bool CanOfferProgramHandControl(CharacterState owner, SkillProgramTrigger trigger) =>
         !trigger.Effects.Any(effect => effect.Op == SkillProgramEffectOp.ChooseHandCountIntervention) ||
         _players.Any(player => player.IsAlive && GetHand(player).Count != GetHand(owner).Count);
 
-    private sealed partial class ProgramSkillHost : IHandControlProgramHost
+    [ProgramCapability]
+    private sealed class HandControlProgramCapability(GameEngine engine) : IHandControlProgramHost
     {
         public SkillProgramStepOutcome ExecuteHandControl(SkillProgramEffect effect, ProgramSkillFrame frame) =>
             engine.ExecuteProgramHandControl(effect, frame);

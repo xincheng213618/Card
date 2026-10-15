@@ -83,7 +83,7 @@ public sealed class DiscardEquipmentThenSlashAndOwnershipOutcomeHandler : ISkill
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.DiscardEquipmentThenSlashAndOwnershipOutcome;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost h) =>
-        ((IKuangfuProgramHost)h).DiscardEquipmentThenSlashAndOwnershipOutcome(f);
+        h.GetCapability<IKuangfuProgramHost>().DiscardEquipmentThenSlashAndOwnershipOutcome(f);
 }
 internal static class KuangfuComposition
 {

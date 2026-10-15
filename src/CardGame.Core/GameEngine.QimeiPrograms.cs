@@ -43,6 +43,7 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new QimeiPairArmedEvent(grant));
         return SkillProgramStepOutcome.Continue;
     }
+    [ProgramRuleObserver(ProgramRulePhase.BeforeEvent, 430)]
     private void ObserveQimeiExpiry(IGameEvent payload)
     {
         if(!HasQimeiCapability)return;

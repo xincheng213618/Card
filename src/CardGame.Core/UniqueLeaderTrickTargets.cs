@@ -123,7 +123,7 @@ internal sealed class UniqueLeaderTrickHandler(SkillProgramEffectOp operation) :
 {
     public SkillProgramEffectOp Op => operation;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat, ISkillProgramEffectHost host) =>
-        host is IUniqueLeaderTrickTargetHost typed ? operation switch
+        host.TryGetCapability<IUniqueLeaderTrickTargetHost>(out var typed) ? operation switch
         {
             SkillProgramEffectOp.OfferUniqueLargestHandTrickTargetAddition => typed.OfferUniqueLargestHandTrickTargetAddition(frame),
             SkillProgramEffectOp.JoinUniqueLargestHpTrickTargetAndDrawAfterDamage => typed.JoinUniqueLargestHpTrickTargetAndDrawAfterDamage(frame),

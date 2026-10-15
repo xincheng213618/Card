@@ -71,6 +71,7 @@ public sealed partial class GameEngine
         UpdateLifecycleCardUse(use.Id, frame => frame with { FactionRewardOffers = Array.AsReadOnly((frame.FactionRewardOffers ?? []).Concat(offers).Distinct().ToArray()) });
     }
 
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeCondition, 10)]
     private bool CanRunFactionActionReward(ProgramTriggerCandidate candidate, SkillProgramTrigger trigger, ProgramSkillWindowContext context)
     {
         if (!trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.RewardOutOfTurnFactionSlash)) return true;

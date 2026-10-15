@@ -59,6 +59,7 @@ public sealed partial class GameEngine
             !IsSelfHandCategoryDiscardForbidden(owner, c, _cardZones.GetLocation(c.Id), OwnedCardMoveIntent.Discard) &&
             !IsForeignEquipmentDiscardPrevented(owner, c, _cardZones.GetLocation(c.Id), OwnedCardMoveIntent.Discard)).ToArray();
 
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 250)]
     private bool CanOfferSoleTargetProtection(ProgramTriggerCandidate candidate, SkillProgramTrigger trigger, ProgramSkillWindowContext context)
     {
         if (!trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.ProtectOtherSoleCardTarget)) return true;
@@ -278,6 +279,7 @@ public sealed partial class GameEngine
             return decision.Choices.OrderBy(c => GetKeepValue(GetAttackCard(c.Cards.Single()), _players[f.OwnerSeat])).ThenBy(c => c.Cards.Single()).First();
         return decision.Choices.FirstOrDefault(c => c.Parameters.GetValueOrDefault("branch") == (_players[f.OwnerSeat].Hp <= 3 ? "quarantine" : "substitute")) ?? decision.Choices[0];
     }
-    private sealed partial class ProgramSkillHost : ISoleTargetProtectionHost
+    [ProgramCapability]
+    private sealed class SoleTargetProtectionCapability(GameEngine engine) : ISoleTargetProtectionHost
     { public SkillProgramStepOutcome ProtectOtherSoleCardTarget(ProgramSkillFrame frame) => engine.BeginSoleTargetProtection(frame); }
 }

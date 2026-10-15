@@ -10,7 +10,7 @@ internal sealed class UseVirtualOrdinaryTrickSkillProgramEffectHandler : ISkillP
     public SkillProgramEffectOp Op => SkillProgramEffectOp.UseVirtualOrdinaryTrick;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,
         int targetSeat, ISkillProgramEffectHost host) =>
-        ((IVirtualOrdinaryTrickProgramHost)host).UseVirtualOrdinaryTrick(frame, effect);
+        host.GetCapability<IVirtualOrdinaryTrickProgramHost>().UseVirtualOrdinaryTrick(frame, effect);
 }
 
 internal sealed class UseVirtualOrdinaryTrickProgramOperationDescriptor : ProgramOperationDescriptorBase

@@ -49,7 +49,8 @@ public sealed partial class GameEngine
                 current.ContainsKey(x.m.CardId) && (trigger.Suits.Count == 0 || trigger.Suits.Contains(x.origin.EffectiveSuit)))
             .Select(x => x.i).ToArray();
     }
-    private sealed partial class ProgramSkillHost : IDiscardedProvenanceProgramHost
+    [ProgramCapability]
+    private sealed class DiscardedProvenanceProgramCapability(GameEngine engine) : IDiscardedProvenanceProgramHost
     {
         public SkillProgramStepOutcome ClaimDiscardedEntityWithProvenance(ProgramSkillFrame frame, string provenanceId) => engine.BeginDiscardedProvenanceClaim(frame,provenanceId);
         public SkillProgramStepOutcome OfferFaceUpForOutsideClaims(ProgramSkillFrame frame, string provenanceId) => engine.OfferProvenanceFaceUp(frame,provenanceId);

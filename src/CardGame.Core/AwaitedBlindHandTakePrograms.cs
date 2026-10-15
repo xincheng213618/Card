@@ -8,7 +8,8 @@ public interface IAwaitedBlindHandTakeProgramHost
 }
 public sealed partial class GameEngine
 {
-    private sealed partial class ProgramSkillHost : IAwaitedBlindHandTakeProgramHost
+    [ProgramCapability]
+    private sealed class AwaitedBlindHandTakeProgramCapability(GameEngine engine) : IAwaitedBlindHandTakeProgramHost
     {
         public SkillProgramStepOutcome TakeRandomHandCardsAndAwait(ProgramSkillFrame frame, int amountPerTarget, CardMoveReason reason) =>
             engine.BeginAwaitedBlindHandTake(frame, amountPerTarget, reason);

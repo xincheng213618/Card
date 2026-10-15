@@ -47,7 +47,7 @@ internal sealed class ResolveFrozenHandRosterEndingExchangeDescriptor:ProgramOpe
 internal sealed class FrozenHandRosterHandler:ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op=>SkillProgramEffectOp.ResolveFrozenHandRosterEndingExchange;
-    public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int seat,ISkillProgramEffectHost h)=>((IFrozenHandRosterHost)h).ResolveFrozenHandRosterEndingExchange(f);
+    public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int seat,ISkillProgramEffectHost h)=>h.GetCapability<IFrozenHandRosterHost>().ResolveFrozenHandRosterEndingExchange(f);
 }
 internal static class FrozenHandRosterComposition
 {

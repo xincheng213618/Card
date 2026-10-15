@@ -69,5 +69,5 @@ public sealed class SelectIssuedFixedRecipientWithDeathReturnHandler : ISkillPro
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.SelectIssuedFixedRecipientWithDeathReturn;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int seat, ISkillProgramEffectHost host) =>
-        ((IOwnedDeathBenefitProgramHost)host).SelectIssuedFixedRecipientWithDeathReturn(frame, effect);
+        host.GetCapability<IOwnedDeathBenefitProgramHost>().SelectIssuedFixedRecipientWithDeathReturn(frame, effect);
 }

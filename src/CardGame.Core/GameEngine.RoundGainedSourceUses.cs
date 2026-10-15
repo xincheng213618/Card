@@ -5,6 +5,7 @@ public sealed partial class GameEngine
     private bool TracksRoundGainedSourceUses => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.AdjustOneRoundGainedOrdinaryTrickTarget);
     private long RoundGainedMovementSequence => _cardMovements.LastOrDefault()?.Sequence ?? 0;
 
+    [ProgramRuleObserver(ProgramRulePhase.BeforeEvent, 340)]
     private void ObserveRoundGainedRoundBoundary(IGameEvent payload)
     {
         if (!TracksRoundGainedSourceUses || payload is not RoundStartedEvent round) return;

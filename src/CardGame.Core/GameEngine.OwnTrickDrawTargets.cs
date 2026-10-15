@@ -41,6 +41,7 @@ public sealed partial class GameEngine
             physicalIds.Order().SequenceEqual((use.PhysicalCardIds ?? [use.CardId]).Order()) &&
             physicalIds.Order().SequenceEqual(processing.Select(card => card.Id).Order());
     }
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 800)]
     private bool CanOfferOwnTrickOrHandCategory(ProgramTriggerCandidate c, SkillProgramTrigger trigger, ProgramSkillWindowContext context)
     {
         if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.DrawThenNullifyOwnMultiTargetTrick))
@@ -139,7 +140,8 @@ public sealed partial class GameEngine
     private bool IsOwnTrickDrawProgramDying() => ActiveDying is { } dying && _resolutionStack.OfType<ActualUseTargetWindowFrame>()
         .Any(w => ActualUseTargetObserverRoot(w.ParentFrameId) is { OwnTrickDraw: not null } root &&
             _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id));
-    private sealed partial class ProgramSkillHost : IOwnTrickAndHandCategoryProgramHost
+    [ProgramCapability]
+    private sealed class OwnTrickAndHandCategoryProgramCapability(GameEngine engine) : IOwnTrickAndHandCategoryProgramHost
     {
         public SkillProgramStepOutcome DrawThenNullifyOwnMultiTargetTrick(ProgramSkillFrame f) => engine.BeginOwnTrickDraw(f);
         public void RestrictDamageSourceHandCategory(ProgramSkillFrame f, SkillProgramCardCategory category) => engine.GrantDamageSourceHandCategory(f, category);

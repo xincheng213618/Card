@@ -10,7 +10,8 @@ public sealed partial class GameEngine
     private readonly Dictionary<int, ProgramPlayDamageHandLimit> _programPlayDamageHandLimits = [];
     private readonly List<ProgramGameFactionRangeTargets> _programGameFactionRangeTargets = [];
 
-    private sealed partial class ProgramSkillHost : IPersistentCombatPolicyProgramHost
+    [ProgramCapability]
+    private sealed class PersistentCombatPolicyProgramCapability(GameEngine engine) : IPersistentCombatPolicyProgramHost
     {
         public void SetTurnHandLimitFromPlayDamage(ProgramSkillFrame frame) => engine.SetProgramTurnHandLimitFromPlayDamage(frame);
         public void GrantGameFactionAttackRangeTargets(ProgramSkillFrame frame, string factionId) => engine.GrantProgramGameFactionAttackRangeTargets(frame, factionId);

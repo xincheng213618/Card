@@ -28,7 +28,7 @@ public sealed class PeekTurnQuotaTopHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.PeekTurnQuotaTop;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat, ISkillProgramEffectHost host) =>
-        ((IQuotaTopProgramHost)host).PeekTurnQuotaTop(frame, effect.Amount);
+        host.GetCapability<IQuotaTopProgramHost>().PeekTurnQuotaTop(frame, effect.Amount);
 }
 
 internal sealed class NullifyFirstTurnTargetByHandDescriptor : ProgramOperationDescriptorBase
@@ -55,7 +55,7 @@ public sealed class NullifyFirstTurnTargetByHandHandler : ISkillProgramEffectHan
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.NullifyFirstTurnTargetByHand;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat, ISkillProgramEffectHost host)
-    { ((IQuotaTopProgramHost)host).NullifyFirstTurnTargetByHand(frame); return SkillProgramStepOutcome.Continue; }
+    { host.GetCapability<IQuotaTopProgramHost>().NullifyFirstTurnTargetByHand(frame); return SkillProgramStepOutcome.Continue; }
 }
 
 /// <summary>The quota and viewed identities are frozen before any obtaining child.</summary>

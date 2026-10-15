@@ -4,7 +4,8 @@ public sealed record ConsecutiveTargetDeckGiftEvent(int OwnerSeat,string SkillId
 public sealed partial class GameEngine
 {
     private IEnumerable<IGameEvent> CompleteProgramEventHistory()=>_events.Select(e=>e.Payload).Concat(_pendingEvents);
-    private sealed partial class ProgramSkillHost : IAlternatingBenefitsProgramHost
+    [ProgramCapability]
+    private sealed class AlternatingBenefitsProgramCapability(GameEngine engine) : IAlternatingBenefitsProgramHost
     {
         public void ApplyAlternatingChoiceBenefit(ProgramSkillFrame f,string sourceBind,string stateId)=>engine.ApplyAlternatingChoiceBenefit(f,sourceBind,stateId);
         public SkillProgramStepOutcome ObtainDeckCardWithConsecutiveTarget(ProgramSkillFrame f,int seat,SkillProgramEffect e)=>engine.ObtainDeckCardWithConsecutiveTarget(f,seat,e);

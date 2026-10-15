@@ -58,7 +58,7 @@ internal sealed class DualColorDuelHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.ChoosePrivateColorsDiscardAndDuel;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat,
-        ISkillProgramEffectHost host) => ((IDualColorDuelProgramHost)host).ChoosePrivateColorsDiscardAndDuel(frame);
+        ISkillProgramEffectHost host) => host.GetCapability<IDualColorDuelProgramHost>().ChoosePrivateColorsDiscardAndDuel(frame);
 }
 
 internal sealed partial class ProgramAiEstimateContext

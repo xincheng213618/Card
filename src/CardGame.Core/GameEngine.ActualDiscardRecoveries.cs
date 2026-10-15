@@ -2,6 +2,7 @@ using System.Globalization;
 namespace CardGame.Core;
 public sealed partial class GameEngine
 {
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 890)]
     private bool CanOfferActualDiscardRecovery(ProgramTriggerCandidate c, ProgramSkillWindowContext context)
     {
         var op = GetProgramTrigger(c).Effects.SingleOrDefault(e=>e.Op==SkillProgramEffectOp.RestoreActualDiscardBatch);
@@ -192,7 +193,8 @@ public sealed partial class GameEngine
         }
     }
 
-    private sealed partial class ProgramSkillHost : IActualDiscardRecoveryProgramHost
+    [ProgramCapability]
+    private sealed class ActualDiscardRecoveryProgramCapability(GameEngine engine) : IActualDiscardRecoveryProgramHost
     {
         public SkillProgramStepOutcome RestoreActualDiscardBatch(ProgramSkillFrame f,string stateId)=>engine.BeginActualDiscardRecovery(f,stateId);
         public SkillProgramStepOutcome PlaceCapturedEquipmentAndDraw(ProgramSkillFrame f,int target,string bind,int draw)=>engine.BeginCapturedEquipmentAndDraw(f,target,bind,draw);

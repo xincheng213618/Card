@@ -33,7 +33,7 @@ public sealed class GrantTurnOriginalTargetAdditionHandler : ISkillProgramEffect
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.GrantTurnOriginalTargetAddition;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat, ISkillProgramEffectHost host)
-    { ((IOriginalTargetAdditionProgramHost)host).GrantOriginalTargetAddition(frame, targetSeat); return SkillProgramStepOutcome.Continue; }
+    { host.GetCapability<IOriginalTargetAdditionProgramHost>().GrantOriginalTargetAddition(frame, targetSeat); return SkillProgramStepOutcome.Continue; }
 }
 internal sealed class OfferOriginalTargetAdditionDescriptor : ProgramOperationDescriptorBase
 {
@@ -55,5 +55,5 @@ public sealed class OfferOriginalTargetAdditionHandler : ISkillProgramEffectHand
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.OfferOriginalTargetAddition;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat, ISkillProgramEffectHost host) =>
-        ((IOriginalTargetAdditionProgramHost)host).OfferOriginalTargetAddition(frame);
+        host.GetCapability<IOriginalTargetAdditionProgramHost>().OfferOriginalTargetAddition(frame);
 }

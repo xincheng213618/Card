@@ -50,7 +50,7 @@ internal sealed class FirstSlashDuelBenefitHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.ChooseFirstSlashDuelDiamondBenefit;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int seat, ISkillProgramEffectHost host) =>
-        ((IFirstSlashDuelBenefitHost)host).ChooseFirstSlashDuelDiamondBenefit(frame);
+        host.GetCapability<IFirstSlashDuelBenefitHost>().ChooseFirstSlashDuelDiamondBenefit(frame);
 }
 internal static class FirstSlashDuelBenefitContract
 {

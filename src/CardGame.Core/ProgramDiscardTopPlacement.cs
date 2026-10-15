@@ -25,6 +25,7 @@ public sealed class PutDiscardedCardsOnDrawPileTopSkillProgramEffectHandler : IS
     public SkillProgramEffectOp Op => SkillProgramEffectOp.PutDiscardedCardsOnDrawPileTop;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,
         int targetSeat, ISkillProgramEffectHost host) =>
-        (host as IProgramDiscardTopPlacementHost ?? throw new NotSupportedException("Discard placement requires the rules host."))
+        ((host.TryGetCapability<IProgramDiscardTopPlacementHost>(out var placement) ? placement : null)
+            ?? throw new NotSupportedException("Discard placement requires the rules host."))
             .PutDiscardedCardsOnDrawPileTop(frame);
 }

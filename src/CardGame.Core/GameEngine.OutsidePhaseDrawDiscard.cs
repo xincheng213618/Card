@@ -137,6 +137,7 @@ public sealed partial class GameEngine
         }
         return result.ToArray();
     }
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 1040)]
     private bool CanRunOutsidePhaseDrawDiscardTrigger(ProgramTriggerCandidate candidate, SkillProgramTrigger trigger,
         ProgramSkillWindowContext context)
     {
@@ -307,7 +308,8 @@ public sealed partial class GameEngine
             decision.Choices, _contentRegistry.GetSkill(f.SkillId).Name, ++_thoughtSequence);
         AddThought(thought); return choice;
     }
-    private sealed partial class ProgramSkillHost : IOutsidePhaseDrawDiscardProgramHost
+    [ProgramCapability]
+    private sealed class OutsidePhaseDrawDiscardProgramCapability(GameEngine engine) : IOutsidePhaseDrawDiscardProgramHost
     {
         public SkillProgramStepOutcome OutsidePhaseDrawDiscard(ProgramSkillFrame f, SkillProgramEffectOp op) => engine.BeginOutsidePhaseDrawDiscard(f, op);
     }

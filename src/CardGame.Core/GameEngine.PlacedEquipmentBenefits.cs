@@ -9,6 +9,7 @@ public sealed partial class GameEngine
         HasRuntimeSkillInstance(_players[f.OwnerSeat], f.SkillId, f.SkillInstanceId);
     private bool CanPlaceBenefitEquipment(int owner, Card card, CardLocation from) => !card.IsGeneralWeapon &&
         _players.Any(p => p.IsAlive && CanPlaceOwnedEquipment(owner, p.Seat, card, from));
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 780)]
     private bool CanRunPlacedEquipmentBenefit(ProgramTriggerCandidate c, SkillProgramTrigger t, ProgramSkillWindowContext context) =>
         !t.Effects.Any(e => e.Op == SkillProgramEffectOp.PlaceOwnedEquipmentThenResolveSlotBenefit) ||
         context.Window == SkillProgramTriggerWindow.TurnEnding && c.OwnerSeat == _currentSeat &&
@@ -218,6 +219,7 @@ public sealed partial class GameEngine
             .OrderBy(c => c.Parameters.GetValueOrDefault("source-zone") == nameof(CardZoneKind.Hand) ? 0 : 1)
             .ThenBy(c => c.Id.Value, StringComparer.Ordinal).FirstOrDefault() ?? decision.Choices[0];
     }
-    private sealed partial class ProgramSkillHost : IPlacedEquipmentBenefitProgramHost
+    [ProgramCapability]
+    private sealed class PlacedEquipmentBenefitProgramCapability(GameEngine engine) : IPlacedEquipmentBenefitProgramHost
     { public SkillProgramStepOutcome PlaceOwnedEquipmentThenResolveSlotBenefit(ProgramSkillFrame f) => engine.BeginPlacedEquipmentBenefit(f); }
 }

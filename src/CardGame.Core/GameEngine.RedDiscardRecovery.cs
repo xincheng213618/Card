@@ -196,7 +196,8 @@ public sealed partial class GameEngine
                   !AssistedChoicesEqual(_pendingDecision.Choices, RedDiscardRecoverySelectionChoices(f))))
             throw new InvalidOperationException("Red discard recovery lost its legal selection prompt.");
     }
-    private sealed partial class ProgramSkillHost : IRedDiscardRecoveryHost
+    [ProgramCapability]
+    private sealed class RedDiscardRecoveryCapability(GameEngine engine) : IRedDiscardRecoveryHost
     {
         public SkillProgramStepOutcome OfferRedDiscardRecoveryChoice(ProgramSkillFrame f) => engine.BeginRedDiscardRecovery(f);
     }

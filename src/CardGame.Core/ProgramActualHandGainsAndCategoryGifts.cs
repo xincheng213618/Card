@@ -98,7 +98,7 @@ internal sealed class ActualHandGainProgramHandler(SkillProgramEffectOp op) : IS
 {
     public SkillProgramEffectOp Op => op;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost h) =>
-        ((IActualHandGainAndCategoryGiftHost)h).ExecuteActualHandGain(f, e);
+        h.GetCapability<IActualHandGainAndCategoryGiftHost>().ExecuteActualHandGain(f, e);
 }
 internal static class ActualHandGainAndCategoryGiftComposition
 {

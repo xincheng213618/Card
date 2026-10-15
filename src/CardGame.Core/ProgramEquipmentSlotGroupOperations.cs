@@ -73,7 +73,7 @@ public sealed class AbolishEquipmentSlotGroupHandler : ISkillProgramEffectHandle
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,
         int targetSeat, ISkillProgramEffectHost host)
     {
-        ((IEquipmentSlotGroupProgramHost)host).AbolishEquipmentSlotGroup(frame, effect.EquipmentSlots);
+        host.GetCapability<IEquipmentSlotGroupProgramHost>().AbolishEquipmentSlotGroup(frame, effect.EquipmentSlots);
         return SkillProgramStepOutcome.Continue;
     }
 }
@@ -84,7 +84,7 @@ public sealed class RecastSelectedEquipmentHandler : ISkillProgramEffectHandler
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,
         int targetSeat, ISkillProgramEffectHost host)
     {
-        ((IEquipmentSlotGroupProgramHost)host).RecastSelectedEquipment(frame);
+        host.GetCapability<IEquipmentSlotGroupProgramHost>().RecastSelectedEquipment(frame);
         return SkillProgramStepOutcome.Continue;
     }
 }
@@ -95,7 +95,7 @@ public sealed class ReplaceSkillsOnPreparationHandler : ISkillProgramEffectHandl
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,
         int targetSeat, ISkillProgramEffectHost host)
     {
-        ((IEquipmentSlotGroupProgramHost)host).ReplaceSkillsOnPreparation(frame, effect.SkillIds, effect.SourceBind!);
+        host.GetCapability<IEquipmentSlotGroupProgramHost>().ReplaceSkillsOnPreparation(frame, effect.SkillIds, effect.SourceBind!);
         return SkillProgramStepOutcome.Continue;
     }
 }

@@ -32,6 +32,7 @@ public sealed partial class GameEngine
     private void RecordTurnDefaultStatFact(IGameEvent fact)
     { _turnDefaultStatLedgerStarted = true; AdvanceEventRulesAndQueueFact(fact); }
 
+    [ProgramRuleObserver(ProgramRulePhase.BeforeEvent, 350)]
     private void ObserveTurnDefaultStats(IGameEvent payload)
     {
         if (!TracksTurnDefaultStats || payload is not TurnStartedEvent started || started.TurnNumber != _turnNumber ||
@@ -75,6 +76,7 @@ public sealed partial class GameEngine
             .MaxBy(a => a.FrameId)?.Value;
     }
 
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 960)]
     private bool CanOfferTurnDefaultStatProgram(int ownerSeat, string skillId, SkillProgramTrigger trigger, ProgramSkillWindowContext context)
     {
         if (trigger.Effects is not [var effect] || !TurnDefaultStatsComposition.IsOperation(effect.Op)) return true;
@@ -191,7 +193,8 @@ public sealed partial class GameEngine
         }
         ReplaceRuntimeTop(f with { TurnDefaultStatAllocation = null }); AdvanceRuntimeProgram(f.Id);
     }
-    private sealed partial class ProgramSkillHost : ITurnDefaultStatsProgramHost
+    [ProgramCapability]
+    private sealed class TurnDefaultStatsProgramCapability(GameEngine engine) : ITurnDefaultStatsProgramHost
     {
         public SkillProgramStepOutcome ExecuteTurnDefaultStatOperation(ProgramSkillFrame f, SkillProgramEffect e) =>
             engine.ExecuteTurnDefaultStatOperation(f, e);

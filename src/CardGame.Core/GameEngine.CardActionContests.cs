@@ -14,11 +14,13 @@ public sealed partial class GameEngine
         return parent.InstructionIndex>0 && plan.Instructions[parent.InstructionIndex-1].Op==SkillProgramEffectOp.StartCardActionPindian &&
                child.ProgramResultBind==plan.Instructions[parent.InstructionIndex-1].ResultBind;
     }
-    private sealed partial class ProgramSkillHost : ICardActionContestProgramHost
+    [ProgramCapability]
+    private sealed class CardActionContestProgramCapability(GameEngine engine) : ICardActionContestProgramHost
     {
         public void ReplaceAllSlashTargets(ProgramSkillFrame f,string bind)=>engine.ReplaceAllProgramSlashTargets(f,bind);
         public SkillProgramStepOutcome StartCardActionPindian(ProgramSkillFrame f,SkillProgramEffect e)=>engine.StartProgramCardActionPindian(f,e);
     }
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeCondition, 20)]
     private bool CanOfferCardActionContest(CharacterState owner,SkillProgramTrigger trigger,ProgramSkillWindowContext context)
     {
         if(trigger.Effects.Any(e=>e.Op==SkillProgramEffectOp.ReplaceAllSlashTargets))

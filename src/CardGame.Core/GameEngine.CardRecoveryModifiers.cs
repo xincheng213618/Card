@@ -13,6 +13,7 @@ public sealed partial class GameEngine
 
     // Every real Use declares once, including producers with no physical card or Action context.
     // The declarer's seat is the user of a supplied/converted card, not its provider or skill owner.
+    [ProgramRuleObserver(ProgramRulePhase.BeforeEvent, 190)]
     private void ObserveIssuedCardRecoveryModifiers(IGameEvent payload)
     {
         if (payload is not CardUseDeclaredEvent declared ||

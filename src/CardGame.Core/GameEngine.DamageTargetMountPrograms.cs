@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 namespace CardGame.Core;
 public sealed partial class GameEngine
 {
@@ -45,6 +45,7 @@ public sealed partial class GameEngine
         }
         return result;
     }
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 1130, SkillProgramEffectOp.DiscardDamageTargetAndClaimMount)]
     private bool CanOfferDamageTargetMount(int ownerSeat, ProgramSkillWindowContext context) =>
         ActualDamageTargetMountUse(ownerSeat, context) is not null && context.TargetSeat is { } seat &&
         IsValidPlayerSeat(seat) && _players[seat].IsAlive && DamageTargetMountChoices(1, ownerSeat, seat).Count > 0;
@@ -169,7 +170,8 @@ public sealed partial class GameEngine
     private bool CanContinuePaidDamageTargetMount(ProgramSkillFrame f)=>f.DamageTargetMount?.Receipt is not null &&
         _players[f.OwnerSeat].IsAlive && IsValidDamageTargetMount(f);
 
-    private sealed partial class ProgramSkillHost : IDamageTargetMountProgramHost
+    [ProgramCapability]
+    private sealed class DamageTargetMountProgramCapability(GameEngine engine) : IDamageTargetMountProgramHost
     {
         public SkillProgramStepOutcome DiscardDamageTargetAndClaimMount(ProgramSkillFrame f)=>engine.BeginDamageTargetMount(f);
     }

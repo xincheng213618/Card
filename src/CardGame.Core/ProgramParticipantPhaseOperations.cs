@@ -23,7 +23,7 @@ public sealed class ConsumeTargetPhaseLedgerHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.ConsumeTargetPhaseLedger;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect,ProgramSkillFrame frame,int seat,ISkillProgramEffectHost host)
-    { ((IParticipantPhaseProgramEffectHost)host).ConsumeTargetPhaseLedger(frame,effect.StateId!);return SkillProgramStepOutcome.Continue; }
+    { host.GetCapability<IParticipantPhaseProgramEffectHost>().ConsumeTargetPhaseLedger(frame,effect.StateId!);return SkillProgramStepOutcome.Continue; }
 }
 internal sealed class GrantTurnBoundSuitUseProhibitionDescriptor : ProgramOperationDescriptorBase
 {
@@ -42,7 +42,7 @@ public sealed class GrantTurnBoundSuitUseProhibitionHandler : ISkillProgramEffec
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.GrantTurnBoundSuitUseProhibition;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect,ProgramSkillFrame frame,int seat,ISkillProgramEffectHost host)
-    { ((IParticipantPhaseProgramEffectHost)host).GrantTurnBoundSuitUseProhibition(frame,effect.SourceBind!);return SkillProgramStepOutcome.Continue; }
+    { host.GetCapability<IParticipantPhaseProgramEffectHost>().GrantTurnBoundSuitUseProhibition(frame,effect.SourceBind!);return SkillProgramStepOutcome.Continue; }
 }
 public sealed partial class GameEngine
 {
@@ -88,7 +88,8 @@ public sealed partial class GameEngine
         _fullDiscardPhaseSuits.Add(EffectiveSuit(_players[owner],card));
     }
     private bool FullDiscardPhaseSuitsAllDistinct => _fullDiscardPhaseSuitTurn==_turnNumber && _fullDiscardPhaseSuits.Count>=2 && _fullDiscardPhaseSuits.Distinct().Count()==_fullDiscardPhaseSuits.Count;
-    private sealed partial class ProgramSkillHost : IParticipantPhaseProgramEffectHost
+    [ProgramCapability]
+    private sealed class ParticipantPhaseProgramEffectCapability(GameEngine engine) : IParticipantPhaseProgramEffectHost
     {
         public void ConsumeTargetPhaseLedger(ProgramSkillFrame frame,string usageId)=>engine.ConsumeProgramTargetPhaseLedger(frame,usageId);
         public void GrantTurnBoundSuitUseProhibition(ProgramSkillFrame frame,string sourceBind)=>engine.GrantProgramTurnBoundSuitUseProhibition(frame,sourceBind);

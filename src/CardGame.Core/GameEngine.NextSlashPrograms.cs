@@ -15,7 +15,8 @@ public sealed partial class GameEngine
     private bool HasNextSlashDamageCapability => _contentRegistry.ProgramDependencies
         .HasTriggerOperation(SkillProgramEffectOp.ReserveNextSlashDamage);
 
-    private sealed partial class ProgramSkillHost : INextSlashProgramHost
+    [ProgramCapability]
+    private sealed class NextSlashProgramCapability(GameEngine engine) : INextSlashProgramHost
     {
         public void RecoverToMaximum(ProgramSkillFrame frame) => engine.RecoverProgramToMaximum(frame);
         public void DrawRecoveryReceipt(ProgramSkillFrame frame) => engine.DrawProgramRecoveryReceipt(frame);

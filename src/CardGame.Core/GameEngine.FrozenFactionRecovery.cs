@@ -2,7 +2,8 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private sealed partial class ProgramSkillHost : IFrozenFactionRecoveryProgramHost
+    [ProgramCapability]
+    private sealed class FrozenFactionRecoveryProgramCapability(GameEngine engine) : IFrozenFactionRecoveryProgramHost
     {
         public void FreezeLivingFactionRecovery(ProgramSkillFrame f) => engine.FreezeProgramLivingFactionRecovery(f);
         public void DrawToFrozenFactionCount(ProgramSkillFrame f) => engine.DrawProgramToFrozenFactionCount(f);

@@ -44,6 +44,7 @@ public sealed partial class GameEngine
             ? draft.LegacyVirtualProducerFrameId is null && action.ActionId == draft.CardActionId && action.ActorSeat == draft.SourceSeat && IsSlashCard(action.EffectiveKind) && action.EffectiveKind == kind
             : kind == CardKind.Slash && draft.CardActionId is null && draft.LegacyVirtualProducerFrameId is { } legacy && LegacyDamageJudgmentVirtualProducer(use, draft.TargetSeat) == legacy);
 
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 1110)]
     private bool CanRunDamageJudgmentSuitPayment(SkillProgramTrigger trigger, ProgramSkillWindowContext context, int owner) =>
         !trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.JudgeDamageTargetThenOfferSuitDiscard) ||
         _winner == Winner.None && IsValidPlayerSeat(owner) && _players[owner].IsAlive &&
@@ -281,7 +282,8 @@ public sealed partial class GameEngine
         if (AwaitProgramBoundCardMovements(frame.Id, frame.OwnerSeat) == SkillProgramStepOutcome.Continue) AdvanceRuntimeProgram(frame.Id);
     }
 
-    private sealed partial class ProgramSkillHost : IDamageJudgmentSuitPaymentHost
+    [ProgramCapability]
+    private sealed class DamageJudgmentSuitPaymentCapability(GameEngine engine) : IDamageJudgmentSuitPaymentHost
     {
         public SkillProgramStepOutcome JudgeDamageTargetThenOfferSuitDiscard(ProgramSkillFrame frame, SkillProgramEffect effect) =>
             engine.BeginDamageJudgmentSuitPayment(frame, effect);

@@ -3,6 +3,17 @@ namespace CardGame.Core;
 public sealed record ProgramSkillSuppressedEvent(int OwnerSeat, int TargetSeat, string SkillId, bool Suppressed) : IGameEvent;
 public sealed partial class GameEngine
 {
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.AfterDyingCheck, 10, SkillProgramEffectOp.SuppressGeneralSkill)]
+    private bool AllowsSuppressGeneralSkillTrigger(ProgramTriggerLegalityContext gate)
+    {
+        var owner = gate.Owner;
+        var features = gate.Features;
+        var context = gate.Context;
+        return !(features.HasOperation(SkillProgramEffectOp.SuppressGeneralSkill) &&
+            (_phase != TurnPhase.Play || owner.Seat != _currentSeat || context.TargetSeat is not { } target ||
+             _programSuppressions.Any(item => item.SourceSeat == owner.Seat && item.TargetSeat == target)));
+    }
+
     private sealed record ProgramSuppression(int SourceSeat, int TargetSeat, string SkillId, int CreatedTurn,
         IReadOnlyList<string> GrantIds);
     private readonly List<ProgramSuppression> _programSuppressions = [];

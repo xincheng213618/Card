@@ -82,7 +82,7 @@ public sealed class RevealUndamagedUseTargetHandAndDiscardSameColorHandler : ISk
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.RevealUndamagedUseTargetHandAndDiscardSameColor;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int seat, ISkillProgramEffectHost host) =>
-        ((ICompletedUndamagedTargetRevealProgramHost)host).CompletedUndamagedTargetReveal(frame);
+        host.GetCapability<ICompletedUndamagedTargetRevealProgramHost>().CompletedUndamagedTargetReveal(frame);
 }
 internal static class CompletedUndamagedTargetRevealComposition
 {

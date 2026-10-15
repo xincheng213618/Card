@@ -44,6 +44,7 @@ public sealed partial class GameEngine
         if(ResponseExchangeUpgraded(owner,skill,instance,state)) return true;
         return _players[response.ActorSeat].IsAlive&&original.PhysicalCards.Count>0&&original.PhysicalCards.All(c=>!IsExchangedCardClaim(original.ActionId,c.CardId)&&_cardZones.GetLocation(c.CardId).Zone is CardZoneKind.Processing or CardZoneKind.DiscardPile);
     }
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeCondition, 70)]
     private bool CanOfferResponseExchange(ProgramTriggerCandidate candidate,SkillProgramTrigger trigger,ProgramSkillWindowContext context)
     {
         var effect=trigger.Effects.FirstOrDefault(e=>e.Op==SkillProgramEffectOp.ExchangeRespondedCardEntities);
@@ -186,7 +187,8 @@ public sealed partial class GameEngine
                 throw new InvalidOperationException("An escalating discard lost its private payer choice.");
         }
     }
-    private sealed partial class ProgramSkillHost : IResponseExchangeProgramHost
+    [ProgramCapability]
+    private sealed class ResponseExchangeProgramCapability(GameEngine engine) : IResponseExchangeProgramHost
     {
         public SkillProgramStepOutcome ExchangeRespondedCardEntities(ProgramSkillFrame frame,string stateId)=>engine.BeginResponseEntityExchange(frame,stateId);
         public SkillProgramStepOutcome DrawPublicSuitThenEscalatingDiscard(ProgramSkillFrame frame,SkillProgramEffect effect)=>engine.BeginPublicSuitEscalatingDiscard(frame,effect);

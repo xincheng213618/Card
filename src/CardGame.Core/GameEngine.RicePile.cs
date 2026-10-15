@@ -22,6 +22,7 @@ public sealed partial class GameEngine
         return pile is not null && RiceProducer(pile) && batch.SourceCounts.Any(n => n.Location == pile.Location && n.CountBefore > 0 && n.CountAfter == 0) &&
             batch.Movements.Any(m => m.From == pile.Location && m.To != pile.Location) ? pile : null;
     }
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 280)]
     private bool CanOfferRicePile(ProgramTriggerCandidate c, SkillProgramTrigger t, ProgramSkillWindowContext context)
     {
         if (t.Effects is not [var e] || !RicePileContract.IsOperation(e.Op)) return true;
@@ -210,6 +211,7 @@ public sealed partial class GameEngine
         if (f.RicePile is not { } r || r.Stage == RicePileStage.StoreSelection && r.Operation != SkillProgramEffectOp.DrawAndStoreTwoPublicRice) return false;
         RequireRiceReceipt(f); return true;
     }
-    private sealed partial class ProgramSkillHost : IRicePileProgramHost
+    [ProgramCapability]
+    private sealed class RicePileProgramCapability(GameEngine engine) : IRicePileProgramHost
     { public SkillProgramStepOutcome ExecuteRicePile(SkillProgramEffect e, ProgramSkillFrame f) => engine.BeginRicePile(e, f); }
 }

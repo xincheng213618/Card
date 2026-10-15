@@ -7,11 +7,17 @@ public sealed partial class GameEngine
     /// No skill identities, trigger rules or instruction dispatch belong here.
     /// </summary>
     private sealed partial class ProgramSkillHost(GameEngine engine) :
-        ISkillProgramExecutionHost, ISkillProgramEffectHost, IConfiguredConversionProgramHost, IActionCategoryGiftProgramHost
+        ISkillProgramExecutionHost, ISkillProgramEffectHost
     {
-        public SkillProgramStepOutcome ChooseDifferentActionCategoryGift(ProgramSkillFrame frame, int targetSeat, string resultBind, IReadOnlyList<CardZoneKind> zones) => engine.BeginDifferentActionCategoryGift(frame, targetSeat, resultBind, zones);
-        public SkillProgramStepOutcome DeclareBoundCardName(ProgramSkillFrame frame, string sourceBind, string stateId) => engine.BeginConfiguredCardDeclaration(frame, sourceBind, stateId);
-        public void UpgradeConversionTier(ProgramSkillFrame frame, string stateId) => engine.UpgradeConfiguredConversionTier(frame, stateId);
+        public T GetCapability<T>() where T : class => this is T shared
+            ? shared : engine.ProgramCapabilities.Get<T>();
+
+        public bool TryGetCapability<T>([System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out T? capability) where T : class
+        {
+            if (this is T shared) { capability = shared; return true; }
+            return engine.ProgramCapabilities.TryGet(out capability);
+        }
+
         public SkillProgramStepOutcome ExchangeSelectedTargetEquipment(ProgramSkillFrame frame) =>
             engine.ExchangeProgramSelectedTargetEquipment(frame);
         public SkillProgramStepOutcome ExecuteStrategicEffect(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat) =>

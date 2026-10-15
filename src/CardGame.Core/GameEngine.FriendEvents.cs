@@ -4,7 +4,8 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private sealed partial class ProgramSkillHost : IFriendEventProgramHost
+    [ProgramCapability]
+    private sealed class FriendEventProgramCapability(GameEngine engine) : IFriendEventProgramHost
     {
         public SkillProgramStepOutcome ExecuteFriendEvent(ProgramSkillFrame frame, SkillProgramEffectOp operation) => engine.BeginFriendEvent(frame, operation);
     }
@@ -37,6 +38,7 @@ public sealed partial class GameEngine
             AdvanceEventRulesAndQueueFact(new FriendMinimumHandUseEvent(action.ActionId, action.ActorSeat, GetRuntimeSkillInstanceId(_players[action.ActorSeat], "friend:shunyi"), rank,
                 action.EffectiveSuit ?? EffectiveSuit(_players[action.ActorSeat], card)));
     }
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 900)]
     private bool CanOfferFriendEvent(ProgramTriggerCandidate candidate, SkillProgramTrigger trigger, ProgramSkillWindowContext context)
     {
         if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.DiscardAscendingMaximumAndDraw))

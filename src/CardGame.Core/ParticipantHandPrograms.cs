@@ -60,13 +60,14 @@ internal sealed class ParticipantHandProgramHandler(SkillProgramEffectOp op) : I
     public SkillProgramEffectOp Op => op;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat, ISkillProgramEffectHost host) =>
         op == SkillProgramEffectOp.ViewAndTakeSelectedTargetHand
-            ? ((IParticipantHandProgramHost)host).ViewAndTakeHand(frame, targetSeat, effect.Amount)
-            : ((IParticipantHandProgramHost)host).RequestHandRepayment(frame, targetSeat);
+            ? host.GetCapability<IParticipantHandProgramHost>().ViewAndTakeHand(frame, targetSeat, effect.Amount)
+            : host.GetCapability<IParticipantHandProgramHost>().RequestHandRepayment(frame, targetSeat);
 }
 
 public sealed partial class GameEngine
 {
-    private sealed partial class ProgramSkillHost : IParticipantHandProgramHost
+    [ProgramCapability]
+    private sealed class ParticipantHandProgramCapability(GameEngine engine) : IParticipantHandProgramHost
     {
         public SkillProgramStepOutcome ViewAndTakeHand(ProgramSkillFrame frame, int sourceSeat, int count) =>
             engine.BeginPrivateHandTake(frame.Id, sourceSeat, count);

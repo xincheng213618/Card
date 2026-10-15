@@ -50,19 +50,19 @@ public sealed class FreezeLivingFactionRecoveryHandler : ISkillProgramEffectHand
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.FreezeLivingFactionRecovery;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int s, ISkillProgramEffectHost h)
-    { ((IFrozenFactionRecoveryProgramHost)h).FreezeLivingFactionRecovery(f); return SkillProgramStepOutcome.Continue; }
+    { h.GetCapability<IFrozenFactionRecoveryProgramHost>().FreezeLivingFactionRecovery(f); return SkillProgramStepOutcome.Continue; }
 }
 public sealed class DrawToFrozenFactionCountHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.DrawToFrozenFactionCount;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int s, ISkillProgramEffectHost h)
-    { ((IFrozenFactionRecoveryProgramHost)h).DrawToFrozenFactionCount(f); return SkillProgramStepOutcome.Continue; }
+    { h.GetCapability<IFrozenFactionRecoveryProgramHost>().DrawToFrozenFactionCount(f); return SkillProgramStepOutcome.Continue; }
 }
 public sealed class TurnOverIfFrozenFactionCountExceedsGameDamageHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.TurnOverIfFrozenFactionCountExceedsGameDamage;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int s, ISkillProgramEffectHost h)
-    { ((IFrozenFactionRecoveryProgramHost)h).TurnOverIfFrozenFactionCountExceedsGameDamage(f); return SkillProgramStepOutcome.Continue; }
+    { h.GetCapability<IFrozenFactionRecoveryProgramHost>().TurnOverIfFrozenFactionCountExceedsGameDamage(f); return SkillProgramStepOutcome.Continue; }
 }
 internal static class FrozenFactionRecoveryComposition
 {

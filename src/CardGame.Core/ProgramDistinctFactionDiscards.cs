@@ -18,5 +18,5 @@ internal sealed class DiscardDistinctFactionParticipantsDescriptor : ProgramOper
 public sealed class DiscardDistinctFactionParticipantsHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.DiscardDistinctFactionParticipants;
-    public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost h) => ((IDistinctFactionDiscardHost)h).BeginDistinctFactionDiscards(f);
+    public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost h) => h.GetCapability<IDistinctFactionDiscardHost>().BeginDistinctFactionDiscards(f);
 }

@@ -31,5 +31,5 @@ public sealed class OfferCompletedCardGiftHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.OfferCompletedCardGift;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat, ISkillProgramEffectHost host) =>
-        ((ICompletedCardGiftProgramHost)host).OfferCompletedCardGift(frame);
+        host.GetCapability<ICompletedCardGiftProgramHost>().OfferCompletedCardGift(frame);
 }

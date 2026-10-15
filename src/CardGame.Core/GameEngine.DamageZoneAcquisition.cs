@@ -5,6 +5,7 @@ public sealed partial class GameEngine
     private static readonly CardZoneKind[] DamageAcquisitionZones = [CardZoneKind.Hand, CardZoneKind.Equipment, CardZoneKind.Judgment];
     private const string DamageAcquisitionReason = "skill-program.damage-zone-acquisition.obtain";
     private CardConversionSource DamageAcquisitionSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 820)]
     private bool CanOfferDamageZoneAndAdjacentTarget(ProgramTriggerCandidate candidate, SkillProgramTrigger trigger, ProgramSkillWindowContext context)
     {
         if (trigger.Effects is not [var effect]) return true;
@@ -192,7 +193,8 @@ public sealed partial class GameEngine
     [ProgramAiChoice(SkillProgramEffectOp.ObtainEachDamageTargetZoneThenSelfOnly)]
     private PromptChoice SelectAiDamageAcquisition(PendingDecision p, ProgramSkillFrame f) => p.Choices
         .OrderByDescending(c => c.Cards is [var id] ? GetKeepValue(GetAttackCard(id), _players[f.OwnerSeat]) : 0).First();
-    private sealed partial class ProgramSkillHost : IDamageZoneAndAdjacentTargetHost
+    [ProgramCapability]
+    private sealed class DamageZoneAndAdjacentTargetCapability(GameEngine engine) : IDamageZoneAndAdjacentTargetHost
     {
         public SkillProgramStepOutcome ObtainEachDamageTargetZoneThenSelfOnly(ProgramSkillFrame f) => engine.BeginDamageZoneAcquisition(f);
         public SkillProgramStepOutcome JoinAdjacentRedCardTarget(ProgramSkillFrame f) => engine.BeginAdjacentRedTarget(f);

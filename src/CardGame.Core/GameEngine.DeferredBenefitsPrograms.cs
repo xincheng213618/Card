@@ -65,7 +65,8 @@ public sealed partial class GameEngine
         return true;
     }
 
-    private sealed partial class ProgramSkillHost : IDeferredBenefitsProgramHost
+    [ProgramCapability]
+    private sealed class DeferredBenefitsProgramCapability(GameEngine engine) : IDeferredBenefitsProgramHost
     {
         public SkillProgramStepOutcome RequestFactionRecovery(ProgramSkillFrame frame, string factionId) =>
             engine.RequestProgramFactionRecovery(frame, factionId);

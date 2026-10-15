@@ -2,6 +2,16 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    [ProgramActivationLegality(ProgramActivationLegalityPhase.BeforeCardCount, 30)]
+    private bool AllowsDonateAllEquipmentAndOfferRecipientBenefitsActivation(ProgramActivationLegalityContext gate)
+    {
+        var owner = gate.Owner;
+        var program = gate.Program;
+        var features = gate.Features;
+        return !(features.First(SkillProgramEffectOp.DonateAllEquipmentAndOfferRecipientBenefits) is { } donation &&
+                    !HasPayableAllEquipmentDonation(owner.Seat, program.Id, donation.StateId!));
+    }
+
     private bool IsValidAllEquipmentDonation(ProgramSkillFrame f)
     {
         if (f.EquipmentDonation is not { } r || f.TriggerId is not null || r.InstructionIndex != 0 || f.InstructionIndex != 1 ||

@@ -3,6 +3,7 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private const string FireTargetDrawReason = "program.fire-target-benefit.draw";
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 690)]
     private bool CanRunFireTargetBenefit(ProgramTriggerCandidate candidate, SkillProgramTrigger trigger, ProgramSkillWindowContext context)
     {
         if (!trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.DrawFireTargetAndGrantTurnUseQuota)) return true;
@@ -81,7 +82,8 @@ public sealed partial class GameEngine
     private bool IsFireTargetBenefitMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
         f.FireTargetBenefit is { } r && effect?.Op == SkillProgramEffectOp.DrawFireTargetAndGrantTurnUseQuota &&
         r.InstructionIndex == f.InstructionIndex && pending.SubjectSeat == r.TargetSeat && pending.CoverageResultBind is null;
-    private sealed partial class ProgramSkillHost : IFireTargetBenefitProgramHost
+    [ProgramCapability]
+    private sealed class FireTargetBenefitProgramCapability(GameEngine engine) : IFireTargetBenefitProgramHost
     {
         public SkillProgramStepOutcome DrawFireTargetAndGrantTurnUseQuota(ProgramSkillFrame f) => engine.BeginFireTargetBenefit(f);
         public SkillProgramStepOutcome LoseSkillsAndObtainNamedCard(ProgramSkillFrame f, SkillProgramEffect e) => engine.BeginNamedCardAcquisition(f, e);

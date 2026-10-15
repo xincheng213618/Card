@@ -47,6 +47,7 @@ public sealed partial class GameEngine
             context.MovementBatch is { } batch && parent.Batch.Id == batch.Id &&
             parent.Batch.Movements.SequenceEqual(batch.Movements) && parent.Candidates[parent.CandidateIndex] == candidate;
     }
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 100)]
     private bool CanRunGainGiftTrigger(ProgramTriggerCandidate candidate, SkillProgramTrigger trigger, ProgramSkillWindowContext context)
     {
         var op = trigger.Effects.FirstOrDefault()?.Op;
@@ -245,7 +246,8 @@ public sealed partial class GameEngine
         return gifts.OrderBy(c => CardCatalog.Get(cards[c.Cards[0]].Kind).HandKeepValue).ThenBy(c => c.Targets[0]).ThenBy(c => c.Cards[0])
             .FirstOrDefault() ?? decision.Choices.Single(c => c.Cards.Count == 0);
     }
-    private sealed partial class ProgramSkillHost : IDelegatedJudgmentAndGainGiftHost
+    [ProgramCapability]
+    private sealed class DelegatedJudgmentAndGainGiftCapability(GameEngine engine) : IDelegatedJudgmentAndGainGiftHost
     {
         public SkillProgramStepOutcome ExecuteGainGift(ProgramSkillFrame frame, SkillProgramEffect effect) => engine.ExecuteGainGift(frame, effect);
     }

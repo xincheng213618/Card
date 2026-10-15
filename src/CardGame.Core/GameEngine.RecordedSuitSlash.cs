@@ -72,7 +72,8 @@ public sealed partial class GameEngine
         }
     }
 
-    private sealed partial class ProgramSkillHost : IRecordedSuitSlashProgramHost
+    [ProgramCapability]
+    private sealed class RecordedSuitSlashProgramCapability(GameEngine engine) : IRecordedSuitSlashProgramHost
     {
         public void RevealRecordedSuitSlash(ProgramSkillFrame frame, SkillProgramEffect effect) => engine.RevealRecordedSuitSlash(frame, effect);
     }

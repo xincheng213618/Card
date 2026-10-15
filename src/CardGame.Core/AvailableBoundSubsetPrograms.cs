@@ -7,7 +7,8 @@ public interface IAvailableBoundSubsetProgramEffectHost
 
 public sealed partial class GameEngine
 {
-    private sealed partial class ProgramSkillHost : IAvailableBoundSubsetProgramEffectHost
+    [ProgramCapability]
+    private sealed class AvailableBoundSubsetProgramEffectCapability(GameEngine engine) : IAvailableBoundSubsetProgramEffectHost
     {
         public SkillProgramStepOutcome SelectAvailableBoundSubset(ProgramSkillFrame frame, SkillProgramEffect effect) =>
             engine.SelectProgramCardSubset(frame.Id, frame.OwnerSeat, effect.SourceBind!, effect.ResultBind!,

@@ -76,7 +76,7 @@ internal sealed class NamedAmbushHandler(SkillProgramEffectOp op) : ISkillProgra
 {
     public SkillProgramEffectOp Op => op;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int seat, ISkillProgramEffectHost host) =>
-        ((INamedAmbushHost)host).ExecuteNamedAmbush(effect, frame);
+        host.GetCapability<INamedAmbushHost>().ExecuteNamedAmbush(effect, frame);
 }
 internal static class NamedAmbushContract
 {

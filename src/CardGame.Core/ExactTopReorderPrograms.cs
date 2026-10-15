@@ -8,7 +8,8 @@ public interface IExactTopReorderProgramEffectHost
 
 public sealed partial class GameEngine
 {
-    private sealed partial class ProgramSkillHost : IExactTopReorderProgramEffectHost
+    [ProgramCapability]
+    private sealed class ExactTopReorderProgramEffectCapability(GameEngine engine) : IExactTopReorderProgramEffectHost
     {
         public SkillProgramStepOutcome ReorderTopCardsExactly(ProgramSkillFrame frame, int maximumCards,
             SkillProgramNumberExpression? numberExpression, int exactTopCount) =>

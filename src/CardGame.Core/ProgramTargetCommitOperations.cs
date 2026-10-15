@@ -40,12 +40,12 @@ internal sealed class DrawOnFirstProgramTargetEncounterDescriptor : ProgramOpera
 public sealed class SelectRelativeZoneDemandTargetHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.SelectRelativeZoneDemandTarget;
-    public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat, ISkillProgramEffectHost host) => ((IProgramTargetCommitHost)host).SelectRelativeZoneDemandTarget(effect, frame);
+    public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat, ISkillProgramEffectHost host) => host.GetCapability<IProgramTargetCommitHost>().SelectRelativeZoneDemandTarget(effect, frame);
 }
 public sealed class DrawOnFirstProgramTargetEncounterHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.DrawOnFirstProgramTargetEncounter;
-    public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat, ISkillProgramEffectHost host) => ((IProgramTargetCommitHost)host).DrawOnFirstProgramTargetEncounter(effect, frame);
+    public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat, ISkillProgramEffectHost host) => host.GetCapability<IProgramTargetCommitHost>().DrawOnFirstProgramTargetEncounter(effect, frame);
 }
 public sealed record ProgramRelativeZoneCandidate(int TargetSeat, string Mode);
 public sealed record ProgramRelativeZoneDemand(string ResultBind, IReadOnlyList<ProgramRelativeZoneCandidate> Candidates, ProgramTargetCommitContext? Commit = null);

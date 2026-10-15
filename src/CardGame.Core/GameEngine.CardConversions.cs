@@ -117,11 +117,6 @@ public sealed partial class GameEngine
         SkillProgramCardIdentity Identity,
         CardConversionSource Source);
 
-    private sealed record ProgramMultiCardViewAsSelection(
-        IReadOnlyList<Card> Cards,
-        CardConversionSource Source,
-        CardKind OutputKind);
-
     private CardConversionSource? _selectedResponseConversion;
     private CardConversionSource? _selectedUseConversion;
     private bool _hasSelectedResponseConversionChoice;

@@ -298,7 +298,8 @@ public sealed partial class GameEngine
         }
     }
 
-    private sealed partial class ProgramSkillHost : ISharedSlashOfferProgramHost
+    [ProgramCapability]
+    private sealed class SharedSlashOfferProgramCapability(GameEngine engine) : ISharedSlashOfferProgramHost
     {
         public SkillProgramStepOutcome GiveBoundCardThenOffer(ProgramSkillFrame frame, int actorSeat, string sourceBind) =>
             engine.BeginSharedSlashGift(frame.Id, actorSeat, sourceBind);

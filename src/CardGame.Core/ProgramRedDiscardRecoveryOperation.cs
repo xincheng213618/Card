@@ -31,5 +31,5 @@ public sealed class OfferRedDiscardRecoveryChoiceHandler : ISkillProgramEffectHa
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.OfferRedDiscardRecoveryChoice;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost h) =>
-        ((IRedDiscardRecoveryHost)h).OfferRedDiscardRecoveryChoice(f);
+        h.GetCapability<IRedDiscardRecoveryHost>().OfferRedDiscardRecoveryChoice(f);
 }

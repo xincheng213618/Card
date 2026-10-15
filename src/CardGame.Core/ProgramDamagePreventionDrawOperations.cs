@@ -30,5 +30,5 @@ public sealed class PreventCurrentDamageAndDrawMultipleHandler : ISkillProgramEf
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.PreventCurrentDamageAndDrawMultiple;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat, ISkillProgramEffectHost host) =>
-        ((IDamagePreventionDrawProgramHost)host).PreventDamageAndDrawMultiple(frame, effect.Amount);
+        host.GetCapability<IDamagePreventionDrawProgramHost>().PreventDamageAndDrawMultiple(frame, effect.Amount);
 }

@@ -9,7 +9,8 @@ public sealed partial class GameEngine
     private readonly List<BeneficiarySuitShield> _beneficiarySuitShields = [];
     private long _beneficiarySuitShieldSequence;
 
-    private sealed partial class ProgramSkillHost : IDeckEquipmentProgramHost
+    [ProgramCapability]
+    private sealed class DeckEquipmentProgramCapability(GameEngine engine) : IDeckEquipmentProgramHost
     {
         public SkillProgramStepOutcome UseRandomDeckEquipment(ProgramSkillFrame f, int seat, string bind) => engine.UseProgramRandomDeckEquipment(f, seat, bind);
         public void GrantRandomSkillAndSuitShield(ProgramSkillFrame f, int seat, IReadOnlyList<string> skills, Suit suit) => engine.GrantProgramRandomSkillAndSuitShield(f, seat, skills, suit);
@@ -37,6 +38,7 @@ public sealed partial class GameEngine
         }).ToArray();
     }
 
+    [ProgramRuleObserver(ProgramRulePhase.BeforeEvent, 200)]
     private void ObserveBeneficiarySuitShield(IGameEvent payload)
     {
         if (payload is TurnStartedEvent turn) _beneficiarySuitShields.RemoveAll(s => s.BeneficiarySeat == turn.ActorSeat);

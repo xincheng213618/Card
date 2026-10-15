@@ -106,7 +106,7 @@ internal sealed class ExtraEffectsAndRankGuessHandler(SkillProgramEffectOp op) :
 {
     public SkillProgramEffectOp Op => op;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int seat, ISkillProgramEffectHost host) =>
-        ((IExtraEffectsAndRankGuessHost)host).BeginExtraEffectsAndRankGuess(effect, frame);
+        host.GetCapability<IExtraEffectsAndRankGuessHost>().BeginExtraEffectsAndRankGuess(effect, frame);
 }
 internal static class ExtraEffectsAndRankGuessContract
 {

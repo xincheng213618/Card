@@ -214,7 +214,8 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("A completed gift prompt changed its frozen physical cards, recipient or chooser.");
     }
 
-    private sealed partial class ProgramSkillHost : ICompletedCardGiftProgramHost
+    [ProgramCapability]
+    private sealed class CompletedCardGiftProgramCapability(GameEngine engine) : ICompletedCardGiftProgramHost
     {
         public SkillProgramStepOutcome OfferCompletedCardGift(ProgramSkillFrame frame) => engine.OfferProgramCompletedCardGift(frame);
     }

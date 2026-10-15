@@ -93,8 +93,8 @@ internal sealed class TargetedTrickAndHandHpHandler(SkillProgramEffectOp op) : I
     public SkillProgramEffectOp Op => op;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat, ISkillProgramEffectHost host) => op switch
     {
-        SkillProgramEffectOp.ResolveUnequalHandHpEnding => ((ITargetedTrickAndHandHpHost)host).ResolveUnequalHandHpEnding(frame),
-        SkillProgramEffectOp.AdjustTargetedOrdinaryTrick => ((ITargetedTrickAndHandHpHost)host).AdjustTargetedOrdinaryTrick(frame),
+        SkillProgramEffectOp.ResolveUnequalHandHpEnding => host.GetCapability<ITargetedTrickAndHandHpHost>().ResolveUnequalHandHpEnding(frame),
+        SkillProgramEffectOp.AdjustTargetedOrdinaryTrick => host.GetCapability<ITargetedTrickAndHandHpHost>().AdjustTargetedOrdinaryTrick(frame),
         _ => throw new InvalidOperationException("Unknown targeted trick/hand-HP operation.")
     };
 }

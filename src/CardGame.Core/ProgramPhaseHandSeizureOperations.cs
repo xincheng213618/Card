@@ -71,13 +71,13 @@ public sealed class DiscardTurnOverAndTakeHandHandler : ISkillProgramEffectHandl
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.DiscardTurnOverAndTakeHand;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int target, ISkillProgramEffectHost host) =>
-        ((IPhaseHandSeizureProgramHost)host).DiscardTurnOverAndTakeHand(frame, effect.StateId!);
+        host.GetCapability<IPhaseHandSeizureProgramHost>().DiscardTurnOverAndTakeHand(frame, effect.StateId!);
 }
 public sealed class ReturnIssuedPhaseHandDebtHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.ReturnIssuedPhaseHandDebt;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int target, ISkillProgramEffectHost host) =>
-        ((IPhaseHandSeizureProgramHost)host).ReturnIssuedPhaseHandDebt(frame);
+        host.GetCapability<IPhaseHandSeizureProgramHost>().ReturnIssuedPhaseHandDebt(frame);
 }
 
 internal static class PhaseHandSeizureComposition

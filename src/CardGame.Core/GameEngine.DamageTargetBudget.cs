@@ -8,6 +8,7 @@ public sealed partial class GameEngine
     private static bool DamageBudgetCard(CardActionContext a) => IsSlashCard(a.EffectiveKind) ||
         IsOrdinaryTrick(a.EffectiveKind) && a.EffectiveIsRed == false;
     private CardConversionSource BudgetSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 230)]
     private bool CanOfferDamageTargetBudget(ProgramTriggerCandidate c, SkillProgramTrigger t, ProgramSkillWindowContext context)
     {
         if (t.Effects is not [var e]) return true;
@@ -202,6 +203,7 @@ public sealed partial class GameEngine
     private bool HasDamageTargetBudgetTail(CardUseFrame use) => use.DamageTargetBudget is { Completed: true, AddedTargets.Count: > 0 } r &&
         CompleteProgramEventHistory().OfType<DamageTargetBudgetResolvedEvent>().Any(x => x.ProgramFrameId == r.ProgramFrameId &&
             IsDamageBudgetResolvedFact(use, x, r.OriginalTargets, r.Source.OwnerSeat));
-    private sealed partial class ProgramSkillHost : IDamageTargetBudgetHost
+    [ProgramCapability]
+    private sealed class DamageTargetBudgetCapability(GameEngine engine) : IDamageTargetBudgetHost
     { public SkillProgramStepOutcome ApplyDamageTargetBudget(SkillProgramEffect e, ProgramSkillFrame f) => engine.ApplyDamageTargetBudget(e, f); }
 }

@@ -57,7 +57,7 @@ public sealed class RefillAndScheduleNextTurnSelfOnlyHandler : ISkillProgramEffe
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.RefillAndScheduleNextTurnSelfOnly;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost host) =>
-        ((IEndRefillNextTurnProgramHost)host).RefillAndScheduleNextTurnSelfOnly(f);
+        host.GetCapability<IEndRefillNextTurnProgramHost>().RefillAndScheduleNextTurnSelfOnly(f);
 }
 internal static class EndRefillNextTurnContract
 {

@@ -165,10 +165,10 @@ internal sealed class AdjacentDiscardAndRoundAlcoholHandler(SkillProgramEffectOp
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost host) =>
         Op switch
         {
-            SkillProgramEffectOp.OfferCurrentSlashFireAndExtraTarget => ((IAdjacentDiscardAndRoundAlcoholHost)host).OfferCurrentSlashFireAndExtraTarget(f),
-            SkillProgramEffectOp.StoreAdjacentDiscardedSlash => ((IAdjacentDiscardAndRoundAlcoholHost)host).StoreAdjacentDiscardedSlash(f, e.DestinationZone!.Value),
-            SkillProgramEffectOp.PayCompletedUseDiscardOrLoseHp => ((IAdjacentDiscardAndRoundAlcoholHost)host).PayCompletedUseDiscardOrLoseHp(f),
-            SkillProgramEffectOp.UseRoundPricedPileDyingAlcohol => ((IAdjacentDiscardAndRoundAlcoholHost)host).UseRoundPricedPileDyingAlcohol(f, e.StateId!, e.Zones[0]),
+            SkillProgramEffectOp.OfferCurrentSlashFireAndExtraTarget => host.GetCapability<IAdjacentDiscardAndRoundAlcoholHost>().OfferCurrentSlashFireAndExtraTarget(f),
+            SkillProgramEffectOp.StoreAdjacentDiscardedSlash => host.GetCapability<IAdjacentDiscardAndRoundAlcoholHost>().StoreAdjacentDiscardedSlash(f, e.DestinationZone!.Value),
+            SkillProgramEffectOp.PayCompletedUseDiscardOrLoseHp => host.GetCapability<IAdjacentDiscardAndRoundAlcoholHost>().PayCompletedUseDiscardOrLoseHp(f),
+            SkillProgramEffectOp.UseRoundPricedPileDyingAlcohol => host.GetCapability<IAdjacentDiscardAndRoundAlcoholHost>().UseRoundPricedPileDyingAlcohol(f, e.StateId!, e.Zones[0]),
             _ => throw new InvalidOperationException("Unknown adjacent-discard/round-Alcohol operation.")
         };
 }

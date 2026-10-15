@@ -28,6 +28,7 @@ public sealed partial class GameEngine
         from.OwnerSeat == frame.OwnerSeat && (from.Zone is CardZoneKind.Hand or CardZoneKind.Equipment) &&
         !IsForeignEquipmentDiscardPrevented(frame.OwnerSeat, card, from, OwnedCardMoveIntent.Discard) &&
         !(from.Zone == CardZoneKind.Equipment && IsActiveProgramSourceEquipmentCard(frame.OwnerSeat, frame.SkillId, frame.SkillInstanceId, card));
+    [ProgramActivationLegality(ProgramActivationLegalityPhase.BeforeCondition, 90)]
     private bool CanActivateEquipmentPairPayment(CharacterState owner, string skillId, ProgramInstructionFeatures features) =>
         !features.HasOperation(SkillProgramEffectOp.SelectEquipmentPairAndPayment) ||
         PayableEquipmentPairs(owner.Seat, skillId, GetRuntimeSkillInstanceId(owner, skillId)).Count > 0;
@@ -168,7 +169,8 @@ public sealed partial class GameEngine
         frame.OwnedCardSelection is not null ? SelectAiProgramOwnedCards(decision, frame) : decision.Choices
             .OrderBy(c => Math.Abs(GetEquipment(_players[c.Targets[0]]).Count - GetEquipment(_players[c.Targets[1]]).Count))
             .ThenBy(c => c.Id.Value, StringComparer.Ordinal).First();
-    private sealed partial class ProgramSkillHost : IEquipmentPairPaymentProgramHost
+    [ProgramCapability]
+    private sealed class EquipmentPairPaymentProgramCapability(GameEngine engine) : IEquipmentPairPaymentProgramHost
     {
         public SkillProgramStepOutcome SelectEquipmentPairAndPayment(ProgramSkillFrame f, SkillProgramEffect e) => engine.SelectEquipmentPairAndPayment(f, e);
     }

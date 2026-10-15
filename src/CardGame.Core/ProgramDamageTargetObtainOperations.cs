@@ -41,6 +41,6 @@ public sealed class ObtainDamageTargetCardAndResolveCategoryHandler : ISkillProg
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.ObtainDamageTargetCardAndResolveCategory;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost host) =>
-        host is IDamageTargetObtainProgramHost h ? h.ObtainDamageTargetCardAndResolveCategory(f) :
+        host.TryGetCapability<IDamageTargetObtainProgramHost>(out var h) ? h.ObtainDamageTargetCardAndResolveCategory(f) :
             throw new NotSupportedException("Actual damage-target obtain is unavailable.");
 }

@@ -59,7 +59,7 @@ public sealed class SelectOwnedHandRankSumSkillProgramEffectHandler : ISkillProg
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.SelectOwnedHandRankSum;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,
-        int targetSeat, ISkillProgramEffectHost host) => host is IOwnedHandRankSumHost selector
+        int targetSeat, ISkillProgramEffectHost host) => host.TryGetCapability<IOwnedHandRankSumHost>(out var selector)
         ? selector.BeginOwnedHandRankSum(frame, effect.ExactRankSum!.Value, effect.ResultBind!)
         : throw new InvalidOperationException("The program host does not support owned-hand rank-sum selection.");
 }

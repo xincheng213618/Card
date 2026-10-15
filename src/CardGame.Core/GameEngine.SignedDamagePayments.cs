@@ -26,6 +26,7 @@ public sealed partial class GameEngine
             .Where(c => (p.AnyColor || e.Suits.Contains(EffectiveSuit(_players[ownerSeat], c))) && !c.IsGeneralWeapon &&
                 !IsActiveProgramSourceEquipmentCard(ownerSeat, skillId, instance, c) &&
                 !IsForeignEquipmentDiscardPrevented(ownerSeat, c, _cardZones.GetLocation(c.Id), OwnedCardMoveIntent.Discard)).ToArray();
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 880)]
     private bool CanOfferSignedDamagePayment(ProgramTriggerCandidate candidate, SkillProgramTrigger trigger, ProgramSkillWindowContext c)
     {
         if (!trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.DiscardOwnedCardToAdjustCurrentDamage)) return true;
@@ -177,7 +178,8 @@ public sealed partial class GameEngine
             (_pendingDecision is not { IsPrivate: true } p || p.PlayerSeat != f.OwnerSeat || !AssistedChoicesEqual(p.Choices, SignedDamagePaymentChoices(f))))
             throw new InvalidOperationException("Signed damage lost its frozen private owning prompt.");
     }
-    private sealed partial class ProgramSkillHost : ISignedDamagePaymentHost
+    [ProgramCapability]
+    private sealed class SignedDamagePaymentCapability(GameEngine engine) : ISignedDamagePaymentHost
     {
         public SkillProgramStepOutcome DiscardOwnedCardToAdjustCurrentDamage(ProgramSkillFrame f) => engine.BeginSignedDamagePayment(f);
     }

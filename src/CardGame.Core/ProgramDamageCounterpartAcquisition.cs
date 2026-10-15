@@ -56,5 +56,5 @@ internal sealed class DamageCounterpartAcquisitionHandler : ISkillProgramEffectH
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.RecordDamageCounterpartAcquisition;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat, ISkillProgramEffectHost host) =>
-        ((IDamageCounterpartAcquisitionHost)host).RecordDamageCounterpartAcquisition(frame, effect.StateId!, effect.SkillIds.Single());
+        host.GetCapability<IDamageCounterpartAcquisitionHost>().RecordDamageCounterpartAcquisition(frame, effect.StateId!, effect.SkillIds.Single());
 }

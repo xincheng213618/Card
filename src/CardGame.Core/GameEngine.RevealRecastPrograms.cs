@@ -119,7 +119,8 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("Paired reveal lost its private physical hand choice.");
     }
 
-    private sealed partial class ProgramSkillHost : IRevealRecastProgramHost
+    [ProgramCapability]
+    private sealed class RevealRecastProgramCapability(GameEngine engine) : IRevealRecastProgramHost
     {
         public SkillProgramStepOutcome RecastSelectedCards(ProgramSkillFrame frame, string stateId, int threshold) => engine.RecastProgramSelectedCards(frame, stateId, threshold);
         public void DrawCompletedCardParticipants(ProgramSkillFrame frame, string stateId, int threshold) => engine.DrawProgramCompletedCardParticipants(frame, stateId, threshold);

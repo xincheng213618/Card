@@ -2,7 +2,8 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private sealed partial class ProgramSkillHost : ITurnEndDamageMarkerProgramHost
+    [ProgramCapability]
+    private sealed class TurnEndDamageMarkerProgramCapability(GameEngine engine) : ITurnEndDamageMarkerProgramHost
     {
         public void AddEndingTurnDamageMarker(ProgramSkillFrame frame, PlayerMarkerKind marker) =>
             engine.AddProgramEndingTurnDamageMarker(frame, marker);

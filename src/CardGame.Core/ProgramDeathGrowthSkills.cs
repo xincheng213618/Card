@@ -42,7 +42,7 @@ internal sealed class DeathGrowthSkillHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.DrawAfterOtherDeathThenChooseMissingSkill;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int seat, ISkillProgramEffectHost host) =>
-        ((IDeathGrowthSkillHost)host).DrawAfterOtherDeathThenChooseMissingSkill(frame, effect);
+        host.GetCapability<IDeathGrowthSkillHost>().DrawAfterOtherDeathThenChooseMissingSkill(frame, effect);
 }
 internal static class DeathGrowthSkillContract
 {

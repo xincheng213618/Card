@@ -23,6 +23,7 @@ public sealed partial class GameEngine
         .Where(x => !x.Card.IsGeneralWeapon && !IsForeignEquipmentDiscardPrevented(actor, x.Card,
             CardLocation.Equipment(x.Owner), OwnedCardMoveIntent.Discard) &&
             _players.Any(t => CanIssueKuangfuSlash(actor, t.Seat, x.Owner == actor ? x.Card.Id : null)));
+    [ProgramActivationLegality(ProgramActivationLegalityPhase.BeforeCardCount, 80, SkillProgramEffectOp.DiscardEquipmentThenSlashAndOwnershipOutcome)]
     private bool CanStartKuangfu(CharacterState owner) => KuangfuEquipment(owner.Seat).Any() &&
         _players.Any(p => CanIssueKuangfuSlash(owner.Seat, p.Seat));
     private SkillProgramStepOutcome BeginKuangfu(ProgramSkillFrame supplied)
@@ -224,6 +225,7 @@ public sealed partial class GameEngine
         // Equipment identity is public. No opponent hand is inspected to guess a response.
         return p.Choices.OrderBy(c => c.Targets.Single() == f.OwnerSeat ? 1 : 0).ThenBy(c => c.Cards.Single()).First();
     }
-    private sealed partial class ProgramSkillHost : IKuangfuProgramHost
+    [ProgramCapability]
+    private sealed class KuangfuProgramCapability(GameEngine engine) : IKuangfuProgramHost
     { public SkillProgramStepOutcome DiscardEquipmentThenSlashAndOwnershipOutcome(ProgramSkillFrame f) => engine.BeginKuangfu(f); }
 }

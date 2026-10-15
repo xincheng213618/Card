@@ -2,6 +2,7 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    [ProgramCardAction(ProgramCardActionPhase.BeforeProgram, 20)]
     private void AddSingleCardTrickConversionActions(List<LegalAction> actions, CharacterState actor,
         IReadOnlyList<Card> playable, int? selectedPhysicalCardId = null)
     {

@@ -88,6 +88,7 @@ public sealed partial class GameEngine
                 ? effect.Op == SkillProgramEffectOp.ZhuiLieEscalateTargetDamage && receipt.DamageBonus == 0
                 : effect.Op == SkillProgramEffectOp.AddCurrentTargetSlashDamage && effect.Amount == receipt.DamageBonus;
     }
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 920)]
     private bool CanOfferFinalTargetSlash(ProgramTriggerCandidate candidate, SkillProgramTrigger trigger, ProgramSkillWindowContext window)
     {
         if (!HasFinalTargetSlashEffects(trigger.Effects)) return true;
@@ -136,7 +137,8 @@ public sealed partial class GameEngine
     private int? ZhangbaSpecificSlashRank(CharacterState actor, IReadOnlyList<Card> cards, CharacterState? provider = null) =>
         HasCardPolicy(actor, SkillProgramCardPolicyKind.SlashRangeFromEffectiveRank, CardKind.Slash) && UsesFormalZhangbaSerpentSpear && HasWeaponAbility(provider ?? actor, CardKind.ZhangbaSerpentSpear) && cards.Count == 2
             ? Math.Min(13, cards.Sum(card => card.Rank)) : null;
-    private sealed partial class ProgramSkillHost : IFinalTargetSlashProgramHost
+    [ProgramCapability]
+    private sealed class FinalTargetSlashProgramCapability(GameEngine engine) : IFinalTargetSlashProgramHost
     {
         public void IssueFinalTargetSlashReceipt(ProgramSkillFrame frame, SkillProgramEffect effect) => engine.IssueFinalTargetSlashReceipt(frame, effect);
     }

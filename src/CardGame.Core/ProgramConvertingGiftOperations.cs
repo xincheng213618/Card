@@ -51,17 +51,17 @@ internal sealed class DrawToHandCountDescriptor : ProgramOperationDescriptorBase
 public sealed class GiveSelectedOwnedCardAndDamageHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op=>SkillProgramEffectOp.GiveSelectedOwnedCardAndDamage;
-    public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int s,ISkillProgramEffectHost h)=>((IConvertingGiftProgramHost)h).GiveSelectedOwnedCardAndDamage(f,e.Amount);
+    public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int s,ISkillProgramEffectHost h)=>h.GetCapability<IConvertingGiftProgramHost>().GiveSelectedOwnedCardAndDamage(f,e.Amount);
 }
 public sealed class ObserveDamageSourceHandAndGiveHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op=>SkillProgramEffectOp.ObserveDamageSourceHandAndGive;
-    public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int s,ISkillProgramEffectHost h)=>((IConvertingGiftProgramHost)h).ObserveDamageSourceHandAndGive(f,e.Amount);
+    public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int s,ISkillProgramEffectHost h)=>h.GetCapability<IConvertingGiftProgramHost>().ObserveDamageSourceHandAndGive(f,e.Amount);
 }
 public sealed class DrawToHandCountHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op=>SkillProgramEffectOp.DrawToHandCount;
-    public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int s,ISkillProgramEffectHost h)=>((IConvertingGiftProgramHost)h).DrawToHandCount(f,s,e.Amount);
+    public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int s,ISkillProgramEffectHost h)=>h.GetCapability<IConvertingGiftProgramHost>().DrawToHandCount(f,s,e.Amount);
 }
 public sealed record ProgramConvertingGiftDraft(bool Observe, string Stage,int RecipientSeat,int HandLimit,
     IReadOnlyList<int> ObservedHandIds,int? GiftCardId=null,int? GiftOrdinal=null,bool ExactDamageDeath=false);

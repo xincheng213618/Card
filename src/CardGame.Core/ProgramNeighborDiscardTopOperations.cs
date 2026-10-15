@@ -33,7 +33,7 @@ public sealed class PutOwnOrPreviousFirstDiscardOnTopHandler : ISkillProgramEffe
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.PutOwnOrPreviousFirstDiscardOnTop;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost host) =>
-        ((IProgramDiscardTopPlacementHost)host).PutDiscardedCardsOnDrawPileTop(f);
+        host.GetCapability<IProgramDiscardTopPlacementHost>().PutDiscardedCardsOnDrawPileTop(f);
 }
 
 internal interface IRevealedCardHpComparisonHost
@@ -100,5 +100,5 @@ public sealed class LoseHpIfRevealedNonEquipmentDiffersHandler : ISkillProgramEf
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.LoseHpIfRevealedNonEquipmentDiffers;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost host) =>
-        ((IRevealedCardHpComparisonHost)host).LoseHpIfRevealedNonEquipmentDiffers(f, e.SourceBind!);
+        host.GetCapability<IRevealedCardHpComparisonHost>().LoseHpIfRevealedNonEquipmentDiffers(f, e.SourceBind!);
 }

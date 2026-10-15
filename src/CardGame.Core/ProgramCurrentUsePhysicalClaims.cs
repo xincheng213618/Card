@@ -36,7 +36,7 @@ internal sealed class ClaimCurrentUsePhysicalCardsHandler : ISkillProgramEffectH
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.ClaimCurrentUsePhysicalCards;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat,
-        ISkillProgramEffectHost host) => ((ICurrentUsePhysicalClaimProgramHost)host).ClaimCurrentUsePhysicalCards(frame);
+        ISkillProgramEffectHost host) => host.GetCapability<ICurrentUsePhysicalClaimProgramHost>().ClaimCurrentUsePhysicalCards(frame);
 }
 
 internal sealed class PreventCurrentTargetSlashCancellationByRuleDescriptor : CurrentTargetSlashOperationDescriptor
@@ -52,7 +52,7 @@ internal sealed class PreventCurrentTargetSlashCancellationByRuleHandler : ISkil
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat,
         ISkillProgramEffectHost host)
     {
-        ((ICurrentUsePhysicalClaimProgramHost)host).PreventCurrentTargetSlashCancellationByRule(frame);
+        host.GetCapability<ICurrentUsePhysicalClaimProgramHost>().PreventCurrentTargetSlashCancellationByRule(frame);
         return SkillProgramStepOutcome.Continue;
     }
 }

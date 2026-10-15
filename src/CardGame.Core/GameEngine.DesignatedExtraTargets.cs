@@ -69,6 +69,7 @@ public sealed partial class GameEngine
         CompleteProgramEventHistory().OfType<DesignatedExtraTargetOfferedEvent>().Any(e =>
             e.CardUseFrameId == use.Id && e.ActionId == use.Action!.ActionId && e.Source == source);
 
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 220)]
     private bool CanOfferDesignatedExtraTarget(ProgramTriggerCandidate candidate, SkillProgramTrigger trigger,
         ProgramSkillWindowContext context)
     {
@@ -453,7 +454,8 @@ public sealed partial class GameEngine
         return true;
     }
 
-    private sealed partial class ProgramSkillHost : IDesignatedExtraTargetProgramHost
+    [ProgramCapability]
+    private sealed class DesignatedExtraTargetProgramCapability(GameEngine engine) : IDesignatedExtraTargetProgramHost
     {
         public SkillProgramStepOutcome AddOneDistanceFreeCurrentUseTarget(ProgramSkillFrame frame) =>
             engine.AddOneDistanceFreeCurrentUseTarget(frame);

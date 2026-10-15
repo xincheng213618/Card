@@ -1,7 +1,8 @@
 namespace CardGame.Core;
 public sealed partial class GameEngine
 {
-    private sealed partial class ProgramSkillHost : IPrivateTurnHoldProgramHost
+    [ProgramCapability]
+    private sealed class PrivateTurnHoldProgramCapability(GameEngine engine) : IPrivateTurnHoldProgramHost
     { public SkillProgramStepOutcome HoldOwnerHandUntilTurnEnd(ProgramSkillFrame f) => engine.HoldOwnerHandUntilTurnEnd(f); }
     private SkillProgramStepOutcome HoldOwnerHandUntilTurnEnd(ProgramSkillFrame f)
     {

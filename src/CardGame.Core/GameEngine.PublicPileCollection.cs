@@ -2,7 +2,8 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private sealed partial class ProgramSkillHost : IPublicPileCollectionProgramHost
+    [ProgramCapability]
+    private sealed class PublicPileCollectionProgramCapability(GameEngine engine) : IPublicPileCollectionProgramHost
     {
         public SkillProgramStepOutcome ExecutePublicPileCollection(SkillProgramEffect effect, ProgramSkillFrame frame) =>
             engine.ExecutePublicPileCollection(effect, frame);

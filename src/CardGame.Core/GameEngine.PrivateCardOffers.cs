@@ -3,7 +3,8 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private sealed partial class ProgramSkillHost : IPrivateOfferProgramHost
+    [ProgramCapability]
+    private sealed class PrivateOfferProgramCapability(GameEngine engine) : IPrivateOfferProgramHost
     {
         public SkillProgramStepOutcome DepositPrivateCardOffer(ProgramSkillFrame f, string bind, string resolver) => engine.DepositPrivateCardOffer(f, bind, resolver);
         public SkillProgramStepOutcome ResolvePrivateCardOffer(ProgramSkillFrame f) => engine.BeginDeferredPrivateOffer(f);

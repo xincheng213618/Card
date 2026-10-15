@@ -18,6 +18,7 @@ public sealed partial class GameEngine
     private bool HasOngoingActualUseTurn => _turnNumber > 0 && _turnProgression.TurnNumber == _turnNumber &&
         _turnProgression.OwnerSeat == _currentSeat && _phase is not (TurnPhase.NotStarted or TurnPhase.Finished);
 
+    [ProgramRuleObserver(ProgramRulePhase.BeforeEvent, 250)]
     private void ObserveCurrentTurnUseKinds(IGameEvent payload)
     {
         if (!TracksCurrentTurnUseKinds) return;

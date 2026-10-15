@@ -48,7 +48,7 @@ public abstract class DiscardChallengeHandler : ISkillProgramEffectHandler
 {
     public abstract SkillProgramEffectOp Op { get; }
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat,
-        ISkillProgramEffectHost host) => ((IDiscardChallengeProgramHost)host).ExecuteDiscardChallenge(effect, frame, targetSeat);
+        ISkillProgramEffectHost host) => host.GetCapability<IDiscardChallengeProgramHost>().ExecuteDiscardChallenge(effect, frame, targetSeat);
 }
 public sealed class ChooseCategoryAlternativeDiscardHandler : DiscardChallengeHandler
 { public override SkillProgramEffectOp Op => SkillProgramEffectOp.ChooseCategoryAlternativeDiscard; }

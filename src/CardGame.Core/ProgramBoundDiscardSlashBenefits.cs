@@ -55,7 +55,7 @@ public sealed class DiscardBoundCardForTurnSlashBenefitsHandler : ISkillProgramE
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.DiscardBoundCardForTurnSlashBenefits;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat, ISkillProgramEffectHost host) =>
-        ((IBoundDiscardSlashBenefitsHost)host).DiscardBoundCardForTurnSlashBenefits(frame, effect.SourceBind!);
+        host.GetCapability<IBoundDiscardSlashBenefitsHost>().DiscardBoundCardForTurnSlashBenefits(frame, effect.SourceBind!);
 }
 
 internal sealed class ScheduleFirstRoundGameUsageRefundDescriptor : TurnEffectProgramOperationDescriptorBase
@@ -72,7 +72,7 @@ public sealed class ScheduleFirstRoundGameUsageRefundHandler : ISkillProgramEffe
     public SkillProgramEffectOp Op => SkillProgramEffectOp.ScheduleFirstRoundGameUsageRefund;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat, ISkillProgramEffectHost host)
     {
-        ((IBoundDiscardSlashBenefitsHost)host).ScheduleFirstRoundGameUsageRefund(frame);
+        host.GetCapability<IBoundDiscardSlashBenefitsHost>().ScheduleFirstRoundGameUsageRefund(frame);
         return SkillProgramStepOutcome.Continue;
     }
 }

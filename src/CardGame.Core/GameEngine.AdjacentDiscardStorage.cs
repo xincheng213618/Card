@@ -82,7 +82,8 @@ public sealed partial class GameEngine
                 (candidate.OwnerSeat == origin.SourceSeat || candidate.OwnerSeat == origin.PreviousLivingSeat || candidate.OwnerSeat == origin.NextLivingSeat))
             .Select(x => x.index).ToArray();
 
-    private sealed partial class ProgramSkillHost : IAdjacentDiscardAndRoundAlcoholHost
+    [ProgramCapability]
+    private sealed class AdjacentDiscardAndRoundAlcoholCapability(GameEngine engine) : IAdjacentDiscardAndRoundAlcoholHost
     {
         public SkillProgramStepOutcome OfferCurrentSlashFireAndExtraTarget(ProgramSkillFrame frame) => engine.BeginCurrentSlashFireOffer(frame);
         public SkillProgramStepOutcome StoreAdjacentDiscardedSlash(ProgramSkillFrame frame, CardZoneKind zone) => engine.BeginAdjacentDiscardStorage(frame, zone);

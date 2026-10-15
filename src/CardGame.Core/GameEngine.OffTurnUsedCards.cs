@@ -169,6 +169,7 @@ public sealed partial class GameEngine
     private int[] OffTurnGiftRecipients(int owner) => _players.Where(p => p.IsAlive && p.Seat != owner &&
         GetHand(p).Count <= GetHand(_players[owner]).Count).Select(p => p.Seat).ToArray();
 
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 970)]
     private bool CanOfferOffTurnUsedCards(ProgramTriggerCandidate c, ProgramSkillWindowContext context)
     {
         if (!GetProgramTrigger(c).Effects.Any(e => e.Op == SkillProgramEffectOp.GiveOffTurnUsedCards)) return true;
@@ -320,7 +321,8 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("Off-turn gift lost its one atomic physical payment and immutable native child return.");
     }
 
-    private sealed partial class ProgramSkillHost : IOffTurnUsedCardsProgramHost
+    [ProgramCapability]
+    private sealed class OffTurnUsedCardsProgramCapability(GameEngine engine) : IOffTurnUsedCardsProgramHost
     {
         public SkillProgramStepOutcome GiveOffTurnUsedCards(ProgramSkillFrame f) => engine.BeginOffTurnUsedCardGift(f);
     }

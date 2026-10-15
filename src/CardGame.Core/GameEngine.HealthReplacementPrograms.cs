@@ -5,6 +5,7 @@ public sealed record DamageReplacedWithHpLossEvent(long ParentResolutionId, int 
 
 public sealed partial class GameEngine
 {
+    [ProgramRuleObserver(ProgramRulePhase.BeforeEvent, 160)]
     private void ObserveProgramHealthChange(IGameEvent payload)
     {
         if (payload is DamageAppliedEvent paidDamage)

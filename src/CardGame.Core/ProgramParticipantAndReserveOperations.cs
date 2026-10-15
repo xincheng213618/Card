@@ -63,7 +63,7 @@ public abstract class ParticipantReserveHandler : ISkillProgramEffectHandler
 {
     public abstract SkillProgramEffectOp Op { get; }
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat,
-        ISkillProgramEffectHost host) => ((IParticipantReserveProgramHost)host).ExecuteParticipantReserve(effect, frame);
+        ISkillProgramEffectHost host) => host.GetCapability<IParticipantReserveProgramHost>().ExecuteParticipantReserve(effect, frame);
 }
 public sealed class DamageParticipantsHandler : ParticipantReserveHandler { public override SkillProgramEffectOp Op => SkillProgramEffectOp.DamageParticipants; }
 public sealed class LoseHpParticipantsHandler : ParticipantReserveHandler { public override SkillProgramEffectOp Op => SkillProgramEffectOp.LoseHpParticipants; }

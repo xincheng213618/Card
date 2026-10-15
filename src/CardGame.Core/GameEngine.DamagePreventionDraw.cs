@@ -35,7 +35,8 @@ public sealed partial class GameEngine
         _resolutionStack.OfType<BeforeDamageProgramWindowFrame>().Any(parent =>
             parent.Id == context.ParentFrameId && IsValidPreventionDrawReceipt(frame, parent));
 
-    private sealed partial class ProgramSkillHost : IDamagePreventionDrawProgramHost
+    [ProgramCapability]
+    private sealed class DamagePreventionDrawProgramCapability(GameEngine engine) : IDamagePreventionDrawProgramHost
     {
         public SkillProgramStepOutcome PreventDamageAndDrawMultiple(ProgramSkillFrame frame, int multiplier) =>
             engine.PreventDamageAndDrawMultiple(frame, multiplier);

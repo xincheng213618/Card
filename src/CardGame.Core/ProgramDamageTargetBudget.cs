@@ -57,7 +57,7 @@ internal sealed class DamageTargetBudgetHandler(SkillProgramEffectOp op) : ISkil
 {
     public SkillProgramEffectOp Op => op;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost host) =>
-        ((IDamageTargetBudgetHost)host).ApplyDamageTargetBudget(e, f);
+        host.GetCapability<IDamageTargetBudgetHost>().ApplyDamageTargetBudget(e, f);
 }
 internal static class DamageTargetBudgetContract
 {

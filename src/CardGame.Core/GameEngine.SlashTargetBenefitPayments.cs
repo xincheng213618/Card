@@ -239,7 +239,8 @@ public sealed partial class GameEngine
                 (c.Cards.Count == 1 ? GetKeepValue(GetAttackCard(c.Cards[0]), _players[cardOwner]) : 5d))
             .ThenBy(c => c.Id.Value, StringComparer.Ordinal).First();
     }
-    private sealed partial class ProgramSkillHost : ISlashTargetBenefitProgramHost
+    [ProgramCapability]
+    private sealed class SlashTargetBenefitProgramCapability(GameEngine engine) : ISlashTargetBenefitProgramHost
     {
         public SkillProgramStepOutcome OfferSlashTargetBenefit(ProgramSkillFrame f, string binding) => engine.OfferSlashTargetBenefit(f, binding);
         public SkillProgramStepOutcome SettleDodgeCancelledSlashBenefit(ProgramSkillFrame f) => engine.SettleDodgeCancelledSlashBenefit(f);

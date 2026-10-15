@@ -18,7 +18,7 @@ public sealed class GrantLeastHandMarkerOrDrawHandler : ISkillProgramEffectHandl
     public SkillProgramEffectOp Op => SkillProgramEffectOp.GrantLeastHandMarkerOrDraw;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,
         int targetSeat, ISkillProgramEffectHost host) =>
-        ((ILeastHandMarkerDrawProgramHost)host).GrantLeastHandMarkerOrDraw(frame, targetSeat, effect.Marker!.Value);
+        host.GetCapability<ILeastHandMarkerDrawProgramHost>().GrantLeastHandMarkerOrDraw(frame, targetSeat, effect.Marker!.Value);
 }
 internal sealed class GrantLeastHandMarkerOrDrawDescriptor : ProgramOperationDescriptorBase
 {
@@ -44,7 +44,8 @@ public sealed partial class GameEngine
     // Issued permanent obligations are independent of later source availability;
     // resolution progress itself remains only on the exact draw owning frame.
     private readonly Dictionary<(int Target, PlayerMarkerKind Marker), ProgramMarkerExtraDrawPolicy> _markerExtraDrawPolicies = [];
-    private sealed partial class ProgramSkillHost : ILeastHandMarkerDrawProgramHost
+    [ProgramCapability]
+    private sealed class LeastHandMarkerDrawProgramCapability(GameEngine engine) : ILeastHandMarkerDrawProgramHost
     {
         public SkillProgramStepOutcome GrantLeastHandMarkerOrDraw(ProgramSkillFrame frame, int targetSeat,
             PlayerMarkerKind marker) => engine.BeginLeastHandMarkerOrDraw(frame, targetSeat, marker);

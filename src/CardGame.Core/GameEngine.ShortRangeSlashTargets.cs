@@ -34,6 +34,7 @@ public sealed partial class GameEngine
     }
     private bool ShortRangeSlashWasOffered(long useId) => CompleteProgramEventHistory().OfType<ShortRangeSlashTargetResolvedEvent>()
         .Any(e => e.CardUseFrameId == useId);
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 110)]
     private bool CanRunShortRangeSlash(ProgramTriggerCandidate candidate, SkillProgramTrigger trigger, ProgramSkillWindowContext context)
     {
         if (!trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.OfferShortRangeSlashTarget)) return true;
@@ -352,7 +353,8 @@ public sealed partial class GameEngine
             window.CandidateIndex >= 0 && window.CandidateIndex < window.Candidates.Count &&
             window.Candidates[window.CandidateIndex] == candidate && window.Contexts[window.CandidateIndex] == context;
     }
-    private sealed partial class ProgramSkillHost : IDirectedDistanceDebtHost
+    [ProgramCapability]
+    private sealed class DirectedDistanceDebtCapability(GameEngine engine) : IDirectedDistanceDebtHost
     {
         public SkillProgramStepOutcome OfferShortRangeSlashTarget(ProgramSkillFrame frame) => engine.OfferShortRangeSlashTarget(frame);
         public void GrantFixedDistanceOneTurnPolicy(ProgramSkillFrame frame, int target) => engine.GrantFixedDistanceOneTurnPolicy(frame, target);

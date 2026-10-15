@@ -33,5 +33,5 @@ public sealed class SelectedTargetVirtualSlashAgainstOwnerHandler : ISkillProgra
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.SelectedTargetVirtualSlashAgainstOwner;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost h) =>
-        ((ILuelveCounterSlashProgramHost)h).SelectedTargetVirtualSlashAgainstOwner(f);
+        h.GetCapability<ILuelveCounterSlashProgramHost>().SelectedTargetVirtualSlashAgainstOwner(f);
 }

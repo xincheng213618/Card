@@ -98,6 +98,7 @@ public sealed partial class GameEngine
             ? card with { Suit = suit }
             : card;
 
+    [ProgramCardAction(ProgramCardActionPhase.BeforeProgram, 10)]
     private void AddPhaseLimitedBasicCardActions(List<LegalAction> actions, CharacterState actor,
         IReadOnlyList<Card> playableCards, int? selectedPhysicalCardId = null)
     {

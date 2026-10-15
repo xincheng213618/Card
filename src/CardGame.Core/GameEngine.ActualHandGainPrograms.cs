@@ -127,6 +127,7 @@ public sealed partial class GameEngine
             HasExactAcceptedActualHandGainUse(use, parent.Action) &&
             CompleteProgramEventHistory().OfType<CardUseFinishedEvent>().Count(e => e.ResolutionId == useId && e.CardKind == effectiveKind) == 1;
     }
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 120)]
     private bool CanRunActualHandGainTrigger(ProgramTriggerCandidate c, SkillProgramTrigger t, ProgramSkillWindowContext context)
     {
         var op = t.Effects.FirstOrDefault()?.Op;
@@ -334,6 +335,7 @@ public sealed partial class GameEngine
             e.Action.Type == CardActionType.Use && e.Action.ActorSeat == actor && e.Action.ProviderSeat == actor &&
             e.Action.EffectiveKind == kind && e.Action.PhysicalCards.Count == 0 && e.Action.TargetSeats.SequenceEqual(use.TargetSeats));
     }
-    private sealed partial class ProgramSkillHost : IActualHandGainAndCategoryGiftHost
+    [ProgramCapability]
+    private sealed class ActualHandGainAndCategoryGiftCapability(GameEngine engine) : IActualHandGainAndCategoryGiftHost
     { public SkillProgramStepOutcome ExecuteActualHandGain(ProgramSkillFrame f, SkillProgramEffect e) => engine.ExecuteActualHandGain(f, e); }
 }

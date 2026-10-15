@@ -75,13 +75,13 @@ public sealed class DonateAllEquipmentAndOfferRecipientBenefitsHandler : ISkillP
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.DonateAllEquipmentAndOfferRecipientBenefits;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int s, ISkillProgramEffectHost h) =>
-        ((IEquipmentDonationProgramHost)h).DonateAllEquipmentAndOfferRecipientBenefits(f, e.StateId!);
+        h.GetCapability<IEquipmentDonationProgramHost>().DonateAllEquipmentAndOfferRecipientBenefits(f, e.StateId!);
 }
 public sealed class ChooseEquipmentOrDrawAfterOtherActualTurnHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.ChooseEquipmentOrDrawAfterOtherActualTurn;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int s, ISkillProgramEffectHost h) =>
-        ((IEquipmentDonationProgramHost)h).ChooseEquipmentOrDrawAfterOtherActualTurn(f);
+        h.GetCapability<IEquipmentDonationProgramHost>().ChooseEquipmentOrDrawAfterOtherActualTurn(f);
 }
 internal static class EquipmentDonationComposition
 {

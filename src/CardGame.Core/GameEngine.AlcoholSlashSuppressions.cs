@@ -26,6 +26,7 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new CardUseAlcoholConsumptionCapturedEvent(use.Id, action.ActionId, actor.Seat));
     }
 
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 940)]
     private bool CanRunAlcoholSlashSuppression(SkillProgramTrigger trigger, ProgramSkillWindowContext context,
         int ownerSeat) => !trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.SuppressOwnSkillAfterAlcoholSlashDamage) ||
         TryAlcoholSlashSuppressionUse(context, ownerSeat, out _);
@@ -112,7 +113,8 @@ public sealed partial class GameEngine
                 throw new InvalidOperationException("An Alcohol consumption receipt lost its original Slash action.");
     }
 
-    private sealed partial class ProgramSkillHost : IAlcoholSlashSuppressionProgramHost
+    [ProgramCapability]
+    private sealed class AlcoholSlashSuppressionProgramCapability(GameEngine engine) : IAlcoholSlashSuppressionProgramHost
     {
         public void SuppressOwnSkillAfterAlcoholSlashDamage(ProgramSkillFrame frame, string skillId) =>
             engine.SuppressOwnSkillAfterAlcoholSlashDamage(frame, skillId);

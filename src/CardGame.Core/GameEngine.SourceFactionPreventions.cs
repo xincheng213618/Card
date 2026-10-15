@@ -4,6 +4,7 @@ public sealed partial class GameEngine
 {
     private static string SourceFactionPreventionUsage(string stateId, string faction) => $"source-faction:{stateId}:{faction}";
 
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 60)]
     private bool CanRunSourceFactionPrevention(ProgramTriggerCandidate candidate, SkillProgramTrigger trigger, ProgramSkillWindowContext context)
     {
         var effect = trigger.Effects.FirstOrDefault(e => e.Op == SkillProgramEffectOp.PreventDamageAndConsumeSourceFaction);
@@ -156,7 +157,8 @@ public sealed partial class GameEngine
         if (parent is null || !IsValidSourceFactionPrevention(frame, parent))
             throw new InvalidOperationException("An issued source-faction prevention lost its exact producer or consumed game usage.");
     }
-    private sealed partial class ProgramSkillHost : ISourceFactionPreventionProgramHost
+    [ProgramCapability]
+    private sealed class SourceFactionPreventionProgramCapability(GameEngine engine) : ISourceFactionPreventionProgramHost
     {
         public SkillProgramStepOutcome PreventDamageAndConsumeSourceFaction(ProgramSkillFrame f, string stateId) => engine.PreventDamageAndConsumeSourceFaction(f, stateId);
     }

@@ -31,5 +31,5 @@ internal sealed class GiveShownBoundCardsAndGrantTurnHandLimitHandler : ISkillPr
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.GiveShownBoundCardsAndGrantTurnHandLimit;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int seat,ISkillProgramEffectHost host) =>
-        ((IShownBoundGiftProgramHost)host).GiveShownBoundCardsAndGrantTurnHandLimit(f,e.SourceBind!);
+        host.GetCapability<IShownBoundGiftProgramHost>().GiveShownBoundCardsAndGrantTurnHandLimit(f,e.SourceBind!);
 }

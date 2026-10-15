@@ -72,17 +72,17 @@ public sealed class RevealTopCardsWithNextBooleanBonusHandler : ISkillProgramEff
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.RevealTopCardsWithNextBooleanBonus;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost host)
-    { ((IBoundRankBonusProgramHost)host).RevealTopCardsWithNextBooleanBonus(f, e); return SkillProgramStepOutcome.Continue; }
+    { host.GetCapability<IBoundRankBonusProgramHost>().RevealTopCardsWithNextBooleanBonus(f, e); return SkillProgramStepOutcome.Continue; }
 }
 public sealed class ObtainBoundCardsAndArmNextRevealBonusHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.ObtainBoundCardsAndArmNextRevealBonus;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost host) =>
-        ((IBoundRankBonusProgramHost)host).ObtainBoundCardsAndArmNextRevealBonus(f, e);
+        host.GetCapability<IBoundRankBonusProgramHost>().ObtainBoundCardsAndArmNextRevealBonus(f, e);
 }
 public sealed class RecoverOtherDyingVictimToHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.RecoverOtherDyingVictimTo;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost host)
-    { ((IBoundRankBonusProgramHost)host).RecoverOtherDyingVictimTo(f, e.Amount); return SkillProgramStepOutcome.Continue; }
+    { host.GetCapability<IBoundRankBonusProgramHost>().RecoverOtherDyingVictimTo(f, e.Amount); return SkillProgramStepOutcome.Continue; }
 }

@@ -88,7 +88,7 @@ internal sealed class PublicPilePreparationHandler(SkillProgramEffectOp op) : IS
 {
     public SkillProgramEffectOp Op => op;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost h) =>
-        ((IPublicPilePreparationHost)h).ExecutePublicPilePreparation(e, f);
+        h.GetCapability<IPublicPilePreparationHost>().ExecutePublicPilePreparation(e, f);
 }
 internal static class PublicPilePreparationComposition
 {

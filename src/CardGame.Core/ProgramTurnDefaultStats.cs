@@ -71,7 +71,7 @@ public abstract class TurnDefaultStatsHandler : ISkillProgramEffectHandler
 {
     public abstract SkillProgramEffectOp Op { get; }
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int seat, ISkillProgramEffectHost host) =>
-        ((ITurnDefaultStatsProgramHost)host).ExecuteTurnDefaultStatOperation(frame, effect);
+        host.GetCapability<ITurnDefaultStatsProgramHost>().ExecuteTurnDefaultStatOperation(frame, effect);
 }
 public sealed class AllocateCurrentTurnDefaultStatsHandler : TurnDefaultStatsHandler
 { public override SkillProgramEffectOp Op => SkillProgramEffectOp.AllocateCurrentTurnDefaultStats; }

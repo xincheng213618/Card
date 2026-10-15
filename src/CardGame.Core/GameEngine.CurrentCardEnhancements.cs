@@ -180,7 +180,8 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("A current-card enhancement prompt changed its frozen choices or targets.");
     }
 
-    private sealed partial class ProgramSkillHost : ICurrentCardEnhancementProgramHost
+    [ProgramCapability]
+    private sealed class CurrentCardEnhancementProgramCapability(GameEngine engine) : ICurrentCardEnhancementProgramHost
     {
         public SkillProgramStepOutcome ApplyCurrentCardEnhancements(ProgramSkillFrame frame, int maximum) => engine.ApplyProgramCurrentCardEnhancements(frame, maximum);
     }

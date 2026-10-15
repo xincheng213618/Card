@@ -61,6 +61,8 @@ public sealed partial class GameEngine
             source.SourceId.StartsWith("equipment:", StringComparison.Ordinal);
     }
 
+    [ProgramRuleObserver(ProgramRulePhase.BeforeEvent, 50)]
+    [ProgramRuleObserver(ProgramRulePhase.BeforeStatePublish, 30)]
     private void SynchronizeHpConditionalSkillGrants()
     {
         if (HpConditionalCapabilitySkillIds.Count == 0 || _synchronizingHpConditionalSkillGrants) return;

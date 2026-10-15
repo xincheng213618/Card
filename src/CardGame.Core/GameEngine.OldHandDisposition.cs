@@ -198,6 +198,7 @@ public sealed partial class GameEngine
             .OrderBy(c=>AreProgramDistributionAllies(_players[f.OwnerSeat],_players[c.Targets.Single()])).ThenBy(c=>c.Targets.Single()).First();
         return decision.Choices.FirstOrDefault(c=>c.Parameters["branch"]=="foreign-discard") ?? decision.Choices.First();
     }
-    private sealed partial class ProgramSkillHost : IOldHandDispositionHost
+    [ProgramCapability]
+    private sealed class OldHandDispositionCapability(GameEngine engine) : IOldHandDispositionHost
     { public SkillProgramStepOutcome ReplaceDiscardWithOldHandDisposition(ProgramSkillFrame f) => engine.ReplaceDiscardWithOldHandDisposition(f); }
 }

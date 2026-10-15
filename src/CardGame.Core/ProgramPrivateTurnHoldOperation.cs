@@ -24,5 +24,5 @@ internal sealed class HoldOwnerHandUntilTurnEndDescriptor : ProgramOperationDesc
 public sealed class HoldOwnerHandUntilTurnEndHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.HoldOwnerHandUntilTurnEnd;
-    public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost host) => ((IPrivateTurnHoldProgramHost)host).HoldOwnerHandUntilTurnEnd(f);
+    public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost host) => host.GetCapability<IPrivateTurnHoldProgramHost>().HoldOwnerHandUntilTurnEnd(f);
 }

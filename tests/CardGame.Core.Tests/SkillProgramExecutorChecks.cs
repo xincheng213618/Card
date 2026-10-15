@@ -367,7 +367,7 @@ internal static class SkillProgramExecutorChecks
         }
     }
 
-    private class FakeRuntime : ISkillProgramExecutionHost, ISkillProgramEffectHost
+    internal class FakeRuntime : ISkillProgramExecutionHost, ISkillProgramEffectHost
     {
         public int ResolveParticipant(ProgramSkillFrame frame, ProgramParticipantReference reference) =>
             reference.Kind == ProgramParticipantRef.Owner ? frame.OwnerSeat : 1;

@@ -1,7 +1,8 @@
 namespace CardGame.Core;
 public sealed partial class GameEngine
 {
-    private sealed partial class ProgramSkillHost : IEndingPairSlashLossHost
+    [ProgramCapability]
+    private sealed class EndingPairSlashLossCapability(GameEngine engine) : IEndingPairSlashLossHost
     {
         public SkillProgramStepOutcome DrawEndingPair(ProgramSkillFrame f, string state) => engine.BeginEndingPairDraw(f, state);
         public SkillProgramStepOutcome RecastSelectedPhysicalSlash(ProgramSkillFrame f) => engine.BeginActualPlaySlashRecast(f);

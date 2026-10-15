@@ -35,6 +35,7 @@ public sealed partial class GameEngine
         if(pending.IsQinglongCrescentBladeUse)return CanUseQinglongCrescentBladeTarget(actor,_players[target],kind,color,allowAnyColor:false,physicalSuit:suit);
         return CanUseProvidedSlashTarget(actor,_players[target],kind,physicalSuit:suit,allowAnyPhysicalSuit:false,effectiveColor:color);
     }
-    private sealed partial class ProgramSkillHost : ITurnRedSlashProgramHost
+    [ProgramCapability]
+    private sealed class TurnRedSlashProgramCapability(GameEngine engine) : ITurnRedSlashProgramHost
     { public void GrantTurnRedSlashBenefits(ProgramSkillFrame frame)=>engine.GrantTurnRedSlashBenefits(frame); }
 }

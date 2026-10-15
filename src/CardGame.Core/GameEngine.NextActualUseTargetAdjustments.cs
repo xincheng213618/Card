@@ -4,7 +4,8 @@ public sealed partial class GameEngine
 {
     private const string NextActualUseAdjustmentBinding = "next-actual-use-target-adjustment";
 
-    private sealed partial class ProgramSkillHost : INextActualUseTargetAdjustmentProgramHost
+    [ProgramCapability]
+    private sealed class NextActualUseTargetAdjustmentProgramCapability(GameEngine engine) : INextActualUseTargetAdjustmentProgramHost
     {
         public void GrantNextActualUseTargetAdjustment(ProgramSkillFrame frame, SkillProgramEffect effect) =>
             engine.GrantNextActualUseTargetAdjustment(frame, effect);
@@ -51,6 +52,7 @@ public sealed partial class GameEngine
         action.ProgramActivationId == NextActualUseAdjustmentBinding && CurrentNextActualUseAdjustment(actor.Seat) is { } grant &&
         action.ProgramSkillId == grant.Source.SkillId;
 
+    [ProgramRuleObserver(ProgramRulePhase.BeforeEvent, 220)]
     private void ObserveNextActualUseAdjustment(IGameEvent payload)
     {
         long frameId; int actor; long? actionId; CardKind kind; bool nullification;
@@ -88,6 +90,7 @@ public sealed partial class GameEngine
             _contentRegistry.GetSkill(p.Source.SkillId).Program?.Activations.Any(a =>
                 a.Effects.Any(e => e.Op == SkillProgramEffectOp.GrantNextActualUseTargetAdjustment)) == true);
 
+    [ProgramCardAction(ProgramCardActionPhase.AfterProgram, 20)]
     private void AddNextActualUseAdjustmentActions(List<LegalAction> actions, CharacterState actor)
     {
         if (CurrentNextActualUseAdjustment(actor.Seat) is not { } grant) return;
@@ -162,46 +165,9 @@ public sealed partial class GameEngine
     }
 
     private static SkillProgramEffect? NextActualUseSelectedProducer(ProgramExecutionPlan plan) =>
-        plan.Activation is { MinTargets: 1, MaxTargets: 1 } && plan.Instructions.Count == 1 &&
-            plan.Instructions[0] is { Op: SkillProgramEffectOp.UseSelectedCardsAs, OutputKind: CardKind.Slash or CardKind.FireSlash } slash ? slash :
-        plan.Activation is { MinTargets: 0, MaxTargets: 0 } && plan.Instructions.Count == 1 &&
-            plan.Instructions[0] is { Op: SkillProgramEffectOp.UseSelectedCardsAs, OutputKind: CardKind.ArrowBarrage or CardKind.Peach } global ? global : null;
+        AdjustedUseSelection.Producer(plan);
 
-    private int NextActualUseProgramMaximum(CharacterState owner, ProgramExecutionPlan plan) =>
-        HpLossSlashProgramMaximum(owner, plan, CurrentNextActualUseAdjustment(owner.Seat) is not null && NextActualUseSelectedProducer(plan) is not null
-            ? plan.Activation!.MaxTargets + 1 : plan.Activation!.MaxTargets);
 
-    private IReadOnlyList<int> NextActualUseProgramTargets(CharacterState owner, ProgramExecutionPlan plan,
-        IReadOnlyList<int> normal, IReadOnlyList<ProgramMultiCardViewAsSelection> selections) =>
-        CurrentNextActualUseAdjustment(owner.Seat) is not null && NextActualUseSelectedProducer(plan) is { OutputKind: CardKind.ArrowBarrage }
-            ? _players.Where(p => p.IsAlive && p.Seat != owner.Seat && selections.Any(s =>
-                !IsCardTargetProhibited(p, CardKind.ArrowBarrage, PhysicalGroupSuit(owner, s.Cards), PhysicalGroupColor(owner, s.Cards)) &&
-                !HasBeneficiarySuitShield(owner.Seat, p.Seat, PhysicalGroupSuit(owner, s.Cards))))
-                .Select(p => p.Seat).Order().ToArray() :
-        CurrentNextActualUseAdjustment(owner.Seat) is not null && NextActualUseSelectedProducer(plan) is { OutputKind: CardKind.Peach }
-            ? _players.Where(p => p.IsAlive && p.Seat != owner.Seat && p.Hp < p.MaxHp && selections.Any(s =>
-                !IsCardTargetProhibited(p, CardKind.Peach, PhysicalGroupSuit(owner, s.Cards), PhysicalGroupColor(owner, s.Cards)) &&
-                !HasBeneficiarySuitShield(owner.Seat, p.Seat, PhysicalGroupSuit(owner, s.Cards))))
-                .Select(p => p.Seat).Order().ToArray() : normal;
-
-    private CommandError? ValidateNextActualUseProgramSelection(LegalAction action, ProgramExecutionPlan? plan,
-        IReadOnlyList<int> cards, IReadOnlyList<int> targets)
-    {
-        if (plan?.Activation is not { } activation || targets.Count <= activation.MaxTargets) return null;
-        var owner = _players[_currentSeat];
-        if (HasHpLossSlashTargets(owner) && HpLossSlashProgramProducer(plan) is not null)
-            return ValidateHpLossSlashProgramSelection(action, plan, cards, targets);
-        var effect = NextActualUseSelectedProducer(plan);
-        var source = effect is null ? null : new CardConversionSource(action.ProgramSkillId!, effect.SourceBind!, owner.Seat,
-            GetRuntimeSkillInstanceId(owner, action.ProgramSkillId!));
-        var selection = source is null ? null : FindProgramMultiCardViewAsSelection(owner, cards, effect!.OutputKind!.Value, false, source);
-        if (effect is null || CurrentNextActualUseAdjustment(owner.Seat) is null || targets.Count != activation.MaxTargets + 1 ||
-            selection is null || (effect.OutputKind is CardKind.Slash or CardKind.FireSlash
-                ? targets.Any(t => !CanUseNextActualUseSelectedSlash(owner, _players[t], selection))
-                : !NextActualUseProgramTargets(owner, plan, [], [selection]).Contains(targets[0])))
-            return new(CommandErrorCode.InvalidTarget, "The next actual-use target adjustment lost its exact materials, source or legal targets.");
-        return null;
-    }
 
     private bool CanUseNextActualUseSelectedSlash(CharacterState owner, CharacterState target, ProgramMultiCardViewAsSelection selection) =>
         CanUseVirtualSlashTarget(owner, target, selection.OutputKind, PhysicalGroupSuit(owner, selection.Cards),

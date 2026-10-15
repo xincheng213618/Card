@@ -373,7 +373,8 @@ public sealed partial class GameEngine
         return e.Op == SkillProgramEffectOp.Damage && e.Amount == amount && e.ActorReference == source && e.DamageNature == nature &&
             target == (e.TargetReference is { } reference ? ResolveProgramParticipant(f, reference) : ResolveProgramEffectTarget(f, e.Target));
     }
-    private sealed partial class ProgramSkillHost : IDrawDiscardCategoryProgramHost
+    [ProgramCapability]
+    private sealed class DrawDiscardCategoryProgramCapability(GameEngine engine) : IDrawDiscardCategoryProgramHost
     {
         public SkillProgramStepOutcome DrawThenDiscardDistinctCategories(ProgramSkillFrame f, int targetSeat, int amount, string stateId) =>
             engine.BeginDrawDiscardCategoryRefund(f, targetSeat, amount, stateId);

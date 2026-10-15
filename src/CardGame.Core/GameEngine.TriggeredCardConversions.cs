@@ -28,6 +28,7 @@ public sealed partial class GameEngine
                 new(frame.SkillId, GetProgramBindingId(frame), ownerSeat, frame.SkillInstanceId));
     }
 
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.AfterInitialPayments, 50, SkillProgramEffectOp.UseBoundCardsAsSlash)]
     private bool CanOfferTriggeredSlashConversion(ProgramTriggerCandidate candidate, SkillProgramTrigger trigger, ProgramSkillWindowContext context)
     {
         var consumer = trigger.Effects.FirstOrDefault(effect => effect.Op == SkillProgramEffectOp.UseBoundCardsAsSlash);
@@ -68,7 +69,8 @@ public sealed partial class GameEngine
         return SkillProgramStepOutcome.AwaitChild;
     }
 
-    private sealed partial class ProgramSkillHost : ITriggeredCardConversionHost
+    [ProgramCapability]
+    private sealed class TriggeredCardConversionCapability(GameEngine engine) : ITriggeredCardConversionHost
     {
         public SkillProgramStepOutcome UseBoundCardsAsSlash(ProgramSkillFrame frame, SkillProgramEffect effect) =>
             engine.UseTriggeredBoundCardsAsSlash(frame, effect);
