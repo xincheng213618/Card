@@ -1,0 +1,66 @@
+{
+  "status": "verified-in-batch",
+  "owner": "/root/batch8_dong_zhao",
+  "capturedAt": "2026-10-14T16:56:18.5317579Z",
+  "batch": 13,
+  "generalId": "ol:lu-zhi-wei",
+  "inputs": [
+    {
+      "path": "src/CardGame.Core/ProgramLuZhiWeiOperations.cs",
+      "sha256": "9f4a15271168944136d9ad084071b5f16a16f7c42f35b4bc42a35c77aeed2443"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.LuZhiWeiPrograms.cs",
+      "sha256": "60b24dfea38aa7f5f52d7ff6c318de5f2e8ad94373de7552d8272b57d1fcbdfd"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.LuZhiWeiObservers.cs",
+      "sha256": "7e45f120b2f9bfd4523f5cf4e078aec2ed339a1a731858caffe652852b02c56f"
+    },
+    {
+      "path": "src/CardGame.Core/ProgramRoundOnceCardlessBasic.cs",
+      "sha256": "551d5c3c97bd9ee0c47f36bdca162a1951d59181889674413c9e8919b5b5ba30"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.RoundOnceCardlessBasic.cs",
+      "sha256": "f3e0804a85d1c7e8b95edafd1cbec0cbc6eb120e144ba40903eb01091ed1b6d2"
+    },
+    {
+      "path": "src/CardGame.Content.Standard/OlLuZhiWeiContent.cs",
+      "sha256": "c332b0c39415e1636e98764cbfd2af19ff130cfd6b390483cc85ea2f5ba27469"
+    },
+    {
+      "path": "src/CardGame.Content.Standard/SkillPrograms/ol-lu-zhi-wei.rules.json",
+      "sha256": "c64d263013bd9bba5ed089cb6f44b967fa203245d36313c15a06dfca763d0f16"
+    },
+    {
+      "path": "src/CardGame.Content.Standard/SkillPrograms/ol-lu-zhi-wei.presentation.json",
+      "sha256": "153251587ab80a1676522cded95ac82383468e3b33c4c1fda0d12737108dfee4"
+    },
+    {
+      "path": "tests/CardGame.Core.Tests/LuZhiWeiChecks.cs",
+      "sha256": "64565b7642fea6924c0ec55a6bb0132daabbccbdc619dd0afdad371c7de04683"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.RoundOnceCardlessNativeUses.cs",
+      "sha256": "26c3a12403be53770f145ff5618ad43f52738da2f368d27d0057cd197b6397f5"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.RoundOnceCardlessNativeResponses.cs",
+      "sha256": "64b66cd7eaa6553149b13fac648a40102c0f2949df57fbbb79eb4a3a35f0805a"
+    },
+    {
+      "sha256": "c58bfee8185e7a980b1e99f2019b9d7aba954d51c3e509af19a2789296aa348d",
+      "path": "src/CardGame.Core/GameEngine.RoundOnceCardlessProgramRequests.cs"
+    }
+  ],
+  "workerVerificationAtHandoff": "frozen-awaiting-root-focused",
+  "verification": {
+    "report": "docs/benchmarks/2026-10-15-bei-mi-hu-liu-qi-lu-zhi-wei-verification.json",
+    "focused": "docs/benchmarks/2026-10-15-batch-13-thirteenth-final-focused-summary.json",
+    "routine": "docs/benchmarks/2026-10-15-batch-13-routine-summary.json",
+    "status": "passed",
+    "ranByWorker": false,
+    "ranByRoot": true
+  }
+}

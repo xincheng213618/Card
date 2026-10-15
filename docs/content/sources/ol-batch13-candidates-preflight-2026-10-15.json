@@ -1,0 +1,124 @@
+{
+  "capturedAtUtc": "2026-10-14T16:34:37.656688+00:00",
+  "scope": "Batch13 fresh primary preflight; implementation requires separate authorization; no source/tests/tools/build changes while collecting evidence.",
+  "candidateHeroIds": [
+    377,
+    378,
+    379
+  ],
+  "freshClient": {
+    "path": "docs/content/sources/evidence/ol-batch13-377-378-379-current-client-preflight-2026-10-15.json",
+    "sha256": "552ba55e39981951da6faf9d98a53b3d64c77a410680d128a8eb713d667c7fc4",
+    "bundleSha256": "66dfce61f1c4fb0aca35b6f85ed940e394719db84655f4d4146b463bc0cf8c1b",
+    "configSha256": "3d7536d4e2ca3d64707c2f6e0edbb8ccb4a045eee4274862dfa35431157c64f4",
+    "printedSpellIds": [
+      392,
+      393,
+      394,
+      797,
+      798,
+      799,
+      800
+    ],
+    "linkedSpellIds": [
+      395
+    ],
+    "characterArrayIndices": {
+      "377": 0,
+      "378": 1,
+      "379": 2
+    },
+    "fullArchivesWritten": false
+  },
+  "thirdCandidate": {
+    "heroId": 379,
+    "name": "鲁芝",
+    "clientClass": "LuZhi",
+    "gender": "male",
+    "faction": "wei",
+    "baseHp": 3,
+    "productLine": "三国杀OL",
+    "generalId": "ol:lu-zhi-wei",
+    "characterId": "character:lu-zhi-wei",
+    "variantId": "ordinary",
+    "clientPrimarySpellId": 800,
+    "clientSecondarySpellId": 799,
+    "webPagePrintedSkills": [
+      {
+        "name": "清忠",
+        "clientSpellId": 799,
+        "text": "出牌阶段开始时，你可以摸两张牌，若如此做，本阶段结束时，你与手牌数最少的角色交换手牌。"
+      },
+      {
+        "name": "卫境",
+        "clientSpellId": 800,
+        "text": "每轮限一次，你可以视为使用一张【杀】或【闪】。"
+      }
+    ],
+    "apiInitialHpMetadata": 0,
+    "primarySources": [
+      {
+        "url": "https://www.sanguosha.com/hero/379",
+        "path": "docs/content/sources/evidence/ol-batch13-379-page-2026-10-15.html",
+        "sha256": "c0c2ef5eefbfcbfb73874d60a663bc750843444eac0a6c74e0be6f4b74577669",
+        "httpStatus": 200
+      },
+      {
+        "url": "https://www.sanguosha.com/api/v1/hero/info?gid=379",
+        "path": "docs/content/sources/evidence/ol-batch13-379-info-2026-10-15.json",
+        "sha256": "e53e68e134ba8ad335f0b150aa30233bffa6f2db44fdcc1760a76ce22a31fb92",
+        "httpStatus": 200
+      }
+    ]
+  },
+  "duplicateAudit": {
+    "rosterPath": "docs/benchmarks/2026-10-14-batch-12-final-roster.json",
+    "rosterSha256": "ffe1671b60c2fbd447fcf932d64c0d36b9ec1eec2809fc0526c079f1034f5142",
+    "count": 402,
+    "scanRange": [
+      379,
+      379
+    ],
+    "exactNameMatches": [],
+    "homophoneExisting": [
+      {
+        "Id": "classic:lu-zhi",
+        "Name": "卢植",
+        "PortraitKey": "lu_zhi",
+        "SkillId": "classic:mingren",
+        "FactionId": "qun",
+        "BaseHp": 3,
+        "AdditionalSkillIds": [
+          "classic:zhenliang"
+        ],
+        "Gender": 0,
+        "CharacterId": "character:lu-zhi",
+        "VariantId": "classic",
+        "RulesetId": "sanguosha-ol",
+        "InitialHp": null,
+        "SkillIds": [
+          "classic:mingren",
+          "classic:zhenliang"
+        ]
+      }
+    ],
+    "conclusion": "First sequential candidate379 is unregistered. Existing classic:lu-zhi is 卢植, Qun3, Mingren/Zhenliang with character:lu-zhi, a different person from 鲁芝 Wei3 Qingzhong/Weijing despite romanized LuZhi. No existing ID or definition is changed."
+  },
+  "minimumNativeMechanismProposal": {
+    "qingzhong": [
+      "Optional actual own Play-start issues native draw2 and an immutable issued debt for that exact actual Play phase. Draw/gain/replacement/death/source-loss children drain before continuation.",
+      "At the corresponding actual Play ending, compute current minimum hand count among living characters, then atomically exchange complete actual hand entity sets with the selected minimum candidate; do not snapshot hands at activation.",
+      "Printed text does not say other characters: include owner in minimum calculation. Self-selection is a no-op interpretation, ties and absent/dead/source-loss/inserted phase boundaries need explicit implementation explanation without claimed FAQ."
+    ],
+    "weijing": [
+      "Material-free native Slash use and Slash-defense Dodge use, sharing one quota per real native Round. Play, Borrowed Sword and Qinglong request true Slash uses; Duel/Barbarian Slash and Arrow Barrage Dodge are played-out responses excluded by the official use-only wording.",
+      "Quota consumes only on actual accepted use/response payment and native round identity, never on legality queries or prompt generation. Preserve actor/provider/source invoice and cold replay.",
+      "Existing material-positive generic viewAs cannot be repurposed with fake cards; requires a narrow additive optional zero-material shared-round policy or native host entry using established virtual-basic pipeline."
+    ]
+  },
+  "limits": [
+    "Exact current client row and spell text verified; no FAQ beyond these primary texts was retrieved.",
+    "377/378 independent worker manifests own their mechanism analysis. Shared bounded extract provides exact377 linked395 and378797/798.",
+    "Root subsequently authorized379 implementation with distinct approved IDs; this file remains source preflight, not passed implementation evidence."
+  ]
+}

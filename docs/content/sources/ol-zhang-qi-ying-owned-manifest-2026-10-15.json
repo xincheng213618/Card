@@ -1,0 +1,67 @@
+{
+  "date": "2026-10-15",
+  "status": "root-verified-current-source",
+  "files": [
+    {
+      "path": "src/CardGame.Core/ProgramZhangQiYingOperations.cs",
+      "sha256": "a48f17afba91c52b734472b5ef793e56c0c5e52698a38509d834c3194695dd4c",
+      "bytes": 6655
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.ZhangQiYingPrograms.cs",
+      "sha256": "256d644a8c478bd1a9857f8945c67501066fd1712c8b9a14352949f516951f33",
+      "bytes": 9568
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.ZhangQiYingObservers.cs",
+      "sha256": "df57ab12b540ca48e4e7563bc26bd973e58cc3183cd8bc8dd2ce0c0a7757a9c9",
+      "bytes": 8842
+    },
+    {
+      "path": "src/CardGame.Content.Standard/OlZhangQiYingContent.cs",
+      "sha256": "e7b3527142c46feac712777a5c901b703aa01e95f773b107b49dcebeec660f13",
+      "bytes": 654
+    },
+    {
+      "path": "src/CardGame.Content.Standard/SkillPrograms/ol-zhang-qi-ying.rules.json",
+      "sha256": "b7b7f6bfdb12597d296cbcd6fb8baa67977341d7f80ffc385c6c252b0edfbb5c",
+      "bytes": 3518
+    },
+    {
+      "path": "src/CardGame.Content.Standard/SkillPrograms/ol-zhang-qi-ying.presentation.json",
+      "sha256": "6a1564b68e246ce0480195647faacdd0ac3fa94a50621a7982f28dbf2253982e",
+      "bytes": 1104
+    },
+    {
+      "path": "tests/CardGame.Core.Tests/ZhangQiYingChecks.cs",
+      "sha256": "f35b53bf130774b2bb7f007d29181c50c3e739a83194b3266a718d7b7b56b505",
+      "bytes": 19869
+    },
+    {
+      "path": "src/CardGame.Wpf/Assets/official-ol-zhang-qi-ying.png",
+      "sha256": "0fac664d5706421418e76b6539e0fa70b8cd2bdecc5139653184f9684e8fe9ff",
+      "bytes": 1008024
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.ZhenyiJudgmentWindows.cs",
+      "sha256": "5a539448e9475b6fa5b1163a64ba5cdcd961601f54417d5dadb6610cac96c452",
+      "bytes": 6335
+    },
+    {
+      "path": "docs/content/sources/ol-zhang-qi-ying-2026-10-15.json",
+      "sha256": "14fb67597536078e1e6ea6e39f1e3dd7287b9d784a06e2359c7eb497ec59b2b5",
+      "bytes": 12990
+    }
+  ],
+  "workerVerification": "Not run; root is sole build/test runner.",
+  "rootVerification": {
+    "verifiedAt": "2026-10-15T08:42:27.945405+00:00",
+    "status": "passed",
+    "focused": "docs/benchmarks/2026-10-15-batch-17-eighth-focused-summary.json",
+    "routine": "docs/benchmarks/2026-10-15-batch-17-second-routine-summary.json",
+    "workerBuildOrTestsRun": false,
+    "rootOnlyRunner": true,
+    "fullRun": false,
+    "commitPushPublishRun": false
+  }
+}

@@ -1,0 +1,291 @@
+{
+  "date": "2026-10-15",
+  "status": "frozen-official-preflight-client-corroboration-pending",
+  "scope": "Only eight current official raw page/API files and this manifest; no source/test/shared edits or runs.",
+  "rosterBaseline": {
+    "path": "docs/benchmarks/2026-10-15-general-batch-14-roster-baseline.json",
+    "count": 405,
+    "sha256": "5d3b1331d5b4b9a3a031d2370ee2abdea411d08bd99b83d0d26fa166e88858b6"
+  },
+  "heroes": [
+    {
+      "gid": 387,
+      "name": "张让",
+      "faction": "qun",
+      "hp": 3,
+      "gender": "male",
+      "genderEvidence": "Existing same-identity registered OL definition; API omits gender, fresh client corroboration pending B.",
+      "officialSources": {
+        "page": {
+          "url": "https://www.sanguosha.com/hero/387",
+          "path": "docs/content/sources/evidence/ol-batch14-387-page-2026-10-15.html",
+          "sha256": "5c38f1fcba137b7f011a06ad74c8fda52661487b8aeea5718e637674277eec1e",
+          "bytes": 27189
+        },
+        "info": {
+          "url": "https://www.sanguosha.com/api/v1/hero/info?gid=387",
+          "path": "docs/content/sources/evidence/ol-batch14-387-info-2026-10-15.json",
+          "sha256": "a1a961974c12be2af694e261446d76a6e0b018e7348939065e1b99f6577d215a",
+          "bytes": 1100
+        }
+      },
+      "currentOfficialSkillNames": [
+        "滔乱"
+      ],
+      "currentOfficialSkillTexts": [
+        "你可以将一张牌当任意基本牌或普通锦囊牌使用（每种牌名限一次，且场上无人处于濒死状态），然后令一名其他角色选择一项：1.交给你一张与“滔乱”牌类型不同的牌；2.你失去1点体力，本回合本技能失效。"
+      ],
+      "existingFullDefinition": {
+        "Id": "classic:zhang-rang",
+        "Name": "张让",
+        "PortraitKey": "zhang_rang",
+        "SkillId": "classic:taoluan",
+        "FactionId": "qun",
+        "BaseHp": 3,
+        "AdditionalSkillIds": null,
+        "Gender": 0,
+        "CharacterId": "character:zhang-rang",
+        "VariantId": "classic",
+        "RulesetId": "sanguosha-ol",
+        "InitialHp": null,
+        "SkillIds": [
+          "classic:taoluan"
+        ]
+      },
+      "existingPresentation": {
+        "path": "src/CardGame.Content.Standard/SkillPrograms/classic-zhang-rang.presentation.json",
+        "sha256": "d7f8b1d43af0871f50fd29c5aa20d729b2208ab9207ce434b48a900f7b6e75f6",
+        "skills": {
+          "classic:taoluan": {
+            "name": "滔乱",
+            "description": "你可以将一张牌当任意基本牌或普通锦囊牌使用（每种牌名限一次，且场上无人处于濒死状态），然后令一名其他角色选择一项：交给你一张与滔乱牌类型不同的牌；你失去1点体力，本回合本技能失效。",
+            "booleanStates": {
+              "taoluan-disabled": {
+                "trueText": "本回合失效",
+                "falseText": "可用"
+              }
+            }
+          }
+        }
+      },
+      "comparison": "Same current ordinary OL printed skill semantics; presentation paraphrases match.",
+      "candidateConclusion": "Duplicate already registered; no addition needed.",
+      "newMechanismGap": "None for addition because duplicate skipped; current existing runtime behavior was not re-tested or exhaustively audited."
+    },
+    {
+      "gid": 388,
+      "name": "辛宪英",
+      "faction": "wei",
+      "hp": 3,
+      "gender": "female",
+      "genderEvidence": "Existing same-identity registered OL definition; API omits gender, fresh client corroboration pending B.",
+      "officialSources": {
+        "page": {
+          "url": "https://www.sanguosha.com/hero/388",
+          "path": "docs/content/sources/evidence/ol-batch14-388-page-2026-10-15.html",
+          "sha256": "18f1d12d275b4e193aaaf337bf75fae56f5bdc4d3db24f455e71016e1912a117",
+          "bytes": 27401
+        },
+        "info": {
+          "url": "https://www.sanguosha.com/api/v1/hero/info?gid=388",
+          "path": "docs/content/sources/evidence/ol-batch14-388-info-2026-10-15.json",
+          "sha256": "fe9644fc92306e2304d2358354be36ee43d131c7cfd8e7a3b643759c1c89e65d",
+          "bytes": 1036
+        }
+      },
+      "currentOfficialSkillNames": [
+        "忠鉴",
+        "才识"
+      ],
+      "currentOfficialSkillTexts": [
+        "出牌阶段限一次，你可以展示一张手牌，然后展示一名其他角色与其体力值等量张手牌，若其展示牌包含：与你展示牌颜色相同的牌，你摸一张牌或弃置一名其他角色一张牌；与你展示牌点数相同的牌，本回合本技能改为限两次。若皆不包含，你的手牌上限-1。",
+        "摸牌阶段开始时，你可以选择一项：1.手牌上限+1；2.回复1点体力，本回合不能对自己使用牌。"
+      ],
+      "existingFullDefinition": {
+        "Id": "classic:xin-xianying",
+        "Name": "辛宪英",
+        "PortraitKey": "xin_xianying",
+        "SkillId": "classic:zhongjian",
+        "FactionId": "wei",
+        "BaseHp": 3,
+        "AdditionalSkillIds": [
+          "classic:caishi"
+        ],
+        "Gender": 1,
+        "CharacterId": "character:xin-xianying",
+        "VariantId": "classic",
+        "RulesetId": "sanguosha-ol",
+        "InitialHp": null,
+        "SkillIds": [
+          "classic:zhongjian",
+          "classic:caishi"
+        ]
+      },
+      "existingPresentation": {
+        "path": "src/CardGame.Content.Standard/SkillPrograms/classic-xin-xianying.presentation.json",
+        "sha256": "d7cd796d42a26d82c352e9c8c89882b668bfa3c70e7e3c862f84d1c17d6efbdc",
+        "skills": {
+          "classic:zhongjian": {
+            "name": "忠鉴",
+            "description": "出牌阶段限一次，你可以展示一张手牌，然后展示一名其他角色与其体力值等量张手牌。含同色牌时摸一张牌或弃置其他角色一张牌；含同点牌时本回合改为限两次；均不含时手牌上限-1。"
+          },
+          "classic:caishi": {
+            "name": "才识",
+            "description": "摸牌阶段开始时，你可以选择：手牌上限+1；或回复1点体力，本回合不能对自己使用牌。",
+            "optionLabels": {
+              "limit": "手牌上限+1",
+              "recover": "回复1点体力，本回合不能对自己使用牌"
+            }
+          }
+        }
+      },
+      "comparison": "Same current ordinary OL printed skill semantics; presentation paraphrases match.",
+      "candidateConclusion": "Duplicate already registered; no addition needed.",
+      "newMechanismGap": "None for addition because duplicate skipped; current existing runtime behavior was not re-tested or exhaustively audited."
+    },
+    {
+      "gid": 389,
+      "name": "吴苋",
+      "faction": "shu",
+      "hp": 3,
+      "gender": "female",
+      "genderEvidence": "Existing same-identity registered OL definition; API omits gender, fresh client corroboration pending B.",
+      "officialSources": {
+        "page": {
+          "url": "https://www.sanguosha.com/hero/389",
+          "path": "docs/content/sources/evidence/ol-batch14-389-page-2026-10-15.html",
+          "sha256": "cf6d2a70afd9ccaa633e773d4adb29dd3365403c22519f37a29da3c8b31f5e7e",
+          "bytes": 27336
+        },
+        "info": {
+          "url": "https://www.sanguosha.com/api/v1/hero/info?gid=389",
+          "path": "docs/content/sources/evidence/ol-batch14-389-info-2026-10-15.json",
+          "sha256": "9ed61f292195fe06440ebd8a81a046ec6da0d4f5f7f211de2623b090e434db0a",
+          "bytes": 929
+        }
+      },
+      "currentOfficialSkillNames": [
+        "福绵",
+        "怠宴"
+      ],
+      "currentOfficialSkillTexts": [
+        "准备阶段，你可以选择一项：1.摸牌阶段，你多摸1张牌；2.本回合限一次，你使用红色基本牌和红色普通锦囊牌可以多指定1个目标（无距离限制）。下次选择另一项时数值+1并复原本技能。",
+        "结束阶段，你可以令一名其他角色获得牌堆中一张红桃基本牌，然后若你上回合对其发动过本技能，其失去1点体力。"
+      ],
+      "existingFullDefinition": {
+        "Id": "classic:wu-xian",
+        "Name": "吴苋",
+        "PortraitKey": "wu_xian",
+        "SkillId": "classic:fumian",
+        "FactionId": "shu",
+        "BaseHp": 3,
+        "AdditionalSkillIds": [
+          "classic:daiyan"
+        ],
+        "Gender": 1,
+        "CharacterId": "character:wu-xian",
+        "VariantId": "classic",
+        "RulesetId": "sanguosha-ol",
+        "InitialHp": null,
+        "SkillIds": [
+          "classic:fumian",
+          "classic:daiyan"
+        ]
+      },
+      "existingPresentation": {
+        "path": "src/CardGame.Content.Standard/SkillPrograms/classic-wu-xian.presentation.json",
+        "sha256": "070f4af5d1225c84bf80e2dd06222d5e786b793587be5045953f87721defc51f",
+        "skills": {
+          "classic:fumian": {
+            "name": "福绵",
+            "description": "准备阶段，你可以选择一项：摸牌阶段多摸1张牌；本回合限一次，使用红色基本牌和红色普通锦囊牌可以多指定1个目标（无距离限制）。下次选择另一项时数值+1并复原本技能。",
+            "optionLabels": {
+              "draw": "摸牌阶段多摸牌",
+              "targets": "红色牌增加目标"
+            }
+          },
+          "classic:daiyan": {
+            "name": "怠宴",
+            "description": "结束阶段，你可以令一名其他角色获得牌堆中一张红桃基本牌，然后若你上回合对其发动过本技能，其失去1点体力。"
+          }
+        }
+      },
+      "comparison": "Same current ordinary OL printed skill semantics; presentation paraphrases match.",
+      "candidateConclusion": "Duplicate already registered; no addition needed.",
+      "newMechanismGap": "None for addition because duplicate skipped; current existing runtime behavior was not re-tested or exhaustively audited."
+    },
+    {
+      "gid": 390,
+      "name": "徐氏",
+      "faction": "wu",
+      "hp": 3,
+      "gender": "female",
+      "genderEvidence": "Existing same-identity registered OL definition; API omits gender, fresh client corroboration pending B.",
+      "officialSources": {
+        "page": {
+          "url": "https://www.sanguosha.com/hero/390",
+          "path": "docs/content/sources/evidence/ol-batch14-390-page-2026-10-15.html",
+          "sha256": "bbcc165240e455008380fbf7800c1f13d7f5fa67063200db52c85bfa974a6c90",
+          "bytes": 27771
+        },
+        "info": {
+          "url": "https://www.sanguosha.com/api/v1/hero/info?gid=390",
+          "path": "docs/content/sources/evidence/ol-batch14-390-info-2026-10-15.json",
+          "sha256": "b1836318043cf2c993bff641ee811dc89dc708b981e3a54914755051cf6989ea",
+          "bytes": 946
+        }
+      },
+      "currentOfficialSkillNames": [
+        "问卦",
+        "伏诛"
+      ],
+      "currentOfficialSkillTexts": [
+        "每名角色出牌阶段限一次，其可以选择一张牌，将之交给你，然后你可以将此牌置于牌堆顶或牌堆底，你与其各从另一端摸一张牌。",
+        "每名男性角色的结束阶段，若牌堆剩余牌数不大于你体力值的十倍，你可以依次对其使用牌堆中所有【杀】（不能超过游戏人数），然后洗牌。"
+      ],
+      "existingFullDefinition": {
+        "Id": "classic:xu-shi",
+        "Name": "徐氏",
+        "PortraitKey": "xu_shi",
+        "SkillId": "classic:wengua",
+        "FactionId": "wu",
+        "BaseHp": 3,
+        "AdditionalSkillIds": [
+          "classic:fuzhu"
+        ],
+        "Gender": 1,
+        "CharacterId": "character:xu-shi",
+        "VariantId": "classic",
+        "RulesetId": "sanguosha-ol",
+        "InitialHp": null,
+        "SkillIds": [
+          "classic:wengua",
+          "classic:fuzhu"
+        ]
+      },
+      "existingPresentation": {
+        "path": "src/CardGame.Content.Standard/SkillPrograms/classic-xu-shi.presentation.json",
+        "sha256": "e071578c0ac2f3cdfc05e0dafdc128a1d320583a377a5cc1a27bcbf9499e9566",
+        "skills": {
+          "classic:wengua": {
+            "name": "问卦",
+            "description": "每名角色出牌阶段限一次，其可以选择一张牌，将之交给你，然后你可以将此牌置于牌堆顶或牌堆底，你与其各从另一端摸一张牌。你于自己的出牌阶段发动时跳过交牌步骤，将自己一张牌置于一端后仅从另一端摸一张牌。"
+          },
+          "classic:fuzhu": {
+            "name": "伏诛",
+            "description": "每名男性角色的结束阶段，若牌堆剩余牌数不大于你体力值的十倍，你可以依次对其使用牌堆中所有【杀】（不能超过游戏人数），然后洗牌。"
+          }
+        }
+      },
+      "comparison": "Same current ordinary OL printed skill semantics; presentation paraphrases match. Existing Wengua self-use elaboration is additional clarification, not evidence of different hero variant.",
+      "candidateConclusion": "Duplicate already registered; no addition needed.",
+      "newMechanismGap": "None for addition because duplicate skipped; current existing runtime behavior was not re-tested or exhaustively audited."
+    }
+  ],
+  "addableCandidates": [],
+  "limits": [
+    "No official FAQ inferred or fetched. Existing general character/variant/ruleset and complete skill IDs compared, not prefix-only matching.",
+    "Current client numeric spell/gender identity confirmation pending B bounded extract.",
+    "No changes to batch13 evidence or prior definitions; no build/test/Full/publish performed."
+  ]
+}

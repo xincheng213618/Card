@@ -1,0 +1,88 @@
+{
+  "date": "2026-10-15",
+  "owner": "batch18-sp-pang-tong-worker",
+  "status": "root-verified",
+  "files": [
+    {
+      "path": "src/CardGame.Core/ProgramSpPangTongOperations.cs",
+      "sha256": "50b15bfab0108efefbda634cbcdb47d8df388e745c749701c74cf2ef2cae4503",
+      "bytes": 6345
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.SpPangTongPrograms.cs",
+      "sha256": "81b07f0721cff6d12a0183065638fe4abf875adb02b6205b6f190eaaf104ddf6",
+      "bytes": 13997
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.SpPangTongObservers.cs",
+      "sha256": "41b8422038bfb7ddb9de921556f237fefea777dd5efc82d9b371cdd2276ba86e",
+      "bytes": 10571
+    },
+    {
+      "path": "src/CardGame.Content.Standard/OlSpPangTongContent.cs",
+      "sha256": "ad34e7edbd022cffc02ca1608e274fbcd6117c8b0a872824d5e86bcbc6529230",
+      "bytes": 697
+    },
+    {
+      "path": "src/CardGame.Content.Standard/SkillPrograms/ol-pang-tong-sp.rules.json",
+      "sha256": "1d5149cfd8cad45c8e1cb4539e34ef87e864baff09160dbed83b704202549a60",
+      "bytes": 834
+    },
+    {
+      "path": "src/CardGame.Content.Standard/SkillPrograms/ol-pang-tong-sp.presentation.json",
+      "sha256": "f12c4d38da85da636da49c5650ca60711795afa818b0387781539a95a3fa5703",
+      "bytes": 631
+    },
+    {
+      "path": "tests/CardGame.Core.Tests/SpPangTongChecks.cs",
+      "sha256": "c1f17357655954c1e3308d20f1bd2e6e35481b83182a0a1d2eee58a05a879084",
+      "bytes": 19168
+    },
+    {
+      "path": "src/CardGame.Wpf/Assets/official-ol-pang-tong-sp.png",
+      "sha256": "5a4488170e807ba6b5153caf476b927fb7fe65ba6d5ea2ea48ca00e81b49d89a",
+      "bytes": 950016
+    },
+    {
+      "path": "docs/content/sources/ol-pang-tong-sp-2026-10-15.json",
+      "sha256": "0e28eeeeb66330f96ea2e2014a6c7c6f710e0a4878ae4d9c480050576c242590",
+      "bytes": 11692
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.SpPangTongDrawEntitlements.cs",
+      "sha256": "66ce779e4f8b906b09eb6f27022c26cab1cc6181ccf3a808c251faccaa3e19b1",
+      "bytes": 2602
+    }
+  ],
+  "sharedAuthorizedSlice": {
+    "path": "src/CardGame.Core/GameEngine.OutsidePhaseDrawDiscard.cs",
+    "change": "TracksNativeDrawInvocations24702; native draft optional frozen entitlements; capture/complete/Valid exact bridge. Root changed NativeDrawInvocationProof declaration to partial and phase capability predicate."
+  },
+  "workerVerification": "No build/test/Full run; root is sole runner.",
+  "disposableTemporaryPaths": [],
+  "acceptedPriorEvidenceChanged": false,
+  "rootVerification": {
+    "status": "passed",
+    "rootRunner": true,
+    "focusedSummary": "docs/benchmarks/2026-10-15-batch-18-sixth-focused-summary.json",
+    "focused": {
+      "corePassed": 29,
+      "coreFailed": 0,
+      "wpfPassed": 1,
+      "wpfFailed": 0,
+      "durationMs": 11445
+    },
+    "routineSummary": "docs/benchmarks/2026-10-15-batch-18-routine-summary.json",
+    "routine": {
+      "corePassed": 119,
+      "coreFailed": 0,
+      "wpfPassed": 20,
+      "wpfFailed": 0,
+      "durationMs": 29662
+    },
+    "report": "docs/benchmarks/2026-10-15-sp-pang-tong-yuan-tan-yuan-shang-lv-qian-verification.json",
+    "fullRun": false,
+    "foregroundAcceptance": false,
+    "serverBehaviorVerified": false
+  }
+}

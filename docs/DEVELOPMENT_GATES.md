@@ -12,7 +12,7 @@
 
 ```powershell
 .\tools\Test-Changed.ps1
-.\tools\Test-Changed.ps1 -CoreFilter 'Jiangchi'
+.\tools\Test-Changed.ps1 -CoreFilter 'program interaction '
 .\tools\Test-Changed.ps1 -WpfFilter 'selection, target toggle'
 .\tools\Test-Changed.ps1 -Full
 ```
@@ -20,6 +20,8 @@
 [Test-Changed.ps1](../tools/Test-Changed.ps1) 在一次调用内构建一次并复用产物。开发中运行相关现有检查；批次结束运行常规验证，完整验证只在用户明确要求时执行。内容 JSON 可先用 [Inspect-SkillProgram.ps1](../tools/Inspect-SkillProgram.ps1) 加载检查，但加载成功不能代替真实行为检查。提交前运行 `git diff --check`，仅修复本次引入的问题。
 
 无参调用运行 [VerificationScopes.psd1](../tools/VerificationScopes.psd1) 定义的常规范围：命令与故障边界、快照隐私和冻结、内容指纹、牌区移动与守恒、技能执行与生命周期，以及代表性的用牌、响应和 UI 保存恢复。受影响的机制仍需名称过滤检查。`-Full` 和直接无参运行 Core/WPF 程序集会执行全部登记检查，均只在用户明确要求完整验证时运行。
+
+常规范围使用明确的检查名称，新增人物时通过名称过滤验证受影响的行为，不把每个人物的全部场景持续追加到默认范围。只有新增共享边界或替换已有代表场景时才调整常规清单，并重新测量包含增量构建的耗时。
 
 每组名称过滤在一个测试进程中取并集，同一检查只执行一次；单个空过滤器或零匹配仍失败。脚本只有真正未提供过滤器时才进入常规范围，显式提供的过滤器若全部为空则拒绝。所有检查的失败计数、进程退出码和构建结果保留在 `summary.json` 与日志中；WPF 单项失败会被记录并继续其余检查，最终仍返回失败。
 
@@ -37,6 +39,8 @@ python tools/cleanup_temp.py --add 'C:\Temp\Card-task\outputs' --root 'C:\Temp\C
 显式指定 `-ArtifactsPath` 也遵循登记流程。原始目录、截图和日志如需长期保留，应在登记前保存必要证据。登记不代表磁盘空间已经释放。
 
 合并旧分支或工作树时保留主线已完成的测试裁剪，只带入未覆盖行为或缺陷回归所需的新检查。不能为了恢复历史测试数量或沿用旧分支约定而整套回取已删除测试。测试冲突按当前保留的覆盖范围逐项处理；删除过时用例时同步删除注册、方法和无人使用的辅助代码，不改动历史兼容实现或存储数据来凑数量。
+
+清理辅助代码时保留特性发现、反射调用、扩展方法和 partial 类型跨文件使用的入口；不能仅凭单个文件中的名称引用次数判定这些成员无用。
 
 默认验证以增量构建加测试约一分钟为目标。优先复用小型场景或已验证能触发目标行为的固定种子，避免每个用例重新遍历大量种子或重复跑完整对局。保留代表性的集成场景及其关键断言；一批改动结束后实测耗时，不能只凭测试数量估算速度。
 

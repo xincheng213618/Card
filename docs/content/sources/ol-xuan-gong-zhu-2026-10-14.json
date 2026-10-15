@@ -1,0 +1,89 @@
+{
+  "capturedAtUtc": "2026-10-14T11:05:33.178044+00:00",
+  "stage": "implemented; root focused and measured routine passed",
+  "generalId": "ol:xuan-gong-zhu",
+  "characterId": "character:xuan-gong-zhu",
+  "officialHeroId": 358,
+  "productLine": "三国杀OL",
+  "faction": "jin",
+  "maxHp": 3,
+  "gender": "female",
+  "currentSkills": [
+    {
+      "id": "ol:gaoling",
+      "clientSkillId": 3069,
+      "clientClass": "GaoLing",
+      "currentText": "隐匿。当你于其他角色回合登场时，你可以令一名角色回复1点体力。"
+    },
+    {
+      "id": "ol:qimei",
+      "clientSkillId": 3070,
+      "clientClass": "QiMei",
+      "currentText": "准备阶段，你可以选择一名其他角色，然后直到你的下回合开始，你获得以下效果（每回合每项限一次）：\n 1.当你或其手牌数变化后，若与对方手牌数相等，对方摸一张牌；\n 2.当你或其体力值变化后，若与对方体力值相等，对方摸一张牌。"
+    },
+    {
+      "id": "ol:zhuiji-tj",
+      "clientSkillId": 3071,
+      "clientClass": "ZhuiJiTJ",
+      "currentText": "出牌阶段开始时，你可以选择一项：\n 1.回复1点体力，然后本阶段结束时弃置两张牌；\n 2.摸两张牌，然后本阶段结束时失去1点体力。"
+    }
+  ],
+  "primarySources": [
+    {
+      "url": "https://www.sanguosha.com/hero/358",
+      "path": "docs/content/sources/evidence/ol-batch9-358-page-2026-10-14.html",
+      "sha256": "489e226bf4707a80867af4141a7a4ba7eed40af8f6ae316599e8242fdadc090e"
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=358",
+      "path": "docs/content/sources/evidence/ol-batch9-358-info-2026-10-14.json",
+      "sha256": "98fb6e47b5e76f5bbc66387c9a5d14bcb569a68594943b9eddb67d0b43f93be7"
+    },
+    {
+      "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+      "path": "docs/content/sources/evidence/ol-next-group-356-357-358-client-preflight-2026-10-14.json",
+      "sha256": "96cd59e21fc4dbf96114f16afeef820b103a1edd5cc110d8d99fa923c7dbb520"
+    }
+  ],
+  "concealmentPrimaryRules": [
+    {
+      "url": "https://www.sanguosha.com/news/20210102_2393_1319",
+      "confirmed": "隐匿状态没有体力值；因伤害或失去体力导致体力扣减，或者回合开始时亮出真正武将牌，称为登场。",
+      "archiveSaved": false
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20201229_2048_1315",
+      "confirmed": "隐匿状态没有体力值；因伤害或失去体力导致体力扣减，或者回合开始时亮出真正武将牌，称为登场。",
+      "archiveSaved": false
+    }
+  ],
+  "interpretationBoundaries": [
+    "Current API max HP3 supersedes page OG metadata0. API initial_hp0 and client shell999 HP1 do not establish an actual HP value while concealed.",
+    "The previous preflight shell-HP inference is superseded by the official no-HP-value rule; that historical artifact is preserved.",
+    "No additional primary FAQ was available from the dead topicorder site. Deduction prevention and setting normal initial HP on appearance are explicit implementation interpretations. Appearance setting is not itself a recovery event.",
+    "Identity lords are included because no primary exception was found; existing actual lord HP bonus and public role remain. Team and national mode setup stay unchanged.",
+    "Public concealed gender uses client shell999 male metadata; own viewer knows the selected general, but every HP-dependent rule excludes the undefined value.",
+    "Both-endpoint simultaneous hand mutations follow the native completed movement order. Each linked grant has a shared actual-turn quota per hand/HP attribute, consumed before its draw.",
+    "An ended actual owner turn or genuine death closes an unsettled Play debt without payment; source loss while alive preserves the issued debt. Frozen native Play-instance keys prevent inserted phases from stealing the suspended ending debt."
+  ],
+  "formalEntries": {
+    "concealment": "Actual selected identity general opt-in; typed appearance frame with frozen native source/amount/nature/action/parent; private real template and unknown-HP gates.",
+    "qimei": "Preparation pair grant on actual owner; genuine completed hand movements or HP deltas including foreign damage and maximum-HP clamp; expires at next real own turn.",
+    "zhuiji": "Actual Play-start selected native recover1 or draw2 issues typed phase debt; same ending native HE discard2 or HP loss1 drains children once."
+  },
+  "artwork": {
+    "url": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/35800.png",
+    "path": "src/CardGame.Wpf/Assets/official-ol-xuan-gong-zhu.png",
+    "sha256": "3a4943dda663d79a13bd79ab5020831b5b3fa00c7883478e48bfdb2735072e61",
+    "visuallyInspected": true
+  },
+  "verification": {
+    "status": "focused-and-routine-passed",
+    "report": "docs/benchmarks/2026-10-14-wu-yan-sp-zhang-he-xuan-gong-zhu-verification.json",
+    "focusedCore": 68,
+    "focusedWpf": 5,
+    "routineCore": 679,
+    "routineWpf": 80,
+    "full": "not requested"
+  }
+}

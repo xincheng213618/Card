@@ -1,0 +1,211 @@
+{
+  "capturedAtUtc": "2026-10-15T05:42:21.813502+00:00",
+  "results": [
+    {
+      "heroId": 422,
+      "kind": "api",
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=422",
+      "status": 200,
+      "contentType": "application/json",
+      "path": "docs/content/sources/evidence/ol-batch16-422-424-422-api-2026-10-15.json",
+      "sha256": "6281bf69f5cfc1b8b575b758f9dc886e856766eacc2e1a7c7b754004334e5201",
+      "bytes": 939,
+      "response": {
+        "code": 0,
+        "message": "OK",
+        "data": {
+          "info": [
+            {
+              "gid": 422,
+              "name": "唐咨",
+              "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/422.png",
+              "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/42200.png",
+              "label": [
+                "过牌",
+                "简单",
+                "牌堆控制者"
+              ],
+              "figure": "魏",
+              "figure_py": "wei",
+              "quality": "史诗",
+              "biography": "魏利城（今江苏赣[gàn]榆西）人。魏文帝黄初中利城郡反，推唐咨为主。后为魏军击破，遂亡至吴，官至左将军，封侯、持节。后助诸葛诞拒魏，兵败被俘。为安抚吴国军民，魏主拜唐咨为安远将军。",
+              "characteristic": "让自己保持在受伤状态可以避免自己变成\"白板\"。",
+              "hp": 4,
+              "initial_hp": 0,
+              "score": 0
+            }
+          ],
+          "radar": [
+            {
+              "name": "农民",
+              "value": 5
+            },
+            {
+              "name": "主公",
+              "value": 5
+            },
+            {
+              "name": "忠臣",
+              "value": 6
+            },
+            {
+              "name": "反贼",
+              "value": 6
+            },
+            {
+              "name": "内奸",
+              "value": 5
+            }
+          ],
+          "deeds": []
+        }
+      }
+    },
+    {
+      "heroId": 422,
+      "kind": "page",
+      "url": "https://www.sanguosha.com/hero/422",
+      "status": 200,
+      "contentType": "text/html",
+      "path": "docs/content/sources/evidence/ol-batch16-422-424-422-page-2026-10-15.html",
+      "sha256": "025d464adf24eb9b6ee0d0980c53c01fad28c2ee5bfd8eeafdb35ba4497139ef",
+      "bytes": 25435
+    },
+    {
+      "heroId": 423,
+      "kind": "api",
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=423",
+      "status": 200,
+      "contentType": "application/json",
+      "path": "docs/content/sources/evidence/ol-batch16-422-424-423-api-2026-10-15.json",
+      "sha256": "0b0ac0135b43cda167152695fae9267c90d92d2b28b19e54b10891b8f5555430",
+      "bytes": 1303,
+      "response": {
+        "code": 0,
+        "message": "OK",
+        "data": {
+          "info": [
+            {
+              "gid": 423,
+              "name": "樊稠",
+              "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/423.png",
+              "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/42300.png",
+              "label": [
+                "进攻",
+                "简单",
+                "讨饭"
+              ],
+              "figure": "群",
+              "figure_py": "qun",
+              "quality": "史诗",
+              "biography": "樊稠，凉州金城人是东汉末年的军阀、将领。官至右将军，因为在联合李傕[jué]郭汜等人，围攻长安，迎接汉献帝，被封为万年侯。 原为董卓部将，董卓死后，伙同李傕、郭汜、张济等人合众十余万反扑长安，败吕布、杀王允，把持朝政。后马腾因与李傕有隙，于是联合韩遂举兵进攻，李傕派樊稠、郭汜等与其交战，大败马腾、韩遂于长平观下。樊稠追至陈仓，与韩遂友好罢兵，却遭李傕猜疑。兴平二年（195年），李傕让外甥骑都尉胡封在会议上将樊稠刺死。",
+              "characteristic": "点数为6的牌多为【乐不思蜀】或基本牌，可以用来限制敌人的行动。",
+              "hp": 4,
+              "initial_hp": 0,
+              "score": 0
+            }
+          ],
+          "radar": [
+            {
+              "name": "农民",
+              "value": 7
+            },
+            {
+              "name": "主公",
+              "value": 6
+            },
+            {
+              "name": "忠臣",
+              "value": 6
+            },
+            {
+              "name": "反贼",
+              "value": 6
+            },
+            {
+              "name": "内奸",
+              "value": 6
+            }
+          ],
+          "deeds": []
+        }
+      }
+    },
+    {
+      "heroId": 423,
+      "kind": "page",
+      "url": "https://www.sanguosha.com/hero/423",
+      "status": 200,
+      "contentType": "text/html",
+      "path": "docs/content/sources/evidence/ol-batch16-422-424-423-page-2026-10-15.html",
+      "sha256": "27c2c9b055d11d6b5f833332d8664e27c955347548d8f67cd14f3470a36b3418",
+      "bytes": 25480
+    },
+    {
+      "heroId": 424,
+      "kind": "api",
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=424",
+      "status": 200,
+      "contentType": "application/json",
+      "path": "docs/content/sources/evidence/ol-batch16-422-424-424-api-2026-10-15.json",
+      "sha256": "5da44e839205adb97da22ce0cb9c1f1820114fd3cf8a49760bf71375bc1e1e12",
+      "bytes": 1346,
+      "response": {
+        "code": 0,
+        "message": "OK",
+        "data": {
+          "info": [
+            {
+              "gid": 424,
+              "name": "郭汜",
+              "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/424.png",
+              "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/42400.png",
+              "label": [
+                "进攻",
+                "控制",
+                "多刀"
+              ],
+              "figure": "群",
+              "figure_py": "qun",
+              "quality": "史诗",
+              "biography": "郭汜，又名郭多，是凉州张掖人，东汉末年将领、军阀，献帝时权臣。本来为董卓部下。董卓被杀以后，凉州众将归无所依，加上王允对于董卓旧部的态度不明，导致郭汜等人内心惶恐，产生自保念头，想趁机逃跑，然此时，贾诩献策，郭汜等人考量良久后，于是便采用贾诩之谋，联兵将攻向长安，击败吕布，杀死王允等人。 郭汜等人占领长安，把持朝廷大权。这几年之间，李傕[jué]等人相互争权夺利，矛盾越来越激化。后来，郭汜欲劫汉献帝返回长安，计划败露，郭汜弃军逃奔南山。最后，郭汜被部将伍习杀死。",
+              "characteristic": "可以获得别人的牌，用牌时尽量指定相同的目标来触发“伺盗”。",
+              "hp": 4,
+              "initial_hp": 0,
+              "score": 0
+            }
+          ],
+          "radar": [
+            {
+              "name": "地主",
+              "value": 4
+            },
+            {
+              "name": "农民",
+              "value": 6
+            },
+            {
+              "name": "忠臣",
+              "value": 4
+            },
+            {
+              "name": "反贼",
+              "value": 4
+            }
+          ],
+          "deeds": []
+        }
+      }
+    },
+    {
+      "heroId": 424,
+      "kind": "page",
+      "url": "https://www.sanguosha.com/hero/424",
+      "status": 200,
+      "contentType": "text/html",
+      "path": "docs/content/sources/evidence/ol-batch16-422-424-424-page-2026-10-15.html",
+      "sha256": "fb7fe57f9defb1e34e7dae75b3bda54d5e4298d234e5c1097f1ff5932290fdd4",
+      "bytes": 26347
+    }
+  ]
+}

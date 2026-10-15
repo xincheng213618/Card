@@ -1,0 +1,195 @@
+{
+  "capturedAt": "2026-10-14",
+  "generalId": "ol:bao-san-niang",
+  "officialHeroId": 351,
+  "name": "鲍三娘",
+  "variant": "ordinary OL current2025",
+  "attributes": {
+    "faction": "shu",
+    "maxHp": 4,
+    "gender": "female"
+  },
+  "primarySources": [
+    {
+      "url": "https://www.sanguosha.com/hero/351",
+      "localPath": "docs/content/sources/evidence/ol-bao-san-niang-351-page-2026-10-14.html",
+      "sha256": "0d1517cdc14c832906e84ef99f0c50d834b6db716c0093c5f09b3ae2c9d75b97"
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=351",
+      "localPath": "docs/content/sources/evidence/ol-bao-san-niang-351-info-2026-10-14.json",
+      "sha256": "d5d761b4520e7b179dc5c77df6ad0530119b2ea36f19088dd01dd95e81dbc8eb"
+    }
+  ],
+  "clientEvidence": {
+    "path": "docs/content/sources/evidence/ol-next-group-349-350-351-client-preflight-2026-10-14.json",
+    "sha256": "591e5ce474fd1328afce528203f1c2a28ed2567533872aebccd346875e0462c3",
+    "skillIds": [
+      3796,
+      3797,
+      3798
+    ],
+    "rows": [
+      {
+        "a": 3796,
+        "b": "3",
+        "c": "武娘",
+        "d": "WuNiang2025",
+        "e": 0,
+        "g": 1,
+        "h": 1,
+        "i": 2,
+        "n": 2,
+        "o": "你可将一张非基本牌当无距离限制且不可响应的【杀】使用。然后你获得一名目标角色的一张牌，若不为基本牌，你可失去1点体力然后令所有角色的“镇南”视为未发动过。",
+        "v": "请选择一张非基本牌当<font color='#FFD800'>杀</font>使用;请选择要<font color='#FFD800'>杀</font>的目标",
+        "ac": "请选择一名目标角色获得其一张牌",
+        "ae": "是否失去1点体力重置<font color='#FFD800'>镇南</font>"
+      },
+      {
+        "a": 3797,
+        "b": "3,5,6",
+        "c": "镇南",
+        "d": "ZhenNan2025",
+        "e": 0,
+        "g": 1,
+        "i": 2,
+        "l": "baosanniangzhennan",
+        "n": 0,
+        "o": "限定技，准备阶段，你可弃置2张牌，视为使用一张由你指定任意目标的【南蛮入侵】。然后若你对指定目标：<br>•造成了伤害，其随机弃置一张牌；<br>•未造成伤害，你本回合对其使用牌无次数限制。",
+        "v": "是否发动<font color='#FFD800'>镇南</font>，弃置{0}张牌视为使用一张<font color='#FFD800'>南蛮入侵</font>",
+        "ac": "请选择任意角色成为<font color='#FFD800'>南蛮入侵</font>的目标"
+      },
+      {
+        "a": 3798,
+        "b": "3,5,6",
+        "c": "许身",
+        "d": "XuShen2025",
+        "e": 0,
+        "g": 5,
+        "i": 2,
+        "l": "baosanniangxushen",
+        "n": 1,
+        "o": "限定技，当你进入濒死状态时，你可令一名其他角色选择一项：<br>&nbsp;1.其失去所有技能获得“<font href='278'>征南</font>”；<br>&nbsp;2.其获得“<font href='3797'>镇南</font>”。",
+        "v": "是否发动<font color='#FFD800'>许身</font>，令一名其他角色选择效果",
+        "ae": "失去技能获得征南|获得镇南"
+      }
+    ]
+  },
+  "skills": [
+    {
+      "id": "ol:wuniang",
+      "officialSkillId": 3796,
+      "operation": "takeConvertedSlashTargetAndResetLimitedSkill",
+      "opValue": 21600,
+      "viewAs": "one actual HE non-basic card -> native distant unrespondable Slash",
+      "resetSkill": "ol:zhennan"
+    },
+    {
+      "id": "ol:zhennan",
+      "officialSkillId": 3797,
+      "operation": "payTwoForChosenAssaultAndApplyTargetOutcomes",
+      "opValue": 21601,
+      "limitedScope": "game",
+      "nativeCard": "BarbarianAssault",
+      "cost": "two owner HE cards in one atomic movement batch"
+    },
+    {
+      "id": "ol:xushen",
+      "officialSkillId": 3798,
+      "operation": "dyingRecipientChooseReplaceOrGrantThenRecover",
+      "opValue": 21602,
+      "grantIds": [
+        "ol:zhengnan",
+        "ol:zhennan"
+      ],
+      "recovery": "native Program recovery to1 after recipient choice"
+    }
+  ],
+  "sourceDifference": {
+    "officialPage": "许身完整末句为：然后你回复体力至1点。",
+    "client3798": "绑定客户端行3798仅recipient两选项，缺少官网最后回复至1点末句。",
+    "resolution": "采用同hero351当前官网完整技能文字补齐recovery，不混旧版救援者变关索机制。",
+    "apiInfo": "API characteristic仍有历史变身用语；biography/characteristic不能覆盖当前技能定义。"
+  },
+  "portrait": {
+    "url": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/35100.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-bao-san-niang.png",
+    "sha256": "5cbc276a4b908236b4ffa662c40d3502bc43b30cb6234a10b62c6762c6ee4c0f",
+    "width": 750,
+    "height": 950,
+    "visuallyInspectedByRoot": true
+  },
+  "interpretationLimits": [
+    "任意目标 permits explicit empty selection and self where native target prohibition permits. Mature Nanman nullification, armor, response, source replacement and damage cursors remain authoritative.",
+    "Random discard uses owned Hand/Equipment entities; general weapons retain special removal semantics and are excluded from ordinary discard cost/random slots.",
+    "Outcomes count actual native damage with this exact Use and original skill owner as source for each original selected target.",
+    "Reset clears only currently enabled configured镇南 trigger instances and their exact game usage IDs; retired-instance and unrelated records remain untouched.",
+    "Once actual costs/grants commit, typed frame receipts drain real child observers through source loss/death. No global use-ID sidecar is introduced.",
+    "Ten focused checks passed under root twelfth-final-focused, including serialized commands/cold restore. Prescribed routine pending. No Full or foreground-desktop acceptance claim.",
+    "After mature actor replacement, converted Slash benefit remains with its original conversion-source skill owner; finalized native targets remain the gain boundary.",
+    "A separate immutable CardUseFrame non-basic invoice now coexists with older provenance/generic no-response invoices; the mature same-use Fire Slash proof preserves this policy. The ninth focused run passed actual same-material provenance and same-use Fire/actor replacement branches through cold command replay."
+  ],
+  "mechanismAssessment": {
+    "status": "final focused and measured routine passed",
+    "focusedPassed": true,
+    "testClass": "Bao2025Checks",
+    "prefix": "Bao 2025:",
+    "methods": [
+      "StrictContractsAndCommittedCollections",
+      "ActualConvertedFarUnrespondableSlashGainAndResetCold",
+      "ActualAssaultExplicitTargetsDamageRandomDiscardAndEmptyCold",
+      "ActualUnpaidCancelAndDyingRecipientAuthorityCold",
+      "ActualDyingReplaceAllGrantsAndLearnZhengnanCold",
+      "ActualNullifiedTargetQuotaAndActualTurnExpiryCold",
+      "ActualPaidCostAndGainChildrenSourceLossAndOwnerDeathCold",
+      "ActualEquippedSilverLionAtomicAssaultCostRecoveryCold",
+      "ActualGrantedOtherLimitedConsumedResetAndReusedCold",
+      "ActualClaimedMaterialProvenanceAndNonBasicPoliciesCoexistCold"
+    ],
+    "routine": {
+      "status": "passed",
+      "summary": "docs/benchmarks/2026-10-14-batch-7-routine-summary.json",
+      "corePassed": 631,
+      "wpfPassed": 76,
+      "durationMs": 89716,
+      "manualFull": false
+    },
+    "lastFocusedResult": {
+      "run": "twelfth-final-focused",
+      "passed": 10,
+      "failed": 0,
+      "total": 10,
+      "unifiedFocusedCore": {
+        "passed": 32,
+        "failed": 0
+      },
+      "unifiedFocusedWpf": {
+        "passed": 1,
+        "failed": 0
+      },
+      "actualFarNormalFireActor": "PASS",
+      "actualClaimedProvenanceSameMaterial": "PASS",
+      "actualPaidCostGainSourceLossDeath": "PASS",
+      "actualSilverLionAtomicCostRecovery": "PASS",
+      "nativeQuotaAndActualTurnExpiry": "PASS",
+      "actualGrantedConsumedResetAndNativeReuse": "PASS"
+    },
+    "focusedEvidence": "docs/benchmarks/2026-10-14-batch-7-twelfth-final-focused-core-selected.log.txt"
+  },
+  "upstreamProvenance": {
+    "fullUpstreamArchivesRetainedLocally": false,
+    "note": "Shared current preflight preserves exact extracted rows; source page/API and portrait retained."
+  },
+  "disposableTemporaryDirectoriesCreated": [],
+  "stage": "batch acceptance complete",
+  "verifiedAt": "2026-10-14T09:13:44.111572+00:00",
+  "batchVerificationReport": "docs/benchmarks/2026-10-14-guan-suo-wang-lang-bao-san-niang-verification.json",
+  "routine": {
+    "status": "passed",
+    "summary": "docs/benchmarks/2026-10-14-batch-7-routine-summary.json",
+    "corePassed": 631,
+    "wpfPassed": 76,
+    "durationMs": 89716,
+    "manualFull": false
+  }
+}

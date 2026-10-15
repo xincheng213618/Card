@@ -1,0 +1,229 @@
+{
+  "capturedAt": "2026-10-14",
+  "capturedAtUtc": "2026-10-14T06:53:32.891730+00:00",
+  "status": "read-only-preflight-not-implemented",
+  "generalId": "ol:wang-lang",
+  "name": "王朗",
+  "officialHeroId": 350,
+  "productLine": "三国杀OL",
+  "version": "Current hero350 and exact client WangLang j280/k3307 JiCi2023; exclude legacy JiCi281, mobile and TenYear variants.",
+  "faction": "wei",
+  "maxHp": 3,
+  "gender": "male",
+  "genderEvidence": "Exact current character350 h1; API hp3, initial_hp0 is unspecified initial HP, not actual HP0.",
+  "skills": [
+    {
+      "id": "ol:gushe",
+      "clientSkillId": 280,
+      "clientClass": "GuShe",
+      "currentText": "出牌阶段限一次，你可以与至多三名角色同时拼点，没赢的角色弃置一张牌或令你摸一张牌。若你没赢，你获得1枚“饶舌”标记，若标记数为7，你死亡。"
+    },
+    {
+      "id": "ol:jici",
+      "clientSkillId": 3307,
+      "clientClass": "JiCi2023",
+      "currentText": "当你亮出拼点牌后，若点数小于等于X，你可以令之点数+X并令“鼓舌”视为未发动（X为你的“饶舌”标记数）。"
+    }
+  ],
+  "primarySources": [
+    {
+      "url": "https://www.sanguosha.com/hero/350",
+      "path": "docs/content/sources/evidence/ol-wang-lang-350-page-2026-10-14.html",
+      "sha256": "047ef5aa26fa25bf74943368ea9167e147664c7500180f907867daf649b116ec",
+      "role": "current complete ordinary OL skill text"
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=350",
+      "path": "docs/content/sources/evidence/ol-wang-lang-350-info-2026-10-14.json",
+      "sha256": "ee12d406b31284ccb50951d68090fb96119d4ec8e4fc9d1fd728124f15b5ddad",
+      "role": "exact gid/name/faction/HP/artwork"
+    },
+    {
+      "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+      "path": "docs/content/sources/evidence/ol-wang-lang-350-client-2026-10-14.json",
+      "sha256": "c2b606fcee8d99594a640420ad451a7534d606fadb70464c6c1146ad2edc70d6",
+      "role": "exact character350 binding280/3307; legacy281 retained for comparison",
+      "provenance": {
+        "clientBundleUrl": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+        "clientBundleSha256": "66dfce61f1c4fb0aca35b6f85ed940e394719db84655f4d4146b463bc0cf8c1b",
+        "configSha256": "3d7536d4e2ca3d64707c2f6e0edbb8ccb4a045eee4274862dfa35431157c64f4",
+        "decoder": "public client InitOfb AES-CFB128 then gzip",
+        "fullUpstreamArchivesRetainedLocally": false
+      }
+    }
+  ],
+  "crossCheck": {
+    "heroName": "王朗",
+    "clientClass": "WangLang",
+    "clientGeneralId": 350,
+    "clientFactionFieldG": 1,
+    "clientGenderFieldH": 1,
+    "clientMaxHpFieldI": 3,
+    "skillIds": [
+      280,
+      3307
+    ],
+    "normalizedPageTexts": [
+      "出牌阶段限一次，你可以与至多三名角色同时拼点，没赢的角色弃置一张牌或令你摸一张牌。若你没赢，你获得1枚“饶舌”标记，若标记数为7，你死亡。",
+      "当你亮出拼点牌后，若点数不大于X，你可以令之点数+X并令“鼓舌”视为未发动（X为你的“饶舌”标记数）。"
+    ],
+    "currentPageAndClientFullSkillTextMatch": true,
+    "comparisonNormalization": "whitespace removal and 小于等于 / 不大于 semantic synonym only; no substantive skill merge"
+  },
+  "versionDifferences": [
+    {
+      "variant": "legacy OL client skill281 JiCi",
+      "clientText": "当你亮出“鼓舌”的拼点牌后，若此牌点数：小于X，你可以令其点数+X；等于X，你本回合可发动“鼓舌”的次数+1（X为你的“饶舌”标记数）。",
+      "difference": "Only the Gushe reveal; rank less than X adds X, rank equal to X increases the turn activation allowance. Current3307 expands to any own Pindian card reveal and optionally couples rank<=X addition with treating Gushe as unused."
+    },
+    {
+      "variant": "official 2016 ordinary OL release",
+      "url": "https://www.sanguosha.com/news/20160818_7972_4208",
+      "path": "docs/content/sources/evidence/ol-wang-lang-2016-release-page-2026-10-14.html",
+      "sha256": "2ea5a174d64c25b1c5005489c837a5f4bf6029d0b38d02017a779b05e9a8ed72",
+      "role": "Historical comparison and compatible GuShe explanatory context only; not current JiCi normative text.",
+      "difference": "Old JiCi separates less-than bonus and equality reset. The historical GuShe explicitly uses one own hand card, simultaneous commitments, sequential comparisons, both ties as not-won, self mark before own consequence."
+    },
+    {
+      "variant": "TenYear / 一将成名 hero508",
+      "url": "https://x.sanguosha.com/hero/508.html",
+      "role": "Excluded different product variant",
+      "difference": "Has turn cumulative-win allowance, locked rank modification, largest-Pindian-card claim and killer penalty. None of these belongs to ordinary OL350 current3307."
+    },
+    {
+      "variant": "mobile hero201",
+      "url": "https://www.sanguosha.cn/hero-detail-201.html",
+      "role": "Excluded different product variant",
+      "difference": "Retains old less-than/equality split; cannot replace ordinary OL3307."
+    }
+  ],
+  "existingImplementationScan": {
+    "scope": [
+      "src/**/*.cs",
+      "src/**/*.json",
+      "tests/**/*.cs",
+      "tests/**/*.json"
+    ],
+    "pattern": "王朗|WangLang|wang[-_]lang|ol:gushe|ol:jici|RaoShe",
+    "matchingImplementationDeclarations": 0,
+    "result": "No existing general/skill content declarations or focused implementation found in current sources. This is a source-only check, not fresh-binary roster verification."
+  },
+  "reusableCapabilities": [
+    {
+      "capability": "Native physical card zones and Pindian privacy/claim movement",
+      "files": [
+        "src/CardGame.Core/GameEngine.Pindian.cs",
+        "src/CardGame.Core/GameEngine.PindianClaims.cs",
+        "src/CardGame.Core/PindianModules.cs"
+      ],
+      "boundary": "Reuse card movement reasons, rank identity policies, isolated private chooser snapshots and typed program return; current frame only accepts one opponent."
+    },
+    {
+      "capability": "Effective Pindian rank policies/top/random sources",
+      "files": [
+        "src/CardGame.Core/GameEngine.PindianPolicies.cs",
+        "src/CardGame.Core/GameEngine.AlcoholIdentityPolicies.cs",
+        "src/CardGame.Core/GameEngine.PindianRandomSelections.cs"
+      ],
+      "boundary": "Freeze effective ranks before entities leave hand; do not treat a static PindianRankBySuit rule as optional marker-based rank addition."
+    },
+    {
+      "capability": "Exact owned HE discard, attributed draw/recovery/death observers",
+      "files": [
+        "src/CardGame.Core/ProgramMarkerDeathOperations.cs",
+        "src/CardGame.Core/GameEngine.cs"
+      ],
+      "boundary": "Use published chooser-specific HE card selections, actual move receipts and typed child returns. Existing BeginPlayerDeath supports program-caused direct death without Dying; current CauseDeathUnlessBoundCardKind JSON operation is not a Raoshe threshold operation."
+    },
+    {
+      "capability": "Phase activation usage and public attributed marker store",
+      "files": [
+        "src/CardGame.Core/SkillRuntimeState.cs",
+        "src/CardGame.Core/GameEngine.ProgramActivationLedger.cs",
+        "src/CardGame.Core/GameEngine.AttributedMarkerEvents.cs"
+      ],
+      "boundary": "Reuse phase usage counters and marker totals, with a precise reset of the Gushe activation only; ResetSkill clears a broader skill state and is insufficient by itself."
+    }
+  ],
+  "missingCapabilities": [
+    {
+      "id": "simultaneous_pindian",
+      "requirement": "One own card against 1-3 distinct legal opponents in a single group; all participants choose privately before the shared reveal, one original card payment, fixed ordered per-opponent comparisons and typed cold-replay group state.",
+      "currentGap": "PindianFrame has only one OpponentSeat. RevealPindian immediately constructs one result and CompletePindian discards the original two entities; three independent pair calls would pay/reveal/finish incorrectly."
+    },
+    {
+      "id": "reveal_rank_adjustment",
+      "requirement": "An exact owning reveal-before-results choice for any own Pindian card, source or opponent, allowing optional rank<=currentRaoshe addition once at that actual reveal.",
+      "currentGap": "Current RevealPindian emits PindianResultDeterminedEvent immediately and has no separate reveal-time optional modifier window."
+    },
+    {
+      "id": "exact_gushe_usage_refund",
+      "requirement": "The same JiCi choice both applies +X and makes only Gushe unused, retaining correct phase/skill/source identity and all unrelated usage.",
+      "currentGap": "SkillRuntimeState provides broader ResetSkill but no exposed specific activation refund contract for this exact reveal."
+    },
+    {
+      "id": "nonwinner_consequences",
+      "requirement": "Each comparison settles every nonwinner, including both on ties; that participant chooses one owned HE discard or an actual draw for WangLang. Each self nonwin first adds one Raoshe before its consequence. Paid draw/discard observers may cause source loss or death and must not repeat the paid cost.",
+      "currentGap": "A group result cursor and per-comparison/per-chooser once-issued consequences must be introduced on the owning frame; generic two-person Pindian result bindings do not encode them."
+    },
+    {
+      "id": "raoshe_seven_direct_death",
+      "requirement": "At exactly seven actual Raoshe, directly die with no fabricated damage/HP-loss/rescue window or fake killer, using native death cleanup and typed group return.",
+      "currentGap": "No Raoshe marker or precise threshold operation exists. Native BeginPlayerDeath can be reused through an exact new producer wrapper."
+    }
+  ],
+  "acceptanceNeededBeforeCompletion": [
+    "one/two/three opponents with one source entity and simultaneous reveal, ordered pair results, tie both-not-won and self marks per failed comparison",
+    "source/opponent ordinary Pindian JiCi, below/equal/above X, decline, exactly one combined bonus plus Gushe reset and independent phase state",
+    "private committed-card identities before reveal, stale/wrong-player answers, deep frozen group receipts and current checkpoint/cold replays",
+    "each chooser HE discard versus draw, empty post-Pindian hand with equipment, payment observers/source loss/death and exact once settlement",
+    "six-to-seven marker direct death without damage/dying/killer, incomplete later comparisons/material cleanup and match continuation/winner",
+    "AI choices from legal safe views, no mutation of historical two-person Pindian catalogs"
+  ],
+  "sourceAndAcceptanceLimits": [
+    "This is current source and capability preflight only; no production/test/registry/artwork implementation, build or routine execution performed.",
+    "The public client config proves character binding, skill text and UI prompts, not authoritative online server resolution order.",
+    "Current full GuShe text is abbreviated. The compatible 2016 GuShe release explains sequential per-opponent resolution and self-first mark, but its old JiCi is excluded. No same-version current FAQ was found during the limited primary-source searches.",
+    "Still need an explicit same-version interpretation or stronger primary evidence for multi-comparison settlement order, direct death interrupting remaining effects, effective rank cap, cross-skill optional order and post-skill-loss interrupted group behavior; do not invent a server-acceptance claim.",
+    "The current generic JiCi wording covers any own revealed Pindian card; do not artificially restrict it to Gushe only.",
+    "Artwork URL is confirmed from API but image download/visual inspection was not performed for this preflight."
+  ],
+  "artwork": {
+    "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/35000.png",
+    "expectedSkinId": 35000,
+    "downloaded": false,
+    "visuallyInspected": false
+  },
+  "relatedNextGroupClientEvidence": {
+    "path": "docs/content/sources/evidence/ol-next-group-349-350-351-client-preflight-2026-10-14.json",
+    "sha256": "591e5ce474fd1328afce528203f1c2a28ed2567533872aebccd346875e0462c3",
+    "characters": [
+      349,
+      350,
+      351
+    ],
+    "importantGrant": "Current GuanSuo ZhengNan278 links WuShengPo878 (red-card Slash, Diamond Slash unlimited distance), DangXian426 and ZhiMan237; BaoSanNiang3798 links ZhengNan278/ZhenNan3797, not old transform-to-GuanSuo842."
+  },
+  "currentCorePointInTime": [
+    {
+      "path": "src/CardGame.Core/PindianModules.cs",
+      "sha256": "dd98a158e27cae5a60570216968299ed4854cec6f8a92c1c89aeee5994f85ff0"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.Pindian.cs",
+      "sha256": "d86d68cfc965a88ec9d7469bcc8c18f8d5977af0d8156d195ed9100d6fde8702"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.PindianPolicies.cs",
+      "sha256": "42b56b2e585e4646168d601c1e2dad108ef70647f38a41532c9cadbe93ea4d82"
+    },
+    {
+      "path": "src/CardGame.Core/SkillRuntimeState.cs",
+      "sha256": "313451da0da5f548656f4e047709482a8cf5d9afb4bc9e6b65619f55a9963e33"
+    },
+    {
+      "path": "src/CardGame.Core/ProgramMarkerDeathOperations.cs",
+      "sha256": "59510f4cbc85bbe756f6d0a2cb38a0cde5c0bd560b674a7d3c641fe15e1cea33"
+    }
+  ]
+}

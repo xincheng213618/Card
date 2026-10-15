@@ -1,0 +1,1075 @@
+{
+  "capturedAtUtc": "2026-10-14T19:28:57.718462+00:00",
+  "decoderMetadata": {
+    "path": "docs/content/sources/evidence/ol-batch14-380-390-decoder-metadata-2026-10-15.json",
+    "sha256": "b856b6426a8ec7dad8b22182e7afa5b039a17a322e78a8c71d6c2ab94d703c40"
+  },
+  "clientBundleSha256": "66dfce61f1c4fb0aca35b6f85ed940e394719db84655f4d4146b463bc0cf8c1b",
+  "configSha256": "3d7536d4e2ca3d64707c2f6e0edbb8ccb4a045eee4274862dfa35431157c64f4",
+  "characters": [
+    {
+      "a": 380,
+      "b": "郭皇后",
+      "d": "GuoHuangHou",
+      "e": 31,
+      "g": 1,
+      "h": 2,
+      "i": 3,
+      "j": 762,
+      "k": 763,
+      "p": 0,
+      "q": "1",
+      "r": "938001",
+      "v": "726",
+      "y": "明元郭皇后[并非郭女王]，在三国志有正传。曹叡夫人，曹丕的儿媳妇，曹芳，曹髦[máo]，曹奂三朝太后，是唯一经历了曹魏全部皇帝时代的贵族女性。曹魏后三帝时期，由于皇帝年少，太后与重臣一同处理政务。史书上对郭皇后有两种截然不同的记载，一种是曹芳被废和曹髦死后郭太后发诏书斥责他们不配人君，另一种却提及曹芳被夺权期间，太后与曹芳相拥而泣，曹髦讨伐司马昭前，曾向太后禀报。",
+      "z": "能够对技能进行两次升级，转化各种基本牌和锦囊牌。会成为敌人优先攻击的目标，没有牌时很脆弱。",
+      "aa": 1283,
+      "ab": "584,585",
+      "ad": "画师:樱花闪乱",
+      "x": "狼子野心的司马一族，只要还有####我一口气在，你们就休想得逞！",
+      "al": 4850,
+      "am": "true",
+      "ap": 20,
+      "aq": 5,
+      "ay": 3,
+      "bx": 4500,
+      "cc": 0,
+      "starMax": 4
+    },
+    {
+      "a": 381,
+      "b": "李严",
+      "d": "LiYan",
+      "e": 31,
+      "g": 2,
+      "h": 1,
+      "i": 3,
+      "j": 765,
+      "k": 764,
+      "p": 1,
+      "q": "1",
+      "r": "938101",
+      "y": "字正方，蜀汉重臣。初为刘表部下，曹操入主荆州时，李严西奔入蜀。刘备入川，李严率众投降，深得刘备器重，受命与诸葛亮、法正等人一同编制《蜀科》，又率军平定了蜀中盗贼。白帝城托孤，与诸葛亮共受遗诏同扶幼主。其人性格矜高难近，终因督粮不利且谎报实情而被流放，后在当地去世。",
+      "z": "能够让队友多摸牌，能够抢夺敌人的牌削弱敌人，能积累较多的手牌。输出较弱。",
+      "aa": 138,
+      "ab": "586,587",
+      "ad": "画师:米SIR",
+      "x": "所以说胜负的关键，####当在后勤~",
+      "al": 4830,
+      "am": "true",
+      "ap": 50,
+      "aq": 15,
+      "ay": 3,
+      "bx": 3500,
+      "cc": 0,
+      "starMax": 4
+    },
+    {
+      "a": 382,
+      "b": "孙登",
+      "d": "SunDeng",
+      "e": 31,
+      "g": 3,
+      "h": 1,
+      "i": 4,
+      "j": 766,
+      "p": 1,
+      "q": "1",
+      "r": "938201",
+      "y": "字子高，孙权长子。孙权称帝后其被立为太子，受诸葛恪等人辅佐。其人性情温和而能礼贤下士，加之爱民如子，因此深受爱戴。曾劝服孙权在孙虑之死时节哀，并劝谏孙权勿用吕壹[yī]苛政。后不幸早逝，临终前上书建言，推荐了多位良臣。其亡故令孙权极为悲伤，也为南鲁党争的祸乱埋下了伏笔。",
+      "z": "能够让队友获得大量的手牌，同时获得队友的牌。没有牌时很脆弱，会成为敌人优先攻击的目标。",
+      "aa": 88,
+      "ab": "588,589",
+      "ad": "画师:DH蛋黄",
+      "x": "吾当愈加潜心学习军务政务，####辅佐父亲永固我大吴江山。",
+      "al": 4860,
+      "am": "true",
+      "ap": 50,
+      "aq": 15,
+      "ay": 3,
+      "bx": 4500,
+      "cc": 0,
+      "starMax": 4
+    },
+    {
+      "a": 383,
+      "b": "刘虞",
+      "d": "LiuYu",
+      "e": 31,
+      "g": 4,
+      "h": 1,
+      "i": 2,
+      "j": 767,
+      "k": 768,
+      "p": 0,
+      "q": "1",
+      "r": "938301",
+      "y": "字伯安，幽州牧，汉室宗亲。在幽州两度任职，颇有威望。张纯、张举叛乱，刘虞恩威并施将其平定，又鼓励农商，大大改善了当地经济民生，青徐二州流民纷纷前来避难。后坚拒袁绍等人立其为帝的请求，派兵迎接献帝，却为袁术所扣，并因此事激化了与公孙瓒[zàn]的矛盾，最终被击败，为其所害。",
+      "z": "拥有高额的体力值，抢夺敌人的装备牌。没有牌时很脆弱。",
+      "aa": 74,
+      "ab": "590,591",
+      "ad": "画师:尼乐小丑",
+      "x": "战火四起，生灵涂炭。####当广施恩威，泽布众生。",
+      "al": 4840,
+      "am": "true",
+      "ap": 20,
+      "aq": 5,
+      "ay": 3,
+      "bx": 3000,
+      "cc": 38304,
+      "starMax": 4
+    },
+    {
+      "a": 384,
+      "b": "岑昏",
+      "d": "CenHun",
+      "e": 31,
+      "g": 3,
+      "h": 1,
+      "i": 3,
+      "j": 769,
+      "k": 770,
+      "p": 0,
+      "q": "1",
+      "r": "938401",
+      "y": "岑昏为宦官，官列中常侍，孙皓即位后得到宠幸。280年，晋龙骧[xiāng]将军王濬[jùn]率军伐吴，岑昏建议以铁锁链封锁长江，阻挡晋军进攻。王濬以火船烧锁链破其计，沿途东吴将士或死或降。群臣上奏东吴衰败之因在于岑昏，将他与蜀汉的黄皓并列为误国之奸臣。",
+      "z": "能够在回合内获得大量手牌，传导更高额的伤害。没有手牌时很脆弱，受到【乐不思蜀】和【铁索连环】的限制。",
+      "aa": 133,
+      "ab": "576,577",
+      "ad": "画师:心中一凛",
+      "x": "有铁索封江，敌船####再强能犯我境分毫？",
+      "al": 4820,
+      "am": "true",
+      "ap": 20,
+      "aq": 5,
+      "ay": 3,
+      "bx": 4500,
+      "cc": 0,
+      "starMax": 4
+    },
+    {
+      "a": 385,
+      "b": "孙资刘放",
+      "d": "SunZiLiuFang",
+      "e": 31,
+      "g": 1,
+      "h": 1,
+      "i": 3,
+      "j": 771,
+      "k": 772,
+      "p": 0,
+      "q": "1",
+      "r": "938501",
+      "y": "孙资在曹操手下历任县令，参丞相军事；刘放曾有劝王松归顺曹操之举，为曹操所欣赏，遂招为司空府官，又外放历任几处县令。魏国初建之际，孙资与刘放俱任秘书郎。曹丕继位后，二人一同掌握机密。曹睿病危时，二人力荐曹爽，又推荐招回司马懿辅政。最后，曹睿独召曹爽、司马懿、刘放、孙资同受诏命，而免去曹宇、夏侯献、曹肇[zhào]、秦朗的官职。",
+      "z": "弃置敌人的牌使敌人变得脆弱，通过弃牌增强自己的防御。输出较弱。",
+      "aa": 266,
+      "ab": "578,579",
+      "ad": "画师:sinno",
+      "x": "有我二人把持朝政,曹爽大将军把持军务,####何愁大事不成?哈哈哈哈哈",
+      "aj": "孙资刘放",
+      "al": 4810,
+      "am": "true",
+      "ap": 20,
+      "aq": 5,
+      "ay": 3,
+      "bx": 3500,
+      "cc": 0,
+      "starMax": 4
+    },
+    {
+      "a": 386,
+      "b": "黄皓",
+      "d": "HuangHao",
+      "e": 31,
+      "g": 2,
+      "h": 1,
+      "i": 3,
+      "j": 773,
+      "k": 774,
+      "p": 1,
+      "q": "1",
+      "r": "938601",
+      "y": "宦官。为后主刘禅所宠，专秉朝政。黄皓与大将军姜维不睦，维启后主杀之，后主不从。皓阴以心腹阎宇替维。景耀六年，蜀亡，邓艾欲杀之，皓贿赂左右得免。及后主迁洛阳，皓为司马昭凌迟处死。",
+      "z": "减少敌人对主公的威胁，贿赂敌人以逃生。没有牌时很脆弱。",
+      "aa": 1162,
+      "ab": "580,581",
+      "ad": "画师:2B铅笔",
+      "x": "昨日进贡的鸟儿，主公甚是喜欢。####改日再参那姜维小儿一本，哼哼..",
+      "al": 4800,
+      "am": "true",
+      "ao": "4",
+      "ap": 50,
+      "aq": 15,
+      "ay": 3,
+      "bx": 3000,
+      "cc": 0,
+      "starMax": 4
+    },
+    {
+      "a": 387,
+      "b": "张让",
+      "d": "ZhangRang",
+      "e": 31,
+      "g": 4,
+      "h": 1,
+      "i": 3,
+      "j": 775,
+      "p": 2,
+      "q": "1",
+      "r": "938701",
+      "v": "697",
+      "y": "汉中常侍。同赵忠、曹节、段珪等为“十常侍”，为灵帝所宠。让等专权乱政、卖官索财，朝野皆痛恨之。郎中张钧上书奏请诛杀十常侍，帝不允，让等阴杀钧。及灵帝崩，大将军何进欲杀让等，让阴结何太后，招进入宫，斩杀之。部将袁绍引兵攻让，让等劫帝走河上。追急，让投水自尽。",
+      "z": "能够转化装备牌之外的牌，在队友的帮助下对敌人进行输出和限制。没有手牌时很脆弱。",
+      "aa": 260,
+      "ab": "582,583",
+      "ad": "画师:蚂蚁君",
+      "x": "保大汉气运昌盛，####我等方可继续荣华富贵",
+      "al": 4790,
+      "am": "true",
+      "ap": 240,
+      "aq": 70,
+      "ay": 3,
+      "bn": "和队友配合后统治力极强",
+      "bx": 4500,
+      "LordCardRate1": 6,
+      "LordCardRate2": 48,
+      "cc": 0,
+      "starMax": 4
+    },
+    {
+      "a": 388,
+      "b": "辛宪英",
+      "d": "XinXianYing",
+      "e": 33,
+      "g": 1,
+      "h": 2,
+      "i": 3,
+      "j": 777,
+      "k": 776,
+      "p": 1,
+      "q": "1",
+      "r": "938801",
+      "y": "曹魏重臣辛毗[pí]之女，曹魏著名才女。二十岁时，便因曹丕的狂喜失态断定其不得长久；高平陵之变时劝弟尽忠职守，从而令其既不失于义又保全性命；后看出钟会野心，教导随钟会伐蜀的儿子仁恕谨慎，使其全身而归。",
+      "z": "需要预判敌人的手牌，如果能够记住场上出现的明牌，那么可以更好的发挥武将技能效果。回合外防御弱。",
+      "aa": 518,
+      "ab": "626,627",
+      "ad": "画师:玫芍之言",
+      "x": "世事险恶，不管他人如何，####我自当自守忠义",
+      "al": 4780,
+      "am": "true",
+      "ap": 50,
+      "aq": 15,
+      "ay": 3,
+      "bs": "32",
+      "bx": 3500,
+      "LordCardRate1": 22,
+      "LordCardRate2": 41,
+      "cc": 0,
+      "starMax": 4,
+      "freetitle": "0,防御强将"
+    },
+    {
+      "a": 389,
+      "b": "吴苋",
+      "d": "WuXian",
+      "e": 33,
+      "g": 2,
+      "h": 2,
+      "i": 3,
+      "j": 778,
+      "k": 779,
+      "p": 1,
+      "q": "1",
+      "r": "938901",
+      "y": "吴懿之妹，原为刘焉之子刘瑁妻，刘瑁死后守寡。刘备入川后不久，孙夫人返吴，刘备娶吴苋为夫人，后封为皇后。刘备死后，刘禅尊其为皇太后，居于长乐宫。",
+      "z": "需要提前预判下回合的形势以及自己的动向。可以给队友摸牌。没有防御技能。",
+      "aa": 266,
+      "ab": "628,629",
+      "ad": "画师:缨尧",
+      "x": "大汉气运昌隆，国祚绵长，####才是妾身最希望的...",
+      "al": 4760,
+      "am": "true",
+      "ap": 50,
+      "aq": 15,
+      "ay": 3,
+      "bn": "一桃三吃，强力辅助",
+      "bx": 4500,
+      "LordCardRate1": 14,
+      "LordCardRate2": 35,
+      "cc": 0,
+      "starMax": 4
+    },
+    {
+      "a": 390,
+      "b": "徐氏",
+      "d": "XuShi",
+      "e": 33,
+      "g": 3,
+      "h": 2,
+      "i": 3,
+      "j": 780,
+      "k": 781,
+      "p": 2,
+      "q": "1",
+      "r": "939001",
+      "y": "孙权之弟孙翊的妻子。孙翊的部下妫[guī]览、戴员买通家将边鸿将孙翊杀死。徐氏一面用美人计色诱妫览、戴员，令其放松警惕；一面对孙翊生前亲信孙高、傅婴说明真相，最终成功地将妫览、戴员诛杀。",
+      "z": "可以帮助队友和自己换牌，蓄势待发以后会有很高的输出。",
+      "aa": 133,
+      "ab": "630,631",
+      "ad": "画师:懿肆琬兮",
+      "x": "夫君....夫君....我做的####这一切，你都看到了吗？",
+      "al": 4750,
+      "am": "true",
+      "ap": 240,
+      "aq": 70,
+      "ay": 3,
+      "bn": "可帮助己方换牌的优秀辅助",
+      "bs": "30",
+      "bx": 4500,
+      "cc": 39008,
+      "starMax": 4
+    }
+  ],
+  "spells": [
+    {
+      "a": 762,
+      "b": "3",
+      "c": "矫诏",
+      "d": "JiaoZhao",
+      "e": 0,
+      "g": 7,
+      "h": 1,
+      "i": 2,
+      "n": 3,
+      "o": "出牌阶段限一次，你可以展示一张手牌，然后令你距离最近的角色声明一种基本牌，你本回合可以将展示牌当声明的牌使用（不能对自己使用）。",
+      "v": "请选择一张牌并选择一名距离最近的角色|请选择一张牌发动<font color='#FFD800'>矫诏</font>|发动<font color='#FFD800'>矫诏</font>，使用声明的{0}",
+      "w": "请选择<font color='#FFD800'>矫诏</font>要声明的牌",
+      "ap": "出牌阶段限一次，你可以展示一张手牌，然后令你距离最近的角色声明一种基本牌或普通锦囊牌，你本回合可以将展示牌当声明的牌使用（不能对自己使用）。",
+      "aq": "出牌阶段限一次，你可以将一张手牌当任意基本牌或普通锦囊牌使用（不能对自己使用，使用【杀】计入次数）。",
+      "aw": "1",
+      "ay": "系统提示→点“确定”"
+    },
+    {
+      "a": 763,
+      "b": "3,5",
+      "c": "殚心",
+      "d": "DanXin",
+      "e": 0,
+      "g": 6,
+      "i": 2,
+      "o": "当你受到伤害后，你可以摸一张牌或修改“矫诏”。",
+      "j": 1,
+      "ay": "系统提示→点“确定”"
+    },
+    {
+      "a": 764,
+      "b": "3",
+      "c": "督粮",
+      "d": "DuLiang",
+      "e": 0,
+      "g": 5,
+      "h": 1,
+      "i": 2,
+      "n": 0,
+      "o": "出牌阶段限一次，你可以获得一名其他角色一张手牌并选择一项：<br>&nbsp;1.令其观看牌堆顶的两张牌，获得其中的基本牌；<br>&nbsp;2.令其下回合摸牌阶段多摸一张牌。",
+      "v": "请选择<font color='#FFD800'>督粮</font>的目标",
+      "ac": "选择一项令{0}执行",
+      "aw": "1",
+      "ay": "系统提示→点“确定”"
+    },
+    {
+      "a": 765,
+      "b": "3,4,5",
+      "c": "腹鳞",
+      "d": "FuLin",
+      "e": 0,
+      "g": 2,
+      "i": 2,
+      "o": "锁定技，弃牌阶段，你于本回合获得的牌不计入手牌上限。",
+      "ay": "系统提示→点“确定”"
+    },
+    {
+      "a": 766,
+      "b": "3",
+      "c": "匡弼",
+      "d": "KuangBi",
+      "e": 0,
+      "g": 5,
+      "h": 1,
+      "i": 2,
+      "o": "出牌阶段限一次，你可以令一名其他角色将至多三张牌置于你的武将牌上，若如此做，你的下个回合开始时获得所有“匡弼”牌，然后其摸等量张牌。",
+      "v": "请选择<font color='#FFD800'>匡弼</font>的目标",
+      "w": "请选择一至三张牌放到孙登的武将牌上",
+      "aw": "1",
+      "ay": "点\"匡弼\"→选一名角色→点\"确定\""
+    },
+    {
+      "a": 767,
+      "b": "3",
+      "c": "止戈",
+      "d": "ZhiGe",
+      "e": 0,
+      "g": 4,
+      "h": 1,
+      "i": 2,
+      "n": 0,
+      "o": "出牌阶段限一次，若你的手牌数大于体力值，你可以令攻击范围内包含你的一名角色选择一项：<br>&nbsp;1.使用一张【杀】；<br>&nbsp;2.交给你一张装备区里的牌。",
+      "v": "请选择<font color='#FFD800'>止戈</font>的目标",
+      "w": "{Source}对你发动<font color='#FFD800'>止戈</font>，请使用一张<font color='#FFD800'>杀</font>或点取消;请将一张装备牌交给{Source}",
+      "ay": "点\"止戈\"→选一名角色→点确定"
+    },
+    {
+      "a": 768,
+      "b": "3,4,5",
+      "c": "宗祚",
+      "d": "ZongZuo",
+      "e": 0,
+      "g": 8,
+      "i": 2,
+      "o": "锁定技，游戏开始时，全场每有一个势力，你便增加1点体力上限，回复1点体力。当某势力最后一名角色死亡后，你减少1点体力上限。",
+      "ay": "系统提示→点“确定”"
+    },
+    {
+      "a": 769,
+      "b": "3",
+      "c": "极奢",
+      "d": "JiShe",
+      "e": 0,
+      "g": 3,
+      "h": 1,
+      "i": 2,
+      "n": 0,
+      "o": "出牌阶段，若你的手牌上限大于0，你可以摸一张牌，令你本回合手牌上限-1。结束阶段，若你没有手牌，你当前每有1点体力，便可令一名角色进入连环状态。",
+      "v": "<font color='#FFD800'>极奢</font>发动，请选择至多{0}名武将进入连环",
+      "ay": "点“极奢”<br>系统提示→选择若干名角色→点“确定”"
+    },
+    {
+      "a": 770,
+      "b": "3,4,5",
+      "c": "链祸",
+      "d": "LianHuo",
+      "e": 0,
+      "g": 6,
+      "i": 2,
+      "o": "锁定技，当你受到火焰伤害时，若你处于连环状态且是传导伤害的起点，此伤害+1。"
+    },
+    {
+      "a": 771,
+      "b": "3,5",
+      "c": "瑰藻",
+      "d": "GuiZao",
+      "e": 0,
+      "g": 2,
+      "i": 2,
+      "o": "若你于弃牌阶段弃置过至少两张牌且这些牌花色均不相同，你可以回复1点体力或摸一张牌。",
+      "v": "请选择一项执行",
+      "j": 1,
+      "ay": "系统提示→点“确定”"
+    },
+    {
+      "a": 772,
+      "b": "3",
+      "c": "讥谀",
+      "d": "JiYu",
+      "e": 0,
+      "g": 4,
+      "h": 1,
+      "i": 2,
+      "n": 0,
+      "o": "出牌阶段，每名角色限一次，若你有可以使用的手牌，你可以令一名角色弃置一张手牌，然后你本回合不能使用与之相同花色的牌，若此牌为黑桃，其失去1点体力，你翻面。",
+      "v": "请选择一名角色，对其发动<font color='#FFD800'>讥谀</font>",
+      "w": " {Source}对你使用了<font color='#FFD800'>讥谀</font>，请弃置一张手牌",
+      "ay": "系统提示→点“确定”"
+    },
+    {
+      "a": 773,
+      "b": "3,5",
+      "c": "寝情",
+      "d": "QinQing",
+      "e": 0,
+      "g": 4,
+      "i": 2,
+      "o": "结束阶段，你可以选择任意名攻击范围内包含主公的角色，依次弃置其一张牌，然后令其各摸一张牌，若如此做，其中每有一名角色手牌数比主公多，你便摸一张牌。",
+      "v": "请选择<font color='#FFD800'>寝情</font>的目标",
+      "ay": "系统提示→点“确定”"
+    },
+    {
+      "a": 774,
+      "b": "3,5",
+      "c": "贿生",
+      "d": "HuiSheng",
+      "e": 0,
+      "g": 2,
+      "i": 2,
+      "o": "当你受到其他角色造成的伤害时，你可以令其观看你任意张牌并令其选择一项：<br>&nbsp;1.获得其中一张，防止此伤害，然后你本局不能对其发动本技能；<br>&nbsp;2.弃置等量张牌。",
+      "v": "请选择任意张手牌或装备牌",
+      "ay": "系统提示→点“确定”"
+    },
+    {
+      "a": 775,
+      "b": "3",
+      "c": "滔乱",
+      "d": "TaoLuan",
+      "e": 0,
+      "g": 7,
+      "h": 1,
+      "i": 2,
+      "n": 1,
+      "o": "你可以将一张牌当任意基本牌或普通锦囊牌使用（每种牌名限一次，且当前无人处于濒死状态），然后令一名其他角色选择一项：<br>&nbsp;1.交给你一张与“滔乱”牌类型不同的牌；<br>&nbsp;2.你失去1点体力，本回合本技能失效。",
+      "v": "请选择一张要使用的牌;请选择<font color='#FFD800'>滔乱</font>的目标角色",
+      "w": "请选1张{0}牌交给{Source}，或点取消让{Source}失去1点体力",
+      "ay": "系统提示→点“确定”"
+    },
+    {
+      "a": 776,
+      "b": "3",
+      "c": "忠鉴",
+      "d": "ZhongJian",
+      "e": 0,
+      "g": 4,
+      "h": 1,
+      "i": 2,
+      "n": 0,
+      "o": "出牌阶段限一次，你可以展示一张手牌，然后展示一名其他角色与其体力值等量张手牌，若其展示牌包含：<br>•与你展示牌颜色相同的牌：你摸一张牌或弃置一名其他角色一张牌；<br>•与你展示牌点数相同的牌：本回合本技能改为限两次。<br>若皆不包含，你的手牌上限-1。",
+      "v": "请选择一张要展示的手牌并选择一名有手牌的角色|请选择一名角色弃置其一张牌，或点取消摸一张牌"
+    },
+    {
+      "a": 777,
+      "b": "3,5",
+      "c": "才识",
+      "d": "CaiShi",
+      "e": 0,
+      "g": 7,
+      "i": 2,
+      "o": "摸牌阶段开始时，你可以选择一项：1.手牌上限+1；2.回复1点体力，本回合不能对自己使用牌。",
+      "ay": "系统提示→点“确定”"
+    },
+    {
+      "a": 778,
+      "b": "3,5",
+      "c": "福绵",
+      "d": "FuMian",
+      "e": 0,
+      "g": 5,
+      "i": 2,
+      "ab": 1,
+      "o": "准备阶段，你可以选择一项：<br>&nbsp;1.摸牌阶段，你多摸1张牌；<br>&nbsp;2.本回合限一次，你使用红色基本牌和红色普通锦囊牌可以多指定1个目标（无距离限制）。<br>下次选择另一项时数值+1并复原本技能。",
+      "v": "请选择:摸牌阶段多模{0}张牌，或本回合红色牌可多指定{1}个目标|多摸牌|多指目标",
+      "w": "请指定额外的目标",
+      "ay": "系统提示→点“确定”"
+    },
+    {
+      "a": 779,
+      "b": "3,5",
+      "c": "怠宴",
+      "d": "DaiYan",
+      "e": 0,
+      "g": 5,
+      "i": 2,
+      "ab": 1,
+      "n": 1,
+      "o": "结束阶段，你可以令一名其他角色获得牌堆中一张红桃基本牌，然后若你上回合对其发动过本技能，其失去1点体力。",
+      "ay": "系统提示→点“确定”"
+    },
+    {
+      "a": 780,
+      "b": "3",
+      "c": "问卦",
+      "d": "WenGua",
+      "e": 0,
+      "g": 7,
+      "h": 1,
+      "i": 2,
+      "o": "每名角色出牌阶段限一次，其可以选择一张牌，将之交给你，然后你可以将此牌置于牌堆顶或牌堆底，你与其各从另一端摸一张牌。",
+      "v": "请选择一张牌并将此牌置于|请将一张牌交给{0}",
+      "aw": "1",
+      "ay": "系统提示→点“确定”"
+    },
+    {
+      "a": 781,
+      "b": "3,5",
+      "c": "伏诛",
+      "d": "FuZhu",
+      "e": 0,
+      "g": 1,
+      "i": 2,
+      "o": "每名男性角色的结束阶段，若牌堆剩余牌数小于等于你体力值的十倍，你可以依次对其使用牌堆中所有【杀】（不能超过游戏人数），然后洗牌。",
+      "ay": "系统提示→点“确定”"
+    }
+  ],
+  "rosterBaseline": {
+    "path": "docs/benchmarks/2026-10-15-general-batch-14-roster-baseline.json",
+    "count": 405,
+    "sha256": "5d3b1331d5b4b9a3a031d2370ee2abdea411d08bd99b83d0d26fa166e88858b6"
+  },
+  "comparisons": [
+    {
+      "heroId": 380,
+      "name": "郭皇后",
+      "clientClass": "GuoHuangHou",
+      "printedSkills": [
+        {
+          "id": 762,
+          "class": "JiaoZhao",
+          "name": "矫诏",
+          "text": "出牌阶段限一次，你可以展示一张手牌，然后令你距离最近的角色声明一种基本牌，你本回合可以将展示牌当声明的牌使用（不能对自己使用）。"
+        },
+        {
+          "id": 763,
+          "class": "DanXin",
+          "name": "殚心",
+          "text": "当你受到伤害后，你可以摸一张牌或修改“矫诏”。"
+        }
+      ],
+      "rosterMatches": [
+        {
+          "Id": "boundary:guo-huang-hou",
+          "Name": "界郭皇后",
+          "PortraitKey": "boundary_guo_huang_hou",
+          "SkillId": "boundary:jiaozhao-round-current",
+          "FactionId": "wei",
+          "BaseHp": 3,
+          "AdditionalSkillIds": [
+            "boundary:danxin-capped-current"
+          ],
+          "Gender": 1,
+          "CharacterId": "character:guo-huang-hou",
+          "VariantId": "boundary",
+          "RulesetId": "sanguosha-ol",
+          "InitialHp": null,
+          "SkillIds": [
+            "boundary:jiaozhao-round-current",
+            "boundary:danxin-capped-current"
+          ]
+        },
+        {
+          "Id": "classic:guo-huanghou",
+          "Name": "郭皇后",
+          "PortraitKey": "guo_huanghou",
+          "SkillId": "classic:jiaozhao",
+          "FactionId": "wei",
+          "BaseHp": 3,
+          "AdditionalSkillIds": [
+            "classic:danxin"
+          ],
+          "Gender": 1,
+          "CharacterId": "character:guo-huanghou",
+          "VariantId": "classic",
+          "RulesetId": "sanguosha-ol",
+          "InitialHp": null,
+          "SkillIds": [
+            "classic:jiaozhao",
+            "classic:danxin"
+          ]
+        }
+      ],
+      "classification": "Needs exact skill/text/version comparison; name match alone does not prove duplicate."
+    },
+    {
+      "heroId": 381,
+      "name": "李严",
+      "clientClass": "LiYan",
+      "printedSkills": [
+        {
+          "id": 765,
+          "class": "FuLin",
+          "name": "腹鳞",
+          "text": "锁定技，弃牌阶段，你于本回合获得的牌不计入手牌上限。"
+        },
+        {
+          "id": 764,
+          "class": "DuLiang",
+          "name": "督粮",
+          "text": "出牌阶段限一次，你可以获得一名其他角色一张手牌并选择一项：<br>&nbsp;1.令其观看牌堆顶的两张牌，获得其中的基本牌；<br>&nbsp;2.令其下回合摸牌阶段多摸一张牌。"
+        }
+      ],
+      "rosterMatches": [
+        {
+          "Id": "classic:li-yan",
+          "Name": "李严",
+          "PortraitKey": "li_yan",
+          "SkillId": "classic:duliang",
+          "FactionId": "shu",
+          "BaseHp": 3,
+          "AdditionalSkillIds": [
+            "classic:fulin"
+          ],
+          "Gender": 0,
+          "CharacterId": "character:li-yan",
+          "VariantId": "classic",
+          "RulesetId": "sanguosha-ol",
+          "InitialHp": null,
+          "SkillIds": [
+            "classic:duliang",
+            "classic:fulin"
+          ]
+        }
+      ],
+      "classification": "Needs exact skill/text/version comparison; name match alone does not prove duplicate."
+    },
+    {
+      "heroId": 382,
+      "name": "孙登",
+      "clientClass": "SunDeng",
+      "printedSkills": [
+        {
+          "id": 766,
+          "class": "KuangBi",
+          "name": "匡弼",
+          "text": "出牌阶段限一次，你可以令一名其他角色将至多三张牌置于你的武将牌上，若如此做，你的下个回合开始时获得所有“匡弼”牌，然后其摸等量张牌。"
+        }
+      ],
+      "rosterMatches": [
+        {
+          "Id": "classic:sun-deng",
+          "Name": "孙登",
+          "PortraitKey": "sun_deng",
+          "SkillId": "classic:kuangbi",
+          "FactionId": "wu",
+          "BaseHp": 4,
+          "AdditionalSkillIds": null,
+          "Gender": 0,
+          "CharacterId": "character:sun-deng",
+          "VariantId": "classic",
+          "RulesetId": "sanguosha-ol",
+          "InitialHp": null,
+          "SkillIds": [
+            "classic:kuangbi"
+          ]
+        }
+      ],
+      "classification": "Needs exact skill/text/version comparison; name match alone does not prove duplicate."
+    },
+    {
+      "heroId": 383,
+      "name": "刘虞",
+      "clientClass": "LiuYu",
+      "printedSkills": [
+        {
+          "id": 767,
+          "class": "ZhiGe",
+          "name": "止戈",
+          "text": "出牌阶段限一次，若你的手牌数大于体力值，你可以令攻击范围内包含你的一名角色选择一项：<br>&nbsp;1.使用一张【杀】；<br>&nbsp;2.交给你一张装备区里的牌。"
+        },
+        {
+          "id": 768,
+          "class": "ZongZuo",
+          "name": "宗祚",
+          "text": "锁定技，游戏开始时，全场每有一个势力，你便增加1点体力上限，回复1点体力。当某势力最后一名角色死亡后，你减少1点体力上限。"
+        }
+      ],
+      "rosterMatches": [
+        {
+          "Id": "classic:liu-yu",
+          "Name": "刘虞",
+          "PortraitKey": "liu_yu",
+          "SkillId": "classic:zhige",
+          "FactionId": "qun",
+          "BaseHp": 2,
+          "AdditionalSkillIds": [
+            "classic:zongzuo"
+          ],
+          "Gender": 0,
+          "CharacterId": "character:liu-yu",
+          "VariantId": "classic",
+          "RulesetId": "sanguosha-ol",
+          "InitialHp": null,
+          "SkillIds": [
+            "classic:zhige",
+            "classic:zongzuo"
+          ]
+        }
+      ],
+      "classification": "Needs exact skill/text/version comparison; name match alone does not prove duplicate."
+    },
+    {
+      "heroId": 384,
+      "name": "岑昏",
+      "clientClass": "CenHun",
+      "printedSkills": [
+        {
+          "id": 769,
+          "class": "JiShe",
+          "name": "极奢",
+          "text": "出牌阶段，若你的手牌上限大于0，你可以摸一张牌，令你本回合手牌上限-1。结束阶段，若你没有手牌，你当前每有1点体力，便可令一名角色进入连环状态。"
+        },
+        {
+          "id": 770,
+          "class": "LianHuo",
+          "name": "链祸",
+          "text": "锁定技，当你受到火焰伤害时，若你处于连环状态且是传导伤害的起点，此伤害+1。"
+        }
+      ],
+      "rosterMatches": [
+        {
+          "Id": "classic:cen-hun",
+          "Name": "岑昏",
+          "PortraitKey": "cen_hun",
+          "SkillId": "classic:jishe",
+          "FactionId": "wu",
+          "BaseHp": 3,
+          "AdditionalSkillIds": [
+            "classic:lianhuo"
+          ],
+          "Gender": 0,
+          "CharacterId": "character:cen-hun",
+          "VariantId": "classic",
+          "RulesetId": "sanguosha-ol",
+          "InitialHp": null,
+          "SkillIds": [
+            "classic:jishe",
+            "classic:lianhuo"
+          ]
+        }
+      ],
+      "classification": "Needs exact skill/text/version comparison; name match alone does not prove duplicate."
+    },
+    {
+      "heroId": 385,
+      "name": "孙资刘放",
+      "clientClass": "SunZiLiuFang",
+      "printedSkills": [
+        {
+          "id": 771,
+          "class": "GuiZao",
+          "name": "瑰藻",
+          "text": "若你于弃牌阶段弃置过至少两张牌且这些牌花色均不相同，你可以回复1点体力或摸一张牌。"
+        },
+        {
+          "id": 772,
+          "class": "JiYu",
+          "name": "讥谀",
+          "text": "出牌阶段，每名角色限一次，若你有可以使用的手牌，你可以令一名角色弃置一张手牌，然后你本回合不能使用与之相同花色的牌，若此牌为黑桃，其失去1点体力，你翻面。"
+        }
+      ],
+      "rosterMatches": [
+        {
+          "Id": "classic:sun-zi-liu-fang",
+          "Name": "孙资刘放",
+          "PortraitKey": "sun_zi_liu_fang",
+          "SkillId": "classic:guizao",
+          "FactionId": "wei",
+          "BaseHp": 3,
+          "AdditionalSkillIds": [
+            "classic:jiyu"
+          ],
+          "Gender": 0,
+          "CharacterId": "character:sun-zi-liu-fang",
+          "VariantId": "classic",
+          "RulesetId": "sanguosha-ol",
+          "InitialHp": null,
+          "SkillIds": [
+            "classic:guizao",
+            "classic:jiyu"
+          ]
+        }
+      ],
+      "classification": "Needs exact skill/text/version comparison; name match alone does not prove duplicate."
+    },
+    {
+      "heroId": 386,
+      "name": "黄皓",
+      "clientClass": "HuangHao",
+      "printedSkills": [
+        {
+          "id": 773,
+          "class": "QinQing",
+          "name": "寝情",
+          "text": "结束阶段，你可以选择任意名攻击范围内包含主公的角色，依次弃置其一张牌，然后令其各摸一张牌，若如此做，其中每有一名角色手牌数比主公多，你便摸一张牌。"
+        },
+        {
+          "id": 774,
+          "class": "HuiSheng",
+          "name": "贿生",
+          "text": "当你受到其他角色造成的伤害时，你可以令其观看你任意张牌并令其选择一项：<br>&nbsp;1.获得其中一张，防止此伤害，然后你本局不能对其发动本技能；<br>&nbsp;2.弃置等量张牌。"
+        }
+      ],
+      "rosterMatches": [
+        {
+          "Id": "classic:huang-hao",
+          "Name": "黄皓",
+          "PortraitKey": "huang_hao",
+          "SkillId": "classic:qinqing",
+          "FactionId": "shu",
+          "BaseHp": 3,
+          "AdditionalSkillIds": [
+            "classic:huisheng"
+          ],
+          "Gender": 0,
+          "CharacterId": "character:huang-hao",
+          "VariantId": "classic",
+          "RulesetId": "sanguosha-ol",
+          "InitialHp": null,
+          "SkillIds": [
+            "classic:qinqing",
+            "classic:huisheng"
+          ]
+        }
+      ],
+      "classification": "Needs exact skill/text/version comparison; name match alone does not prove duplicate."
+    },
+    {
+      "heroId": 387,
+      "name": "张让",
+      "clientClass": "ZhangRang",
+      "printedSkills": [
+        {
+          "id": 775,
+          "class": "TaoLuan",
+          "name": "滔乱",
+          "text": "你可以将一张牌当任意基本牌或普通锦囊牌使用（每种牌名限一次，且当前无人处于濒死状态），然后令一名其他角色选择一项：<br>&nbsp;1.交给你一张与“滔乱”牌类型不同的牌；<br>&nbsp;2.你失去1点体力，本回合本技能失效。"
+        }
+      ],
+      "rosterMatches": [
+        {
+          "Id": "classic:zhang-rang",
+          "Name": "张让",
+          "PortraitKey": "zhang_rang",
+          "SkillId": "classic:taoluan",
+          "FactionId": "qun",
+          "BaseHp": 3,
+          "AdditionalSkillIds": null,
+          "Gender": 0,
+          "CharacterId": "character:zhang-rang",
+          "VariantId": "classic",
+          "RulesetId": "sanguosha-ol",
+          "InitialHp": null,
+          "SkillIds": [
+            "classic:taoluan"
+          ]
+        }
+      ],
+      "classification": "Needs exact skill/text/version comparison; name match alone does not prove duplicate."
+    },
+    {
+      "heroId": 388,
+      "name": "辛宪英",
+      "clientClass": "XinXianYing",
+      "printedSkills": [
+        {
+          "id": 777,
+          "class": "CaiShi",
+          "name": "才识",
+          "text": "摸牌阶段开始时，你可以选择一项：1.手牌上限+1；2.回复1点体力，本回合不能对自己使用牌。"
+        },
+        {
+          "id": 776,
+          "class": "ZhongJian",
+          "name": "忠鉴",
+          "text": "出牌阶段限一次，你可以展示一张手牌，然后展示一名其他角色与其体力值等量张手牌，若其展示牌包含：<br>•与你展示牌颜色相同的牌：你摸一张牌或弃置一名其他角色一张牌；<br>•与你展示牌点数相同的牌：本回合本技能改为限两次。<br>若皆不包含，你的手牌上限-1。"
+        }
+      ],
+      "rosterMatches": [
+        {
+          "Id": "classic:xin-xianying",
+          "Name": "辛宪英",
+          "PortraitKey": "xin_xianying",
+          "SkillId": "classic:zhongjian",
+          "FactionId": "wei",
+          "BaseHp": 3,
+          "AdditionalSkillIds": [
+            "classic:caishi"
+          ],
+          "Gender": 1,
+          "CharacterId": "character:xin-xianying",
+          "VariantId": "classic",
+          "RulesetId": "sanguosha-ol",
+          "InitialHp": null,
+          "SkillIds": [
+            "classic:zhongjian",
+            "classic:caishi"
+          ]
+        }
+      ],
+      "classification": "Needs exact skill/text/version comparison; name match alone does not prove duplicate."
+    },
+    {
+      "heroId": 389,
+      "name": "吴苋",
+      "clientClass": "WuXian",
+      "printedSkills": [
+        {
+          "id": 778,
+          "class": "FuMian",
+          "name": "福绵",
+          "text": "准备阶段，你可以选择一项：<br>&nbsp;1.摸牌阶段，你多摸1张牌；<br>&nbsp;2.本回合限一次，你使用红色基本牌和红色普通锦囊牌可以多指定1个目标（无距离限制）。<br>下次选择另一项时数值+1并复原本技能。"
+        },
+        {
+          "id": 779,
+          "class": "DaiYan",
+          "name": "怠宴",
+          "text": "结束阶段，你可以令一名其他角色获得牌堆中一张红桃基本牌，然后若你上回合对其发动过本技能，其失去1点体力。"
+        }
+      ],
+      "rosterMatches": [
+        {
+          "Id": "classic:wu-xian",
+          "Name": "吴苋",
+          "PortraitKey": "wu_xian",
+          "SkillId": "classic:fumian",
+          "FactionId": "shu",
+          "BaseHp": 3,
+          "AdditionalSkillIds": [
+            "classic:daiyan"
+          ],
+          "Gender": 1,
+          "CharacterId": "character:wu-xian",
+          "VariantId": "classic",
+          "RulesetId": "sanguosha-ol",
+          "InitialHp": null,
+          "SkillIds": [
+            "classic:fumian",
+            "classic:daiyan"
+          ]
+        }
+      ],
+      "classification": "Needs exact skill/text/version comparison; name match alone does not prove duplicate."
+    },
+    {
+      "heroId": 390,
+      "name": "徐氏",
+      "clientClass": "XuShi",
+      "printedSkills": [
+        {
+          "id": 780,
+          "class": "WenGua",
+          "name": "问卦",
+          "text": "每名角色出牌阶段限一次，其可以选择一张牌，将之交给你，然后你可以将此牌置于牌堆顶或牌堆底，你与其各从另一端摸一张牌。"
+        },
+        {
+          "id": 781,
+          "class": "FuZhu",
+          "name": "伏诛",
+          "text": "每名男性角色的结束阶段，若牌堆剩余牌数小于等于你体力值的十倍，你可以依次对其使用牌堆中所有【杀】（不能超过游戏人数），然后洗牌。"
+        }
+      ],
+      "rosterMatches": [
+        {
+          "Id": "classic:xu-shi",
+          "Name": "徐氏",
+          "PortraitKey": "xu_shi",
+          "SkillId": "classic:wengua",
+          "FactionId": "wu",
+          "BaseHp": 3,
+          "AdditionalSkillIds": [
+            "classic:fuzhu"
+          ],
+          "Gender": 1,
+          "CharacterId": "character:xu-shi",
+          "VariantId": "classic",
+          "RulesetId": "sanguosha-ol",
+          "InitialHp": null,
+          "SkillIds": [
+            "classic:wengua",
+            "classic:fuzhu"
+          ]
+        }
+      ],
+      "classification": "Needs exact skill/text/version comparison; name match alone does not prove duplicate."
+    }
+  ],
+  "limits": [
+    "Client printed bindings and rows are exact; same-name roster matches require source/rule version comparison before claiming duplicate.",
+    "No linked skills recursively inferred or FAQ asserted. No src/tests/tools edit or runner."
+  ]
+}

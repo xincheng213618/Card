@@ -1,0 +1,120 @@
+{
+  "capturedAtUtc": "2026-10-14T11:46:50.858415+00:00",
+  "status": "read-only preflight; not implemented",
+  "officialHeroId": 361,
+  "name": "SP黄月英",
+  "proposedGeneralId": "ol:huang-yueying-sp",
+  "characterId": "character:huang-yueying",
+  "faction": "qun",
+  "gender": "female",
+  "maxHp": 3,
+  "currentClientCharacter": {
+    "a": 361,
+    "b": "黄月英",
+    "ai": "SP",
+    "d": "HuangYueYingSP",
+    "e": 9,
+    "f": "1",
+    "g": 4,
+    "h": 2,
+    "i": 3,
+    "j": 271,
+    "k": 272,
+    "p": 0,
+    "q": "1",
+    "r": "936101",
+    "y": "荆州沔[miǎn]南白水人，沔阳名士黄承彦之女，诸葛亮之妻，诸葛瞻之母。容貌甚丑，而有奇才：上通天文，下察地理，韬略近于诸书无所不晓，诸葛亮在南阳闻其贤而迎娶。",
+    "z": "通过装备牌获得大量锦囊牌，拥有极高的防御。个人能力强。",
+    "aa": 134,
+    "ab": "564,565",
+    "ad": "画师:木美人",
+    "x": "此中巧妙，####定非常人方可识得",
+    "aj": "黄月英",
+    "al": 4290,
+    "am": "true",
+    "ap": 20,
+    "aq": 5,
+    "ay": 3,
+    "bn": "用装备变牌的全能武将",
+    "bs": "32",
+    "bt": "54",
+    "bx": 2500,
+    "LordCardRate1": 25,
+    "LordCardRate2": 43,
+    "cb": "2;3",
+    "cc": 0,
+    "starMax": 4,
+    "freetitle": "0,新手胜率71%"
+  },
+  "currentSkills": [
+    {
+      "clientSkillId": 271,
+      "clientClass": "JiQiao",
+      "name": "机巧",
+      "text": "出牌阶段开始时，你可以弃置任意张装备牌，然后亮出牌堆顶两倍数量的牌，获得其中所有非装备牌。"
+    },
+    {
+      "clientSkillId": 272,
+      "clientClass": "LingLong",
+      "name": "玲珑",
+      "text": "锁定技，若你的装备区里没有：<br>•武器牌，你本回合使用【杀】的限制次数+1；<br>•防具牌，你视为装备着【八卦阵】；<br>•坐骑牌，你的手牌上限+1；<br>•宝物牌，你视为拥有“<font href='871'>奇才</font>”。"
+    }
+  ],
+  "linkedSkills": [
+    {
+      "clientSkillId": 871,
+      "clientClass": "QiCaiPo",
+      "name": "奇才",
+      "text": "锁定技，你使用锦囊牌无距离限制。当其他角色弃置你装备区里的防具或宝物牌时，你防止之。"
+    }
+  ],
+  "primarySources": [
+    {
+      "url": "https://www.sanguosha.com/hero/361",
+      "path": "docs/content/sources/evidence/ol-batch10-361-page-2026-10-14.html",
+      "sha256": "6d9164bbf471ad59838250768319be35d1057aa646f64b823fec0aa246ccc1df"
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=361",
+      "path": "docs/content/sources/evidence/ol-batch10-361-info-2026-10-14.json",
+      "sha256": "3dca2c03079e527441cf88e483902a6cd6bc84f4a1becbab537a61a01d28a6cf"
+    },
+    {
+      "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+      "path": "docs/content/sources/evidence/ol-next-group-361-363-366-client-preflight-2026-10-14.json",
+      "sha256": "d3711844b99b63d46484f79326452d6d37891793bb2e3f2b1552e00453000f33"
+    }
+  ],
+  "duplicateAudit": {
+    "registeredSameVersion": false,
+    "existingOtherVariants": [
+      "classic:huang-yueying",
+      "boundary:huang-yueying"
+    ],
+    "sameCharacterDifferentVariant": "Existing Shu Jizhi/Qicai variants differ from this Qun SP JiQiao/LingLong version. Current sources identify361, not a new copy of those existing definitions.",
+    "skippedEarlierIds": {
+      "359": "Absent from current client; official page/API404 reported by parallel research.",
+      "360": "Existing ol:sima-lang JunBing269/QuJi270 exact ordinaryOL variant."
+    }
+  },
+  "availableCapabilities": [
+    "Native actual PlayPhaseStarting optional trigger and private owner hand/equipment selection; native discard and movement child boundaries.",
+    "RevealTopCards, bound-card filtering/obtaining and private collection freezing exist, but exact 2x actual discarded arbitrary equipment count must be verified before assuming pure configuration.",
+    "SlashLimit/HandLimit/TrickDistanceLimit state modifiers exist; NoWeapon predicate exists.",
+    "Native BaguaFormation judgment and armor-ignore boundaries exist.",
+    "boundary:qicai-current already implements linked871 QiCaiPo: trick distance unlimited plus prevention of foreign armor/treasure discard."
+  ],
+  "maximumMechanismGap": "LingLong needs live equipment-slot-dependent native capabilities: empty armor grants actual Bagua, empty treasure grants the full linked871 QiCaiPo, empty mount pair grants handlimit1 and empty weapon Slashlimit1. Each follows genuine equipment change and cold reconstruction without materializing fake equipment or dropping equipment protection.",
+  "interpretationBoundaries": [
+    "The mount condition describes no mount card of either subtype, not one bonus for each vacant mount slot.",
+    "API initial_hp0 is metadata, not proof of concealed or zero actual initial HP; this SP general has no concealment rule.",
+    "Linked QiCai871 includes armor/treasure protection; substituting classic:qicai distance-only would omit a current rule.",
+    "No implementation, registration, assets, source/tests/tools or versions changed during this preflight."
+  ],
+  "verification": {
+    "build": "not run",
+    "focused": "not run",
+    "routine": "parent owns current batch9 routine; unrelated to this preflight"
+  },
+  "fullArchivesRetained": false
+}

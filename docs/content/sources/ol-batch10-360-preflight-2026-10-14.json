@@ -1,0 +1,68 @@
+{
+  "sourceRecordSchemaVersion": 1,
+  "capturedAt": "2026-10-14",
+  "officialId": 360,
+  "characterName": "司马朗",
+  "rulesetId": "sanguosha-ol",
+  "outcome": "already-registered-duplicate-do-not-implement",
+  "existingGeneralId": "ol:sima-lang",
+  "existingCharacterId": "character:sima-lang",
+  "existingVariantId": "ordinary",
+  "existingRegistration": "src/CardGame.Content.Standard/OrdinarySimaLangContent.cs",
+  "existingSource": "docs/content/sources/ol-sima-lang-2026-10-08.json",
+  "sources": [
+    {
+      "url": "https://www.sanguosha.com/hero/360",
+      "localPath": "docs/content/sources/evidence/ol-batch10-360-page-2026-10-14.html",
+      "sha256": "74cb872eb82f6b612288d1e3e7c10df5de1823962ca2422a79dfee5cf74ad1f4",
+      "hashScope": "saved UTF-8 no BOM decoded response",
+      "httpStatus": 200
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=360",
+      "localPath": "docs/content/sources/evidence/ol-batch10-360-info-2026-10-14.json",
+      "sha256": "39ebb9ee353bf1199c70bd6fd11a630d7417c4cd7050b2d37e982ab5a9a12592",
+      "hashScope": "saved UTF-8 no BOM decoded response",
+      "httpStatus": 200
+    }
+  ],
+  "metadata": {
+    "name": "司马朗",
+    "faction": "wei",
+    "hp": 3,
+    "initialHpApi": 0,
+    "initialHpInterpretation": "No override; prior official frontend evidence retains initial HP 3",
+    "explicitGenderInApi": false
+  },
+  "skills": [
+    {
+      "name": "郡兵",
+      "existingProgramId": "ol:junbing",
+      "text": "每名角色的结束阶段，若其手牌数不大于1，其可以摸一张牌并交给你所有手牌，然后你交给其等量张牌。",
+      "matchesExistingText": true
+    },
+    {
+      "name": "去疾",
+      "existingProgramId": "ol:quji",
+      "text": "出牌阶段限一次，你可以弃置X张牌令至多X名角色各回复1点体力（X为你已损失体力值），若弃置牌中有黑色牌，你失去1点体力。",
+      "matchesExistingText": true
+    }
+  ],
+  "versionAssessment": "Current official page printed text equals existing 2026-10-08 source. API response hash is identical. Page response hash changed, without a printed skill change. Neither endpoint explicitly identifies a client skill revision; no fresh client archive captured in this bounded preflight.",
+  "mechanismAssessment": {
+    "newCapabilityRequired": false,
+    "existingCapabilities": [
+      "offerCurrentTurnHandExchange",
+      "selectOwnedCards with exact count and frozen effective suits",
+      "moveBoundCards awaiting real movement children",
+      "selectTargets bounded by named cost count",
+      "recover and loseHp"
+    ],
+    "unresolvedOfficialInterpretations": [
+      "Existing historical analysis restricts Quji recipients to wounded while current printed text omits that restriction; existing source explicitly retains this conflict.",
+      "Junbing return HE zones and shortage fallback are existing implementation interpretations, not newly verified FAQ."
+    ],
+    "verification": "Read-only static source and registry comparison only; no build or runner invoked."
+  },
+  "duplicateEvidence": "OrdinarySimaLangContent.Register is already included in StandardClassicGeneralPackage; both initial skills and exact character/variant registration exist."
+}

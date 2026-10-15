@@ -1,0 +1,108 @@
+{
+  "capturedAt": "2026-10-14T14:58:19.7946619+08:00",
+  "extractedFrom": "docs\\content\\sources\\evidence\\ol-next-group-349-350-351-client-preflight-2026-10-14.json",
+  "extractedFromSha256": "591e5ce474fd1328afce528203f1c2a28ed2567533872aebccd346875e0462c3",
+  "character": [
+    {
+      "a": 349,
+      "b": "关索",
+      "d": "GuanSuo",
+      "e": 46,
+      "f": "25",
+      "g": 2,
+      "h": 1,
+      "i": 4,
+      "j": 279,
+      "k": 278,
+      "p": 4,
+      "q": "1",
+      "r": "934901",
+      "y": "关羽的三子。自荆州失陷后，逃难在鲍家庄养病，伤势痊愈之后入蜀，逢丞相诸葛亮南征，拜之为前部先锋，一同南征。",
+      "z": "随着游戏进行不断成长，女性角色越多攻击范围越大。会成为敌人优先攻击的目标，受到【乐不思蜀】的限制。",
+      "aa": 69,
+      "ab": "574,575",
+      "ad": "画师:depp",
+      "x": "伤病已无碍，三娘，####此次南征我定要为你拿下首功！",
+      "aj": "关索",
+      "al": 4230,
+      "am": "true",
+      "ap": 1500,
+      "aq": 450,
+      "bx": 500000,
+      "LordCardRate1": 0,
+      "LordCardRate2": 50,
+      "cc": 34906,
+      "starMax": 4
+    }
+  ],
+  "boundSkills": [
+    {
+      "a": 278,
+      "b": "3,5",
+      "c": "征南",
+      "d": "ZhengNan",
+      "e": 0,
+      "g": 3,
+      "i": 2,
+      "m": "878,426,237",
+      "o": "当其他角色死亡后，你可以摸三张牌，然后获得“<font href='878'>武圣</font>”“<font href='426'>当先</font>”“<font href='237'>制蛮</font>”中的一个。",
+      "j": 2,
+      "ay": "系统提示→点“确定”"
+    },
+    {
+      "a": 279,
+      "b": "3,4,5",
+      "c": "撷芳",
+      "d": "XieFang",
+      "e": 0,
+      "g": 1,
+      "i": 2,
+      "o": "锁定技，全场每有一名女性角色，你计算与其他角色的距离便-1。",
+      "ay": "系统提示→点“确定”"
+    }
+  ],
+  "linkedGrantedSkills": [
+    {
+      "a": 237,
+      "b": "3,5",
+      "c": "制蛮",
+      "d": "ZhiMan",
+      "e": 0,
+      "g": 4,
+      "i": 2,
+      "ab": 1,
+      "o": "当你对其他角色造成伤害时，你可以防止此伤害，然后获得其区域里的一张牌。",
+      "ay": "系统提示→点\"确定\"→选一张牌"
+    },
+    {
+      "a": 426,
+      "b": "3,4,5",
+      "c": "当先",
+      "d": "DangXian",
+      "e": 0,
+      "g": 1,
+      "i": 2,
+      "ab": 1,
+      "o": "锁定技，回合开始时，你执行一个额外的出牌阶段。"
+    },
+    {
+      "a": 878,
+      "b": "3",
+      "c": "武圣",
+      "d": "WuShengPo",
+      "e": 0,
+      "g": 1,
+      "h": 1,
+      "i": 2,
+      "n": 0,
+      "o": "你可以将一张红色牌当【杀】使用或打出。你使用的方片【杀】无距离限制。",
+      "bb": "你可以将红色牌当【杀】。你的方片【杀】无距离限制。",
+      "ay": "系统提示→点“确定”"
+    }
+  ],
+  "upstreamClientUrl": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+  "upstreamClientSha256": "66dfce61f1c4fb0aca35b6f85ed940e394719db84655f4d4146b463bc0cf8c1b",
+  "upstreamConfigUrl": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+  "upstreamConfigSha256": "3d7536d4e2ca3d64707c2f6e0edbb8ccb4a045eee4274862dfa35431157c64f4",
+  "fullUpstreamArchivesRetainedLocally": false
+}

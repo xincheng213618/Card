@@ -1,0 +1,137 @@
+{
+  "bundleSha256": "66dfce61f1c4fb0aca35b6f85ed940e394719db84655f4d4146b463bc0cf8c1b",
+  "exactSPAndMarkerUses": [
+    {
+      "term": "HUOJISP_ONLINE",
+      "offset": 4153927,
+      "excerpt": "static QLDJ17=1256;static QLDJ18=1257;static QLDJ19=1258;static QLDJ20=1259;static QLDJ21=1260;static JIANJIE_ONLINE=844;static CHENGHAO_ONLINE=845;static YINSHI_ONLINE=846;static HUOJISP_ONLINE=847;static LIANHUANSP_ONLINE=848;static YEYANSP_ONLINE=849;static JINZHU_BOSS=1261;static XIONGSHOU2018_BOSS=1262;static XISHENG_BOSS=1263;static BUHUO_BOSS=1264;static YINSHOU_BOSS=1265;static HUIHUN_BOSS=1266;static HUNDUNYIN_BOSS=1267;static BEIMINGYIN_BOSS=1268;static YANGSHOU_BOS"
+    },
+    {
+      "term": "LIANHUANSP_ONLINE",
+      "offset": 4153953,
+      "excerpt": "QLDJ18=1257;static QLDJ19=1258;static QLDJ20=1259;static QLDJ21=1260;static JIANJIE_ONLINE=844;static CHENGHAO_ONLINE=845;static YINSHI_ONLINE=846;static HUOJISP_ONLINE=847;static LIANHUANSP_ONLINE=848;static YEYANSP_ONLINE=849;static JINZHU_BOSS=1261;static XIONGSHOU2018_BOSS=1262;static XISHENG_BOSS=1263;static BUHUO_BOSS=1264;static YINSHOU_BOSS=1265;static HUIHUN_BOSS=1266;static HUNDUNYIN_BOSS=1267;static BEIMINGYIN_BOSS=1268;static YANGSHOU_BOSS=1269;static BEIMINGYANG_"
+    },
+    {
+      "term": "LIANHUANSP_ONLINE",
+      "offset": 16032015,
+      "excerpt": "DataExLastParams(){return!1}}class LGi extends $Kt{constructor(){super(),this.activeMode=vCt.LOCK|vCt.PASSIVE,this.invisibleSkills=[FCt.SHENDUAN_SIJIANG,FCt.QIXI,FCt.LIAN_HUAN,FCt.LIANHUANSP_ONLINE,FCt.LIANHUANPO_JIEXIANTUPO]}IsInvisibleRelativeTo(t,i=null,s=null){if(this.IsInvalid())return!1;if(t.ID==FCt.SHUANG_XIONG){let e=t.DecideFlower;if(e==_q.Heart||e==_q.Diamond)return i&&s&&(s.UnSelectReason=qZ.GetSkillLimitType(this.ID)),!0}let e=super.IsInvisibleRelativeTo(t,i,s);if"
+    },
+    {
+      "term": "YEYANSP_ONLINE",
+      "offset": 4153982,
+      "excerpt": "8;static QLDJ20=1259;static QLDJ21=1260;static JIANJIE_ONLINE=844;static CHENGHAO_ONLINE=845;static YINSHI_ONLINE=846;static HUOJISP_ONLINE=847;static LIANHUANSP_ONLINE=848;static YEYANSP_ONLINE=849;static JINZHU_BOSS=1261;static XIONGSHOU2018_BOSS=1262;static XISHENG_BOSS=1263;static BUHUO_BOSS=1264;static YINSHOU_BOSS=1265;static HUIHUN_BOSS=1266;static HUNDUNYIN_BOSS=1267;static BEIMINGYIN_BOSS=1268;static YANGSHOU_BOSS=1269;static BEIMINGYANG_BOSS=1270;static NUYAN_BOSS=1"
+    },
+    {
+      "term": "DATA_LONGYING",
+      "offset": 938366,
+      "excerpt": "c DATA_WUCHANG_TAP=24;static DATA_XUCHANG_TAP=25;static DATA_LIANHENG_TAP=26;static DATA_LIANG_TAP=27;static DATA_YECHENG_TAP=28;static DATA_HUAIJU=29;static DATA_JUNLVE=30;static DATA_LONGYING=31;static DATA_FENGYING=32;static DATA_XIANQU=33;static DATA_YINYANGYU=34;static DATA_ZHULIANBIHE=35;static DATA_BAOLI=36;static DATA_ZIWEI=37;static DATA_HOUTU=38;static DATA_YUQING=39;static DATA_GOUCHEN=40;static DATA_SHEDU=41;static DATA_HZKQ=42;static DATA_NIANSHOU_BOSS_STAR=43;st"
+    },
+    {
+      "term": "DATA_LONGYING",
+      "offset": 960891,
+      "excerpt": "),this.addStateMap(this.DATA_LIE_ZHUAN_YI,Jw),this.addStateMap(this.DATA_GONGQI,dw),this.addStateMap(this.DATA_FENXUN,uw),this.addStateMap(this.DATA_SIDI,pL),this.addStateMap(this.DATA_LONGYING,pKt),this.addStateMap(this.DATA_FENGYING,rKt),this.addStateMap(this.DATA_TISHEN,AL),this.addStateMap(this.DATA_TUI,mL),this.addStateMap(this.DATA_QIXIAN2_STATUS,CT),this.addStateMap(this.DATA_HUAIJU,oKt),this.addStateMap(this.DATA_SISHUPO,AKt),this.addStateMap(this.DATA_NEIFA,nL),this."
+    },
+    {
+      "term": "DATA_LONGYING",
+      "offset": 961891,
+      "excerpt": "addStateMap(this.DATA_JILEI,mw),this.addStateMap(this.DATA_FANGZHU_RACE,UE),this.addStateMap(this.DATA_FANGZHU_RACE2,vE),this.addStateMap(this.DATA_TIEJI,LL),this.addStateMap(this.DATA_LONGYING,pKt),this.addStateMap(this.DATA_FENGYING,rKt),this.addStateMap(this.DATA_WEILU,GL),this.addStateMap(this.DATA_QINGJIAN,uL),this.addStateMap(this.DATA_MAOTU,iL),this.addStateMap(this.DATA_WANGZUN,yL),this.addStateMap(this.DATA_MUMU,hL),this.addStateMap(this.DATA_MEIBU,Ef),this.addStateM"
+    },
+    {
+      "term": "DATA_LONGYING",
+      "offset": 7946269,
+      "excerpt": "ructor(t){super(t),this.needRelayoutAfterChange=!0}IsAllowSeat(t){let i=super.IsAllowSeat(t);if(i){let s=this.skill;if(this.Seat.InActiveState)0==s.optFlag?i=0==t.GetStateValue(Ef.DATA_LONGYING):1==s.optFlag&&(i=0==t.GetStateValue(Ef.DATA_FENGYING));else{let e=s.srcSeatId;gq.IsAllowSeatId(e)&&(i=i=t.Index!=e)}}return i}}class _Wt extends yP{constructor(t){super(t)}get NeedRelayoutSeatAfterChange(){return!0}}class dWt extends yP{constructor(t){super(t),this.needRelayoutSeatAft"
+    },
+    {
+      "term": "DATA_LONGYING",
+      "offset": 8067288,
+      "excerpt": "mateName(){return this.removeAnimateName}MAnimateUrl(){return this.animateUrl}MAnimateName(){return this.animateName}}class pKt extends ACt{constructor(t){super(t),this.stateId=Ef.DATA_LONGYING,this.needShow=!0}}class SKt extends ACt{constructor(t){super(t),this.stateId=Ef.DATA_LUANZHAN,this.needShow=!0}get ShowText(){return this.value.toString()}}class TKt extends ACt{constructor(t){super(t),this.stateId=Ef.DATA_LUOYANG,this.iconName=\"1_50\",this.animateName=\"play2\"}get ToolT"
+    },
+    {
+      "term": "DATA_LONGYING",
+      "offset": 16122151,
+      "excerpt": "{let i,s=[],e=ewt.SKILL_MULTISELECT_MSG;return i=new DIt,i.label=ewt.JianJie_Opt_label1,i.callBack=this.multiSelectCallback,i.thisObject=this,i.enabled=null!=c1t.GetSeatByState(Ef.DATA_LONGYING),i.callBackParams=[0],i.sendType=Y$t.OPT_INVALID,s.push(i),i=new DIt,i.label=ewt.JianJie_Opt_label2,i.callBack=this.multiSelectCallback,i.thisObject=this,i.enabled=null!=c1t.GetSeatByState(Ef.DATA_FENGYING),i.callBackParams=[1],i.sendType=Y$t.OPT_INVALID,s.push(i),i=new DIt,i.label=ewt"
+    },
+    {
+      "term": "DATA_LONGYING",
+      "offset": 16122890,
+      "excerpt": "his.params=[t],this.Seat&&this.Seat.TouchSkill(this.ID,this.DefensiveTip,!0,!1))}get Activated(){let t=Laya.superGetter(Fki,this,\"Activated\");return t&&null==c1t.GetSeatByState(Ef.DATA_LONGYING)&&null==c1t.GetSeatByState(Ef.DATA_FENGYING)&&(t=!1),t}GsCRoleOptTargetNtfResponse(t){return this.lastAskType=t.Type,this.srcSeatId=-1,30==t.Type?this.srcSeatId=t.Param:41!=t.Type&&42!=t.Type||(this.srcSeatId=t.TargetSeatID),!1}get DefensiveTip(){let t=\"\",i=this.defensiveTip.split(\"|\")"
+    },
+    {
+      "term": "DATA_LONGYING",
+      "offset": 16123828,
+      "excerpt": "i.Skill=this,i}Use(t,i,s=null,e=0){if(c1t.LastTriggerSpell==this&&this.Seat)Y$t.SendRoleSpellOptRep(this.Seat.Index,this.ID,i);else{if(0==this.optFlag){let t=c1t.GetSeatByState(Ef.DATA_LONGYING);t&&i.unshift(t.Index)}else{let t=c1t.GetSeatByState(Ef.DATA_FENGYING);t&&i.unshift(t.Index)}super.Use(t,i)}}get RetainRoleDataExLastParams(){return!1}}class Bki extends $Kt{constructor(){super(),this.activeMode=vCt.ACTIVE,this.targetCanBeSelf=!1,this.timeLimitRound=1,this.targetCountM"
+    },
+    {
+      "term": "DATA_FENGYING",
+      "offset": 938390,
+      "excerpt": "atic DATA_XUCHANG_TAP=25;static DATA_LIANHENG_TAP=26;static DATA_LIANG_TAP=27;static DATA_YECHENG_TAP=28;static DATA_HUAIJU=29;static DATA_JUNLVE=30;static DATA_LONGYING=31;static DATA_FENGYING=32;static DATA_XIANQU=33;static DATA_YINYANGYU=34;static DATA_ZHULIANBIHE=35;static DATA_BAOLI=36;static DATA_ZIWEI=37;static DATA_HOUTU=38;static DATA_YUQING=39;static DATA_GOUCHEN=40;static DATA_SHEDU=41;static DATA_HZKQ=42;static DATA_NIANSHOU_BOSS_STAR=43;static DATA_YI=44;static D"
+    },
+    {
+      "term": "DATA_FENGYING",
+      "offset": 960932,
+      "excerpt": ",Jw),this.addStateMap(this.DATA_GONGQI,dw),this.addStateMap(this.DATA_FENXUN,uw),this.addStateMap(this.DATA_SIDI,pL),this.addStateMap(this.DATA_LONGYING,pKt),this.addStateMap(this.DATA_FENGYING,rKt),this.addStateMap(this.DATA_TISHEN,AL),this.addStateMap(this.DATA_TUI,mL),this.addStateMap(this.DATA_QIXIAN2_STATUS,CT),this.addStateMap(this.DATA_HUAIJU,oKt),this.addStateMap(this.DATA_SISHUPO,AKt),this.addStateMap(this.DATA_NEIFA,nL),this.addStateMap(this.DATA_JUNLVE,_Kt),this.ad"
+    },
+    {
+      "term": "DATA_FENGYING",
+      "offset": 961932,
+      "excerpt": "tateMap(this.DATA_FANGZHU_RACE,UE),this.addStateMap(this.DATA_FANGZHU_RACE2,vE),this.addStateMap(this.DATA_TIEJI,LL),this.addStateMap(this.DATA_LONGYING,pKt),this.addStateMap(this.DATA_FENGYING,rKt),this.addStateMap(this.DATA_WEILU,GL),this.addStateMap(this.DATA_QINGJIAN,uL),this.addStateMap(this.DATA_MAOTU,iL),this.addStateMap(this.DATA_WANGZUN,yL),this.addStateMap(this.DATA_MUMU,hL),this.addStateMap(this.DATA_MEIBU,Ef),this.addStateMap(this.DATA_ZISHOU,RCt),this.addStateMap"
+    },
+    {
+      "term": "DATA_FENGYING",
+      "offset": 7946323,
+      "excerpt": "llowSeat(t){let i=super.IsAllowSeat(t);if(i){let s=this.skill;if(this.Seat.InActiveState)0==s.optFlag?i=0==t.GetStateValue(Ef.DATA_LONGYING):1==s.optFlag&&(i=0==t.GetStateValue(Ef.DATA_FENGYING));else{let e=s.srcSeatId;gq.IsAllowSeatId(e)&&(i=i=t.Index!=e)}}return i}}class _Wt extends yP{constructor(t){super(t)}get NeedRelayoutSeatAfterChange(){return!0}}class dWt extends yP{constructor(t){super(t),this.needRelayoutSeatAfterChange=!0}get NeedReSelectSeat(){return this.LastSel"
+    },
+    {
+      "term": "DATA_FENGYING",
+      "offset": 8065048,
+      "excerpt": "s.Value.toString()}}class hKt extends ACt{constructor(t){super(t),this.stateId=Ef.DATA_FANGQUAN,this.iconName=\"1_11\"}}class rKt extends ACt{constructor(t){super(t),this.stateId=Ef.DATA_FENGYING,this.needShow=!0}}class nKt extends ACt{constructor(t){super(t),this.stateId=Ef.DATA_GOUCHEN,this.needShow=!0,this.iconName=\"1_40\",this.animateName=\"play2\"}}class aKt extends ACt{constructor(t){super(t),this.stateId=Ef.DATA_RAOSHE}get ShowText(){return this.value?this.value.toString():"
+    },
+    {
+      "term": "DATA_FENGYING",
+      "offset": 16122357,
+      "excerpt": "arams=[0],i.sendType=Y$t.OPT_INVALID,s.push(i),i=new DIt,i.label=ewt.JianJie_Opt_label2,i.callBack=this.multiSelectCallback,i.thisObject=this,i.enabled=null!=c1t.GetSeatByState(Ef.DATA_FENGYING),i.callBackParams=[1],i.sendType=Y$t.OPT_INVALID,s.push(i),i=new DIt,i.label=ewt.Cancel,i.callBack=this.multiSelectCallback,i.thisObject=this,i.enabled=!0,i.callBackParams=[2],s.push(i),{btnDatas:s,optMsg:e,isWindow:!1}}multiSelectCallback(t){this.optFlag=t,Ms.I().event(sB.HIDE_SPELLSE"
+    },
+    {
+      "term": "DATA_FENGYING",
+      "offset": 16122934,
+      "excerpt": "ll(this.ID,this.DefensiveTip,!0,!1))}get Activated(){let t=Laya.superGetter(Fki,this,\"Activated\");return t&&null==c1t.GetSeatByState(Ef.DATA_LONGYING)&&null==c1t.GetSeatByState(Ef.DATA_FENGYING)&&(t=!1),t}GsCRoleOptTargetNtfResponse(t){return this.lastAskType=t.Type,this.srcSeatId=-1,30==t.Type?this.srcSeatId=t.Param:41!=t.Type&&42!=t.Type||(this.srcSeatId=t.TargetSeatID),!1}get DefensiveTip(){let t=\"\",i=this.defensiveTip.split(\"|\");if(i&&4==i.length&&this.Seat)if(this.Seat.I"
+    },
+    {
+      "term": "DATA_FENGYING",
+      "offset": 16123898,
+      "excerpt": ".Seat)Y$t.SendRoleSpellOptRep(this.Seat.Index,this.ID,i);else{if(0==this.optFlag){let t=c1t.GetSeatByState(Ef.DATA_LONGYING);t&&i.unshift(t.Index)}else{let t=c1t.GetSeatByState(Ef.DATA_FENGYING);t&&i.unshift(t.Index)}super.Use(t,i)}}get RetainRoleDataExLastParams(){return!1}}class Bki extends $Kt{constructor(){super(),this.activeMode=vCt.ACTIVE,this.targetCanBeSelf=!1,this.timeLimitRound=1,this.targetCountMin=this.targetCountMax=1}get IsActiveState(){return!0}GetDefensiveSele"
+    }
+  ],
+  "exactSPImplementationClassesAndBases": [
+    {
+      "symbol": "D7i",
+      "offset": 20162054,
+      "excerpt": "class D7i extends vki{constructor(){super(),this.timeLimitRound=3,this.clearUseCountWhenDealState=!1}get ExType(){return y$t.ONLINE}GetSoundSkillByUsedCardIDs(){return _Xt.GetInstance(FCt.HUOGONG)}get RetainRoleDataExLastParams(){return!1}}"
+    },
+    {
+      "symbol": "qki",
+      "offset": 16133468,
+      "excerpt": "class qki extends $Kt{constructor(){super(),this.activeMode=vCt.ACTIVE,this.targetCanBeSelf=!0,this.targetCountMin=0,this.targetCountMax=2,this.cardCountMin=1,this.cardCountMax=1,this.requestFlowers.push(_q.Club),this.requestCardType=kCt.NORMAL|kCt.MUNIULIUMA,this.avatarSkills.push(FCt.TIESUOLIANHUAN),this.timeLimitRound=3,this.clearUseCountWhenDealState=!1,this.touchCardNeedRefreshTip=!0,this.kind=bP.Neutral,this.cardUseType=UCt.USE|UCt.RESET}get TargetCountMin(){if(this.cardSelector&&this.cardSelector.SelectedCards&&this.cardSelector.SelectedCards.length&&this.cardSelector.SelectedCards[0].CardBaseType==OCt.BAOWU)return 1;if(this.CardSelector){let t=this.CardSelector.FirstSelectedCard;if(t&&t.IsInMuNiu)return 1}return 0}get ActiveTip(){return 1==this.TargetCountMin?ewt.TIESUOLIANHUAN_ActiveTips4:Laya.superGetter(qki,this,\"ActiveTip\")}get CanHalfShow(){return!1}get ShowAnimationOnTargetSeat(){return!1}get ShowAnimationOnGeneralAvatar(){return!0}get ExType(){return y$t.ONLINE}get TargetCountMax(){if(this.Seat){if(4&this.Seat.GetStateValue(Ef.DATA_JILEI))return 0;if(this.Seat.GetStateValue(Ef.DATA_GAOJIN)&&!(4&this.Seat.GetStateValue(Ef.DATA_GAOJIN)))return 0;var t=this.cardSelector&&this.cardSelector.SelectedCount?this.cardSelector.FirstSelectedCard:null,i=[];if(this.Seat.IsNotAllowByXiaHui(t))return 0;if((i=this.Seat.GetSeatState(Ef.DATA_FUNANCARDS).Targets)&&i.length&&t&&i.indexOf(t.CardId)>-1)return 0;if(t&&this.Seat.GetStateValue(Ef.DATA_CARDDISABLED)==t.EffectColor)return 0}return Laya.superGetter(qki,this,\"TargetCountMax\")}get CardSelector(){return this.cardSelector||(this.cardSelector=new VWt(this)),this.cardSelector}GetSoundSkillByUsedCardIDs(){return _Xt.GetInstance(FCt.TIESUOLIANHUAN)}get RetainRoleDataExLastParams(){return!1}}"
+    },
+    {
+      "symbol": "zrs",
+      "offset": 21428768,
+      "excerpt": "class zrs extends t9i{constructor(){super()}get ExType(){return y$t.ONLINE}get RetainRoleDataExLastParams(){return!1}}"
+    },
+    {
+      "symbol": "vki",
+      "offset": 16119829,
+      "excerpt": "class vki extends $Kt{constructor(){super(),this.activeMode=vCt.ACTIVE,this.targetCountMin=1,this.targetCountMax=1,this.targetCanBeSelf=!0,this.avatarSkills.push(FCt.HUOGONG),this.cardCountMin=1,this.cardCountMax=1,this.requestFlowers.push(_q.Heart,_q.Diamond),this.timeLimitRound=Number.MAX_VALUE,this.requestCardType=kCt.NORMAL|kCt.MUNIULIUMA,this.kind=bP.Ominous,this.cardUseType=UCt.USE,this.avatarSkillCardBaseType=OCt.JINNANG}get Activated(){let t=Laya.superGetter(vki,this,\"Activated\");return t&&(t=!this.IsNotAllowByShouFu),t}get CanHalfShow(){return!1}GetTargetSelectorInstance(){return this.targetSelector||(this.targetSelector=new Uki(this)),this.targetSelector}get CardSelector(){return this.cardSelector||(this.cardSelector=new VWt(this)),this.cardSelector}get ExType(){return y$t.HUO}get AvatarSkillType(){return kCt.NORMAL_JINGNANG}SkillChangeCardWords(t,i,s){return ewt.CARD_CHANGE_HUOGONG}SkillChangeCardRes(t,i,s){return _Xt.GetInstance(FCt.HUOGONG).ClassName}CanUseInActive(t){let i=0;return this.Seat&&(i=this.Seat.GetCardCountOnlyByType(this.requestCardType,this.requestFlowers)),i>0}get RetainRoleDataExLastParams(){return!1}}"
+    },
+    {
+      "symbol": "Zki",
+      "offset": 16131837,
+      "excerpt": "class Zki extends $Kt{constructor(){super(),this.activeMode=vCt.ACTIVE,this.targetCanBeSelf=!0,this.targetCountMin=0,this.targetCountMax=2,this.cardCountMin=1,this.cardCountMax=1,this.requestFlowers.push(_q.Club),this.requestCardType=kCt.NORMAL|kCt.MUNIULIUMA,this.avatarSkills.push(FCt.TIESUOLIANHUAN),this.timeLimitRound=Number.MAX_VALUE,this.cardUseType=UCt.USE|UCt.RESET,this.avatarSkillCardBaseType=OCt.JINNANG,this.touchCardNeedRefreshTip=!0,this.CardSelector.NeedRelayoutSeatAfterChange=!0}get ActiveTip(){return 0==this.TargetCountMax?ewt.LIANHUAN_ActiveTips1:Laya.superGetter(Zki,this,\"ActiveTip\")}get ExType(){return y$t.HUO}get TargetCountMax(){let t=this.targetCountMax;if(this.skillCard){if(gf.I().TargetWithoutOther(this.skillCard.Seat))t=1;else{if(this.skillCard.Seat&&this.cardSelector&&!this.cardSelector.checkOperateType(this.cardSelector.FirstSelectedCard))return 0}}return this.skillCard&&this.skillCard.Seat&&this.skillCard.Seat.GetStateValue(Ef.DATA_NEIFA)&tJt.DISCARD_BASE?0:(t>0&&this.IsNotAllowByShouFu&&(t=0),t>0&&this.Seat&&this.Seat.IsNotAllowByXiaHui(this.CardSelector.FirstSelectedCard)&&(t=0),t>0&&this.Seat&&this.Seat.CannotUseCardBySeatState&&(t=0),t)}get TargetCountMin(){if(this.CardSelector){let t=this.CardSelector.FirstSelectedCard;if(t&&t.IsInMuNiu)return 1}return this.targetCountMin}SkillChangeCardWords(t,i,s){return ewt.CARD_CHANGE_TIESUO}SkillChangeCardRes(t,i,s){return _Xt.GetInstance(FCt.TIESUOLIANHUAN).ClassName}CanUseInActive(t){let i=0;return this.Seat&&(i=this.Seat.GetCardCountOnlyByType(this.requestCardType,this.requestFlowers)),i>0}get RetainRoleDataExLastParams(){return!1}}"
+    },
+    {
+      "symbol": "t9i",
+      "offset": 20172592,
+      "excerpt": "class t9i extends OBi{constructor(){super(),this.activeMode=vCt.ACTIVE,this.timeLimitGame=1,this.targetCountMin=1,this.targetCountMax=3,this.enableCancel=!0,this.cardUseType=UCt.DISCARD}BeforeTouchSkillItem(){return this.yeyanStep=0,this.hideTimerNum=0,!1}yeyanStep=0;get YeYanStep(){return this.yeyanStep}get CardCountMax(){return this.HasMultiHurtTarget?4:0}get CardCountMin(){return this.HasMultiHurtTarget?4:0}get TargetCountMax(){let t=this.AssignableHP;return this.targetSelector&&(t+=this.targetSelector.SelectedSeatCount),t}get HasMultiHurtTarget(){let t=!1;if(this.targetSelector&&this.targetSelector.Targets&&this.targetSelector.Targets.length>0){let i,s=this.targetSelector.Targets||[];for(let e=0;e<s.length;e++)if(i=s[e],i.GetStateValue(Ef.DATA_YEYAN)>1){t=!0;break}}return t}get AssignableHP(){let t=3;if(this.targetSelector&&this.targetSelector.Targets&&this.targetSelector.Targets.length>0){let i,s=this.targetSelector.Targets,e=0;for(e=0;e<s.length;e++)i=s[e],i&&(t-=i.GetStateValue(Ef.DATA_YEYAN))}return t}GetCardSelectorInstance(){return this.cardSelector||(this.cardSelector=new oVt(this)),this.cardSelector}Use(t,i,s=null){this.HasMultiHurtTarget?this.CardSelector&&4==this.CardSelector.SelectedCount?(super.Use([],i),this.hideTimerNum=0):(this.hideTimerNum=2,this.TargetSelector&&this.TargetSelector.SelectedSeatCount>0?this.yeyanStep=1:this.yeyanStep=0,this.Seat&&this.Seat.TouchSkill(this.ID,\"请选择4张不同花色的牌\",!0,!1,!0)):(super.Use([],i),this.hideTimerNum=0),this.LastUseParams=[],this.LastUseParams.push(i?i.length:0),this.LastUseParams.push(t?t.length:0),i&&i.forEach((t=>{s=c1t.GetSeat(t),this.LastUseParams.push(t,s.GetStateValue(Ef.DATA_YEYAN))})),t&&t.forEach((t=>{this.LastUseParams.push(t)}))}GsCRoleOptTargetNtfResponse(t){return t.Type==IWi.OPT_SEL_ACT&&this.Seat&&Y$t.SendRoleSpellOptRep(this.Seat.Index,0,this.LastUseParams),!1}get TargetSelector(){return this.targetSelector||(this.targetSelector=new uVt(this)),this.targetSelector}get ExType(){return y$t.HUO}get SkillUseHideTimer(){return this.hideTimerNum}get TouchSkillReselectTarget(){return 1!=this.yeyanStep}GetMultiSelectDatas(t){}hideTimerNum=0;get RetainRoleDataExLastParams(){return!1}}"
+    }
+  ]
+}

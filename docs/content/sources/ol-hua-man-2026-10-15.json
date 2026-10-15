@@ -1,0 +1,285 @@
+{
+  "status": "implementation-frozen-awaiting-root-build-and-focused-verification",
+  "identity": {
+    "id": "ol:hua-man",
+    "characterId": "character:hua-man",
+    "variantId": "ordinary",
+    "rulesetId": "sanguosha-ol",
+    "gender": "female",
+    "kingdom": "shu",
+    "hp": 3
+  },
+  "primaryPreflight": {
+    "path": "docs/content/sources/ol-batch19-434-436-preflight-2026-10-15.json",
+    "sha256": "a6b8262036acc472f4d0d86949ab344b1ce95ed75d2d21092aae5a13ffd666ee",
+    "candidate": {
+      "officialId": 436,
+      "id": "ol:hua-man",
+      "name": "花鬘",
+      "characterId": "character:hua-man",
+      "variantId": "ordinary",
+      "rulesetId": "sanguosha-ol",
+      "currentClientCharacter": {
+        "a": 436,
+        "b": "花鬘",
+        "d": "HuaMan",
+        "e": 44,
+        "f": "44",
+        "g": 2,
+        "h": 2,
+        "i": 3,
+        "j": 9009,
+        "k": 9010,
+        "l": 9011,
+        "m": 9012,
+        "p": 3,
+        "q": "1",
+        "r": "9043601",
+        "y": "花鬘[mán]，古典戏曲《龙凤巾》中的人物，身份为三国时期南蛮王孟获与祝融夫人的女儿，关索夫人之一。在关于关三小姐·关银屏的民间传说中，其名字为“花中秀”，与关索其他几位夫人鲍三娘、王桃、王悦都被关索之姐关银屏编入自己的女兵营中。花鬘并非一般君主家中闺秀，而是与其母祝融相似，是一个可以披甲上阵，善于刀枪作战的女武将。戏曲中在诸葛亮平定南蛮时，花鬘曾与关索作战，失败被俘，两人互生爱意，南蛮王孟获降服后二人成婚。",
+        "z": "队友可以适当卖血配合花鬘尽早觉醒",
+        "aa": 135,
+        "ab": "851,852",
+        "ad": "画师:木美人",
+        "x": "南蛮安稳，####吾辈义不容辞。",
+        "al": 1730,
+        "am": "true",
+        "ap": 800,
+        "aq": 240,
+        "bt": "66",
+        "bx": 200000,
+        "LordCardRate1": 24,
+        "LordCardRate2": 47,
+        "cc": 43603,
+        "starMax": 4
+      },
+      "printedSpells": [
+        {
+          "a": 9009,
+          "b": "3,4,5",
+          "c": "蛮裔",
+          "d": "ManYiHM",
+          "g": 2,
+          "i": 2,
+          "o": "锁定技，【南蛮入侵】对你无效。"
+        },
+        {
+          "a": 9010,
+          "b": "3",
+          "c": "蛮嗣",
+          "d": "ManSi",
+          "g": 1,
+          "h": 1,
+          "i": 2,
+          "o": "出牌阶段限一次，你可以将所有手牌当【南蛮入侵】使用。当一名角色受到【南蛮入侵】的伤害后，你摸一张牌。",
+          "v": "是否将所有手牌当<font color='#FFD800'>南蛮入侵</font>使用"
+        },
+        {
+          "a": 9011,
+          "b": "3,5",
+          "c": "薮影",
+          "d": "SouYing",
+          "g": 2,
+          "i": 2,
+          "o": "每回合限一次，当你对其他角色/其他角色对你使用牌指定唯一目标后，若此牌不是你本回合对其/其对你使用的第一张牌，你可以弃置一张牌获得此牌/令此牌对你无效。",
+          "ac": "弃置一张牌将此牌收回手牌;弃置一张牌令此牌对你无效"
+        },
+        {
+          "a": 9012,
+          "b": "3,4,5,6,23",
+          "c": "战缘",
+          "d": "ZhanYuan",
+          "i": 2,
+          "l": "huamanzhanyuan",
+          "m": "9013",
+          "n": 1,
+          "o": "觉醒技，准备阶段，若你因“蛮嗣”累计获得的牌数大于7，你增加1点体力上限并回复1点体力，且可以选择一名男性角色，你与其获得技能“<font href='9013'>系力</font>”，然后你失去“蛮嗣”。",
+          "w": "请选择一名男性，与其获得<font color='#FFD800'>系力</font>",
+          "ac": "选择一名男性角色，你与其获得技能<font color='#FFD800'>系力</font>"
+        }
+      ],
+      "linkedSpells": [
+        {
+          "a": 9013,
+          "b": "3,5",
+          "c": "系力",
+          "d": "XiLi",
+          "g": 2,
+          "i": 2,
+          "o": "每回合限一次，当其他拥有本技能的角色在其回合内对没有本技能的角色造成伤害时，你可以弃置一张牌令此伤害+1，然后你与其各摸两张牌。",
+          "v": "请选择一名弃置牌的角色",
+          "ac": "是否弃置一张牌发动<font color='#FFD800'>系力</font>"
+        }
+      ],
+      "officialApiIdentity": {
+        "gid": 436,
+        "name": "花鬘",
+        "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/436.png",
+        "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/43600.png",
+        "label": [
+          "进攻",
+          "防御",
+          "过牌"
+        ],
+        "figure": "蜀",
+        "figure_py": "shu",
+        "quality": "传说",
+        "biography": "花鬘[mán]，古典戏曲《龙凤巾》中的人物，身份为三国时期南蛮王孟获与祝融夫人的女儿，关索夫人之一。在关于关三小姐·关银屏的民间传说中，其名字为“花中秀”，与关索其他几位夫人鲍三娘、王桃、王悦都被关索之姐关银屏编入自己的女兵营中。花鬘并非一般君主家中闺秀，而是与其母祝融相似，是一个可以披甲上阵，善于刀枪作战的女武将。戏曲中在诸葛亮平定南蛮时，花鬘曾与关索作战，失败被俘，两人互生爱意，南蛮王孟获降服后二人成婚。",
+        "characteristic": "队友可以适当卖血配合花鬘尽早觉醒",
+        "hp": 3,
+        "initial_hp": 0,
+        "score": 0
+      },
+      "identityMatchesInAcceptedRoster": [],
+      "existingFamilyVariants": [],
+      "skillComparisons": [
+        {
+          "spellId": 9009,
+          "name": "蛮裔",
+          "clientKey": "ManYiHM",
+          "clientText": "锁定技，【南蛮入侵】对你无效。",
+          "normalizedTextInOfficialPage": true
+        },
+        {
+          "spellId": 9010,
+          "name": "蛮嗣",
+          "clientKey": "ManSi",
+          "clientText": "出牌阶段限一次，你可以将所有手牌当【南蛮入侵】使用。当一名角色受到【南蛮入侵】的伤害后，你摸一张牌。",
+          "normalizedTextInOfficialPage": true
+        },
+        {
+          "spellId": 9011,
+          "name": "薮影",
+          "clientKey": "SouYing",
+          "clientText": "每回合限一次，当你对其他角色/其他角色对你使用牌指定唯一目标后，若此牌不是你本回合对其/其对你使用的第一张牌，你可以弃置一张牌获得此牌/令此牌对你无效。",
+          "normalizedTextInOfficialPage": true
+        },
+        {
+          "spellId": 9012,
+          "name": "战缘",
+          "clientKey": "ZhanYuan",
+          "clientText": "觉醒技，准备阶段，若你因“蛮嗣”累计获得的牌数大于7，你增加1点体力上限并回复1点体力，且可以选择一名男性角色，你与其获得技能“<font href='9013'>系力</font>”，然后你失去“蛮嗣”。",
+          "normalizedTextInOfficialPage": true
+        }
+      ],
+      "sources": [
+        {
+          "heroId": 436,
+          "kind": "page",
+          "url": "https://www.sanguosha.com/hero/436",
+          "status": 200,
+          "contentType": "text/html",
+          "path": "docs/content/sources/evidence/ol-batch19-434-436-436-page-2026-10-15.html",
+          "sha256": "26dae36cfebf24eb62722578de34e20616829dc9f6a5c1a6902c128037e0cb8a",
+          "bytes": 27452
+        },
+        {
+          "heroId": 436,
+          "kind": "api",
+          "url": "https://www.sanguosha.com/api/v1/hero/info?gid=436",
+          "status": 200,
+          "contentType": "application/json",
+          "path": "docs/content/sources/evidence/ol-batch19-434-436-436-api-2026-10-15.json",
+          "sha256": "c0c18628a4c152b0f5593362f98ec6b6667f9e5af1537470bfade74dbeef0e68",
+          "bytes": 1255
+        }
+      ],
+      "portraitUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/43600.png",
+      "implementationRuleAuthority": "Exact current client printed spell links and separately retained linked skills, reconciled with fresh official page/API; do not mix other products or old revisions.",
+      "initialHpInterpretation": "API initial_hp=0 with no client af override means no separate initial HP override, not zero starting HP."
+    }
+  },
+  "currentClient": {
+    "path": "docs/content/sources/evidence/ol-batch14-411-480-current-client-preflight-2026-10-15.json",
+    "sha256": "22a8158f9a7f1af27e5130d0de95f1e4eb4a4e19fbd7adb0439009e564fff483",
+    "clientBundleSha256": "66dfce61f1c4fb0aca35b6f85ed940e394719db84655f4d4146b463bc0cf8c1b",
+    "configSha256": "3d7536d4e2ca3d64707c2f6e0edbb8ccb4a045eee4274862dfa35431157c64f4",
+    "freshDecoderRun": false,
+    "wholeArchivesSaved": false
+  },
+  "portrait": {
+    "path": "src/CardGame.Wpf/Assets/official-ol-hua-man.png",
+    "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/43600.png",
+    "sha256": "8841437e6f7213d75db0b79633e1d863417318af995886b4b1ed20bb796fa1ce",
+    "actuallyViewed": true
+  },
+  "interpretationsAndLimits": [
+    "Souying actual-turn directional history counts true native Use, including true native response Uses; ordinary play-out responses do not count. Empty native response targets are not replaced with a fabricated opponent designation.",
+    "Souying claims only exact original-use physical entities still in Processing after the real discard children; incoming cancellation removes only the actual sole designated target. BorrowedSword preserves the full original target pair in the mutation invoice before cancellation.",
+    "Zhanyuan runs at actual Preparation, increases maximum HP and recovers before the optional other-living-male choice. Declining the male still performs the printed subsequent Mansi loss; this ordering interpretation is not a separately verified official combination FAQ.",
+    "Xili requires another actual-turn source with current Xili and a target without Xili; no source-less placeholder authority. Each participant separately receives native draw children, and paid tails survive subsequent source loss.",
+    "Mansi has no printed 64-hand upper limit. Only its exact all-hand Barbarian activation receives the additive open maximum; old all-hand definitions retain their existing contracts. A 65-real-Hand command scenario is included but not yet executed.",
+    "Own discard includes formally usable WoodenOx grain under the same equipped-Ox capability boundary as mature Guolun. It preserves the physical grain source and native discard reason rather than treating grain as Hand.",
+    "No server verification or exhaustive combination FAQ is claimed. Source-loss/death, male-decline, conversions and nested combinations are limited by the precise native receipts and the focused scenarios listed below.",
+    "The added Souying grain scenario uses real native equipment and storage commands, then consumes the remaining physical Hand through native Slash uses. At payment Hand is empty and the recipient selects the exact stored grain; the equipped Ox honestly remains another legal discard. There is no artificial equipment lock or sole-material claim. The scenario retains cold recovery, exact grain-to-discard bounds, original Slash claim and successful binding once assertions; execution remains pending the root runner."
+  ],
+  "officialSupplement": {
+    "url": "https://www.sanguosha.com/news/20220111_9614_5113",
+    "boundedObservation": "Official OL update lists a Mansi/Xiahui conflict fix; it does not supply a complete combination ruling. Mansi materials are a native Use payment, not autonomous discard."
+  },
+  "sharedBridges": [
+    "actual accepted-use observation; finalized qualification and final target-ledger mutation capture",
+    "CreateHuaManCardUseContext and identical frozen candidate context",
+    "actual Preparation eligibility at the existing TurnStartBeforeNormalFlow producer",
+    "exact Souying claimed-entity cleanup exemptions and empty-target native proof",
+    "CompletedCategoryUseProof typed Souying cancellation history rebuild",
+    "HasHuaManCardObserver exact native-use/paid-observer boundary",
+    "HuaMan generic strict composition, movement, paid continuation, nested-damage and native HP/recovery observer dispatch",
+    "exact Mansi open-bound activation exception after activation construction",
+    "HasHuaManCardContinuation(useId): exact paid child observer OR top Souying frame with original native action/qualification/current window candidate, source/hash/start facts and a private published discard choice list equal to current native legal payments; unpaid choice grants no source-loss continuation permission.",
+    "TryGetSouyingCancelledVirtualPrimaryReturn(use,parent,out primaryTarget) supplies the immutable original sole target only for a fully paid Souying-cancelled committed/accepted zero-entity Slash with the exact directly owning paused UseVirtualCard/UseVirtualSlash producer, source/hash/selected target and original declaration, target confirmation, accepted action and mutation history. It preserves the parent completion receipt and never writes empty targets into its original selection."
+  ],
+  "newEventProjection": "Seven new facts carry scalar fields and immutable scalar source records; private directional target lists and mutation entity collections are copied into read-only owning records. No public fact exposes a random hidden Hand ID. Existing CharacterSkillsLostEvent uses a read-only skill list.",
+  "focusedMethods": [
+    "StrictActualBarbarianDirectionPreparationAndXiliContracts",
+    "ActualMansiAllHandBarbarianAndManyiNativeImmunityCold",
+    "ActualMansiEightActualGainsAwakensMaleStableXiliCold",
+    "ActualZhanyuanDeclinedMaleStillLosesMansiCold",
+    "ActualSouyingOutgoingClaimsExactUseAndPaidLossDeathCold",
+    "ActualSouyingIncomingDirectionIndependentCancellationCold",
+    "ActualXiliNativeDamageBothDrawsAndPaidLossDeathCold"
+  ],
+  "verification": {
+    "workerBuildRun": false,
+    "workerTestRun": false,
+    "status": "root-third-focused-six-of-seven-pass-incoming-program-virtual-Slash-cancellation-return-proof-added-awaiting-rerun"
+  },
+  "ownedFiles": [
+    {
+      "path": "src/CardGame.Core/ProgramHuaManOperations.cs",
+      "sha256": "b627c51b17e846bf86a609b012d525144dcb4ddb406253741ab64f3c1b12e8fa"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.HuaManPrograms.cs",
+      "sha256": "253a9d0314b40c5cefb8388318b6644199e64e41455ce1a9a208052841b914ac"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.HuaManObservers.cs",
+      "sha256": "ec2da2f490b011fa97c37be376bc3e5574a417d00e342453957d368d6a400122"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.HuaManSouying.cs",
+      "sha256": "5bacc8bceaf4de952b25e558a9784d42354f7081037c64319f4f67a04fbaa410"
+    },
+    {
+      "path": "src/CardGame.Content.Standard/OlHuaManContent.cs",
+      "sha256": "a64968532477524f732869cc074b0ad63a6933ba94b2dc78860ac95983a8c343"
+    },
+    {
+      "path": "src/CardGame.Content.Standard/SkillPrograms/ol-hua-man.rules.json",
+      "sha256": "c25d146e8ac89428e9682b8f16a6309a877be454262f7a504def7b555afcdb23"
+    },
+    {
+      "path": "src/CardGame.Content.Standard/SkillPrograms/ol-hua-man.presentation.json",
+      "sha256": "e33da71ad00ba1df56e0cdb5941c02d9120bdad249bedfb6ab4de730b1631cbe"
+    },
+    {
+      "path": "tests/CardGame.Core.Tests/HuaManChecks.cs",
+      "sha256": "bf9fc899a2edcc4da963336deebfd7a589894ab340966c698b5da70dbc522696"
+    },
+    {
+      "path": "src/CardGame.Wpf/Assets/official-ol-hua-man.png",
+      "sha256": "8841437e6f7213d75db0b79633e1d863417318af995886b4b1ed20bb796fa1ce"
+    }
+  ],
+  "paymentResumeCorrection": "After all actual movement bounds/counter facts are frozen, each synchronous payment producer immediately calls AdvanceRuntimeProgram on its exact owning frame, following mature SpPangTong. This drains native children or completes the terminal instruction before the external damage/card producer can advance again. No observer guard or assertion was weakened."
+}

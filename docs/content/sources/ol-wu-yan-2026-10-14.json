@@ -1,0 +1,61 @@
+{
+  "capturedAt": "2026-10-14",
+  "generalId": "ol:wu-yan",
+  "officialHeroId": 356,
+  "name": "吾彦",
+  "variant": "ordinary OL current",
+  "attributes": {
+    "faction": "wu",
+    "gender": "male",
+    "maxHp": 4
+  },
+  "primarySources": [
+    {
+      "url": "https://www.sanguosha.com/hero/356",
+      "sha256": "478428a44f19f0a0abaa3c833f3b2a02f68b0bf3a84c8e5bd8b7abdd737c306c",
+      "localPath": "docs/content/sources/evidence/ol-batch9-356-page-2026-10-14.html"
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=356",
+      "sha256": "88cb93f20c2af4b13bb1c4b0af96bcbebf9095995ec145488c07a59d32c1b936",
+      "localPath": "docs/content/sources/evidence/ol-batch9-356-info-2026-10-14.json"
+    }
+  ],
+  "clientEvidence": {
+    "description": "结束阶段，你可以令所有手牌数大于等于你的角色依次选择是否令你摸一张牌。选择完成后，你可以对手牌数等于你的其中一名角色造成1点伤害，然后令手牌数小于你的其中一名角色摸一张牌。",
+    "skillName": "LanJiang",
+    "prompt": "是否令{Source}摸一张牌",
+    "sha256": "96cd59e21fc4dbf96114f16afeef820b103a1edd5cc110d8d99fa923c7dbb520",
+    "skillId": 3072,
+    "path": "docs/content/sources/evidence/ol-next-group-356-357-358-client-preflight-2026-10-14.json"
+  },
+  "art": {
+    "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/35600.png",
+    "inspected": true,
+    "sha256": "86a13ca8aca2856c2af70087d28b8663ff950da54dd6e9f2f8b7a734e7ef440b",
+    "size": "750x950",
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-wu-yan.png"
+  },
+  "interpretation": [
+    "Freeze living original Hand>=owner seats at activation, including owner. Native order starts current owner then clockwise. Each actual participant controls a private draw1/decline choice once.",
+    "After all participant choices, current Hand equality and inferiority are re-evaluated strictly inside original frozen set. No fresh outside participant can enter either tail selection.",
+    "Damage1 is optional including self where owner is in original roster; reward draw is mandatory when a currently living original-set lower-Hand target exists. Skipping optional damage still proceeds to the then-draw tail.",
+    "The shared current website and client descriptions do not independently specify declining damage suppresses the draw tail. The implementation treats the final draw clause as a separate mandatory follow-up after choice resolution; foreground official client acceptance has not been performed.",
+    "Source loss/death after an issued movement or native damage drains paid children once and stops unissued later steps."
+  ],
+  "validationBoundary": "Focused/routine passed; no Full or official foreground/server acceptance, publishing, commit or push.",
+  "secondaryOfficialRelease": {
+    "url": "https://www.sanguosha.com/news/20220307_9816_4713",
+    "use": "Root live verified original release wording agrees with current primary and client; no declining-damage FAQ found."
+  },
+  "uiBoundary": "Shared chooser/reward WPF passed; gallery/portraits reviewed. No foreground acceptance.",
+  "verification": {
+    "status": "focused-and-routine-passed",
+    "report": "docs/benchmarks/2026-10-14-wu-yan-sp-zhang-he-xuan-gong-zhu-verification.json",
+    "focusedCore": 68,
+    "focusedWpf": 5,
+    "routineCore": 679,
+    "routineWpf": 80,
+    "full": "not requested"
+  }
+}

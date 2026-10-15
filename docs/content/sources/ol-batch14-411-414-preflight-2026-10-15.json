@@ -1,0 +1,262 @@
+{
+  "date": "2026-10-15",
+  "status": "frozen-primary-preflight-current-client-corroboration-pending",
+  "rosterBaseline": {
+    "path": "docs/benchmarks/2026-10-15-general-batch-14-roster-baseline.json",
+    "count": 405,
+    "sha256": "5d3b1331d5b4b9a3a031d2370ee2abdea411d08bd99b83d0d26fa166e88858b6"
+  },
+  "heroes": [
+    {
+      "gid": 411,
+      "name": "周妃",
+      "faction": "wu",
+      "hp": 3,
+      "gender": "female",
+      "genderEvidence": "Existing same-person OL full definition; official API omits gender, awaiting B fresh client.",
+      "officialSources": {
+        "page": {
+          "url": "https://www.sanguosha.com/hero/411",
+          "path": "docs/content/sources/evidence/ol-batch14-411-page-2026-10-15.html",
+          "sha256": "29b8a9cb4c8c3a29afd0562e7c1335970071f69d5b423506c4a3c771e22ca169",
+          "bytes": 28303
+        },
+        "info": {
+          "url": "https://www.sanguosha.com/api/v1/hero/info?gid=411",
+          "path": "docs/content/sources/evidence/ol-batch14-411-info-2026-10-15.json",
+          "sha256": "c800d027bbbd5cf8cb88cb70649fce8c084bee9fb32c3233c8e4ab222e32bbf0",
+          "bytes": 1370
+        }
+      },
+      "officialSkillNames": [
+        "良姻",
+        "箜声"
+      ],
+      "officialSkillTexts": [
+        "当每回合首次有牌移出/移入游戏后，你可以与一名其他角色各摸/弃置一张牌，然后你可以令其中一名手牌数为X的角色回复1点体力（X为“箜声”牌数）。",
+        "准备阶段，你可以将任意张牌置于你的武将牌上。结束阶段，你获得“箜声”牌中的非装备牌，然后令一名角色使用剩余“箜声”牌并失去1点体力。"
+      ],
+      "existingFullDefinition": {
+        "Id": "classic:zhou-fei",
+        "Name": "周妃",
+        "PortraitKey": "zhou_fei",
+        "SkillId": "classic:liangyin",
+        "FactionId": "wu",
+        "BaseHp": 3,
+        "AdditionalSkillIds": [
+          "classic:kongsheng"
+        ],
+        "Gender": 1,
+        "CharacterId": "character:zhou-fei",
+        "VariantId": "classic",
+        "RulesetId": "sanguosha-ol",
+        "InitialHp": null,
+        "SkillIds": [
+          "classic:liangyin",
+          "classic:kongsheng"
+        ]
+      },
+      "existingPresentation": {
+        "path": "src/CardGame.Content.Standard/SkillPrograms/classic-zhou-fei.presentation.json",
+        "sha256": "59c5d2cf8efb8a8d8c72eb5982b5126a495d9808e7588da12c8f6a8be986a85f",
+        "skillsIncludingLinked": {
+          "classic:liangyin": {
+            "name": "良姻",
+            "description": "当每回合首次有牌移出/移入游戏后，你可以与一名其他角色各摸/弃置一张牌，然后你可以令其中一名手牌数为X的角色回复1点体力（X为“箜声”牌数）。"
+          },
+          "classic:kongsheng": {
+            "name": "箜声",
+            "description": "准备阶段，你可以将任意张牌置于你的武将牌上。结束阶段，你获得“箜声”牌中的非装备牌，然后令一名角色使用剩余“箜声”牌并失去1点体力。",
+            "authorityName": "箜声"
+          }
+        }
+      },
+      "comparison": "Current official printed descriptions exactly equal existing presentation for every initially printed skill; linked awakening skills preserved in existing bundle.",
+      "candidateConclusion": "Duplicate current ordinary OL identity; no addition.",
+      "newMechanismGap": "None for addition; no exhaustive existing-runtime re-audit or tests performed."
+    },
+    {
+      "gid": 412,
+      "officialSources": {
+        "page": {
+          "url": "https://www.sanguosha.com/hero/412",
+          "path": "docs/content/sources/evidence/ol-batch14-412-page-2026-10-15.html",
+          "sha256": "9a909bbf36372e1ee423c573dc89f7ff64e38600c781d91ee897e0383a65390f",
+          "bytes": 14566
+        },
+        "info": {
+          "url": "https://www.sanguosha.com/api/v1/hero/info?gid=412",
+          "path": "docs/content/sources/evidence/ol-batch14-412-info-2026-10-15.json",
+          "sha256": "9a909bbf36372e1ee423c573dc89f7ff64e38600c781d91ee897e0383a65390f",
+          "bytes": 14566
+        }
+      },
+      "status": "No current hero identity established",
+      "observedResponse": "Both requested page and API return official homepage HTML with title《三国杀》官网-聪明人玩的游戏, no hero skill tabs; requested API is not JSON. Raw response preserved despite .json filename recording requested endpoint.",
+      "candidateConclusion": "No candidate; do not invent name or treat absent page as unregistered general."
+    },
+    {
+      "gid": 413,
+      "name": "毌丘俭",
+      "faction": "wei",
+      "hp": 4,
+      "gender": "male",
+      "genderEvidence": "Existing same-person OL full definition; official API omits gender, awaiting B fresh client.",
+      "officialSources": {
+        "page": {
+          "url": "https://www.sanguosha.com/hero/413",
+          "path": "docs/content/sources/evidence/ol-batch14-413-page-2026-10-15.html",
+          "sha256": "e5fe755653bc0ecde6207b915449b2fdd4915e323f8571f7b3ab2bf2b32350ee",
+          "bytes": 26242
+        },
+        "info": {
+          "url": "https://www.sanguosha.com/api/v1/hero/info?gid=413",
+          "path": "docs/content/sources/evidence/ol-batch14-413-info-2026-10-15.json",
+          "sha256": "c8752b21ccbb9934c7accbffc13b8872219ba8aa23e425c8ab82a88c9bd28f4f",
+          "bytes": 1436
+        }
+      },
+      "officialSkillNames": [
+        "征荣",
+        "鸿举"
+      ],
+      "officialSkillTexts": [
+        "当你使用【杀】或伤害锦囊牌时，你可以选择其中一个手牌数不小于你的目标角色，将其一张牌置于你的武将牌上，称为“荣”。",
+        "觉醒技，准备阶段，若“荣”的数量不小于3，你用任意手牌替换等量的“荣”，减少1点体力上限并获得“清侧”。"
+      ],
+      "existingFullDefinition": {
+        "Id": "classic:guanqiu-jian",
+        "Name": "毌丘俭",
+        "PortraitKey": "guanqiu_jian",
+        "SkillId": "classic:zhengrong",
+        "FactionId": "wei",
+        "BaseHp": 4,
+        "AdditionalSkillIds": [
+          "classic:hongju"
+        ],
+        "Gender": 0,
+        "CharacterId": "character:guanqiu-jian",
+        "VariantId": "classic",
+        "RulesetId": "sanguosha-ol",
+        "InitialHp": null,
+        "SkillIds": [
+          "classic:zhengrong",
+          "classic:hongju"
+        ]
+      },
+      "existingPresentation": {
+        "path": "src/CardGame.Content.Standard/SkillPrograms/classic-guanqiu-jian.presentation.json",
+        "sha256": "4124534bf5384c02eba5e29c452a06aa08ce1d5f5fccf5c3bb4a836a79623154",
+        "skillsIncludingLinked": {
+          "classic:zhengrong": {
+            "name": "征荣",
+            "description": "当你使用【杀】或伤害锦囊牌时，你可以选择其中一个手牌数不小于你的目标角色，将其一张牌置于你的武将牌上，称为“荣”。",
+            "authorityName": "荣"
+          },
+          "classic:hongju": {
+            "name": "鸿举",
+            "description": "觉醒技，准备阶段，若“荣”的数量不小于3，你用任意手牌替换等量的“荣”，减少1点体力上限并获得“清侧”。"
+          },
+          "classic:qingce": {
+            "name": "清侧",
+            "description": "出牌阶段，你可以获得一张“荣”并弃置一张手牌，然后弃置场上的一张牌。"
+          }
+        }
+      },
+      "comparison": "Current official printed descriptions exactly equal existing presentation for every initially printed skill; linked awakening skills preserved in existing bundle.",
+      "candidateConclusion": "Duplicate current ordinary OL identity; no addition.",
+      "newMechanismGap": "None for addition; no exhaustive existing-runtime re-audit or tests performed."
+    },
+    {
+      "gid": 414,
+      "name": "陆抗",
+      "faction": "wu",
+      "hp": 4,
+      "gender": "male",
+      "genderEvidence": "Existing same-person OL full definition; official API omits gender, awaiting B fresh client.",
+      "officialSources": {
+        "page": {
+          "url": "https://www.sanguosha.com/hero/414",
+          "path": "docs/content/sources/evidence/ol-batch14-414-page-2026-10-15.html",
+          "sha256": "80b669ca6f5394b17071cb9a522f8f67483eb6e4612d4b7fce10ef152847640f",
+          "bytes": 27080
+        },
+        "info": {
+          "url": "https://www.sanguosha.com/api/v1/hero/info?gid=414",
+          "path": "docs/content/sources/evidence/ol-batch14-414-info-2026-10-15.json",
+          "sha256": "0c132b62f57e9a784093795bd7b85c3a5be5fe0cbadbf821ee4c53a053700299",
+          "bytes": 1223
+        }
+      },
+      "officialSkillNames": [
+        "谦节",
+        "决堰",
+        "破势"
+      ],
+      "officialSkillTexts": [
+        "锁定技，当你进入连环状态时，你防止之。你不能成为延时锦囊牌和其他角色拼点的目标。",
+        "出牌阶段限一次，你可以废除一个装备栏并于本回合获得对应效果：武器栏，使用【杀】的限制次数+3；防具栏，摸三张牌且手牌上限+3；坐骑栏，使用牌无距离限制；宝物栏，获得“集智”。",
+        "觉醒技，准备阶段，若你的装备栏均被废除或体力值为1，你减少1点体力上限，将手牌摸至体力上限，失去“决堰”并获得“怀柔”。"
+      ],
+      "existingFullDefinition": {
+        "Id": "classic:lu-kang",
+        "Name": "陆抗",
+        "PortraitKey": "lu_kang",
+        "SkillId": "classic:qianjie",
+        "FactionId": "wu",
+        "BaseHp": 4,
+        "AdditionalSkillIds": [
+          "classic:jueyan",
+          "classic:poshi"
+        ],
+        "Gender": 0,
+        "CharacterId": "character:lu-kang",
+        "VariantId": "classic",
+        "RulesetId": "sanguosha-ol",
+        "InitialHp": null,
+        "SkillIds": [
+          "classic:qianjie",
+          "classic:jueyan",
+          "classic:poshi"
+        ]
+      },
+      "existingPresentation": {
+        "path": "src/CardGame.Content.Standard/SkillPrograms/classic-lu-kang.presentation.json",
+        "sha256": "9356642013502fa04e417eae5340ac442a5ca5a551e14cfcd29b8dbd094e20f2",
+        "skillsIncludingLinked": {
+          "classic:qianjie": {
+            "name": "谦节",
+            "description": "锁定技，当你进入连环状态时，你防止之。你不能成为延时锦囊牌和其他角色拼点的目标。"
+          },
+          "classic:jueyan": {
+            "name": "决堰",
+            "description": "出牌阶段限一次，你可以废除一个装备栏并于本回合获得对应效果：武器栏，使用【杀】的限制次数+3；防具栏，摸三张牌且手牌上限+3；坐骑栏，使用牌无距离限制；宝物栏，获得“集智”。",
+            "activationLabels": {
+              "weapon": "废除武器栏",
+              "armor": "废除防具栏",
+              "mounts": "废除两个坐骑栏",
+              "treasure": "废除宝物栏"
+            }
+          },
+          "classic:poshi": {
+            "name": "破势",
+            "description": "觉醒技，准备阶段，若你的装备栏均被废除或体力值为1，你减少1点体力上限，将手牌摸至体力上限，失去“决堰”并获得“怀柔”。"
+          },
+          "classic:huairou": {
+            "name": "怀柔",
+            "description": "出牌阶段，你可以重铸装备牌。"
+          }
+        }
+      },
+      "comparison": "Current official printed descriptions exactly equal existing presentation for every initially printed skill; linked awakening skills preserved in existing bundle.",
+      "candidateConclusion": "Duplicate current ordinary OL identity; no addition.",
+      "newMechanismGap": "None for addition; no exhaustive existing-runtime re-audit or tests performed."
+    }
+  ],
+  "addableCandidates": [],
+  "limits": [
+    "Only official primary page/API captured; no FAQ claimed.",
+    "412 endpoint HTML absence cannot establish a character identity; no guessed mapping.",
+    "No src/tests/shared/old13 edits, build/tests/Full/publish."
+  ]
+}

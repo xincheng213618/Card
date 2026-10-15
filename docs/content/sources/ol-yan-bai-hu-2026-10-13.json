@@ -55,7 +55,7 @@
   "sourceAndAcceptanceLimits": [
     "Current same-version source does not supply FAQ for zone selection ordering, empty-victim quota consumption, target ordering, foreign distance direction, full-HP additional Peach targets, BorrowedSword auxiliary classification, or Dying Alcohol inheritance. These are implementation interpretations of current complete text and existing native card semantics, not claimed current online FAQ evidence.",
     "The 2016 official published community guide is historical context only and is not used to overwrite current wording. Its trial-server dying-Alcohol observation is explicitly uncertain and not an authority for current behavior.",
-    "Focused checks are drafted, not yet run; root performs build/focused/routine verification. No foreground game, online match, or multi-DPI acceptance."
+    "Root sixth focused run passed all 9 DamageZoneAndAdjacentTargetChecks on current source; whole selected scope passed 30 Core and 1 WPF. Prescribed routine verification remains pending. No foreground game, online match, or multi-DPI acceptance."
   ],
   "artwork": {
     "url": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/34800.png",
@@ -66,21 +66,13 @@
     "visuallyInspected": true
   },
   "verification": {
-    "status": "nine-focused-checks-ready-not-run",
-    "className": "DamageZoneAndAdjacentTargetChecks",
-    "prefix": "Damage zones and adjacent red target:",
-    "fullVerification": false,
-    "foregroundAcceptance": false,
-    "checks": [
-      "ExactNativeContractsAndDeepFrozenFacts",
-      "ActualEachZonePrivateSelectionOnceAndTurnExpiry",
-      "ActualEmptyVictimConsumesCurrentTurnQuota",
-      "ActualPaidGainChildrenSourceLossAndDeathColdOnce",
-      "ActualForeignRedSelfUseAndBlackOrExistingTargetExclusions",
-      "ActualRedActorReplacementPreservesUseAndNativeDuelTargets",
-      "ActualRedDyingPeachUseJoinsAndReturnsOriginalRescue",
-      "ActualRedSlashAndAlcoholUseNativeCursorsOnce",
-      "ActualBorrowedSwordWholePairAndDuplicateAuxiliaryPreserved"
-    ]
+    "status": "passed",
+    "focusedSummary": "docs/benchmarks/2026-10-13-batch-6-sixth-focused-summary.json",
+    "focusedCoreLog": "docs/benchmarks/2026-10-13-batch-6-sixth-focused-core-selected.log.txt",
+    "routineSummary": "docs/benchmarks/2026-10-13-batch-6-routine-summary.json",
+    "routineCorePassed": 608,
+    "routineWpfPassed": 76,
+    "manualFull": false,
+    "finalBatchReport": "docs/benchmarks/2026-10-13-ma-yun-lu-ta-dun-yan-bai-hu-verification.json"
   }
 }

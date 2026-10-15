@@ -1,0 +1,225 @@
+{
+  "date": "2026-10-15",
+  "status": "root-verified",
+  "officialId": 429,
+  "generalId": "ol:pang-tong-sp",
+  "characterId": "character:pang-tong",
+  "variantId": "sp",
+  "rulesetId": "sanguosha-ol",
+  "identity": {
+    "name": "SP庞统",
+    "faction": "wu",
+    "gender": "male",
+    "hp": 3,
+    "initialHpOverride": null
+  },
+  "preflight": {
+    "path": "docs/content/sources/ol-batch18-429-432-preflight-2026-10-15.json",
+    "sha256": "f51d9302767d332c35065c8bca2936361dc104dfe5b4b7a0b9c219d08dde0344",
+    "bytes": 25668
+  },
+  "officialSources": [
+    {
+      "heroId": 429,
+      "kind": "page",
+      "url": "https://www.sanguosha.com/hero/429",
+      "status": 200,
+      "contentType": "text/html",
+      "path": "docs/content/sources/evidence/ol-batch18-429-432-429-page-2026-10-15.html",
+      "sha256": "245bde3126ee14e3886298c7476596eb1c84f93563038f42197ae71d481092b4",
+      "bytes": 26216
+    },
+    {
+      "heroId": 429,
+      "kind": "api",
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=429",
+      "status": 200,
+      "contentType": "application/json",
+      "path": "docs/content/sources/evidence/ol-batch18-429-432-429-api-2026-10-15.json",
+      "sha256": "cd090b6c867317a9324d0585c62bf24d2e37b6f16a43a6785c0ef44d41b9758a",
+      "bytes": 1573
+    }
+  ],
+  "client": {
+    "path": "docs/content/sources/evidence/ol-batch14-411-480-current-client-preflight-2026-10-15.json",
+    "sha256": "22a8158f9a7f1af27e5130d0de95f1e4eb4a4e19fbd7adb0439009e564fff483",
+    "clientBundleSha256": "66dfce61f1c4fb0aca35b6f85ed940e394719db84655f4d4146b463bc0cf8c1b",
+    "configSha256": "3d7536d4e2ca3d64707c2f6e0edbb8ccb4a045eee4274862dfa35431157c64f4",
+    "freshDecoderRun": false,
+    "wholeArchivesSaved": false
+  },
+  "printedSpells": [
+    {
+      "a": 901,
+      "b": "3",
+      "c": "过论",
+      "d": "GuoLun",
+      "e": 0,
+      "g": 5,
+      "h": 1,
+      "i": 2,
+      "n": 1,
+      "o": "出牌阶段限一次，你可以展示一名其他角色一张手牌，然后你可以选择你的一张牌，你与其交换这两张牌，交换前的牌点数小的角色摸一张牌。",
+      "v": "请选择一名有手牌目标",
+      "w": "请选择一张牌",
+      "ay": "系统提示→点“确定”"
+    },
+    {
+      "a": 902,
+      "b": "3,5,6",
+      "c": "送丧",
+      "d": "SongSang",
+      "e": 0,
+      "i": 2,
+      "l": "pangtongsongsang",
+      "m": "903",
+      "o": "限定技，当其他角色死亡时，若你已受伤，你可以回复1点体力；若你未受伤，你可以增加1点体力上限。若如此做，你获得“<font href='903'>展骥</font>”。",
+      "u": "是否发动<font color='#FFD800'>送丧</font>,回复1点体力;是否发动<font color='#FFD800'>送丧</font>,加1点体力上限",
+      "ay": "系统提示→点“确定”"
+    }
+  ],
+  "linkedSpells": [
+    {
+      "a": 903,
+      "b": "3,4,5",
+      "c": "展骥",
+      "d": "ZhanJi",
+      "e": 0,
+      "g": 3,
+      "i": 2,
+      "o": "锁定技，当你于出牌阶段内非因本技能而摸牌后，你摸一张牌。",
+      "ay": "系统提示→点“确定”"
+    }
+  ],
+  "variantBoundary": {
+    "distinctFrom": [
+      "boundary:pang-tong",
+      "classic:pang-tong",
+      "friend:pang-tong"
+    ],
+    "initialHp": "API initial_hp=0 with no client af override means no separate initial HP override, not zero starting HP."
+  },
+  "portrait": {
+    "path": "src/CardGame.Wpf/Assets/official-ol-pang-tong-sp.png",
+    "sha256": "5a4488170e807ba6b5153caf476b927fb7fe65ba6d5ea2ea48ca00e81b49d89a",
+    "bytes": 950016,
+    "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/42900.png",
+    "visuallyInspected": true,
+    "visualDescription": "Official 42900 portrait: green-robed male with white forehead band and banner/ship background."
+  },
+  "implementationInterpretations": [
+    "Guolun any own card means actual Hand/Equipment plus native approved Wooden Ox grain only while formal Wooden Ox is equipped. Judgment and arbitrary piles are excluded. This is a project-native domain interpretation, not a server FAQ claim.",
+    "Guolun first chooses a true opaque foreign Hand slot and publicly reveals that exact card. The owner separately may decline; no own material is forced. Both entities relocate atomically to opposite Hands before native equipment removal and all native gain/HP/skill observers drain.",
+    "Ranks are frozen with EffectiveOwnedCardRank for the original actual holder before exchange; equal ranks give no draw. The already-paid atomic exchange owes a surviving lower-rank recipient one native draw even if the original skill is removed during a child. A dead recipient is never drawn cards.",
+    "Songsang uses real CharacterDied for a different victim, one game usage, a frozen wounded/healthy branch with defined HP. Wounded recovers one through native recovery/replacement; healthy only adds maximum HP, without healing. If owner survives paid health children, acquired Zhanji persists independently of the original source. No future grant is issued to a dead owner.",
+    "Zhanji consumes the exact completed NativeDrawInvocation proof only on its real last movement batch, actual owner turn and actual owner Play phase. One whole DrawCards call gives one extra native draw; obtain/gift and normal Draw phase do not qualify. A direct producer with the same owner and printed skill is excluded across skill instances. Public payment facts contain only scalar counts/bounds/source/hash, not unknown gained IDs.",
+    "No official FAQ/server grant table was consulted or claimed. Nested combinations are limited to exact native observer permissions and paid invoices, not blanket source-loss/death permission.",
+    "Loader alignment: CharacterDied uses its existing owner subject; native collection already visits living owners, and CanOfferSpPangTong proves the real victim differs from this owner. No shared subject permission is widened. Fixture activations serialize explicit usesPerTurn:null with default System.Text.Json settings (no WhenWritingNull option); required optional flags are explicit.",
+    "Fourth-run real regression fixed: native rebel-kill DrawCards(3) precedes CharacterDied/Songsang acquisition. Its delayed movement queue must not retroactively gain a new skill subscriber. Only catalogs containing24702 now capture an optional immutable exact enabled Zhanji source/binding/instance/gameplayHash set at the original native invocation start. A count scalar and per-source scalar events prove that snapshot; no card IDs, RNG draw, parallel cache or pending sidecar. Native proof carries frozen entitlements; matching and resumed assertions require original membership. Without24702, field remains null/omitted and no extra facts or sequence IDs are created."
+  ],
+  "mechanism": {
+    "operations": {
+      "24700": "ResolveGuolunRevealOptionalAtomicExchange",
+      "24701": "ResolveSongsangLimitedOtherDeath",
+      "24702": "DrawAfterActualPlayDrawInvocation"
+    },
+    "persistentState": "Existing limited usage and acquired SkillGrant; no new marker, independent cache, or use-ID sidecar. Optional owning ProgramSkillFrame.SpPangTong receipt omitted when null. OriginalHand list copied read-only.",
+    "publicEventCollections": "New events are scalar; real Guolun reveal reuses existing frozen CardsRevealedEvent."
+  },
+  "behaviorChecks": [
+    "ActualOpaqueRevealOptionalExchangeAndEqualRanksCold",
+    "ActualAtomicExchangeLowerOriginalRankDrawsOnceCold",
+    "ActualPaidExchangeSourceLossDrainsBeforeRewardCold",
+    "ActualOtherDeathHealthBranchesAndPersistentGrantCold",
+    "ActualWholeDrawInvocationBonusExcludesGiftAndOwnProducerCold",
+    "ActualAtomicEquipmentExchangeRecoveryChildBeforeRewardCold"
+  ],
+  "verification": {
+    "workerRanBuild": false,
+    "workerRanTests": false,
+    "focused": "Root sixth focused: all 18 new behavior methods and 11 relevant shared regression checks passed; 1 WPF gallery passed.",
+    "routine": "Prescribed 119 Core/20 WPF routine passed in 29662ms; Full not run.",
+    "scopeLimits": [
+      "No seed search, whole-match simulation, unfiltered runner, or Full invocation.",
+      "Fixtures use verified seed7 and small actual content bundles; six new behavior methods cover real commands and cold replay, not duplicate character definition snapshots.",
+      "No claim of exhaustive grant-copy, all multi-source, all equipment, or all damage-child combinations."
+    ],
+    "rootVerification": {
+      "status": "passed",
+      "rootRunner": true,
+      "focusedSummary": "docs/benchmarks/2026-10-15-batch-18-sixth-focused-summary.json",
+      "focused": {
+        "corePassed": 29,
+        "coreFailed": 0,
+        "wpfPassed": 1,
+        "wpfFailed": 0,
+        "durationMs": 11445
+      },
+      "routineSummary": "docs/benchmarks/2026-10-15-batch-18-routine-summary.json",
+      "routine": {
+        "corePassed": 119,
+        "coreFailed": 0,
+        "wpfPassed": 20,
+        "wpfFailed": 0,
+        "durationMs": 29662
+      },
+      "report": "docs/benchmarks/2026-10-15-sp-pang-tong-yuan-tan-yuan-shang-lv-qian-verification.json",
+      "fullRun": false,
+      "foregroundAcceptance": false,
+      "serverBehaviorVerified": false
+    },
+    "rootFocusedStatus": "passed",
+    "rootEvidence": "docs/benchmarks/2026-10-15-batch-18-sixth-focused-summary.json"
+  },
+  "ownedFiles": [
+    {
+      "path": "src/CardGame.Core/ProgramSpPangTongOperations.cs",
+      "sha256": "50b15bfab0108efefbda634cbcdb47d8df388e745c749701c74cf2ef2cae4503",
+      "bytes": 6345
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.SpPangTongPrograms.cs",
+      "sha256": "81b07f0721cff6d12a0183065638fe4abf875adb02b6205b6f190eaaf104ddf6",
+      "bytes": 13997
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.SpPangTongObservers.cs",
+      "sha256": "41b8422038bfb7ddb9de921556f237fefea777dd5efc82d9b371cdd2276ba86e",
+      "bytes": 10571
+    },
+    {
+      "path": "src/CardGame.Content.Standard/OlSpPangTongContent.cs",
+      "sha256": "ad34e7edbd022cffc02ca1608e274fbcd6117c8b0a872824d5e86bcbc6529230",
+      "bytes": 697
+    },
+    {
+      "path": "src/CardGame.Content.Standard/SkillPrograms/ol-pang-tong-sp.rules.json",
+      "sha256": "1d5149cfd8cad45c8e1cb4539e34ef87e864baff09160dbed83b704202549a60",
+      "bytes": 834
+    },
+    {
+      "path": "src/CardGame.Content.Standard/SkillPrograms/ol-pang-tong-sp.presentation.json",
+      "sha256": "f12c4d38da85da636da49c5650ca60711795afa818b0387781539a95a3fa5703",
+      "bytes": 631
+    },
+    {
+      "path": "tests/CardGame.Core.Tests/SpPangTongChecks.cs",
+      "sha256": "c1f17357655954c1e3308d20f1bd2e6e35481b83182a0a1d2eee58a05a879084",
+      "bytes": 19168
+    },
+    {
+      "path": "src/CardGame.Wpf/Assets/official-ol-pang-tong-sp.png",
+      "sha256": "5a4488170e807ba6b5153caf476b927fb7fe65ba6d5ea2ea48ca00e81b49d89a",
+      "bytes": 950016
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.SpPangTongDrawEntitlements.cs",
+      "sha256": "66ce779e4f8b906b09eb6f27022c26cab1cc6181ccf3a808c251faccaa3e19b1",
+      "bytes": 2602
+    }
+  ],
+  "sharedAuthorizedSlice": {
+    "path": "src/CardGame.Core/GameEngine.OutsidePhaseDrawDiscard.cs",
+    "change": "TracksNativeDrawInvocations24702; native draft optional frozen entitlements; capture/complete/Valid exact bridge. Root changed NativeDrawInvocationProof declaration to partial and phase capability predicate."
+  }
+}

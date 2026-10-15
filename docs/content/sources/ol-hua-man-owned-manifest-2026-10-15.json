@@ -1,0 +1,45 @@
+{
+  "status": "frozen-awaiting-root-verification",
+  "ownedFiles": [
+    {
+      "path": "src/CardGame.Core/ProgramHuaManOperations.cs",
+      "sha256": "b627c51b17e846bf86a609b012d525144dcb4ddb406253741ab64f3c1b12e8fa"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.HuaManPrograms.cs",
+      "sha256": "253a9d0314b40c5cefb8388318b6644199e64e41455ce1a9a208052841b914ac"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.HuaManObservers.cs",
+      "sha256": "ec2da2f490b011fa97c37be376bc3e5574a417d00e342453957d368d6a400122"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.HuaManSouying.cs",
+      "sha256": "5bacc8bceaf4de952b25e558a9784d42354f7081037c64319f4f67a04fbaa410"
+    },
+    {
+      "path": "src/CardGame.Content.Standard/OlHuaManContent.cs",
+      "sha256": "a64968532477524f732869cc074b0ad63a6933ba94b2dc78860ac95983a8c343"
+    },
+    {
+      "path": "src/CardGame.Content.Standard/SkillPrograms/ol-hua-man.rules.json",
+      "sha256": "c25d146e8ac89428e9682b8f16a6309a877be454262f7a504def7b555afcdb23"
+    },
+    {
+      "path": "src/CardGame.Content.Standard/SkillPrograms/ol-hua-man.presentation.json",
+      "sha256": "e33da71ad00ba1df56e0cdb5941c02d9120bdad249bedfb6ab4de730b1631cbe"
+    },
+    {
+      "path": "tests/CardGame.Core.Tests/HuaManChecks.cs",
+      "sha256": "bf9fc899a2edcc4da963336deebfd7a589894ab340966c698b5da70dbc522696"
+    },
+    {
+      "path": "src/CardGame.Wpf/Assets/official-ol-hua-man.png",
+      "sha256": "8841437e6f7213d75db0b79633e1d863417318af995886b4b1ed20bb796fa1ce"
+    },
+    {
+      "path": "docs/content/sources/ol-hua-man-2026-10-15.json",
+      "sha256": "b7188081815ae1b2851b864de22eec1f3c879ee4ad88de913151438569899a65"
+    }
+  ]
+}

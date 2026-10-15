@@ -1,0 +1,139 @@
+{
+  "capturedAtUtc": "2026-10-14T16:29:26.090081+00:00",
+  "scope": "READ ONLY batch13 source preflight; no src/tests/tools/art changes; no build/test",
+  "heroId": 377,
+  "name": "卑弥呼",
+  "generalCandidateId": "ol:bei-mi-hu",
+  "product": "current ordinary Sanguosha OL",
+  "faction": "qun",
+  "hp": 3,
+  "apiInitialHpMetadata": 0,
+  "skills": [
+    {
+      "name": "纵傀",
+      "originalHtml": "回合开始前，你可以令一名没有“傀”标记的其他角色获得“傀”。每轮开始时，体力值最少且没有“傀”的一名其他角色获得“傀”。\t",
+      "text": "回合开始前，你可以令一名没有“傀”标记的其他角色获得“傀”。每轮开始时，体力值最少且没有“傀”的一名其他角色获得“傀”。"
+    },
+    {
+      "name": "骨疽",
+      "originalHtml": "锁定技，当有“傀”的角色受到伤害后，你摸一张牌。",
+      "text": "锁定技，当有“傀”的角色受到伤害后，你摸一张牌。"
+    },
+    {
+      "name": "拜假",
+      "originalHtml": "觉醒技，准备阶段，若你因“骨疽”获得的牌数不小于7，你增加1点体力上限并回复1点体力，然后令所有没有“傀”的其他角色获得“傀”，最后你失去“骨疽”，获得“<font href='395'>蚕食</font>”。",
+      "text": "觉醒技，准备阶段，若你因“骨疽”获得的牌数不小于7，你增加1点体力上限并回复1点体力，然后令所有没有“傀”的其他角色获得“傀”，最后你失去“骨疽”，获得“蚕食”。"
+    }
+  ],
+  "linkedSkill": {
+    "name": "蚕食",
+    "siteSkillLinkId": 395,
+    "note": "href is skill identifier; hero395 is CaiYong and must not be used as this linked skill evidence",
+    "clientStatus": "fresh current exact row confirmed",
+    "clientRow": {
+      "a": 395,
+      "b": "3,5",
+      "c": "蚕食",
+      "d": "CanShi1",
+      "e": 0,
+      "g": 2,
+      "i": 2,
+      "o": "当有“傀”的角色使用基本牌或普通锦囊牌指定你为唯一目标时，你可以取消之，然后其移除“傀”。<br>当你使用基本牌或普通锦囊牌仅指定唯一目标时，你可以额外指定任意名有“傀”的角色为目标，然后其移除“傀”。\t",
+      "v": "请选择额外目标",
+      "u": "是否发动<font color='#FFD800'>蚕食</font>取消自己为<font color='#FFD800'>{0}</font>的目标;是否发动<font color='#FFD800'>蚕食</font>选择额外目标",
+      "ay": "系统提示→点“确定”"
+    }
+  },
+  "primarySources": [
+    {
+      "url": "https://www.sanguosha.com/hero/377",
+      "path": "docs/content/sources/evidence/ol-bei-mi-hu-377-page-2026-10-15.html",
+      "sha256": "161ef2e55176df92e826118b7e727e83270e4be3ff15bfe19949d656ec99aa4d"
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=377",
+      "path": "docs/content/sources/evidence/ol-bei-mi-hu-377-info-2026-10-15.json",
+      "sha256": "3df6dafcfe033f8d18c5110f7e0a189eaa5b8bec15bfcdc6e92afe20305c78ca"
+    }
+  ],
+  "duplicateAudit": {
+    "path": "docs/benchmarks/2026-10-14-batch-12-final-roster.json",
+    "sha256": "ffe1671b60c2fbd447fcf932d64c0d36b9ec1eec2809fc0526c079f1034f5142",
+    "generalCount": 402,
+    "matches": [],
+    "sourceSearchTokens": [
+      "卑弥呼",
+      "bei-mi",
+      "beimihu",
+      "zongkui",
+      "guju",
+      "baijia",
+      "canshi"
+    ],
+    "sourceMatches": []
+  },
+  "existingCapabilities": [
+    "RoundStartedEvent / RoundStarting exact native round lifecycle; own preparation lifecycle",
+    "Real DrawCards invocation proof and movement invoices, native maxHP mutation / recovery / grant-revoke skills",
+    "Native committed card actions and exact target mutation/removed-target receipts, immutable owning frames and cold replay"
+  ],
+  "mechanismGaps": [
+    "No Kui public marker kind/catalog entry; existing attributed marker active-source gate is tied to ConsumeMarkerPreventDamage and cannot be reused unchanged for Kui",
+    "Zongkui round mandatory choice must freeze only living other players with no Kui and minimum actual defined HP; tied minimum still requires actual chooser; before-turn optional semantics must be matched to native turn-start boundary rather than current prep accidentally",
+    "Guju triggers once per actual applied damage event on any currently marked target; cumulative awakening counts actual obtained cards from its real draw invoice, never attempted draws/hand delta/damage amount",
+    "Baijia sequential native maxHP+1/recover1/all eligible others Kui/loseGuju-grantCanshi must survive issued paid recovery source loss/death correctly",
+    "Linked Canshi exact current text and target-card domain pending client verification; no unsupported reuse of ArrowBarrage-only removal or one-target addition should be claimed"
+  ],
+  "minimumBehaviorChecks": [
+    "Actual round minimum/tied selection + own before-turn optional marking; no repeat round payment; unknownHP eligibility boundary",
+    "Native marked recipient damage2 awards exactly draw1 and actual acquired cumulative ledger; unmarked damage/nonDamageHP-loss award none; cold draw child source loss/death",
+    "Own preparation awakening threshold actual7 vs6; maxHP+1/recover1 native children, marks current eligible others and exact source replacement once",
+    "Linked Canshi incoming/outgoing actual card target mutation and paid marker consumption after exact client confirmation"
+  ],
+  "status": "source-contract-confirmed",
+  "implementationAuthorized": true,
+  "currentClientEvidence": {
+    "path": "docs/content/sources/evidence/ol-batch13-377-378-379-current-client-preflight-2026-10-15.json",
+    "sha256": "552ba55e39981951da6faf9d98a53b3d64c77a410680d128a8eb713d667c7fc4",
+    "heroRow": {
+      "a": 377,
+      "b": "卑弥呼",
+      "d": "BeiMiHu",
+      "e": 44,
+      "f": "45",
+      "g": 4,
+      "h": 2,
+      "i": 3,
+      "j": 392,
+      "k": 393,
+      "l": 394,
+      "p": 1,
+      "q": "1",
+      "r": "937701",
+      "y": "日本弥生时代邪马台国（今日本九州岛东北部）的女王，在《三国志·魏书·倭人传》中有关于她的记载。曾平定倭国内乱，后派遣难升米出使魏，获赐亲魏倭王之金印。是个极具神秘色彩的古代女性统治者。",
+      "z": "需要逐渐累积优势，在有较多“傀”标记时很强大。",
+      "aa": 268,
+      "ab": "644,645",
+      "ad": "画师:聚一_小道恩",
+      "x": "我的敌人，####通通都坠入黄泉比良坂吧！",
+      "al": 3260,
+      "am": "true",
+      "ap": 50,
+      "aq": 15,
+      "ay": 3,
+      "bn": "累积优势后很强大的后期将",
+      "bx": 4500,
+      "LordCardRate1": 16,
+      "LordCardRate2": 40,
+      "cc": 37701,
+      "starMax": 4
+    },
+    "printedIds": [
+      392,
+      393,
+      394
+    ],
+    "linkedId": 395
+  },
+  "gender": "female"
+}

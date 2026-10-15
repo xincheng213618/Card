@@ -1,0 +1,380 @@
+{
+  "capturedAtUtc": "2026-10-14T19:31:23.414215+00:00",
+  "status": "preflight-complete-frozen; all-four-already-registered; not-implemented",
+  "scope": "Only new batch14 primary evidence/documentation. No source/tests/tools/art/version/registration/build/runner changes. Existing accepted batch13 files untouched.",
+  "rosterBaseline": {
+    "path": "docs/benchmarks/2026-10-15-general-batch-14-roster-baseline.json",
+    "sha256": "5d3b1331d5b4b9a3a031d2370ee2abdea411d08bd99b83d0d26fa166e88858b6",
+    "count": 405
+  },
+  "currentClient": {
+    "path": "docs/content/sources/evidence/ol-batch14-380-390-current-client-preflight-2026-10-15.json",
+    "sha256": "4a3ea03aa26068685a54dfdd68d313f362ca9a84ae3b7e70b67eb74fd2176d39",
+    "clientBundleSha256": "66dfce61f1c4fb0aca35b6f85ed940e394719db84655f4d4146b463bc0cf8c1b",
+    "configSha256": "3d7536d4e2ca3d64707c2f6e0edbb8ccb4a045eee4274862dfa35431157c64f4",
+    "boundedRowsOnly": true,
+    "completeUpstreamArchivesSaved": false
+  },
+  "candidates": [
+    {
+      "heroId": 382,
+      "name": "孙登",
+      "productLine": "三国杀OL",
+      "gender": "male",
+      "genderEvidence": "current character.h=1; baseline Gender=0 Male; page/API do not publish explicit gender field",
+      "faction": "wu",
+      "baseHp": 4,
+      "initialHpApi": 0,
+      "clientCharacterClass": "SunDeng",
+      "clientCharacterFields": {
+        "a": 382,
+        "b": "孙登",
+        "d": "SunDeng",
+        "g": 3,
+        "h": 1,
+        "i": 4,
+        "j": 766,
+        "k": null
+      },
+      "skills": [
+        {
+          "name": "匡弼",
+          "webPageText": "出牌阶段限一次，你可以令一名其他角色将至多三张牌置于你的武将牌上，若如此做，你的下个回合开始时获得所有“匡弼”牌，然后其摸等量张牌。",
+          "clientSpellId": 766,
+          "clientSpellClass": "KuangBi",
+          "clientText": "出牌阶段限一次，你可以令一名其他角色将至多三张牌置于你的武将牌上，若如此做，你的下个回合开始时获得所有“匡弼”牌，然后其摸等量张牌。",
+          "existingPrintedText": "出牌阶段限一次，你可以令一名其他角色将至多三张牌置于你的武将牌上，若如此做，你的下个回合开始时获得所有“匡弼”牌，然后其摸等量张牌。",
+          "pageEqualsExisting": true,
+          "clientDifference": "none after HTML/whitespace normalization",
+          "rulesTextNoNewReleaseInferred": true
+        }
+      ],
+      "duplicateDecision": "exclude: same existing ordinary OL identity and skills; classic content prefix is not evidence of a separate version",
+      "existingGeneral": {
+        "Id": "classic:sun-deng",
+        "Name": "孙登",
+        "PortraitKey": "sun_deng",
+        "SkillId": "classic:kuangbi",
+        "FactionId": "wu",
+        "BaseHp": 4,
+        "AdditionalSkillIds": null,
+        "Gender": 0,
+        "CharacterId": "character:sun-deng",
+        "VariantId": "classic",
+        "RulesetId": "sanguosha-ol",
+        "InitialHp": null,
+        "SkillIds": [
+          "classic:kuangbi"
+        ]
+      },
+      "existingRules": {
+        "path": "src/CardGame.Content.Standard/SkillPrograms/classic-sun-deng.rules.json",
+        "sha256": "879ad281c9cd04b4abdadfaf29525713f74222394901dcb602f5675c34a6be9d"
+      },
+      "existingPresentation": {
+        "path": "src/CardGame.Content.Standard/SkillPrograms/classic-sun-deng.presentation.json",
+        "sha256": "b317d2099b77d1e308db8945b0bb684a6efcfe4150a050692f282f561f37b6db"
+      },
+      "mechanismPreflight": "Existing deferred pile/provider selection, next actual own-turn obtain and ordered provider draw capabilities already represented. No new character or primitive requested.",
+      "newPrimitiveRequests": [],
+      "rawPrimary": [
+        {
+          "url": "https://www.sanguosha.com/hero/382",
+          "status": 200,
+          "path": "docs/content/sources/evidence/ol-batch14-382-page-2026-10-15.html",
+          "sha256": "31da980cec2574f4c2091e9c2bd52849c3056c82296e5abd6ae460edb2ba8278",
+          "bytes": 26801
+        },
+        {
+          "url": "https://www.sanguosha.com/api/v1/hero/info?gid=382",
+          "status": 200,
+          "path": "docs/content/sources/evidence/ol-batch14-382-info-2026-10-15.json",
+          "sha256": "87d0f71881be3173732186c33c3d5a48454700af3e9a0494bcf6728f9a0963cf",
+          "bytes": 1097
+        }
+      ]
+    },
+    {
+      "heroId": 384,
+      "name": "岑昏",
+      "productLine": "三国杀OL",
+      "gender": "male",
+      "genderEvidence": "current character.h=1; baseline Gender=0 Male; page/API do not publish explicit gender field",
+      "faction": "wu",
+      "baseHp": 3,
+      "initialHpApi": 0,
+      "clientCharacterClass": "CenHun",
+      "clientCharacterFields": {
+        "a": 384,
+        "b": "岑昏",
+        "d": "CenHun",
+        "g": 3,
+        "h": 1,
+        "i": 3,
+        "j": 769,
+        "k": 770
+      },
+      "skills": [
+        {
+          "name": "极奢",
+          "webPageText": "出牌阶段，若你的手牌上限大于0，你可以摸一张牌，令你本回合手牌上限-1。结束阶段，若你没有手牌，你可以令至多X名角色进入连环状态（X为你的体力值）。",
+          "clientSpellId": 769,
+          "clientSpellClass": "JiShe",
+          "clientText": "出牌阶段，若你的手牌上限大于0，你可以摸一张牌，令你本回合手牌上限-1。结束阶段，若你没有手牌，你当前每有1点体力，便可令一名角色进入连环状态。",
+          "existingPrintedText": "出牌阶段，若你的手牌上限大于0，你可以摸一张牌，令你本回合手牌上限-1。结束阶段，若你没有手牌，你可以令至多X名角色进入连环状态（X为你的体力值）。",
+          "pageEqualsExisting": true,
+          "clientDifference": "equivalent wording: per-currentHP chaining",
+          "rulesTextNoNewReleaseInferred": true
+        },
+        {
+          "name": "链祸",
+          "webPageText": "锁定技，当你受到火焰伤害时，若你处于连环状态且是传导伤害的起点，此伤害+1。",
+          "clientSpellId": 770,
+          "clientSpellClass": "LianHuo",
+          "clientText": "锁定技，当你受到火焰伤害时，若你处于连环状态且是传导伤害的起点，此伤害+1。",
+          "existingPrintedText": "锁定技，当你受到火焰伤害时，若你处于连环状态且是传导伤害的起点，此伤害+1。",
+          "pageEqualsExisting": true,
+          "clientDifference": "none after HTML/whitespace normalization",
+          "rulesTextNoNewReleaseInferred": true
+        }
+      ],
+      "duplicateDecision": "exclude: same existing ordinary OL identity and skills; classic content prefix is not evidence of a separate version",
+      "existingGeneral": {
+        "Id": "classic:cen-hun",
+        "Name": "岑昏",
+        "PortraitKey": "cen_hun",
+        "SkillId": "classic:jishe",
+        "FactionId": "wu",
+        "BaseHp": 3,
+        "AdditionalSkillIds": [
+          "classic:lianhuo"
+        ],
+        "Gender": 0,
+        "CharacterId": "character:cen-hun",
+        "VariantId": "classic",
+        "RulesetId": "sanguosha-ol",
+        "InitialHp": null,
+        "SkillIds": [
+          "classic:jishe",
+          "classic:lianhuo"
+        ]
+      },
+      "existingRules": {
+        "path": "src/CardGame.Content.Standard/SkillPrograms/classic-cen-hun.rules.json",
+        "sha256": "e579c0cd560d2ecc5296cf2857b93ebc3857c6cea1f1160ca46b7d133f785133"
+      },
+      "existingPresentation": {
+        "path": "src/CardGame.Content.Standard/SkillPrograms/classic-cen-hun.presentation.json",
+        "sha256": "b79869b41e5932816bb62c9692124f08b48c13ee0ecc9ea86cf761d43d90ec6a"
+      },
+      "mechanismPreflight": "Existing turn hand-limit modifiers, currentHP bounded chaining and chained fire propagation-origin damage modifier already represented. Current client uses equivalent per-HP phrasing.",
+      "newPrimitiveRequests": [],
+      "rawPrimary": [
+        {
+          "url": "https://www.sanguosha.com/hero/384",
+          "status": 200,
+          "path": "docs/content/sources/evidence/ol-batch14-384-page-2026-10-15.html",
+          "sha256": "54385c90ecc5b6d8a82ed515917a7e277846a9d5aeffe40f125594feffcfcff2",
+          "bytes": 26261
+        },
+        {
+          "url": "https://www.sanguosha.com/api/v1/hero/info?gid=384",
+          "status": 200,
+          "path": "docs/content/sources/evidence/ol-batch14-384-info-2026-10-15.json",
+          "sha256": "b672b62a5b1285d76187d6bc4b56d98e332b1a1cb2c57f3d49998efa5eddae1c",
+          "bytes": 1098
+        }
+      ]
+    },
+    {
+      "heroId": 385,
+      "name": "孙资刘放",
+      "productLine": "三国杀OL",
+      "gender": "male",
+      "genderEvidence": "current character.h=1; baseline Gender=0 Male; page/API do not publish explicit gender field",
+      "faction": "wei",
+      "baseHp": 3,
+      "initialHpApi": 0,
+      "clientCharacterClass": "SunZiLiuFang",
+      "clientCharacterFields": {
+        "a": 385,
+        "b": "孙资刘放",
+        "d": "SunZiLiuFang",
+        "g": 1,
+        "h": 1,
+        "i": 3,
+        "j": 771,
+        "k": 772
+      },
+      "skills": [
+        {
+          "name": "瑰藻",
+          "webPageText": "若你于弃牌阶段弃置过至少两张牌且这些牌花色均不相同，你可以回复1点体力或摸一张牌。",
+          "clientSpellId": 771,
+          "clientSpellClass": "GuiZao",
+          "clientText": "若你于弃牌阶段弃置过至少两张牌且这些牌花色均不相同，你可以回复1点体力或摸一张牌。",
+          "existingPrintedText": "若你于弃牌阶段弃置过至少两张牌且这些牌花色均不相同，你可以回复1点体力或摸一张牌。",
+          "pageEqualsExisting": true,
+          "clientDifference": "none after HTML/whitespace normalization",
+          "rulesTextNoNewReleaseInferred": true
+        },
+        {
+          "name": "讥谀",
+          "webPageText": "出牌阶段，每名角色限一次，若你有可以使用的手牌，你可以令一名角色弃置一张手牌，然后你本回合不能使用与之相同花色的牌，若此牌为黑桃，其失去1点体力，你翻面。",
+          "clientSpellId": 772,
+          "clientSpellClass": "JiYu",
+          "clientText": "出牌阶段，每名角色限一次，若你有可以使用的手牌，你可以令一名角色弃置一张手牌，然后你本回合不能使用与之相同花色的牌，若此牌为黑桃，其失去1点体力，你翻面。",
+          "existingPrintedText": "出牌阶段，每名角色限一次，若你有可以使用的手牌，你可以令一名角色弃置一张手牌，然后你本回合不能使用与之相同花色的牌，若此牌为黑桃，其失去1点体力，你翻面。",
+          "pageEqualsExisting": true,
+          "clientDifference": "none after HTML/whitespace normalization",
+          "rulesTextNoNewReleaseInferred": true
+        }
+      ],
+      "duplicateDecision": "exclude: same existing ordinary OL identity and skills; classic content prefix is not evidence of a separate version",
+      "existingGeneral": {
+        "Id": "classic:sun-zi-liu-fang",
+        "Name": "孙资刘放",
+        "PortraitKey": "sun_zi_liu_fang",
+        "SkillId": "classic:guizao",
+        "FactionId": "wei",
+        "BaseHp": 3,
+        "AdditionalSkillIds": [
+          "classic:jiyu"
+        ],
+        "Gender": 0,
+        "CharacterId": "character:sun-zi-liu-fang",
+        "VariantId": "classic",
+        "RulesetId": "sanguosha-ol",
+        "InitialHp": null,
+        "SkillIds": [
+          "classic:guizao",
+          "classic:jiyu"
+        ]
+      },
+      "existingRules": {
+        "path": "src/CardGame.Content.Standard/SkillPrograms/classic-sun-zi-liu-fang.rules.json",
+        "sha256": "7dab17cd8be9248660d23193d5ee9c65ac78fd0866c98f9b078a5ea2b1d54e46"
+      },
+      "existingPresentation": {
+        "path": "src/CardGame.Content.Standard/SkillPrograms/classic-sun-zi-liu-fang.presentation.json",
+        "sha256": "f813fe703f3997c29adb5ad4ac5f862410075c79fb1665d101a43224e5364bc7"
+      },
+      "mechanismPreflight": "Existing actual discard-phase distinct-suit evidence, recover/draw choice, per-target Play quota, native discard and turn-bound suit use prohibition/HP-loss/turn-over already represented.",
+      "newPrimitiveRequests": [],
+      "rawPrimary": [
+        {
+          "url": "https://www.sanguosha.com/hero/385",
+          "status": 200,
+          "path": "docs/content/sources/evidence/ol-batch14-385-page-2026-10-15.html",
+          "sha256": "98e73f27e40dac100b71a8714e4c7ac78c52e902ef0756a641a74fb5d68f58de",
+          "bytes": 25805
+        },
+        {
+          "url": "https://www.sanguosha.com/api/v1/hero/info?gid=385",
+          "status": 200,
+          "path": "docs/content/sources/evidence/ol-batch14-385-info-2026-10-15.json",
+          "sha256": "f09625aa9c97cd1ca024867da0376eb3263646bcbf4af9ecfe915c1ad05a9331",
+          "bytes": 1148
+        }
+      ]
+    },
+    {
+      "heroId": 386,
+      "name": "黄皓",
+      "productLine": "三国杀OL",
+      "gender": "male",
+      "genderEvidence": "current character.h=1; baseline Gender=0 Male; page/API do not publish explicit gender field",
+      "faction": "shu",
+      "baseHp": 3,
+      "initialHpApi": 0,
+      "clientCharacterClass": "HuangHao",
+      "clientCharacterFields": {
+        "a": 386,
+        "b": "黄皓",
+        "d": "HuangHao",
+        "g": 2,
+        "h": 1,
+        "i": 3,
+        "j": 773,
+        "k": 774
+      },
+      "skills": [
+        {
+          "name": "寝情",
+          "webPageText": "结束阶段，你可以选择任意名攻击范围内包含主公的角色，依次弃置其一张牌，然后令其各摸一张牌，若如此做，你摸X张牌（X为其中手牌比主公多的角色数）。",
+          "clientSpellId": 773,
+          "clientSpellClass": "QinQing",
+          "clientText": "结束阶段，你可以选择任意名攻击范围内包含主公的角色，依次弃置其一张牌，然后令其各摸一张牌，若如此做，其中每有一名角色手牌数比主公多，你便摸一张牌。",
+          "existingPrintedText": "结束阶段，你可以选择任意名攻击范围内包含主公的角色，依次弃置其一张牌，然后令其各摸一张牌，若如此做，你摸X张牌（X为其中手牌比主公多的角色数）。",
+          "pageEqualsExisting": true,
+          "clientDifference": "equivalent wording: draw per qualifying selected character",
+          "rulesTextNoNewReleaseInferred": true
+        },
+        {
+          "name": "贿生",
+          "webPageText": "当你受到其他角色造成的伤害时，你可以令其观看你任意张牌并令其选择一项：1.获得其中一张，防止此伤害，然后你本局不能对其发动本技能；2.弃置等量张牌。",
+          "clientSpellId": 774,
+          "clientSpellClass": "HuiSheng",
+          "clientText": "当你受到其他角色造成的伤害时，你可以令其观看你任意张牌并令其选择一项：<br>&nbsp;1.获得其中一张，防止此伤害，然后你本局不能对其发动本技能；<br>&nbsp;2.弃置等量张牌。",
+          "existingPrintedText": "当你受到其他角色造成的伤害时，你可以令其观看你任意张牌并令其选择一项：1.获得其中一张，防止此伤害，然后你本局不能对其发动本技能；2.弃置等量张牌。",
+          "pageEqualsExisting": true,
+          "clientDifference": "none after HTML/whitespace normalization",
+          "rulesTextNoNewReleaseInferred": true
+        }
+      ],
+      "duplicateDecision": "exclude: same existing ordinary OL identity and skills; classic content prefix is not evidence of a separate version",
+      "existingGeneral": {
+        "Id": "classic:huang-hao",
+        "Name": "黄皓",
+        "PortraitKey": "huang_hao",
+        "SkillId": "classic:qinqing",
+        "FactionId": "shu",
+        "BaseHp": 3,
+        "AdditionalSkillIds": [
+          "classic:huisheng"
+        ],
+        "Gender": 0,
+        "CharacterId": "character:huang-hao",
+        "VariantId": "classic",
+        "RulesetId": "sanguosha-ol",
+        "InitialHp": null,
+        "SkillIds": [
+          "classic:qinqing",
+          "classic:huisheng"
+        ]
+      },
+      "existingRules": {
+        "path": "src/CardGame.Content.Standard/SkillPrograms/classic-huang-hao.rules.json",
+        "sha256": "96460399a2f2257e48819e4e83ac867c7ad56fd10296f78639e816ffa21e6fe7"
+      },
+      "existingPresentation": {
+        "path": "src/CardGame.Content.Standard/SkillPrograms/classic-huang-hao.presentation.json",
+        "sha256": "bbddd14becf5c72108272e7961619527ca473b70ae4ea7dccf11fc05d51fabfe"
+      },
+      "mechanismPreflight": "Existing actual lord attack-range target selection, native discard/draw/hand comparison and private damage-source offer/obtain-or-equal-discard prevention pair latch already represented. Source hand/equipment visibility remains existing native mechanism.",
+      "newPrimitiveRequests": [],
+      "rawPrimary": [
+        {
+          "url": "https://www.sanguosha.com/hero/386",
+          "status": 200,
+          "path": "docs/content/sources/evidence/ol-batch14-386-page-2026-10-15.html",
+          "sha256": "3afad1faec889a70bf5a0d683eacd0c250b705f5fa4bf68928d408e35caca5ed",
+          "bytes": 25910
+        },
+        {
+          "url": "https://www.sanguosha.com/api/v1/hero/info?gid=386",
+          "status": 200,
+          "path": "docs/content/sources/evidence/ol-batch14-386-info-2026-10-15.json",
+          "sha256": "8b5c4234f693bf946a2dadea34d44e7fa9fe3098e80237fbd5dc676af75cb8eb",
+          "bytes": 919
+        }
+      ]
+    }
+  ],
+  "missingCandidates": [],
+  "limits": [
+    "No exclusive FAQ for these combinations researched; existing capability comparison is read-only, not new behavior verification.",
+    "Official API does not provide skill rules or gender; exact printed text is extracted from fresh raw HTML, gender is independently corroborated by current bounded client.",
+    "Browser cached extraction for 386 showed different HuiSheng choice text; fresh saved official bytes and exact current client774 both show obtain-one/prevent vs discard-equal. Do not combine the cached extraction with a new character version."
+  ]
+}

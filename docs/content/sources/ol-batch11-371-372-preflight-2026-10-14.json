@@ -1,0 +1,115 @@
+{
+  "capturedAt": "2026-10-14T13:48:44.862434+00:00",
+  "scope": "read-only primary preflight; no src/test/art/registration changes or runner",
+  "rosterAudit": {
+    "path": "docs/benchmarks/2026-10-14-batch-10-final-roster.json",
+    "sha256": "4567b683fa566ae0a04a2c5debc390a976ab5b598003887691481a1ae1bf9ff5",
+    "count": 396
+  },
+  "heroes": [
+    {
+      "heroId": 371,
+      "name": "阚泽",
+      "faction": "wu",
+      "hp": 3,
+      "skills": [
+        {
+          "name": "下书",
+          "text": "出牌阶段开始时，你可以交给一名其他角色所有手牌，然后其展示任意张手牌，你选择获得其：1.以此法展示的牌；2.未以此法展示的手牌。"
+        },
+        {
+          "name": "宽释",
+          "text": "结束阶段，你可以选择一名角色，当其于你下回合开始前受到大于1点的伤害时，你防止之并跳过下回合摸牌阶段。"
+        }
+      ],
+      "mechanismGaps": [
+        "Whole-hand native transfer followed by recipient-controlled arbitrary hand reveal and owner binary revealed/complement acquisition; hidden complement must remain private and paid movement children must drain once.",
+        "Persistent protection until next actual owner turn, qualifying actual damage greater than one, native prevention and next actual draw-phase skip debt. Repeated qualification/consumption and source-loss semantics need current client or FAQ proof."
+      ],
+      "productLine": "三国杀OL",
+      "gender": null,
+      "genderEvidence": "Not supplied by fetched page/API; current client unextracted.",
+      "implementationStatus": "not-implemented",
+      "clientBindingVerified": false,
+      "faqVerified": false,
+      "duplicateMatches": [],
+      "primarySources": [
+        {
+          "url": "https://www.sanguosha.com/hero/371",
+          "path": "docs/content/sources/evidence/ol-batch11-371-page-2026-10-14.html",
+          "httpStatus": 200,
+          "sha256": "73ea7c9f3b1ddc7667392db2861d6b17d08fe5eb8de4b4880f71dec33772f7cf"
+        },
+        {
+          "url": "https://www.sanguosha.com/api/v1/hero/info?gid=371",
+          "path": "docs/content/sources/evidence/ol-batch11-371-info-2026-10-14.json",
+          "httpStatus": 200,
+          "sha256": "7a08c50a8023ec9a505df3348ec1e499d5309bf87384abf8bcb5124a34285c4e"
+        }
+      ],
+      "apiInitialHpMetadata": 0
+    },
+    {
+      "heroId": 372,
+      "name": "王允",
+      "faction": "qun",
+      "hp": 4,
+      "skills": [
+        {
+          "name": "连计",
+          "text": "出牌阶段限一次，你可以弃置一张手牌令一名其他角色随机使用牌堆中一张武器牌，然后其选择一项：1.对你指定的一名角色使用【杀】；2.你将其装备区的武器交给一名角色。"
+        },
+        {
+          "name": "谋逞",
+          "text": "觉醒技，准备阶段，若你本局“连计”中使用的【杀】造成过伤害，你失去“连计”并获得“矜功”。",
+          "linkedOfficialSkillReference": "367"
+        }
+      ],
+      "mechanismGaps": [
+        "Exact paid discard invoice, random physical deck weapon native use and equipment replacement children, recipient decision, issuer-designated Slash target and native physical/virtual Slash rules, or native equipment gift. Empty weapon/deck and impossible Slash fallback require evidence.",
+        "Game-long causal damage ledger tied to actual Lianji-issued Slash; awakening replaces printed skill and grants exact current linked Jingong definition. Linked skill 367 full text and version have not been fetched or validated."
+      ],
+      "productLine": "三国杀OL",
+      "gender": null,
+      "genderEvidence": "Not supplied by fetched page/API; current client unextracted.",
+      "implementationStatus": "not-implemented",
+      "clientBindingVerified": false,
+      "faqVerified": false,
+      "duplicateMatches": [],
+      "primarySources": [
+        {
+          "url": "https://www.sanguosha.com/hero/372",
+          "path": "docs/content/sources/evidence/ol-batch11-372-page-2026-10-14.html",
+          "httpStatus": 200,
+          "sha256": "2a0cdec1f0a62351919e2e5e56ec5d279671081c8b03fec3b2800d6ccaafb682"
+        },
+        {
+          "url": "https://www.sanguosha.com/api/v1/hero/info?gid=372",
+          "path": "docs/content/sources/evidence/ol-batch11-372-info-2026-10-14.json",
+          "httpStatus": 200,
+          "sha256": "9ce24e7a4bb7fb82657b4cfeb1c22694f7dcc3e42ee0160ace3668c45587823d"
+        }
+      ],
+      "apiInitialHpMetadata": 0
+    }
+  ],
+  "existingCapabilityEvidence": [
+    {
+      "path": "src/CardGame.Core/ProgramRevealOperations.cs",
+      "capability": "Native target-hand reveal operation; does not prove arbitrary recipient reveal/complement choice."
+    },
+    {
+      "path": "src/CardGame.Core/ProgramAdvancedLifecycleOperations.cs",
+      "capability": "ReplaceSkillsOnAwakening exists; does not prove causal Lianji damage ledger or linked Jingong bundle."
+    },
+    {
+      "path": "src/CardGame.Core/ProgramAttributedEventOperations.cs",
+      "capability": "BeforeDamageApplied prevention exists; does not prove Kuanshi persistent protection and deferred draw skip."
+    }
+  ],
+  "limits": [
+    "API initial_hp=0 is metadata, not a claimed zero starting health.",
+    "No current public-client extraction, spell ID binding, gender confirmation or FAQ verification in this preflight.",
+    "No exact specialized mechanism claimed already implemented merely from primitive operation names."
+  ]
+}

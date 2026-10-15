@@ -1,0 +1,128 @@
+{
+  "status": "verified-current-official-ol-implemented",
+  "generalId": "ol:wang-can",
+  "characterId": "character:wang-can",
+  "variant": "ordinary",
+  "product": "sanguosha-ol",
+  "officialHeroId": 428,
+  "gender": "male",
+  "kingdom": "qun",
+  "hp": 3,
+  "primaryPreflight": {
+    "path": "docs/content/sources/ol-batch17-425-428-preflight-2026-10-15.json",
+    "sha256": "2b357cc42535f3bce7b1382dd5f4bc7990c62cea3679c52cdcf6585c1c42a5b2"
+  },
+  "officialPage": "https://www.sanguosha.com/hero/428",
+  "officialApi": "https://www.sanguosha.com/api/v1/hero/info?gid=428",
+  "currentClient": {
+    "path": "docs/content/sources/evidence/ol-batch14-411-480-current-client-preflight-2026-10-15.json",
+    "sha256": "22a8158f9a7f1af27e5130d0de95f1e4eb4a4e19fbd7adb0439009e564fff483",
+    "printedSkillIds": [
+      898,
+      899,
+      900
+    ],
+    "freshThisBatch": false
+  },
+  "portrait": {
+    "path": "src/CardGame.Wpf/Assets/official-ol-wang-can.png",
+    "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/42800.png",
+    "sha256": "d49dcfd64abc7ef5e74dcc2c6e9be5f41d6acf083836dd9e269f700a7c7b1e4a",
+    "actuallyViewed": true
+  },
+  "rules": {
+    "schemaVersion": 3,
+    "skills": {
+      "ol:sanwen": {
+        "name": "散文",
+        "description": "每回合限一次，当你获得牌后，若你有与这些牌同名的手牌，你可以展示之并弃置获得的同名牌，然后摸弃牌数两倍的牌。"
+      },
+      "ol:qiai": {
+        "name": "七哀",
+        "description": "限定技，当你进入濒死状态时，你可以令每名其他角色各交给你一张牌。"
+      },
+      "ol:denglou": {
+        "name": "登楼",
+        "description": "限定技，结束阶段，若你没有手牌，你可以观看牌堆顶的四张牌，然后获得其中的非基本牌，并使用其中的基本牌（不能使用则弃置）。"
+      }
+    }
+  },
+  "interpretationsWithoutCombinationFAQ": [
+    "Sanwen excludes all incoming entities in the same native gain batch from prior-hand witnesses; same-batch duplicates do not witness each other. Names freeze actual effective hand identity at qualification; payment rechecks exact surviving incoming and witnesses. Actual native discard count determines twice-count draw.",
+    "Qiai issues clockwise living-player obligations on accepted limited activation; each payer autonomously chooses actual HE transfer. Already paid children drain after source loss/death; dead owner stops future contributions. No recovery is invented.",
+    "Denglou uses a private exact frame-owned top-four lease, obtains nonbasics and drains children first, then autonomously orders remaining basics. Native legality is recomputed; no decline when a legal use exists. Unusable basics are actually discarded; death/game-end cleanup uses a separate cancellation reason.",
+    "Only real conversion rules supporting the private-reserve source zone can convert leased entities. No hand-only conversion, free distance, extra quota or fake material is granted."
+  ],
+  "verification": {
+    "verifiedAt": "2026-10-15T08:42:27.945405+00:00",
+    "status": "passed",
+    "focused": "docs/benchmarks/2026-10-15-batch-17-eighth-focused-summary.json",
+    "routine": "docs/benchmarks/2026-10-15-batch-17-second-routine-summary.json",
+    "workerBuildOrTestsRun": false,
+    "rootOnlyRunner": true,
+    "fullRun": false,
+    "commitPushPublishRun": false,
+    "newFocusedBehaviorMethods": 6
+  },
+  "inputs": [
+    {
+      "path": "src/CardGame.Core/ProgramWangCanOperations.cs",
+      "sha256": "1ae9dde6654be2cb269b95046be864f8823b77064070b767aedbf7cd20c02cbc"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.WangCanPrograms.cs",
+      "sha256": "ae385e81ca8a841eb80a43d0645f30a85307ebc6324d565caf17c65546275c2e"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.WangCanObservers.cs",
+      "sha256": "ed94ffcc42c2f31798abb0d7e0fa3db7656c3fc485dac06bc979af466e354438"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.WangCanNativeUses.cs",
+      "sha256": "e12933e2b10519aca95f55d1d536645f78e3fa9e7606bbaf6a43dcbb9a2ebcb7"
+    },
+    {
+      "path": "src/CardGame.Content.Standard/OlWangCanContent.cs",
+      "sha256": "753173ec626c2e3174645f25a19d17383dc41a2cd7bdd2392338f315cdc51bbc"
+    },
+    {
+      "path": "src/CardGame.Content.Standard/SkillPrograms/ol-wang-can.rules.json",
+      "sha256": "f9f467764560425bf87f199fb8c062e54abdb320e94f860046f78f854f4ffd17"
+    },
+    {
+      "path": "src/CardGame.Content.Standard/SkillPrograms/ol-wang-can.presentation.json",
+      "sha256": "16888d8bc7eed5a44880f88be0b01d1ea81acc02e9b269be9b532d50882ebdce"
+    },
+    {
+      "path": "tests/CardGame.Core.Tests/WangCanChecks.cs",
+      "sha256": "31230236e666ddf20cf659f741488372f0d15f02bebda58fdee653d527c131e3"
+    },
+    {
+      "path": "src/CardGame.Wpf/Assets/official-ol-wang-can.png",
+      "sha256": "d49dcfd64abc7ef5e74dcc2c6e9be5f41d6acf083836dd9e269f700a7c7b1e4a"
+    }
+  ],
+  "nativeActorReplacementBoundary": {
+    "implementation": "Denglou retains its original provider and issuance actor, while ShownEntityUseActorMatches verifies any real accepted native actor-replacement chain against original declaration, accepted physical payment and finalized-window binding receipts. All other exact lease, source, hash, action, material and payment assertions remain.",
+    "currentPrintedBoundary": "The current sole printed replaceCurrentCardUseActor user classic:zenhui requires the actual Play phase; Denglou issues in Ending, so this change is preservation of the existing typed native proof boundary, not a reproduced printed combination.",
+    "newCombinationSceneAdded": false,
+    "verification": "Pending root verification; no worker build or test."
+  },
+  "nativeDrawBatchBoundary": "Native DrawCards uses individual MoveCard batches. Sanwen uses the completed exact NativeDrawInvocationProof to exclude all actual incoming cards together, clear transient single-card qualifications, and attach one logical gain qualification only to the last native batch. Genuine atomic non-draw batches retain their own exact movement qualification.",
+  "fixtureCorrections": {
+    "privateProjection": "A foreign PrivateRevealedCards null means no private cards; the assertion still rejects every leaked leased entity.",
+    "fixedMixedDeck": "Seed 7 setup role/general shuffle and deck shuffle imply top IDs 49,67,61,29 after the sixteen real initial cards. Only loss/death physical row48 (ID49) is defined as Duel rather than Slash before setup, producing a real mixed lease. One deterministic algorithm derivation only; no test run or seed search."
+  },
+  "previousWorkerVerification": {
+    "workerBuildOrTestsRun": false,
+    "status": "pending-root",
+    "focusedMethods": [
+      "StrictActualGainDyingAndEndingContracts",
+      "ActualSanwenPriorWitnessBatchAndTurnQuotaCold",
+      "ActualQiaiClockwiseContributionsNoFictionalRecoveryCold",
+      "ActualQiaiNonzeroOwnerHumanPayerAuthorityCold",
+      "ActualDenglouPrivateFourNativeBasicsAndUnusableDiscardCold",
+      "ActualDenglouGainBeforeBasicsSourceLossAndDeathCold"
+    ]
+  }
+}

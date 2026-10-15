@@ -1,0 +1,89 @@
+{
+  "capturedAt": "2026-10-14",
+  "generalId": "ol:deng-zhi",
+  "officialHeroId": 352,
+  "name": "邓芝",
+  "variant": "ordinary OL current",
+  "attributes": {
+    "maxHp": 3,
+    "gender": "male",
+    "faction": "shu"
+  },
+  "primarySources": [
+    {
+      "localPath": "docs/content/sources/evidence/ol-deng-zhi-352-page-2026-10-14.html",
+      "url": "https://www.sanguosha.com/hero/352",
+      "sha256": "ebb16fbcc76745d8af0f28c5b4b0c9c257e1acd3320b5600269d78d42ae32f04"
+    },
+    {
+      "localPath": "docs/content/sources/evidence/ol-deng-zhi-352-info-2026-10-14.json",
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=352",
+      "sha256": "ab9f35292ee8b96d5d75c19eef5020d2d2657dd4140d3fdfc7e14be04ac9b488"
+    }
+  ],
+  "clientEvidence": {
+    "path": "docs/content/sources/evidence/ol-next-group-352-353-355-client-preflight-2026-10-14.json",
+    "sha256": "376e5a21a6414fc744d3ed6cdecfedca113658429215c699f0343af7fcbe851e",
+    "skillIds": [
+      3030,
+      3766
+    ]
+  },
+  "art": {
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-deng-zhi.png",
+    "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/35200.png",
+    "sha256": "eb63b6227b5e707a1879bd7dda95dce2758a2fbdf60dc9962268746d35a612ce",
+    "size": "750x950",
+    "inspected": true
+  },
+  "interpretation": [
+    "修好 binds original actual source/target and shared named turn usage; prevented amount does not scale draw2. Sourceless/self damage excluded.",
+    "素俭 replaces normal discard even with zero old cards. Old hand uses actual hand-acquisition ledger lineage; Processing returns from same hand do not qualify as new acquisitions.",
+    "All frozen old hand entities must be distributed or actually discarded; opponent discard is up to actual old-hand discard count, from HEJ; foreign hand slots stay opaque.",
+    "HEJ follows unqualified other-character cards wording and existing ordinary discard zone convention; no explicit zone restriction appears on primary page."
+  ],
+  "validationBoundary": "Focused8 owned Core checks and group47Core/1WPF passed in fifth root run. Prescribed routine pending. No manual Full, foreground client/game-device acceptance, release, commit or push.",
+  "verification": {
+    "focusedPassed": true,
+    "ownedCorePassed": 8,
+    "groupCorePassed": 47,
+    "groupWpfPassed": 1,
+    "groupCoreFailed": 0,
+    "groupWpfFailed": 0,
+    "routine": {
+      "status": "passed",
+      "summary": "docs/benchmarks/2026-10-14-batch-8-routine-summary.json",
+      "corePassed": 653,
+      "wpfPassed": 76,
+      "durationMs": 104474,
+      "manualFull": false
+    },
+    "buildLog": "docs/benchmarks/2026-10-14-batch-8-fifth-group-focused-build.log.txt",
+    "coreLog": "docs/benchmarks/2026-10-14-batch-8-fifth-group-focused-core-selected.log.txt",
+    "wpfLog": "docs/benchmarks/2026-10-14-batch-8-fifth-group-focused-wpf-selected.log.txt",
+    "summary": "docs/benchmarks/2026-10-14-batch-8-fifth-group-focused-summary.json",
+    "fixes": [
+      "First compile failed on consecutive closing braces in two interpolated raw fixture presentation strings; repaired JSON whitespace without changing production semantics.",
+      "Fixture now registers exactly the two embedded production Deng Zhi definitions; it does not broaden registry references or load all classic generals.",
+      "Actual source-loss fixture uses paid movement child -> LoseHp20 -> legal DyingEntering recovery and terminal owner skill replacement; source-zone/destination-zone contracts are preserved.",
+      "Initial-hand acquisition assertions use actual InitialDeal ledger records after setup completes; fixed initial4/current-turn normaldraw2 assertions remain. The prior failure sampled hand before all general selections completed.",
+      "Human Rebel death fixture uses deterministic AI general selection weights and existing quiet after-normal-draw skip-play to avoid an unrelated pre-human-turn match ending; actual native paid-child death assertions remain."
+    ],
+    "boundaries": [
+      "Focused and command replay fixture evidence only; prescribed routine still pending.",
+      "No manual Full run, foreground client/game-device acceptance, release, commit or push.",
+      "Portrait inspected as the real official 750x950 image by worker and root; gallery render checks do not establish foreground desktop interaction acceptance."
+    ]
+  },
+  "stage": "batch acceptance complete",
+  "verifiedAt": "2026-10-14T10:08:39.713886+00:00",
+  "batchVerificationReport": "docs/benchmarks/2026-10-14-deng-zhi-cao-ying-dong-zhao-verification.json",
+  "routine": {
+    "status": "passed",
+    "summary": "docs/benchmarks/2026-10-14-batch-8-routine-summary.json",
+    "corePassed": 653,
+    "wpfPassed": 76,
+    "durationMs": 104474,
+    "manualFull": false
+  }
+}

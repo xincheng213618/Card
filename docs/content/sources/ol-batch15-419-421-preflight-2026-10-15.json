@@ -1,0 +1,378 @@
+{
+  "capturedAtUtc": "2026-10-15T04:48:55.277209+00:00",
+  "status": "primary-preflight-complete; not-implemented",
+  "scope": "New owned documentation and 6 exact primary raw responses only; all batch14 src/tests/source evidence frozen and unchanged",
+  "rosterBaseline": {
+    "path": "docs/benchmarks/2026-10-15-general-batch-14-roster-baseline.json",
+    "sha256": "5d3b1331d5b4b9a3a031d2370ee2abdea411d08bd99b83d0d26fa166e88858b6",
+    "count": 405
+  },
+  "currentClient": {
+    "path": "docs/content/sources/evidence/ol-batch14-411-480-current-client-preflight-2026-10-15.json",
+    "sha256": "22a8158f9a7f1af27e5130d0de95f1e4eb4a4e19fbd7adb0439009e564fff483",
+    "clientBundleSha256": "66dfce61f1c4fb0aca35b6f85ed940e394719db84655f4d4146b463bc0cf8c1b",
+    "configSha256": "3d7536d4e2ca3d64707c2f6e0edbb8ccb4a045eee4274862dfa35431157c64f4",
+    "freshDecoderRun": false,
+    "wholeArchivesSaved": false
+  },
+  "liveContentSearch": {
+    "paths": "src/CardGame.Content.Standard",
+    "method": "rg names and exact identity strings over current Content modules plus complete baseline strong CharacterId/Id/name comparisons",
+    "matches": []
+  },
+  "candidates": [
+    {
+      "heroId": 419,
+      "name": "张济",
+      "clientClass": "ZhangJi",
+      "product": "sanguosha-ol",
+      "proposedGeneralId": "ol:zhang-ji",
+      "proposedCharacterId": "character:zhang-ji",
+      "proposedVariantId": "ordinary",
+      "gender": "male",
+      "genderEvidence": "client h=1; page/API no explicit gender field",
+      "faction": "qun",
+      "baseHp": 4,
+      "initialHp": null,
+      "initialHpEvidence": {
+        "apiInitialHp": 0,
+        "clientAf": null,
+        "interpretation": "0/absent means no separate initial-HP override, not initial HP zero"
+      },
+      "portraitUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/41900.png",
+      "portraitDownloaded": false,
+      "clientCharacterRow": {
+        "a": 419,
+        "b": "张济",
+        "d": "ZhangJi",
+        "e": 44,
+        "f": "43",
+        "g": 4,
+        "h": 1,
+        "i": 4,
+        "j": 856,
+        "k": 857,
+        "p": 1,
+        "q": "1",
+        "r": "9041901",
+        "y": "张济，武威郡祖厉县人。东汉末年割据的军阀之一。",
+        "z": "强力辅助加控场爆发",
+        "aa": 145,
+        "ab": "688,689",
+        "ad": "画师:NOVART",
+        "x": "养兵一时，####终有所成。",
+        "al": 2950,
+        "am": "true",
+        "ap": 50,
+        "aq": 15,
+        "ay": 3,
+        "bx": 6999,
+        "LordCardRate1": 31,
+        "LordCardRate2": 41,
+        "cc": 41901,
+        "starMax": 4,
+        "freetitle": "0,控制强将"
+      },
+      "clientSpells": [
+        {
+          "a": 856,
+          "b": "3",
+          "c": "掠命",
+          "d": "LueMing",
+          "e": 0,
+          "g": 1,
+          "h": 1,
+          "i": 2,
+          "n": 0,
+          "o": "出牌阶段限一次，你选择一名装备区里牌数少于你的其他角色，令其选择一个点数，然后你判定，若其选择的点数与判定牌点数：<br>•相同，你对其造成2点伤害；<br>•不同，你随机获得其区域里的一张牌。",
+          "ay": "系统提示→点“确定”"
+        },
+        {
+          "a": 857,
+          "b": "3,6",
+          "c": "屯军",
+          "d": "TunJunSP",
+          "e": 0,
+          "h": 1,
+          "i": 2,
+          "l": "zhangjitujun",
+          "n": 1,
+          "o": "限定技，出牌阶段，你可以选择一名角色，你每发动过一次“掠命”，其便随机使用牌堆中的一张不同副类型的装备牌。",
+          "v": "请选择一名角色为<font color='#FFD800'>屯军</font>的目标",
+          "ay": "系统提示→点“确定”"
+        }
+      ],
+      "webpagePrintedSkills": [
+        {
+          "name": "掠命",
+          "text": "出牌阶段限一次，你选择一名装备区里牌数少于你的其他角色，令其选择一个点数，然后你判定，若其选择的点数与判定牌点数：相同，你对其造成2点伤害；不同，你随机获得其区域里的一张牌。"
+        },
+        {
+          "name": "屯军",
+          "text": "限定技，出牌阶段，你可以选择一名角色，令其随机使用牌堆中的X张不同副类型的装备牌（X为你发动“掠命”的次数）。"
+        }
+      ],
+      "sourceAlignment": "same skill names and operative mechanics; 419 TunJun wording differs equivalently: page X equip vs client one equip per historical activation",
+      "differences": [
+        "Page og:description auto template says 0 HP; API hp and client i agree on real HP. Do not use SEO template 0 as game HP.",
+        "TunJun page explicitly X=historical LueMing activations; client expresses one distinct-subtype equipment per activation; no direct contradictory current mechanic."
+      ],
+      "existingMatches": [],
+      "duplicateConclusion": "missing from 405 complete baseline and current content modules; no same ordinary identity found",
+      "rawSources": [
+        {
+          "url": "https://www.sanguosha.com/hero/419",
+          "status": 200,
+          "path": "docs/content/sources/evidence/ol-batch15-419-421-419-page-2026-10-15.html",
+          "sha256": "1d82b17ecc2f6ad5aa72c1b351305d70ba8cfb6919befd7ace71f51b0c11a60d",
+          "bytes": 24381
+        },
+        {
+          "url": "https://www.sanguosha.com/api/v1/hero/info?gid=419",
+          "status": 200,
+          "path": "docs/content/sources/evidence/ol-batch15-419-421-419-info-2026-10-15.json",
+          "sha256": "d441e360092ef159bd1f0319dfedb6f8a4e01de6769e122cd3c20bb7ab95bcd6",
+          "bytes": 698
+        }
+      ],
+      "minimumMechanismContract": [
+        "Target chooser selects a real rank 1..13 before owner native judgment; freeze final effective rank across judgment children, then native damage2 or random opaque HEJ acquisition.",
+        "Lifetime accepted LueMing invocation counter, independent of outcome; limited TunJun chooses any living actor, issues up to X real random deck equipment uses with distinct equipment subtypes, draining each native child, source loss/death and cold return once. Existing native random-deck equipment host can be reused but does not by itself provide this distinct-subtype bounded loop."
+      ],
+      "limits": [
+        "Current client row is previously bounded primary extraction with exact captured hashes, not a new decoder run today.",
+        "No exact character-specific FAQ has been verified; do not infer multi-source/source-loss/arbitrary-card-use exception rules.",
+        "No implementation, tests, source registration or portrait download performed."
+      ]
+    },
+    {
+      "heroId": 420,
+      "name": "苏飞",
+      "clientClass": "SuFei",
+      "product": "sanguosha-ol",
+      "proposedGeneralId": "ol:su-fei",
+      "proposedCharacterId": "character:su-fei",
+      "proposedVariantId": "ordinary",
+      "gender": "male",
+      "genderEvidence": "client h=1; page/API no explicit gender field",
+      "faction": "wu",
+      "baseHp": 4,
+      "initialHp": null,
+      "initialHpEvidence": {
+        "apiInitialHp": 0,
+        "clientAf": null,
+        "interpretation": "0/absent means no separate initial-HP override, not initial HP zero"
+      },
+      "portraitUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/42000.png",
+      "portraitDownloaded": false,
+      "clientCharacterRow": {
+        "a": 420,
+        "b": "苏飞",
+        "d": "SuFei",
+        "e": 44,
+        "f": "46",
+        "g": 3,
+        "h": 1,
+        "i": 4,
+        "j": 858,
+        "p": 2,
+        "q": "1",
+        "r": "9042001",
+        "y": "原为荆州牧刘表的部将，任江夏都督。苏飞与甘宁交好，但是数次向黄祖推荐都失败。甘宁决定投效孙权时助其逃离。后来甘宁率吴军攻破江夏，苏飞兵败被俘。孙权打算将苏飞处斩，但是因为甘宁用性命担保而赦免了苏飞。降吴后官至军都督。",
+        "z": "与沮授一样需要合理安排出牌顺序以发挥技能的最强效果。",
+        "aa": 148,
+        "ab": "694,695",
+        "x": "大胜归来，####找兴霸兄好好喝一杯！",
+        "al": 2970,
+        "am": "true",
+        "ap": 240,
+        "aq": 70,
+        "bx": 64000,
+        "LordCardRate1": 24,
+        "LordCardRate2": 37,
+        "cc": 42004,
+        "starMax": 4,
+        "freetitle": "0,辅助强将"
+      },
+      "clientSpells": [
+        {
+          "a": 858,
+          "b": "3,5",
+          "c": "联翩",
+          "d": "LianPianSP",
+          "e": 0,
+          "g": 5,
+          "i": 2,
+          "o": "每回合限三次，当你于出牌阶段使用牌连续指定同一名角色为目标时，你可以摸一张牌，然后你可以将此牌交给该角色。",
+          "v": "请选择一个目标",
+          "u": "是否发动<font color='#FFD800'>联翩</font>摸一张牌;是否将{0}交给一名其他角色",
+          "j": 1,
+          "ay": "系统提示→点“确定”"
+        }
+      ],
+      "webpagePrintedSkills": [
+        {
+          "name": "联翩",
+          "text": "每回合限三次，当你于出牌阶段使用牌连续指定同一名角色为目标时，你可以摸一张牌，然后你可以将此牌交给该角色。"
+        }
+      ],
+      "sourceAlignment": "page printed skill text matches current client operative text",
+      "differences": [
+        "Page og:description auto template says 0 HP; API hp and client i agree on real HP. Do not use SEO template 0 as game HP."
+      ],
+      "existingMatches": [],
+      "duplicateConclusion": "missing from 405 complete baseline and current content modules; no same ordinary identity found",
+      "rawSources": [
+        {
+          "url": "https://www.sanguosha.com/hero/420",
+          "status": 200,
+          "path": "docs/content/sources/evidence/ol-batch15-419-421-420-page-2026-10-15.html",
+          "sha256": "980bf27650f9c8a87c8bd69d8e40c11eb6d0110eb44c4ae15ba35cf7c659911e",
+          "bytes": 25623
+        },
+        {
+          "url": "https://www.sanguosha.com/api/v1/hero/info?gid=420",
+          "status": 200,
+          "path": "docs/content/sources/evidence/ol-batch15-419-421-420-info-2026-10-15.json",
+          "sha256": "04879074fcc4dedd162472a6452f976f186f5e783305825d3da346f7573a6d28",
+          "bytes": 978
+        }
+      ],
+      "minimumMechanismContract": [
+        "Per actual turn cap3, optional true use-target sequence qualification during owner Play; consecutive actual uses share the same declared target. Multi-target/common-target/order and invalidation require exact native accepted/targeted-use receipts, not hand snapshots.",
+        "Native draw1 exact actual drawn entity then optional give-that-entity to the qualifying target only if still in correct zone after gain children; no hand-card substitution."
+      ],
+      "limits": [
+        "Current client row is previously bounded primary extraction with exact captured hashes, not a new decoder run today.",
+        "No exact character-specific FAQ has been verified; do not infer multi-source/source-loss/arbitrary-card-use exception rules.",
+        "No implementation, tests, source registration or portrait download performed."
+      ]
+    },
+    {
+      "heroId": 421,
+      "name": "黄权",
+      "clientClass": "HuangQuan",
+      "product": "sanguosha-ol",
+      "proposedGeneralId": "ol:huang-quan",
+      "proposedCharacterId": "character:huang-quan",
+      "proposedVariantId": "ordinary",
+      "gender": "male",
+      "genderEvidence": "client h=1; page/API no explicit gender field",
+      "faction": "shu",
+      "baseHp": 3,
+      "initialHp": null,
+      "initialHpEvidence": {
+        "apiInitialHp": 0,
+        "clientAf": null,
+        "interpretation": "0/absent means no separate initial-HP override, not initial HP zero"
+      },
+      "portraitUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/42100.png",
+      "portraitDownloaded": false,
+      "clientCharacterRow": {
+        "a": 421,
+        "b": "黄权",
+        "d": "HuangQuan",
+        "e": 44,
+        "f": "46",
+        "g": 2,
+        "h": 1,
+        "i": 3,
+        "j": 859,
+        "k": 860,
+        "p": 2,
+        "q": "1",
+        "r": "9042101",
+        "y": "字公衡。巴西郡阆[làng]中县（今四川阆中）人。蜀、魏将领。黄权年轻时为郡吏，后被益州牧刘璋召为主簿。曾劝谏刘璋不要迎接刘备，因而被外放为广汉县长。刘璋败，才降刘备，被拜为偏将军。建计取汉中，拜护军。刘备为汉中王，仍领益州牧，以黄权为治中从事。及刘备称帝，将伐吴，黄权劝谏而不纳。以其为镇北将军，督江北军以防魏师进攻。刘备伐吴败还，而归途隔绝，黄权不得归，无奈之下率部降魏。被魏文帝所赏识，拜镇南将军，封育阳侯，加侍中，使同车陪乘。后领益州刺史，进驻河南。景初三年（239年），迁车骑将军、仪同三司。",
+        "z": "开局时看脸点虎的功力需要很多局游戏的历练。",
+        "aa": 148,
+        "ab": "696,697",
+        "x": "我这个人很简单，####谁待我好我就待谁好！",
+        "al": 2960,
+        "am": "true",
+        "ap": 240,
+        "aq": 70,
+        "bx": 48000,
+        "LordCardRate1": 18,
+        "LordCardRate2": 40,
+        "cc": 0,
+        "starMax": 4
+      },
+      "clientSpells": [
+        {
+          "a": 859,
+          "b": "3,4,5",
+          "c": "点虎",
+          "d": "DianHuSP",
+          "e": 0,
+          "g": 1,
+          "i": 2,
+          "n": 0,
+          "o": "锁定技，游戏开始时，你指定一名其他角色，在本局中，当你对其造成伤害或其回复体力后，你摸一张牌。",
+          "v": "请选择一名角色，对其发动<font color='#FFD800'>点虎</font>",
+          "ay": "系统提示→点“确定”"
+        },
+        {
+          "a": 860,
+          "b": "3",
+          "c": "谏计",
+          "d": "JianJiSP",
+          "e": 0,
+          "g": 5,
+          "h": 1,
+          "i": 2,
+          "n": 1,
+          "o": "出牌阶段限一次，你可以令一名其他角色摸一张牌，然后其可以使用此牌。",
+          "v": "请选择一名角色，令其摸一张牌",
+          "w": "是否使用这张卡牌",
+          "ay": "系统提示→点“确定”"
+        }
+      ],
+      "webpagePrintedSkills": [
+        {
+          "name": "点虎",
+          "text": "锁定技，游戏开始时，你指定一名其他角色，在本局中，当你对其造成伤害或其回复体力后，你摸一张牌。"
+        },
+        {
+          "name": "谏计",
+          "text": "出牌阶段限一次，你可以令一名其他角色摸一张牌，然后其可以使用此牌。"
+        }
+      ],
+      "sourceAlignment": "page printed skill text matches current client operative text",
+      "differences": [
+        "Page og:description auto template says 0 HP; API hp and client i agree on real HP. Do not use SEO template 0 as game HP."
+      ],
+      "existingMatches": [],
+      "duplicateConclusion": "missing from 405 complete baseline and current content modules; no same ordinary identity found",
+      "rawSources": [
+        {
+          "url": "https://www.sanguosha.com/hero/421",
+          "status": 200,
+          "path": "docs/content/sources/evidence/ol-batch15-419-421-421-page-2026-10-15.html",
+          "sha256": "396a50684e78058f4042fe226111922930fd3e1217497f988a36d4e91edf6742",
+          "bytes": 26307
+        },
+        {
+          "url": "https://www.sanguosha.com/api/v1/hero/info?gid=421",
+          "status": 200,
+          "path": "docs/content/sources/evidence/ol-batch15-419-421-421-info-2026-10-15.json",
+          "sha256": "8c39ad18cf30a6243110861833908238f027ee1bb5067134e99c2452231b78bc",
+          "bytes": 1370
+        }
+      ],
+      "minimumMechanismContract": [
+        "Permanent actual GameStart other-living target relation; source-owner actual damage to recorded target and actual target recovery (clamped actual recovery >0) each issue draw1, without double counting producers; reuse Xianfu typed-relation/capture patterns but distinct operation semantics.",
+        "Once per actual Play: other actor native draw1 then optional use of the exact drawn card, including ordinary basic/trick/delayed/equipment legal native uses and target/response requirements. Existing useBoundCardByTarget supports equipment only and must not be misclaimed as complete arbitrary-card support."
+      ],
+      "limits": [
+        "Current client row is previously bounded primary extraction with exact captured hashes, not a new decoder run today.",
+        "No exact character-specific FAQ has been verified; do not infer multi-source/source-loss/arbitrary-card-use exception rules.",
+        "No implementation, tests, source registration or portrait download performed."
+      ]
+    }
+  ],
+  "accessNotes": [
+    "web tool hero419/420 timed out; ordinary urllib official requests subsequently returned HTTP200 and exact bytes were saved. hero421 web tool succeeded. No denied save was retried through another tool."
+  ],
+  "workerBuildRun": false,
+  "workerTestsRun": false
+}

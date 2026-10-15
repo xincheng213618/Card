@@ -1,0 +1,105 @@
+{
+  "capturedAtUtc": "2026-10-14T06:45:58.216362+00:00",
+  "clientBundleUrl": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+  "clientBundleSha256": "66dfce61f1c4fb0aca35b6f85ed940e394719db84655f4d4146b463bc0cf8c1b",
+  "configUrl": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+  "configSha256": "3d7536d4e2ca3d64707c2f6e0edbb8ccb4a045eee4274862dfa35431157c64f4",
+  "decoder": "public client InitOfb AES-CFB128 then gzip",
+  "members": {
+    "character.sgs": {
+      "encodedSha256": "e0b6f0188edebb1f502ea402c7171e93b88f4e9d05720948344a1f4f44474aae",
+      "decodedSha256": "b3ef3f1181e7fe667499cb688b7cdce56631d899dbb0eea55d75fbf80636b040"
+    },
+    "cha_spell.sgs": {
+      "encodedSha256": "0c244585a54d101377d6e8d17cca27df2eb9520cff11f73b3373e8b3ddc5fe3d",
+      "decodedSha256": "c42298ef8eeed59ac5e2f30854ec1d35a9f38df80410403c849f0a3e2753a0d9"
+    }
+  },
+  "fullUpstreamArchivesRetainedLocally": false,
+  "character.sgs": [
+    {
+      "a": 350,
+      "b": "王朗",
+      "d": "WangLang",
+      "e": 9,
+      "f": "1",
+      "g": 1,
+      "h": 1,
+      "i": 3,
+      "j": 280,
+      "k": 3307,
+      "p": 4,
+      "q": "1",
+      "r": "935001",
+      "y": "字景兴，汉末三国经学家，曹魏初期重臣。曾任会稽太守举兵抵抗孙策，后为曹操所征，被拜为谏议大夫等职。曹丕建立魏国后任命为司空。小说《三国演义》中他在阵前与诸葛亮饶舌比拼，最终被诸葛亮言词所驳倒，一时气愤坠马身亡。",
+      "z": "与多个敌人拼点，使敌人变得脆弱的同时自己获得大量的牌。自身很脆弱，会成为敌人优先攻击的目标。",
+      "aa": 140,
+      "ab": "592,593",
+      "ac": "华歆",
+      "ad": "画师:铭zmy",
+      "x": "天数有变，神器更易，####而归有德之人，此自然之理也。",
+      "al": 4220,
+      "am": "true",
+      "ap": 1500,
+      "aq": 450,
+      "az": "0",
+      "bt": "64",
+      "bx": 8000000,
+      "LordCardRate1": 40,
+      "LordCardRate2": 50,
+      "cc": 0,
+      "starMax": 4
+    }
+  ],
+  "cha_spell.sgs": [
+    {
+      "a": 280,
+      "b": "3",
+      "c": "鼓舌",
+      "d": "GuShe",
+      "e": 0,
+      "g": 3,
+      "h": 1,
+      "i": 2,
+      "n": 0,
+      "o": "出牌阶段限一次，你可以与至多三名角色同时拼点，没赢的角色弃置一张牌或令你摸一张牌。若你没赢，你获得1枚“饶舌”标记，若标记数为7，你死亡。",
+      "v": "请选择1到3名角色，对其发动<font color='#FFD800'>鼓舌</font>",
+      "w": "请弃置一张牌或点取消令其摸一张牌",
+      "t": "没赢的角色弃一张牌或令{Source}摸一张牌",
+      "aw": "1",
+      "ay": "系统提示→点“确定”"
+    },
+    {
+      "a": 281,
+      "b": "3,5",
+      "c": "激词",
+      "d": "JiCi",
+      "e": 0,
+      "g": 7,
+      "i": 2,
+      "o": "当你亮出“鼓舌”的拼点牌后，若此牌点数：小于X，你可以令其点数+X；等于X，你本回合可发动“鼓舌”的次数+1（X为你的“饶舌”标记数）。",
+      "ac": "是否发动<font color='#FFD800'>激词</font>令点数+{0};是否发动<font color='#FFD800'>激词</font>令本回合发动<font color='#FFD800'>鼓舌</font>的次数上限+1",
+      "u": "是否发动<font color='#FFD800'>激词</font>令点数+{0};是否发动<font color='#FFD800'>激词</font>令本回合发动<font color='#FFD800'>鼓舌</font>的次数上限+1",
+      "ay": "系统提示→点“确定”"
+    },
+    {
+      "a": 3307,
+      "b": "3,5",
+      "c": "激词",
+      "d": "JiCi2023",
+      "e": 0,
+      "g": 1,
+      "i": 2,
+      "o": "当你亮出拼点牌后，若点数小于等于X，你可以令之点数+X并令“鼓舌”视为未发动（X为你的“饶舌”标记数）。 ",
+      "ac": "是否发动<font color='#FFD800'>激词</font>令点数+{0}并复原<font color='#FFD800'>鼓舌</font>"
+    }
+  ],
+  "spellNotes": [
+    {
+      "a": 280
+    },
+    {
+      "a": 3307
+    }
+  ]
+}

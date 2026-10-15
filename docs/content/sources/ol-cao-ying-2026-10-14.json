@@ -1,0 +1,145 @@
+{
+  "variant": "ordinary OL current client LingRen2 / FuJian2026",
+  "attributes": {
+    "maxHp": 4,
+    "gender": "female",
+    "faction": "wei"
+  },
+  "primarySources": {
+    "page": "https://www.sanguosha.com/hero/353",
+    "info": "https://www.sanguosha.com/api/v1/hero/info?gid=353",
+    "portrait": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/35300.png"
+  },
+  "officialPatchSearch": "No independently indexed official 2026 patch text found; authoritative current same-product client is retained as selected rules evidence.",
+  "versionConflict": "Hero353 static page still presents older play-phase once / this-use damage / minimum-hand X inspection. Current same-product client selects 3964 LingRen2 and 3965 FuJian2026. Runtime and presentation follow current client, with no mixed old-page clauses.",
+  "evidence": [
+    {
+      "path": "docs/content/sources/evidence/ol-cao-ying-353-page-2026-10-14.html",
+      "sha256": "c37671d17c91511946bb1543a7abd68997c5e77b92a6d9b6d536d747b9c812fb"
+    },
+    {
+      "path": "docs/content/sources/evidence/ol-cao-ying-353-info-2026-10-14.json",
+      "sha256": "29f2c2c78e4d0dbc022d60064a5653ee9cc7a58b620c7c947175a9889fc1c43a"
+    },
+    {
+      "path": "src/CardGame.Wpf/Assets/official-ol-cao-ying.png",
+      "sha256": "9ada24426979adeaaee321ce5bda51b626fc675044c3d752c5a0b390a80e5a3e"
+    },
+    {
+      "path": "docs/content/sources/evidence/ol-next-group-352-353-355-client-preflight-2026-10-14.json",
+      "sha256": "376e5a21a6414fc744d3ed6cdecfedca113658429215c699f0343af7fcbe851e"
+    }
+  ],
+  "capturedAt": "2026-10-14",
+  "officialHeroId": 353,
+  "generalId": "ol:cao-ying",
+  "operations": {
+    "fujian": "RandomEligibleOtherHandInspection = 21801",
+    "lingren": "GuessTargetCategoriesAndArmTurnDamage = 21800"
+  },
+  "selectedSkillIds": [
+    3964,
+    3965
+  ],
+  "verification": {
+    "caoYingFocusedPassed": 6,
+    "focusedRun": "fifth-group-focused",
+    "portrait": "root visually verified current Cao Ying 750x950",
+    "boundaries": [
+      "No focused actual multi-target and actor-replacement combination case was included.",
+      "No field, foreground desktop, hardware or deployment acceptance is claimed."
+    ],
+    "batchCorePassed": 47,
+    "batchWpfPassed": 1,
+    "routine": {
+      "status": "passed",
+      "summary": "docs/benchmarks/2026-10-14-batch-8-routine-summary.json",
+      "corePassed": 653,
+      "wpfPassed": 76,
+      "durationMs": 104474,
+      "manualFull": false
+    },
+    "focusedPassed": true
+  },
+  "clientCharacter": [
+    {
+      "a": 353,
+      "b": "曹婴",
+      "d": "CaoYing",
+      "e": 46,
+      "f": "25",
+      "g": 1,
+      "h": 2,
+      "i": 4,
+      "j": 3964,
+      "k": 3965,
+      "p": 4,
+      "q": "1",
+      "r": "935301",
+      "y": "曹婴是曹操的孙女，弓马娴熟，文武双全，深得曹操的用兵之道及心术。于凤鸣山一战中担任魏军大都督，率军阻止诸葛亮北伐，并且因罗平安的告密而全歼关兴、张苞、赵云率领的蜀军部队。在《三国演义》中对应她的原型人物为夏侯楙[máo]。佩身武器是孟德剑，曹婴对音律有所通晓，擅长琵琶。在刀，剑，弩武器方面皆有涉猎。祖父曹操的“宁教我负天下人 休教天下人负我。”这段描述，一直是激励她前行的动力。",
+      "z": "需要能预判对方的手牌类型，可以获得多种强势的效果。",
+      "aa": 140,
+      "ab": "680,681",
+      "ad": "画师:花弟",
+      "x": "小看我，你们可是要吃亏的！",
+      "al": 4200,
+      "am": "true",
+      "ap": 1500,
+      "aq": 450,
+      "az": "0",
+      "bx": 500000,
+      "LordCardRate1": 48,
+      "LordCardRate2": 45,
+      "cc": 0,
+      "starMax": 4
+    }
+  ],
+  "clientSkillRows": [
+    {
+      "a": 3964,
+      "b": "3,5",
+      "c": "凌人",
+      "d": "LingRen2",
+      "e": 0,
+      "g": 1,
+      "i": 2,
+      "m": "717,105",
+      "n": 0,
+      "o": "每回合限一次，当你使用【杀】或伤害锦囊牌时，你可以猜测其中一个目标的手牌中是否有基本牌、锦囊牌或装备牌，若至少猜对：1项，本回合你下次对其伤害+1；2项，此牌不计入次数，你摸两张牌；3项，你获得“奸雄”“行殇”直到你下回合开始。"
+    },
+    {
+      "a": 3965,
+      "b": "3,4,5",
+      "c": "伏间",
+      "d": "FuJian2026",
+      "e": 0,
+      "g": 7,
+      "i": 2,
+      "o": "锁定技，准备阶段和结束阶段，你随机观看手牌数不是全场唯一最多的一名其他角色的手牌。"
+    }
+  ],
+  "linkedSkills": {
+    "ids": [
+      717,
+      105
+    ],
+    "registered": [
+      "ol:jianxiong",
+      "classic:xingshang"
+    ],
+    "evidence": "docs/content/sources/evidence/ol-cao-ying-linked-skills-717-105-client-2026-10-14.json",
+    "compatibility": "Existing boundary:jianxiong is historical draw OR claim; current linked717 requires draw AND claim, so a separate current OL content skill preserves historical behavior.",
+    "sha256": "27cb70635dde000094f8111c60296970660707c575cb2f7ca353f01897aeeec6"
+  },
+  "stage": "batch acceptance complete",
+  "verifiedAt": "2026-10-14T10:08:39.713886+00:00",
+  "batchVerificationReport": "docs/benchmarks/2026-10-14-deng-zhi-cao-ying-dong-zhao-verification.json",
+  "routine": {
+    "status": "passed",
+    "summary": "docs/benchmarks/2026-10-14-batch-8-routine-summary.json",
+    "corePassed": 653,
+    "wpfPassed": 76,
+    "durationMs": 104474,
+    "manualFull": false
+  }
+}

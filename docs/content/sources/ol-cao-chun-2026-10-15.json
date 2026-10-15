@@ -1,0 +1,202 @@
+{
+  "sourceRecordSchemaVersion": 1,
+  "capturedAt": "2026-10-15",
+  "status": "verified-current-official-ol-implemented",
+  "officialId": 426,
+  "name": "曹纯",
+  "id": "ol:cao-chun",
+  "characterId": "character:cao-chun",
+  "variantId": "ordinary",
+  "rulesetId": "sanguosha-ol",
+  "faction": "wei",
+  "gender": "male",
+  "maxHp": 4,
+  "initialHp": null,
+  "preflight": {
+    "path": "docs/content/sources/ol-batch17-425-428-preflight-2026-10-15.json",
+    "sha256": "2b357cc42535f3bce7b1382dd5f4bc7990c62cea3679c52cdcf6585c1c42a5b2"
+  },
+  "currentClient": {
+    "path": "docs/content/sources/evidence/ol-batch14-411-480-current-client-preflight-2026-10-15.json",
+    "sha256": "22a8158f9a7f1af27e5130d0de95f1e4eb4a4e19fbd7adb0439009e564fff483",
+    "clientBundleSha256": "66dfce61f1c4fb0aca35b6f85ed940e394719db84655f4d4146b463bc0cf8c1b",
+    "configSha256": "3d7536d4e2ca3d64707c2f6e0edbb8ccb4a045eee4274862dfa35431157c64f4",
+    "freshDecoderRun": false,
+    "wholeArchivesSaved": false
+  },
+  "exactCharacter": {
+    "a": 426,
+    "b": "曹纯",
+    "d": "CaoChun",
+    "e": 46,
+    "f": "25",
+    "g": 1,
+    "h": 1,
+    "i": 4,
+    "j": 3691,
+    "p": 4,
+    "q": "1",
+    "r": "9042601",
+    "y": "曹纯（170年－210年），字子和，沛国谯（今安徽亳州）人。东汉末年曹操麾下将领，曹仁之弟。曹纯是曹操部下精锐部队“虎豹骑”的统领者之一，因在平定北方的战役中颇有功绩，被加封为高陵亭侯。死后谥曰威侯。曹纯擅战，甚得人心，为人重纲纪，不失理智，好学问，敬爱学士，闻名天下。",
+    "z": "曹纯前期需要一些装备牌过度使自己的技能迅速达到“最强”状态。最强状态的曹纯过牌量很大，但前期容易被针对。",
+    "aa": 133,
+    "ab": "720,721",
+    "ad": "画师：depp",
+    "x": "哼哼，虎豹所至，####片甲不存。",
+    "al": 4180,
+    "am": "true",
+    "ap": 1500,
+    "aq": 450,
+    "bx": 500000,
+    "LordCardRate1": 51,
+    "LordCardRate2": 53,
+    "cc": 0,
+    "starMax": 4
+  },
+  "printedSpells": [
+    {
+      "a": 3691,
+      "b": "3",
+      "c": "缮甲",
+      "d": "ShanJia2025",
+      "e": 0,
+      "g": 3,
+      "h": 1,
+      "i": 2,
+      "o": "游戏开始时，你获得3个“损”。你失去一张装备牌后，你移去1个“损”。<br>出牌阶段限一次，你可以摸三张牌，并可以使用一张【杀】。然后你此阶段使用的下X张手牌时，你弃置一张牌（X为“损”数）。若如此做，此阶段结束时，若你此阶段未因“缮甲”弃置过牌或仅弃置过装备牌，你可视为使用一张无距离限制的【杀】。",
+      "v": "请使用一张<font color='#FFD800'>杀</font>或取消|是否对一名角色使用一张无距离限制的<font color='#FFD800'>杀</font>或取消|（缮甲：需弃一张牌）",
+      "w": "请选择弃置{0}张牌|请使用一张<font color='#FFD800'>杀</font>或取消"
+    }
+  ],
+  "sources": [
+    {
+      "heroId": 426,
+      "kind": "page",
+      "url": "https://www.sanguosha.com/hero/426",
+      "status": 200,
+      "contentType": "text/html",
+      "path": "docs/content/sources/evidence/ol-batch17-425-428-426-page-2026-10-15.html",
+      "sha256": "6de03272bee941c32e9e42a17c03773af607c5c9d2c953c634e286cf8cb3c722",
+      "bytes": 25726
+    },
+    {
+      "heroId": 426,
+      "kind": "api",
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=426",
+      "status": 200,
+      "contentType": "application/json",
+      "path": "docs/content/sources/evidence/ol-batch17-425-428-426-api-2026-10-15.json",
+      "sha256": "3e9daf53449567294dd9ac27bfc22d9af8d89c9a4e11686ac47dec6f836992d3",
+      "bytes": 1160
+    }
+  ],
+  "versionIsolation": [
+    {
+      "spellId": 3691,
+      "name": "缮甲",
+      "clientKey": "ShanJia2025",
+      "clientText": "游戏开始时，你获得3个“损”。你失去一张装备牌后，你移去1个“损”。<br>出牌阶段限一次，你可以摸三张牌，并可以使用一张【杀】。然后你此阶段使用的下X张手牌时，你弃置一张牌（X为“损”数）。若如此做，此阶段结束时，若你此阶段未因“缮甲”弃置过牌或仅弃置过装备牌，你可视为使用一张无距离限制的【杀】。",
+      "normalizedTextInOfficialPage": false,
+      "semanticTextAligned": false,
+      "difference": "Official page retains the older Play-start draw/discard rule; current Shanjia2025 is once-per-Play activation with 3 starting damage markers, equipment-loss reduction, optional native Slash, frozen next-X-hand-use discard obligation and ending virtual Slash."
+    }
+  ],
+  "art": {
+    "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/42600.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-cao-chun.png",
+    "sha256": "31ce596a12748ef927caed032eb59d8bdca755e76f352f1b4ef2661a2fc0595e",
+    "width": 750,
+    "height": 950,
+    "viewed": true,
+    "description": "Mounted silver-armored man with leopard-fur collar and a white tiger in the foreground; actual downloaded image inspected."
+  },
+  "interpretations": [
+    "Only current 3691 ShanJia2025 is implemented; older official Play-start draw/discard text is retained as a source conflict, not combined. No character-specific official FAQ or server verification has been established.",
+    "Printed equipment leaving the actual owner held Hand/Equipment/approved WoodenOxGrain boundary reduces one loss mark to a floor of zero. Same-owner held-zone transfers do not lose ownership; payment to Processing or a proven native alternative-cost destination counts once, its later cleanup does not. Judgment and arbitrary private/public piles do not count.",
+    "The native draw-three and optional initial requested Slash fully resolve before freezing the then-current loss count X. That initial Slash is excluded from the subsequently armed debt. Living paid activation continues to arm its negative phase obligation after source loss; an unissued optional initial Slash requires the current source. Death creates no future debt.",
+    "One actually accepted Use containing this actor/provider own actual Hand/approved grain material consumes one next-use unit and requires one legal autonomous HE discard. Multi-material conversion is one Use; zero materials, equipment-only costs and ordinary played responses do not count. Native own Dodge/Nullification true-use responses do count with exact actual paid material proof. This is a disclosed native-use interpretation without an official FAQ.",
+    "The debt is paid after genuine native card material payment and before the first target/card effect. Actual Hand-to-DrawPile alternative-cost payments are accepted only through original accepted action and native movement proof, not arbitrary similarly shaped movements.",
+    "An established actual-Play debt persists independently after source loss. Paid child movements drain once after source loss/death. End-of-Play optional Slash requires a living current source and permits only no actual skill discards or all printed equipment discards. Other unrelated discards do not pollute qualification.",
+    "Both exact skill-generated/requested Slashes use the mature extra-Slash convention: do not debit or require ordinary Play Slash quota. The initial Slash retains native range; the ending virtual Slash ignores distance. The text explicitly grants only ending distance freedom; the extra-count convention is an implementation interpretation rather than a verified server ruling.",
+    "Each inserted actual Play has its own activation quota/debt and ending. Phase expiry occurs against the exact old phase before a new phase identity, avoiding removal of a newly inserted phase debt.",
+    "The optional initial Slash reuses native draw-funded, chained-state, independent once-round cardless, faction-provider and physical elemental conversion producers. Each adapter is gated to the exact paid Shanjia activation/phase/instruction and retains the independent actual payment proof; no ordinary Play or other request is given a new waiver.",
+    "The existing private-top-basic request producer explicitly requires the responder to be outside their own turn. Its exact Shanjia request context/selected-material dispatch is connected without removing that source restriction; normal own-Play Shanjia therefore does not offer that otherwise ineligible source.",
+    "Public loss marker display is derived directly from typed ShanjiaState.LossMarks. No duplicate persistent Player.Markers counter is written."
+  ],
+  "implementation": [
+    {
+      "path": "src/CardGame.Core/ProgramCaoChunOperations.cs",
+      "sha256": "ead745d7a6f6e71e28e8a875b6b178641896f69599a7b8444667dd91aa584160"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.CaoChunPrograms.cs",
+      "sha256": "e03428e23624b224320000242289cc9c89b8f39fd17a2fb54f0a7479b3bdc46e"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.CaoChunObservers.cs",
+      "sha256": "9e9f351a31ad35f92d9319bd5d43a467925caccfc5fa180c7d238f377ae8b23c"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.CaoChunNativeUses.cs",
+      "sha256": "462d0d43f022bfa29ff95299f0365af23288e5f336487ee4448808e715f80d1a"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.CaoChunPaidWindows.cs",
+      "sha256": "5206919c204c14258a9c2f455589a2243f377a51068d3a5b1319947ac0b2049a"
+    },
+    {
+      "path": "src/CardGame.Content.Standard/OlCaoChunContent.cs",
+      "sha256": "75b148bfe922243bf3c7985d44e92d503dfde0abd3e4fdd305438c2a46322667"
+    },
+    {
+      "path": "src/CardGame.Content.Standard/SkillPrograms/ol-cao-chun.rules.json",
+      "sha256": "0674c29432f8aa1295a856ef38e7ab57dca35701ebbec3337dd8dded7d5dc060"
+    },
+    {
+      "path": "src/CardGame.Content.Standard/SkillPrograms/ol-cao-chun.presentation.json",
+      "sha256": "7f9a6d3e30c79462737320c36438117f0a2d82e0177f0b80c9a52ed81f850572"
+    },
+    {
+      "path": "tests/CardGame.Core.Tests/CaoChunChecks.cs",
+      "sha256": "a5877430c4d61c09d076f6cbfb1ff91c3d0105adfe7e144f98c3a4482208d5a6"
+    },
+    {
+      "path": "src/CardGame.Wpf/Assets/official-ol-cao-chun.png",
+      "sha256": "31ce596a12748ef927caed032eb59d8bdca755e76f352f1b4ef2661a2fc0595e"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.CaoChunRequestAdapters.cs",
+      "sha256": "b944b1a74cef8ab4d0b20aa9267b8721dfefb57227fb5ff5f4f550e5b5093952"
+    }
+  ],
+  "verification": {
+    "verifiedAt": "2026-10-15T08:42:27.945405+00:00",
+    "status": "passed",
+    "focused": "docs/benchmarks/2026-10-15-batch-17-eighth-focused-summary.json",
+    "routine": "docs/benchmarks/2026-10-15-batch-17-second-routine-summary.json",
+    "workerBuildOrTestsRun": false,
+    "rootOnlyRunner": true,
+    "fullRun": false,
+    "commitPushPublishRun": false,
+    "newFocusedBehaviorMethods": 7
+  },
+  "previousWorkerVerification": {
+    "workerBuildOrTestsRun": false,
+    "focusedPassed": false,
+    "publicMethods": [
+      "InitialMarksPrintedEquipmentNativeLossAndCold",
+      "DrawInitialRealSlashThenFreezeNextHandUseDebtCold",
+      "EquipmentOnlyDebtPermitsNativeDistanceUnlimitedEndingSlashCold",
+      "PaidDebtDiscardSourceLossAndOwnerDeathCold",
+      "TrueCounterspellUsePaysDebtButOrdinaryResponseAndZeroMaterialDoNotCold",
+      "InitialRequestedDrawFundedSlashPaysNativeSourceAndCold",
+      "InitialRequestedChainedFactionAndElementalSourcesUseNativePaymentsCold"
+    ],
+    "limits": [
+      "No new dedicated replay behavior case currently isolates a multi-material alternative-cost conversion, Silver Lion recovery or Wooden Ox auxiliary grain disposal during this new discard; exact native observer bridges are implemented but worker did not run them.",
+      "No server or field-game validation is claimed.",
+      "New focused adapter scenes cover actual draw-funded payment, chained-state release, faction-provider material and elemental single-card conversion, pending parent execution. No server/field acceptance or exhaustive all-skill combination claim."
+    ],
+    "status": "parent seventh focused: original six checks passed and faction scene reached later elemental fixture load; corrected elemental fixture to supported one-hand-card extendedUse capability, pending next parent runner"
+  }
+}

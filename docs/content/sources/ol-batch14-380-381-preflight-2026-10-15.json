@@ -1,0 +1,154 @@
+{
+  "date": "2026-10-15",
+  "status": "official-preflight-frozen-awaiting-current-client-corroboration",
+  "scope": "Read-only current official page/API plus existing405roster; no src/tests/registrations or runner changes.",
+  "rosterBaseline": {
+    "path": "docs/benchmarks/2026-10-15-general-batch-14-roster-baseline.json",
+    "sha256": "5d3b1331d5b4b9a3a031d2370ee2abdea411d08bd99b83d0d26fa166e88858b6",
+    "count": 405
+  },
+  "heroes": [
+    {
+      "gid": 380,
+      "officialSources": {
+        "page": {
+          "url": "https://www.sanguosha.com/hero/380",
+          "path": "docs/content/sources/evidence/ol-batch14-380-page-2026-10-15.html",
+          "sha256": "d9d506bcaac7f416ed224c1026b089845a7c241c50c71ce32aa175b49ac7f1bf",
+          "bytes": 28290
+        },
+        "info": {
+          "url": "https://www.sanguosha.com/api/v1/hero/info?gid=380",
+          "path": "docs/content/sources/evidence/ol-batch14-380-info-2026-10-15.json",
+          "sha256": "7494447e98418ff62fd447d1df9346c359e8188736cef4c6e8e20f7a04b7f963",
+          "bytes": 1245
+        }
+      },
+      "name": "郭皇后",
+      "faction": "wei",
+      "hp": 3,
+      "apiQuality": "普通",
+      "gender": "female",
+      "genderEvidence": "Existing same-person OL registered definition; current client exact mapping pending B extraction (API does not encode gender).",
+      "currentOfficialSkillNames": [
+        "矫诏",
+        "殚心"
+      ],
+      "currentOfficialSkillTexts": [
+        "出牌阶段限一次，你可以展示一张手牌，然后令你距离最近的角色声明一种基本牌，你本回合可以将展示牌当声明的牌使用（不能对自己使用）。",
+        "当你受到伤害后，你可以摸一张牌或修改“矫诏”。"
+      ],
+      "existingGeneral": {
+        "Id": "classic:guo-huanghou",
+        "Name": "郭皇后",
+        "PortraitKey": "guo_huanghou",
+        "SkillId": "classic:jiaozhao",
+        "FactionId": "wei",
+        "BaseHp": 3,
+        "AdditionalSkillIds": [
+          "classic:danxin"
+        ],
+        "Gender": 1,
+        "CharacterId": "character:guo-huanghou",
+        "VariantId": "classic",
+        "RulesetId": "sanguosha-ol",
+        "InitialHp": null,
+        "SkillIds": [
+          "classic:jiaozhao",
+          "classic:danxin"
+        ]
+      },
+      "existingPresentation": {
+        "classic:jiaozhao": {
+          "name": "矫诏",
+          "description": "出牌阶段限一次，你可以展示一张手牌，然后由距离你最近的一名其他角色声明一种基本牌的牌名。此回合内，你可以将此牌当其声明的牌使用，且不能对你使用。殚心第一次修改后可以声明普通锦囊；第二次修改后无需展示或他人声明，直接将一张手牌当基本牌或普通锦囊使用。"
+        },
+        "classic:danxin": {
+          "name": "殚心",
+          "description": "当你受到伤害后，你可以选择一项：摸一张牌；修改矫诏（至多修改两次）。",
+          "optionLabels": {
+            "draw": "摸一张牌",
+            "upgrade": "修改矫诏"
+          }
+        }
+      },
+      "duplicateConclusion": "Already registered same ordinary OL identity and current skill semantics. Do not add duplicate general/skills.",
+      "mechanismGap": "No new capability required for addition: duplicate skipped; no exhaustive existing mechanism re-audit performed.",
+      "comparison": "Li Yan printed skills exactly match existing presentation. Guo Huanghou base declaration and damage draw/modify match, existing presentation additionally documents two upgrade stages; page abbreviated text is not evidence of a different variant."
+    },
+    {
+      "gid": 381,
+      "officialSources": {
+        "page": {
+          "url": "https://www.sanguosha.com/hero/381",
+          "path": "docs/content/sources/evidence/ol-batch14-381-page-2026-10-15.html",
+          "sha256": "4f021c1fbf29183de9e3ee599497269aa90d9b76d94c2986596a629e6f0b808e",
+          "bytes": 25844
+        },
+        "info": {
+          "url": "https://www.sanguosha.com/api/v1/hero/info?gid=381",
+          "path": "docs/content/sources/evidence/ol-batch14-381-info-2026-10-15.json",
+          "sha256": "e793323cb57ef72e481730812ad448540a3bcedc5df71c3710d945cd2ac7666e",
+          "bytes": 1075
+        }
+      },
+      "name": "李严",
+      "faction": "shu",
+      "hp": 3,
+      "apiQuality": "稀有",
+      "gender": "male",
+      "genderEvidence": "Existing same-person OL registered definition; current client exact mapping pending B extraction (API does not encode gender).",
+      "currentOfficialSkillNames": [
+        "督粮",
+        "腹鳞"
+      ],
+      "currentOfficialSkillTexts": [
+        "出牌阶段限一次，你可以获得一名其他角色一张手牌并选择一项：1.令其观看牌堆顶的两张牌，获得其中的基本牌；2.令其下回合摸牌阶段多摸一张牌。",
+        "锁定技，弃牌阶段，你于本回合获得的牌不计入手牌上限。"
+      ],
+      "existingGeneral": {
+        "Id": "classic:li-yan",
+        "Name": "李严",
+        "PortraitKey": "li_yan",
+        "SkillId": "classic:duliang",
+        "FactionId": "shu",
+        "BaseHp": 3,
+        "AdditionalSkillIds": [
+          "classic:fulin"
+        ],
+        "Gender": 0,
+        "CharacterId": "character:li-yan",
+        "VariantId": "classic",
+        "RulesetId": "sanguosha-ol",
+        "InitialHp": null,
+        "SkillIds": [
+          "classic:duliang",
+          "classic:fulin"
+        ]
+      },
+      "existingPresentation": {
+        "classic:duliang": {
+          "name": "督粮",
+          "description": "出牌阶段限一次，你可以获得一名其他角色一张手牌并选择一项：1.令其观看牌堆顶的两张牌，获得其中的基本牌；2.令其下回合摸牌阶段多摸一张牌。",
+          "optionLabels": {
+            "view": "令其观看牌堆顶两张牌并获得基本牌",
+            "next-turn-draw": "令其下回合摸牌阶段多摸一张"
+          }
+        },
+        "classic:fulin": {
+          "name": "腹鳞",
+          "description": "锁定技，弃牌阶段，你于本回合获得的牌不计入手牌上限。"
+        }
+      },
+      "duplicateConclusion": "Already registered same ordinary OL identity and current skill semantics. Do not add duplicate general/skills.",
+      "mechanismGap": "No new capability required for addition: duplicate skipped; no exhaustive existing mechanism re-audit performed.",
+      "comparison": "Both official printed skill texts exactly match existing classic:li-yan presentation."
+    }
+  ],
+  "addableCandidates": [],
+  "limits": [
+    "No FAQ fetched or inferred. Current client numeric skill/gender mapping will be supplied by B; not claimed here.",
+    "Official APIs quality differs (380 ordinary/381 rare); rarity is not a different ruleset or variant.",
+    "No tests/build/full/publish or prior batch13 evidence edits performed."
+  ]
+}

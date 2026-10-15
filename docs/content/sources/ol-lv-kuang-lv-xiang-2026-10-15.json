@@ -1,0 +1,266 @@
+{
+  "date": "2026-10-15",
+  "status": "implemented-awaiting-root-build-and-focused-verification",
+  "officialId": 434,
+  "generalId": "ol:lv-kuang-lv-xiang",
+  "characterId": "character:lv-kuang-lv-xiang",
+  "variantId": "ordinary",
+  "rulesetId": "sanguosha-ol",
+  "identity": {
+    "name": "吕旷吕翔",
+    "gender": "male",
+    "faction": "qun",
+    "hp": 4,
+    "initialHpOverride": null
+  },
+  "preflight": {
+    "path": "docs/content/sources/ol-batch19-434-436-preflight-2026-10-15.json",
+    "sha256": "a6b8262036acc472f4d0d86949ab344b1ce95ed75d2d21092aae5a13ffd666ee",
+    "bytes": 23321
+  },
+  "officialSources": [
+    {
+      "heroId": 434,
+      "kind": "page",
+      "url": "https://www.sanguosha.com/hero/434",
+      "status": 200,
+      "contentType": "text/html",
+      "path": "docs/content/sources/evidence/ol-batch19-434-436-434-page-2026-10-15.html",
+      "sha256": "c947f01b796c2e6c0d23241c7f84c6052ef24b0e8e0cd1bf22dfbc9660249f94",
+      "bytes": 23846
+    },
+    {
+      "heroId": 434,
+      "kind": "api",
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=434",
+      "status": 200,
+      "contentType": "application/json",
+      "path": "docs/content/sources/evidence/ol-batch19-434-436-434-api-2026-10-15.json",
+      "sha256": "1c1f6deea515b6a08d707a7e7e37473ddb09dab407c3ff894f44891371829888",
+      "bytes": 745
+    }
+  ],
+  "client": {
+    "path": "docs/content/sources/evidence/ol-batch14-411-480-current-client-preflight-2026-10-15.json",
+    "sha256": "22a8158f9a7f1af27e5130d0de95f1e4eb4a4e19fbd7adb0439009e564fff483",
+    "clientBundleSha256": "66dfce61f1c4fb0aca35b6f85ed940e394719db84655f4d4146b463bc0cf8c1b",
+    "configSha256": "3d7536d4e2ca3d64707c2f6e0edbb8ccb4a045eee4274862dfa35431157c64f4",
+    "freshDecoderRun": false,
+    "wholeArchivesSaved": false
+  },
+  "printedSpells": [
+    {
+      "a": 932,
+      "b": "3,5",
+      "c": "齐攻",
+      "d": "QiGong",
+      "e": 0,
+      "g": 1,
+      "i": 2,
+      "n": 1,
+      "o": "当你使用的仅指定单一目标的【杀】被【闪】抵消后，你可以令一名角色对此目标再使用一张无距离限制的【杀】，此【杀】不可被响应。",
+      "v": "请选择一名目标对{0}使用一张<font color='#FFD800'>杀</font>",
+      "w": "请对{Target}使用一张<font color='#FFD800'>杀</font>",
+      "ay": "系统提示→点“确定”"
+    },
+    {
+      "a": 933,
+      "b": "3",
+      "c": "列侯",
+      "d": "LieHou",
+      "e": 0,
+      "g": 4,
+      "h": 1,
+      "i": 2,
+      "o": "出牌阶段限一次，你可以令你攻击范围内一名有手牌的角色交给你一张手牌，若如此做，你将一张手牌交给你攻击范围内的另一名其他角色。 ",
+      "v": "请选择一名角色，令其交给你一张手牌;请选择一张手牌和一名角色将牌给出",
+      "w": "请选择一张手牌交给{0}",
+      "ay": "系统提示→点“确定”"
+    }
+  ],
+  "clientVersionNote": "Client internal key LvKuangLvXiangSP does not add SP to display or variant; current official identity is ordinary OL. No fresh decoder or full upstream package download was performed.",
+  "portrait": {
+    "path": "src/CardGame.Wpf/Assets/official-ol-lv-kuang-lv-xiang.png",
+    "sha256": "59edb26d3b7140bb850e856b07ed6590f0cbde1a9a3e70ff66bc8100b9c4b919",
+    "bytes": 1093588,
+    "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/43400.png",
+    "visuallyInspected": true,
+    "description": "Two male warriors back to back carrying polearms; official43400 portrait."
+  },
+  "implementationInterpretations": [
+    "Qigong requires the real native SlashFullyDodged window, actual Slash-family Use with one designated/actual target, and successful native Dodge counter equal to its nonzero requirement. Damage prevention or merely requesting a Dodge is insufficient. Original native use/action/window/target and once child-return remain owned by the trigger frame.",
+    "No printed per-turn/per-phase trigger quota is invented. The requested new Slash does not debit ordinary Play Slash count, following existing requested native use semantics; this is an implementation interpretation, not an official FAQ/server claim. Its distance exemption and inability to be responded to belong only to the exact issued use and persist through its legal actor replacement, not to every Slash by that actor.",
+    "Owner may nominate itself or another living legal actor except the original target. That actor independently chooses its real material/conversion or declines. Physical, native single/multi-card conversion, Zhangba, round-once cardless, draw-funded, chained-state, requested deck, faction provider and genuine declaration adapters retain each original cost/provider/typed payment. An option must have a real execute path; no free physical Slash or private-ID sidecar is created.",
+    "Declaration success directly runs the original native Slash after real payment/challenge, bypassing neither costs nor the challenge result. False challenged failure returns the original Qigong frame without inventing a Use. Native card-use transfer retains the original physical Hand origin even when the entity is already in Processing.",
+    "Liehou first giver is another living participant within the owner actual attack range and with actual Hand cards. Both transfers are Hand-only, including a second gift of the just obtained card if still present. The second recipient differs from the giver and owner, with living/range/current Hand choices reevaluated after all first-transfer children. Equipment/approved grain are not silently treated as Hand for this skill.",
+    "The first hand transfer is a genuine paid obligation; source loss in its child does not cancel a possible second native gift by the living owner. Owner death does not invent future hand giving. Issued native Slash/state costs return once after source loss/death through exact native receipts; an invalid/dead requested actor is not issued a new unpaid card use.",
+    "Public hand payment facts contain scalar counts/bounds/seat/source/hash and no unknown received card IDs. Private exact entity IDs remain in owning typed receipts. Optional new frame fields omit null, and private receipt collections are copied read-only."
+  ],
+  "operations": {
+    "25000": "ResolveQigongActualDodgedSlashRequest",
+    "25001": "ResolveLiehouRangeHandRelay"
+  },
+  "rootBridgeRequests": [
+    {
+      "signature": "LvKuangLvXiangComposition.Activation(string path, SkillProgramActivation a) / Trigger(string path, SkillProgramTrigger t)",
+      "when": "strict parser composition, only two new operations"
+    },
+    {
+      "signature": "LvKuangLvXiangActivationTargetAllowed(CharacterState target, SkillProgramActivation a, int ownerSeat)",
+      "when": "legal activation target query and actual activation validation"
+    },
+    {
+      "signature": "CanOfferLvKuangLvXiang(ProgramTriggerCandidate c, SkillProgramTrigger t, ProgramSkillWindowContext w)",
+      "when": "actual native SlashFullyDodged candidate/answer revalidation"
+    },
+    {
+      "signature": "CanContinueLvKuangLvXiang / AssertLvKuangLvXiang / IsLvKuangLvXiangMovement / TryAdvanceLvKuangLvXiangSubtree",
+      "when": "existing typed program continuation/awaited movement/family invariant/runtime dispatch"
+    },
+    {
+      "signature": "HasLvKuangLvXiangDamageObserver(long) / HasLvKuangLvXiangBeforeDamageObserver(long) / IsLvKuangLvXiangDying() / AllowsLvKuangLvXiangNestedDamage(f,target,amount,source,nature,sourceLess)",
+      "when": "only exact native paid observer subtree/dying permissions"
+    },
+    {
+      "signature": "HasLvKuangLvXiangCardObserver(long originalUseId)",
+      "when": "original SlashFullyDodged ProgramCardTriggerWindow attackMatches while exact issued native child suspends that original attack"
+    },
+    {
+      "signature": "BindQigongNativeUse(long useId)",
+      "when": "BeginCardUse after original action and declaration receipt capture, before return"
+    },
+    {
+      "signature": "CompleteQigongNativePayment(long useId)",
+      "when": "after actual PaySlashUseMaterials; actual native committed/finalized entry for zero-native requests"
+    },
+    {
+      "signature": "AssertQigongNativeUse(CardUseFrame use) / ReturnQigongNativeUse(CardUseFrame use)",
+      "when": "before actual native pop; return marks typed once-returned only, no premature program advance"
+    },
+    {
+      "signature": "CompleteQigongSlash(AttackCompletionReceipt completion)",
+      "when": "after native pop and completion receipt capture; completion.Qigong holds exact QigongNativeReceipt; restores exact original fully-dodged attack and advances owning program once"
+    },
+    {
+      "signature": "IsQigongIssuedDistance(long? useId,int actor) / IsQigongUnrespondable(long useId)",
+      "when": "native existing-use distance exemption / IsIssuedCardUnrespondable gate; exact use, current actual actor with typed actor-change proof"
+    },
+    {
+      "signature": "IsQigongRequest(ProgramSkillFrame f) / QigongAdapterActor(f,int actor,int?target,int cursor,long?parent,long?request)",
+      "when": "requested-deck/draw-funded/chained intent and native query/pay/return validation; actor is f.LvKuangLvXiang.Actor, never blindly frame.OwnerSeat; fixed target is receipt.Target; distance ignores only range"
+    },
+    {
+      "signature": "PrepareQigongDrawFundedSlash(f,DrawFundedDistinctBasicPayment) / PrepareQigongChainedSlash(f,ChainedStateBasicPayment)",
+      "when": "actual existing native paid state-cost returns before their real Slash issuance"
+    },
+    {
+      "signature": "DispatchQigongRequestedDeckSlash(f,Card,IReadOnlyList<int>)",
+      "when": "actual claimed requested deck material callback, exact original target and native entity"
+    },
+    {
+      "signature": "ValidateQigongFactionSlashParent / PrepareQigongFactionNative / FinishQigongFactionDeclined",
+      "when": "existing faction provider native parent validation, real provider payment preparation, exhausted-provider return; actual provider retained separately from actor"
+    },
+    {
+      "signature": "TryApplyQigongDeclaration(CardDeclarationFrame) / TryReturnQigongDeclaration(CardDeclarationFrame,bool)",
+      "when": "success Use branch after setting Applying, before ExecuteAction; direct native ResolveSlashCore counts false, no BuildLegalActions expansion. Failure after actual declaration pop, alongside existing Jianji return"
+    },
+    {
+      "signature": "IsQigongDeclarationChild / IsQigongDeclarationQuery",
+      "when": "exact owning declaration/trusted challenge/payment observer subtree; Query is an optional strict helper, actual implemented success path does not require broad legal-action override"
+    },
+    {
+      "signature": "QigongNativeIssuedEvent / QigongNativePaidEvent explicit CommittedEventProjection Receipt with{}",
+      "when": "commit projection; OriginalAction intrinsically deep immutable. Nested RoundOnce/DrawFunded/Chained/Declared payment records are scalar; preserve original action reference identity used by receipt equality"
+    }
+  ],
+  "behaviorPrefix": "Lv Kuang Lv Xiang:",
+  "behaviorChecks": [
+    "ActualSoleDodgeForeignNativeConversionAndSourceLossCold",
+    "ActualSelfNominationUsesSecondSlashWithoutNormalQuotaCold",
+    "ActualNominatedActorMayDeclineWithoutInventedUseCold",
+    "ActualLiehouForeignHandThenDifferentHandRecipientSourceLossCold",
+    "ActualLiehouRangeRecheckedAfterNativeEquipmentLossChildCold",
+    "ActualQigongDeclarationSuccessAndFalseChallengeCold",
+    "ActualRequestedNativeCostFamiliesAndActorProviderReturnsCold"
+  ],
+  "verification": {
+    "workerBuilt": false,
+    "workerRanTests": false,
+    "focused": "pending root sole runner",
+    "routine": "not added to default scope; pending batch routine by root",
+    "limits": [
+      "Seven representative small fixed-seed7 real-command checks; no seed scan, whole-match simulation, Full or unfiltered runner.",
+      "Checks cover actual Dodge, autonomous foreign native conversion, self nomination/ordinary quota, decline, source-loss paid native return, Hand relay/source loss, native weapon removal range reevaluation, genuine declaration pass/false challenge and cold command replay.",
+      "The seventh method contains real native round-cardless/draw-funded/chained/requested-deck/faction cost branches with cold replay and actor/provider/payment/return assertions; worker has not executed them. No claim of exhaustive grant-copy, actor-change, source-death or multi-target coverage.",
+      "No accepted batch18 source/report/manifest/evidence was modified."
+    ]
+  },
+  "ownedFiles": [
+    {
+      "path": "src/CardGame.Core/GameEngine.LvKuangLvXiangDeclarations.cs",
+      "sha256": "030ef7fe15097027de5057dac2ad173160ea6ebb2066628f6684ebd72d8ebd03",
+      "bytes": 5895
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.LvKuangLvXiangNativeUses.cs",
+      "sha256": "e4a8443a48a9d341a43b4f16e732cd71302d0756eda669c3b9c14a27c858dc82",
+      "bytes": 14162
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.LvKuangLvXiangObservers.cs",
+      "sha256": "f88454d124e260bc125a252cb013f860ef474b0efd92e636b066e00b0e126ac5",
+      "bytes": 10461
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.LvKuangLvXiangPrograms.cs",
+      "sha256": "2dbc6a517c486f6a27c91dab859c71cdf62aca28c6dc4c547338a5c836eff237",
+      "bytes": 11550
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.LvKuangLvXiangRequestAdapters.cs",
+      "sha256": "8ce46857c410ea700cd080d3486b72fb75f6345e407d28df458c2242853381b7",
+      "bytes": 7322
+    },
+    {
+      "path": "src/CardGame.Core/ProgramLvKuangLvXiangOperations.cs",
+      "sha256": "11c0f810dcc00bf2826a5c73461a6162f3683ae011db92b12e1e71025f63eae2",
+      "bytes": 6870
+    },
+    {
+      "path": "src/CardGame.Content.Standard/OlLvKuangLvXiangContent.cs",
+      "sha256": "12b926f0aae4d5eb78981305ee0220debb446ede2247ee9769c85455c4662e47",
+      "bytes": 643
+    },
+    {
+      "path": "src/CardGame.Content.Standard/SkillPrograms/ol-lv-kuang-lv-xiang.rules.json",
+      "sha256": "4744cc82611e779d40afce2ecf7a759886dce1ab16622b8f8581e97e7c18a004",
+      "bytes": 582
+    },
+    {
+      "path": "src/CardGame.Content.Standard/SkillPrograms/ol-lv-kuang-lv-xiang.presentation.json",
+      "sha256": "34b38e2735e0f783136e2cde25f72df8c3cfeb915db83db85e84b5f5da6b00dc",
+      "bytes": 495
+    },
+    {
+      "path": "tests/CardGame.Core.Tests/LvKuangLvXiangChecks.cs",
+      "sha256": "7f26c59e6c3912f084c8139fe64c56cc3e6947ef470b3cddc1abd5027021cdf2",
+      "bytes": 26022
+    },
+    {
+      "path": "src/CardGame.Wpf/Assets/official-ol-lv-kuang-lv-xiang.png",
+      "sha256": "59edb26d3b7140bb850e856b07ed6590f0cbde1a9a3e70ff66bc8100b9c4b919",
+      "bytes": 1093588
+    }
+  ],
+  "implementationNotes": [
+    "Qigong native adapter identity remains recognizable after participants die, while issuing eligibility separately requires live actor/target and no winner; paid expiry can retire the exact original parent without creating future unpaid use.",
+    "Canonical private choice comparison strips only existing RequestedDeck/DrawFunded/Chained/RoundOnce native choice wrappers, retaining exact original actor and base candidates.",
+    "Native issued-use actor changes use ShownEntityUseActorMatches with original issuer/provider, preserving all original material/conversion/header checks; distance and unrespondability follow this exact current native use.",
+    "SameQigongNativeReceipt compares every CardActionContext field and collection structurally, including null-versus-explicit designated targets, then normalizes only that already-proven action reference for full record equality of all remaining fields. Owning native, issued/paid facts and attack completion use this strict comparison across cold deserialization.",
+    "Second focused evidence isolated the paid child Slash completed-window guard: child material has already left Processing while the original fully-Dodged outer Slash must retain its own material. IsQigongCompletedAttackProcessing proves exact completed paid native use, current window/action, observer lineage and precisely the retained original physical entities; root integrates only that narrow native invariant branch.",
+    "Decline permits only each original Slash material native UseFinished cleanup once, and still forbids any new requested use/payment or duplicate binding/finish. The earlier fixture incorrectly expected zero total movements after the parent continued.",
+    "The private-deck scene removes eight original AI hand cards through eight genuine selectAndMoveOwnedCard choices owned by that participant, preserving parser owner-only operation boundaries.",
+    "The private top-basic fixture follows the existing strict four-needs Slash/Dodge/Peach/Alcohol policy with two-card private viewing; the actual Qigong need still selects and pays only its requested native Slash."
+  ]
+}

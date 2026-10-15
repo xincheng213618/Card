@@ -1,0 +1,22 @@
+{
+  "capturedAt": "2026-10-14",
+  "officialHeroId": 359,
+  "status": "official-current-response-unavailable",
+  "sources": [
+    {
+      "sha256": "9a909bbf36372e1ee423c573dc89f7ff64e38600c781d91ee897e0383a65390f",
+      "url": "https://www.sanguosha.com/hero/359",
+      "localPath": "docs/content/sources/evidence/ol-batch10-359-page-2026-10-14.html"
+    },
+    {
+      "sha256": "9a909bbf36372e1ee423c573dc89f7ff64e38600c781d91ee897e0383a65390f",
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=359",
+      "localPath": "docs/content/sources/evidence/ol-batch10-359-info-2026-10-14.json"
+    }
+  ],
+  "response": "Both requested URLs returned the same official HTML with canonical https://www.sanguosha.com/404. The .json raw evidence is HTML, not a valid hero API payload.",
+  "identityAndVersion": "Unconfirmed; no other product or historical edition substituted.",
+  "duplicateCheck": "Cannot match an unknown identity against the current 393-general roster; numeric hero identity alone is insufficient.",
+  "mechanismGaps": "Cannot assess until current official skill text is obtained.",
+  "implementation": "Not authorized; no src/tests/tools changes or runner execution."
+}

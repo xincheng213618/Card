@@ -53,7 +53,8 @@
     "Current official client runtime exposes the skill UI and text, not an authoritative server damage-marker implementation. A limited runtime search excerpt is retained in ol-ta-dun-client-rule-search-2026-10-13.json. No same-version official FAQ established self-damage OR multiplicity; self1 is an explicit current-text interpretation.",
     "No current same-version official FAQ established Borrowed Sword secondary-victim participation in marker threshold, intervening mark changes or source loss. Main designated weapon holders and final-window live-mark settlement follow native card target contracts and current text. The selection quota alone is frozen. These are explicit implementation interpretations, not official online-server acceptance.",
     "2016 official guide uses a different dealt-only/clear-to-zero rule and is excluded from normative implementation.",
-    "Focused genuine-command checks are implemented but await root centralized execution. No Full, foreground desktop, live official matchmaking or complete manual game acceptance performed."
+    "Seven focused genuine-command methods have PASS evidence across root fourth/fifth focused runs; current-source whole-batch/routine verification remains pending. No Full, foreground desktop, live official matchmaking or complete manual game acceptance performed.",
+    "Actor replacement acceptance covers a genuine sole-target native producer after choosing Done. That existing producer does not permit replacing the user after adding multiple targets. Repeated skill-grant instances are not claimed as executed acceptance."
   ],
   "artwork": {
     "url": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/34700.png",
@@ -64,19 +65,14 @@
     "visuallyInspected": true
   },
   "verification": {
-    "class": "DamageTargetBudgetChecks",
-    "prefix": "Damage target budget:",
-    "checks": [
-      "ExactContractsAndFrozenOrderedCollections",
-      "ActualDamageOccurrencesSelfSourceLessAndTwoPoints",
-      "ActualSlashFrozenBudgetSelectionsRecoveryAndOneUse",
-      "ActualOddHalfAfterFinalizationAndIssuedSourceLoss",
-      "ActualBorrowedSwordOrderedPairsAndIronChainSelf",
-      "ActualZeroMaterialSlashAndEffectiveRedExclusion"
-    ],
-    "status": "implemented-awaiting-root-execution",
-    "fullVerification": false,
-    "foregroundAcceptance": false,
-    "staticReview": "Six focused methods include actual quota1/range1, two-point/self/source-less/native damage, source loss, later finalization damage changing marks, Borrowed Sword ordered pairs with repeated victim, Iron Chain self/recast, native zero-material Slash and effective red exclusion. Implemented, not yet executed by root."
+    "status": "passed",
+    "focusedSummary": "docs/benchmarks/2026-10-13-batch-6-sixth-focused-summary.json",
+    "focusedCoreLog": "docs/benchmarks/2026-10-13-batch-6-sixth-focused-core-selected.log.txt",
+    "routineSummary": "docs/benchmarks/2026-10-13-batch-6-routine-summary.json",
+    "routineCorePassed": 608,
+    "routineWpfPassed": 76,
+    "manualFull": false,
+    "finalBatchReport": "docs/benchmarks/2026-10-13-ma-yun-lu-ta-dun-yan-bai-hu-verification.json",
+    "ownFocusedMethodsPassed": 7
   }
 }

@@ -1,0 +1,397 @@
+{
+  "capturedAt": "2026-10-14T14:38:01.532270+00:00",
+  "scope": "READ ONLY batch12 candidate preflight, no source/tests/art/registration/build/runner changes",
+  "candidateHeroIds": [
+    372,
+    373,
+    375
+  ],
+  "duplicateAudit": {
+    "rosterPath": "docs/benchmarks/2026-10-14-batch-10-final-roster.json",
+    "rosterSha256": "4567b683fa566ae0a04a2c5debc390a976ab5b598003887691481a1ae1bf9ff5",
+    "oldCount": 396,
+    "currentBatch11AddedIds": [
+      "ol:zhao-xiang",
+      "ol:he-qi",
+      "ol:kan-ze"
+    ],
+    "note": "Batch11 source registration inspected; no candidate matches these additions. classic:qu-yi has legacy null CharacterId/VariantId but exact ordinary-name/faction/HP and current two policies identify the same ordinary version; do not create duplicate ol:qu-yi.",
+    "acceptedBatch11Roster": "docs/benchmarks/2026-10-14-batch-11-final-roster.json"
+  },
+  "heroes": [
+    {
+      "heroId": 372,
+      "name": "王允",
+      "faction": "qun",
+      "hp": 4,
+      "apiInitialHpMetadata": 0,
+      "skills": [
+        {
+          "name": "连计",
+          "printedText": "出牌阶段限一次，你可以弃置一张手牌令一名其他角色随机使用牌堆中一张武器牌，然后其选择一项：1.对你指定的一名角色使用【杀】；2.你将其装备区的武器交给一名角色。",
+          "originalHtml": "出牌阶段限一次，你可以弃置一张手牌令一名其他角色随机使用牌堆中一张武器牌，然后其选择一项：1.对你指定的一名角色使用【杀】；2.你将其装备区的武器交给一名角色。"
+        },
+        {
+          "name": "谋逞",
+          "printedText": "觉醒技，准备阶段，若你本局“连计”中使用的【杀】造成过伤害，你失去“连计”并获得“矜功”。",
+          "originalHtml": "觉醒技，准备阶段，若你本局“连计”中使用的【杀】造成过伤害，你失去“连计”并获得“<font href='367'>矜功</font>”。"
+        }
+      ],
+      "currentClientBindings": {
+        "characterId": 372,
+        "printedSpellIds": [
+          365,
+          366
+        ],
+        "evidence": "docs/content/sources/evidence/ol-next-group-372-373-375-client-preflight-2026-10-14.json",
+        "sha256": "41519bf5ad8c78c032ec1bd5335987448065b6219d42851c964ca377670629d8"
+      },
+      "gender": "male",
+      "primarySources": [
+        {
+          "kind": "page",
+          "path": "docs/content/sources/evidence/ol-batch11-372-page-2026-10-14.html",
+          "url": "https://www.sanguosha.com/hero/372",
+          "httpStatus": 200,
+          "sha256": "2a0cdec1f0a62351919e2e5e56ec5d279671081c8b03fec3b2800d6ccaafb682"
+        },
+        {
+          "kind": "api",
+          "path": "docs/content/sources/evidence/ol-batch11-372-info-2026-10-14.json",
+          "url": "https://www.sanguosha.com/api/v1/hero/info?gid=372",
+          "httpStatus": 200,
+          "sha256": "9ce24e7a4bb7fb82657b4cfeb1c22694f7dcc3e42ee0160ace3668c45587823d"
+        }
+      ],
+      "rosterMatches": [],
+      "selection": "selected",
+      "mechanismPreflightRequests": [
+        "Native random deck weapon actual use and replacement children after exact hand discard; recipient chooses actual Slash against owner-designated target or equipment transfer.",
+        "Game-long causal Lianji Slash damage ledger and real awakening skill replacement. Linked current Jingong367 full skill/client version pending."
+      ]
+    },
+    {
+      "heroId": 373,
+      "name": "诸葛果",
+      "faction": "shu",
+      "hp": 3,
+      "apiInitialHpMetadata": 0,
+      "skills": [
+        {
+          "name": "祈禳",
+          "printedText": "当你使用装备牌时，你可以获得牌堆中一张锦囊牌，若此牌为：普通锦囊牌，你使用此牌指定唯一目标时可以多指定一个目标；延时锦囊牌，你下回合【羽化】观看的牌数+1（至多为5）。",
+          "originalHtml": "当你使用装备牌时，你可以获得牌堆中一张锦囊牌，若此牌为：普通锦囊牌，你使用此牌指定唯一目标时可以多指定一个目标；延时锦囊牌，你下回合【羽化】观看的牌数+1（至多为5）。"
+        },
+        {
+          "name": "羽化",
+          "printedText": "锁定技，弃牌阶段，你的锦囊牌和装备牌不计入手牌上限。准备阶段和结束阶段，你观看牌堆顶的一张牌并将其置于牌堆顶或牌堆底。",
+          "originalHtml": "锁定技，弃牌阶段，你的锦囊牌和装备牌不计入手牌上限。准备阶段和结束阶段，你观看牌堆顶的一张牌并将其置于牌堆顶或牌堆底。"
+        }
+      ],
+      "currentClientBindings": {
+        "characterId": 373,
+        "printedSpellIds": [
+          11001,
+          11002
+        ],
+        "evidence": "docs/content/sources/evidence/ol-next-group-372-373-375-client-preflight-2026-10-14.json",
+        "sha256": "41519bf5ad8c78c032ec1bd5335987448065b6219d42851c964ca377670629d8"
+      },
+      "gender": "female",
+      "primarySources": [
+        {
+          "kind": "page",
+          "path": "docs/content/sources/evidence/ol-batch12-373-page-2026-10-14.html",
+          "url": "https://www.sanguosha.com/hero/373",
+          "httpStatus": 200,
+          "sha256": "d9752bdb0e87bc4962c51055315871af287077a0757cd19362ccd25aeac7c995"
+        },
+        {
+          "kind": "api",
+          "path": "docs/content/sources/evidence/ol-batch12-373-info-2026-10-14.json",
+          "url": "https://www.sanguosha.com/api/v1/hero/info?gid=373",
+          "httpStatus": 200,
+          "sha256": "399ffc717d019fb565ed06ba2c9119d198f204af56d60e9ca2eaf78260086022"
+        }
+      ],
+      "rosterMatches": [],
+      "selection": "selected",
+      "mechanismPreflightRequests": [
+        "Track actual Qirang-obtained trick entities through native use and correct target-expansion legality; existing generic gain/extra-target capability alone does not prove the exact provenance.",
+        "Delayed-trick gain creates next actual own-turn Yuhua private look-count bonus capped five, including actual preparation/end-stage boundaries; exact timing and FAQ pending.",
+        "Native optional obtaining of deck trick on equipment use; real private top-card inspection and top/bottom placement; category hand-limit exemption for both tricks and equipment."
+      ]
+    },
+    {
+      "heroId": 374,
+      "name": "麹义",
+      "faction": "qun",
+      "hp": 4,
+      "apiInitialHpMetadata": 0,
+      "skills": [
+        {
+          "name": "伏骑",
+          "printedText": "锁定技，与你距离为1的其他角色不能使用或打出牌响应你使用的牌。",
+          "originalHtml": "锁定技，与你距离为1的其他角色不能使用或打出牌响应你使用的牌。"
+        },
+        {
+          "name": "骄恣",
+          "printedText": "锁定技，若你的手牌数为全场唯一最多，你造成或受到的伤害值+1。",
+          "originalHtml": "锁定技，若你的手牌数为全场唯一最多，你造成或受到的伤害值+1。"
+        }
+      ],
+      "currentClientBindings": "pending; not extracted for this next group",
+      "gender": "pending current primary client",
+      "primarySources": [
+        {
+          "kind": "page",
+          "path": "docs/content/sources/evidence/ol-batch12-374-page-2026-10-14.html",
+          "url": "https://www.sanguosha.com/hero/374",
+          "httpStatus": 200,
+          "sha256": "74d7b01cd417b55ff07d4fdbd86b27d886b40a4b5a46776bb1719bb23481500d"
+        },
+        {
+          "kind": "api",
+          "path": "docs/content/sources/evidence/ol-batch12-374-info-2026-10-14.json",
+          "url": "https://www.sanguosha.com/api/v1/hero/info?gid=374",
+          "httpStatus": 200,
+          "sha256": "c4466d4755474e9f064d8a731d83da84a927da3e3bce859adf13f78fbb292daf"
+        }
+      ],
+      "rosterMatches": [
+        {
+          "Id": "classic:qu-yi",
+          "Name": "麹义",
+          "PortraitKey": "qu_yi",
+          "SkillId": "classic:fuqi",
+          "FactionId": "qun",
+          "BaseHp": 4,
+          "AdditionalSkillIds": [
+            "classic:jiaozi"
+          ],
+          "Gender": 0,
+          "CharacterId": null,
+          "VariantId": null,
+          "RulesetId": null,
+          "InitialHp": null,
+          "SkillIds": [
+            "classic:fuqi",
+            "classic:jiaozi"
+          ]
+        }
+      ],
+      "selection": "excluded existing same ordinary version"
+    },
+    {
+      "heroId": 375,
+      "name": "戏志才",
+      "faction": "wei",
+      "hp": 3,
+      "apiInitialHpMetadata": 0,
+      "skills": [
+        {
+          "name": "天妒",
+          "printedText": "当你的判定牌生效后，你可以获得此牌。",
+          "originalHtml": "当你的判定牌生效后，你可以获得此牌。"
+        },
+        {
+          "name": "先辅",
+          "printedText": "锁定技，游戏开始时，你选择一名其他角色，在本局中：当其受到伤害后，你受到等量伤害；当其回复体力后，你回复等量体力。",
+          "originalHtml": "锁定技，游戏开始时，你选择一名其他角色，在本局中：当其受到伤害后，你受到等量伤害；当其回复体力后，你回复等量体力。"
+        },
+        {
+          "name": "筹策",
+          "printedText": "当你受到1点伤害后，你可以判定，若结果为：红色，你令一名角色摸一张牌，若其为“先辅”目标，改为摸两张牌；黑色，你弃置一名角色区域里的一张牌。",
+          "originalHtml": "当你受到1点伤害后，你可以判定，若结果为：红色，你令一名角色摸一张牌，若其为“先辅”目标，改为摸两张牌；黑色，你弃置一名角色区域里的一张牌。"
+        }
+      ],
+      "currentClientBindings": {
+        "characterId": 375,
+        "printedSpellIds": [
+          51,
+          376,
+          377
+        ],
+        "evidence": "docs/content/sources/evidence/ol-next-group-372-373-375-client-preflight-2026-10-14.json",
+        "sha256": "41519bf5ad8c78c032ec1bd5335987448065b6219d42851c964ca377670629d8"
+      },
+      "gender": "male",
+      "primarySources": [
+        {
+          "kind": "page",
+          "path": "docs/content/sources/evidence/ol-batch12-375-page-2026-10-14.html",
+          "url": "https://www.sanguosha.com/hero/375",
+          "httpStatus": 200,
+          "sha256": "6610af17774ea23267dd6368de4998fa3ab52be878b4f81d384c8c770c1ef6d8"
+        },
+        {
+          "kind": "api",
+          "path": "docs/content/sources/evidence/ol-batch12-375-info-2026-10-14.json",
+          "url": "https://www.sanguosha.com/api/v1/hero/info?gid=375",
+          "httpStatus": 200,
+          "sha256": "9e4e313c1156bd3fd741bc5a311f5facd7f0e775f6aefbd91680a635e529eef2"
+        }
+      ],
+      "rosterMatches": [],
+      "selection": "selected",
+      "mechanismPreflightRequests": [
+        "Game-start permanent other-character selection; native afterDamage equal damage echo and actual recovered-HP echo, excluding mere proposed/overheal amount. Source identity, recursion/death/source-loss boundaries require current client/FAQ confirmation.",
+        "Optional per-actual-damage-point judgment; red exact draw beneficiary with doubled Xianfu target draw, black native any-region discard respecting private hand and equipment protection.",
+        "Tiandu existing judgment obtaining may be reused only after exact current version/client binding verification."
+      ]
+    },
+    {
+      "heroId": 376,
+      "name": "孙乾",
+      "faction": "shu",
+      "hp": 3,
+      "apiInitialHpMetadata": 0,
+      "skills": [
+        {
+          "name": "谦雅",
+          "printedText": "当你成为锦囊牌的目标后，你可以交给一名其他角色任意张手牌。",
+          "originalHtml": "当你成为锦囊牌的目标后，你可以交给一名其他角色任意张手牌。"
+        },
+        {
+          "name": "说盟",
+          "printedText": "出牌阶段结束时，你可以拼点：若你赢，你视为使用【无中生有】；若你没赢，被拼点者视为对你使用【过河拆桥】。",
+          "originalHtml": "出牌阶段结束时，你可以拼点：若你赢，你视为使用【无中生有】；若你没赢，被拼点者视为对你使用【过河拆桥】。"
+        }
+      ],
+      "currentClientBindings": "pending; not extracted for this next group",
+      "gender": "pending current primary client",
+      "primarySources": [
+        {
+          "kind": "page",
+          "path": "docs/content/sources/evidence/ol-batch12-376-page-2026-10-14.html",
+          "url": "https://www.sanguosha.com/hero/376",
+          "httpStatus": 200,
+          "sha256": "41ac7da167abf0f22fe8efbcd9825a494d8c65223c301a63a06138bed1cf8d83"
+        },
+        {
+          "kind": "api",
+          "path": "docs/content/sources/evidence/ol-batch12-376-info-2026-10-14.json",
+          "url": "https://www.sanguosha.com/api/v1/hero/info?gid=376",
+          "httpStatus": 200,
+          "sha256": "ad24f2c155a814e7e8445d605ec0f7276a674fd06fb67b5d1c6cee1642fdc3fc"
+        }
+      ],
+      "rosterMatches": [
+        {
+          "Id": "ol:sun-qian",
+          "Name": "孙乾",
+          "PortraitKey": "ol-sun-qian",
+          "SkillId": "ol:qianya",
+          "FactionId": "shu",
+          "BaseHp": 3,
+          "AdditionalSkillIds": [
+            "ol:shuomeng"
+          ],
+          "Gender": 0,
+          "CharacterId": "character:sun-qian",
+          "VariantId": "ordinary",
+          "RulesetId": "sanguosha-ol",
+          "InitialHp": null,
+          "SkillIds": [
+            "ol:qianya",
+            "ol:shuomeng"
+          ]
+        }
+      ],
+      "selection": "excluded existing same ordinary version"
+    },
+    {
+      "heroId": 377,
+      "name": "卑弥呼",
+      "faction": "qun",
+      "hp": 3,
+      "apiInitialHpMetadata": 0,
+      "skills": [
+        {
+          "name": "纵傀",
+          "printedText": "回合开始前，你可以令一名没有“傀”标记的其他角色获得“傀”。每轮开始时，体力值最少且没有“傀”的一名其他角色获得“傀”。",
+          "originalHtml": "回合开始前，你可以令一名没有“傀”标记的其他角色获得“傀”。每轮开始时，体力值最少且没有“傀”的一名其他角色获得“傀”。"
+        },
+        {
+          "name": "骨疽",
+          "printedText": "锁定技，当有“傀”的角色受到伤害后，你摸一张牌。",
+          "originalHtml": "锁定技，当有“傀”的角色受到伤害后，你摸一张牌。"
+        },
+        {
+          "name": "拜假",
+          "printedText": "觉醒技，准备阶段，若你因“骨疽”获得的牌数不小于7，你增加1点体力上限并回复1点体力，然后令所有没有“傀”的其他角色获得“傀”，最后你失去“骨疽”，获得“蚕食”。",
+          "originalHtml": "觉醒技，准备阶段，若你因“骨疽”获得的牌数不小于7，你增加1点体力上限并回复1点体力，然后令所有没有“傀”的其他角色获得“傀”，最后你失去“骨疽”，获得“<font href='395'>蚕食</font>”。"
+        }
+      ],
+      "currentClientBindings": "pending; not extracted for this next group",
+      "gender": "pending current primary client",
+      "primarySources": [
+        {
+          "kind": "page",
+          "path": "docs/content/sources/evidence/ol-batch12-377-page-2026-10-14.html",
+          "url": "https://www.sanguosha.com/hero/377",
+          "httpStatus": 200,
+          "sha256": "161ef2e55176df92e826118b7e727e83270e4be3ff15bfe19949d656ec99aa4d"
+        },
+        {
+          "kind": "api",
+          "path": "docs/content/sources/evidence/ol-batch12-377-info-2026-10-14.json",
+          "url": "https://www.sanguosha.com/api/v1/hero/info?gid=377",
+          "httpStatus": 200,
+          "sha256": "3df6dafcfe033f8d18c5110f7e0a189eaa5b8bec15bfcdc6e92afe20305c78ca"
+        }
+      ],
+      "rosterMatches": [],
+      "selection": "later candidate; not selected"
+    },
+    {
+      "heroId": 378,
+      "name": "刘琦",
+      "faction": "qun",
+      "hp": 3,
+      "apiInitialHpMetadata": 0,
+      "skills": [
+        {
+          "name": "问计",
+          "printedText": "出牌阶段开始时，你可以令一名其他角色交给你一张牌，然后你本回合使用的与此牌同名的牌不能被其他角色响应。",
+          "originalHtml": "出牌阶段开始时，你可以令一名其他角色交给你一张牌，然后你本回合使用的与此牌同名的牌不能被其他角色响应。"
+        },
+        {
+          "name": "屯江",
+          "printedText": "结束阶段，若你未跳过本回合的出牌阶段且于此阶段未使用牌指定过其他角色为目标，你可以摸与全场势力数等量张牌。",
+          "originalHtml": "结束阶段，若你未跳过本回合的出牌阶段且于此阶段未使用牌指定过其他角色为目标，你可以摸与全场势力数等量张牌。"
+        }
+      ],
+      "currentClientBindings": "pending; not extracted for this next group",
+      "gender": "pending current primary client",
+      "primarySources": [
+        {
+          "kind": "page",
+          "path": "docs/content/sources/evidence/ol-batch12-378-page-2026-10-14.html",
+          "url": "https://www.sanguosha.com/hero/378",
+          "httpStatus": 200,
+          "sha256": "52645e802b1878defa7fe1d764a037b8a8fa94d28b9d3ea1717268766892a6b3"
+        },
+        {
+          "kind": "api",
+          "path": "docs/content/sources/evidence/ol-batch12-378-info-2026-10-14.json",
+          "url": "https://www.sanguosha.com/api/v1/hero/info?gid=378",
+          "httpStatus": 200,
+          "sha256": "a8ebd41386202ead5813509c2541e68ee7406a69b944bfc2679022d47ddc7ebd"
+        }
+      ],
+      "rosterMatches": [],
+      "selection": "later candidate; not selected"
+    }
+  ],
+  "limits": [
+    "Page printed text is current official web evidence; public-client bindings/version and linked Jingong367 remain pending.",
+    "No source-less echo, once-per-turn cap, expiration or hidden-state rule inferred beyond printed text is claimed official.",
+    "No new character or primitive implemented. API initial_hp=0 is metadata, not claimed zero starting HP."
+  ],
+  "exactCurrentClient": {
+    "path": "docs/content/sources/evidence/ol-next-group-372-373-375-client-preflight-2026-10-14.json",
+    "sha256": "41519bf5ad8c78c032ec1bd5335987448065b6219d42851c964ca377670629d8",
+    "unresolvedLinkedIds": []
+  }
+}

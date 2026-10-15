@@ -1,0 +1,200 @@
+{
+  "bundleSha256": "66dfce61f1c4fb0aca35b6f85ed940e394719db84655f4d4146b463bc0cf8c1b",
+  "configSha256": "3d7536d4e2ca3d64707c2f6e0edbb8ccb4a045eee4274862dfa35431157c64f4",
+  "spellDecodedSha256": "c42298ef8eeed59ac5e2f30854ec1d35a9f38df80410403c849f0a3e2753a0d9",
+  "sameNameRowsForDisambiguation": [
+    {
+      "a": 94,
+      "b": "3",
+      "c": "连环",
+      "d": "LianHuan",
+      "e": 0,
+      "g": 5,
+      "h": 1,
+      "i": 2,
+      "o": "你可以将一张梅花手牌当【铁索连环】使用或重铸。",
+      "bb": "你可以将梅花手牌当【铁索连环】。",
+      "v": "选择一张梅花手牌，直接出牌重铸，或选择一至两名角色作为<font color='#FFD800'>铁索连环</font>的目标",
+      "ae": "{Source}发动了{UseSkill}，将{Card}重铸;{Source}发动了{UseSkill}，将{Card}当<font color='#FFD800'>铁索连环</font>使用，目标是{Target}",
+      "ay": "使用与重置:点\"连环\"→选中一张手牌→选择目标1→选择目标2（可不选）→点\"确定\"<br>重铸:点\"连环\"→选中一张手牌→点\"确定\"",
+      "AutoAI": 1
+    },
+    {
+      "a": 97,
+      "b": "3",
+      "c": "火计",
+      "d": "HuoJi",
+      "e": 0,
+      "g": 1,
+      "h": 1,
+      "i": 2,
+      "n": 0,
+      "o": "你可以将一张红色手牌当【火攻】使用。",
+      "bb": "你可以将红色手牌当【火攻】。",
+      "v": "选择一张红色手牌，并且选择一名角色，发动<font color='#FFD800'>火攻</font>",
+      "ae": "{Source}发动了{UseSkill}，将{Card}当<font color='#FFD800'>火攻</font>使用，目标是{Target}",
+      "ay": "点\"火计\"→选中一张手牌（红桃或方片）→选择目标（至少有一张手牌）→点\"确定\"→目标展示1张手牌→选中1张手牌（与目标展示牌花色相同）→点\"确定\"",
+      "elementDamage": 2,
+      "AutoAI": 1
+    },
+    {
+      "a": 306,
+      "b": "3,6",
+      "c": "业炎",
+      "d": "YeYan",
+      "e": 0,
+      "g": 1,
+      "h": 1,
+      "i": 2,
+      "l": "shenzhouyuyeyan",
+      "ab": 1,
+      "n": 0,
+      "o": "限定技，出牌阶段，你可以选择至多三名角色，对其造成共计至多3点火焰伤害。若你将对一名角色分配至少2点伤害，你须先弃置四张花色各不相同的手牌并失去3点体力。",
+      "bb": "限定技，出牌阶段，你可以对任意角色造成共计至多3点火焰伤害。若你对一名角色分配至少2点伤害，你须先弃置四张花色各不相同的手牌并失去3血。",
+      "v": "请选择一至三名角色作为<font color='#FFD800'>业炎</font>的目标",
+      "ay": "点【业炎】→选择目标→选中弃掉的手牌→点\"确定\"",
+      "elementDamage": 2
+    },
+    {
+      "a": 847,
+      "b": "3",
+      "c": "火计",
+      "d": "HuoJiSP",
+      "e": 0,
+      "g": 1,
+      "h": 1,
+      "i": 2,
+      "n": 0,
+      "o": "每回合限三次，你可以将一张红色手牌当【火攻】使用。",
+      "v": "选择一张红色手牌，并且选择一名角色，发动<font color='#FFD800'>火攻</font>",
+      "ae": "{Source}发动了{UseSkill}，将{Card}当<font color='#FFD800'>火攻</font>使用，目标是{Target}",
+      "ay": "点\"火计\"→选中一张手牌（红桃或方片）→选择目标（至少有一张手牌）→点\"确定\"→目标展示1张手牌→选中1张手牌（与目标展示牌花色相同）→点\"确定\"",
+      "elementDamage": 2,
+      "AutoAI": 1
+    },
+    {
+      "a": 848,
+      "b": "3",
+      "c": "连环",
+      "d": "LianHuanSP",
+      "e": 0,
+      "g": 4,
+      "h": 1,
+      "i": 2,
+      "o": "每回合限三次，你可以将一张梅花手牌当【铁索连环】使用或重铸。",
+      "v": "选择一张梅花手牌，直接出牌重铸，或选择一至两名角色作为<font color='#FFD800'>铁索连环</font>的目标",
+      "ae": "{Source}发动了{UseSkill}，将{Card}重铸;{Source}发动了{UseSkill}，将{Card}当铁索连环使用，目标是{Target}",
+      "ay": "使用与重置:点\"连环\"→选中一张手牌→选择目标1→选择目标2（可不选）→点\"确定\"<br>重铸:点\"连环\"→选中一张手牌→点\"确定\"",
+      "AutoAI": 1
+    },
+    {
+      "a": 849,
+      "b": "3",
+      "c": "业炎",
+      "d": "YeYanSP",
+      "e": 0,
+      "g": 4,
+      "h": 1,
+      "i": 2,
+      "n": 0,
+      "o": "限定技，出牌阶段，你可以移除“龙印”“凤印”对至多三名角色分配至多3点火焰伤害，若你将对一名角色分配至少2点伤害，你须先弃置四张花色各不相同的手牌并失去3点体力。",
+      "v": "请选择一至三名角色作为<font color='#FFD800'>业炎</font>的目标",
+      "ay": "点【业炎】→选择目标→选中弃掉的手牌→点\"确定\"",
+      "elementDamage": 2
+    },
+    {
+      "a": 906,
+      "b": "3",
+      "c": "火计",
+      "d": "HuoJiPo",
+      "e": 0,
+      "g": 1,
+      "h": 1,
+      "i": 2,
+      "n": 0,
+      "o": "你可以将一张红色牌当【火攻】使用。",
+      "bb": "你可以将一张红牌当【火攻】。",
+      "ay": "系统提示→点“确定”",
+      "elementDamage": 2
+    },
+    {
+      "a": 910,
+      "b": "3",
+      "c": "连环",
+      "d": "LianHuanPo",
+      "e": 0,
+      "g": 4,
+      "h": 1,
+      "i": 2,
+      "o": "你可以将一张梅花牌当【铁索连环】使用或重铸。你使用【铁索连环】可以多指定一个目标。",
+      "bb": "你可以将梅花牌当【铁索连环】。你出【铁索连环】可以多指定一个目标。",
+      "v": "选择一张梅花牌，直接出牌重铸，或选择一至两名角色作为<font color='#FFD800'>铁索连环</font>的目标;请为<font color='#FFD800'>铁索连环</font>额外选择一名目标",
+      "ay": "系统提示→点“确定”",
+      "AutoAI": 1
+    },
+    {
+      "a": 3260,
+      "b": "3",
+      "c": "火计",
+      "d": "HuoJi2023",
+      "e": 0,
+      "g": 1,
+      "h": 1,
+      "i": 2,
+      "ab": 1,
+      "n": 0,
+      "o": "你可以将一张红色牌当【火攻】使用。<br>你的【火攻】改为令目标展示随机手牌，你弃置与展示牌颜色相同的牌以造成伤害。",
+      "elementDamage": 2,
+      "AutoAI": 1
+    },
+    {
+      "a": 21132,
+      "b": "3",
+      "c": "火计",
+      "d": "HuoJiRace",
+      "e": 0,
+      "g": 1,
+      "h": 1,
+      "i": 2,
+      "m": "21134,21135",
+      "o": "使命技，出牌阶段限一次，你可以选择一名其他角色，对其及同势力角的其他角色各造成1点火焰伤害。成功：准备阶段，若你本局游戏对其他角色造成过至少X点火焰伤害（X为本局游戏人数），你失去“火计”和“看破”，获得“观星”和“空城”。"
+    }
+  ],
+  "exactConstantSnippets": [
+    {
+      "term": "JIANJIE_ONLINE",
+      "offset": 4153849,
+      "excerpt": "tatic QLDJ16=1255;static QLDJ17=1256;static QLDJ18=1257;static QLDJ19=1258;static QLDJ20=1259;static QLDJ21=1260;static JIANJIE_ONLINE=844;static CHENGHAO_ONLINE=845;static YINSHI_ONLINE=846;static HUOJISP_ONLINE=847;static LIANHUANSP_ONLINE=848;static YEYANSP_ONLINE=849;static JINZHU_BOSS=1261;static XIONGSHOU2018_BOSS=1262;static XISHEN"
+    },
+    {
+      "term": "JIANJIE_ONLINE",
+      "offset": 20161531,
+      "excerpt": "),this.timeLimitRound=3}get Activated(){let t=Laya.superGetter(N7i,this,\"Activated\");if(t){let i=c1t.GetSeatBySkill(FCt.JIANJIE_ONLINE,!0);i&&(t=0==i.GetGeneralSkill(FCt.JIANJIE_ONLINE).IsInvalid())}return t}GetSoundUrl(t,i,s,e=0,h){let r=sJt.I().SoundSets;if(r&&r.GeneralClose)return\"\";let n=0,a=0,l=this.getSiMaHuiGeneral();return l&&(n=l"
+    },
+    {
+      "term": "JIANJIE_ONLINE",
+      "offset": 20161581,
+      "excerpt": ".superGetter(N7i,this,\"Activated\");if(t){let i=c1t.GetSeatBySkill(FCt.JIANJIE_ONLINE,!0);i&&(t=0==i.GetGeneralSkill(FCt.JIANJIE_ONLINE).IsInvalid())}return t}GetSoundUrl(t,i,s,e=0,h){let r=sJt.I().SoundSets;if(r&&r.GeneralClose)return\"\";let n=0,a=0,l=this.getSiMaHuiGeneral();return l&&(n=l.CardId,a=l.SkinId),this.getSkillSoundUrl(n,a,s,e,"
+    },
+    {
+      "term": "JIANJIE_ONLINE",
+      "offset": 20164517,
+      "excerpt": "),this.timeLimitRound=3}get Activated(){let t=Laya.superGetter(G7i,this,\"Activated\");if(t){let i=c1t.GetSeatBySkill(FCt.JIANJIE_ONLINE,!0);i&&(t=0==i.GetGeneralSkill(FCt.JIANJIE_ONLINE).IsInvalid())}return t}GetSoundUrl(t,i,s,e=0,h){let r=sJt.I().SoundSets;if(r&&r.GeneralClose)return\"\";let n=0,a=0,l=this.getSiMaHuiGeneral();return l&&(n=l"
+    },
+    {
+      "term": "JIANJIE_ONLINE",
+      "offset": 20164567,
+      "excerpt": ".superGetter(G7i,this,\"Activated\");if(t){let i=c1t.GetSeatBySkill(FCt.JIANJIE_ONLINE,!0);i&&(t=0==i.GetGeneralSkill(FCt.JIANJIE_ONLINE).IsInvalid())}return t}GetSoundUrl(t,i,s,e=0,h){let r=sJt.I().SoundSets;if(r&&r.GeneralClose)return\"\";let n=0,a=0,l=this.getSiMaHuiGeneral();return l&&(n=l.CardId,a=l.SkinId),this.getSkillSoundUrl(n,a,s,e,"
+    },
+    {
+      "term": "JIANJIE_ONLINE",
+      "offset": 21428245,
+      "excerpt": "i{constructor(){super()}get Activated(){let t=Laya.superGetter(Qrs,this,\"Activated\");if(t){let i=c1t.GetSeatBySkill(FCt.JIANJIE_ONLINE,!0);i&&(t=0==i.GetGeneralSkill(FCt.JIANJIE_ONLINE).IsInvalid())}return t}GetSoundUrl(t,i,s,e=0,h){let r=sJt.I().SoundSets;if(r&&r.GeneralClose)return\"\";let n=0,a=0,l=this.getSiMaHuiGeneral();return l&&(n=l"
+    },
+    {
+      "term": "JIANJIE_ONLINE",
+      "offset": 21428295,
+      "excerpt": ".superGetter(Qrs,this,\"Activated\");if(t){let i=c1t.GetSeatBySkill(FCt.JIANJIE_ONLINE,!0);i&&(t=0==i.GetGeneralSkill(FCt.JIANJIE_ONLINE).IsInvalid())}return t}GetSoundUrl(t,i,s,e=0,h){let r=sJt.I().SoundSets;if(r&&r.GeneralClose)return\"\";let n=0,a=0,l=this.getSiMaHuiGeneral();return l&&(n=l.CardId,a=l.SkinId),this.getSkillSoundUrl(n,a,s,e,"
+    }
+  ]
+}

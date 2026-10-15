@@ -1,0 +1,67 @@
+{
+  "capturedAt": "2026-10-14",
+  "officialHeroId": 363,
+  "name": "步骘",
+  "variant": "current ordinary OL",
+  "attributes": {
+    "gender": "male",
+    "faction": "wu",
+    "genderEvidence": "current client row h=1; faction g=3; HP i=3",
+    "maxHp": 3
+  },
+  "sources": [
+    {
+      "url": "https://www.sanguosha.com/hero/363",
+      "localPath": "docs/content/sources/evidence/ol-batch10-363-page-2026-10-14.html",
+      "sha256": "d396c197354f26635c8f63ac825c224156b8fc8acfdb5501f6cdbca19a53cebd"
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=363",
+      "localPath": "docs/content/sources/evidence/ol-batch10-363-info-2026-10-14.json",
+      "sha256": "653b21e7b18f021bb88a58349166af350377e2acb1fb5316f834c3b560d346dc"
+    }
+  ],
+  "clientEvidence": {
+    "generalCode": "BuZhi",
+    "skillIds": [
+      288,
+      289
+    ],
+    "localPath": "docs/content/sources/evidence/ol-next-group-361-363-366-client-preflight-2026-10-14.json",
+    "sha256": "d3711844b99b63d46484f79326452d6d37891793bb2e3f2b1552e00453000f33"
+  },
+  "skills": [
+    {
+      "text": "当你一次获得至少两张手牌或失去至少两张牌后，你可以令一名其他角色摸一张牌。",
+      "name": "弘德",
+      "code": "HongDe",
+      "id": 288
+    },
+    {
+      "text": "出牌阶段限X次（X为存活反贼数），你可以令一名装备区里有牌的角色摸一张牌并选择一项：1.你弃置其装备区里一张牌；2.其获得其装备区里的所有牌并受到1点伤害。",
+      "name": "定叛",
+      "code": "DingPan",
+      "id": 289
+    }
+  ],
+  "agreement": "Official page and current client skill wording agree after removing HTML layout tags.",
+  "duplicateCheck": "Scoped src text search found no BuZhi/bu-zhi/步骘/HongDe/DingPan/弘德/定叛 registration. Current roster count 393 supplied by root; no full registry executed.",
+  "existingCapabilities": [
+    "CardsGained / CardsMoved native per-batch windows",
+    "native actual draw / card movement children",
+    "private actual-actor choices",
+    "native damage / dying and typed parent returns"
+  ],
+  "mechanismAssessment": [
+    "HongDe needs exact once-per-owner movement batch qualifying hand destination gains >=2 OR all-zone losses >=2; no net-hand calculation and no duplicate OR payment. Existing windows may suffice; validate receipt facts before adding operations.",
+    "DingPan needs actual-current living Rebel count as play-phase usage limit; dynamic count after deaths and actual identity role privacy must remain intact.",
+    "Activation target is any living equipped role, including owner when legal; target chooses branch after real draw child; branch1 owner chooses exact current equipment to discard; branch2 target gains all current equipment then native damage1 with completed movement receipts retained."
+  ],
+  "candidateProtocol": "Freeze only committed candidate/choice receipt needed for each stage, revalidate current equipment and actor legality after actual draw/movement, drain paid children once on source loss/death; do not re-pay draw.",
+  "unresolvedBoundaries": [
+    "Damage source is not explicit in current primary text; no official FAQ verified. Do not infer source-less damage solely from wording.",
+    "Nonidentity modes with no Rebel roles, exact batch grouping and optional nested watcher order require implementation contracts and focused checks."
+  ],
+  "status": "preflight-only; awaiting root batch baseline and implementation authorization",
+  "verification": "No build, runner, full verification, src/tests/tools/art catalog/package changes."
+}

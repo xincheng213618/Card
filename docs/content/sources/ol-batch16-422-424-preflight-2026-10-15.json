@@ -1,0 +1,354 @@
+{
+  "capturedAtUtc": "2026-10-15T05:43:53.734825+00:00",
+  "status": "primary-preflight-complete-no-code-yet",
+  "scope": "Exact ordinary OL422/423/424, current primary pages/API reconciled with prior bounded exact current-client extraction.",
+  "previousAcceptedReport": {
+    "path": "docs/benchmarks/2026-10-15-zhang-ji-su-fei-huang-quan-verification.json",
+    "sha256": "390615f1639c4f24c383d017ed05d2ed66deed19ed19f2b01d605412f2be89c8"
+  },
+  "rosterBaseline": {
+    "path": "docs/benchmarks/2026-10-15-general-batch-16-roster-baseline.json",
+    "count": 411
+  },
+  "currentClient": {
+    "path": "docs/content/sources/evidence/ol-batch14-411-480-current-client-preflight-2026-10-15.json",
+    "sha256": "22a8158f9a7f1af27e5130d0de95f1e4eb4a4e19fbd7adb0439009e564fff483",
+    "clientBundleSha256": "66dfce61f1c4fb0aca35b6f85ed940e394719db84655f4d4146b463bc0cf8c1b",
+    "configSha256": "3d7536d4e2ca3d64707c2f6e0edbb8ccb4a045eee4274862dfa35431157c64f4",
+    "freshDecoderRun": false,
+    "wholeArchivesSaved": false
+  },
+  "liveContentSearch": {
+    "exactGeneralNamesCharacterIdsAndPrintedOLIds": "No existing registration in current content source. Accepted roster exact identities are independently empty."
+  },
+  "candidates": [
+    {
+      "officialId": 422,
+      "id": "ol:tang-zi",
+      "name": "唐咨",
+      "characterId": "character:tang-zi",
+      "variantId": "ordinary",
+      "rulesetId": "sanguosha-ol",
+      "gender": "male",
+      "faction": "wei",
+      "hp": 4,
+      "initialHp": null,
+      "initialHpExplanation": "API initial_hp=0 and no current client af override mean absent override, not zero starting HP.",
+      "character": {
+        "a": 422,
+        "b": "唐咨",
+        "d": "TangZi",
+        "e": 44,
+        "f": "46",
+        "g": 1,
+        "h": 1,
+        "i": 4,
+        "j": 861,
+        "p": 2,
+        "q": "1",
+        "r": "9042201",
+        "y": "魏利城（今江苏赣[gàn]榆西）人。魏文帝黄初中利城郡反，推唐咨为主。后为魏军击破，遂亡至吴，官至左将军，封侯、持节。后助诸葛诞拒魏，兵败被俘。为安抚吴国军民，魏主拜唐咨为安远将军。",
+        "z": "让自己保持在受伤状态可以避免自己变成\"白板\"。",
+        "aa": 68,
+        "ab": "698,699",
+        "x": "坚船利炮，####大破你的都城！",
+        "al": 0,
+        "am": "true",
+        "ap": 240,
+        "aq": 70,
+        "bx": 48000,
+        "cc": 0,
+        "starMax": 4,
+        "freetitle": "0,控制强将"
+      },
+      "printedSpells": [
+        {
+          "a": 861,
+          "b": "3,4,5",
+          "c": "兴棹",
+          "d": "XingZhaoSP",
+          "e": 0,
+          "g": 3,
+          "i": 2,
+          "m": "725",
+          "o": "锁定技，若全场已受伤角色数大于等于：<br>•1，你视为拥有“<font href='725'>恂恂</font>”；<br>•2，当你使用装备牌时，你摸一张牌；<br>•3，你跳过弃牌阶段。",
+          "u": "是否发动<font color='#FFD800'>恂恂</font>",
+          "ae": "{Source}发动了武将技<font color='#FFD800'>兴棹</font>，跳过弃牌阶段",
+          "ay": "系统提示→点“确定”"
+        }
+      ],
+      "linkedSpells": [
+        {
+          "a": 725,
+          "b": "3,5",
+          "c": "恂恂",
+          "d": "XunXun",
+          "e": 0,
+          "g": 3,
+          "i": 2,
+          "ab": 1,
+          "o": "摸牌阶段开始时，你可以观看牌堆顶的四张牌，然后将其中两张牌置于牌堆顶，将剩余牌置于牌堆底。",
+          "bb": "摸牌阶段开始时，你可以观看牌堆顶的四张牌，然后将其中两张牌置于牌堆顶，将剩余牌置于牌堆底。",
+          "v": "是否发动<font color='#FFD800'>恂恂</font>观看牌堆顶的牌",
+          "ac": "是否发动<font color='#FFD800'>恂恂</font>观看牌堆顶的牌",
+          "j": 1,
+          "ay": "系统提示→点\"确定\"→拖动选牌→点\"确定\""
+        }
+      ],
+      "officialVisibleSkillSection": "武将技能：\n兴棹\n锁定技，若全场已受伤角色数不小于：1，你视为拥有“\n恂恂\n”；2，当你使用装备牌时，你摸一张牌；3，你跳过弃牌阶段。",
+      "alignment": [
+        {
+          "spellId": 861,
+          "name": "兴棹",
+          "clientClass": "XingZhaoSP",
+          "clientText": "锁定技，若全场已受伤角色数大于等于：<br>•1，你视为拥有“<font href='725'>恂恂</font>”；<br>•2，当你使用装备牌时，你摸一张牌；<br>•3，你跳过弃牌阶段。",
+          "normalizedTextInOfficialPage": false,
+          "semanticTextAligned": true,
+          "difference": "Equivalent comparison wording only: current client 大于等于 versus website 不小于."
+        }
+      ],
+      "sources": [
+        {
+          "heroId": 422,
+          "kind": "api",
+          "url": "https://www.sanguosha.com/api/v1/hero/info?gid=422",
+          "status": 200,
+          "contentType": "application/json",
+          "path": "docs/content/sources/evidence/ol-batch16-422-424-422-api-2026-10-15.json",
+          "sha256": "6281bf69f5cfc1b8b575b758f9dc886e856766eacc2e1a7c7b754004334e5201",
+          "bytes": 939
+        },
+        {
+          "heroId": 422,
+          "kind": "page",
+          "url": "https://www.sanguosha.com/hero/422",
+          "status": 200,
+          "contentType": "text/html",
+          "path": "docs/content/sources/evidence/ol-batch16-422-424-422-page-2026-10-15.html",
+          "sha256": "025d464adf24eb9b6ee0d0980c53c01fad28c2ee5bfd8eeafdb35ba4497139ef",
+          "bytes": 25435
+        }
+      ],
+      "identityMatchesInAcceptedRoster": [],
+      "portraitUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/42200.png"
+    },
+    {
+      "officialId": 423,
+      "id": "ol:fan-chou",
+      "name": "樊稠",
+      "characterId": "character:fan-chou",
+      "variantId": "ordinary",
+      "rulesetId": "sanguosha-ol",
+      "gender": "male",
+      "faction": "qun",
+      "hp": 4,
+      "initialHp": null,
+      "initialHpExplanation": "API initial_hp=0 and no current client af override mean absent override, not zero starting HP.",
+      "character": {
+        "a": 423,
+        "b": "樊稠",
+        "d": "FanChou",
+        "e": 44,
+        "f": "43",
+        "g": 4,
+        "h": 1,
+        "i": 4,
+        "j": 862,
+        "p": 2,
+        "q": "1",
+        "r": "9042301",
+        "y": "樊稠，凉州金城人是东汉末年的军阀、将领。官至右将军，因为在联合李傕[jué]郭汜等人，围攻长安，迎接汉献帝，被封为万年侯。 原为董卓部将，董卓死后，伙同李傕、郭汜、张济等人合众十余万反扑长安，败吕布、杀王允，把持朝政。后马腾因与李傕有隙，于是联合韩遂举兵进攻，李傕派樊稠、郭汜等与其交战，大败马腾、韩遂于长平观下。樊稠追至陈仓，与韩遂友好罢兵，却遭李傕猜疑。兴平二年（195年），李傕让外甥骑都尉胡封在会议上将樊稠刺死。",
+        "z": "点数为6的牌多为【乐不思蜀】或基本牌，可以用来限制敌人的行动。",
+        "aa": 65,
+        "ab": "700,701",
+        "x": "乱世中，####也有我的一杯羹。",
+        "al": 3200,
+        "am": "true",
+        "ap": 240,
+        "aq": 70,
+        "bx": 80000,
+        "cc": 0,
+        "starMax": 4
+      },
+      "printedSpells": [
+        {
+          "a": 862,
+          "b": "3,5",
+          "c": "兴乱",
+          "d": "XingLuan",
+          "e": 0,
+          "g": 3,
+          "i": 2,
+          "n": 0,
+          "o": "出牌阶段限一次，当你使用牌后，你可以选择一项：<br>&nbsp;1.获得场上一张点数为6的牌；<br>&nbsp;2.从牌堆中两张点数为6的牌中选择一张获得（没有则摸一张牌）；<br>&nbsp;3.令一名其他角色弃置一张点数为6的牌或交给你一张牌。",
+          "v": "请选择一项;请选择一个目标",
+          "w": "请选择一张牌交给{0};请弃置一张点数为6的牌",
+          "ay": "系统提示→点“确定”"
+        }
+      ],
+      "linkedSpells": [],
+      "officialVisibleSkillSection": "武将技能：\n兴乱\n出牌阶段限一次，当你使用牌后，你可以选择一项：1.获得场上一张点数为6的牌；2.从牌堆中两张点数为6的牌中选择一张获得（没有则摸一张牌）；3.令一名其他角色弃置一张点数为6的牌或交给你一张牌。",
+      "alignment": [
+        {
+          "spellId": 862,
+          "name": "兴乱",
+          "clientClass": "XingLuan",
+          "clientText": "出牌阶段限一次，当你使用牌后，你可以选择一项：<br>&nbsp;1.获得场上一张点数为6的牌；<br>&nbsp;2.从牌堆中两张点数为6的牌中选择一张获得（没有则摸一张牌）；<br>&nbsp;3.令一名其他角色弃置一张点数为6的牌或交给你一张牌。",
+          "normalizedTextInOfficialPage": true,
+          "semanticTextAligned": true,
+          "difference": null
+        }
+      ],
+      "sources": [
+        {
+          "heroId": 423,
+          "kind": "api",
+          "url": "https://www.sanguosha.com/api/v1/hero/info?gid=423",
+          "status": 200,
+          "contentType": "application/json",
+          "path": "docs/content/sources/evidence/ol-batch16-422-424-423-api-2026-10-15.json",
+          "sha256": "0b0ac0135b43cda167152695fae9267c90d92d2b28b19e54b10891b8f5555430",
+          "bytes": 1303
+        },
+        {
+          "heroId": 423,
+          "kind": "page",
+          "url": "https://www.sanguosha.com/hero/423",
+          "status": 200,
+          "contentType": "text/html",
+          "path": "docs/content/sources/evidence/ol-batch16-422-424-423-page-2026-10-15.html",
+          "sha256": "27c2c9b055d11d6b5f833332d8664e27c955347548d8f67cd14f3470a36b3418",
+          "bytes": 25480
+        }
+      ],
+      "identityMatchesInAcceptedRoster": [],
+      "portraitUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/42300.png"
+    },
+    {
+      "officialId": 424,
+      "id": "ol:guo-si",
+      "name": "郭汜",
+      "characterId": "character:guo-si",
+      "variantId": "ordinary",
+      "rulesetId": "sanguosha-ol",
+      "gender": "male",
+      "faction": "qun",
+      "hp": 4,
+      "initialHp": null,
+      "initialHpExplanation": "API initial_hp=0 and no current client af override mean absent override, not zero starting HP.",
+      "character": {
+        "a": 424,
+        "b": "郭汜",
+        "d": "GuoSi",
+        "e": 44,
+        "f": "43",
+        "g": 4,
+        "h": 1,
+        "i": 4,
+        "j": 863,
+        "k": 864,
+        "p": 2,
+        "q": "1",
+        "r": "9042401",
+        "y": "郭汜，又名郭多，是凉州张掖人，东汉末年将领、军阀，献帝时权臣。本来为董卓部下。董卓被杀以后，凉州众将归无所依，加上王允对于董卓旧部的态度不明，导致郭汜等人内心惶恐，产生自保念头，想趁机逃跑，然此时，贾诩献策，郭汜等人考量良久后，于是便采用贾诩之谋，联兵将攻向长安，击败吕布，杀死王允等人。 郭汜等人占领长安，把持朝廷大权。这几年之间，李傕[jué]等人相互争权夺利，矛盾越来越激化。后来，郭汜欲劫汉献帝返回长安，计划败露，郭汜弃军逃奔南山。最后，郭汜被部将伍习杀死。",
+        "z": "可以获得别人的牌，用牌时尽量指定相同的目标来触发“伺盗”。",
+        "aa": 137,
+        "ab": "702,703",
+        "ad": "画师:秋呆呆",
+        "x": "长安在手，####我当为王！",
+        "al": 3210,
+        "am": "true",
+        "ap": 240,
+        "aq": 70,
+        "bx": 64000,
+        "LordCardRate1": 11,
+        "LordCardRate2": 39,
+        "cc": 0,
+        "starMax": 4
+      },
+      "printedSpells": [
+        {
+          "a": 863,
+          "b": "3",
+          "c": "贪狈",
+          "d": "TanBei",
+          "e": 0,
+          "g": 4,
+          "h": 1,
+          "i": 2,
+          "n": 0,
+          "o": "出牌阶段限一次，你可以令一名其他角色选择一项：<br>&nbsp;1.你随机获得其区域里一张牌，本回合不能对其使用牌；<br>&nbsp;2.你本回合对其使用牌无距离和次数限制。",
+          "v": "请选择一名角色，对其使用<font color='#FFD800'>贪狈</font>",
+          "ay": "系统提示→点“确定”"
+        },
+        {
+          "a": 864,
+          "b": "3,5",
+          "c": "伺盗",
+          "d": "SiDao",
+          "e": 0,
+          "g": 4,
+          "h": 1,
+          "i": 2,
+          "n": 0,
+          "o": "出牌阶段限一次，当你对一名其他角色连续使用两张牌后，你可以将一张手牌当【顺手牵羊】对其使用（须合法）。",
+          "v": "请选一张手牌当<font color='#FFD800'>顺手牵羊</font>使用",
+          "ay": "系统提示→点“确定”"
+        }
+      ],
+      "linkedSpells": [],
+      "officialVisibleSkillSection": "武将技能：\n贪狈\n伺盗\n出牌阶段限一次，你可以令一名其他角色选择一项：1.你随机获得其区域里一张牌，本回合不能对其使用牌；2.你本回合对其使用牌无距离和次数限制。\n出牌阶段限一次，当你对一名其他角色连续使用两张牌后，你可以将一张手牌当【顺手牵羊】对其使用（须合法）。",
+      "alignment": [
+        {
+          "spellId": 863,
+          "name": "贪狈",
+          "clientClass": "TanBei",
+          "clientText": "出牌阶段限一次，你可以令一名其他角色选择一项：<br>&nbsp;1.你随机获得其区域里一张牌，本回合不能对其使用牌；<br>&nbsp;2.你本回合对其使用牌无距离和次数限制。",
+          "normalizedTextInOfficialPage": true,
+          "semanticTextAligned": true,
+          "difference": null
+        },
+        {
+          "spellId": 864,
+          "name": "伺盗",
+          "clientClass": "SiDao",
+          "clientText": "出牌阶段限一次，当你对一名其他角色连续使用两张牌后，你可以将一张手牌当【顺手牵羊】对其使用（须合法）。",
+          "normalizedTextInOfficialPage": true,
+          "semanticTextAligned": true,
+          "difference": null
+        }
+      ],
+      "sources": [
+        {
+          "heroId": 424,
+          "kind": "api",
+          "url": "https://www.sanguosha.com/api/v1/hero/info?gid=424",
+          "status": 200,
+          "contentType": "application/json",
+          "path": "docs/content/sources/evidence/ol-batch16-422-424-424-api-2026-10-15.json",
+          "sha256": "5da44e839205adb97da22ce0cb9c1f1820114fd3cf8a49760bf71375bc1e1e12",
+          "bytes": 1346
+        },
+        {
+          "heroId": 424,
+          "kind": "page",
+          "url": "https://www.sanguosha.com/hero/424",
+          "status": 200,
+          "contentType": "text/html",
+          "path": "docs/content/sources/evidence/ol-batch16-422-424-424-page-2026-10-15.html",
+          "sha256": "fb7fe57f9defb1e34e7dae75b3bda54d5e4298d234e5c1097f1ff5932290fdd4",
+          "bytes": 26347
+        }
+      ],
+      "identityMatchesInAcceptedRoster": [],
+      "portraitUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/42400.png"
+    }
+  ],
+  "accessNotes": [
+    "web open422 timed out; ordinary urllib official page/API fetches for all six succeeded HTTP200. This was a timeout, not a safety block.",
+    "No exact character-specific combination FAQ has been verified.",
+    "Tang Zi current faction is explicitly Wei in fresh official API, matching current client factionRaw1."
+  ],
+  "workerBuildRun": false,
+  "workerTestsRun": false
+}

@@ -1,0 +1,266 @@
+{
+  "status": "verified-in-batch",
+  "owner": "/root/batch8_dong_zhao",
+  "batch": 16,
+  "generalId": "ol:guo-si",
+  "inputs": [
+    {
+      "path": "src/CardGame.Core/ProgramGuoSiOperations.cs",
+      "sha256": "a8af718c95cd6c3b688a39e6163e99b35915432272674f493e54efc73775731b"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.GuoSiPrograms.cs",
+      "sha256": "7a86db44a98829017d69bd993c2f4ed011bd51b4c61abd4ebe2e6d7d571d99d5"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.GuoSiObservers.cs",
+      "sha256": "2a83aed2b183977757adce13d3bf9c3a1f316d348ccb72260f146b586d388dca"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.GuoSiNativeUses.cs",
+      "sha256": "809a265b2eb29fee14101bc5b546ee0782da1d42f7f0e9810e61b03721ab924a"
+    },
+    {
+      "path": "src/CardGame.Content.Standard/OlGuoSiContent.cs",
+      "sha256": "9314c0cd951927f4fbadcd9d83be2859998d856044faf6bae527c3dc3ded242a"
+    },
+    {
+      "path": "src/CardGame.Content.Standard/SkillPrograms/ol-guo-si.rules.json",
+      "sha256": "560ec66198316d4870944146bf177609b2e1bd4a13293098e64de5ce8ad7e44f"
+    },
+    {
+      "path": "src/CardGame.Content.Standard/SkillPrograms/ol-guo-si.presentation.json",
+      "sha256": "dc667af720acd08c5067aed6e19dee57e7c7851262deb86ef585766a4dbee1b0"
+    },
+    {
+      "path": "tests/CardGame.Core.Tests/GuoSiChecks.cs",
+      "sha256": "cec6a4463461fd46ac0e785ed00c853d77148396c0fdad43ef952812d3ef0aba"
+    },
+    {
+      "path": "src/CardGame.Wpf/Assets/official-ol-guo-si.png",
+      "sha256": "625bbcbdc6ebcfaa07fd81f51d7895d68d28bef4ff0abc63fa40b84dd36b3b61"
+    },
+    {
+      "path": "docs/content/sources/ol-guo-si-2026-10-15.json",
+      "sha256": "186d264acaba9ce65275b30e3f62eca8a308746c530b932dc10aadb1e9ae7d63"
+    }
+  ],
+  "workerBuildRun": false,
+  "workerTestsRun": false,
+  "statusBeforeRootAcceptance": "seventh-focused-native-choice-fixture-frozen-for-root",
+  "rootVerification": {
+    "report": "docs/benchmarks/2026-10-15-tang-zi-fan-chou-guo-si-verification.json",
+    "focused": {
+      "summary": "docs/benchmarks/2026-10-15-batch-16-twenty-second-post-pruning-focused-summary.json",
+      "status": "passed",
+      "mode": "targeted",
+      "startedAt": "2026-10-15T15:21:49.0870699+08:00",
+      "durationMs": 7361,
+      "corePassed": 31,
+      "wpfPassed": 1,
+      "newBehaviorMethodsPassed": 19,
+      "coreFilters": [
+        "Short range Slash and directed ending debt:",
+        "Tang Zi:",
+        "Fan Chou:",
+        "Guo Si:",
+        "HP conditional grants:",
+        "program continuation registration",
+        "empty binding queries",
+        "Native discard classification:",
+        "Card response completion"
+      ],
+      "wpfFilters": [
+        "edition general gallery"
+      ],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "durationMs": 1282,
+          "status": "passed"
+        },
+        {
+          "name": "Core selected checks (9 filters, union)",
+          "durationMs": 5708,
+          "status": "passed"
+        },
+        {
+          "name": "WPF selected checks (1 filters, union)",
+          "durationMs": 5718,
+          "status": "passed"
+        }
+      ]
+    },
+    "routine": {
+      "summary": "docs/benchmarks/2026-10-15-batch-16-routine-summary.json",
+      "status": "passed",
+      "mode": "routine",
+      "startedAt": "2026-10-15T15:22:11.6834514+08:00",
+      "durationMs": 31098,
+      "corePassed": 119,
+      "wpfPassed": 20,
+      "newBehaviorMethodsPassed": 0,
+      "coreFilters": [
+        "program interaction registration preserves dispatch boundaries",
+        "program interaction AI preserves published choices and conditional policies",
+        "Identity concealment: UndefinedHpRejectsNativeRecoveryAndMaxHpNumberCalculation",
+        "Identity concealment: GameStartingHpLossAppearanceDoesNotOfferOffTurnGaoling",
+        "Identity concealment: NativeGroupRecoveryAndSilverLionRemovalRejectUndefinedHp",
+        "Identity concealment: SetupEveryViewerHasUndefinedHpAndForeignTemplatePrivacy",
+        "Identity concealment: ActualOwnTurnAppearanceRestoresLordInitialBonusWithoutOffTurnGaoling",
+        "Identity concealment: NativeSlashAppearanceGaolingRecoveryChildColdAndLaterDamage",
+        "Identity concealment: NativeProgramHpLossAndDamageReplacementRespectUndefinedHp",
+        "Identity concealment: PaidGaolingRecoveryChildCanKillAppearingOwnerAndReturnOnce",
+        "program continuation registration preserves ordered typed returns",
+        "First strategic damage: committed cursor survives real child windows and replay",
+        "skill executor retires strategic damage batches",
+        "frame-owned choices preserve multi-step bindings privacy and replay",
+        "Native discard classification: exact paid producers exclude adjacent gain and cleanup",
+        "Short range Slash and directed ending debt: ShortRangeNativeRedirectCursorAndFireOrdering",
+        "skill program activation BooleanState nested gates and current instance isolation",
+        "committed events see the accepted command",
+        "internal failure stops the session and preserves its trusted prefix",
+        "command projection preparation failure preserves prior commit",
+        "command delivery failure preserves visible commit",
+        "command observer exception preserves commit and result",
+        "prepared snapshot rejects observer collection mutation",
+        "committed event collections reject observer mutation",
+        "selected gift continues after recipient death",
+        "card movement programs compose atomic per-card and per-batch triggers with replay",
+        "nested card movement batches retain immediate parent identity",
+        "commands share prepared projection across result and reentry",
+        "content registry compiles whole catalog dependencies",
+        "execution plans reuse source bindings without order collisions",
+        "active Program contracts share legality with public AI",
+        "skill execution reads hand context only for dependent conditions",
+        "ordinary trick queries preserve exact options when narrowed",
+        "legal action queries preserve exact physical entity options",
+        "ordinary card snapshot reuse preserves appearance privacy and replay",
+        "program state projection preserves empty and live policy JSON",
+        "public pile projection preserves empty and live queries",
+        "general content modules preserve roster and registry boundaries",
+        "response use completion Dodge timing parent and replay",
+        "response use completion counterspell chain and replay",
+        "response use completion counterspell dying rescue exact parent",
+        "response use completion Dodge dying rescue exact parent",
+        "response use completion excludes group response and wrong loader window",
+        "current classic catalogue modes and skill references",
+        "phase exchange mixed zones atomicity and replay",
+        "owned-card set private draft movement and replay",
+        "owned-card set shortfall empty sources and invalidation",
+        "card-action judgment windows resume and replay",
+        "composition kernel resource graph safety",
+        "composition kernel malformed nodes",
+        "composition kernel boundary capabilities",
+        "composition kernel target-set consumption",
+        "rule query reduction is input-order independent",
+        "rule query reduction rejects invalid mutable inputs",
+        "rule query distance runs both directions before clamping",
+        "rule query registry rejects future Set conflicts",
+        "character skills retain separate sources and stable ownership",
+        "character skills reject conflicting grants without partial state",
+        "skill executor resumes child resolution without repeating paid effects",
+        "skill executor separates owner-death and lost-skill continuation rights",
+        "skill executor preserves continuation metadata and immutable definition checks",
+        "skill executor keeps lost-skill continuation behind its paid child",
+        "skill executor cancels remaining effects after an invalid selected cost",
+        "skill executor rejects changed programs and missing or duplicate handlers",
+        "active Program contracts reject invalid selections and preserve target order",
+        "card subset selector enumerates every legal subset once",
+        "card subset selector rejects oversized sources and freezes choices",
+        "lifecycle programs reject live card bindings across inserted phases",
+        "lifecycle programs cancel missing conditional bindings without leaks",
+        "cancelled lifecycle programs preserve parent attack cards",
+        "schema-19 additive draw adjustments, explicit draws and damage grants compose and replay",
+        "schema-19 reveal partitions, recovery and explicit draws conserve cards and replay",
+        "schema-19 draw-phase validation rejects unsafe data-flow graphs",
+        "viewer snapshot hides private roles and hands",
+        "viewer snapshot hides seed and other players' decisions",
+        "viewer cannot mutate the engine pending decision",
+        "commands publish a revision and reject stale input atomically",
+        "play commands use one exact published card and target choice",
+        "prompt answers validate prompt, choice, actor and revision",
+        "command reentry is a typed rejection",
+        "winner rules cover all three camps",
+        "standard deck content is deterministic and balanced",
+        "standard package builds an immutable isolated registry",
+        "content registry rejects duplicate ids and bad references",
+        "interactive setup exposes private deterministic general choices",
+        "accepted command journals serialize and replay deterministically",
+        "command checkpoints restore a paused private prompt deterministically",
+        "command checkpoints reject same-version content drift",
+        "initial deal registers every physical card in one zone",
+        "invalid single and batch moves are atomic",
+        "Slash and Dodge pass through the Processing zone",
+        "card inventory is conserved at every public boundary",
+        "observers run only after the public operation commits",
+        "typed host events are committed, ordered and deterministic",
+        "slash resolution exposes a serializable frame stack",
+        "duel alternates Slash responses through a typed window",
+        "Nullification resolves a private multi-layer trick window",
+        "PeachGarden resolves a paused multi-target recovery",
+        "FiveGrains reveals public cards with private draft prompts",
+        "FireAttack reveals privately then resolves typed fire damage",
+        "dying response can pause and recover with a private Peach",
+        "throwing observers are isolated after commit",
+        "synchronous observers cannot advance the engine reentrantly",
+        "an unknown phase fails fast",
+        "snapshot is JSON serializable",
+        "manual discards reject invalid subsets without mutation",
+        "manual discard checkpoints and commands replay exactly",
+        "skill program loader separates canonical gameplay from presentation",
+        "skill program loader rejects malformed and unsupported definitions",
+        "configured active sequences reject forged input and replay exact moves",
+        "program gameplay hashes control checkpoint compatibility independently of presentation",
+        "program dying checkpoints cancel a selected card spent on rescue",
+        "physical deck recipes preserve exact suit, rank and content hashing",
+        "Opening customization: private roster and initial hand rerolls replay",
+        "Opening customization: public Lord then nonzero human and private AI",
+        "Opening customization: nonzero team and national human before private AI",
+        "identity role general candidates freeze private choices and replay",
+        "identity general variants keep candidate families private and replay exact editions",
+        "identity Rebel kill reward draws exactly three cards and replays once"
+      ],
+      "wpfFilters": [
+        "table shortcuts execute once per key press and preserve modal drafts",
+        "stale prompt choices cannot answer reloaded or consecutive decisions",
+        "Edition general gallery: namespaced portraits and real details",
+        "Named private pile UI: owner pairs public counts and clear",
+        "general selection switches related editions without consuming candidate slots",
+        "Opening customization UI: identities roster and hand confirmation",
+        "Interaction motion: native lifecycle reversal and preference cancellation",
+        "conversion choices retain exact provenance without leaking trusted action details",
+        "composed skills share the generic WPF draft and submit their stable program identity",
+        "Program paid choices preserve actor control and opaque slots",
+        "declaration and general library views protect private faces",
+        "hand responses label actual decline and retain native press feedback",
+        "opaque target-card slots render privately and commit through WPF commands",
+        "saved UI boundaries restore and continue through actual files",
+        "failed writes and incompatible reads preserve the active game",
+        "battle feedback exposes only committed public actions",
+        "battle feedback health tracks follow committed damage recovery and loaded boundaries",
+        "card flights keep local hand origins private and retire cached layout",
+        "card flights hand off public faces once and restore interrupted arrivals",
+        "card flights preserve public suit rank and converted effective faces"
+      ],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "durationMs": 1442,
+          "status": "passed"
+        },
+        {
+          "name": "Core selected checks (119 filters, union)",
+          "durationMs": 9922,
+          "status": "passed"
+        },
+        {
+          "name": "WPF selected checks (20 filters, union)",
+          "durationMs": 29195,
+          "status": "passed"
+        }
+      ]
+    },
+    "fullRun": false
+  }
+}

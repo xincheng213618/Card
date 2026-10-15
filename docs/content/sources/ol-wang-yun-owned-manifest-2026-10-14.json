@@ -1,0 +1,52 @@
+{
+  "date": "2026-10-14",
+  "status": "verified-in-batch",
+  "files": [
+    {
+      "path": "src/CardGame.Core/ProgramWangYunOperations.cs",
+      "sha256": "dbf163626d5bbb15e2cc90b3f243c0b103e8dc1a1eefddaadc4f4f171bb371f6"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.WangYunPrograms.cs",
+      "sha256": "b49b0455e04052bc8fccfda13c4c2564532ba92c45261605fc2bf713f3f0d6fb"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.WangYunObservers.cs",
+      "sha256": "857c496baf64fa84ffee63d82b6a9e078457bc68aa6ba7b63090671070cfdfb1"
+    },
+    {
+      "path": "src/CardGame.Content.Standard/OlWangYunContent.cs",
+      "sha256": "03ad613b1dd35d5244f4242e5e3497aee55b5c1025b45bb46c027af4933b130d"
+    },
+    {
+      "path": "src/CardGame.Content.Standard/SkillPrograms/ol-wang-yun.rules.json",
+      "sha256": "fccbb6ab03156a53f0ea355fc9df5b3154292d9e0c434a31dc6142fb724b2636"
+    },
+    {
+      "path": "src/CardGame.Content.Standard/SkillPrograms/ol-wang-yun.presentation.json",
+      "sha256": "4c2362ad2d0d778d7e5e182827315c5e6c166768f623c8af4162327e9336ae9c"
+    },
+    {
+      "path": "tests/CardGame.Core.Tests/WangYunChecks.cs",
+      "sha256": "f8ac542d7281e19750c60c6575b9aa7455f1f5fabd49ae25fdfcb069e90fbbea"
+    },
+    {
+      "path": "src/CardGame.Wpf/Assets/official-ol-wang-yun.png",
+      "sha256": "8addb45cc0dbfd383b9abe322cdfd34c4fbada10979a2d62b2340e4e282484ff"
+    },
+    {
+      "path": "docs/content/sources/ol-wang-yun-2026-10-14.json",
+      "sha256": "18c9317ecee372a0484df6ae0e584ef5f607ca2beb8d36b269e41f46349faff5"
+    }
+  ],
+  "workerVerificationAtHandoff": "implementation-ready-focused-pending",
+  "routine": "passed-by-root",
+  "verification": {
+    "report": "docs/benchmarks/2026-10-14-wang-yun-zhuge-guo-xi-zhi-cai-verification.json",
+    "focused": "docs/benchmarks/2026-10-14-batch-12-tenth-final-focused-summary.json",
+    "routine": "docs/benchmarks/2026-10-14-batch-12-routine-summary.json",
+    "status": "passed",
+    "ranByWorker": false,
+    "ranByRoot": true
+  }
+}

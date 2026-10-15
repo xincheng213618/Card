@@ -1,0 +1,127 @@
+{
+  "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+  "sha256": "66dfce61f1c4fb0aca35b6f85ed940e394719db84655f4d4146b463bc0cf8c1b",
+  "boundedSearch": [
+    {
+      "term": "JianJie",
+      "matches": [
+        {
+          "offset": 856094,
+          "excerpt": "uHan2026\",m2i),this.r(\"FuJi\",Dki),this.r(\"FuJian\",yki),this.r(\"GuiMing\",Gki),this.r(\"GuiZao\",bki),this.r(\"JiYu\",HAi),this.r(\"GuJu\",kki),this.r(\"GuShe\",Oki),this.r(\"HanYong\",Mki),this.r(\"HuJi\",Pki),this.r(\"HuoJiSMH\",N7i),this.r(\"HuoJiSP\",D7i),this.r(\"JianJie\",Fki),this.r(\"JianJiSP\",Bki),this.r(\"JianShu\",y7i),this.r(\"JiaoZi\",xki),this.r(\"JiCi\",Hki),this.r(\"JieYuan\",Wki),this.r(\"JiLei\",Vki),this.r(\"JiLi2020\",Yki),this.r(\"JinGong\",Xki),this.r(\"JinGongRogue\",$2i),this.r(\"LongNuRogue\",j2i),this.r(\"JiWu\",Kki),this.r(\"KuanShi\",Jki),this.r(\"LianHuanSMH\",G7i),this.r(\"LianHuanSP\",qki),this.r(\"LianJi\",Qki),this.r(\"LianPian\",zki),this.r(\"LianPianSP\",jki),this.r(\"LianZhu\",$ki),this.r(\"LiHun\",iOi),this.r(\""
+        },
+        {
+          "offset": 4465985,
+          "excerpt": "受到一点伤害\";static Skill_ShuiYanQiJun_Label1=\"弃置装备\";static Skill_ShuiYanQiJun_Label2=\"受到伤害\";static XUFA_MOVE_HANDCARDS=\"放置蓄发牌\";static XUFA_MOVE_OUTCARDS=\"移去蓄发牌\";static GuoSePo_Skill_Operation1=\"当作“乐不思蜀”\";static GuoSePo_Skill_Operation2=\"弃置“乐不思蜀”\";static JianJie_Opt_label1=\"转移龙印\";static JianJie_Opt_label2=\"转移凤印\";static GuoSePo_Skill_Operation1_Desc=\"请选择一张方块牌，并选择一个要对其使用“乐不思蜀”的角色为目标\";static GuoSePo_Skill_Operation2_Desc=\"请选择一张方块牌，并选择一个角色为目标\";static GIVEN_CARD_TO_PROMPT=\"{0}\";static KuiZhu_Skill_Operation1=\"令其摸一张牌\";static KuiZhu_Skill_Operation2=\"对体力和为{0}的角色造成伤害\";static JunXingRace_Skill_Operation1=\"弃置{0}张牌且失去一点体力\";static JunXingRace_Skill_Operation2=\"翻面且摸{0}张牌\";static QueDi_Skill_Operation1=\"背水\";st"
+        },
+        {
+          "offset": 4466018,
+          "excerpt": "_Label1=\"弃置装备\";static Skill_ShuiYanQiJun_Label2=\"受到伤害\";static XUFA_MOVE_HANDCARDS=\"放置蓄发牌\";static XUFA_MOVE_OUTCARDS=\"移去蓄发牌\";static GuoSePo_Skill_Operation1=\"当作“乐不思蜀”\";static GuoSePo_Skill_Operation2=\"弃置“乐不思蜀”\";static JianJie_Opt_label1=\"转移龙印\";static JianJie_Opt_label2=\"转移凤印\";static GuoSePo_Skill_Operation1_Desc=\"请选择一张方块牌，并选择一个要对其使用“乐不思蜀”的角色为目标\";static GuoSePo_Skill_Operation2_Desc=\"请选择一张方块牌，并选择一个角色为目标\";static GIVEN_CARD_TO_PROMPT=\"{0}\";static KuiZhu_Skill_Operation1=\"令其摸一张牌\";static KuiZhu_Skill_Operation2=\"对体力和为{0}的角色造成伤害\";static JunXingRace_Skill_Operation1=\"弃置{0}张牌且失去一点体力\";static JunXingRace_Skill_Operation2=\"翻面且摸{0}张牌\";static QueDi_Skill_Operation1=\"背水\";static QueDi_Skill_Operation2=\"获得其手"
+        },
+        {
+          "offset": 16122040,
+          "excerpt": "illItem(){let t=this.GetMultiSelectDatas(null);return t&&Ms.I().event(mIt.APPLYLASTSPELLCONTEXT,new mIt(\"\",null,t.btnDatas,this,t.optMsg,mIt.MULTI_SELECT)),!0}GetMultiSelectDatas(t){let i,s=[],e=ewt.SKILL_MULTISELECT_MSG;return i=new DIt,i.label=ewt.JianJie_Opt_label1,i.callBack=this.multiSelectCallback,i.thisObject=this,i.enabled=null!=c1t.GetSeatByState(Ef.DATA_LONGYING),i.callBackParams=[0],i.sendType=Y$t.OPT_INVALID,s.push(i),i=new DIt,i.label=ewt.JianJie_Opt_label2,i.callBack=this.multiSelectCallback,i.thisObject=this,i.enabled=null!=c1t.GetSeatByState(Ef.DATA_FENGYING),i.callBackParams=[1],i.sendType=Y$t.OPT_INVALID,s.push(i),i=new DIt,i.label=ewt.Cancel,i.callBack=this.multiSelectCall"
+        },
+        {
+          "offset": 16122246,
+          "excerpt": "ULTISELECT_MSG;return i=new DIt,i.label=ewt.JianJie_Opt_label1,i.callBack=this.multiSelectCallback,i.thisObject=this,i.enabled=null!=c1t.GetSeatByState(Ef.DATA_LONGYING),i.callBackParams=[0],i.sendType=Y$t.OPT_INVALID,s.push(i),i=new DIt,i.label=ewt.JianJie_Opt_label2,i.callBack=this.multiSelectCallback,i.thisObject=this,i.enabled=null!=c1t.GetSeatByState(Ef.DATA_FENGYING),i.callBackParams=[1],i.sendType=Y$t.OPT_INVALID,s.push(i),i=new DIt,i.label=ewt.Cancel,i.callBack=this.multiSelectCallback,i.thisObject=this,i.enabled=!0,i.callBackParams=[2],s.push(i),{btnDatas:s,optMsg:e,isWindow:!1}}multiSelectCallback(t){this.optFlag=t,Ms.I().event(sB.HIDE_SPELLSELECTOR),2==t?qQt.SendRoleOptRep(this.Se"
+        }
+      ]
+    },
+    {
+      "term": "jianjie",
+      "matches": [
+        {
+          "offset": 21178810,
+          "excerpt": "awChild(e);let h=YBi.GetNormalGradientText(24,145,26,NTt.LS);this.contentSprite.addDrawChild(h),h.text=this.isGeneralSkin?this.generalinfo.ItemNameSimpleNoColor:this.skinData.skinBaseVo.skinname,h.x=t+63,h.y=e.y+11;let r=new CSt(fwt.GetRes(\"skinInfo_jianjie\"));r.x=e.x+61,r.y=e.y+35,this.contentSprite.addDrawChild(r);let n=new Laya.Panel;n.width=140,n.height=48,n.vScrollBarSkin=fwt.GetAtlasUrl(\"hscroll\"),n.vScrollBar.autoHide=!0,n.x=e.x+104,n.y=e.y+46,this.contentSprite.addChild(n);let a=new jSt;a.width=131,a.color=\"#E4D5A0\",a.fontSize=12,a.wordWrap=!0;let l=\"\";if(this.isGeneralSkin)l=this.generalinfo.RoleDesc;else{l=this.generalinfo.RoleDesc}a.text=l,n.addChild(a);let o=0,u=new CSt(fwt.GetRe"
+        }
+      ]
+    },
+    {
+      "term": "HuoJi",
+      "matches": [
+        {
+          "offset": 847627,
+          "excerpt": "an\",v8i),this.r(\"XiongSuan\",U8i),this.r(\"YiZhi\",lDi),this.r(\"YongJue\",oDi),this.r(\"ZhenDu\",uDi),this.r(\"AoZhan\",cDi),this.r(\"JingJia\",_Di),this.r(\"ShenQu\",dDi),this.r(\"XiuLuo\",fDi),this.r(\"BaZhen\",EDi),this.r(\"ManJia\",gDi),this.r(\"DaWu\",pDi),this.r(\"HuoJi\",vki),this.r(\"JianChu\",FDi),this.r(\"JieMing\",SDi),this.r(\"JieMingPo\",Twi),this.r(\"KanPo\",XDi),this.r(\"KuangFeng\",TDi),this.r(\"LianHuan\",Zki),this.r(\"LuanJi\",QDi),this.r(\"MengJin\",IDi),this.r(\"NiePan\",F8i),this.r(\"QiangXi\",CDi),this.r(\"QiangXi2019\",wDi),this.r(\"QiangXi2019Rogue\",sdi),this.r(\"QiXing\",RDi),this.r(\"QuHu\",ADi),this.r(\"ShuangXiong\",mDi),this.r(\"GuCheng\",Oli),this.r(\"GuChengXin\",kli),this.r(\"FuNeng\",bli),this.r(\"DuiHua\",Gli),this."
+        },
+        {
+          "offset": 848584,
+          "excerpt": "iPo\",ODi),this.r(\"FenWei\",W8i),this.r(\"GangLiePo\",MDi),this.r(\"GuanXingPo\",V8i),this.r(\"GuiCaiPo\",PDi),this.r(\"GuiDaoPo\",Y8i),this.r(\"GuoSePo\",vDi),this.r(\"HanZhanPo\",UDi),this.r(\"HongYanPo\",X8i),this.r(\"HuaShenPo\",K8i),this.r(\"HunZiPo\",Xrs),this.r(\"HuoJiPo\",J8i),this.r(\"JianChuPo\",Z8i),this.r(\"JianXiongPo\",BDi),this.r(\"JieRenDe\",xDi),this.r(\"PoJunPo\",y5i),this.r(\"JieYinPo\",HDi),this.r(\"JiuChiPo\",WDi),this.r(\"JiuYuanPo\",VDi),this.r(\"JiZhiPo\",YDi),this.r(\"KanPoPo\",q8i),this.r(\"KuRouPo\",KDi),this.r(\"LeiJiPo\",JDi),this.r(\"LianHuanPo\",UOi),this.r(\"LianYingPo\",ZDi),this.r(\"LiYu\",qDi),this.r(\"LongDanPo\",Q8i),this.r(\"LuanJiPo\",z8i),this.r(\"LuoShenPo\",zDi),this.r(\"LuoYiPo\",jDi),this.r(\"NiePanPo\",j8i"
+        },
+        {
+          "offset": 854119,
+          "excerpt": "(\"AoCai1\",Pni),this.r(\"BaiJia\",L7i),this.r(\"HuiShiRace1\",n_i),this.r(\"FuJing\",ACi),this.r(\"XuGouNS2022\",Iri),this.r(\"YiZhongPo\",Tri),this.r(\"ReMen\",Ini),this.r(\"ManYiHM\",nri),this.r(\"FuYin\",rni),this.r(\"QuXian\",RCi),this.r(\"HuiShiRace2\",j3i),this.r(\"HuoJiRace\",jui),this.r(\"KongChengRace\",zui),this.r(\"KanPoRace\",Qui),this.r(\"GuanXingRace\",qui),this.r(\"ZuoXingRace\",r_i),this.r(\"TianYiRace\",z3i),this.r(\"FangQuanRace\",i_i),this.r(\"JieMingRace\",h_i),this.r(\"ZhenShan\",tci),this.r(\"YaoMingPo\",$ui),this.r(\"MuTao\",e_i),this.r(\"YiMou\",s_i),this.r(\"LuCun\",sci),this.r(\"ZiQu2025\",nai),this.r(\"MuBing2025\",eai),this.r(\"DiaoLing2025\",K2i),this.r(\"TuiSheng\",D3i),this.r(\"JieYuan2025\",ici),this.r(\"DuLie\",bpi),"
+        },
+        {
+          "offset": 856049,
+          "excerpt": "r(\"FenXun\",Nki),this.r(\"FuHan\",m7i),this.r(\"FuHan2026\",m2i),this.r(\"FuJi\",Dki),this.r(\"FuJian\",yki),this.r(\"GuiMing\",Gki),this.r(\"GuiZao\",bki),this.r(\"JiYu\",HAi),this.r(\"GuJu\",kki),this.r(\"GuShe\",Oki),this.r(\"HanYong\",Mki),this.r(\"HuJi\",Pki),this.r(\"HuoJiSMH\",N7i),this.r(\"HuoJiSP\",D7i),this.r(\"JianJie\",Fki),this.r(\"JianJiSP\",Bki),this.r(\"JianShu\",y7i),this.r(\"JiaoZi\",xki),this.r(\"JiCi\",Hki),this.r(\"JieYuan\",Wki),this.r(\"JiLei\",Vki),this.r(\"JiLi2020\",Yki),this.r(\"JinGong\",Xki),this.r(\"JinGongRogue\",$2i),this.r(\"LongNuRogue\",j2i),this.r(\"JiWu\",Kki),this.r(\"KuanShi\",Jki),this.r(\"LianHuanSMH\",G7i),this.r(\"LianHuanSP\",qki),this.r(\"LianJi\",Qki),this.r(\"LianPian\",zki),this.r(\"LianPianSP\",jki),this."
+        },
+        {
+          "offset": 856072,
+          "excerpt": "\"FuHan\",m7i),this.r(\"FuHan2026\",m2i),this.r(\"FuJi\",Dki),this.r(\"FuJian\",yki),this.r(\"GuiMing\",Gki),this.r(\"GuiZao\",bki),this.r(\"JiYu\",HAi),this.r(\"GuJu\",kki),this.r(\"GuShe\",Oki),this.r(\"HanYong\",Mki),this.r(\"HuJi\",Pki),this.r(\"HuoJiSMH\",N7i),this.r(\"HuoJiSP\",D7i),this.r(\"JianJie\",Fki),this.r(\"JianJiSP\",Bki),this.r(\"JianShu\",y7i),this.r(\"JiaoZi\",xki),this.r(\"JiCi\",Hki),this.r(\"JieYuan\",Wki),this.r(\"JiLei\",Vki),this.r(\"JiLi2020\",Yki),this.r(\"JinGong\",Xki),this.r(\"JinGongRogue\",$2i),this.r(\"LongNuRogue\",j2i),this.r(\"JiWu\",Kki),this.r(\"KuanShi\",Jki),this.r(\"LianHuanSMH\",G7i),this.r(\"LianHuanSP\",qki),this.r(\"LianJi\",Qki),this.r(\"LianPian\",zki),this.r(\"LianPianSP\",jki),this.r(\"LianZhu\",$ki),this.r"
+        },
+        {
+          "offset": 878577,
+          "excerpt": "$5i),this.r(\"XuMin\",j5i),this.r(\"YiDu2\",hIi),this.r(\"ZheFu2\",sIi),this.r(\"JianHe\",iIi),this.r(\"ChuanWu\",$Ti),this.r(\"ZhanLieRace\",gui),this.r(\"HanZhanRace\",fui),this.r(\"ZhenFengRace\",_3i),this.r(\"YiCongRace2\",dui),this.r(\"QiaoMengRace2\",_ui),this.r(\"HuoJi2023\",Brs),this.r(\"KanPo2023\",Frs),this.r(\"DaiLi\",tIi),this.r(\"ChenShuo\",jTi),this.r(\"TianHou\",PZt),this.r(\"ZhouYu\",zTi),this.r(\"NingWu\",qTi),this.r(\"LieShu\",QTi),this.r(\"YanShuang\",ZTi),this.r(\"LieGong2023\",XTi),this.r(\"FangZhen\",JTi),this.r(\"LiuJu\",KTi),this.r(\"LianHe\",YTi),this.r(\"HuanJia\",VTi),this.r(\"MiuYan\",WTi),this.r(\"ShiLu\",HTi),this.r(\"JinLan\",q5i),this.r(\"ShuangXiongPo\",xTi),this.r(\"GangShu\",BTi),this.r(\"GongKu\",UTi),this.r(\"FeiYa"
+        },
+        {
+          "offset": 886102,
+          "excerpt": "ou\",$di),this.r(\"NieShi\",qdi),this.r(\"ChangQiang\",nfi),this.r(\"JuePan\",rfi),this.r(\"MoYan\",Bdi),this.r(\"DeRu\",Zdi),this.r(\"LinJie\",Jdi),this.r(\"XieTu\",Kdi),this.r(\"YuRen\",Xdi),this.r(\"DuLing\",Ydi),this.r(\"JianSheng\",Vdi),this.r(\"DingXi\",Fdi),this.r(\"HuoJie\",Udi),this.r(\"NengChen\",vdi),this.r(\"QingYan\",Pdi),this.r(\"YinHuo\",Mdi),this.r(\"JueCe2024\",bdi),this.r(\"PingYuan\",Odi),this.r(\"LiaoYi\",kdi),this.r(\"PiLiChe2024\",x4i),this.r(\"ZhuoLe\",Gdi),this.r(\"QiaoWu\",ydi),this.r(\"LunZhan\",Cdi),this.r(\"JueJue1\",Idi),this.r(\"LongLin\",Rdi),this.r(\"ZhenDan\",Ldi),this.r(\"ChouLie\",U4i),this.r(\"ZhuiJiao\",wdi),this.r(\"MiLin\",pdi),this.r(\"ChengChi\",Edi),this.r(\"ZhanXiong\",gdi),this.r(\"YangSheng\",fdi),this.r(\"Fan"
+        }
+      ]
+    },
+    {
+      "term": "LianHuan",
+      "matches": [
+        {
+          "offset": 847759,
+          "excerpt": "\",_Di),this.r(\"ShenQu\",dDi),this.r(\"XiuLuo\",fDi),this.r(\"BaZhen\",EDi),this.r(\"ManJia\",gDi),this.r(\"DaWu\",pDi),this.r(\"HuoJi\",vki),this.r(\"JianChu\",FDi),this.r(\"JieMing\",SDi),this.r(\"JieMingPo\",Twi),this.r(\"KanPo\",XDi),this.r(\"KuangFeng\",TDi),this.r(\"LianHuan\",Zki),this.r(\"LuanJi\",QDi),this.r(\"MengJin\",IDi),this.r(\"NiePan\",F8i),this.r(\"QiangXi\",CDi),this.r(\"QiangXi2019\",wDi),this.r(\"QiangXi2019Rogue\",sdi),this.r(\"QiXing\",RDi),this.r(\"QuHu\",ADi),this.r(\"ShuangXiong\",mDi),this.r(\"GuCheng\",Oli),this.r(\"GuChengXin\",kli),this.r(\"FuNeng\",bli),this.r(\"DuiHua\",Gli),this.r(\"XinChuan\",Ali),this.r(\"JinJin\",mli),this.r(\"TianYi\",NDi),this.r(\"XueYi\",DDi),this.r(\"BaoNuePo\",yDi),this.r(\"BiYuePo\",B8i),this.r("
+        },
+        {
+          "offset": 848859,
+          "excerpt": "nChuPo\",Z8i),this.r(\"JianXiongPo\",BDi),this.r(\"JieRenDe\",xDi),this.r(\"PoJunPo\",y5i),this.r(\"JieYinPo\",HDi),this.r(\"JiuChiPo\",WDi),this.r(\"JiuYuanPo\",VDi),this.r(\"JiZhiPo\",YDi),this.r(\"KanPoPo\",q8i),this.r(\"KuRouPo\",KDi),this.r(\"LeiJiPo\",JDi),this.r(\"LianHuanPo\",UOi),this.r(\"LianYingPo\",ZDi),this.r(\"LiYu\",qDi),this.r(\"LongDanPo\",Q8i),this.r(\"LuanJiPo\",z8i),this.r(\"LuoShenPo\",zDi),this.r(\"LuoYiPo\",jDi),this.r(\"NiePanPo\",j8i),this.r(\"PaoXiaoPo\",$8i),this.r(\"PiaoLing\",tyi),this.r(\"QianXunPo\",iyi),this.r(\"QiMouPo\",Krs),this.r(\"QingJianNew\",syi),this.r(\"QingNangPo\",Hbi),this.r(\"QinXue\",i7i),this.r(\"RuoYuPo\",Jrs),this.r(\"ShanYuPo\",eyi),this.r(\"SheBian\",hyi),this.r(\"SiShuPo\",ryi),this.r(\"TianXiangPo"
+        },
+        {
+          "offset": 856382,
+          "excerpt": "his.r(\"JianShu\",y7i),this.r(\"JiaoZi\",xki),this.r(\"JiCi\",Hki),this.r(\"JieYuan\",Wki),this.r(\"JiLei\",Vki),this.r(\"JiLi2020\",Yki),this.r(\"JinGong\",Xki),this.r(\"JinGongRogue\",$2i),this.r(\"LongNuRogue\",j2i),this.r(\"JiWu\",Kki),this.r(\"KuanShi\",Jki),this.r(\"LianHuanSMH\",G7i),this.r(\"LianHuanSP\",qki),this.r(\"LianJi\",Qki),this.r(\"LianPian\",zki),this.r(\"LianPianSP\",jki),this.r(\"LianZhu\",$ki),this.r(\"LiHun\",iOi),this.r(\"LingRen\",sOi),this.r(\"LiuShi\",eOi),this.r(\"LiXia\",rOi),this.r(\"LiXia2026\",hOi),this.r(\"LiZhan\",nOi),this.r(\"LuanFeng\",b7i),this.r(\"MeiBu\",aOi),this.r(\"MouCheng\",k7i),this.r(\"MouShi\",lOi),this.r(\"MuBing\",oOi),this.r(\"MuMu\",uOi),this.r(\"NeiFa\",tJt),this.r(\"NuZhan\",cOi),this.r(\"QiGong\",_Oi)"
+        },
+        {
+          "offset": 856408,
+          "excerpt": "r(\"JiaoZi\",xki),this.r(\"JiCi\",Hki),this.r(\"JieYuan\",Wki),this.r(\"JiLei\",Vki),this.r(\"JiLi2020\",Yki),this.r(\"JinGong\",Xki),this.r(\"JinGongRogue\",$2i),this.r(\"LongNuRogue\",j2i),this.r(\"JiWu\",Kki),this.r(\"KuanShi\",Jki),this.r(\"LianHuanSMH\",G7i),this.r(\"LianHuanSP\",qki),this.r(\"LianJi\",Qki),this.r(\"LianPian\",zki),this.r(\"LianPianSP\",jki),this.r(\"LianZhu\",$ki),this.r(\"LiHun\",iOi),this.r(\"LingRen\",sOi),this.r(\"LiuShi\",eOi),this.r(\"LiXia\",rOi),this.r(\"LiXia2026\",hOi),this.r(\"LiZhan\",nOi),this.r(\"LuanFeng\",b7i),this.r(\"MeiBu\",aOi),this.r(\"MouCheng\",k7i),this.r(\"MouShi\",lOi),this.r(\"MuBing\",oOi),this.r(\"MuMu\",uOi),this.r(\"NeiFa\",tJt),this.r(\"NuZhan\",cOi),this.r(\"QiGong\",_Oi),this.r(\"QiRang\",dOi),this"
+        },
+        {
+          "offset": 868104,
+          "excerpt": "angYou2019\",eBi),this.r(\"MeiRenJi\",hBi),this.r(\"NanManRuQin\",nBi),this.r(\"NiShuiXingZhou2019\",aBi),this.r(\"ShanDian\",lBi),this.r(\"ShuiYanQiJun2\",Its),this.r(\"ShunShouQianYang\",oBi),this.r(\"SuiJiYingBian\",uBi),this.r(\"TaoYuanJieYi\",cBi),this.r(\"TieSuoLianHuan\",wBi),this.r(\"TongZhouGongJi2019\",_Bi),this.r(\"WanJianQiFa\",dBi),this.r(\"WuGuFengDeng\",EBi),this.r(\"WuGuFengDeng1\",fBi),this.r(\"WuXieKeJi\",UQt),this.r(\"WuZhongShengYou\",pBi),this.r(\"XiaoLiCangDao\",SBi),this.r(\"ZhaDan\",TBi),this.r(\"BingSha\",jrs),this.r(\"HuoSha\",$rs),this.r(\"LeiSha\",tns),this.r(\"ShuiYanQiJun\",CBi),this.r(\"BaoZhuNS\",wts),this.r(\"ChunLianNS\",LBi),this.r(\"NianShouChange\",RBi),this.r(\"EnhanceSkill\",ABi),this.r(\"YingBianCanQu\","
+        }
+      ]
+    },
+    {
+      "term": "YeYan",
+      "matches": [
+        {
+          "offset": 857408,
+          "excerpt": ",this.r(\"WeiKui\",NOi),this.r(\"WuNiang\",DOi),this.r(\"XiaHui\",yOi),this.r(\"XiaShu\",GOi),this.r(\"XieFang\",bOi),this.r(\"XieFang2026\",Whi),this.r(\"XingShen\",kOi),this.r(\"XingWu\",OOi),this.r(\"XiYing\",MOi),this.r(\"XuShen\",M7i),this.r(\"YanJiao\",POi),this.r(\"YeYanSMH\",Qrs),this.r(\"YeYanSP\",zrs),this.r(\"YiDian\",vOi),this.r(\"YingBing\",FOi),this.r(\"YingYuan\",BOi),this.r(\"YongDi\",P7i),this.r(\"YouLong\",xOi),this.r(\"YuanHu\",HOi),this.r(\"YuHua\",WOi),this.r(\"YuXu\",VOi),this.r(\"ZhengNan\",YOi),this.r(\"ZhengNanBSN\",XOi),this.r(\"ZhengNan2026\",Zhi),this.r(\"ZhenLve\",KOi),this.r(\"ZhenYi\",JOi),this.r(\"ZhiDao\",ZOi),this.r(\"ZhiXi\",qOi),this.r(\"ZhouFu\",QOi),this.r(\"ZhuiJi\",zOi),this.r(\"ZiQu\",jOi),this.r(\"ZiShuSP\",tMi),"
+        },
+        {
+          "offset": 857431,
+          "excerpt": "his.r(\"WuNiang\",DOi),this.r(\"XiaHui\",yOi),this.r(\"XiaShu\",GOi),this.r(\"XieFang\",bOi),this.r(\"XieFang2026\",Whi),this.r(\"XingShen\",kOi),this.r(\"XingWu\",OOi),this.r(\"XiYing\",MOi),this.r(\"XuShen\",M7i),this.r(\"YanJiao\",POi),this.r(\"YeYanSMH\",Qrs),this.r(\"YeYanSP\",zrs),this.r(\"YiDian\",vOi),this.r(\"YingBing\",FOi),this.r(\"YingYuan\",BOi),this.r(\"YongDi\",P7i),this.r(\"YouLong\",xOi),this.r(\"YuanHu\",HOi),this.r(\"YuHua\",WOi),this.r(\"YuXu\",VOi),this.r(\"ZhengNan\",YOi),this.r(\"ZhengNanBSN\",XOi),this.r(\"ZhengNan2026\",Zhi),this.r(\"ZhenLve\",KOi),this.r(\"ZhenYi\",JOi),this.r(\"ZhiDao\",ZOi),this.r(\"ZhiXi\",qOi),this.r(\"ZhouFu\",QOi),this.r(\"ZhuiJi\",zOi),this.r(\"ZiQu\",jOi),this.r(\"ZiShuSP\",tMi),this.r(\"ZongKui\",iMi),t"
+        },
+        {
+          "offset": 860048,
+          "excerpt": "ngNu\",sPi),this.r(\"PoXi\",ePi),this.r(\"QinYin\",LUi),this.r(\"RenJie\",hPi),this.r(\"SheLie\",rPi),this.r(\"ShenFu\",nPi),this.r(\"ShuLiu\",aPi),this.r(\"SuWei\",lPi),this.r(\"TianXing\",j7i),this.r(\"WuHun\",oPi),this.r(\"WuShen\",uPi),this.r(\"XiangJin\",$7i),this.r(\"YeYan\",t9i),this.r(\"ZhanHuo\",i9i),this.r(\"ZhiTi\",_Pi),this.r(\"BenXi\",dPi),this.r(\"BingYi\",fPi),this.r(\"FaEn\",gPi),this.r(\"FenLi\",EPi),this.r(\"FenLiPo\",E2i),this.r(\"JianYing\",pPi),this.r(\"JiaoJin\",SPi),this.r(\"PingDi\",TPi),this.r(\"PingKou\",IPi),this.r(\"PingKouPo\",g2i),this.r(\"QiangZhi\",CPi),this.r(\"QieTing\",wPi),this.r(\"ShenDuan\",LPi),this.r(\"ShenXing\",RPi),this.r(\"SiDi\",APi),this.r(\"XianTu\",mPi),this.r(\"XianZhou\",s9i),this.r(\"YongLue\",NPi),this.r"
+        },
+        {
+          "offset": 7964986,
+          "excerpt": "Seat,s,\"请选择伤害数量\",0,!0,300,80,\"请选择伤害数量\",!0)}else t.UpdateState(Ef.DATA_YEYAN,1)}else t.UpdateState(Ef.DATA_YEYAN,1);super.AddTarget(t)}getBtns(t,i){let s,e=[];for(let h=0;h<t;h++)s=new DIt,s.label=h+1+\"点伤害\",s.callBackParams=[h+1,i],s.callBack=this.addYeYanState,s.thisObject=this,s.sendType=Y$t.OPT_INVALID,s.height=26,s.width=84,e.push(s);return e}addYeYanState(t,i){i&&i.UpdateState(Ef.DATA_YEYAN,t)}RemoveTarget(t){super.RemoveTarget(t),t.UpdateState(Ef.DATA_YEYAN,0)}ClearSeats(){this.targets.forEach((t=>{t.UpdateState(Ef.DATA_YEYAN,0)})),super.ClearSeats()}get IsAllowMultiHurt(){if(!this.skill||!this.skill.Seat||!this.skill.Seat.HandCards)return!1;let t=!1,i=!1,s=!1,e=!1;return this.skill.Sea"
+        },
+        {
+          "offset": 7965087,
+          "excerpt": "DATA_YEYAN,1);super.AddTarget(t)}getBtns(t,i){let s,e=[];for(let h=0;h<t;h++)s=new DIt,s.label=h+1+\"点伤害\",s.callBackParams=[h+1,i],s.callBack=this.addYeYanState,s.thisObject=this,s.sendType=Y$t.OPT_INVALID,s.height=26,s.width=84,e.push(s);return e}addYeYanState(t,i){i&&i.UpdateState(Ef.DATA_YEYAN,t)}RemoveTarget(t){super.RemoveTarget(t),t.UpdateState(Ef.DATA_YEYAN,0)}ClearSeats(){this.targets.forEach((t=>{t.UpdateState(Ef.DATA_YEYAN,0)})),super.ClearSeats()}get IsAllowMultiHurt(){if(!this.skill||!this.skill.Seat||!this.skill.Seat.HandCards)return!1;let t=!1,i=!1,s=!1,e=!1;return this.skill.Seat.HandCards.forEach((h=>{switch(h.FlowerOnSeat){case _q.Heart:t=!0;break;case _q.Club:i=!0;break;case"
+        },
+        {
+          "offset": 20172864,
+          "excerpt": "constructor(){super(),this.activeMode=vCt.ACTIVE,this.timeLimitGame=1,this.targetCountMin=1,this.targetCountMax=3,this.enableCancel=!0,this.cardUseType=UCt.DISCARD}BeforeTouchSkillItem(){return this.yeyanStep=0,this.hideTimerNum=0,!1}yeyanStep=0;get YeYanStep(){return this.yeyanStep}get CardCountMax(){return this.HasMultiHurtTarget?4:0}get CardCountMin(){return this.HasMultiHurtTarget?4:0}get TargetCountMax(){let t=this.AssignableHP;return this.targetSelector&&(t+=this.targetSelector.SelectedSeatCount),t}get HasMultiHurtTarget(){let t=!1;if(this.targetSelector&&this.targetSelector.Targets&&this.targetSelector.Targets.length>0){let i,s=this.targetSelector.Targets||[];for(let e=0;e<s.length;e+"
+        }
+      ]
+    }
+  ]
+}

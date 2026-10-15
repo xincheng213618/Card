@@ -1,0 +1,816 @@
+{
+  "capturedAtUtc": "2026-10-14T14:45:10.400846+00:00",
+  "clientBundleUrl": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+  "clientBundleSha256": "66dfce61f1c4fb0aca35b6f85ed940e394719db84655f4d4146b463bc0cf8c1b",
+  "clientBundleBytes": 5256349,
+  "configUrl": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+  "configSha256": "3d7536d4e2ca3d64707c2f6e0edbb8ccb4a045eee4274862dfa35431157c64f4",
+  "configBytes": 4142822,
+  "decoder": "fresh public InitOfb AES-CFB128 then gzip; key/IV extracted from current bundle",
+  "decoderImplementationSha256": "5d43faf95f0e328b6927ec6fd717e4a532b38b411dbfe01ab880c3a58559ea5f",
+  "members": {
+    "character.sgs": {
+      "encodedSha256": "e0b6f0188edebb1f502ea402c7171e93b88f4e9d05720948344a1f4f44474aae",
+      "decodedSha256": "b3ef3f1181e7fe667499cb688b7cdce56631d899dbb0eea55d75fbf80636b040",
+      "encodedBytes": 352776,
+      "decodedBytes": 1485056
+    },
+    "cha_spell.sgs": {
+      "encodedSha256": "0c244585a54d101377d6e8d17cca27df2eb9520cff11f73b3373e8b3ddc5fe3d",
+      "decodedSha256": "c42298ef8eeed59ac5e2f30854ec1d35a9f38df80410403c849f0a3e2753a0d9",
+      "encodedBytes": 246028,
+      "decodedBytes": 1166955
+    }
+  },
+  "tableMetadata": {
+    "characterTable": "GameCharacters.character",
+    "characterRowCount": 1631,
+    "spellTable": "GameSpells.spell",
+    "spellRowCount": 3091,
+    "characterAbbreviations": {
+      "field": [
+        {
+          "Long": "id",
+          "Short": "a"
+        },
+        {
+          "Long": "name",
+          "Short": "b"
+        },
+        {
+          "Long": "beizhuname",
+          "Short": "c"
+        },
+        {
+          "Long": "Class",
+          "Short": "d"
+        },
+        {
+          "Long": "exType",
+          "Short": "e"
+        },
+        {
+          "Long": "GeneralItemType",
+          "Short": "f"
+        },
+        {},
+        {
+          "Long": "country",
+          "Short": "g"
+        },
+        {
+          "Long": "gender",
+          "Short": "h"
+        },
+        {
+          "Long": "hp",
+          "Short": "i"
+        },
+        {
+          "Long": "spellId1",
+          "Short": "j"
+        },
+        {
+          "Long": "spellId2",
+          "Short": "k"
+        },
+        {
+          "Long": "spellId3",
+          "Short": "l"
+        },
+        {
+          "Long": "spellId4",
+          "Short": "m"
+        },
+        {
+          "Long": "spellId5",
+          "Short": "n"
+        },
+        {
+          "Long": "spellId6",
+          "Short": "o"
+        },
+        {
+          "Long": "Quality",
+          "Short": "p"
+        },
+        {
+          "Long": "GeneralEnable",
+          "Short": "q"
+        },
+        {
+          "Long": "GeneralShopID",
+          "Short": "r"
+        },
+        {
+          "Long": "Vip",
+          "Short": "s"
+        },
+        {
+          "Long": "Children",
+          "Short": "t"
+        },
+        {
+          "Long": "Parent",
+          "Short": "u"
+        },
+        {
+          "Long": "GeneralSkinParent",
+          "Short": "v"
+        },
+        {
+          "Long": "DefaultGeneralSkinAlone",
+          "Short": "w"
+        },
+        {
+          "Long": "WinnerWords",
+          "Short": "x"
+        },
+        {
+          "Long": "RoleDesc",
+          "Short": "y"
+        },
+        {
+          "Long": "RolePoint",
+          "Short": "z"
+        },
+        {
+          "Long": "GeneralSkillTechType",
+          "Short": "aa"
+        },
+        {
+          "Long": "AchIDList",
+          "Short": "ab"
+        },
+        {
+          "Long": "friends",
+          "Short": "ac"
+        },
+        {
+          "Long": "DefaultPainter",
+          "Short": "ad"
+        },
+        {
+          "Long": "SP",
+          "Short": "ae"
+        },
+        {
+          "Long": "initHp",
+          "Short": "af"
+        },
+        {
+          "Long": "Master",
+          "Short": "ag"
+        },
+        {
+          "Long": "Zhulianbihe",
+          "Short": "ah"
+        },
+        {
+          "Long": "SpecifyName",
+          "Short": "ai"
+        },
+        {
+          "Long": "SeatName",
+          "Short": "aj"
+        },
+        {
+          "Long": "ShowState",
+          "Short": "ak"
+        },
+        {
+          "Long": "rec",
+          "Short": "al"
+        },
+        {
+          "Long": "DianJiangEnable",
+          "Short": "am"
+        },
+        {
+          "Long": "CanClose",
+          "Short": "an"
+        },
+        {
+          "Long": "bangeneral",
+          "Short": "ao"
+        },
+        {
+          "Long": "officerPoint",
+          "Short": "ap"
+        },
+        {
+          "Long": "officerSPoint",
+          "Short": "aq"
+        },
+        {
+          "Long": "officerTime",
+          "Short": "ar"
+        },
+        {
+          "Long": "powerful",
+          "Short": "as"
+        },
+        {
+          "Long": "powerful2",
+          "Short": "at"
+        },
+        {
+          "Long": "AvatarUseId",
+          "Short": "au"
+        },
+        {
+          "Long": "AvatarUseId1",
+          "Short": "av"
+        },
+        {
+          "Long": "SoundUseID",
+          "Short": "aw"
+        },
+        {
+          "Long": "ShopItemAnotherID",
+          "Short": "ax"
+        },
+        {
+          "Long": "SuperDianJiang",
+          "Short": "ay"
+        },
+        {
+          "Long": "DianJiangShopID",
+          "Short": "az"
+        },
+        {
+          "Long": "ShowTime",
+          "Short": "ba"
+        },
+        {
+          "Long": "newGeneralDate",
+          "Short": "bb"
+        },
+        {
+          "Long": "yuanCountry",
+          "Short": "bc"
+        },
+        {
+          "Long": "xLine",
+          "Short": "bd"
+        },
+        {
+          "Long": "xLineM",
+          "Short": "be"
+        },
+        {
+          "Long": "shareG",
+          "Short": "bf"
+        },
+        {
+          "Long": "H5Class",
+          "Short": "bg"
+        },
+        {
+          "Long": "recNewZhu",
+          "Short": "bh"
+        },
+        {
+          "Long": "recNewZhong",
+          "Short": "bi"
+        },
+        {
+          "Long": "recNewFan",
+          "Short": "bj"
+        },
+        {
+          "Long": "recNewNei",
+          "Short": "bk"
+        },
+        {
+          "Long": "recNewHuanLe",
+          "Short": "bl"
+        },
+        {
+          "Long": "localRes",
+          "Short": "bm"
+        },
+        {
+          "Long": "lable1",
+          "Short": "bn"
+        },
+        {
+          "Long": "lable8",
+          "Short": "bo"
+        },
+        {
+          "Long": "lable9",
+          "Short": "bp"
+        },
+        {
+          "Long": "lable10",
+          "Short": "bq"
+        },
+        {
+          "Long": "lable2",
+          "Short": "br"
+        },
+        {
+          "Long": "lable3",
+          "Short": "bs"
+        },
+        {
+          "Long": "lable4",
+          "Short": "bt"
+        },
+        {
+          "Long": "lable5",
+          "Short": "bu"
+        },
+        {
+          "Long": "lable6",
+          "Short": "bv"
+        },
+        {
+          "Long": "lable7",
+          "Short": "bw"
+        },
+        {
+          "Long": "price",
+          "Short": "bx"
+        },
+        {
+          "Long": "LordCardRate1",
+          "Short": "by"
+        },
+        {
+          "Long": "LordCardRate2",
+          "Short": "bz"
+        },
+        {
+          "Long": "newgeneralisshow",
+          "Short": "ca"
+        },
+        {
+          "Long": "guanggaomode",
+          "Short": "cb"
+        },
+        {
+          "Long": "guanggaoskin",
+          "Short": "cc"
+        },
+        {
+          "Long": "yinwen",
+          "Short": "cd"
+        },
+        {
+          "Long": "YiBoYunTian",
+          "Short": "ce"
+        },
+        {
+          "Long": "SecondCountry",
+          "Short": "cf"
+        }
+      ]
+    },
+    "spellAbbreviations": {
+      "field": [
+        {
+          "Long": "id",
+          "Short": "a"
+        },
+        {
+          "Long": "type",
+          "Short": "b"
+        },
+        {
+          "Long": "name",
+          "Short": "c"
+        },
+        {
+          "Long": "Class",
+          "Short": "d"
+        },
+        {
+          "Long": "Range",
+          "Short": "e"
+        },
+        {
+          "Long": "OfflineType",
+          "Short": "f"
+        },
+        {
+          "Long": "AniType",
+          "Short": "g"
+        },
+        {
+          "Long": "Active",
+          "Short": "h"
+        },
+        {
+          "Long": "SkillType",
+          "Short": "i"
+        },
+        {
+          "Long": "AutoLaunch",
+          "Short": "j"
+        },
+        {
+          "Long": "UnskipWx",
+          "Short": "k"
+        },
+        {
+          "Long": "skillAnimation",
+          "Short": "l"
+        },
+        {
+          "Long": "DeriveSkills",
+          "Short": "m"
+        },
+        {
+          "Long": "effect",
+          "Short": "n"
+        },
+        {
+          "Long": "desc",
+          "Short": "o"
+        },
+        {
+          "Long": "SimplyDesc",
+          "Short": "p"
+        },
+        {
+          "Long": "GaiPan",
+          "Short": "q"
+        },
+        {
+          "Long": "JudgeTips",
+          "Short": "r"
+        },
+        {
+          "Long": "JudgeTipsM",
+          "Short": "s"
+        },
+        {
+          "Long": "PindianTip",
+          "Short": "t"
+        },
+        {
+          "Long": "ActiveTip",
+          "Short": "v"
+        },
+        {
+          "Long": "PassiveTip",
+          "Short": "u"
+        },
+        {
+          "Long": "DefensiveTip",
+          "Short": "w"
+        },
+        {
+          "Long": "DescribeNew3v3",
+          "Short": "x"
+        },
+        {
+          "Long": "Describe4v4",
+          "Short": "y"
+        },
+        {
+          "Long": "EffectDesc",
+          "Short": "z"
+        },
+        {
+          "Long": "DescribeGuo",
+          "Short": "aa"
+        },
+        {
+          "Long": "CanHalfShow",
+          "Short": "ab"
+        },
+        {
+          "Long": "AskTip",
+          "Short": "ac"
+        },
+        {
+          "Long": "MatrixType",
+          "Short": "ad"
+        },
+        {
+          "Long": "UseTip",
+          "Short": "ae"
+        },
+        {
+          "Long": "IconTip",
+          "Short": "af"
+        },
+        {
+          "Long": "OperationNew3v3",
+          "Short": "ag"
+        },
+        {
+          "Long": "EquipActiveTip",
+          "Short": "ah"
+        },
+        {
+          "Long": "OperationNew1v1",
+          "Short": "ai"
+        },
+        {
+          "Long": "DescribeNew1v1",
+          "Short": "aj"
+        },
+        {
+          "Long": "ResultTip",
+          "Short": "ak"
+        },
+        {},
+        {},
+        {
+          "Long": "SimpleName",
+          "Short": "al"
+        },
+        {
+          "Long": "dmgSpell",
+          "Short": "am"
+        },
+        {
+          "Long": "Properties",
+          "Short": "an"
+        },
+        {
+          "Long": "TargetType",
+          "Short": "ao"
+        },
+        {
+          "Long": "fix1",
+          "Short": "ap"
+        },
+        {
+          "Long": "fix2",
+          "Short": "aq"
+        },
+        {
+          "Long": "fix3",
+          "Short": "ar"
+        },
+        {
+          "Long": "noshow",
+          "Short": "as"
+        },
+        {
+          "Long": "MvpScoresParm",
+          "Short": "at"
+        },
+        {
+          "Long": "MvpScoresParm2",
+          "Short": "au"
+        },
+        {
+          "Long": "MvpScoresParm3",
+          "Short": "av"
+        },
+        {
+          "Long": "CanTake",
+          "Short": "aw"
+        },
+        {
+          "Long": "AssistantTips",
+          "Short": "ax"
+        },
+        {
+          "Long": "Operation",
+          "Short": "ay"
+        },
+        {
+          "Long": "StrategyTip",
+          "Short": "az"
+        },
+        {
+          "Long": "StageSkill",
+          "Short": "ba"
+        },
+        {
+          "Long": "shortdesc",
+          "Short": "bb"
+        }
+      ]
+    }
+  },
+  "fullUpstreamArchivesRetainedLocally": false,
+  "requestedHeroIds": [
+    372,
+    373,
+    375
+  ],
+  "scope": "Read-only batch12 exact current ordinary OL primary preflight; no implementation",
+  "characters": [
+    {
+      "a": 372,
+      "b": "王允",
+      "d": "WangYun",
+      "e": 44,
+      "f": "42",
+      "g": 4,
+      "h": 1,
+      "i": 4,
+      "j": 365,
+      "k": 366,
+      "p": 2,
+      "q": "1",
+      "r": "937201",
+      "s": 10,
+      "y": "东汉末年的重要大臣，出身官宦世家，在演义中，王允先出借七宝刀予曹操，以期刺杀董卓。失败后又遣养女貂蝉离间董卓吕布，最终成功杀死董卓。董卓死后，王允握持大权，矜功自傲，致使董卓余党李傕[jué]、郭汜等反叛，吕布出逃，王允被处死。",
+      "z": "可以给队友提供武器。觉醒后可以根据场上局势转化不同的锦囊牌。害怕被控制手牌。",
+      "aa": 265,
+      "ab": "616,617",
+      "ad": "画师:Thinking",
+      "x": "董国贼已伏诛，####你们还不速投老夫门下",
+      "al": 4010,
+      "am": "true",
+      "ap": 240,
+      "aq": 70,
+      "bx": 80000,
+      "LordCardRate1": 0,
+      "LordCardRate2": 7,
+      "cc": 37201,
+      "starMax": 4,
+      "freetitle": "0,辅助强将"
+    },
+    {
+      "a": 373,
+      "b": "诸葛果",
+      "d": "ZhuGeGuo",
+      "e": 44,
+      "f": "45",
+      "g": 2,
+      "h": 2,
+      "i": 3,
+      "j": 11001,
+      "k": 11002,
+      "p": 2,
+      "q": "1",
+      "r": "937301",
+      "y": "传说中诸葛亮与黄月英的女儿，自幼跟随诸葛亮修行，习得禳[ráng]斗之法，终身未嫁，最终得道成仙，飞升而去。",
+      "z": "使用装备可以获得锦囊牌，且可以在弃牌阶段保留锦囊牌不弃掉。防御能力较弱。",
+      "aa": 68,
+      "ab": "618,619",
+      "ad": "画师:NOVART",
+      "x": "我自快意，####化入天穹飞逍遥",
+      "al": 3300,
+      "am": "true",
+      "ap": 240,
+      "aq": 70,
+      "bt": "54",
+      "bx": 80000,
+      "cc": 37309,
+      "starMax": 4
+    },
+    {
+      "a": 375,
+      "b": "戏志才",
+      "d": "XiZhiCai",
+      "e": 44,
+      "f": "42",
+      "g": 1,
+      "h": 1,
+      "i": 3,
+      "j": 51,
+      "k": 376,
+      "l": 377,
+      "p": 2,
+      "q": "1",
+      "r": "937501",
+      "v": "723",
+      "y": "曹操手下谋士。为人多谋略，曹操十分器重，但不幸早卒。",
+      "z": "辅助一个队友，能给队友提供大量的帮助。可以控制全场，包括解延迟锦囊和限制敌方距离。",
+      "aa": 280,
+      "ab": "620,621",
+      "ad": "画师:眉毛子",
+      "x": "拖着我的病躯，####也要完成主公的大义...",
+      "al": 3280,
+      "am": "true",
+      "ap": 240,
+      "aq": 70,
+      "ay": 3,
+      "bn": "单点辅助能力极强的必备将",
+      "bx": 4500,
+      "LordCardRate1": 18,
+      "LordCardRate2": 61,
+      "cc": 0,
+      "starMax": 4,
+      "freetitle": "0,辅助强将"
+    }
+  ],
+  "spells": [
+    {
+      "a": 51,
+      "b": "3,5",
+      "c": "天妒",
+      "d": "TianDu",
+      "e": 0,
+      "g": 7,
+      "i": 2,
+      "ab": 1,
+      "o": "当你的判定牌生效后，你可以获得此牌。",
+      "bb": "你判定后，可以获得判定牌。",
+      "v": "是否获得判定牌",
+      "p": "你可获得你的判定牌。",
+      "j": 1,
+      "ay": "系统提示→点\"确定\""
+    },
+    {
+      "a": 365,
+      "b": "3",
+      "c": "连计",
+      "d": "LianJi",
+      "e": 0,
+      "g": 7,
+      "h": 1,
+      "i": 2,
+      "n": 1,
+      "o": "出牌阶段限一次，你可以弃置一张手牌令一名其他角色随机使用牌堆中一张武器牌，然后其选择一项：<br>&nbsp;1.对你指定的一名角色使用【杀】；<br>&nbsp;2.你将其装备区的武器交给一名角色。",
+      "w": "{0}对你使用<font color='#FFD800'>连计</font>，请你使用<font color='#FFD800'>杀</font>，否则你装备的武器可以交给任意角色",
+      "aw": "1",
+      "ay": "系统提示→点“确定”"
+    },
+    {
+      "a": 366,
+      "b": "3,4,5,6,23",
+      "c": "谋逞",
+      "d": "MouCheng",
+      "e": 0,
+      "g": 7,
+      "i": 2,
+      "l": "wangyunmoucheng",
+      "m": "367",
+      "o": "觉醒技，准备阶段，若你本局“连计”中使用的【杀】造成过伤害，你失去“连计”并获得“<font href='367'>矜功</font>”。",
+      "ay": "系统提示→点“确定”"
+    },
+    {
+      "a": 376,
+      "b": "3,4,5",
+      "c": "先辅",
+      "d": "XianFu",
+      "e": 0,
+      "g": 5,
+      "i": 2,
+      "n": 1,
+      "o": "锁定技，游戏开始时，你选择一名其他角色，在本局中：<br>•当其受到伤害后，你受到等量伤害；<br>•当其回复体力后，你回复等量体力。",
+      "w": "请选择<font color='#FFD800'>先辅</font>的目标",
+      "ay": "系统提示→点“确定”"
+    },
+    {
+      "a": 377,
+      "b": "3,5",
+      "c": "筹策",
+      "d": "ChouCe",
+      "e": 0,
+      "g": 6,
+      "i": 2,
+      "o": "当你受到1点伤害后，你可以判定，若结果为：<br>•红色，你令一名角色摸一张牌，若其为“先辅”目标，改为摸两张牌；<br>•黑色，你弃置一名角色区域里的一张牌。",
+      "w": "请选择一名角色并弃置其区域内的一张牌|请选择一名角色摸牌",
+      "j": 1,
+      "ay": "系统提示→点“确定”"
+    },
+    {
+      "a": 11001,
+      "b": "3,5",
+      "c": "祈禳",
+      "d": "QiRang",
+      "e": 0,
+      "g": 3,
+      "i": 2,
+      "o": "当你使用装备牌时，你可以获得牌堆中一张锦囊牌，若此牌为：<br>•普通锦囊牌：你使用此牌指定唯一目标时可以多指定一个目标；<br>•延时锦囊牌：你下回合“羽化”观看的牌数+1（至多为5）。",
+      "v": "请为<font color='#ffff00'>{0}</font>选择一个额外目标或取消",
+      "ac": "是否发动<font color='#ffff00'>{0}</font>摸一张牌;是否发动<font color='#ffff00'>{0}</font>为<font color='#ffff00'>{1}</font>增加一个目标",
+      "ae": "{0}发动{1},将{2}增为{3}的目标",
+      "ay": "系统提示→点“确定”"
+    },
+    {
+      "a": 11002,
+      "b": "3,4",
+      "c": "羽化",
+      "d": "YuHua",
+      "e": 0,
+      "g": 2,
+      "i": 2,
+      "o": "锁定技，弃牌阶段，你的锦囊牌和装备牌不计入手牌上限。准备阶段和结束阶段，你观看牌堆顶的一张牌并将其置于牌堆顶或牌堆底。",
+      "ay": "系统提示→点“确定”"
+    }
+  ],
+  "linkedSpells": [
+    {
+      "a": 367,
+      "b": "3",
+      "c": "矜功",
+      "d": "JinGong",
+      "e": 0,
+      "g": 7,
+      "h": 1,
+      "i": 2,
+      "o": "出牌阶段限一次，你可以将一张【杀】或装备牌当三张随机锦囊牌中的一张使用。",
+      "aw": "1",
+      "ay": "系统提示→点“确定”"
+    }
+  ],
+  "linkedIdsRequested": [
+    367
+  ],
+  "unresolvedLinkedIds": [],
+  "attributeEvidence": "Raw g/h/i fields retained with exact table abbreviation schema. No guessed skill IDs, FAQ or native runtime ruling."
+}

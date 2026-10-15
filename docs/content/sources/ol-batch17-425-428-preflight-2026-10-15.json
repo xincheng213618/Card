@@ -1,0 +1,484 @@
+{
+  "capturedAtUtc": "2026-10-15T07:24:47.851666+00:00",
+  "status": "primary-preflight-reconciled-current-client-contracts-pending",
+  "scope": "Exact ordinary OL425/426/428. OL427 Xu Jing already exists and is deliberately skipped. Current-client text is authoritative for current variant; official-page differences require explicit reconciliation.",
+  "previousAcceptedReport": {
+    "path": "docs/benchmarks/2026-10-15-tang-zi-fan-chou-guo-si-verification.json",
+    "sha256": "4633b6434cfbd602dda120c524f4246e1e094b13a4ffe9157de8ccce8b25d646"
+  },
+  "rosterBaseline": {
+    "path": "docs/benchmarks/2026-10-15-general-batch-17-roster-baseline.json",
+    "count": 414
+  },
+  "currentClient": {
+    "path": "docs/content/sources/evidence/ol-batch14-411-480-current-client-preflight-2026-10-15.json",
+    "sha256": "22a8158f9a7f1af27e5130d0de95f1e4eb4a4e19fbd7adb0439009e564fff483",
+    "clientBundleSha256": "66dfce61f1c4fb0aca35b6f85ed940e394719db84655f4d4146b463bc0cf8c1b",
+    "configSha256": "3d7536d4e2ca3d64707c2f6e0edbb8ccb4a045eee4274862dfa35431157c64f4",
+    "freshDecoderRun": false,
+    "wholeArchivesSaved": false
+  },
+  "candidates": [
+    {
+      "officialId": 425,
+      "id": "ol:zhang-qi-ying",
+      "name": "张琪瑛",
+      "characterId": "character:zhang-qi-ying",
+      "variantId": "ordinary",
+      "rulesetId": "sanguosha-ol",
+      "currentClientCharacter": {
+        "a": 425,
+        "b": "张琪瑛",
+        "d": "ZhangQiYing",
+        "e": 46,
+        "f": "25",
+        "g": 4,
+        "h": 2,
+        "i": 3,
+        "j": 865,
+        "k": 3448,
+        "l": 3446,
+        "p": 4,
+        "q": "1",
+        "r": "9042501",
+        "y": "张琪瑛，她的父亲是东汉末年割据汉中的军阀张鲁。她的曾祖父张陵是西汉留侯张良的十一世孙、天师道[五斗米道]教祖，张琪瑛继承家说，是五斗米教的传人。张琪瑛父亲张鲁在汉中二十多年，信徒众多，成为汉末一支颇有实力的割据势力，这期间，张琪瑛也随父亲学习五斗米道教义等。建安二十年（215年），曹操亲率十万大军西征汉中，抵达阳平关，张鲁想要投降曹操。张鲁一家跟随曹操回邺城。曹操封张琪瑛五个哥哥为列侯。曹操将张琪瑛许配给儿子曹宇。",
+        "z": "需要弃牌获取标记，标记对应不同情况使用换取收益，受可以拿别人手牌的武将限制。",
+        "aa": 288,
+        "ab": "704,705",
+        "x": "五斗米教，我将不负父亲所托",
+        "al": 4190,
+        "am": "true",
+        "ap": 1500,
+        "aq": 450,
+        "az": "0",
+        "bx": 500000,
+        "LordCardRate1": 41,
+        "LordCardRate2": 55,
+        "cc": 0,
+        "starMax": 4
+      },
+      "printedSpells": [
+        {
+          "a": 865,
+          "b": "3,4,5",
+          "c": "法箓",
+          "d": "FaLu",
+          "e": 0,
+          "g": 4,
+          "i": 2,
+          "o": "锁定技，当你的牌因弃置置入弃牌堆后，你根据花色获得1枚对应标记：<br>•黑桃“紫微”；•梅花“后土”；<br>•红桃“玉清”；•方片“勾陈”（每种至多1枚）。<br>游戏开始时，你获得以上四种标记。",
+          "ay": "系统提示→点“确定”"
+        },
+        {
+          "a": 3448,
+          "b": "3,5",
+          "c": "点化",
+          "d": "DianHua2023",
+          "e": 0,
+          "g": 4,
+          "i": 2,
+          "o": "准备阶段或结束阶段，你可以观看牌堆顶的X张牌（X为你“法箓”的标记数），然后将这些牌以任意顺序置于牌堆顶或牌堆底。",
+          "j": 1,
+          "ak": "点化",
+          "ay": "系统提示→点“确定”"
+        },
+        {
+          "a": 3446,
+          "b": "3,5",
+          "c": "真仪",
+          "d": "ZhenYi2023",
+          "e": 0,
+          "g": 5,
+          "h": 1,
+          "i": 2,
+          "o": "你可以在以下时机移除相应标记并触发效果：<br>•“紫微”：当一张判定牌生效前，你将判定结果改为黑桃5或红桃5；<br>•“后土”：你的回合外，你将一张牌当【桃】使用；<br>•“玉清”：当你造成伤害时，你令此伤害+1；<br>•“勾陈”：当你受到属性伤害后，你获得牌堆中三种类型的牌各一张。",
+          "v": "选择一张牌当<font color='#FFD800'>桃</font>使用",
+          "ac": "是否发动<font color='#FFD800'>真仪</font>将一张牌当<font color='#FFD800'>桃</font>|是否发动<font color='#FFD800'>真仪</font>改变点数|是否发动<font color='#FFD800'>真仪</font>从牌堆获得牌|是否发动<font color='#FFD800'>真仪</font>令伤害+1|是否发动<font color='#FFD800'>真仪</font>从牌堆获得牌",
+          "q": 1
+        }
+      ],
+      "officialApiIdentity": {
+        "gid": 425,
+        "name": "张琪瑛",
+        "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/425.png",
+        "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/42500.png",
+        "label": [
+          "困难",
+          "加伤",
+          "判定"
+        ],
+        "figure": "群",
+        "figure_py": "qun",
+        "quality": "限定",
+        "biography": "张琪瑛，她的父亲是东汉末年割据汉中的军阀张鲁。她的曾祖父张陵是西汉留侯张良的十一世孙、天师道[五斗米道]教祖，张琪瑛继承家说，是五斗米教的传人。张琪瑛父亲张鲁在汉中二十多年，信徒众多，成为汉末一支颇有实力的割据势力，这期间，张琪瑛也随父亲学习五斗米道教义等。建安二十年（215年），曹操亲率十万大军西征汉中，抵达阳平关，张鲁想要投降曹操。张鲁一家跟随曹操回邺城。曹操封张琪瑛五个哥哥为列侯。曹操将张琪瑛许配给儿子曹宇。",
+        "characteristic": "需要弃牌获取标记，标记对应不同情况使用换取收益，受可以拿别人手牌的武将限制。",
+        "hp": 3,
+        "initial_hp": 0,
+        "score": 0
+      },
+      "identityMatchesInAcceptedRoster": [],
+      "skillComparisons": [
+        {
+          "spellId": 865,
+          "name": "法箓",
+          "clientKey": "FaLu",
+          "clientText": "锁定技，当你的牌因弃置置入弃牌堆后，你根据花色获得1枚对应标记：<br>•黑桃“紫微”；•梅花“后土”；<br>•红桃“玉清”；•方片“勾陈”（每种至多1枚）。<br>游戏开始时，你获得以上四种标记。",
+          "normalizedTextInOfficialPage": false,
+          "semanticTextAligned": true,
+          "difference": "FaLu semantics align; raw substring differs because the client uses bullet markup."
+        },
+        {
+          "spellId": 3448,
+          "name": "点化",
+          "clientKey": "DianHua2023",
+          "clientText": "准备阶段或结束阶段，你可以观看牌堆顶的X张牌（X为你“法箓”的标记数），然后将这些牌以任意顺序置于牌堆顶或牌堆底。",
+          "normalizedTextInOfficialPage": false,
+          "semanticTextAligned": false,
+          "difference": "Official page has top-only ordering; linked current DianHua2023 explicitly permits top or bottom."
+        },
+        {
+          "spellId": 3446,
+          "name": "真仪",
+          "clientKey": "ZhenYi2023",
+          "clientText": "你可以在以下时机移除相应标记并触发效果：<br>•“紫微”：当一张判定牌生效前，你将判定结果改为黑桃5或红桃5；<br>•“后土”：你的回合外，你将一张牌当【桃】使用；<br>•“玉清”：当你造成伤害时，你令此伤害+1；<br>•“勾陈”：当你受到属性伤害后，你获得牌堆中三种类型的牌各一张。",
+          "normalizedTextInOfficialPage": false,
+          "semanticTextAligned": false,
+          "difference": "Official page retains self-dying hand-only Peach and a black judgment before damage bonus; linked current ZhenYi2023 permits outside-own-turn card-to-Peach and direct optional damage +1."
+        }
+      ],
+      "sources": [
+        {
+          "heroId": 425,
+          "kind": "page",
+          "url": "https://www.sanguosha.com/hero/425",
+          "status": 200,
+          "contentType": "text/html",
+          "path": "docs/content/sources/evidence/ol-batch17-425-428-425-page-2026-10-15.html",
+          "sha256": "0f1946ad3a33cce7059289343666f2a1a0782bebeced7cdb3952a33c656c9a9a",
+          "bytes": 27268
+        },
+        {
+          "heroId": 425,
+          "kind": "api",
+          "url": "https://www.sanguosha.com/api/v1/hero/info?gid=425",
+          "status": 200,
+          "contentType": "application/json",
+          "path": "docs/content/sources/evidence/ol-batch17-425-428-425-api-2026-10-15.json",
+          "sha256": "c69d44d74f88886413fe6070a5fed444256966c3ad80231963d41aa42c857cb2",
+          "bytes": 1345
+        }
+      ],
+      "portraitUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/42500.png",
+      "freshOfficialSkillSection": "法箓\n真仪\n点化\n锁定技，当你的牌因弃置置入弃牌堆后，你根据花色获得1枚对应标记：黑桃“紫微”；梅花“后土”；红桃“玉清”；方片“勾陈”（每种至多1枚）。游戏开始时，你获得以上四种标记。\n你可以在以下时机移除相应标记并触发效果：“紫薇”当一张判定牌生效前，你将判定结果改为黑桃5或红桃5；“后土”当你处于濒死状态时，你将一张手牌当【桃】使用；“玉清”当你造成伤害时，你判定，若为黑色则此伤害+1；“勾陈”当你受到属性伤害后，你获得牌堆中三种类型的牌各一张。\n准备阶段或结束阶段，你可以观看牌堆顶的X张牌（X为你“法箓”的标记数），然后将这些牌以任意顺序置于牌堆顶。",
+      "implementationRuleAuthority": "Exact current-client character-to-spell links, with fresh official identity/portrait evidence. Older website skill texts are retained as differences rather than mixed into current rules.",
+      "initialHpInterpretation": "API initial_hp=0 and no client af override means no distinct initial-HP override; start at maximum HP."
+    },
+    {
+      "officialId": 426,
+      "id": "ol:cao-chun",
+      "name": "曹纯",
+      "characterId": "character:cao-chun",
+      "variantId": "ordinary",
+      "rulesetId": "sanguosha-ol",
+      "currentClientCharacter": {
+        "a": 426,
+        "b": "曹纯",
+        "d": "CaoChun",
+        "e": 46,
+        "f": "25",
+        "g": 1,
+        "h": 1,
+        "i": 4,
+        "j": 3691,
+        "p": 4,
+        "q": "1",
+        "r": "9042601",
+        "y": "曹纯（170年－210年），字子和，沛国谯（今安徽亳州）人。东汉末年曹操麾下将领，曹仁之弟。曹纯是曹操部下精锐部队“虎豹骑”的统领者之一，因在平定北方的战役中颇有功绩，被加封为高陵亭侯。死后谥曰威侯。曹纯擅战，甚得人心，为人重纲纪，不失理智，好学问，敬爱学士，闻名天下。",
+        "z": "曹纯前期需要一些装备牌过度使自己的技能迅速达到“最强”状态。最强状态的曹纯过牌量很大，但前期容易被针对。",
+        "aa": 133,
+        "ab": "720,721",
+        "ad": "画师：depp",
+        "x": "哼哼，虎豹所至，####片甲不存。",
+        "al": 4180,
+        "am": "true",
+        "ap": 1500,
+        "aq": 450,
+        "bx": 500000,
+        "LordCardRate1": 51,
+        "LordCardRate2": 53,
+        "cc": 0,
+        "starMax": 4
+      },
+      "printedSpells": [
+        {
+          "a": 3691,
+          "b": "3",
+          "c": "缮甲",
+          "d": "ShanJia2025",
+          "e": 0,
+          "g": 3,
+          "h": 1,
+          "i": 2,
+          "o": "游戏开始时，你获得3个“损”。你失去一张装备牌后，你移去1个“损”。<br>出牌阶段限一次，你可以摸三张牌，并可以使用一张【杀】。然后你此阶段使用的下X张手牌时，你弃置一张牌（X为“损”数）。若如此做，此阶段结束时，若你此阶段未因“缮甲”弃置过牌或仅弃置过装备牌，你可视为使用一张无距离限制的【杀】。",
+          "v": "请使用一张<font color='#FFD800'>杀</font>或取消|是否对一名角色使用一张无距离限制的<font color='#FFD800'>杀</font>或取消|（缮甲：需弃一张牌）",
+          "w": "请选择弃置{0}张牌|请使用一张<font color='#FFD800'>杀</font>或取消"
+        }
+      ],
+      "officialApiIdentity": {
+        "gid": 426,
+        "name": "曹纯",
+        "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/426.png",
+        "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/42600.png",
+        "label": [
+          "进攻",
+          "过牌",
+          "多刀"
+        ],
+        "figure": "魏",
+        "figure_py": "wei",
+        "quality": "限定",
+        "biography": "曹纯（170年－210年），字子和，沛国谯（今安徽亳州）人。东汉末年曹操麾下将领，曹仁之弟。曹纯是曹操部下精锐部队“虎豹骑”的统领者之一，因在平定北方的战役中颇有功绩，被加封为高陵亭侯。死后谥曰威侯。曹纯擅战，甚得人心，为人重纲纪，不失理智，好学问，敬爱学士，闻名天下。",
+        "characteristic": "曹纯前期需要一些装备牌过度使自己的技能迅速达到“最强”状态。最强状态的曹纯过牌量很大，但前期容易被针对。",
+        "hp": 4,
+        "initial_hp": 0,
+        "score": 0
+      },
+      "identityMatchesInAcceptedRoster": [],
+      "skillComparisons": [
+        {
+          "spellId": 3691,
+          "name": "缮甲",
+          "clientKey": "ShanJia2025",
+          "clientText": "游戏开始时，你获得3个“损”。你失去一张装备牌后，你移去1个“损”。<br>出牌阶段限一次，你可以摸三张牌，并可以使用一张【杀】。然后你此阶段使用的下X张手牌时，你弃置一张牌（X为“损”数）。若如此做，此阶段结束时，若你此阶段未因“缮甲”弃置过牌或仅弃置过装备牌，你可视为使用一张无距离限制的【杀】。",
+          "normalizedTextInOfficialPage": false,
+          "semanticTextAligned": false,
+          "difference": "Official page retains the older Play-start draw/discard rule; current Shanjia2025 is once-per-Play activation with 3 starting damage markers, equipment-loss reduction, optional native Slash, frozen next-X-hand-use discard obligation and ending virtual Slash."
+        }
+      ],
+      "sources": [
+        {
+          "heroId": 426,
+          "kind": "page",
+          "url": "https://www.sanguosha.com/hero/426",
+          "status": 200,
+          "contentType": "text/html",
+          "path": "docs/content/sources/evidence/ol-batch17-425-428-426-page-2026-10-15.html",
+          "sha256": "6de03272bee941c32e9e42a17c03773af607c5c9d2c953c634e286cf8cb3c722",
+          "bytes": 25726
+        },
+        {
+          "heroId": 426,
+          "kind": "api",
+          "url": "https://www.sanguosha.com/api/v1/hero/info?gid=426",
+          "status": 200,
+          "contentType": "application/json",
+          "path": "docs/content/sources/evidence/ol-batch17-425-428-426-api-2026-10-15.json",
+          "sha256": "3e9daf53449567294dd9ac27bfc22d9af8d89c9a4e11686ac47dec6f836992d3",
+          "bytes": 1160
+        }
+      ],
+      "portraitUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/42600.png",
+      "freshOfficialSkillSection": "缮甲\n出牌阶段开始时，你可以摸三张牌，然后弃置3-X张牌（X为你本局失去过的装备牌数），若你未弃置基本牌和锦囊牌，你可以视为使用一张无距离限制的【杀】。",
+      "implementationRuleAuthority": "Exact current-client character-to-spell links, with fresh official identity/portrait evidence. Older website skill texts are retained as differences rather than mixed into current rules.",
+      "initialHpInterpretation": "API initial_hp=0 and no client af override means no distinct initial-HP override; start at maximum HP."
+    },
+    {
+      "officialId": 428,
+      "id": "ol:wang-can",
+      "name": "王粲",
+      "characterId": "character:wang-can",
+      "variantId": "ordinary",
+      "rulesetId": "sanguosha-ol",
+      "currentClientCharacter": {
+        "a": 428,
+        "b": "王粲",
+        "d": "WangCan",
+        "e": 44,
+        "f": "42",
+        "g": 4,
+        "h": 1,
+        "i": 3,
+        "j": 898,
+        "k": 899,
+        "l": 900,
+        "p": 1,
+        "q": "1",
+        "r": "9042801",
+        "y": "王粲[càn]，字仲宣，“建安七子”之一。王粲善属文，其诗赋为建安七子之冠，又与曹植并称“曹王”。王粲自少即有才名，为学者蔡邕所赏识。司徒想征辟他为黄门侍郎，王粲因为长安局势混乱，没有赴任，选择前往荆州依附刘表，但未受到刘表重用。  建安十三年（208年），丞相曹操南征荆州，刘表之子刘琮举州投降，王粲也归于曹操，深得曹氏父子信赖，被赐爵关内侯。建安十八年（213年），魏王国建立，王粲任侍中。建安二十二年（216年），随曹操南征孙权，于北还途中病逝，终年四十一岁。",
+        "z": "有较强的爆发力，回合外的生存是个问题",
+        "aa": 132,
+        "ab": "737,738",
+        "ad": "画师:zoo",
+        "x": "与植同交，####曹王天下。",
+        "al": 4160,
+        "am": "true",
+        "ap": 50,
+        "aq": 15,
+        "ay": 3,
+        "bx": 4399,
+        "cc": 42801,
+        "starMax": 4
+      },
+      "printedSpells": [
+        {
+          "a": 898,
+          "b": "3,5",
+          "c": "散文",
+          "d": "SanWen",
+          "e": 0,
+          "g": 3,
+          "i": 2,
+          "ab": 1,
+          "o": "每回合限一次，当你获得牌后，若你有与这些牌同名的手牌，你可以展示之并弃置获得的同名牌，然后摸弃牌数两倍的牌。",
+          "ac": "是否弃置{0}发动<font color='#FFD800'>散文</font>",
+          "ay": "系统提示→点“确定”"
+        },
+        {
+          "a": 899,
+          "b": "3,5,6",
+          "c": "七哀",
+          "d": "QiAi",
+          "e": 0,
+          "i": 2,
+          "l": "wangjieqishuai",
+          "ab": 1,
+          "o": "限定技，当你进入濒死状态时，你可以令每名其他角色各交给你一张牌。",
+          "w": "请选择一张要交出的牌",
+          "u": "是否发动<font color='#FFD800'>七哀</font>,令其他每名角色交给你一张牌",
+          "ae": "{Source}发动了武将技<font color='#FFD800'>七哀</font>",
+          "ay": "系统提示→点“确定”"
+        },
+        {
+          "a": 900,
+          "b": "3,5,6",
+          "c": "登楼",
+          "d": "DengLou",
+          "e": 0,
+          "i": 2,
+          "l": "wangjiedenglou",
+          "ab": 1,
+          "o": "限定技，结束阶段，若你没有手牌，你可以观看牌堆顶的四张牌，然后获得其中的非基本牌，并使用其中的基本牌（不能使用则弃置）。",
+          "v": "请选择一张<font color='#FFD800'>登楼</font>牌使用",
+          "k": "1",
+          "ay": "系统提示→点“确定”"
+        }
+      ],
+      "officialApiIdentity": {
+        "gid": 428,
+        "name": "王粲",
+        "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/428.png",
+        "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/42800.png",
+        "label": [
+          "过牌",
+          "多刀",
+          "爆发"
+        ],
+        "figure": "群",
+        "figure_py": "qun",
+        "quality": "稀有",
+        "biography": "王粲[càn]，字仲宣，“建安七子”之一。王粲善属文，其诗赋为建安七子之冠，又与曹植并称“曹王”。王粲自少即有才名，为学者蔡邕所赏识。司徒想征辟他为黄门侍郎，王粲因为长安局势混乱，没有赴任，选择前往荆州依附刘表，但未受到刘表重用。  建安十三年（208年），丞相曹操南征荆州，刘表之子刘琮举州投降，王粲也归于曹操，深得曹氏父子信赖，被赐爵关内侯。建安十八年（213年），魏王国建立，王粲任侍中。建安二十二年（216年），随曹操南征孙权，于北还途中病逝，终年四十一岁。",
+        "characteristic": "有较强的爆发力，回合外的生存是个问题",
+        "hp": 3,
+        "initial_hp": 0,
+        "score": 0
+      },
+      "identityMatchesInAcceptedRoster": [],
+      "skillComparisons": [
+        {
+          "spellId": 898,
+          "name": "散文",
+          "clientKey": "SanWen",
+          "clientText": "每回合限一次，当你获得牌后，若你有与这些牌同名的手牌，你可以展示之并弃置获得的同名牌，然后摸弃牌数两倍的牌。",
+          "normalizedTextInOfficialPage": true,
+          "semanticTextAligned": true,
+          "difference": null
+        },
+        {
+          "spellId": 899,
+          "name": "七哀",
+          "clientKey": "QiAi",
+          "clientText": "限定技，当你进入濒死状态时，你可以令每名其他角色各交给你一张牌。",
+          "normalizedTextInOfficialPage": true,
+          "semanticTextAligned": true,
+          "difference": null
+        },
+        {
+          "spellId": 900,
+          "name": "登楼",
+          "clientKey": "DengLou",
+          "clientText": "限定技，结束阶段，若你没有手牌，你可以观看牌堆顶的四张牌，然后获得其中的非基本牌，并使用其中的基本牌（不能使用则弃置）。",
+          "normalizedTextInOfficialPage": true,
+          "semanticTextAligned": true,
+          "difference": null
+        }
+      ],
+      "sources": [
+        {
+          "heroId": 428,
+          "kind": "page",
+          "url": "https://www.sanguosha.com/hero/428",
+          "status": 200,
+          "contentType": "text/html",
+          "path": "docs/content/sources/evidence/ol-batch17-425-428-428-page-2026-10-15.html",
+          "sha256": "0f9e81f5cc40f8e9e3eb783e39067e9331540769a5fa84212b0cfe1a6d155920",
+          "bytes": 25691
+        },
+        {
+          "heroId": 428,
+          "kind": "api",
+          "url": "https://www.sanguosha.com/api/v1/hero/info?gid=428",
+          "status": 200,
+          "contentType": "application/json",
+          "path": "docs/content/sources/evidence/ol-batch17-425-428-428-api-2026-10-15.json",
+          "sha256": "b51b4de11220d8944b8a52b81d7aee7acd58046adc9f911ff629e61a2e311746",
+          "bytes": 1321
+        }
+      ],
+      "portraitUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/42800.png",
+      "freshOfficialSkillSection": "散文\n七哀\n登楼\n每回合限一次，当你获得牌后，若你有与这些牌同名的手牌，你可以展示之并弃置获得的同名牌，然后摸弃牌数两倍的牌。\n限定技，当你进入濒死状态时，你可以令每名其他角色各交给你一张牌。\n限定技，结束阶段，若你没有手牌，你可以观看牌堆顶的四张牌，然后获得其中的非基本牌，并使用其中的基本牌（不能使用则弃置）。",
+      "implementationRuleAuthority": "Exact current-client character-to-spell links, with fresh official identity/portrait evidence. Older website skill texts are retained as differences rather than mixed into current rules.",
+      "initialHpInterpretation": "API initial_hp=0 and no client af override means no distinct initial-HP override; start at maximum HP."
+    }
+  ],
+  "skippedExisting": [
+    {
+      "officialId": 427,
+      "name": "许靖",
+      "id": "ol:xu-jing",
+      "matches": [
+        {
+          "Id": "ol:xu-jing",
+          "Name": "许靖",
+          "PortraitKey": "ol-xu-jing",
+          "SkillId": "ol:yuxu",
+          "FactionId": "shu",
+          "BaseHp": 3,
+          "AdditionalSkillIds": [
+            "ol:shijian"
+          ],
+          "Gender": 0,
+          "CharacterId": "character:xu-jing",
+          "VariantId": "ordinary",
+          "RulesetId": "sanguosha-ol",
+          "InitialHp": null,
+          "SkillIds": [
+            "ol:yuxu",
+            "ol:shijian"
+          ]
+        }
+      ]
+    }
+  ],
+  "limits": [
+    "No character-specific combination FAQ verified.",
+    "Bounded current-client extract reused; no fresh decoder run.",
+    "No implementation, build or tests yet."
+  ],
+  "workerBuildRun": false,
+  "workerTestsRun": false,
+  "accessNotes": [
+    "web tool transport connection failed when opening the three hero pages; the six ordinary official urllib page/API fetches succeeded HTTP200. No safety block or alternate-domain workaround occurred.",
+    "No exact combination FAQ or live server behavior has been established.",
+    "OL427 Xu Jing is already registered and is deliberately skipped."
+  ]
+}

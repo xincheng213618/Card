@@ -1,0 +1,88 @@
+{
+  "capturedAt": "2026-10-14",
+  "status": "readonly preflight; implementation not authorized",
+  "rosterEvidence": {
+    "count": 396,
+    "sha256": "4567b683fa566ae0a04a2c5debc390a976ab5b598003887691481a1ae1bf9ff5",
+    "path": "docs/benchmarks/2026-10-14-batch-10-final-roster.json"
+  },
+  "heroes": [
+    {
+      "sources": [
+        {
+          "sha256": "6ece67b41878c2f24fd54c5db8ac6bc17df80a038021770ed9da3abb82922e92",
+          "url": "https://www.sanguosha.com/hero/367",
+          "localPath": "docs/content/sources/evidence/ol-batch11-367-page-2026-10-14.html"
+        },
+        {
+          "sha256": "07f41b9a78ea54b689b7a25d1e7c79cfc29577ae1cea3bcb961114cbe517724d",
+          "url": "https://www.sanguosha.com/api/v1/hero/info?gid=367",
+          "localPath": "docs/content/sources/evidence/ol-batch11-367-info-2026-10-14.json"
+        }
+      ],
+      "skills": [
+        {
+          "name": "芳魂",
+          "text": "当你使用【杀】造成伤害或受到【杀】的伤害后，你获得与伤害值等量枚“梅影”标记。你可以移除1枚“梅影”发动“龙胆”并摸一张牌。"
+        }
+      ],
+      "samePersonDefinitions": [],
+      "gender": "Not encoded by current page/API response; await current client extraction, do not infer from biography.",
+      "variant": "current ordinary OL as official page title; no semantic version supplied by API",
+      "maxHp": 4,
+      "officialHeroId": 367,
+      "faction": "shu",
+      "name": "赵襄",
+      "candidateStatus": "No same-person current registry definition or these two named skill registrations found by scoped roster/source search; eligible for future assignment."
+    },
+    {
+      "sources": [
+        {
+          "sha256": "290a4544db3d5a30bced816043d8a41619392d1cbb6dda4d47d47ade848a7a5c",
+          "url": "https://www.sanguosha.com/hero/368",
+          "localPath": "docs/content/sources/evidence/ol-batch11-368-page-2026-10-14.html"
+        },
+        {
+          "sha256": "b12b73d79ce3917c63b9f1a3e81f0d3dcbb52bdddbea8b6c98d4c197d88646c7",
+          "url": "https://www.sanguosha.com/api/v1/hero/info?gid=368",
+          "localPath": "docs/content/sources/evidence/ol-batch11-368-info-2026-10-14.json"
+        }
+      ],
+      "skills": [
+        {
+          "name": "绮胄",
+          "text": "锁定技，若你装备区里牌的花色数不小于以下值，你视为拥有：1,“短兵”；2,“英姿”；3,“奋威”；4,“澜疆”。"
+        }
+      ],
+      "samePersonDefinitions": [],
+      "gender": "Not encoded by current page/API response; await current client extraction, do not infer from biography.",
+      "variant": "current ordinary OL as official page title; no semantic version supplied by API",
+      "maxHp": 4,
+      "officialHeroId": 368,
+      "faction": "wu",
+      "name": "贺齐",
+      "candidateStatus": "No same-person current registry definition or these two named skill registrations found by scoped roster/source search; eligible for future assignment."
+    }
+  ],
+  "existingReuse": {
+    "zhaoXiang": "Existing native marker spending, LongDan conversion, native damage applied windows, recovery and general-library/replacement mechanisms require precise adaptation; no duplicate LongDan definition solely for this character.",
+    "heQi": "Existing ol:duanbing (Ding Feng), classic:yingzi, boundary:fenwei, ol:lanjiang (Wu Yan) definitions are reuse candidates. Official href skill IDs 979/712/708/3072 do not by themselves establish exact runtime binding/version equivalence."
+  },
+  "mechanismGaps": {
+    "zhaoXiang": [
+      "Actual owner-sourced Slash damage dealt OR actual Slash damage received, proportional to final applied amount; avoid duplicate counting on self-damage and never use use-count proxy.",
+      "Spend exactly one MeiYing for actual LongDan use/response then actual Draw1 with paid conversion provenance; lifetime cumulative removed count survives conversion and preparation cost.",
+      "Limited own preparation: remove all current MeiYing, sample five actual Shu general templates and privately select one, replace actual printed identity/skills, set MaxHp to cumulative removed count clamped2..8, then native Recover1 with death/source-loss/cold typed returns."
+    ],
+    "heQi": [
+      "Continuous current equipment suit-cardinality qualification, grant/revoke existing exact skills at thresholds1..4, including limited FenWei usage lifetime and already paid LanJiang source loss.",
+      "Native ShanXi once per actual Play: candidate is living role whose own attack range does not include owner; X exact current available empty equipment slots, not missing equipment count under abolished slots.",
+      "Real owner selection of combined up-to-X Hand entities from self and target, hidden foreign selection privacy, publish selected faces together, discard exactly revealed Dodge cards, only if actual discard succeeds obtain one current target card excluded by reveal identity. Movement/Dying/source-loss/cold lineage must stay on frame."
+    ]
+  },
+  "unverified": [
+    "No current client numeric skill binding or gender extraction captured yet.",
+    "No official FAQ captured; sampling eligibility/replacement HP clamp timing/disabled equipment slot meaning need exact current client and primary ruling before final contracts.",
+    "No implementation, portrait source edit, build, test runner or publishing performed."
+  ]
+}

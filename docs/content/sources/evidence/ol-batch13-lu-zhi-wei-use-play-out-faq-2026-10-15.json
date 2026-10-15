@@ -1,0 +1,13 @@
+{
+  "capturedAt": "2026-10-14T17:20:46.2295505Z",
+  "inference": "Weijing printed source says use only: permits ordinary Slash use including Borrowed Sword/Qinglong and Dodge use against Slash; does not supply played-out Slash against Duel/Barbarian or played-out Dodge against Arrow Barrage.",
+  "decodedHtmlUtf8Sha256": "35fb84fb2702ca3a57a4970edc9e68eb8d74ea32498d5c651a2bd0e7a582297e",
+  "fragments": [
+    "若你在使用一张【杀】时，处于发动技能“龙胆”使用了一张由【闪】转化而来的【杀】的情况下，“对方”即在“指定【杀】的目标后”，确定且不会更改的该【杀】的目标：例如回合内主动使用的【杀】、回合外因【借刀杀人】使用的杀、因受技能“挑衅”、“乱武”的影响而使用的【杀】等。",
+    "若你在打出一张【杀】时，处于发动技能“龙胆”打出了一张由【闪】转化而来的【杀】之情况下，“对方”即该事件的“引发者”：例如响应【南蛮入侵】的效果打出【杀】时针对该“锦囊的使用者”；主动或被【决斗】时与你相互打出杀的“对立者”等。",
+    "若你在使用或打出一张【闪】时，处于发动技能“龙胆”使用或打出了一张由【杀】转化而来的【闪】之情况下，“对方”即令你使用或打出【闪】的该事件“引发者”：例如在“目标对【杀】进行响应时”，若你使用转化后的【闪】，“对方”即“该【杀】的使用者”；响应【万箭齐发】时若你打出转化后的【闪】，“对方”即该“锦囊的使用者”。"
+  ],
+  "scope": "Bounded official Longdan/Chongzhen FAQ statements of general use versus play-out, not a Lu Zhi FAQ",
+  "url": "https://www.sanguosha.com/news/20161215_4752_4616",
+  "statusCode": 200
+}

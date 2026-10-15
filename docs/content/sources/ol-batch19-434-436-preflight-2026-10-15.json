@@ -1,0 +1,528 @@
+{
+  "capturedAtUtc": "2026-10-15T09:41:11.101381+00:00",
+  "status": "primary-preflight-complete-no-code-yet",
+  "scope": "Exact current OL434 Lv Kuang Lv Xiang, OL435 Xin Pi, OL436 Hua Man. OL433 Sun Shao is already registered with current ordinary OL skills and is skipped.",
+  "previousAcceptedReport": {
+    "path": "docs/benchmarks/2026-10-15-sp-pang-tong-yuan-tan-yuan-shang-lv-qian-verification.json",
+    "sha256": "624783ce8b52a39f963644713a08a8c7b221065528c4fb4fde7b511bc193d6c8"
+  },
+  "rosterBaseline": {
+    "path": "docs/benchmarks/2026-10-15-general-batch-19-roster-baseline.json",
+    "count": 420
+  },
+  "currentClient": {
+    "path": "docs/content/sources/evidence/ol-batch14-411-480-current-client-preflight-2026-10-15.json",
+    "sha256": "22a8158f9a7f1af27e5130d0de95f1e4eb4a4e19fbd7adb0439009e564fff483",
+    "clientBundleSha256": "66dfce61f1c4fb0aca35b6f85ed940e394719db84655f4d4146b463bc0cf8c1b",
+    "configSha256": "3d7536d4e2ca3d64707c2f6e0edbb8ccb4a045eee4274862dfa35431157c64f4",
+    "freshDecoderRun": false,
+    "wholeArchivesSaved": false
+  },
+  "candidates": [
+    {
+      "officialId": 434,
+      "id": "ol:lv-kuang-lv-xiang",
+      "name": "吕旷吕翔",
+      "characterId": "character:lv-kuang-lv-xiang",
+      "variantId": "ordinary",
+      "rulesetId": "sanguosha-ol",
+      "currentClientCharacter": {
+        "a": 434,
+        "b": "吕旷吕翔",
+        "d": "LvKuangLvXiangSP",
+        "e": 44,
+        "f": "46",
+        "g": 4,
+        "h": 1,
+        "i": 4,
+        "j": 932,
+        "k": 933,
+        "p": 2,
+        "q": "1",
+        "r": "9043401",
+        "y": "吕旷与吕翔，原为皆是袁绍属下，袁绍去世后，为袁尚效力，后来投降曹操，并被封为列侯。",
+        "z": "可以把出杀机会给最适合的角色。",
+        "aa": 145,
+        "ab": "853,854",
+        "ad": "画师:王立雄",
+        "x": "我等将以死报曹公知遇之恩！ ",
+        "al": 1730,
+        "am": "true",
+        "ap": 240,
+        "aq": 70,
+        "bt": "58",
+        "bx": 4500,
+        "LordCardRate1": 13,
+        "LordCardRate2": 46,
+        "cc": 43401,
+        "starMax": 4,
+        "freetitle": "0,攻击强将"
+      },
+      "printedSpells": [
+        {
+          "a": 932,
+          "b": "3,5",
+          "c": "齐攻",
+          "d": "QiGong",
+          "e": 0,
+          "g": 1,
+          "i": 2,
+          "n": 1,
+          "o": "当你使用的仅指定单一目标的【杀】被【闪】抵消后，你可以令一名角色对此目标再使用一张无距离限制的【杀】，此【杀】不可被响应。",
+          "v": "请选择一名目标对{0}使用一张<font color='#FFD800'>杀</font>",
+          "w": "请对{Target}使用一张<font color='#FFD800'>杀</font>",
+          "ay": "系统提示→点“确定”"
+        },
+        {
+          "a": 933,
+          "b": "3",
+          "c": "列侯",
+          "d": "LieHou",
+          "e": 0,
+          "g": 4,
+          "h": 1,
+          "i": 2,
+          "o": "出牌阶段限一次，你可以令你攻击范围内一名有手牌的角色交给你一张手牌，若如此做，你将一张手牌交给你攻击范围内的另一名其他角色。 ",
+          "v": "请选择一名角色，令其交给你一张手牌;请选择一张手牌和一名角色将牌给出",
+          "w": "请选择一张手牌交给{0}",
+          "ay": "系统提示→点“确定”"
+        }
+      ],
+      "linkedSpells": [],
+      "officialApiIdentity": {
+        "gid": 434,
+        "name": "吕旷吕翔",
+        "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/434.png",
+        "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/43400.png",
+        "label": [
+          "进攻",
+          "辅助",
+          "强命"
+        ],
+        "figure": "群",
+        "figure_py": "qun",
+        "quality": "史诗",
+        "biography": "吕旷与吕翔，原为皆是袁绍属下，袁绍去世后，为袁尚效力，后来投降曹操，并被封为列侯。",
+        "characteristic": "可以把出杀机会给最适合的角色。",
+        "hp": 4,
+        "initial_hp": 0,
+        "score": 0
+      },
+      "identityMatchesInAcceptedRoster": [],
+      "existingFamilyVariants": [],
+      "skillComparisons": [
+        {
+          "spellId": 932,
+          "name": "齐攻",
+          "clientKey": "QiGong",
+          "clientText": "当你使用的仅指定单一目标的【杀】被【闪】抵消后，你可以令一名角色对此目标再使用一张无距离限制的【杀】，此【杀】不可被响应。",
+          "normalizedTextInOfficialPage": true
+        },
+        {
+          "spellId": 933,
+          "name": "列侯",
+          "clientKey": "LieHou",
+          "clientText": "出牌阶段限一次，你可以令你攻击范围内一名有手牌的角色交给你一张手牌，若如此做，你将一张手牌交给你攻击范围内的另一名其他角色。 ",
+          "normalizedTextInOfficialPage": true
+        }
+      ],
+      "sources": [
+        {
+          "heroId": 434,
+          "kind": "page",
+          "url": "https://www.sanguosha.com/hero/434",
+          "status": 200,
+          "contentType": "text/html",
+          "path": "docs/content/sources/evidence/ol-batch19-434-436-434-page-2026-10-15.html",
+          "sha256": "c947f01b796c2e6c0d23241c7f84c6052ef24b0e8e0cd1bf22dfbc9660249f94",
+          "bytes": 23846
+        },
+        {
+          "heroId": 434,
+          "kind": "api",
+          "url": "https://www.sanguosha.com/api/v1/hero/info?gid=434",
+          "status": 200,
+          "contentType": "application/json",
+          "path": "docs/content/sources/evidence/ol-batch19-434-436-434-api-2026-10-15.json",
+          "sha256": "1c1f6deea515b6a08d707a7e7e37473ddb09dab407c3ff894f44891371829888",
+          "bytes": 745
+        }
+      ],
+      "portraitUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/43400.png",
+      "implementationRuleAuthority": "Exact current client printed spell links and separately retained linked skills, reconciled with fresh official page/API; do not mix other products or old revisions.",
+      "initialHpInterpretation": "API initial_hp=0 with no client af override means no separate initial HP override, not zero starting HP."
+    },
+    {
+      "officialId": 435,
+      "id": "ol:xin-pi",
+      "name": "辛毗",
+      "characterId": "character:xin-pi",
+      "variantId": "ordinary",
+      "rulesetId": "sanguosha-ol",
+      "currentClientCharacter": {
+        "a": 435,
+        "b": "辛毗",
+        "d": "XinPiSP",
+        "e": 44,
+        "f": "42",
+        "g": 1,
+        "h": 1,
+        "i": 3,
+        "j": 934,
+        "k": 935,
+        "p": 1,
+        "q": "1",
+        "r": "9043501",
+        "y": "辛宪英的父亲。当初，辛毗跟随其兄事袁绍。曹操任司空时，征召辛毗，他不受命。官渡战后，辛毗事袁绍的儿子袁谭。公元204年，曹操攻下邺城，上表推荐辛毗任议郎，后为丞相长史。公元220年，曹丕即皇帝位，以辛毗为侍中，赐爵关内侯，后赐广平亭侯。魏明帝即位，封辛毗颍乡侯，食邑三百户，后为卫尉。公元234年，诸葛亮屯兵渭南，司马懿上表魏明帝。魏明帝任辛毗为大将军军师，加使持节号。诸葛亮病逝后，辛毗返回，仍任卫尉。不久，逝世，谥肃侯。",
+        "z": "在队友和你急需补牌时即可大胆使用引裾。",
+        "aa": 146,
+        "ab": "855,856",
+        "ad": "画师:石蝉",
+        "x": "引裾力争，####只为大魏安危。",
+        "al": 1730,
+        "am": "true",
+        "ap": 50,
+        "aq": 15,
+        "bx": 21000,
+        "LordCardRate1": 10,
+        "LordCardRate2": 35,
+        "cc": 43501,
+        "starMax": 4,
+        "freetitle": "0,回复强将"
+      },
+      "printedSpells": [
+        {
+          "a": 934,
+          "b": "3,5",
+          "c": "持节",
+          "d": "ChiJie",
+          "e": 0,
+          "g": 4,
+          "i": 2,
+          "o": "每回合限一次，当你受到其他角色的伤害后，你可以令伤害牌无效；当其他角色对你使用牌后，若此牌未造成伤害，你可以获得之。",
+          "ay": "系统提示→点“确定”"
+        },
+        {
+          "a": 935,
+          "b": "3,6",
+          "c": "引裾",
+          "d": "YinJu",
+          "e": 0,
+          "h": 1,
+          "i": 2,
+          "l": "xinpiyinju",
+          "n": 1,
+          "o": "限定技，出牌阶段，你可以指定一名其他角色，你本回合防止对其造成的伤害并改为令其回复等量体力，且当你本回合使用牌指定其为目标后，你与其各摸一张牌。 ",
+          "ay": "系统提示→点“确定”"
+        }
+      ],
+      "linkedSpells": [],
+      "officialApiIdentity": {
+        "gid": 435,
+        "name": "辛毗",
+        "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/435.png",
+        "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/43500.png",
+        "label": [
+          "防御",
+          "辅助",
+          "回复"
+        ],
+        "figure": "魏",
+        "figure_py": "wei",
+        "quality": "稀有",
+        "biography": "辛宪英的父亲。当初，辛毗跟随其兄事袁绍。曹操任司空时，征召辛毗，他不受命。官渡战后，辛毗事袁绍的儿子袁谭。公元204年，曹操攻下邺城，上表推荐辛毗任议郎，后为丞相长史。公元220年，曹丕即皇帝位，以辛毗为侍中，赐爵关内侯，后赐广平亭侯。魏明帝即位，封辛毗颍乡侯，食邑三百户，后为卫尉。公元234年，诸葛亮屯兵渭南，司马懿上表魏明帝。魏明帝任辛毗为大将军军师，加使持节号。诸葛亮病逝后，辛毗返回，仍任卫尉。不久，逝世，谥肃侯。",
+        "characteristic": "在队友和你急需补牌时即可大胆使用引裾。",
+        "hp": 3,
+        "initial_hp": 0,
+        "score": 0
+      },
+      "identityMatchesInAcceptedRoster": [],
+      "existingFamilyVariants": [],
+      "skillComparisons": [
+        {
+          "spellId": 934,
+          "name": "持节",
+          "clientKey": "ChiJie",
+          "clientText": "每回合限一次，当你受到其他角色的伤害后，你可以令伤害牌无效；当其他角色对你使用牌后，若此牌未造成伤害，你可以获得之。",
+          "normalizedTextInOfficialPage": true
+        },
+        {
+          "spellId": 935,
+          "name": "引裾",
+          "clientKey": "YinJu",
+          "clientText": "限定技，出牌阶段，你可以指定一名其他角色，你本回合防止对其造成的伤害并改为令其回复等量体力，且当你本回合使用牌指定其为目标后，你与其各摸一张牌。 ",
+          "normalizedTextInOfficialPage": true
+        }
+      ],
+      "sources": [
+        {
+          "heroId": 435,
+          "kind": "page",
+          "url": "https://www.sanguosha.com/hero/435",
+          "status": 200,
+          "contentType": "text/html",
+          "path": "docs/content/sources/evidence/ol-batch19-434-436-435-page-2026-10-15.html",
+          "sha256": "e4485befc8317983c1001e3f080384ac4a59d1387ab6a37ce5790ec77adb00a4",
+          "bytes": 25316
+        },
+        {
+          "heroId": 435,
+          "kind": "api",
+          "url": "https://www.sanguosha.com/api/v1/hero/info?gid=435",
+          "status": 200,
+          "contentType": "application/json",
+          "path": "docs/content/sources/evidence/ol-batch19-434-436-435-api-2026-10-15.json",
+          "sha256": "e7807cc1f945cc2d49bb5aede5b4edd16194d9c59f68f3f4f2d1a9306bf6f51b",
+          "bytes": 1246
+        }
+      ],
+      "portraitUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/43500.png",
+      "implementationRuleAuthority": "Exact current client printed spell links and separately retained linked skills, reconciled with fresh official page/API; do not mix other products or old revisions.",
+      "initialHpInterpretation": "API initial_hp=0 with no client af override means no separate initial HP override, not zero starting HP."
+    },
+    {
+      "officialId": 436,
+      "id": "ol:hua-man",
+      "name": "花鬘",
+      "characterId": "character:hua-man",
+      "variantId": "ordinary",
+      "rulesetId": "sanguosha-ol",
+      "currentClientCharacter": {
+        "a": 436,
+        "b": "花鬘",
+        "d": "HuaMan",
+        "e": 44,
+        "f": "44",
+        "g": 2,
+        "h": 2,
+        "i": 3,
+        "j": 9009,
+        "k": 9010,
+        "l": 9011,
+        "m": 9012,
+        "p": 3,
+        "q": "1",
+        "r": "9043601",
+        "y": "花鬘[mán]，古典戏曲《龙凤巾》中的人物，身份为三国时期南蛮王孟获与祝融夫人的女儿，关索夫人之一。在关于关三小姐·关银屏的民间传说中，其名字为“花中秀”，与关索其他几位夫人鲍三娘、王桃、王悦都被关索之姐关银屏编入自己的女兵营中。花鬘并非一般君主家中闺秀，而是与其母祝融相似，是一个可以披甲上阵，善于刀枪作战的女武将。戏曲中在诸葛亮平定南蛮时，花鬘曾与关索作战，失败被俘，两人互生爱意，南蛮王孟获降服后二人成婚。",
+        "z": "队友可以适当卖血配合花鬘尽早觉醒",
+        "aa": 135,
+        "ab": "851,852",
+        "ad": "画师:木美人",
+        "x": "南蛮安稳，####吾辈义不容辞。",
+        "al": 1730,
+        "am": "true",
+        "ap": 800,
+        "aq": 240,
+        "bt": "66",
+        "bx": 200000,
+        "LordCardRate1": 24,
+        "LordCardRate2": 47,
+        "cc": 43603,
+        "starMax": 4
+      },
+      "printedSpells": [
+        {
+          "a": 9009,
+          "b": "3,4,5",
+          "c": "蛮裔",
+          "d": "ManYiHM",
+          "g": 2,
+          "i": 2,
+          "o": "锁定技，【南蛮入侵】对你无效。"
+        },
+        {
+          "a": 9010,
+          "b": "3",
+          "c": "蛮嗣",
+          "d": "ManSi",
+          "g": 1,
+          "h": 1,
+          "i": 2,
+          "o": "出牌阶段限一次，你可以将所有手牌当【南蛮入侵】使用。当一名角色受到【南蛮入侵】的伤害后，你摸一张牌。",
+          "v": "是否将所有手牌当<font color='#FFD800'>南蛮入侵</font>使用"
+        },
+        {
+          "a": 9011,
+          "b": "3,5",
+          "c": "薮影",
+          "d": "SouYing",
+          "g": 2,
+          "i": 2,
+          "o": "每回合限一次，当你对其他角色/其他角色对你使用牌指定唯一目标后，若此牌不是你本回合对其/其对你使用的第一张牌，你可以弃置一张牌获得此牌/令此牌对你无效。",
+          "ac": "弃置一张牌将此牌收回手牌;弃置一张牌令此牌对你无效"
+        },
+        {
+          "a": 9012,
+          "b": "3,4,5,6,23",
+          "c": "战缘",
+          "d": "ZhanYuan",
+          "i": 2,
+          "l": "huamanzhanyuan",
+          "m": "9013",
+          "n": 1,
+          "o": "觉醒技，准备阶段，若你因“蛮嗣”累计获得的牌数大于7，你增加1点体力上限并回复1点体力，且可以选择一名男性角色，你与其获得技能“<font href='9013'>系力</font>”，然后你失去“蛮嗣”。",
+          "w": "请选择一名男性，与其获得<font color='#FFD800'>系力</font>",
+          "ac": "选择一名男性角色，你与其获得技能<font color='#FFD800'>系力</font>"
+        }
+      ],
+      "linkedSpells": [
+        {
+          "a": 9013,
+          "b": "3,5",
+          "c": "系力",
+          "d": "XiLi",
+          "g": 2,
+          "i": 2,
+          "o": "每回合限一次，当其他拥有本技能的角色在其回合内对没有本技能的角色造成伤害时，你可以弃置一张牌令此伤害+1，然后你与其各摸两张牌。",
+          "v": "请选择一名弃置牌的角色",
+          "ac": "是否弃置一张牌发动<font color='#FFD800'>系力</font>"
+        }
+      ],
+      "officialApiIdentity": {
+        "gid": 436,
+        "name": "花鬘",
+        "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/436.png",
+        "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/43600.png",
+        "label": [
+          "进攻",
+          "防御",
+          "过牌"
+        ],
+        "figure": "蜀",
+        "figure_py": "shu",
+        "quality": "传说",
+        "biography": "花鬘[mán]，古典戏曲《龙凤巾》中的人物，身份为三国时期南蛮王孟获与祝融夫人的女儿，关索夫人之一。在关于关三小姐·关银屏的民间传说中，其名字为“花中秀”，与关索其他几位夫人鲍三娘、王桃、王悦都被关索之姐关银屏编入自己的女兵营中。花鬘并非一般君主家中闺秀，而是与其母祝融相似，是一个可以披甲上阵，善于刀枪作战的女武将。戏曲中在诸葛亮平定南蛮时，花鬘曾与关索作战，失败被俘，两人互生爱意，南蛮王孟获降服后二人成婚。",
+        "characteristic": "队友可以适当卖血配合花鬘尽早觉醒",
+        "hp": 3,
+        "initial_hp": 0,
+        "score": 0
+      },
+      "identityMatchesInAcceptedRoster": [],
+      "existingFamilyVariants": [],
+      "skillComparisons": [
+        {
+          "spellId": 9009,
+          "name": "蛮裔",
+          "clientKey": "ManYiHM",
+          "clientText": "锁定技，【南蛮入侵】对你无效。",
+          "normalizedTextInOfficialPage": true
+        },
+        {
+          "spellId": 9010,
+          "name": "蛮嗣",
+          "clientKey": "ManSi",
+          "clientText": "出牌阶段限一次，你可以将所有手牌当【南蛮入侵】使用。当一名角色受到【南蛮入侵】的伤害后，你摸一张牌。",
+          "normalizedTextInOfficialPage": true
+        },
+        {
+          "spellId": 9011,
+          "name": "薮影",
+          "clientKey": "SouYing",
+          "clientText": "每回合限一次，当你对其他角色/其他角色对你使用牌指定唯一目标后，若此牌不是你本回合对其/其对你使用的第一张牌，你可以弃置一张牌获得此牌/令此牌对你无效。",
+          "normalizedTextInOfficialPage": true
+        },
+        {
+          "spellId": 9012,
+          "name": "战缘",
+          "clientKey": "ZhanYuan",
+          "clientText": "觉醒技，准备阶段，若你因“蛮嗣”累计获得的牌数大于7，你增加1点体力上限并回复1点体力，且可以选择一名男性角色，你与其获得技能“<font href='9013'>系力</font>”，然后你失去“蛮嗣”。",
+          "normalizedTextInOfficialPage": true
+        }
+      ],
+      "sources": [
+        {
+          "heroId": 436,
+          "kind": "page",
+          "url": "https://www.sanguosha.com/hero/436",
+          "status": 200,
+          "contentType": "text/html",
+          "path": "docs/content/sources/evidence/ol-batch19-434-436-436-page-2026-10-15.html",
+          "sha256": "26dae36cfebf24eb62722578de34e20616829dc9f6a5c1a6902c128037e0cb8a",
+          "bytes": 27452
+        },
+        {
+          "heroId": 436,
+          "kind": "api",
+          "url": "https://www.sanguosha.com/api/v1/hero/info?gid=436",
+          "status": 200,
+          "contentType": "application/json",
+          "path": "docs/content/sources/evidence/ol-batch19-434-436-436-api-2026-10-15.json",
+          "sha256": "c0c18628a4c152b0f5593362f98ec6b6667f9e5af1537470bfade74dbeef0e68",
+          "bytes": 1255
+        }
+      ],
+      "portraitUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/43600.png",
+      "implementationRuleAuthority": "Exact current client printed spell links and separately retained linked skills, reconciled with fresh official page/API; do not mix other products or old revisions.",
+      "initialHpInterpretation": "API initial_hp=0 with no client af override means no separate initial HP override, not zero starting HP."
+    }
+  ],
+  "skippedExisting": [
+    {
+      "officialId": 433,
+      "name": "孙邵",
+      "id": "ol:sun-shao",
+      "currentSpells": [
+        {
+          "a": 914,
+          "b": "3,5",
+          "c": "弼政",
+          "d": "BiZheng",
+          "e": 0,
+          "g": 5,
+          "i": 2,
+          "n": 1,
+          "o": "摸牌阶段结束时，你可以令一名其他角色摸两张牌，然后你与其之中手牌数大于体力上限的角色弃置两张牌。",
+          "v": "请选择一名角色，令其摸2张牌",
+          "w": "{0}发动了<font color='#FFD800'>弼政</font>，请弃置{1}张牌",
+          "k": "1",
+          "ay": "系统提示→点“确定”"
+        },
+        {
+          "a": 915,
+          "b": "3,5",
+          "c": "佚典",
+          "d": "YiDian",
+          "e": 0,
+          "g": 3,
+          "i": 2,
+          "o": "当你使用基本牌或普通锦囊牌指定目标时，若此牌在弃牌堆中没有同名牌，你可以为此牌多指定一个目标（无距离限制）。",
+          "v": "请为{0}额外选择一名目标",
+          "ay": "系统提示→点“确定”"
+        }
+      ],
+      "registeredPresentation": "src/CardGame.Content.Standard/SkillPrograms/ol-sun-shao.presentation.json",
+      "matches": [
+        {
+          "Id": "ol:sun-shao",
+          "Name": "孙邵",
+          "PortraitKey": "ol-sun-shao",
+          "SkillId": "ol:bizheng",
+          "FactionId": "wu",
+          "BaseHp": 3,
+          "AdditionalSkillIds": [
+            "ol:yidian"
+          ],
+          "Gender": 0,
+          "CharacterId": "character:sun-shao",
+          "VariantId": "ordinary",
+          "RulesetId": "sanguosha-ol",
+          "InitialHp": null,
+          "SkillIds": [
+            "ol:bizheng",
+            "ol:yidian"
+          ]
+        }
+      ]
+    }
+  ],
+  "limits": [
+    "No character-specific combination FAQ or live official server behavior verified.",
+    "Bounded exact current-client extract reused; no fresh decoder run or whole bundle retention.",
+    "No batch19 implementation, build or tests yet."
+  ],
+  "accessNotes": [
+    "Web reader succeeded for435;434/436 returned transport timeouts. All six raw official page/API requests succeeded through ordinary HTTPS fetch; no access/safety restriction was bypassed."
+  ],
+  "workerBuildRun": false,
+  "workerTestsRun": false
+}

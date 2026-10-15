@@ -1,0 +1,205 @@
+{
+  "status": "root-verified",
+  "officialId": 430,
+  "generalId": "ol:yuan-tan-yuan-shang",
+  "characterId": "character:yuan-tan-yuan-shang",
+  "variantId": "ordinary",
+  "rulesetId": "sanguosha-ol",
+  "currentClientCharacter": {
+    "a": 430,
+    "b": "袁谭袁尚",
+    "d": "YuanTanYuanShang",
+    "e": 46,
+    "f": "25",
+    "g": 4,
+    "h": 1,
+    "i": 4,
+    "j": 904,
+    "p": 3,
+    "q": "1",
+    "r": "9043001",
+    "y": "袁谭，大将军袁绍长子，曾任青州刺史。袁绍去世后，审配等伪立遗令，拥立袁尚为继承人，袁谭不能继位，心怀愤恨。后袁谭、袁尚二人的矛盾彻底爆发，袁谭联合曹操共同攻打袁尚。建安十年，曹操兴兵进攻南皮，袁谭奋力抵抗，终于在曹操急攻之下战败，被曹洪所杀。袁尚，袁绍的第三子，受到袁绍的偏爱，并于袁绍去世后继承了袁绍的官位和爵位，也因此招致长兄袁谭的怨恨，兄弟之间经常兵戈相向。后袁氏兄弟均被曹操所败，袁尚与二兄袁熙逃往辽西投奔乌丸首领蹋顿，但不久曹操即平定乌丸，二人只得又投奔辽东太守公孙康，却被公孙康所斩，首级也被送往曹操之处。",
+    "z": "根据不同的手牌结构选择不同的爆发方式，同时可以控制场上的判定和装备牌。",
+    "aa": 133,
+    "ab": "741,742",
+    "ad": "画师:李秀森",
+    "x": "四世三公，####不如一世称王！",
+    "al": 4140,
+    "am": "true",
+    "ap": 800,
+    "aq": 240,
+    "bx": 300000,
+    "LordCardRate1": 49,
+    "LordCardRate2": 45,
+    "cc": 43001,
+    "starMax": 4
+  },
+  "printedSpells": [
+    {
+      "a": 904,
+      "b": "3,5",
+      "c": "内伐",
+      "d": "NeiFa",
+      "e": 0,
+      "g": 3,
+      "i": 2,
+      "o": "出牌阶段开始时，你可以摸两张牌或获得场上一张牌，然后弃置一张牌。若弃置的牌是：<br>•基本牌，你本回合不能使用锦囊牌和装备牌且【杀】的使用次数+X且目标+1；<br>•非基本牌，你本回合不能使用基本牌，使用普通锦囊牌的目标可+1或-1（含【借刀】），前两次使用装备牌时摸X张牌（X为手牌中因本技能不能使用的牌且至多为5）。",
+      "v": "请选择一个目标",
+      "w": "选择一张牌弃置;选择一个目标获得场上的牌",
+      "u": "请为<font color='#FFD800'>{0}</font>多选一名目标;请为<font color='#FFD800'>{0}</font>多选或少选一名目标",
+      "ay": "系统提示→点“确定”"
+    }
+  ],
+  "primaryPreflight": {
+    "path": "docs/content/sources/ol-batch18-429-432-preflight-2026-10-15.json",
+    "sha256": "f51d9302767d332c35065c8bca2936361dc104dfe5b4b7a0b9c219d08dde0344"
+  },
+  "currentClient": {
+    "path": "docs/content/sources/evidence/ol-batch14-411-480-current-client-preflight-2026-10-15.json",
+    "sha256": "22a8158f9a7f1af27e5130d0de95f1e4eb4a4e19fbd7adb0439009e564fff483",
+    "clientBundleSha256": "66dfce61f1c4fb0aca35b6f85ed940e394719db84655f4d4146b463bc0cf8c1b",
+    "configSha256": "3d7536d4e2ca3d64707c2f6e0edbb8ccb4a045eee4274862dfa35431157c64f4",
+    "freshDecoderRun": false,
+    "wholeArchivesSaved": false
+  },
+  "sources": [
+    {
+      "heroId": 430,
+      "kind": "page",
+      "url": "https://www.sanguosha.com/hero/430",
+      "status": 200,
+      "contentType": "text/html",
+      "path": "docs/content/sources/evidence/ol-batch18-429-432-430-page-2026-10-15.html",
+      "sha256": "1434d352925b23f8c47e78f2f2a37a1204580cda704381734f0cfcc8bf1d5330",
+      "bytes": 25856
+    },
+    {
+      "heroId": 430,
+      "kind": "api",
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=430",
+      "status": 200,
+      "contentType": "application/json",
+      "path": "docs/content/sources/evidence/ol-batch18-429-432-430-api-2026-10-15.json",
+      "sha256": "2b8715685ad1c569c5a428af4df7c7f956fe12d93bed3f87a52f8065fb918ac5",
+      "bytes": 1499
+    }
+  ],
+  "versionReconciliation": "Current client904 explicitly allows optional plus/minus ordinary Trick targets including Borrowed Sword, while fresh page wording omits that explicit parenthetical. Implement exact current client, preserve the older page and do not silently omit pair legality.",
+  "art": {
+    "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/43000.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-yuan-tan-yuan-shang.png",
+    "sha256": "6d12c456f0a4427e2428521647f195e243d06add527b3b6e8aa2760cda2c46e6",
+    "bytes": 1172509,
+    "width": 750,
+    "height": 950,
+    "viewed": true
+  },
+  "implementationInterpretations": [
+    "Uses current exact client904 including optional +1/-1 ordinary-trick targets and full BorrowedSword pairs; old page wording is retained as a version conflict.",
+    "Field means living players equipment/judgment, excluding hands/private piles; self-owned legal field entity may be obtained.",
+    "After all native gain/recovery/movement children, autonomous legal HE discard pays the branch by printed discarded category. Issued mandatory continuation survives source loss; death drains paid children without new arming.",
+    "X is dynamic count of current printed-category hand cards forbidden by that branch, cap5; conversions are prohibited/counted by effective use category. Each actual equipment payment freezes its draw X. No verified official FAQ establishes this algorithm.",
+    "Same actual turn rearming unions prohibitions, grants each branch benefit once, and preserves the shared first-two-equipment-use counter. Additional Play does not erase negatives or stack same benefits.",
+    "Actual ordinary Response such as Duel/Barbarian Slash is not Use. Genuine Dodge versus Slash and Nullification are Uses for prohibitions.",
+    "BorrowedSword authoritative complete ordered Action.TargetSeats pairs are adjusted together. Implicit DrawTwo self and group-trick original targets are eligible for one optional add/remove."
+  ],
+  "verification": {
+    "workerBuildRun": false,
+    "workerTestsRun": false,
+    "officialFaqVerified": false,
+    "serverBehaviorVerified": false,
+    "focusedMethods": [
+      "BasicDiscardDynamicSlashQuotaTwoTargetsAndTurnExpiryCold",
+      "NonBasicDiscardFirstTwoActualEquipmentPaymentsCold",
+      "OrdinaryTrickImplicitSelfAndBorrowedCompletePairsCold",
+      "PaidGainSourceLossAndOwnerDeathDrainOnceCold",
+      "RealDiscardFaluChildAndOrdinaryDuelResponseCold",
+      "FieldSilverLionRecoveryBeforePrivateDiscardCold",
+      "InsertedPlayRearmUnionsBansAndPreservesEquipmentOrdinalCold"
+    ],
+    "unverifiedCombinations": [
+      "Dedicated converted multi-material equipment producer and independent zero-material equipment producer were not separately exercised by these fixtures.",
+      "All-target ordinary trick and transient actor/provider replacement combinations are implemented through existing native helpers but lack a dedicated new composition fixture.",
+      "Rank/suit rewriting does not alter printed category used to count X or classify the actual discarded cost."
+    ],
+    "coverageIntent": [
+      "Actual basic discard, ordinary counted two-target Slash, dynamic quota, real turn expiry and cold views.",
+      "First-two actual equipment material payments; native gain child removes source and a subsequent new paid use still receives the already issued right.",
+      "Ordinary Duel/implicit self DrawTwo/BorrowedSword complete ordered pairs add and remove to zero, retaining costs and canceling effects.",
+      "Paid draw gain real source loss and real owner death in a continuing game, once-only native child return.",
+      "Real Neifa discard invokes Falu; genuine ordinary Duel Slash response remains allowed, while BorrowedSword-requested Slash cannot use held Dodge under a basic-use ban.",
+      "Real SilverLion field removal invokes original-owner recovery before owner-private discard, with cold child resume.",
+      "Real inserted Play followed by normal Play: bans union, same-branch benefits do not stack, equipment ordinal does not reset."
+    ],
+    "rootFocusedStatus": "passed",
+    "rootVerification": {
+      "status": "passed",
+      "rootRunner": true,
+      "focusedSummary": "docs/benchmarks/2026-10-15-batch-18-sixth-focused-summary.json",
+      "focused": {
+        "corePassed": 29,
+        "coreFailed": 0,
+        "wpfPassed": 1,
+        "wpfFailed": 0,
+        "durationMs": 11445
+      },
+      "routineSummary": "docs/benchmarks/2026-10-15-batch-18-routine-summary.json",
+      "routine": {
+        "corePassed": 119,
+        "coreFailed": 0,
+        "wpfPassed": 20,
+        "wpfFailed": 0,
+        "durationMs": 29662
+      },
+      "report": "docs/benchmarks/2026-10-15-sp-pang-tong-yuan-tan-yuan-shang-lv-qian-verification.json",
+      "fullRun": false,
+      "foregroundAcceptance": false,
+      "serverBehaviorVerified": false
+    },
+    "focused": "Root sixth focused: all 18 new behavior methods and 11 relevant shared regression checks passed; 1 WPF gallery passed.",
+    "routine": "Prescribed 119 Core/20 WPF routine passed in 29662ms; Full not run.",
+    "rootEvidence": "docs/benchmarks/2026-10-15-batch-18-sixth-focused-summary.json"
+  },
+  "implementationFiles": [
+    {
+      "path": "src/CardGame.Core/ProgramYuanTanYuanShangOperations.cs",
+      "sha256": "7918af5398f61c824f81722de53ca8bffdc5f0db704f21c7a764693f6e5f1a28"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.YuanTanYuanShangPolicies.cs",
+      "sha256": "7cfd4b7e6bb4fe294d32cf2ad3f5d413adecfdc95aa5fcff72f23cee98adfbfd"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.YuanTanYuanShangPrograms.cs",
+      "sha256": "8070c9e6600d184b8aaf56d893422311e0267ff4fb408e753cc47e7282312c30"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.YuanTanYuanShangTargets.cs",
+      "sha256": "e5b872b19cb941d83bc3f5a0137128629e0d3cabea2d1bdc5982a4608d069c28"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.YuanTanYuanShangObservers.cs",
+      "sha256": "e3e580e9d43759e4a1e536ee57ded32804873d16c12296eba3ca2c611ac0fac6"
+    },
+    {
+      "path": "src/CardGame.Content.Standard/OlYuanTanYuanShangContent.cs",
+      "sha256": "cfdda3b7a60c988de1e3271c8f3f357099171145e5447ae434f0448b4f2b3fd9"
+    },
+    {
+      "path": "src/CardGame.Content.Standard/SkillPrograms/ol-yuan-tan-yuan-shang.rules.json",
+      "sha256": "e8687b7871a3d2af3f73a521d3a4bee51c13eadaf2423e3a3af990c7132213c6"
+    },
+    {
+      "path": "src/CardGame.Content.Standard/SkillPrograms/ol-yuan-tan-yuan-shang.presentation.json",
+      "sha256": "0d7feffe2a922e4215f26d390049865e946664bd1f99e7bbdee4747bcdbc0886"
+    },
+    {
+      "path": "tests/CardGame.Core.Tests/YuanTanYuanShangChecks.cs",
+      "sha256": "87c7d8ae3c64fd8d9fd2329449fbe03ac9125136c4aea0c05fb3565f2baa155a"
+    },
+    {
+      "path": "src/CardGame.Wpf/Assets/official-ol-yuan-tan-yuan-shang.png",
+      "sha256": "6d12c456f0a4427e2428521647f195e243d06add527b3b6e8aa2760cda2c46e6"
+    }
+  ]
+}

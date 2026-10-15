@@ -1,0 +1,325 @@
+{
+  "capturedAtUtc": "2026-10-14T16:29:27.075384+00:00",
+  "clientBundleUrl": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+  "clientBundleSha256": "66dfce61f1c4fb0aca35b6f85ed940e394719db84655f4d4146b463bc0cf8c1b",
+  "clientBundleBytes": 5256349,
+  "configUrl": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+  "configSha256": "3d7536d4e2ca3d64707c2f6e0edbb8ccb4a045eee4274862dfa35431157c64f4",
+  "configBytes": 4142822,
+  "decoder": "Current public InitOfb parameters extracted from freshly fetched bundle; AES-CFB128 decrypt then gzip then UTF-8 JSON. Full bundle/config and decoded tables retained only in memory.",
+  "members": {
+    "character.sgs": {
+      "encodedSha256": "e0b6f0188edebb1f502ea402c7171e93b88f4e9d05720948344a1f4f44474aae",
+      "decodedSha256": "b3ef3f1181e7fe667499cb688b7cdce56631d899dbb0eea55d75fbf80636b040",
+      "encodedBytes": 352776,
+      "decodedBytes": 1485056
+    },
+    "cha_spell.sgs": {
+      "encodedSha256": "0c244585a54d101377d6e8d17cca27df2eb9520cff11f73b3373e8b3ddc5fe3d",
+      "decodedSha256": "c42298ef8eeed59ac5e2f30854ec1d35a9f38df80410403c849f0a3e2753a0d9",
+      "encodedBytes": 246028,
+      "decodedBytes": 1166955
+    }
+  },
+  "tableMetadata": {
+    "characterTable": "GameCharacters.character",
+    "characterRowCount": 1631,
+    "spellTable": "GameSpells.spell",
+    "spellRowCount": 3091,
+    "selectedCharacterFieldMappings": [
+      {
+        "Long": "id",
+        "Short": "a"
+      },
+      {
+        "Long": "name",
+        "Short": "b"
+      },
+      {
+        "Long": "Class",
+        "Short": "d"
+      },
+      {
+        "Long": "country",
+        "Short": "g"
+      },
+      {
+        "Long": "gender",
+        "Short": "h"
+      },
+      {
+        "Long": "hp",
+        "Short": "i"
+      },
+      {
+        "Long": "spellId1",
+        "Short": "j"
+      },
+      {
+        "Long": "spellId2",
+        "Short": "k"
+      },
+      {
+        "Long": "spellId3",
+        "Short": "l"
+      },
+      {
+        "Long": "spellId4",
+        "Short": "m"
+      },
+      {
+        "Long": "spellId5",
+        "Short": "n"
+      },
+      {
+        "Long": "spellId6",
+        "Short": "o"
+      },
+      {
+        "Long": "initHp",
+        "Short": "af"
+      }
+    ],
+    "fieldMappingProof": {
+      "priorExactExtractionPath": "docs/content/sources/evidence/ol-next-group-372-373-375-client-preflight-2026-10-14.json",
+      "priorSha256": "41519bf5ad8c78c032ec1bd5335987448065b6219d42851c964ca377670629d8",
+      "freshDecodedMemberHashMatchesExactly": true,
+      "decodedMemberSha256": "b3ef3f1181e7fe667499cb688b7cdce56631d899dbb0eea55d75fbf80636b040"
+    }
+  },
+  "requestedHeroIds": [
+    377,
+    378,
+    379
+  ],
+  "characters": [
+    {
+      "a": 377,
+      "b": "卑弥呼",
+      "d": "BeiMiHu",
+      "e": 44,
+      "f": "45",
+      "g": 4,
+      "h": 2,
+      "i": 3,
+      "j": 392,
+      "k": 393,
+      "l": 394,
+      "p": 1,
+      "q": "1",
+      "r": "937701",
+      "y": "日本弥生时代邪马台国（今日本九州岛东北部）的女王，在《三国志·魏书·倭人传》中有关于她的记载。曾平定倭国内乱，后派遣难升米出使魏，获赐亲魏倭王之金印。是个极具神秘色彩的古代女性统治者。",
+      "z": "需要逐渐累积优势，在有较多“傀”标记时很强大。",
+      "aa": 268,
+      "ab": "644,645",
+      "ad": "画师:聚一_小道恩",
+      "x": "我的敌人，####通通都坠入黄泉比良坂吧！",
+      "al": 3260,
+      "am": "true",
+      "ap": 50,
+      "aq": 15,
+      "ay": 3,
+      "bn": "累积优势后很强大的后期将",
+      "bx": 4500,
+      "LordCardRate1": 16,
+      "LordCardRate2": 40,
+      "cc": 37701,
+      "starMax": 4
+    },
+    {
+      "a": 378,
+      "b": "刘琦",
+      "d": "LiuQi",
+      "e": 44,
+      "f": "41",
+      "g": 4,
+      "h": 1,
+      "i": 3,
+      "j": 797,
+      "k": 798,
+      "p": 1,
+      "q": "1",
+      "r": "937801",
+      "y": "刘表长子。因刘表宠幸蔡氏，刘琦有杀身之祸，后求助诸葛亮，听从其建议离开荆州，去守江夏，躲过一劫。被后世称为“鲁恭王”。",
+      "z": "可以获得大量的手牌，具有一定的防御能力，同时可以选择进行控场。",
+      "aa": 70,
+      "ab": "646,647",
+      "ad": "画师:NOVART",
+      "x": "天下之大，####必有我容身之处！",
+      "al": 3250,
+      "am": "true",
+      "ap": 50,
+      "aq": 15,
+      "ay": 3,
+      "bn": "索要手牌，防御极强",
+      "bt": "60",
+      "bx": 4000,
+      "LordCardRate1": 25,
+      "LordCardRate2": 40,
+      "cb": "2;3",
+      "cc": 0,
+      "starMax": 4,
+      "freetitle": "0,防御强将"
+    },
+    {
+      "a": 379,
+      "b": "鲁芝",
+      "d": "LuZhi",
+      "e": 44,
+      "f": "46",
+      "g": 1,
+      "h": 1,
+      "i": 3,
+      "j": 800,
+      "k": 799,
+      "p": 1,
+      "q": "1",
+      "r": "937901",
+      "y": "字世英，扶风郡郿[méi]县人。他家本是西州的大户人家，父亲被郭汜所害，因而从小流离失所。后成为魏晋时期名臣，致力于文化思想研究。",
+      "z": "同时具有爆发能力和辅助能力的灵活性武将，局势越进入后期能力就越强大。",
+      "aa": 133,
+      "ab": "648,649",
+      "ad": "画师:秋呆呆",
+      "x": "虽一介文人，####卫国保家心亦不输汝等武夫。",
+      "al": 3240,
+      "am": "true",
+      "ap": 50,
+      "aq": 15,
+      "ay": 3,
+      "bx": 3500,
+      "LordCardRate1": 30,
+      "LordCardRate2": 48,
+      "cc": 37905,
+      "starMax": 4,
+      "freetitle": "0,辅助强将"
+    }
+  ],
+  "printedSpellIds": [
+    392,
+    393,
+    394,
+    797,
+    798,
+    799,
+    800
+  ],
+  "spells": [
+    {
+      "a": 392,
+      "b": "3,5",
+      "c": "纵傀",
+      "d": "ZongKui",
+      "e": 0,
+      "g": 4,
+      "i": 2,
+      "o": "回合开始前，你可以令一名没有“傀”标记的其他角色获得“傀”。每轮开始时，体力值最少且没有“傀”的一名其他角色获得“傀”。\t",
+      "v": "请选择一名角色，对其发动<font color='#FFD800'>纵傀</font>",
+      "ay": "系统提示→点“确定”"
+    },
+    {
+      "a": 393,
+      "b": "3,4,5",
+      "c": "骨疽",
+      "d": "GuJu",
+      "e": 0,
+      "g": 4,
+      "i": 2,
+      "o": "锁定技，当有“傀”的角色受到伤害后，你摸一张牌。",
+      "ay": "系统提示→点“确定”"
+    },
+    {
+      "a": 394,
+      "b": "3,4,5,6,23",
+      "c": "拜假",
+      "d": "BaiJia",
+      "e": 0,
+      "i": 2,
+      "l": "beimihubaijia",
+      "m": "395",
+      "o": "觉醒技，准备阶段，若你因“骨疽”获得的牌数大于等于7，你增加1点体力上限并回复1点体力，然后令所有没有“傀”的其他角色获得“傀”，最后你失去“骨疽”，获得“<font href='395'>蚕食</font>”。",
+      "ay": "系统提示→点“确定”"
+    },
+    {
+      "a": 797,
+      "b": "3,5",
+      "c": "问计",
+      "d": "WenJiSP",
+      "e": 0,
+      "g": 5,
+      "i": 2,
+      "n": 0,
+      "o": "出牌阶段开始时，你可以令一名其他角色交给你一张牌，然后你本回合使用的与此牌同名的牌不能被其他角色响应。",
+      "v": "是否发动<font color='#FFD800'>问计</font>，选择一个目标，令其交给你一张牌",
+      "w": "{Target}对你使用了<font color='#FFD800'>问计</font>,请交给其一张牌",
+      "aw": "1",
+      "ay": "系统提示→点“确定”"
+    },
+    {
+      "a": 798,
+      "b": "3,5",
+      "c": "屯江",
+      "d": "TunJiangSP",
+      "e": 0,
+      "g": 5,
+      "i": 2,
+      "o": "结束阶段，若你未跳过本回合的出牌阶段且于此阶段未使用牌指定过其他角色为目标，你可以摸与全场势力数等量张牌。",
+      "u": "是否发动<font color='#FFD800'>屯江</font>摸{0}张牌",
+      "j": 1,
+      "aw": "1",
+      "ay": "系统提示→点“确定”"
+    },
+    {
+      "a": 799,
+      "b": "3,5",
+      "c": "清忠",
+      "d": "QingZhong",
+      "e": 0,
+      "g": 5,
+      "i": 2,
+      "ab": 1,
+      "n": 1,
+      "o": "出牌阶段开始时，你可以摸两张牌，若如此做，本阶段结束时，你与手牌数最少的角色交换手牌。",
+      "v": "是否发动<font color='#FFD800'>清忠</font>摸2张牌？;请选择一个手牌最少的目标，与其交换手牌",
+      "w": "请选择一个手牌最少的目标，与其交换手牌",
+      "k": "1",
+      "aw": "1",
+      "ay": "系统提示→点“确定”"
+    },
+    {
+      "a": 800,
+      "b": "3",
+      "c": "卫境",
+      "d": "WeiJing",
+      "e": 0,
+      "g": 7,
+      "h": 1,
+      "i": 2,
+      "n": 0,
+      "o": "每轮限一次，你可以视为使用一张【杀】或【闪】。",
+      "v": "请选择{TargetCount}名角色，作为<font color='#FFD800'>杀</font>的目标;可选择最多{TargetCount}名角色，作为<font color='#FFD800'>杀</font>的目标",
+      "ae": "{Source}对{Target}发动了武技能<font color='#FFD800'>卫境</font>，视为对{Target}使用一张【杀】;{Source}发动了技能<font color='#FFD800'>卫境</font>，视为使用一张【闪】",
+      "ay": "系统提示→点“确定”"
+    }
+  ],
+  "linkedSpellIds": [
+    395
+  ],
+  "linkedSpells": [
+    {
+      "a": 395,
+      "b": "3,5",
+      "c": "蚕食",
+      "d": "CanShi1",
+      "e": 0,
+      "g": 2,
+      "i": 2,
+      "o": "当有“傀”的角色使用基本牌或普通锦囊牌指定你为唯一目标时，你可以取消之，然后其移除“傀”。<br>当你使用基本牌或普通锦囊牌仅指定唯一目标时，你可以额外指定任意名有“傀”的角色为目标，然后其移除“傀”。\t",
+      "v": "请选择额外目标",
+      "u": "是否发动<font color='#FFD800'>蚕食</font>取消自己为<font color='#FFD800'>{0}</font>的目标;是否发动<font color='#FFD800'>蚕食</font>选择额外目标",
+      "ay": "系统提示→点“确定”"
+    }
+  ],
+  "limits": [
+    "Only these exact three character rows, their current printed spells and directly/recurrently referenced native linked spells are saved. No FAQ beyond client text is inferred."
+  ]
+}

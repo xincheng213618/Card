@@ -1,0 +1,400 @@
+{
+  "capturedAtUtc": "2026-10-14T19:36:29.016633+00:00",
+  "status": "preflight-complete-frozen; not-implemented",
+  "scope": "New owned batch14 documentation and 8 raw primary files only; no source/tests/tools/art/registration/version/build/runner changes. No accepted batch13 evidence altered.",
+  "rosterBaseline": {
+    "path": "docs/benchmarks/2026-10-15-general-batch-14-roster-baseline.json",
+    "sha256": "5d3b1331d5b4b9a3a031d2370ee2abdea411d08bd99b83d0d26fa166e88858b6",
+    "count": 405
+  },
+  "currentClient": {
+    "path": "docs/content/sources/evidence/ol-batch14-411-480-current-client-preflight-2026-10-15.json",
+    "sha256": "22a8158f9a7f1af27e5130d0de95f1e4eb4a4e19fbd7adb0439009e564fff483",
+    "clientBundleSha256": "66dfce61f1c4fb0aca35b6f85ed940e394719db84655f4d4146b463bc0cf8c1b",
+    "configSha256": "3d7536d4e2ca3d64707c2f6e0edbb8ccb4a045eee4274862dfa35431157c64f4",
+    "exactBoundedRowsConfirmed": true,
+    "416LinkedSkills": "pending; do not infer exact IDs/variants from plain names",
+    "wholeArchivesSaved": false
+  },
+  "candidates": [
+    {
+      "heroId": 415,
+      "name": "张绣",
+      "productLine": "三国杀OL",
+      "clientClass": "ZhangXiu",
+      "gender": "male",
+      "genderEvidence": "currentclient.h=1; page/API do not publish explicit gender",
+      "faction": "qun",
+      "baseHp": 4,
+      "initialHp": null,
+      "initialHpClientField": null,
+      "clientIdentityFields": {
+        "a": 415,
+        "b": "张绣",
+        "d": "ZhangXiu",
+        "g": 4,
+        "h": 1,
+        "i": 4,
+        "af": null,
+        "j": 830,
+        "k": 831,
+        "l": null
+      },
+      "skills": [
+        {
+          "name": "雄乱",
+          "text": "限定技，出牌阶段，你可以指定一名其他角色并废除你的判定区和装备区，然后你本回合对其使用牌无距离和次数限制，其本回合不能使用和打出手牌。",
+          "clientSpellId": 830,
+          "clientSpellClass": "XiongLuan",
+          "clientPrintedText": "限定技，出牌阶段，你可以指定一名其他角色并废除你的判定区和装备区，然后你本回合对其使用牌无距离和次数限制，其本回合不能使用和打出手牌。",
+          "pageEqualsCurrentNormalized": true
+        },
+        {
+          "name": "从谏",
+          "text": "当你成为锦囊牌的目标时，若此牌的目标数大于1，你可以交给其中一名目标角色一张牌，然后摸一张牌，若你给出的牌是装备牌，改为摸两张牌。",
+          "clientSpellId": 831,
+          "clientSpellClass": "CongJian",
+          "clientPrintedText": "当你成为锦囊牌的目标时，若此牌的目标数大于1，你可以交给其中一名目标角色一张牌，然后摸一张牌，若你给出的牌是装备牌，改为摸两张牌。",
+          "pageEqualsCurrentNormalized": true
+        }
+      ],
+      "existingMatches": [
+        {
+          "Id": "classic:zhang-xiu",
+          "Name": "张绣",
+          "PortraitKey": "zhang_xiu",
+          "SkillId": "classic:xiongluan",
+          "FactionId": "qun",
+          "BaseHp": 4,
+          "AdditionalSkillIds": [
+            "classic:congjian"
+          ],
+          "Gender": 0,
+          "CharacterId": null,
+          "VariantId": null,
+          "RulesetId": null,
+          "InitialHp": null,
+          "SkillIds": [
+            "classic:xiongluan",
+            "classic:congjian"
+          ]
+        }
+      ],
+      "duplicateDecision": "exclude duplicate ordinary version despite null legacy identity fields",
+      "rawPrimary": [
+        {
+          "url": "https://www.sanguosha.com/hero/415",
+          "status": 200,
+          "path": "docs/content/sources/evidence/ol-batch14-415-page-2026-10-15.html",
+          "sha256": "5e857957da72f0ecf9b4f23ad3214ae62b1dac251cc7ab41fe386bc34b964f18",
+          "bytes": 27727
+        },
+        {
+          "url": "https://www.sanguosha.com/api/v1/hero/info?gid=415",
+          "status": 200,
+          "path": "docs/content/sources/evidence/ol-batch14-415-info-2026-10-15.json",
+          "sha256": "53438fa3b57b4323d8002e48c966d8b82587796eccc27bf80d7a347b5a7be835",
+          "bytes": 1438
+        }
+      ],
+      "mechanismPreflight": {
+        "newPrimitives": [],
+        "decision": "exclude duplicate",
+        "existing": "Existing Xiongluan native judgment/equipment-region abolition, turn-bound target exemption/hand-use prohibition; Congjian actual multi-target trick gift and equipment-category draw covered by existing configuration."
+      },
+      "existingRules": {
+        "path": "src/CardGame.Content.Standard/SkillPrograms/classic-zhang-xiu.rules.json",
+        "sha256": "21a3c0c48a2cb47d4c0c82d0e57e0e402e5db0ab9b0b9edcd0896765f494cdfa"
+      },
+      "existingPresentation": {
+        "path": "src/CardGame.Content.Standard/SkillPrograms/classic-zhang-xiu.presentation.json",
+        "sha256": "303d7955051f169f92a4db46d21d1220eb263a727220d31681c3b69ba7707885"
+      },
+      "textComparison": "Congjian exact; Xiongluan existing presentation compressed equivalent wording. Existing character/name/faction4HP/skills remain same ordinary version.",
+      "strongIdentityAudit": {
+        "characterId": "character:zhang-xiu",
+        "matchingCharacterDefinitions": [],
+        "legacyNullIdentityMatchedBy": [
+          "name",
+          "faction",
+          "baseHp",
+          "printedSkills"
+        ]
+      }
+    },
+    {
+      "heroId": 416,
+      "name": "司马徽",
+      "productLine": "三国杀OL",
+      "clientClass": "SiMaHui",
+      "gender": "male",
+      "genderEvidence": "currentclient.h=1; page/API do not publish explicit gender",
+      "faction": "qun",
+      "baseHp": 3,
+      "initialHp": null,
+      "initialHpClientField": null,
+      "clientIdentityFields": {
+        "a": 416,
+        "b": "司马徽",
+        "d": "SiMaHui",
+        "g": 4,
+        "h": 1,
+        "i": 3,
+        "af": null,
+        "j": 844,
+        "k": 845,
+        "l": 846
+      },
+      "skills": [
+        {
+          "name": "荐杰",
+          "text": "首回合开始时，你依次令两名其他角色获得“龙印”“凤印”标记。出牌阶段限一次（你的第一回合外），或当有“龙印”或“凤印”的角色死亡时，你可以转移“龙印”“凤印”（“龙印”视为拥有“火计”；“凤印”视为拥有“连环”；皆有时，可以弃置“龙印”“凤印”发动“业炎”）。",
+          "clientSpellId": 844,
+          "clientSpellClass": "JianJie",
+          "clientPrintedText": "首回合开始时，你依次令两名其他角色获得“龙印”“凤印”标记。出牌阶段限一次（你的第一回合外），或当有“龙印”或“凤印”的角色死亡时，你可以转移“龙印”“凤印”。<br>“龙印”视为拥有“火计”；“凤印”视为拥有“连环”；皆有时，可以弃置“龙印”“凤印”发动“业炎”。",
+          "pageEqualsCurrentNormalized": false
+        },
+        {
+          "name": "称好",
+          "text": "当一名角色受到属性伤害后，若其处于连环状态且是此伤害传导的起点，你可以观看牌堆顶X+1张牌并分配给任意角色（X为全场连环状态角色数）。",
+          "clientSpellId": 845,
+          "clientSpellClass": "ChengHao",
+          "clientPrintedText": "当一名角色受到属性伤害后，若其处于连环状态且是此伤害传导的起点，你可以观看牌堆顶一张牌并分配给任意角色，全场每有一名角色处于连环状态，便可多观看一张。",
+          "pageEqualsCurrentNormalized": false
+        },
+        {
+          "name": "隐士",
+          "text": "锁定技，当你受到属性伤害或锦囊牌造成的伤害时，若你没有“龙印”“凤印”且装备区里没有防具牌，你防止此伤害。",
+          "clientSpellId": 846,
+          "clientSpellClass": "YinShi",
+          "clientPrintedText": "锁定技，当你受到属性伤害或锦囊牌造成的伤害时，若你没有“龙印”“凤印”且装备区里没有防具牌，你防止此伤害。",
+          "pageEqualsCurrentNormalized": true
+        }
+      ],
+      "existingMatches": [],
+      "duplicateDecision": "missing: no name or same identity in complete 405 roster",
+      "rawPrimary": [
+        {
+          "url": "https://www.sanguosha.com/hero/416",
+          "status": 200,
+          "path": "docs/content/sources/evidence/ol-batch14-416-page-2026-10-15.html",
+          "sha256": "0dbce1703c4dc28d6b2f15d1c5651f80902e834ae91dab5c37d2fd5d08764efb",
+          "bytes": 25953
+        },
+        {
+          "url": "https://www.sanguosha.com/api/v1/hero/info?gid=416",
+          "status": 200,
+          "path": "docs/content/sources/evidence/ol-batch14-416-info-2026-10-15.json",
+          "sha256": "505face2726689092d11dd667fa3241fd8746ce444c90da4755f44aa0fe12cb8",
+          "bytes": 890
+        }
+      ],
+      "mechanismPreflight": {
+        "newPrimitives": [
+          "First actual own-turn ordered different-recipient dragon/phoenix grants; exact marker transfer and death ownership callback with dynamic granted skills.",
+          "Atomic consume-both marker entitlement for actual linked Yeyan; its exact skill IDs/variant/cost rules are unresolved, must not choose a version by name.",
+          "Attribute-damage chain-origin captured qualification; private native top X+1 peek with true per-card allocation and child movement drain.",
+          "Opt-in damage prevention requiring both rune markers absent and actual armor vacancy, with native final damage authority."
+        ],
+        "existing": "Native attributed markers, grant/revoke skill capabilities, fire/chain/HP producer and card movement primitives exist; full new owning rune/transfer entitlement and peek-allocation invoice needs implementation.",
+        "unconfirmed": [
+          "844 only names HuoJi/LianHuan/YeYan, contains no exact linked ID or href.",
+          "Marker owner plurality, repeated grants/transfer/loss/death lifetime and combination FAQ remain pending."
+        ]
+      },
+      "strongIdentityAudit": {
+        "characterId": "character:sima-hui",
+        "matchingCharacterDefinitions": [],
+        "legacyNullIdentityMatchedBy": [
+          "name",
+          "faction",
+          "baseHp",
+          "printedSkills"
+        ]
+      }
+    },
+    {
+      "heroId": 417,
+      "name": "徐荣",
+      "productLine": "三国杀OL",
+      "clientClass": "XuRong",
+      "gender": "male",
+      "genderEvidence": "currentclient.h=1; page/API do not publish explicit gender",
+      "faction": "qun",
+      "baseHp": 4,
+      "initialHp": null,
+      "initialHpClientField": null,
+      "clientIdentityFields": {
+        "a": 417,
+        "b": "徐荣",
+        "d": "XuRong",
+        "g": 4,
+        "h": 1,
+        "i": 4,
+        "af": null,
+        "j": 852,
+        "k": 3447,
+        "l": null
+      },
+      "skills": [
+        {
+          "name": "凶镬",
+          "text": "游戏开始时，你获得3枚“暴戾”标记(标记上限为3)。出牌阶段，你可以交给一名其他角色1枚“暴戾”标记，你对其造成的伤害+1，且其出牌阶段开始时移除“暴戾”标记并随机执行一项：1.受到1点火焰伤害且本回合不能使用【杀】指定你为目标；2.失去1点体力且本回合手牌上限-1；3.你随机获得其一张手牌和一张装备区里的牌。",
+          "clientSpellId": 852,
+          "clientSpellClass": "XiongHuo",
+          "clientPrintedText": "游戏开始时，你获得3枚“暴戾”标记(标记上限为3)。出牌阶段，你可以交给一名其他角色1枚“暴戾”标记，你对其造成的伤害+1，且其出牌阶段开始时移除“暴戾”标记并随机执行一项：<br>&nbsp;1.受到1点火焰伤害且本回合不能使用【杀】指定你为目标；<br>&nbsp;2.失去1点体力且本回合手牌上限-1；<br>&nbsp;3.你随机获得其一张手牌和一张装备区里的牌。",
+          "pageEqualsCurrentNormalized": true
+        },
+        {
+          "name": "杀绝",
+          "text": "锁定技，当其他角色进入濒死状态时，你获得1枚“暴戾”标记，然后若其需要超过一张【桃】或【酒】救回，你获得使其进入此濒死状态的牌。",
+          "clientSpellId": 3447,
+          "clientSpellClass": "ShaJue2023",
+          "clientPrintedText": "锁定技，当其他角色进入濒死状态时，你获得1枚“暴戾”标记，然后若其需要超过一张【桃】或【酒】救回，你获得使其进入此濒死状态的牌。",
+          "pageEqualsCurrentNormalized": true
+        }
+      ],
+      "existingMatches": [],
+      "duplicateDecision": "missing: no name or same identity in complete 405 roster",
+      "rawPrimary": [
+        {
+          "url": "https://www.sanguosha.com/hero/417",
+          "status": 200,
+          "path": "docs/content/sources/evidence/ol-batch14-417-page-2026-10-15.html",
+          "sha256": "de98cf6c30f42fb8f649fea4bfdf4e5f621f4d75ccad37196e93dda1b2a872db",
+          "bytes": 27304
+        },
+        {
+          "url": "https://www.sanguosha.com/api/v1/hero/info?gid=417",
+          "status": 200,
+          "path": "docs/content/sources/evidence/ol-batch14-417-info-2026-10-15.json",
+          "sha256": "18ddfd13a5ca4a468ef7781f10fc077f79cbda49ba4a094f9b77680264d68d13",
+          "bytes": 1487
+        }
+      ],
+      "mechanismPreflight": {
+        "newPrimitives": [
+          "Actual GameStart 3-marker pool with cap3; typed owner-attributed target mark grant and current mark-dependent damage boost.",
+          "Exact target actual Play-start mark consumption and one deterministic native RNG outcome, frozen before children; three paid effects with native sourced fire damage/HP loss/two-region random acquisition.",
+          "Actual other DyingEntering replenish marker and claim only real native causal physical entities when current required rescue exceeds1, once per Dying invoice."
+        ],
+        "existing": "Native deterministic RNG, markers, damage, HP loss, turn modifiers and random hand/equipment moves exist. New native causal mark debt and dying-card claim ownership proof must be bounded; no fake material or killer.",
+        "unconfirmed": [
+          "Current binding is ShaJue2023 ID3447, not an assumed older ShaJue ID.",
+          "Source attribution of fire branch and multiple-source mark semantics require explicit primary evidence or documented implementation interpretation."
+        ]
+      },
+      "strongIdentityAudit": {
+        "characterId": "character:xu-rong",
+        "matchingCharacterDefinitions": [],
+        "legacyNullIdentityMatchedBy": [
+          "name",
+          "faction",
+          "baseHp",
+          "printedSkills"
+        ]
+      },
+      "currentVersionBoundary": {
+        "characterId": 417,
+        "currentPrimarySkillId": 852,
+        "currentSecondarySkillId": 3447,
+        "currentSecondarySkillClass": "ShaJue2023",
+        "olderSecondarySkillId853": "not bound to current character; not substituted; no older full row compared in this bounded source",
+        "webpageVersion": "unversioned printed skill name; current text matches ShaJue2023 after HTML normalization; same name does not authorize older binding"
+      }
+    },
+    {
+      "heroId": 418,
+      "name": "李傕",
+      "productLine": "三国杀OL",
+      "clientClass": "LiJue",
+      "gender": "male",
+      "genderEvidence": "currentclient.h=1; page/API do not publish explicit gender",
+      "faction": "qun",
+      "baseHp": 6,
+      "initialHp": 4,
+      "initialHpClientField": 4,
+      "clientIdentityFields": {
+        "a": 418,
+        "b": "李傕",
+        "d": "LiJue",
+        "g": 4,
+        "h": 1,
+        "i": 6,
+        "af": 4,
+        "j": 854,
+        "k": 855,
+        "l": null
+      },
+      "skills": [
+        {
+          "name": "狼袭",
+          "text": "准备阶段，你可以对一名体力值不大于你的其他角色造成0~2点随机伤害。",
+          "clientSpellId": 854,
+          "clientSpellClass": "LangXi",
+          "clientPrintedText": "准备阶段，你可以对一名体力值小于等于你的其他角色造成0~2点随机伤害。",
+          "pageEqualsCurrentNormalized": false
+        },
+        {
+          "name": "亦算",
+          "text": "出牌阶段限一次，当你使用的锦囊牌置入弃牌堆时，你可以减少1点体力上限获得之。",
+          "clientSpellId": 855,
+          "clientSpellClass": "YiSuan",
+          "clientPrintedText": "出牌阶段限一次，当你使用的锦囊牌置入弃牌堆时，你可以减少1点体力上限获得之。",
+          "pageEqualsCurrentNormalized": true
+        }
+      ],
+      "existingMatches": [],
+      "duplicateDecision": "missing: no name or same identity in complete 405 roster",
+      "rawPrimary": [
+        {
+          "url": "https://www.sanguosha.com/hero/418",
+          "status": 200,
+          "path": "docs/content/sources/evidence/ol-batch14-418-page-2026-10-15.html",
+          "sha256": "ec7199f29b69a605364d23a0e39a7d28d3eb98e618ee567536b22e66ffe06195",
+          "bytes": 25535
+        },
+        {
+          "url": "https://www.sanguosha.com/api/v1/hero/info?gid=418",
+          "status": 200,
+          "path": "docs/content/sources/evidence/ol-batch14-418-info-2026-10-15.json",
+          "sha256": "c32e02cb4e6c87d15291f299aabf349efb8a490aafa1f10cf3094cf99d2b0d04",
+          "bytes": 1037
+        }
+      ],
+      "mechanismPreflight": {
+        "newPrimitives": [
+          "Native Prep choose other with defined currentHP <= owner; one deterministic uniform-or-primary-confirmed 0..2 draw, freeze result and pay native damage only if positive.",
+          "Actual own Play used-trick discard movement qualification with native Use identity and physical card invoice; once per actual Play maxHP-1 payment then claim only still-eligible entity, drain clamp/HP/claim children through source loss/death/cold."
+        ],
+        "existing": "InitialHp content field, maxHP change/clamp, owned native damage, movement facts and physical card claim primitives exist. Strict random-damage and exact own used-trick-discard resolver need new opt-in composition/typed parent proof.",
+        "unconfirmed": [
+          "No primary FAQ for delayed tricks/multi-material trick claims or zero-physical uses; eligibility must remain native producer-based.",
+          "Client merely specifies 0~2 random; distribution is not explicitly stated in printed source."
+        ]
+      },
+      "strongIdentityAudit": {
+        "characterId": "character:li-jue",
+        "matchingCharacterDefinitions": [],
+        "legacyNullIdentityMatchedBy": [
+          "name",
+          "faction",
+          "baseHp",
+          "printedSkills"
+        ]
+      }
+    }
+  ],
+  "missingCandidateHeroIds": [
+    416,
+    417,
+    418
+  ],
+  "primaryFailures": [
+    "web browser fetch tool timed out for417/418; subsequent authorized normal official HTTP byte requests returned200, exact raw bytes/hashes saved. No failed tool result described as successful."
+  ],
+  "limits": [
+    "Read-only mechanism audit is not behavior verification. No exclusive combination FAQ claimed.",
+    "Current printed fields use o; older alternate bb text is not substituted into canonical source."
+  ]
+}

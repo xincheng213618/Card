@@ -1,0 +1,397 @@
+{
+  "date": "2026-10-15",
+  "status": "verified-in-batch",
+  "identity": {
+    "officialId": 422,
+    "id": "ol:tang-zi",
+    "name": "唐咨",
+    "characterId": "character:tang-zi",
+    "variantId": "ordinary",
+    "rulesetId": "sanguosha-ol",
+    "gender": "male",
+    "faction": "wei",
+    "hp": 4,
+    "initialHp": null
+  },
+  "identityWarning": "Current fresh official API and bounded client both explicitly specify Wei. Portrait colors or historical service in Wu are not faction authority.",
+  "preflight": {
+    "path": "docs/content/sources/ol-batch16-422-424-preflight-2026-10-15.json",
+    "sha256": "41ae432cf73872e294ec8496b11055b5074c20a999e2082fd58b3d2e277a3c30",
+    "bytes": 16227
+  },
+  "primarySources": [
+    {
+      "heroId": 422,
+      "kind": "api",
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=422",
+      "status": 200,
+      "contentType": "application/json",
+      "path": "docs/content/sources/evidence/ol-batch16-422-424-422-api-2026-10-15.json",
+      "sha256": "6281bf69f5cfc1b8b575b758f9dc886e856766eacc2e1a7c7b754004334e5201",
+      "bytes": 939
+    },
+    {
+      "heroId": 422,
+      "kind": "page",
+      "url": "https://www.sanguosha.com/hero/422",
+      "status": 200,
+      "contentType": "text/html",
+      "path": "docs/content/sources/evidence/ol-batch16-422-424-422-page-2026-10-15.html",
+      "sha256": "025d464adf24eb9b6ee0d0980c53c01fad28c2ee5bfd8eeafdb35ba4497139ef",
+      "bytes": 25435
+    }
+  ],
+  "client": {
+    "path": "docs/content/sources/evidence/ol-batch14-411-480-current-client-preflight-2026-10-15.json",
+    "sha256": "22a8158f9a7f1af27e5130d0de95f1e4eb4a4e19fbd7adb0439009e564fff483",
+    "clientBundleSha256": "66dfce61f1c4fb0aca35b6f85ed940e394719db84655f4d4146b463bc0cf8c1b",
+    "configSha256": "3d7536d4e2ca3d64707c2f6e0edbb8ccb4a045eee4274862dfa35431157c64f4",
+    "freshDecoderRun": false,
+    "wholeArchivesSaved": false
+  },
+  "printedSpells": [
+    {
+      "a": 861,
+      "b": "3,4,5",
+      "c": "兴棹",
+      "d": "XingZhaoSP",
+      "e": 0,
+      "g": 3,
+      "i": 2,
+      "m": "725",
+      "o": "锁定技，若全场已受伤角色数大于等于：<br>•1，你视为拥有“<font href='725'>恂恂</font>”；<br>•2，当你使用装备牌时，你摸一张牌；<br>•3，你跳过弃牌阶段。",
+      "u": "是否发动<font color='#FFD800'>恂恂</font>",
+      "ae": "{Source}发动了武将技<font color='#FFD800'>兴棹</font>，跳过弃牌阶段",
+      "ay": "系统提示→点“确定”"
+    }
+  ],
+  "linkedSpells": [
+    {
+      "a": 725,
+      "b": "3,5",
+      "c": "恂恂",
+      "d": "XunXun",
+      "e": 0,
+      "g": 3,
+      "i": 2,
+      "ab": 1,
+      "o": "摸牌阶段开始时，你可以观看牌堆顶的四张牌，然后将其中两张牌置于牌堆顶，将剩余牌置于牌堆底。",
+      "bb": "摸牌阶段开始时，你可以观看牌堆顶的四张牌，然后将其中两张牌置于牌堆顶，将剩余牌置于牌堆底。",
+      "v": "是否发动<font color='#FFD800'>恂恂</font>观看牌堆顶的牌",
+      "ac": "是否发动<font color='#FFD800'>恂恂</font>观看牌堆顶的牌",
+      "j": 1,
+      "ay": "系统提示→点\"确定\"→拖动选牌→点\"确定\""
+    }
+  ],
+  "linkEvidence": "Current861 m=725 and literal href725 establish the exact linked XunXun identity. Client source is bounded cached extraction, not a fresh decode.",
+  "portrait": {
+    "path": "src/CardGame.Wpf/Assets/official-ol-tang-zi.png",
+    "sha256": "d93fe38bf27db793c4d62d80d269c9d235d225d2ef2cdccf981be08c1da85adc",
+    "bytes": 992249,
+    "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/42200.png",
+    "width": 750,
+    "height": 950,
+    "actuallyViewed": true,
+    "visual": "Male general wearing green-and-gold robes with dark shoulder armor, short moustache, green head ornament and ribbons, seated inside a wooden building."
+  },
+  "reuseAudit": {
+    "classic:xunxun": "Not reusable for725: classic-li-dian.rules.json uses replacement draw and directly gains two selected entities. Old definition remains unchanged.",
+    "boundary:xunxun": "Exact mechanism matches725: additive drawPhaseStarting optional ReorderTopCards4/exactTopCount2, leaves normal native draw intact. Reuse this existing leaf skill rather than duplicate its definition.",
+    "equipmentReward": "Existing cardUseCommitted actor equipment cardKinds trigger plus Compare LivingWoundedCount>=2 and native Draw1. Final exact native timing will follow existing equipment commitment path.",
+    "discardSkip": "Existing discardPhaseStarting owner Compare LivingWoundedCount>=3 and native SkipTurnPhases[discard].",
+    "woundedCount": "Current CaptureProgramTriggerFacts LivingWoundedCount already requires IsAlive and HasHpValue and Hp<MaxHp. Undefined concealed HP must never contribute."
+  },
+  "plannedUncoveredChecks": [
+    "Native other-player damage/recovery/death updates the derived grant immediately;0→1→0→1 retains the same effective instance for the same source and does not duplicate an independent held XunXun.",
+    "A real hidden undefined-HP character contributes zero; no raw encoded HP participates.",
+    "Native draw-phase XunXun privately reorders the original four entities two top/two bottom before the unchanged normal draw; cold replay preserves the native pending view.",
+    "Actual equipment uses at1 versus2 wounded pay0 versus1 native draw; no equip-by-movement or other actor reward.",
+    "At actual discard entry3 wounded skips real discard; heal to2 before entry removes that qualification and genuine discards occur."
+  ],
+  "verification": {
+    "status": "verified-in-batch",
+    "ranByRoot": true,
+    "priorEvidenceRetainedSeparately": true,
+    "report": "docs/benchmarks/2026-10-15-tang-zi-fan-chou-guo-si-verification.json",
+    "focused": {
+      "summary": "docs/benchmarks/2026-10-15-batch-16-twenty-second-post-pruning-focused-summary.json",
+      "status": "passed",
+      "mode": "targeted",
+      "startedAt": "2026-10-15T15:21:49.0870699+08:00",
+      "durationMs": 7361,
+      "corePassed": 31,
+      "wpfPassed": 1,
+      "newBehaviorMethodsPassed": 19,
+      "coreFilters": [
+        "Short range Slash and directed ending debt:",
+        "Tang Zi:",
+        "Fan Chou:",
+        "Guo Si:",
+        "HP conditional grants:",
+        "program continuation registration",
+        "empty binding queries",
+        "Native discard classification:",
+        "Card response completion"
+      ],
+      "wpfFilters": [
+        "edition general gallery"
+      ],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "durationMs": 1282,
+          "status": "passed"
+        },
+        {
+          "name": "Core selected checks (9 filters, union)",
+          "durationMs": 5708,
+          "status": "passed"
+        },
+        {
+          "name": "WPF selected checks (1 filters, union)",
+          "durationMs": 5718,
+          "status": "passed"
+        }
+      ]
+    },
+    "routine": {
+      "summary": "docs/benchmarks/2026-10-15-batch-16-routine-summary.json",
+      "status": "passed",
+      "mode": "routine",
+      "startedAt": "2026-10-15T15:22:11.6834514+08:00",
+      "durationMs": 31098,
+      "corePassed": 119,
+      "wpfPassed": 20,
+      "newBehaviorMethodsPassed": 0,
+      "coreFilters": [
+        "program interaction registration preserves dispatch boundaries",
+        "program interaction AI preserves published choices and conditional policies",
+        "Identity concealment: UndefinedHpRejectsNativeRecoveryAndMaxHpNumberCalculation",
+        "Identity concealment: GameStartingHpLossAppearanceDoesNotOfferOffTurnGaoling",
+        "Identity concealment: NativeGroupRecoveryAndSilverLionRemovalRejectUndefinedHp",
+        "Identity concealment: SetupEveryViewerHasUndefinedHpAndForeignTemplatePrivacy",
+        "Identity concealment: ActualOwnTurnAppearanceRestoresLordInitialBonusWithoutOffTurnGaoling",
+        "Identity concealment: NativeSlashAppearanceGaolingRecoveryChildColdAndLaterDamage",
+        "Identity concealment: NativeProgramHpLossAndDamageReplacementRespectUndefinedHp",
+        "Identity concealment: PaidGaolingRecoveryChildCanKillAppearingOwnerAndReturnOnce",
+        "program continuation registration preserves ordered typed returns",
+        "First strategic damage: committed cursor survives real child windows and replay",
+        "skill executor retires strategic damage batches",
+        "frame-owned choices preserve multi-step bindings privacy and replay",
+        "Native discard classification: exact paid producers exclude adjacent gain and cleanup",
+        "Short range Slash and directed ending debt: ShortRangeNativeRedirectCursorAndFireOrdering",
+        "skill program activation BooleanState nested gates and current instance isolation",
+        "committed events see the accepted command",
+        "internal failure stops the session and preserves its trusted prefix",
+        "command projection preparation failure preserves prior commit",
+        "command delivery failure preserves visible commit",
+        "command observer exception preserves commit and result",
+        "prepared snapshot rejects observer collection mutation",
+        "committed event collections reject observer mutation",
+        "selected gift continues after recipient death",
+        "card movement programs compose atomic per-card and per-batch triggers with replay",
+        "nested card movement batches retain immediate parent identity",
+        "commands share prepared projection across result and reentry",
+        "content registry compiles whole catalog dependencies",
+        "execution plans reuse source bindings without order collisions",
+        "active Program contracts share legality with public AI",
+        "skill execution reads hand context only for dependent conditions",
+        "ordinary trick queries preserve exact options when narrowed",
+        "legal action queries preserve exact physical entity options",
+        "ordinary card snapshot reuse preserves appearance privacy and replay",
+        "program state projection preserves empty and live policy JSON",
+        "public pile projection preserves empty and live queries",
+        "general content modules preserve roster and registry boundaries",
+        "response use completion Dodge timing parent and replay",
+        "response use completion counterspell chain and replay",
+        "response use completion counterspell dying rescue exact parent",
+        "response use completion Dodge dying rescue exact parent",
+        "response use completion excludes group response and wrong loader window",
+        "current classic catalogue modes and skill references",
+        "phase exchange mixed zones atomicity and replay",
+        "owned-card set private draft movement and replay",
+        "owned-card set shortfall empty sources and invalidation",
+        "card-action judgment windows resume and replay",
+        "composition kernel resource graph safety",
+        "composition kernel malformed nodes",
+        "composition kernel boundary capabilities",
+        "composition kernel target-set consumption",
+        "rule query reduction is input-order independent",
+        "rule query reduction rejects invalid mutable inputs",
+        "rule query distance runs both directions before clamping",
+        "rule query registry rejects future Set conflicts",
+        "character skills retain separate sources and stable ownership",
+        "character skills reject conflicting grants without partial state",
+        "skill executor resumes child resolution without repeating paid effects",
+        "skill executor separates owner-death and lost-skill continuation rights",
+        "skill executor preserves continuation metadata and immutable definition checks",
+        "skill executor keeps lost-skill continuation behind its paid child",
+        "skill executor cancels remaining effects after an invalid selected cost",
+        "skill executor rejects changed programs and missing or duplicate handlers",
+        "active Program contracts reject invalid selections and preserve target order",
+        "card subset selector enumerates every legal subset once",
+        "card subset selector rejects oversized sources and freezes choices",
+        "lifecycle programs reject live card bindings across inserted phases",
+        "lifecycle programs cancel missing conditional bindings without leaks",
+        "cancelled lifecycle programs preserve parent attack cards",
+        "schema-19 additive draw adjustments, explicit draws and damage grants compose and replay",
+        "schema-19 reveal partitions, recovery and explicit draws conserve cards and replay",
+        "schema-19 draw-phase validation rejects unsafe data-flow graphs",
+        "viewer snapshot hides private roles and hands",
+        "viewer snapshot hides seed and other players' decisions",
+        "viewer cannot mutate the engine pending decision",
+        "commands publish a revision and reject stale input atomically",
+        "play commands use one exact published card and target choice",
+        "prompt answers validate prompt, choice, actor and revision",
+        "command reentry is a typed rejection",
+        "winner rules cover all three camps",
+        "standard deck content is deterministic and balanced",
+        "standard package builds an immutable isolated registry",
+        "content registry rejects duplicate ids and bad references",
+        "interactive setup exposes private deterministic general choices",
+        "accepted command journals serialize and replay deterministically",
+        "command checkpoints restore a paused private prompt deterministically",
+        "command checkpoints reject same-version content drift",
+        "initial deal registers every physical card in one zone",
+        "invalid single and batch moves are atomic",
+        "Slash and Dodge pass through the Processing zone",
+        "card inventory is conserved at every public boundary",
+        "observers run only after the public operation commits",
+        "typed host events are committed, ordered and deterministic",
+        "slash resolution exposes a serializable frame stack",
+        "duel alternates Slash responses through a typed window",
+        "Nullification resolves a private multi-layer trick window",
+        "PeachGarden resolves a paused multi-target recovery",
+        "FiveGrains reveals public cards with private draft prompts",
+        "FireAttack reveals privately then resolves typed fire damage",
+        "dying response can pause and recover with a private Peach",
+        "throwing observers are isolated after commit",
+        "synchronous observers cannot advance the engine reentrantly",
+        "an unknown phase fails fast",
+        "snapshot is JSON serializable",
+        "manual discards reject invalid subsets without mutation",
+        "manual discard checkpoints and commands replay exactly",
+        "skill program loader separates canonical gameplay from presentation",
+        "skill program loader rejects malformed and unsupported definitions",
+        "configured active sequences reject forged input and replay exact moves",
+        "program gameplay hashes control checkpoint compatibility independently of presentation",
+        "program dying checkpoints cancel a selected card spent on rescue",
+        "physical deck recipes preserve exact suit, rank and content hashing",
+        "Opening customization: private roster and initial hand rerolls replay",
+        "Opening customization: public Lord then nonzero human and private AI",
+        "Opening customization: nonzero team and national human before private AI",
+        "identity role general candidates freeze private choices and replay",
+        "identity general variants keep candidate families private and replay exact editions",
+        "identity Rebel kill reward draws exactly three cards and replays once"
+      ],
+      "wpfFilters": [
+        "table shortcuts execute once per key press and preserve modal drafts",
+        "stale prompt choices cannot answer reloaded or consecutive decisions",
+        "Edition general gallery: namespaced portraits and real details",
+        "Named private pile UI: owner pairs public counts and clear",
+        "general selection switches related editions without consuming candidate slots",
+        "Opening customization UI: identities roster and hand confirmation",
+        "Interaction motion: native lifecycle reversal and preference cancellation",
+        "conversion choices retain exact provenance without leaking trusted action details",
+        "composed skills share the generic WPF draft and submit their stable program identity",
+        "Program paid choices preserve actor control and opaque slots",
+        "declaration and general library views protect private faces",
+        "hand responses label actual decline and retain native press feedback",
+        "opaque target-card slots render privately and commit through WPF commands",
+        "saved UI boundaries restore and continue through actual files",
+        "failed writes and incompatible reads preserve the active game",
+        "battle feedback exposes only committed public actions",
+        "battle feedback health tracks follow committed damage recovery and loaded boundaries",
+        "card flights keep local hand origins private and retire cached layout",
+        "card flights hand off public faces once and restore interrupted arrivals",
+        "card flights preserve public suit rank and converted effective faces"
+      ],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "durationMs": 1442,
+          "status": "passed"
+        },
+        {
+          "name": "Core selected checks (119 filters, union)",
+          "durationMs": 9922,
+          "status": "passed"
+        },
+        {
+          "name": "WPF selected checks (20 filters, union)",
+          "durationMs": 29195,
+          "status": "passed"
+        }
+      ]
+    },
+    "full": "manual-only; not requested/not run",
+    "foregroundAcceptance": false
+  },
+  "scope": "New task-owned helper/content/rules/presentation/Core checks/portrait/source/manifest only. Root owns shared nullable field/parser/qualification joins and registration/runner. Accepted15 files and verification evidence unchanged.",
+  "approvedContract": {
+    "newEffectOps": [],
+    "earlierAlternativeRejected": "A dedicated24100 wounded-population card policy was initially considered; extending the existing HP-conditional skill grant is smaller and reuses stable instance and paid-source proofs. No new policy or op has been written.",
+    "optionalNode": "Existing hpSkillGrants entry adds minimumLivingWounded:1, nullable omitted by default, to permit a global-defined-wounded threshold in place of an owner-HP interval.",
+    "example": {
+      "hpSkillGrants": [
+        {
+          "id": "wounded-xunxun",
+          "skillId": "boundary:xunxun",
+          "minimumLivingWounded": 1
+        }
+      ]
+    },
+    "rootSharedChanges": [
+      "SkillProgramHpSkillGrant optional MinimumLivingWounded nullable field/null serialization omission and strict parser accepting exactly a positive bounded population threshold while preserving old owner-HP contracts.",
+      "Extend existing two rule.Matches(owner.Hp) calls in pure qualification and SynchronizeHpConditionalSkillGrants to evaluate the global count only when that new field exists.",
+      "Reuse existing cached HpConditionalCapabilitySkillIds, source qualification, stable first-effective instance ledger, HpConditionalSourceReceipt capture/continuation, source/regrant cleanup and all three existing progression/command synchronization points. No additional mutable cache or pending object.",
+      "All old definitions retain absent/null field behavior, prior canonical hashes and existing rules/schema/package versions."
+    ],
+    "rootApproval": "Approved minimumLivingWounded nullable additive reuse; root implements shared field/parser and two qualification joins. No new enum or effect operation.",
+    "exactOwnedHelper": "MatchesTangZiWoundedGrant(CharacterState owner,SkillProgramHpSkillGrant rule): null returns true immediately; only opt-in evaluates live defined wounded population and rejects a concealed source owner."
+  },
+  "implementation": {
+    "generalId": "ol:tang-zi",
+    "characterId": "character:tang-zi",
+    "faction": "wei",
+    "baseHp": 4,
+    "skillId": "ol:xingzhao",
+    "linkedSkillId": "boundary:xunxun",
+    "nativeTimingEvidence": [
+      "GameEngine.ResolveEquip creates native use and moves actual material toProcessing, then TryBeginEquipmentTargetPrograms before CompleteEquipmentUse.",
+      "FinalizedCardTargets.HasFinalizedTargetProgram uses cached HasFinalizedCardTrigger(kind,Equipment); content cardCategories Equipment automatically opts native equipment targets in.",
+      "Equipment reward uses mandatory actor CardUseTargetsFinalized plus live captured LivingWoundedCount>=2, native Draw1. It therefore precedes armor replacement recovery that may reduce population; it is not an equipment-enter movement trigger.",
+      "DiscardPhaseStarting native entry requires current live actual turn actor, current phase Discard, no other frame/decision, and creates one exact lifecycle parent before normal discards. Existing SkipTurnPhases[Discard] applies at that boundary."
+    ],
+    "conditionalGrants": "Existing HP-conditional typed source receipt, source qualification, stable first-effective instance preservation and independent grant ownership are reused. No additional grant cache, frame pending state or event collection."
+  },
+  "verificationAtRootHandoff": {
+    "workerBuildRun": false,
+    "workerTestsRun": false,
+    "productionCodeWritten": true,
+    "testsWritten": true,
+    "rootFocused": "pending",
+    "rootRoutine": "pending",
+    "publicMethods": [
+      "StrictPopulationGrantAndActualThresholdSourceLifetimeCold",
+      "ActualPrivateExactXunxunReorderAndNormalDrawCold",
+      "ActualEquipmentUseRewardsBeforeSilverLionRecoveryCold",
+      "ActualDiscardThresholdAndUndefinedHpPopulationCold"
+    ],
+    "prefix": "Tang Zi:",
+    "scope": [
+      "New field strict0/17/string rejection and old absent-field null omission/ownerHP semantics.",
+      "Native damage/recovery0→1→0→1 source-instance persistence, actual skill removal and independent existing HP-only grant ownership.",
+      "Private original four-card exact two-top/two-bottom native ordering before unchanged normal draw, original derived source receipt and cold command replay.",
+      "Native SilverLion armor replacement: actual two-wounded reward occurs before native replacement recovery lowers population to one; next real equipment use at one does not inherit old qualification.",
+      "True three-wounded discard skip at actual phase entry; actual heal to two before next entry restores native discards.",
+      "Real production-gaoling concealed participant has undefined HP and contributes zero."
+    ],
+    "notClaimed": [
+      "No worker build or checks have been run; root verifies all submitted behavior.",
+      "No server or character-specific official FAQ has been inspected.",
+      "The private XunXun draft has no native movement/HP child while choosing, so no artificial external command or trusted-state injection was added to remove the source inside that paused choice. Source removal and genuine cold private draft are separately covered.",
+      "No exhaustive cross-product of multiple independent grants, source suppression, identities, extra turns, equipment capacities or every native observer is claimed tested."
+    ]
+  }
+}

@@ -1,0 +1,124 @@
+{
+  "sourceRecordSchemaVersion": 1,
+  "capturedAt": "2026-10-15",
+  "officialId": 378,
+  "candidateGeneralId": "ol:liu-qi",
+  "characterId": "character:liu-qi",
+  "variantId": "ordinary",
+  "rulesetId": "sanguosha-ol",
+  "name": "刘琦",
+  "faction": "qun",
+  "gender": "male",
+  "maxHp": 3,
+  "exactClient": {
+    "path": "docs/content/sources/evidence/ol-liu-qi-378-client-preflight-2026-10-15.json",
+    "sha256": "6cb0f5bdcf04c2bc966fb01198f569bbad9ec291ab3ad2b075bff9c4e14ced20",
+    "character": {
+      "a": 378,
+      "b": "刘琦",
+      "d": "LiuQi",
+      "e": 44,
+      "f": "41",
+      "g": 4,
+      "h": 1,
+      "i": 3,
+      "j": 797,
+      "k": 798,
+      "p": 1,
+      "q": "1",
+      "r": "937801",
+      "y": "刘表长子。因刘表宠幸蔡氏，刘琦有杀身之祸，后求助诸葛亮，听从其建议离开荆州，去守江夏，躲过一劫。被后世称为“鲁恭王”。",
+      "z": "可以获得大量的手牌，具有一定的防御能力，同时可以选择进行控场。",
+      "aa": 70,
+      "ab": "646,647",
+      "ad": "画师:NOVART",
+      "x": "天下之大，####必有我容身之处！",
+      "al": 3250,
+      "am": "true",
+      "ap": 50,
+      "aq": 15,
+      "ay": 3,
+      "bn": "索要手牌，防御极强",
+      "bt": "60",
+      "bx": 4000,
+      "LordCardRate1": 25,
+      "LordCardRate2": 40,
+      "cb": "2;3",
+      "cc": 0,
+      "starMax": 4,
+      "freetitle": "0,防御强将"
+    },
+    "printedSpellRows": [
+      {
+        "a": 797,
+        "b": "3,5",
+        "c": "问计",
+        "d": "WenJiSP",
+        "e": 0,
+        "g": 5,
+        "i": 2,
+        "n": 0,
+        "o": "出牌阶段开始时，你可以令一名其他角色交给你一张牌，然后你本回合使用的与此牌同名的牌不能被其他角色响应。",
+        "v": "是否发动<font color='#FFD800'>问计</font>，选择一个目标，令其交给你一张牌",
+        "w": "{Target}对你使用了<font color='#FFD800'>问计</font>,请交给其一张牌",
+        "aw": "1",
+        "ay": "系统提示→点“确定”"
+      },
+      {
+        "a": 798,
+        "b": "3,5",
+        "c": "屯江",
+        "d": "TunJiangSP",
+        "e": 0,
+        "g": 5,
+        "i": 2,
+        "o": "结束阶段，若你未跳过本回合的出牌阶段且于此阶段未使用牌指定过其他角色为目标，你可以摸与全场势力数等量张牌。",
+        "u": "是否发动<font color='#FFD800'>屯江</font>摸{0}张牌",
+        "j": 1,
+        "aw": "1",
+        "ay": "系统提示→点“确定”"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "url": "https://www.sanguosha.com/hero/378",
+      "localPath": "docs/content/sources/evidence/ol-batch13-378-page-2026-10-15.html",
+      "sha256": "52645e802b1878defa7fe1d764a037b8a8fa94d28b9d3ea1717268766892a6b3"
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=378",
+      "localPath": "docs/content/sources/evidence/ol-batch13-378-info-2026-10-15.json",
+      "sha256": "a8ebd41386202ead5813509c2541e68ee7406a69b944bfc2679022d47ddc7ebd"
+    }
+  ],
+  "rosterComparison": {
+    "path": "docs/benchmarks/2026-10-14-batch-12-final-roster.json",
+    "count": 402,
+    "sameNameOrIdMatches": [],
+    "result": "Unregistered candidate; no existing LiuQi ordinary/variant found in accepted roster."
+  },
+  "versionComparison": "Current client 797 WenJiSP / 798 TunJiangSP agrees with both official page printed skill paragraphs. API supplies faction and HP; initial_hp=0 is metadata, not zero runtime HP.",
+  "mechanismAudit": {
+    "reuse": [
+      "Existing private recipient-owned selection and native HE gain movement; typed owning program frames and movement invoices.",
+      "Native accepted/finalized card-action identity, effective card-name classification and response prohibition plumbing.",
+      "LivingFactionCount number expression and native draw invocation/actual movement continuation."
+    ],
+    "gaps": [
+      "Exact recipient自主交1 HE at actual PlayStart, freezing the received effective name only after real native gain payment; issuing owner-turn name response-ban without entity/kind broadening.",
+      "Current-turn accepted Use name matching must exclude owner responses only as text says other roles; cover target dodge, Duel and Nullification response participants, physical/viewAs native uses and not mere movement.",
+      "TunJiang requires actual unskipped Play entered plus no actual other-role designated target throughout that Play, including virtual/zero-material native Use and finalized auxiliary BorrowedSword victim normalization; response-only actions must not poison Use ledger.",
+      "Actor/provider replacement, source loss/death while paid gift/draw children drain, and turn expiry must use exact receipts, no sidecar."
+    ]
+  },
+  "minimumNativeChecks": [
+    "Actual PlayStart foreign human independently delivers one real HE entity; cold during paid gain children, all-view privacy, exact current-turn matching name prohibits other responses but a different name stays legal; expiry next real turn.",
+    "Native self/no-target use leaves TunJiang eligible; actual other target zero-material or converted Use disqualifies it; skipped Play disqualifies, ordinary entered empty Play draws real current living faction count once, cold during draw children.",
+    "One paid gift source-loss or owner-death child resumes exact issued cost once without producing a new free future activation."
+  ],
+  "limits": [
+    "No official FAQ clarifies physical versus effective name under conversion, source-loss lifetime, extra inserted Play phases or BorrowedSword auxiliary targeting. These must be explicit implementation interpretations if required.",
+    "Preflight only: no src/tests/tools/registration/art edits, no build/test/runner invoked."
+  ]
+}

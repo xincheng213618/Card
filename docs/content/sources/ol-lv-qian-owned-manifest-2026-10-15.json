@@ -1,0 +1,81 @@
+{
+  "status": "root-verified",
+  "owner": "/root/batch8_dong_zhao",
+  "batch": 18,
+  "generalId": "ol:lv-qian",
+  "inputs": [
+    {
+      "path": "src/CardGame.Core/ProgramLvQianOperations.cs",
+      "sha256": "a1763bfb79b90d66c22099f9136a797a90ff629a1053d3326ac5d84e3bcc2559"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.LvQianPrograms.cs",
+      "sha256": "87d06e357dd9a3f29bd46663273a7119c3279da2abd6787bd960223ac542dc4d"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.LvQianObservers.cs",
+      "sha256": "72737acf7778de08085083b613391d280be70c4221aabd730cf33f7490f7c9a1"
+    },
+    {
+      "path": "src/CardGame.Content.Standard/OlLvQianContent.cs",
+      "sha256": "a4d82eee697cd0606f6b1d3191b327c898f6a0537f61c8cf51d51db125bddda1"
+    },
+    {
+      "path": "src/CardGame.Content.Standard/SkillPrograms/ol-lv-qian.rules.json",
+      "sha256": "1ee30dcb17e1e4590c556cef56709da5e444204315b0693dd9342be1571b2e23"
+    },
+    {
+      "path": "src/CardGame.Content.Standard/SkillPrograms/ol-lv-qian.presentation.json",
+      "sha256": "613a39121c16bc1f0b72b36f4236606220b8a66554cd91c7db43dd8147011c0a"
+    },
+    {
+      "path": "tests/CardGame.Core.Tests/LvQianChecks.cs",
+      "sha256": "ffa3d71633f84be9ea353554e9ef1e39fb65c01578cd62412901485f8e5abc79"
+    },
+    {
+      "path": "src/CardGame.Wpf/Assets/official-ol-lv-qian.png",
+      "sha256": "debbcbdf609d1ab41de2a226cf5d1e43d92e395ba823d4ac8eb792ab1a97acc6"
+    },
+    {
+      "path": "docs/content/sources/ol-lv-qian-2026-10-15.json",
+      "sha256": "cb505bb60af0edaaa04909e1e71cfa95f21dbfd15d1e3a10c098b05f0dee0f8f"
+    }
+  ],
+  "sharedAuthorizedSlices": [
+    {
+      "path": "src/CardGame.Core/GameEngine.DamagePreventionPrograms.cs",
+      "sha256": "db0a1c7419d0b8b1ac810b00b16074752542336c389a79597594b4b4a8f73ac1",
+      "scope": "Only authorized new Lv Qian integration slices; concurrent existing changes preserved."
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.PublicPersistentPiles.cs",
+      "sha256": "44eb4304fd230b3a1dc254846ccc27ff07bb71c1c3f1d25b9fa5872abef90ad6",
+      "scope": "Only authorized new Lv Qian integration slices; concurrent existing changes preserved."
+    }
+  ],
+  "verification": "Root sole runner; no worker build/test.",
+  "rootVerification": {
+    "status": "passed",
+    "rootRunner": true,
+    "focusedSummary": "docs/benchmarks/2026-10-15-batch-18-sixth-focused-summary.json",
+    "focused": {
+      "corePassed": 29,
+      "coreFailed": 0,
+      "wpfPassed": 1,
+      "wpfFailed": 0,
+      "durationMs": 11445
+    },
+    "routineSummary": "docs/benchmarks/2026-10-15-batch-18-routine-summary.json",
+    "routine": {
+      "corePassed": 119,
+      "coreFailed": 0,
+      "wpfPassed": 20,
+      "wpfFailed": 0,
+      "durationMs": 29662
+    },
+    "report": "docs/benchmarks/2026-10-15-sp-pang-tong-yuan-tan-yuan-shang-lv-qian-verification.json",
+    "fullRun": false,
+    "foregroundAcceptance": false,
+    "serverBehaviorVerified": false
+  }
+}

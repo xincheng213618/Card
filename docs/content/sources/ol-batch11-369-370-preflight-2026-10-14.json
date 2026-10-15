@@ -1,0 +1,133 @@
+{
+  "sourceRecordSchemaVersion": 1,
+  "capturedAt": "2026-10-14",
+  "scope": "Read-only official369/370 primary preflight after accepted batch10; no implementation",
+  "rosterEvidence": {
+    "localPath": "docs/benchmarks/2026-10-14-batch-10-final-roster.json",
+    "sha256": "4567b683fa566ae0a04a2c5debc390a976ab5b598003887691481a1ae1bf9ff5",
+    "count": 396
+  },
+  "heroes": [
+    {
+      "officialId": 369,
+      "name": "董允",
+      "faction": "shu",
+      "hp": 3,
+      "initialHpApi": 0,
+      "genderEvidence": "API has no explicit gender; no fresh client field obtained in this bounded preflight. Existing male registration is retained, not newly client-verified.",
+      "sources": [
+        {
+          "url": "https://www.sanguosha.com/hero/369",
+          "localPath": "docs/content/sources/evidence/ol-batch11-369-page-2026-10-14.html",
+          "sha256": "8306496525de44e467e94eb4c9d6a750fac6ec3e6add205d6f966a730108a1f0",
+          "httpStatus": 200
+        },
+        {
+          "url": "https://www.sanguosha.com/api/v1/hero/info?gid=369",
+          "localPath": "docs/content/sources/evidence/ol-batch11-369-info-2026-10-14.json",
+          "sha256": "bced505bc9028662dc5f459abd8b9a77f3223ba9fefdcd33e2749c91a6bf6e6f",
+          "httpStatus": 200
+        }
+      ],
+      "skills": [
+        {
+          "id": "ol:bingzheng",
+          "name": "秉正",
+          "pageText": "出牌阶段结束时，你可以令手牌数不等于体力值的一名角色弃置一张手牌或摸一张牌。然后若其手牌数等于体力值，你摸一张牌，且可以交给其一张牌。",
+          "equalsCurrentRegisteredPresentation": true
+        },
+        {
+          "id": "ol:sheyan",
+          "name": "舍宴",
+          "pageText": "当你成为一张普通锦囊牌的目标时，你可以令此牌增加一个目标或对一个目标无效（有效目标数至少为1）。",
+          "equalsCurrentRegisteredPresentation": true
+        }
+      ],
+      "existingRosterEntry": {
+        "Id": "ol:dong-yun",
+        "Name": "董允·OL",
+        "PortraitKey": "ol-dong-yun",
+        "SkillId": "ol:bingzheng",
+        "FactionId": "shu",
+        "BaseHp": 3,
+        "AdditionalSkillIds": [
+          "ol:sheyan"
+        ],
+        "Gender": 0,
+        "CharacterId": "character:dong-yun",
+        "VariantId": "ordinary",
+        "RulesetId": "sanguosha-ol",
+        "InitialHp": null,
+        "SkillIds": [
+          "ol:bingzheng",
+          "ol:sheyan"
+        ]
+      },
+      "outcome": "same ordinary OL variant already accepted; do not add duplicate",
+      "versionBoundary": "Current page equals registered printed skill descriptions. No fresh current client archive, skill IDs or formal current FAQ obtained. Do not infer new version from same display name."
+    },
+    {
+      "officialId": 370,
+      "name": "马忠",
+      "faction": "shu",
+      "hp": 4,
+      "initialHpApi": 0,
+      "genderEvidence": "API has no explicit gender; no fresh client field obtained in this bounded preflight. Existing male registration is retained, not newly client-verified.",
+      "sources": [
+        {
+          "url": "https://www.sanguosha.com/hero/370",
+          "localPath": "docs/content/sources/evidence/ol-batch11-370-page-2026-10-14.html",
+          "sha256": "068adc41d27d1f1c14de6f09a56086d7868b3710c2c6e969101b2592d1991a48",
+          "httpStatus": 200
+        },
+        {
+          "url": "https://www.sanguosha.com/api/v1/hero/info?gid=370",
+          "localPath": "docs/content/sources/evidence/ol-batch11-370-info-2026-10-14.json",
+          "sha256": "ed5d385f165a6d29a5426725b6e21397c8f9b7793245125e530cdc857432d347",
+          "httpStatus": 200
+        }
+      ],
+      "skills": [
+        {
+          "id": "ol:fuman",
+          "name": "抚蛮",
+          "pageText": "出牌阶段，每名角色限一次，你可以交给一名其他角色一张手牌令之视为【杀】。当其使用此【杀】后，你摸一张牌，若造成伤害，你改为摸两张牌。",
+          "equalsCurrentRegisteredPresentation": true
+        }
+      ],
+      "existingRosterEntry": {
+        "Id": "ol:ma-zhong",
+        "Name": "马忠",
+        "PortraitKey": "ol-ma-zhong",
+        "SkillId": "ol:fuman",
+        "FactionId": "shu",
+        "BaseHp": 4,
+        "AdditionalSkillIds": null,
+        "Gender": 0,
+        "CharacterId": "character:ma-zhong",
+        "VariantId": "ordinary",
+        "RulesetId": "sanguosha-ol",
+        "InitialHp": null,
+        "SkillIds": [
+          "ol:fuman"
+        ]
+      },
+      "outcome": "same ordinary OL variant already accepted; do not add duplicate",
+      "versionBoundary": "Current page equals registered printed skill descriptions. No fresh current client archive, skill IDs or formal current FAQ obtained. Do not infer new version from same display name."
+    }
+  ],
+  "newCandidates": [],
+  "mechanismAssessment": {
+    "newCapabilityRequiredByCapturedText": false,
+    "existingMechanisms": {
+      "369": "Bingzheng actual Play ending hand/defined-HP discrepancy and draw/discard/gift; Sheyan exact native ordinary trick target addition or ineffectiveness with one effective target retained.",
+      "370": "Fuman physical gifted hand identity as Slash, per recipient Play use ledger, exact recipient native use and actual damage reward."
+    },
+    "evidenceLimits": [
+      "Printed-page equality is static source verification; it is not a fresh current-client identity check or new runtime verification.",
+      "No formal FAQ located or captured in this bounded task. Existing source interpretation boundaries remain unchanged.",
+      "Shu Ma Zhong370 is already ol:ma-zhong; Wu Pan Zhang Ma Zhong combined classic general is a distinct character identity, not the reason for skipping."
+    ]
+  },
+  "verification": "No src/tests/tools/portrait/registration/shared edits, no runner, no build. Four bounded primary raw responses retained as authorized evidence."
+}

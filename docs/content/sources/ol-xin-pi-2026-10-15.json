@@ -1,0 +1,217 @@
+{
+  "status": "owned-frozen-worker-unverified-await-root-runner",
+  "officialId": 435,
+  "generalId": "ol:xin-pi",
+  "characterId": "character:xin-pi",
+  "variantId": "ordinary",
+  "rulesetId": "sanguosha-ol",
+  "currentClientCharacter": {
+    "a": 435,
+    "b": "辛毗",
+    "d": "XinPiSP",
+    "e": 44,
+    "f": "42",
+    "g": 1,
+    "h": 1,
+    "i": 3,
+    "j": 934,
+    "k": 935,
+    "p": 1,
+    "q": "1",
+    "r": "9043501",
+    "y": "辛宪英的父亲。当初，辛毗跟随其兄事袁绍。曹操任司空时，征召辛毗，他不受命。官渡战后，辛毗事袁绍的儿子袁谭。公元204年，曹操攻下邺城，上表推荐辛毗任议郎，后为丞相长史。公元220年，曹丕即皇帝位，以辛毗为侍中，赐爵关内侯，后赐广平亭侯。魏明帝即位，封辛毗颍乡侯，食邑三百户，后为卫尉。公元234年，诸葛亮屯兵渭南，司马懿上表魏明帝。魏明帝任辛毗为大将军军师，加使持节号。诸葛亮病逝后，辛毗返回，仍任卫尉。不久，逝世，谥肃侯。",
+    "z": "在队友和你急需补牌时即可大胆使用引裾。",
+    "aa": 146,
+    "ab": "855,856",
+    "ad": "画师:石蝉",
+    "x": "引裾力争，####只为大魏安危。",
+    "al": 1730,
+    "am": "true",
+    "ap": 50,
+    "aq": 15,
+    "bx": 21000,
+    "LordCardRate1": 10,
+    "LordCardRate2": 35,
+    "cc": 43501,
+    "starMax": 4,
+    "freetitle": "0,回复强将"
+  },
+  "printedSpells": [
+    {
+      "a": 934,
+      "b": "3,5",
+      "c": "持节",
+      "d": "ChiJie",
+      "e": 0,
+      "g": 4,
+      "i": 2,
+      "o": "每回合限一次，当你受到其他角色的伤害后，你可以令伤害牌无效；当其他角色对你使用牌后，若此牌未造成伤害，你可以获得之。",
+      "ay": "系统提示→点“确定”"
+    },
+    {
+      "a": 935,
+      "b": "3,6",
+      "c": "引裾",
+      "d": "YinJu",
+      "e": 0,
+      "h": 1,
+      "i": 2,
+      "l": "xinpiyinju",
+      "n": 1,
+      "o": "限定技，出牌阶段，你可以指定一名其他角色，你本回合防止对其造成的伤害并改为令其回复等量体力，且当你本回合使用牌指定其为目标后，你与其各摸一张牌。 ",
+      "ay": "系统提示→点“确定”"
+    }
+  ],
+  "sources": [
+    {
+      "heroId": 435,
+      "kind": "page",
+      "url": "https://www.sanguosha.com/hero/435",
+      "status": 200,
+      "contentType": "text/html",
+      "path": "docs/content/sources/evidence/ol-batch19-434-436-435-page-2026-10-15.html",
+      "sha256": "e4485befc8317983c1001e3f080384ac4a59d1387ab6a37ce5790ec77adb00a4",
+      "bytes": 25316
+    },
+    {
+      "heroId": 435,
+      "kind": "api",
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=435",
+      "status": 200,
+      "contentType": "application/json",
+      "path": "docs/content/sources/evidence/ol-batch19-434-436-435-api-2026-10-15.json",
+      "sha256": "e7807cc1f945cc2d49bb5aede5b4edd16194d9c59f68f3f4f2d1a9306bf6f51b",
+      "bytes": 1246
+    }
+  ],
+  "currentClient": {
+    "path": "docs/content/sources/evidence/ol-batch14-411-480-current-client-preflight-2026-10-15.json",
+    "sha256": "22a8158f9a7f1af27e5130d0de95f1e4eb4a4e19fbd7adb0439009e564fff483",
+    "clientBundleSha256": "66dfce61f1c4fb0aca35b6f85ed940e394719db84655f4d4146b463bc0cf8c1b",
+    "configSha256": "3d7536d4e2ca3d64707c2f6e0edbb8ccb4a045eee4274862dfa35431157c64f4",
+    "freshDecoderRun": false,
+    "wholeArchivesSaved": false
+  },
+  "preflight": {
+    "path": "docs/content/sources/ol-batch19-434-436-preflight-2026-10-15.json",
+    "sha256": "a6b8262036acc472f4d0d86949ab344b1ce95ed75d2d21092aae5a13ffd666ee"
+  },
+  "art": {
+    "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/43500.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-xin-pi.png",
+    "sha256": "b7a448f28298f67fa7179a70b46ffe5a57a6b694e648430576bd06434992e27b",
+    "bytes": 921590,
+    "width": 750,
+    "height": 950,
+    "viewed": true
+  },
+  "interpretations": [
+    "Chijie leading each-turn-once applies jointly to both clauses; actual activation consumes one shared actual-turn allowance, declines do not. No verified official FAQ or server trace establishes a different split.",
+    "Already-applied positive other-source native card damage is retained. Exact original use becomes ineffective only for remaining effects/queued native card chain damage, never unrelated ancestral program damage.",
+    "No-damage claim requires the complete actual incoming use to finish with no actual damage to any target, including extra/chain targets. Primary targets exclude BorrowedSword auxiliary Slash victim.",
+    "Only exact physically paid native entities still continuously in Processing or the original native cleanup Discard are claimable. Any intermediate departure/reentry rejects the old invoice, even if the same ID returns. True virtual zero-material uses have nothing to claim.",
+    "Delayed cards already placed in Judgment are outside the Processing/Discard claim boundary. A delayed card whose original use is canceled and natively discarded may qualify; future delayed judgment is not equated with its old active use.",
+    "Conversions and multiple materials are evaluated by actual native effective use with original provider/material receipts. Prior revealed Processing material is accepted only via the existing strict Tunan native producer proof, not a general Processing assumption.",
+    "Yinju is one actual game-limited own-Play activation. Its actual-turn relation survives source loss. Native prevention replaces real owner-to-recipient damage with equal requested recovery, subject to normal HP maximum/recovery replacement rules.",
+    "Yinju target draw occurs once per exact accepted native use including the recipient as a real primary target; actor is actual accepted actor, provider remains native provenance, BorrowedSword auxiliary victims do not qualify.",
+    "Both draws are paid sequentially with real native children. Source loss preserves issued obligations; owner death drains already-paid children and skips unpaid future gain. Relation expires at actual turn end; limited activation remains consumed.",
+    "Yinju native recovery/HP observer continuation is checked by owned XinPiFirstChild/IsXinPiRecoveryCompletion with exact prevention receipt and normal native Program continuation; no shared generic Recover whitelist relaxation was added."
+  ],
+  "integrationAbi": {
+    "capability": "HasXinPiCapability",
+    "composition": [
+      "XinPiComposition.Activation(string,SkillProgramActivation)",
+      "XinPiComposition.Trigger(string,SkillProgramTrigger)"
+    ],
+    "lifecycle": [
+      "CanOfferXinPi(ProgramTriggerCandidate,SkillProgramTrigger,ProgramSkillWindowContext)",
+      "HasIssuedYinjuCandidate(ProgramTriggerCandidate,ProgramSkillWindowContext)",
+      "CanContinueXinPi(ProgramSkillFrame)",
+      "AssertXinPiFrame(ProgramSkillFrame)",
+      "IsXinPiMovement(ProgramSkillFrame,SkillProgramEffect?,ProgramMovementContinuation)"
+    ],
+    "nativeCapture": [
+      "ObserveXinPiEvent(IGameEvent) in AdvanceEventRulesAndQueueFact rule progression",
+      "CaptureXinPiUseMovementBatch(CardMovementBatchContext) in actual native batch finalization beside CaptureSlashUsePaymentBatch",
+      "CollectIssuedYinjuCandidates(CardActionContext,SkillProgramTriggerWindow,List<ProgramCardTriggerCandidate>) in actual finalized native collector",
+      "CollectIssuedYinjuCandidates(int,int,bool) -> IEnumerable<BeforeDamageProgramCandidate> in before-damage collection; exclude ordinary duplicate op25103 before concatenation",
+      "IsXinPiUseIneffective(CardUseFrame) in IsCardEffectIneffective",
+      "IsXinPiRemainingCardDamageIneffective(IDamageAttempt) before actual subsequent native ApplyAttackDamage, including queued chain",
+      "IsXinPiPhysicalClaim(long,int) in native claimed-material cleanup predicate"
+    ],
+    "observer": [
+      "HasXinPiCardObserver(long)",
+      "HasXinPiDamageObserver(long)",
+      "HasXinPiBeforeDamageObserver(long)",
+      "IsXinPiDying()",
+      "TryAdvanceXinPiSubtree()",
+      "AllowsXinPiNestedDamage(ProgramSkillFrame,int,int,ProgramParticipantReference?,DamageNature?,bool)",
+      "HasXinPiCardObserver(long) checks the exact paid card observer root/window/native action, not general frame ancestry"
+    ],
+    "wholeUseDamage": "TracksCompletedUndamagedUseDamage opt-in25100/25101 reuses exact original native damage ledger; no ancestral program damage counted as card damage",
+    "collectionFreeze": "New public rule events contain scalar records only. XinPiReceipt.Entities/From, XinPiUseOrigin.Materials and XinPiClaimProof.Entities intrinsically clone into read-only arrays; CardActionContext intrinsically freezes native material/target/conversion collections."
+  },
+  "verification": {
+    "workerBuildRun": false,
+    "workerTestsRun": false,
+    "officialFaqVerified": false,
+    "serverBehaviorVerified": false,
+    "focusedMethods": [
+      "ChijieAppliedGroupDamageStopsRemainingEffectsCold",
+      "ChijieWholeUndamagedClaimAndSharedAllowanceCold",
+      "ChijieRejectsNativeClaimedEntityReturnedToDiscardCold",
+      "YinjuNativeDamageRecoveryTargetDrawLimitedAndExpiryCold",
+      "YinjuPaidDrawSourceLossAndDeathNativeReturnCold"
+    ],
+    "notSeparatelyVerified": [
+      "Dedicated delayed-trick/native actor-provider replacement combination",
+      "Dedicated Tunan reveal/processing special producer combination",
+      "Dedicated multi-material converted claim and recovery replacement policy composition; strict existing producer paths are reused, awaiting root focused/runtime results",
+      "No manual full verification or worker runner executed; all focused fixture outcomes await the root runner."
+    ],
+    "additionalCoverageIntent": "Existing ChijieAppliedGroupDamageStopsRemainingEffectsCold also executes real SetChainedState commands and a physical FireSlash, freezes after first actual damage with an already queued chained recipient, then verifies exact native remaining-damage suppression after cold restore."
+  },
+  "implementationFiles": [
+    {
+      "path": "src/CardGame.Core/ProgramXinPiOperations.cs",
+      "sha256": "1fe9c38f07fac794fdbbc1412d290b667f79cf5ebb57c4ba2de018ed3f39b474"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.XinPiPrograms.cs",
+      "sha256": "a77a02e90a95afe026151be45f4cf8111dd8732b8c2d3cab7b3ab0b0eee8149d"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.XinPiProofs.cs",
+      "sha256": "c6e2058f877d780afa612b230bd4c8c2c928155fdf9908b9d0216d751fd146c2"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.XinPiCandidates.cs",
+      "sha256": "f84b95ae9cbc58f80d5938c29b753ee79c139872d605911b7efe9a07b2cbaf68"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.XinPiObservers.cs",
+      "sha256": "5847801ac59d85dd07651219708ba3cbcefbf62d060bbbd82ef9c501a4799929"
+    },
+    {
+      "path": "src/CardGame.Content.Standard/OlXinPiContent.cs",
+      "sha256": "845db90275e6be4fcf8c03ea43ae534d1cafe3f99bd71469e39a687758f2bcf7"
+    },
+    {
+      "path": "src/CardGame.Content.Standard/SkillPrograms/ol-xin-pi.rules.json",
+      "sha256": "336461b5aafc5e519d3e16947b028da9179bf7ebc4225519489c61edb057284a"
+    },
+    {
+      "path": "src/CardGame.Content.Standard/SkillPrograms/ol-xin-pi.presentation.json",
+      "sha256": "66d828bde6b955e7c28c368d96f678e22ffbd38fcf226f1dec360daa25a42ba6"
+    },
+    {
+      "path": "tests/CardGame.Core.Tests/XinPiChecks.cs",
+      "sha256": "542bee40763ee9fe5211aa2c5110e30e1f03aa48650b037b989330510a6acedf"
+    },
+    {
+      "path": "src/CardGame.Wpf/Assets/official-ol-xin-pi.png",
+      "sha256": "b7a448f28298f67fa7179a70b46ffe5a57a6b694e648430576bd06434992e27b"
+    }
+  ],
+  "secondFocusedCorrection": "Actual activations publish ProgramSkillStartedEvent, not trigger-only ProgramBindingStartedEvent. Yinju validates its exact activation frame/owner/skill/binding plus the unique source/hash-bearing armed receipt and exact activation operation. Existing real damage, native use, cold source-loss/death assertions retained; worker did not run verification."
+}

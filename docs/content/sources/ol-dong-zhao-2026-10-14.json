@@ -1,0 +1,95 @@
+{
+  "capturedAtUtc": "2026-10-14T10:00:32.849835+00:00",
+  "stage": "batch acceptance complete",
+  "generalId": "ol:dong-zhao",
+  "officialHeroId": 355,
+  "productLine": "三国杀OL",
+  "faction": "wei",
+  "maxHp": 3,
+  "gender": "male",
+  "currentSkills": [
+    {
+      "id": "ol:xianlue",
+      "clientSkillId": 3063,
+      "clientClass": "XianLue",
+      "currentText": "主公的回合开始时，你可以记录一张普通锦囊牌。每回合限一次，当其他角色使用记录牌后，你摸两张牌并将之分配给任意角色，然后重新记录一张普通锦囊牌。"
+    },
+    {
+      "id": "ol:zaowang",
+      "clientSkillId": 3064,
+      "clientClass": "ZaoWang",
+      "currentText": "限定技，出牌阶段，你可以令一名角色增加1点体力上限、回复1点体力并摸三张牌，若其为：<br>•忠臣，当主公死亡时与主公交换身份牌；<br>•反贼，当其被主公或忠臣杀死时，主公方获胜。"
+    }
+  ],
+  "primarySources": [
+    {
+      "url": "https://www.sanguosha.com/hero/355",
+      "path": "docs/content/sources/evidence/ol-dong-zhao-355-page-2026-10-14.html",
+      "sha256": "dedab92f89ee8e032283c65c83cd298391fb81a0cdce511619c262b316e23213"
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=355",
+      "path": "docs/content/sources/evidence/ol-dong-zhao-355-info-2026-10-14.json",
+      "sha256": "0c89f052c04799cda63e1a9bbfcdbae39d2f9fe1d6b5da09893236736e5a1a7e"
+    },
+    {
+      "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+      "path": "docs/content/sources/evidence/ol-next-group-352-353-355-client-preflight-2026-10-14.json",
+      "sha256": "376e5a21a6414fc744d3ed6cdecfedca113658429215c699f0343af7fcbe851e"
+    }
+  ],
+  "versionDifferences": [
+    {
+      "variant": "hero344 is a distinct version",
+      "difference": "Only current ordinary OL hero355 character DongZhao binds3063/3064 here; no old variant folded into this key."
+    }
+  ],
+  "interpretationBoundaries": [
+    "The currently available primary text does not specify multiple Zaowang loyalist succession order. Seat order selects the first currently living loyalist recipient; later heirs remain armed for later lord death.",
+    "Only actual native death killer attribution grants the special rebel victory. Source-free HP loss has no killer.",
+    "Zaowang grants store activation-time role privately on the recipient; public evidence contains only owner and target."
+  ],
+  "artwork": {
+    "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/35500.png",
+    "path": "src/CardGame.Wpf/Assets/official-ol-dong-zhao.png",
+    "sha256": "e60ff7a2687e96bf1085a9db4530acea0ca40b662d5c6db13699aed71a03e967",
+    "visuallyInspected": true
+  },
+  "formalEntries": {
+    "record": "Two strict subject=owner turnStartBeforeNormalFlow bindings, own and otherLiving. Existing foreign-turn collection opts in only for XianlueRecord. Candidate qualification reads the actual turn subject and requires the real living lord in identity mode. Existing only-owner parser protocol is unchanged.",
+    "reward": "CardUseCompleted ownerRelation=observer, no subject field, actual other actor and recorded effective kind; no response uses. Issued actual-turn once receipt, exact private drawn entities, native movement children, mandatory arbitrary-seat distribution and re-record.",
+    "identity": "Recipient-owned immutable private activation-role grant; genuine native DeathFrame and killer attribution. Loyalist succession precedes native death reveal/reward/winner evaluation; rebel special winner overrides only the actual identity death condition."
+  },
+  "verification": {
+    "scope": "Root-run fifth focused batch",
+    "status": "passed",
+    "groupCorePassed": 47,
+    "groupWpfPassed": 1,
+    "dongZhaoCorePassed": 8,
+    "groupDurationMs": 12132,
+    "summaryPath": "docs/benchmarks/2026-10-14-batch-8-fifth-group-focused-summary.json",
+    "coreLogPath": "docs/benchmarks/2026-10-14-batch-8-fifth-group-focused-core-selected.log.txt",
+    "routineStatus": "pending",
+    "fullRunPerformed": false,
+    "foregroundAcceptancePerformed": false,
+    "routine": {
+      "status": "passed",
+      "summary": "docs/benchmarks/2026-10-14-batch-8-routine-summary.json",
+      "corePassed": 653,
+      "wpfPassed": 76,
+      "durationMs": 104474,
+      "manualFull": false
+    },
+    "focusedPassed": true
+  },
+  "verifiedAt": "2026-10-14T10:08:39.713886+00:00",
+  "batchVerificationReport": "docs/benchmarks/2026-10-14-deng-zhi-cao-ying-dong-zhao-verification.json",
+  "routine": {
+    "status": "passed",
+    "summary": "docs/benchmarks/2026-10-14-batch-8-routine-summary.json",
+    "corePassed": 653,
+    "wpfPassed": 76,
+    "durationMs": 104474,
+    "manualFull": false
+  }
+}

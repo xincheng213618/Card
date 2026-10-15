@@ -4,28 +4,75 @@
   "officialHeroId": 346,
   "name": "马云騄",
   "variant": "ordinary OL current",
-  "attributes": { "faction": "shu", "maxHp": 4, "gender": "female" },
+  "attributes": {
+    "faction": "shu",
+    "maxHp": 4,
+    "gender": "female"
+  },
   "primarySources": [
-    { "url": "https://www.sanguosha.com/hero/346", "localPath": "docs/content/sources/evidence/ol-ma-yun-lu-346-page-2026-10-13.html", "sha256": "a5f9e76959792f013609d15c7c0382aa085d03f89af4524c91929d7f8b845ee6" },
-    { "url": "https://www.sanguosha.com/api/v1/hero/info?gid=346", "localPath": "docs/content/sources/evidence/ol-ma-yun-lu-346-info-2026-10-13.json", "sha256": "7f9f94e922f2a4556b0800f2ab6d2637a9564c73e5fe13c1def2ffc8d2d3195c" },
-    { "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs", "sha256": "66dfce61f1c4fb0aca35b6f85ed940e394719db84655f4d4146b463bc0cf8c1b", "provenanceOnly": "Raw upstream bundle decoded in memory; extracted matching rows retained, no raw local bundle claimed." },
-    { "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs", "sha256": "3d7536d4e2ca3d64707c2f6e0edbb8ccb4a045eee4274862dfa35431157c64f4", "provenanceOnly": "Raw upstream bundle decoded in memory; extracted matching rows retained, no raw local bundle claimed." },
-    { "url": "https://www.sanguosha.com/news/20161027_2208_5815", "localPath": "docs/content/sources/evidence/ol-ma-yun-lu-2016-official-guide-2026-10-13.html", "sha256": "c03de0eeb47664c6fe32403102f43a3ebe481c19f3cd4006a5130f3a06cdba6f", "purpose": "Historical same ordinary OL guide supports estimating hidden opponent Diamond count before choosing and placing weapon effects after Fengpo; current page/client remains authoritative for current turn wording." }
+    {
+      "url": "https://www.sanguosha.com/hero/346",
+      "localPath": "docs/content/sources/evidence/ol-ma-yun-lu-346-page-2026-10-13.html",
+      "sha256": "a5f9e76959792f013609d15c7c0382aa085d03f89af4524c91929d7f8b845ee6"
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=346",
+      "localPath": "docs/content/sources/evidence/ol-ma-yun-lu-346-info-2026-10-13.json",
+      "sha256": "7f9f94e922f2a4556b0800f2ab6d2637a9564c73e5fe13c1def2ffc8d2d3195c"
+    },
+    {
+      "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+      "sha256": "66dfce61f1c4fb0aca35b6f85ed940e394719db84655f4d4146b463bc0cf8c1b",
+      "provenanceOnly": "Raw upstream bundle decoded in memory; extracted matching rows retained, no raw local bundle claimed."
+    },
+    {
+      "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+      "sha256": "3d7536d4e2ca3d64707c2f6e0edbb8ccb4a045eee4274862dfa35431157c64f4",
+      "provenanceOnly": "Raw upstream bundle decoded in memory; extracted matching rows retained, no raw local bundle claimed."
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20161027_2208_5815",
+      "localPath": "docs/content/sources/evidence/ol-ma-yun-lu-2016-official-guide-2026-10-13.html",
+      "sha256": "c03de0eeb47664c6fe32403102f43a3ebe481c19f3cd4006a5130f3a06cdba6f",
+      "purpose": "Historical same ordinary OL guide supports estimating hidden opponent Diamond count before choosing and placing weapon effects after Fengpo; current page/client remains authoritative for current turn wording."
+    }
   ],
   "clientEvidence": "docs/content/sources/evidence/ol-ma-yun-lu-346-client-2026-10-13.json",
-  "clientBinding": { "class": "MaYunLu", "characterId": 346, "skillIds": [70, 266], "slots": { "j": 70, "k": 266 } },
+  "clientBinding": {
+    "class": "MaYunLu",
+    "characterId": 346,
+    "skillIds": [
+      70,
+      266
+    ],
+    "slots": {
+      "j": 70,
+      "k": 266
+    }
+  },
   "skills": [
-    { "id": "classic:mashu", "name": "马术", "text": "锁定技，你计算与其他角色的距离-1。", "implementation": "Existing shared outgoingDistance modifier; no duplicate rule or per-character snapshot check." },
-    { "id": "ol:fengpo", "name": "凤魄", "text": "当你在回合内首次使用【杀】或【决斗】指定一个目标后，你可以选择一项：1.摸X张牌；2.令此牌伤害+X。（X为目标角色方片手牌数）", "operation": "chooseFirstSlashDuelDiamondBenefit", "opValue": 21100 }
+    {
+      "id": "classic:mashu",
+      "name": "马术",
+      "text": "锁定技，你计算与其他角色的距离-1。",
+      "implementation": "Existing shared outgoingDistance modifier; no duplicate rule or per-character snapshot check."
+    },
+    {
+      "id": "ol:fengpo",
+      "name": "凤魄",
+      "text": "当你在回合内首次使用【杀】或【决斗】指定一个目标后，你可以选择一项：1.摸X张牌；2.令此牌伤害+X。（X为目标角色方片手牌数）",
+      "operation": "chooseFirstSlashDuelDiamondBenefit",
+      "opValue": 21100
+    }
   ],
   "excludedVariants": [
     "Ten Year hero440: draws X and +1 damage, or draws one and +X damage; current ordinary OL client does not bind those effects.",
     "Mobile and historical Play-phase-only text are not substituted for current ordinary OL own-turn wording."
   ],
   "mechanismAssessment": {
-    "status": "implemented; focused checks authored; root build and verification pending",
-    "firstUse": "A scalar fact records every actual own-turn declared effective Slash/FireSlash/ThunderSlash/Duel, whether declined, multi-target or sourced by a supported native virtual card. The first combined ordinal is not a skill usage debit; a later grant cannot recycle it. A repeated effect under the same use declares no new action and adds no first-use slot.",
-    "target": "Rechecks the actual owning frame's sole living target at the lowest finalized priority after earlier additions; never uses a stale original target-count snapshot.",
+    "status": "six focused actual-command methods passed; includes strict legacy normal/unlimited virtual uses, paid source loss/death, committed fire-kind conversion and native chain propagation; prescribed routine pending",
+    "firstUse": "A scalar fact records every actual own-turn declared effective Slash/FireSlash/ThunderSlash/Duel, whether declined, multi-target or sourced by a supported native virtual card. Exact mature committed Slash-kind-to-FireSlash conversion is validated by its existing policy/facts and keeps the original declared kind and combined ordinal, without a second declaration. The first combined ordinal is not a skill usage debit; a later grant cannot recycle it. A repeated effect under the same use declares no new action and adds no first-use slot.",
+    "target": "Rechecks the actual owning frame sole living target. This newly opted-in candidate alone moves behind all remaining finalized non-benefit candidates, including dynamically appended native target observers; their historical relative order is retained.",
     "privacy": "The exact effective Diamond Hand count is frozen only in trusted pending resolution state after activation. Both choices use X labels with no hidden identities or count. No issued public fact exposes X until the effect is selected. AI choices consult own hand count and a public prior, never the stored opponent suit count.",
     "draw": "Actual DrawPile-to-owner-Hand movements have a typed instruction/source/window/use/action receipt and exact movement interval. Real observer children drain once through skill loss and owner death without repayment.",
     "damage": "The original CardUseFrame stores a scalar damage bonus validated against issued scalar facts. Every original native non-chain Slash/Duel damage attempt, including reversed Duel damage, receives that bonus before normal damage caps. Issued bonuses survive source loss. Existing native elemental propagation carries the finalized damage without adding the same bonus again.",
@@ -38,20 +85,36 @@
       "NativeVirtualFirstUseAndOptInContracts",
       "PaidDrawChildrenSourceLossAndDeathColdReturnOnce"
     ],
-    "verificationScope": "Real serialized commands, fixed small seed/deck, genuine native frames and actual GameReplay.Restore engines continued at paused choices/children. No injected frames or seed searches. Root alone runs checks."
+    "verificationScope": "Real serialized commands, fixed small seed/deck, genuine native frames and actual GameReplay.Restore engines continued at paused choices/children. No injected frames or seed searches. Root alone runs checks.",
+    "legacyVirtual": "The actual existing UseVirtualCard(false) producer keeps Action-null and its original owning use. A new capability-owned predicate validates the exact parent, paused instruction, original singleton target, binding-started/declaration/confirmation facts and supports both normalSlashTarget and distanceUnlimitedAgainstTarget. The mature shared SameTypeAid legacy predicate is unchanged. A dedicated FirstSlashDuelLegacyWindowFrame with ResolutionFrameKind 21100 returns to the same native Slash target/response continuation. No manufactured CardAction, recommit, altered nativeWindows alcohol/armor behavior or parallel pending sidecar.",
+    "focusedPassed": true,
+    "focusedSummary": "docs/benchmarks/2026-10-13-batch-6-sixth-focused-summary.json",
+    "focusedCoreLog": "docs/benchmarks/2026-10-13-batch-6-sixth-focused-core-selected.log.txt",
+    "routine": "passed prescribed scope 608 Core / 76 WPF; docs/benchmarks/2026-10-13-batch-6-routine-summary.json"
   },
   "portrait": {
     "url": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/34600.png",
     "path": "src/CardGame.Wpf/Assets/official-ol-ma-yun-lu.png",
     "sha256": "448789641b7464d84c625d9e61e021e31d6b1456b0cf727119c89736fc7dfb78",
-    "width": 750, "height": 950, "visuallyInspected": true
+    "width": 750,
+    "height": 950,
+    "visuallyInspected": true
   },
   "interpretationLimits": [
     "Current ordinary OL says 指定一个目标 rather than 每个目标. This implementation interprets it as a single final target at offer time, not one benefit per target. No current same-version primary combo FAQ was found for Fengpo combined with newly appended target mechanics.",
     "回合内 is interpreted as the skill owner's actual turn. Declining the first combined Slash/Duel cannot transfer the opportunity to the other card kind. Current OL text is used; Ten Year separate first-Slash/first-Duel FAQ is excluded.",
-    "A benefit legitimately issued during a finalized window is not revoked solely because a later child changes targets. Priority ordering makes new built-in target additions precede this offer; all possible historical target-changing combinations are not claimed as live tested.",
-    "The existing legacy Action-null producer may occupy the declaration ledger, but is not given a fabricated Action or new generic finalized window. The representative virtual behavior check uses the genuine supported native zero-entity full action window.",
+    "A benefit legitimately issued during a finalized window is not revoked solely because a later paid child changes targets. The new candidate tail rule waits for dynamically refreshed target observers, while preserving every pre-existing candidate relative order. Every historical target-changing combination is not claimed as live tested.",
     "Focused tests do not establish every elemental chain, armor, delayed draw or foreground desktop combination; existing native boundaries are retained."
   ],
-  "temporaryFiles": "No temporary directory created. Raw upstream bundles decoded in memory. Source/evidence/portrait/checks are retained deliverables; historical policy-blocked outputs were not deleted or retried."
+  "temporaryFiles": "No temporary directory created. Raw upstream bundles decoded in memory. Source/evidence/portrait/checks are retained deliverables; historical policy-blocked outputs were not deleted or retried.",
+  "verification": {
+    "status": "passed",
+    "focusedSummary": "docs/benchmarks/2026-10-13-batch-6-sixth-focused-summary.json",
+    "focusedCoreLog": "docs/benchmarks/2026-10-13-batch-6-sixth-focused-core-selected.log.txt",
+    "routineSummary": "docs/benchmarks/2026-10-13-batch-6-routine-summary.json",
+    "routineCorePassed": 608,
+    "routineWpfPassed": 76,
+    "manualFull": false,
+    "finalBatchReport": "docs/benchmarks/2026-10-13-ma-yun-lu-ta-dun-yan-bai-hu-verification.json"
+  }
 }

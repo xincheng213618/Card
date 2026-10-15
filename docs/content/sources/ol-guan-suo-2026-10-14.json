@@ -1,0 +1,144 @@
+{
+  "capturedAt": "2026-10-14",
+  "generalId": "ol:guan-suo",
+  "officialHeroId": 349,
+  "name": "关索",
+  "variant": "ordinary current OL",
+  "attributes": {
+    "faction": "shu",
+    "maxHp": 4,
+    "gender": "male"
+  },
+  "primarySources": [
+    {
+      "url": "https://www.sanguosha.com/hero/349",
+      "localPath": "docs/content/sources/evidence/ol-guan-suo-349-page-2026-10-14.html",
+      "sha256": "fd0a2cf50d4e5f48b22b26c7c4e0bbb5741cfa62dd60830edfef9e71082c1023"
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=349",
+      "localPath": "docs/content/sources/evidence/ol-guan-suo-349-info-2026-10-14.json",
+      "sha256": "87a0e1eb9c15c68b1411290b087d08bd15889022f74a977c75602290675451ab"
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20160505_8723_1317",
+      "localPath": "docs/content/sources/evidence/ol-guan-suo-2016-release-2026-10-14.html",
+      "sha256": "f1d512f66f71fe6ebd904d583a7b05edeff01c057fbaca208e56dc3798853d57"
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20181122_1836_1314",
+      "localPath": "docs/content/sources/evidence/ol-guan-suo-2018-wusheng-fix-2026-10-14.html",
+      "sha256": "df64fa80861d1b5de5ea9180a45ebb1d8f1ca53b011f70b8af1ed106ee6ea02f"
+    }
+  ],
+  "clientEvidence": {
+    "path": "docs/content/sources/evidence/ol-guan-suo-349-client-2026-10-14.json",
+    "sha256": "892aa8d2e954d1d87c254112d46e6db543d8d58be25fadfddbce1f7d089e7154",
+    "heroClass": "GuanSuo",
+    "bindings": {
+      "j": 279,
+      "k": 278
+    },
+    "linkedSkillIds": [
+      878,
+      426,
+      237
+    ]
+  },
+  "skills": [
+    {
+      "id": "ol:zhengnan",
+      "name": "征南",
+      "officialSkillId": 278,
+      "text": "当其他角色死亡后，你可以摸三张牌，然后获得“武圣”“当先”“制蛮”中的一个。",
+      "operation": "drawAfterOtherDeathThenChooseMissingSkill",
+      "opValue": 21400,
+      "grantIds": [
+        "boundary:wusheng",
+        "classic:dangxian",
+        "classic:zhiman"
+      ]
+    },
+    {
+      "id": "ol:xiefang",
+      "name": "撷芳",
+      "officialSkillId": 279,
+      "text": "锁定技，你计算与其他角色的距离-X（X为全场女性角色数）。",
+      "valueExpression": "negatedLivingFemaleCount",
+      "valueExpressionValue": 21400
+    }
+  ],
+  "linkedSkills": [
+    {
+      "officialSkillId": 878,
+      "id": "boundary:wusheng",
+      "text": "你可以将一张红色牌当【杀】使用或打出。你使用的方片【杀】无距离限制。",
+      "evidence": "Current exact linked client row878 plus ordinary OL 2018 update explicitly replaces the granted Wusheng with boundary Wusheng; legacy33 is excluded."
+    },
+    {
+      "officialSkillId": 426,
+      "id": "classic:dangxian",
+      "text": "锁定技，回合开始时，你执行一个额外的出牌阶段。",
+      "evidence": "Plain classic turnStartBeforeNormalFlow extra Play only; boundary variant with additional discard-pile Slash is excluded."
+    },
+    {
+      "officialSkillId": 237,
+      "id": "classic:zhiman",
+      "text": "当你对其他角色造成伤害时，你可以防止此伤害，然后获得其区域里的一张牌。",
+      "evidence": "Existing generic before-damage source collector and resumed candidate both exclude selfDamage; real HEJ selection capability reused."
+    }
+  ],
+  "portrait": {
+    "url": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/34900.png",
+    "path": "src/CardGame.Wpf/Assets/official-ol-guan-suo.png",
+    "sha256": "1547caaa758d976ed168e0279257ff19b2c9d616331feb58932e2cdeebdfb471",
+    "width": 750,
+    "height": 950,
+    "visuallyInspected": true
+  },
+  "interpretationLimits": [
+    "Current official hero349 page and current exact bound client278 both specify other-player death then draw3 plus skill. Historical 2018 draw-or-skill, Ten Year dying-once recovery/draw1, and different-product hero500 are excluded.",
+    "全场女性角色数 is implemented as current living effective-gender participants, including a female skill owner if this skill is granted. Dead characters are off the active table. No same-current-version primary FAQ found spelling out every general-library/hidden-general gender combination; native CharacterState.Gender is reused.",
+    "After the fixed draw, only currently unowned candidate skills are selectable; already owning all three still draws3 and finishes without duplicate grants. The current page/client have no same-current-version explicit all-owned FAQ.",
+    "Once real draw movements are issued, their exact original child cursor drains once through source loss; a living owner still completes the grant. Owner death stops a new personal skill grant. Actual focused command/replay checks cover original LoseHp death followed by source loss or owner death, and original Damage death followed by source loss; broader combinations remain unverified.",
+    "No claim of full foreground desktop or all equipment/death/general transformation combinations."
+  ],
+  "mechanismAssessment": {
+    "status": "final focused and measured routine passed",
+    "focusedPassed": true,
+    "focusedEvidence": "docs/benchmarks/2026-10-14-batch-7-twelfth-final-focused-core-selected.log.txt",
+    "class": "DeathGrowthSkillsChecks",
+    "prefix": "Other death growth:",
+    "methods": [
+      "StrictContractsAndCommittedCollectionFreeze",
+      "ActualOtherDeathsDrawChooseAllSkillsAndExtraPlayCold",
+      "ActualDeclineAndAlreadyOwnedSkillsStillDraw",
+      "DynamicLivingFemaleDistanceSelfAndDirectionsCold",
+      "PaidDrawChildrenSourceLossAndOwnerDeathColdOnce"
+    ],
+    "routine": {
+      "status": "passed",
+      "summary": "docs/benchmarks/2026-10-14-batch-7-routine-summary.json",
+      "corePassed": 631,
+      "wpfPassed": 76,
+      "durationMs": 89716,
+      "manualFull": false
+    }
+  },
+  "upstreamProvenance": {
+    "fullUpstreamArchivesRetainedLocally": false,
+    "note": "Current shared client preflight decoded upstream bundles in memory; the matching extracted rows, primary pages/API and portrait are retained. Raw upstream archive hashes are provenance only."
+  },
+  "disposableTemporaryDirectoriesCreated": [],
+  "stage": "batch acceptance complete",
+  "verifiedAt": "2026-10-14T09:13:44.111572+00:00",
+  "batchVerificationReport": "docs/benchmarks/2026-10-14-guan-suo-wang-lang-bao-san-niang-verification.json",
+  "routine": {
+    "status": "passed",
+    "summary": "docs/benchmarks/2026-10-14-batch-7-routine-summary.json",
+    "corePassed": 631,
+    "wpfPassed": 76,
+    "durationMs": 89716,
+    "manualFull": false
+  }
+}

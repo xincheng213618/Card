@@ -1,0 +1,188 @@
+{
+  "status": "root-verified",
+  "generalId": "ol:lv-qian",
+  "characterId": "character:lv-qian",
+  "variantId": "ordinary",
+  "rulesetId": "sanguosha-ol",
+  "officialId": 432,
+  "gender": "male",
+  "kingdom": "wei",
+  "hp": 4,
+  "initialHpOverride": null,
+  "primary": {
+    "path": "docs/content/sources/ol-batch18-429-432-preflight-2026-10-15.json",
+    "sha256": "f51d9302767d332c35065c8bca2936361dc104dfe5b4b7a0b9c219d08dde0344"
+  },
+  "primaryRawEvidence": [
+    {
+      "heroId": 432,
+      "kind": "page",
+      "url": "https://www.sanguosha.com/hero/432",
+      "status": 200,
+      "contentType": "text/html",
+      "path": "docs/content/sources/evidence/ol-batch18-429-432-432-page-2026-10-15.html",
+      "sha256": "7737a8a8902528b9ed06df1db1fa4048370494864866904255b160df3ed64946",
+      "bytes": 25384
+    },
+    {
+      "heroId": 432,
+      "kind": "api",
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=432",
+      "status": 200,
+      "contentType": "application/json",
+      "path": "docs/content/sources/evidence/ol-batch18-429-432-432-api-2026-10-15.json",
+      "sha256": "5ecb76243c3c1ff2de568ac12ac1db63ec0b9383f801d18e06e5bf84e5321d46",
+      "bytes": 1283
+    }
+  ],
+  "currentClient": {
+    "path": "docs/content/sources/evidence/ol-batch14-411-480-current-client-preflight-2026-10-15.json",
+    "sha256": "22a8158f9a7f1af27e5130d0de95f1e4eb4a4e19fbd7adb0439009e564fff483",
+    "clientBundleSha256": "66dfce61f1c4fb0aca35b6f85ed940e394719db84655f4d4146b463bc0cf8c1b",
+    "configSha256": "3d7536d4e2ca3d64707c2f6e0edbb8ccb4a045eee4274862dfa35431157c64f4",
+    "freshDecoderRun": false,
+    "wholeArchivesSaved": false
+  },
+  "printedSpells": [
+    {
+      "a": 912,
+      "b": "3,4,5",
+      "c": "威虏",
+      "d": "WeiLu",
+      "e": 0,
+      "g": 2,
+      "i": 2,
+      "ab": 1,
+      "o": "锁定技，当其他角色对你造成伤害后，其在你下回合出牌阶段开始时失去至1点体力，然后此阶段结束时其回复以此法失去的体力。",
+      "bb": "锁定技，当其他角色对你造成伤害后，其在你下回合出牌阶段开始时失去至1点体力，然后此阶段结束时其回复以此法失去的体力。",
+      "ay": "系统提示→点“确定”"
+    },
+    {
+      "a": 913,
+      "b": "3,6",
+      "c": "赠刀",
+      "d": "ZengDao",
+      "e": 0,
+      "h": 1,
+      "i": 2,
+      "l": "lvyuzengdao",
+      "n": 1,
+      "o": "限定技，出牌阶段，你可以将装备区里任意张牌置于一名其他角色的武将牌上。当其造成伤害时，其移除一张“赠刀”牌令此伤害+1。",
+      "ay": "系统提示→点“确定”"
+    }
+  ],
+  "portrait": {
+    "path": "src/CardGame.Wpf/Assets/official-ol-lv-qian.png",
+    "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/43200.png",
+    "sha256": "debbcbdf609d1ab41de2a226cf5d1e43d92e395ba823d4ac8eb792ab1a97acc6",
+    "bytes": 956248,
+    "actuallyViewed": true
+  },
+  "versionBoundary": {
+    "currentAuthority": "Current OL hero432/API432 and cached exact client912/913 match. WeiLu restores at the end of this actual Play phase.",
+    "excludedOldOLRelease": {
+      "url": "https://www.sanguosha.com/news/20200420_5154_3219",
+      "difference": "Old release says turn end; current printed text says this phase end. Old restoration timing is not used."
+    },
+    "otherProductNotAuthority": [
+      "https://x.sanguosha.com/hero/444.html",
+      "https://www.sanguosha.com/news/20190107_7673_5310"
+    ]
+  },
+  "proposedInterpretationsWithoutSpecificFAQ": [
+    "Repeated same-source hits aggregate before the next actual own turn. The first actual Play entry in that turn freezes its unique phase identity, regardless of whether any candidate is eligible. A skipped Play leaves unpaid obligations to expire at that actual turn end.",
+    "Only actual HP lost to one is recoverable at the exact paid phase end. Already paid obligations survive source loss, inserted phases and native phase termination by owner death; target death consumes its debt without recovery. No arbitrary turn-end recovery is invented.",
+    "Zengdao requires at least one real equipment entity, accepts any available equipment count with native open card bounds, and transfers original equipment into the recipient public pile. The giver source/instance/hash is retained independently of recipient skill ownership.",
+    "Exactly one gifted entity is removed for each actual source damage, including self-source and elemental or noncard damage. Multiple available entities across issued grants are a real recipient choice. An ordinary printed candidate cannot duplicate the permanent grant candidate.",
+    "Multiple giver grants are distinguished by original giver seat and source instance. One stable grant is only the native mechanism entry; its owning frame retains that entry while a separately selected original grant proves the actual payment.",
+    "Successfully issued public gift effects survive donor death/source loss and recipient source loss. Recipient death uses native public-pile cleanup; source-less and delayed-judgment placeholder sources cannot consume a gift."
+  ],
+  "verification": {
+    "status": "third-root-focused-strict-pass-fixture-damage-fields-corrected",
+    "buildOrTestsRun": true,
+    "focusedMethods": [
+      "StrictActualPhaseAndGrantedDamageContracts",
+      "ActualWeiluRepeatedSourceNextPlayAndExactRestoreCold",
+      "ActualPaidWeiluSourceLossAndTargetDeathCold",
+      "ActualZengdaoNativeLionDepositPermanentSourceDamageCold",
+      "ActualZengdaoDonorDeathPersistsAndRecipientDeathCleansCold"
+    ],
+    "coverageBoundary": "Representative native command/cold scenes include duplicate damage, paid source loss, beneficiary and owner deaths, actual Lion removal, recipient choice between two public gifts, normal/self-fire damage and gift death cleanup. Multiple distinct giver sources and inserted/skip phases are typed boundaries not separately exercised by these fixtures.",
+    "rootEvidence": "docs/benchmarks/2026-10-15-batch-18-sixth-focused-summary.json",
+    "rootVerification": {
+      "status": "passed",
+      "rootRunner": true,
+      "focusedSummary": "docs/benchmarks/2026-10-15-batch-18-sixth-focused-summary.json",
+      "focused": {
+        "corePassed": 29,
+        "coreFailed": 0,
+        "wpfPassed": 1,
+        "wpfFailed": 0,
+        "durationMs": 11445
+      },
+      "routineSummary": "docs/benchmarks/2026-10-15-batch-18-routine-summary.json",
+      "routine": {
+        "corePassed": 119,
+        "coreFailed": 0,
+        "wpfPassed": 20,
+        "wpfFailed": 0,
+        "durationMs": 29662
+      },
+      "report": "docs/benchmarks/2026-10-15-sp-pang-tong-yuan-tan-yuan-shang-lv-qian-verification.json",
+      "fullRun": false,
+      "foregroundAcceptance": false,
+      "serverBehaviorVerified": false
+    },
+    "focused": "Root sixth focused: all 18 new behavior methods and 11 relevant shared regression checks passed; 1 WPF gallery passed.",
+    "routine": "Prescribed 119 Core/20 WPF routine passed in 29662ms; Full not run.",
+    "rootFocusedStatus": "passed",
+    "workerBuildOrTestsRun": false
+  },
+  "eventPrivacy": "Six new events have only scalars and immutable scalar WeiluPhaseKey. Permanent grant and owning receipt collections clone to read-only containers; public cards are already publicly deposited equipment. No drawn/random private IDs are added to public facts.",
+  "inputs": [
+    {
+      "path": "src/CardGame.Core/ProgramLvQianOperations.cs",
+      "sha256": "a1763bfb79b90d66c22099f9136a797a90ff629a1053d3326ac5d84e3bcc2559"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.LvQianPrograms.cs",
+      "sha256": "87d06e357dd9a3f29bd46663273a7119c3279da2abd6787bd960223ac542dc4d"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.LvQianObservers.cs",
+      "sha256": "72737acf7778de08085083b613391d280be70c4221aabd730cf33f7490f7c9a1"
+    },
+    {
+      "path": "src/CardGame.Content.Standard/OlLvQianContent.cs",
+      "sha256": "a4d82eee697cd0606f6b1d3191b327c898f6a0537f61c8cf51d51db125bddda1"
+    },
+    {
+      "path": "src/CardGame.Content.Standard/SkillPrograms/ol-lv-qian.rules.json",
+      "sha256": "1ee30dcb17e1e4590c556cef56709da5e444204315b0693dd9342be1571b2e23"
+    },
+    {
+      "path": "src/CardGame.Content.Standard/SkillPrograms/ol-lv-qian.presentation.json",
+      "sha256": "613a39121c16bc1f0b72b36f4236606220b8a66554cd91c7db43dd8147011c0a"
+    },
+    {
+      "path": "tests/CardGame.Core.Tests/LvQianChecks.cs",
+      "sha256": "ffa3d71633f84be9ea353554e9ef1e39fb65c01578cd62412901485f8e5abc79"
+    },
+    {
+      "path": "src/CardGame.Wpf/Assets/official-ol-lv-qian.png",
+      "sha256": "debbcbdf609d1ab41de2a226cf5d1e43d92e395ba823d4ac8eb792ab1a97acc6"
+    }
+  ],
+  "sharedEdits": [
+    {
+      "path": "src/CardGame.Core/GameEngine.DamagePreventionPrograms.cs",
+      "sha256": "db0a1c7419d0b8b1ac810b00b16074752542336c389a79597594b4b4a8f73ac1",
+      "scope": "Only authorized new Lv Qian integration slices; concurrent existing changes preserved."
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.PublicPersistentPiles.cs",
+      "sha256": "44eb4304fd230b3a1dc254846ccc27ff07bb71c1c3f1d25b9fa5872abef90ad6",
+      "scope": "Only authorized new Lv Qian integration slices; concurrent existing changes preserved."
+    }
+  ]
+}

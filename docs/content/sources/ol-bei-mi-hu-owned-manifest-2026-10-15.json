@@ -1,0 +1,67 @@
+{
+  "date": "2026-10-15",
+  "status": "verified-in-batch",
+  "files": [
+    {
+      "path": "src/CardGame.Core/ProgramBeiMiHuOperations.cs",
+      "sha256": "d1eda69e1e00a8ba46447c6583149fb3b052834ba6156d0c1c3ebde6c0497113"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.BeiMiHuPrograms.cs",
+      "sha256": "5a0d8a4a4dbb37cf08ec3f8606e49c8408624906bd330d4075b15f742c5afe7d"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.BeiMiHuObservers.cs",
+      "sha256": "13ecaabeab44955cf7ed7867203fc9ae099dca5e3b5fb25905effe1aac5174ac"
+    },
+    {
+      "path": "src/CardGame.Content.Standard/OlBeiMiHuContent.cs",
+      "sha256": "b645c3bd3d4ca8f65866e08c333e0d08058f27d0d73e8a3cd2c82e284bcfa117"
+    },
+    {
+      "path": "src/CardGame.Content.Standard/SkillPrograms/ol-bei-mi-hu.rules.json",
+      "sha256": "051349c6be3cfb119f1267b759ca55854a083cad0332c66f3ddf927d71ee3a26"
+    },
+    {
+      "path": "src/CardGame.Content.Standard/SkillPrograms/ol-bei-mi-hu.presentation.json",
+      "sha256": "0c67783b28ea3ab67feeee5461e2a41cf465af02b361a9f31070d02cdee5e3bf"
+    },
+    {
+      "path": "tests/CardGame.Core.Tests/BeiMiHuChecks.cs",
+      "sha256": "2b7f687ef9b8bca6eea30c906d2b93da7b49c6f2fbef25e7425577e521238051"
+    },
+    {
+      "path": "src/CardGame.Wpf/Assets/official-ol-bei-mi-hu.png",
+      "sha256": "37d92bfda1325aca132696f0e131b278b960dec58ed47e4c42051f0e498cd773"
+    },
+    {
+      "path": "docs/content/sources/ol-bei-mi-hu-2026-10-15.json",
+      "sha256": "3c3a64071d493f2a095d939a31a2c1f09b9c721fc707074a604e97c44b8d585b"
+    },
+    {
+      "path": "src/CardGame.Wpf/ViewModels/MainViewModel.TieredRoundZeroActions.cs",
+      "scope": "root-authorized Weijing UI bridge",
+      "sha256": "de0b79030c561d0c2130ae1830e9312c345fc763e967d3b2d628400223c0ff57"
+    },
+    {
+      "path": "tests/CardGame.Wpf.Tests/RoundCardlessBasicUiChecks.cs",
+      "scope": "root-authorized Weijing UI bridge",
+      "sha256": "2309b9bdf564647d35303be4dba9e0580be1a070ca3cdfc1c909f3c88bcac3fd"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.BeiMiHuTurnPrelude.cs",
+      "scope": "root-authorized exact prelude chronology/dead-upcoming repair; shared file may receive root later edits",
+      "sha256": "6eb2b6417495a1a05a168e0de883742e757ba3779c797004011232583c0dda17"
+    }
+  ],
+  "zeroAdditionRegression": "owned implementation/test frozen; root runner pending",
+  "workerVerificationAtHandoff": "implementation-ready-focused-pending",
+  "verification": {
+    "report": "docs/benchmarks/2026-10-15-bei-mi-hu-liu-qi-lu-zhi-wei-verification.json",
+    "focused": "docs/benchmarks/2026-10-15-batch-13-thirteenth-final-focused-summary.json",
+    "routine": "docs/benchmarks/2026-10-15-batch-13-routine-summary.json",
+    "status": "passed",
+    "ranByWorker": false,
+    "ranByRoot": true
+  }
+}

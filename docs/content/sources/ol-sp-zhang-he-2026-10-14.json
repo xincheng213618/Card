@@ -1,0 +1,117 @@
+{
+  "primarySources": [
+    "https://www.sanguosha.com/hero/357",
+    "https://www.sanguosha.com/api/v1/hero/info?gid=357",
+    "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs"
+  ],
+  "capturedAt": "2026-10-14",
+  "verification": {
+    "status": "focused-and-routine-passed",
+    "report": "docs/benchmarks/2026-10-14-wu-yan-sp-zhang-he-xuan-gong-zhu-verification.json",
+    "focusedCore": 68,
+    "focusedWpf": 5,
+    "routineCore": 679,
+    "routineWpf": 80,
+    "full": "not requested"
+  },
+  "officialSkillId": 3065,
+  "clientCharacter": [
+    {
+      "a": 357,
+      "b": "张郃",
+      "ai": "SP",
+      "d": "ZhangHeSP",
+      "e": 9,
+      "g": 4,
+      "h": 1,
+      "i": 4,
+      "j": 3065,
+      "p": 3,
+      "q": "1",
+      "r": "935701",
+      "y": "张郃[hé]，字儁乂[jùn yì]，河间鄚[mào]人。三国时期魏国名将。官渡之战时，本为袁绍部将的张郃投降了曹操，并在曹操帐下多立功勋，于曹魏建立后加封为征西车骑将军。诸葛亮六出祁山之间，张郃多次抵御蜀军的进攻，于公元231年在木门道被诸葛亮设伏射死。后谥曰壮侯。为曹魏“五子良将”之一。",
+      "z": "回合内不是很必要出的牌可以考虑留给技能发动。",
+      "aa": 132,
+      "ab": "891,892",
+      "ad": "画师:青岛君恒",
+      "x": "主公听我之计，####早有今日之胜！",
+      "al": 1730,
+      "am": "true",
+      "ap": 800,
+      "aq": 240,
+      "bt": "69",
+      "bx": 60000,
+      "LordCardRate1": 47,
+      "LordCardRate2": 43,
+      "cc": 0,
+      "starMax": 4
+    }
+  ],
+  "evidence": [
+    {
+      "path": "docs/content/sources/evidence/ol-batch9-357-page-2026-10-14.html",
+      "sha256": "a9d197a06e6190f656a6cb80182783e40121994bc562834cf002f6288ada1f55"
+    },
+    {
+      "path": "docs/content/sources/evidence/ol-batch9-357-info-2026-10-14.json",
+      "sha256": "8887a316eda9802a077c11024188f930c6a8fa0a5b8cf3f4681b41f4c6b34b5f"
+    },
+    {
+      "path": "docs/content/sources/evidence/ol-next-group-356-357-358-client-preflight-2026-10-14.json",
+      "sha256": "96cd59e21fc4dbf96114f16afeef820b103a1edd5cc110d8d99fa923c7dbb520"
+    },
+    {
+      "path": "src/CardGame.Wpf/Assets/official-ol-sp-zhang-he.png",
+      "sha256": "90fae1c594cc946d53b3828b0911d76a140ac2573c50cb4055f2062966994a0f"
+    }
+  ],
+  "interpretation": {
+    "expiry": "Deposit freezes actual Play phase instance already ended. First later actual own PlayEnding has a higher instance; inserted actual Play qualifies, skipped Play does not.",
+    "privacy": "Foreign viewers see skill/name/count only; entity snapshots and choices remain owner-private.",
+    "drawOrder": "Remove one physical Whirl, drain paid movements, draw one, drain actual draw children, compare then-current living hand counts, draw currently remaining Whirl count if not unique maximum.",
+    "scope": "No classic/boundary Qiaobian definition changed."
+  },
+  "generalId": "ol:sp-zhang-he",
+  "attributes": {
+    "maxHp": 4,
+    "faction": "qun",
+    "variant": "sp",
+    "rulesetId": "sanguosha-ol",
+    "characterId": "character:zhang-he",
+    "gender": "male"
+  },
+  "officialHeroId": 357,
+  "clientSpell": [
+    {
+      "a": 3065,
+      "b": "3,5",
+      "c": "周旋",
+      "d": "ZhouXuan",
+      "g": 3,
+      "i": 2,
+      "ab": 1,
+      "o": "弃牌阶段开始时，你可以将任意张手牌暗置于你的武将牌上，称为“旋”（至多五张），直到你下个出牌阶段结束。当你使用牌时，你移去一张“旋”并摸一张牌，若你的手牌不是唯一最多则额外摸X张牌（X为“旋”的数量）。",
+      "v": "请选择要置于武将牌上的手牌|请选择一张移去的牌"
+    }
+  ],
+  "skillId": "ol:zhouxuan",
+  "art": {
+    "sha256": "90fae1c594cc946d53b3828b0911d76a140ac2573c50cb4055f2062966994a0f",
+    "width": 750,
+    "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/35700.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-sp-zhang-he.png",
+    "height": 950,
+    "visuallyInspected": true
+  },
+  "boundaries": [
+    "Actual inserted Play fixture and combined actor-replacement/multiple-target use were not separately exercised by worker; pending root verification.",
+    "Current hand comparison occurs after the first native draw and its movement children, X is current residual physical Whirl count."
+  ],
+  "wpf": {
+    "verification": "root focused and measured routine passed",
+    "foreign": "Public pile name/count only; retained foreign card DTO ignored",
+    "path": "shared NamedPrivatePileOverview and NamedPrivatePiles",
+    "owner": "Read-only exact deposited faces and count, private removal face lookup",
+    "check": "PrivateWhirlViewChecks.OwnerFacesForeignCountsAndClearingUseRealViewModels"
+  }
+}

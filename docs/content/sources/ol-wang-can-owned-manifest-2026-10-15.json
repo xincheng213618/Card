@@ -1,0 +1,68 @@
+{
+  "status": "root-verified-current-source",
+  "owner": "/root/batch8_dong_zhao",
+  "batch": 17,
+  "generalId": "ol:wang-can",
+  "inputs": [
+    {
+      "path": "src/CardGame.Core/ProgramWangCanOperations.cs",
+      "sha256": "1ae9dde6654be2cb269b95046be864f8823b77064070b767aedbf7cd20c02cbc"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.WangCanPrograms.cs",
+      "sha256": "ae385e81ca8a841eb80a43d0645f30a85307ebc6324d565caf17c65546275c2e"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.WangCanObservers.cs",
+      "sha256": "ed94ffcc42c2f31798abb0d7e0fa3db7656c3fc485dac06bc979af466e354438"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.WangCanNativeUses.cs",
+      "sha256": "e12933e2b10519aca95f55d1d536645f78e3fa9e7606bbaf6a43dcbb9a2ebcb7"
+    },
+    {
+      "path": "src/CardGame.Content.Standard/OlWangCanContent.cs",
+      "sha256": "753173ec626c2e3174645f25a19d17383dc41a2cd7bdd2392338f315cdc51bbc"
+    },
+    {
+      "path": "src/CardGame.Content.Standard/SkillPrograms/ol-wang-can.rules.json",
+      "sha256": "f9f467764560425bf87f199fb8c062e54abdb320e94f860046f78f854f4ffd17"
+    },
+    {
+      "path": "src/CardGame.Content.Standard/SkillPrograms/ol-wang-can.presentation.json",
+      "sha256": "16888d8bc7eed5a44880f88be0b01d1ea81acc02e9b269be9b532d50882ebdce"
+    },
+    {
+      "path": "tests/CardGame.Core.Tests/WangCanChecks.cs",
+      "sha256": "31230236e666ddf20cf659f741488372f0d15f02bebda58fdee653d527c131e3"
+    },
+    {
+      "path": "src/CardGame.Wpf/Assets/official-ol-wang-can.png",
+      "sha256": "d49dcfd64abc7ef5e74dcc2c6e9be5f41d6acf083836dd9e269f700a7c7b1e4a"
+    },
+    {
+      "path": "docs/content/sources/ol-wang-can-2026-10-15.json",
+      "sha256": "0470cf33b585bcc1ea8bf4fe3a5c19265e4dca9949375490cda4d0995e506c26"
+    }
+  ],
+  "sharedEdits": [
+    "GameEngine.CardMovementPrograms.cs",
+    "CardMovementPrograms.cs",
+    "HpChangePrograms.cs",
+    "GameEngine.HpChangePrograms.cs",
+    "GameEngine.RecoveryReplacementDamageRides.cs",
+    "GameEngine.DeferredCards.cs",
+    "GameEngine.TypedRecoveryDamageCursor.cs"
+  ],
+  "verification": "No worker build or runner; root solely verifies.",
+  "rootVerification": {
+    "verifiedAt": "2026-10-15T08:42:27.945405+00:00",
+    "status": "passed",
+    "focused": "docs/benchmarks/2026-10-15-batch-17-eighth-focused-summary.json",
+    "routine": "docs/benchmarks/2026-10-15-batch-17-second-routine-summary.json",
+    "workerBuildOrTestsRun": false,
+    "rootOnlyRunner": true,
+    "fullRun": false,
+    "commitPushPublishRun": false
+  }
+}
