@@ -1,0 +1,36 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:gongsun-zan",
+  "skills": [
+    {
+      "registrationOrder": 89,
+      "programBundle": "rule-query-skills",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:yicong",
+        "name": "义从",
+        "description": "锁定技，若你的体力值大于2，你计算与其他角色的距离-1；若你的体力值不大于2，其他角色计算与你的距离+1。",
+        "tags": "Locked",
+        "executionForms": "State"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 250,
+      "pools": {
+        "current": 41
+      },
+      "definition": {
+        "id": "classic:gongsun-zan",
+        "name": "公孙瓒",
+        "portraitKey": "gongsun_zan",
+        "skillId": "classic:yicong",
+        "factionId": "qun",
+        "baseHp": 4,
+        "gender": "Male"
+      }
+    }
+  ]
+}

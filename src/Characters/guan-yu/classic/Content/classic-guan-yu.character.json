@@ -1,0 +1,35 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:guan-yu",
+  "skills": [
+    {
+      "registrationOrder": 63,
+      "programBundle": "classic-wusheng-skills",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:wusheng",
+        "name": "武圣",
+        "description": "你可以将一张红色牌当【杀】使用或打出。",
+        "executionForms": "State"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 233,
+      "pools": {
+        "current": 22
+      },
+      "definition": {
+        "id": "classic:guan-yu",
+        "name": "关羽",
+        "portraitKey": "guan_yu",
+        "skillId": "classic:wusheng",
+        "factionId": "shu",
+        "baseHp": 4,
+        "gender": "Male"
+      }
+    }
+  ]
+}

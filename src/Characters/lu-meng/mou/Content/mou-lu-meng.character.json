@@ -1,0 +1,50 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:lu-meng",
+  "skills": [
+    {
+      "registrationOrder": 11,
+      "programBundle": null,
+      "includeProgramPresentation": false,
+      "definition": {
+        "id": "mou:hengye",
+        "name": "横野",
+        "description": "锁定技，你造成伤害后，你令本局游戏以下每个数值各+1（最多+3）：1.摸牌阶段摸牌数；2.出牌阶段使用【杀】次数；3.攻击范围；4.手牌上限。数值+3后，你每回合开始时回复1点体力。你杀死一名角色后重置此技能。",
+        "tags": "Locked",
+        "executionForms": "State"
+      }
+    },
+    {
+      "registrationOrder": 12,
+      "programBundle": null,
+      "includeProgramPresentation": false,
+      "definition": {
+        "id": "mou:yingbo",
+        "name": "英博",
+        "description": "你使用的伤害牌若已有角色本轮使用过，则此牌造成的伤害改为火属性伤害且伤害+1；若本轮没有角色使用过，则此牌不能被响应且结算后你可将之交给一名其他角色。",
+        "executionForms": "State, Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 266,
+      "pools": {
+        "current": 52
+      },
+      "definition": {
+        "id": "mou:lu-meng",
+        "name": "谋吕蒙",
+        "portraitKey": "lu_meng",
+        "skillId": "mou:hengye",
+        "factionId": "wu",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "mou:yingbo"
+        ],
+        "gender": "Male"
+      }
+    }
+  ]
+}

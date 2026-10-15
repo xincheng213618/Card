@@ -1,0 +1,38 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhang-he",
+  "skills": [
+    {
+      "registrationOrder": 1102,
+      "programBundle": "ol-sp-zhang-he",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:zhouxuan",
+        "name": "周旋",
+        "description": "弃牌阶段开始时，你可以将任意张手牌暗置于你的武将牌上，称为“旋”（至多五张），直到你下个出牌阶段结束。当你使用牌时，你移去一张“旋”并摸一张牌，若你的手牌不是唯一最多则额外摸X张牌（X为“旋”的数量）。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1103,
+      "pools": {
+        "current": 357
+      },
+      "definition": {
+        "id": "ol:sp-zhang-he",
+        "name": "SP张郃·OL",
+        "portraitKey": "ol-sp-zhang-he",
+        "skillId": "ol:zhouxuan",
+        "factionId": "qun",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:zhang-he",
+        "variantId": "sp",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

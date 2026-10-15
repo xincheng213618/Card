@@ -1,0 +1,53 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:li-jue",
+  "skills": [
+    {
+      "registrationOrder": 1157,
+      "programBundle": "ol-li-jue",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:langxi",
+        "name": "狼袭",
+        "description": "准备阶段，你可以对一名体力值小于等于你的其他角色造成0~2点随机伤害。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 1158,
+      "programBundle": "ol-li-jue",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:yisuan",
+        "name": "亦算",
+        "description": "出牌阶段限一次，当你使用的锦囊牌置入弃牌堆时，你可以减少1点体力上限获得之。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1159,
+      "pools": {
+        "current": 373
+      },
+      "definition": {
+        "id": "ol:li-jue",
+        "name": "李傕·OL",
+        "portraitKey": "ol-li-jue",
+        "skillId": "ol:langxi",
+        "factionId": "qun",
+        "baseHp": 6,
+        "additionalSkillIds": [
+          "ol:yisuan"
+        ],
+        "gender": "Male",
+        "characterId": "character:li-jue",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol",
+        "initialHp": 4
+      }
+    }
+  ]
+}

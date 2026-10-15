@@ -1,0 +1,63 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhuge-liang",
+  "skills": [
+    {
+      "registrationOrder": 1005,
+      "programBundle": "mou-zhuge-liang",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou:zhitian",
+        "name": "知天",
+        "description": "出牌阶段，牌堆顶7张牌对你可见。你的【火攻】结算中，你可观看并选择牌堆顶7张牌中的一张牌代替【火攻】弃牌。"
+      }
+    },
+    {
+      "registrationOrder": 1006,
+      "programBundle": "mou-zhuge-liang",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou:wujing",
+        "name": "武靖",
+        "description": "锁定技，你的回合内，有牌不因使用而进入弃牌堆后，你使用下一张牌无次数限制；每回合首次有不为手牌的牌进入弃牌堆后，你摸一张牌。",
+        "tags": "Locked"
+      }
+    },
+    {
+      "registrationOrder": 1007,
+      "programBundle": "mou-zhuge-liang",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou:zhijue",
+        "name": "智绝",
+        "description": "转换技，出牌阶段，阳：你可将牌堆顶的一张牌当【火攻】使用；阴：你可将一种颜色的手牌置入弃牌堆（每种颜色每回合限一次），然后可视为使用其中一张基本或普通锦囊牌。若未造成伤害，你令“知天”可见牌与观看牌数-1（至少为1），然后摸2张牌。",
+        "tags": "Conversion"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1008,
+      "pools": {
+        "current": 327
+      },
+      "definition": {
+        "id": "mou:zhuge-liang",
+        "name": "谋诸葛亮",
+        "portraitKey": "mou-zhuge-liang",
+        "skillId": "mou:zhitian",
+        "factionId": "shu",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "mou:wujing",
+          "mou:zhijue"
+        ],
+        "gender": "Male",
+        "characterId": "character:zhuge-liang",
+        "variantId": "mou",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

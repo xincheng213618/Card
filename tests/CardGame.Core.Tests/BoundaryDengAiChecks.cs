@@ -115,7 +115,7 @@ internal static class BoundaryDengAiChecks
         public PackageManifest Manifest { get; } = new("fixture-da", new(1, 0, 0), []);
         public void Register(IContentRegistryBuilder b)
         {
-            try{typeof(StandardContentPackage).Assembly.GetType("CardGame.Content.Standard.BoundaryDengAiContent")!.GetMethod("Register",System.Reflection.BindingFlags.Static|System.Reflection.BindingFlags.NonPublic)!.Invoke(null,[b]);}catch(Exception diag){Console.WriteLine("DIAG-INNER: "+(diag.InnerException?.ToString()??diag.ToString()));throw;}
+            try{CharacterFixtureContent.Register(b, "boundary:deng-ai");}catch(Exception diag){Console.WriteLine("DIAG-INNER: "+(diag.InnerException?.ToString()??diag.ToString()));throw;}
             b.AddSkill(new("fixture:da-driver","fixture","fixture"){Program=Load("fixture:da-driver","\"activations\":["+Activation("discard","[{\"op\":\"selectOwnedCards\",\"target\":\"owner\",\"zones\":[\"hand\"],\"amount\":1,\"resultBind\":\"removed\"},{\"op\":\"moveBoundCards\",\"target\":\"owner\",\"sourceBind\":\"removed\",\"destination\":\"discardPile\"}]")+"]")});
             b.AddSkill(new("fixture:da-offturn","offturn","offturn"){Program=Load("fixture:da-offturn","\"triggers\":[{\"id\":\"offturn\",\"window\":\"judgmentPhaseStarting\",\"subject\":\"owner\",\"turnOwnerScope\":\"otherLiving\",\"optional\":false,\"effects\":[{\"op\":\"selectOwnedCards\",\"target\":\"owner\",\"zones\":[\"hand\"],\"amount\":1,\"resultBind\":\"removed\"},{\"op\":\"moveBoundCards\",\"target\":\"owner\",\"sourceBind\":\"removed\",\"destination\":\"discardPile\"}]}]")});
             b.AddGeneral(new("fixture:da","邓艾","boundary_deng_ai","boundary:tuntian-current","wei",4,

@@ -1,0 +1,103 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:sima-hui",
+  "skills": [
+    {
+      "registrationOrder": 1147,
+      "programBundle": "ol-sima-hui",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:jianjie",
+        "name": "荐杰",
+        "description": "首回合开始时，你依次令两名其他角色获得“龙印”“凤印”标记。出牌阶段限一次（你的第一回合外），或当有“龙印”或“凤印”的角色死亡时，你可以转移“龙印”“凤印”。“龙印”视为拥有“火计”；“凤印”视为拥有“连环”；皆有时，可以弃置“龙印”“凤印”发动“业炎”。",
+        "executionForms": "Trigger",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 1148,
+      "programBundle": "ol-sima-hui",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:chenghao",
+        "name": "称好",
+        "description": "当一名角色受到属性伤害后，若其处于连环状态且是此伤害传导的起点，你可以观看牌堆顶一张牌并分配给任意角色，全场每有一名角色处于连环状态，便可多观看一张。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 1149,
+      "programBundle": "ol-sima-hui",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:yinshi-sima-hui",
+        "name": "隐士",
+        "description": "锁定技，当你受到属性伤害或锦囊牌造成的伤害时，若你没有“龙印”“凤印”且装备区里没有防具牌，你防止此伤害。",
+        "tags": "Locked",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 1150,
+      "programBundle": "ol-sima-hui",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:huoji-jianjie",
+        "name": "火计",
+        "description": "每回合限三次，你可以将一张红色手牌当【火攻】使用。",
+        "executionForms": "State",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 1151,
+      "programBundle": "ol-sima-hui",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:lianhuan-jianjie",
+        "name": "连环",
+        "description": "每回合限三次，你可以将一张梅花手牌当【铁索连环】使用或重铸。",
+        "executionForms": "State",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 1152,
+      "programBundle": "ol-sima-hui",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:yeyan-jianjie",
+        "name": "业炎",
+        "description": "限定技，出牌阶段，你可以移除“龙印”“凤印”对至多三名角色分配至多3点火焰伤害，若你将对一名角色分配至少2点伤害，你须先弃置四张花色各不相同的手牌并失去3点体力。",
+        "tags": "Limited",
+        "executionForms": "Trigger",
+        "actionForms": "Active"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1153,
+      "pools": {
+        "current": 371
+      },
+      "definition": {
+        "id": "ol:sima-hui",
+        "name": "司马徽·OL",
+        "portraitKey": "ol-sima-hui",
+        "skillId": "ol:jianjie",
+        "factionId": "qun",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "ol:chenghao",
+          "ol:yinshi-sima-hui"
+        ],
+        "gender": "Male",
+        "characterId": "character:sima-hui",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

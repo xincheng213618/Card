@@ -164,8 +164,7 @@ internal static class BoundaryXunYuChecks
         public PackageManifest Manifest { get; } = new("fixture-xun-current", new(1, 0, 0), []);
         public void Register(IContentRegistryBuilder b)
         {
-            typeof(StandardContentPackage).Assembly.GetType("CardGame.Content.Standard.BoundaryXunYuContent")!
-                .GetMethod("Register", BindingFlags.Static | BindingFlags.NonPublic)!.Invoke(null, [b]);
+            CharacterFixtureContent.Register(b, "boundary:xun-yu");
             b.AddSkill(new(DriverId, "fixture", "fixture") { Program = Load(DriverId, "\"activations\":[" +
                 Activation("hurt-one", "damage", 1) + "," + Activation("hurt-two", "damage", 2) + "," +
                 Activation("trim", "loseHp", 1) + "," + Activation("die", "loseHp", 20) + "]") });

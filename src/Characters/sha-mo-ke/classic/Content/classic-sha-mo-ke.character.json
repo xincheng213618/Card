@@ -1,0 +1,35 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:sha-mo-ke",
+  "skills": [
+    {
+      "registrationOrder": 185,
+      "programBundle": "classic-sha-mo-ke",
+      "includeProgramPresentation": false,
+      "definition": {
+        "id": "classic:jili",
+        "name": "蒺藜",
+        "description": "当你于一回合内使用或打出第X张牌时，你可以摸X张牌（X为你的攻击范围）。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 315,
+      "pools": {
+        "current": 99
+      },
+      "definition": {
+        "id": "classic:sha-mo-ke",
+        "name": "沙摩柯",
+        "portraitKey": "sha_mo_ke",
+        "skillId": "classic:jili",
+        "factionId": "shu",
+        "baseHp": 4,
+        "gender": "Male"
+      }
+    }
+  ]
+}

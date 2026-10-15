@@ -1,0 +1,53 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:sun-quan",
+  "skills": [
+    {
+      "registrationOrder": 644,
+      "programBundle": "boundary-sun-quan",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:zhiheng",
+        "name": "制衡",
+        "description": "出牌阶段限一次，你可以弃置任意张牌，然后摸等量张牌，若你以此法弃置了所有手牌，你额外摸一张牌。",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 645,
+      "programBundle": "boundary-sun-quan",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:jiuyuan",
+        "name": "救援",
+        "description": "主公技，其他吴势力角色于其回合内回复体力时，若其体力值大于等于你，则其可以改为令你回复1点体力，然后其摸一张牌。",
+        "tags": "Lord",
+        "executionForms": "State"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 646,
+      "pools": {
+        "current": 205
+      },
+      "definition": {
+        "id": "boundary:sun-quan",
+        "name": "界孙权",
+        "portraitKey": "boundary_sun_quan",
+        "skillId": "boundary:zhiheng",
+        "factionId": "wu",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "boundary:jiuyuan"
+        ],
+        "gender": "Male",
+        "characterId": "character:sun-quan",
+        "variantId": "boundary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

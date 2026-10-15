@@ -9,9 +9,6 @@ namespace CardGame.Content.Standard;
 /// </summary>
 public sealed class StandardNationalZhangJiaoPackage : IGameContentPackage
 {
-    private static SkillProgramCatalog Catalog =>
-        EmbeddedSkillProgramCatalog.Catalog("national-zhang-jiao");
-
     public PackageManifest Manifest { get; } = new(
         "standard-national-zhang-jiao",
         new Version(1, 0, 0),
@@ -25,34 +22,7 @@ public sealed class StandardNationalZhangJiaoPackage : IGameContentPackage
     {
         ArgumentNullException.ThrowIfNull(builder);
 
-        foreach (var (id, program) in Catalog.Programs.OrderBy(entry => entry.Key, StringComparer.Ordinal))
-        {
-            var presentation = Catalog.Presentations[id];
-            builder.AddSkill(new ContentSkillDefinition(
-                id,
-                presentation.Name,
-                presentation.Description)
-            {
-                Program = program
-            });
-        }
-
-        builder.AddGeneral(new ContentGeneralDefinition(
-            "national:zhang-jiao",
-            "张角",
-            "zhang_jiao",
-            "national:leiji",
-            "qun",
-            BaseHp: 3,
-            AdditionalSkillIds: ["national:guidao"]));
-        builder.AddGeneral(new ContentGeneralDefinition(
-            "national:hua-tuo",
-            "华佗",
-            "hua_tuo",
-            "standard:jijiu",
-            "qun",
-            BaseHp: 3,
-            AdditionalSkillIds: ["standard:qingnang"]));
+        CharacterContentCatalog.Default.Register(builder, Manifest.Id);
 
         builder.AddMode(new ContentModeDefinition(
             Id: "national:zhang-jiao-4",

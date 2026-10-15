@@ -1,0 +1,52 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhang-zhao-zhang-hong",
+  "skills": [
+    {
+      "registrationOrder": 756,
+      "programBundle": "boundary-zhang-zhao-zhang-hong",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:zhijian",
+        "name": "直谏",
+        "description": "出牌阶段，你可以将一张装备牌置于其他角色的装备区（替换原装备），然后摸一张牌。",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 757,
+      "programBundle": "boundary-zhang-zhao-zhang-hong",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:guzheng",
+        "name": "固政",
+        "description": "每阶段限一次，当其他角色的至少两张牌因弃置置入弃牌堆后，你可以令其获得其中一张牌，然后你可以获得剩余牌。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 758,
+      "pools": {
+        "current": 243
+      },
+      "definition": {
+        "id": "boundary:zhang-zhao-zhang-hong",
+        "name": "界张昭张纮",
+        "portraitKey": "boundary_zhang_zhao_zhang_hong",
+        "skillId": "boundary:zhijian",
+        "factionId": "wu",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "boundary:guzheng"
+        ],
+        "gender": "Male",
+        "characterId": "character:zhang-zhao-zhang-hong",
+        "variantId": "boundary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

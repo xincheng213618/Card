@@ -18,14 +18,7 @@ public sealed class StandardNationalWarAmbitiousPackage : IGameContentPackage
     {
         ArgumentNullException.ThrowIfNull(builder);
 
-        builder.AddGeneral(new ContentGeneralDefinition(
-            "national:wei-xiahou-dun", "夏侯惇", "zhang_fei", "standard:ganglie", "wei"));
-        builder.AddGeneral(new ContentGeneralDefinition(
-            "national:wei-sima-yi", "司马懿", "guo_jia", "standard:guicai", "wei"));
-        builder.AddGeneral(new ContentGeneralDefinition(
-            "national:ambitious-lu-bu", "吕布", "zhang_fei", "standard:paoxiao", "ambitious"));
-        builder.AddGeneral(new ContentGeneralDefinition(
-            "national:ambitious-diao-chan", "貂蝉", "liu_bei", "standard:guicai", "ambitious"));
+        CharacterContentCatalog.Default.Register(builder, Manifest.Id);
 
         builder.AddMode(new ContentModeDefinition(
             Id: "national:ambitious-6",

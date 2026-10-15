@@ -1,0 +1,50 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:qinghe-gongzhu",
+  "skills": [
+    {
+      "registrationOrder": 840,
+      "programBundle": "ol-qinghe-gongzhu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:changji",
+        "name": "长姬",
+        "description": "一名角色的结束阶段，若你本回合：造成过伤害，你可以令其摸两张牌；受到过伤害，你可以令其弃置两张牌。"
+      }
+    },
+    {
+      "registrationOrder": 841,
+      "programBundle": "ol-qinghe-gongzhu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:zengou",
+        "name": "谮构",
+        "description": "当你攻击范围内一名角色使用【闪】时，你可以弃置一张非基本牌或失去1点体力，令此【闪】无效，然后你获得之。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 842,
+      "pools": {
+        "current": 273
+      },
+      "definition": {
+        "id": "ol:qinghe-gongzhu",
+        "name": "清河公主",
+        "portraitKey": "ol-qinghe-gongzhu",
+        "skillId": "ol:changji",
+        "factionId": "wei",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "ol:zengou"
+        ],
+        "gender": "Female",
+        "characterId": "character:qinghe-gongzhu",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

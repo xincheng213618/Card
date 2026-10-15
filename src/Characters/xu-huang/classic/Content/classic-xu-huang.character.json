@@ -1,0 +1,35 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:xu-huang",
+  "skills": [
+    {
+      "registrationOrder": 53,
+      "programBundle": "conversion-cutover",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:duanliang",
+        "name": "断粮",
+        "description": "你可以将一张黑色基本牌或黑色装备牌当【兵粮寸断】使用；你可以对距离为2的角色使用【兵粮寸断】。",
+        "executionForms": "State"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 224,
+      "pools": {
+        "current": 9
+      },
+      "definition": {
+        "id": "classic:xu-huang",
+        "name": "徐晃",
+        "portraitKey": "xu_huang",
+        "skillId": "classic:duanliang",
+        "factionId": "wei",
+        "baseHp": 4,
+        "gender": "Male"
+      }
+    }
+  ]
+}

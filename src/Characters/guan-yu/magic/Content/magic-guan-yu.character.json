@@ -1,0 +1,51 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:guan-yu",
+  "skills": [
+    {
+      "registrationOrder": 380,
+      "programBundle": "guan-yu-variants",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "magic:hanguo",
+        "name": "撼国",
+        "description": "每轮开始时，你可以扣置一名上轮未选择过的其他角色所有牌直到本轮结束。本轮内：你对其使用的【杀】对其造成伤害后，其死亡；其可以令除其外的角色选择是否替其使用或打出【闪】，响应的角色获得你一张牌。"
+      }
+    },
+    {
+      "registrationOrder": 381,
+      "programBundle": "guan-yu-variants",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "magic:weiwo",
+        "name": "唯我",
+        "description": "限定技，结束阶段，你可以令至多三名其他角色获得“仁德”“青囊”“龙吟”中各不同的一个技能（这些技能只能对你发动），然后你获得“武神”。",
+        "tags": "Limited"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 388,
+      "pools": {
+        "current": 129
+      },
+      "definition": {
+        "id": "magic:guan-yu",
+        "name": "魔关羽",
+        "portraitKey": "magic-guan-yu",
+        "skillId": "magic:hanguo",
+        "factionId": "god",
+        "baseHp": 5,
+        "additionalSkillIds": [
+          "magic:weiwo"
+        ],
+        "gender": "Male",
+        "characterId": "character:guan-yu",
+        "variantId": "magic",
+        "rulesetId": "sanguosha-offline-man"
+      }
+    }
+  ]
+}

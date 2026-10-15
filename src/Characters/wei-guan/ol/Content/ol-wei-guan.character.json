@@ -1,0 +1,51 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:wei-guan",
+  "skills": [
+    {
+      "registrationOrder": 871,
+      "programBundle": "ordinary-wei-guan",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:zhongyun",
+        "name": "忠允",
+        "description": "锁定技，每回合各限一次，当你受到伤害或回复体力/手牌数变化后，若你的体力值与手牌数相等，你回复1点体力或对你攻击范围内的一名角色造成1点伤害/你摸一张牌或弃置一名其他角色一张牌。",
+        "tags": "Locked"
+      }
+    },
+    {
+      "registrationOrder": 872,
+      "programBundle": "ordinary-wei-guan",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:shenpin",
+        "name": "神品",
+        "description": "当一张判定牌生效前，你可以用一张颜色不同的牌代替之。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 873,
+      "pools": {
+        "current": 284
+      },
+      "definition": {
+        "id": "ol:wei-guan",
+        "name": "卫瓘",
+        "portraitKey": "ol-wei-guan",
+        "skillId": "ol:zhongyun",
+        "factionId": "jin",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "ol:shenpin"
+        ],
+        "gender": "Male",
+        "characterId": "character:wei-guan",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

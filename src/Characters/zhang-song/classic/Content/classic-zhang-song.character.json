@@ -1,0 +1,49 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhang-song",
+  "skills": [
+    {
+      "registrationOrder": 141,
+      "programBundle": "classic-zhang-song",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:qiangzhi",
+        "name": "强识",
+        "description": "出牌阶段开始时，你可以展示一名其他角色的一张手牌，然后本回合当你使用与展示的牌类别相同的牌时，你可以摸一张牌。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 142,
+      "programBundle": "classic-zhang-song",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:xiantu",
+        "name": "献图",
+        "description": "其他角色的出牌阶段开始时，你可以摸两张牌，然后将两张牌交给该角色。此阶段结束时，若其没有于此阶段内杀死过角色，你失去1点体力。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 299,
+      "pools": {
+        "current": 85
+      },
+      "definition": {
+        "id": "classic:zhang-song",
+        "name": "张松",
+        "portraitKey": "zhang_song",
+        "skillId": "classic:qiangzhi",
+        "factionId": "shu",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "classic:xiantu"
+        ],
+        "gender": "Male"
+      }
+    }
+  ]
+}

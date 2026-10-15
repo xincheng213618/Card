@@ -1,0 +1,34 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:le-jin",
+  "skills": [
+    {
+      "registrationOrder": 120,
+      "programBundle": "sp-le-jin",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "sp:xiaoguo",
+        "name": "骁果",
+        "description": "其他角色的结束阶段开始时，你可以弃置一张基本牌，令其选择一项：弃置一张装备牌（可以是手牌或装备区里的牌），然后你摸一张牌；或受到你造成的1点伤害。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 286,
+      "pools": {
+        "current": 82
+      },
+      "definition": {
+        "id": "sp:le-jin",
+        "name": "SP乐进",
+        "portraitKey": "sp_le_jin",
+        "skillId": "sp:xiaoguo",
+        "factionId": "wei",
+        "baseHp": 4,
+        "gender": "Male"
+      }
+    }
+  ]
+}

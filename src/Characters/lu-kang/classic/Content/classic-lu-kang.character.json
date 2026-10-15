@@ -1,0 +1,79 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:lu-kang",
+  "skills": [
+    {
+      "registrationOrder": 529,
+      "programBundle": "classic-lu-kang",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:qianjie",
+        "name": "谦节",
+        "description": "锁定技，当你进入连环状态时，你防止之。你不能成为延时锦囊牌和其他角色拼点的目标。",
+        "tags": "Locked",
+        "executionForms": "State"
+      }
+    },
+    {
+      "registrationOrder": 530,
+      "programBundle": "classic-lu-kang",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:jueyan",
+        "name": "决堰",
+        "description": "出牌阶段限一次，你可以废除一个装备栏并于本回合获得对应效果：武器栏，使用【杀】的限制次数+3；防具栏，摸三张牌且手牌上限+3；坐骑栏，使用牌无距离限制；宝物栏，获得“集智”。",
+        "executionForms": "State",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 531,
+      "programBundle": "classic-lu-kang",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:poshi",
+        "name": "破势",
+        "description": "觉醒技，准备阶段，若你的装备栏均被废除或体力值为1，你减少1点体力上限，将手牌摸至体力上限，失去“决堰”并获得“怀柔”。",
+        "tags": "Awakening",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 532,
+      "programBundle": "classic-lu-kang",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:huairou",
+        "name": "怀柔",
+        "description": "出牌阶段，你可以重铸装备牌。",
+        "executionForms": "State",
+        "actionForms": "Active"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 533,
+      "pools": {
+        "current": 167
+      },
+      "definition": {
+        "id": "classic:lu-kang",
+        "name": "陆抗",
+        "portraitKey": "lu_kang",
+        "skillId": "classic:qianjie",
+        "factionId": "wu",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "classic:jueyan",
+          "classic:poshi"
+        ],
+        "gender": "Male",
+        "characterId": "character:lu-kang",
+        "variantId": "classic",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

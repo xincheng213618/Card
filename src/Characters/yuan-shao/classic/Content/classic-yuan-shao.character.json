@@ -1,0 +1,51 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:yuan-shao",
+  "skills": [
+    {
+      "registrationOrder": 85,
+      "programBundle": "classic-active-cutover",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:luanji",
+        "name": "乱击",
+        "description": "你可以将两张花色相同的手牌当【万箭齐发】使用。",
+        "executionForms": "State",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 86,
+      "programBundle": "passive-card-rules",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:xueyi",
+        "name": "血裔",
+        "description": "主公技，手牌上限增加其他存活群势力角色数的两倍。",
+        "tags": "Lord, Locked",
+        "executionForms": "State"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 247,
+      "pools": {
+        "current": 38
+      },
+      "definition": {
+        "id": "classic:yuan-shao",
+        "name": "袁绍",
+        "portraitKey": "yuan_shao",
+        "skillId": "classic:luanji",
+        "factionId": "qun",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "classic:xueyi"
+        ],
+        "gender": "Male"
+      }
+    }
+  ]
+}

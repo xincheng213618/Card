@@ -1,0 +1,23 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard",
+  "characterId": "character:sun-quan",
+  "skills": [],
+  "generals": [
+    {
+      "registrationOrder": 20,
+      "pools": {
+        "standard": 7
+      },
+      "definition": {
+        "id": "standard:sun-quan",
+        "name": "孙权",
+        "portraitKey": "sun_quan",
+        "skillId": "standard:none",
+        "factionId": "wu",
+        "baseHp": 4,
+        "gender": "Male"
+      }
+    }
+  ]
+}

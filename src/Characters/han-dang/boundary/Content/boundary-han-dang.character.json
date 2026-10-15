@@ -1,0 +1,50 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:han-dang",
+  "skills": [
+    {
+      "registrationOrder": 673,
+      "programBundle": "boundary-han-dang",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:gongqi-current",
+        "name": "弓骑",
+        "description": "出牌阶段限一次，你可以弃置一张牌使你本回合攻击范围无限，且你使用与弃置的牌花色相同的【杀】无次数限制。若弃置的牌为装备牌，你可以弃置一名其他角色一张牌。"
+      }
+    },
+    {
+      "registrationOrder": 674,
+      "programBundle": "boundary-han-dang",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:jiefan-current",
+        "name": "解烦",
+        "description": "限定技，出牌阶段，你可以选择一名角色，令所有攻击范围内包含其的角色选择一项：1.弃置一张武器牌；2.令该角色摸一张牌。若此时为第一轮，回合结束时，此技能视为未发动过。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 675,
+      "pools": {
+        "current": 215
+      },
+      "definition": {
+        "id": "boundary:han-dang",
+        "name": "界韩当",
+        "portraitKey": "boundary_han_dang",
+        "skillId": "boundary:gongqi-current",
+        "factionId": "wu",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "boundary:jiefan-current"
+        ],
+        "gender": "Male",
+        "characterId": "character:han-dang",
+        "variantId": "boundary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

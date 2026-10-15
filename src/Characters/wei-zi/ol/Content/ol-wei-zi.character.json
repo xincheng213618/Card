@@ -1,0 +1,50 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:wei-zi",
+  "skills": [
+    {
+      "registrationOrder": 863,
+      "programBundle": "ol-wei-zi",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:yuanzi",
+        "name": "援资",
+        "description": "每轮限一次，其他角色的准备阶段，你可以交给其所有手牌。若如此做，当其本回合造成伤害后，若其手牌数不小于你，你可以摸两张牌。"
+      }
+    },
+    {
+      "registrationOrder": 864,
+      "programBundle": "ol-wei-zi",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:liejie",
+        "name": "烈节",
+        "description": "当你受到伤害后，你可以弃置至多三张牌并摸等量张牌，然后你可以弃置伤害来源至多X张牌（X为你以此法弃置的红色牌数）。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 865,
+      "pools": {
+        "current": 281
+      },
+      "definition": {
+        "id": "ol:wei-zi",
+        "name": "卫兹",
+        "portraitKey": "ol-wei-zi",
+        "skillId": "ol:yuanzi",
+        "factionId": "qun",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "ol:liejie"
+        ],
+        "gender": "Male",
+        "characterId": "character:wei-zi",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

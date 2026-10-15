@@ -1,0 +1,41 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:ma-dai",
+  "skills": [
+    {
+      "registrationOrder": 765,
+      "programBundle": "boundary-ma-dai",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:qianxi",
+        "name": "潜袭",
+        "description": "出牌阶段开始时，你可以展示一张牌。若如此做，距离为1的其他角色本回合不能使用或打出与“潜袭”牌颜色相同的手牌，你本回合使用“潜袭”牌造成的伤害+1。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 766,
+      "pools": {
+        "current": 246
+      },
+      "definition": {
+        "id": "boundary:ma-dai",
+        "name": "界马岱",
+        "portraitKey": "boundary_ma_dai",
+        "skillId": "classic:mashu",
+        "factionId": "shu",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "boundary:qianxi"
+        ],
+        "gender": "Male",
+        "characterId": "character:ma-dai",
+        "variantId": "boundary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

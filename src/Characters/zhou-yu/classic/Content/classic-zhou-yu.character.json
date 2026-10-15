@@ -1,0 +1,55 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhou-yu",
+  "skills": [
+    {
+      "registrationOrder": 8,
+      "programBundle": "draw-phase-skills",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:yingzi",
+        "name": "英姿",
+        "description": "摸牌阶段，你可以多摸一张牌。",
+        "executionForms": "Trigger",
+        "revealWeights": {
+          "base": 18,
+          "wounded": 0,
+          "emptyHand": 0,
+          "repeatedSlash": 0
+        }
+      }
+    },
+    {
+      "registrationOrder": 43,
+      "programBundle": "classic-active-cutover",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:fanjian",
+        "name": "反间",
+        "description": "出牌阶段限一次，你可以令一名其他角色先猜一种花色，再令其获得并展示你的一张随机手牌；若花色不同，你对其造成1点伤害。",
+        "actionForms": "Active"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 215,
+      "pools": {
+        "current": 20
+      },
+      "definition": {
+        "id": "classic:zhou-yu",
+        "name": "周瑜",
+        "portraitKey": "zhou_yu",
+        "skillId": "classic:yingzi",
+        "factionId": "wu",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "classic:fanjian"
+        ],
+        "gender": "Male"
+      }
+    }
+  ]
+}

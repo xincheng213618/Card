@@ -1,0 +1,55 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:lv-qian",
+  "skills": [
+    {
+      "registrationOrder": 1191,
+      "programBundle": "ol-lv-qian",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:weilu",
+        "name": "威虏",
+        "description": "锁定技，当其他角色对你造成伤害后，其在你下回合出牌阶段开始时失去至1点体力，然后此阶段结束时其回复以此法失去的体力。",
+        "tags": "Locked",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 1192,
+      "programBundle": "ol-lv-qian",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:zengdao",
+        "name": "赠刀",
+        "description": "限定技，出牌阶段，你可以将装备区里任意张牌置于一名其他角色的武将牌上。当其造成伤害时，其移除一张“赠刀”牌令此伤害+1。",
+        "tags": "Limited",
+        "executionForms": "State, Trigger",
+        "actionForms": "Active"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1193,
+      "pools": {
+        "current": 385
+      },
+      "definition": {
+        "id": "ol:lv-qian",
+        "name": "吕虔·OL",
+        "portraitKey": "ol-lv-qian",
+        "skillId": "ol:weilu",
+        "factionId": "wei",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "ol:zengdao"
+        ],
+        "gender": "Male",
+        "characterId": "character:lv-qian",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

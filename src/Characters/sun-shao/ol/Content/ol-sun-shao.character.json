@@ -1,0 +1,50 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:sun-shao",
+  "skills": [
+    {
+      "registrationOrder": 940,
+      "programBundle": "ordinary-sun-shao",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:bizheng",
+        "name": "弼政",
+        "description": "摸牌阶段结束时，你可以令一名其他角色摸两张牌，然后你与其之中手牌数大于体力上限的角色弃置两张牌。"
+      }
+    },
+    {
+      "registrationOrder": 941,
+      "programBundle": "ordinary-sun-shao",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:yidian",
+        "name": "佚典",
+        "description": "当你使用基本牌或普通锦囊牌指定目标时，若此牌在弃牌堆中没有同名牌，你可以为此牌多指定一个目标（无距离限制）。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 942,
+      "pools": {
+        "current": 308
+      },
+      "definition": {
+        "id": "ol:sun-shao",
+        "name": "孙邵",
+        "portraitKey": "ol-sun-shao",
+        "skillId": "ol:bizheng",
+        "factionId": "wu",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "ol:yidian"
+        ],
+        "gender": "Male",
+        "characterId": "character:sun-shao",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:yu-jin",
+  "skills": [
+    {
+      "registrationOrder": 770,
+      "programBundle": "boundary-yu-jin",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:zhenjun-current",
+        "name": "镇军",
+        "description": "准备阶段，你可以弃置一名角色X张牌（X为其手牌数减体力值且至少为1)，然后选择一项： 1.你弃置与其中非装备牌数等量张牌； 2.结束阶段，其摸与其中非装备牌数等量张牌。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 771,
+      "programBundle": "boundary-yu-jin",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:yizhong-current",
+        "name": "毅重",
+        "description": "锁定技，体力值大于等于你的角色的黑色【杀】对你无效；手牌数小于等于你的角色无法响应你的黑色【杀】。",
+        "tags": "Locked",
+        "executionForms": "State"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 772,
+      "pools": {
+        "current": 248
+      },
+      "definition": {
+        "id": "boundary:yu-jin",
+        "name": "界于禁",
+        "portraitKey": "boundary_yu_jin",
+        "skillId": "boundary:zhenjun-current",
+        "factionId": "wei",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "boundary:yizhong-current"
+        ],
+        "gender": "Male",
+        "characterId": "character:yu-jin",
+        "variantId": "boundary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

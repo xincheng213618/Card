@@ -1,0 +1,53 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhang-chun-hua",
+  "skills": [
+    {
+      "registrationOrder": 389,
+      "programBundle": "classic-zhang-chun-hua",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:jueqing",
+        "name": "绝情",
+        "description": "锁定技，你即将造成的伤害视为失去体力。",
+        "tags": "Locked",
+        "executionForms": "State"
+      }
+    },
+    {
+      "registrationOrder": 390,
+      "programBundle": "classic-zhang-chun-hua",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:shangshi",
+        "name": "伤逝",
+        "description": "当你的手牌数小于X后，你可以将手牌摸至X张。（X为你已损失体力值）",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 400,
+      "pools": {
+        "current": 130
+      },
+      "definition": {
+        "id": "classic:zhang-chun-hua",
+        "name": "张春华",
+        "portraitKey": "zhang_chun_hua",
+        "skillId": "classic:jueqing",
+        "factionId": "wei",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "classic:shangshi"
+        ],
+        "gender": "Female",
+        "characterId": "character:zhang-chun-hua",
+        "variantId": "classic",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

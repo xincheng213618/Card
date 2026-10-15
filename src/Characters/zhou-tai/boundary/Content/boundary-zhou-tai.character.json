@@ -1,0 +1,51 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhou-tai",
+  "skills": [
+    {
+      "registrationOrder": 712,
+      "programBundle": "boundary-zhou-tai",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:buqu-current",
+        "name": "不屈",
+        "description": "锁定技。当你处于濒死状态时，你将牌堆顶的一张牌置于你的武将牌上，称为“创”，若此牌点数与其他“创”均不同，你回复至1点体力，否则将此牌置入弃牌堆。若你的武将牌上有“创”，你的手牌上限为“创”的数量。",
+        "executionForms": "State, Trigger"
+      }
+    },
+    {
+      "registrationOrder": 713,
+      "programBundle": "boundary-zhou-tai",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:fenji-current",
+        "name": "奋激",
+        "description": "当一名角色的手牌被弃置或获得后，你可以失去1点体力，令其摸两张牌。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 714,
+      "pools": {
+        "current": 228
+      },
+      "definition": {
+        "id": "boundary:zhou-tai",
+        "name": "界周泰",
+        "portraitKey": "boundary_zhou_tai",
+        "skillId": "boundary:buqu-current",
+        "factionId": "wu",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "boundary:fenji-current"
+        ],
+        "gender": "Male",
+        "characterId": "character:zhou-tai",
+        "variantId": "boundary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

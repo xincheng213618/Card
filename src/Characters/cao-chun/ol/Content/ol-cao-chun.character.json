@@ -1,0 +1,39 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:cao-chun",
+  "skills": [
+    {
+      "registrationOrder": 1179,
+      "programBundle": "ol-cao-chun",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:shanjia",
+        "name": "缮甲",
+        "description": "游戏开始时，你获得3个“损”。你失去一张装备牌后，你移去1个“损”。出牌阶段限一次，你可以摸三张牌，并可以使用一张【杀】。然后你此阶段使用的下X张手牌时，你弃置一张牌（X为“损”数）。若如此做，此阶段结束时，若你此阶段未因“缮甲”弃置过牌或仅弃置过装备牌，你可视为使用一张无距离限制的【杀】。",
+        "executionForms": "State, Trigger",
+        "actionForms": "Active"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1180,
+      "pools": {
+        "current": 381
+      },
+      "definition": {
+        "id": "ol:cao-chun",
+        "name": "曹纯·OL",
+        "portraitKey": "ol-cao-chun",
+        "skillId": "ol:shanjia",
+        "factionId": "wei",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:cao-chun",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

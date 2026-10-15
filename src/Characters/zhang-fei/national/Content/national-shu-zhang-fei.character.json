@@ -1,0 +1,21 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-national-war-lite",
+  "characterId": "character:zhang-fei",
+  "skills": [],
+  "generals": [
+    {
+      "registrationOrder": 4,
+      "pools": {},
+      "definition": {
+        "id": "national:shu-zhang-fei",
+        "name": "张飞",
+        "portraitKey": "zhang_fei",
+        "skillId": "standard:paoxiao",
+        "factionId": "shu",
+        "baseHp": 4,
+        "gender": "Male"
+      }
+    }
+  ]
+}

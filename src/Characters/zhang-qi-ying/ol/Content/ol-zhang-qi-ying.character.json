@@ -1,0 +1,65 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhang-qi-ying",
+  "skills": [
+    {
+      "registrationOrder": 1175,
+      "programBundle": "ol-zhang-qi-ying",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:falu",
+        "name": "法箓",
+        "description": "锁定技，当你的牌因弃置置入弃牌堆后，你根据花色获得1枚对应标记：\n•黑桃“紫微”；•梅花“后土”；\n•红桃“玉清”；•方片“勾陈”（每种至多1枚）。\n游戏开始时，你获得以上四种标记。",
+        "tags": "Locked",
+        "executionForms": "State, Trigger"
+      }
+    },
+    {
+      "registrationOrder": 1176,
+      "programBundle": "ol-zhang-qi-ying",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:dianhua",
+        "name": "点化",
+        "description": "准备阶段或结束阶段，你可以观看牌堆顶的X张牌（X为你“法箓”的标记数），然后将这些牌以任意顺序置于牌堆顶或牌堆底。",
+        "executionForms": "State, Trigger"
+      }
+    },
+    {
+      "registrationOrder": 1177,
+      "programBundle": "ol-zhang-qi-ying",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:zhenyi",
+        "name": "真仪",
+        "description": "你可以在以下时机移除相应标记并触发效果：\n•“紫微”：当一张判定牌生效前，你将判定结果改为黑桃5或红桃5；\n•“后土”：你的回合外，你将一张牌当【桃】使用；\n•“玉清”：当你造成伤害时，你令此伤害+1；\n•“勾陈”：当你受到属性伤害后，你获得牌堆中三种类型的牌各一张。",
+        "executionForms": "State, Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1178,
+      "pools": {
+        "current": 380
+      },
+      "definition": {
+        "id": "ol:zhang-qi-ying",
+        "name": "张琪瑛·OL",
+        "portraitKey": "ol-zhang-qi-ying",
+        "skillId": "ol:falu",
+        "factionId": "qun",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "ol:dianhua",
+          "ol:zhenyi"
+        ],
+        "gender": "Female",
+        "characterId": "character:zhang-qi-ying",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:hua-tuo",
+  "skills": [
+    {
+      "registrationOrder": 2,
+      "programBundle": "phase-owned-card-actions",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:qingnang",
+        "name": "青囊",
+        "description": "出牌阶段限一次，你可以弃置一张手牌并选择一名已受伤的角色，令其回复 1 点体力。",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 6,
+      "programBundle": "conversion-cutover",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:jijiu",
+        "name": "急救",
+        "description": "你的回合外，你可以将一张红色牌当【桃】使用。",
+        "executionForms": "State",
+        "revealWeights": {
+          "base": 16,
+          "wounded": 0,
+          "emptyHand": 0,
+          "repeatedSlash": 0
+        }
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 213,
+      "pools": {
+        "current": 4
+      },
+      "definition": {
+        "id": "classic:hua-tuo",
+        "name": "华佗",
+        "portraitKey": "hua_tuo",
+        "skillId": "classic:qingnang",
+        "factionId": "qun",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "classic:jijiu"
+        ],
+        "gender": "Male"
+      }
+    }
+  ]
+}

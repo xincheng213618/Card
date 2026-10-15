@@ -1,0 +1,37 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:pan-feng",
+  "skills": [
+    {
+      "registrationOrder": 910,
+      "programBundle": "ordinary-pan-feng",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:kuangfu",
+        "name": "狂斧",
+        "description": "出牌阶段限一次，你可以弃置一名角色装备区里的一张牌，视为使用一张无距离限制的【杀】。若此装备牌：不属于你且未造成伤害，你弃置两张手牌；属于你且造成了伤害，你摸两张牌。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 911,
+      "pools": {
+        "current": 297
+      },
+      "definition": {
+        "id": "ol:pan-feng",
+        "name": "潘凤",
+        "portraitKey": "ordinary-pan-feng",
+        "skillId": "ol:kuangfu",
+        "factionId": "qun",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:pan-feng",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:he-tai-hou",
+  "skills": [
+    {
+      "registrationOrder": 1044,
+      "programBundle": "ol-he-tai-hou",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:zhendu",
+        "name": "鸩毒",
+        "description": "每名角色出牌阶段开始时，你可以弃置一张手牌，然后其视为使用一张【酒】，若其不是你，你对其造成1点伤害。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 1045,
+      "programBundle": "ol-he-tai-hou",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:qiluan",
+        "name": "戚乱",
+        "description": "每回合结束后，你可以摸与本回合死亡角色数等量张牌，每有一名角色被你杀死，你额外摸两张牌。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1046,
+      "pools": {
+        "current": 338
+      },
+      "definition": {
+        "id": "ol:he-tai-hou",
+        "name": "何太后·OL",
+        "portraitKey": "ol-he-tai-hou",
+        "skillId": "ol:zhendu",
+        "factionId": "qun",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "ol:qiluan"
+        ],
+        "gender": "Female",
+        "characterId": "character:he-tai-hou",
+        "variantId": "ol",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

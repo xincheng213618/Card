@@ -1,0 +1,67 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:sima-yi",
+  "skills": [
+    {
+      "registrationOrder": 4,
+      "programBundle": "judgment-cutover",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:guicai",
+        "name": "鬼才",
+        "description": "一名角色的判定牌生效前，你可以打出一张手牌代替之。",
+        "executionForms": "Trigger",
+        "selectionWeights": {
+          "Lord": 41.0,
+          "Loyalist": 41.0,
+          "Rebel": 36.0,
+          "Renegade": 36.0
+        },
+        "revealWeights": {
+          "base": 16,
+          "wounded": 0,
+          "emptyHand": 0,
+          "repeatedSlash": 0
+        }
+      }
+    },
+    {
+      "registrationOrder": 41,
+      "programBundle": "damage-skills",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:feedback",
+        "name": "反馈",
+        "description": "受到伤害后，你可以获得伤害来源的一张手牌或装备牌。",
+        "executionForms": "Trigger",
+        "revealWeights": {
+          "base": 4,
+          "wounded": 31,
+          "emptyHand": 0,
+          "repeatedSlash": 0
+        }
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 211,
+      "pools": {
+        "current": 2
+      },
+      "definition": {
+        "id": "classic:sima-yi",
+        "name": "司马懿",
+        "portraitKey": "sima_yi",
+        "skillId": "classic:feedback",
+        "factionId": "wei",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "classic:guicai"
+        ],
+        "gender": "Male"
+      }
+    }
+  ]
+}

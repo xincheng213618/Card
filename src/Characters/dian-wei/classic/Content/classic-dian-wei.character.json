@@ -1,0 +1,35 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:dian-wei",
+  "skills": [
+    {
+      "registrationOrder": 52,
+      "programBundle": "classic-active-cutover",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:qiangxi",
+        "name": "强袭",
+        "description": "出牌阶段限一次，你可以失去1点体力或弃置一张武器牌，并选择你攻击范围内的一名其他角色，对其造成1点伤害。",
+        "actionForms": "Active"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 223,
+      "pools": {
+        "current": 8
+      },
+      "definition": {
+        "id": "classic:dian-wei",
+        "name": "典韦",
+        "portraitKey": "dian_wei",
+        "skillId": "classic:qiangxi",
+        "factionId": "wei",
+        "baseHp": 4,
+        "gender": "Male"
+      }
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:yuan-tan-yuan-shang",
+  "skills": [
+    {
+      "registrationOrder": 1189,
+      "programBundle": "ol-yuan-tan-yuan-shang",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:neifa",
+        "name": "内伐",
+        "description": "出牌阶段开始时，你可以摸两张牌或获得场上一张牌，然后弃置一张牌。若弃置的牌是：\n•基本牌，你本回合不能使用锦囊牌和装备牌且【杀】的使用次数+X且目标+1；\n•非基本牌，你本回合不能使用基本牌，使用普通锦囊牌的目标可+1或-1（含【借刀】），前两次使用装备牌时摸X张牌（X为手牌中因本技能不能使用的牌且至多为5）。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1190,
+      "pools": {
+        "current": 384
+      },
+      "definition": {
+        "id": "ol:yuan-tan-yuan-shang",
+        "name": "袁谭袁尚·OL",
+        "portraitKey": "ol-yuan-tan-yuan-shang",
+        "skillId": "ol:neifa",
+        "factionId": "qun",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:yuan-tan-yuan-shang",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:lu-su",
+  "skills": [
+    {
+      "registrationOrder": 751,
+      "programBundle": "boundary-lu-su",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:haoshi-current",
+        "name": "好施",
+        "description": "摸牌阶段，你可以多摸两张牌，然后若你的手牌数大于5，你将一半的手牌（向下取整）交给手牌最少的一名其他角色，然后直到你的下回合开始，当你成为【杀】或普通锦囊牌的目标后，其可以交给你一张手牌。"
+      }
+    },
+    {
+      "registrationOrder": 752,
+      "programBundle": "boundary-lu-su",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:dimeng-current",
+        "name": "缔盟",
+        "description": "出牌阶段限一次，你可以令两名其他角色交换手牌（两者手牌数之差不大于你的牌数量），若如此做，出牌阶段结束时，你弃置X张牌（X为这两名角色手牌数之差）。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 753,
+      "pools": {
+        "current": 241
+      },
+      "definition": {
+        "id": "boundary:lu-su",
+        "name": "界鲁肃",
+        "portraitKey": "boundary_lu_su",
+        "skillId": "boundary:haoshi-current",
+        "factionId": "wu",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "boundary:dimeng-current"
+        ],
+        "gender": "Male",
+        "characterId": "character:lu-su",
+        "variantId": "boundary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

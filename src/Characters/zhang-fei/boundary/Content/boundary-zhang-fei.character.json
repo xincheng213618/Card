@@ -1,0 +1,62 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhang-fei",
+  "skills": [
+    {
+      "registrationOrder": 588,
+      "programBundle": "boundary-slash-stage",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:paoxiao",
+        "name": "咆哮",
+        "description": "锁定技，你使用【杀】无次数限制；当你使用的【杀】被抵消后，你于此回合内下一次使用【杀】的伤害+1。",
+        "tags": "Locked",
+        "executionForms": "State, Trigger",
+        "actionForms": "Active",
+        "revealWeights": {
+          "base": 4,
+          "wounded": 0,
+          "emptyHand": 0,
+          "repeatedSlash": 42
+        }
+      }
+    },
+    {
+      "registrationOrder": 589,
+      "programBundle": "boundary-zhang-fei",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:tishen",
+        "name": "替身",
+        "description": "限定技，准备阶段，你可以将体力回复至体力上限，然后摸X张牌（X为你以此法回复的体力值）。",
+        "tags": "Limited",
+        "executionForms": "Trigger",
+        "actionForms": "Active"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 590,
+      "pools": {
+        "current": 185
+      },
+      "definition": {
+        "id": "boundary:zhang-fei",
+        "name": "界张飞",
+        "portraitKey": "boundary_zhang_fei",
+        "skillId": "boundary:paoxiao",
+        "factionId": "shu",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "boundary:tishen"
+        ],
+        "gender": "Male",
+        "characterId": "character:zhang-fei",
+        "variantId": "boundary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

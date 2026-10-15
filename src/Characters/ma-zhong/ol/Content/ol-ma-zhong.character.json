@@ -1,0 +1,39 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:ma-zhong",
+  "skills": [
+    {
+      "registrationOrder": 938,
+      "programBundle": "ordinary-ma-zhong",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:fuman",
+        "name": "抚蛮",
+        "description": "出牌阶段，每名角色限一次，你可以交给一名其他角色一张手牌令之视为【杀】。当其使用此【杀】后，你摸一张牌，若造成伤害，你改为摸两张牌。",
+        "executionForms": "Trigger",
+        "actionForms": "Active"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 939,
+      "pools": {
+        "current": 307
+      },
+      "definition": {
+        "id": "ol:ma-zhong",
+        "name": "马忠",
+        "portraitKey": "ol-ma-zhong",
+        "skillId": "ol:fuman",
+        "factionId": "shu",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:ma-zhong",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

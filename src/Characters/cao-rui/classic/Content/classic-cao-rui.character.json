@@ -1,0 +1,65 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:cao-rui",
+  "skills": [
+    {
+      "registrationOrder": 435,
+      "programBundle": "classic-cao-rui",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:huituo",
+        "name": "恢拓",
+        "description": "当你受到伤害后，你可以令一名角色判定，若结果为：红色，其回复1点体力；黑色，其摸与此伤害值等量张牌。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 436,
+      "programBundle": "classic-cao-rui",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:mingjian",
+        "name": "明鉴",
+        "description": "出牌阶段限一次，你可以交给一名其他角色所有手牌，然后其下回合手牌上限+1且使用【杀】的限制次数+1。",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 437,
+      "programBundle": "classic-cao-rui",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:xingshuai",
+        "name": "兴衰",
+        "description": "主公技，限定技，当你进入濒死状态时，你可以令其他魏势力角色依次选择是否令你回复1点体力。选择是的角色在此次濒死结算结束后受到1点伤害。",
+        "tags": "Lord, Limited",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 456,
+      "pools": {
+        "current": 389
+      },
+      "definition": {
+        "id": "classic:cao-rui",
+        "name": "曹叡",
+        "portraitKey": "cao_rui",
+        "skillId": "classic:huituo",
+        "factionId": "wei",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "classic:mingjian",
+          "classic:xingshuai"
+        ],
+        "gender": "Male",
+        "characterId": "character:cao-rui",
+        "variantId": "classic",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

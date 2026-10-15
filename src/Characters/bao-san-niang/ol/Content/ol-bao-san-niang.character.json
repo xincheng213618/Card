@@ -1,0 +1,66 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:bao-san-niang",
+  "skills": [
+    {
+      "registrationOrder": 1086,
+      "programBundle": "ol-bao-san-niang",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:wuniang",
+        "name": "武娘",
+        "description": "你可将一张非基本牌当无距离限制且不可响应的【杀】使用。然后你获得一名目标角色的一张牌，若不为基本牌，你可失去1点体力然后令所有角色的“镇南”视为未发动过。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 1087,
+      "programBundle": "ol-bao-san-niang",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:zhennan",
+        "name": "镇南",
+        "description": "限定技，准备阶段，你可弃置2张牌，视为使用一张由你指定任意目标的【南蛮入侵】。然后若你对指定目标造成了伤害，其随机弃置一张牌；若未造成伤害，你本回合对其使用牌无次数限制。",
+        "tags": "Limited",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 1088,
+      "programBundle": "ol-bao-san-niang",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:xushen",
+        "name": "许身",
+        "description": "限定技，当你进入濒死状态时，你可令一名其他角色选择一项：1.其失去所有技能获得“征南”；2.其获得“镇南”。然后你回复体力至1点。",
+        "tags": "Limited",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1089,
+      "pools": {
+        "current": 352
+      },
+      "definition": {
+        "id": "ol:bao-san-niang",
+        "name": "鲍三娘·OL",
+        "portraitKey": "ol-bao-san-niang",
+        "skillId": "ol:wuniang",
+        "factionId": "shu",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "ol:zhennan",
+          "ol:xushen"
+        ],
+        "gender": "Female",
+        "characterId": "character:bao-san-niang",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

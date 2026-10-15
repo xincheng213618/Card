@@ -135,17 +135,7 @@ Require(draws == 2 && HandCount(g, 0) == handBefore - 1 + 2 &&
 
         internal static void RegisterCore(IContentRegistryBuilder b, bool peace)
         {
-            try
-            {
-                typeof(StandardContentPackage).Assembly.GetType("CardGame.Content.Standard.OrdinaryGaoLanContent")!
-                    .GetMethod("Register", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)!
-                    .Invoke(null, [b]);
-            }
-            catch (Exception diag)
-            {
-                Console.WriteLine("DIAG-INNER: " + (diag.InnerException?.ToString() ?? diag.ToString()));
-                throw;
-            }
+            CharacterFixtureContent.Register(b, "ol:gao-lan");
             b.AddGeneral(new("fixture:gl", "高览", "ol-gao-lan", Xizhen, "qun", 4, null));
             for (var i = 1; i < 4; i++)
                 b.AddGeneral(new($"fixture:gl-{i}", "fixture-peer-" + i, "supporter", "standard:none", "wei", 6, null));

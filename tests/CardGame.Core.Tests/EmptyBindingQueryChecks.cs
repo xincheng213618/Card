@@ -207,9 +207,7 @@ internal static class EmptyBindingQueryChecks
         public PackageManifest Manifest { get; } = new("empty-binding-query", new(1, 0, 0));
         public void Register(IContentRegistryBuilder builder)
         {
-            foreach (var type in new[] { "Fame2017XinXianyingContent", "OrdinarySpDiaoChanContent" })
-                typeof(StandardClassicGeneralPackage).Assembly.GetType("CardGame.Content.Standard." + type)!
-                    .GetMethod("Register", BindingFlags.Static | BindingFlags.NonPublic)!.Invoke(null, [builder]);
+            CharacterFixtureContent.Register(builder, "classic:xin-xianying", "ol:sp-diao-chan");
             var rules = $$$"""
             {"schemaVersion":{{{SkillProgramCatalog.RulesSchemaVersion}}},"skills":[
               {"id":"{{{Noise}}}","revision":1,"activations":[{"id":"noise","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"draw","target":"owner","amount":1}]}],"triggers":[

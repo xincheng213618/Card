@@ -1,0 +1,34 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard",
+  "characterId": "character:zhao-yun",
+  "skills": [
+    {
+      "registrationOrder": 7,
+      "programBundle": "conversion-cutover",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "standard:longdan",
+        "name": "龙胆",
+        "description": "杀可当闪，闪可当杀使用或打出。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 19,
+      "pools": {
+        "standard": 6
+      },
+      "definition": {
+        "id": "standard:zhao-yun",
+        "name": "赵云",
+        "portraitKey": "zhao_yun",
+        "skillId": "standard:longdan",
+        "factionId": "shu",
+        "baseHp": 4,
+        "gender": "Male"
+      }
+    }
+  ]
+}

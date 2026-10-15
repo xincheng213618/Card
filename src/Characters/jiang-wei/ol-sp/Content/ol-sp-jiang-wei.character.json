@@ -1,0 +1,76 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:jiang-wei",
+  "skills": [
+    {
+      "registrationOrder": 925,
+      "programBundle": "ordinary-sp-jiang-wei",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:kunfen",
+        "name": "困奋",
+        "description": "锁定技，结束阶段，你失去1点体力，然后摸两张牌。",
+        "tags": "Locked",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 926,
+      "programBundle": "ordinary-sp-jiang-wei",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:fengliang",
+        "name": "逢亮",
+        "description": "觉醒技，当你进入濒死状态时，你减少1点体力上限并回复至2点体力，获得“挑衅”并修改“困奋”。",
+        "tags": "Awakening",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 927,
+      "programBundle": "ordinary-sp-jiang-wei",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:kunfen-awakened",
+        "name": "困奋",
+        "description": "结束阶段，你可以失去1点体力，然后摸两张牌。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 928,
+      "programBundle": "ordinary-sp-jiang-wei",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:sp-jiang-wei-tiaoxin",
+        "name": "挑衅",
+        "description": "出牌阶段限一次，你可以令一名攻击范围内包含你的角色对你使用一张【杀】，否则你弃置其一张牌。",
+        "actionForms": "Active"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 929,
+      "pools": {
+        "current": 303
+      },
+      "definition": {
+        "id": "ol:sp-jiang-wei",
+        "name": "SP姜维",
+        "portraitKey": "ol-sp-jiang-wei",
+        "skillId": "ol:kunfen",
+        "factionId": "wei",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "ol:fengliang"
+        ],
+        "gender": "Male",
+        "characterId": "character:jiang-wei",
+        "variantId": "sp",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

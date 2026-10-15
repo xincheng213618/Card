@@ -1,0 +1,38 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-rescue-skills",
+  "characterId": "character:demo-jijiu",
+  "skills": [
+    {
+      "registrationOrder": 0,
+      "programBundle": "conversion-cutover",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "standard:jijiu",
+        "name": "急救",
+        "description": "你的回合外可将一张红色牌当【桃】救援濒死角色。",
+        "revealWeights": {
+          "base": 16,
+          "wounded": 0,
+          "emptyHand": 0,
+          "repeatedSlash": 0
+        }
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1,
+      "pools": {},
+      "definition": {
+        "id": "standard:demo-jijiu",
+        "name": "急救者",
+        "portraitKey": "hua_tuo",
+        "skillId": "standard:jijiu",
+        "factionId": "qun",
+        "baseHp": 4,
+        "gender": "Male"
+      }
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhang-ji",
+  "skills": [
+    {
+      "registrationOrder": 1160,
+      "programBundle": "ol-zhang-ji",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:lueming",
+        "name": "掠命",
+        "description": "出牌阶段限一次，你选择一名装备区里牌数少于你的其他角色，令其选择一个点数，然后你判定，若其选择的点数与判定牌点数：相同，你对其造成2点伤害；不同，你随机获得其区域里的一张牌。",
+        "executionForms": "Trigger",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 1161,
+      "programBundle": "ol-zhang-ji",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:tunjun-sp",
+        "name": "屯军",
+        "description": "限定技，出牌阶段，你可以选择一名角色，令其随机使用牌堆中的X张不同副类型的装备牌（X为你发动“掠命”的次数）。",
+        "tags": "Limited",
+        "executionForms": "Trigger",
+        "actionForms": "Active"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1162,
+      "pools": {
+        "current": 374
+      },
+      "definition": {
+        "id": "ol:zhang-ji",
+        "name": "张济·OL",
+        "portraitKey": "ol-zhang-ji",
+        "skillId": "ol:lueming",
+        "factionId": "qun",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "ol:tunjun-sp"
+        ],
+        "gender": "Male",
+        "characterId": "character:zhang-ji",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

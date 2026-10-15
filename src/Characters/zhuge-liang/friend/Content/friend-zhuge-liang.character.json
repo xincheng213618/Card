@@ -1,0 +1,63 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhuge-liang",
+  "skills": [
+    {
+      "registrationOrder": 1009,
+      "programBundle": "friend-trio",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "friend:yance",
+        "name": "演策",
+        "description": "每轮限一次，首轮开始或准备阶段，你可随机获得一张锦囊，或按类别/颜色预测接下来使用的牌（初始三张）。每次预测正确摸一张，单次至多五张。全部验证或重新演策时结算：全错失去1体力并减少1张预测；不足一半弃两张牌；至少一半获得一张所声明类别/颜色的牌；全部正确再摸两张，预测牌数+1（最多7）。"
+      }
+    },
+    {
+      "registrationOrder": 1015,
+      "programBundle": null,
+      "includeProgramPresentation": false,
+      "definition": {
+        "id": "friend:fangqiu",
+        "name": "方遒",
+        "description": "限定技，当你执行卧龙演策后，你可以展示预测。本次预测全部验证后，执行效果的值均+1；若预测牌数大于3且全部正确，此技能可再次发动。",
+        "tags": "Limited"
+      }
+    },
+    {
+      "registrationOrder": 1016,
+      "programBundle": null,
+      "includeProgramPresentation": false,
+      "definition": {
+        "id": "friend:gongli-zhuge-liang",
+        "name": "共砺",
+        "description": "身份模式无效。排位、斗地主：同阵营友庞统在场时预测牌数+1；同阵营友徐庶在场时第一张预测视为正确。",
+        "tags": "Locked"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1019,
+      "pools": {
+        "current": 328
+      },
+      "definition": {
+        "id": "friend:zhuge-liang",
+        "name": "友诸葛亮",
+        "portraitKey": "friend-zhuge-liang",
+        "skillId": "friend:yance",
+        "factionId": "qun",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "friend:fangqiu",
+          "friend:gongli-zhuge-liang"
+        ],
+        "gender": "Male",
+        "characterId": "character:zhuge-liang",
+        "variantId": "friend",
+        "rulesetId": "sanguosha-mobile"
+      }
+    }
+  ]
+}

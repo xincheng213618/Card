@@ -1,0 +1,52 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:xue-zong",
+  "skills": [
+    {
+      "registrationOrder": 504,
+      "programBundle": "classic-xue-zong",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:funan",
+        "name": "复难",
+        "description": "当其他角色响应你使用的牌时，你可以令其获得此牌，其本回合不能使用或打出此牌，然后你获得其响应时使用或打出的牌。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 505,
+      "programBundle": "classic-xue-zong",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:jiexun",
+        "name": "诫训",
+        "description": "结束阶段，你可以令一名其他角色：摸与场上方片牌数等量张牌，然后弃置X张牌（X为此前本技能发动次数），若其因此弃置了所有牌，你失去本技能并修改“复难”。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 506,
+      "pools": {
+        "current": 160
+      },
+      "definition": {
+        "id": "classic:xue-zong",
+        "name": "薛综",
+        "portraitKey": "xue_zong",
+        "skillId": "classic:funan",
+        "factionId": "wu",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "classic:jiexun"
+        ],
+        "gender": "Male",
+        "characterId": "character:xue-zong",
+        "variantId": "classic",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:xin-chang",
+  "skills": [
+    {
+      "registrationOrder": 997,
+      "programBundle": "ordinary-xin-chang",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:canmou",
+        "name": "参谋",
+        "description": "当手牌数全场唯一最多的角色使用普通锦囊牌指定目标时，你可以为此锦囊牌多指定一个目标。"
+      }
+    },
+    {
+      "registrationOrder": 998,
+      "programBundle": "ordinary-xin-chang",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:congjian",
+        "name": "从鉴",
+        "description": "当体力值全场唯一最大的其他角色成为普通锦囊牌的唯一目标时，你可以也成为此牌目标，此牌结算后，若此牌对你造成伤害，你摸两张牌。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 999,
+      "pools": {
+        "current": 324
+      },
+      "definition": {
+        "id": "ol:xin-chang",
+        "name": "辛敞",
+        "portraitKey": "ol-xin-chang",
+        "skillId": "ol:canmou",
+        "factionId": "jin",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "ol:congjian"
+        ],
+        "gender": "Male",
+        "characterId": "character:xin-chang",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard",
+  "characterId": null,
+  "skills": [
+    {
+      "registrationOrder": 0,
+      "programBundle": null,
+      "includeProgramPresentation": false,
+      "definition": {
+        "id": "standard:none",
+        "name": "无",
+        "description": "演示版暂未启用技能。"
+      }
+    }
+  ],
+  "generals": []
+}

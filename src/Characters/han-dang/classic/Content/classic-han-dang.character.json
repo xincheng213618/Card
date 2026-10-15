@@ -1,0 +1,51 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:han-dang",
+  "skills": [
+    {
+      "registrationOrder": 33,
+      "programBundle": "classic-gongqi-skills",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:gongqi",
+        "name": "弓骑",
+        "description": "出牌阶段限一次，你可以弃置一张牌使你本回合的攻击范围无限。若弃置的是装备牌，你可以弃置一名其他角色的一张牌。",
+        "executionForms": "State",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 34,
+      "programBundle": "classic-jiefan-skills",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:jiefan",
+        "name": "解烦",
+        "description": "限定技，出牌阶段，你可以选择一名角色，令能攻击到该角色的所有角色选择一项：1.弃置一张武器牌；2.令该角色摸一张牌。",
+        "tags": "Limited",
+        "actionForms": "Active"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 278,
+      "pools": {
+        "current": 64
+      },
+      "definition": {
+        "id": "classic:han-dang",
+        "name": "韩当",
+        "portraitKey": "han_dang",
+        "skillId": "classic:gongqi",
+        "factionId": "wu",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "classic:jiefan"
+        ],
+        "gender": "Male"
+      }
+    }
+  ]
+}

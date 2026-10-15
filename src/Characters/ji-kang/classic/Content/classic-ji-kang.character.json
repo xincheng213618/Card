@@ -1,0 +1,96 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:ji-kang",
+  "skills": [
+    {
+      "registrationOrder": 520,
+      "programBundle": "classic-ji-kang",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:qingxian",
+        "name": "清弦",
+        "description": "当你受到伤害/回复体力后，若没有角色处于濒死状态，你可以令伤害来源/一名其他角色执行一项：1.失去1点体力，随机使用一张装备牌；2.回复1点体力，弃置一张装备牌。若其使用或弃置的牌为梅花牌，你摸一张牌。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 521,
+      "programBundle": "classic-ji-kang",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:juexiang",
+        "name": "绝响",
+        "description": "当你死亡时，你可以令一名角色随机获得以下一个技能：“和弦”“柔弦”“烈弦”“激弦”。然后直到其下回合开始，其不能成为其他角色使用梅花牌的目标。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 522,
+      "programBundle": "classic-ji-kang",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:jixian",
+        "name": "激弦",
+        "description": "当你受到伤害后，若没有角色处于濒死状态，你可以令伤害来源失去1点体力，随机使用一张装备牌。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 523,
+      "programBundle": "classic-ji-kang",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:liexian",
+        "name": "烈弦",
+        "description": "当你回复体力后，若没有角色处于濒死状态，你可以令一名其他角色失去1点体力，随机使用一张装备牌。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 524,
+      "programBundle": "classic-ji-kang",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:rouxian",
+        "name": "柔弦",
+        "description": "当你受到伤害后，若没有角色处于濒死状态，你可以令伤害来源回复1点体力，弃置一张装备牌。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 525,
+      "programBundle": "classic-ji-kang",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:hexian",
+        "name": "和弦",
+        "description": "当你回复体力后，若没有角色处于濒死状态，你可以令一名其他角色回复1点体力，弃置一张装备牌。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 526,
+      "pools": {
+        "current": 165
+      },
+      "definition": {
+        "id": "classic:ji-kang",
+        "name": "嵇康",
+        "portraitKey": "ji_kang",
+        "skillId": "classic:qingxian",
+        "factionId": "wei",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "classic:juexiang"
+        ],
+        "gender": "Male",
+        "characterId": "character:ji-kang",
+        "variantId": "classic",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

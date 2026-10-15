@@ -176,7 +176,7 @@ internal static class BoundaryLiDianChecks
         public void Register(IContentRegistryBuilder b)
         {
             if(child.StartsWith("save-jijiu",StringComparison.Ordinal))b.AddSkill((ContentSkillDefinition)typeof(StandardContentPackage).Assembly.GetType("CardGame.Content.Standard.EmbeddedSkillProgramCatalog")!.GetMethod("Definition",BindingFlags.Static|BindingFlags.NonPublic)!.Invoke(null,["batch9-support","boundary:jijiu"])!);
-            typeof(StandardContentPackage).Assembly.GetType("CardGame.Content.Standard.BoundaryLiDianContent")!.GetMethod("Register",BindingFlags.Static|BindingFlags.NonPublic)!.Invoke(null,[b]);
+            CharacterFixtureContent.Register(b, "boundary:li-dian");
             var activations=Activation("legacy","[{\"op\":\"reorderTopCards\",\"target\":\"owner\",\"amount\":4}]")+","+
                 Activation("discard-order","[{\"op\":\"selectOwnedCards\",\"target\":\"owner\",\"zones\":[\"hand\"],\"amount\":1,\"resultBind\":\"removed\"},{\"op\":\"moveBoundCards\",\"target\":\"owner\",\"sourceBind\":\"removed\",\"destination\":\"discardPile\"},{\"op\":\"reorderTopCards\",\"target\":\"owner\",\"amount\":4,\"exactTopCount\":2}]")+","+
                 Activation("old-receipt","[{\"op\":\"draw\",\"target\":\"owner\",\"amount\":2,\"resultBind\":\"drawn\"},{\"op\":\"selectCardSubset\",\"target\":\"owner\",\"sourceBind\":\"drawn\",\"resultBind\":\"gift\",\"minimumCards\":1,\"maximumCards\":1,\"maximumRankSum\":13,\"aiOrder\":\"mostCardsThenRankSum\"}]")+","+

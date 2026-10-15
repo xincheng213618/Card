@@ -1,0 +1,53 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:guo-si",
+  "skills": [
+    {
+      "registrationOrder": 1172,
+      "programBundle": "ol-guo-si",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:tanbei",
+        "name": "贪狈",
+        "description": "出牌阶段限一次，你可以令一名其他角色选择一项：1.你随机获得其区域里一张牌，本回合不能对其使用牌；2.你本回合对其使用牌无距离和次数限制。",
+        "executionForms": "State",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 1173,
+      "programBundle": "ol-guo-si",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:sidao",
+        "name": "伺盗",
+        "description": "出牌阶段限一次，当你对一名其他角色连续使用两张牌后，你可以将一张手牌当【顺手牵羊】对其使用（须合法）。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1174,
+      "pools": {
+        "current": 379
+      },
+      "definition": {
+        "id": "ol:guo-si",
+        "name": "郭汜·OL",
+        "portraitKey": "ol-guo-si",
+        "skillId": "ol:tanbei",
+        "factionId": "qun",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "ol:sidao"
+        ],
+        "gender": "Male",
+        "characterId": "character:guo-si",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

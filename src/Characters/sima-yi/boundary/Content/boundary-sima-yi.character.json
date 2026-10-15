@@ -1,0 +1,61 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:sima-yi",
+  "skills": [
+    {
+      "registrationOrder": 127,
+      "programBundle": "damage-skills",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:feedback",
+        "name": "反馈",
+        "description": "每受到1点伤害后，你可以获得伤害来源的一张手牌或装备牌。",
+        "executionForms": "Trigger",
+        "revealWeights": {
+          "base": 4,
+          "wounded": 31,
+          "emptyHand": 0,
+          "repeatedSlash": 0
+        }
+      }
+    },
+    {
+      "registrationOrder": 128,
+      "programBundle": "boundary-sima-yi",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:guicai",
+        "name": "鬼才",
+        "description": "一名角色的判定牌生效前，你可以打出一张手牌或装备区里的牌代替之。",
+        "executionForms": "Trigger",
+        "revealWeights": {
+          "base": 16,
+          "wounded": 0,
+          "emptyHand": 0,
+          "repeatedSlash": 0
+        }
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 290,
+      "pools": {
+        "current": 72
+      },
+      "definition": {
+        "id": "boundary:sima-yi",
+        "name": "界司马懿",
+        "portraitKey": "boundary_sima_yi",
+        "skillId": "boundary:feedback",
+        "factionId": "wei",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "boundary:guicai"
+        ],
+        "gender": "Male"
+      }
+    }
+  ]
+}

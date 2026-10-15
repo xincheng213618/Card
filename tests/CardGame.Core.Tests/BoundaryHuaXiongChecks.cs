@@ -46,7 +46,7 @@ internal static class BoundaryHuaXiongChecks
         public PackageManifest Manifest{get;}=new("fixture-hx",new(1,0,0),[]);
         public void Register(IContentRegistryBuilder b)
         {
-            try{typeof(StandardContentPackage).Assembly.GetType("CardGame.Content.Standard.BoundaryHuaXiongContent")!.GetMethod("Register",BindingFlags.NonPublic|BindingFlags.Static)!.Invoke(null,[b]);}catch(TargetInvocationException ex){throw new InvalidOperationException(ex.InnerException?.ToString(),ex.InnerException);}
+            try{CharacterFixtureContent.Register(b, "boundary:hua-xiong");}catch(TargetInvocationException ex){throw new InvalidOperationException(ex.InnerException?.ToString(),ex.InnerException);}
             var classic=ContentRegistry.Build(new StandardContentPackage(),new StandardActiveSkillExpansionPackage(true),new StandardRescueSkillExpansionPackage(),new StandardClassicGeneralPackage());
             if(hongyan)b.AddSkill(classic.GetSkill("classic:hongyan"));if(jizhi)b.AddSkill(classic.GetSkill("classic:jizhi"));if(kongcheng)b.AddSkill(classic.GetSkill("classic:kongcheng"));if(extra)b.AddSkill(classic.GetSkill("classic:dangxian"));
             var driver=Act("lower","[{\"op\":\"loseHp\",\"target\":\"owner\",\"amount\":1}]")+","+Act("cardless","[{\"op\":\"damage\",\"target\":\"owner\",\"sourceRef\":{\"kind\":\"selectedTarget\"},\"amount\":1}]",1)+","+Act("legacy-duel","[{\"op\":\"startVirtualDuel\",\"target\":\"owner\"}]",2)+","+Act("empty","[{\"op\":\"discardOwnedZoneCards\",\"target\":\"owner\",\"zones\":[\"hand\"]}]")+","+Act("ban","[{\"op\":\"grantTurnCardActionProhibition\",\"target\":\"owner\",\"cardKinds\":[\"duel\"],\"actionTypes\":[\"use\"]}]",1);

@@ -76,17 +76,7 @@ internal static class OrdinaryHuangZuChecks
         public PackageManifest Manifest { get; } = new("fixture-hz", new(1, 0, 0), []);
         public void Register(IContentRegistryBuilder b)
         {
-            try
-            {
-                typeof(StandardContentPackage).Assembly.GetType("CardGame.Content.Standard.OrdinaryHuangZuContent")!
-                    .GetMethod("Register", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)!
-                    .Invoke(null, [b]);
-            }
-            catch (Exception diag)
-            {
-                Console.WriteLine("DIAG-INNER: " + (diag.InnerException?.ToString() ?? diag.ToString()));
-                throw;
-            }
+            CharacterFixtureContent.Register(b, "ol:huang-zu");
             b.AddGeneral(new("fixture:hz", "黄祖", "ol-huang-zu", Wangong, "qun", 4, null));
             for (var i = 1; i < 4; i++)
                 b.AddGeneral(new($"fixture:hz-{i}", "其他" + i, "supporter", "standard:none", "wei", 5, null));

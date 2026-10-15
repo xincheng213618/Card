@@ -1,0 +1,42 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhang-fei",
+  "skills": [
+    {
+      "registrationOrder": 61,
+      "programBundle": "rule-query-skills",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:paoxiao",
+        "name": "咆哮",
+        "description": "锁定技，你使用【杀】无次数限制。",
+        "tags": "Locked",
+        "executionForms": "State",
+        "revealWeights": {
+          "base": 4,
+          "wounded": 0,
+          "emptyHand": 0,
+          "repeatedSlash": 42
+        }
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 231,
+      "pools": {
+        "current": 19
+      },
+      "definition": {
+        "id": "classic:zhang-fei",
+        "name": "张飞",
+        "portraitKey": "zhang_fei",
+        "skillId": "classic:paoxiao",
+        "factionId": "shu",
+        "baseHp": 4,
+        "gender": "Male"
+      }
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:yan-liang-wen-chou",
+  "skills": [
+    {
+      "registrationOrder": 754,
+      "programBundle": "boundary-yan-liang-wen-chou",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:shuangxiong-current",
+        "name": "双雄",
+        "description": "摸牌阶段结束时，你可以弃置一张牌，然后你本回合可以将一张与之颜色不同的牌当【决斗】使用。结束阶段，你获得本回合对你造成伤害的牌。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 755,
+      "pools": {
+        "current": 242
+      },
+      "definition": {
+        "id": "boundary:yan-liang-wen-chou",
+        "name": "界颜良文丑",
+        "portraitKey": "boundary_yan_liang_wen_chou",
+        "skillId": "boundary:shuangxiong-current",
+        "factionId": "qun",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:yan-liang-wen-chou",
+        "variantId": "boundary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

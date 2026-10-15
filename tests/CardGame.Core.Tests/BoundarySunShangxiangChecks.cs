@@ -105,8 +105,8 @@ internal static class BoundarySunShangxiangChecks
         public PackageManifest Manifest{get;}=new("fixture-ssx",new(1,0,0),[]);
         public void Register(IContentRegistryBuilder b)
         {
-            foreach(var module in new[]{"BoundarySunShangxiangContent",protectedTarget?"BoundaryHuangYueyingContent":null}.OfType<string>())
-                try{typeof(StandardClassicGeneralPackage).Assembly.GetType("CardGame.Content.Standard."+module)!.GetMethod("Register",BindingFlags.NonPublic|BindingFlags.Static)!.Invoke(null,[b]);}
+            foreach(var generalId in new[]{"boundary:sun-shangxiang",protectedTarget?"boundary:huang-yueying":null}.OfType<string>())
+                try{CharacterFixtureContent.Register(b, generalId);}
                 catch(TargetInvocationException ex){throw new InvalidOperationException(ex.InnerException?.ToString(),ex.InnerException);}
             b.AddSkill(Classic.Value.GetSkill("classic:xiaoji"));
             if(silver)b.AddCard(Classic.Value.GetCard("classic:silver-lion"));

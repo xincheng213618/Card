@@ -240,10 +240,7 @@ internal static class OrdinaryLvKaiChecks
 
         public void Register(IContentRegistryBuilder b)
         {
-            typeof(StandardContentPackage).Assembly
-                .GetType("CardGame.Content.Standard.OrdinaryLvKaiContent")!
-                .GetMethod("Register", BindingFlags.Static | BindingFlags.NonPublic)!
-                .Invoke(null, [b]);
+            CharacterFixtureContent.Register(b, "ol:lv-kai");
             b.AddSkill(new(Driver, "图南夹具", "fixture")
             {
                 Program = SkillProgramCatalog.Load(

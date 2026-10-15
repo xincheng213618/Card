@@ -1,0 +1,61 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:deng-ai",
+  "skills": [
+    {
+      "registrationOrder": 182,
+      "programBundle": "classic-deng-ai",
+      "includeProgramPresentation": false,
+      "definition": {
+        "id": "classic:tuntian",
+        "name": "屯田",
+        "description": "当你于回合外失去牌后，你可以进行判定，然后将生效后的非红桃判定牌置于你的武将牌上，称为田；你计算与其他角色的距离-X（X为田的数量）。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 183,
+      "programBundle": "classic-deng-ai",
+      "includeProgramPresentation": false,
+      "definition": {
+        "id": "classic:zaoxian",
+        "name": "凿险",
+        "description": "觉醒技，准备阶段，若田的数量不小于3，你减1点体力上限，然后获得技能急袭（你可以将一张田当【顺手牵羊】使用）。",
+        "tags": "Awakening",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 184,
+      "programBundle": "classic-deng-ai",
+      "includeProgramPresentation": false,
+      "definition": {
+        "id": "classic:jixi",
+        "name": "急袭",
+        "description": "你可以将一张田当【顺手牵羊】使用。",
+        "executionForms": "State"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 314,
+      "pools": {
+        "current": 98
+      },
+      "definition": {
+        "id": "classic:deng-ai",
+        "name": "邓艾",
+        "portraitKey": "deng_ai",
+        "skillId": "classic:tuntian",
+        "factionId": "wei",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "classic:zaoxian"
+        ],
+        "gender": "Male"
+      }
+    }
+  ]
+}

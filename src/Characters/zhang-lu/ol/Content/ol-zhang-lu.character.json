@@ -1,0 +1,64 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhang-lu",
+  "skills": [
+    {
+      "registrationOrder": 1062,
+      "programBundle": "ol-zhang-lu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:yishe",
+        "name": "义舍",
+        "description": "结束阶段，若你没有“米”，你可以摸两张牌，然后将两张牌置于你的武将牌上，称为“米”。当你失去最后一张“米”时，你回复1点体力。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 1063,
+      "programBundle": "ol-zhang-lu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:bushi",
+        "name": "布施",
+        "description": "当你受到1点伤害后，你可以获得一张“米”。当你对其他角色造成1点伤害后，其可以获得一张“米”。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 1064,
+      "programBundle": "ol-zhang-lu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:midao",
+        "name": "米道",
+        "description": "当一张判定牌生效前，你可以用一张“米”代替之。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1065,
+      "pools": {
+        "current": 344
+      },
+      "definition": {
+        "id": "ol:zhang-lu",
+        "name": "张鲁·OL",
+        "portraitKey": "ol-zhang-lu",
+        "skillId": "ol:yishe",
+        "factionId": "qun",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "ol:midao",
+          "ol:bushi"
+        ],
+        "gender": "Male",
+        "characterId": "character:zhang-lu",
+        "variantId": "ol",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhu-ran",
+  "skills": [
+    {
+      "registrationOrder": 414,
+      "programBundle": "classic-zhu-ran",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:danshou",
+        "name": "胆守",
+        "description": "出牌阶段，你可以弃置X张牌并选择你攻击范围内的一名其他角色（X为你本阶段发动本技能的次数），若X为：1，你弃置其一张牌；2，其交给你一张牌；3，你对其造成1点伤害；不小于4，你与其各摸两张牌。",
+        "actionForms": "Active"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 419,
+      "pools": {
+        "current": 140
+      },
+      "definition": {
+        "id": "classic:zhu-ran",
+        "name": "朱然",
+        "portraitKey": "zhu_ran",
+        "skillId": "classic:danshou",
+        "factionId": "wu",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:zhu-ran",
+        "variantId": "classic",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

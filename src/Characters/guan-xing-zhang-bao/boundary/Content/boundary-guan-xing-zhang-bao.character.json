@@ -1,0 +1,39 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:guan-xing-zhang-bao",
+  "skills": [
+    {
+      "registrationOrder": 710,
+      "programBundle": "boundary-guan-xing-zhang-bao",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:fuhun-current",
+        "name": "父魂",
+        "description": "你可将两张牌当【杀】使用或打出。你使用的转化【杀】目标角色只能使用颜色相同的手牌响应；你于出牌阶段使用【杀】造成伤害后，你本回合获得界关羽的“武圣”和界张飞的“咆哮”。",
+        "executionForms": "State, Trigger",
+        "actionForms": "Active"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 711,
+      "pools": {
+        "current": 227
+      },
+      "definition": {
+        "id": "boundary:guan-xing-zhang-bao",
+        "name": "界关兴张苞",
+        "portraitKey": "boundary_guan_xing_zhang_bao",
+        "skillId": "boundary:fuhun-current",
+        "factionId": "shu",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:guan-xing-zhang-bao",
+        "variantId": "boundary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

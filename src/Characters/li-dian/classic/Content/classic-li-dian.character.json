@@ -1,0 +1,47 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:li-dian",
+  "skills": [
+    {
+      "registrationOrder": 121,
+      "programBundle": "classic-li-dian",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:xunxun",
+        "name": "恂恂",
+        "description": "摸牌阶段开始时，你可以放弃摸牌，改为观看牌堆顶的四张牌，获得其中两张，然后将其余牌置于牌堆底。"
+      }
+    },
+    {
+      "registrationOrder": 122,
+      "programBundle": "classic-li-dian",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:wangxi",
+        "name": "忘隙",
+        "description": "每当你对其他角色造成1点伤害后，或受到其他角色造成的1点伤害后，若该角色存活，你可以令你与其各摸一张牌。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 287,
+      "pools": {
+        "current": 71
+      },
+      "definition": {
+        "id": "classic:li-dian",
+        "name": "李典",
+        "portraitKey": "li_dian",
+        "skillId": "classic:xunxun",
+        "factionId": "wei",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "classic:wangxi"
+        ],
+        "gender": "Male"
+      }
+    }
+  ]
+}

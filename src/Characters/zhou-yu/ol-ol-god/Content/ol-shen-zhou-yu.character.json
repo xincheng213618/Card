@@ -1,0 +1,53 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhou-yu",
+  "skills": [
+    {
+      "registrationOrder": 339,
+      "programBundle": "ol-shen-zhou-yu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:qinyin",
+        "name": "琴音",
+        "description": "弃牌阶段结束时，若你本阶段弃置过至少两张手牌，你可以选择令所有角色：1.各回复1点体力；2.各失去1点体力。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 340,
+      "programBundle": "ol-shen-zhou-yu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:yeyan",
+        "name": "业炎",
+        "description": "限定技，出牌阶段，你可以选择至多三名角色，对其造成共计至多3点火焰伤害。若你将对一名角色分配至少2点伤害，你须先弃置四张花色各不相同的手牌并失去3点体力。",
+        "tags": "Limited",
+        "actionForms": "Active"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 368,
+      "pools": {
+        "current": 119
+      },
+      "definition": {
+        "id": "ol:shen-zhou-yu",
+        "name": "神周瑜",
+        "portraitKey": "ol_shen_zhou_yu",
+        "skillId": "ol:qinyin",
+        "factionId": "god",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "ol:yeyan"
+        ],
+        "gender": "Male",
+        "characterId": "character:zhou-yu",
+        "variantId": "ol-god",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

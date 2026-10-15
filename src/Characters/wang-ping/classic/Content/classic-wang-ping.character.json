@@ -1,0 +1,54 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:wang-ping",
+  "skills": [
+    {
+      "registrationOrder": 517,
+      "programBundle": "classic-wang-ping",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:feijun",
+        "name": "飞军",
+        "description": "出牌阶段限一次，你可以弃置一张牌，然后选择一项：1.令一名手牌数大于你的角色交给你一张牌；2.令一名装备区里牌数大于你的角色弃置一张装备区里的牌。",
+        "executionForms": "State",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 518,
+      "programBundle": "classic-wang-ping",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:binglue",
+        "name": "兵略",
+        "description": "锁定技，当你首次对一名角色发动“飞军”时，你摸两张牌。",
+        "tags": "Locked",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 519,
+      "pools": {
+        "current": 164
+      },
+      "definition": {
+        "id": "classic:wang-ping",
+        "name": "王平",
+        "portraitKey": "wang_ping",
+        "skillId": "classic:feijun",
+        "factionId": "shu",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "classic:binglue"
+        ],
+        "gender": "Male",
+        "characterId": "character:wang-ping",
+        "variantId": "classic",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

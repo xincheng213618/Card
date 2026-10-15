@@ -1,0 +1,38 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:su-fei",
+  "skills": [
+    {
+      "registrationOrder": 1163,
+      "programBundle": "ol-su-fei",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:lianpian",
+        "name": "联翩",
+        "description": "每回合限三次，当你于出牌阶段使用牌连续指定同一名角色为目标时，你可以摸一张牌，然后你可以将此牌交给该角色。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1164,
+      "pools": {
+        "current": 375
+      },
+      "definition": {
+        "id": "ol:su-fei",
+        "name": "苏飞·OL",
+        "portraitKey": "ol-su-fei",
+        "skillId": "ol:lianpian",
+        "factionId": "wu",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:su-fei",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

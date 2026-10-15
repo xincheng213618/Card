@@ -1,0 +1,35 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:xu-chu",
+  "skills": [
+    {
+      "registrationOrder": 51,
+      "programBundle": "draw-adjustment-skills",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:luoyi",
+        "name": "裸衣",
+        "description": "摸牌阶段，你可以少摸一张牌，若如此做，每当你于此回合内使用【杀】或【决斗】对目标角色造成伤害时，此伤害+1。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 222,
+      "pools": {
+        "current": 7
+      },
+      "definition": {
+        "id": "classic:xu-chu",
+        "name": "许褚",
+        "portraitKey": "xu_chu",
+        "skillId": "classic:luoyi",
+        "factionId": "wei",
+        "baseHp": 4,
+        "gender": "Male"
+      }
+    }
+  ]
+}

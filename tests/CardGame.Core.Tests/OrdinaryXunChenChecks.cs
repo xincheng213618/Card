@@ -134,17 +134,7 @@ internal static class OrdinaryXunChenChecks
         public PackageManifest Manifest { get; } = new("fixture-xc", new(1, 0, 0), []);
         public void Register(IContentRegistryBuilder b)
         {
-            try
-            {
-                typeof(StandardContentPackage).Assembly.GetType("CardGame.Content.Standard.OrdinaryXunChenContent")!
-                    .GetMethod("Register", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)!
-                    .Invoke(null, [b]);
-            }
-            catch (Exception diag)
-            {
-                Console.WriteLine("DIAG-INNER: " + (diag.InnerException?.ToString() ?? diag.ToString()));
-                throw;
-            }
+            CharacterFixtureContent.Register(b, "ol:xun-chen");
             // Elevated fixture HP keeps the lord alive across the AI slash cycle (no peaches exist).
             b.AddGeneral(new("fixture:xc", "荀谌", "ol-xun-chen", Fenglve, "qun", 6, [Moushi]));
             for (var i = 1; i < 4; i++)

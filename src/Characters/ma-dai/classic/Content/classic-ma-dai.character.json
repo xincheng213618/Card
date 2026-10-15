@@ -1,0 +1,38 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:ma-dai",
+  "skills": [
+    {
+      "registrationOrder": 14,
+      "programBundle": "hand-color-restriction-skills",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:qianxi",
+        "name": "潜袭",
+        "description": "准备阶段开始时，你可以摸一张牌然后弃置一张牌。若如此做，你选择距离为1的一名其他角色，然后直到回合结束，该角色不能使用或打出与你以此法弃置的牌颜色相同的手牌。",
+        "executionForms": "State, Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 268,
+      "pools": {
+        "current": 54
+      },
+      "definition": {
+        "id": "classic:ma-dai",
+        "name": "马岱",
+        "portraitKey": "ma_dai",
+        "skillId": "classic:mashu",
+        "factionId": "shu",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "classic:qianxi"
+        ],
+        "gender": "Male"
+      }
+    }
+  ]
+}

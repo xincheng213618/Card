@@ -1,0 +1,36 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:lu-bu",
+  "skills": [
+    {
+      "registrationOrder": 60,
+      "programBundle": "passive-card-rules",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:wushuang",
+        "name": "无双",
+        "description": "锁定技，使用【杀】时目标需连续打出两张【闪】；【决斗】中对手每次需打出两张【杀】。",
+        "tags": "Locked",
+        "executionForms": "State"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 230,
+      "pools": {
+        "current": 15
+      },
+      "definition": {
+        "id": "classic:lu-bu",
+        "name": "吕布",
+        "portraitKey": "lu_bu",
+        "skillId": "classic:wushuang",
+        "factionId": "qun",
+        "baseHp": 4,
+        "gender": "Male"
+      }
+    }
+  ]
+}

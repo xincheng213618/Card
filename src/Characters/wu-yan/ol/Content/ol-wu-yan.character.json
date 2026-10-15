@@ -1,0 +1,38 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:wu-yan",
+  "skills": [
+    {
+      "registrationOrder": 1100,
+      "programBundle": "ol-wu-yan",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:lanjiang",
+        "name": "澜疆",
+        "description": "结束阶段，你可以令所有手牌数不小于你的角色依次选择是否令你摸一张牌。选择完成后，你可以对手牌数等于你的其中一名角色造成1点伤害，然后令手牌数小于你的其中一名角色摸一张牌。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1101,
+      "pools": {
+        "current": 356
+      },
+      "definition": {
+        "id": "ol:wu-yan",
+        "name": "吾彦·OL",
+        "portraitKey": "ol-wu-yan",
+        "skillId": "ol:lanjiang",
+        "factionId": "wu",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:wu-yan",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

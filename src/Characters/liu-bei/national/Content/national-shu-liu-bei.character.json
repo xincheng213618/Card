@@ -1,0 +1,21 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-national-war-lite",
+  "characterId": "character:liu-bei",
+  "skills": [],
+  "generals": [
+    {
+      "registrationOrder": 7,
+      "pools": {},
+      "definition": {
+        "id": "national:shu-liu-bei",
+        "name": "刘备",
+        "portraitKey": "liu_bei",
+        "skillId": "standard:none",
+        "factionId": "shu",
+        "baseHp": 4,
+        "gender": "Male"
+      }
+    }
+  ]
+}

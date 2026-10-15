@@ -1,0 +1,66 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:sun-ce",
+  "skills": [
+    {
+      "registrationOrder": 622,
+      "programBundle": "boundary-sun-ce",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:jiang-current",
+        "name": "激昂",
+        "description": "当你使用【决斗】或红色【杀】指定目标后，或成为【决斗】或红色【杀】的目标后，你可以摸一张牌。每回合首次【决斗】或红色【杀】因弃置进入弃牌堆后，你可以失去1点体力获得之。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 623,
+      "programBundle": "boundary-sun-ce",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:hunzi-current",
+        "name": "魂姿",
+        "description": "觉醒技，准备阶段，若你的体力值为1，你减少1点体力上限并获得“英姿”“英魂”，本回合结束阶段，你摸两张牌或回复1点体力。",
+        "tags": "Awakening",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 624,
+      "programBundle": "boundary-sun-ce",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:zhiba-current",
+        "name": "制霸",
+        "description": "主公技，出牌阶段限一次，你可以与一名其他吴势力角色拼点；其他吴势力角色出牌阶段限一次，其可以与你拼点（你可以拒绝）：若其没赢，你可以获得两张拼点牌。",
+        "tags": "Lord",
+        "actionForms": "Active"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 625,
+      "pools": {
+        "current": 198
+      },
+      "definition": {
+        "id": "boundary:sun-ce",
+        "name": "界孙策",
+        "portraitKey": "boundary_sun_ce",
+        "skillId": "boundary:jiang-current",
+        "factionId": "wu",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "boundary:hunzi-current",
+          "boundary:zhiba-current"
+        ],
+        "gender": "Male",
+        "characterId": "character:sun-ce",
+        "variantId": "boundary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

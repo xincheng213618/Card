@@ -1,0 +1,53 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:shen-pei",
+  "skills": [
+    {
+      "registrationOrder": 1052,
+      "programBundle": "ol-shen-pei",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:gangzhi",
+        "name": "刚直",
+        "description": "锁定技，其他角色对你造成的伤害，和你对其他角色造成的伤害均视为失去体力。",
+        "tags": "Locked",
+        "executionForms": "State"
+      }
+    },
+    {
+      "registrationOrder": 1053,
+      "programBundle": "ol-shen-pei",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:beizhan",
+        "name": "备战",
+        "description": "回合结束后，你可以令一名角色将手牌摸至X张（X为其体力上限且至多为5）。其下回合开始时，若其手牌数全场最多，其此回合使用牌不能指定其他角色为目标。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1054,
+      "pools": {
+        "current": 341
+      },
+      "definition": {
+        "id": "ol:shen-pei",
+        "name": "审配·OL",
+        "portraitKey": "ol-shen-pei",
+        "skillId": "ol:gangzhi",
+        "factionId": "qun",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "ol:beizhan"
+        ],
+        "gender": "Male",
+        "characterId": "character:shen-pei",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

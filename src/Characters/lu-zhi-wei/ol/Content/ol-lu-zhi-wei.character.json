@@ -1,0 +1,51 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:lu-zhi-wei",
+  "skills": [
+    {
+      "registrationOrder": 1144,
+      "programBundle": "ol-lu-zhi-wei",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:weijing",
+        "name": "卫境",
+        "description": "每轮限一次，你可以视为使用一张【杀】或【闪】。"
+      }
+    },
+    {
+      "registrationOrder": 1145,
+      "programBundle": "ol-lu-zhi-wei",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:qingzhong",
+        "name": "清忠",
+        "description": "出牌阶段开始时，你可以摸两张牌，若如此做，本阶段结束时，你与手牌数最少的角色交换手牌。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1146,
+      "pools": {
+        "current": 370
+      },
+      "definition": {
+        "id": "ol:lu-zhi-wei",
+        "name": "鲁芝·OL",
+        "portraitKey": "ol-lu-zhi-wei",
+        "skillId": "ol:weijing",
+        "factionId": "wei",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "ol:qingzhong"
+        ],
+        "gender": "Male",
+        "characterId": "character:lu-zhi-wei",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

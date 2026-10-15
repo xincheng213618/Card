@@ -1,0 +1,38 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:chen-dao",
+  "skills": [
+    {
+      "registrationOrder": 534,
+      "programBundle": "classic-chen-dao",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:wanglie",
+        "name": "往烈",
+        "description": "你出牌阶段使用的首张牌无距离限制。当你于出牌阶段使用基本牌或普通锦囊牌时，你可以令此牌不能被响应，然后你本阶段不能再使用牌。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 535,
+      "pools": {
+        "current": 168
+      },
+      "definition": {
+        "id": "classic:chen-dao",
+        "name": "陈到",
+        "portraitKey": "chen_dao",
+        "skillId": "classic:wanglie",
+        "factionId": "shu",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:chen-dao",
+        "variantId": "classic",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

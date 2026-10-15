@@ -1,0 +1,49 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:cao-pi",
+  "skills": [
+    {
+      "registrationOrder": 169,
+      "programBundle": "classic-cao-pi",
+      "includeProgramPresentation": false,
+      "definition": {
+        "id": "classic:xingshang",
+        "name": "行殇",
+        "description": "当其他角色死亡时，你可以获得其所有的牌。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 170,
+      "programBundle": "classic-cao-pi",
+      "includeProgramPresentation": false,
+      "definition": {
+        "id": "classic:fangzhu",
+        "name": "放逐",
+        "description": "当你受到伤害后，你可以令一名其他角色翻面，然后该角色摸X张牌（X为你已损失的体力值）。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 311,
+      "pools": {
+        "current": 95
+      },
+      "definition": {
+        "id": "classic:cao-pi",
+        "name": "曹丕",
+        "portraitKey": "cao_pi",
+        "skillId": "classic:xingshang",
+        "factionId": "wei",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "classic:fangzhu"
+        ],
+        "gender": "Male"
+      }
+    }
+  ]
+}

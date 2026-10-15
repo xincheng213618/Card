@@ -1,0 +1,53 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:xin-xianying",
+  "skills": [
+    {
+      "registrationOrder": 486,
+      "programBundle": "classic-xin-xianying",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:zhongjian",
+        "name": "忠鉴",
+        "description": "出牌阶段限一次，你可以展示一张手牌，然后展示一名其他角色与其体力值等量张手牌。含同色牌时摸一张牌或弃置其他角色一张牌；含同点牌时本回合改为限两次；均不含时手牌上限-1。",
+        "executionForms": "State, Trigger",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 487,
+      "programBundle": "classic-xin-xianying",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:caishi",
+        "name": "才识",
+        "description": "摸牌阶段开始时，你可以选择：手牌上限+1；或回复1点体力，本回合不能对自己使用牌。",
+        "executionForms": "State, Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 488,
+      "pools": {
+        "current": 154
+      },
+      "definition": {
+        "id": "classic:xin-xianying",
+        "name": "辛宪英",
+        "portraitKey": "xin_xianying",
+        "skillId": "classic:zhongjian",
+        "factionId": "wei",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "classic:caishi"
+        ],
+        "gender": "Female",
+        "characterId": "character:xin-xianying",
+        "variantId": "classic",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

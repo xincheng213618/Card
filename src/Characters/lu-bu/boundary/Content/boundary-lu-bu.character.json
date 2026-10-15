@@ -1,0 +1,41 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:lu-bu",
+  "skills": [
+    {
+      "registrationOrder": 639,
+      "programBundle": "boundary-lu-bu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:liyu-current",
+        "name": "利驭",
+        "description": "当你使用【杀】对其他角色造成伤害后，你可以获得其区域里的一张牌，若获得的牌：不为装备牌，其摸一张牌；为装备牌，你视为对由其指定的另一名角色使用一张【决斗】。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 640,
+      "pools": {
+        "current": 203
+      },
+      "definition": {
+        "id": "boundary:lu-bu",
+        "name": "界吕布",
+        "portraitKey": "boundary_lu_bu",
+        "skillId": "classic:wushuang",
+        "factionId": "qun",
+        "baseHp": 5,
+        "additionalSkillIds": [
+          "boundary:liyu-current"
+        ],
+        "gender": "Male",
+        "characterId": "character:lu-bu",
+        "variantId": "boundary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

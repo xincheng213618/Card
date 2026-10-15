@@ -1,0 +1,50 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:guo-huai-female",
+  "skills": [
+    {
+      "registrationOrder": 978,
+      "programBundle": "ordinary-guo-huai",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:zhefu",
+        "name": "哲妇",
+        "description": "当你于回合外使用或打出牌后，你可以令一名有手牌的其他角色选择弃置一张同名牌或受到1点伤害。"
+      }
+    },
+    {
+      "registrationOrder": 979,
+      "programBundle": "ordinary-guo-huai",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:yidu",
+        "name": "遗毒",
+        "description": "当你使用【杀】或伤害锦囊牌后，你可以展示一名未受到此牌伤害的目标角色至多三张手牌，若颜色皆相同，你弃置这些牌。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 980,
+      "pools": {
+        "current": 319
+      },
+      "definition": {
+        "id": "ol:guo-huai",
+        "name": "郭槐",
+        "portraitKey": "ol-guo-huai",
+        "skillId": "ol:zhefu",
+        "factionId": "jin",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "ol:yidu"
+        ],
+        "gender": "Female",
+        "characterId": "character:guo-huai-female",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

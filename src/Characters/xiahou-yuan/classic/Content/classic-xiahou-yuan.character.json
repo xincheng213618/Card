@@ -1,0 +1,35 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:xiahou-yuan",
+  "skills": [
+    {
+      "registrationOrder": 87,
+      "programBundle": "judgment-cutover",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:shensu",
+        "name": "神速",
+        "description": "回合开始时，你可以跳过判定阶段和摸牌阶段，视为对一名角色使用一张无距离限制的杀；摸牌阶段结束后，你可以弃置一张装备牌并跳过出牌阶段，视为对一名角色使用一张无距离限制的杀。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 248,
+      "pools": {
+        "current": 39
+      },
+      "definition": {
+        "id": "classic:xiahou-yuan",
+        "name": "夏侯渊",
+        "portraitKey": "xiahou_yuan",
+        "skillId": "classic:shensu",
+        "factionId": "wei",
+        "baseHp": 4,
+        "gender": "Male"
+      }
+    }
+  ]
+}

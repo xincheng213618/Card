@@ -288,8 +288,7 @@ internal static class LuochongDiscardChecks
         public PackageManifest Manifest { get; } = new("fixture-luochong-lethal", new(1, 0, 0), []);
         public void Register(IContentRegistryBuilder builder)
         {
-            typeof(StandardContentPackage).Assembly.GetType("CardGame.Content.Standard.OrdinaryTengFangLanContent", throwOnError: true)!
-                .GetMethod("Register", BindingFlags.Static | BindingFlags.NonPublic)!.Invoke(null, [builder]);
+            CharacterFixtureContent.Register(builder, "ol:teng-fang-lan");
             var catalog = SkillProgramCatalog.Load($$"""
                 {"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[
                   {"id":"{{LethalDriver}}","revision":1,"viewAs":[
@@ -333,8 +332,7 @@ internal static class LuochongDiscardChecks
         public PackageManifest Manifest { get; } = new("fixture-luochong-discard", new(1, 0, 0), []);
         public void Register(IContentRegistryBuilder builder)
         {
-            typeof(StandardContentPackage).Assembly.GetType("CardGame.Content.Standard.OrdinaryTengFangLanContent", throwOnError: true)!
-                .GetMethod("Register", BindingFlags.Static | BindingFlags.NonPublic)!.Invoke(null, [builder]);
+            CharacterFixtureContent.Register(builder, "ol:teng-fang-lan");
             foreach (var seat in Enumerable.Range(1, 3))
                 builder.AddGeneral(new($"fixture:luochong-{seat}", "陪测角色", "supporter", "standard:none", "wei", BaseHp: 4));
             builder.AddDeck(new("fixture:luochong-deck", "落宠固定牌堆", handSize, 0, [])

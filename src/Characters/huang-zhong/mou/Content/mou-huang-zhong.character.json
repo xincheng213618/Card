@@ -1,0 +1,37 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:huang-zhong",
+  "skills": [
+    {
+      "registrationOrder": 610,
+      "programBundle": "mou-huang-zhong",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou:liegong",
+        "name": "烈弓",
+        "description": "若你未装备武器，你的【杀】只能当作普通【杀】使用或打出。你使用牌时或成为其他角色使用牌的目标后，记录此牌未记录过的花色。你使用【杀】指定唯一目标后，可以亮出牌堆顶X张牌（X为记录花色数-1，至少为0）；每有一张亮出牌的花色已被记录，此【杀】对其伤害+1，且其不能使用已记录花色的牌响应此【杀】。若如此做，此【杀】结算结束后清除记录。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 611,
+      "pools": {
+        "current": 194
+      },
+      "definition": {
+        "id": "mou:huang-zhong",
+        "name": "谋黄忠",
+        "portraitKey": "mou_huang_zhong",
+        "skillId": "mou:liegong",
+        "factionId": "shu",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:huang-zhong",
+        "variantId": "mou",
+        "rulesetId": "sanguosha-mobile"
+      }
+    }
+  ]
+}

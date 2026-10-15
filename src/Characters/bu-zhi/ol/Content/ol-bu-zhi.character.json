@@ -1,0 +1,52 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:bu-zhi",
+  "skills": [
+    {
+      "registrationOrder": 1111,
+      "programBundle": "ol-bu-zhi",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:hongde",
+        "name": "弘德",
+        "description": "当你一次获得至少两张手牌或失去至少两张牌后，你可以令一名其他角色摸一张牌。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 1112,
+      "programBundle": "ol-bu-zhi",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:dingpan",
+        "name": "定叛",
+        "description": "出牌阶段限X次（X为存活反贼数），你可以令一名装备区里有牌的角色摸一张牌并选择一项：1.你弃置其装备区里一张牌；2.其获得其装备区里的所有牌并受到1点伤害。",
+        "actionForms": "Active"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1113,
+      "pools": {
+        "current": 360
+      },
+      "definition": {
+        "id": "ol:bu-zhi",
+        "name": "步骘·OL",
+        "portraitKey": "ol-bu-zhi",
+        "skillId": "ol:hongde",
+        "factionId": "wu",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "ol:dingpan"
+        ],
+        "gender": "Male",
+        "characterId": "character:bu-zhi",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhang-song",
+  "skills": [
+    {
+      "registrationOrder": 143,
+      "programBundle": "boundary-zhang-song",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:qiangzhi",
+        "name": "强识",
+        "description": "出牌阶段开始时，你可以观看一名其他角色的手牌并展示其中一张牌，然后本阶段当你使用与展示的牌类别相同的牌时，你可以摸一张牌。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 144,
+      "programBundle": "boundary-zhang-song",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:xiantu",
+        "name": "献图",
+        "description": "其他角色的出牌阶段开始时，你可以摸一至两张牌，然后将等量的牌交给该角色。此阶段结束时，若其于此阶段内造成的伤害小于你以此法交给其的牌数，你失去1点体力。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 300,
+      "pools": {
+        "current": 86
+      },
+      "definition": {
+        "id": "boundary:zhang-song",
+        "name": "界张松",
+        "portraitKey": "boundary_zhang_song",
+        "skillId": "boundary:qiangzhi",
+        "factionId": "shu",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "boundary:xiantu"
+        ],
+        "gender": "Male"
+      }
+    }
+  ]
+}

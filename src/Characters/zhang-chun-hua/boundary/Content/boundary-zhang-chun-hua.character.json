@@ -1,0 +1,41 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhang-chun-hua",
+  "skills": [
+    {
+      "registrationOrder": 696,
+      "programBundle": "boundary-zhang-chun-hua",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:jianmie-current",
+        "name": "翦灭",
+        "description": "出牌阶段限一次，你可与一名其他角色同时选择一种颜色，你与其弃置各自选择颜色的手牌，然后弃置牌较多的角色视为对另一角色使用【决斗】。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 697,
+      "pools": {
+        "current": 222
+      },
+      "definition": {
+        "id": "boundary:zhang-chun-hua",
+        "name": "界张春华",
+        "portraitKey": "boundary_zhang_chun_hua",
+        "skillId": "classic:jueqing",
+        "factionId": "wei",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "classic:shangshi",
+          "boundary:jianmie-current"
+        ],
+        "gender": "Female",
+        "characterId": "character:zhang-chun-hua",
+        "variantId": "boundary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

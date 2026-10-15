@@ -1,0 +1,38 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:pang-de",
+  "skills": [
+    {
+      "registrationOrder": 72,
+      "programBundle": "passive-response-rules",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:mengjin",
+        "name": "猛进",
+        "description": "当你使用的【杀】被【闪】抵消后，你可以弃置目标角色的一张手牌或装备牌。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 238,
+      "pools": {
+        "current": 29
+      },
+      "definition": {
+        "id": "classic:pang-de",
+        "name": "庞德",
+        "portraitKey": "pang_de",
+        "skillId": "classic:mashu",
+        "factionId": "qun",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "classic:mengjin"
+        ],
+        "gender": "Male"
+      }
+    }
+  ]
+}

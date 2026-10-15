@@ -1,0 +1,50 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:sun-quan",
+  "skills": [
+    {
+      "registrationOrder": 1,
+      "programBundle": "phase-owned-card-actions",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:zhiheng",
+        "name": "制衡",
+        "description": "出牌阶段限一次，你可以弃置任意张手牌或装备区里的牌，然后摸等量张牌。",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 47,
+      "programBundle": "passive-response-rules",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:jiuyuan",
+        "name": "救援",
+        "description": "主公技，其他吴势力角色于你濒死时对你使用【桃】，回复的体力额外加1。",
+        "tags": "Lord, Locked",
+        "executionForms": "State"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 210,
+      "pools": {
+        "current": 1
+      },
+      "definition": {
+        "id": "classic:sun-quan",
+        "name": "孙权",
+        "portraitKey": "sun_quan",
+        "skillId": "classic:zhiheng",
+        "factionId": "wu",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "classic:jiuyuan"
+        ],
+        "gender": "Male"
+      }
+    }
+  ]
+}

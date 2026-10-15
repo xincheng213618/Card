@@ -1,0 +1,36 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:yu-jin",
+  "skills": [
+    {
+      "registrationOrder": 111,
+      "programBundle": "passive-card-rules",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:yizhong",
+        "name": "毅重",
+        "description": "锁定技，若你没有防具，黑色【杀】对你无效。",
+        "tags": "Locked",
+        "executionForms": "State"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 255,
+      "pools": {
+        "current": 46
+      },
+      "definition": {
+        "id": "classic:yu-jin",
+        "name": "于禁",
+        "portraitKey": "yu_jin",
+        "skillId": "classic:yizhong",
+        "factionId": "wei",
+        "baseHp": 4,
+        "gender": "Male"
+      }
+    }
+  ]
+}

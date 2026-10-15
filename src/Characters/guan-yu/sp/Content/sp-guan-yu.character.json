@@ -1,0 +1,62 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:guan-yu",
+  "skills": [
+    {
+      "registrationOrder": 98,
+      "programBundle": "conversion-cutover",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "sp:guan-yu-wusheng",
+        "name": "武圣",
+        "description": "你可以将一张红色牌当【杀】使用或打出；你使用或打出的方块【杀】无距离限制。",
+        "executionForms": "State"
+      }
+    },
+    {
+      "registrationOrder": 99,
+      "programBundle": "awakening-skills",
+      "includeProgramPresentation": false,
+      "definition": {
+        "id": "sp:danji",
+        "name": "单骑",
+        "description": "觉醒技，准备阶段，若你的手牌数大于体力值且本局主公不为刘备，你减1点体力上限，然后获得【马术】和【怒斩】。",
+        "tags": "Awakening",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 101,
+      "programBundle": null,
+      "includeProgramPresentation": false,
+      "definition": {
+        "id": "sp:nuzhan",
+        "name": "怒斩",
+        "description": "锁定技，你使用由锦囊牌转化的【杀】不计入出牌阶段使用次数；你使用由装备牌转化的【杀】伤害+1。",
+        "tags": "Locked",
+        "executionForms": "State"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 264,
+      "pools": {
+        "current": 50
+      },
+      "definition": {
+        "id": "sp:guan-yu",
+        "name": "SP关羽",
+        "portraitKey": "guan_yu",
+        "skillId": "sp:guan-yu-wusheng",
+        "factionId": "wei",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "sp:danji"
+        ],
+        "gender": "Male"
+      }
+    }
+  ]
+}

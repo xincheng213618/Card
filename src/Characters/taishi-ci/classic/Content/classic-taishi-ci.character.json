@@ -1,0 +1,34 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:taishi-ci",
+  "skills": [
+    {
+      "registrationOrder": 80,
+      "programBundle": "shared-pindian-skills",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:tianyi",
+        "name": "天义",
+        "description": "出牌阶段限一次，你可以与一名其他角色拼点。若你赢，本回合可额外使用一张【杀】、使用【杀】无距离限制且目标上限+1；若你没赢，本回合不能使用【杀】。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 243,
+      "pools": {
+        "current": 34
+      },
+      "definition": {
+        "id": "classic:taishi-ci",
+        "name": "太史慈",
+        "portraitKey": "taishi_ci",
+        "skillId": "classic:tianyi",
+        "factionId": "wu",
+        "baseHp": 4,
+        "gender": "Male"
+      }
+    }
+  ]
+}

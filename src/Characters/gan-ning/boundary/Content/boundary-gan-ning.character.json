@@ -1,0 +1,50 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:gan-ning",
+  "skills": [
+    {
+      "registrationOrder": 132,
+      "programBundle": "conversion-cutover",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:qixi",
+        "name": "奇袭",
+        "description": "你可以将一张黑色牌当【过河拆桥】使用。",
+        "executionForms": "State"
+      }
+    },
+    {
+      "registrationOrder": 133,
+      "programBundle": "boundary-gan-ning",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:fenwei",
+        "name": "奋威",
+        "description": "限定技，当一张锦囊牌指定至少两名角色为目标时，你可以令此牌对其中任意名目标无效。",
+        "tags": "Limited",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 294,
+      "pools": {
+        "current": 79
+      },
+      "definition": {
+        "id": "boundary:gan-ning",
+        "name": "界甘宁",
+        "portraitKey": "boundary_gan_ning",
+        "skillId": "boundary:qixi",
+        "factionId": "wu",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "boundary:fenwei"
+        ],
+        "gender": "Male"
+      }
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhang-liao",
+  "skills": [
+    {
+      "registrationOrder": 50,
+      "programBundle": "draw-replacement-skills",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:tuxi",
+        "name": "突袭",
+        "description": "摸牌阶段，你可以改为获得至多两名其他角色的各一张手牌。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 221,
+      "pools": {
+        "current": 6
+      },
+      "definition": {
+        "id": "classic:zhang-liao",
+        "name": "张辽",
+        "portraitKey": "zhang_liao",
+        "skillId": "classic:tuxi",
+        "factionId": "wei",
+        "baseHp": 4,
+        "gender": "Male"
+      }
+    }
+  ]
+}

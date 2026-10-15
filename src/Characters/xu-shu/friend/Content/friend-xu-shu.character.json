@@ -1,0 +1,63 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:xu-shu",
+  "skills": [
+    {
+      "registrationOrder": 1012,
+      "programBundle": "friend-trio",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "friend:xiaxing",
+        "name": "侠行",
+        "description": "游戏开始时获得并使用玄剑。玄剑进入弃牌堆时，可移除两个启诲标记并获得它。"
+      }
+    },
+    {
+      "registrationOrder": 1013,
+      "programBundle": "friend-trio",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "friend:qihui",
+        "name": "启诲",
+        "description": "锁定技，使用牌时，若无该类别的启诲标记，获得此类别标记；拥有三类标记后移除两类，选择回复1体力、摸两张牌，或令下一张使用的牌不计次数且无次数限制。",
+        "tags": "Locked"
+      }
+    },
+    {
+      "registrationOrder": 1018,
+      "programBundle": null,
+      "includeProgramPresentation": false,
+      "definition": {
+        "id": "friend:gongli-xu-shu",
+        "name": "共砺",
+        "description": "身份模式无效。排位、斗地主：同阵营友诸葛亮在场时玄剑改为一张手牌当杀；同阵营友庞统在场时玄剑的杀无距离限制。",
+        "tags": "Locked"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1021,
+      "pools": {
+        "current": 330
+      },
+      "definition": {
+        "id": "friend:xu-shu",
+        "name": "友徐庶",
+        "portraitKey": "friend-xu-shu",
+        "skillId": "friend:xiaxing",
+        "factionId": "qun",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "friend:qihui",
+          "friend:gongli-xu-shu"
+        ],
+        "gender": "Male",
+        "characterId": "character:xu-shu",
+        "variantId": "friend",
+        "rulesetId": "sanguosha-mobile"
+      }
+    }
+  ]
+}

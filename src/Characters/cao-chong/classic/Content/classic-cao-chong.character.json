@@ -1,0 +1,49 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:cao-chong",
+  "skills": [
+    {
+      "registrationOrder": 35,
+      "programBundle": "classic-lifecycle-skills",
+      "includeProgramPresentation": false,
+      "definition": {
+        "id": "classic:chengxiang",
+        "name": "称象",
+        "description": "每当你受到伤害后，你可以亮出牌堆顶的四张牌。若如此做，你获得其中任意张点数之和小于等于13的牌，然后将其余的牌置入弃牌堆。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 36,
+      "programBundle": "damage-prevention-skills",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:renxin",
+        "name": "仁心",
+        "description": "当一名其他角色于体力值为1时即将受到伤害，你可以弃置一张装备牌并翻面，防止此伤害。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 279,
+      "pools": {
+        "current": 65
+      },
+      "definition": {
+        "id": "classic:cao-chong",
+        "name": "曹冲",
+        "portraitKey": "cao_chong",
+        "skillId": "classic:chengxiang",
+        "factionId": "wei",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "classic:renxin"
+        ],
+        "gender": "Male"
+      }
+    }
+  ]
+}

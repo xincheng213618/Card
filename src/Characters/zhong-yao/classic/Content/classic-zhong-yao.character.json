@@ -1,0 +1,52 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhong-yao",
+  "skills": [
+    {
+      "registrationOrder": 440,
+      "programBundle": "classic-zhong-yao",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:huomo",
+        "name": "活墨",
+        "description": "你可以将一张黑色非基本牌置于牌堆顶，视为使用一张与你本回合使用过的牌牌名不同的基本牌。",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 441,
+      "programBundle": "classic-zhong-yao",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:zuoding",
+        "name": "佐定",
+        "description": "当其他角色在其出牌阶段使用黑桃牌指定目标后，若本阶段没有角色受到过伤害，你可以令其中一个目标摸一张牌。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 458,
+      "pools": {
+        "current": 391
+      },
+      "definition": {
+        "id": "classic:zhong-yao",
+        "name": "钟繇",
+        "portraitKey": "zhong_yao",
+        "skillId": "classic:huomo",
+        "factionId": "wei",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "classic:zuoding"
+        ],
+        "gender": "Male",
+        "characterId": "character:zhong-yao",
+        "variantId": "classic",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

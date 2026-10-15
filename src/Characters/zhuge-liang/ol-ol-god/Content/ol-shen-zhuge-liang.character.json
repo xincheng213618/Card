@@ -1,0 +1,64 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhuge-liang",
+  "skills": [
+    {
+      "registrationOrder": 341,
+      "programBundle": "ol-shen-zhuge-liang",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:qixing",
+        "name": "七星",
+        "description": "游戏开始时，你将牌堆顶的七张牌暗置于你的武将牌上，称为“星”，然后你可以用任意张手牌替换等量“星”。摸牌阶段结束时，你可以用任意张手牌替换等量“星”。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 342,
+      "programBundle": "ol-shen-zhuge-liang",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:kuangfeng",
+        "name": "狂风",
+        "description": "结束阶段，你可以移去一张“星”并选择一名角色，然后直到你的下回合开始，当其受到火焰伤害时，此伤害+1。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 343,
+      "programBundle": "ol-shen-zhuge-liang",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:dawu",
+        "name": "大雾",
+        "description": "结束阶段，你可以移去任意张“星”并选择等量角色，然后直到你的下回合开始，当其受到非雷电伤害时，防止此伤害。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 369,
+      "pools": {
+        "current": 120
+      },
+      "definition": {
+        "id": "ol:shen-zhuge-liang",
+        "name": "神诸葛亮",
+        "portraitKey": "ol_shen_zhuge_liang",
+        "skillId": "ol:qixing",
+        "factionId": "god",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "ol:kuangfeng",
+          "ol:dawu"
+        ],
+        "gender": "Male",
+        "characterId": "character:zhuge-liang",
+        "variantId": "ol-god",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

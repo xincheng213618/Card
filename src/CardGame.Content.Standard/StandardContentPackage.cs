@@ -325,53 +325,7 @@ public sealed class StandardContentPackage : IGameContentPackage
         builder.AddCard(new ContentCardDefinition("standard:xuanjian", "玄剑", "装备牌",
             CardCatalog.Get(CardKind.Xuanjian).Description, CardKind.Xuanjian));
 
-        builder.AddSkill(new ContentSkillDefinition(
-            "standard:none", "无", "演示版暂未启用技能。"));
-        builder.AddSkill(DamageSkillPrograms.Definition("standard:jianxiong"));
-        builder.AddSkill(DamageSkillPrograms.Definition("standard:feedback"));
-        builder.AddSkill(RuleQuerySkillPrograms.Definition("standard:paoxiao") with
-            {
-                Tags = SkillTag.Locked,
-                ExecutionForms = SkillExecutionForm.State
-            });
-        builder.AddSkill(DrawPhaseSkillPrograms.Definition("standard:yingzi"));
-        builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("passive-card-rules", "standard:kongcheng"));
-        builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("conversion-cutover", "standard:wusheng"));
-        builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("conversion-cutover", "standard:longdan"));
-        builder.AddSkill(DamageSkillPrograms.Definition("standard:yiji"));
-        builder.AddSkill(DamageSkillPrograms.Definition("standard:jieming"));
-        builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("passive-damage-cutover", "standard:yuanhu"));
-        builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("passive-damage-cutover", "standard:ganglie"));
-        builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("judgment-cutover", "standard:guicai"));
-
-        builder.AddGeneral(new ContentGeneralDefinition(
-            "standard:cao-cao", "曹操", "cao_cao", "standard:jianxiong", "wei"));
-        builder.AddGeneral(new ContentGeneralDefinition(
-            "standard:zhang-fei", "张飞", "zhang_fei", "standard:paoxiao", "shu"));
-        builder.AddGeneral(new ContentGeneralDefinition(
-            "standard:zhou-yu", "周瑜", "zhou_yu", "standard:yingzi", "wu"));
-        builder.AddGeneral(new ContentGeneralDefinition(
-            "standard:zhuge-liang", "诸葛亮", "zhuge_liang", "standard:kongcheng", "shu"));
-        builder.AddGeneral(new ContentGeneralDefinition(
-            "standard:liu-bei", "刘备", "liu_bei", "standard:none", "shu"));
-        builder.AddGeneral(new ContentGeneralDefinition(
-            "standard:guan-yu", "关羽", "guan_yu", "standard:wusheng", "shu"));
-        builder.AddGeneral(new ContentGeneralDefinition(
-            "standard:zhao-yun", "赵云", "zhao_yun", "standard:longdan", "shu"));
-        builder.AddGeneral(new ContentGeneralDefinition(
-            "standard:sun-quan", "孙权", "sun_quan", "standard:none", "wu"));
-        builder.AddGeneral(new ContentGeneralDefinition(
-            "standard:hua-tuo", "华佗", "hua_tuo", "standard:feedback", "qun"));
-        builder.AddGeneral(new ContentGeneralDefinition(
-            "standard:guo-jia", "郭嘉", "guo_jia", "standard:yiji", "wei"));
-        builder.AddGeneral(new ContentGeneralDefinition(
-            "standard:xun-yu", "荀彧", "xun_yu", "standard:jieming", "wei"));
-        builder.AddGeneral(new ContentGeneralDefinition(
-            "standard:demo-yuanhu", "援护者", "supporter", "standard:yuanhu", "qun"));
-        builder.AddGeneral(new ContentGeneralDefinition(
-            "standard:demo-ganglie", "刚烈者", "ganglie", "standard:ganglie", "wei"));
-        builder.AddGeneral(new ContentGeneralDefinition(
-            "standard:demo-guicai", "鬼才者", "guicai", "standard:guicai", "wei"));
+        CharacterContentCatalog.Default.Register(builder, Manifest.Id);
 
         builder.AddDeck(new ContentDeckRecipe(
             Id: "standard:basic-demo",
@@ -442,22 +396,7 @@ public sealed class StandardContentPackage : IGameContentPackage
     }
 
     internal static IReadOnlyList<string> StandardGeneralIds { get; } =
-    [
-        "standard:cao-cao",
-        "standard:zhang-fei",
-        "standard:zhou-yu",
-        "standard:zhuge-liang",
-        "standard:liu-bei",
-        "standard:guan-yu",
-        "standard:zhao-yun",
-        "standard:sun-quan",
-        "standard:hua-tuo",
-        "standard:guo-jia",
-        "standard:xun-yu",
-        "standard:demo-yuanhu",
-        "standard:demo-ganglie",
-        "standard:demo-guicai"
-    ];
+        CharacterContentCatalog.Default.GetPoolIds("standard", "standard");
 }
 
 public static class StandardContentRegistry

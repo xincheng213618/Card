@@ -1,0 +1,50 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:teng-fang-lan",
+  "skills": [
+    {
+      "registrationOrder": 849,
+      "programBundle": "ol-teng-fang-lan",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:luochong",
+        "name": "落宠",
+        "description": "准备阶段或当你每回合首次受到伤害后，你可以选择一项，令一名角色：1.回复1点体力；2.失去1点体力；3.弃置两张牌；4.摸两张牌。每轮每项每名角色限一次。"
+      }
+    },
+    {
+      "registrationOrder": 850,
+      "programBundle": "ol-teng-fang-lan",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:aichen",
+        "name": "哀尘",
+        "description": "锁定技，当你进入濒死状态时，若“落宠”选项数大于1，你移除其中一项。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 851,
+      "pools": {
+        "current": 276
+      },
+      "definition": {
+        "id": "ol:teng-fang-lan",
+        "name": "滕芳兰",
+        "portraitKey": "ol-teng-fang-lan",
+        "skillId": "ol:luochong",
+        "factionId": "wu",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "ol:aichen"
+        ],
+        "gender": "Female",
+        "characterId": "character:teng-fang-lan",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

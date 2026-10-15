@@ -1,0 +1,76 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:sun-xiu",
+  "skills": [
+    {
+      "registrationOrder": 448,
+      "programBundle": "classic-sun-xiu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:yanzhu",
+        "name": "宴诛",
+        "description": "出牌阶段限一次，你可以令一名其他角色选择一项：1.你获得其装备区里的所有牌，失去本技能并修改‘兴学’；2.弃置一张牌。",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 449,
+      "programBundle": "classic-sun-xiu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:xingxue",
+        "name": "兴学",
+        "description": "结束阶段，你可以令至多X名角色依次摸一张牌并将一张牌置于牌堆顶（X为你的体力值）。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 450,
+      "programBundle": "classic-sun-xiu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:zhaofu",
+        "name": "诏缚",
+        "description": "主公技，限定技，出牌阶段，你可以选择至多两名角色，本局以此法选择的角色视为在所有其他吴势力角色的攻击范围内。",
+        "tags": "Lord, Limited",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 455,
+      "programBundle": "classic-sun-xiu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:xingxue-upgraded",
+        "name": "兴学",
+        "description": "结束阶段，你可以令至多X名角色依次摸一张牌并将一张牌置于牌堆顶（X为你的体力上限）。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 462,
+      "pools": {
+        "current": 395
+      },
+      "definition": {
+        "id": "classic:sun-xiu",
+        "name": "孙休",
+        "portraitKey": "sun_xiu",
+        "skillId": "classic:yanzhu",
+        "factionId": "wu",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "classic:xingxue",
+          "classic:zhaofu"
+        ],
+        "gender": "Male",
+        "characterId": "character:sun-xiu",
+        "variantId": "classic",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

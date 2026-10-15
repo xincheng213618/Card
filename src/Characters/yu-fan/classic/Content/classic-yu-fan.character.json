@@ -1,0 +1,52 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:yu-fan",
+  "skills": [
+    {
+      "registrationOrder": 412,
+      "programBundle": "classic-yu-fan",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:zongxuan",
+        "name": "纵玄",
+        "description": "当你的牌因弃置而置入弃牌堆后，你可以将其中任意张牌置于牌堆顶。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 413,
+      "programBundle": "classic-yu-fan",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:zhiyan",
+        "name": "直言",
+        "description": "结束阶段，你可以令一名角色摸一张牌并展示之，若为装备牌，其使用之并回复1点体力。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 418,
+      "pools": {
+        "current": 139
+      },
+      "definition": {
+        "id": "classic:yu-fan",
+        "name": "虞翻",
+        "portraitKey": "yu_fan",
+        "skillId": "classic:zongxuan",
+        "factionId": "wu",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "classic:zhiyan"
+        ],
+        "gender": "Male",
+        "characterId": "character:yu-fan",
+        "variantId": "classic",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

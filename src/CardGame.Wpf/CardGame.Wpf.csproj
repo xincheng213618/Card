@@ -10,6 +10,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="..\Characters\**\Wpf\**\*.cs">
+      <Link>Characters\$([MSBuild]::MakeRelative('$(MSBuildProjectDirectory)\..\Characters', '%(FullPath)'))</Link>
+    </Compile>
     <Resource Include="Assets\*.png;Assets\*.jpg" />
     <Resource Include="Assets\Generals\*.png;Assets\Generals\*.jpg" />
     <Resource Include="Assets\Table\*.png;Assets\Table\*.jpg" />

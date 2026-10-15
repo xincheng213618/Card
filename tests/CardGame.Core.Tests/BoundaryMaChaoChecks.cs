@@ -164,8 +164,7 @@ internal static class BoundaryMaChaoChecks
         public PackageManifest Manifest { get; } = new("fixture-mc", new(1, 0, 0), []);
         public void Register(IContentRegistryBuilder builder)
         {
-            typeof(StandardClassicGeneralPackage).Assembly.GetType("CardGame.Content.Standard.BoundaryMaChaoContent")!
-                .GetMethod("Register", BindingFlags.Static | BindingFlags.NonPublic)!.Invoke(null, [builder]);
+            CharacterFixtureContent.Register(builder, "boundary:ma-chao");
             foreach (var id in new[] { "classic:mashu", "classic:qingguo" }) builder.AddSkill(Classic.GetSkill(id));
             if (scenario == "paoxiao") builder.AddSkill(Classic.GetSkill("boundary:paoxiao"));
             if (scenario == "replacement") builder.AddSkill(Classic.GetSkill("classic:guicai"));

@@ -1,0 +1,62 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:huang-yueying",
+  "skills": [
+    {
+      "registrationOrder": 56,
+      "programBundle": "passive-card-rules",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:jizhi",
+        "name": "集智",
+        "description": "当你使用普通锦囊牌时，你可以摸一张牌。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 105,
+      "programBundle": "passive-card-rules",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:qicai",
+        "name": "奇才",
+        "description": "锁定技，你使用锦囊牌无距离限制。",
+        "tags": "Locked",
+        "executionForms": "State",
+        "selectionWeights": {
+          "Lord": 33.0,
+          "Loyalist": 33.0,
+          "Rebel": 37.0,
+          "Renegade": 37.0
+        },
+        "revealWeights": {
+          "base": 20,
+          "wounded": 0,
+          "emptyHand": 0,
+          "repeatedSlash": 0
+        }
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 226,
+      "pools": {
+        "current": 11
+      },
+      "definition": {
+        "id": "classic:huang-yueying",
+        "name": "黄月英",
+        "portraitKey": "huang_yueying",
+        "skillId": "classic:jizhi",
+        "factionId": "shu",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "classic:qicai"
+        ],
+        "gender": "Female"
+      }
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:liu-biao",
+  "skills": [
+    {
+      "registrationOrder": 778,
+      "programBundle": "boundary-liu-biao",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:zishou-current",
+        "name": "自守",
+        "description": "摸牌阶段，你可以多摸X张牌，你以此法摸牌的结束阶段，若你本回合使用过伤害牌，你弃置X张牌（X为全场势力数）。"
+      }
+    },
+    {
+      "registrationOrder": 779,
+      "programBundle": "boundary-liu-biao",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:zongshi-current",
+        "name": "宗室",
+        "description": "锁定技，全场每有一个势力，你的手牌上限便+1。其他角色对你造成伤害时，防止此伤害改为令其获得你区域内的一张牌，每个势力限一次。",
+        "tags": "Locked",
+        "executionForms": "State, Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 780,
+      "pools": {
+        "current": 251
+      },
+      "definition": {
+        "id": "boundary:liu-biao",
+        "name": "界刘表",
+        "portraitKey": "boundary_liu_biao",
+        "skillId": "boundary:zishou-current",
+        "factionId": "qun",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "boundary:zongshi-current"
+        ],
+        "gender": "Male",
+        "characterId": "character:liu-biao",
+        "variantId": "boundary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

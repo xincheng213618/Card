@@ -1,0 +1,60 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhuge-liang",
+  "skills": [
+    {
+      "registrationOrder": 75,
+      "programBundle": "passive-response-rules",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:bazhen",
+        "name": "八阵",
+        "description": "锁定技，若你的装备区里没有防具牌，视为你装备着【八卦阵】。",
+        "tags": "Locked",
+        "executionForms": "State"
+      }
+    },
+    {
+      "registrationOrder": 76,
+      "programBundle": "conversion-cutover",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:huoji",
+        "name": "火计",
+        "description": "你可以将一张红色手牌当【火攻】使用。"
+      }
+    },
+    {
+      "registrationOrder": 77,
+      "programBundle": "conversion-cutover",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:kanpo",
+        "name": "看破",
+        "description": "你可以将一张黑色手牌当【无懈可击】使用。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 241,
+      "pools": {
+        "current": 32
+      },
+      "definition": {
+        "id": "classic:wolong-zhuge-liang",
+        "name": "卧龙诸葛亮",
+        "portraitKey": "wolong_zhuge_liang",
+        "skillId": "classic:bazhen",
+        "factionId": "shu",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "classic:huoji",
+          "classic:kanpo"
+        ],
+        "gender": "Male"
+      }
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:wen-pin",
+  "skills": [
+    {
+      "registrationOrder": 1047,
+      "programBundle": "ol-wen-pin",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:zhenwei",
+        "name": "镇卫",
+        "description": "当其他角色成为【杀】或黑色锦囊牌的唯一目标时，若其体力值小于你且使用者不为你，你可以弃置一张牌并选择一项：1.摸一张牌，然后代替其成为此牌目标；2.令此牌无效并移出游戏直到回合结束。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1048,
+      "pools": {
+        "current": 339
+      },
+      "definition": {
+        "id": "ol:wen-pin",
+        "name": "文聘·OL",
+        "portraitKey": "ol-wen-pin",
+        "skillId": "ol:zhenwei",
+        "factionId": "wei",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:wen-pin",
+        "variantId": "ol",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

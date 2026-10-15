@@ -1,0 +1,53 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:shi-xie",
+  "skills": [
+    {
+      "registrationOrder": 1070,
+      "programBundle": "ol-shi-xie",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:biluan",
+        "name": "避乱",
+        "description": "结束阶段，若有其他角色计算与你的距离为1，你可以弃置一张牌，令其他角色计算与你的距离+X（X为全场势力数）。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 1071,
+      "programBundle": "ol-shi-xie",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:lixia",
+        "name": "礼下",
+        "description": "锁定技，其他角色的结束阶段，若你不在其攻击范围内，你选择一至两项：1.摸一张牌；2.令其摸两张牌；3.令其回复1点体力。每选择一项，你令其他角色计算与你的距离-1。",
+        "tags": "Locked",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1072,
+      "pools": {
+        "current": 346
+      },
+      "definition": {
+        "id": "ol:shi-xie",
+        "name": "士燮·OL",
+        "portraitKey": "ol-shi-xie",
+        "skillId": "ol:biluan",
+        "factionId": "qun",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "ol:lixia"
+        ],
+        "gender": "Male",
+        "characterId": "character:shi-xie",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

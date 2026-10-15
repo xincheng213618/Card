@@ -1,0 +1,52 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:kuai-yue-kuai-liang",
+  "skills": [
+    {
+      "registrationOrder": 551,
+      "programBundle": "classic-kuai-yue-kuai-liang",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:jianxiang",
+        "name": "荐降",
+        "description": "当你成为其他角色使用牌的目标后，你可以令手牌数最少的一名角色摸一张牌。"
+      }
+    },
+    {
+      "registrationOrder": 552,
+      "programBundle": "classic-kuai-yue-kuai-liang",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:shenshi",
+        "name": "审时",
+        "description": "转换技，阳：出牌阶段限一次，你可以交给手牌数最多的其他角色一张牌，并对其造成1点伤害。若其因此死亡，你可以令一名角色将手牌摸至四张。 阴：当其他角色对你造成伤害后，你可以观看其手牌，并交给其一张牌。当前回合结束阶段，若其未失去此牌，你将手牌摸至四张。",
+        "tags": "Conversion",
+        "executionForms": "State, Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 553,
+      "pools": {
+        "current": 173
+      },
+      "definition": {
+        "id": "classic:kuai-yue-kuai-liang",
+        "name": "蒯越蒯良",
+        "portraitKey": "kuai_yue_kuai_liang",
+        "skillId": "classic:jianxiang",
+        "factionId": "wei",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "classic:shenshi"
+        ],
+        "gender": "Male",
+        "characterId": "character:kuai-yue-kuai-liang",
+        "variantId": "classic",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:sun-jian",
+  "skills": [
+    {
+      "registrationOrder": 657,
+      "programBundle": "boundary-sun-jian",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:yinghun",
+        "name": "英魂",
+        "description": "准备阶段，若你已受伤，你可以选择一名其他角色并选择一项：1.令其摸X张牌，然后弃置一张牌；2.令其摸一张牌，然后弃置X张牌。（X为你已损失体力值）"
+      }
+    },
+    {
+      "registrationOrder": 658,
+      "programBundle": "boundary-sun-jian",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:wulie",
+        "name": "武烈",
+        "description": "限定技，结束阶段，你可以失去任意点体力，令X名其他角色获得“烈”标记（X为以此法失去的体力值）。当有“烈”的角色受到伤害时，其移除“烈”并防止此伤害。",
+        "tags": "Limited",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 659,
+      "pools": {
+        "current": 209
+      },
+      "definition": {
+        "id": "boundary:sun-jian",
+        "name": "界孙坚",
+        "portraitKey": "boundary_sun_jian",
+        "skillId": "boundary:yinghun",
+        "factionId": "wu",
+        "baseHp": 5,
+        "additionalSkillIds": [
+          "boundary:wulie"
+        ],
+        "gender": "Male",
+        "characterId": "character:sun-jian",
+        "variantId": "boundary",
+        "rulesetId": "sanguosha-ol",
+        "initialHp": 4
+      }
+    }
+  ]
+}

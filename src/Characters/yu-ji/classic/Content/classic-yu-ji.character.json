@@ -1,0 +1,53 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:yu-ji",
+  "skills": [
+    {
+      "registrationOrder": 963,
+      "programBundle": "classic-yu-ji",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:guhuo",
+        "name": "蛊惑",
+        "description": "每回合限一次，你可以扣置一张手牌当任意基本牌或普通锦囊牌使用或打出，其他角色可以质疑并展示此牌：若为假则此牌作废，若为真则质疑者获得“缠怨”。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 964,
+      "programBundle": "classic-yu-ji",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:chanyuan",
+        "name": "缠怨",
+        "description": "你不能质疑“蛊惑”；当你的体力值为1时，你的其他技能失效。",
+        "tags": "Locked",
+        "executionForms": "State",
+        "suppressionRule": {
+          "ownerHpEquals": 1
+        }
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 965,
+      "pools": {
+        "current": 315
+      },
+      "definition": {
+        "id": "classic:yu-ji",
+        "name": "于吉",
+        "portraitKey": "yu_ji",
+        "skillId": "classic:guhuo",
+        "factionId": "qun",
+        "baseHp": 3,
+        "gender": "Male",
+        "characterId": "character:yu-ji",
+        "variantId": "classic",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

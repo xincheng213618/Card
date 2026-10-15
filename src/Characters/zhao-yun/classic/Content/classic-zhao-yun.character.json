@@ -1,0 +1,35 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhao-yun",
+  "skills": [
+    {
+      "registrationOrder": 62,
+      "programBundle": "classic-longdan-skills",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:longdan",
+        "name": "龙胆",
+        "description": "你可以将一张【杀】当【闪】、【闪】当【杀】使用或打出。",
+        "executionForms": "State"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 232,
+      "pools": {
+        "current": 23
+      },
+      "definition": {
+        "id": "classic:zhao-yun",
+        "name": "赵云",
+        "portraitKey": "zhao_yun",
+        "skillId": "classic:longdan",
+        "factionId": "shu",
+        "baseHp": 4,
+        "gender": "Male"
+      }
+    }
+  ]
+}

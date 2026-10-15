@@ -1,0 +1,21 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-national-war-ambitious",
+  "characterId": "character:sima-yi",
+  "skills": [],
+  "generals": [
+    {
+      "registrationOrder": 1,
+      "pools": {},
+      "definition": {
+        "id": "national:wei-sima-yi",
+        "name": "司马懿",
+        "portraitKey": "guo_jia",
+        "skillId": "standard:guicai",
+        "factionId": "wei",
+        "baseHp": 4,
+        "gender": "Male"
+      }
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhou-tai",
+  "skills": [
+    {
+      "registrationOrder": 84,
+      "programBundle": "passive-damage-cutover",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:buqu",
+        "name": "不屈",
+        "description": "你进入濒死状态时亮出牌堆顶一张牌；若点数与已有“创”不同，将其置于“创”并回复至1点体力，否则将其弃置并继续濒死结算。",
+        "tags": "Locked",
+        "executionForms": "State"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 246,
+      "pools": {
+        "current": 37
+      },
+      "definition": {
+        "id": "classic:zhou-tai",
+        "name": "周泰",
+        "portraitKey": "zhou_tai",
+        "skillId": "classic:buqu",
+        "factionId": "wu",
+        "baseHp": 4,
+        "gender": "Male"
+      }
+    }
+  ]
+}

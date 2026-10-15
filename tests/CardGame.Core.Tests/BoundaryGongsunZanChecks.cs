@@ -79,7 +79,7 @@ internal static class BoundaryGongsunZanChecks
         public PackageManifest Manifest{get;}=new("fixture-gz",new(1,0,0),[]);
         public void Register(IContentRegistryBuilder b)
         {
-            try{typeof(StandardClassicGeneralPackage).Assembly.GetType("CardGame.Content.Standard.BoundaryGongsunZanContent")!.GetMethod("Register",BindingFlags.Static|BindingFlags.NonPublic)!.Invoke(null,[b]);}catch(TargetInvocationException e){throw new InvalidOperationException(e.InnerException?.ToString(),e.InnerException);}
+            try{CharacterFixtureContent.Register(b, "boundary:gongsun-zan");}catch(TargetInvocationException e){throw new InvalidOperationException(e.InnerException?.ToString(),e.InnerException);}
             b.AddSkill(Classic.Value.GetSkill("classic:wusheng"));
             var acts=Act("equip","[{\"op\":\"useRandomDeckEquipment\",\"target\":\"owner\",\"resultBind\":\"equipment\"}]",1)+","+Act("hurt","[{\"op\":\"loseHp\",\"target\":\"owner\",\"amount\":1}]")+","+Act("cardless","[{\"op\":\"damage\",\"target\":\"selectedTarget\",\"amount\":1}]",1)+","+Act("virtual","[{\"op\":\"useVirtualSlash\",\"target\":\"selectedTarget\"}]",1)+","+Act("chain","[{\"op\":\"setChainedState\",\"target\":\"selectedTarget\",\"chained\":true}]",1)+","+Act("give-board","[{\"op\":\"selectAndMoveOwnedCard\",\"target\":\"owner\",\"chooserRef\":{\"kind\":\"owner\"},\"cardOwnerRef\":{\"kind\":\"owner\"},\"zones\":[\"equipment\"],\"count\":1,\"destination\":\"selectedTargetHand\",\"targetRef\":{\"kind\":\"selectedTarget\"},\"awaitMovementTriggers\":true}]",1);
             b.AddSkill(new("fixture:gz-driver","实际准备","实际准备"){Program=Load("fixture:gz-driver","\"activations\":["+acts+"]")});

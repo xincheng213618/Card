@@ -1,0 +1,54 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:dong-zhao",
+  "skills": [
+    {
+      "registrationOrder": 1097,
+      "programBundle": "ol-dong-zhao",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:xianlue",
+        "name": "先略",
+        "description": "主公的回合开始时，你可以记录一张普通锦囊牌。每回合限一次，当其他角色使用记录牌后，你摸两张牌并将之分配给任意角色，然后重新记录一张普通锦囊牌。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 1098,
+      "programBundle": "ol-dong-zhao",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:zaowang",
+        "name": "造王",
+        "description": "限定技，出牌阶段，你可以令一名角色增加1点体力上限、回复1点体力并摸三张牌，若其为：\n•忠臣，当主公死亡时与主公交换身份牌；\n•反贼，当其被主公或忠臣杀死时，主公方获胜。",
+        "tags": "Limited",
+        "executionForms": "State",
+        "actionForms": "Active"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1099,
+      "pools": {
+        "current": 355
+      },
+      "definition": {
+        "id": "ol:dong-zhao",
+        "name": "董昭·OL",
+        "portraitKey": "ol-dong-zhao",
+        "skillId": "ol:xianlue",
+        "factionId": "wei",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "ol:zaowang"
+        ],
+        "gender": "Male",
+        "characterId": "character:dong-zhao",
+        "variantId": "ol",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

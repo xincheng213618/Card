@@ -1,0 +1,50 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:yang-wan",
+  "skills": [
+    {
+      "registrationOrder": 843,
+      "programBundle": "ol-yang-wan",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:youyan",
+        "name": "诱言",
+        "description": "出牌和弃牌阶段各限一次，当你的牌因弃置置入弃牌堆后，你可以从牌堆中获得与弃置牌花色不同的牌各一张。"
+      }
+    },
+    {
+      "registrationOrder": 844,
+      "programBundle": "ol-yang-wan",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:zhuihuan",
+        "name": "追还",
+        "description": "结束阶段，你可以秘密选择一名角色，直到其下个准备阶段，此期间内对其造成过伤害的角色：若体力值大于其，受到其造成的2点伤害；若体力值不大于其，随机弃置两张手牌。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 845,
+      "pools": {
+        "current": 274
+      },
+      "definition": {
+        "id": "ol:yang-wan",
+        "name": "杨婉",
+        "portraitKey": "ol-yang-wan",
+        "skillId": "ol:youyan",
+        "factionId": "shu",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "ol:zhuihuan"
+        ],
+        "gender": "Female",
+        "characterId": "character:yang-wan",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

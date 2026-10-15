@@ -1,0 +1,52 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:jia-chong",
+  "skills": [
+    {
+      "registrationOrder": 970,
+      "programBundle": "ordinary-jia-chong",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:xiongshu",
+        "name": "凶竖",
+        "description": "其他角色出牌阶段开始时，你可以：弃置X张牌（X为你本轮此前发动过本技能的次数），展示其一张手牌，你秘密猜测其此阶段是否使用同名牌。此阶段结束时，若你猜对，你对其造成1点伤害；若你猜错，你获得此牌。"
+      }
+    },
+    {
+      "registrationOrder": 971,
+      "programBundle": "ordinary-jia-chong",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:jianhui",
+        "name": "奸回",
+        "description": "锁定技，你记录上次对你造成伤害的其他角色。当你对其造成伤害后，你摸一张牌；当其对你造成伤害后，其弃置一张牌。",
+        "tags": "Locked",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 972,
+      "pools": {
+        "current": 317
+      },
+      "definition": {
+        "id": "ol:jia-chong",
+        "name": "贾充",
+        "portraitKey": "ol-jia-chong",
+        "skillId": "ol:xiongshu",
+        "factionId": "jin",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "ol:jianhui"
+        ],
+        "gender": "Male",
+        "characterId": "character:jia-chong",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

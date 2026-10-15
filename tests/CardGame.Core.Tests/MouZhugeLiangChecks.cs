@@ -90,9 +90,7 @@ internal static class MouZhugeLiangChecks
         public PackageManifest Manifest { get; } = new("fixture-mou-zhuge", new(1, 0, 0), []);
         public void Register(IContentRegistryBuilder builder)
         {
-            try { typeof(StandardContentPackage).Assembly.GetType("CardGame.Content.Standard.MouZhugeLiangContent")!
-                .GetMethod("Register", BindingFlags.Static | BindingFlags.NonPublic)!.Invoke(null, [builder]); }
-            catch (TargetInvocationException error) { throw new InvalidOperationException(error.InnerException!.ToString()); }
+            CharacterFixtureContent.Register(builder, "mou:zhuge-liang");
             var driver = SkillProgramCatalog.Load($$"""
                 {"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[{"id":"fixture:mou-driver","revision":1,
                 "activations":[{"id":"discard-other-equipment","usesPerTurn":null,"minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,

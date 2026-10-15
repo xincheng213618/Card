@@ -1,0 +1,49 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:bu-lian-shi",
+  "skills": [
+    {
+      "registrationOrder": 29,
+      "programBundle": "unequal-hand-transfer-skills",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:anxu",
+        "name": "安恤",
+        "description": "出牌阶段限一次，你可以选择两名手牌数不同的其他角色，令其中手牌少的角色先获得手牌多的角色的一张手牌再展示之，然后若以此法展示的牌不为黑桃，你摸一张牌。",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 30,
+      "programBundle": "death-benefit-skills",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:zhuiyi",
+        "name": "追忆",
+        "description": "当你死亡时，你可以令除杀死你的角色外的一名其他角色摸三张牌，然后其回复1点体力。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 276,
+      "pools": {
+        "current": 62
+      },
+      "definition": {
+        "id": "classic:bu-lian-shi",
+        "name": "步练师",
+        "portraitKey": "bu_lian_shi",
+        "skillId": "classic:anxu",
+        "factionId": "wu",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "classic:zhuiyi"
+        ],
+        "gender": "Female"
+      }
+    }
+  ]
+}

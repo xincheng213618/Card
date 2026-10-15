@@ -1,0 +1,41 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard",
+  "characterId": "character:guo-jia",
+  "skills": [
+    {
+      "registrationOrder": 8,
+      "programBundle": "damage-skills",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "standard:yiji",
+        "name": "遗计",
+        "description": "每受到 1 点伤害后，你可以摸两张牌，然后可以将其中一张交给一名其他存活角色。",
+        "executionForms": "Trigger",
+        "revealWeights": {
+          "base": 4,
+          "wounded": 31,
+          "emptyHand": 0,
+          "repeatedSlash": 0
+        }
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 22,
+      "pools": {
+        "standard": 9
+      },
+      "definition": {
+        "id": "standard:guo-jia",
+        "name": "郭嘉",
+        "portraitKey": "guo_jia",
+        "skillId": "standard:yiji",
+        "factionId": "wei",
+        "baseHp": 4,
+        "gender": "Male"
+      }
+    }
+  ]
+}

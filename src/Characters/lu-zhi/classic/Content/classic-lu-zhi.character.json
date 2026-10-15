@@ -1,0 +1,53 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:lu-zhi",
+  "skills": [
+    {
+      "registrationOrder": 554,
+      "programBundle": "classic-lu-zhi",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:mingren",
+        "name": "明任",
+        "description": "游戏开始时，你摸两张牌，然后将你的一张手牌置于你的武将牌上，称为“任”。结束阶段，你可以用手牌替换“任”。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 555,
+      "programBundle": "classic-lu-zhi",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:zhenliang",
+        "name": "贞良",
+        "description": "转换技，阳：出牌阶段限一次，你可以选择攻击范围内的一名其他角色，然后弃置一张与“任”颜色相同的牌对其造成1点伤害。阴：当你于回合外使用或打出的牌置入弃牌堆时，若此牌与“任”颜色相同，你可以令一名角色摸一张牌。",
+        "tags": "Conversion",
+        "executionForms": "State, Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 556,
+      "pools": {
+        "current": 174
+      },
+      "definition": {
+        "id": "classic:lu-zhi",
+        "name": "卢植",
+        "portraitKey": "lu_zhi",
+        "skillId": "classic:mingren",
+        "factionId": "qun",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "classic:zhenliang"
+        ],
+        "gender": "Male",
+        "characterId": "character:lu-zhi",
+        "variantId": "classic",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

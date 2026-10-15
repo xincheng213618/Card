@@ -1,0 +1,54 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:huang-quan",
+  "skills": [
+    {
+      "registrationOrder": 1165,
+      "programBundle": "ol-huang-quan",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:dianhu",
+        "name": "点虎",
+        "description": "锁定技，游戏开始时，你指定一名其他角色，在本局中，当你对其造成伤害或其回复体力后，你摸一张牌。",
+        "tags": "Locked",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 1166,
+      "programBundle": "ol-huang-quan",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:jianji",
+        "name": "谏计",
+        "description": "出牌阶段限一次，你可以令一名其他角色摸一张牌，然后其可以使用此牌。",
+        "executionForms": "State",
+        "actionForms": "Active"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1167,
+      "pools": {
+        "current": 376
+      },
+      "definition": {
+        "id": "ol:huang-quan",
+        "name": "黄权·OL",
+        "portraitKey": "ol-huang-quan",
+        "skillId": "ol:dianhu",
+        "factionId": "shu",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "ol:jianji"
+        ],
+        "gender": "Male",
+        "characterId": "character:huang-quan",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

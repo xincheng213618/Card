@@ -1,0 +1,51 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:liu-bei",
+  "skills": [
+    {
+      "registrationOrder": 0,
+      "programBundle": "classic-active-cutover",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:rende",
+        "name": "仁德",
+        "description": "出牌阶段，你可以将任意张手牌交给其他角色，然后你本阶段以此法给出第二张牌或更多时，你回复 1 点体力。",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 46,
+      "programBundle": "classic-active-cutover",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:jijiang",
+        "name": "激将",
+        "description": "主公技，当你需要使用或打出【杀】时，你可以令其他蜀势力角色依次选择是否打出一张【杀】；视为由你使用或打出。",
+        "tags": "Lord",
+        "executionForms": "Trigger",
+        "actionForms": "Active"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 209,
+      "pools": {
+        "current": 0
+      },
+      "definition": {
+        "id": "classic:liu-bei",
+        "name": "刘备",
+        "portraitKey": "liu_bei",
+        "skillId": "classic:rende",
+        "factionId": "shu",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "classic:jijiang"
+        ],
+        "gender": "Male"
+      }
+    }
+  ]
+}

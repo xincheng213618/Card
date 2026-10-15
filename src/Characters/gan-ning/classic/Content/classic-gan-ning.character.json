@@ -1,0 +1,35 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:gan-ning",
+  "skills": [
+    {
+      "registrationOrder": 48,
+      "programBundle": "conversion-cutover",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:qixi",
+        "name": "奇袭",
+        "description": "你可以将一张黑色牌当【过河拆桥】使用。",
+        "executionForms": "State"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 219,
+      "pools": {
+        "current": 17
+      },
+      "definition": {
+        "id": "classic:gan-ning",
+        "name": "甘宁",
+        "portraitKey": "gan_ning",
+        "skillId": "classic:qixi",
+        "factionId": "wu",
+        "baseHp": 4,
+        "gender": "Male"
+      }
+    }
+  ]
+}

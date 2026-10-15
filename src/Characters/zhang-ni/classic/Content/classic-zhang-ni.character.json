@@ -1,0 +1,53 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhang-ni",
+  "skills": [
+    {
+      "registrationOrder": 446,
+      "programBundle": "classic-zhang-ni",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:wurong",
+        "name": "怃戎",
+        "description": "出牌阶段限一次，你可以和一名其他角色同时展示一张手牌：若你的展示牌为〖杀〗且其展示牌不为〖闪〗，你弃置此〖杀〗并对其造成1点伤害；若你的展示牌不为〖杀〗且其展示牌为〖闪〗，你弃置此牌并获得其一张牌。",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 447,
+      "programBundle": "classic-zhang-ni",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:shizhi",
+        "name": "矢志",
+        "description": "锁定技，若你的体力值为1，你的〖闪〗视为〖杀〗。",
+        "tags": "Locked",
+        "executionForms": "State"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 461,
+      "pools": {
+        "current": 394
+      },
+      "definition": {
+        "id": "classic:zhang-ni",
+        "name": "张嶷",
+        "portraitKey": "zhang_ni",
+        "skillId": "classic:wurong",
+        "factionId": "shu",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "classic:shizhi"
+        ],
+        "gender": "Male",
+        "characterId": "character:zhang-ni",
+        "variantId": "classic",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

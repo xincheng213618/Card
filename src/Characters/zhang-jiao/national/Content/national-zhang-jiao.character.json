@@ -1,0 +1,45 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-national-zhang-jiao",
+  "characterId": "character:zhang-jiao",
+  "skills": [
+    {
+      "registrationOrder": 0,
+      "programBundle": "national-zhang-jiao",
+      "includeProgramPresentation": false,
+      "definition": {
+        "id": "national:guidao",
+        "name": "鬼道",
+        "description": "一名角色的判定牌生效前，你可以打出一张黑色牌替换之，并获得原判定牌。"
+      }
+    },
+    {
+      "registrationOrder": 1,
+      "programBundle": "national-zhang-jiao",
+      "includeProgramPresentation": false,
+      "definition": {
+        "id": "national:leiji",
+        "name": "雷击",
+        "description": "当你使用或打出【闪】时，你可以令一名其他角色判定：若结果为黑桃，你对其造成2点雷电伤害。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 2,
+      "pools": {},
+      "definition": {
+        "id": "national:zhang-jiao",
+        "name": "张角",
+        "portraitKey": "zhang_jiao",
+        "skillId": "national:leiji",
+        "factionId": "qun",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "national:guidao"
+        ],
+        "gender": "Male"
+      }
+    }
+  ]
+}

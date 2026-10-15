@@ -1,0 +1,40 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhuge-liang",
+  "skills": [
+    {
+      "registrationOrder": 604,
+      "programBundle": "boundary-zhuge-liang",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:guanxing-current",
+        "name": "观星",
+        "description": "准备阶段，你可以观看牌堆顶的五张牌（存活角色数小于4时改为三张），然后将之以任意顺序置于牌堆顶或牌堆底。若皆置于牌堆底，结束阶段你可以再次发动本技能。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 605,
+      "pools": {
+        "current": 191
+      },
+      "definition": {
+        "id": "boundary:zhuge-liang",
+        "name": "界诸葛亮",
+        "portraitKey": "boundary_zhuge_liang",
+        "skillId": "boundary:guanxing-current",
+        "factionId": "shu",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "classic:kongcheng"
+        ],
+        "gender": "Male",
+        "characterId": "character:zhuge-liang",
+        "variantId": "boundary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

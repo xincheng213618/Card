@@ -1,0 +1,62 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:liu-biao",
+  "skills": [
+    {
+      "registrationOrder": 17,
+      "programBundle": "draw-policy-skills",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:zishou",
+        "name": "自守",
+        "description": "摸牌阶段摸牌时，你可以额外摸X张牌（X为现存势力数）。若如此做，你于本回合出牌阶段内使用的牌不能指定其他角色为目标。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 18,
+      "programBundle": "rule-query-skills",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:zongshi",
+        "name": "宗室",
+        "description": "锁定技，你的手牌上限+X（X为现存势力数）。",
+        "tags": "Locked",
+        "executionForms": "State"
+      }
+    },
+    {
+      "registrationOrder": 100,
+      "programBundle": "rule-query-skills",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "sp:guan-yu-mashu",
+        "name": "马术",
+        "description": "锁定技，你计算与其他角色的距离 -1。",
+        "tags": "Locked",
+        "executionForms": "State"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 270,
+      "pools": {
+        "current": 56
+      },
+      "definition": {
+        "id": "classic:liu-biao",
+        "name": "刘表",
+        "portraitKey": "liu_biao",
+        "skillId": "classic:zishou",
+        "factionId": "qun",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "classic:zongshi"
+        ],
+        "gender": "Male"
+      }
+    }
+  ]
+}

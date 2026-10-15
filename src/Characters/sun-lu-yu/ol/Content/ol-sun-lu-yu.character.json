@@ -1,0 +1,64 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:sun-lu-yu",
+  "skills": [
+    {
+      "registrationOrder": 1055,
+      "programBundle": "ol-sun-lu-yu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:meibu",
+        "name": "魅步",
+        "description": "其他角色出牌阶段开始时，若你在其攻击范围内，你可以弃置一张牌，令其本回合视为拥有“止息”。若你弃置的牌不是【杀】或黑色锦囊牌，本回合其与你的距离视为1。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 1056,
+      "programBundle": "ol-sun-lu-yu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:mumu",
+        "name": "穆穆",
+        "description": "出牌阶段开始时，你可以选择一项：1.弃置一名其他角色装备区里的一张牌；2.获得一名角色装备区里的一张防具牌，若如此做，你本回合不能使用或打出【杀】。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 1057,
+      "programBundle": "ol-sun-lu-yu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:zhixi",
+        "name": "止息",
+        "description": "锁定技，出牌阶段，若你本阶段使用过锦囊牌或X张牌（X为你的体力值），你不能使用牌。",
+        "tags": "Locked",
+        "executionForms": "State"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1058,
+      "pools": {
+        "current": 342
+      },
+      "definition": {
+        "id": "ol:sun-lu-yu",
+        "name": "孙鲁育·OL",
+        "portraitKey": "ol-sun-lu-yu",
+        "skillId": "ol:mumu",
+        "factionId": "wu",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "ol:meibu"
+        ],
+        "gender": "Female",
+        "characterId": "character:sun-lu-yu",
+        "variantId": "ol",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

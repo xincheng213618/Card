@@ -1,0 +1,51 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhou-yu",
+  "skills": [
+    {
+      "registrationOrder": 156,
+      "programBundle": "classic-shen-zhou-yu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:qinyin",
+        "name": "琴音",
+        "description": "弃牌阶段结束时，若你于此阶段内弃置过你的至少两张手牌，你可以选择一项：1.令所有角色各回复1点体力；2.令所有角色各失去1点体力。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 157,
+      "programBundle": "classic-shen-zhou-yu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:yeyan",
+        "name": "业炎",
+        "description": "限定技，出牌阶段，你可以选择一至三名角色，对这些角色造成至多共3点火焰伤害（你选择目标时任意分配每名目标角色受到的伤害点数，若你将对一名角色分配的火焰伤害点数大于等于2，你须先弃置四张花色各不相同的手牌并失去3点体力）。",
+        "tags": "Limited",
+        "executionForms": "State",
+        "actionForms": "Active"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 307,
+      "pools": {
+        "current": 111
+      },
+      "definition": {
+        "id": "classic:shen-zhou-yu",
+        "name": "神周瑜",
+        "portraitKey": "shen_zhou_yu",
+        "skillId": "classic:qinyin",
+        "factionId": "god",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "classic:yeyan"
+        ],
+        "gender": "Male"
+      }
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:da-qiao",
+  "skills": [
+    {
+      "registrationOrder": 64,
+      "programBundle": "conversion-cutover",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:guose",
+        "name": "国色",
+        "description": "你可以将一张方块牌当【乐不思蜀】使用。",
+        "executionForms": "State"
+      }
+    },
+    {
+      "registrationOrder": 65,
+      "programBundle": "passive-response-rules",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:liuli",
+        "name": "流离",
+        "description": "当你成为【杀】的目标时，你可以弃置一张牌，将此【杀】转移给你攻击范围内且不为此【杀】使用者的另一名合法角色。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 234,
+      "pools": {
+        "current": 25
+      },
+      "definition": {
+        "id": "classic:da-qiao",
+        "name": "大乔",
+        "portraitKey": "da_qiao",
+        "skillId": "classic:guose",
+        "factionId": "wu",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "classic:liuli"
+        ],
+        "gender": "Female"
+      }
+    }
+  ]
+}

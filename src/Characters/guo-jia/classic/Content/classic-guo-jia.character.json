@@ -1,0 +1,55 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:guo-jia",
+  "skills": [
+    {
+      "registrationOrder": 7,
+      "programBundle": "damage-skills",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:yiji",
+        "name": "遗计",
+        "description": "每受到 1 点伤害后，你可以摸两张牌，然后可以将其中一张交给一名其他存活角色。",
+        "executionForms": "Trigger",
+        "revealWeights": {
+          "base": 4,
+          "wounded": 31,
+          "emptyHand": 0,
+          "repeatedSlash": 0
+        }
+      }
+    },
+    {
+      "registrationOrder": 42,
+      "programBundle": "judgment-cutover",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:tiandu",
+        "name": "天妒",
+        "description": "当你的判定牌生效后，你可以获得此牌。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 214,
+      "pools": {
+        "current": 24
+      },
+      "definition": {
+        "id": "classic:guo-jia",
+        "name": "郭嘉",
+        "portraitKey": "guo_jia",
+        "skillId": "classic:tiandu",
+        "factionId": "wei",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "classic:yiji"
+        ],
+        "gender": "Male"
+      }
+    }
+  ]
+}

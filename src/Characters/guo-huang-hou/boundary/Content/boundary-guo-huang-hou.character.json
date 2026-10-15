@@ -1,0 +1,50 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:guo-huang-hou",
+  "skills": [
+    {
+      "registrationOrder": 773,
+      "programBundle": "boundary-guo-huang-hou",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:jiaozhao-round-current",
+        "name": "矫诏",
+        "description": "出牌阶段限一次，你可将一张牌当本轮未有角色使用过的基本或普通锦囊牌使用。修改一：每轮限一次，你可将一张牌当任意基本牌或普通锦囊牌使用。修改二：每轮限一次，你可视为使用一张基本牌或普通锦囊。"
+      }
+    },
+    {
+      "registrationOrder": 774,
+      "programBundle": "boundary-guo-huang-hou",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:danxin-capped-current",
+        "name": "殚心",
+        "description": "当你受到伤害后，你可摸X张牌，然后修改“矫诏”（X为你修改“矫诏”的次数）。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 775,
+      "pools": {
+        "current": 249
+      },
+      "definition": {
+        "id": "boundary:guo-huang-hou",
+        "name": "界郭皇后",
+        "portraitKey": "boundary_guo_huang_hou",
+        "skillId": "boundary:jiaozhao-round-current",
+        "factionId": "wei",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "boundary:danxin-capped-current"
+        ],
+        "gender": "Female",
+        "characterId": "character:guo-huang-hou",
+        "variantId": "boundary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

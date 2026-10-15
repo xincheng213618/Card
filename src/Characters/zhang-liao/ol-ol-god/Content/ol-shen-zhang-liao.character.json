@@ -1,0 +1,53 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhang-liao",
+  "skills": [
+    {
+      "registrationOrder": 337,
+      "programBundle": "ol-strategic-gods",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:duorui",
+        "name": "夺锐",
+        "description": "当你于出牌阶段对其他角色造成伤害后，若其技能未因本技能失效，你可以令其武将牌上的一个技能于下回合结束前失效，然后结束出牌阶段。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 338,
+      "programBundle": "ol-strategic-gods",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:zhiti",
+        "name": "止啼",
+        "description": "锁定技，你攻击范围内已受伤角色的手牌上限-1。若已受伤角色数不小于：1,你的手牌上限+1；3,你摸牌阶段摸牌数+1；5,结束阶段，你废除一名其他角色随机一个装备栏。",
+        "tags": "Locked",
+        "executionForms": "State, Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 367,
+      "pools": {
+        "current": 118
+      },
+      "definition": {
+        "id": "ol:shen-zhang-liao",
+        "name": "神张辽",
+        "portraitKey": "ol_shen_zhang_liao",
+        "skillId": "ol:duorui",
+        "factionId": "god",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "ol:zhiti"
+        ],
+        "gender": "Male",
+        "characterId": "character:zhang-liao",
+        "variantId": "ol-god",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

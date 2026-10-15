@@ -1,0 +1,37 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:wang-shuang",
+  "skills": [
+    {
+      "registrationOrder": 861,
+      "programBundle": "ol-wang-shuang",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:zhui-lie",
+        "name": "追猎",
+        "description": "锁定技，你使用【杀】无距离限制。当你使用【杀】指定攻击范围外的角色为目标后，此【杀】无次数限制且你判定，若为武器牌或坐骑牌，此【杀】伤害值等于其体力值，否则你失去1点体力。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 862,
+      "pools": {
+        "current": 280
+      },
+      "definition": {
+        "id": "ol:wang-shuang",
+        "name": "王双",
+        "portraitKey": "ol-wang-shuang",
+        "skillId": "ol:zhui-lie",
+        "factionId": "wei",
+        "baseHp": 8,
+        "gender": "Male",
+        "characterId": "character:wang-shuang",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

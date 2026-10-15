@@ -1,0 +1,51 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zu-mao",
+  "skills": [
+    {
+      "registrationOrder": 904,
+      "programBundle": "ordinary-zu-mao",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:yinbing",
+        "name": "引兵",
+        "description": "结束阶段，你可以将任意张非基本牌置于你的武将牌上。当你受到【杀】或【决斗】造成的伤害后，你移去一张“引兵”牌。"
+      }
+    },
+    {
+      "registrationOrder": 905,
+      "programBundle": "ordinary-zu-mao",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:juedi",
+        "name": "绝地",
+        "description": "锁定技，准备阶段，你选择一项：1.移去所有“引兵”牌，将手牌摸至体力上限；2.令一名体力值不大于你的其他角色获得所有“引兵”牌，然后回复1点体力并摸等量张牌。",
+        "tags": "Locked"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 906,
+      "pools": {
+        "current": 295
+      },
+      "definition": {
+        "id": "ol:zu-mao",
+        "name": "祖茂",
+        "portraitKey": "ol-zu-mao",
+        "skillId": "ol:yinbing",
+        "factionId": "wu",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "ol:juedi"
+        ],
+        "gender": "Male",
+        "characterId": "character:zu-mao",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

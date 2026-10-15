@@ -1,0 +1,52 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:kan-ze",
+  "skills": [
+    {
+      "registrationOrder": 1123,
+      "programBundle": "ol-kan-ze",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:xiashu",
+        "name": "下书",
+        "description": "出牌阶段开始时，你可以交给一名其他角色所有手牌，然后其展示任意张手牌，你选择获得其：1.以此法展示的牌；2.未以此法展示的手牌。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 1124,
+      "programBundle": "ol-kan-ze",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:kuanshi",
+        "name": "宽释",
+        "description": "结束阶段，你可以选择一名角色，当其于你下回合开始前受到大于1点的伤害时，你防止之并跳过下回合摸牌阶段。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1125,
+      "pools": {
+        "current": 364
+      },
+      "definition": {
+        "id": "ol:kan-ze",
+        "name": "阚泽·OL",
+        "portraitKey": "ol-kan-ze",
+        "skillId": "ol:xiashu",
+        "factionId": "wu",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "ol:kuanshi"
+        ],
+        "gender": "Male",
+        "characterId": "character:kan-ze",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

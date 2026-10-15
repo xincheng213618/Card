@@ -272,8 +272,7 @@ internal static class ZhuihuanRetaliationChecks
         public PackageManifest Manifest { get; } = new("fixture-zhuihuan-retaliation", new(1, 0, 0), []);
         public void Register(IContentRegistryBuilder builder)
         {
-            typeof(StandardContentPackage).Assembly.GetType("CardGame.Content.Standard.OrdinaryYangWanContent", throwOnError: true)!
-                .GetMethod("Register", BindingFlags.Static | BindingFlags.NonPublic)!.Invoke(null, [builder]);
+            CharacterFixtureContent.Register(builder, "ol:yang-wan");
             var incoming = Enumerable.Range(1, 3).Select(index => new
             {
                 id = $"incoming-{index}", window = "afterTurnEnded", subject = "owner", priority = 4 - index,

@@ -122,13 +122,7 @@ internal static class GuanYuVariantChecks
         public PackageManifest Manifest { get; } = new("guan-variants-fixture", new(1, 0, 0));
         public void Register(IContentRegistryBuilder b)
         {
-            try
-            {
-                typeof(StandardContentPackage).Assembly.GetType("CardGame.Content.Standard.GuanYuVariantsContent")!
-                    .GetMethod("Register", BindingFlags.Static | BindingFlags.NonPublic)!.Invoke(null, [b]);
-            }
-            catch (TargetInvocationException e) when (e.InnerException is not null)
-            { System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(e.InnerException).Throw(); }
+            CharacterFixtureContent.Register(b, "mou:guan-yu-mobile", "mou:guan-yu-ol", "magic:guan-yu");
             var blanks = Enumerable.Range(1, 3).Select(i => "fixture:guan-blank-" + i).ToArray();
             foreach (var id in blanks) b.AddGeneral(new(id, id, "supporter", "standard:none", "qun", hp));
             b.AddDeck(new("fixture:guan-deck", "Guan fixture", 12, 0, []) {

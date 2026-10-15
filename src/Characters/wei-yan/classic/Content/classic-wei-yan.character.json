@@ -1,0 +1,36 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:wei-yan",
+  "skills": [
+    {
+      "registrationOrder": 59,
+      "programBundle": "passive-damage-cutover",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:kuanggu",
+        "name": "狂骨",
+        "description": "你对距离不大于1的角色造成伤害后，每造成1点伤害，你回复1点体力。",
+        "tags": "Locked",
+        "executionForms": "State"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 229,
+      "pools": {
+        "current": 14
+      },
+      "definition": {
+        "id": "classic:wei-yan",
+        "name": "魏延",
+        "portraitKey": "wei_yan",
+        "skillId": "classic:kuanggu",
+        "factionId": "shu",
+        "baseHp": 4,
+        "gender": "Male"
+      }
+    }
+  ]
+}

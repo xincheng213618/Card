@@ -1,0 +1,38 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:gongsun-yuan",
+  "skills": [
+    {
+      "registrationOrder": 452,
+      "programBundle": "classic-gongsun-yuan",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:huaiyi",
+        "name": "怀异",
+        "description": "出牌阶段限一次，你可以展示所有手牌，弃置其中一种颜色的牌，然后获得至多X名角色的各一张牌（X为弃置的手牌数）。若你以此法获得了至少两张牌，你失去1点体力。",
+        "actionForms": "Active"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 464,
+      "pools": {
+        "current": 397
+      },
+      "definition": {
+        "id": "classic:gongsun-yuan",
+        "name": "公孙渊",
+        "portraitKey": "gongsun_yuan",
+        "skillId": "classic:huaiyi",
+        "factionId": "qun",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:gongsun-yuan",
+        "variantId": "classic",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

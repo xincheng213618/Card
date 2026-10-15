@@ -1,0 +1,64 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:wang-yun",
+  "skills": [
+    {
+      "registrationOrder": 1126,
+      "programBundle": "ol-wang-yun",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:lianji",
+        "name": "连计",
+        "description": "出牌阶段限一次，你可以弃置一张手牌令一名其他角色随机使用牌堆中一张武器牌，然后其选择一项：1.对你指定的一名角色使用【杀】；2.你将其装备区的武器交给一名角色。",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 1127,
+      "programBundle": "ol-wang-yun",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:moucheng",
+        "name": "谋逞",
+        "description": "觉醒技，准备阶段，若你本局“连计”中使用的【杀】造成过伤害，你失去“连计”并获得“矜功”。",
+        "tags": "Awakening",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 1128,
+      "programBundle": "ol-wang-yun",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:jingong",
+        "name": "矜功",
+        "description": "出牌阶段限一次，你可以将一张【杀】或装备牌当三张随机锦囊牌中的一张使用。",
+        "actionForms": "Active"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1129,
+      "pools": {
+        "current": 365
+      },
+      "definition": {
+        "id": "ol:wang-yun",
+        "name": "王允·OL",
+        "portraitKey": "ol-wang-yun",
+        "skillId": "ol:lianji",
+        "factionId": "qun",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "ol:moucheng"
+        ],
+        "gender": "Male",
+        "characterId": "character:wang-yun",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:shi-tao",
+  "skills": [
+    {
+      "registrationOrder": 1022,
+      "programBundle": "friend-events",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "friend:qinying",
+        "name": "钦英",
+        "description": "出牌阶段限一次，你可以重铸任意张牌，视为使用一张【决斗】。若如此做，此【决斗】结算过程中限X次（X为你以此法重铸的牌数），你或目标角色可以弃置区域中的一张牌，视为打出一张普通【杀】。"
+      }
+    },
+    {
+      "registrationOrder": 1023,
+      "programBundle": "friend-events",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "friend:lunxiong",
+        "name": "论雄",
+        "description": "当你造成或者受到伤害后，你可以弃置点数唯一最大的手牌，然后你摸三张牌且你本局游戏以此法弃置的点数必须大于此牌。"
+      }
+    },
+    {
+      "registrationOrder": 1024,
+      "programBundle": "friend-events",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "friend:shi-tao-gongli",
+        "name": "共砺",
+        "description": "锁定技，游戏开始时，你令本局“钦英”减少X个可用于弃置的类别的牌（X为全场友武将数）。",
+        "tags": "Locked"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1028,
+      "pools": {
+        "current": 331
+      },
+      "definition": {
+        "id": "friend:shi-tao",
+        "name": "友石韬",
+        "portraitKey": "friend-shi-tao",
+        "skillId": "friend:qinying",
+        "factionId": "qun",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "friend:lunxiong",
+          "friend:shi-tao-gongli"
+        ],
+        "gender": "Male",
+        "characterId": "character:shi-tao",
+        "variantId": "friend",
+        "rulesetId": "sanguosha-mobile"
+      }
+    }
+  ]
+}

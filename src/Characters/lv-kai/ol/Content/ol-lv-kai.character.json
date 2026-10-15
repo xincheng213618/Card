@@ -1,0 +1,50 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:lv-kai",
+  "skills": [
+    {
+      "registrationOrder": 810,
+      "programBundle": "ol-lv-kai",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:tunan",
+        "name": "图南",
+        "description": "出牌阶段限一次，你可以令一名其他角色观看牌堆顶的一张牌，然后其选择一项：1.使用此牌（无距离限制）；2.将此牌当【杀】使用。"
+      }
+    },
+    {
+      "registrationOrder": 811,
+      "programBundle": "ol-lv-kai",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:bijing",
+        "name": "闭境",
+        "description": "结束阶段，你可以将至多两张手牌标记为“闭境”牌：1.准备阶段，你重铸手牌中的“闭境”牌；2.其他角色的弃牌阶段开始时，若你本回合失去过“闭境”牌，其弃置两张牌。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 812,
+      "pools": {
+        "current": 263
+      },
+      "definition": {
+        "id": "ol:lv-kai",
+        "name": "吕凯",
+        "portraitKey": "ol-lv-kai",
+        "skillId": "ol:tunan",
+        "factionId": "shu",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "ol:bijing"
+        ],
+        "gender": "Male",
+        "characterId": "character:lv-kai",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

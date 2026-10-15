@@ -1,0 +1,50 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:diao-chan",
+  "skills": [
+    {
+      "registrationOrder": 887,
+      "programBundle": "ordinary-sp-diao-chan",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:lihun",
+        "name": "离魂",
+        "description": "出牌阶段限一次，你可以弃置一张牌、翻面并获得一名男性角色的所有手牌。出牌阶段结束时，你交给其与其体力值等量张牌。"
+      }
+    },
+    {
+      "registrationOrder": 888,
+      "programBundle": "ordinary-sp-diao-chan",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:biyue",
+        "name": "闭月",
+        "description": "结束阶段，若你没有手牌，你可以摸两张牌，否则你可以摸一张牌。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 889,
+      "pools": {
+        "current": 290
+      },
+      "definition": {
+        "id": "ol:sp-diao-chan",
+        "name": "SP貂蝉",
+        "portraitKey": "ol-sp-diao-chan",
+        "skillId": "ol:lihun",
+        "factionId": "qun",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "ol:biyue"
+        ],
+        "gender": "Female",
+        "characterId": "character:diao-chan",
+        "variantId": "sp",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

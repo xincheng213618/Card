@@ -1,0 +1,65 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:pang-tong",
+  "skills": [
+    {
+      "registrationOrder": 1185,
+      "programBundle": "ol-pang-tong-sp",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:guolun",
+        "name": "过论",
+        "description": "出牌阶段限一次，你可以展示一名其他角色一张手牌，然后你可以选择你的一张牌，你与其交换这两张牌，交换前的牌点数小的角色摸一张牌。",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 1186,
+      "programBundle": "ol-pang-tong-sp",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:songsang",
+        "name": "送丧",
+        "description": "限定技，当其他角色死亡时，若你已受伤，你可以回复1点体力；若你未受伤，你可以增加1点体力上限。若如此做，你获得“展骥”。",
+        "tags": "Limited",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 1187,
+      "programBundle": "ol-pang-tong-sp",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:zhanji",
+        "name": "展骥",
+        "description": "锁定技，当你于出牌阶段内非因本技能而摸牌后，你摸一张牌。",
+        "tags": "Locked",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1188,
+      "pools": {
+        "current": 383
+      },
+      "definition": {
+        "id": "ol:pang-tong-sp",
+        "name": "SP庞统·OL",
+        "portraitKey": "ol-pang-tong-sp",
+        "skillId": "ol:guolun",
+        "factionId": "wu",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "ol:songsang"
+        ],
+        "gender": "Male",
+        "characterId": "character:pang-tong",
+        "variantId": "sp",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

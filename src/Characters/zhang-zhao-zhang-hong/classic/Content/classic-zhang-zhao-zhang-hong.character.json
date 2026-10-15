@@ -1,0 +1,49 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhang-zhao-zhang-hong",
+  "skills": [
+    {
+      "registrationOrder": 202,
+      "programBundle": "classic-zhang-zhao-zhang-hong",
+      "includeProgramPresentation": false,
+      "definition": {
+        "id": "classic:zhijian",
+        "name": "直谏",
+        "description": "出牌阶段，你可以将手牌中的一张装备牌置于一名其他角色的装备区里（不得替换其原有装备），然后摸一张牌。",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 203,
+      "programBundle": "classic-zhang-zhao-zhang-hong",
+      "includeProgramPresentation": false,
+      "definition": {
+        "id": "classic:guzheng",
+        "name": "固政",
+        "description": "其他角色的弃牌阶段结束时，你可以令该角色获得弃牌堆里的其于此阶段内弃置的一张手牌，若如此做，你可以获得弃牌堆里的其余于此阶段内弃置的牌。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 317,
+      "pools": {
+        "current": 104
+      },
+      "definition": {
+        "id": "classic:zhang-zhao-zhang-hong",
+        "name": "张昭张纮",
+        "portraitKey": "zhang_zhao_zhang_hong",
+        "skillId": "classic:zhijian",
+        "factionId": "wu",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "classic:guzheng"
+        ],
+        "gender": "Male"
+      }
+    }
+  ]
+}

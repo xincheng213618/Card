@@ -1,0 +1,49 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:lu-meng",
+  "skills": [
+    {
+      "registrationOrder": 205,
+      "programBundle": "classic-shen-lu-meng",
+      "includeProgramPresentation": false,
+      "definition": {
+        "id": "classic:shelie",
+        "name": "涉猎",
+        "description": "摸牌阶段开始时，你可以放弃摸牌，从牌堆顶亮出五张牌，然后获得其中不同花色的牌各一张，将其余的牌置入弃牌堆。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 206,
+      "programBundle": "classic-shen-lu-meng",
+      "includeProgramPresentation": false,
+      "definition": {
+        "id": "classic:gongxin",
+        "name": "攻心",
+        "description": "出牌阶段限1次，你可以观看1名其他角色的手牌，然后你可以展示其中1张红桃牌，选择1项：1.弃置此牌；2.将此牌置于牌堆顶。",
+        "actionForms": "Active"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 262,
+      "pools": {
+        "current": 107
+      },
+      "definition": {
+        "id": "classic:shen-lu-meng",
+        "name": "神吕蒙",
+        "portraitKey": "shen_lu_meng",
+        "skillId": "classic:shelie",
+        "factionId": "god",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "classic:gongxin"
+        ],
+        "gender": "Male"
+      }
+    }
+  ]
+}

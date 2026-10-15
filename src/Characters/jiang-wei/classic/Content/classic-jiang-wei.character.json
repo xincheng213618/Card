@@ -1,0 +1,50 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:jiang-wei",
+  "skills": [
+    {
+      "registrationOrder": 189,
+      "programBundle": "classic-jiang-wei",
+      "includeProgramPresentation": false,
+      "definition": {
+        "id": "classic:tiaoxin",
+        "name": "挑衅",
+        "description": "出牌阶段限一次，你可以选择一名攻击范围内含有你的其他角色，该角色需对你使用一张【杀】，否则你弃置其一张牌。",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 190,
+      "programBundle": "classic-jiang-wei",
+      "includeProgramPresentation": false,
+      "definition": {
+        "id": "classic:zhiji",
+        "name": "志继",
+        "description": "觉醒技，准备阶段开始时，若你没有手牌，你选择一项：1.回复1点体力；2.摸两张牌。然后你减1点体力上限，获得“观星”。",
+        "tags": "Awakening",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 320,
+      "pools": {
+        "current": 101
+      },
+      "definition": {
+        "id": "classic:jiang-wei",
+        "name": "姜维",
+        "portraitKey": "jiang_wei",
+        "skillId": "classic:tiaoxin",
+        "factionId": "shu",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "classic:zhiji"
+        ],
+        "gender": "Male"
+      }
+    }
+  ]
+}

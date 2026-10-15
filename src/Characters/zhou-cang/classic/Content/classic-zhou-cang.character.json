@@ -1,0 +1,38 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhou-cang",
+  "skills": [
+    {
+      "registrationOrder": 426,
+      "programBundle": "classic-zhou-cang",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:zhongyong",
+        "name": "忠勇",
+        "description": "当你使用【杀】后，你可以将此【杀】或目标角色响应的【闪】交给一名其他角色，若此牌为红色，其可以对你攻击范围内一名角色使用一张【杀】。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 433,
+      "pools": {
+        "current": 145
+      },
+      "definition": {
+        "id": "classic:zhou-cang",
+        "name": "周仓",
+        "portraitKey": "zhou_cang",
+        "skillId": "classic:zhongyong",
+        "factionId": "shu",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:zhou-cang",
+        "variantId": "classic",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

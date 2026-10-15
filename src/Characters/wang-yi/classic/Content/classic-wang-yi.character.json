@@ -1,0 +1,49 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:wang-yi",
+  "skills": [
+    {
+      "registrationOrder": 19,
+      "programBundle": "classic-zhenlie-skills",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:zhenlie",
+        "name": "贞烈",
+        "description": "当你成为其他角色使用【杀】或普通锦囊牌的目标后，你可以失去1点体力，令此牌对你无效，然后你弃置其一张牌。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 20,
+      "programBundle": "owned-card-distribution-skills",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:miji",
+        "name": "秘计",
+        "description": "结束阶段，若你已受伤，你可以摸X张牌（X为你已损失的体力值）。若如此做，你可以将等量的手牌交给其他角色。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 271,
+      "pools": {
+        "current": 57
+      },
+      "definition": {
+        "id": "classic:wang-yi",
+        "name": "王异",
+        "portraitKey": "wang_yi",
+        "skillId": "classic:zhenlie",
+        "factionId": "wei",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "classic:miji"
+        ],
+        "gender": "Female"
+      }
+    }
+  ]
+}

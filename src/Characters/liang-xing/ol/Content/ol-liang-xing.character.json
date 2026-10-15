@@ -1,0 +1,50 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:liang-xing",
+  "skills": [
+    {
+      "registrationOrder": 802,
+      "programBundle": "ol-liang-xing",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:luelve",
+        "name": "掳掠",
+        "description": "出牌阶段开始时，你可以令一名有手牌且手牌数小于你的其他角色选择一项：1.将所有手牌交给你，然后你翻面；2.翻面，视为对你使用一张【杀】。"
+      }
+    },
+    {
+      "registrationOrder": 803,
+      "programBundle": "ol-liang-xing",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:zhuanxi",
+        "name": "追袭",
+        "description": "锁定技，当你对其他角色造成伤害时，或受到其他角色造成的伤害时，若其中一方武将牌背面朝上且另一方武将牌正面朝上，此伤害+1。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 804,
+      "pools": {
+        "current": 260
+      },
+      "definition": {
+        "id": "ol:liang-xing",
+        "name": "梁兴",
+        "portraitKey": "ol-liang-xing",
+        "skillId": "ol:luelve",
+        "factionId": "qun",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "ol:zhuanxi"
+        ],
+        "gender": "Male",
+        "characterId": "character:liang-xing",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

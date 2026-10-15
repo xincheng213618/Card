@@ -1,0 +1,92 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:guan-yu",
+  "skills": [
+    {
+      "registrationOrder": 376,
+      "programBundle": "guan-yu-variants",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou-mobile:wusheng",
+        "name": "武圣",
+        "description": "你可以将一张手牌当【杀】使用或打出。出牌阶段开始时，你可以指定一名主公以外的其他角色。此阶段：你对其使用【杀】无距离和次数限制；你使用【杀】指定其为目标后，你摸一张牌（身份场改为两张）；你对其使用三张【杀】后，不可再指定其为你使用【杀】的目标。"
+      }
+    },
+    {
+      "registrationOrder": 377,
+      "programBundle": "guan-yu-variants",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou-mobile:yijue",
+        "name": "义绝",
+        "description": "锁定技，一名其他角色于你的回合内受到你造成的伤害时，若此伤害会令其进入濒死状态，防止之（每名角色每局限一次）。若如此做，直到回合结束，你使用牌指定其为目标时，取消之。",
+        "tags": "Locked"
+      }
+    },
+    {
+      "registrationOrder": 382,
+      "programBundle": "guan-yu-variants",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "magic:wushen",
+        "name": "武神",
+        "description": "锁定技，你的红桃手牌视为无距离限制的【杀】。",
+        "tags": "Locked"
+      }
+    },
+    {
+      "registrationOrder": 383,
+      "programBundle": "guan-yu-variants",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "magic:rende",
+        "name": "仁德",
+        "description": "出牌阶段，你可以将任意张手牌交给授予此技能的魔关羽，每阶段你以此法给出第二张牌时，你回复1点体力。"
+      }
+    },
+    {
+      "registrationOrder": 384,
+      "programBundle": "guan-yu-variants",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "magic:qingnang",
+        "name": "青囊",
+        "description": "出牌阶段限一次，你可以弃置一张手牌，然后令授予此技能的魔关羽回复1点体力。"
+      }
+    },
+    {
+      "registrationOrder": 385,
+      "programBundle": "guan-yu-variants",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "magic:longyin",
+        "name": "龙吟",
+        "description": "当授予此技能的魔关羽于其出牌阶段使用【杀】时，你可以弃置一张牌，令此【杀】不计入次数；若此【杀】为红色，你摸一张牌。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 386,
+      "pools": {
+        "current": 127
+      },
+      "definition": {
+        "id": "mou:guan-yu-mobile",
+        "name": "谋关羽·移动版",
+        "portraitKey": "mou-guan-yu-mobile",
+        "skillId": "mou-mobile:wusheng",
+        "factionId": "shu",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "mou-mobile:yijue"
+        ],
+        "gender": "Male",
+        "characterId": "character:guan-yu",
+        "variantId": "mou-mobile",
+        "rulesetId": "sanguosha-mobile"
+      }
+    }
+  ]
+}

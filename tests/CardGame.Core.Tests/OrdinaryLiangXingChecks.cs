@@ -111,17 +111,7 @@ internal static class OrdinaryLiangXingChecks
         public PackageManifest Manifest { get; } = new("fixture-lx", new(1, 0, 0), []);
         public void Register(IContentRegistryBuilder b)
         {
-            try
-            {
-                typeof(StandardContentPackage).Assembly.GetType("CardGame.Content.Standard.OrdinaryLiangXingContent")!
-                    .GetMethod("Register", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)!
-                    .Invoke(null, [b]);
-            }
-            catch (Exception diag)
-            {
-                Console.WriteLine("DIAG-INNER: " + (diag.InnerException?.ToString() ?? diag.ToString()));
-                throw;
-            }
+            CharacterFixtureContent.Register(b, "ol:liang-xing");
             b.AddGeneral(new("fixture:lx", "梁兴", "ol-liang-xing", Luelve, "qun", 4, [Zhuanxi]));
             for (var i = 1; i < 4; i++)
                 b.AddGeneral(new($"fixture:lx-{i}", "其他" + i, "supporter", "standard:none", "wei", 6, null));

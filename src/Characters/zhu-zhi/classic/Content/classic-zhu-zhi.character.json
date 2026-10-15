@@ -1,0 +1,34 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhu-zhi",
+  "skills": [
+    {
+      "registrationOrder": 119,
+      "programBundle": "classic-zhu-zhi",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:anguo",
+        "name": "安国",
+        "description": "出牌阶段限一次，你可以选择其他角色装备区里的一张牌，令其获得之。若该角色攻击范围内的角色数因此减少，你摸一张牌。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 285,
+      "pools": {
+        "current": 77
+      },
+      "definition": {
+        "id": "classic:zhu-zhi",
+        "name": "朱治",
+        "portraitKey": "zhu_zhi",
+        "skillId": "classic:anguo",
+        "factionId": "wu",
+        "baseHp": 4,
+        "gender": "Male"
+      }
+    }
+  ]
+}

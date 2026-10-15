@@ -1,0 +1,46 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard",
+  "characterId": "character:demo-ganglie",
+  "skills": [
+    {
+      "registrationOrder": 11,
+      "programBundle": "passive-damage-cutover",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "standard:ganglie",
+        "name": "刚烈",
+        "description": "你受到伤害后可判定，若为红色，伤害来源选择弃置两张手牌或受到1点伤害。",
+        "selectionWeights": {
+          "Lord": 39.0,
+          "Loyalist": 39.0,
+          "Rebel": 35.0,
+          "Renegade": 35.0
+        },
+        "revealWeights": {
+          "base": 4,
+          "wounded": 31,
+          "emptyHand": 0,
+          "repeatedSlash": 0
+        }
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 25,
+      "pools": {
+        "standard": 12
+      },
+      "definition": {
+        "id": "standard:demo-ganglie",
+        "name": "刚烈者",
+        "portraitKey": "ganglie",
+        "skillId": "standard:ganglie",
+        "factionId": "wei",
+        "baseHp": 4,
+        "gender": "Male"
+      }
+    }
+  ]
+}

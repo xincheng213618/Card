@@ -1,0 +1,35 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:guan-ping",
+  "skills": [
+    {
+      "registrationOrder": 40,
+      "programBundle": "classic-card-action-skills",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:longyin",
+        "name": "龙吟",
+        "description": "每当一名角色于其出牌阶段内使用【杀】时，你可以弃置一张牌，令此【杀】不计入限制的使用次数，然后若此【杀】为红色，你摸一张牌。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 282,
+      "pools": {
+        "current": 68
+      },
+      "definition": {
+        "id": "classic:guan-ping",
+        "name": "关平",
+        "portraitKey": "guan_ping",
+        "skillId": "classic:longyin",
+        "factionId": "shu",
+        "baseHp": 4,
+        "gender": "Male"
+      }
+    }
+  ]
+}

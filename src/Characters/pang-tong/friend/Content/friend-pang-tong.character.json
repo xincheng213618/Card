@@ -1,0 +1,72 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:pang-tong",
+  "skills": [
+    {
+      "registrationOrder": 1010,
+      "programBundle": "friend-trio",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "friend:manjuan",
+        "name": "漫卷",
+        "description": "每轮限五次，不因本技能一次获得至少两张牌后，可将其中任意张按任意顺序置于牌堆顶。每置入一张，从弃牌堆随机获得一张类别不同的牌，单次最多获得五张。"
+      }
+    },
+    {
+      "registrationOrder": 1011,
+      "programBundle": "friend-trio",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "friend:yangming",
+        "name": "养名",
+        "description": "出牌阶段结束时，若本阶段失去过三张手牌，可将牌堆顶X张牌置于武将牌上（X为本回合进入弃牌堆的花色数），使用其中花色各不相同的牌，无次数限制；剩余牌置入弃牌堆。"
+      }
+    },
+    {
+      "registrationOrder": 1014,
+      "programBundle": "friend-trio",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "equipment:xuanjian",
+        "name": "玄剑",
+        "description": "你可以将一种花色的所有手牌当普通杀使用。"
+      }
+    },
+    {
+      "registrationOrder": 1017,
+      "programBundle": null,
+      "includeProgramPresentation": false,
+      "definition": {
+        "id": "friend:gongli-pang-tong",
+        "name": "共砺",
+        "description": "身份模式无效。排位、斗地主：同阵营友诸葛亮在场时养名牌数+1；同阵营友徐庶在场时养名后获得一张本次未使用花色的牌。",
+        "tags": "Locked"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1020,
+      "pools": {
+        "current": 329
+      },
+      "definition": {
+        "id": "friend:pang-tong",
+        "name": "友庞统",
+        "portraitKey": "friend-pang-tong",
+        "skillId": "friend:manjuan",
+        "factionId": "qun",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "friend:yangming",
+          "friend:gongli-pang-tong"
+        ],
+        "gender": "Male",
+        "characterId": "character:pang-tong",
+        "variantId": "friend",
+        "rulesetId": "sanguosha-mobile"
+      }
+    }
+  ]
+}

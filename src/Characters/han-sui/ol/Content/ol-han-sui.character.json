@@ -1,0 +1,52 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:han-sui",
+  "skills": [
+    {
+      "registrationOrder": 1035,
+      "programBundle": "ol-han-sui",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:niluan",
+        "name": "逆乱",
+        "description": "体力值大于你的角色的结束阶段，若其此回合使用过【杀】，你可以将一张黑色牌当【杀】对其使用。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 1036,
+      "programBundle": "ol-han-sui",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:xiaoxi",
+        "name": "骁袭",
+        "description": "每轮首个回合开始时，你可以视为使用一张无距离限制的【杀】。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1037,
+      "pools": {
+        "current": 335
+      },
+      "definition": {
+        "id": "ol:han-sui",
+        "name": "韩遂·OL",
+        "portraitKey": "ol-han-sui",
+        "skillId": "ol:niluan",
+        "factionId": "qun",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "ol:xiaoxi"
+        ],
+        "gender": "Male",
+        "characterId": "character:han-sui",
+        "variantId": "ol",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

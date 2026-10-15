@@ -1,0 +1,67 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:jia-xu",
+  "skills": [
+    {
+      "registrationOrder": 890,
+      "programBundle": "ordinary-sp-jia-xu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:zhenlue",
+        "name": "缜略",
+        "description": "锁定技，你的普通锦囊牌不能被抵消；你不能成为延时锦囊牌的目标。",
+        "tags": "Locked",
+        "executionForms": "State"
+      }
+    },
+    {
+      "registrationOrder": 891,
+      "programBundle": "ordinary-sp-jia-xu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:jianshu",
+        "name": "间书",
+        "description": "限定技，出牌阶段，你可以交给一名其他角色一张黑色手牌，并选择另一名角色，然后令两者拼点：赢的角色弃置两张牌，没赢的角色失去1点体力。",
+        "tags": "Limited",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 892,
+      "programBundle": "ordinary-sp-jia-xu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:yongdi",
+        "name": "拥嫡",
+        "description": "限定技，回合开始时，你可以令一名其他男性角色增加1点体力上限并回复1点体力，然后令其武将牌上的主公技生效。",
+        "tags": "Limited",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 893,
+      "pools": {
+        "current": 291
+      },
+      "definition": {
+        "id": "ol:sp-jia-xu",
+        "name": "SP贾诩",
+        "portraitKey": "ol-sp-jia-xu",
+        "skillId": "ol:zhenlue",
+        "factionId": "wei",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "ol:jianshu",
+          "ol:yongdi"
+        ],
+        "gender": "Male",
+        "characterId": "character:jia-xu",
+        "variantId": "sp",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

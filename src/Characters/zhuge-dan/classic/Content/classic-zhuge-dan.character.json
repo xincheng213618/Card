@@ -1,0 +1,66 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhuge-dan",
+  "skills": [
+    {
+      "registrationOrder": 1040,
+      "programBundle": "classic-zhuge-dan",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:gongao",
+        "name": "功獒",
+        "description": "锁定技，其他角色死亡后，你增加1点体力上限，然后回复1点体力。",
+        "tags": "Locked",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 1041,
+      "programBundle": "classic-zhuge-dan",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:juyi",
+        "name": "举义",
+        "description": "觉醒技，准备阶段开始时，若你已受伤且体力上限大于存活角色数，你将手牌摸至体力上限，然后获得“崩坏”和“威重”。（经典版）",
+        "tags": "Awakening",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 1042,
+      "programBundle": "classic-zhuge-dan",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:weizhong",
+        "name": "威重",
+        "description": "锁定技，当你的体力上限增加或减少后，你摸一张牌。",
+        "tags": "Locked",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1043,
+      "pools": {
+        "current": 337
+      },
+      "definition": {
+        "id": "classic:zhuge-dan",
+        "name": "诸葛诞·经典",
+        "portraitKey": "classic-zhuge-dan",
+        "skillId": "classic:gongao",
+        "factionId": "wei",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "classic:juyi"
+        ],
+        "gender": "Male",
+        "characterId": "character:zhuge-dan",
+        "variantId": "classic",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

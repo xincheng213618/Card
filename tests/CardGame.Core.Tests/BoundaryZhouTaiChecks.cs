@@ -153,9 +153,7 @@ internal static class BoundaryZhouTaiChecks
         {
             try
             {
-                typeof(StandardContentPackage).Assembly.GetType("CardGame.Content.Standard.BoundaryZhouTaiContent")!
-                    .GetMethod("Register", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)!
-                    .Invoke(null, [b]);
+                CharacterFixtureContent.Register(b, "boundary:zhou-tai");
             }
             catch (Exception diag)
             {

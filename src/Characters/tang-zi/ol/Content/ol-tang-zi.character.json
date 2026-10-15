@@ -1,0 +1,39 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:tang-zi",
+  "skills": [
+    {
+      "registrationOrder": 1168,
+      "programBundle": "ol-tang-zi",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:xingzhao",
+        "name": "兴棹",
+        "description": "锁定技，若全场已受伤角色数不小于：1，你视为拥有“恂恂”；2，当你使用装备牌时，你摸一张牌；3，你跳过弃牌阶段。",
+        "tags": "Locked",
+        "executionForms": "State, Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1169,
+      "pools": {
+        "current": 377
+      },
+      "definition": {
+        "id": "ol:tang-zi",
+        "name": "唐咨·OL",
+        "portraitKey": "ol-tang-zi",
+        "skillId": "ol:xingzhao",
+        "factionId": "wei",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:tang-zi",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

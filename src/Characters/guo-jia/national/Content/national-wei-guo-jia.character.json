@@ -1,0 +1,21 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-national-war-lite",
+  "characterId": "character:guo-jia",
+  "skills": [],
+  "generals": [
+    {
+      "registrationOrder": 1,
+      "pools": {},
+      "definition": {
+        "id": "national:wei-guo-jia",
+        "name": "郭嘉",
+        "portraitKey": "guo_jia",
+        "skillId": "standard:yiji",
+        "factionId": "wei",
+        "baseHp": 3,
+        "gender": "Male"
+      }
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:liu-bei",
+  "skills": [
+    {
+      "registrationOrder": 330,
+      "programBundle": "ol-strategic-gods",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:longnu",
+        "name": "龙怒",
+        "description": "转换技，锁定技，出牌阶段开始时，阳：你失去1点体力并摸一张牌，然后本阶段你的红色手牌均视为火【杀】且无距离限制；阴：你减少1点体力上限并摸一张牌，然后本阶段你的锦囊牌均视为雷【杀】且无次数限制。",
+        "tags": "Locked, Conversion",
+        "executionForms": "State, Trigger"
+      }
+    },
+    {
+      "registrationOrder": 331,
+      "programBundle": "ol-strategic-gods",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:shen-liu-bei-jieying",
+        "name": "结营",
+        "description": "锁定技，你始终处于连环状态。所有连环状态的角色手牌上限+2。结束阶段，你令一名其他角色进入连环状态。",
+        "tags": "Locked",
+        "executionForms": "State, Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 364,
+      "pools": {
+        "current": 115
+      },
+      "definition": {
+        "id": "ol:shen-liu-bei",
+        "name": "神刘备",
+        "portraitKey": "ol_shen_liu_bei",
+        "skillId": "ol:longnu",
+        "factionId": "god",
+        "baseHp": 6,
+        "additionalSkillIds": [
+          "ol:shen-liu-bei-jieying"
+        ],
+        "gender": "Male",
+        "characterId": "character:liu-bei",
+        "variantId": "ol-god",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

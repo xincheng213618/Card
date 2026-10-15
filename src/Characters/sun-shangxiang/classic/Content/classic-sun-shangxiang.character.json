@@ -1,0 +1,49 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:sun-shangxiang",
+  "skills": [
+    {
+      "registrationOrder": 68,
+      "programBundle": "classic-active-cutover",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:jieyin",
+        "name": "结姻",
+        "description": "出牌阶段限一次，你可以弃置两张手牌并选择一名已受伤的男性角色，令你与其各回复1点体力。",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 69,
+      "programBundle": "classic-card-movement-skills",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:xiaoji",
+        "name": "枭姬",
+        "description": "当你失去装备区里的一张牌后，你可以摸两张牌。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 236,
+      "pools": {
+        "current": 27
+      },
+      "definition": {
+        "id": "classic:sun-shangxiang",
+        "name": "孙尚香",
+        "portraitKey": "sun_shangxiang",
+        "skillId": "classic:jieyin",
+        "factionId": "wu",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "classic:xiaoji"
+        ],
+        "gender": "Female"
+      }
+    }
+  ]
+}

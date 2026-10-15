@@ -1,0 +1,50 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:jiang-gan",
+  "skills": [
+    {
+      "registrationOrder": 819,
+      "programBundle": "ol-jiang-gan",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:weicheng",
+        "name": "伪诚",
+        "description": "当你交给其他角色手牌后，或你的手牌被其他角色获得后，若你的手牌数小于体力值，你可以摸一张牌。"
+      }
+    },
+    {
+      "registrationOrder": 820,
+      "programBundle": "ol-jiang-gan",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:daoshu",
+        "name": "盗书",
+        "description": "出牌阶段限一次，你可以选择一种花色，获得其他角色的一张手牌。若此牌与你选择的花色：相同，你对其造成1点伤害且此技能视为未发动过；不同，你交给该角色一张其他花色的手牌（若没有需展示所有手牌）。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 821,
+      "pools": {
+        "current": 266
+      },
+      "definition": {
+        "id": "ol:jiang-gan",
+        "name": "蒋干",
+        "portraitKey": "ol-jiang-gan",
+        "skillId": "ol:weicheng",
+        "factionId": "wei",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "ol:daoshu"
+        ],
+        "gender": "Male",
+        "characterId": "character:jiang-gan",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

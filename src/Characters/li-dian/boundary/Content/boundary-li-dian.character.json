@@ -1,0 +1,54 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:li-dian",
+  "skills": [
+    {
+      "registrationOrder": 596,
+      "programBundle": "boundary-li-dian",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:xunxun",
+        "name": "恂恂",
+        "description": "摸牌阶段开始时，你可以观看牌堆顶的四张牌，然后将其中两张牌置于牌堆顶，将剩余牌置于牌堆底。",
+        "executionForms": "Trigger",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 597,
+      "programBundle": "boundary-li-dian",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:wangxi",
+        "name": "忘隙",
+        "description": "当你对其他角色造成1点伤害后，或受到其他角色的1点伤害后，你可以摸两张牌并交给该角色其中一张牌。",
+        "executionForms": "Trigger",
+        "actionForms": "Active"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 598,
+      "pools": {
+        "current": 188
+      },
+      "definition": {
+        "id": "boundary:li-dian",
+        "name": "界李典",
+        "portraitKey": "boundary_li_dian",
+        "skillId": "boundary:xunxun",
+        "factionId": "wei",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "boundary:wangxi"
+        ],
+        "gender": "Male",
+        "characterId": "character:li-dian",
+        "variantId": "boundary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

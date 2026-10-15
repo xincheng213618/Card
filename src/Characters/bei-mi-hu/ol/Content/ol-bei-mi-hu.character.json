@@ -1,0 +1,77 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:bei-mi-hu",
+  "skills": [
+    {
+      "registrationOrder": 1136,
+      "programBundle": "ol-bei-mi-hu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:zongkui",
+        "name": "纵傀",
+        "description": "回合开始前，你可以令一名没有“傀”标记的其他角色获得“傀”。每轮开始时，体力值最少且没有“傀”的一名其他角色获得“傀”。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 1137,
+      "programBundle": "ol-bei-mi-hu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:guju",
+        "name": "骨疽",
+        "description": "锁定技，当有“傀”的角色受到伤害后，你摸一张牌。",
+        "tags": "Locked",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 1138,
+      "programBundle": "ol-bei-mi-hu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:baijia",
+        "name": "拜假",
+        "description": "觉醒技，准备阶段，若你因“骨疽”获得的牌数大于等于7，你增加1点体力上限并回复1点体力，然后令所有没有“傀”的其他角色获得“傀”，最后你失去“骨疽”，获得“蚕食”。",
+        "tags": "Awakening",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 1139,
+      "programBundle": "ol-bei-mi-hu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:canshi",
+        "name": "蚕食",
+        "description": "当有“傀”的角色使用基本牌或普通锦囊牌指定你为唯一目标时，你可以取消之，然后其移除“傀”。\n当你使用基本牌或普通锦囊牌仅指定唯一目标时，你可以额外指定任意名有“傀”的角色为目标，然后其移除“傀”。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1140,
+      "pools": {
+        "current": 368
+      },
+      "definition": {
+        "id": "ol:bei-mi-hu",
+        "name": "卑弥呼·OL",
+        "portraitKey": "ol-bei-mi-hu",
+        "skillId": "ol:zongkui",
+        "factionId": "qun",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "ol:guju",
+          "ol:baijia"
+        ],
+        "gender": "Female",
+        "characterId": "character:bei-mi-hu",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

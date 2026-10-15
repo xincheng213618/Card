@@ -1,0 +1,21 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-national-war-ambitious",
+  "characterId": "character:xiahou-dun",
+  "skills": [],
+  "generals": [
+    {
+      "registrationOrder": 0,
+      "pools": {},
+      "definition": {
+        "id": "national:wei-xiahou-dun",
+        "name": "夏侯惇",
+        "portraitKey": "zhang_fei",
+        "skillId": "standard:ganglie",
+        "factionId": "wei",
+        "baseHp": 4,
+        "gender": "Male"
+      }
+    }
+  ]
+}

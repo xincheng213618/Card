@@ -1,0 +1,50 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:cao-ren",
+  "skills": [
+    {
+      "registrationOrder": 783,
+      "programBundle": "ordinary-sp-cao-ren",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:weikui",
+        "name": "伪溃",
+        "description": "出牌阶段限一次，你可以失去1点体力并观看一名有手牌的其他角色的手牌，若其中没有【闪】，你弃置其中一张牌，否则你视为对其使用一张【杀】，且你本回合计算与其的距离视为1。"
+      }
+    },
+    {
+      "registrationOrder": 784,
+      "programBundle": "ordinary-sp-cao-ren",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:lizhan",
+        "name": "励战",
+        "description": "结束阶段，你可以令任意名已受伤角色摸一张牌。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 785,
+      "pools": {
+        "current": 253
+      },
+      "definition": {
+        "id": "ol:sp-cao-ren",
+        "name": "SP曹仁",
+        "portraitKey": "ol-sp-cao-ren",
+        "skillId": "ol:weikui",
+        "factionId": "wei",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "ol:lizhan"
+        ],
+        "gender": "Male",
+        "characterId": "character:cao-ren",
+        "variantId": "sp",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

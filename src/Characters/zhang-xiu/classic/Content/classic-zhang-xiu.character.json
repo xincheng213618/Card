@@ -1,0 +1,50 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhang-xiu",
+  "skills": [
+    {
+      "registrationOrder": 151,
+      "programBundle": "classic-zhang-xiu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:xiongluan",
+        "name": "雄乱",
+        "description": "限定技，出牌阶段，你废除判定区和装备区并指定一名其他角色；本回合你对其使用牌无距离和次数限制，且其不能使用或打出手牌。",
+        "tags": "Limited",
+        "executionForms": "State",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 152,
+      "programBundle": "classic-zhang-xiu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:congjian",
+        "name": "从谏",
+        "description": "当你成为锦囊牌的目标时，若此牌的目标数大于1，你可以交给其中一名目标角色一张牌，然后摸一张牌，若你给出的牌是装备牌，改为摸两张牌。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 305,
+      "pools": {
+        "current": 91
+      },
+      "definition": {
+        "id": "classic:zhang-xiu",
+        "name": "张绣",
+        "portraitKey": "zhang_xiu",
+        "skillId": "classic:xiongluan",
+        "factionId": "qun",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "classic:congjian"
+        ],
+        "gender": "Male"
+      }
+    }
+  ]
+}

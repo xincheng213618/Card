@@ -1,0 +1,54 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:xin-pi",
+  "skills": [
+    {
+      "registrationOrder": 1197,
+      "programBundle": "ol-xin-pi",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:chijie",
+        "name": "持节",
+        "description": "每回合限一次，当你受到其他角色的伤害后，你可以令伤害牌无效；当其他角色对你使用牌后，若此牌未造成伤害，你可以获得之。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 1198,
+      "programBundle": "ol-xin-pi",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:yinju",
+        "name": "引裾",
+        "description": "限定技，出牌阶段，你可以指定一名其他角色，你本回合防止对其造成的伤害并改为令其回复等量体力，且当你本回合使用牌指定其为目标后，你与其各摸一张牌。 ",
+        "tags": "Limited",
+        "executionForms": "State, Trigger",
+        "actionForms": "Active"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1199,
+      "pools": {
+        "current": 387
+      },
+      "definition": {
+        "id": "ol:xin-pi",
+        "name": "辛毗·OL",
+        "portraitKey": "ol-xin-pi",
+        "skillId": "ol:chijie",
+        "factionId": "wei",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "ol:yinju"
+        ],
+        "gender": "Male",
+        "characterId": "character:xin-pi",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

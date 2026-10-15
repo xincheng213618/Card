@@ -1,0 +1,52 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:fa-zheng",
+  "skills": [
+    {
+      "registrationOrder": 396,
+      "programBundle": "classic-fa-zheng",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:enyuan",
+        "name": "恩怨",
+        "description": "当你获得一名其他角色至少两张牌后，你可以令其摸一张牌。当你受到1点伤害后，你可以令伤害来源选择一项：1.交给你一张手牌；2.失去1点体力。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 397,
+      "programBundle": "classic-fa-zheng",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:xuanhuo",
+        "name": "眩惑",
+        "description": "摸牌阶段，你可以改为令一名其他角色摸两张牌，令其选择一项：1.对其攻击范围内你指定的另一名角色使用一张【杀】；2.你获得其两张牌。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 404,
+      "pools": {
+        "current": 134
+      },
+      "definition": {
+        "id": "classic:fa-zheng",
+        "name": "法正",
+        "portraitKey": "fa_zheng",
+        "skillId": "classic:enyuan",
+        "factionId": "shu",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "classic:xuanhuo"
+        ],
+        "gender": "Male",
+        "characterId": "character:fa-zheng",
+        "variantId": "classic",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

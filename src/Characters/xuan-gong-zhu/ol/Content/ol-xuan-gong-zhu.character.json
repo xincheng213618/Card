@@ -1,0 +1,64 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:xuan-gong-zhu",
+  "skills": [
+    {
+      "registrationOrder": 1104,
+      "programBundle": "ol-xuan-gong-zhu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:gaoling",
+        "name": "高陵",
+        "description": "隐匿。当你于其他角色回合登场时，你可以令一名角色回复1点体力。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 1105,
+      "programBundle": "ol-xuan-gong-zhu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:qimei",
+        "name": "齐眉",
+        "description": "准备阶段，你可以选择一名其他角色，然后直到你的下回合开始，你获得以下效果（每回合每项限一次）：\n 1.当你或其手牌数变化后，若与对方手牌数相等，对方摸一张牌；\n 2.当你或其体力值变化后，若与对方体力值相等，对方摸一张牌。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 1106,
+      "programBundle": "ol-xuan-gong-zhu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:zhuiji-tj",
+        "name": "追姬",
+        "description": "出牌阶段开始时，你可以选择一项：\n 1.回复1点体力，然后本阶段结束时弃置两张牌；\n 2.摸两张牌，然后本阶段结束时失去1点体力。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1107,
+      "pools": {
+        "current": 358
+      },
+      "definition": {
+        "id": "ol:xuan-gong-zhu",
+        "name": "宣公主·OL",
+        "portraitKey": "ol-xuan-gong-zhu",
+        "skillId": "ol:gaoling",
+        "factionId": "jin",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "ol:qimei",
+          "ol:zhuiji-tj"
+        ],
+        "gender": "Female",
+        "characterId": "character:xuan-gong-zhu",
+        "variantId": "ol",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

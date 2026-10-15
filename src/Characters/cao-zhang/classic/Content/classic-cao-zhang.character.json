@@ -1,0 +1,35 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:cao-zhang",
+  "skills": [
+    {
+      "registrationOrder": 13,
+      "programBundle": "draw-policy-skills",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:jiangchi",
+        "name": "将驰",
+        "description": "摸牌阶段，你可以选择一项：1.额外摸一张牌，若如此做，你不能使用或打出【杀】，直到回合结束；2.少摸一张牌，若如此做，你于出牌阶段内使用【杀】无距离限制且能额外使用一张【杀】，直到回合结束。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 267,
+      "pools": {
+        "current": 53
+      },
+      "definition": {
+        "id": "classic:cao-zhang",
+        "name": "曹彰",
+        "portraitKey": "cao_zhang",
+        "skillId": "classic:jiangchi",
+        "factionId": "wei",
+        "baseHp": 4,
+        "gender": "Male"
+      }
+    }
+  ]
+}

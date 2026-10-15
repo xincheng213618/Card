@@ -1,0 +1,62 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:cui-jun",
+  "skills": [
+    {
+      "registrationOrder": 1025,
+      "programBundle": "friend-events",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "friend:shunyi",
+        "name": "顺逸",
+        "description": "当你使用点数唯一最小的手牌时，若此牌的花色为红桃且点数大于X（X为你本回合发动此技能的次数），你可以将此花色的所有手牌扣置于武将牌上直至当前回合结束，然后你摸一张牌。"
+      }
+    },
+    {
+      "registrationOrder": 1026,
+      "programBundle": "friend-events",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "friend:biwei",
+        "name": "鄙位",
+        "description": "出牌阶段限一次，你可以弃置一张点数唯一最大的手牌并选择一名其他角色，令其弃置所有点数大于等于此牌的手牌。若其未因此弃置牌，复原此技能。"
+      }
+    },
+    {
+      "registrationOrder": 1027,
+      "programBundle": "friend-events",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "friend:cui-jun-gongli",
+        "name": "共砺",
+        "description": "锁定技，游戏开始时，你令本局“顺逸”添加X个可触发的花色（X为全场友武将数）。",
+        "tags": "Locked"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1029,
+      "pools": {
+        "current": 332
+      },
+      "definition": {
+        "id": "friend:cui-jun",
+        "name": "友崔钧",
+        "portraitKey": "friend-cui-jun",
+        "skillId": "friend:shunyi",
+        "factionId": "qun",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "friend:biwei",
+          "friend:cui-jun-gongli"
+        ],
+        "gender": "Male",
+        "characterId": "character:cui-jun",
+        "variantId": "friend",
+        "rulesetId": "sanguosha-mobile"
+      }
+    }
+  ]
+}

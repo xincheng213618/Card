@@ -1,0 +1,51 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:ma-chao",
+  "skills": [
+    {
+      "registrationOrder": 881,
+      "programBundle": "ordinary-sp-ma-chao",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:zhuiji",
+        "name": "追击",
+        "description": "锁定技，你计算与体力值不大于你的角色的距离视为1。当你使用【杀】指定距离为1的角色为目标后，其弃置一张牌或重铸其装备区里的所有牌。",
+        "tags": "Locked"
+      }
+    },
+    {
+      "registrationOrder": 882,
+      "programBundle": "ordinary-sp-ma-chao",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:shichou",
+        "name": "誓仇",
+        "description": "你使用的【杀】可以多指定X+1个目标（X为你已损失体力值）。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 883,
+      "pools": {
+        "current": 288
+      },
+      "definition": {
+        "id": "ol:sp-ma-chao",
+        "name": "SP马超",
+        "portraitKey": "ol-sp-ma-chao",
+        "skillId": "ol:zhuiji",
+        "factionId": "qun",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "ol:shichou"
+        ],
+        "gender": "Male",
+        "characterId": "character:ma-chao",
+        "variantId": "sp",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

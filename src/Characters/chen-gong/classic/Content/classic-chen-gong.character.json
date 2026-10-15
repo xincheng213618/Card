@@ -1,0 +1,53 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:chen-gong",
+  "skills": [
+    {
+      "registrationOrder": 392,
+      "programBundle": "classic-chen-gong",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:mingce",
+        "name": "明策",
+        "description": "出牌阶段限一次，你可以交给一名其他角色一张【杀】或装备牌，然后其选择一项：1.视为对其攻击范围内你选择的另一名角色使用一张【杀】；2.摸一张牌。",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 393,
+      "programBundle": "classic-chen-gong",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:zhichi",
+        "name": "智迟",
+        "description": "锁定技，当你于回合外受到伤害后，本回合【杀】和普通锦囊牌对你无效。",
+        "tags": "Locked",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 402,
+      "pools": {
+        "current": 132
+      },
+      "definition": {
+        "id": "classic:chen-gong",
+        "name": "陈宫",
+        "portraitKey": "chen_gong",
+        "skillId": "classic:mingce",
+        "factionId": "qun",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "classic:zhichi"
+        ],
+        "gender": "Male",
+        "characterId": "character:chen-gong",
+        "variantId": "classic",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

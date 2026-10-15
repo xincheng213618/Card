@@ -1,0 +1,50 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:lu-xun",
+  "skills": [
+    {
+      "registrationOrder": 70,
+      "programBundle": "passive-card-rules",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:qianxun",
+        "name": "谦逊",
+        "description": "锁定技，你不能成为【顺手牵羊】或【乐不思蜀】的目标。",
+        "tags": "Locked",
+        "executionForms": "State"
+      }
+    },
+    {
+      "registrationOrder": 71,
+      "programBundle": "classic-card-movement-skills",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:lianying",
+        "name": "连营",
+        "description": "当你失去最后的手牌时，你可以摸一张牌。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 237,
+      "pools": {
+        "current": 28
+      },
+      "definition": {
+        "id": "classic:lu-xun",
+        "name": "陆逊",
+        "portraitKey": "lu_xun",
+        "skillId": "classic:qianxun",
+        "factionId": "wu",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "classic:lianying"
+        ],
+        "gender": "Male"
+      }
+    }
+  ]
+}

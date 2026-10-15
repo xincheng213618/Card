@@ -1,0 +1,39 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:xiahou-ba",
+  "skills": [
+    {
+      "registrationOrder": 1038,
+      "programBundle": "ol-xiahou-ba",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:baobian",
+        "name": "豹变",
+        "description": "锁定技，若你的体力值：不大于3，你视为拥有“挑衅”；不大于2，你视为拥有“咆哮”；为1，你视为拥有“神速”。",
+        "tags": "Locked",
+        "executionForms": "State"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1039,
+      "pools": {
+        "current": 336
+      },
+      "definition": {
+        "id": "ol:xiahou-ba",
+        "name": "夏侯霸·OL",
+        "portraitKey": "ol-xiahou-ba",
+        "skillId": "ol:baobian",
+        "factionId": "shu",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:xiahou-ba",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

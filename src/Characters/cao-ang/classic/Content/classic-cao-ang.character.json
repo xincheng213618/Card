@@ -1,0 +1,35 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:cao-ang",
+  "skills": [
+    {
+      "registrationOrder": 148,
+      "programBundle": "classic-cao-ang",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:kangkai",
+        "name": "慷忾",
+        "description": "当一名角色成为【杀】的目标后，若你与其距离1以内，你可以摸一张牌，然后交给其一张牌并展示之。若此牌为装备牌，该角色可以使用此牌。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 303,
+      "pools": {
+        "current": 89
+      },
+      "definition": {
+        "id": "classic:cao-ang",
+        "name": "曹昂",
+        "portraitKey": "cao_ang",
+        "skillId": "classic:kangkai",
+        "factionId": "wei",
+        "baseHp": 4,
+        "gender": "Male"
+      }
+    }
+  ]
+}

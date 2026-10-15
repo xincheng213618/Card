@@ -1,0 +1,56 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:ma-chao",
+  "skills": [
+    {
+      "registrationOrder": 57,
+      "programBundle": "passive-response-rules",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:tieqi",
+        "name": "铁骑",
+        "description": "当你使用【杀】指定目标后，你可以进行判定，若结果为红色，其不能使用【闪】响应此【杀】。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 104,
+      "programBundle": "rule-query-skills",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:mashu",
+        "name": "马术",
+        "description": "锁定技，你计算与其他角色的距离始终 -1。",
+        "tags": "Locked",
+        "executionForms": "State",
+        "revealWeights": {
+          "base": 20,
+          "wounded": 0,
+          "emptyHand": 0,
+          "repeatedSlash": 0
+        }
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 227,
+      "pools": {
+        "current": 12
+      },
+      "definition": {
+        "id": "classic:ma-chao",
+        "name": "马超",
+        "portraitKey": "ma_chao",
+        "skillId": "classic:tieqi",
+        "factionId": "shu",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "classic:mashu"
+        ],
+        "gender": "Male"
+      }
+    }
+  ]
+}

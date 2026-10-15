@@ -98,7 +98,7 @@ internal static class BoundaryWeiYanChecks
         public PackageManifest Manifest{get;}=new("fixture-wy",new(1,0,0),[]);
         public void Register(IContentRegistryBuilder b)
         {
-            try{typeof(StandardClassicGeneralPackage).Assembly.GetType("CardGame.Content.Standard.BoundaryWeiYanContent")!.GetMethod("Register",BindingFlags.Static|BindingFlags.NonPublic)!.Invoke(null,[b]);}catch(TargetInvocationException ex){throw new InvalidOperationException(ex.InnerException?.ToString(),ex.InnerException);}
+            try{CharacterFixtureContent.Register(b, "boundary:wei-yan");}catch(TargetInvocationException ex){throw new InvalidOperationException(ex.InnerException?.ToString(),ex.InnerException);}
             if(extraPlay)b.AddSkill(Classic.Value.GetSkill("classic:dangxian"));
             b.AddSkill(new("fixture:wy-driver","实际准备","实际准备"){Program=Load("fixture:wy-driver","\"activations\":["+Act("damage","[{\"op\":\"damage\",\"target\":\"selectedTarget\",\"amount\":2}]",1)+","+Act("old","[{\"op\":\"loseHp\",\"target\":\"owner\",\"amount\":1},{\"op\":\"draw\",\"target\":\"owner\",\"amount\":3}]")+","+Act("extra","[{\"op\":\"pendExtraTurn\",\"target\":\"owner\"}]")+","+Act("grow","[{\"op\":\"changeMaximumHp\",\"target\":\"owner\",\"amount\":3},{\"op\":\"recover\",\"target\":\"owner\",\"amount\":3}]")+"]")});
             if(observer)b.AddSkill(new("fixture:wy-hp","真实回复子窗","真实回复子窗"){Program=Load("fixture:wy-hp","\"triggers\":[{\"id\":\"hp\",\"window\":\"afterHpRecovered\",\"subject\":\"owner\",\"usageScope\":\"turn\",\"usageLimit\":1,\"optional\":true,\"effects\":[{\"op\":\"recover\",\"target\":\"owner\",\"amount\":1}]}]")});

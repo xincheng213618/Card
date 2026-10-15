@@ -1,0 +1,54 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:guo-jia",
+  "skills": [
+    {
+      "registrationOrder": 123,
+      "programBundle": "judgment-cutover",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:tiandu",
+        "name": "天妒",
+        "description": "当你的判定牌生效后，你可以获得此牌。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 124,
+      "programBundle": "boundary-guo-jia",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:yiji",
+        "name": "遗计",
+        "description": "当你受到1点伤害后，你可以摸两张牌，然后可以将至多两张手牌交给一至两名其他角色。",
+        "revealWeights": {
+          "base": 4,
+          "wounded": 31,
+          "emptyHand": 0,
+          "repeatedSlash": 0
+        }
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 288,
+      "pools": {
+        "current": 73
+      },
+      "definition": {
+        "id": "boundary:guo-jia",
+        "name": "界郭嘉",
+        "portraitKey": "boundary_guo_jia",
+        "skillId": "boundary:tiandu",
+        "factionId": "wei",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "boundary:yiji"
+        ],
+        "gender": "Male"
+      }
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:cai-wen-ji",
+  "skills": [
+    {
+      "registrationOrder": 164,
+      "programBundle": "classic-cai-wen-ji",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:duanchang",
+        "name": "断肠",
+        "description": "锁定技，当你死亡时，杀死你的角色失去其当前的所有武将技能。",
+        "tags": "Locked",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 165,
+      "programBundle": "classic-cai-wen-ji",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:beige",
+        "name": "悲歌",
+        "description": "每当一名角色受到【杀】造成的伤害后，若其存活，你可以弃置一张牌，令其判定，若结果为：红桃，其回复1点体力；方块，其摸两张牌；梅花，来源弃置两张牌；黑桃，来源翻面。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 318,
+      "pools": {
+        "current": 97
+      },
+      "definition": {
+        "id": "classic:cai-wen-ji",
+        "name": "蔡文姬",
+        "portraitKey": "cai_wen_ji",
+        "skillId": "classic:beige",
+        "factionId": "qun",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "classic:duanchang"
+        ],
+        "gender": "Male"
+      }
+    }
+  ]
+}

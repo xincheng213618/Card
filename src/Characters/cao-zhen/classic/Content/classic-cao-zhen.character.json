@@ -1,0 +1,38 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:cao-zhen",
+  "skills": [
+    {
+      "registrationOrder": 420,
+      "programBundle": "classic-cao-zhen",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:sidi",
+        "name": "司敌",
+        "description": "其他角色出牌阶段开始时，你可以弃置一张与你装备区里任意牌颜色相同的非基本牌，令其本阶段不能使用和打出与此牌颜色相同的牌，然后此阶段结束时，若其本阶段未使用过【杀】，你视为对其使用一张【杀】。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 429,
+      "pools": {
+        "current": 141
+      },
+      "definition": {
+        "id": "classic:cao-zhen",
+        "name": "曹真",
+        "portraitKey": "cao_zhen",
+        "skillId": "classic:sidi",
+        "factionId": "wei",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:cao-zhen",
+        "variantId": "classic",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

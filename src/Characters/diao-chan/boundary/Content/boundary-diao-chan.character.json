@@ -1,0 +1,49 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:diao-chan",
+  "skills": [
+    {
+      "registrationOrder": 129,
+      "programBundle": "classic-active-cutover",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:lijian",
+        "name": "离间",
+        "description": "出牌阶段限一次，你可以弃置一张手牌或装备牌，令一名男性角色视为对另一名男性角色使用一张不能被【无懈可击】抵消的【决斗】。",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 130,
+      "programBundle": "boundary-diao-chan",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:biyue",
+        "name": "闭月",
+        "description": "结束阶段，你可以摸一张牌。若你没有手牌，则改为摸两张牌。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 291,
+      "pools": {
+        "current": 75
+      },
+      "definition": {
+        "id": "boundary:diao-chan",
+        "name": "界貂蝉",
+        "portraitKey": "boundary_diao_chan",
+        "skillId": "boundary:lijian",
+        "factionId": "qun",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "boundary:biyue"
+        ],
+        "gender": "Female"
+      }
+    }
+  ]
+}

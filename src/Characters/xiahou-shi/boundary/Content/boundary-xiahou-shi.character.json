@@ -1,0 +1,50 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:xiahou-shi",
+  "skills": [
+    {
+      "registrationOrder": 767,
+      "programBundle": "boundary-xiahou-shi",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:qiaoshi-current",
+        "name": "樵拾",
+        "description": "每个结束阶段，你可以与当前回合角色各摸一张牌。然后若其与你手牌数不相等，此技能本轮失效。"
+      }
+    },
+    {
+      "registrationOrder": 768,
+      "programBundle": "boundary-xiahou-shi",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:yanyu-current",
+        "name": "燕语",
+        "description": "出牌阶段，你可以重铸【杀】。出牌阶段结束时，若你本阶段失去过至少两张【杀】，你可以令一名男性角色摸两张牌。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 769,
+      "pools": {
+        "current": 247
+      },
+      "definition": {
+        "id": "boundary:xiahou-shi",
+        "name": "界夏侯氏",
+        "portraitKey": "boundary_xiahou_shi",
+        "skillId": "boundary:qiaoshi-current",
+        "factionId": "shu",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "boundary:yanyu-current"
+        ],
+        "gender": "Female",
+        "characterId": "character:xiahou-shi",
+        "variantId": "boundary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

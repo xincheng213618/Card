@@ -1,0 +1,34 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard",
+  "characterId": "character:guan-yu",
+  "skills": [
+    {
+      "registrationOrder": 6,
+      "programBundle": "conversion-cutover",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "standard:wusheng",
+        "name": "武圣",
+        "description": "红色牌可当作杀使用或打出。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 18,
+      "pools": {
+        "standard": 5
+      },
+      "definition": {
+        "id": "standard:guan-yu",
+        "name": "关羽",
+        "portraitKey": "guan_yu",
+        "skillId": "standard:wusheng",
+        "factionId": "shu",
+        "baseHp": 4,
+        "gender": "Male"
+      }
+    }
+  ]
+}

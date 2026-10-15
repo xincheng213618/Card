@@ -1,0 +1,59 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:lu-su",
+  "skills": [
+    {
+      "registrationOrder": 186,
+      "programBundle": "classic-lu-su",
+      "includeProgramPresentation": false,
+      "definition": {
+        "id": "classic:haoshi",
+        "name": "好施",
+        "description": "摸牌阶段，你可以多摸两张牌，然后若你的手牌数大于5，则你将一半的手牌（向下取整）交给手牌最少的一名其他角色。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 187,
+      "programBundle": "classic-lu-su",
+      "includeProgramPresentation": false,
+      "definition": {
+        "id": "classic:haoshi-give",
+        "name": "好施",
+        "description": "摸牌阶段，你可以多摸两张牌，然后若你的手牌数大于5，则你将一半的手牌（向下取整）交给手牌最少的一名其他角色。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 188,
+      "programBundle": "classic-lu-su",
+      "includeProgramPresentation": false,
+      "definition": {
+        "id": "classic:dimeng",
+        "name": "缔盟",
+        "description": "出牌阶段限一次，你可以选择两名其他角色并弃置X张牌（X为这两名角色手牌数的差），然后令这两名角色交换手牌。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 319,
+      "pools": {
+        "current": 100
+      },
+      "definition": {
+        "id": "classic:lu-su",
+        "name": "鲁肃",
+        "portraitKey": "lu_su",
+        "skillId": "classic:haoshi",
+        "factionId": "wu",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "classic:dimeng"
+        ],
+        "gender": "Male"
+      }
+    }
+  ]
+}

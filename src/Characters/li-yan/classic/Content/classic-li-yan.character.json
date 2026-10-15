@@ -1,0 +1,53 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:li-yan",
+  "skills": [
+    {
+      "registrationOrder": 466,
+      "programBundle": "classic-li-yan",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:duliang",
+        "name": "督粮",
+        "description": "出牌阶段限一次，你可以获得一名其他角色一张手牌并选择一项：1.令其观看牌堆顶的两张牌，获得其中的基本牌；2.令其下回合摸牌阶段多摸一张牌。",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 467,
+      "programBundle": "classic-li-yan",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:fulin",
+        "name": "腹鳞",
+        "description": "锁定技，弃牌阶段，你于本回合获得的牌不计入手牌上限。",
+        "tags": "Locked",
+        "executionForms": "State"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 469,
+      "pools": {
+        "current": 147
+      },
+      "definition": {
+        "id": "classic:li-yan",
+        "name": "李严",
+        "portraitKey": "li_yan",
+        "skillId": "classic:duliang",
+        "factionId": "shu",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "classic:fulin"
+        ],
+        "gender": "Male",
+        "characterId": "character:li-yan",
+        "variantId": "classic",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

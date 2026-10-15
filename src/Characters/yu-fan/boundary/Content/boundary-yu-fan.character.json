@@ -1,0 +1,52 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:yu-fan",
+  "skills": [
+    {
+      "registrationOrder": 728,
+      "programBundle": "boundary-yu-fan",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:zongxuan-current",
+        "name": "纵玄",
+        "description": "当你的牌因弃置而置入弃牌堆后，或你上家的牌于每回合首次因弃置而置入弃牌堆后，你可以将其中任意张牌置于牌堆顶。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 729,
+      "programBundle": "boundary-yu-fan",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:zhiyan-current",
+        "name": "直言",
+        "description": "你上家或你的结束阶段，你可以令一名角色摸一张牌并展示之，若为装备牌，其使用之并回复1点体力。若为非装备牌且其体力值不等于你，其失去1点体力。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 730,
+      "pools": {
+        "current": 234
+      },
+      "definition": {
+        "id": "boundary:yu-fan",
+        "name": "界虞翻",
+        "portraitKey": "boundary_yu_fan",
+        "skillId": "boundary:zongxuan-current",
+        "factionId": "wu",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "boundary:zhiyan-current"
+        ],
+        "gender": "Male",
+        "characterId": "character:yu-fan",
+        "variantId": "boundary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

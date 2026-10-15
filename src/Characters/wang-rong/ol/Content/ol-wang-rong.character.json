@@ -1,0 +1,64 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:wang-rong",
+  "skills": [
+    {
+      "registrationOrder": 1066,
+      "programBundle": "ol-wang-rong",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:fengzi",
+        "name": "丰姿",
+        "description": "出牌阶段限一次，当你使用基本牌或普通锦囊牌时，你可以弃置一张类型相同的手牌令此牌的效果额外结算一次。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 1067,
+      "programBundle": "ol-wang-rong",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:jizhan",
+        "name": "吉占",
+        "description": "摸牌阶段开始时，你可以改为展示牌堆顶的一张牌，猜测牌堆顶下一张牌点数大于或小于此牌，然后展示之，若猜对你继续猜测，最后你获得以此法展示的牌。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 1068,
+      "programBundle": "ol-wang-rong",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:fusong",
+        "name": "赋颂",
+        "description": "当你死亡时，你可以令一名体力上限大于你的角色选择获得“丰姿”或“吉占”。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1069,
+      "pools": {
+        "current": 345
+      },
+      "definition": {
+        "id": "ol:wang-rong",
+        "name": "王荣·OL",
+        "portraitKey": "ol-wang-rong",
+        "skillId": "ol:fengzi",
+        "factionId": "qun",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "ol:jizhan",
+          "ol:fusong"
+        ],
+        "gender": "Female",
+        "characterId": "character:wang-rong",
+        "variantId": "ol",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

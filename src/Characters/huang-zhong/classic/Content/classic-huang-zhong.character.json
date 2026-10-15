@@ -1,0 +1,35 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:huang-zhong",
+  "skills": [
+    {
+      "registrationOrder": 58,
+      "programBundle": "passive-response-rules",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:liegong",
+        "name": "烈弓",
+        "description": "出牌阶段，你使用【杀】指定目标后，若其手牌数不小于你的体力值或不大于你的攻击范围，你可以令其不能使用【闪】响应此【杀】。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 228,
+      "pools": {
+        "current": 13
+      },
+      "definition": {
+        "id": "classic:huang-zhong",
+        "name": "黄忠",
+        "portraitKey": "huang_zhong",
+        "skillId": "classic:liegong",
+        "factionId": "shu",
+        "baseHp": 4,
+        "gender": "Male"
+      }
+    }
+  ]
+}

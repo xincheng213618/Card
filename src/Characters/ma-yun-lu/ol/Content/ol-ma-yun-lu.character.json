@@ -1,0 +1,41 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:ma-yun-lu",
+  "skills": [
+    {
+      "registrationOrder": 1073,
+      "programBundle": "ol-ma-yun-lu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:fengpo",
+        "name": "凤魄",
+        "description": "当你在回合内首次使用【杀】或【决斗】指定一个目标后，你可以选择一项：1.摸X张牌；2.令此牌伤害+X。（X为目标角色方片手牌数）",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1074,
+      "pools": {
+        "current": 347
+      },
+      "definition": {
+        "id": "ol:ma-yun-lu",
+        "name": "马云騄·OL",
+        "portraitKey": "ol-ma-yun-lu",
+        "skillId": "classic:mashu",
+        "factionId": "shu",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "ol:fengpo"
+        ],
+        "gender": "Female",
+        "characterId": "character:ma-yun-lu",
+        "variantId": "ol",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

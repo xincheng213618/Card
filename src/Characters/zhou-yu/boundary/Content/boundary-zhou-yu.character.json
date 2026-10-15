@@ -1,0 +1,53 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhou-yu",
+  "skills": [
+    {
+      "registrationOrder": 135,
+      "programBundle": "boundary-zhou-yu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:yingzi",
+        "name": "英姿",
+        "description": "锁定技，摸牌阶段你额外摸一张牌；你的手牌上限不会因体力值减少而降低。",
+        "revealWeights": {
+          "base": 18,
+          "wounded": 0,
+          "emptyHand": 0,
+          "repeatedSlash": 0
+        }
+      }
+    },
+    {
+      "registrationOrder": 136,
+      "programBundle": "boundary-zhou-yu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:fanjian",
+        "name": "反间",
+        "description": "出牌阶段限一次，你可以展示一张手牌并将之交给一名其他角色，然后该角色选择：展示所有手牌并弃置与所给牌花色相同的所有手牌和装备牌；或失去1点体力。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 295,
+      "pools": {
+        "current": 80
+      },
+      "definition": {
+        "id": "boundary:zhou-yu",
+        "name": "界周瑜",
+        "portraitKey": "boundary_zhou_yu",
+        "skillId": "boundary:yingzi",
+        "factionId": "wu",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "boundary:fanjian"
+        ],
+        "gender": "Male"
+      }
+    }
+  ]
+}

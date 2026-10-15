@@ -1,0 +1,40 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:pang-de",
+  "skills": [
+    {
+      "registrationOrder": 781,
+      "programBundle": "ordinary-sp-pang-de",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:juesi",
+        "name": "决死",
+        "description": "出牌阶段，你可以弃置一张【杀】并令攻击范围内一名其他角色弃置一张牌，若弃置牌不为【杀】且其体力值不小于你，你视为对其使用【决斗】。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 782,
+      "pools": {
+        "current": 252
+      },
+      "definition": {
+        "id": "ol:sp-pang-de",
+        "name": "SP庞德",
+        "portraitKey": "ol-sp-pang-de",
+        "skillId": "classic:mashu",
+        "factionId": "wei",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "ol:juesi"
+        ],
+        "gender": "Male",
+        "characterId": "character:pang-de",
+        "variantId": "sp",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:cao-zhi",
+  "skills": [
+    {
+      "registrationOrder": 200,
+      "programBundle": "classic-cao-zhi",
+      "includeProgramPresentation": false,
+      "definition": {
+        "id": "classic:luoying",
+        "name": "落英",
+        "description": "当其他角色的一张梅花牌因弃置或判定而置入弃牌堆时，你可以获得之。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 201,
+      "programBundle": "classic-cao-zhi",
+      "includeProgramPresentation": false,
+      "definition": {
+        "id": "classic:jiushi",
+        "name": "酒诗",
+        "description": "当你需要使用【酒】时，若你的武将牌正面朝上，你可以翻面，视为使用一张【酒】；当你受到伤害后，若你的武将牌背面朝上，你可以翻回正面。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 323,
+      "pools": {
+        "current": 109
+      },
+      "definition": {
+        "id": "classic:cao-zhi",
+        "name": "曹植",
+        "portraitKey": "cao_zhi",
+        "skillId": "classic:luoying",
+        "factionId": "wei",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "classic:jiushi"
+        ],
+        "gender": "Male"
+      }
+    }
+  ]
+}

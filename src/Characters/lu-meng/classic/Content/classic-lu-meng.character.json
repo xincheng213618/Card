@@ -1,0 +1,35 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:lu-meng",
+  "skills": [
+    {
+      "registrationOrder": 49,
+      "programBundle": "passive-card-rules",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:keji",
+        "name": "克己",
+        "description": "弃牌阶段开始时，若本回合出牌阶段未使用或打出过【杀】，你可以跳过此阶段。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 220,
+      "pools": {
+        "current": 18
+      },
+      "definition": {
+        "id": "classic:lu-meng",
+        "name": "吕蒙",
+        "portraitKey": "lu_meng",
+        "skillId": "classic:keji",
+        "factionId": "wu",
+        "baseHp": 4,
+        "gender": "Male"
+      }
+    }
+  ]
+}

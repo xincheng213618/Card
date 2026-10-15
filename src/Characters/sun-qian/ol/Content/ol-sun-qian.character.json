@@ -1,0 +1,50 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:sun-qian",
+  "skills": [
+    {
+      "registrationOrder": 922,
+      "programBundle": "ordinary-sun-qian",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:qianya",
+        "name": "谦雅",
+        "description": "当你成为锦囊牌的目标后，你可以交给一名其他角色任意张手牌。"
+      }
+    },
+    {
+      "registrationOrder": 923,
+      "programBundle": "ordinary-sun-qian",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:shuomeng",
+        "name": "说盟",
+        "description": "出牌阶段结束时，你可以拼点：若你赢，你视为使用【无中生有】；若你没赢，被拼点者视为对你使用【过河拆桥】。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 924,
+      "pools": {
+        "current": 302
+      },
+      "definition": {
+        "id": "ol:sun-qian",
+        "name": "孙乾",
+        "portraitKey": "ol-sun-qian",
+        "skillId": "ol:qianya",
+        "factionId": "shu",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "ol:shuomeng"
+        ],
+        "gender": "Male",
+        "characterId": "character:sun-qian",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:cao-xiu",
+  "skills": [
+    {
+      "registrationOrder": 438,
+      "programBundle": "classic-cao-xiu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:qianju",
+        "name": "千驹",
+        "description": "锁定技，你计算与其他角色的距离-X（X为你已损失体力值）。",
+        "tags": "Locked",
+        "executionForms": "State"
+      }
+    },
+    {
+      "registrationOrder": 439,
+      "programBundle": "classic-cao-xiu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:qingxi",
+        "name": "倾袭",
+        "description": "当你使用【杀】对目标角色造成伤害时，若你的装备区里有武器牌，你可以令其选择一项：1.弃置与此牌攻击范围等量张数的手牌，然后弃置此牌；2.令此【杀】伤害+1。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 457,
+      "pools": {
+        "current": 390
+      },
+      "definition": {
+        "id": "classic:cao-xiu",
+        "name": "曹休",
+        "portraitKey": "cao_xiu",
+        "skillId": "classic:qianju",
+        "factionId": "wei",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "classic:qingxi"
+        ],
+        "gender": "Male",
+        "characterId": "character:cao-xiu",
+        "variantId": "classic",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

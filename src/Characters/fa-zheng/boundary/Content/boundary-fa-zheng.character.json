@@ -1,0 +1,50 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:fa-zheng",
+  "skills": [
+    {
+      "registrationOrder": 670,
+      "programBundle": "boundary-fa-zheng",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:xuanhuo",
+        "name": "眩惑",
+        "description": "摸牌阶段结束时，你可以交给一名其他角色两张牌，令其选择一项：1.对你指定的另一名角色使用一张【杀】；2.你观看其手牌并获得其两张牌。"
+      }
+    },
+    {
+      "registrationOrder": 671,
+      "programBundle": "boundary-fa-zheng",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:enyuan",
+        "name": "恩怨",
+        "description": "当你获得一名其他角色至少两张牌后，你可以令其摸一张牌。当你受到1点伤害后，你可以令伤害来源选择一项：1.交给你一张红色手牌；2.失去1点体力。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 672,
+      "pools": {
+        "current": 214
+      },
+      "definition": {
+        "id": "boundary:fa-zheng",
+        "name": "界法正",
+        "portraitKey": "boundary_fa_zheng",
+        "skillId": "boundary:xuanhuo",
+        "factionId": "shu",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "boundary:enyuan"
+        ],
+        "gender": "Male",
+        "characterId": "character:fa-zheng",
+        "variantId": "boundary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

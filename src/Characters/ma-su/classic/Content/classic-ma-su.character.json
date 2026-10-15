@@ -1,0 +1,52 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:ma-su",
+  "skills": [
+    {
+      "registrationOrder": 398,
+      "programBundle": "classic-ma-su",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:sanyao",
+        "name": "散谣",
+        "description": "出牌阶段各限一次，你可以弃置一张牌对一名体力值/手牌数最大的角色造成1点伤害。",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 399,
+      "programBundle": "classic-ma-su",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:zhiman",
+        "name": "制蛮",
+        "description": "当你对其他角色造成伤害时，你可以防止此伤害，然后获得其区域里的一张牌。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 405,
+      "pools": {
+        "current": 135
+      },
+      "definition": {
+        "id": "classic:ma-su",
+        "name": "马谡",
+        "portraitKey": "ma_su",
+        "skillId": "classic:sanyao",
+        "factionId": "shu",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "classic:zhiman"
+        ],
+        "gender": "Male",
+        "characterId": "character:ma-su",
+        "variantId": "classic",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

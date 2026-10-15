@@ -1,0 +1,66 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:lu-xun",
+  "skills": [
+    {
+      "registrationOrder": 332,
+      "programBundle": "ol-strategic-gods",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:junlue",
+        "name": "军略",
+        "description": "锁定技，当你受到或造成1点伤害后，你获得1枚“军略”标记。",
+        "tags": "Locked",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 333,
+      "programBundle": "ol-strategic-gods",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:cuike",
+        "name": "摧克",
+        "description": "出牌阶段开始时，若“军略”数：为奇数，你可以对一名角色造成1点伤害；为偶数，你可以弃置一名角色区域里一张牌并令其进入连环状态。然后若大于7，你可以移除所有“军略”并对所有其他角色造成1点伤害。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 334,
+      "programBundle": "ol-strategic-gods",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:zhanhuo",
+        "name": "绽火",
+        "description": "限定技，出牌阶段，你可以移除所有“军略”，令至多等量的连环状态角色弃置所有装备区里的牌，然后对其中一名角色造成1点火焰伤害。",
+        "tags": "Limited",
+        "actionForms": "Active"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 365,
+      "pools": {
+        "current": 116
+      },
+      "definition": {
+        "id": "ol:shen-lu-xun",
+        "name": "神陆逊",
+        "portraitKey": "ol_shen_lu_xun",
+        "skillId": "ol:junlue",
+        "factionId": "god",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "ol:cuike",
+          "ol:zhanhuo"
+        ],
+        "gender": "Male",
+        "characterId": "character:lu-xun",
+        "variantId": "ol-god",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

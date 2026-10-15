@@ -169,17 +169,7 @@ internal static class OrdinaryDengZhongChecks
 
         internal static void RegisterCore(IContentRegistryBuilder b, bool peace)
         {
-            try
-            {
-                typeof(StandardContentPackage).Assembly.GetType("CardGame.Content.Standard.OrdinaryDengZhongContent")!
-                    .GetMethod("Register", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)!
-                    .Invoke(null, [b]);
-            }
-            catch (Exception diag)
-            {
-                Console.WriteLine("DIAG-INNER: " + (diag.InnerException?.ToString() ?? diag.ToString()));
-                throw;
-            }
+            CharacterFixtureContent.Register(b, "ol:deng-zhong");
             b.AddGeneral(new("fixture:dz", "邓忠", "ol-deng-zhong", Kanpo, "wei", 4, [Gengzhan]));
             for (var i = 1; i < 4; i++)
                 b.AddGeneral(new($"fixture:dz-{i}", "其他" + i, "supporter", "standard:none", "wei", 6, null));

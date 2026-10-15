@@ -1,0 +1,21 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-national-war-lite",
+  "characterId": "character:zhao-yun",
+  "skills": [],
+  "generals": [
+    {
+      "registrationOrder": 6,
+      "pools": {},
+      "definition": {
+        "id": "national:shu-zhao-yun",
+        "name": "赵云",
+        "portraitKey": "zhao_yun",
+        "skillId": "standard:longdan",
+        "factionId": "shu",
+        "baseHp": 4,
+        "gender": "Male"
+      }
+    }
+  ]
+}

@@ -125,12 +125,7 @@ internal static class RecordedSuitSlashChecks
         public PackageManifest Manifest { get; } = new("fixture-recorded-suit", new(1, 0, 0), []);
         public void Register(IContentRegistryBuilder b)
         {
-            try
-            {
-                typeof(StandardClassicGeneralPackage).Assembly.GetType("CardGame.Content.Standard.MouHuangZhongContent")!
-                    .GetMethod("Register", BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [b]);
-            }
-            catch (TargetInvocationException ex) { throw ex.InnerException ?? ex; }
+            CharacterFixtureContent.Register(b, "mou:huang-zhong");
             if (multiple || weapon)
             {
                 var extra = multiple ? "\"triggers\":[{\"id\":\"extra\",\"window\":\"cardUseTargetsFinalized\",\"ownerRelation\":\"actor\",\"cardKinds\":[\"slash\"],\"optional\":false,\"priority\":200,\"effects\":[{\"op\":\"selectTarget\",\"target\":\"owner\",\"targetKind\":\"otherLegalCurrentCardTarget\"},{\"op\":\"addCurrentCardUseTarget\",\"target\":\"selectedTarget\"}]}]"

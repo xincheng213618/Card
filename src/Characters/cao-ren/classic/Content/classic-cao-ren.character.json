@@ -1,0 +1,35 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:cao-ren",
+  "skills": [
+    {
+      "registrationOrder": 81,
+      "programBundle": "classic-phase-window-skills",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:jushou",
+        "name": "据守",
+        "description": "结束阶段，你可以摸三张牌，然后将武将牌翻至背面。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 244,
+      "pools": {
+        "current": 35
+      },
+      "definition": {
+        "id": "classic:cao-ren",
+        "name": "曹仁",
+        "portraitKey": "cao_ren",
+        "skillId": "classic:jushou",
+        "factionId": "wei",
+        "baseHp": 4,
+        "gender": "Male"
+      }
+    }
+  ]
+}

@@ -104,7 +104,7 @@ internal static class BoundaryHuangYueyingChecks
         public PackageManifest Manifest{get;}=new("fixture-hy",new(1,0,0),[]);
         public void Register(IContentRegistryBuilder b)
         {
-            try { typeof(StandardClassicGeneralPackage).Assembly.GetType("CardGame.Content.Standard.BoundaryHuangYueyingContent")!.GetMethod("Register",BindingFlags.NonPublic|BindingFlags.Static)!.Invoke(null,[b]); }
+            try { CharacterFixtureContent.Register(b, "boundary:huang-yueying"); }
             catch(TargetInvocationException ex){throw new InvalidOperationException(ex.InnerException?.ToString(),ex.InnerException);}
             if(conversion){b.AddSkill(Classic.Value.GetSkill("classic:qixi"));b.AddSkill(Classic.Value.GetSkill("classic:kanpo"));}
             if(equipment?.StartsWith("classic:",StringComparison.Ordinal)==true)b.AddCard(Classic.Value.GetCard(equipment));

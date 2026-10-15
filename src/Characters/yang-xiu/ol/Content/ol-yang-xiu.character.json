@@ -1,0 +1,52 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:yang-xiu",
+  "skills": [
+    {
+      "registrationOrder": 960,
+      "programBundle": "ordinary-yang-xiu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:danlao",
+        "name": "啖酪",
+        "description": "当你成为锦囊牌的目标后，若你不是此牌的唯一目标，你可以摸一张牌，然后此牌对你无效。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 961,
+      "programBundle": "ordinary-yang-xiu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:jilei",
+        "name": "鸡肋",
+        "description": "当你受到伤害后，你可以声明一种牌的类型，伤害来源本回合不能使用、打出或弃置你声明的此类手牌。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 962,
+      "pools": {
+        "current": 314
+      },
+      "definition": {
+        "id": "ol:yang-xiu",
+        "name": "杨修",
+        "portraitKey": "ol-yang-xiu",
+        "skillId": "ol:danlao",
+        "factionId": "wei",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "ol:jilei"
+        ],
+        "gender": "Male",
+        "characterId": "character:yang-xiu",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

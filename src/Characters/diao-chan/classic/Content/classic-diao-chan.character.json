@@ -1,0 +1,49 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:diao-chan",
+  "skills": [
+    {
+      "registrationOrder": 66,
+      "programBundle": "classic-active-cutover",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:lijian",
+        "name": "离间",
+        "description": "出牌阶段限一次，你可以弃置一张牌并选择两名男性角色，视为其中一名角色对另一名角色使用一张不能被无懈可击响应的【决斗】。",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 67,
+      "programBundle": "classic-phase-window-skills",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:biyue",
+        "name": "闭月",
+        "description": "结束阶段，你可以摸一张牌。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 235,
+      "pools": {
+        "current": 26
+      },
+      "definition": {
+        "id": "classic:diao-chan",
+        "name": "貂蝉",
+        "portraitKey": "diao_chan",
+        "skillId": "classic:biyue",
+        "factionId": "qun",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "classic:lijian"
+        ],
+        "gender": "Female"
+      }
+    }
+  ]
+}

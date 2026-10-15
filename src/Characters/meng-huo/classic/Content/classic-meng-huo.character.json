@@ -1,0 +1,50 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:meng-huo",
+  "skills": [
+    {
+      "registrationOrder": 107,
+      "programBundle": "passive-card-rules",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:huoshou",
+        "name": "祸首",
+        "description": "锁定技，【南蛮入侵】对你无效；由此牌造成的伤害来源视为你。",
+        "tags": "Locked",
+        "executionForms": "State"
+      }
+    },
+    {
+      "registrationOrder": 108,
+      "programBundle": "draw-reveal-replacement-skills",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:zaiqi",
+        "name": "再起",
+        "description": "摸牌阶段开始时，若你已受伤，你可以放弃摸牌并展示牌堆顶X张牌（X为你已损失的体力值）：每有一张红桃牌，你回复1点体力，然后弃置这些红桃牌并获得其余牌。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 253,
+      "pools": {
+        "current": 44
+      },
+      "definition": {
+        "id": "classic:meng-huo",
+        "name": "孟获",
+        "portraitKey": "meng_huo",
+        "skillId": "classic:huoshou",
+        "factionId": "shu",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "classic:zaiqi"
+        ],
+        "gender": "Male"
+      }
+    }
+  ]
+}

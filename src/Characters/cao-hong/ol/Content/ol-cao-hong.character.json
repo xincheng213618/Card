@@ -1,0 +1,43 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:cao-hong",
+  "skills": [
+    {
+      "registrationOrder": 786,
+      "programBundle": "ordinary-cao-hong",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:yuanhu",
+        "name": "援护",
+        "description": "结束阶段，你可以将一张装备牌置入一名角色的装备区，若为：武器牌，你弃置其距离为1的一名角色区域里的一张牌；防具牌，其摸一张牌；坐骑牌，其回复1点体力。",
+        "revealWeights": {
+          "base": 4,
+          "wounded": 31,
+          "emptyHand": 0,
+          "repeatedSlash": 0
+        }
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 787,
+      "pools": {
+        "current": 254
+      },
+      "definition": {
+        "id": "ol:cao-hong",
+        "name": "曹洪",
+        "portraitKey": "ol-cao-hong",
+        "skillId": "ol:yuanhu",
+        "factionId": "wei",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:cao-hong",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

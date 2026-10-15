@@ -1,0 +1,76 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:dong-zhuo",
+  "skills": [
+    {
+      "registrationOrder": 191,
+      "programBundle": "classic-dong-zhuo",
+      "includeProgramPresentation": false,
+      "definition": {
+        "id": "classic:jiuchi",
+        "name": "酒池",
+        "description": "你可以将一张黑桃手牌当【酒】使用。",
+        "executionForms": "State"
+      }
+    },
+    {
+      "registrationOrder": 192,
+      "programBundle": "classic-dong-zhuo",
+      "includeProgramPresentation": false,
+      "definition": {
+        "id": "classic:roulin",
+        "name": "肉林",
+        "description": "锁定技，每当你使用【杀】指定一名女性目标角色后，其需依次使用两张【闪】才能抵消；锁定技，每当你成为女性角色使用【杀】的目标后，你需依次使用两张【闪】才能抵消。",
+        "tags": "Locked",
+        "executionForms": "State"
+      }
+    },
+    {
+      "registrationOrder": 193,
+      "programBundle": "classic-dong-zhuo",
+      "includeProgramPresentation": false,
+      "definition": {
+        "id": "classic:benghuai",
+        "name": "崩坏",
+        "description": "锁定技，结束阶段，若有当前的体力值比你小的角色，你选择一项：1.失去1点体力；2.减1点体力上限。",
+        "tags": "Locked",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 194,
+      "programBundle": "classic-dong-zhuo",
+      "includeProgramPresentation": false,
+      "definition": {
+        "id": "classic:baonve",
+        "name": "暴虐",
+        "description": "主公技，每当其他群势力角色造成伤害后，其可以进行判定，若结果为黑桃，你回复1点体力。",
+        "tags": "Lord",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 321,
+      "pools": {
+        "current": 102
+      },
+      "definition": {
+        "id": "classic:dong-zhuo",
+        "name": "董卓",
+        "portraitKey": "dong_zhuo",
+        "skillId": "classic:jiuchi",
+        "factionId": "qun",
+        "baseHp": 8,
+        "additionalSkillIds": [
+          "classic:roulin",
+          "classic:benghuai",
+          "classic:baonve"
+        ],
+        "gender": "Male"
+      }
+    }
+  ]
+}

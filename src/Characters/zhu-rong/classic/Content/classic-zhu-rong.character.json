@@ -1,0 +1,49 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhu-rong",
+  "skills": [
+    {
+      "registrationOrder": 109,
+      "programBundle": "passive-card-rules",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:juxiang",
+        "name": "巨象",
+        "description": "锁定技，【南蛮入侵】对你无效；结算后获得此牌。",
+        "tags": "Locked",
+        "executionForms": "State"
+      }
+    },
+    {
+      "registrationOrder": 110,
+      "programBundle": "shared-pindian-skills",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:lieren",
+        "name": "烈刃",
+        "description": "当你使用杀对目标角色造成伤害后，你可以与其拼点；若你赢，你获得其一张牌。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 254,
+      "pools": {
+        "current": 45
+      },
+      "definition": {
+        "id": "classic:zhu-rong",
+        "name": "祝融",
+        "portraitKey": "zhu_rong",
+        "skillId": "classic:juxiang",
+        "factionId": "shu",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "classic:lieren"
+        ],
+        "gender": "Female"
+      }
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-active-skills",
+  "characterId": "character:demo-qingnang",
+  "skills": [
+    {
+      "registrationOrder": 3,
+      "programBundle": "standard-active-cutover",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "standard:qingnang",
+        "name": "青囊",
+        "description": "出牌阶段限一次，弃置一张手牌，令一名受伤角色回复 1 点体力。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 10,
+      "pools": {},
+      "definition": {
+        "id": "standard:demo-qingnang",
+        "name": "青囊者",
+        "portraitKey": "hua_tuo",
+        "skillId": "standard:qingnang",
+        "factionId": "qun",
+        "baseHp": 4,
+        "gender": "Male"
+      }
+    }
+  ]
+}

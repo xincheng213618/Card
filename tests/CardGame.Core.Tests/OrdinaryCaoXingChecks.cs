@@ -149,17 +149,7 @@ internal static class OrdinaryCaoXingChecks
         public PackageManifest Manifest { get; } = new("fixture-cx", new(1, 0, 0), []);
         public void Register(IContentRegistryBuilder b)
         {
-            try
-            {
-                typeof(StandardContentPackage).Assembly.GetType("CardGame.Content.Standard.OrdinaryCaoXingContent")!
-                    .GetMethod("Register", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)!
-                    .Invoke(null, [b]);
-            }
-            catch (Exception diag)
-            {
-                Console.WriteLine("DIAG-INNER: " + (diag.InnerException?.ToString() ?? diag.ToString()));
-                throw;
-            }
+            CharacterFixtureContent.Register(b, "ol:cao-xing");
             b.AddGeneral(new("fixture:cx", "曹性", "ol-cao-xing", Liushi, "qun", 4, [Zhanwan]));
             for (var i = 1; i < 4; i++)
                 b.AddGeneral(new($"fixture:cx-{i}", "其他" + i, "supporter", "standard:none", "wei", 5, null));

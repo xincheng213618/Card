@@ -1,0 +1,51 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:liao-hua",
+  "skills": [
+    {
+      "registrationOrder": 26,
+      "programBundle": "classic-lifecycle-skills",
+      "includeProgramPresentation": false,
+      "definition": {
+        "id": "classic:dangxian",
+        "name": "当先",
+        "description": "锁定技，回合开始时，你执行一个额外的出牌阶段。",
+        "tags": "Locked",
+        "executionForms": "State"
+      }
+    },
+    {
+      "registrationOrder": 27,
+      "programBundle": "classic-lifecycle-skills",
+      "includeProgramPresentation": false,
+      "definition": {
+        "id": "classic:fuli",
+        "name": "伏枥",
+        "description": "限定技，当你处于濒死状态时，你可以将体力回复至X点（X为现存势力数），然后将你的武将牌翻面。",
+        "tags": "Limited",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 274,
+      "pools": {
+        "current": 60
+      },
+      "definition": {
+        "id": "classic:liao-hua",
+        "name": "廖化",
+        "portraitKey": "liao_hua",
+        "skillId": "classic:dangxian",
+        "factionId": "shu",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "classic:fuli"
+        ],
+        "gender": "Male"
+      }
+    }
+  ]
+}

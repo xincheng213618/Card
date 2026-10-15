@@ -1,0 +1,38 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:fan-chou",
+  "skills": [
+    {
+      "registrationOrder": 1170,
+      "programBundle": "ol-fan-chou",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:xingluan",
+        "name": "兴乱",
+        "description": "出牌阶段限一次，当你使用牌后，你可以选择一项：1.获得场上一张点数为6的牌；2.从牌堆中两张点数为6的牌中选择一张获得（没有则摸一张牌）；3.令一名其他角色弃置一张点数为6的牌或交给你一张牌。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1171,
+      "pools": {
+        "current": 378
+      },
+      "definition": {
+        "id": "ol:fan-chou",
+        "name": "樊稠·OL",
+        "portraitKey": "ol-fan-chou",
+        "skillId": "ol:xingluan",
+        "factionId": "qun",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:fan-chou",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:ling-tong",
+  "skills": [
+    {
+      "registrationOrder": 726,
+      "programBundle": "boundary-ling-tong",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:xuanfeng-current",
+        "name": "旋风",
+        "description": "当你失去装备区里的牌后，或一次性失去至少两张牌后，你可以依次弃置至多两名其他角色共计至多两张牌。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 727,
+      "pools": {
+        "current": 233
+      },
+      "definition": {
+        "id": "boundary:ling-tong",
+        "name": "界凌统",
+        "portraitKey": "boundary_ling_tong",
+        "skillId": "boundary:xuanfeng-current",
+        "factionId": "wu",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:ling-tong",
+        "variantId": "boundary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

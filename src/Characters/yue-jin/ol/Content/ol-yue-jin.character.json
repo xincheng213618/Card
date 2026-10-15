@@ -1,0 +1,37 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:yue-jin",
+  "skills": [
+    {
+      "registrationOrder": 917,
+      "programBundle": "ordinary-yue-jin",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:xiaoguo",
+        "name": "骁果",
+        "description": "其他角色的结束阶段，你可以弃置一张基本牌，令其选择一项：1.弃置一张装备牌，你摸一张牌；2.你对其造成1点伤害。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 918,
+      "pools": {
+        "current": 300
+      },
+      "definition": {
+        "id": "ol:yue-jin",
+        "name": "乐进",
+        "portraitKey": "ol-yue-jin",
+        "skillId": "ol:xiaoguo",
+        "factionId": "wei",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:yue-jin",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

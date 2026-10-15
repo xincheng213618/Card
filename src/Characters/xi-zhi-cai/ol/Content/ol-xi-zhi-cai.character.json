@@ -1,0 +1,54 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:xi-zhi-cai",
+  "skills": [
+    {
+      "registrationOrder": 1133,
+      "programBundle": "ol-xi-zhi-cai",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:xianfu",
+        "name": "先辅",
+        "description": "锁定技，游戏开始时，你选择一名其他角色，在本局中：当其受到伤害后，你受到等量伤害；当其回复体力后，你回复等量体力。",
+        "tags": "Locked",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 1134,
+      "programBundle": "ol-xi-zhi-cai",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:chouce",
+        "name": "筹策",
+        "description": "当你受到1点伤害后，你可以判定，若结果为：红色，你令一名角色摸一张牌，若其为“先辅”目标，改为摸两张牌；黑色，你弃置一名角色区域里的一张牌。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1135,
+      "pools": {
+        "current": 367
+      },
+      "definition": {
+        "id": "ol:xi-zhi-cai",
+        "name": "戏志才·OL",
+        "portraitKey": "ol-xi-zhi-cai",
+        "skillId": "classic:tiandu",
+        "factionId": "wei",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "ol:xianfu",
+          "ol:chouce"
+        ],
+        "gender": "Male",
+        "characterId": "character:xi-zhi-cai",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

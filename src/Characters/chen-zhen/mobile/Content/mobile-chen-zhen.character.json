@@ -1,0 +1,37 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:chen-zhen",
+  "skills": [
+    {
+      "registrationOrder": 1033,
+      "programBundle": "mobile-chen-zhen",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mobile:shameng",
+        "name": "歃盟",
+        "description": "出牌阶段限一次，你可以弃置两张颜色相同的手牌，令一名其他角色摸两张牌，然后你摸三张牌。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1034,
+      "pools": {
+        "current": 334
+      },
+      "definition": {
+        "id": "mobile:chen-zhen",
+        "name": "陈震·移动版",
+        "portraitKey": "mobile-chen-zhen",
+        "skillId": "mobile:shameng",
+        "factionId": "shu",
+        "baseHp": 3,
+        "gender": "Male",
+        "characterId": "character:chen-zhen",
+        "variantId": "mobile",
+        "rulesetId": "sanguosha-mobile"
+      }
+    }
+  ]
+}

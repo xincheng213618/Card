@@ -1,0 +1,35 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhang-he",
+  "skills": [
+    {
+      "registrationOrder": 204,
+      "programBundle": "classic-zhang-he",
+      "includeProgramPresentation": false,
+      "definition": {
+        "id": "classic:qiaobian",
+        "name": "巧变",
+        "description": "你可以弃置一张手牌，跳过除准备阶段和结束阶段外的一个阶段，然后若你以此法：跳过摸牌阶段，你可以选择一至两名有手牌的其他角色，然后获得这些角色的各一张手牌；跳过出牌阶段，你可以将一名角色判定区/装备区里的一张牌置入另一名角色的判定区/装备区。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 316,
+      "pools": {
+        "current": 106
+      },
+      "definition": {
+        "id": "classic:zhang-he",
+        "name": "张郃",
+        "portraitKey": "zhang_he",
+        "skillId": "classic:qiaobian",
+        "factionId": "wei",
+        "baseHp": 4,
+        "gender": "Male"
+      }
+    }
+  ]
+}

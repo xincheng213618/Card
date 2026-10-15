@@ -1,0 +1,35 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:yan-liang-wen-chou",
+  "skills": [
+    {
+      "registrationOrder": 74,
+      "programBundle": "judgment-draw-skills",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:shuangxiong",
+        "name": "双雄",
+        "description": "摸牌阶段，你可以改为判定并获得判定牌；本回合你可以将与判定牌颜色不同的一张手牌当【决斗】使用。",
+        "executionForms": "State, Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 240,
+      "pools": {
+        "current": 31
+      },
+      "definition": {
+        "id": "classic:yan-liang-wen-chou",
+        "name": "颜良文丑",
+        "portraitKey": "yan_liang_wen_chou",
+        "skillId": "classic:shuangxiong",
+        "factionId": "qun",
+        "baseHp": 4,
+        "gender": "Male"
+      }
+    }
+  ]
+}

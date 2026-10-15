@@ -1,0 +1,53 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:cai-fu-ren",
+  "skills": [
+    {
+      "registrationOrder": 744,
+      "programBundle": "boundary-cai-fu-ren",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:xianzhou-current",
+        "name": "献州",
+        "description": "限定技，出牌阶段，你可以将你装备区里的所有牌交给一名其他角色，然后其选择一项：1.令你回复X点体力；2.对其攻击范围内至多X名角色各造成1点伤害。（X为你给出的牌数）",
+        "tags": "Limited",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 745,
+      "programBundle": "boundary-cai-fu-ren",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:qieting-current",
+        "name": "窃听",
+        "description": "其他角色的回合结束后，若其本回合未对其他角色造成伤害，你可以选择一项；若其本回合未对其他角色使用过牌，你可以选择两项；1.将其装备区里的一张牌置入你的装备区；2.摸一张牌。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 746,
+      "pools": {
+        "current": 239
+      },
+      "definition": {
+        "id": "boundary:cai-fu-ren",
+        "name": "界蔡夫人",
+        "portraitKey": "boundary_cai_fu_ren",
+        "skillId": "boundary:xianzhou-current",
+        "factionId": "qun",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "boundary:qieting-current"
+        ],
+        "gender": "Female",
+        "characterId": "character:cai-fu-ren",
+        "variantId": "boundary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

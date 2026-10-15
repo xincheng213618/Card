@@ -1,0 +1,40 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-active-skills",
+  "characterId": "character:demo-mashu",
+  "skills": [
+    {
+      "registrationOrder": 5,
+      "programBundle": "rule-query-skills",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "standard:mashu",
+        "name": "马术",
+        "description": "锁定技，你计算与其他角色的距离始终 -1。",
+        "tags": "Locked",
+        "executionForms": "State",
+        "revealWeights": {
+          "base": 20,
+          "wounded": 0,
+          "emptyHand": 0,
+          "repeatedSlash": 0
+        }
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 12,
+      "pools": {},
+      "definition": {
+        "id": "standard:demo-mashu",
+        "name": "马术者",
+        "portraitKey": "zhao_yun",
+        "skillId": "standard:mashu",
+        "factionId": "shu",
+        "baseHp": 4,
+        "gender": "Male"
+      }
+    }
+  ]
+}

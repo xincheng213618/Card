@@ -1,0 +1,41 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard",
+  "characterId": "character:zhou-yu",
+  "skills": [
+    {
+      "registrationOrder": 4,
+      "programBundle": "draw-phase-skills",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "standard:yingzi",
+        "name": "英姿",
+        "description": "摸牌阶段额外摸一张牌。",
+        "executionForms": "Trigger",
+        "revealWeights": {
+          "base": 18,
+          "wounded": 0,
+          "emptyHand": 0,
+          "repeatedSlash": 0
+        }
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 15,
+      "pools": {
+        "standard": 2
+      },
+      "definition": {
+        "id": "standard:zhou-yu",
+        "name": "周瑜",
+        "portraitKey": "zhou_yu",
+        "skillId": "standard:yingzi",
+        "factionId": "wu",
+        "baseHp": 4,
+        "gender": "Male"
+      }
+    }
+  ]
+}

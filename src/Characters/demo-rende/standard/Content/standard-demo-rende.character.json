@@ -1,0 +1,32 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-active-skills",
+  "characterId": "character:demo-rende",
+  "skills": [
+    {
+      "registrationOrder": 2,
+      "programBundle": "standard-active-cutover",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "standard:rende",
+        "name": "仁德",
+        "description": "出牌阶段将一至若干张手牌交给一名其他角色；一次交给至少两张时该角色回复 1 点体力。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 9,
+      "pools": {},
+      "definition": {
+        "id": "standard:demo-rende",
+        "name": "仁德者",
+        "portraitKey": "liu_bei",
+        "skillId": "standard:rende",
+        "factionId": "shu",
+        "baseHp": 4,
+        "gender": "Male"
+      }
+    }
+  ]
+}

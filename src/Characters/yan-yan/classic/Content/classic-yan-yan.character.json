@@ -1,0 +1,36 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:yan-yan",
+  "skills": [
+    {
+      "registrationOrder": 102,
+      "programBundle": "classic-card-action-skills",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:juzhan",
+        "name": "拒战",
+        "description": "转换技，阳：当你成为其他角色使用【杀】的目标后，你可以与其各摸一张牌，然后其本回合不能再对你使用牌；阴：当你使用【杀】指定目标后，你可以获得其中一名目标角色的一张牌，然后你本回合不能再对其使用牌。",
+        "tags": "Conversion",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 265,
+      "pools": {
+        "current": 51
+      },
+      "definition": {
+        "id": "classic:yan-yan",
+        "name": "严颜",
+        "portraitKey": "yan_yan",
+        "skillId": "classic:juzhan",
+        "factionId": "shu",
+        "baseHp": 4,
+        "gender": "Male"
+      }
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:cao-zhang",
+  "skills": [
+    {
+      "registrationOrder": 666,
+      "programBundle": "boundary-cao-zhang",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:jiangchi",
+        "name": "将驰",
+        "description": "摸牌阶段结束时，你可以选择一项：1.摸一张牌，你本回合使用【杀】的次数-1，且【杀】不计入手牌上限；2.重铸一张牌，且本回合使用【杀】的次数+1，【杀】无距离限制。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 667,
+      "pools": {
+        "current": 212
+      },
+      "definition": {
+        "id": "boundary:cao-zhang",
+        "name": "界曹彰",
+        "portraitKey": "boundary_cao_zhang",
+        "skillId": "boundary:jiangchi",
+        "factionId": "wei",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:cao-zhang",
+        "variantId": "boundary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhang-chang-pu",
+  "skills": [
+    {
+      "registrationOrder": 807,
+      "programBundle": "ol-zhang-chang-pu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:yanjiao",
+        "name": "严教",
+        "description": "出牌阶段限一次，你可以选择一名其他角色并亮出牌堆顶的四张牌，令该角色将这些牌分成点数之和相等的两组并将这两组牌分配给你与其，然后将剩余未分组的牌置入弃牌堆。若未分组的牌数大于1，你本回合的手牌上限-1。"
+      }
+    },
+    {
+      "registrationOrder": 808,
+      "programBundle": "ol-zhang-chang-pu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:shengshen",
+        "name": "省身",
+        "description": "当你受到伤害后，你可以摸一张牌（若你的手牌数为全场最少，改为摸两张牌），令下一次发动“严教”亮出的牌数+1（若你的体力值为全场最少，改为+2）且至多+4。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 809,
+      "pools": {
+        "current": 262
+      },
+      "definition": {
+        "id": "ol:zhang-chang-pu",
+        "name": "张昌蒲",
+        "portraitKey": "ol-zhang-chang-pu",
+        "skillId": "ol:yanjiao",
+        "factionId": "wei",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "ol:shengshen"
+        ],
+        "gender": "Female",
+        "characterId": "character:zhang-chang-pu",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

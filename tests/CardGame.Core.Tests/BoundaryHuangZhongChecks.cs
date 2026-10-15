@@ -68,7 +68,7 @@ internal static class BoundaryHuangZhongChecks
         public PackageManifest Manifest{get;}=new("fixture-hz",new(1,0,0),[]);
         public void Register(IContentRegistryBuilder b)
         {
-            typeof(StandardClassicGeneralPackage).Assembly.GetType("CardGame.Content.Standard.BoundaryHuangZhongContent")!.GetMethod("Register",BindingFlags.NonPublic|BindingFlags.Static)!.Invoke(null,[b]);
+            CharacterFixtureContent.Register(b, "boundary:huang-zhong");
             b.AddSkill(Classic.Value.GetSkill("boundary:rende"));if(dodge)b.AddSkill(Classic.Value.GetSkill("classic:wusheng"));if(weapon!=null)b.AddCard(Classic.Value.GetCard(weapon));if(canonical)b.AddCard(Classic.Value.GetCard("classic:borrowed-sword"));
             if(ignore)b.AddSkill(new("fixture:hz-ignore","无距离","无距离"){Program=Load("fixture:hz-ignore","\"cardPolicies\":[{\"id\":\"ignore\",\"kind\":\"ignoreSlashUseDistanceBySuit\",\"cardKinds\":[\"slash\"],\"inputSuit\":\"heart\"}]")});
             if(canonical)b.AddSkill(new("fixture:hz-tax","距离边界","距离边界"){Program=Load("fixture:hz-tax","\"modifiers\":[{\"id\":\"tax\",\"query\":\"outgoingDistance\",\"operation\":\"add\",\"value\":4,\"priority\":0}]")});

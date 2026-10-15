@@ -28,59 +28,7 @@ public sealed class StandardActiveSkillExpansionPackage : IGameContentPackage
     {
         ArgumentNullException.ThrowIfNull(builder);
 
-        builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("standard-active-cutover", "standard:kujin"));
-        builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("standard-active-cutover", "standard:zhiheng"));
-        builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("standard-active-cutover", "standard:rende"));
-        builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("standard-active-cutover", "standard:qingnang"));
-        builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("standard-active-cutover", "standard:huichun"));
-        builder.AddSkill(RuleQuerySkillPrograms.Definition("standard:mashu") with
-            {
-                Tags = SkillTag.Locked,
-                ExecutionForms = SkillExecutionForm.State
-            });
-        builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("passive-card-rules", "standard:qicai"));
-        builder.AddGeneral(new ContentGeneralDefinition(
-            "standard:demo-kujin",
-            "黄盖",
-            "sun_quan",
-            "standard:kujin",
-            "wu"));
-        builder.AddGeneral(new ContentGeneralDefinition(
-            "standard:demo-zhiheng",
-            "制衡者",
-            "sun_quan",
-            "standard:zhiheng",
-            "wu"));
-        builder.AddGeneral(new ContentGeneralDefinition(
-            "standard:demo-rende",
-            "仁德者",
-            "liu_bei",
-            "standard:rende",
-            "shu"));
-        builder.AddGeneral(new ContentGeneralDefinition(
-            "standard:demo-qingnang",
-            "青囊者",
-            "hua_tuo",
-            "standard:qingnang",
-            "qun"));
-        builder.AddGeneral(new ContentGeneralDefinition(
-            "standard:demo-huichun",
-            "回春者",
-            "hua_tuo",
-            "standard:huichun",
-            "qun"));
-        builder.AddGeneral(new ContentGeneralDefinition(
-            "standard:demo-mashu",
-            "马术者",
-            "zhao_yun",
-            "standard:mashu",
-            "shu"));
-        builder.AddGeneral(new ContentGeneralDefinition(
-            "standard:demo-qicai",
-            "奇才者",
-            "zhuge_liang",
-            "standard:qicai",
-            "shu"));
+        CharacterContentCatalog.Default.Register(builder, Manifest.Id);
 
         var additionalGeneralIds = new List<string>
         {

@@ -19,23 +19,7 @@ public sealed class StandardNationalWarLitePackage : IGameContentPackage
     {
         ArgumentNullException.ThrowIfNull(builder);
 
-        builder.AddGeneral(new ContentGeneralDefinition(
-            "national:wei-cao-cao", "曹操", "cao_cao", "standard:jianxiong", "wei"));
-        builder.AddGeneral(new ContentGeneralDefinition(
-            "national:wei-guo-jia", "郭嘉", "guo_jia", "standard:yiji", "wei", BaseHp: 3));
-        builder.AddGeneral(new ContentGeneralDefinition(
-            "national:wei-xun-yu", "荀彧", "xun_yu", "standard:jieming", "wei", BaseHp: 3));
-        builder.AddGeneral(new ContentGeneralDefinition(
-            "national:wei-ganglie", "刚烈者", "ganglie", "standard:ganglie", "wei"));
-
-        builder.AddGeneral(new ContentGeneralDefinition(
-            "national:shu-zhang-fei", "张飞", "zhang_fei", "standard:paoxiao", "shu"));
-        builder.AddGeneral(new ContentGeneralDefinition(
-            "national:shu-guan-yu", "关羽", "guan_yu", "standard:wusheng", "shu"));
-        builder.AddGeneral(new ContentGeneralDefinition(
-            "national:shu-zhao-yun", "赵云", "zhao_yun", "standard:longdan", "shu"));
-        builder.AddGeneral(new ContentGeneralDefinition(
-            "national:shu-liu-bei", "刘备", "liu_bei", "standard:none", "shu"));
+        CharacterContentCatalog.Default.Register(builder, Manifest.Id);
 
         builder.AddMode(new ContentModeDefinition(
             Id: "national:lite-4",

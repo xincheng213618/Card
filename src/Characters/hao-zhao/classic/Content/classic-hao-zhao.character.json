@@ -1,0 +1,38 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:hao-zhao",
+  "skills": [
+    {
+      "registrationOrder": 527,
+      "programBundle": "classic-hao-zhao",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:zhengu",
+        "name": "镇骨",
+        "description": "结束阶段，你可以选择一名其他角色，本回合结束时和其下回合结束时，其将手牌调整至与你手牌数相同（至多摸至五张）。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 528,
+      "pools": {
+        "current": 166
+      },
+      "definition": {
+        "id": "classic:hao-zhao",
+        "name": "郝昭",
+        "portraitKey": "hao_zhao",
+        "skillId": "classic:zhengu",
+        "factionId": "wei",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:hao-zhao",
+        "variantId": "classic",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

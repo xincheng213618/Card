@@ -1,0 +1,50 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:xu-jing",
+  "skills": [
+    {
+      "registrationOrder": 919,
+      "programBundle": "ordinary-xu-jing",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:yuxu",
+        "name": "誉虚",
+        "description": "当你于出牌阶段使用牌后，你可以摸一张牌，若如此做，当你本阶段使用下一张牌后，你不能以此法摸牌且须弃置一张牌。"
+      }
+    },
+    {
+      "registrationOrder": 920,
+      "programBundle": "ordinary-xu-jing",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:shijian",
+        "name": "实荐",
+        "description": "当其他角色于其回合内使用第二张牌后，你可以弃置一张牌，令其于本回合获得“誉虚”。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 921,
+      "pools": {
+        "current": 301
+      },
+      "definition": {
+        "id": "ol:xu-jing",
+        "name": "许靖",
+        "portraitKey": "ol-xu-jing",
+        "skillId": "ol:yuxu",
+        "factionId": "shu",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "ol:shijian"
+        ],
+        "gender": "Male",
+        "characterId": "character:xu-jing",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

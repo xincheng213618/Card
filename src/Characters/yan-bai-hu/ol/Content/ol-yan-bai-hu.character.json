@@ -1,0 +1,54 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:yan-bai-hu",
+  "skills": [
+    {
+      "registrationOrder": 1077,
+      "programBundle": "ol-yan-bai-hu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:zhidao",
+        "name": "雉盗",
+        "description": "锁定技，每回合限一次，当你于出牌阶段对其他角色造成伤害后，你获得其每个区域各一张牌，然后你本回合使用牌不能指定其他角色为目标。",
+        "tags": "Locked",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 1078,
+      "programBundle": "ol-yan-bai-hu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:jili",
+        "name": "寄篱",
+        "description": "锁定技，当与你的距离为1的其他角色成为红色基本牌或红色普通锦囊牌的目标时，若你不是此牌的使用者或目标，你成为此牌的额外目标。",
+        "tags": "Locked",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1079,
+      "pools": {
+        "current": 349
+      },
+      "definition": {
+        "id": "ol:yan-bai-hu",
+        "name": "严白虎·OL",
+        "portraitKey": "ol-yan-bai-hu",
+        "skillId": "ol:zhidao",
+        "factionId": "qun",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "ol:jili"
+        ],
+        "gender": "Male",
+        "characterId": "character:yan-bai-hu",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

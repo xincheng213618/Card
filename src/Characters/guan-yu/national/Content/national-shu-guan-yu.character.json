@@ -1,0 +1,21 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-national-war-lite",
+  "characterId": "character:guan-yu",
+  "skills": [],
+  "generals": [
+    {
+      "registrationOrder": 5,
+      "pools": {},
+      "definition": {
+        "id": "national:shu-guan-yu",
+        "name": "关羽",
+        "portraitKey": "guan_yu",
+        "skillId": "standard:wusheng",
+        "factionId": "shu",
+        "baseHp": 4,
+        "gender": "Male"
+      }
+    }
+  ]
+}

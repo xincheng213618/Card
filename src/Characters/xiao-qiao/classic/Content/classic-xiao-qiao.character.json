@@ -1,0 +1,50 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:xiao-qiao",
+  "skills": [
+    {
+      "registrationOrder": 82,
+      "programBundle": "passive-card-rules",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:hongyan",
+        "name": "红颜",
+        "description": "锁定技，你的黑桃牌视为红桃牌。",
+        "tags": "Locked",
+        "executionForms": "State"
+      }
+    },
+    {
+      "registrationOrder": 83,
+      "programBundle": "passive-damage-cutover",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:tianxiang",
+        "name": "天香",
+        "description": "当你即将受到伤害时，你可以弃置一张红桃手牌并选择另一名角色，将此伤害转移给其；其受伤后摸等同于已损失体力值的牌。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 245,
+      "pools": {
+        "current": 36
+      },
+      "definition": {
+        "id": "classic:xiao-qiao",
+        "name": "小乔",
+        "portraitKey": "xiao_qiao",
+        "skillId": "classic:hongyan",
+        "factionId": "wu",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "classic:tianxiang"
+        ],
+        "gender": "Female"
+      }
+    }
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:xiao-qiao",
+  "skills": [
+    {
+      "registrationOrder": 747,
+      "programBundle": "boundary-xiao-qiao",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:hongyan",
+        "name": "红颜",
+        "description": "锁定技，你的黑桃牌和黑桃判定牌视为红桃牌。若你的装备区里有红桃牌，你的手牌上限等于体力上限。",
+        "tags": "Locked",
+        "executionForms": "State"
+      }
+    },
+    {
+      "registrationOrder": 748,
+      "programBundle": "boundary-xiao-qiao",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:tianxiang",
+        "name": "天香",
+        "description": "当你受到伤害时，你可以弃置一张红桃牌防止之并选择一项，令一名其他角色：1.受到伤害来源的1点伤害并摸X张牌（X为其已损失体力值且至多为5）；2.失去1点体力并获得你弃置的牌。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 749,
+      "programBundle": "boundary-xiao-qiao",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:piaoling",
+        "name": "飘零",
+        "description": "结束阶段，你可以判定，若结果为红桃，你将判定牌置于牌堆顶或交给一名角色，若该角色是你，你弃置一张牌。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 750,
+      "pools": {
+        "current": 240
+      },
+      "definition": {
+        "id": "boundary:xiao-qiao",
+        "name": "界小乔",
+        "portraitKey": "boundary_xiao_qiao",
+        "skillId": "boundary:hongyan",
+        "factionId": "wu",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "boundary:tianxiang",
+          "boundary:piaoling"
+        ],
+        "gender": "Female",
+        "characterId": "character:xiao-qiao",
+        "variantId": "boundary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

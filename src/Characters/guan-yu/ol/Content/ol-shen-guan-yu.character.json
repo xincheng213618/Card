@@ -1,0 +1,39 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:guan-yu",
+  "skills": [
+    {
+      "registrationOrder": 162,
+      "programBundle": "ol-shen-guan-yu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:wushen",
+        "name": "武神",
+        "description": "锁定技，你的红桃手牌视为杀；你的红桃杀无距离和次数限制且不能被抵消。",
+        "tags": "Locked",
+        "executionForms": "State"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 309,
+      "pools": {
+        "current": 92
+      },
+      "definition": {
+        "id": "ol:shen-guan-yu",
+        "name": "神关羽·武神",
+        "portraitKey": "shen_guan_yu",
+        "skillId": "ol:wushen",
+        "factionId": "god",
+        "baseHp": 5,
+        "additionalSkillIds": [
+          "classic:wuhun"
+        ],
+        "gender": "Male"
+      }
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhuge-liang",
+  "skills": [
+    {
+      "registrationOrder": 701,
+      "programBundle": "boundary-wolong-zhuge-liang",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:huoji-current",
+        "name": "火计",
+        "description": "你可以将一张红色牌当【火攻】使用。你的【火攻】改为令目标展示随机手牌，你弃置与展示牌颜色相同的牌以造成伤害。"
+      }
+    },
+    {
+      "registrationOrder": 702,
+      "programBundle": "boundary-wolong-zhuge-liang",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:kanpo-current",
+        "name": "看破",
+        "description": "你可以将一张黑色牌当【无懈可击】使用。你的【无懈可击】不能被响应。"
+      }
+    },
+    {
+      "registrationOrder": 703,
+      "programBundle": "boundary-wolong-zhuge-liang",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:cangzhuo",
+        "name": "藏拙",
+        "description": "锁定技，弃牌阶段开始时，若你本回合未使用过锦囊牌，你的锦囊牌不计入手牌上限。",
+        "tags": "Locked",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 704,
+      "pools": {
+        "current": 224
+      },
+      "definition": {
+        "id": "boundary:wolong-zhuge-liang",
+        "name": "界卧龙诸葛亮",
+        "portraitKey": "boundary_wolong_zhuge_liang",
+        "skillId": "classic:bazhen",
+        "factionId": "shu",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "boundary:huoji-current",
+          "boundary:kanpo-current",
+          "boundary:cangzhuo"
+        ],
+        "gender": "Male",
+        "characterId": "character:wolong-zhuge-liang",
+        "variantId": "boundary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

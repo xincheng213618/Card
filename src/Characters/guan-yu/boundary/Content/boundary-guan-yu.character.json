@@ -1,0 +1,51 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:guan-yu",
+  "skills": [
+    {
+      "registrationOrder": 585,
+      "programBundle": "boundary-guan-yu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:wusheng",
+        "name": "武圣",
+        "description": "你可以将一张红色牌当【杀】使用或打出；你使用的方块【杀】无距离限制。"
+      }
+    },
+    {
+      "registrationOrder": 586,
+      "programBundle": "boundary-guan-yu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:yijue",
+        "name": "义绝",
+        "description": "出牌阶段限一次，你可以弃置一张牌，令一名其他角色展示一张手牌。若为黑色，其本回合非锁定技失效且不能使用或打出手牌，且你本回合对其使用红桃【杀】的伤害+1；若为红色，你获得此牌，然后你可以令其回复1点体力。",
+        "actionForms": "Active"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 587,
+      "pools": {
+        "current": 184
+      },
+      "definition": {
+        "id": "boundary:guan-yu",
+        "name": "界关羽",
+        "portraitKey": "boundary_guan_yu",
+        "skillId": "boundary:wusheng",
+        "factionId": "shu",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "boundary:yijue"
+        ],
+        "gender": "Male",
+        "characterId": "character:guan-yu",
+        "variantId": "boundary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

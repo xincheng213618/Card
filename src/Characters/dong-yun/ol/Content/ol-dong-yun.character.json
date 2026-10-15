@@ -1,0 +1,52 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:dong-yun",
+  "skills": [
+    {
+      "registrationOrder": 1049,
+      "programBundle": "ol-dong-yun",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:bingzheng",
+        "name": "秉正",
+        "description": "出牌阶段结束时，你可以令手牌数不等于体力值的一名角色弃置一张手牌或摸一张牌。然后若其手牌数等于体力值，你摸一张牌，且可以交给其一张牌。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 1050,
+      "programBundle": "ol-dong-yun",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:sheyan",
+        "name": "舍宴",
+        "description": "当你成为一张普通锦囊牌的目标时，你可以令此牌增加一个目标或对一个目标无效（有效目标数至少为1）。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1051,
+      "pools": {
+        "current": 340
+      },
+      "definition": {
+        "id": "ol:dong-yun",
+        "name": "董允·OL",
+        "portraitKey": "ol-dong-yun",
+        "skillId": "ol:bingzheng",
+        "factionId": "shu",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "ol:sheyan"
+        ],
+        "gender": "Male",
+        "characterId": "character:dong-yun",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

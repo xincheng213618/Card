@@ -1,0 +1,50 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:cao-xing",
+  "skills": [
+    {
+      "registrationOrder": 793,
+      "programBundle": "ol-cao-xing",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:liu-shi",
+        "name": "流矢",
+        "description": "出牌阶段，你可以将一张红桃牌置于牌堆顶，视为对一名角色使用一张无距离和次数限制的【杀】，若此【杀】造成伤害，其手牌上限-1。"
+      }
+    },
+    {
+      "registrationOrder": 794,
+      "programBundle": "ol-cao-xing",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:zhan-wan",
+        "name": "斩腕",
+        "description": "锁定技，当受到“流矢”效果影响的角色于弃牌阶段弃牌后，你摸等量张牌并移除其“流矢”效果。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 795,
+      "pools": {
+        "current": 257
+      },
+      "definition": {
+        "id": "ol:cao-xing",
+        "name": "曹性",
+        "portraitKey": "ol-cao-xing",
+        "skillId": "ol:liu-shi",
+        "factionId": "qun",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "ol:zhan-wan"
+        ],
+        "gender": "Male",
+        "characterId": "character:cao-xing",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

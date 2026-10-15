@@ -1,0 +1,65 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:jia-xu",
+  "skills": [
+    {
+      "registrationOrder": 153,
+      "programBundle": "classic-jia-xu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:wansha",
+        "name": "完杀",
+        "description": "锁定技，不处于濒死状态的其他角色于你的回合内不能使用【桃】。",
+        "tags": "Locked",
+        "executionForms": "State"
+      }
+    },
+    {
+      "registrationOrder": 154,
+      "programBundle": "classic-jia-xu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:luanwu",
+        "name": "乱武",
+        "description": "限定技，出牌阶段，你可以选择所有其他角色，这些角色各需对距离最近的另一名角色使用一张【杀】，否则失去1点体力。",
+        "tags": "Limited",
+        "executionForms": "State",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 155,
+      "programBundle": "classic-jia-xu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:weimu",
+        "name": "帷幕",
+        "description": "锁定技，你不能被选择为黑色锦囊牌的目标。",
+        "tags": "Locked",
+        "executionForms": "State"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 306,
+      "pools": {
+        "current": 110
+      },
+      "definition": {
+        "id": "classic:jia-xu",
+        "name": "贾诩",
+        "portraitKey": "jia_xu",
+        "skillId": "classic:wansha",
+        "factionId": "qun",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "classic:luanwu",
+          "classic:weimu"
+        ],
+        "gender": "Male"
+      }
+    }
+  ]
+}

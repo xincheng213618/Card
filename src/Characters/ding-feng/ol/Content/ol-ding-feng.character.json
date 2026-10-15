@@ -1,0 +1,50 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:ding-feng",
+  "skills": [
+    {
+      "registrationOrder": 907,
+      "programBundle": "ordinary-ding-feng",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:duanbing",
+        "name": "短兵",
+        "description": "你使用【杀】可以多指定一名距离为1的角色为目标。你对距离为1的角色使用【杀】需两张【闪】才能抵消。"
+      }
+    },
+    {
+      "registrationOrder": 908,
+      "programBundle": "ordinary-ding-feng",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:fenxun",
+        "name": "奋迅",
+        "description": "出牌阶段限一次，你可以选择一名其他角色，然后你本回合计算与其的距离视为1，若如此做，若你直到结束阶段未对其造成过伤害，结束阶段，你弃置一张牌。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 909,
+      "pools": {
+        "current": 296
+      },
+      "definition": {
+        "id": "ol:ding-feng",
+        "name": "丁奉",
+        "portraitKey": "ol-ding-feng",
+        "skillId": "ol:duanbing",
+        "factionId": "wu",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "ol:fenxun"
+        ],
+        "gender": "Male",
+        "characterId": "character:ding-feng",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:hua-xiong",
+  "skills": [
+    {
+      "registrationOrder": 636,
+      "programBundle": "boundary-hua-xiong",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:yaowu-current",
+        "name": "耀武",
+        "description": "锁定技，当你受到伤害时，若造成伤害的牌：为红色，伤害来源摸一张牌；不为红色，你摸一张牌。",
+        "tags": "Locked",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 637,
+      "programBundle": "boundary-hua-xiong",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:shizhan-current",
+        "name": "势斩",
+        "description": "出牌阶段限两次，你可以令一名其他角色视为对你使用一张【决斗】。",
+        "actionForms": "Active"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 638,
+      "pools": {
+        "current": 202
+      },
+      "definition": {
+        "id": "boundary:hua-xiong",
+        "name": "界华雄",
+        "portraitKey": "boundary_hua_xiong",
+        "skillId": "boundary:shizhan-current",
+        "factionId": "qun",
+        "baseHp": 6,
+        "additionalSkillIds": [
+          "boundary:yaowu-current"
+        ],
+        "gender": "Male",
+        "characterId": "character:hua-xiong",
+        "variantId": "boundary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

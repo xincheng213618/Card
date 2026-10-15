@@ -1,0 +1,35 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:guo-huai",
+  "skills": [
+    {
+      "registrationOrder": 37,
+      "programBundle": "classic-phase-window-skills",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:jingce",
+        "name": "精策",
+        "description": "出牌阶段结束时，若你于此回合内使用过的牌的数量大于等于你当前的体力值，你可以摸两张牌。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 280,
+      "pools": {
+        "current": 66
+      },
+      "definition": {
+        "id": "classic:guo-huai",
+        "name": "郭淮",
+        "portraitKey": "guo_huai",
+        "skillId": "classic:jingce",
+        "factionId": "wei",
+        "baseHp": 4,
+        "gender": "Male"
+      }
+    }
+  ]
+}

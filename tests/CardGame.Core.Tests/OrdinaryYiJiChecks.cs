@@ -115,17 +115,7 @@ internal static class OrdinaryYiJiChecks
         public PackageManifest Manifest { get; } = new("fixture-yj", new(1, 0, 0), []);
         public void Register(IContentRegistryBuilder b)
         {
-            try
-            {
-                typeof(StandardContentPackage).Assembly.GetType("CardGame.Content.Standard.OrdinaryYiJiContent")!
-                    .GetMethod("Register", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)!
-                    .Invoke(null, [b]);
-            }
-            catch (Exception diag)
-            {
-                Console.WriteLine("DIAG-INNER: " + (diag.InnerException?.ToString() ?? diag.ToString()));
-                throw;
-            }
+            CharacterFixtureContent.Register(b, "ol:yi-ji");
             b.AddSkill(new("fixture:yj-driver", "fixture", "fixture")
             {
                 Program = Load("fixture:yj-driver", "\"activations\":[" +

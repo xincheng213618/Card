@@ -1,0 +1,51 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:guan-suo",
+  "skills": [
+    {
+      "registrationOrder": 1080,
+      "programBundle": "ol-guan-suo",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:zhengnan",
+        "name": "征南",
+        "description": "当其他角色死亡后，你可以摸三张牌，然后获得“武圣”“当先”“制蛮”中的一个。"
+      }
+    },
+    {
+      "registrationOrder": 1081,
+      "programBundle": "ol-guan-suo",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:xiefang",
+        "name": "撷芳",
+        "description": "锁定技，你计算与其他角色的距离-X（X为全场女性角色数）。",
+        "tags": "Locked"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1082,
+      "pools": {
+        "current": 350
+      },
+      "definition": {
+        "id": "ol:guan-suo",
+        "name": "关索·OL",
+        "portraitKey": "ol-guan-suo",
+        "skillId": "ol:zhengnan",
+        "factionId": "shu",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "ol:xiefang"
+        ],
+        "gender": "Male",
+        "characterId": "character:guan-suo",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

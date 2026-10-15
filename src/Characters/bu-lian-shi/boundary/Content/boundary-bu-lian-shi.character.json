@@ -1,0 +1,51 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:bu-lian-shi",
+  "skills": [
+    {
+      "registrationOrder": 759,
+      "programBundle": "boundary-bu-lian-shi",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:anxu-current",
+        "name": "安恤",
+        "description": "出牌阶段限一次，你可以获得两名角色各一张牌。然后你展示一张牌并交给其中手牌较少的角色，若不为黑桃，你摸一张牌。"
+      }
+    },
+    {
+      "registrationOrder": 760,
+      "programBundle": "boundary-bu-lian-shi",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:zhuiyi-current",
+        "name": "追忆",
+        "description": "限定技，结束阶段，你可令一名其他角色摸三张牌并回复1点体力。然后你死亡时，可以对其再次发动本技能。",
+        "tags": "Limited"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 761,
+      "pools": {
+        "current": 244
+      },
+      "definition": {
+        "id": "boundary:bu-lian-shi",
+        "name": "界步练师",
+        "portraitKey": "boundary_bu_lian_shi",
+        "skillId": "boundary:anxu-current",
+        "factionId": "wu",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "boundary:zhuiyi-current"
+        ],
+        "gender": "Female",
+        "characterId": "character:bu-lian-shi",
+        "variantId": "boundary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

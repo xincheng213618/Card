@@ -237,10 +237,7 @@ internal static class OrdinaryZhouFangChecks
 
         public void Register(IContentRegistryBuilder b)
         {
-            typeof(StandardContentPackage).Assembly
-                .GetType("CardGame.Content.Standard.OrdinaryZhouFangContent")!
-                .GetMethod("Register", BindingFlags.Static | BindingFlags.NonPublic)!
-                .Invoke(null, [b]);
+            CharacterFixtureContent.Register(b, "ol:zhou-fang");
             // The strip driver removes one random hand card from every other
             // living character per use, so repeated uses empty seat 1's hand.
             b.AddSkill(new(Driver, "周鲂夹具", "fixture")

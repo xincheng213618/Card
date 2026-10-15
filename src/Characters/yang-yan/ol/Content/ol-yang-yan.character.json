@@ -1,0 +1,50 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:yang-yan",
+  "skills": [
+    {
+      "registrationOrder": 1002,
+      "programBundle": "ordinary-yang-yan",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:xianwan",
+        "name": "娴婉",
+        "description": "你可以进入连环状态，视为使用一张【闪】；你可以解除连环状态，视为使用一张【杀】。"
+      }
+    },
+    {
+      "registrationOrder": 1003,
+      "programBundle": "ordinary-yang-yan",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:xuanbei-current",
+        "name": "选备",
+        "description": "出牌阶段限一次，你可以选择一名其他角色区域内的一张牌，令其将此牌当无距离限制的【杀】对你使用，若此【杀】未对你造成伤害，你摸一张牌，否则你摸两张牌。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1004,
+      "pools": {
+        "current": 326
+      },
+      "definition": {
+        "id": "ol:yang-yan",
+        "name": "杨艳",
+        "portraitKey": "ol-yang-yan",
+        "skillId": "ol:xianwan",
+        "factionId": "jin",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "ol:xuanbei-current"
+        ],
+        "gender": "Female",
+        "characterId": "character:yang-yan",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

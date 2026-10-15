@@ -1,0 +1,38 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:quan-cong",
+  "skills": [
+    {
+      "registrationOrder": 451,
+      "programBundle": "classic-quan-cong",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:yaoming",
+        "name": "邀名",
+        "description": "每回合限一次，当你造成或受到伤害后，你可以选择一项：1.弃置手牌数大于你的一名角色一张手牌；2.令手牌数小于你的一名角色摸一张牌。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 463,
+      "pools": {
+        "current": 396
+      },
+      "definition": {
+        "id": "classic:quan-cong",
+        "name": "全琮",
+        "portraitKey": "quan_cong",
+        "skillId": "classic:yaoming",
+        "factionId": "wu",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:quan-cong",
+        "variantId": "classic",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

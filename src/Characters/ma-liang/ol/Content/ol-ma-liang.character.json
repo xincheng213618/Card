@@ -1,0 +1,51 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:ma-liang",
+  "skills": [
+    {
+      "registrationOrder": 912,
+      "programBundle": "ordinary-ma-liang",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:zishu",
+        "name": "自书",
+        "description": "锁定技，其他角色的回合结束后，你将此回合获得的手牌置入弃牌堆。当你于回合内不因本技能获得手牌后，你摸一张牌。",
+        "tags": "Locked"
+      }
+    },
+    {
+      "registrationOrder": 913,
+      "programBundle": "ordinary-ma-liang",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:yingyuan",
+        "name": "应援",
+        "description": "当你于回合内使用牌后，你可以令一名其他角色获得牌堆中一张类型相同的牌。每回合每种类型限一次。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 914,
+      "pools": {
+        "current": 298
+      },
+      "definition": {
+        "id": "ol:ma-liang",
+        "name": "马良",
+        "portraitKey": "ol-ma-liang",
+        "skillId": "ol:zishu",
+        "factionId": "shu",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "ol:yingyuan"
+        ],
+        "gender": "Male",
+        "characterId": "character:ma-liang",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

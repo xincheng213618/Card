@@ -1,0 +1,51 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhang-bao",
+  "skills": [
+    {
+      "registrationOrder": 894,
+      "programBundle": "ordinary-zhang-bao",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:zhoufu",
+        "name": "咒缚",
+        "description": "出牌阶段限一次，你可以将一张牌置于一名其他角色的武将牌上，称为“咒”。当有“咒”的角色判定时，将“咒”作为判定牌。每回合结束时，你令本回合失去过“咒”的角色各失去1点体力。"
+      }
+    },
+    {
+      "registrationOrder": 895,
+      "programBundle": "ordinary-zhang-bao",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:yingbing",
+        "name": "影兵",
+        "description": "锁定技，有“咒”的角色使用与“咒”颜色相同的牌时，你摸一张牌；若这是你第二次因此“咒”摸牌，你获得此“咒”。",
+        "tags": "Locked"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 896,
+      "pools": {
+        "current": 292
+      },
+      "definition": {
+        "id": "ol:zhang-bao",
+        "name": "张宝",
+        "portraitKey": "ol-zhang-bao",
+        "skillId": "ol:zhoufu",
+        "factionId": "qun",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "ol:yingbing"
+        ],
+        "gender": "Male",
+        "characterId": "character:zhang-bao",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

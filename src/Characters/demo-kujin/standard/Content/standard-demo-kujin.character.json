@@ -1,0 +1,32 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-active-skills",
+  "characterId": "character:demo-kujin",
+  "skills": [
+    {
+      "registrationOrder": 0,
+      "programBundle": "standard-active-cutover",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "standard:kujin",
+        "name": "苦肉",
+        "description": "出牌阶段可在体力大于 0 时失去 1 点体力；若进入濒死，救援结算后再摸两张牌。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 7,
+      "pools": {},
+      "definition": {
+        "id": "standard:demo-kujin",
+        "name": "黄盖",
+        "portraitKey": "sun_quan",
+        "skillId": "standard:kujin",
+        "factionId": "wu",
+        "baseHp": 4,
+        "gender": "Male"
+      }
+    }
+  ]
+}

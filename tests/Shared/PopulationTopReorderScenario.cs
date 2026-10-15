@@ -68,7 +68,7 @@ internal static class PopulationTopReorderScenario
             var a=typeof(StandardContentPackage).Assembly;
             var classic=(ContentSkillDefinition)a.GetType("CardGame.Content.Standard.EmbeddedSkillProgramCatalog")!.GetMethod("Definition",BindingFlags.Static|BindingFlags.NonPublic)!.Invoke(null,["passive-card-rules","classic:kongcheng"])!;
             b.AddSkill(classic with{Tags=SkillTag.Locked,ExecutionForms=SkillExecutionForm.State});
-            a.GetType("CardGame.Content.Standard.BoundaryZhugeLiangContent")!.GetMethod("Register",BindingFlags.Static|BindingFlags.NonPublic)!.Invoke(null,[b]);
+            CharacterFixtureContent.Register(b, "boundary:zhuge-liang");
             var defs=new List<string>();
             if(mode.StartsWith("population-",StringComparison.Ordinal))
             {

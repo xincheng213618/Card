@@ -1,0 +1,51 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:guan-yu",
+  "skills": [
+    {
+      "registrationOrder": 378,
+      "programBundle": "guan-yu-variants",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou-ol:weilin",
+        "name": "威临",
+        "description": "每回合限一次，你可以将一张牌当【酒】或任意【杀】使用。此牌目标角色与此牌颜色相同的手牌视为【杀】直到回合结束。"
+      }
+    },
+    {
+      "registrationOrder": 379,
+      "programBundle": "guan-yu-variants",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou-ol:duoshou",
+        "name": "夺首",
+        "description": "锁定技，每回合你使用的首张红色牌无距离限制，首张基本牌不计入使用次数，首次造成伤害后摸一张牌。",
+        "tags": "Locked"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 387,
+      "pools": {
+        "current": 128
+      },
+      "definition": {
+        "id": "mou:guan-yu-ol",
+        "name": "谋关羽·OL",
+        "portraitKey": "mou-guan-yu-ol",
+        "skillId": "mou-ol:weilin",
+        "factionId": "shu",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "mou-ol:duoshou"
+        ],
+        "gender": "Male",
+        "characterId": "character:guan-yu",
+        "variantId": "mou-ol",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

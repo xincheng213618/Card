@@ -71,7 +71,7 @@ internal static class BoundaryYuanShaoChecks
         public PackageManifest Manifest{get;}=new("fixture-ys",new(1,0,0),[]);
         public void Register(IContentRegistryBuilder b)
         {
-            try{typeof(StandardContentPackage).Assembly.GetType("CardGame.Content.Standard.BoundaryYuanShaoContent")!.GetMethod("Register",BindingFlags.NonPublic|BindingFlags.Static)!.Invoke(null,[b]);}catch(TargetInvocationException ex){throw new InvalidOperationException(ex.InnerException?.ToString(),ex.InnerException);}
+            try{CharacterFixtureContent.Register(b, "boundary:yuan-shao");}catch(TargetInvocationException ex){throw new InvalidOperationException(ex.InnerException?.ToString(),ex.InnerException);}
             var extras=new List<string>{Xueyi};var classic=ContentRegistry.Build(new StandardContentPackage(),new StandardActiveSkillExpansionPackage(true),new StandardRescueSkillExpansionPackage(),new StandardClassicGeneralPackage());
             if(extra){b.AddSkill(classic.GetSkill("classic:dangxian"));extras.Add("classic:dangxian");}if(jizhi){b.AddSkill(classic.GetSkill("classic:jizhi"));extras.Add("classic:jizhi");}
             void Add(string id,string body,bool owner=true){b.AddSkill(new(id,id,"fixture"){Program=Load(id,body)});if(owner)extras.Add(id);}

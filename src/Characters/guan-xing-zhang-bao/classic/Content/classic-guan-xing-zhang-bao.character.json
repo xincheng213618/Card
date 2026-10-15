@@ -1,0 +1,36 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:guan-xing-zhang-bao",
+  "skills": [
+    {
+      "registrationOrder": 28,
+      "programBundle": "multi-card-conversion-skills",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:fuhun",
+        "name": "父魂",
+        "description": "你可以将两张手牌当【杀】使用或打出；每当你于出牌阶段内以此法使用的【杀】造成伤害后，你于此回合内拥有“武圣”和“咆哮”。",
+        "executionForms": "State, Trigger",
+        "actionForms": "Active"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 275,
+      "pools": {
+        "current": 61
+      },
+      "definition": {
+        "id": "classic:guan-xing-zhang-bao",
+        "name": "关兴张苞",
+        "portraitKey": "guan_xing_zhang_bao",
+        "skillId": "classic:fuhun",
+        "factionId": "shu",
+        "baseHp": 4,
+        "gender": "Male"
+      }
+    }
+  ]
+}

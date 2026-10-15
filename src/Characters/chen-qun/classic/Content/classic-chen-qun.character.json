@@ -1,0 +1,52 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:chen-qun",
+  "skills": [
+    {
+      "registrationOrder": 423,
+      "programBundle": "classic-chen-qun",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:pindi",
+        "name": "品第",
+        "description": "出牌阶段，每名角色限一次，你可以弃置一张本阶段未以此法弃置过的类型的牌，令一名其他角色摸X张牌或弃置X张牌（X为本回合本技能发动次数），若其已受伤，你进入连环状态。",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 424,
+      "programBundle": "classic-chen-qun",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:faen",
+        "name": "法恩",
+        "description": "当一名角色翻至正面或进入连环状态后，你可以令其摸一张牌。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 431,
+      "pools": {
+        "current": 143
+      },
+      "definition": {
+        "id": "classic:chen-qun",
+        "name": "陈群",
+        "portraitKey": "chen_qun",
+        "skillId": "classic:pindi",
+        "factionId": "wei",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "classic:faen"
+        ],
+        "gender": "Male",
+        "characterId": "character:chen-qun",
+        "variantId": "classic",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

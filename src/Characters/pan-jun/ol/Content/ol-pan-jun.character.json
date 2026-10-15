@@ -1,0 +1,50 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:pan-jun",
+  "skills": [
+    {
+      "registrationOrder": 822,
+      "programBundle": "ol-pan-jun",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:guanwei",
+        "name": "观微",
+        "description": "每回合限一次，一名角色的出牌阶段结束后，若其本回合使用过至少两张牌且这些牌花色均相同，你可以弃置一张牌，令其摸两张牌并执行一个额外的出牌阶段。"
+      }
+    },
+    {
+      "registrationOrder": 823,
+      "programBundle": "ol-pan-jun",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:gongqing",
+        "name": "公清",
+        "description": "锁定技，当你受到伤害时，若伤害来源的攻击范围：小于3，将此次伤害的伤害值改为1；大于3，此伤害+1。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 824,
+      "pools": {
+        "current": 267
+      },
+      "definition": {
+        "id": "ol:pan-jun",
+        "name": "潘濬",
+        "portraitKey": "ol-pan-jun",
+        "skillId": "ol:guanwei",
+        "factionId": "wu",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "ol:gongqing"
+        ],
+        "gender": "Male",
+        "characterId": "character:pan-jun",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

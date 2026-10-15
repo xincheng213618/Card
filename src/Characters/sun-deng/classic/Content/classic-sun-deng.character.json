@@ -1,0 +1,39 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:sun-deng",
+  "skills": [
+    {
+      "registrationOrder": 468,
+      "programBundle": "classic-sun-deng",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:kuangbi",
+        "name": "匡弼",
+        "description": "出牌阶段限一次，你可以令一名其他角色将至多三张牌置于你的武将牌上，若如此做，你的下个回合开始时获得所有“匡弼”牌，然后其摸等量张牌。",
+        "executionForms": "Trigger",
+        "actionForms": "Active"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 470,
+      "pools": {
+        "current": 148
+      },
+      "definition": {
+        "id": "classic:sun-deng",
+        "name": "孙登",
+        "portraitKey": "sun_deng",
+        "skillId": "classic:kuangbi",
+        "factionId": "wu",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:sun-deng",
+        "variantId": "classic",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

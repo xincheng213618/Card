@@ -1,0 +1,21 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-national-war-ambitious",
+  "characterId": "character:diao-chan",
+  "skills": [],
+  "generals": [
+    {
+      "registrationOrder": 3,
+      "pools": {},
+      "definition": {
+        "id": "national:ambitious-diao-chan",
+        "name": "貂蝉",
+        "portraitKey": "liu_bei",
+        "skillId": "standard:guicai",
+        "factionId": "ambitious",
+        "baseHp": 4,
+        "gender": "Male"
+      }
+    }
+  ]
+}

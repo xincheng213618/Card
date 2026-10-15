@@ -1,0 +1,50 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:xu-huang",
+  "skills": [
+    {
+      "registrationOrder": 681,
+      "programBundle": "boundary-xu-huang",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:duanliang-current",
+        "name": "断粮",
+        "description": "你可以将一张黑色基本牌或黑色装备牌当【兵粮寸断】使用。若你本回合未造成过伤害，你使用【兵粮寸断】无距离限制。"
+      }
+    },
+    {
+      "registrationOrder": 682,
+      "programBundle": "boundary-xu-huang",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:jiezi-current",
+        "name": "截辎",
+        "description": "当一名角色跳过摸牌阶段后，你可以选择一名角色，若其手牌数全场最少且没有“辎”，其获得“辎”标记，否则其摸一张牌。有“辎”的角色于其摸牌阶段结束时移除“辎”，然后执行一个额外的摸牌阶段。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 683,
+      "pools": {
+        "current": 218
+      },
+      "definition": {
+        "id": "boundary:xu-huang",
+        "name": "界徐晃",
+        "portraitKey": "boundary_xu_huang",
+        "skillId": "boundary:duanliang-current",
+        "factionId": "wei",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "boundary:jiezi-current"
+        ],
+        "gender": "Male",
+        "characterId": "character:xu-huang",
+        "variantId": "boundary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

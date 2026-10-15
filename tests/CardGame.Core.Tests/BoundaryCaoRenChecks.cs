@@ -140,9 +140,7 @@ internal static class BoundaryCaoRenChecks
         {
             try
             {
-                typeof(StandardContentPackage).Assembly.GetType("CardGame.Content.Standard.BoundaryCaoRenContent")!
-                    .GetMethod("Register", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)!
-                    .Invoke(null, [b]);
+                CharacterFixtureContent.Register(b, "boundary:cao-ren");
             }
             catch (Exception diag)
             {

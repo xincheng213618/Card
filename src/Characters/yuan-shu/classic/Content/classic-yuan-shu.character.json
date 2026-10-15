@@ -1,0 +1,54 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:yuan-shu",
+  "skills": [
+    {
+      "registrationOrder": 557,
+      "programBundle": "classic-yuan-shu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:yongsi",
+        "name": "庸肆",
+        "description": "锁定技，摸牌阶段，你多摸X张牌；弃牌阶段开始时，你弃置X张牌。（X为全场势力数）",
+        "tags": "Locked",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 558,
+      "programBundle": "classic-yuan-shu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:weidi",
+        "name": "伪帝",
+        "description": "锁定技，你视为拥有主公的主公技。",
+        "tags": "Locked",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 559,
+      "pools": {
+        "current": 175
+      },
+      "definition": {
+        "id": "classic:yuan-shu",
+        "name": "袁术",
+        "portraitKey": "yuan_shu",
+        "skillId": "classic:yongsi",
+        "factionId": "qun",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "classic:weidi"
+        ],
+        "gender": "Male",
+        "characterId": "character:yuan-shu",
+        "variantId": "classic",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

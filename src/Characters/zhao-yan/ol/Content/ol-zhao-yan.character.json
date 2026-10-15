@@ -1,0 +1,37 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhao-yan",
+  "skills": [
+    {
+      "registrationOrder": 852,
+      "programBundle": "ol-zhao-yan",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:tongxie",
+        "name": "同协",
+        "description": "出牌阶段开始时，你可以令你与至多两名其他角色直到你的下回合开始称为“同协”角色，然后令其中手牌唯一最少的角色摸一张牌。当同协角色使用仅指定单一目标的【杀】结算后，其他同协角色可以依次对目标使用一张无距离限制的【杀】。当同协角色受到伤害时，本回合未失去过体力的其他同协角色可以防止此伤害并失去1点体力。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 853,
+      "pools": {
+        "current": 277
+      },
+      "definition": {
+        "id": "ol:zhao-yan",
+        "name": "赵俨",
+        "portraitKey": "ol-zhao-yan",
+        "skillId": "ol:tongxie",
+        "factionId": "wei",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:zhao-yan",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

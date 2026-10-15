@@ -1,0 +1,52 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:sun-lu-ban",
+  "skills": [
+    {
+      "registrationOrder": 427,
+      "programBundle": "classic-sun-lu-ban",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:zenhui",
+        "name": "谮毁",
+        "description": "出牌阶段限一次，当你使用【杀】或黑色普通锦囊牌指定唯一目标时，你可以令另一名能成为此牌目标的角色选择一项：交给你一张牌并代替你成为此牌的使用者；或成为此牌的额外目标。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 428,
+      "programBundle": "classic-sun-lu-ban",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:jiaojin",
+        "name": "骄矜",
+        "description": "当男性角色对你造成伤害时，你可以弃置一张装备牌，然后此伤害-1。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 434,
+      "pools": {
+        "current": 146
+      },
+      "definition": {
+        "id": "classic:sun-lu-ban",
+        "name": "孙鲁班",
+        "portraitKey": "sun_lu_ban",
+        "skillId": "classic:zenhui",
+        "factionId": "wu",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "classic:jiaojin"
+        ],
+        "gender": "Female",
+        "characterId": "character:sun-lu-ban",
+        "variantId": "classic",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zuo-ci",
+  "skills": [
+    {
+      "registrationOrder": 563,
+      "programBundle": "classic-zuo-ci",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:huashen",
+        "name": "化身",
+        "description": "游戏开始时，你随机获得两张未加入游戏的武将牌，选一张展示并获得其一项技能（限定技、觉醒技、主公技除外），你的性别和势力与之相同。回合开始时或回合结束后，你可以更改展示的化身牌及获得的技能。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 564,
+      "programBundle": "classic-zuo-ci",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:xinsheng",
+        "name": "新生",
+        "description": "当你受到1点伤害后，你可以随机获得一张新的化身牌。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 565,
+      "pools": {
+        "current": 177
+      },
+      "definition": {
+        "id": "classic:zuo-ci",
+        "name": "左慈",
+        "portraitKey": "zuo_ci",
+        "skillId": "classic:huashen",
+        "factionId": "qun",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "classic:xinsheng"
+        ],
+        "gender": "Male",
+        "characterId": "character:zuo-ci",
+        "variantId": "classic",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

@@ -278,9 +278,8 @@ internal static class InvariantHistoryIndexChecks
         public PackageManifest Manifest { get; } = new("invariant-history-index", new(1, 0, 0), []);
         public void Register(IContentRegistryBuilder builder)
         {
-            foreach (var name in new[] { "OrdinaryDingFengContent", "OrdinaryYangHuContent", "OrdinaryZhangXingCaiContent", "OrdinarySpDiaoChanContent" })
-                typeof(StandardClassicGeneralPackage).Assembly.GetType("CardGame.Content.Standard." + name)!
-                    .GetMethod("Register", BindingFlags.Static | BindingFlags.NonPublic)!.Invoke(null, [builder]);
+            CharacterFixtureContent.Register(builder,
+                "ol:ding-feng", "ol:yang-hu", "ol:zhang-xing-cai", "ol:sp-diao-chan");
         }
     }
 }

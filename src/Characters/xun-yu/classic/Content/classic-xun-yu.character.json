@@ -1,0 +1,54 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:xun-yu",
+  "skills": [
+    {
+      "registrationOrder": 10,
+      "programBundle": "damage-skills",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:jieming",
+        "name": "节命",
+        "description": "每受到 1 点伤害后，你可以令一名手牌数少于体力上限的角色摸牌至其体力上限。",
+        "executionForms": "Trigger",
+        "revealWeights": {
+          "base": 4,
+          "wounded": 31,
+          "emptyHand": 0,
+          "repeatedSlash": 0
+        }
+      }
+    },
+    {
+      "registrationOrder": 73,
+      "programBundle": "shared-pindian-skills",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:quhu",
+        "name": "驱虎",
+        "description": "出牌阶段限一次，你可以与一名体力值大于你的角色拼点：若你赢，其对其攻击范围内由你选择的另一名角色造成1点伤害；若你没赢，其对你造成1点伤害。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 239,
+      "pools": {
+        "current": 30
+      },
+      "definition": {
+        "id": "classic:xun-yu",
+        "name": "荀彧",
+        "portraitKey": "xun_yu",
+        "skillId": "classic:quhu",
+        "factionId": "wei",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "classic:jieming"
+        ],
+        "gender": "Male"
+      }
+    }
+  ]
+}

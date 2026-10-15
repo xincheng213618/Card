@@ -1,0 +1,52 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhuge-ke",
+  "skills": [
+    {
+      "registrationOrder": 957,
+      "programBundle": "ordinary-zhuge-ke",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:aocai",
+        "name": "傲才",
+        "description": "当你于回合外需要使用或打出基本牌时，若你有/没有手牌，你可以观看牌堆顶两/四张牌，然后可以使用或打出其中的基本牌。",
+        "executionForms": "State"
+      }
+    },
+    {
+      "registrationOrder": 958,
+      "programBundle": "ordinary-zhuge-ke",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:duwu",
+        "name": "黩武",
+        "description": "出牌阶段，你可以弃置X张牌对你攻击范围内一名其他角色造成1点伤害（X为其体力值）。若其因此进入濒死状态且于濒死结算后存活，你失去1点体力且本回合本技能失效。",
+        "actionForms": "Active"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 959,
+      "pools": {
+        "current": 313
+      },
+      "definition": {
+        "id": "ol:zhuge-ke",
+        "name": "诸葛恪",
+        "portraitKey": "ol-zhuge-ke",
+        "skillId": "ol:aocai",
+        "factionId": "wu",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "ol:duwu"
+        ],
+        "gender": "Male",
+        "characterId": "character:zhuge-ke",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

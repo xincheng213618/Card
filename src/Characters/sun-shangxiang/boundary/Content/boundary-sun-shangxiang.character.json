@@ -1,0 +1,41 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:sun-shangxiang",
+  "skills": [
+    {
+      "registrationOrder": 606,
+      "programBundle": "boundary-sun-shangxiang",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:jieyin-current",
+        "name": "结姻",
+        "description": "出牌阶段限一次，你可以选择一名男性角色，弃置一张手牌或将一张装备牌置入其装备区，然后你与其中体力值较大的角色摸一张牌，体力值较小的角色回复1点体力。",
+        "actionForms": "Active"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 607,
+      "pools": {
+        "current": 192
+      },
+      "definition": {
+        "id": "boundary:sun-shangxiang",
+        "name": "界孙尚香",
+        "portraitKey": "boundary_sun_shangxiang",
+        "skillId": "boundary:jieyin-current",
+        "factionId": "wu",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "classic:xiaoji"
+        ],
+        "gender": "Female",
+        "characterId": "character:sun-shangxiang",
+        "variantId": "boundary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

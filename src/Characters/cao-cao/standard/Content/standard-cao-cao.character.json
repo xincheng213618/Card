@@ -1,0 +1,41 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard",
+  "characterId": "character:cao-cao",
+  "skills": [
+    {
+      "registrationOrder": 1,
+      "programBundle": "damage-skills",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "standard:jianxiong",
+        "name": "奸雄",
+        "description": "受到伤害后，你可以获得造成此伤害的牌。",
+        "executionForms": "Trigger",
+        "revealWeights": {
+          "base": 4,
+          "wounded": 31,
+          "emptyHand": 0,
+          "repeatedSlash": 0
+        }
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 13,
+      "pools": {
+        "standard": 0
+      },
+      "definition": {
+        "id": "standard:cao-cao",
+        "name": "曹操",
+        "portraitKey": "cao_cao",
+        "skillId": "standard:jianxiong",
+        "factionId": "wei",
+        "baseHp": 4,
+        "gender": "Male"
+      }
+    }
+  ]
+}

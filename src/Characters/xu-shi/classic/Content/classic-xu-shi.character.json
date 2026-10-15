@@ -1,0 +1,53 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:xu-shi",
+  "skills": [
+    {
+      "registrationOrder": 514,
+      "programBundle": "classic-xu-shi",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:wengua",
+        "name": "问卦",
+        "description": "每名角色出牌阶段限一次，其可以选择一张牌，将之交给你，然后你可以将此牌置于牌堆顶或牌堆底，你与其各从另一端摸一张牌。你于自己的出牌阶段发动时跳过交牌步骤，将自己一张牌置于一端后仅从另一端摸一张牌。",
+        "executionForms": "State",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 515,
+      "programBundle": "classic-xu-shi",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:fuzhu",
+        "name": "伏诛",
+        "description": "每名男性角色的结束阶段，若牌堆剩余牌数不大于你体力值的十倍，你可以依次对其使用牌堆中所有【杀】（不能超过游戏人数），然后洗牌。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 516,
+      "pools": {
+        "current": 163
+      },
+      "definition": {
+        "id": "classic:xu-shi",
+        "name": "徐氏",
+        "portraitKey": "xu_shi",
+        "skillId": "classic:wengua",
+        "factionId": "wu",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "classic:fuzhu"
+        ],
+        "gender": "Female",
+        "characterId": "character:xu-shi",
+        "variantId": "classic",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

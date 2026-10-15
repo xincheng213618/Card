@@ -1,0 +1,39 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:wu-yi",
+  "skills": [
+    {
+      "registrationOrder": 425,
+      "programBundle": "classic-wu-yi",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:benxi",
+        "name": "奔袭",
+        "description": "锁定技，当你于回合内使用牌时，你本回合计算与其他角色的距离-1。当你于回合内使用仅指定单一目标的【杀】或普通锦囊牌时，若你与所有其他角色的距离均为1，你依次选择至多两项，令此牌：1.目标数+1；2.无视防具；3.不能被抵消；4.造成伤害后，你摸一张牌。",
+        "tags": "Locked",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 432,
+      "pools": {
+        "current": 144
+      },
+      "definition": {
+        "id": "classic:wu-yi",
+        "name": "吴懿",
+        "portraitKey": "wu_yi",
+        "skillId": "classic:benxi",
+        "factionId": "shu",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:wu-yi",
+        "variantId": "classic",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

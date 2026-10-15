@@ -1,0 +1,32 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-active-skills",
+  "characterId": "character:demo-huichun",
+  "skills": [
+    {
+      "registrationOrder": 4,
+      "programBundle": "standard-active-cutover",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "standard:huichun",
+        "name": "回春",
+        "description": "出牌阶段限一次，弃置两张手牌，令二至三名受伤角色各回复 1 点体力。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 11,
+      "pools": {},
+      "definition": {
+        "id": "standard:demo-huichun",
+        "name": "回春者",
+        "portraitKey": "hua_tuo",
+        "skillId": "standard:huichun",
+        "factionId": "qun",
+        "baseHp": 4,
+        "gender": "Male"
+      }
+    }
+  ]
+}

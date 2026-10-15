@@ -1,0 +1,68 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:jia-xu",
+  "skills": [
+    {
+      "registrationOrder": 689,
+      "programBundle": "boundary-jia-xu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:wansha",
+        "name": "完杀",
+        "description": "锁定技，在你的回合内：只有你和处于濒死状态的角色才能使用【桃】；任意角色的濒死结算中，除你和濒死角色外的其他角色的非锁定技失效。",
+        "tags": "Locked",
+        "executionForms": "State"
+      }
+    },
+    {
+      "registrationOrder": 690,
+      "programBundle": "boundary-jia-xu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:weimu",
+        "name": "帷幕",
+        "description": "锁定技，你不能成为黑色锦囊牌的目标。你防止回合内受到的伤害并摸所防止伤害值两倍数量的牌。",
+        "tags": "Locked",
+        "executionForms": "State"
+      }
+    },
+    {
+      "registrationOrder": 691,
+      "programBundle": "boundary-jia-xu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:luanwu",
+        "name": "乱武",
+        "description": "限定技，出牌阶段，你可以令所有其他角色依次选择一项：1.对其距离最小的另一名角色使用一张【杀】；2.失去1点体力。所有角色结算完毕后，你可以视为使用一张无距离限制的【杀】。",
+        "tags": "Limited",
+        "executionForms": "State",
+        "actionForms": "Active"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 692,
+      "pools": {
+        "current": 220
+      },
+      "definition": {
+        "id": "boundary:jia-xu",
+        "name": "界贾诩",
+        "portraitKey": "boundary_jia_xu",
+        "skillId": "boundary:wansha",
+        "factionId": "qun",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "boundary:luanwu",
+          "boundary:weimu"
+        ],
+        "gender": "Male",
+        "characterId": "character:jia-xu",
+        "variantId": "boundary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

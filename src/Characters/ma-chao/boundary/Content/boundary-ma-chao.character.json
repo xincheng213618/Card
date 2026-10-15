@@ -1,0 +1,41 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:ma-chao",
+  "skills": [
+    {
+      "registrationOrder": 591,
+      "programBundle": "boundary-ma-chao",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:tieqi",
+        "name": "铁骑",
+        "description": "当你使用【杀】指定目标后，你可以令其非锁定技于此回合内失效，然后你进行判定。除非其弃置一张与判定结果花色相同的牌，否则其不能抵消此【杀】。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 592,
+      "pools": {
+        "current": 186
+      },
+      "definition": {
+        "id": "boundary:ma-chao",
+        "name": "界马超",
+        "portraitKey": "boundary_ma_chao",
+        "skillId": "classic:mashu",
+        "factionId": "shu",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "boundary:tieqi"
+        ],
+        "gender": "Male",
+        "characterId": "character:ma-chao",
+        "variantId": "boundary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

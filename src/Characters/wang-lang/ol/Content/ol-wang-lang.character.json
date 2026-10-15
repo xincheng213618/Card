@@ -1,0 +1,53 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:wang-lang",
+  "skills": [
+    {
+      "registrationOrder": 1083,
+      "programBundle": "ol-wang-lang",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:gushe",
+        "name": "鼓舌",
+        "description": "出牌阶段限一次，你可以与至多三名角色同时拼点，没赢的角色弃置一张牌或令你摸一张牌。若你没赢，你获得1枚‘饶舌’标记，若标记数为7，你死亡。",
+        "executionForms": "State",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 1084,
+      "programBundle": "ol-wang-lang",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:jici",
+        "name": "激词",
+        "description": "当你亮出拼点牌后，若点数不大于X，你可以令之点数+X并令‘鼓舌’视为未发动（X为你的‘饶舌’标记数）。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1085,
+      "pools": {
+        "current": 351
+      },
+      "definition": {
+        "id": "ol:wang-lang",
+        "name": "王朗·OL",
+        "portraitKey": "ol-wang-lang",
+        "skillId": "ol:gushe",
+        "factionId": "wei",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "ol:jici"
+        ],
+        "gender": "Male",
+        "characterId": "character:wang-lang",
+        "variantId": "ol",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

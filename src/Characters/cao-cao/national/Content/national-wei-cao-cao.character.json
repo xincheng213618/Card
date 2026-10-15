@@ -1,0 +1,21 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-national-war-lite",
+  "characterId": "character:cao-cao",
+  "skills": [],
+  "generals": [
+    {
+      "registrationOrder": 0,
+      "pools": {},
+      "definition": {
+        "id": "national:wei-cao-cao",
+        "name": "曹操",
+        "portraitKey": "cao_cao",
+        "skillId": "standard:jianxiong",
+        "factionId": "wei",
+        "baseHp": 4,
+        "gender": "Male"
+      }
+    }
+  ]
+}

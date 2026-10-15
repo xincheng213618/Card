@@ -1,0 +1,53 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:mi-zhu",
+  "skills": [
+    {
+      "registrationOrder": 930,
+      "programBundle": "ordinary-mi-zhu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:ziyuan",
+        "name": "资援",
+        "description": "出牌阶段限一次，你可以交给一名其他角色任意张点数和为13的手牌，然后令其回复1点体力。",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 931,
+      "programBundle": "ordinary-mi-zhu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:jujia",
+        "name": "巨贾",
+        "description": "锁定技，你的初始手牌和手牌上限+X（X为你的体力上限）。",
+        "tags": "Locked",
+        "executionForms": "State"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 932,
+      "pools": {
+        "current": 304
+      },
+      "definition": {
+        "id": "ol:mi-zhu",
+        "name": "糜竺",
+        "portraitKey": "ol-mi-zhu",
+        "skillId": "ol:ziyuan",
+        "factionId": "shu",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "ol:jujia"
+        ],
+        "gender": "Male",
+        "characterId": "character:mi-zhu",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

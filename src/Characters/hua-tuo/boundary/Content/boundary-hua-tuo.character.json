@@ -1,0 +1,57 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:hua-tuo",
+  "skills": [
+    {
+      "registrationOrder": 582,
+      "programBundle": "batch9-support",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:jijiu",
+        "name": "急救",
+        "description": "你的回合外，你可以将一张红色手牌或装备牌当【桃】使用。",
+        "revealWeights": {
+          "base": 16,
+          "wounded": 0,
+          "emptyHand": 0,
+          "repeatedSlash": 0
+        }
+      }
+    },
+    {
+      "registrationOrder": 583,
+      "programBundle": "boundary-hua-tuo",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:chuli",
+        "name": "除疠",
+        "description": "出牌阶段限一次，你可以选择任意名势力各不相同的其他角色，弃置你与这些角色的各一张牌，然后被弃置黑桃牌的角色各摸一张牌。",
+        "actionForms": "Active"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 584,
+      "pools": {
+        "current": 183
+      },
+      "definition": {
+        "id": "boundary:hua-tuo",
+        "name": "界华佗",
+        "portraitKey": "boundary_hua_tuo",
+        "skillId": "boundary:jijiu",
+        "factionId": "qun",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "boundary:chuli"
+        ],
+        "gender": "Male",
+        "characterId": "character:hua-tuo",
+        "variantId": "boundary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

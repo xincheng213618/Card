@@ -1,0 +1,35 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:huang-gai",
+  "skills": [
+    {
+      "registrationOrder": 3,
+      "programBundle": "classic-kujin-skills",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:kujin",
+        "name": "苦肉",
+        "description": "出牌阶段，你可以失去 1 点体力，然后摸两张牌。",
+        "actionForms": "Active"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 218,
+      "pools": {
+        "current": 16
+      },
+      "definition": {
+        "id": "classic:huang-gai",
+        "name": "黄盖",
+        "portraitKey": "huang_gai",
+        "skillId": "classic:kujin",
+        "factionId": "wu",
+        "baseHp": 4,
+        "gender": "Male"
+      }
+    }
+  ]
+}

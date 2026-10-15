@@ -154,8 +154,7 @@ internal static class BoundaryXuShuChecks
         public PackageManifest Manifest { get; } = new("fixture-xu", new(1, 0, 0), []);
         public void Register(IContentRegistryBuilder builder)
         {
-            typeof(StandardContentPackage).Assembly.GetType("CardGame.Content.Standard.BoundaryXuShuContent")!
-                .GetMethod("Register", BindingFlags.Static | BindingFlags.NonPublic)!.Invoke(null, [builder]);
+            CharacterFixtureContent.Register(builder, "boundary:xu-shu");
             builder.AddSkill(new("fixture:xu-driver", "fixture", "fixture")
             { Program = Load("fixture:xu-driver", "\"activations\":[" + Activation("hurt", "[{\"op\":\"loseHp\",\"target\":\"owner\",\"amount\":1}]") + "," +
                 Activation("damage", "[{\"op\":\"damage\",\"target\":\"selectedTarget\",\"amount\":1}]", 1) + "]") });

@@ -1,0 +1,75 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhao-yun",
+  "skills": [
+    {
+      "registrationOrder": 176,
+      "programBundle": "classic-gao-da-yi-hao",
+      "includeProgramPresentation": false,
+      "definition": {
+        "id": "classic:beam-rifle",
+        "name": "光束步枪",
+        "description": "出牌阶段限一次，你可以弃置一张手牌，对你攻击范围内的一名其他角色造成1点伤害。",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 177,
+      "programBundle": "classic-gao-da-yi-hao",
+      "includeProgramPresentation": false,
+      "definition": {
+        "id": "classic:i-field",
+        "name": "I力场",
+        "description": "锁定技，当锦囊牌对你造成伤害时，防止此伤害。",
+        "tags": "Locked",
+        "executionForms": "State"
+      }
+    },
+    {
+      "registrationOrder": 178,
+      "programBundle": "classic-gao-da-yi-hao",
+      "includeProgramPresentation": false,
+      "definition": {
+        "id": "classic:mobile-armor",
+        "name": "机动装甲",
+        "description": "锁定技，你的攻击范围+1，你使用【杀】的次数上限+1。",
+        "tags": "Locked",
+        "executionForms": "State"
+      }
+    },
+    {
+      "registrationOrder": 179,
+      "programBundle": "classic-gao-da-yi-hao",
+      "includeProgramPresentation": false,
+      "definition": {
+        "id": "classic:core-fighter",
+        "name": "核心战机",
+        "description": "限定技，当你进入濒死状态时，你可以弃置所有牌，然后将体力回复至2点，摸两张牌。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 261,
+      "pools": {
+        "fan": 0
+      },
+      "definition": {
+        "id": "classic:gao-da-yi-hao",
+        "name": "高达一号",
+        "portraitKey": "gao_da_yi_hao",
+        "skillId": "classic:beam-rifle",
+        "factionId": "god",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "classic:i-field",
+          "classic:mobile-armor",
+          "classic:core-fighter"
+        ],
+        "gender": "Male"
+      }
+    }
+  ]
+}

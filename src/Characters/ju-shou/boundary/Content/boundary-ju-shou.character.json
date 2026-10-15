@@ -1,0 +1,39 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:ju-shou",
+  "skills": [
+    {
+      "registrationOrder": 146,
+      "programBundle": "classic-ju-shou",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:jianying",
+        "name": "渐营",
+        "description": "当你于出牌阶段使用牌时，若此牌与你于本阶段使用的上一张牌花色或点数相同，你可以摸一张牌。出牌阶段限一次，你可以将一张牌当作任意一张基本牌使用；若本阶段使用的上一张牌有花色，此牌的花色视为与上一张牌相同。",
+        "executionForms": "Trigger",
+        "actionForms": "Active"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 302,
+      "pools": {
+        "current": 88
+      },
+      "definition": {
+        "id": "boundary:ju-shou",
+        "name": "界沮授",
+        "portraitKey": "boundary_ju_shou",
+        "skillId": "boundary:jianying",
+        "factionId": "qun",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "classic:shibei"
+        ],
+        "gender": "Male"
+      }
+    }
+  ]
+}

@@ -232,18 +232,7 @@ internal static class OrdinaryZhangChangPuChecks
 
         public void Register(IContentRegistryBuilder b)
         {
-            try
-            {
-                typeof(StandardContentPackage).Assembly
-                    .GetType("CardGame.Content.Standard.OrdinaryZhangChangPuContent")!
-                    .GetMethod("Register", BindingFlags.Static | BindingFlags.NonPublic)!
-                    .Invoke(null, [b]);
-            }
-            catch (Exception diag)
-            {
-                Console.WriteLine("DIAG-INNER: " + (diag.InnerException?.ToString() ?? diag.ToString()));
-                throw;
-            }
+            CharacterFixtureContent.Register(b, "ol:zhang-chang-pu");
             b.AddSkill(new(Order, "排顶夹具", "fixture")
             {
                 Program = Load(Order, "\"triggers\":[{\"id\":\"order\",\"window\":\"turnStartBeforeNormalFlow\"," +

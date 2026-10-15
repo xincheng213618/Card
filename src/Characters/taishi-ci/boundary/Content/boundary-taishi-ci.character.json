@@ -1,0 +1,52 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:taishi-ci",
+  "skills": [
+    {
+      "registrationOrder": 663,
+      "programBundle": "boundary-taishi-ci",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:tianyi",
+        "name": "天义",
+        "description": "出牌阶段限一次，你可以拼点：若你赢，你本回合使用【杀】的次数+1、无距离限制且可以多指定一个目标；若你没赢，你本回合不能使用【杀】。",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 664,
+      "programBundle": "boundary-taishi-ci",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:hanzhan",
+        "name": "酣战",
+        "description": "当你拼点前，你可以令对方用随机手牌拼点。当你拼点后，你可以获得拼点牌中点数最大的【杀】。",
+        "executionForms": "State"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 665,
+      "pools": {
+        "current": 211
+      },
+      "definition": {
+        "id": "boundary:taishi-ci",
+        "name": "界太史慈",
+        "portraitKey": "boundary_taishi_ci",
+        "skillId": "boundary:tianyi",
+        "factionId": "wu",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "boundary:hanzhan"
+        ],
+        "gender": "Male",
+        "characterId": "character:taishi-ci",
+        "variantId": "boundary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

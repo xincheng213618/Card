@@ -1,0 +1,53 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:guo-huanghou",
+  "skills": [
+    {
+      "registrationOrder": 471,
+      "programBundle": "classic-guo-huanghou",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:jiaozhao",
+        "name": "矫诏",
+        "description": "出牌阶段限一次，你可以展示一张手牌，然后由距离你最近的一名其他角色声明一种基本牌的牌名。此回合内，你可以将此牌当其声明的牌使用，且不能对你使用。殚心第一次修改后可以声明普通锦囊；第二次修改后无需展示或他人声明，直接将一张手牌当基本牌或普通锦囊使用。",
+        "executionForms": "State",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 472,
+      "programBundle": "classic-guo-huanghou",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:danxin",
+        "name": "殚心",
+        "description": "当你受到伤害后，你可以选择一项：摸一张牌；修改矫诏（至多修改两次）。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 473,
+      "pools": {
+        "current": 149
+      },
+      "definition": {
+        "id": "classic:guo-huanghou",
+        "name": "郭皇后",
+        "portraitKey": "guo_huanghou",
+        "skillId": "classic:jiaozhao",
+        "factionId": "wei",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "classic:danxin"
+        ],
+        "gender": "Female",
+        "characterId": "character:guo-huanghou",
+        "variantId": "classic",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:lv-kuang-lv-xiang",
+  "skills": [
+    {
+      "registrationOrder": 1194,
+      "programBundle": "ol-lv-kuang-lv-xiang",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:qigong",
+        "name": "齐攻",
+        "description": "当你使用的仅指定单一目标的【杀】被【闪】抵消后，你可以令一名角色对此目标再使用一张无距离限制的【杀】，此【杀】不可被响应。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 1195,
+      "programBundle": "ol-lv-kuang-lv-xiang",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:liehou",
+        "name": "列侯",
+        "description": "出牌阶段限一次，你可以令你攻击范围内一名有手牌的角色交给你一张手牌，若如此做，你将一张手牌交给你攻击范围内的另一名其他角色。",
+        "actionForms": "Active"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1196,
+      "pools": {
+        "current": 386
+      },
+      "definition": {
+        "id": "ol:lv-kuang-lv-xiang",
+        "name": "吕旷吕翔·OL",
+        "portraitKey": "ol-lv-kuang-lv-xiang",
+        "skillId": "ol:qigong",
+        "factionId": "qun",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "ol:liehou"
+        ],
+        "gender": "Male",
+        "characterId": "character:lv-kuang-lv-xiang",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:dian-wei",
+  "skills": [
+    {
+      "registrationOrder": 693,
+      "programBundle": "boundary-dian-wei",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:qiangxi",
+        "name": "强袭",
+        "description": "出牌阶段限两次，你可以受到1点伤害或弃置一张武器牌，对一名本回合内未以此法指定过的其他角色造成1点伤害。",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 694,
+      "programBundle": "boundary-dian-wei",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:ninge",
+        "name": "狞恶",
+        "description": "锁定技，当一名角色每回合第二次受到伤害后，若其为你或伤害来源为你，你摸一张牌并弃置其场上一张牌。",
+        "tags": "Locked",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 695,
+      "pools": {
+        "current": 221
+      },
+      "definition": {
+        "id": "boundary:dian-wei",
+        "name": "界典韦",
+        "portraitKey": "boundary_dian_wei",
+        "skillId": "boundary:qiangxi",
+        "factionId": "wei",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "boundary:ninge"
+        ],
+        "gender": "Male",
+        "characterId": "character:dian-wei",
+        "variantId": "boundary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

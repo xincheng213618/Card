@@ -1,0 +1,53 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:meng-huo",
+  "skills": [
+    {
+      "registrationOrder": 630,
+      "programBundle": "boundary-meng-huo",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:huoshou-current",
+        "name": "祸首",
+        "description": "锁定技，【南蛮入侵】对你无效。当其他角色使用【南蛮入侵】指定目标后，你代替其成为此牌的伤害来源。",
+        "tags": "Locked",
+        "executionForms": "State"
+      }
+    },
+    {
+      "registrationOrder": 631,
+      "programBundle": "boundary-meng-huo",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:zaiqi-current",
+        "name": "再起",
+        "description": "结束阶段，你可以令至多X名角色各选择一项（X为本回合置入弃牌堆的红色牌数量）：1.摸一张牌；2.令你回复1点体力。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 632,
+      "pools": {
+        "current": 200
+      },
+      "definition": {
+        "id": "boundary:meng-huo",
+        "name": "界孟获",
+        "portraitKey": "boundary_meng_huo",
+        "skillId": "boundary:huoshou-current",
+        "factionId": "shu",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "boundary:zaiqi-current"
+        ],
+        "gender": "Male",
+        "characterId": "character:meng-huo",
+        "variantId": "boundary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

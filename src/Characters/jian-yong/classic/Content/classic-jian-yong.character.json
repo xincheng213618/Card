@@ -1,0 +1,52 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:jian-yong",
+  "skills": [
+    {
+      "registrationOrder": 410,
+      "programBundle": "classic-jian-yong",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:qiaoshui",
+        "name": "巧说",
+        "description": "出牌阶段开始时，你可以拼点：若你赢，你本回合使用的下一张牌可以多指定或少指定一个目标（至少指定一个目标）；若你没赢，你本回合不能使用锦囊牌。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 411,
+      "programBundle": "classic-jian-yong",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:zongshi-pindian",
+        "name": "纵适",
+        "description": "当你拼点赢时，你可以获得点数较小的拼点牌；当你拼点没赢时，你可以获得你的拼点牌。",
+        "executionForms": "State"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 417,
+      "pools": {
+        "current": 138
+      },
+      "definition": {
+        "id": "classic:jian-yong",
+        "name": "简雍",
+        "portraitKey": "jian_yong",
+        "skillId": "classic:qiaoshui",
+        "factionId": "shu",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "classic:zongshi-pindian"
+        ],
+        "gender": "Male",
+        "characterId": "character:jian-yong",
+        "variantId": "classic",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

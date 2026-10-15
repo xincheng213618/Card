@@ -1,0 +1,51 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:guo-tu-feng-ji",
+  "skills": [
+    {
+      "registrationOrder": 453,
+      "programBundle": "classic-guo-tu-feng-ji",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:jigong",
+        "name": "急攻",
+        "description": "出牌阶段开始时，你可以摸两张牌，然后你本回合手牌上限等于你本阶段造成的伤害值。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 454,
+      "programBundle": "classic-guo-tu-feng-ji",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:shifei",
+        "name": "饰非",
+        "description": "当你需要使用或打出【闪】时，你可以令当前回合角色摸一张牌，若其不是手牌数全场唯一最多的角色，你弃置最多的角色一张牌，视为你使用或打出一张【闪】。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 465,
+      "pools": {
+        "current": 398
+      },
+      "definition": {
+        "id": "classic:guo-tu-feng-ji",
+        "name": "郭图逢纪",
+        "portraitKey": "guo_tu_feng_ji",
+        "skillId": "classic:jigong",
+        "factionId": "qun",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "classic:shifei"
+        ],
+        "gender": "Male",
+        "characterId": "character:guo-tu-feng-ji",
+        "variantId": "classic",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

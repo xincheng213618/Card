@@ -1,0 +1,54 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:liu-bei",
+  "skills": [
+    {
+      "registrationOrder": 570,
+      "programBundle": "boundary-liu-bei",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:rende",
+        "name": "仁德",
+        "description": "出牌阶段，每名角色限一次，你可以交给一名其他角色任意张手牌。当你本阶段以此法给出第二张牌时，你可以视为使用一张基本牌（使用【杀】有次数限制）。",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 571,
+      "programBundle": "batch9-support",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:jijiang",
+        "name": "激将",
+        "description": "主公技，其他蜀势力角色可以在你需要时代替你使用或打出【杀】（视为由你使用或打出）；每回合限一次，其他蜀势力角色于其回合外使用、打出或替你使用或打出【杀】时，其可以令你摸一张牌。",
+        "tags": "Lord",
+        "executionForms": "Trigger",
+        "actionForms": "Active"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 572,
+      "pools": {
+        "current": 179
+      },
+      "definition": {
+        "id": "boundary:liu-bei",
+        "name": "界刘备",
+        "portraitKey": "boundary_liu_bei",
+        "skillId": "boundary:rende",
+        "factionId": "shu",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "boundary:jijiang"
+        ],
+        "gender": "Male",
+        "characterId": "character:liu-bei",
+        "variantId": "boundary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

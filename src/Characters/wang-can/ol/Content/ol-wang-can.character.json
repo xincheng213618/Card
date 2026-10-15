@@ -1,0 +1,66 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:wang-can",
+  "skills": [
+    {
+      "registrationOrder": 1181,
+      "programBundle": "ol-wang-can",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:sanwen",
+        "name": "散文",
+        "description": "每回合限一次，当你获得牌后，若你有与这些牌同名的手牌，你可以展示之并弃置获得的同名牌，然后摸弃牌数两倍的牌。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 1182,
+      "programBundle": "ol-wang-can",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:qiai",
+        "name": "七哀",
+        "description": "限定技，当你进入濒死状态时，你可以令每名其他角色各交给你一张牌。",
+        "tags": "Limited",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 1183,
+      "programBundle": "ol-wang-can",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:denglou",
+        "name": "登楼",
+        "description": "限定技，结束阶段，若你没有手牌，你可以观看牌堆顶的四张牌，然后获得其中的非基本牌，并使用其中的基本牌（不能使用则弃置）。",
+        "tags": "Limited",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1184,
+      "pools": {
+        "current": 382
+      },
+      "definition": {
+        "id": "ol:wang-can",
+        "name": "王粲·OL",
+        "portraitKey": "ol-wang-can",
+        "skillId": "ol:sanwen",
+        "factionId": "qun",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "ol:qiai",
+          "ol:denglou"
+        ],
+        "gender": "Male",
+        "characterId": "character:wang-can",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

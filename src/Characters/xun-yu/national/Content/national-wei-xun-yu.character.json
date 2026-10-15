@@ -1,0 +1,21 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-national-war-lite",
+  "characterId": "character:xun-yu",
+  "skills": [],
+  "generals": [
+    {
+      "registrationOrder": 2,
+      "pools": {},
+      "definition": {
+        "id": "national:wei-xun-yu",
+        "name": "荀彧",
+        "portraitKey": "xun_yu",
+        "skillId": "standard:jieming",
+        "factionId": "wei",
+        "baseHp": 3,
+        "gender": "Male"
+      }
+    }
+  ]
+}

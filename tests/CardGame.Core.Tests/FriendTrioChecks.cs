@@ -103,13 +103,7 @@ internal static class FriendTrioChecks
         public PackageManifest Manifest { get; } = new("fixture-friend-trio", new(1, 0, 0), []);
         public void Register(IContentRegistryBuilder b)
         {
-            try
-            {
-                typeof(StandardContentPackage).Assembly.GetType("CardGame.Content.Standard.FriendTrioContent")!
-                    .GetMethod("Register", BindingFlags.Static | BindingFlags.NonPublic)!.Invoke(null, [b]);
-            }
-            catch (TargetInvocationException ex) when (ex.InnerException is not null)
-            { System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(ex.InnerException).Throw(); }
+            CharacterFixtureContent.Register(b, "friend:zhuge-liang", "friend:pang-tong", "friend:xu-shu");
             var driver = SkillProgramCatalog.Load($$"""
               {"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[{"id":"fixture:friend-driver","revision":1,"activations":[
               {"id":"draw","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"draw","target":"owner","amount":2}]},

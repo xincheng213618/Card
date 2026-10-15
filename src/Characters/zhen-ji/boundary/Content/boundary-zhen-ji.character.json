@@ -1,0 +1,40 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhen-ji",
+  "skills": [
+    {
+      "registrationOrder": 599,
+      "programBundle": "boundary-zhen-ji",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:luoshen",
+        "name": "洛神",
+        "description": "准备阶段，你可以判定，若结果为黑色，你获得此牌，然后你可以重复此流程。以此法获得的牌本回合不计入手牌上限。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 600,
+      "pools": {
+        "current": 189
+      },
+      "definition": {
+        "id": "boundary:zhen-ji",
+        "name": "界甄姬",
+        "portraitKey": "boundary_zhen_ji",
+        "skillId": "boundary:luoshen",
+        "factionId": "wei",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "classic:qingguo"
+        ],
+        "gender": "Female",
+        "characterId": "character:zhen-ji",
+        "variantId": "boundary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhao-yun",
+  "skills": [
+    {
+      "registrationOrder": 114,
+      "programBundle": "sp-zhao-yun",
+      "includeProgramPresentation": false,
+      "definition": {
+        "id": "sp:chongzhen",
+        "name": "冲阵",
+        "description": "当你发动“龙胆”使用或打出一张手牌时，你可以获得对方的一张手牌。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 115,
+      "programBundle": "sp-zhao-yun",
+      "includeProgramPresentation": false,
+      "definition": {
+        "id": "sp:longdan",
+        "name": "龙胆",
+        "description": "你可以将一张【杀】当【闪】、【闪】当【杀】使用或打出。",
+        "executionForms": "State"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 257,
+      "pools": {
+        "current": 48
+      },
+      "definition": {
+        "id": "sp:zhao-yun",
+        "name": "SP赵云",
+        "portraitKey": "zhao_yun",
+        "skillId": "sp:longdan",
+        "factionId": "qun",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "sp:chongzhen"
+        ],
+        "gender": "Male"
+      }
+    }
+  ]
+}

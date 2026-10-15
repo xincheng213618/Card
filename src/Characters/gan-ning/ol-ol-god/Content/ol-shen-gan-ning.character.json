@@ -1,0 +1,53 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:gan-ning",
+  "skills": [
+    {
+      "registrationOrder": 335,
+      "programBundle": "ol-strategic-gods",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:poxi",
+        "name": "魄袭",
+        "description": "出牌阶段限一次，你可以观看一名其他角色的手牌并可以弃置你与其手牌中共计四张不同花色的牌，若如此做，你根据弃置牌中你的牌的数量执行效果：0张，减少1点体力上限；1张，结束出牌阶段且本回合手牌上限-1；3张，回复1点体力；4张，摸四张牌。",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 336,
+      "programBundle": "ol-strategic-gods",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:shen-gan-ning-jieying",
+        "name": "劫营",
+        "description": "回合开始时，若场上没有“营”标记，你获得“营”。结束阶段，你可以将“营”置于一名角色的武将牌上。有“营”的角色摸牌阶段多摸一张牌、出牌阶段使用【杀】的限制次数+1、手牌上限+1。有“营”的其他角色回合结束后，你获得其所有手牌和“营”。",
+        "executionForms": "State, Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 366,
+      "pools": {
+        "current": 117
+      },
+      "definition": {
+        "id": "ol:shen-gan-ning",
+        "name": "神甘宁",
+        "portraitKey": "ol_shen_gan_ning",
+        "skillId": "ol:poxi",
+        "factionId": "god",
+        "baseHp": 6,
+        "additionalSkillIds": [
+          "ol:shen-gan-ning-jieying"
+        ],
+        "gender": "Male",
+        "characterId": "character:gan-ning",
+        "variantId": "ol-god",
+        "rulesetId": "sanguosha-ol",
+        "initialHp": 3
+      }
+    }
+  ]
+}

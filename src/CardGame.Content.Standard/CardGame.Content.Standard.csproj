@@ -9,7 +9,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CardGame.Core\CardGame.Core.csproj" />
-    <EmbeddedResource Include="SkillPrograms\*.json" />
+    <EmbeddedResource Include="..\Characters\**\Content\*.character.json"
+                      LogicalName="CardGame.Content.Standard.Characters.%(Filename)%(Extension)"
+                      WithCulture="false" />
+    <EmbeddedResource Include="..\Characters\**\Skills\*.json"
+                      LogicalName="CardGame.Content.Standard.SkillPrograms.%(Filename)%(Extension)"
+                      WithCulture="false" />
   </ItemGroup>
 
 </Project>

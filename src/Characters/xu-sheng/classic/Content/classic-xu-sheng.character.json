@@ -1,0 +1,35 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:xu-sheng",
+  "skills": [
+    {
+      "registrationOrder": 139,
+      "programBundle": "classic-xu-sheng",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:pojun",
+        "name": "破军",
+        "description": "当你于出牌阶段内使用【杀】指定一名角色为目标后，你可以将其至多X张牌（X为其体力值）扣置于该角色的武将牌旁直至回合结束（装备牌回到手牌）。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 297,
+      "pools": {
+        "current": 83
+      },
+      "definition": {
+        "id": "classic:xu-sheng",
+        "name": "徐盛",
+        "portraitKey": "xu_sheng",
+        "skillId": "classic:pojun",
+        "factionId": "wu",
+        "baseHp": 4,
+        "gender": "Male"
+      }
+    }
+  ]
+}

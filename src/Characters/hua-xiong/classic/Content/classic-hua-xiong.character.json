@@ -1,0 +1,36 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:hua-xiong",
+  "skills": [
+    {
+      "registrationOrder": 88,
+      "programBundle": "passive-damage-cutover",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:yaowu",
+        "name": "耀武",
+        "description": "你受到红色杀造成的伤害后，伤害来源选择摸一张牌或回复1点体力。",
+        "tags": "Locked",
+        "executionForms": "State"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 249,
+      "pools": {
+        "current": 40
+      },
+      "definition": {
+        "id": "classic:hua-xiong",
+        "name": "华雄",
+        "portraitKey": "hua_xiong",
+        "skillId": "classic:yaowu",
+        "factionId": "qun",
+        "baseHp": 6,
+        "gender": "Male"
+      }
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:liu-feng",
+  "skills": [
+    {
+      "registrationOrder": 409,
+      "programBundle": "classic-liu-feng",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:xiansi",
+        "name": "陷嗣",
+        "description": "准备阶段，你可以将至多两名角色的各一张牌置于你的武将牌上，称为“逆”。其他角色可以移去两张“逆”视为对你使用一张【杀】。",
+        "executionForms": "State, Trigger",
+        "actionForms": "Active"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 416,
+      "pools": {
+        "current": 137
+      },
+      "definition": {
+        "id": "classic:liu-feng",
+        "name": "刘封",
+        "portraitKey": "liu_feng",
+        "skillId": "classic:xiansi",
+        "factionId": "shu",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:liu-feng",
+        "variantId": "classic",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

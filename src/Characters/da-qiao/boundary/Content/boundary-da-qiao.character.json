@@ -1,0 +1,52 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:da-qiao",
+  "skills": [
+    {
+      "registrationOrder": 573,
+      "programBundle": "boundary-da-qiao",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:guose",
+        "name": "国色",
+        "description": "出牌阶段限一次，你可以选择一项，然后摸一张牌：1.将一张方片牌当【乐不思蜀】使用；2.弃置一张方片牌和场上一张【乐不思蜀】。",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 574,
+      "programBundle": "boundary-da-qiao",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:liuli",
+        "name": "流离",
+        "description": "当你成为【杀】的目标时，你可以弃置一张牌并将此【杀】转移给你攻击范围内的一名其他角色。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 575,
+      "pools": {
+        "current": 180
+      },
+      "definition": {
+        "id": "boundary:da-qiao",
+        "name": "界大乔",
+        "portraitKey": "boundary_da_qiao",
+        "skillId": "boundary:guose",
+        "factionId": "wu",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "boundary:liuli"
+        ],
+        "gender": "Female",
+        "characterId": "character:da-qiao",
+        "variantId": "boundary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:wei-yan",
+  "skills": [
+    {
+      "registrationOrder": 612,
+      "programBundle": "batch9-damage-skills",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:kuanggu",
+        "name": "狂骨",
+        "description": "当你对距离1以内的一名角色造成1点伤害后，你可以回复1点体力或摸一张牌。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 613,
+      "programBundle": "boundary-wei-yan",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:qimou-current",
+        "name": "奇谋",
+        "description": "限定技，出牌阶段，你可以失去任意点体力并摸X张牌（X为你以此法失去的体力值），然后你本回合计算与其他角色的距离-X且使用【杀】的限制次数+X。",
+        "tags": "Limited",
+        "actionForms": "Active"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 614,
+      "pools": {
+        "current": 195
+      },
+      "definition": {
+        "id": "boundary:wei-yan",
+        "name": "界魏延",
+        "portraitKey": "boundary_wei_yan",
+        "skillId": "boundary:qimou-current",
+        "factionId": "shu",
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "boundary:kuanggu"
+        ],
+        "gender": "Male",
+        "characterId": "character:wei-yan",
+        "variantId": "boundary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:xu-shu",
+  "skills": [
+    {
+      "registrationOrder": 112,
+      "programBundle": "passive-card-rules",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:wuyan",
+        "name": "无言",
+        "description": "锁定技，你造成或受到的锦囊牌伤害无效。",
+        "tags": "Locked",
+        "executionForms": "State"
+      }
+    },
+    {
+      "registrationOrder": 113,
+      "programBundle": "support-choice-skills",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:jujian",
+        "name": "举荐",
+        "description": "结束阶段开始时，你可以弃置一张非基本牌并选择一名其他角色，令其选择摸两张牌、回复1点体力或复原武将牌。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 256,
+      "pools": {
+        "current": 47
+      },
+      "definition": {
+        "id": "classic:xu-shu",
+        "name": "徐庶",
+        "portraitKey": "xu_shu",
+        "skillId": "classic:wuyan",
+        "factionId": "shu",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "classic:jujian"
+        ],
+        "gender": "Male"
+      }
+    }
+  ]
+}

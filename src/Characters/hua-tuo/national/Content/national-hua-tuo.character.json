@@ -1,0 +1,24 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-national-zhang-jiao",
+  "characterId": "character:hua-tuo",
+  "skills": [],
+  "generals": [
+    {
+      "registrationOrder": 3,
+      "pools": {},
+      "definition": {
+        "id": "national:hua-tuo",
+        "name": "华佗",
+        "portraitKey": "hua_tuo",
+        "skillId": "standard:jijiu",
+        "factionId": "qun",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "standard:qingnang"
+        ],
+        "gender": "Male"
+      }
+    }
+  ]
+}

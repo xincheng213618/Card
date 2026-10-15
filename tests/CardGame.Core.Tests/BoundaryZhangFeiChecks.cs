@@ -83,7 +83,7 @@ internal static class BoundaryZhangFeiChecks
         public PackageManifest Manifest { get; } = new("fixture-zf", new(1, 0, 0), []);
         public void Register(IContentRegistryBuilder b)
         {
-            typeof(StandardContentPackage).Assembly.GetType("CardGame.Content.Standard.BoundaryZhangFeiContent")!.GetMethod("Register", BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [b]);
+            CharacterFixtureContent.Register(b, "boundary:zhang-fei");
             b.AddSkill(Catalog.GetSkill("classic:wusheng")); if (scenario == "wushuang") b.AddSkill(Catalog.GetSkill("classic:wushuang"));
             if (scenario == "uncancelable") b.AddSkill(Catalog.GetSkill("boundary:zhaxiang"));
             var weapon = scenario == "armor" ? "standard:renwang_shield" : scenario is "axe" or "borrowed" ? "classic:stone-axe" : "classic:qinglong-crescent-blade";

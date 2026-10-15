@@ -1,0 +1,21 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-national-war-ambitious",
+  "characterId": "character:lu-bu",
+  "skills": [],
+  "generals": [
+    {
+      "registrationOrder": 2,
+      "pools": {},
+      "definition": {
+        "id": "national:ambitious-lu-bu",
+        "name": "吕布",
+        "portraitKey": "zhang_fei",
+        "skillId": "standard:paoxiao",
+        "factionId": "ambitious",
+        "baseHp": 4,
+        "gender": "Male"
+      }
+    }
+  ]
+}

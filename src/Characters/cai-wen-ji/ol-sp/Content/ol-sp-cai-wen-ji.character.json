@@ -1,0 +1,50 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:cai-wen-ji",
+  "skills": [
+    {
+      "registrationOrder": 947,
+      "programBundle": "ordinary-sp-cai-wen-ji",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:chenqing",
+        "name": "陈情",
+        "description": "每轮限一次，当一名角色进入濒死状态时，你可以令另一名其他角色摸四张牌，然后弃置四张牌，若弃置牌包含四种花色，其视为对处于濒死状态的角色使用一张【桃】。"
+      }
+    },
+    {
+      "registrationOrder": 948,
+      "programBundle": "ordinary-sp-cai-wen-ji",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:moshi",
+        "name": "默识",
+        "description": "结束阶段，你可以将一张手牌当你出牌阶段内使用过的第一张基本牌或普通锦囊牌使用，然后你可以将一张手牌当你出牌阶段使用过的第二张基本牌或普通锦囊牌使用。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 949,
+      "pools": {
+        "current": 310
+      },
+      "definition": {
+        "id": "ol:sp-cai-wen-ji",
+        "name": "SP蔡文姬",
+        "portraitKey": "ol-sp-cai-wen-ji",
+        "skillId": "ol:chenqing",
+        "factionId": "wei",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "ol:moshi"
+        ],
+        "gender": "Female",
+        "characterId": "character:cai-wen-ji",
+        "variantId": "sp",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

@@ -18,12 +18,6 @@ public sealed class StandardRescueSkillExpansionPackage : IGameContentPackage
     {
         ArgumentNullException.ThrowIfNull(builder);
 
-        builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("conversion-cutover", "standard:jijiu"));
-        builder.AddGeneral(new ContentGeneralDefinition(
-            "standard:demo-jijiu",
-            "急救者",
-            "hua_tuo",
-            "standard:jijiu",
-            "qun"));
+        CharacterContentCatalog.Default.Register(builder, Manifest.Id);
     }
 }

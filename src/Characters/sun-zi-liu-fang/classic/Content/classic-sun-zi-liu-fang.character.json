@@ -1,0 +1,52 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:sun-zi-liu-fang",
+  "skills": [
+    {
+      "registrationOrder": 478,
+      "programBundle": "classic-sun-zi-liu-fang",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:guizao",
+        "name": "瑰藻",
+        "description": "若你于弃牌阶段弃置过至少两张牌且这些牌花色均不相同，你可以回复1点体力或摸一张牌。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 479,
+      "programBundle": "classic-sun-zi-liu-fang",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:jiyu",
+        "name": "讥谀",
+        "description": "出牌阶段，每名角色限一次，若你有可以使用的手牌，你可以令一名角色弃置一张手牌，然后你本回合不能使用与之相同花色的牌，若此牌为黑桃，其失去1点体力，你翻面。",
+        "actionForms": "Active"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 484,
+      "pools": {
+        "current": 152
+      },
+      "definition": {
+        "id": "classic:sun-zi-liu-fang",
+        "name": "孙资刘放",
+        "portraitKey": "sun_zi_liu_fang",
+        "skillId": "classic:guizao",
+        "factionId": "wei",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "classic:jiyu"
+        ],
+        "gender": "Male",
+        "characterId": "character:sun-zi-liu-fang",
+        "variantId": "classic",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

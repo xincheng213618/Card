@@ -1,0 +1,52 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:liu-qi",
+  "skills": [
+    {
+      "registrationOrder": 1141,
+      "programBundle": "ol-liu-qi",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:wenji",
+        "name": "问计",
+        "description": "出牌阶段开始时，你可以令一名其他角色交给你一张牌，然后你本回合使用的与此牌同名的牌不能被其他角色响应。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 1142,
+      "programBundle": "ol-liu-qi",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:tunjiang",
+        "name": "屯江",
+        "description": "结束阶段，若你未跳过本回合的出牌阶段且于此阶段未使用牌指定过其他角色为目标，你可以摸与全场势力数等量张牌。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 1143,
+      "pools": {
+        "current": 369
+      },
+      "definition": {
+        "id": "ol:liu-qi",
+        "name": "刘琦·OL",
+        "portraitKey": "ol-liu-qi",
+        "skillId": "ol:wenji",
+        "factionId": "qun",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "ol:tunjiang"
+        ],
+        "gender": "Male",
+        "characterId": "character:liu-qi",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

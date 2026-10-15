@@ -1,0 +1,50 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:cao-cao",
+  "skills": [
+    {
+      "registrationOrder": 207,
+      "programBundle": "classic-shen-cao-cao",
+      "includeProgramPresentation": false,
+      "definition": {
+        "id": "classic:guixin",
+        "name": "归心",
+        "description": "当你受到1点伤害后，你可以随机获得每名其他角色区域里的一张牌，然后你翻面。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 208,
+      "programBundle": "classic-shen-cao-cao",
+      "includeProgramPresentation": false,
+      "definition": {
+        "id": "classic:feiying",
+        "name": "飞影",
+        "description": "锁定技，其他角色计算与你的距离+1。",
+        "tags": "Locked",
+        "executionForms": "State"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 263,
+      "pools": {
+        "current": 108
+      },
+      "definition": {
+        "id": "classic:shen-cao-cao",
+        "name": "神曹操",
+        "portraitKey": "shen_cao_cao",
+        "skillId": "classic:guixin",
+        "factionId": "god",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "classic:feiying"
+        ],
+        "gender": "Male"
+      }
+    }
+  ]
+}

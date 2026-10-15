@@ -84,9 +84,7 @@ internal static class FriendPangTongChecks
         public PackageManifest Manifest { get; } = new("fixture-friend-pang", new(1, 0, 0), []);
         public void Register(IContentRegistryBuilder builder)
         {
-            try { typeof(StandardContentPackage).Assembly.GetType("CardGame.Content.Standard.FriendTrioContent")!
-                .GetMethod("Register", BindingFlags.Static | BindingFlags.NonPublic)!.Invoke(null, [builder]); }
-            catch (TargetInvocationException error) { throw new InvalidOperationException(error.InnerException!.ToString()); }
+            CharacterFixtureContent.Register(builder, "friend:zhuge-liang", "friend:pang-tong", "friend:xu-shu");
             var driver = SkillProgramCatalog.Load($$"""
                 {"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[{"id":"fixture:pang-driver","revision":1,
                 "activations":[{"id":"lose-three","usesPerTurn":null,"minCards":3,"maxCards":3,"sourceZones":["hand"],"minTargets":0,"maxTargets":0,"targetKind":"anyLiving",

@@ -1,0 +1,62 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:li-ru",
+  "skills": [
+    {
+      "registrationOrder": 740,
+      "programBundle": "boundary-li-ru",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:mieji-current",
+        "name": "灭计",
+        "description": "出牌阶段限一次，你可以将一张锦囊牌置于牌堆顶并令一名有手牌的其他角色选择一项：1.弃置一张锦囊牌；2.依次弃置两张牌。"
+      }
+    },
+    {
+      "registrationOrder": 741,
+      "programBundle": "boundary-li-ru",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:fencheng-current",
+        "name": "焚城",
+        "description": "限定技，出牌阶段，你可以选择一名其他角色开始，令所有其他角色依次选择一项：1.弃置任意张牌（须比上家弃置的牌多）；2.受到你造成的2点火焰伤害。",
+        "tags": "Limited"
+      }
+    },
+    {
+      "registrationOrder": 742,
+      "programBundle": "boundary-li-ru",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:juece-current",
+        "name": "绝策",
+        "description": "结束阶段，你可以对一名手牌数小于等于你的其他角色造成一点伤害。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 743,
+      "pools": {
+        "current": 238
+      },
+      "definition": {
+        "id": "boundary:li-ru",
+        "name": "界李儒",
+        "portraitKey": "boundary_li_ru",
+        "skillId": "boundary:mieji-current",
+        "factionId": "qun",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "boundary:fencheng-current",
+          "boundary:juece-current"
+        ],
+        "gender": "Male",
+        "characterId": "character:li-ru",
+        "variantId": "boundary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

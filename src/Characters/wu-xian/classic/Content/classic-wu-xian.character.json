@@ -1,0 +1,52 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:wu-xian",
+  "skills": [
+    {
+      "registrationOrder": 494,
+      "programBundle": "classic-wu-xian",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:fumian",
+        "name": "福绵",
+        "description": "准备阶段，你可以选择一项：摸牌阶段多摸1张牌；本回合限一次，使用红色基本牌和红色普通锦囊牌可以多指定1个目标（无距离限制）。下次选择另一项时数值+1并复原本技能。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 495,
+      "programBundle": "classic-wu-xian",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "classic:daiyan",
+        "name": "怠宴",
+        "description": "结束阶段，你可以令一名其他角色获得牌堆中一张红桃基本牌，然后若你上回合对其发动过本技能，其失去1点体力。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 496,
+      "pools": {
+        "current": 157
+      },
+      "definition": {
+        "id": "classic:wu-xian",
+        "name": "吴苋",
+        "portraitKey": "wu_xian",
+        "skillId": "classic:fumian",
+        "factionId": "shu",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "classic:daiyan"
+        ],
+        "gender": "Female",
+        "characterId": "character:wu-xian",
+        "variantId": "classic",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

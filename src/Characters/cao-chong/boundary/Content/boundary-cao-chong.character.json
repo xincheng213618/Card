@@ -1,0 +1,50 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:cao-chong",
+  "skills": [
+    {
+      "registrationOrder": 676,
+      "programBundle": "boundary-cao-chong",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:chengxiang-current",
+        "name": "称象",
+        "description": "当你受到1点伤害后，你可以亮出牌堆顶四张牌，获得其中任意张点数和不大于13的牌；若获得的牌点数和恰好为13，你下次发动“称象”多亮出一张牌。"
+      }
+    },
+    {
+      "registrationOrder": 677,
+      "programBundle": "boundary-cao-chong",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:renxin-current",
+        "name": "仁心",
+        "description": "当一名其他角色进入濒死时，你可以弃置一张装备牌并翻面，然后令其回复至1点体力。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 678,
+      "pools": {
+        "current": 216
+      },
+      "definition": {
+        "id": "boundary:cao-chong",
+        "name": "界曹冲",
+        "portraitKey": "boundary_cao_chong",
+        "skillId": "boundary:chengxiang-current",
+        "factionId": "wei",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "boundary:renxin-current"
+        ],
+        "gender": "Male",
+        "characterId": "character:cao-chong",
+        "variantId": "boundary",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}
