@@ -185,6 +185,8 @@ public sealed partial class GameEngine
                 m.Reason.Value == (r.Removing ? NamedAmbushRemoveReason : NamedAmbushRecordReason)) != 1)
             throw new InvalidOperationException("Ambush lost its one real paid movement.");
     }
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 420)]
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 420)]
     private bool CanContinueNamedAmbush(ProgramSkillFrame f)
     {
         if (f.NamedAmbush is not { Stage: NamedAmbushStage.MovementChildren }) return false;

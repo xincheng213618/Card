@@ -135,6 +135,7 @@ public sealed partial class GameEngine
                 _aiBrains[decision.PlayerSeat].ScoreProgramTarget(view, c.Targets[0], hint) - (c.Targets[0] == f.OwnerSeat ? 12d : 0d))
             .ThenBy(c => c.Targets[0]).FirstOrDefault() ?? decision.Choices.Single(c => c.Targets.Count == 0);
     }
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 580)]
     private void AssertMatchedJudgmentPlacement(ProgramSkillFrame f)
     {
         if (f.MatchedJudgmentPlacement is not { } r) return;

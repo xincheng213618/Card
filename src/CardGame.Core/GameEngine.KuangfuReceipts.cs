@@ -147,6 +147,7 @@ public sealed partial class GameEngine
     private bool HasKuangfuDamageObserver(long window) => KuangfuPaidObserverRoot(window) is not null;
     private bool IsKuangfuProgramDying() => ActiveDying is { } dying && KuangfuPaidObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 490)]
     private bool TryAdvanceKuangfuSubtree()
     {
         if (_pendingDecision is not null || KuangfuPaidObserverRoot() is null) return false;

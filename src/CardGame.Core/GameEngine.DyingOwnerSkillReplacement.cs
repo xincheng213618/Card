@@ -208,12 +208,14 @@ public sealed partial class GameEngine
                 fact.GrantedSkillId == receipt.GrantedSkillId && fact.LostSkillIds.SequenceEqual(replacement.SkillIds)) == 1;
     }
 
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.BeforeSelectionState, 110)]
     private void AssertReplacedPaidHpContinuation(ProgramSkillFrame frame, ProgramExecutionPlan plan)
     {
         if (frame.ReplacedPaidHpContinuation is not null && !HasValidReplacedPaidHpContinuation(frame, plan))
             throw new InvalidOperationException("The removed owner's paid HP continuation lost its exact source, cursor or issued facts.");
     }
 
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 780)]
     private bool CanContinueReplacedPaidHpContinuation(ProgramSkillFrame frame) =>
         _winner == Winner.None && _players[frame.OwnerSeat].IsAlive &&
         HasValidReplacedPaidHpContinuation(frame, ProgramInstructionResolver.Default.Resolve(frame,

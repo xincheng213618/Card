@@ -124,6 +124,7 @@ public sealed partial class GameEngine
         AdvanceRuntimeProgram(frame.Id);
     }
 
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.BeforeSelectionState, 120)]
     private void AssertOwnedHandRankSumSelection(ProgramSkillFrame frame, ProgramExecutionPlan plan)
     {
         var paused = frame.InstructionIndex > 0 && frame.InstructionIndex <= plan.Instructions.Count

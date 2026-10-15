@@ -112,6 +112,12 @@ public sealed partial class GameEngine
   }
   if(r.Stage==CaoChunStage.NativeSlash&&r.Slash is not{})throw new InvalidOperationException("Shanjia native Slash lost its issued receipt.");
  }
+
+ [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 310)]
+ private void AssertRegisteredCaoChun(ProgramSkillFrame frame)
+ {
+     if (frame.CaoChun is not null) RequireCaoChun(frame);
+ }
  [ProgramCapability]
  private sealed class CaoChunProgramCapability(GameEngine engine) : ICaoChunProgramHost
  {public SkillProgramStepOutcome ExecuteCaoChun(ProgramSkillFrame f,SkillProgramEffectOp op)=>engine.ExecuteCaoChun(f,op);}

@@ -63,6 +63,7 @@ public sealed partial class GameEngine
     }
     private ProgramSkillFrame? SimultaneousObserverRoot() => FindProgramObserverRoot(
         static (engine,root,child) => engine.SimultaneousFirstChild(root,child),static (engine,index) => engine.HasMovementObserverSuffix(index));
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 460)]
     private bool TryAdvanceSimultaneousSubtree() => _pendingDecision is null && SimultaneousObserverRoot() is not null && TryAdvanceObserverSubtree(true);
     private bool HasSimultaneousDamageObserver(long id) => SimultaneousObserverRoot() is { } root && _resolutionStack.Any(f => f.Id == id && f is DamageTriggerWindowFrame) &&
         _resolutionStack.FindIndex(f => f.Id == id) > _resolutionStack.FindIndex(f => f.Id == root.Id);

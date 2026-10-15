@@ -233,6 +233,7 @@ public sealed partial class GameEngine
         AdvanceRuntimeProgram(f.Id);
     }
 
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.BeforeSelectionState, 290)]
     private void AssertSharedSlashOffer(ProgramSkillFrame f)
     {
         if (f.SharedSlashOffer is not { } r) return;

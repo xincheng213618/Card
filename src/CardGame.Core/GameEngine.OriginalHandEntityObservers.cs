@@ -213,6 +213,7 @@ public sealed partial class GameEngine
              observer.OriginalHandInheritance is not null && ValidOriginalHandInheritanceReceipt(observer) ||
              observer.OriginalHandAwakening is not null && ValidOriginalHandAwakeningReceipt(observer));
     }
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.BeforeSelectionState, 450)]
     private void AssertOriginalHandEntityProgram(ProgramSkillFrame f)
     {
         var receipts = (f.OriginalHandBenefit is null ? 0 : 1) + (f.OriginalHandInheritance is null ? 0 : 1) + (f.OriginalHandAwakening is null ? 0 : 1);
@@ -289,6 +290,7 @@ public sealed partial class GameEngine
         return effect.Op == SkillProgramEffectOp.Damage && amount == effect.Amount && source == effect.ActorReference && nature == effect.DamageNature &&
             target == (effect.TargetReference is { } reference ? ResolveProgramParticipant(observer, reference) : ResolveProgramEffectTarget(observer, effect.Target));
     }
+    [ProgramRuntimeHook(ProgramRuntimePhase.BeforeResponseHealth, 100)]
     private bool TryAdvanceOriginalHandEntitySubtree()
     {
         if (_pendingDecision is not null || OriginalHandEntityObserverRoot() is null) return false;

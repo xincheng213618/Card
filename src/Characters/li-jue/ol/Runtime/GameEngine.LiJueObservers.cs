@@ -115,6 +115,7 @@ public sealed partial class GameEngine
  private bool HasLiJueDamageObserver(long id)=>LiJueObserverRoot()is{}r&&_resolutionStack.Any(f=>f.Id==id&&f is DamageTriggerWindowFrame)&&_resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
  private bool HasLiJueBeforeDamageObserver(long id)=>LiJueObserverRoot()is{}r&&_resolutionStack.Any(f=>f.Id==id&&f is BeforeDamageProgramWindowFrame)&&_resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
  private bool IsLiJueDying()=>ActiveDying is{}d&&LiJueObserverRoot()is{}r&&_resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
+ [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 270)]
  private bool TryAdvanceLiJueSubtree()=>_pendingDecision is null&&LiJueObserverRoot()is not null&&TryAdvanceObserverSubtree(advanceRecoveryReplacement:true);
  private bool AllowsLiJueNestedDamage(ProgramSkillFrame observer,int target,int amount,ProgramParticipantReference?source,DamageNature?nature,bool sourceLess)
  {

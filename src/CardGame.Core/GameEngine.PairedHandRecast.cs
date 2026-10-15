@@ -187,6 +187,8 @@ public sealed partial class GameEngine
             { Stage: PairedHandRecastStage.CostChildren or PairedHandRecastStage.DrawChildren } r &&
         f.PendingMovementContinuation == pending && pending.SubjectSeat == CurrentPairedRecast(r).Seat &&
         pending.BeforeCount == 0 && pending.CoverageResultBind is null && ValidPairedHandRecastReceipt(f);
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 620)]
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 640)]
     private bool CanContinuePairedHandRecast(ProgramSkillFrame f) =>
         f.PairedHandRecast is { Partner.Material: not null } && ValidPairedHandRecastReceipt(f);
     [ProgramAiChoice(SkillProgramEffectOp.PairedHandRecast)]

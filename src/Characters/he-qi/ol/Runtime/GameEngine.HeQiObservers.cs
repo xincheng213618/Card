@@ -27,6 +27,7 @@ public sealed partial class GameEngine
         receipt.GrantId == EquipmentSuitGrantId(frame.OwnerSeat, receipt.Source) &&
         _contentRegistry.GetSkill(receipt.Source.CapabilitySkillId).Program?.EquipmentSuitSkillGrants.Any(rule =>
             rule.Id == receipt.Source.RuleId && rule.SkillId == frame.SkillId) == true;
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 510)]
     private bool CanContinueEquipmentSuitProgram(ProgramSkillFrame frame)=>ValidateEquipmentSuitProgramSource(frame) &&
         frame.FrozenHandRoster is { Stage: "movement" } or { Stage: "damage-issued", DamageIssued: true } && ValidFrozenHandRoster(frame);
 
@@ -139,6 +140,7 @@ public sealed partial class GameEngine
         if(sourceLess||observer.AttackAttempt is not null||observer.InstructionIndex<1||_resolutionStack.LastOrDefault()?.Id!=observer.Id||observer.WindowContext?.Window is not(SkillProgramTriggerWindow.CardsMoved or SkillProgramTriggerWindow.CardsGained or SkillProgramTriggerWindow.DiscardPileReceived or SkillProgramTriggerWindow.AfterHpRecovered or SkillProgramTriggerWindow.AfterHpLost or SkillProgramTriggerWindow.AfterHealthChanged or SkillProgramTriggerWindow.SkillsChanged)||HeQiObserverRoot()is not{}root||root.Id==observer.Id)return false;
         var e=GetPausedPrivateOfferEffect(observer);return e is{Op:SkillProgramEffectOp.Damage} && amount==e.Amount && source==e.ActorReference && nature==e.DamageNature && target==(e.TargetReference is{}reference?ResolveProgramParticipant(observer,reference):ResolveProgramEffectTarget(observer,e.Target));
     }
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 170)]
     private bool TryAdvanceHeQiSubtree()=>_pendingDecision is null && HeQiObserverRoot()is not null && TryAdvanceObserverSubtree(advanceRecoveryReplacement:true);
     private bool HasHeQiBeforeDamageObserver(long id)=>HeQiObserverRoot()is{}r && _resolutionStack.Any(f=>f.Id==id && f is BeforeDamageProgramWindowFrame) && _resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
 }

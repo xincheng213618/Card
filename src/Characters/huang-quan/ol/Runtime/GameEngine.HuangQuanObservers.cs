@@ -9,11 +9,14 @@ public sealed partial class GameEngine
   if(p.Kind=="dianhu"&&(p.Occurrence is not{}r||f.WindowContext?.Dianhu!=r||p.RecipientSeat!=f.OwnerSeat||r.ActualAmount<=0||r.TargetSeat!=r.Relation.TargetSeat||CompleteProgramEventHistory().OfType<DianhuQualifiedEvent>().Count(e=>e.Receipt==r)!=1||CompleteProgramEventHistory().OfType<DianhuArmedEvent>().Count(e=>e.Relation==r.Relation)!=1))return false;
   return CompleteProgramEventHistory().OfType<HuangQuanDrawPaidEvent>().Count(e=>e.FrameId==f.Id&&e.Source==p.Source&&e.GameplayHash==p.GameplayHash&&e.Kind==p.Kind&&e.RecipientSeat==p.RecipientSeat&&e.ActualTurn==p.ActualTurn&&e.TurnOwner==p.TurnOwner&&e.ActualPhase==p.ActualPhase&&e.Before==p.Before&&e.After==p.After&&e.CardCount==p.CardIds.Count&&e.Occurrence==p.Occurrence)==1&&_cardMovements.Count(m=>m.Sequence>p.Before&&m.Sequence<=p.After&&m.To==CardLocation.Hand(p.RecipientSeat)&&m.Reason.Value=="program."+p.Kind+".draw")==p.CardIds.Count&&p.CardIds.All(id=>_cardMovements.Count(m=>m.Sequence>p.Before&&m.Sequence<=p.After&&m.CardId==id&&m.To==CardLocation.Hand(p.RecipientSeat)&&m.Reason.Value=="program."+p.Kind+".draw")==1);
  }
+ [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 270)]
  private void RequireIssuedHuangQuan(ProgramSkillFrame f)
  {
   if(f.HuangQuan is not{}p)return;
   if(!ValidHuangQuanDraw(f)||p.Stage=="draw-paid"&&(f.PendingMovementContinuation is not{SubjectSeat:var target,BeforeCount:0,CoverageResultBind:null}||target!=p.RecipientSeat)||p.Stage!="draw-paid"&&f.PendingMovementContinuation is not null||p.Stage is "issuing" or "native-use" or "returned"&&(p.NativeUse is not{}r||!ValidJianjiReceipt(r,f,p.Stage!="issuing")))throw new InvalidOperationException("Huang Quan lost its exact relation occurrence, actual draw payment, native actor or owning request.");
  }
+ [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 230)]
+ [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 230)]
  private bool CanContinueIssuedHuangQuan(ProgramSkillFrame f)
  {if(f.HuangQuan is null)return false;RequireIssuedHuangQuan(f);return true;}
  private bool IsHuangQuanMovement(ProgramSkillFrame f,SkillProgramEffect? e,ProgramMovementContinuation continuation)=>f.HuangQuan is{Stage:"draw-paid",RecipientSeat:var target}&&continuation.SubjectSeat==target&&continuation.BeforeCount==0&&continuation.CoverageResultBind is null&&e?.Op is SkillProgramEffectOp.DrawForDianhuActualOccurrence or SkillProgramEffectOp.DrawAndOfferJianjiExactCard&&ValidHuangQuanDraw(f);
@@ -28,6 +31,7 @@ public sealed partial class GameEngine
  private bool HasHuangQuanDamageObserver(long id)=>HuangQuanObserverRoot()is{}r&&_resolutionStack.Any(f=>f.Id==id&&f is DamageTriggerWindowFrame)&&_resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
  private bool HasHuangQuanBeforeDamageObserver(long id)=>HuangQuanObserverRoot()is{}r&&_resolutionStack.Any(f=>f.Id==id&&f is BeforeDamageProgramWindowFrame)&&_resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
  private bool IsHuangQuanDying()=>ActiveDying is{}d&&HuangQuanObserverRoot()is{}r&&_resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
+ [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 300)]
  private bool TryAdvanceHuangQuanSubtree()=>_pendingDecision is null&&HuangQuanObserverRoot()is not null&&TryAdvanceObserverSubtree(advanceRecoveryReplacement:true);
  private bool AllowsHuangQuanNestedDamage(ProgramSkillFrame observer,int target,int amount,ProgramParticipantReference?source,DamageNature?nature,bool sourceLess)
  {

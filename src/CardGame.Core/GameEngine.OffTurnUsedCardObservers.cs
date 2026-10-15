@@ -2,6 +2,8 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 560)]
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 580)]
     private bool CanContinueOffTurnUsedCardGift(ProgramSkillFrame frame)
     {
         if (frame.OffTurnUsedCardGift is not { Stage: OffTurnUsedCardGiftStage.GiftChildren }) return false;

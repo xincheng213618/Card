@@ -116,6 +116,7 @@ public sealed partial class GameEngine
         return decision.ValidCardIds.SequenceEqual(choices.SelectMany(c => c.Cards).Distinct()) && decision.Choices.Count == choices.Count &&
             decision.Choices.Zip(choices).All(pair => SameNameHandChoicesEqual(pair.First, pair.Second));
     }
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.BeforeSelectionState, 400)]
     private void AssertMatchingRecast(ProgramSkillFrame f)
     {
         if (f.MatchingRecast is null) return;
@@ -146,6 +147,7 @@ public sealed partial class GameEngine
         return e.Op == SkillProgramEffectOp.Damage && amount == e.Amount && source == e.ActorReference && nature == e.DamageNature &&
             target == (e.TargetReference is { } reference ? ResolveProgramParticipant(observer, reference) : ResolveProgramEffectTarget(observer, e.Target));
     }
+    [ProgramRuntimeHook(ProgramRuntimePhase.BeforeResponseHealth, 50)]
     private bool TryAdvanceMatchingRecastSubtree()
     {
         if (_pendingDecision is not null || MatchingRecastObserverRoot() is null) return false;

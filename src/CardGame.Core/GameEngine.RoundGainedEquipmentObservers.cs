@@ -66,6 +66,7 @@ public sealed partial class GameEngine
             target == (effect.TargetReference is { } reference ? ResolveProgramParticipant(observer, reference) : ResolveProgramEffectTarget(observer, effect.Target));
     }
 
+    [ProgramRuntimeHook(ProgramRuntimePhase.BeforeResponseHealth, 130)]
     private bool TryAdvanceRoundGainedEquipmentDrawSubtree()
     {
         if (_pendingDecision is not null || RoundGainedEquipmentDrawObserverRoot() is null) return false;

@@ -138,11 +138,14 @@ public sealed partial class GameEngine
         if(origin.PaymentCompleted?payments is not[var paid] || !WangYunOriginsEqual(paid.Origin,origin):payments.Length!=0)return false;
         return events.OfType<WangYunNativeUseReturnedEvent>().Count(e=>e.ProgramFrameId==f.Id && e.UseId==origin.UseId && e.ActionId==origin.ActionId && e.Kind==origin.Kind)==(returned?1:0);
     }
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 180)]
     private void AssertWangYun(ProgramSkillFrame f)
     {
         if(f.WangYunPlan is null && f.WangYunTrick is null && f.WangYunAwakening is null)return;
         if(!ValidWangYun(f))throw new InvalidOperationException("Wang Yun lost the exact hand cost, native actor/material use, private three samples or causal awakening receipt.");
     }
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 150)]
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 150)]
     private bool CanContinueWangYun(ProgramSkillFrame f)=>ValidWangYun(f) && (f.WangYunPlan is{CostPaid:true} || f.WangYunTrick?.NativeUse is not null || f.WangYunAwakening is not null);
     private bool WangYunFirstChild(ProgramSkillFrame f,ResolutionFrame child)
     {
@@ -158,6 +161,7 @@ public sealed partial class GameEngine
     private bool IsWangYunDying()=>ActiveDying is{}d && WangYunObserverRoot() is{}r && _resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
     private bool HasWangYunDamageObserver(long id)=>_resolutionStack.Any(f=>f.Id==id && f is DamageTriggerWindowFrame) && WangYunObserverRoot() is not null;
     private bool HasWangYunBeforeDamageObserver(long id)=>_resolutionStack.Any(f=>f.Id==id && f is BeforeDamageProgramWindowFrame) && WangYunObserverRoot() is not null;
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 190)]
     private bool TryAdvanceWangYunSubtree()=>_pendingDecision is null && WangYunObserverRoot() is not null && TryAdvanceObserverSubtree(true);
     private bool AllowsWangYunNestedDamage(ProgramSkillFrame f,int target,int amount,ProgramParticipantReference?source,DamageNature?nature,bool sourceLess)
     {

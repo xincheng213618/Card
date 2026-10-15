@@ -267,6 +267,7 @@ public sealed partial class GameEngine
             r.Stage is DrawDiscardCategoryStage.Drawing or DrawDiscardCategoryStage.DiscardChildren or DrawDiscardCategoryStage.BonusChildren;
     }
 
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.BeforeSelectionState, 20)]
     private void AssertDrawDiscardCategoryReceipt(ProgramSkillFrame f)
     {
         if (f.DrawDiscardCategoryRefund is null)
@@ -291,6 +292,7 @@ public sealed partial class GameEngine
     private bool IsDrawDiscardCategoryMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
         effect?.Op == SkillProgramEffectOp.DrawThenDiscardDistinctCategories && effect.Amount == f.DrawDiscardCategoryRefund?.RequestedCount &&
         effect.StateId == f.DrawDiscardCategoryRefund?.StateId && f.PendingMovementContinuation == pending && ValidDrawDiscardCategoryReceipt(f);
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 680)]
     private bool CanContinueDrawDiscardCategoryRefund(ProgramSkillFrame f) =>
         f.DrawDiscardCategoryRefund is { DrawIssued: true } && ValidDrawDiscardCategoryReceipt(f);
     [ProgramAiChoice(SkillProgramEffectOp.DrawThenDiscardDistinctCategories)]

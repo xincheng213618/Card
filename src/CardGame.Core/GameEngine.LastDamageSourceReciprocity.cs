@@ -221,6 +221,8 @@ public sealed partial class GameEngine
     private bool IsLastDamageSourceReciprocityMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
         f.LastDamageSourceReciprocity is { } receipt && effect is { Op: SkillProgramEffectOp.LastDamageSourceReciprocity } && effect.StateId == receipt.StateId &&
         f.PendingMovementContinuation == pending && pending.SubjectSeat == receipt.ParticipantSeat && ValidLastDamageSourceReceipt(f);
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 640)]
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 660)]
     private bool CanContinueLastDamageSourceReciprocity(ProgramSkillFrame f) =>
         f.LastDamageSourceReciprocity is { MovementIssued: true } && ValidLastDamageSourceReceipt(f);
     [ProgramAiChoice(SkillProgramEffectOp.LastDamageSourceReciprocity)]

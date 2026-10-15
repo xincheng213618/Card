@@ -186,6 +186,8 @@ public sealed partial class GameEngine
         CompleteProgramEventHistory().OfType<TargetsConfirmedEvent>().Count(e => e.ResolutionId == use.Id && e.TargetSeats.SequenceEqual(action.TargetSeats)) == 1;
 
     private bool HasIssuedRoundGainedUseCandidate(ProgramTriggerCandidate candidate, ProgramSkillWindowContext context) => ExactIssuedRoundGainedUseCandidate(candidate, context) is not null;
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 490)]
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 750)]
     private bool CanContinueIssuedRoundGainedUse(ProgramSkillFrame frame) =>
         frame.RoundGainedEquipmentDrawReceipt is not null && ValidRoundGainedEquipmentDraw(frame) ||
         frame.TriggerId is { } trigger && frame.WindowContext is { } context && ExactIssuedRoundGainedUseCandidate(new(frame.OwnerSeat, frame.SkillId, trigger, frame.SkillInstanceId, frame.GameplayHash, 0), context) is not null;

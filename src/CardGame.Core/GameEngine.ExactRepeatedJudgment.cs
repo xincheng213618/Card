@@ -162,4 +162,10 @@ public sealed partial class GameEngine
             grant.TurnNumber != turn.TurnNumber || grant.TurnSeat != turn.TurnOwnerSeat || grant.Source != CreateProgramTurnEffectSource(frame))
             throw new InvalidOperationException("Exact repeated judgment receipt differs from its actual movement or grant.");
     }
+
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.BeforeSelectionState, 310)]
+    private void AssertRegisteredExactRepeatedJudgmentReceipt(ProgramSkillFrame frame, ProgramExecutionPlan plan)
+    {
+        AssertExactRepeatedJudgmentReceipt(frame, plan.Instructions);
+    }
 }

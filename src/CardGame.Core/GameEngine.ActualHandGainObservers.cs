@@ -81,6 +81,7 @@ public sealed partial class GameEngine
             gift.Before == r.Before && gift.After == r.After && CompleteProgramEventHistory().OfType<SameCategoryDeckGiftIssuedEvent>().Count(e =>
                 e.Source.OwnerSeat == f.OwnerSeat && e.Source.SkillId == f.SkillId && e.ActualTurn == r.ActualTurn && e.Category == r.Category) == 1;
     }
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.BeforeSelectionState, 510)]
     private void AssertActualHandGain(ProgramSkillFrame f)
     {
         if (f.ActualHandGain is not null && !ValidActualHandGain(f))
@@ -109,6 +110,7 @@ public sealed partial class GameEngine
     private bool IsActualHandGainProgramDying() => ActiveDying is { } dying && ActualHandGainObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.FrameId) > _resolutionStack.FindIndex(f => f.Id == root.Id);
     private bool HasActualHandGainDamageObserver(long window) => _resolutionStack.Any(f => f.Id == window && f is DamageTriggerWindowFrame) && ActualHandGainObserverRoot() is not null;
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 500)]
     private bool TryAdvanceActualHandGainSubtree()
     {
         if (_pendingDecision is not null || ActualHandGainObserverRoot() is null) return false;

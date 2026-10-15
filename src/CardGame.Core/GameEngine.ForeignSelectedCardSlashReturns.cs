@@ -110,6 +110,8 @@ public sealed partial class GameEngine
             damage.Id, applied.SourceSeat, applied.TargetSeat, applied.Amount, applied.SourceLess));
     }
 
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 480)]
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 520)]
     private bool CanContinueSelectedForeignCardSlash(ProgramSkillFrame frame) =>
         frame.ForeignSelectedCardSlash is { Stage: not ForeignSelectedCardSlashStage.ChoosingCard and not ForeignSelectedCardSlashStage.IssuingUse } &&
         ValidSelectedForeignCardSlash(frame);
@@ -207,6 +209,7 @@ public sealed partial class GameEngine
         return effect.Op == SkillProgramEffectOp.Damage && effect.Amount == amount && effect.ActorReference == source && effect.DamageNature == nature &&
             target == (effect.TargetReference is { } reference ? ResolveProgramParticipant(observer, reference) : ResolveProgramEffectTarget(observer, effect.Target));
     }
+    [ProgramRuntimeHook(ProgramRuntimePhase.BeforeDeclaration, 10)]
     private bool TryAdvanceSelectedForeignCardSlashSubtree()
     {
         if (_pendingDecision is not null || SelectedForeignCardSlashObserverRoot() is null) return false;

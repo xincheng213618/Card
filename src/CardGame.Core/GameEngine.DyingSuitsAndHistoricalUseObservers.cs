@@ -74,6 +74,7 @@ public sealed partial class GameEngine
         action.PhysicalCards.Count==0 && action.ConversionChain.Count==0 && action.TargetSeats.SequenceEqual(use.TargetSeats) && action.RequesterSeat is null && action.ResponderSeat is null &&
         CompleteProgramEventHistory().OfType<CardUseDeclaredEvent>().Count(e=>e.ResolutionId==use.Id && e.CardId==0 && e.CardKind==CardKind.Peach && e.SourceSeat==ret.ActorSeat)==1 &&
         CompleteProgramEventHistory().OfType<TargetsConfirmedEvent>().Count(e=>e.ResolutionId==use.Id && e.TargetSeats.SequenceEqual([ret.VictimSeat]))==1;
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.BeforeSelectionState, 540)]
     private void AssertDyingSuits(ProgramSkillFrame f)
     {if(f.DyingSuits is not null && !ValidDyingSuitsReceipt(f))throw new InvalidOperationException("Dying suits lost original live Dying, round issuance, paid invoice or immutable typed Peach return.");}
 
@@ -251,6 +252,7 @@ public sealed partial class GameEngine
         return !sourceLess && effect.Op==SkillProgramEffectOp.Damage && amount==effect.Amount && source==effect.ActorReference && nature==effect.DamageNature &&
             target==(effect.TargetReference is {} reference?ResolveProgramParticipant(observer,reference):ResolveProgramEffectTarget(observer,effect.Target));
     }
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 530)]
     private bool TryAdvanceDyingSuitsSubtree()
     {
         if (_pendingDecision is not null || DyingSuitsObserverRoot() is null) return false;
@@ -263,6 +265,7 @@ public sealed partial class GameEngine
         AssertProgramAttackState();AssertProgramSkillState();AssertPostEventProgramInvariants();return true;
     }
 
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.BeforeSelectionState, 550)]
     private void AssertEndingHistoricalUses(ProgramSkillFrame f)
     {
         if(f.EndingHistoricalUses is not {} r)return;

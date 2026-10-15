@@ -93,6 +93,8 @@ public sealed partial class GameEngine
         if (f.DeathGrowthSkill?.Stage != DeathGrowthSkillStage.DrawChildren) return false;
         RequireDeathGrowthSkill(f); if (!DrainDeathGrowthChildren(f)) AdvanceDeathGrowthChoice(f); return true;
     }
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 30)]
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 30)]
     private bool CanContinueDeathGrowthSkill(ProgramSkillFrame f) => f.DeathGrowthSkill is not null && ValidDeathGrowthSkill(f);
     private bool IsDeathGrowthMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation p) =>
         f.DeathGrowthSkill is { Stage: DeathGrowthSkillStage.DrawChildren } r && r.InstructionIndex == f.InstructionIndex &&

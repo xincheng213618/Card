@@ -96,6 +96,7 @@ public sealed partial class GameEngine
         return SkillProgramStepOutcome.Continue;
     }
 
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 600)]
     private void AssertDamageAppearanceReceipt(ProgramSkillFrame f,ProgramExecutionPlan plan)
     {
         if(f.DamageAppearanceReceipt is not { } p)return;

@@ -134,6 +134,8 @@ public sealed partial class GameEngine
     private bool IsFirstSlashDuelMovement(ProgramSkillFrame f, SkillProgramEffect? e, ProgramMovementContinuation pending) =>
         f.FirstSlashDuelBenefit is { SelectedBranch: "draw" } r && e?.Op == SkillProgramEffectOp.ChooseFirstSlashDuelDiamondBenefit &&
         r.InstructionIndex == f.InstructionIndex && pending.SubjectSeat == f.OwnerSeat && pending.CoverageResultBind is null;
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 390)]
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 390)]
     private bool CanContinueFirstSlashDuelBenefit(ProgramSkillFrame f) => f.FirstSlashDuelBenefit?.SelectedBranch == "draw" && ValidFirstSlashDuelBenefit(f);
     [ProgramAiChoice(SkillProgramEffectOp.ChooseFirstSlashDuelDiamondBenefit)]
     private PromptChoice SelectAiFirstSlashDuelBenefit(PendingDecision decision, ProgramSkillFrame f) =>

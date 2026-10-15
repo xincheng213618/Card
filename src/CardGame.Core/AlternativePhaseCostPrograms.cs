@@ -213,6 +213,7 @@ public sealed partial class GameEngine
         return false;
     }
 
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 10)]
     private void AssertAlternativePhaseCost(ProgramSkillFrame frame)
     {
         if (frame.AlternativePhaseCost is not { } receipt) return;

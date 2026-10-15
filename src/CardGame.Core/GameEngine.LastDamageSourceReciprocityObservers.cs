@@ -128,6 +128,7 @@ public sealed partial class GameEngine
             recovery.Attempt.Completion.MoveReason?.Value == LastDamageSourceReason(f, false);
     }
 
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.BeforeSelectionState, 430)]
     private void AssertLastDamageSourceReciprocity(ProgramSkillFrame f)
     {
         if (f.LastDamageSourceReciprocity is null) return;
@@ -172,6 +173,7 @@ public sealed partial class GameEngine
         return effect.Op == SkillProgramEffectOp.Damage && amount == effect.Amount && source == effect.ActorReference && nature == effect.DamageNature &&
             target == (effect.TargetReference is { } reference ? ResolveProgramParticipant(observer, reference) : ResolveProgramEffectTarget(observer, effect.Target));
     }
+    [ProgramRuntimeHook(ProgramRuntimePhase.BeforeResponseHealth, 80)]
     private bool TryAdvanceLastDamageSourceReciprocitySubtree()
     {
         if (_pendingDecision is not null || AnyLastDamageSourceReciprocityObserverRoot() is null) return false;

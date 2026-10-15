@@ -58,6 +58,8 @@ public sealed partial class GameEngine
   if(features.HasOperation(SkillProgramEffectOp.InitializeShanjiaLossMarkers))return _players[c.OwnerSeat].Shanjia is null;
   return true;
  }
+ [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 270)]
+ [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 270)]
  private bool CanContinueCaoChun(ProgramSkillFrame f)
  {
   if(f.CaoChun is{}r){if(r.Stage==CaoChunStage.InitialSlash)return ValidCaoChunPaidActivation(f);if(r.Stage is CaoChunStage.DrawChildren or CaoChunStage.DiscardChildren or CaoChunStage.NativeSlash){RequireCaoChun(f);return true;}return r.Payment is{}p&&ValidCaoChunPayment(p)&&r.Stage==CaoChunStage.DebtChoice;}
@@ -82,6 +84,7 @@ public sealed partial class GameEngine
  private bool HasCaoChunDamageObserver(long id)=>CaoChunObserverRoot()is{}r&&_resolutionStack.Any(f=>f.Id==id&&f is DamageTriggerWindowFrame)&&_resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
  private bool HasCaoChunBeforeDamageObserver(long id)=>CaoChunObserverRoot()is{}r&&_resolutionStack.Any(f=>f.Id==id&&f is BeforeDamageProgramWindowFrame)&&_resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
  private bool IsCaoChunDying()=>ActiveDying is{}d&&CaoChunObserverRoot()is{}r&&_resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
+ [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 340)]
  private bool TryAdvanceCaoChunSubtree()=>_pendingDecision is null&&CaoChunObserverRoot()is not null&&TryAdvanceObserverSubtree(advanceRecoveryReplacement:true);
  private bool AllowsCaoChunNestedDamage(ProgramSkillFrame o,int target,int amount,ProgramParticipantReference?source,DamageNature?nature,bool sourceLess)
  {

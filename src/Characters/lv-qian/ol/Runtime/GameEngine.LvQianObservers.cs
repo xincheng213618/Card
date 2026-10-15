@@ -59,6 +59,7 @@ public sealed partial class GameEngine
   return (_players[source].ZengdaoGrants??[]).Where(g=>g.Entities.Any(id=>_cardZones.GetLocation(id)==g.Location)).OrderBy(g=>g.Source.OwnerSeat).ThenBy(g=>g.Source.SkillInstanceId,StringComparer.Ordinal).Take(1).Select(g=>new BeforeDamageProgramCandidate(new(source,g.Source.SkillId,"consume-gifted-damage",g.Source.SkillInstanceId,g.GameplayHash,g.Source.OwnerSeat),CaptureProgramTriggerFacts(_players[source])));
  }
  private ProgramSkillWindowContext CreateLvQianBeforeDamageContext(BeforeDamageProgramCandidate item,ProgramSkillWindowContext context)=>context with{ZengdaoGrant=MatchingZengdaoGrant(item.Candidate)};
+ [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 350)]
  private void AssertLvQian(ProgramSkillFrame f)
  {
   if(f.LvQian is not{}r)return;
@@ -72,6 +73,8 @@ public sealed partial class GameEngine
   else if(r.Stage==LvQianStage.DamageChoice){if(r.Choices.Count<1||r.Choices.Select(c=>c.CardId).Distinct().Count()!=r.Choices.Count||r.Choices.Any(c=>!IsDurableZengdaoGrant(c.Grant)||!c.Grant.Entities.Contains(c.CardId)))throw new InvalidOperationException("Zengdao choices lost their frozen issued public entities.");}
   else if(r.Phase is not{}phase||phase.OwnerSeat!=f.OwnerSeat||phase.ActualTurn!=r.ActualTurn||f.WindowContext?.WeiluPhase!=phase||r.WindowId!=f.WindowContext.ParentFrameId)throw new InvalidOperationException("Weilu lost its frozen original actual phase.");
  }
+ [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 310)]
+ [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 310)]
  private bool CanContinueLvQian(ProgramSkillFrame f)
  {
   if(f.LvQian is not null){AssertLvQian(f);return true;}
@@ -91,6 +94,7 @@ public sealed partial class GameEngine
  private bool HasLvQianDamageObserver(long id)=>LvQianObserverRoot()is{}r&&_resolutionStack.Any(f=>f.Id==id&&f is DamageTriggerWindowFrame)&&_resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
  private bool HasLvQianBeforeDamageObserver(long id)=>LvQianObserverRoot()is{}r&&_resolutionStack.Any(f=>f.Id==id&&f is BeforeDamageProgramWindowFrame)&&_resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
  private bool IsLvQianDying()=>ActiveDying is{}d&&LvQianObserverRoot()is{}r&&_resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
+ [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 380)]
  private bool TryAdvanceLvQianSubtree()=>_pendingDecision is null&&LvQianObserverRoot()is not null&&TryAdvanceObserverSubtree(advanceRecoveryReplacement:true);
  private bool AllowsLvQianNestedDamage(ProgramSkillFrame observer,int target,int amount,ProgramParticipantReference?source,DamageNature?nature,bool sourceLess)
  {

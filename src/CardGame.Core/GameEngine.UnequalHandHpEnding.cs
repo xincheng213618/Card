@@ -214,9 +214,17 @@ public sealed partial class GameEngine
                 throw new InvalidOperationException("The hand/HP receipt lost its exact once-only actual movement producer.");
         }
     }
+
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 50)]
+    private void AssertRegisteredUnequalHandHpReceipt(ProgramSkillFrame frame)
+    {
+        if (frame.UnequalHandHp is not null) RequireUnequalHandHpReceipt(frame);
+    }
     private bool IsUnequalHandHpMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
         f.UnequalHandHp is { Payments.Count: > 0 } r && effect?.Op == SkillProgramEffectOp.ResolveUnequalHandHpEnding &&
         pending.SubjectSeat == r.Payments[^1].SubjectSeat && pending.BeforeCount == 0 && pending.CoverageResultBind is null;
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 470)]
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 480)]
     private bool CanContinueUnequalHandHp(ProgramSkillFrame f)
     {
         if (f.UnequalHandHp is not { Payments.Count: > 0 }) return false;

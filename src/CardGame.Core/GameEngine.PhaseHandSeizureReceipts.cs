@@ -81,6 +81,7 @@ public sealed partial class GameEngine
             PhaseHandSeizureStage.PaymentChildren or PhaseHandSeizureStage.TakeChildren && ValidPhaseHandSeizureReceipt(frame) ||
          effect?.Op == SkillProgramEffectOp.ReturnIssuedPhaseHandDebt && frame.PhaseHandDebtReturn?.Stage == PhaseHandDebtReturnStage.MovementChildren &&
             ValidPhaseHandDebtReturnReceipt(frame));
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 700)]
     private bool CanContinuePhaseHandSeizure(ProgramSkillFrame frame)
     {
         if (frame.PhaseHandSeizure is not null) return ValidPhaseHandSeizureReceipt(frame);

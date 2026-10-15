@@ -61,8 +61,11 @@ public sealed partial class GameEngine
   var owner=_players[ownerSeat];if(owner.KuanshiDebt is not {} debt||!owner.IsAlive||_turnNumber<=debt.ArmedTurn)return false;
   owner.KuanshiDebt=null;AdvanceEventRulesAndQueueFact(new KuanshiDrawSkippedEvent(ownerSeat,_turnNumber));return true;
  }
+ [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 100)]
+ [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 100)]
  private bool CanContinueIssuedKanZe(ProgramSkillFrame f)
  {if(f.XiashuPaid is null)return false;RequireIssuedKanZe(f);return true;}
+ [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 160)]
  private void RequireIssuedKanZe(ProgramSkillFrame f)
  {
   if(f.XiashuPaid is not {} r)return;var i=r.Invoice;
@@ -91,6 +94,7 @@ public sealed partial class GameEngine
  private bool HasKanZeBeforeDamageObserver(long id)=>KanZeObserverRoot() is {} root&&_resolutionStack.Any(f=>f.Id==id&&f is BeforeDamageProgramWindowFrame)&&_resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
  private bool HasKanZeDamageObserver(long id)=>KanZeObserverRoot() is {} root&&_resolutionStack.Any(f=>f.Id==id&&f is DamageTriggerWindowFrame)&&_resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
  private bool IsKanZeDying()=>ActiveDying is {} d&&KanZeObserverRoot() is {} root&&_resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+ [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 160)]
  private bool TryAdvanceKanZeSubtree()=>_pendingDecision is null&&KanZeObserverRoot() is not null&&TryAdvanceObserverSubtree(advanceRecoveryReplacement:true);
  private bool AllowsKanZeNestedDamage(ProgramSkillFrame o,int target,int amount,ProgramParticipantReference? source,DamageNature? nature,bool sourceLess)
  {if(sourceLess||o.AttackAttempt is not null||o.InstructionIndex<1||_resolutionStack.LastOrDefault()?.Id!=o.Id||KanZeObserverRoot() is not {} root||root.Id==o.Id)return false;var e=GetPausedPrivateOfferEffect(o);return e is {Op:SkillProgramEffectOp.Damage}&&amount==e.Amount&&source==e.ActorReference&&nature==e.DamageNature&&target==(e.TargetReference is {} p?ResolveProgramParticipant(o,p):ResolveProgramEffectTarget(o,e.Target));}

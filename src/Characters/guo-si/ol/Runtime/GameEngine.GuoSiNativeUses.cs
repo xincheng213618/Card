@@ -63,6 +63,7 @@ public sealed partial class GameEngine
  private bool HasGuoSiDamageObserver(long id)=>GuoSiObserverRoot()is{}r&&_resolutionStack.Any(f=>f.Id==id&&f is DamageTriggerWindowFrame)&&_resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
  private bool HasGuoSiBeforeDamageObserver(long id)=>GuoSiObserverRoot()is{}r&&_resolutionStack.Any(f=>f.Id==id&&f is BeforeDamageProgramWindowFrame)&&_resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
  private bool IsGuoSiDying()=>ActiveDying is{}d&&GuoSiObserverRoot()is{}r&&_resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
+ [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 320)]
  private bool TryAdvanceGuoSiSubtree()=>_pendingDecision is null&&GuoSiObserverRoot()is not null&&TryAdvanceObserverSubtree(advanceRecoveryReplacement:true);
  private bool AllowsGuoSiNestedDamage(ProgramSkillFrame observer,int target,int amount,ProgramParticipantReference?source,DamageNature?nature,bool sourceLess)
  {

@@ -83,6 +83,7 @@ public sealed partial class GameEngine
                 m.To == CardLocation.Hand(f.OwnerSeat) && m.Reason.Value == "program.red-owned-loss.draw") != e.ActualCount)) return false;
         return draws[^1].Before == r.Before && draws[^1].After == r.After && draws[^1].ActualCount == r.ActualDrawCount;
     }
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.BeforeSelectionState, 370)]
     private void AssertGainGiftReceipt(ProgramSkillFrame f)
     {
         if (f.GainGiftReceipt is not null && !ValidGainGiftReceipt(f))

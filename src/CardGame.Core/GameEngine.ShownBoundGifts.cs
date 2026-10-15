@@ -32,6 +32,12 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("A shown gift lost its actual-turn hand-limit fact.");
     }
 
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.BeforeSelectionState, 300)]
+    private void AssertRegisteredShownGiftReceipt(ProgramSkillFrame frame, ProgramExecutionPlan plan)
+    {
+        AssertShownGiftReceipt(frame, plan.Instructions);
+    }
+
     [ProgramCapability]
     private sealed class ShownBoundGiftProgramCapability(GameEngine engine) : IShownBoundGiftProgramHost
     {

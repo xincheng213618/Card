@@ -300,6 +300,7 @@ public sealed partial class GameEngine
             CurrentNextActualUseAdjustment(owner.Seat) ?? throw new InvalidOperationException("Adjusted spear source expired before payment."), null);
     }
 
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.BeforeSelectionState, 260)]
     private void AssertNextActualUseProgramSelection(ProgramSkillFrame frame, ProgramExecutionPlan plan)
     {
         if (frame.NextActualUseAdjustment is not { } receipt) return;

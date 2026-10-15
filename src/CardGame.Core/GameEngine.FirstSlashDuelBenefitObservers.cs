@@ -33,6 +33,12 @@ public sealed partial class GameEngine
     }
     private void RequireFirstSlashDuelBenefit(ProgramSkillFrame f)
     { if (!ValidFirstSlashDuelBenefit(f)) throw new InvalidOperationException("The first Slash/Duel benefit lost its exact declared use, candidate, source or once-issued draw."); }
+
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 80)]
+    private void AssertRegisteredFirstSlashDuelBenefit(ProgramSkillFrame frame)
+    {
+        if (frame.FirstSlashDuelBenefit is not null) RequireFirstSlashDuelBenefit(frame);
+    }
     private bool FirstSlashDuelFirstChild(ProgramSkillFrame root, ResolutionFrame child)
     {
         if (!CanContinueFirstSlashDuelBenefit(root) || root.FirstSlashDuelBenefit is not { } r || child is not CardsMovedTriggerWindowFrame moved) return false;
@@ -61,6 +67,7 @@ public sealed partial class GameEngine
         return e is { Op: SkillProgramEffectOp.Damage } && amount == e.Amount && source == e.ActorReference && nature == e.DamageNature &&
             target == (e.TargetReference is { } reference ? ResolveProgramParticipant(observer, reference) : ResolveProgramEffectTarget(observer, e.Target));
     }
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 100)]
     private bool TryAdvanceFirstSlashDuelSubtree() => _pendingDecision is null && FirstSlashDuelObserverRoot() is not null &&
         TryAdvanceObserverSubtree(advanceRecoveryReplacement: true);
 }

@@ -24,7 +24,10 @@ public sealed partial class GameEngine
     private bool IsBuZhiDying()=>ActiveDying is{}d && BuZhiObserverRoot() is{}r && _resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
     private bool HasBuZhiDamageObserver(long id)=>_resolutionStack.Any(f=>f.Id==id && f is DamageTriggerWindowFrame) && BuZhiObserverRoot() is not null;
     private bool HasBuZhiBeforeDamageObserver(long id)=>_resolutionStack.Any(f=>f.Id==id && f is BeforeDamageProgramWindowFrame) && BuZhiObserverRoot() is not null;
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 130)]
     private bool TryAdvanceBuZhiSubtree()=>_pendingDecision is null && BuZhiObserverRoot() is not null && TryAdvanceObserverSubtree(true);
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 70)]
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 70)]
     private bool CanContinueBuZhi(ProgramSkillFrame f)=>ValidBuZhi(f) &&
         (f.BuZhi is{Stage:"movement" or "damage-issued"} ||
          f.BuZhi is{Stage:"branch" or "discard" or "damage"} && _players[f.OwnerSeat].IsAlive && BuZhiPaidEquipmentEntitlement(f));

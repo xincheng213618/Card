@@ -60,6 +60,7 @@ public sealed partial class GameEngine
         return e is { Op: SkillProgramEffectOp.Damage } && amount == e.Amount && source == e.ActorReference && nature == e.DamageNature &&
             target == (e.TargetReference is { } reference ? ResolveProgramParticipant(observer, reference) : ResolveProgramEffectTarget(observer, e.Target));
     }
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 80)]
     private bool TryAdvanceNamedHandChoiceSubtree() => _pendingDecision is null && NamedHandChoiceObserverRoot() is not null &&
         TryAdvanceObserverSubtree(advanceRecoveryReplacement: true);
 }

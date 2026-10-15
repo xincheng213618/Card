@@ -262,6 +262,7 @@ public sealed partial class GameEngine
     }
 
 
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.BeforeSelectionState, 50)]
     private void AssertOffTurnUsedCardGift(ProgramSkillFrame f)
     {
         if (f.OffTurnUsedCardGift is not { } r) return;

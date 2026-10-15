@@ -171,6 +171,7 @@ public sealed partial class GameEngine
                 e.AfterAmount == r.FinalAmount && e.Delta == r.Delta && e.Cancelled == r.Cancelled) != 1)) return false;
         return true;
     }
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 560)]
     private void AssertSignedDamagePayment(ProgramSkillFrame f)
     {
         if (f.SignedDamagePayment is not null && !IsValidSignedDamagePayment(f, false)) throw new InvalidOperationException("Signed damage lost its exact offered policy, cost ledger or current recipient.");

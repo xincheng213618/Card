@@ -88,6 +88,7 @@ public sealed partial class GameEngine
                 g.Source.SkillInstanceId == candidate.SkillInstanceId && g.GameplayHash == candidate.GameplayHash);
     }
 
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 720)]
     private bool CanContinueIssuedOriginalTargetAddition(ProgramSkillFrame frame) => frame.TriggerId is { } binding &&
         frame.WindowContext is { } context && HasIssuedOriginalTargetCandidate(
             new(frame.OwnerSeat, frame.SkillId, binding, frame.SkillInstanceId, frame.GameplayHash, 0), context);

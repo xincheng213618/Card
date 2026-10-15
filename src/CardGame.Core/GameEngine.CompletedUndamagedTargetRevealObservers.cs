@@ -129,6 +129,7 @@ public sealed partial class GameEngine
         return decision.ValidTargetSeats.SequenceEqual(choices.SelectMany(c => c.Targets).Distinct()) && decision.Choices.Count == choices.Count &&
             decision.Choices.Zip(choices).All(p => CompletedUndamagedChoiceEquals(p.First, p.Second));
     }
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.BeforeSelectionState, 500)]
     private void AssertCompletedUndamagedTargetReveal(ProgramSkillFrame f)
     {
         if (f.CompletedUndamagedTargetReveal is null)
@@ -195,6 +196,7 @@ public sealed partial class GameEngine
         return effect.Op == SkillProgramEffectOp.Damage && effect.Amount == amount && effect.ActorReference == source && effect.DamageNature == nature &&
             target == (effect.TargetReference is { } reference ? ResolveProgramParticipant(observer, reference) : ResolveProgramEffectTarget(observer, effect.Target));
     }
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 20)]
     private bool TryAdvanceCompletedUndamagedTargetRevealSubtree()
     {
         if (_pendingDecision is not null || CompletedUndamagedTargetRevealObserverRoot() is null) return false;

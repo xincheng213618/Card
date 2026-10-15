@@ -1,6 +1,8 @@
 namespace CardGame.Core;
 public sealed partial class GameEngine
 {
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 90)]
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 90)]
     private bool CanContinueIssuedJiqiao(ProgramSkillFrame f)
     {
         if(f.JiqiaoPaid is not {} r)return false;var i=r.Invoice;
@@ -22,6 +24,7 @@ public sealed partial class GameEngine
         JiqiaoPaidStage.ClaimChildren=>m.Reason.Value==JiqiaoClaimReason && m.From==CardLocation.Processing && m.To==CardLocation.Hand(f.OwnerSeat) && GetProgramCardSet(f,r.Invoice.RevealBind).CardIds.Contains(m.CardId),
         JiqiaoPaidStage.CleanupChildren=>m.Reason.Value==JiqiaoRemainderReason && m.From==CardLocation.Processing && m.To==CardLocation.DiscardPile && GetProgramCardSet(f,r.Invoice.RevealBind).CardIds.Contains(m.CardId),_=>false
     };
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 150)]
     private void RequireIssuedJiqiao(ProgramSkillFrame f)
     {if(f.JiqiaoPaid is not null && !CanContinueIssuedJiqiao(f))throw new InvalidOperationException("Jiqiao lost its actual paid equipment, native stage movements or owning source invoice.");}
     private bool IsJiqiaoMovement(ProgramSkillFrame f,SkillProgramEffect? e,ProgramMovementContinuation p)=>e?.Op==SkillProgramEffectOp.DiscardEquipmentAndResolveJiqiao && p.SubjectSeat==f.OwnerSeat && p.BeforeCount==0 && p.CoverageResultBind is null && CanContinueIssuedJiqiao(f);
@@ -40,6 +43,7 @@ public sealed partial class GameEngine
     private ProgramSkillFrame? JiqiaoObserverRoot()=>FindProgramObserverRoot(static(e,r,c)=>e.JiqiaoFirstChild(r,c),static(e,i)=>e.HasMovementObserverSuffix(i));
     private bool HasJiqiaoDamageObserver(long id)=>JiqiaoObserverRoot() is {} root && _resolutionStack.Any(f=>f.Id==id && f is DamageTriggerWindowFrame) && _resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
     private bool IsJiqiaoDying()=>ActiveDying is {} d && JiqiaoObserverRoot() is {} root && _resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 150)]
     private bool TryAdvanceJiqiaoSubtree()=>_pendingDecision is null && JiqiaoObserverRoot() is not null && TryAdvanceObserverSubtree(advanceRecoveryReplacement:true);
     private bool AllowsJiqiaoNestedDamage(ProgramSkillFrame o,int target,int amount,ProgramParticipantReference? source,DamageNature? nature,bool sourceLess)
     {

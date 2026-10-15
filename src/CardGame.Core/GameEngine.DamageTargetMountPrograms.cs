@@ -158,6 +158,7 @@ public sealed partial class GameEngine
         f=GetActiveProgramFrame(id);ReplaceRuntimeTop(f with {DamageTargetMount=null});
         AdvanceRuntimeProgram(id); return true;
     }
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 510)]
     private void AssertDamageTargetMountState(ProgramSkillFrame f)
     {
         if(f.DamageTargetMount is not { } d)return;
@@ -167,6 +168,7 @@ public sealed partial class GameEngine
             p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")!="damage-target-mount")))
             throw new InvalidOperationException("Unpaid mount draft lost its owning prompt.");
     }
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 800)]
     private bool CanContinuePaidDamageTargetMount(ProgramSkillFrame f)=>f.DamageTargetMount?.Receipt is not null &&
         _players[f.OwnerSeat].IsAlive && IsValidDamageTargetMount(f);
 

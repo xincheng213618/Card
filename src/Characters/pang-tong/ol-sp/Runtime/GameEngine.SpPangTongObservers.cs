@@ -7,6 +7,7 @@ public sealed partial class GameEngine
   if(r.Stage=="draw-children")return r.RewardSeat is{}seat&&IsValidPlayerSeat(seat)&&r.ActualCount is >=0 and <=1&&moves.Count(m=>m.From==CardLocation.DrawPile&&m.To==CardLocation.Hand(seat)&&m.Reason.Value==SpPangTongDrawReason)==r.ActualCount;
   return r.Stage=="exchange-children"&&r.ActualCount==2&&r.BatchId is>0&&r.RevealedCard is{}foreign&&r.OwnCard is{}own&&own!=foreign&&r.OwnFrom is{}from&&from.OwnerSeat==f.OwnerSeat&&from.Zone is(CardZoneKind.Hand or CardZoneKind.Equipment or CardZoneKind.WoodenOxGrain)&&r.OwnRank is >=1 and <=13&&r.TargetRank is >=1 and <=13&&r.RewardSeat==(r.OwnRank<r.TargetRank?f.OwnerSeat:r.TargetRank<r.OwnRank?r.Target:null)&&moves.Count(m=>m.Reason.Value==GuolunExchangeReason)==2&&moves.Count(m=>m.CardId==own&&m.From==from&&m.To==CardLocation.Hand(r.Target)&&m.Reason.Value==GuolunExchangeReason)==1&&moves.Count(m=>m.CardId==foreign&&m.From==CardLocation.Hand(r.Target)&&m.To==CardLocation.Hand(f.OwnerSeat)&&m.Reason.Value==GuolunExchangeReason)==1;
  }
+ [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 330)]
  private void AssertSpPangTong(ProgramSkillFrame f)
  {
   if(f.SpPangTong is not{}r)return;
@@ -31,6 +32,8 @@ public sealed partial class GameEngine
   }
   if(_resolutionStack.LastOrDefault()?.Id==f.Id&&_pendingDecision is{}pending&&r.Stage is "reveal" or "exchange"&&(pending.PlayerSeat!=f.OwnerSeat||!pending.IsPrivate||!AssistedChoicesEqual(pending.Choices,SpPangTongChoices(f))))throw new InvalidOperationException("Guolun exposes a foreign private decision.");
  }
+ [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 290)]
+ [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 290)]
  private bool CanContinueSpPangTong(ProgramSkillFrame f)
  {if(f.SpPangTong is not{Stage:"exchange-children" or "draw-children" or "health-children" or "grant-children"})return false;AssertSpPangTong(f);return true;}
  private bool SpPangTongFirstChild(ProgramSkillFrame f,ResolutionFrame child)
@@ -49,6 +52,7 @@ public sealed partial class GameEngine
   return (silver||health)&&child is RecoveryReplacementFrame recovery&&RecoveryReplacementFrameRidesOn(recovery,f)&&recovery.Return.Continuation==PostEventContinuation.AwaitedProgramMovement&&recovery.Attempt.SourceSeat==f.OwnerSeat&&recovery.Attempt.TargetSeat==f.OwnerSeat&&recovery.Attempt.Amount==1&&(silver?recovery.Attempt.Completion.Producer==RecoveryAttemptProducer.SilverLion&&recovery.Attempt.Completion.MoveReason?.Value==GuolunExchangeReason:recovery.Attempt.Completion.Producer==RecoveryAttemptProducer.Program&&recovery.Attempt.Completion.InstructionIndex==r.Instruction);
  }
  private ProgramSkillFrame? SpPangTongObserverRoot()=>FindProgramObserverRoot(static(e,f,c)=>e.SpPangTongFirstChild(f,c),static(e,i)=>e.SameNameHandObserverSuffix(i));
+ [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 360)]
  private bool TryAdvanceSpPangTongSubtree()=>_pendingDecision is null&&SpPangTongObserverRoot()is not null&&TryAdvanceObserverSubtree(true);
  private bool HasSpPangTongDamageObserver(long id)=>SpPangTongObserverRoot()is{}root&&_resolutionStack.Any(f=>f.Id==id&&f is DamageTriggerWindowFrame)&&_resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
  private bool HasSpPangTongBeforeDamageObserver(long id)=>SpPangTongObserverRoot()is{}root&&_resolutionStack.Any(f=>f.Id==id&&f is BeforeDamageProgramWindowFrame)&&_resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);

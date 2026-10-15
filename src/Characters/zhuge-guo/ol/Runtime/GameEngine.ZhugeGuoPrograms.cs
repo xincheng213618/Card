@@ -96,6 +96,8 @@ public sealed partial class GameEngine
     }
     [ProgramContinuation(ProgramContinuationKind.Movement,23000)]
     private bool ReturnZhugeGuoMovement(ProgramSkillFrame f)=>f.ZhugeGuo is not null&&ResumeZhugeGuo(f.Id);
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 130)]
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 130)]
     private bool CanContinueZhugeGuo(ProgramSkillFrame f){if(f.ZhugeGuo is not{Stage:ZhugeGuoStage.GainChildren or ZhugeGuoStage.YuhuaInspect})return false;RequireZhugeGuo(f);return true;}
     private bool IsZhugeGuoMovement(ProgramSkillFrame f,SkillProgramEffect?e,ProgramMovementContinuation p)=>f.ZhugeGuo is{Stage:ZhugeGuoStage.GainChildren}&&e?.Op==SkillProgramEffectOp.ObtainDeckTrickForActualEquipmentUse&&CanContinueZhugeGuo(f)&&p.SubjectSeat==f.OwnerSeat&&p.BeforeCount==0&&p.CoverageResultBind is null;
     private void RequireZhugeGuo(ProgramSkillFrame f)
@@ -111,6 +113,12 @@ public sealed partial class GameEngine
             if(r.RequestedPeek is <1 or >5||r.Viewed.Count>r.RequestedPeek||r.Viewed.Distinct().Count()!=r.Viewed.Count||CompleteProgramEventHistory().OfType<YuhuaPrivatePeekStartedEvent>().Count(e=>e==new YuhuaPrivatePeekStartedEvent(f.Id,r.Source,r.GameplayHash,r.ActualTurn,r.WindowId,r.RequestedPeek,r.Viewed.Count))!=1||f.TopReorder is{}top&&!top.ViewedCardIds.SequenceEqual(r.Viewed))throw new InvalidOperationException("Yuhua lost its exact private viewed entities and once-issued quota.");
             if(r.PlacementIssued&&(r.PlacedTop.Count+r.PlacedBottom.Count!=r.Viewed.Count||r.PlacedTop.Concat(r.PlacedBottom).Distinct().Count()!=r.Viewed.Count||CompleteProgramEventHistory().OfType<YuhuaPrivatePeekPlacedEvent>().Count(e=>e==new YuhuaPrivatePeekPlacedEvent(f.Id,r.Source,r.GameplayHash,r.ActualTurn,r.WindowId,r.PlacedTop.Count,r.PlacedBottom.Count))!=1))throw new InvalidOperationException("Yuhua placed receipt lacks its once-issued native partition.");
         }
+    }
+
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 190)]
+    private void AssertRegisteredZhugeGuo(ProgramSkillFrame frame)
+    {
+        if (frame.ZhugeGuo is not null) RequireZhugeGuo(frame);
     }
     [ProgramCapability]
     private sealed class ZhugeGuoProgramCapability(GameEngine engine) : IZhugeGuoProgramHost

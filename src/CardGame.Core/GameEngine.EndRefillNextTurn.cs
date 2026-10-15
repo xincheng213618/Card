@@ -128,9 +128,17 @@ public sealed partial class GameEngine
         if (movements.Length != r.DrawActual || movements.Any(m => m.From != CardLocation.DrawPile || m.To != CardLocation.Hand(r.TargetSeat)))
             throw new InvalidOperationException("A paid refill does not match the actual private card movements.");
     }
+
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 60)]
+    private void AssertRegisteredEndRefillNextTurnReceipt(ProgramSkillFrame frame)
+    {
+        if (frame.EndRefillNextTurn is not null) RequireEndRefillNextTurnReceipt(frame);
+    }
     private bool IsEndRefillNextTurnMovement(ProgramSkillFrame f, SkillProgramEffect? e, ProgramMovementContinuation p) =>
         f.EndRefillNextTurn is { Stage: EndRefillNextTurnStage.MovementChildren } r && e?.Op == SkillProgramEffectOp.RefillAndScheduleNextTurnSelfOnly &&
         p.SubjectSeat == r.TargetSeat && p.BeforeCount == 0 && p.CoverageResultBind is null;
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 450)]
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 440)]
     private bool CanContinueEndRefillNextTurn(ProgramSkillFrame f)
     {
         if (f.EndRefillNextTurn is not { Stage: EndRefillNextTurnStage.MovementChildren }) return false;

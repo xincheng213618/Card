@@ -64,6 +64,7 @@ public sealed partial class GameEngine
         return awaiting ? f.PendingMovementContinuation is { BeforeCount: 0, CoverageResultBind: null } pending && pending.SubjectSeat == f.OwnerSeat :
             f.PendingMovementContinuation is null;
     }
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.BeforeSelectionState, 350)]
     private void AssertPublicPilePreparation(ProgramSkillFrame f)
     {
         if (f.PublicPilePreparation is not null && !ValidPublicPilePreparation(f))

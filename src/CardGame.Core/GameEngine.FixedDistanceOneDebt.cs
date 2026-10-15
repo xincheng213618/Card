@@ -86,6 +86,7 @@ public sealed partial class GameEngine
         boundary.ItemIndex >= 0 && boundary.ItemIndex < boundary.Items.Count && boundary.Items[boundary.ItemIndex].Candidate is { } c &&
         MountObserverCandidateMatches(f, c) && MatchesFixedDistanceDebt(c, context, true);
     private bool HasIssuedFixedDistanceDebtCandidate(ProgramTriggerCandidate c, ProgramSkillWindowContext context) => MatchesFixedDistanceDebt(c, context, false);
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 690)]
     private bool CanContinueIssuedFixedDistanceEnding(ProgramSkillFrame f) => MatchesFixedDistanceDebt(f);
     private void ConsumeFixedDistanceDebtAtBegin(ProgramTriggerCandidate c, ProgramSkillWindowContext context)
     {
@@ -185,6 +186,7 @@ public sealed partial class GameEngine
             _cardMovements.Count(m => m.Sequence > r.SequenceBefore && m.Sequence <= r.SequenceAfter && m.CardId == r.CardId && m.From == from &&
                 (m.To == CardLocation.DiscardPile || m.To == CardLocation.OutsideGame && GetAttackCard(m.CardId).IsGeneralWeapon) && m.Reason.Value == FixedDistanceDebtReason) == 1;
     }
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.BeforeSelectionState, 390)]
     private void AssertFixedDistanceDebtPayment(ProgramSkillFrame f)
     { if (f.FixedDistanceDebtPayment is not null && !ValidFixedDistanceDebtPayment(f)) throw new InvalidOperationException("An issued distance debt lost its exact source, item or paid interval."); }
     private bool IsFixedDistanceDebtMovement(ProgramSkillFrame f, SkillProgramEffect? e, ProgramMovementContinuation pending) =>

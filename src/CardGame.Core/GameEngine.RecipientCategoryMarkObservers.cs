@@ -170,6 +170,7 @@ public sealed partial class GameEngine
         return expected.Count > 0 && p.ValidCardIds.SequenceEqual(expected.SelectMany(c => c.Cards).Distinct()) && p.ValidTargetSeats.SequenceEqual(expected.SelectMany(c => c.Targets).Distinct()) &&
             p.Choices.Count == expected.Count && p.Choices.Zip(expected).All(pair => SameNameHandChoicesEqual(pair.First, pair.Second));
     }
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.BeforeSelectionState, 100)]
     private void AssertRecipientCategoryMark(ProgramSkillFrame f)
     {
         if (f.RecipientCategoryMark is null)

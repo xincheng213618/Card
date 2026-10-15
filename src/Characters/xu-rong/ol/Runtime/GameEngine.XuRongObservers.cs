@@ -56,8 +56,11 @@ public sealed partial class GameEngine
   var reason=r.Stage=="claim-native"?XuRongClaimReason:XuRongTakeReason;
   return r.PaidCardIds.Distinct().Count()==r.PaidCardIds.Count&&CompleteProgramEventHistory().OfType<XuRongCardsPaidEvent>().Count(e=>e.FrameId==f.Id&&e.Source==r.Source&&e.Kind==reason&&e.Before==r.MovementBefore&&e.After==r.MovementAfter&&e.CardIds.SequenceEqual(r.PaidCardIds))==1&&r.PaidCardIds.All(id=>_cardMovements.Count(m=>m.CardId==id&&m.Sequence>r.MovementBefore&&m.Sequence<=r.MovementAfter&&m.Reason.Value==reason&&m.To==CardLocation.Hand(f.OwnerSeat))==1);
  }
+ [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 230)]
  private void RequireIssuedXuRong(ProgramSkillFrame f)
  {if(f.XuRong is not null&&!ValidXuRong(f))throw new InvalidOperationException("Xu Rong lost its exact marked phase, frozen random payment or native dying causal invoice.");}
+ [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 190)]
+ [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 190)]
  private bool CanContinueIssuedXuRong(ProgramSkillFrame f)=>ValidXuRong(f);
  private bool IsXuRongMovement(ProgramSkillFrame f,SkillProgramEffect? e,ProgramMovementContinuation p)=>e is not null&&(e.Op is SkillProgramEffectOp.SettleXionghuoMarkedPlay or SkillProgramEffectOp.ReplenishShaJueAndClaimDyingCause)&&p.SubjectSeat==f.OwnerSeat&&p.BeforeCount==0&&p.CoverageResultBind is null&&(f.XuRong?.Stage is "take-native" or "claim-native")&&ValidXuRong(f);
  private bool XuRongFirstChild(ProgramSkillFrame root,ResolutionFrame child)
@@ -74,6 +77,7 @@ public sealed partial class GameEngine
  private bool HasXuRongDamageObserver(long id)=>XuRongObserverRoot()is {}r&&_resolutionStack.Any(f=>f.Id==id&&f is DamageTriggerWindowFrame)&&_resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
  private bool HasXuRongBeforeDamageObserver(long id)=>XuRongObserverRoot()is {}r&&_resolutionStack.Any(f=>f.Id==id&&f is BeforeDamageProgramWindowFrame)&&_resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
  private bool IsXuRongDying()=>ActiveDying is {}d&&XuRongObserverRoot()is {}r&&_resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
+ [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 260)]
  private bool TryAdvanceXuRongSubtree()=>_pendingDecision is null&&XuRongObserverRoot()is not null&&TryAdvanceObserverSubtree(advanceRecoveryReplacement:true);
  private bool AllowsXuRongNestedDamage(ProgramSkillFrame observer,int target,int amount,ProgramParticipantReference?source,DamageNature?nature,bool sourceLess)
  {

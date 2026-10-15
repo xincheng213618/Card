@@ -66,6 +66,7 @@ public sealed partial class GameEngine
             target == (effect.TargetReference is { } reference ? ResolveProgramParticipant(observer, reference) : ResolveProgramEffectTarget(observer, effect.Target));
     }
 
+    [ProgramRuntimeHook(ProgramRuntimePhase.BeforeResponseHealth, 120)]
     private bool TryAdvanceJoinedTrickDamageRewardSubtree()
     {
         if (_pendingDecision is not null || JoinedTrickDamageRewardObserverRoot() is null) return false;

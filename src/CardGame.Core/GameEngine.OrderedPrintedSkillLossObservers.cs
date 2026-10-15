@@ -169,12 +169,14 @@ public sealed partial class GameEngine
             target == (effect.TargetReference is { } reference ? ResolveProgramParticipant(observer, reference) : ResolveProgramEffectTarget(observer, effect.Target));
     }
 
+    [ProgramRuntimeHook(ProgramRuntimePhase.BeforeResponseHealth, 20)]
     private bool TryAdvanceOrderedPrintedSkillLossSubtree()
     {
         if (_pendingDecision is not null || OrderedPrintedSkillLossObserverRoot() is null) return false;
         return TryAdvanceObserverSubtree(advanceRecoveryReplacement: true);
     }
 
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.BeforeSelectionState, 60)]
     private void AssertOrderedPrintedSkillLoss(ProgramSkillFrame f)
     {
         if (f.OrderedPrintedSkillLoss is null) return;

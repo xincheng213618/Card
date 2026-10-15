@@ -205,6 +205,7 @@ public sealed partial class GameEngine
         var recovery=events.OfType<ZhaoXiangExchangeRecoveryIssuedEvent>().Where(e=>e.FrameId==f.Id).ToArray();
         return r.Stage=="replacement-children"?recovery.Length==0:recovery is[var request] && request.OwnerSeat==f.OwnerSeat && request.Requested==r.RecoveryRequested && r.RecoveryRequested is >=0 and <=1;
     }
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 410)]
     private void AssertZhaoXiang(ProgramSkillFrame f)
     {
         if(f.ZhaoXiang is null)return;if(!ValidZhaoXiang(f))throw new InvalidOperationException("Zhao Xiang lost its actual conversion payment, five sampled Shu templates or once-issued recovery.");

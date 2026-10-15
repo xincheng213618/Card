@@ -50,11 +50,14 @@ public sealed partial class GameEngine
   FinishXinPi(f);return true;
  }
  [ProgramContinuation(ProgramContinuationKind.Movement,25100)] private bool ReturnXinPiMovement(ProgramSkillFrame f)=>f.XinPi is not null&&ResumeXinPi(f.Id);
+ [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 330)]
+ [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 330)]
  private bool CanContinueXinPi(ProgramSkillFrame f)
  {
   if(f.XinPi is null)return f.InstructionIndex==0&&f.TriggerId is{}trigger&&f.WindowContext is{}w&&f.ActivationId==trigger&&f.SelectedCardIds.Count==0&&f.SelectedTargetSeats.Count==0&&HasIssuedYinjuCandidate(new(f.OwnerSeat,f.SkillId,trigger,f.SkillInstanceId,f.GameplayHash,GetProgramTrigger(f).Priority),w);AssertXinPiFrame(f);return true;
  }
  private bool IsXinPiMovement(ProgramSkillFrame f,SkillProgramEffect?e,ProgramMovementContinuation p)=>f.XinPi is{Stage:XinPiStage.ClaimChildren or XinPiStage.OwnerDrawChildren or XinPiStage.RecipientDrawChildren}r&&e is not null&&XinPiComposition.IsOp(e.Op)&&CanContinueXinPi(f)&&p.SubjectSeat==(r.Stage==XinPiStage.RecipientDrawChildren?r.TargetSeat:f.OwnerSeat)&&p.BeforeCount==0&&p.CoverageResultBind is null;
+ [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 370)]
  private void AssertXinPiFrame(ProgramSkillFrame f)
  {
   if(f.XinPi is not{}r)return;

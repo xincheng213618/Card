@@ -194,6 +194,7 @@ public sealed partial class GameEngine
         AssertGrantedEntityPhase(owner);
         return owner.Id;
     }
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.BeforeSelectionState, 10)]
     private void AssertGrantedEntityPhase(ProgramSkillFrame f)
     {
         if (f.IssuedEntityPhase is { } phase && (phase.Source != new CardConversionSource(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId) ||

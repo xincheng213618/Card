@@ -236,6 +236,8 @@ var tests = new (string Name, Action Body)[]
     ("Zhanyi benefits: physical converted zero Peach and cold children", ZhuLingBenefitChecks.PhysicalConvertedAndZeroPeachesFreezeRecoveryAcrossColdChildren),
     ("Triggered card conversion: real hand equipment materials and cold replay", TriggeredCardConversionChecks.BlackHandAndEquipmentUseRealMaterialsAndColdReplay),
     ("Triggered card conversion: first round opportunity decline and extra turn", TriggeredCardConversionChecks.RoundFirstOpportunityDoesNotMoveAfterDeclineOrExtraTurn),
+    ("program runtime hook registration preserves phase order and per-game isolation", ProgramRuntimeHookChecks.OrderedPhasesAndMatchIsolation),
+    ("program runtime hook registration rejects invalid metadata", ProgramRuntimeHookChecks.InvalidMetadataRejected),
     ("program continuation registration preserves ordered typed returns", ProgramContinuationChecks.OrderedRegistrationPreservesReturnBoundaries),
     ("native return protocol preserves ordered preparation and isolation", ProgramNativeReturnChecks.OrderedNativeBoundariesPreservePreparationAndIsolation),
     ("native return protocol rejects invalid metadata", ProgramNativeReturnChecks.InvalidNativeReturnMetadataFailsBeforeDispatch),

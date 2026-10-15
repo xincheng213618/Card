@@ -134,6 +134,7 @@ public sealed partial class GameEngine
                 new PrintedLordQualificationIssuedEvent(f.Id, r.BeneficiarySeat, r.Source, r.GameplayHash)) == 1);
     }
 
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.BeforeSelectionState, 590)]
     private void AssertRecipientConsequences(ProgramSkillFrame f)
     {
         if (f.BlackGiftContest is not null && !ValidBlackGiftContest(f) || f.PrintedLordBenefit is not null && !ValidPrintedLordBenefit(f) ||

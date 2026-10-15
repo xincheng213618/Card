@@ -155,6 +155,7 @@ public sealed partial class GameEngine
     }
     private void FinishOldHandDisposition(ProgramSkillFrame f)
     { ReplaceRuntimeTop(f = f with { OldHandDisposition = null, PendingMovementContinuation = null }); FinishProgramSkill(f,true); }
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.BeforeSelectionState, 520)]
     private void AssertOldHandDisposition(ProgramSkillFrame f)
     {
         if (f.OldHandDisposition is not { } r) return;

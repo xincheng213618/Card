@@ -90,6 +90,14 @@ public sealed partial class GameEngine
         return r.Stage is "view-children" or "distribute";
     }
     private void AssertSimaHui(ProgramSkillFrame f){if(f.SimaHui is not null && !ValidSimaHui(f))throw new InvalidOperationException("Sima Hui lost its exact native source, frozen cards or completed payment invoice.");}
+
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 220)]
+    private void AssertRegisteredSimaHui(ProgramSkillFrame frame)
+    {
+        if (frame.SimaHui is not null) AssertSimaHui(frame);
+    }
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 180)]
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 180)]
     private bool CanContinueSimaHui(ProgramSkillFrame f)=>f.SimaHui is{}r && ValidSimaHui(f) && (r.Stage=="yeyan-paid" || CompleteProgramEventHistory().OfType<SimaHuiSealMovedEvent>().Any(e=>e.FrameId==f.Id) || r.ChainOrigin is not null);
     private bool IsSimaHuiMovement(ProgramSkillFrame f,SkillProgramEffect?effect,ProgramMovementContinuation pending)=>f.SimaHui is{Stage:"seal-children" or "view-children" or "gift-children" or "return-children"} && effect is not null && IsSimaHuiOp(effect.Op) && pending.SubjectSeat==f.OwnerSeat && pending.CoverageResultBind is null && ValidSimaHui(f);
     [ProgramContinuation(ProgramContinuationKind.Movement,23500)]
@@ -136,6 +144,7 @@ public sealed partial class GameEngine
     private bool IsSimaHuiDying()=>ActiveDying is{}d && SimaHuiObserverRoot() is{}r && _resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
     private bool HasSimaHuiDamageObserver(long id)=>_resolutionStack.Any(f=>f.Id==id && f is DamageTriggerWindowFrame) && SimaHuiObserverRoot() is not null;
     private bool HasSimaHuiBeforeDamageObserver(long id)=>_resolutionStack.Any(f=>f.Id==id && f is BeforeDamageProgramWindowFrame) && SimaHuiObserverRoot() is not null;
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 250)]
     private bool TryAdvanceSimaHuiSubtree()=>_pendingDecision is null && SimaHuiObserverRoot() is not null && TryAdvanceObserverSubtree(true);
     private bool AllowsSimaHuiNestedDamage(ProgramSkillFrame f,int target,int amount,ProgramParticipantReference?source,DamageNature?nature,bool sourceLess)
     {

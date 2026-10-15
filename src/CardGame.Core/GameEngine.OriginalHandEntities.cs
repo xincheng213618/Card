@@ -276,6 +276,8 @@ public sealed partial class GameEngine
         effect?.Op == SkillProgramEffectOp.OfferOriginalHandLossBenefit && f.OriginalHandBenefit is { Stage: OriginalHandBenefitStage.DrawChildren } r &&
         f.PendingMovementContinuation == pending && pending.SubjectSeat == r.TargetSeat && pending.BeforeCount == 0 &&
         pending.CoverageResultBind is null && ValidOriginalHandBenefitReceipt(f);
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 590)]
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 610)]
     private bool CanContinueOriginalHandEntityProgram(ProgramSkillFrame f) =>
         f.OriginalHandBenefit is { DrawIssued: true } && ValidOriginalHandBenefitReceipt(f) ||
         f.OriginalHandInheritance is not null && ValidOriginalHandInheritanceReceipt(f) ||

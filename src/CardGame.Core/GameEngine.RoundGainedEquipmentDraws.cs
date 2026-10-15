@@ -93,6 +93,7 @@ public sealed partial class GameEngine
             (receipt.DrawActual != 0 || receipt.MovementSequenceBefore == receipt.MovementSequenceAfter);
     }
 
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.BeforeSelectionState, 220)]
     private void AssertRoundGainedEquipmentDraw(ProgramSkillFrame frame)
     {
         if (frame.RoundGainedEquipmentDrawReceipt is null && (frame.TriggerId is null ||

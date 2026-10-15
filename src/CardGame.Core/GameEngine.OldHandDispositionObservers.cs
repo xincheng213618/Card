@@ -27,5 +27,6 @@ public sealed partial class GameEngine
     private bool IsOldHandDispositionProgramDying()=>ActiveDying is { } dying && OldHandDispositionObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f=>f.Id==dying.FrameId)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
     private bool HasOldHandDispositionDamageObserver(long id)=>_resolutionStack.Any(f=>f.Id==id && f is DamageTriggerWindowFrame) && OldHandDispositionObserverRoot() is not null;
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 510)]
     private bool TryAdvanceOldHandDispositionSubtree()=>_pendingDecision is null && OldHandDispositionObserverRoot() is not null && TryAdvanceObserverSubtree(false);
 }

@@ -96,6 +96,7 @@ public sealed partial class GameEngine
         return e.Op == SkillProgramEffectOp.Damage && amount == e.Amount && source == e.ActorReference && nature == e.DamageNature &&
             target == (e.TargetReference is { } reference ? ResolveProgramParticipant(observer, reference) : ResolveProgramEffectTarget(observer, e.Target));
     }
+    [ProgramRuntimeHook(ProgramRuntimePhase.BeforeResponseHealth, 10)]
     private bool TryAdvanceRecipientCategoryMarkSubtree()
     {
         if (_pendingDecision is not null || RecipientCategoryMarkObserverRoot() is null) return false;

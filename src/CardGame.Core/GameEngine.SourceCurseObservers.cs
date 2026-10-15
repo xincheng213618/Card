@@ -70,6 +70,7 @@ public sealed partial class GameEngine
             CompleteProgramEventHistory().OfType<SourceCurseObtainedEvent>().Count(e =>
                 e.ProgramFrameId == f.Id && e.Deposit == curse && e.Before == r.Before && e.After == r.After) == 1;
     }
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.BeforeSelectionState, 360)]
     private void AssertSourceCurseReceipt(ProgramSkillFrame f)
     {
         if (f.SourceCurseReceipt is not null && !ValidSourceCurseReceipt(f))

@@ -46,6 +46,7 @@ public sealed partial class GameEngine
         return effect is { Op: SkillProgramEffectOp.Damage } && amount == effect.Amount && source == effect.ActorReference && nature == effect.DamageNature &&
             target == (effect.TargetReference is { } reference ? ResolveProgramParticipant(observer, reference) : ResolveProgramEffectTarget(observer, effect.Target));
     }
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 470)]
     private bool TryAdvanceRiceSubtree() => _pendingDecision is null && RiceObserverRoot() is not null && TryAdvanceObserverSubtree(true);
     private bool HasRiceDamageObserver(long id) => RiceObserverRoot() is { } root && _resolutionStack.Any(f => f.Id == id && f is DamageTriggerWindowFrame) &&
         _resolutionStack.FindIndex(f => f.Id == id) > _resolutionStack.FindIndex(f => f.Id == root.Id);

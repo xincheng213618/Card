@@ -63,6 +63,7 @@ public sealed partial class GameEngine
   return CompleteProgramEventHistory().OfType<SouyingNativeMutationEvent>().Count(e=>e.FrameId==r.ProgramFrameId&&e.NativeUseId==use.Id&&e.ActionId==q.ActionId&&e.Source==r.Source&&e.Cancelled==r.Cancelled&&e.PaymentBefore==r.PaymentBefore&&e.PaymentAfter==r.PaymentAfter&&e.ClaimBefore==r.ClaimBefore&&e.ClaimAfter==r.ClaimAfter&&e.ClaimedCount==r.ClaimedEntities.Count)==1;
  }
 
+ [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 380)]
  private void AssertHuaManFrame(ProgramSkillFrame f)
  {
   if(f.HuaMan is not{}r)return;
@@ -75,6 +76,8 @@ public sealed partial class GameEngine
    if(moves.Length!=r.ActualCount||moves.Select(m=>m.CardId).Distinct().Count()!=moves.Length||moves.Any(m=>r.Stage==HuaManStage.DiscardChildren?m.CardId!=r.DiscardedId||m.From.OwnerSeat!=f.OwnerSeat||m.From.Zone is not(CardZoneKind.Hand or CardZoneKind.Equipment or CardZoneKind.WoodenOxGrain)||m.To!=CardLocation.DiscardPile:r.Stage==HuaManStage.ClaimChildren?m.From!=CardLocation.Processing||m.To!=CardLocation.Hand(f.OwnerSeat):m.From!=CardLocation.DrawPile||m.To!=CardLocation.Hand(subject)))throw new InvalidOperationException("Hua Man's actual payment differs from its exact entity/zone invoice.");
   }
  }
+ [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 340)]
+ [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 340)]
  private bool CanContinueHuaMan(ProgramSkillFrame f){if(f.HuaMan is not{Paid:true})return false;AssertHuaManFrame(f);return true;}
  private bool IsHuaManMovement(ProgramSkillFrame f,SkillProgramEffect?effect,ProgramMovementContinuation pending)=>f.HuaMan is{Paid:true}&&effect is not null&&HuaManComposition.Own(effect.Op)&&pending.SubjectSeat==f.OwnerSeat&&pending.BeforeCount==0&&pending.CoverageResultBind is null&&CanContinueHuaMan(f);
  private bool HuaManFirstChild(ProgramSkillFrame root,ResolutionFrame child)
@@ -89,6 +92,7 @@ public sealed partial class GameEngine
  private bool HasHuaManDamageObserver(long id)=>HuaManObserverRoot()is{}r&&_resolutionStack.Any(f=>f.Id==id&&f is DamageTriggerWindowFrame)&&_resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
  private bool HasHuaManBeforeDamageObserver(long id)=>HuaManObserverRoot()is{}r&&_resolutionStack.Any(f=>f.Id==id&&f is BeforeDamageProgramWindowFrame)&&_resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
  private bool IsHuaManDying()=>ActiveDying is{}d&&HuaManObserverRoot()is{}r&&_resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
+ [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 410)]
  private bool TryAdvanceHuaManSubtree()=>_pendingDecision is null&&HuaManObserverRoot()is not null&&TryAdvanceObserverSubtree(advanceRecoveryReplacement:true);
  private bool AllowsHuaManNestedDamage(ProgramSkillFrame observer,int target,int amount,ProgramParticipantReference?source,DamageNature?nature,bool sourceLess)
  {

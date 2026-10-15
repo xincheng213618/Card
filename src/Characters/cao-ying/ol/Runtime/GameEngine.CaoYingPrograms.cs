@@ -89,6 +89,8 @@ public sealed partial class GameEngine
     private bool ReturnCaoYingMovement(ProgramSkillFrame f)
     { if (f.CaoYing?.Stage != CaoYingStage.DrawChildren) return false; RequireCaoYing(f); if (!DrainCaoYingChildren(f)) FinishCaoYing(f); return true; }
     private bool IsCaoYingMovement(ProgramSkillFrame f, SkillProgramEffect? e, ProgramMovementContinuation p) => CanContinueCaoYing(f) && e?.Op == SkillProgramEffectOp.GuessTargetCategoriesAndArmTurnDamage && p.SubjectSeat == f.OwnerSeat && p.CoverageResultBind is null;
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 50)]
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 50)]
     private bool CanContinueCaoYing(ProgramSkillFrame f) => f.CaoYing is { Stage: CaoYingStage.DrawChildren, Correct: >= 0 } && ValidCaoYing(f);
     private bool ValidCaoYing(ProgramSkillFrame f)
     {
@@ -109,6 +111,12 @@ public sealed partial class GameEngine
             (r.Stage == CaoYingStage.DrawChildren ? r.Guess is < 0 or > 7 || r.Correct != 3 - System.Numerics.BitOperations.PopCount((uint)(r.Guess ^ r.FrozenCategories)) : r.Guess != -1 || r.Correct != -1) ||
             (r.Stage == CaoYingStage.Inspection ? r.Target is null || r.Target == f.OwnerSeat || r.UseId is not null : r.UseId != f.WindowContext?.CardUse?.ParentCardUseFrameId || r.ActionId != f.WindowContext?.CardUse?.CardActionId))
             throw new InvalidOperationException("Cao Ying receipt lost its frozen instruction, action or private category decision.");
+    }
+
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 110)]
+    private void AssertRegisteredCaoYing(ProgramSkillFrame frame)
+    {
+        if (frame.CaoYing is not null) RequireCaoYing(frame);
     }
     private bool CaoYingFirstChild(ProgramSkillFrame root, ResolutionFrame child)
     {
@@ -131,6 +139,7 @@ public sealed partial class GameEngine
             CaoYingObserverRoot() is not { } root || root.Id == observer.Id) return false;
         var e = GetPausedPrivateOfferEffect(observer); return e is { Op: SkillProgramEffectOp.Damage } && amount == e.Amount && source == e.ActorReference && nature == e.DamageNature && target == (e.TargetReference is { } reference ? ResolveProgramParticipant(observer, reference) : ResolveProgramEffectTarget(observer, e.Target));
     }
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 110)]
     private bool TryAdvanceCaoYingSubtree() => _pendingDecision is null && CaoYingObserverRoot() is not null && TryAdvanceObserverSubtree(advanceRecoveryReplacement: true);
     private IEnumerable<CardSnapshot> GetCaoYingPrivateCards(int viewer) => _resolutionStack.OfType<ProgramSkillFrame>().Where(f => f.OwnerSeat == viewer && f.CaoYing?.Stage == CaoYingStage.Inspection).SelectMany(f => f.CaoYing!.Cards);
     private CaoYingGuessResolvedEvent[] ArmedCaoYingDamage(int source, int target) => CompleteProgramEventHistory().OfType<CaoYingGuessResolvedEvent>().Where(e => e.TurnNumber == _turnNumber && e.TurnOwner == _currentSeat && e.Source.OwnerSeat == source && e.TargetSeat == target && e.CorrectCount >= 1 && !CompleteProgramEventHistory().OfType<CaoYingDamageConsumedEvent>().Any(c => c.ProgramFrameId == e.ProgramFrameId)).ToArray();

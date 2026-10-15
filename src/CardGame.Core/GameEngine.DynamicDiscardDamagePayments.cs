@@ -195,6 +195,7 @@ public sealed partial class GameEngine
             m.Sequence<=r.PaymentSequenceAfter && m.From==r.OriginalLocations[x.i] && m.Reason.Value==DynamicDiscardDamageReason &&
             m.To==CardLocation.DiscardPile)==1);
     }
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 550)]
     private void AssertDynamicDiscardDamage(ProgramSkillFrame f)
     {
         if(f.DynamicDiscardDamage is not { } r)return;

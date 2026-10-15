@@ -20,6 +20,7 @@ public sealed partial class GameEngine
         };
     }
 
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 500)]
     private bool CanContinueHpConditionalProgram(ProgramSkillFrame frame) =>
         frame.HpConditionalSourceReceipt is { } receipt && receipt.FrameId == frame.Id &&
         receipt.OwnerSeat == frame.OwnerSeat && receipt.SkillId == frame.SkillId &&

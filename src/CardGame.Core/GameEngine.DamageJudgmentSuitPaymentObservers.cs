@@ -170,6 +170,7 @@ public sealed partial class GameEngine
             { Window: SkillProgramTriggerWindow.JudgmentFinalized } context && context.ParentFrameId == window.Id && context.Judgment == window.Judgment &&
         HasDamageJudgmentSuitPaymentRide(judgment.Id);
 
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 590)]
     private void AssertDamageJudgmentSuitPayment(ProgramSkillFrame frame)
     {
         if (frame.DamageJudgmentSuitPayment is not { } draft) return;

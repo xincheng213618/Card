@@ -77,6 +77,7 @@ public sealed partial class GameEngine
                 throw new InvalidOperationException("A paid HP loss modifier lost its frozen real producer and turn.");
         }
     }
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 770)]
     private bool CanContinueIssuedHpLoss(ProgramSkillFrame f)
     {
         if(!_players[f.OwnerSeat].IsAlive || f.PaidHpLossReceipt is null)return false;
@@ -105,6 +106,7 @@ public sealed partial class GameEngine
         ReplaceRuntimeTop(a with {PaidHpLossReceipt=distance?p with {DistanceGrantSequence=grant.GrantSequence}:p with {SlashGrantSequence=grant.GrantSequence}});
         AdvanceEventRulesAndQueueFact(new TurnRuleModifierGrantedEvent(grant));
     }
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 40)]
     private void AssertPaidHpLossState(ProgramSkillFrame f,ProgramExecutionPlan plan)
     {
         if(f.PaidHpLossReceipt is not null && !HasValidPaidHpLossReceipt(f,plan))throw new InvalidOperationException("Actual HP loss receipt lost its exact owner, source, turn or stage.");

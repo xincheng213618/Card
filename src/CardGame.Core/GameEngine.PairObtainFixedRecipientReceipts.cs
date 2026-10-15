@@ -61,6 +61,7 @@ public sealed partial class GameEngine
             _cardMovements.Count(m => m.Sequence > r.DrawSequenceBefore && m.Sequence <= r.DrawSequenceAfter && m.From == CardLocation.DrawPile &&
                 m.To == CardLocation.Hand(f.OwnerSeat) && m.Reason.Value == $"{PairBenefitMoveReason(f, true)}.reward") == r.ActualDrawCount;
     }
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.BeforeSelectionState, 570)]
     private void AssertPairBenefitState(ProgramSkillFrame f)
     {
         if (f.PairObtain is not null && !ValidPairObtain(f) || f.ShownPairGift is not null && !ValidShownPairGift(f) ||

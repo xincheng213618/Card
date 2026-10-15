@@ -256,6 +256,7 @@ public sealed partial class GameEngine
         return true;
     }
 
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.BeforeSelectionState, 170)]
     private void AssertDrawAdviceReceipt(ProgramSkillFrame frame)
     {
         if (frame.DrawAdviceReceipt is null)
@@ -280,6 +281,7 @@ public sealed partial class GameEngine
     private bool IsDrawAdviceAwaitedMovement(ProgramSkillFrame frame, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
         effect?.Op == SkillProgramEffectOp.DrawTwoThenDiscardTwoIfOverMaxHp &&
         frame.PendingMovementContinuation == pending && frame.DrawAdviceReceipt is not null && ValidDrawAdviceReceipt(frame);
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 760)]
     private bool CanContinueIssuedDrawAdvice(ProgramSkillFrame frame) =>
         frame.DrawAdviceReceipt is not null && ValidDrawAdviceReceipt(frame);
 

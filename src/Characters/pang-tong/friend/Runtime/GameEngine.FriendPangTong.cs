@@ -276,6 +276,7 @@ public sealed partial class GameEngine
     private bool IsFriendPangTongMovement(ProgramSkillFrame frame, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
         frame.FriendPangTong is { Stage: FriendPangTongStage.Movement } receipt && effect?.Op == receipt.Operation &&
         frame.PendingMovementContinuation == pending && pending.SubjectSeat == frame.OwnerSeat && pending.BeforeCount == 0 && pending.CoverageResultBind is null;
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.BeforeSelectionState, 470)]
     private void AssertFriendPangTong(ProgramSkillFrame frame)
     {
         if (frame.FriendPangTong is not { } receipt) return;

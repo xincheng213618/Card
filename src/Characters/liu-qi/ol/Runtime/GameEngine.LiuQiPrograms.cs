@@ -56,6 +56,8 @@ public sealed partial class GameEngine
   if(TryBeginQueuedRecoveryReplacement(f.Id,PostEventContinuation.AwaitedProgramMovement)||TryBeginCharacterStateProgramWindow(f.Id,CharacterStateContinuation.Program)||TryBeginHpChangedProgramWindow(f.Id,PostEventContinuation.AwaitedProgramMovement)||TryBeginCardsMovedProgramWindow(f.Id)||TryBeginAdvancedSkillsChanged(f.Id))return true;FinishLiuQi(f);return true;
  }
  [ProgramContinuation(ProgramContinuationKind.Movement,23300)] private bool ReturnLiuQiMovement(ProgramSkillFrame f)=>f.LiuQi is not null&&ResumeLiuQi(f.Id);
+ [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 160)]
+ [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 160)]
  private bool CanContinueLiuQi(ProgramSkillFrame f){if(f.LiuQi is not{Stage:LiuQiStage.GiftChildren or LiuQiStage.DrawChildren})return false;RequireLiuQi(f);return true;}
  private bool IsLiuQiMovement(ProgramSkillFrame f,SkillProgramEffect?effect,ProgramMovementContinuation p)=>f.LiuQi is{Stage:LiuQiStage.GiftChildren or LiuQiStage.DrawChildren}&&effect is not null&&LiuQiComposition.IsOp(effect.Op)&&CanContinueLiuQi(f)&&p.SubjectSeat==f.OwnerSeat&&p.BeforeCount==0&&p.CoverageResultBind is null;
  private void RequireLiuQi(ProgramSkillFrame f)
@@ -68,6 +70,12 @@ public sealed partial class GameEngine
    if(r.CardId is not{}id||r.Name is not{}name||r.From is not{}from||r.RecipientSeat is not{}recipient||from.OwnerSeat!=recipient||from.Zone is not(CardZoneKind.Hand or CardZoneKind.Equipment)||r.After<=r.Before||CompleteProgramEventHistory().OfType<WenjiGiftPaidEvent>().Count(e=>e==new WenjiGiftPaidEvent(f.Id,r.Source,r.GameplayHash,r.ActualTurn,recipient,id,from,name,r.Before,r.After))!=1||_cardMovements.Count(m=>m.Sequence>r.Before&&m.Sequence<=r.After&&m.CardId==id&&m.From==from&&m.To==CardLocation.Hand(f.OwnerSeat)&&m.Reason.Value==WenjiGiftReason)!=1)throw new InvalidOperationException("Wenji lacks its exact once-paid recipient entity invoice.");
   }
   else if(r.Stage==LiuQiStage.DrawChildren&&(r.RequestedDraw<1||r.ActualDraw<0||r.ActualDraw>r.RequestedDraw||CompleteProgramEventHistory().OfType<TunjiangDrawPaidEvent>().Count(e=>e==new TunjiangDrawPaidEvent(f.Id,r.Source,r.GameplayHash,r.ActualTurn,r.WindowId,r.RequestedDraw,r.ActualDraw,r.Before,r.After))!=1||_cardMovements.Count(m=>m.Sequence>r.Before&&m.Sequence<=r.After&&m.From==CardLocation.DrawPile&&m.To==CardLocation.Hand(f.OwnerSeat)&&m.Reason.Value==TunjiangDrawReason)!=r.ActualDraw))throw new InvalidOperationException("Tunjiang draw lacks its exact native payment interval.");
+ }
+
+ [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 200)]
+ private void AssertRegisteredLiuQi(ProgramSkillFrame frame)
+ {
+     if (frame.LiuQi is not null) RequireLiuQi(frame);
  }
  [ProgramCapability]
  private sealed class LiuQiProgramCapability(GameEngine engine) : ILiuQiProgramHost

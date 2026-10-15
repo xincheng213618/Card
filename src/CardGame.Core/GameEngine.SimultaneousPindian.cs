@@ -228,6 +228,7 @@ public sealed partial class GameEngine
     }
     [ProgramContinuation(ProgramContinuationKind.Movement,21500)]
     private bool ReturnSimultaneousMovement(ProgramSkillFrame f) => f.SimultaneousPindian is not null && ResumeSimultaneousPindian(f.Id);
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.BeforeSelectionState, 190)]
     private void AssertSimultaneousPindian(ProgramSkillFrame f)
     {
         if (f.SimultaneousPindian is not { } r) return;
@@ -259,6 +260,8 @@ public sealed partial class GameEngine
         AssertSimultaneousClaims(f);
         AssertSimultaneousSelectionPolicies(f);
     }
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 20)]
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 20)]
     private bool CanContinueSimultaneousPindian(ProgramSkillFrame f) => f.SimultaneousPindian is { Revealed: true } && IsSimultaneousReceiptSource(f);
     private bool IsSimultaneousReceiptSource(ProgramSkillFrame f) => f.SimultaneousPindian is { } r && r.ProgramFrameId == f.Id && r.Source == SimultaneousSource(f) && r.GameplayHash == f.GameplayHash;
     [ProgramAiChoice(SkillProgramEffectOp.StartSimultaneousPindian)]

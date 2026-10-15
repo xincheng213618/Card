@@ -197,6 +197,7 @@ public sealed partial class GameEngine
         ClearPendingDecision(); ReplaceRuntimeTop(frame with { UniqueLeaderTrickTargetDraft = null }); AdvanceRuntimeProgram(frame.Id);
     }
 
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.BeforeSelectionState, 200)]
     private void AssertUniqueLeaderTrickTargetDraft(ProgramSkillFrame frame)
     {
         if (frame.UniqueLeaderTrickTargetDraft is null && (frame.TriggerId is null ||

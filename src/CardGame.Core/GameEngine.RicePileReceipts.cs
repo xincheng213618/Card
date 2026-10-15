@@ -91,6 +91,12 @@ public sealed partial class GameEngine
                 _cardMovements.Count(m => m.Sequence > r.Before && m.Sequence <= r.After && m.CardId == item.id && m.From == item.from && m.To == to && m.Reason.Value == reason) != 1)
                 throw new InvalidOperationException("Rice transfer must match each actual paid physical entity and its precise source pile.");
     }
+
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 450)]
+    private void AssertRegisteredRiceReceipt(ProgramSkillFrame frame)
+    {
+        if (frame.RicePile is not null) RequireRiceReceipt(frame);
+    }
     private bool IsRiceMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation p)
     {
         if (f.RicePile is not { Stage: RicePileStage.DrawChildren or RicePileStage.MovementChildren } r || effect?.Op != r.Operation ||

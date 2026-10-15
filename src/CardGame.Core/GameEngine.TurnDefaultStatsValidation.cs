@@ -82,6 +82,7 @@ public sealed partial class GameEngine
             range.UsedSlotMask == (r.Origin.UsedSlotMask | (1 << range.SlotIndex)) && r.UsedSlotMask == range.UsedSlotMask &&
             range.ActualTurnNumber == _turnNumber && range.ActualTurnOwnerSeat == _currentSeat;
     }
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.BeforeSelectionState, 40)]
     private void AssertTurnDefaultStatAllocation(ProgramSkillFrame f, ProgramExecutionPlan plan)
     {
         if (f.TurnDefaultStatAllocation is null)

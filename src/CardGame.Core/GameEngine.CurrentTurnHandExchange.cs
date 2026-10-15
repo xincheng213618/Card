@@ -335,6 +335,7 @@ public sealed partial class GameEngine
                 movement.Sequence <= receipt.ReturnAfter && movement.CardId == id && movement.Reason.Value == CurrentTurnHandExchangeReason(frame, "return")) == 1);
     }
 
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.BeforeSelectionState, 140)]
     private void AssertCurrentTurnHandExchange(ProgramSkillFrame frame)
     {
         if (frame.CurrentTurnHandExchange is not null && !ValidCurrentTurnHandExchangeReceipt(frame))

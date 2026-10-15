@@ -51,6 +51,7 @@ public sealed partial class GameEngine
     private bool HasPhaseStartCardControlDamageObserver(long id) => PhaseStartCardControlObserverRoot() is { } root &&
         _resolutionStack.Any(f => f.Id == id && f is DamageTriggerWindowFrame) &&
         _resolutionStack.FindIndex(f => f.Id == id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 50)]
     private bool TryAdvancePhaseStartCardControlSubtree() => _pendingDecision is null && PhaseStartCardControlObserverRoot() is not null &&
         TryAdvanceObserverSubtree(advanceRecoveryReplacement: true);
     private bool IsPhaseStartCardControlMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
@@ -58,6 +59,7 @@ public sealed partial class GameEngine
         effect?.Op == (r.Kind == PhaseStartCardControlKind.OtherPlayRestriction ? SkillProgramEffectOp.GrantOtherPlayUseRestriction : SkillProgramEffectOp.ChooseStartingEquipmentControl) &&
         pending == f.PendingMovementContinuation && pending.SubjectSeat == payment.From.OwnerSeat && pending.CoverageResultBind is null &&
         HasExactPhaseStartCardControl(f);
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.BeforeSelectionState, 80)]
     private void AssertPhaseStartCardControl(ProgramSkillFrame f)
     {
         if (f.PhaseStartCardControl is not { } r) return;

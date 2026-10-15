@@ -44,6 +44,7 @@ public sealed partial class GameEngine
     private bool IsFixedDistanceDebtProgramDying() => ActiveDying is { } dying && FixedDistanceDebtObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
     private bool HasFixedDistanceDebtDamageObserver(long window) => _resolutionStack.Any(f => f.Id == window && f is DamageTriggerWindowFrame) && FixedDistanceDebtObserverRoot() is not null;
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 30)]
     private bool TryAdvanceFixedDistanceDebtSubtree()
     {
         if (_pendingDecision is not null || FixedDistanceDebtObserverRoot() is null) return false;

@@ -2,6 +2,7 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.BeforeSelectionState, 130)]
     private static void AssertFrozenSelectedCardSuits(ProgramSkillFrame frame, ProgramExecutionPlan plan)
     {
         foreach (var binding in frame.CardSetBindings.Where(item => item.FrozenSelectedSuits is not null))

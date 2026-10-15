@@ -175,6 +175,7 @@ public sealed partial class GameEngine
         var damage=events.OfType<BuZhiDamageIssuedEvent>().Where(e=>e.FrameId==f.Id).ToArray();
         return r.DamageIssued?damage is[var d] && d.SourceSeat==f.OwnerSeat && d.TargetSeat==r.Target && d.Amount==1:damage.Length==0;
     }
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 130)]
     private void AssertBuZhi(ProgramSkillFrame f)
     {
         if(f.BuZhi is null)return;if(!ValidBuZhi(f))throw new InvalidOperationException("Bu Zhi lost its exact native batch, source or once-paid movement/damage receipts.");

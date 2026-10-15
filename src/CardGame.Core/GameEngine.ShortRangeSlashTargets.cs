@@ -109,6 +109,7 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new ShortRangeSlashTargetResolvedEvent(use.Id, use.Action?.ActionId, source, receipt is not null, receipt));
         ClearPendingDecision(); ReplaceRuntimeTop(frame with { ShortRangeSlashTargetDraft = null }); AdvanceRuntimeProgram(frame.Id);
     }
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.BeforeSelectionState, 380)]
     private void AssertShortRangeSlashDraft(ProgramSkillFrame frame)
     {
         if (frame.ShortRangeSlashTargetDraft is not { } draft) return;

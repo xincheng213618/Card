@@ -49,6 +49,8 @@ public sealed partial class GameEngine
   ReplaceRuntimeTop(f=f with{SuFei=r with{Stage=SuFeiStage.ChoosingGift},PendingMovementContinuation=null});PublishSuFeiChoice(f);return true;
  }
  [ProgramContinuation(ProgramContinuationKind.Movement,23900)] private bool ReturnSuFeiMovement(ProgramSkillFrame f)=>f.SuFei is not null&&ResumeSuFei(f.Id);
+ [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 220)]
+ [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 220)]
  private bool CanContinueSuFei(ProgramSkillFrame f){if(f.SuFei is null)return false;RequireSuFei(f);return true;}
  private bool IsSuFeiMovement(ProgramSkillFrame f,SkillProgramEffect?e,ProgramMovementContinuation p)=>f.SuFei is{Stage:SuFeiStage.DrawChildren or SuFeiStage.GiftChildren}&&e?.Op==SkillProgramEffectOp.DrawThenOfferActualConsecutiveTargetGift&&CanContinueSuFei(f)&&p.SubjectSeat==f.OwnerSeat&&p.BeforeCount==0&&p.CoverageResultBind is null;
  private void RequireSuFei(ProgramSkillFrame f)
@@ -57,6 +59,12 @@ public sealed partial class GameEngine
   if(r.Stage==SuFeiStage.ChoosingGift){if(f.PendingMovementContinuation is not null||r.GiftTarget is not null)throw new InvalidOperationException("Lianpian choice cannot borrow a movement payment.");}
   else if(f.PendingMovementContinuation is not{SubjectSeat:var actor,BeforeCount:0,CoverageResultBind:null}||actor!=f.OwnerSeat)throw new InvalidOperationException("Lianpian paid child lost its owning movement return.");
   if(r.Stage==SuFeiStage.GiftChildren&&(r.GiftTarget is not{}target||!r.Qualification.CommonTargets.Contains(target)||r.DrawnId is not{}id||r.GiftAfter<=r.GiftBefore||CompleteProgramEventHistory().OfType<LianpianGiftPaidEvent>().Count(e=>e==new LianpianGiftPaidEvent(f.Id,r.Source,r.GameplayHash,r.Qualification.Current.NativeUseId,r.Qualification.Current.Action.ActionId,target,r.GiftBefore,r.GiftAfter))!=1||_cardMovements.Count(m=>m.Sequence>r.GiftBefore&&m.Sequence<=r.GiftAfter&&m.CardId==id&&m.From==CardLocation.Hand(f.OwnerSeat)&&m.To==CardLocation.Hand(target)&&m.Reason.Value==SuFeiGiftReason)!=1))throw new InvalidOperationException("Lianpian cannot repeat or substitute its actual paid gift.");
+ }
+
+ [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 260)]
+ private void AssertRegisteredSuFei(ProgramSkillFrame frame)
+ {
+     if (frame.SuFei is not null) RequireSuFei(frame);
  }
  [ProgramCapability]
  private sealed class SuFeiProgramCapability(GameEngine engine) : ISuFeiProgramHost

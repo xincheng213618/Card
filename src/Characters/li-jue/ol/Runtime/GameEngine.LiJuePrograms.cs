@@ -53,6 +53,8 @@ public sealed partial class GameEngine
   MoveProgramCardsFromMultipleSources(cards,CardLocation.Hand(f.OwnerSeat),new(YisuanGainReason),(_,moves)=>{var paid=r with{After=moves.Last().Sequence,ActualGain=moves.Count};ReplaceRuntimeTop(GetActiveProgramFrame(f.Id)with{LiJue=paid});AdvanceEventRulesAndQueueFact(new YisuanGainPaidEvent(f.Id,paid.Source,paid.GameplayHash,original.NativeUseId,original.Action.ActionId,paid.Before,paid.After,paid.ActualGain));});AdvanceRuntimeProgram(f.Id);return true;
  }
  [ProgramContinuation(ProgramContinuationKind.Movement,23700)] private bool ReturnLiJueMovement(ProgramSkillFrame f)=>f.LiJue is not null&&ResumeLiJue(f.Id);
+ [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 200)]
+ [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 200)]
  private bool CanContinueLiJue(ProgramSkillFrame f){if(f.LiJue is not{Stage:LiJueStage.DamageChildren or LiJueStage.MaximumHpChildren or LiJueStage.GainChildren})return false;RequireLiJue(f);return true;}
  private bool IsLiJueMovement(ProgramSkillFrame f,SkillProgramEffect?effect,ProgramMovementContinuation p)=>f.LiJue is{Stage:LiJueStage.GainChildren}&&effect?.Op==SkillProgramEffectOp.PayMaxHpAndObtainActualUsedTrick&&CanContinueLiJue(f)&&p.SubjectSeat==f.OwnerSeat&&p.BeforeCount==0&&p.CoverageResultBind is null;
  private void RequireLiJue(ProgramSkillFrame f)
@@ -62,6 +64,12 @@ public sealed partial class GameEngine
   if(r.Stage==LiJueStage.DamageChildren){if(r.Roll is not (>=0 and <=2)||r.TargetSeat is not{}target||CompleteProgramEventHistory().OfType<LangxiRandomResolvedEvent>().Count(e=>e==new LangxiRandomResolvedEvent(f.Id,r.Source,r.GameplayHash,r.ActualTurn,r.WindowId,target,r.Roll.Value))!=1)throw new InvalidOperationException("Langxi cannot resume an unissued or changed true random result.");return;}
   if(r.OriginalUse is not{}invoice||f.WindowContext?.MovementBatch is not{}batch||!ValidLiJueUseDiscard(invoice,batch,f.OwnerSeat,false)||r.MaxBefore<1||r.MaxAfter!=r.MaxBefore-1||r.HpAfter!=Math.Min(r.HpBefore,r.MaxAfter)||CompleteProgramEventHistory().OfType<YisuanMaximumHpPaidEvent>().Count(e=>e==new YisuanMaximumHpPaidEvent(f.Id,r.Source,r.GameplayHash,r.ActualTurn,r.WindowId,invoice.NativeUseId,invoice.Action.ActionId,r.MaxBefore,r.MaxAfter,r.HpBefore,r.HpAfter))!=1||!CompleteProgramEventHistory().OfType<MaximumHpChangedEvent>().Any(e=>e.PlayerSeat==f.OwnerSeat&&e.SkillId==f.SkillId&&e.Delta==-1&&e.MaximumHp==r.MaxAfter))throw new InvalidOperationException("Yisuan lost its exact used entity or actually paid maximum HP.");
   if(r.Stage==LiJueStage.GainChildren&&(r.Before>r.After||r.After>_movementSequence||r.ActualGain<0||r.ActualGain>invoice.FinishedMovements.Count||f.PendingMovementContinuation is not{SubjectSeat:var actor,BeforeCount:0,CoverageResultBind:null}||actor!=f.OwnerSeat||CompleteProgramEventHistory().OfType<YisuanGainPaidEvent>().Count(e=>e==new YisuanGainPaidEvent(f.Id,r.Source,r.GameplayHash,invoice.NativeUseId,invoice.Action.ActionId,r.Before,r.After,r.ActualGain))!=1||_cardMovements.Count(m=>m.Sequence>r.Before&&m.Sequence<=r.After&&m.From==CardLocation.DiscardPile&&m.To==CardLocation.Hand(f.OwnerSeat)&&m.Reason.Value==YisuanGainReason&&invoice.FinishedMovements.Any(c=>c.CardId==m.CardId))!=r.ActualGain))throw new InvalidOperationException("Yisuan cannot repeat a completed actual gain interval.");
+ }
+
+ [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 240)]
+ private void AssertRegisteredLiJue(ProgramSkillFrame frame)
+ {
+     if (frame.LiJue is not null) RequireLiJue(frame);
  }
  [ProgramCapability]
  private sealed class LiJueProgramCapability(GameEngine engine) : ILiJueProgramHost

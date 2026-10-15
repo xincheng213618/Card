@@ -130,6 +130,14 @@ public sealed partial class GameEngine
         return r.Stage is "cancel-paid" or "append-paid" && r.CardUseId is{}useId && LifecycleCardUse(useId) is{}paidUse && ValidBeiMiHuTargetMutation(paidUse);
     }
     private void AssertBeiMiHu(ProgramSkillFrame f){if(f.BeiMiHu is not null && !ValidBeiMiHu(f))throw new InvalidOperationException("Bei Mi Hu lost its actual lifecycle/damage invoice or exact paid target mutation.");}
+
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 210)]
+    private void AssertRegisteredBeiMiHu(ProgramSkillFrame frame)
+    {
+        if (frame.BeiMiHu is not null) AssertBeiMiHu(frame);
+    }
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 170)]
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 170)]
     private bool CanContinueBeiMiHu(ProgramSkillFrame f)=>f.BeiMiHu is{}r && r.Stage is not("round-choice" or "before-turn-choice" or "append-choice") && ValidBeiMiHu(f);
     private bool BeiMiHuFirstChild(ProgramSkillFrame f,ResolutionFrame child)
     {
@@ -147,6 +155,7 @@ public sealed partial class GameEngine
     private bool IsBeiMiHuDying()=>ActiveDying is{}d && BeiMiHuObserverRoot() is{}r && _resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
     private bool HasBeiMiHuDamageObserver(long id)=>_resolutionStack.Any(f=>f.Id==id && f is DamageTriggerWindowFrame) && BeiMiHuObserverRoot() is not null;
     private bool HasBeiMiHuBeforeDamageObserver(long id)=>_resolutionStack.Any(f=>f.Id==id && f is BeforeDamageProgramWindowFrame) && BeiMiHuObserverRoot() is not null;
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 230)]
     private bool TryAdvanceBeiMiHuSubtree()=>_pendingDecision is null && BeiMiHuObserverRoot() is not null && TryAdvanceObserverSubtree(true);
     private bool AllowsBeiMiHuNestedDamage(ProgramSkillFrame f,int target,int amount,ProgramParticipantReference?source,DamageNature?nature,bool sourceLess)
     {

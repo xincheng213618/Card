@@ -54,6 +54,7 @@ public sealed partial class GameEngine
     private bool IsPhaseNamePredictionDying() => ActiveDying is { } dying && PhaseNamePredictionObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
     private bool HasPhaseNamePredictionDamageObserver(long window) => _resolutionStack.Any(f => f.Id == window && f is DamageTriggerWindowFrame) && PhaseNamePredictionObserverRoot() is not null;
+    [ProgramRuntimeHook(ProgramRuntimePhase.BeforeResponseHealth, 70)]
     private bool TryAdvancePhaseNamePredictionSubtree()
     {
         if (_pendingDecision is not null || PhaseNamePredictionObserverRoot() is null) return false;

@@ -196,6 +196,8 @@ public sealed partial class GameEngine
             { Stage: MatchingRecastStage.OwnerCostChildren or MatchingRecastStage.OwnerDrawChildren or MatchingRecastStage.PeerCostChildren or MatchingRecastStage.PeerDrawChildren } r &&
         f.PendingMovementContinuation == pending && pending.SubjectSeat == CurrentMatchingRecast(r).Seat && pending.BeforeCount == 0 &&
         pending.CoverageResultBind is null && ValidMatchingRecastReceipt(f);
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 610)]
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 630)]
     private bool CanContinueMatchingRecast(ProgramSkillFrame f) => f.MatchingRecast is { Owner.CostIssued: true } && ValidMatchingRecastReceipt(f);
     [ProgramAiChoice(SkillProgramEffectOp.RecastMatchingCardsThenPeerChoice)]
     private PromptChoice SelectAiMatchingRecast(PendingDecision decision, ProgramSkillFrame f) => decision.Choices

@@ -49,6 +49,7 @@ public sealed partial class GameEngine
     private bool HasUnequalHandHpDamageObserver(long id) => UnequalHandHpObserverRoot() is { } root &&
         _resolutionStack.Any(f => f.Id == id && f is DamageTriggerWindowFrame) &&
         _resolutionStack.FindIndex(f => f.Id == id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 40)]
     private bool TryAdvanceUnequalHandHpSubtree() => _pendingDecision is null && UnequalHandHpObserverRoot() is not null &&
         TryAdvanceObserverSubtree(advanceRecoveryReplacement: true);
 }

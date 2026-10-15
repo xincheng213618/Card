@@ -162,6 +162,7 @@ public sealed partial class GameEngine
     private int IndependentMarkerCount(CharacterState target, PlayerMarkerKind marker, int source) =>
         target.OneUseDamageShields.Count(s => s.Marker == marker && s.OwnerSeat == source);
 
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 500)]
     private void AssertHpDamageShieldState(ProgramSkillFrame frame)
     {
         if (frame.HpDamageShieldDraft is null && frame.HpDamageShieldReceipt is null) return;
@@ -195,6 +196,8 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("HP-paid shield receipt lost its exact once-paid source or target quantity.");
     }
 
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 650)]
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 790)]
     private bool CanContinuePaidHpDamageShield(ProgramSkillFrame frame)
     {
         if (frame.HpDamageShieldReceipt is null) return false;

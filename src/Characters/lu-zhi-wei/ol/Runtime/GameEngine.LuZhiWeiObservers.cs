@@ -11,6 +11,8 @@ public sealed partial class GameEngine
             !HasIssuedQingzhongDebtCandidate(candidate, context));
     }
 
+ [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 350)]
+ [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 350)]
  private bool CanContinueIssuedLuZhiWei(ProgramSkillFrame f)
  {
   if(f.Qingzhong is null)
@@ -35,6 +37,7 @@ public sealed partial class GameEngine
   return p.Before>=0&&p.After>=p.Before&&p.After<=_movementSequence&&p.ActualCount>=0&&f.PendingMovementContinuation is {SubjectSeat:var seat,BeforeCount:0,CoverageResultBind:null}&&seat==f.OwnerSeat&&CompleteProgramEventHistory().OfType<QingzhongMovementIssuedEvent>().Count(e=>e.FrameId==f.Id&&e.Stage==p.Stage&&e.Before==p.Before&&e.After==p.After&&e.ActualCount==p.ActualCount&&e.TargetSeat==p.TargetSeat&&e.OwnerHandCount==p.OwnerHandCount&&e.TargetHandCount==p.TargetHandCount)==1&&_cardMovements.Count(m=>m.Sequence>p.Before&&m.Sequence<=p.After&&IsExactQingzhongMovement(f,p,m))==p.ActualCount;
  }
  private bool IsExactQingzhongMovement(ProgramSkillFrame f,QingzhongPending p,CardMovementRecord m)=>p.Stage==QingzhongStage.DrawChildren?m.Reason.Value==QingzhongDrawReason&&m.From==CardLocation.DrawPile&&m.To==CardLocation.Hand(f.OwnerSeat):p.Stage==QingzhongStage.SwapChildren&&p.TargetSeat is {} target&&m.Reason.Value==QingzhongSwapReason&&(m.From==CardLocation.Hand(f.OwnerSeat)&&m.To==CardLocation.Hand(target)||m.From==CardLocation.Hand(target)&&m.To==CardLocation.Hand(f.OwnerSeat));
+ [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 390)]
  private void RequireIssuedLuZhiWei(ProgramSkillFrame f)
  {if(f.Qingzhong is not null&&!CanContinueIssuedLuZhiWei(f))throw new InvalidOperationException("Qingzhong lost its exact original phase, owning candidate or paid native movement bounds.");}
  private bool IsLuZhiWeiMovement(ProgramSkillFrame f,SkillProgramEffect? e,ProgramMovementContinuation p)=>(e?.Op is SkillProgramEffectOp.DrawAndArmQingzhongActualPlayDebt or SkillProgramEffectOp.SettleQingzhongActualPlayDebt)&&p.SubjectSeat==f.OwnerSeat&&p.BeforeCount==0&&p.CoverageResultBind is null&&CanContinueIssuedLuZhiWei(f);
@@ -43,6 +46,7 @@ public sealed partial class GameEngine
  private bool HasLuZhiWeiDamageObserver(long id)=>LuZhiWeiObserverRoot()is {} root&&_resolutionStack.Any(f=>f.Id==id&&f is DamageTriggerWindowFrame)&&_resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
  private bool HasLuZhiWeiBeforeDamageObserver(long id)=>LuZhiWeiObserverRoot()is {} root&&_resolutionStack.Any(f=>f.Id==id&&f is BeforeDamageProgramWindowFrame)&&_resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
  private bool IsLuZhiWeiDying()=>ActiveDying is {} d&&LuZhiWeiObserverRoot()is {} root&&_resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==root.Id);
+ [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 240)]
  private bool TryAdvanceLuZhiWeiSubtree()=>_pendingDecision is null&&LuZhiWeiObserverRoot()is not null&&TryAdvanceObserverSubtree(advanceRecoveryReplacement:true);
  private bool AllowsLuZhiWeiNestedDamage(ProgramSkillFrame o,int target,int amount,ProgramParticipantReference? source,DamageNature? nature,bool sourceLess)
  {

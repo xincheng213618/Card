@@ -25,6 +25,9 @@ public sealed partial class GameEngine
     private bool IsFrozenHandRosterDying()=>ActiveDying is{}d && FrozenHandRosterObserverRoot() is{}r && _resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
     private bool HasFrozenHandRosterDamageObserver(long id)=>_resolutionStack.Any(f=>f.Id==id && f is DamageTriggerWindowFrame) && FrozenHandRosterObserverRoot() is not null;
     private bool HasFrozenHandRosterBeforeDamageObserver(long id)=>_resolutionStack.Any(f=>f.Id==id && f is BeforeDamageProgramWindowFrame) && FrozenHandRosterObserverRoot() is not null;
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 520)]
     private bool TryAdvanceFrozenHandRosterSubtree()=>_pendingDecision is null && FrozenHandRosterObserverRoot() is not null && TryAdvanceObserverSubtree(true);
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 530)]
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 550)]
     private bool CanContinueFrozenHandRoster(ProgramSkillFrame f)=>f.FrozenHandRoster is{Stage:"movement" or "damage-issued"} && ValidFrozenHandRoster(f);
 }

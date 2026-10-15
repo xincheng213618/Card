@@ -69,6 +69,14 @@ public sealed partial class GameEngine
     }
     private void RequireBao2025(ProgramSkillFrame f)
     { if (!ValidBao2025(f)) throw new InvalidOperationException("The native converted Slash, paid assault or Dying recipient lost its exact owner, candidate, once-paid invoice or typed return."); }
+
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 100)]
+    private void AssertRegisteredBao2025(ProgramSkillFrame frame)
+    {
+        if (frame.Bao2025 is not null) RequireBao2025(frame);
+    }
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 40)]
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 40)]
     private bool CanContinueBao2025(ProgramSkillFrame f) => f.Bao2025 is { } r && ValidBao2025(f) &&
         (r.GainedCardId is not null || r.Stage is ProgramBao2025Stage.AssaultCostChildren or ProgramBao2025Stage.AssaultUse or ProgramBao2025Stage.AssaultOutcomes or
             ProgramBao2025Stage.AssaultOutcomeChildren or ProgramBao2025Stage.DyingRecipientChoice or ProgramBao2025Stage.DyingSkillChildren or ProgramBao2025Stage.DyingRecoveryChildren);
@@ -145,6 +153,7 @@ public sealed partial class GameEngine
         return e is { Op: SkillProgramEffectOp.Damage } && e.Amount == amount && e.ActorReference == source && e.DamageNature == nature &&
             target == (e.TargetReference is { } reference ? ResolveProgramParticipant(observer, reference) : ResolveProgramEffectTarget(observer, e.Target));
     }
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 450)]
     private bool TryAdvanceBaoSubtree() => _pendingDecision is null && BaoObserverRoot() is not null && TryAdvanceObserverSubtree(true);
     [ProgramAiChoice(
         SkillProgramEffectOp.TakeConvertedSlashTargetAndResetLimitedSkill,

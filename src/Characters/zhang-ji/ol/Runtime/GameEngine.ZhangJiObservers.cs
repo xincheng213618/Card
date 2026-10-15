@@ -32,11 +32,14 @@ public sealed partial class GameEngine
    gains is[var gain] && gain==new ZhangJiCardGainedEvent(f.Id,target,f.OwnerSeat,r.Before,r.After) && _cardMovements.Count(m=>m.Sequence>r.Before && m.Sequence<=r.After && m.CardId==card && m.From==from && m.To==CardLocation.Hand(f.OwnerSeat) && m.Reason.Value==ZhangJiGainReason)==1;
   return gains.Length==0 && (r.Stage!="damage" || r.FinalRank==r.ChosenRank && events.OfType<ZhangJiDamageIssuedEvent>().Count(e=>e.FrameId==f.Id && e.Source==f.OwnerSeat && e.Target==target && e.Amount==2)==1);
  }
+ [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 250)]
  private void AssertZhangJi(ProgramSkillFrame f)
  {
   if(f.ZhangJi is null)return;if(!ValidZhangJi(f))throw new InvalidOperationException("Zhang Ji lost its original binding, rank, native judge result, movement or distinct equipment invoices.");
   if(ReferenceEquals(f,_resolutionStack.LastOrDefault()) && f.ZhangJi.Stage=="rank" && _pendingDecision is{}p && (p.PlayerSeat!=f.ZhangJi.Target || !p.IsPrivate || !AssistedChoicesEqual(p.Choices,ZhangJiChoices(f))))throw new InvalidOperationException("Lueming cannot expose the rank choice to a different actor.");
  }
+ [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 210)]
+ [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 210)]
  private bool CanContinueZhangJi(ProgramSkillFrame f)=>ValidZhangJi(f);
  private bool ZhangJiFirstChild(ProgramSkillFrame f,ResolutionFrame child)
  {
@@ -51,6 +54,7 @@ public sealed partial class GameEngine
  private bool IsZhangJiDying()=>ActiveDying is{}d && ZhangJiObserverRoot() is{}f && _resolutionStack.FindIndex(x=>x.Id==d.Id)>_resolutionStack.FindIndex(x=>x.Id==f.Id);
  private bool HasZhangJiDamageObserver(long id)=>_resolutionStack.Any(x=>x.Id==id && x is DamageTriggerWindowFrame) && ZhangJiObserverRoot() is not null;
  private bool HasZhangJiBeforeDamageObserver(long id)=>_resolutionStack.Any(x=>x.Id==id && x is BeforeDamageProgramWindowFrame) && ZhangJiObserverRoot() is not null;
+ [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 280)]
  private bool TryAdvanceZhangJiSubtree()=>_pendingDecision is null && ZhangJiObserverRoot() is not null && TryAdvanceObserverSubtree(true);
  private bool AllowsZhangJiNestedDamage(ProgramSkillFrame f,int target,int amount,ProgramParticipantReference?source,DamageNature?nature,bool sourceLess)
  {

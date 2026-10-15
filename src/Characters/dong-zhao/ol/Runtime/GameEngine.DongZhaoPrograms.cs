@@ -134,6 +134,8 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new ZaowangGrantedEvent(f.Id, f.OwnerSeat, seat, f.SkillId, f.SkillInstanceId, f.GameplayHash, target.Hp, target.MaxHp));
         return SkillProgramStepOutcome.Continue;
     }
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 10)]
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 10)]
     private bool CanContinueIssuedDongZhao(ProgramSkillFrame f) => ValidIssuedXianlue(f) || ValidIssuedZaowang(f);
     private bool ValidIssuedXianlue(ProgramSkillFrame f)
     {

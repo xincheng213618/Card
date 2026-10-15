@@ -147,5 +147,11 @@ public sealed partial class GameEngine
         CompleteProgramEventHistory().OfType<QimeiEqualityDrawIssuedEvent>().Count(e=>e.ProgramFrameId==f.Id && e.Receipt==r.Receipt && e.Before==r.Before && e.After==r.After && e.ActualCount==r.ActualCount)==1 &&
         _cardMovements.Count(m=>m.Sequence>r.Before && m.Sequence<=r.After && m.To==CardLocation.Hand(r.Receipt.BeneficiarySeat) && m.Reason.Value=="program.qimei.equal-draw")==r.ActualCount;
     private void RequireQimeiDraw(ProgramSkillFrame f){if(!ValidQimeiDraw(f))throw new InvalidOperationException("Qimei draw lost its exact mutation/source/once-consumed invoice.");}
+
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 420)]
+    private void AssertRegisteredQimeiDraw(ProgramSkillFrame frame)
+    {
+        if (frame.QimeiDraw is not null) RequireQimeiDraw(frame);
+    }
     private bool IsQimeiMovement(ProgramSkillFrame f,SkillProgramEffect? e,ProgramMovementContinuation p)=>e?.Op==SkillProgramEffectOp.SettleQimeiPairEquality && p.SubjectSeat==f.OwnerSeat && p.BeforeCount==0 && p.CoverageResultBind is null && ValidQimeiDraw(f);
 }

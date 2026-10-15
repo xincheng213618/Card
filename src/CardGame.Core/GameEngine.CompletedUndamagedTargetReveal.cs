@@ -322,6 +322,8 @@ public sealed partial class GameEngine
         if (f.PendingMovementContinuation is null) throw new InvalidOperationException("Completed-target reveal lost its native child return.");
         AdvanceRuntimeProgram(f.Id); return true;
     }
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 540)]
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 560)]
     private bool CanContinueCompletedUndamagedTargetReveal(ProgramSkillFrame f) =>
         f.CompletedUndamagedTargetReveal is { SelectionIssued: true } && ValidCompletedUndamagedTargetRevealReceipt(f);
     private bool IsCompletedUndamagedTargetRevealMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>

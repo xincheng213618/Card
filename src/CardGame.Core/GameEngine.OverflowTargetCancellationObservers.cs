@@ -98,6 +98,7 @@ public sealed partial class GameEngine
             r.ActionBeforeCancellation.PhysicalCards.Any(c => c.CardId == m.CardId && c.CardKind == m.CardKind));
     }
 
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.BeforeSelectionState, 90)]
     private void AssertOverflowTargetCancellation(ProgramSkillFrame frame)
     {
         if (frame.OverflowTargetCancellation is null)
@@ -200,6 +201,7 @@ public sealed partial class GameEngine
             target == (effect.TargetReference is { } reference ? ResolveProgramParticipant(observer, reference) : ResolveProgramEffectTarget(observer, effect.Target));
     }
 
+    [ProgramRuntimeHook(ProgramRuntimePhase.BeforeResponseHealth, 30)]
     private bool TryAdvanceOverflowTargetCancellationSubtree()
     {
         if (_pendingDecision is not null || OverflowTargetCancellationObserverRoot() is null) return false;

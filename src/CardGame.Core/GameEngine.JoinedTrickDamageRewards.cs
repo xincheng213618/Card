@@ -100,6 +100,8 @@ public sealed partial class GameEngine
         ExactIssuedJoinedTrickDamageRewardCandidate(candidate, context, false) is { } benefit &&
             !CompleteProgramEventHistory().OfType<JoinedTrickDamageRewardDrawIssuedEvent>().Any(e => e.Benefit == benefit);
 
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 500)]
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 740)]
     private bool CanContinueIssuedJoinedTrickDamageReward(ProgramSkillFrame frame) =>
         frame.JoinedTrickDamageRewardReceipt is not null && ValidJoinedTrickDamageReward(frame) ||
         frame.TriggerId is { } binding && frame.WindowContext is { } context &&
@@ -178,6 +180,7 @@ public sealed partial class GameEngine
             (receipt.DrawActual != 0 || receipt.MovementSequenceBefore == receipt.MovementSequenceAfter);
     }
 
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.BeforeSelectionState, 230)]
     private void AssertJoinedTrickDamageReward(ProgramSkillFrame frame)
     {
         if (frame.JoinedTrickDamageRewardReceipt is null && (frame.TriggerId is null ||

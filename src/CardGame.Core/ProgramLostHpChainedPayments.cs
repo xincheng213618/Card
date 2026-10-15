@@ -96,6 +96,7 @@ public sealed partial class GameEngine
         if (frame.LostHpChainedPayment is not null && !ValidLostHpChainedPayment(frame))
             throw new InvalidOperationException("A paid lost-HP chain activation lost its original material, source or actual ledger.");
     }
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 820)]
     private bool CanContinuePaidLostHpChain(ProgramSkillFrame frame) => _winner == Winner.None &&
         _players[frame.OwnerSeat].IsAlive && ValidLostHpChainedPayment(frame);
     [ProgramContinuation(ProgramContinuationKind.Movement, 340)]

@@ -35,6 +35,7 @@ public sealed partial class GameEngine
         return e is { Op: SkillProgramEffectOp.Damage } && amount == e.Amount && source == e.ActorReference && nature == e.DamageNature &&
             target == (e.TargetReference is { } reference ? ResolveProgramParticipant(observer, reference) : ResolveProgramEffectTarget(observer, e.Target));
     }
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 90)]
     private bool TryAdvanceExtraEffectsAndRankGuessSubtree() => _pendingDecision is null && ExtraEffectsAndRankGuessObserverRoot() is not null &&
         TryAdvanceObserverSubtree(advanceRecoveryReplacement: true);
 }

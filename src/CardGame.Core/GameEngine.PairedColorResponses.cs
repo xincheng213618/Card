@@ -218,6 +218,8 @@ public sealed partial class GameEngine
             { Stage: PairedColorDispositionStage.MovementChildren } r && f.PendingMovementContinuation == pending &&
         pending.SubjectSeat == r.CounterpartSeat && pending.BeforeCount == 0 && pending.CoverageResultBind is null &&
         ExactPairedColorDispositionParent(f, out _, out _, out var counterpart) && counterpart == r.CounterpartSeat;
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 510)]
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 530)]
     private bool CanContinuePairedColorDisposition(ProgramSkillFrame f) =>
         f.PairedColorDisposition is { Stage: PairedColorDispositionStage.MovementChildren } && ValidPairedColorDispositionReceipt(f);
 

@@ -59,6 +59,16 @@ src/Characters/wang-can/
 
 修改已有物理用牌动作的能力使用 `[ProgramCardAction]`，分别在程序动作生成之前和之后接入。它复用已有可信动作构建器参数，不把这些可变参数开放给只读选择模块；新增能力不再向通用动作方法追加人物函数调用。
 
+## 子结算推进与帧检查
+
+子结算推进和续接权限在所属机制的方法旁使用 `[ProgramRuntimeHook(phase, order)]` 注册。推进方法无参数并返回 `bool`，按阶段内的显式顺序运行，首个返回 `true` 的方法结束本轮分派。`BeforeDeclaration`、`BeforeResponseHealth`、`AfterResponseHealth` 保留原调度位置，不能跨过声明、响应体力子帧或其他原生结算分支移动。
+
+`AfterOwnerDeath` 和 `AfterSkillLoss` 分别判断所属帧能否继续，方法接收 `ProgramSkillFrame` 并返回 `bool`。两种权限独立注册；已支付代价、来源身份、原生完成凭据等原条件仍由所属机制核对，不能统一放行，也不能让恢复后的子帧重复支付。
+
+帧断言使用 `[ProgramFrameInvariant(phase, order)]`，接收原帧，必要时再接收本轮已经解析的 `ProgramExecutionPlan`。`BeforeSelectionState` 和 `AfterSelectionState` 分处通用选择状态检查两侧，保留通用游标、选择域和已支付状态检查的位置。机制原有条件放在自身包装方法中；无实例状态的断言可以保持静态。
+
+这些注册只保存不可变方法元数据，实际委托按对局绑定到引擎，禁止跨对局保存绑定实例。注册表校验阶段、顺序与签名，不新增可序列化状态或另一套 pending 对象。新增机制只在自身模块声明入口，无需向通用调度、死亡与失技权限、帧断言方法追加人物名称。
+
 ## 验证与兼容
 
 纯人物配置复用内容加载和注册验证；新增机制或缺陷修复增加实际行为检查。开发时使用 `tools/Test-Changed.ps1 -CoreFilter <名称>`，批次结束运行无过滤器的常规范围。完整验证仍需用户明确要求。

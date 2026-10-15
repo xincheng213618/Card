@@ -113,6 +113,8 @@ public sealed partial class GameEngine
     private bool ResumePrivateWhirl(long id) { if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame { PrivateWhirl: { } r } f || f.Id != id || r.Stage is PrivateWhirlStage.SelectDeposit or PrivateWhirlStage.SelectRemove) return false; RequirePrivateWhirl(f); ContinueWhirl(f); return true; }
     [ProgramContinuation(ProgramContinuationKind.Movement, 22100)]
     private bool ReturnPrivateWhirlMovement(ProgramSkillFrame f) => f.PrivateWhirl is not null && ResumePrivateWhirl(f.Id);
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 60)]
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 60)]
     private bool CanContinuePrivateWhirl(ProgramSkillFrame f) { if (f.PrivateWhirl is not { } r || r.Stage is PrivateWhirlStage.SelectDeposit or PrivateWhirlStage.SelectRemove) return false; RequirePrivateWhirl(f); return true; }
     private bool IsPrivateWhirlMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation pending) => CanContinuePrivateWhirl(f) && (effect?.Op is SkillProgramEffectOp.DepositPrivateWhirlUntilNextPlayEnding or SkillProgramEffectOp.ConsumePrivateWhirlForActualUse or SkillProgramEffectOp.ClearPrivateWhirlAtNextPlayEnding) && pending.SubjectSeat == f.OwnerSeat && pending.CoverageResultBind is null;
     private void RequirePrivateWhirl(ProgramSkillFrame f)
@@ -125,6 +127,12 @@ public sealed partial class GameEngine
         if (r.Stage is PrivateWhirlStage.FirstDrawChildren or PrivateWhirlStage.ExtraDrawChildren)
         { if (fact.Count != r.DrawCount || _cardMovements.Count(m => m.Sequence > r.Before && m.Sequence <= r.After && m.From == CardLocation.DrawPile && m.To == CardLocation.Hand(f.OwnerSeat) && m.Reason.Value == "skill-program.private-whirl.draw") != r.DrawCount) throw new InvalidOperationException("Whirl draw lost its once-paid native movement."); }
         else if (fact.Count != r.Deposits.Count || r.Deposits.Any(d => _cardMovements.Count(m => m.CardId == d.CardId && m.Sequence > r.Before && m.Sequence <= r.After && m.From == (r.Stage == PrivateWhirlStage.DepositChildren ? CardLocation.Hand(f.OwnerSeat) : d.Location) && m.To == (r.Stage == PrivateWhirlStage.DepositChildren ? d.Location : CardLocation.DiscardPile)) != 1)) throw new InvalidOperationException("Whirl deposit/removal lost its physical invoice.");
+    }
+
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 120)]
+    private void AssertRegisteredPrivateWhirl(ProgramSkillFrame frame)
+    {
+        if (frame.PrivateWhirl is not null) RequirePrivateWhirl(frame);
     }
     [ProgramRuleObserver(ProgramRulePhase.BeforeEvent, 80)]
     [ProgramRuleObserver(ProgramRulePhase.BeforeStatePublish, 90)]

@@ -261,11 +261,14 @@ public sealed partial class GameEngine
         { ClearPendingDecision(); ReplaceRuntimeTop(f with { PhaseNamePrediction = null }); AdvanceRuntimeProgram(id); return true; }
         if (_pendingDecision is null) PublishPredictionChoice(f); return true;
     }
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 630)]
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 650)]
     private bool CanContinuePhaseNamePrediction(ProgramSkillFrame f) => f.PhaseNamePrediction is not null ||
         f.WindowContext?.PhaseNamePrediction is { } p && _phaseNamePredictions.Contains(p);
     private bool IsPhaseNamePredictionMovement(ProgramSkillFrame f, SkillProgramEffect? e, ProgramMovementContinuation pending) =>
         e is not null && PhaseNamePredictionComposition.IsOperation(e.Op) && f.PendingMovementContinuation == pending &&
         f.PhaseNamePrediction is { Stage: PhaseNamePredictionStage.CostChildren or PhaseNamePredictionStage.ClaimChildren };
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.BeforeSelectionState, 420)]
     private void AssertPhaseNamePrediction(ProgramSkillFrame f)
     {
         if (f.PhaseNamePrediction is not { } r) return;

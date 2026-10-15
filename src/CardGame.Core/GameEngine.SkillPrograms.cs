@@ -947,63 +947,7 @@ public sealed partial class GameEngine
             {
                 throw new InvalidOperationException("An active skill program has an invalid cursor or selection.");
             }
-            AssertGrantedEntityPhase(frame);
-            AssertDrawDiscardCategoryReceipt(frame);
-            AssertGameActivationAwakeningReceipt(frame, plan);
-            AssertTurnDefaultStatAllocation(frame, plan);
-            AssertOffTurnUsedCardGift(frame);
-            AssertOrderedPrintedSkillLoss(frame);
-            AssertSoleTargetProtection(frame);
-            AssertPhaseStartCardControl(frame);
-            AssertOverflowTargetCancellation(frame);
-            AssertRecipientCategoryMark(frame);
-            AssertReplacedPaidHpContinuation(frame, plan);
-            AssertOwnedHandRankSumSelection(frame, plan);
-            AssertFrozenSelectedCardSuits(frame, plan);
-            AssertCurrentTurnHandExchange(frame);
-            AssertPublicPileCashOut(frame);
-            AssertGiftedSlashPrograms(frame);
-            AssertDrawAdviceReceipt(frame);
-            AssertDamageTargetBudgetReceipt(frame);
-            AssertSimultaneousPindian(frame);
-            AssertUniqueLeaderTrickTargetDraft(frame);
-            AssertRoundGainedTrickTargetDraft(frame);
-            AssertRoundGainedEquipmentDraw(frame);
-            AssertJoinedTrickDamageReward(frame);
-            if (frame.DesignatedExtraTargetDraft is not null ||
-                program.Triggers.Any(t => t.Effects.Any(e => e.Op == SkillProgramEffectOp.AddOneDistanceFreeCurrentUseTarget)))
-                AssertDesignatedExtraTargetDraft(frame, frame.InstructionIndex > 0
-                    ? plan.GetPausedInstruction(frame.InstructionIndex).Effect : plan.Instructions[0]);
-            AssertFrozenFactionRecovery(frame);
-            AssertNextActualUseProgramSelection(frame, plan);
-            AssertBoundDiscardSlashReceipt(frame);
-            AssertPaidColorDamageClaimFrame(frame);
-            AssertSharedSlashOffer(frame);
-            AssertShownGiftReceipt(frame, plan.Instructions);
-            AssertExactRepeatedJudgmentReceipt(frame, plan.Instructions);
-            AssertTurnDrawDebtReceipts(frame, plan.Instructions);
-            AssertSourceFactionPrevention(frame);
-            AssertEquipmentPairPayment(frame);
-            AssertPublicPilePreparation(frame);
-            AssertSourceCurseReceipt(frame);
-            AssertGainGiftReceipt(frame);
-            AssertShortRangeSlashDraft(frame); AssertFixedDistanceDebtPayment(frame);
-            AssertMatchingRecast(frame); AssertPairedHandRecast(frame); AssertPhaseNamePrediction(frame); AssertLastDamageSourceReciprocity(frame);
-            AssertOutsidePhaseDrawDiscard(frame);
-            AssertOriginalHandEntityProgram(frame);
-            AssertFriendTrio(frame); AssertFriendPangTong(frame);
-            AssertPairedColorDisposition(frame);
-            AssertSameNameHandDiscardOrDamage(frame);
-            AssertCompletedUndamagedTargetReveal(frame);
-            AssertActualHandGain(frame);
-            AssertOldHandDisposition(frame);
-            AssertFrozenHandRoster(frame);
-            AssertDyingSuits(frame); AssertEndingHistoricalUses(frame);
-            AssertDyingOwnedCardReceipt(frame);
-            AssertPairBenefitState(frame);
-            AssertRecipientContestPrograms(frame);
-            AssertRecipientConsequences(frame);
-            AssertEndingPairSlashState(frame);
+            RuntimeHooks.AssertFrame(ProgramFrameInvariantPhase.BeforeSelectionState, frame, plan);
             if (frame.InstructionIndex < 1 || frame.InstructionIndex > plan.Instructions.Count ||
                 frame.SelectedCardIds.Distinct().Count() != frame.SelectedCardIds.Count ||
                 frame.SelectedTargetSeats.Any(seat => !IsValidPlayerSeat(seat)) ||
@@ -1086,64 +1030,7 @@ public sealed partial class GameEngine
             }
             else if (frame.SelectedCardPaymentResult is not null)
                 throw new InvalidOperationException("A selected-card movement result has no paid instruction.");
-            AssertAlternativePhaseCost(frame);
-            AssertAwaitedBlindHandTake(frame);
-            AssertEquipmentPlacementAndHpPair(frame, plan);
-            AssertPaidHpLossState(frame, plan);
-            if (frame.UnequalHandHp is not null) RequireUnequalHandHpReceipt(frame);
-            if (frame.EndRefillNextTurn is not null) RequireEndRefillNextTurnReceipt(frame);
-            if (frame.ExtraEffectsAndRankGuess is not null) RequireExtraEffectsAndRankGuess(frame);
-            if (frame.FirstSlashDuelBenefit is not null) RequireFirstSlashDuelBenefit(frame);
-            if (frame.DeathGrowthSkill is not null) RequireDeathGrowthSkill(frame);
-            if (frame.Bao2025 is not null) RequireBao2025(frame);
-            if (frame.CaoYing is not null) RequireCaoYing(frame);
-            if (frame.PrivateWhirl is not null) RequirePrivateWhirl(frame);
-            AssertBuZhi(frame);
-            if (frame.LianZhu is not null) RequireLianZhu(frame);
-            RequireIssuedJiqiao(frame);
-            RequireIssuedKanZe(frame);
-            RequireIssuedXiZhiCai(frame);
-            AssertWangYun(frame);
-            if (frame.ZhugeGuo is not null) RequireZhugeGuo(frame);
-            if (frame.LiuQi is not null) RequireLiuQi(frame);
-            if (frame.BeiMiHu is not null) AssertBeiMiHu(frame);
-            if (frame.SimaHui is not null) AssertSimaHui(frame);
-            RequireIssuedXuRong(frame);
-            if (frame.LiJue is not null) RequireLiJue(frame);
-            AssertZhangJi(frame);
-            if (frame.SuFei is not null) RequireSuFei(frame);
-            RequireIssuedHuangQuan(frame);
-            if (frame.FanChou is not null) RequireFanChou(frame);
-            if (frame.GuoSi is not null) RequireIssuedGuoSi(frame);
-            if (frame.ZhangQiYing is not null) AssertZhangQiYing(frame);
-            if (frame.CaoChun is not null) RequireCaoChun(frame);
-            if (frame.WangCan is not null) RequireIssuedWangCan(frame);
-            AssertSpPangTong(frame);
-            AssertNeifaFrame(frame);
-            AssertLvQian(frame);
-            AssertLvKuangLvXiang(frame);
-            AssertXinPiFrame(frame);
-            AssertHuaManFrame(frame);
-            RequireIssuedLuZhiWei(frame);
-            if (frame.HeQi is not null) RequireHeQi(frame);
-            AssertZhaoXiang(frame);
-            if (frame.QimeiDraw is not null) RequireQimeiDraw(frame);
-            if (frame.ZhuijiInitialPaid is not null || frame.ZhuijiDebt is not null || frame.GaolingRecovery is not null) RequireIssuedXuanGongZhu(frame);
-            if (frame.XianluePending is not null || frame.ZaowangPaidTargetSeat is not null) RequireDongZhao(frame);
-            if (frame.RicePile is not null) RequireRiceReceipt(frame);
-            if (frame.DamageZoneAcquisition is not null) RequireDamageAcquisitionReceipt(frame);
-            AssertAdjacentRedTargetDraft(frame);
-            if (frame.IncomingDistanceCourtesy is not null) RequireIncomingDistanceCourtesyReceipt(frame);
-            AssertTargetedOrdinaryTrickReceipt(frame);
-            AssertHpDamageShieldState(frame);
-            AssertDamageTargetMountState(frame);
-            AssertDamageTargetObtainState(frame);
-            AssertCapturedEquipmentAndDraw(frame); AssertActualDiscardRecovery(frame);
-            AssertDynamicDiscardDamage(frame);
-        AssertSignedDamagePayment(frame);
-            AssertSuitPreventionBenefit(frame); AssertMatchedJudgmentPlacement(frame);
-            AssertDamageJudgmentSuitPayment(frame);
-            AssertDamageAppearanceReceipt(frame, plan);
+            RuntimeHooks.AssertFrame(ProgramFrameInvariantPhase.AfterSelectionState, frame, plan);
             if (frame.PendingMovementContinuation is { } pendingMovement)
             {
                 var paidEffect = frame.InstructionIndex > 0

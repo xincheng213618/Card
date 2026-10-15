@@ -156,6 +156,7 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new ProgramEquipmentPairExchangeStartedEvent(frame.Id, p.FirstSeat, p.SecondSeat, before));
         return frame;
     }
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.BeforeSelectionState, 340)]
     private void AssertEquipmentPairPayment(ProgramSkillFrame frame)
     {
         if (frame.EquipmentPairPayment is not { } paid) return;

@@ -63,6 +63,7 @@ public sealed partial class GameEngine
         }
         return false;
     }
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 20)]
     private void AssertAwaitedBlindHandTake(ProgramSkillFrame frame)
     {
         if (frame.BlindHandTake is not { } receipt) return;

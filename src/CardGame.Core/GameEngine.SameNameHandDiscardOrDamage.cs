@@ -161,6 +161,8 @@ public sealed partial class GameEngine
     private bool IsSameNameHandDiscardOrDamageMovement(ProgramSkillFrame f, SkillProgramEffect? e, ProgramMovementContinuation pending) =>
         e is { Op: SkillProgramEffectOp.OfferSameNameHandDiscardOrDamage } && f.SameNameHandDiscardOrDamage is { Stage: SameNameHandStage.DiscardChildren, TargetSeat: { } target } &&
         f.PendingMovementContinuation == pending && pending.SubjectSeat == target && ValidSameNameHandReceipt(f);
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 520)]
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 540)]
     private bool CanContinueSameNameHandDiscardOrDamage(ProgramSkillFrame f) =>
         f.SameNameHandDiscardOrDamage is { Stage: SameNameHandStage.DiscardChildren or SameNameHandStage.DamageIssued or SameNameHandStage.Complete } && ValidSameNameHandReceipt(f);
     [ProgramAiChoice(SkillProgramEffectOp.OfferSameNameHandDiscardOrDamage)]

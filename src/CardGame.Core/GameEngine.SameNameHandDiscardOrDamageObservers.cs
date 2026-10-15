@@ -94,6 +94,7 @@ public sealed partial class GameEngine
             decision.ValidTargetSeats.SequenceEqual(expected.SelectMany(c => c.Targets).Distinct()) &&
             decision.Choices.Count == expected.Count && decision.Choices.Zip(expected).All(p => SameNameHandChoicesEqual(p.First, p.Second));
     }
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.BeforeSelectionState, 490)]
     private void AssertSameNameHandDiscardOrDamage(ProgramSkillFrame f)
     {
         if (f.SameNameHandDiscardOrDamage is null)
@@ -169,6 +170,7 @@ public sealed partial class GameEngine
         return e.Op == SkillProgramEffectOp.Damage && amount == e.Amount && source == e.ActorReference && nature == e.DamageNature &&
             target == (e.TargetReference is { } reference ? ResolveProgramParticipant(observer, reference) : ResolveProgramEffectTarget(observer, e.Target));
     }
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 10)]
     private bool TryAdvanceSameNameHandSubtree()
     {
         if (_pendingDecision is not null || SameNameHandObserverRoot() is null && ResponseCompletionObserverRoot() is null && CardSupplyCompletionObserverRoot() is null) return false;

@@ -75,6 +75,7 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new ProgramDyingCardSelectionResolvedEvent(frame.Id, dying.Id, frame.OwnerSeat, dying.VictimSeat, nonBasic));
         AdvanceRuntimeProgram(frame.Id);
     }
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.BeforeSelectionState, 560)]
     private void AssertDyingOwnedCardReceipt(ProgramSkillFrame root)
     {
         if (root.DyingOwnedCard is not { } r) return;

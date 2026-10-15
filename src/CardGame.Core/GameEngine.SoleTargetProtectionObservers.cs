@@ -37,6 +37,7 @@ public sealed partial class GameEngine
     private bool HasSoleTargetProtectionCardObserver(long useId) => SoleTargetProtectionObserverRoot()?.SoleTargetProtection?.CardUseFrameId == useId;
     private bool IsSoleTargetProtectionDying() => ActiveDying is { } dying && SoleTargetProtectionObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramRuntimeHook(ProgramRuntimePhase.BeforeResponseHealth, 40)]
     private bool TryAdvanceSoleTargetProtectionSubtree() => _pendingDecision is null && SoleTargetProtectionObserverRoot() is not null &&
         TryAdvanceObserverSubtree(advanceRecoveryReplacement: true);
 

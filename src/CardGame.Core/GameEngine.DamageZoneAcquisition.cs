@@ -179,12 +179,20 @@ public sealed partial class GameEngine
                 m.Reason.Value == DamageAcquisitionReason) != 1)
                 throw new InvalidOperationException("Zone acquisition must move each selected physical entity exactly once.");
     }
+
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 460)]
+    private void AssertRegisteredDamageAcquisitionReceipt(ProgramSkillFrame frame)
+    {
+        if (frame.DamageZoneAcquisition is not null) RequireDamageAcquisitionReceipt(frame);
+    }
     private bool IsDamageAcquisitionMovement(ProgramSkillFrame f, SkillProgramEffect? e, ProgramMovementContinuation p)
     {
         if (f.DamageZoneAcquisition?.Stage != DamageZoneAcquisitionStage.MovementChildren || e?.Op != SkillProgramEffectOp.ObtainEachDamageTargetZoneThenSelfOnly ||
             p != f.PendingMovementContinuation) return false;
         RequireDamageAcquisitionReceipt(f); return true;
     }
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 380)]
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 380)]
     private bool CanContinueDamageZoneAcquisition(ProgramSkillFrame f)
     {
         if (f.DamageZoneAcquisition?.Stage != DamageZoneAcquisitionStage.MovementChildren) return false;

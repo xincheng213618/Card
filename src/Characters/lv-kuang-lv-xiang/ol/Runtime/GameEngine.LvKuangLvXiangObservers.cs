@@ -7,6 +7,7 @@ public sealed partial class GameEngine
   ChainedStateBasicFrame chain=>QigongAdapterActor(f,chain.Payment.Source.OwnerSeat,chain.Payment.TargetSeat,chain.Payment.Cursor,chain.Payment.ParentFrameId,chain.Payment.RequestFrameId)&&ValidChainedStateBasicPayment(chain.Payment)&&CompleteProgramEventHistory().OfType<ChainedStateBasicPaidEvent>().Count(e=>e.Payment==chain.Payment)==1,
   _=>false
  };
+ [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 360)]
  private void AssertLvKuangLvXiang(ProgramSkillFrame f)
  {
   if(f.LvKuangLvXiang is not{}r)return;
@@ -35,6 +36,8 @@ public sealed partial class GameEngine
   }
   var choices=LvKuangLvXiangChoices(f);return prompt.Kind==DecisionKind.ProgramTrigger&&prompt.PlayerSeat==LvChooser(f)&&prompt.IsPrivate&&prompt.ValidTargetSeats.SequenceEqual(LvKuangLvXiangValidTargets(f,choices))&&AssistedChoicesEqual(native.Choices,choices);
  }
+ [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 320)]
+ [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 320)]
  private bool CanContinueLvKuangLvXiang(ProgramSkillFrame f)
  {
   if(f.LvKuangLvXiang is not{}r)return false;var paid=r.Payments.Count>0||r.Native is{Paid:true}||r.Declaration is not null&&_resolutionStack.OfType<CardDeclarationFrame>().Any(d=>MatchesQigongDeclaration(f,d))||_resolutionStack.Any(child=>QigongPaidAdapterChild(f,child));if(!paid)return false;AssertLvKuangLvXiang(f);return true;
@@ -72,6 +75,7 @@ public sealed partial class GameEngine
  private bool HasLvKuangLvXiangDamageObserver(long id)=>LvKuangLvXiangObserverRoot()is{}r&&_resolutionStack.Any(f=>f.Id==id&&f is DamageTriggerWindowFrame)&&_resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
  private bool HasLvKuangLvXiangBeforeDamageObserver(long id)=>LvKuangLvXiangObserverRoot()is{}r&&_resolutionStack.Any(f=>f.Id==id&&f is BeforeDamageProgramWindowFrame)&&_resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
  private bool IsLvKuangLvXiangDying()=>ActiveDying is{}d&&LvKuangLvXiangObserverRoot()is{}r&&_resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
+ [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 390)]
  private bool TryAdvanceLvKuangLvXiangSubtree()=>_pendingDecision is null&&LvKuangLvXiangObserverRoot()is not null&&TryAdvanceObserverSubtree(true);
  private bool AllowsLvKuangLvXiangNestedDamage(ProgramSkillFrame o,int target,int amount,ProgramParticipantReference?source,DamageNature?nature,bool sourceLess)
  {

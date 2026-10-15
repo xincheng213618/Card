@@ -70,6 +70,14 @@ public sealed partial class GameEngine
   if(r.Stage==WangCanStage.Completed&&(r.Native is not{}returned||CompleteProgramEventHistory().OfType<WangCanNativeReturnedEvent>().Count(e=>e.FrameId==f.Id&&e.UseId==returned.UseId&&e.ActionId==returned.ActionId)!=1||LifecycleCardUse(returned.UseId)is not null))throw new InvalidOperationException("Denglou terminal continuation requires its unique actual native return.");
   if(r.Stage==WangCanStage.DenglouNative&&(r.Native is not{}n||n.ProgramFrameId!=f.Id||CompleteProgramEventHistory().OfType<WangCanNativeIssuedEvent>().Count(e=>e.FrameId==f.Id&&e.UseId==n.UseId&&e.ActionId==n.ActionId&&e.Source==r.Source&&e.GameplayHash==r.GameplayHash)!=1))throw new InvalidOperationException("Denglou native use is not uniquely issued.");
  }
+
+ [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 320)]
+ private void AssertRegisteredIssuedWangCan(ProgramSkillFrame frame)
+ {
+     if (frame.WangCan is not null) RequireIssuedWangCan(frame);
+ }
+ [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 280)]
+ [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 280)]
  private bool CanContinueIssuedWangCan(ProgramSkillFrame f)
  {
   if(f.WangCan is not{}r)return false;RequireIssuedWangCan(f);
@@ -87,6 +95,7 @@ public sealed partial class GameEngine
  private bool HasWangCanDamageObserver(long id)=>WangCanObserverRoot()is{}r&&_resolutionStack.Any(f=>f.Id==id&&f is DamageTriggerWindowFrame)&&_resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
  private bool HasWangCanBeforeDamageObserver(long id)=>WangCanObserverRoot()is{}r&&_resolutionStack.Any(f=>f.Id==id&&f is BeforeDamageProgramWindowFrame)&&_resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
  private bool IsWangCanDying()=>ActiveDying is{}d&&WangCanObserverRoot()is{}r&&_resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
+ [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 350)]
  private bool TryAdvanceWangCanSubtree()=>_pendingDecision is null&&WangCanObserverRoot()is not null&&TryAdvanceObserverSubtree(advanceRecoveryReplacement:true);
  private bool AllowsWangCanNestedDamage(ProgramSkillFrame observer,int target,int amount,ProgramParticipantReference?source,DamageNature?nature,bool sourceLess)
  {

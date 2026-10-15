@@ -96,6 +96,7 @@ public sealed partial class GameEngine
             r.Stage == GameActivationAwakeningStage.GrantsIssued && grants.Length != r.SkillIds.Count) return false;
         return true;
     }
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.BeforeSelectionState, 30)]
     private void AssertGameActivationAwakeningReceipt(ProgramSkillFrame f, ProgramExecutionPlan plan)
     {
         if (f.GameActivationAwakening is null)
@@ -112,6 +113,7 @@ public sealed partial class GameEngine
         if (index + 1 < _resolutionStack.Count && !GameActivationAwakeningFirstChild(f, _resolutionStack[index + 1]))
             throw new InvalidOperationException("Game-activation awakening retained an unrelated first native child.");
     }
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 670)]
     private bool CanContinueGameActivationAwakening(ProgramSkillFrame f) => f.GameActivationAwakening is not null && ValidGameActivationAwakeningReceipt(f);
     private bool GameActivationAwakeningFirstChild(ProgramSkillFrame f, ResolutionFrame child)
     {

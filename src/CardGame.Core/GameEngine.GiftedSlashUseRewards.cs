@@ -201,6 +201,7 @@ public sealed partial class GameEngine
         return true;
     }
 
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 730)]
     private bool CanContinueIssuedGiftedSlashReward(ProgramSkillFrame frame) =>
         frame.GiftedSlashGiftReceipt is not null && ValidGiftedSlashGift(frame) || frame.GiftedSlashRewardReceipt is not null && ValidGiftedSlashReward(frame) ||
         frame.TriggerId is { } binding && frame.WindowContext is { } context && HasIssuedGiftedSlashRewardCandidate(
@@ -325,6 +326,7 @@ public sealed partial class GameEngine
             (receipt.DrawActual > 0 || receipt.Before == receipt.After);
     }
 
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.BeforeSelectionState, 160)]
     private void AssertGiftedSlashPrograms(ProgramSkillFrame frame)
     {
         if (frame.GiftedSlashGiftReceipt is null && frame.GiftedSlashRewardReceipt is null)

@@ -103,6 +103,7 @@ public sealed partial class GameEngine
         if (f.WindowContext is not { } context) return null;
         return CurrentDeferredPrivateOffer(new(f.OwnerSeat, f.SkillId, f.TriggerId!, f.SkillInstanceId, f.GameplayHash, 0, context.OccurrenceIndex), context);
     }
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 710)]
     private bool CanContinueIssuedPrivateOffer(ProgramSkillFrame f) => _winner == Winner.None && _players[f.OwnerSeat].IsAlive &&
         DeferredPrivateOfferParent(f) is not null && (f.PrivateOffer is null || ValidPrivateOfferReceipt(f));
     private SkillProgramStepOutcome BeginDeferredPrivateOffer(ProgramSkillFrame supplied)

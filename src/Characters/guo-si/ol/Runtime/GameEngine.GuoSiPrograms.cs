@@ -61,6 +61,8 @@ public sealed partial class GameEngine
   if(_resolutionStack.LastOrDefault()is not ProgramSkillFrame{GuoSi:{}r}f||f.Id!=id||r.Stage is GuoSiStage.TargetChoice or GuoSiStage.SidaoChoice or GuoSiStage.NativeUse)return false;RequireIssuedGuoSi(f);if(DrainGuoSi(f))return true;FinishGuoSi(f);return true;
  }
  [ProgramContinuation(ProgramContinuationKind.Movement,24300)] private bool ReturnGuoSiMovement(ProgramSkillFrame f)=>f.GuoSi is not null&&ResumeGuoSi(f.Id);
+ [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 250)]
+ [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 250)]
  private bool CanContinueIssuedGuoSi(ProgramSkillFrame f){if(f.GuoSi?.Stage is not(GuoSiStage.MovementChildren or GuoSiStage.NativeUse or GuoSiStage.Completed))return false;RequireIssuedGuoSi(f);return true;}
  private bool IsGuoSiMovement(ProgramSkillFrame f,SkillProgramEffect?e,ProgramMovementContinuation p)=>f.GuoSi is{Stage:GuoSiStage.MovementChildren}&&e?.Op==SkillProgramEffectOp.ChooseTanbeiTargetPact&&CanContinueIssuedGuoSi(f)&&p.SubjectSeat==f.OwnerSeat&&p.BeforeCount==0&&p.CoverageResultBind is null;
  private void RequireIssuedGuoSi(ProgramSkillFrame f)
@@ -74,6 +76,12 @@ public sealed partial class GameEngine
   if((r.Stage is GuoSiStage.SidaoChoice or GuoSiStage.NativeUse or GuoSiStage.Completed)&&(r.Pair is not{}pair||f.WindowContext?.CardUse is not{}identity||LifecycleCardUse(identity.ParentCardUseFrameId)?.GuoSiPair!=pair||!CompleteProgramEventHistory().OfType<GuoSiPairQualifiedEvent>().Any(e=>e.NativeUseId==identity.ParentCardUseFrameId&&e.OwnerSeat==f.OwnerSeat&&e.FirstActionId==pair.First.ActionId&&e.SecondActionId==pair.Second.ActionId)))throw new InvalidOperationException("Sidao lost its actual completed-window pair qualification.");
   if((r.Stage is GuoSiStage.NativeUse or GuoSiStage.Completed)&&(r.Native is not{}n||n.ParentActionId!=f.WindowContext?.CardUse?.CardActionId||n.Phase!=r.Phase||n.Turn!=r.Turn||n.Instruction!=r.Instruction||CompleteProgramEventHistory().OfType<GuoSiNativeIssuedEvent>().Count(e=>e.Receipt==n)!=1))throw new InvalidOperationException("Sidao has no unique issued native use.");
   if(r.Stage==GuoSiStage.Completed&&(r.Native is not{}returned||CompleteProgramEventHistory().OfType<GuoSiNativeReturnedEvent>().Count(e=>e.Receipt==returned)!=1||LifecycleCardUse(returned.NativeUseId)is not null))throw new InvalidOperationException("Sidao terminal completion requires its once-returned native use.");
+ }
+
+ [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 290)]
+ private void AssertRegisteredIssuedGuoSi(ProgramSkillFrame frame)
+ {
+     if (frame.GuoSi is not null) RequireIssuedGuoSi(frame);
  }
  [ProgramCapability]
  private sealed class GuoSiProgramCapability(GameEngine engine) : IGuoSiProgramHost

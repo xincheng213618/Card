@@ -147,6 +147,12 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("The ending debt lost its exact source, frozen amount or once-only payment.");
     }
 
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.BeforeSelectionState, 320)]
+    private void AssertRegisteredTurnDrawDebtReceipts(ProgramSkillFrame frame, ProgramExecutionPlan plan)
+    {
+        AssertTurnDrawDebtReceipts(frame, plan.Instructions);
+    }
+
     [ProgramCapability]
     private sealed class TurnDrawDebtProgramCapability(GameEngine engine) : ITurnDrawDebtProgramHost
     {

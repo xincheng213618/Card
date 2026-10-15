@@ -45,6 +45,7 @@ public sealed partial class GameEngine
         decision.ValidTargetSeats.Count == 0 && decision.TargetSeat == r.CounterpartSeat && decision.SourceSeat == f.OwnerSeat &&
         decision.ValidContentIds.Count == 0 && decision.RequiredCardCount == 0 && decision.IncomingCard is null && decision.RequiredCardKind is null;
 
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.BeforeSelectionState, 480)]
     private void AssertPairedColorDisposition(ProgramSkillFrame f)
     {
         if (f.PairedColorDisposition is null)
@@ -137,6 +138,7 @@ public sealed partial class GameEngine
         return effect.Op == SkillProgramEffectOp.Damage && effect.Amount == amount && effect.ActorReference == source && effect.DamageNature == nature &&
             target == (effect.TargetReference is { } reference ? ResolveProgramParticipant(observer, reference) : ResolveProgramEffectTarget(observer, effect.Target));
     }
+    [ProgramRuntimeHook(ProgramRuntimePhase.BeforeResponseHealth, 110)]
     private bool TryAdvancePairedColorDispositionSubtree()
     {
         if (_pendingDecision is not null || PairedColorDispositionObserverRoot() is null) return false;

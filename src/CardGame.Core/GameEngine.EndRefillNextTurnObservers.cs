@@ -33,6 +33,7 @@ public sealed partial class GameEngine
     private bool HasEndRefillDamageObserver(long id) => EndRefillObserverRoot() is { } root &&
         _resolutionStack.Any(f => f.Id == id && f is DamageTriggerWindowFrame) &&
         _resolutionStack.FindIndex(f => f.Id == id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 60)]
     private bool TryAdvanceEndRefillSubtree() => _pendingDecision is null && EndRefillObserverRoot() is not null &&
         TryAdvanceObserverSubtree(advanceRecoveryReplacement: true);
 }

@@ -152,6 +152,7 @@ public sealed partial class GameEngine
         var damage=events.OfType<FrozenHandRosterDamageIssuedEvent>().Where(e=>e.FrameId==f.Id).ToArray();
         return r.DamageIssued ? r.DamageTarget is{}d && r.Seats.Contains(d) && damage is[var paid] && paid.SourceSeat==f.OwnerSeat && paid.TargetSeat==d && paid.Amount==1 : r.DamageTarget is null && damage.Length==0;
     }
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.BeforeSelectionState, 530)]
     private void AssertFrozenHandRoster(ProgramSkillFrame f)
     {
         if(f.FrozenHandRoster is null)return;

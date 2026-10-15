@@ -149,6 +149,7 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new DamageTargetBudgetSettledEvent(id, action.ActionId, r.Source, r.Marker, r.FrozenBudget, currentMarkers,
             count, removed, _players[r.Source.OwnerSeat].Markers.GetValueOrDefault(r.Marker)));
     }
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.BeforeSelectionState, 180)]
     private void AssertDamageTargetBudgetReceipt(ProgramSkillFrame f)
     {
         if (f.DamageTargetBudget is not { } r) return;

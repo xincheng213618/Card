@@ -141,6 +141,7 @@ public sealed partial class GameEngine
             decision.Choices.Zip(expected).All(pair => pair.First.Id == pair.Second.Id && pair.First.Cards.SequenceEqual(pair.Second.Cards) &&
                 pair.First.Targets.SequenceEqual(pair.Second.Targets) && pair.First.Parameters.OrderBy(x => x.Key).SequenceEqual(pair.Second.Parameters.OrderBy(x => x.Key)));
     }
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.BeforeSelectionState, 440)]
     private void AssertOutsidePhaseDrawDiscard(ProgramSkillFrame f)
     {
         if (f.OutsidePhaseDrawDiscard is null) return;
@@ -181,6 +182,7 @@ public sealed partial class GameEngine
         return effect.Op == SkillProgramEffectOp.Damage && amount == effect.Amount && source == effect.ActorReference && nature == effect.DamageNature &&
             target == (effect.TargetReference is { } reference ? ResolveProgramParticipant(observer, reference) : ResolveProgramEffectTarget(observer, effect.Target));
     }
+    [ProgramRuntimeHook(ProgramRuntimePhase.BeforeResponseHealth, 90)]
     private bool TryAdvanceOutsidePhaseDrawDiscardSubtree()
     {
         if (_pendingDecision is not null || OutsidePhaseDrawDiscardObserverRoot() is null) return false;

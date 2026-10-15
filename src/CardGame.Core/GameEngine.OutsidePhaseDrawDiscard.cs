@@ -295,6 +295,8 @@ public sealed partial class GameEngine
         effect is not null && IsOutsidePhaseOperation(effect.Op) && f.OutsidePhaseDrawDiscard is { MovementIssued: true } r &&
         r.Op == effect.Op && f.PendingMovementContinuation == pending && pending.SubjectSeat == r.ParticipantSeat &&
         pending.BeforeCount == 0 && pending.CoverageResultBind is null && ValidOutsidePhaseDrawDiscardReceipt(f);
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 600)]
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 620)]
     private bool CanContinueOutsidePhaseDrawDiscard(ProgramSkillFrame f) =>
         f.OutsidePhaseDrawDiscard is { MovementIssued: true } && ValidOutsidePhaseDrawDiscardReceipt(f);
     [ProgramAiChoice(

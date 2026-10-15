@@ -178,6 +178,8 @@ public sealed partial class GameEngine
         f.IncomingDistanceCourtesy is { Stage: IncomingDistanceCourtesyStage.MovementChildren } r && e is not null &&
         IncomingDistanceCourtesyContract.IsOperation(e.Op) && r.Movements.LastOrDefault() is { } m &&
         p.SubjectSeat == m.SubjectSeat && p.BeforeCount == 0 && p.CoverageResultBind is null;
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 460)]
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 450)]
     private bool CanContinueIncomingDistanceCourtesy(ProgramSkillFrame f)
     {
         if (f.IncomingDistanceCourtesy is not { Stage: IncomingDistanceCourtesyStage.MovementChildren }) return false;
@@ -231,6 +233,12 @@ public sealed partial class GameEngine
         var changes = CompleteProgramEventHistory().OfType<IncomingDistanceChangedEvent>().Where(e => e.ProgramFrameId == f.Id).ToArray();
         if (changes.Length != r.NextBenefitIndex || changes.Where((e, i) => e.StepIndex != i || e.Source != r.Source || e.Amount != -1).Any())
             throw new InvalidOperationException("Courtesy returned to an already settled or missing distance step.");
+    }
+
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 480)]
+    private void AssertRegisteredIncomingDistanceCourtesyReceipt(ProgramSkillFrame frame)
+    {
+        if (frame.IncomingDistanceCourtesy is not null) RequireIncomingDistanceCourtesyReceipt(frame);
     }
     [ProgramAiChoice(
         SkillProgramEffectOp.AdjustIncomingDistanceByLivingFactions,

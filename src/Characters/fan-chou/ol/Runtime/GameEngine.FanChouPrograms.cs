@@ -77,6 +77,8 @@ public sealed partial class GameEngine
   if(_resolutionStack.LastOrDefault()is not ProgramSkillFrame{FanChou:{Stage:FanChouStage.MovementChildren or FanChouStage.DrawChildren}}f||f.Id!=id)return false;RequireFanChou(f);if(TryBeginQueuedRecoveryReplacement(f.Id,PostEventContinuation.AwaitedProgramMovement)||TryBeginCharacterStateProgramWindow(f.Id,CharacterStateContinuation.Program)||TryBeginHpChangedProgramWindow(f.Id,PostEventContinuation.AwaitedProgramMovement)||TryBeginCardsMovedProgramWindow(f.Id)||TryBeginAdvancedSkillsChanged(f.Id))return true;FinishFanChou(f);return true;
  }
  [ProgramContinuation(ProgramContinuationKind.Movement,24200)] private bool ReturnFanChouMovement(ProgramSkillFrame f)=>f.FanChou is not null&&ResumeFanChou(f.Id);
+ [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 240)]
+ [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 240)]
  private bool CanContinueFanChou(ProgramSkillFrame f){if(f.FanChou is not{Stage:FanChouStage.MovementChildren or FanChouStage.DrawChildren})return false;RequireFanChou(f);return true;}
  private bool IsFanChouMovement(ProgramSkillFrame f,SkillProgramEffect?e,ProgramMovementContinuation p)=>f.FanChou is{}r&&e?.Op==SkillProgramEffectOp.ChooseXingluanRankSixBenefit&&CanContinueFanChou(f)&&p.SubjectSeat==(r.Branch=="other-discard"?r.Recipient!.Value:f.OwnerSeat)&&p.BeforeCount==0&&p.CoverageResultBind is null;
  private void RequireFanChou(ProgramSkillFrame f)
@@ -88,6 +90,12 @@ public sealed partial class GameEngine
   if(r.Stage==FanChouStage.DrawChildren){if(r.Branch!="deck"||r.DeckCandidates.Count!=0||r.PaidBatchId is not null||_cardMovements.Count(m=>m.Sequence>r.Before&&m.Sequence<=r.After&&m.From==CardLocation.DrawPile&&m.To==CardLocation.Hand(f.OwnerSeat)&&m.Reason.Value==FanChouDrawReason)!=r.ActualCount)throw new InvalidOperationException("Xingluan fallback draw was not actually paid once.");return;}
   var to=r.Branch=="other-discard"?CardLocation.DiscardPile:CardLocation.Hand(f.OwnerSeat);var reason=r.Branch switch{"field"=>new CardMoveReason(FanChouFieldReason),"deck"=>new CardMoveReason(FanChouDeckReason),"other-give"=>new CardMoveReason(FanChouGiftReason),_=>new CardMoveReason(FanChouDiscardReason)};
   if(r.Branch is not("field" or "deck" or "other-give" or "other-discard")||r.PaidBatchId is not >0||r.SelectedId is not{}id||r.From is not{}from||r.ActualCount!=1||(r.Branch is "field" or "deck" or "other-discard")&&r.SelectedRank!=6||r.After<=r.Before||_cardMovements.Count(m=>m.Sequence>r.Before&&m.Sequence<=r.After&&m.CardId==id&&m.From==from&&m.To==to&&m.Reason==reason)!=1||r.Branch=="field"&&(from.Zone is not(CardZoneKind.Equipment or CardZoneKind.Judgment)||GetAdvancedCard(id).Rank!=6)||r.Branch=="deck"&&(from!=CardLocation.DrawPile||!r.DeckCandidates.Contains(id)||GetAdvancedCard(id).Rank!=6)||r.Branch is "other-discard" or "other-give"&&(from.OwnerSeat!=r.Recipient||from.Zone is not(CardZoneKind.Hand or CardZoneKind.Equipment)))throw new InvalidOperationException("Xingluan payment lost its exact real entity and original legal zone.");
+ }
+
+ [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 280)]
+ private void AssertRegisteredFanChou(ProgramSkillFrame frame)
+ {
+     if (frame.FanChou is not null) RequireFanChou(frame);
  }
  private IReadOnlyList<CardSnapshot> FanChouPrivateDeckCards(int viewer)=>_resolutionStack.LastOrDefault()is ProgramSkillFrame{OwnerSeat:var owner,FanChou:{Stage:FanChouStage.Deck}r}&&owner==viewer?Array.AsReadOnly(r.DeckCandidates.Where(id=>_cardZones.GetLocation(id)==CardLocation.DrawPile).Select(id=>ToSnapshot(GetAdvancedCard(id))).ToArray()):[];
 

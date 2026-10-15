@@ -36,6 +36,12 @@ public sealed partial class GameEngine
     }
     private void RequireDeathGrowthSkill(ProgramSkillFrame f)
     { if (!ValidDeathGrowthSkill(f)) throw new InvalidOperationException("Death growth lost its exact deceased victim, candidate, source, draw invoice or instruction."); }
+
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 90)]
+    private void AssertRegisteredDeathGrowthSkill(ProgramSkillFrame frame)
+    {
+        if (frame.DeathGrowthSkill is not null) RequireDeathGrowthSkill(frame);
+    }
     private static string DeathGrowthCursorHash(ResolutionFrame frame) => Convert.ToHexString(
         System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(
             System.Text.Json.JsonSerializer.Serialize(frame, frame.GetType()))));
@@ -98,5 +104,6 @@ public sealed partial class GameEngine
         return effect is { Op: SkillProgramEffectOp.Damage } && effect.Amount == amount && effect.ActorReference == source && effect.DamageNature == nature &&
             target == (effect.TargetReference is { } reference ? ResolveProgramParticipant(observer, reference) : ResolveProgramEffectTarget(observer, effect.Target));
     }
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 440)]
     private bool TryAdvanceDeathGrowthSubtree() => _pendingDecision is null && DeathGrowthObserverRoot() is not null && TryAdvanceObserverSubtree(advanceRecoveryReplacement: true);
 }

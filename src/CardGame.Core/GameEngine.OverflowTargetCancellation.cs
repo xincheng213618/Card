@@ -157,6 +157,8 @@ public sealed partial class GameEngine
         AssertOverflowTargetCancellation(frame); AdvanceRuntimeProgram(frame.Id); return true;
     }
 
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 580)]
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 600)]
     private bool CanContinueOverflowTargetCancellation(ProgramSkillFrame frame) =>
         frame.OverflowTargetCancellation is not null && ValidOverflowTargetCancellationReceipt(frame);
 

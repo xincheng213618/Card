@@ -41,6 +41,7 @@ public sealed partial class GameEngine
         }
         return root.PaidColorConversion is not null || root.ActualTurnDamageClaim is not null;
     }
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.BeforeSelectionState, 280)]
     private void AssertPaidColorDamageClaimFrame(ProgramSkillFrame root)
     {
         if ((root.PaidColorConversion is not null || root.ActualTurnDamageClaim is not null) && !IsValidPaidColorDamageClaimFrame(root))

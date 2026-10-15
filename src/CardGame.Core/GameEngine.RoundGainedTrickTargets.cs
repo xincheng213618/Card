@@ -117,6 +117,7 @@ public sealed partial class GameEngine
         ClearPendingDecision(); ReplaceRuntimeTop(frame with { RoundGainedTrickTargetDraft = null }); AdvanceRuntimeProgram(frame.Id);
     }
 
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.BeforeSelectionState, 210)]
     private void AssertRoundGainedTrickTargetDraft(ProgramSkillFrame frame)
     {
         if (frame.RoundGainedTrickTargetDraft is null && (frame.TriggerId is null ||

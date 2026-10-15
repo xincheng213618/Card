@@ -30,6 +30,14 @@ public sealed partial class GameEngine
   if(f.ZhangQiYing is not{}r||r.Source!=ZhangQiYingSource(f)||r.GameplayHash!=f.GameplayHash||r.Instruction!=f.InstructionIndex||r.ParentId!=f.WindowContext?.ParentFrameId||r.Before>r.After||r.After>_movementSequence)throw new InvalidOperationException("Zhang Qi Ying lost its exact owning source and instruction.");
   if(r.Stage=="gain-children"&&(CompleteProgramEventHistory().OfType<ZhenyiDeckGainPaidEvent>().Count(e=>e.FrameId==f.Id&&e.Source==r.Source&&e.GameplayHash==r.GameplayHash&&e.Before==r.Before&&e.After==r.After&&e.ActualCount==r.Cards.Count)!=1||r.Cards.Count>3||r.Cards.Distinct().Count()!=r.Cards.Count||f.PendingMovementContinuation is not{BeforeCount:0,CoverageResultBind:null,SubjectSeat:var seat}||seat!=f.OwnerSeat||_cardMovements.Count(m=>m.Sequence>r.Before&&m.Sequence<=r.After&&m.From==CardLocation.DrawPile&&m.To==CardLocation.Hand(f.OwnerSeat)&&m.Reason.Value==ZhenyiGainReason&&r.Cards.Contains(m.CardId))!=r.Cards.Count))throw new InvalidOperationException("Gouchen needs one exact already-paid three-category gain invoice.");
  }
+
+ [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 300)]
+ private void AssertRegisteredZhangQiYing(ProgramSkillFrame frame)
+ {
+     if (frame.ZhangQiYing is not null) AssertZhangQiYing(frame);
+ }
+ [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 260)]
+ [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 260)]
  private bool CanContinueZhangQiYing(ProgramSkillFrame f){if(f.ZhangQiYing is not{Stage:"gain-children"})return false;AssertZhangQiYing(f);return true;}
  [ProgramContinuation(ProgramContinuationKind.Resume,24405)] private bool ResumeZhangQiYing(long id)
  {
@@ -44,6 +52,7 @@ public sealed partial class GameEngine
  private bool HasZhangQiYingDamageObserver(long id)=>ZhangQiYingObserverRoot()is not null&&_resolutionStack.Any(f=>f.Id==id&&f is DamageTriggerWindowFrame);
  private bool HasZhangQiYingBeforeDamageObserver(long id)=>ZhangQiYingObserverRoot()is not null&&_resolutionStack.Any(f=>f.Id==id&&f is BeforeDamageProgramWindowFrame);
  private bool IsZhangQiYingDying()=>ActiveDying is not null&&ZhangQiYingObserverRoot()is not null;
+ [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 330)]
  private bool TryAdvanceZhangQiYingSubtree()=>_pendingDecision is null&&ZhangQiYingObserverRoot()is not null&&TryAdvanceObserverSubtree(true);
  private bool AllowsZhangQiYingNestedDamage(ProgramSkillFrame f,int target,int amount,ProgramParticipantReference?source,DamageNature?nature,bool sourceLess)
  {

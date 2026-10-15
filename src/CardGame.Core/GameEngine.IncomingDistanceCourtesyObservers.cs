@@ -53,6 +53,7 @@ public sealed partial class GameEngine
     private bool HasIncomingDistanceCourtesyDamageObserver(long id) => IncomingDistanceCourtesyObserverRoot() is { } root &&
         _resolutionStack.Any(f => f.Id == id && f is DamageTriggerWindowFrame) &&
         _resolutionStack.FindIndex(f => f.Id == id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 70)]
     private bool TryAdvanceIncomingDistanceCourtesySubtree() => _pendingDecision is null && IncomingDistanceCourtesyObserverRoot() is not null &&
         TryAdvanceObserverSubtree(advanceRecoveryReplacement: true);
 }

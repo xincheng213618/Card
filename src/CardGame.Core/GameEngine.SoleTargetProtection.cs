@@ -139,6 +139,7 @@ public sealed partial class GameEngine
                 m.Reason.Value == SoleProtectionCostReason) == 1;
     }
 
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 460)]
     private bool CanContinueSoleTargetProtection(ProgramSkillFrame f) => f.SoleTargetProtection is { Cost: not null } &&
         _players[f.OwnerSeat].IsAlive && _winner == Winner.None && HasExactSoleProtectionRoot(f);
 

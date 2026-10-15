@@ -139,6 +139,7 @@ public sealed partial class GameEngine
             .ThenBy(c=>c.Id.Value,StringComparer.Ordinal).First();
     }
 
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 540)]
     private void AssertActualDiscardRecovery(ProgramSkillFrame f)
     {
         if(f.ActualDiscardRecovery is not { } r)return;

@@ -47,6 +47,7 @@ public sealed partial class GameEngine
         if (_players[f.OwnerSeat].IsAlive && _winner == Winner.None && receipt.FactionCount > receipt.GameDamagePoints)
             SetProgramTargetFaceState(f.Id, f.OwnerSeat, f.OwnerSeat, !_players[f.OwnerSeat].IsFaceDown);
     }
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.BeforeSelectionState, 250)]
     private void AssertFrozenFactionRecovery(ProgramSkillFrame f)
     {
         if (f.FrozenFactionRecovery is not { } r) return;

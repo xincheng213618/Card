@@ -57,6 +57,7 @@ public sealed partial class GameEngine
         };
     }
 
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 550)]
     private bool TryAdvanceOwnedDeathBenefitSubtree()
     {
         if (_pendingDecision is not null || OwnedDeathBenefitObserverRoot() is null) return false;

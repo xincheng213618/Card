@@ -147,6 +147,8 @@ public sealed partial class GameEngine
                 !moves.Select(m => m.CardId).Order().SequenceEqual(r.SelectedCards.Order()) || moves.Any(m => m.From != CardLocation.Hand(f.OwnerSeat) || m.To != CardLocation.DiscardPile))
             throw new InvalidOperationException("Damage hand adjustment lost its exact real draw or paid hand discard.");
     }
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 430)]
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 430)]
     private bool CanContinueDamageSourceHandChoice(ProgramSkillFrame f)
     {
         if (f.DamageSourceHandChoice is not { Stage: DamageSourceHandChoiceStage.MovementChildren or DamageSourceHandChoiceStage.DamageIssued }) return false;

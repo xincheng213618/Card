@@ -82,6 +82,7 @@ public sealed partial class GameEngine
             target==(e.TargetReference is { } reference?ResolveProgramParticipant(observer,reference):ResolveProgramEffectTarget(observer,e.Target)) &&
             DynamicDiscardDamageObserverRoot() is { } root && root.Id!=observer.Id && CurrentDamageAttempt?.ResolutionId==root.Id;
     }
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 560)]
     private bool TryAdvanceDynamicDiscardDamageSubtree()
     {
         if (_pendingDecision is not null || DynamicDiscardDamageObserverRoot() is null) return false;

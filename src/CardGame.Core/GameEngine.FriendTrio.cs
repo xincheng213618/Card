@@ -346,6 +346,7 @@ public sealed partial class GameEngine
     private bool IsFriendTrioMovement(ProgramSkillFrame f, SkillProgramEffect? e, ProgramMovementContinuation pending) =>
         e is not null && IsFriendTrioOperation(e.Op) && f.FriendTrio is { Stage: FriendTrioStage.Movement or FriendTrioStage.EquipmentUse } r && r.Operation == e.Op &&
         f.PendingMovementContinuation == pending && pending.SubjectSeat == f.OwnerSeat && pending.BeforeCount == 0 && pending.CoverageResultBind is null;
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.BeforeSelectionState, 460)]
     private void AssertFriendTrio(ProgramSkillFrame f)
     {
         if (f.FriendTrio is not { } r || !IsFriendTrioOperation(r.Operation)) return;

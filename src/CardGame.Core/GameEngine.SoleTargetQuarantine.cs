@@ -183,6 +183,7 @@ public sealed partial class GameEngine
                 SkillProgramTriggerWindow.CardUseTargetsFinalized, SkillProgramEffectOp.ProtectOtherSoleCardTarget)) == 1;
     }
 
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.BeforeSelectionState, 70)]
     private void AssertSoleTargetProtection(ProgramSkillFrame f)
     {
         if (f.SoleTargetProtection is not { } r) return;

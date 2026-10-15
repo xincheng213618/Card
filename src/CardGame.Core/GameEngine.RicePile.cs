@@ -206,6 +206,8 @@ public sealed partial class GameEngine
                 .OrderBy(c => GetKeepValue(GetAdvancedCard(c.Cards.Single()), _players[f.OwnerSeat])).First();
         return p.Choices.OrderByDescending(c => GetKeepValue(GetAdvancedCard(c.Cards.Single()), _players[f.RicePile.BeneficiarySeat])).First();
     }
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 410)]
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 410)]
     private bool CanContinueRicePile(ProgramSkillFrame f)
     {
         if (f.RicePile is not { } r || r.Stage == RicePileStage.StoreSelection && r.Operation != SkillProgramEffectOp.DrawAndStoreTwoPublicRice) return false;

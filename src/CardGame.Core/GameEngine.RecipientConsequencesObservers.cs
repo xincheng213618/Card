@@ -130,6 +130,7 @@ public sealed partial class GameEngine
         return CurrentDamageAttempt is { } attack && RecipientConsequencesObserverRoot() is { } root &&
             _resolutionStack.FindIndex(f => f.Id == attack.ResolutionId) > _resolutionStack.FindIndex(f => f.Id == root.Id);
     }
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 540)]
     private bool TryAdvanceRecipientConsequencesSubtree()
     {
         if (_pendingDecision is not null || RecipientConsequencesObserverRoot() is null) return false;

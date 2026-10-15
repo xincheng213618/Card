@@ -59,6 +59,7 @@ public sealed partial class GameEngine
         if(sourceLess||observer.AttackAttempt is not null||observer.InstructionIndex<1||_resolutionStack.LastOrDefault()?.Id!=observer.Id||observer.WindowContext?.Window is not(SkillProgramTriggerWindow.CardsMoved or SkillProgramTriggerWindow.CardsGained or SkillProgramTriggerWindow.DiscardPileReceived or SkillProgramTriggerWindow.AfterHpRecovered or SkillProgramTriggerWindow.AfterHpLost or SkillProgramTriggerWindow.AfterHealthChanged or SkillProgramTriggerWindow.SkillsChanged)||ZhugeGuoObserverRoot()is not{}root||root.Id==observer.Id)return false;
         var e=GetPausedPrivateOfferEffect(observer);return e is{Op:SkillProgramEffectOp.Damage}&&amount==e.Amount&&source==e.ActorReference&&nature==e.DamageNature&&target==(e.TargetReference is{}reference?ResolveProgramParticipant(observer,reference):ResolveProgramEffectTarget(observer,e.Target));
     }
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 200)]
     private bool TryAdvanceZhugeGuoSubtree()=>_pendingDecision is null&&ZhugeGuoObserverRoot()is not null&&TryAdvanceObserverSubtree(advanceRecoveryReplacement:true);
     private void MarkYuhuaTopPlacement(ProgramSkillFrame supplied,ProgramTopReorder state)
     {

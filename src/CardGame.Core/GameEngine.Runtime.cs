@@ -261,7 +261,7 @@ public sealed partial class GameEngine
         if (TryAdvanceRequestedDeckBasicAi()) return;
         if (TryAdvanceDrawFundedDistinctBasicAi()) return;
         if (TryAdvanceChainedStateBasicAi()) return;
-        if (TryAdvanceSelectedForeignCardSlashSubtree()) return;
+        if (RuntimeHooks.TryAdvance(ProgramRuntimePhase.BeforeDeclaration)) return;
         if (_resolutionStack.LastOrDefault() is CardDeclarationChallengeFrame challenge)
         {
             if (_pendingDecision is null) ContinueCardDeclarationChallenge(challenge.Id);
@@ -339,17 +339,7 @@ public sealed partial class GameEngine
         }
 
 
-        if (TryAdvanceRecipientCategoryMarkSubtree()) return;
-        if (TryAdvanceOrderedPrintedSkillLossSubtree()) return;
-        if (TryAdvanceOverflowTargetCancellationSubtree()) return;
-        if (TryAdvanceSoleTargetProtectionSubtree()) return;
-        if (TryAdvanceMatchingRecastSubtree()) return;
-        if (TryAdvancePairedHandRecastSubtree() || TryAdvancePhaseNamePredictionSubtree() || TryAdvanceLastDamageSourceReciprocitySubtree()) return;
-        if (TryAdvanceOutsidePhaseDrawDiscardSubtree()) return;
-        if (TryAdvanceOriginalHandEntitySubtree()) return;
-        if (TryAdvancePairedColorDispositionSubtree()) return;
-        if (TryAdvanceJoinedTrickDamageRewardSubtree()) return;
-        if (TryAdvanceRoundGainedEquipmentDrawSubtree()) return;
+        if (RuntimeHooks.TryAdvance(ProgramRuntimePhase.BeforeResponseHealth)) return;
         if (_pendingDecision is null &&
             _resolutionStack.LastOrDefault() is (ProgramSkillFrame or HpChangedTriggerWindowFrame or CardsMovedTriggerWindowFrame or ProgramLifecycleTriggerWindowFrame) &&
             (ProjectTypedResponseCompletionHealthCursor() is { Owner: not null, IsMalformed: false } ||
@@ -359,36 +349,7 @@ public sealed partial class GameEngine
             AdvanceRulesAndPublishState();
             return;
         }
-        if (TryAdvanceSameNameHandSubtree()) return;
-        if (TryAdvanceCompletedUndamagedTargetRevealSubtree()) return;
-        if (TryAdvanceFixedDistanceDebtSubtree()) return;
-        if (TryAdvanceUnequalHandHpSubtree()) return;
-        if (TryAdvancePhaseStartCardControlSubtree()) return;
-        if (TryAdvanceEndRefillSubtree()) return;
-        if (TryAdvanceIncomingDistanceCourtesySubtree()) return;
-        if (TryAdvanceNamedHandChoiceSubtree()) return;
-        if (TryAdvanceExtraEffectsAndRankGuessSubtree()) return;
-        if (TryAdvanceFirstSlashDuelSubtree()) return;
-        if (TryAdvanceCaoYingSubtree()) return;
-        if (TryAdvancePrivateWhirlSubtree()) return;
-        if (TryAdvanceBuZhiSubtree() || TryAdvanceLianZhuSubtree() || TryAdvanceJiqiaoSubtree() || TryAdvanceKanZeSubtree() || TryAdvanceHeQiSubtree() || TryAdvanceZhaoXiangSubtree()) return;
-        if (TryAdvanceWangYunSubtree() || TryAdvanceZhugeGuoSubtree() || TryAdvanceXiZhiCaiSubtree() || TryAdvanceLiuQiSubtree() || TryAdvanceBeiMiHuSubtree() || TryAdvanceLuZhiWeiSubtree() || TryAdvanceSimaHuiSubtree() || TryAdvanceXuRongSubtree() || TryAdvanceLiJueSubtree() || TryAdvanceZhangJiSubtree() || TryAdvanceSuFeiSubtree() || TryAdvanceHuangQuanSubtree() || TryAdvanceFanChouSubtree() || TryAdvanceGuoSiSubtree() || TryAdvanceZhangQiYingSubtree() || TryAdvanceCaoChunSubtree() || TryAdvanceWangCanSubtree() || TryAdvanceSpPangTongSubtree() || TryAdvanceNeifaSubtree() || TryAdvanceLvQianSubtree() || TryAdvanceLvKuangLvXiangSubtree() || TryAdvanceXinPiSubtree() || TryAdvanceHuaManSubtree()) return;
-        if (TryAdvanceXuanGongZhuSubtree()) return;
-        if (TryAdvanceDongZhaoSubtree()) return;
-        if (TryAdvanceDeathGrowthSubtree()) return;
-        if (TryAdvanceBaoSubtree()) return;
-        if (TryAdvanceSimultaneousSubtree()) return;
-        if (TryAdvanceRiceSubtree()) return;
-        if (TryAdvanceDamageAcquisitionSubtree()) return;
-        if (TryAdvanceKuangfuSubtree()) return;
-        if (TryAdvanceActualHandGainSubtree()) return;
-        if (TryAdvanceOldHandDispositionSubtree()) return;
-        if (TryAdvanceFrozenHandRosterSubtree()) return;
-        if (TryAdvanceDyingSuitsSubtree()) return;
-        if (TryAdvanceRecipientConsequencesSubtree()) return;
-        if (TryAdvanceOwnedDeathBenefitSubtree()) return;
-        if (TryAdvanceDynamicDiscardDamageSubtree()) return;
-        if (TryAdvanceSignedDamagePaymentSubtree()) return;
+        if (RuntimeHooks.TryAdvance(ProgramRuntimePhase.AfterResponseHealth)) return;
 
         // The direct recovery family has already proved every producer/return
         // edge and the exact owned Dying. Advance its response without scanning

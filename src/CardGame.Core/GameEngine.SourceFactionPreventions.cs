@@ -150,6 +150,7 @@ public sealed partial class GameEngine
         return false;
     }
 
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.BeforeSelectionState, 330)]
     private void AssertSourceFactionPrevention(ProgramSkillFrame frame)
     {
         if (frame.SourceFactionPrevention is not { } receipt) return;

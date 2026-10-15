@@ -61,6 +61,7 @@ public sealed partial class GameEngine
             r.Stage == ProgramPhaseAlcoholStage.DamageIssued && (r.WineFrameId is not null || r.WineSkipped);
     }
 
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 490)]
     private bool CanContinuePhaseAlcohol(ProgramSkillFrame frame) =>
         frame.PhaseAlcohol is { } r && _winner == Winner.None && _players[frame.OwnerSeat].IsAlive &&
         _players[r.ActorSeat].IsAlive && HasExactPhaseAlcoholReceipt(frame);

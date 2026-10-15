@@ -17,6 +17,7 @@ public sealed partial class GameEngine
         return e is { Op:SkillProgramEffectOp.Damage } && e.Amount==amount && e.ActorReference==source && e.DamageNature==nature &&
             target==(e.TargetReference is {} reference ? ResolveProgramParticipant(observer,reference):ResolveProgramEffectTarget(observer,e.Target));
     }
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 430)]
     private bool TryAdvanceDongZhaoSubtree()=>_pendingDecision is null && DongZhaoObserverRoot() is not null && TryAdvanceObserverSubtree(true);
     private bool ValidIssuedZaowang(ProgramSkillFrame f)
     {
@@ -48,5 +49,11 @@ public sealed partial class GameEngine
             (r.SkillId.Length>0 ? !ValidIssuedXianlue(f) : r.Stage!=XianlueStage.Record || f.TriggerId is null ||
                 f.WindowContext?.Window!=SkillProgramTriggerWindow.TurnStartBeforeNormalFlow || GetProgramTrigger(f).Effects is not [{ Op:SkillProgramEffectOp.XianlueRecord }]))
             throw new InvalidOperationException("Dong Zhao lost its native source, exact boundary or once-paid invoice.");
+    }
+
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 440)]
+    private void AssertRegisteredDongZhao(ProgramSkillFrame frame)
+    {
+        if (frame.XianluePending is not null || frame.ZaowangPaidTargetSeat is not null) RequireDongZhao(frame);
     }
 }

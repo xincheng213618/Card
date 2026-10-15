@@ -113,6 +113,7 @@ public sealed partial class GameEngine
                     m.From == paid.From && m.To == CardLocation.DiscardPile && m.Reason == CardMoveReasons.RecastDiscard));
     }
 
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.BeforeSelectionState, 410)]
     private void AssertPairedHandRecast(ProgramSkillFrame f)
     {
         if (f.PairedHandRecast is null) return;
@@ -160,6 +161,7 @@ public sealed partial class GameEngine
         return effect.Op == SkillProgramEffectOp.Damage && amount == effect.Amount && source == effect.ActorReference && nature == effect.DamageNature &&
             target == (effect.TargetReference is { } reference ? ResolveProgramParticipant(observer, reference) : ResolveProgramEffectTarget(observer, effect.Target));
     }
+    [ProgramRuntimeHook(ProgramRuntimePhase.BeforeResponseHealth, 60)]
     private bool TryAdvancePairedHandRecastSubtree()
     {
         if (_pendingDecision is not null || PairedHandRecastObserverRoot() is null) return false;

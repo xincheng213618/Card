@@ -55,6 +55,7 @@ public sealed partial class GameEngine
         }
         return false;
     }
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.BeforeSelectionState, 270)]
     private void AssertBoundDiscardSlashReceipt(ProgramSkillFrame frame)
     {
         if (frame.BoundDiscardSlashBenefits is not { } paid) return;

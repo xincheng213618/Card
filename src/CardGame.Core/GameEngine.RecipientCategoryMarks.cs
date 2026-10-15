@@ -278,6 +278,8 @@ public sealed partial class GameEngine
         if (f.RecipientCategoryMark is not { Stage: RecipientCategoryMarkStage.GiftChildren or RecipientCategoryMarkStage.DiscardChildren or RecipientCategoryMarkStage.RecoveryChildren or RecipientCategoryMarkStage.DrawChildren }) return false;
         AssertRecipientCategoryMark(f); AdvanceRuntimeProgram(f.Id); return true;
     }
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 550)]
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 570)]
     private bool CanContinueRecipientCategoryMark(ProgramSkillFrame f) => f.RecipientCategoryMark is { } r &&
         (r.Consumed || r.Stage == RecipientCategoryMarkStage.GiftChildren) && ValidRecipientCategoryMarkReceipt(f);
     private bool IsRecipientCategoryMarkMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation p) =>

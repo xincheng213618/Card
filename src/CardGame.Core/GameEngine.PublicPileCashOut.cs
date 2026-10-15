@@ -236,6 +236,7 @@ public sealed partial class GameEngine
             (receipt.DrawActual > 0 || receipt.DrawBefore == receipt.DrawAfter);
     }
 
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.BeforeSelectionState, 150)]
     private void AssertPublicPileCashOut(ProgramSkillFrame frame)
     {
         if (frame.PublicPileCashOut is null)

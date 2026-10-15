@@ -128,6 +128,7 @@ public sealed partial class GameEngine
                 MatchesDeclaredActualDamageUse(use, action.ActorSeat, returned.WinnerSeat)) &&
             (use.TargetSeats.Count == 1 || HasShortRangeSlashTail(use) || HasSameTypeAidTargetTail(use) || HasIssuedOriginalTargetAdditionTail(use) || IsCurrentSlashFireChangedUse(use));
     }
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.BeforeSelectionState, 580)]
     private void AssertRecipientContestPrograms(ProgramSkillFrame f)
     {
         if (f.UniqueHpPeer is not null && !ValidUniqueHpPeer(f) || f.RecipientContest is not null && !ValidRecipientContest(f))

@@ -139,6 +139,8 @@ public sealed partial class GameEngine
             CompleteProgramEventHistory().OfType<PhaseStartCardControlPaidEvent>().Count(e => e.Receipt.ProgramFrameId == f.Id &&
                 e.Receipt.Source == r.Source && e.Receipt.Payment == p && e.Receipt.ArmorAcquired == r.ArmorAcquired) == 1;
     }
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 440)]
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 470)]
     private bool CanContinuePhaseStartCardControl(ProgramSkillFrame f) => f.PhaseStartCardControl is { Payment: not null } &&
         _winner == Winner.None && HasExactPhaseStartCardControl(f);
     private bool DrainPhaseStartCardControlChildren(ProgramSkillFrame f) =>

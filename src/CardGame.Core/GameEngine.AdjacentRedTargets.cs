@@ -119,6 +119,7 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new AdjacentRedTargetAddedEvent(f.Id, use.Id, action.ActionId, action.ActorSeat, DamageAcquisitionSource(f), f.GameplayHash, original, added, targets));
         RefreshCurrentUseAddedTargetCandidates(updated, [f.OwnerSeat]);
     }
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 470)]
     private void AssertAdjacentRedTargetDraft(ProgramSkillFrame f)
     {
         if (f.AdjacentRedTarget is not { } d) return;

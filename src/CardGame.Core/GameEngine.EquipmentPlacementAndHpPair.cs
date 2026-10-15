@@ -64,6 +64,7 @@ public sealed partial class GameEngine
             awards ? (ownerHp < targetHp ? active.OwnerSeat : selected) : null) });
     }
 
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 30)]
     private void AssertEquipmentPlacementAndHpPair(ProgramSkillFrame frame, ProgramExecutionPlan plan)
     {
         if (frame.SelectedCardPayment is { } payment)

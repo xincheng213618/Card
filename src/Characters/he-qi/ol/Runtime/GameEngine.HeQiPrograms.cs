@@ -76,6 +76,8 @@ public sealed partial class GameEngine
     }
     [ProgramContinuation(ProgramContinuationKind.Movement,22700)]
     private bool ReturnHeQiMovement(ProgramSkillFrame f)=>f.HeQi is not null && ResumeHeQi(f.Id);
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 110)]
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 110)]
     private bool CanContinueHeQi(ProgramSkillFrame f){if(f.HeQi is not{Stage:not HeQiStage.SelectingReveal})return false;RequireHeQi(f);return true;}
     private bool IsHeQiMovement(ProgramSkillFrame f,SkillProgramEffect? e,ProgramMovementContinuation p)=>f.HeQi is{Stage:HeQiStage.DiscardChildren or HeQiStage.ObtainChildren} && e?.Op==SkillProgramEffectOp.RevealJointHandsAndDiscardDodges && CanContinueHeQi(f) && p.SubjectSeat==f.OwnerSeat && p.BeforeCount==0 && p.CoverageResultBind is null;
     private void RequireHeQi(ProgramSkillFrame f)
@@ -88,6 +90,12 @@ public sealed partial class GameEngine
         if(stage==HeQiStage.DiscardChildren && r.Paid.Any(m=>!r.Revealed.Contains(m.CardId) || !r.Candidates.Contains(m)) || stage==HeQiStage.ObtainChildren && (r.Paid.Count!=1 || r.Paid[0].From.OwnerSeat!=r.TargetSeat || r.Revealed.Contains(r.Paid[0].CardId) || r.ObtainedCardId!=r.Paid[0].CardId))throw new InvalidOperationException("Joint reveal payment cannot substitute a different entity or recipient zone.");
         if(r.Stage==HeQiStage.SelectingObtain ? f.PendingMovementContinuation is not null : f.PendingMovementContinuation is not {SubjectSeat:var actor,BeforeCount:0,CoverageResultBind:null} || actor!=f.OwnerSeat)throw new InvalidOperationException("Joint reveal continuation lost its exact movement status.");
         if(r.Paid.Count<1 || CompleteProgramEventHistory().OfType<HeQiSegmentPaidEvent>().Count(e=>e==new HeQiSegmentPaidEvent(f.Id,r.Source,r.GameplayHash,stage,r.Before,r.After,r.Paid.Count))!=1 || r.Paid.Any(m=>_cardMovements.Count(actual=>actual.CardId==m.CardId && actual.CardKind==m.PrintedKind && actual.Sequence>r.Before && actual.Sequence<=r.After && actual.From==m.From && actual.To==(stage==HeQiStage.DiscardChildren?CardLocation.DiscardPile:CardLocation.Hand(f.OwnerSeat)) && actual.Reason.Value==HeQiReason(stage))!=1))throw new InvalidOperationException("HeQi cannot resume without its exact paid entities.");
+    }
+
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 400)]
+    private void AssertRegisteredHeQi(ProgramSkillFrame frame)
+    {
+        if (frame.HeQi is not null) RequireHeQi(frame);
     }
     [ProgramCapability]
     private sealed class HeQiProgramCapability(GameEngine engine) : IHeQiProgramHost

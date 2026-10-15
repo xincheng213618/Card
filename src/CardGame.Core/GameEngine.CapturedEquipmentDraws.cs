@@ -76,6 +76,7 @@ public sealed partial class GameEngine
         ReplaceRuntimeTop(f with { CapturedEquipmentDraw=null });AdvanceRuntimeProgram(id);return true;
     }
 
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 530)]
     private void AssertCapturedEquipmentAndDraw(ProgramSkillFrame f)
     {
         if(f.CapturedEquipmentDraw is not { } r)return;

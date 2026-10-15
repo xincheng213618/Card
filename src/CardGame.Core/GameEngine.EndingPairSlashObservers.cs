@@ -13,6 +13,7 @@ public sealed partial class GameEngine
         if (!IsEndingPairMovement(f, effect, pending)) throw new InvalidOperationException("The actual Ending/recast movement lost its exact issued paid instruction.");
         AdvanceRuntimeProgram(f.Id); return true;
     }
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.BeforeSelectionState, 600)]
     private void AssertEndingPairSlashState(ProgramSkillFrame f)
     {
         if (f.EndingPairDraw is not null && !ValidEndingPairDraw(f) || f.PlaySlashRecast is not null && !ValidPlaySlashRecast(f))

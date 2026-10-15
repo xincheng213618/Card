@@ -192,6 +192,7 @@ public sealed partial class GameEngine
         UpdateCardAttackState(d.OuterCardUseFrameId,s => s! with {Active=true});
         FinishDamageTargetObtain(f);
     }
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 520)]
     private void AssertDamageTargetObtainState(ProgramSkillFrame f)
     {
         if(f.DamageTargetObtain is not { } d)return;
@@ -225,6 +226,8 @@ public sealed partial class GameEngine
         var view=CreateSnapshot(decision.PlayerSeat);var hint=new SkillProgramAiHint(0,0,0,0,0,1,false,false);
         return decision.Choices.OrderByDescending(c=>_aiBrains[decision.PlayerSeat].ScoreProgramTarget(view,c.Targets.Single(),hint)).ThenBy(c=>c.Targets.Single()).First();
     }
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 660)]
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 810)]
     private bool CanContinuePaidDamageTargetObtain(ProgramSkillFrame f)=>f.DamageTargetObtain is {Receipt:not null} && IsValidDamageTargetObtain(f) &&
         (_players[f.OwnerSeat].IsAlive || f.DamageTargetObtain is {Receipt.IsEquipment:false,Stage:ProgramDamageTargetObtainStage.DrawChildren or ProgramDamageTargetObtainStage.Complete});
 

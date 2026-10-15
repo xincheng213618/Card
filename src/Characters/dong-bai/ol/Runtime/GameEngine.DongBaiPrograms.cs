@@ -69,6 +69,8 @@ public sealed partial class GameEngine
     }
     [ProgramContinuation(ProgramContinuationKind.Movement, 22400)]
     private bool ReturnLianZhuMovement(ProgramSkillFrame f) => f.LianZhu is not null && ResumeLianZhu(f.Id);
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 80)]
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 80)]
     private bool CanContinueLianZhu(ProgramSkillFrame f) { if (f.LianZhu is null) return false; RequireLianZhu(f); return true; }
     private bool IsLianZhuMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation p) => f.LianZhu is { Stage: LianZhuStage.GiftChildren or LianZhuStage.DiscardChildren or LianZhuStage.DrawChildren } && effect?.Op == SkillProgramEffectOp.RevealHandGiftAndResolveRecipientChoice && CanContinueLianZhu(f) && p.BeforeCount == 0 && p.CoverageResultBind is null && p.SubjectSeat == (f.LianZhu!.Stage == LianZhuStage.DiscardChildren ? f.LianZhu.RecipientSeat : f.OwnerSeat);
     private void RequireLianZhu(ProgramSkillFrame f)
@@ -86,6 +88,12 @@ public sealed partial class GameEngine
         if (CompleteProgramEventHistory().OfType<LianZhuSegmentPaidEvent>().Count(e => e == new LianZhuSegmentPaidEvent(f.Id,r.Source,r.GameplayHash,r.Stage,actor,r.Before,r.After,r.Count)) != 1 || f.PendingMovementContinuation is not { BeforeCount: 0, CoverageResultBind: null } p || p.SubjectSeat != actor) throw new InvalidOperationException("LianZhu cannot resume an unissued payment.");
         if (r.Stage == LianZhuStage.DrawChildren && (r.Count is < 0 or > 2 || _cardMovements.Count(m => m.Sequence > r.Before && m.Sequence <= r.After && m.From == CardLocation.DrawPile && m.To == CardLocation.Hand(f.OwnerSeat) && m.Reason.Value == LianZhuReason(r.Stage)) != r.Count)) throw new InvalidOperationException("LianZhu draw invoice changed.");
         if (r.Stage == LianZhuStage.DiscardChildren && (r.Selected.Count != 2 || r.Locations.Count != 2 || r.Selected.Select((card,n) => _cardMovements.Count(m => m.Sequence > r.Before && m.Sequence <= r.After && m.CardId == card && m.From == r.Locations[n] && m.Reason.Value == LianZhuReason(r.Stage) && (m.To == CardLocation.DiscardPile || m.To == CardLocation.OutsideGame && GetAdvancedCard(card).IsGeneralWeapon))).Any(count => count != 1))) throw new InvalidOperationException("LianZhu discard invoice changed.");
+    }
+
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 140)]
+    private void AssertRegisteredLianZhu(ProgramSkillFrame frame)
+    {
+        if (frame.LianZhu is not null) RequireLianZhu(frame);
     }
     [ProgramCapability]
     private sealed class DongBaiProgramCapability(GameEngine engine) : IDongBaiProgramHost

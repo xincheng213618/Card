@@ -61,6 +61,7 @@ public sealed partial class GameEngine
             target == (e.TargetReference is { } reference ? ResolveProgramParticipant(observer, reference) : ResolveProgramEffectTarget(observer, e.Target)) &&
             SignedDamagePaymentObserverRoot() is { } root && root.Id != observer.Id && root.SignedDamagePayment!.OriginalAttackFrameId == CurrentDamageAttempt?.ResolutionId;
     }
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 570)]
     private bool TryAdvanceSignedDamagePaymentSubtree()
     {
         if (_pendingDecision is not null || SignedDamagePaymentObserverRoot() is null) return false;

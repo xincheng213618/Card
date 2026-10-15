@@ -91,6 +91,8 @@ public sealed partial class GameEngine
   return !requireBound||r.NativeUseId>0&&r.NativeActionId>0&&CompleteProgramEventHistory().OfType<RoundOnceCardlessProgramRequestBoundEvent>().Count(e=>e.Receipt==r)==1;
  }
  private bool RoundOnceCardlessProgramRequestRidesOn(CardUseFrame use,ProgramSkillFrame parent)=>use.RoundOnceCardlessProgramRequest is {} r&&parent.RoundOnceCardlessProgramRequest is {NativeReturned:false} p&&p.Receipt==r&&ValidRoundOnceCardlessProgramReceipt(parent,r)&&IsRoundOnceCardlessBasicUse(use.Id)&&use.CardAttack?.ProgramSkillCardUseFrameId==parent.Id&&use.RoundOnceCardlessBasicUse?.CardActionId==r.NativeActionId;
+ [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 360)]
+ [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 360)]
  private bool CanContinueIssuedRoundOnceCardlessProgramRequest(ProgramSkillFrame parent)=>parent.RoundOnceCardlessProgramRequest is {} p&&ValidRoundOnceCardlessProgramReceipt(parent,p.Receipt)&&(!p.NativeReturned||CompleteProgramEventHistory().OfType<RoundOnceCardlessProgramRequestReturnedEvent>().Count(e=>e.Receipt==p.Receipt)==1);
  private void AssertRoundOnceCardlessProgramRequests()
  {

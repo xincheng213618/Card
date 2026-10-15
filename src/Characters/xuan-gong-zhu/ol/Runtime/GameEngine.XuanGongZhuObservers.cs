@@ -15,6 +15,14 @@ public sealed partial class GameEngine
         if(r.Stage==ZhuijiDebtStage.DiscardChildren && !IsZhuijiMovement(f,GetPausedPrivateOfferEffect(f),new(f.OwnerSeat,0,null)))
             throw new InvalidOperationException("Zhuiji ending discard lost its actual native physical movements.");
     }
+
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 430)]
+    private void AssertRegisteredIssuedXuanGongZhu(ProgramSkillFrame frame)
+    {
+        if (frame.ZhuijiInitialPaid is not null || frame.ZhuijiDebt is not null || frame.GaolingRecovery is not null) RequireIssuedXuanGongZhu(frame);
+    }
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 370)]
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 370)]
     private bool CanContinueIssuedXuanGongZhu(ProgramSkillFrame f)=>ValidQimeiDraw(f) || ValidZhuijiIssued(f) || ValidGaolingRecovery(f);
     private bool XuanGongZhuFirstChild(ProgramSkillFrame root,ResolutionFrame child)
     {
@@ -50,6 +58,7 @@ public sealed partial class GameEngine
     private ProgramSkillFrame? XuanGongZhuObserverRoot()=>FindProgramObserverRoot(static(e,r,c)=>e.XuanGongZhuFirstChild(r,c),static(e,i)=>e.HasMovementObserverSuffix(i));
     private bool HasXuanGongZhuDamageObserver(long id)=>XuanGongZhuObserverRoot() is {} r && _resolutionStack.Any(f=>f.Id==id && f is DamageTriggerWindowFrame) && _resolutionStack.FindIndex(f=>f.Id==id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
     private bool IsXuanGongZhuDying()=>ActiveDying is {} d && XuanGongZhuObserverRoot() is {} r && _resolutionStack.FindIndex(f=>f.Id==d.Id)>_resolutionStack.FindIndex(f=>f.Id==r.Id);
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 420)]
     private bool TryAdvanceXuanGongZhuSubtree()=>_pendingDecision is null && XuanGongZhuObserverRoot() is not null && TryAdvanceObserverSubtree(true);
     private bool AllowsXuanGongZhuNestedDamage(ProgramSkillFrame observer,int target,int amount,ProgramParticipantReference? source,DamageNature? nature,bool sourceLess)
     {

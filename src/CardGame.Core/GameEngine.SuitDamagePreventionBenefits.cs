@@ -246,6 +246,7 @@ public sealed partial class GameEngine
         attack.DamageRedirected && attack.TransferOwnerSeat == r.RecipientSeat && attack.TransferTargetSeat == attack.TargetSeat &&
         CompleteProgramEventHistory().OfType<ProgramDamageTransferredEvent>().Any(e => e.ResolutionId == f.Id && e.OwnerSeat == r.RecipientSeat &&
             e.SourceSeat == attack.SourceSeat && e.TargetSeat == attack.TargetSeat);
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 570)]
     private void AssertSuitPreventionBenefit(ProgramSkillFrame f)
     {
         if (f.SuitPreventionBenefit is not { } r) return;

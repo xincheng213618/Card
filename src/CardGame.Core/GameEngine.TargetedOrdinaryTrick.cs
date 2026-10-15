@@ -107,6 +107,7 @@ public sealed partial class GameEngine
         if (added.Count > 0) RefreshCurrentUseAddedTargetCandidates(use, [added[0]]);
         ClearPendingDecision(); ReplaceRuntimeTop(f with { TargetedOrdinaryTrick = null }); AdvanceRuntimeProgram(f.Id);
     }
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 490)]
     private void AssertTargetedOrdinaryTrickReceipt(ProgramSkillFrame f)
     {
         if (f.TargetedOrdinaryTrick is not { } r) return;
