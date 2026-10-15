@@ -27,6 +27,8 @@
         'Identity concealment: NativeProgramHpLossAndDamageReplacementRespectUndefinedHp',
         'Identity concealment: PaidGaolingRecoveryChildCanKillAppearingOwnerAndReturnOnce',
         'program continuation registration preserves ordered typed returns',
+        'typed trigger window driver preserves candidate and closing boundaries',
+        'trigger window protocol preserves ordered skip and typed returns',
         'First strategic damage: committed cursor survives real child windows and replay',
         'skill executor retires strategic damage batches',
         'frame-owned choices preserve multi-step bindings privacy and replay',

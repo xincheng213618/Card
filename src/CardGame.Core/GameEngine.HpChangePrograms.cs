@@ -85,106 +85,87 @@ public sealed partial class GameEngine
         return false;
     }
 
-    private void ContinueHpChangedProgramWindowCore()
+    private void ContinueHpChangedProgramWindowCore() =>
+        ProgramTriggerWindowDriver.Run(new HpChangedTriggerWindowHost(this));
+
+    private void CompleteHpChangedProgramWindow(HpChangedTriggerWindowFrame frame)
     {
-        while (_resolutionStack.LastOrDefault() is HpChangedTriggerWindowFrame frame)
+        PopResolutionFrame(frame.Id, ResolutionFrameKind.HpChangedTriggerWindow);
+        if (ReturnCardResponseCompletionHpChange(frame)) return;
+        if (ReturnCardSupplyCompletionHpChange(frame)) return;
+        if (frame.Continuation == PostEventContinuation.DrawFundedDistinctBasic)
+        { ResumeDrawFundedDistinctBasicHpChange(frame); return; }
+        if (frame.Continuation == PostEventContinuation.AwaitedProgramMovement &&
+            _resolutionStack.LastOrDefault() is ProgramSkillFrame
+                { SelectedCardPayment: { } payment, SelectedCardPaymentResult: null } parent)
         {
-            if (frame.CandidateIndex >= frame.Candidates.Count)
+            if (payment.ActiveChildFrameId != frame.Id)
+                throw new InvalidOperationException("A selected-card payment lost its HP-change child frame.");
+            ReplaceRuntimeTop(parent with
             {
-                PopResolutionFrame(frame.Id, ResolutionFrameKind.HpChangedTriggerWindow);
-                if (ReturnCardResponseCompletionHpChange(frame)) return;
-                if (ReturnCardSupplyCompletionHpChange(frame)) return;
-                if (frame.Continuation == PostEventContinuation.DrawFundedDistinctBasic)
-                { ResumeDrawFundedDistinctBasicHpChange(frame); return; }
-                if (frame.Continuation == PostEventContinuation.AwaitedProgramMovement &&
-                    _resolutionStack.LastOrDefault() is ProgramSkillFrame
-                        { SelectedCardPayment: { } payment, SelectedCardPaymentResult: null } parent)
+                SelectedCardPayment = payment with
                 {
-                    if (payment.ActiveChildFrameId != frame.Id)
-                        throw new InvalidOperationException("A selected-card payment lost its HP-change child frame.");
-                    ReplaceRuntimeTop(parent with
-                    {
-                        SelectedCardPayment = payment with
-                        {
-                            ActiveChildFrameId = null,
-                            LastCompletedChildFrameId = frame.Id
-                        }
-                    });
+                    ActiveChildFrameId = null,
+                    LastCompletedChildFrameId = frame.Id
                 }
-                if (TryBeginHpChangedProgramWindow(frame.ResumeFrameId, frame.Continuation, frame.CardId, frame.CardKind)) return;
-                switch (frame.Continuation)
-                {
-                    case PostEventContinuation.Program:
-                        AdvanceRuntimeProgram(frame.ResumeFrameId!.Value);
-                        break;
-                    case PostEventContinuation.FriendDuelResponse:
-                        ContinueFriendDuelResponse(frame.ResumeFrameId!.Value); break;
-                    case PostEventContinuation.AwaitedProgramMovement:
-                        if (!TryBeginCardsMovedProgramWindow()) ReturnRuntimeProgramMovement(frame.ResumeFrameId!.Value);
-                        break;
-                    case PostEventContinuation.CardUse:
-                        var card = GetTrickRepresentation(frame.ResumeFrameId!.Value, frame.CardId!.Value);
-                        FinishCardUse(frame.ResumeFrameId!.Value, card, frame.CardKind);
-                        break;
-                    case PostEventContinuation.VirtualBasicCardUse:
-                        FinishVirtualBasicUse(frame.ResumeFrameId!.Value);
-                        break;
-                    case PostEventContinuation.RecoveryReplacement:
-                        AdvanceRuntimeFrame(frame.ResumeFrameId!.Value);
-                        break;
-                    case PostEventContinuation.RecoveryPaidCardUse:
-                        ContinueRecoveryPaidCardUse(frame.ResumeFrameId!.Value);
-                        break;
-                    case PostEventContinuation.DrawPhaseObligation:
-                        AdvanceRuntimeFrame(frame.ResumeFrameId!.Value);
-                        break;
-                    case PostEventContinuation.DenglouCardUse:
-                        ContinueDenglouNativePayment(frame.ResumeFrameId!.Value);
-                        break;
-                    case PostEventContinuation.GuoSiCardUse:
-                        ContinueGuoSiNativePayment(frame.ResumeFrameId!.Value);
-                        break;
-                    case PostEventContinuation.HistoricalEndingCardUse:
-                        ContinueHistoricalEndingPayment(frame.ResumeFrameId!.Value);
-                        break;
-                    case PostEventContinuation.CounterspellPayment:
-                        ContinuePolicyCounterspellPayment(frame.ResumeFrameId!.Value);
-                        break;
-                    case PostEventContinuation.ColorFireAttackPayment:
-                        ContinueColorFireAttackPayment(frame.ResumeFrameId!.Value);
-                        break;
-                    case PostEventContinuation.EquipmentRecast:
-                        ContinueEquipmentRecast(frame.ResumeFrameId!.Value);
-                        break;
-                    case PostEventContinuation.FactionRequestCost:
-                        ContinuePaidFactionRequestCost(frame.ResumeFrameId!.Value);
-                        break;
-                    case PostEventContinuation.GroupRecovery:
-                        CompleteGroupRecoveryTarget();
-                        break;
-                    case PostEventContinuation.Boundary:
-                        TryBeginCardsMovedProgramWindow();
-                        break;
-                }
-                return;
-            }
-            var candidate = frame.Candidates[frame.CandidateIndex];
-            var context = frame.Contexts[frame.CandidateIndex];
-            if (!CanRunProgramTrigger(candidate, context))
-            {
-                AdvanceHpChangedProgramCandidate(frame, activated: false, completed: false);
-                continue;
-            }
-            var trigger = GetProgramTrigger(candidate);
-            if (trigger.Optional)
-            {
-                ReplaceRuntimeTop(frame with { Step = ResolutionFrameStep.AwaitingResponse });
-                ExposeProgramTriggerDecision(candidate, context);
-                return;
-            }
-            BeginProgramBinding(candidate, context);
-            return;
+            });
         }
+        if (TryBeginHpChangedProgramWindow(frame.ResumeFrameId, frame.Continuation, frame.CardId, frame.CardKind)) return;
+        switch (frame.Continuation)
+        {
+            case PostEventContinuation.Program:
+                AdvanceRuntimeProgram(frame.ResumeFrameId!.Value);
+                break;
+            case PostEventContinuation.FriendDuelResponse:
+                ContinueFriendDuelResponse(frame.ResumeFrameId!.Value); break;
+            case PostEventContinuation.AwaitedProgramMovement:
+                if (!TryBeginCardsMovedProgramWindow()) ReturnRuntimeProgramMovement(frame.ResumeFrameId!.Value);
+                break;
+            case PostEventContinuation.CardUse:
+                var card = GetTrickRepresentation(frame.ResumeFrameId!.Value, frame.CardId!.Value);
+                FinishCardUse(frame.ResumeFrameId!.Value, card, frame.CardKind);
+                break;
+            case PostEventContinuation.VirtualBasicCardUse:
+                FinishVirtualBasicUse(frame.ResumeFrameId!.Value);
+                break;
+            case PostEventContinuation.RecoveryReplacement:
+                AdvanceRuntimeFrame(frame.ResumeFrameId!.Value);
+                break;
+            case PostEventContinuation.RecoveryPaidCardUse:
+                ContinueRecoveryPaidCardUse(frame.ResumeFrameId!.Value);
+                break;
+            case PostEventContinuation.DrawPhaseObligation:
+                AdvanceRuntimeFrame(frame.ResumeFrameId!.Value);
+                break;
+            case PostEventContinuation.DenglouCardUse:
+                ContinueDenglouNativePayment(frame.ResumeFrameId!.Value);
+                break;
+            case PostEventContinuation.GuoSiCardUse:
+                ContinueGuoSiNativePayment(frame.ResumeFrameId!.Value);
+                break;
+            case PostEventContinuation.HistoricalEndingCardUse:
+                ContinueHistoricalEndingPayment(frame.ResumeFrameId!.Value);
+                break;
+            case PostEventContinuation.CounterspellPayment:
+                ContinuePolicyCounterspellPayment(frame.ResumeFrameId!.Value);
+                break;
+            case PostEventContinuation.ColorFireAttackPayment:
+                ContinueColorFireAttackPayment(frame.ResumeFrameId!.Value);
+                break;
+            case PostEventContinuation.EquipmentRecast:
+                ContinueEquipmentRecast(frame.ResumeFrameId!.Value);
+                break;
+            case PostEventContinuation.FactionRequestCost:
+                ContinuePaidFactionRequestCost(frame.ResumeFrameId!.Value);
+                break;
+            case PostEventContinuation.GroupRecovery:
+                CompleteGroupRecoveryTarget();
+                break;
+            case PostEventContinuation.Boundary:
+                TryBeginCardsMovedProgramWindow();
+                break;
+        }
+        return;
     }
 
     private void AssertPostEventProgramInvariants()

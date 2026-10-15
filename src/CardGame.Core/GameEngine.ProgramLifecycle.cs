@@ -3157,52 +3157,8 @@ public sealed partial class GameEngine
             Facts: candidateFacts ?? frame.Facts)
         { QingzhongPhase = frame.QingzhongStartingPhase, WeiluPhase = frame.WeiluStartingPhase };
 
-    private void ContinuePlayPhaseStartingBoundaryCore()
-    {
-        while (_resolutionStack.LastOrDefault() is PlayPhaseStartingBoundaryFrame frame)
-        {
-            if (frame.ItemIndex >= frame.Items.Count)
-            {
-                PopResolutionFrame(frame.Id, ResolutionFrameKind.PlayPhaseStartingBoundary);
-                AdvanceRulesAndPublishState();
-                return;
-            }
-
-            var item = frame.Items[frame.ItemIndex];
-            if (item.Kind != TurnEndingBoundaryItemKind.Program)
-                throw new InvalidOperationException("Unsupported play-phase-starting boundary item.");
-            var candidate = item.Candidate ??
-                throw new InvalidOperationException("A program play-phase-starting item lost its candidate.");
-            var context = CreatePlayPhaseStartingProgramContext(frame, candidate, item.Facts);
-            if (!CanRunProgramTrigger(candidate, context))
-            {
-                AdvancePlayPhaseStartingCandidate(frame, candidate, activated: false, completed: false);
-                continue;
-            }
-            var trigger = _contentRegistry!.GetSkill(candidate.SkillId).Program!.Triggers
-                .Single(current => current.Id == candidate.BindingId);
-            if (trigger.ChoiceGroup is { } choiceGroup)
-            {
-                var members = GetPlayPhaseStartingChoiceGroup(frame, candidate, choiceGroup);
-                if (members.Count > 1 || trigger.Optional)
-                {
-                    ReplaceRuntimeTop(frame with { Step = ResolutionFrameStep.AwaitingResponse });
-                    ExposeProgramTriggerGroupDecision(members, candidate, context, choiceGroup);
-                    return;
-                }
-                BeginProgramBinding(candidate, context);
-                return;
-            }
-            if (trigger.Optional)
-            {
-                ReplaceRuntimeTop(frame with { Step = ResolutionFrameStep.AwaitingResponse });
-                ExposeProgramTriggerDecision(candidate, context);
-                return;
-            }
-            BeginProgramBinding(candidate, context);
-            return;
-        }
-    }
+    private void ContinuePlayPhaseStartingBoundaryCore() =>
+        ProgramTriggerWindowDriver.Run(new PlayStartingTriggerWindowHost(this));
 
     private void AdvancePlayPhaseStartingCandidate(
         PlayPhaseStartingBoundaryFrame frame,
@@ -3228,124 +3184,118 @@ public sealed partial class GameEngine
         });
     }
 
-    private void ContinueProgramLifecycleWindowCore()
+    private void ContinueProgramLifecycleWindowCore() =>
+        ProgramTriggerWindowDriver.Run(new LifecycleTriggerWindowHost(this));
+
+    private void CompleteProgramLifecycleWindow(ProgramLifecycleTriggerWindowFrame frame)
     {
-        while (_resolutionStack.LastOrDefault() is ProgramLifecycleTriggerWindowFrame frame)
+        PopResolutionFrame(frame.Id, ResolutionFrameKind.ProgramLifecycleTriggerWindow);
+        if (frame.ResumeDrawPhaseObligationFrameId is not null)
+        { ReturnDrawPhaseObligationWindow(frame); return; }
+        switch (frame.Continuation)
         {
-            if (frame.CandidateIndex >= frame.Candidates.Count)
-            {
-                PopResolutionFrame(frame.Id, ResolutionFrameKind.ProgramLifecycleTriggerWindow);
-                if (frame.ResumeDrawPhaseObligationFrameId is not null)
-                { ReturnDrawPhaseObligationWindow(frame); return; }
-                switch (frame.Continuation)
-                {
-                    case ProgramLifecycleContinuation.ResumeAfterDeferredPrivateOffers:
-                        ContinueTurnAfterForeignActualContests(_players[frame.OwnerSeat]);
-                        break;
-                    case ProgramLifecycleContinuation.ResumeDyingEntry:
-                        CompleteDyingEntryProgramWindow(frame);
-                        break;
-                    case ProgramLifecycleContinuation.ResumeCardDeclaration:
-                        if (_resolutionStack.LastOrDefault() is not CardDeclarationFrame declaration || declaration.Id != frame.ResumeProgramFrameId || declaration.Stage != CardDeclarationStage.Granting)
-                            throw new InvalidOperationException("A declaration grant lost its exact parent.");
-                        AdvanceRuntimeFrame(declaration.Id); break;
-                    case ProgramLifecycleContinuation.ResumeParentProgram:
-                        AdvanceRuntimeProgram(frame.ResumeProgramFrameId!.Value);
-                        break;
-                    case ProgramLifecycleContinuation.CompleteGameStarting:
-                        break;
-                    case ProgramLifecycleContinuation.NormalTurnStart:
-                        BeginNormalTurnStartAfterProgramBindings(_players[frame.OwnerSeat]);
-                        break;
-                    case ProgramLifecycleContinuation.ResumeIdentityAppearance:
-                        ResumeIdentityAppearanceWindow(frame);
-                        break;
-                    case ProgramLifecycleContinuation.BeiMiHuPreludeRound:
-                    case ProgramLifecycleContinuation.BeiMiHuPreludeOwn:
-                        ReturnBeiMiHuTurnPreludeWindow(frame);
-                        break;
-                    case ProgramLifecycleContinuation.RoundProgramsTurnStart:
-                        ContinueTurnAfterRoundPrograms(_players[frame.OwnerSeat]);
-                        break;
-                    case ProgramLifecycleContinuation.CompleteDrawPhase:
-                        CompleteDrawPhaseAfterProgramWindow(
-                            _players[frame.OwnerSeat], frame.SkipPlayPhaseAfterDraw,
-                            frame.NormalDrawReplaced, frame.NormalDrawAdjustment,
-                            frame.FrozenBaseDrawCount,
-                            frame.ActualPhaseSubstitution is { SkippedPhase: SkillProgramTurnPhase.Draw } substitution && substitution.ParentFrameId == frame.Id);
-                        break;
-                    case ProgramLifecycleContinuation.CompletePlayPhase:
-                        CompletePlayPhaseAfterProgramWindow();
-                        break;
-                    case ProgramLifecycleContinuation.CompletePhaseHandDebtForcedEnd:
-                    case ProgramLifecycleContinuation.CompleteWeiluForcedPlayEnd:
-                        EndTurn();
-                        break;
-                    case ProgramLifecycleContinuation.CompleteJudgmentPhaseStarting:
-                        CompleteActualJudgmentStarting(frame);
-                        break;
-                    case ProgramLifecycleContinuation.ResumeCharacterStateChange:
-                        ResumeCharacterStateChange(frame);
-                        break;
-                    case ProgramLifecycleContinuation.CompleteDrawPhaseEnded:
-                        CompleteTurnStartAfterDraw(_players[frame.OwnerSeat], (DelayedTurnEffects)(frame.DrawPhaseEndedDelayedEffects ?? throw new InvalidOperationException("Draw end lost its frozen phase continuation.")), drawPhaseEndedProgramsCompleted: true);
-                        break;
-                    case ProgramLifecycleContinuation.CompleteAfterNormalDraw:
-                        CompleteTurnStartAfterDraw(_players[frame.OwnerSeat], _pendingTurnDelayedEffects,
-                            afterNormalDrawProgramsCompleted: true, drawPhaseEndedProgramsCompleted: true);
-                        break;
-                    case ProgramLifecycleContinuation.CompleteDiscardPhase:
-                        CompleteDiscardPhaseAfterProgramWindow(_players[frame.OwnerSeat]);
-                        break;
-                    case ProgramLifecycleContinuation.EndTurnAfterDiscardPhase:
-                        EndTurn();
-                        break;
-                    default:
-                        throw new InvalidOperationException("Unsupported lifecycle continuation.");
-                }
-                return;
-            }
-            var candidate = frame.Candidates[frame.CandidateIndex];
-            var context = new ProgramSkillWindowContext(
-                frame.Window, frame.Id, candidate.OwnerSeat,
-                SourceSeat: frame.ResumeDyingFrameId is not null ? ActiveDying?.KillerSeat : frame.OwnerSeat,
-                TargetSeat: frame.OwnerSeat,
-                OccurrenceIndex: candidate.OccurrenceIndex,
-                Facts: frame.Window==SkillProgramTriggerWindow.DrawPhaseStarting && HasAttributedEventOperations() ? (frame.ParticipantFacts?.GetValueOrDefault(candidate.OwnerSeat) ?? frame.Facts) with { EventTargetMarkerCounts = new Dictionary<PlayerMarkerKind,int>(_players[frame.OwnerSeat].Markers) } :
-                    frame.Window==SkillProgramTriggerWindow.DiscardPhaseEnded && HasAttributedEventOperations() ? (frame.ParticipantFacts?.GetValueOrDefault(candidate.OwnerSeat) ?? frame.Facts) with { EventTargetMarkerCounts = new Dictionary<PlayerMarkerKind,int>(_players[frame.OwnerSeat].Markers) } :
-                    frame.ParticipantFacts?.GetValueOrDefault(candidate.OwnerSeat) ?? frame.Facts);
-            if (frame.Window == SkillProgramTriggerWindow.IdentityGeneralAppeared) context = CreateIdentityAppearanceContext(frame, candidate);
-            context = context with { BeforeTurnPreludeProof = frame.BeforeTurnPreludeProof };
-            context = CreateQingzhongEndingContext(frame, candidate, context);
-            context = CreateWeiluEndingContext(frame, candidate, context);
-            context = CreateXuRongDyingContext(context);
-            context = CreateZhuijiEndingContext(frame, candidate, context);
-            context = AttachPhaseNamePredictionContext(candidate, context);
-            if (frame.ProgramTarget is { } commit) context = context with { SourceSeat = commit.OwnerSeat, TargetSeat = commit.TargetSeat, ProgramTarget = commit };
-            if (!CanRunProgramTrigger(candidate, context))
-            {
-                AdvanceProgramLifecycleCandidate(frame, activated: false, completed: false);
-                continue;
-            }
-            var trigger = _contentRegistry!.GetSkill(candidate.SkillId).Program!.Triggers
-                .Single(item => item.Id == candidate.BindingId);
-            if (trigger.ChoiceGroup is { } choiceGroup)
-            {
-                var members = GetProgramTriggerChoiceGroup(frame, candidate, choiceGroup);
-                if (members.Count > 1 || trigger.Optional)
-                    ExposeProgramTriggerGroupDecision(members, candidate, context, choiceGroup);
-                else
-                    BeginProgramBinding(candidate, context);
-                return;
-            }
-            if (trigger.Optional)
-            {
-                ExposeProgramTriggerDecision(candidate, context);
-                return;
-            }
-            BeginProgramBinding(candidate, context);
-            return;
+            case ProgramLifecycleContinuation.ResumeAfterDeferredPrivateOffers:
+                ContinueTurnAfterForeignActualContests(_players[frame.OwnerSeat]);
+                break;
+            case ProgramLifecycleContinuation.ResumeDyingEntry:
+                CompleteDyingEntryProgramWindow(frame);
+                break;
+            case ProgramLifecycleContinuation.ResumeCardDeclaration:
+                if (_resolutionStack.LastOrDefault() is not CardDeclarationFrame declaration || declaration.Id != frame.ResumeProgramFrameId || declaration.Stage != CardDeclarationStage.Granting)
+                    throw new InvalidOperationException("A declaration grant lost its exact parent.");
+                AdvanceRuntimeFrame(declaration.Id); break;
+            case ProgramLifecycleContinuation.ResumeParentProgram:
+                AdvanceRuntimeProgram(frame.ResumeProgramFrameId!.Value);
+                break;
+            case ProgramLifecycleContinuation.CompleteGameStarting:
+                break;
+            case ProgramLifecycleContinuation.NormalTurnStart:
+                BeginNormalTurnStartAfterProgramBindings(_players[frame.OwnerSeat]);
+                break;
+            case ProgramLifecycleContinuation.ResumeIdentityAppearance:
+                ResumeIdentityAppearanceWindow(frame);
+                break;
+            case ProgramLifecycleContinuation.BeiMiHuPreludeRound:
+            case ProgramLifecycleContinuation.BeiMiHuPreludeOwn:
+                ReturnBeiMiHuTurnPreludeWindow(frame);
+                break;
+            case ProgramLifecycleContinuation.RoundProgramsTurnStart:
+                ContinueTurnAfterRoundPrograms(_players[frame.OwnerSeat]);
+                break;
+            case ProgramLifecycleContinuation.CompleteDrawPhase:
+                CompleteDrawPhaseAfterProgramWindow(
+                    _players[frame.OwnerSeat], frame.SkipPlayPhaseAfterDraw,
+                    frame.NormalDrawReplaced, frame.NormalDrawAdjustment,
+                    frame.FrozenBaseDrawCount,
+                    frame.ActualPhaseSubstitution is { SkippedPhase: SkillProgramTurnPhase.Draw } substitution && substitution.ParentFrameId == frame.Id);
+                break;
+            case ProgramLifecycleContinuation.CompletePlayPhase:
+                CompletePlayPhaseAfterProgramWindow();
+                break;
+            case ProgramLifecycleContinuation.CompletePhaseHandDebtForcedEnd:
+            case ProgramLifecycleContinuation.CompleteWeiluForcedPlayEnd:
+                EndTurn();
+                break;
+            case ProgramLifecycleContinuation.CompleteJudgmentPhaseStarting:
+                CompleteActualJudgmentStarting(frame);
+                break;
+            case ProgramLifecycleContinuation.ResumeCharacterStateChange:
+                ResumeCharacterStateChange(frame);
+                break;
+            case ProgramLifecycleContinuation.CompleteDrawPhaseEnded:
+                CompleteTurnStartAfterDraw(_players[frame.OwnerSeat], (DelayedTurnEffects)(frame.DrawPhaseEndedDelayedEffects ?? throw new InvalidOperationException("Draw end lost its frozen phase continuation.")), drawPhaseEndedProgramsCompleted: true);
+                break;
+            case ProgramLifecycleContinuation.CompleteAfterNormalDraw:
+                CompleteTurnStartAfterDraw(_players[frame.OwnerSeat], _pendingTurnDelayedEffects,
+                    afterNormalDrawProgramsCompleted: true, drawPhaseEndedProgramsCompleted: true);
+                break;
+            case ProgramLifecycleContinuation.CompleteDiscardPhase:
+                CompleteDiscardPhaseAfterProgramWindow(_players[frame.OwnerSeat]);
+                break;
+            case ProgramLifecycleContinuation.EndTurnAfterDiscardPhase:
+                EndTurn();
+                break;
+            default:
+                throw new InvalidOperationException("Unsupported lifecycle continuation.");
         }
+        return;
+    }
+
+    private ProgramSkillWindowContext CreateLifecycleDrivingProgramContext(ProgramLifecycleTriggerWindowFrame frame, ProgramTriggerCandidate candidate)
+    {
+        var context = new ProgramSkillWindowContext(
+            frame.Window, frame.Id, candidate.OwnerSeat,
+            SourceSeat: frame.ResumeDyingFrameId is not null ? ActiveDying?.KillerSeat : frame.OwnerSeat,
+            TargetSeat: frame.OwnerSeat,
+            OccurrenceIndex: candidate.OccurrenceIndex,
+            Facts: frame.Window==SkillProgramTriggerWindow.DrawPhaseStarting && HasAttributedEventOperations() ? (frame.ParticipantFacts?.GetValueOrDefault(candidate.OwnerSeat) ?? frame.Facts) with { EventTargetMarkerCounts = new Dictionary<PlayerMarkerKind,int>(_players[frame.OwnerSeat].Markers) } :
+                frame.Window==SkillProgramTriggerWindow.DiscardPhaseEnded && HasAttributedEventOperations() ? (frame.ParticipantFacts?.GetValueOrDefault(candidate.OwnerSeat) ?? frame.Facts) with { EventTargetMarkerCounts = new Dictionary<PlayerMarkerKind,int>(_players[frame.OwnerSeat].Markers) } :
+                frame.ParticipantFacts?.GetValueOrDefault(candidate.OwnerSeat) ?? frame.Facts);
+        if (frame.Window == SkillProgramTriggerWindow.IdentityGeneralAppeared) context = CreateIdentityAppearanceContext(frame, candidate);
+        context = context with { BeforeTurnPreludeProof = frame.BeforeTurnPreludeProof };
+        context = CreateQingzhongEndingContext(frame, candidate, context);
+        context = CreateWeiluEndingContext(frame, candidate, context);
+        context = CreateXuRongDyingContext(context);
+        context = CreateZhuijiEndingContext(frame, candidate, context);
+        context = AttachPhaseNamePredictionContext(candidate, context);
+        if (frame.ProgramTarget is { } commit) context = context with { SourceSeat = commit.OwnerSeat, TargetSeat = commit.TargetSeat, ProgramTarget = commit };
+        return context;
+    }
+
+    private ProgramSkillWindowContext CreateLifecyclePendingProgramContext(ProgramLifecycleTriggerWindowFrame lifecycle, ProgramTriggerCandidate candidate)
+    {
+        if (lifecycle.Window == SkillProgramTriggerWindow.IdentityGeneralAppeared) return CreateIdentityAppearanceContext(lifecycle, candidate);
+        var context = new ProgramSkillWindowContext(
+            lifecycle.Window, lifecycle.Id, candidate.OwnerSeat,
+            SourceSeat: lifecycle.OwnerSeat, TargetSeat: lifecycle.OwnerSeat,
+            OccurrenceIndex: candidate.OccurrenceIndex,
+            Facts: lifecycle.ParticipantFacts?.GetValueOrDefault(candidate.OwnerSeat) ?? lifecycle.Facts)
+        { ProgramTarget = lifecycle.ProgramTarget, BeforeTurnPreludeProof = lifecycle.BeforeTurnPreludeProof,
+            SourceSeat = lifecycle.ProgramTarget?.OwnerSeat ?? lifecycle.OwnerSeat, TargetSeat = lifecycle.ProgramTarget?.TargetSeat ?? lifecycle.OwnerSeat };
+        context = CreateQingzhongEndingContext(lifecycle, candidate, context);
+        context = CreateWeiluEndingContext(lifecycle, candidate, context);
+        context = CreateXuRongDyingContext(context);
+        return CreateZhuijiEndingContext(lifecycle, candidate, context);
     }
 
     private void AdvanceProgramLifecycleCandidate(
@@ -3600,18 +3550,7 @@ public sealed partial class GameEngine
     {
         var action = selected.Parameters.GetValueOrDefault("program-action");
         var (candidate, context) = GetPendingProgramTriggerCandidate();
-        if (_resolutionStack.LastOrDefault() is ProgramLifecycleTriggerWindowFrame lifecycle &&
-            GetProgramTrigger(candidate).ChoiceGroup is { } choiceGroup)
-        {
-            ResolveProgramTriggerGroupChoice(lifecycle, candidate, context, choiceGroup, selected, action);
-            return;
-        }
-        if (_resolutionStack.LastOrDefault() is PlayPhaseStartingBoundaryFrame starting &&
-            GetProgramTrigger(candidate).ChoiceGroup is { } startingGroup)
-        {
-            ResolvePlayPhaseStartingGroupChoice(starting, candidate, context, startingGroup, selected, action);
-            return;
-        }
+        if (TryResolveDrivenProgramTriggerGroupChoice(candidate, context, selected, action)) return;
         if (selected.Parameters.GetValueOrDefault("skill-id") != candidate.SkillId ||
             selected.Parameters.GetValueOrDefault("binding-id") != candidate.BindingId ||
             selected.Parameters.GetValueOrDefault("skill-instance-id") != candidate.SkillInstanceId)
@@ -3629,114 +3568,6 @@ public sealed partial class GameEngine
         }
         if (action != "skip") throw new InvalidOperationException("Unsupported program trigger choice.");
         CompleteSkippedProgramCandidate(candidate);
-    }
-
-    private void ResolveProgramTriggerGroupChoice(
-        ProgramLifecycleTriggerWindowFrame frame,
-        ProgramTriggerCandidate first,
-        ProgramSkillWindowContext context,
-        string choiceGroup,
-        PromptChoice selected,
-        string? action)
-    {
-        var members = GetProgramTriggerChoiceGroup(frame, first, choiceGroup);
-        if (selected.Parameters.GetValueOrDefault("choice-group") != choiceGroup ||
-            selected.Cards.Count != 0 || selected.Targets.Count != 0)
-            throw new InvalidOperationException("The program choice group identity changed.");
-        ClearPendingDecision();
-        if (action == "skip")
-        {
-            if (!GetProgramTrigger(first).Optional)
-                throw new InvalidOperationException("A mandatory program choice group cannot be skipped.");
-            foreach (var member in members)
-                AdvanceEventRulesAndQueueFact(new ProgramBindingResolvedEvent(
-                    frame.Id, member.SkillId, member.BindingId, member.SkillInstanceId,
-                    member.OwnerSeat, frame.Window, Activated: false, Completed: false));
-            ReplaceRuntimeTop(frame with { CandidateIndex = frame.CandidateIndex + members.Count });
-            AdvanceRuntimeTop<ProgramLifecycleTriggerWindowFrame>();
-            return;
-        }
-        if (action != "activate")
-            throw new InvalidOperationException("Unsupported program choice-group action.");
-        var selectedCandidate = members.SingleOrDefault(member =>
-            selected.Parameters.GetValueOrDefault("skill-id") == member.SkillId &&
-            selected.Parameters.GetValueOrDefault("binding-id") == member.BindingId &&
-            selected.Parameters.GetValueOrDefault("skill-instance-id") == member.SkillInstanceId) ??
-            throw new InvalidOperationException("The selected program branch is not in the pending choice group.");
-        foreach (var member in members.Where(member => member != selectedCandidate))
-            AdvanceEventRulesAndQueueFact(new ProgramBindingResolvedEvent(
-                frame.Id, member.SkillId, member.BindingId, member.SkillInstanceId,
-                member.OwnerSeat, frame.Window, Activated: false, Completed: false));
-        var selectedContext = context with
-        {
-            OccurrenceIndex = selectedCandidate.OccurrenceIndex,
-            ResumeCandidateIndex = frame.CandidateIndex + members.Count
-        };
-        if (!CanRunProgramTrigger(selectedCandidate, selectedContext))
-        {
-            AdvanceEventRulesAndQueueFact(new ProgramBindingResolvedEvent(
-                frame.Id, selectedCandidate.SkillId, selectedCandidate.BindingId,
-                selectedCandidate.SkillInstanceId, selectedCandidate.OwnerSeat, frame.Window,
-                Activated: false, Completed: false));
-            ReplaceRuntimeTop(frame with { CandidateIndex = frame.CandidateIndex + members.Count });
-            AdvanceRuntimeTop<ProgramLifecycleTriggerWindowFrame>();
-            return;
-        }
-        BeginProgramBinding(selectedCandidate, selectedContext);
-    }
-
-    private void ResolvePlayPhaseStartingGroupChoice(
-        PlayPhaseStartingBoundaryFrame frame,
-        ProgramTriggerCandidate first,
-        ProgramSkillWindowContext context,
-        string choiceGroup,
-        PromptChoice selected,
-        string? action)
-    {
-        var members = GetPlayPhaseStartingChoiceGroup(frame, first, choiceGroup);
-        if (selected.Parameters.GetValueOrDefault("choice-group") != choiceGroup ||
-            selected.Cards.Count != 0 || selected.Targets.Count != 0)
-            throw new InvalidOperationException("The program choice group identity changed.");
-        ClearPendingDecision();
-        if (action == "skip")
-        {
-            if (!GetProgramTrigger(first).Optional)
-                throw new InvalidOperationException("A mandatory program choice group cannot be skipped.");
-            foreach (var member in members)
-                AdvanceEventRulesAndQueueFact(new ProgramBindingResolvedEvent(
-                    frame.Id, member.SkillId, member.BindingId, member.SkillInstanceId,
-                    member.OwnerSeat, SkillProgramTriggerWindow.PlayPhaseStarting, Activated: false, Completed: false));
-            ReplaceRuntimeTop(frame with { ItemIndex = frame.ItemIndex + members.Count });
-            AdvanceRuntimeTop<PlayPhaseStartingBoundaryFrame>();
-            return;
-        }
-        if (action != "activate")
-            throw new InvalidOperationException("Unsupported program choice-group action.");
-        var selectedCandidate = members.SingleOrDefault(member =>
-            selected.Parameters.GetValueOrDefault("skill-id") == member.SkillId &&
-            selected.Parameters.GetValueOrDefault("binding-id") == member.BindingId &&
-            selected.Parameters.GetValueOrDefault("skill-instance-id") == member.SkillInstanceId) ??
-            throw new InvalidOperationException("The selected program branch is not in the pending choice group.");
-        foreach (var member in members.Where(member => member != selectedCandidate))
-            AdvanceEventRulesAndQueueFact(new ProgramBindingResolvedEvent(
-                frame.Id, member.SkillId, member.BindingId, member.SkillInstanceId,
-                member.OwnerSeat, SkillProgramTriggerWindow.PlayPhaseStarting, Activated: false, Completed: false));
-        var selectedContext = context with
-        {
-            OccurrenceIndex = selectedCandidate.OccurrenceIndex,
-            ResumeCandidateIndex = frame.ItemIndex + members.Count
-        };
-        if (!CanRunProgramTrigger(selectedCandidate, selectedContext))
-        {
-            AdvanceEventRulesAndQueueFact(new ProgramBindingResolvedEvent(
-                frame.Id, selectedCandidate.SkillId, selectedCandidate.BindingId,
-                selectedCandidate.SkillInstanceId, selectedCandidate.OwnerSeat,
-                SkillProgramTriggerWindow.PlayPhaseStarting, Activated: false, Completed: false));
-            ReplaceRuntimeTop(frame with { ItemIndex = frame.ItemIndex + members.Count });
-            AdvanceRuntimeTop<PlayPhaseStartingBoundaryFrame>();
-            return;
-        }
-        BeginProgramBinding(selectedCandidate, selectedContext);
     }
 
     [ProgramAnswer(
@@ -4074,6 +3905,8 @@ public sealed partial class GameEngine
     private (ProgramTriggerCandidate Candidate, ProgramSkillWindowContext Context)
         GetPendingProgramTriggerCandidate()
     {
+        if (TryGetDrivenProgramTriggerCandidate(out var drivenCandidate, out var drivenContext))
+            return (drivenCandidate, drivenContext);
         if (TryGetPindianRevealTrigger(out var revealCandidate,out var revealContext)) return (revealCandidate,revealContext);
         if (_resolutionStack.LastOrDefault() is FirstSlashDuelLegacyWindowFrame legacyBenefit)
             return (legacyBenefit.Candidates[legacyBenefit.CandidateIndex], legacyBenefit.Contexts[legacyBenefit.CandidateIndex]);
@@ -4100,36 +3933,6 @@ public sealed partial class GameEngine
             return (candidate, CreateTurnEndingProgramContext(turnEnding, candidate,
                 turnEnding.Items[turnEnding.ItemIndex].Facts));
         }
-        if (_resolutionStack.LastOrDefault() is PlayPhaseStartingBoundaryFrame playStarting)
-        {
-            var candidate = playStarting.Items[playStarting.ItemIndex].Candidate ??
-                throw new InvalidOperationException("The play-phase-starting item lost its candidate.");
-            return (candidate, CreatePlayPhaseStartingProgramContext(playStarting, candidate,
-                playStarting.Items[playStarting.ItemIndex].Facts));
-        }
-        if (_resolutionStack.LastOrDefault() is ProgramLifecycleTriggerWindowFrame lifecycle)
-        {
-            var candidate = lifecycle.Candidates[lifecycle.CandidateIndex];
-            if (lifecycle.Window == SkillProgramTriggerWindow.IdentityGeneralAppeared) return (candidate, CreateIdentityAppearanceContext(lifecycle, candidate));
-            var context = new ProgramSkillWindowContext(
-                lifecycle.Window, lifecycle.Id, candidate.OwnerSeat,
-                SourceSeat: lifecycle.OwnerSeat, TargetSeat: lifecycle.OwnerSeat,
-                OccurrenceIndex: candidate.OccurrenceIndex,
-                Facts: lifecycle.ParticipantFacts?.GetValueOrDefault(candidate.OwnerSeat) ?? lifecycle.Facts)
-            { ProgramTarget = lifecycle.ProgramTarget, BeforeTurnPreludeProof = lifecycle.BeforeTurnPreludeProof,
-                SourceSeat = lifecycle.ProgramTarget?.OwnerSeat ?? lifecycle.OwnerSeat, TargetSeat = lifecycle.ProgramTarget?.TargetSeat ?? lifecycle.OwnerSeat };
-            context = CreateQingzhongEndingContext(lifecycle, candidate, context);
-            context = CreateWeiluEndingContext(lifecycle, candidate, context);
-            context = CreateXuRongDyingContext(context);
-            return (candidate, CreateZhuijiEndingContext(lifecycle, candidate, context));
-        }
-        if (_resolutionStack.LastOrDefault() is HpChangedTriggerWindowFrame hpChanged)
-            return (hpChanged.Candidates[hpChanged.CandidateIndex], hpChanged.Contexts[hpChanged.CandidateIndex]);
-        if (_resolutionStack.LastOrDefault() is CardsMovedTriggerWindowFrame cardsMoved)
-        {
-            var candidate = cardsMoved.Candidates[cardsMoved.CandidateIndex];
-            return (candidate, CreateCardsMovedProgramContext(cardsMoved, candidate));
-        }
         if (_resolutionStack.LastOrDefault() is ProgramDeathTriggerWindowFrame deathWindow)
         {
             var candidate = deathWindow.Candidates[deathWindow.CandidateIndex];
@@ -4143,11 +3946,6 @@ public sealed partial class GameEngine
             var item = beforeDamage.Candidates[beforeDamage.CandidateIndex];
             return (item.Candidate, CreateBeforeDamageProgramContext(beforeDamage, item));
         }
-        if (_resolutionStack.LastOrDefault() is ProgramCardTriggerWindowFrame cardAction &&
-            cardAction.Candidates[cardAction.CandidateIndex] is { } cardCandidate)
-        {
-            return (ToSharedCandidate(cardCandidate), CreateCardActionProgramContext(cardAction, cardCandidate));
-        }
         if (ActiveDamageTrigger is { } damage &&
             damage.Candidates[damage.CandidateIndex].ToProgramCandidate() is { } damageCandidate)
             return (damageCandidate, CreateAfterDamageProgramContext(damage, damageCandidate));
@@ -4156,6 +3954,7 @@ public sealed partial class GameEngine
 
     private void CompleteSkippedProgramCandidate(ProgramTriggerCandidate candidate)
     {
+        if (TrySkipDrivenProgramCandidate(candidate)) return;
         if (_resolutionStack.LastOrDefault() is PindianRevealWindowFrame reveal && reveal.Candidates[reveal.CandidateIndex] == candidate)
         { CompletePindianRevealBinding(candidate,PindianRevealContext(reveal,candidate)); return; }
         if (_resolutionStack.LastOrDefault() is FirstSlashDuelLegacyWindowFrame legacyBenefit &&
@@ -4202,35 +4001,6 @@ public sealed partial class GameEngine
             AdvanceRuntimeTop<TurnEndingBoundaryFrame>();
             return;
         }
-        if (_resolutionStack.LastOrDefault() is PlayPhaseStartingBoundaryFrame playStarting &&
-            playStarting.Items[playStarting.ItemIndex].Candidate == candidate)
-        {
-            AdvancePlayPhaseStartingCandidate(
-                playStarting, candidate, activated: false, completed: false);
-            AdvanceRuntimeTop<PlayPhaseStartingBoundaryFrame>();
-            return;
-        }
-        if (_resolutionStack.LastOrDefault() is ProgramLifecycleTriggerWindowFrame lifecycle)
-        {
-            AdvanceProgramLifecycleCandidate(lifecycle, activated: false, completed: false);
-            AdvanceRuntimeTop<ProgramLifecycleTriggerWindowFrame>();
-            return;
-        }
-        if (_resolutionStack.LastOrDefault() is HpChangedTriggerWindowFrame hpChanged &&
-            hpChanged.Candidates[hpChanged.CandidateIndex] == candidate)
-        {
-            AdvanceHpChangedProgramCandidate(hpChanged, activated: false, completed: false);
-            AdvanceRuntimeTop<HpChangedTriggerWindowFrame>();
-            return;
-        }
-        if (_resolutionStack.LastOrDefault() is CardsMovedTriggerWindowFrame cardsMoved &&
-            cardsMoved.Candidates[cardsMoved.CandidateIndex] == candidate)
-        {
-            AdvanceCardsMovedProgramCandidate(
-                cardsMoved, candidate, activated: false, completed: false);
-            AdvanceRuntimeTop<CardsMovedTriggerWindowFrame>();
-            return;
-        }
         if (_resolutionStack.LastOrDefault() is ProgramDeathTriggerWindowFrame deathWindow &&
             deathWindow.Candidates[deathWindow.CandidateIndex] == candidate)
         {
@@ -4243,14 +4013,6 @@ public sealed partial class GameEngine
         {
             AdvanceBeforeDamageProgramCandidate(beforeDamage, activated: false, completed: false);
             AdvanceRuntimeTop<BeforeDamageProgramWindowFrame>();
-            return;
-        }
-        if (_resolutionStack.LastOrDefault() is ProgramCardTriggerWindowFrame cardAction &&
-            cardAction.Candidates[cardAction.CandidateIndex] is { } cardCandidate &&
-            ToSharedCandidate(cardCandidate) == candidate)
-        {
-            AdvanceProgramCardCandidate(cardAction);
-            AdvanceRuntimeTop<ProgramCardTriggerWindowFrame>();
             return;
         }
         if (ActiveDamageTrigger is { } damage &&

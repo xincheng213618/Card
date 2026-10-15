@@ -573,148 +573,128 @@ public sealed partial class GameEngine
                 : null);
     }
 
-    private void ContinueCardsMovedProgramWindowCore()
+    private void ContinueCardsMovedProgramWindowCore() =>
+        ProgramTriggerWindowDriver.Run(new CardsMovedTriggerWindowHost(this));
+
+    private void CompleteCardsMovedProgramWindow(CardsMovedTriggerWindowFrame frame)
     {
-        while (_resolutionStack.LastOrDefault() is CardsMovedTriggerWindowFrame frame)
+        PopResolutionFrame(frame.Id, ResolutionFrameKind.CardsMovedTriggerWindow);
+        if (ReturnCardResponseCompletionMovement(frame)) return;
+        if (ReturnCardSupplyCompletionMovement(frame)) return;
+        if (frame.ResumeFriendDuelResponseFrameId is { } friendId)
         {
-            if (frame.CandidateIndex >= frame.Candidates.Count)
-            {
-                PopResolutionFrame(frame.Id, ResolutionFrameKind.CardsMovedTriggerWindow);
-                if (ReturnCardResponseCompletionMovement(frame)) return;
-                if (ReturnCardSupplyCompletionMovement(frame)) return;
-                if (frame.ResumeFriendDuelResponseFrameId is { } friendId)
-                {
-                    if (_resolutionStack.LastOrDefault() is not FriendDuelResponseFrame friendParent || !IsFriendDuelResponseMovementReturn(friendParent, frame))
-                        throw new InvalidOperationException("Friend Duel response lost its actual movement return.");
-                    ContinueFriendDuelResponse(friendId); return;
-                }
-                if (frame.ResumePaidCardUseFrameId is { } paidUseId)
-                {
-                    if (_resolutionStack.LastOrDefault() is not CardUseFrame paidParent ||
-                        paidParent.Id != paidUseId || !IsPaidCardUseMovementReturn(paidParent, frame))
-                        throw new InvalidOperationException("A card-use payment lost its original typed movement return.");
-                    ContinueRecoveryPaidCardUse(paidUseId);
-                    return;
-                }
-                if (frame.DeferredTurnEndReturn is not null)
-                {
-                    ReturnDeferredTurnEndPrelude(frame);
-                    return;
-                }
-                if (frame.SoleTargetQuarantineEndReturn is not null)
-                { ReturnSoleTargetQuarantineMovement(frame); return; }
-                if (_resolutionStack.LastOrDefault() is ProgramSkillFrame
-                    { SelectedCardPayment: { } payment, SelectedCardPaymentResult: null } parent)
-                {
-                    if (payment.ActiveChildFrameId != frame.Id)
-                        throw new InvalidOperationException("A selected-card payment lost its movement child frame.");
-                    ReplaceRuntimeTop(parent with
-                    {
-                        SelectedCardPayment = payment with
-                        {
-                            ActiveChildFrameId = null,
-                            LastCompletedChildFrameId = frame.Id
-                        }
-                    });
-                }
-                if (frame.ResumeDeclarationFrameId is { } declarationId)
-                {
-                    if (_resolutionStack.LastOrDefault() is not CardDeclarationFrame declarationParent || declarationParent.Id != declarationId || declarationParent.ActiveChildFrameId != frame.Id)
-                        throw new InvalidOperationException("A declaration payment lost its exact movement child.");
-                    ReplaceRuntimeTop(declarationParent with { ActiveChildFrameId = null });
-                    AdvanceRuntimeFrame(declarationId); return;
-                }
-                if (frame.ResumeDrawFundedDistinctBasicFrameId is not null)
-                { ResumeDrawFundedDistinctBasicMovement(frame); return; }
-                if (frame.ResumeRecoveryReplacementFrameId is { } recoveryId)
-                { AdvanceRuntimeFrame(recoveryId); return; }
-                if (frame.ResumeDrawPhaseObligationFrameId is { } drawId)
-                {
-                    if (_resolutionStack.LastOrDefault() is not DrawPhaseObligationFrame drawParent || drawParent.Id != drawId ||
-                        frame.Batch.ParentFrameId != drawId && drawParent.InheritedMovementBatchIds?.Contains(frame.Batch.Id) != true)
-                        throw new InvalidOperationException("An actual draw lost its exact gain movement return.");
-                    AdvanceRuntimeFrame(drawId); return;
-                }
-                if (frame.ResumeDenglouUseFrameId is { } denglouId)
-                { ContinueDenglouNativePayment(denglouId); return; }
-                if (frame.ResumeGuoSiUseFrameId is { } guoSiId)
-                {
-                    if (_resolutionStack.LastOrDefault() is not CardUseFrame { GuoSiNative: not null, GuoSiCostDrained: false } guoSiParent || guoSiParent.Id != guoSiId || frame.Batch.ParentFrameId != guoSiId || frame.Batch.AwaitingProgramFrameId is not null)
-                        throw new InvalidOperationException("Sidao lost its exact native hand-material payment return.");
-                    AssertGuoSiNativeUse(guoSiParent);
-                    ContinueGuoSiNativePayment(guoSiId); return;
-                }
-                if (frame.ResumeHistoricalEndingUseFrameId is { } historyId)
-                {
-                    if (_resolutionStack.LastOrDefault() is not CardUseFrame { EndingHistoricalUseReturn: not null, EndingHistoricalCostDrained: false } historyParent || historyParent.Id != historyId || frame.Batch.ParentFrameId != historyId || frame.Batch.AwaitingProgramFrameId is not null)
-                        throw new InvalidOperationException("Historical Ending lost its exact one-Hand movement return.");
-                    ContinueHistoricalEndingPayment(historyId); return;
-                }
-                if (frame.ResumeRoundPileAlcoholUseFrameId is { } wineId)
-                {
-                    if (_resolutionStack.LastOrDefault() is not CardUseFrame { RoundPileAlcoholReturn: not null, RoundPileAlcoholCostDrained: false } wineParent ||
-                        wineParent.Id != wineId || frame.Batch.ParentFrameId != wineId || frame.Batch.AwaitingProgramFrameId is not null)
-                        throw new InvalidOperationException("Pile Alcohol lost its exact cost movement return.");
-                    ContinueRoundPileAlcoholUse(wineId); return;
-                }
-                if (frame.ResumeCounterspellPaymentFrameId is { } counterId)
-                {
-                    if (_resolutionStack.LastOrDefault() is not NullificationWindowFrame { CounterspellPayment: not null } counterParent ||
-                        counterParent.Id != counterId || frame.Batch.ParentFrameId != counterId || frame.Batch.AwaitingProgramFrameId is not null)
-                        throw new InvalidOperationException("Counterspell lost its exact payment movement return.");
-                    ContinuePolicyCounterspellPayment(counterId); return;
-                }
-                if (frame.ResumeMouZhitianFireFrameId is { } mouFireId) { ContinueMouZhitianFirePayment(mouFireId); return; }
-                if (frame.ResumeColorFireAttackFrameId is { } fireId)
-                {
-                    if (_resolutionStack.LastOrDefault() is not CardUseFrame { ColorFireAttack.PaidCardId: not null } fireParent ||
-                        fireParent.Id != fireId || frame.Batch.ParentFrameId != fireId || frame.Batch.AwaitingProgramFrameId is not null)
-                        throw new InvalidOperationException("Color Fire Attack lost its exact movement return.");
-                    ContinueColorFireAttackPayment(fireId); return;
-                }
-                if (frame.ResumeEquipmentRecastFrameId is { } recastId)
-                {
-                    if (_resolutionStack.LastOrDefault() is not EquipmentRecastFrame recastParent ||
-                        recastParent.Id != recastId || frame.Batch.ParentFrameId != recastId)
-                        throw new InvalidOperationException("Equipment recast lost its exact movement return.");
-                    AdvanceRuntimeFrame(recastId); return;
-                }
-                if (frame.ResumeProgramFrameId is { } resume)
-                {
-                    AdvanceRuntimeProgram(resume);
-                    return;
-                }
-                if (frame.ResumeFactionRequestCostFrameId is { } requestCostId)
-                {
-                    if (_resolutionStack.LastOrDefault() is not { PaidFactionRequestCostRecovery: not null } requestProducer ||
-                        requestProducer.Id != requestCostId || frame.Batch.ParentFrameId != requestCostId)
-                        throw new InvalidOperationException("Faction request cost lost its exact movement return.");
-                    ContinuePaidFactionRequestCost(requestCostId); return;
-                }
-                if (!TryBeginCardsMovedProgramWindow() &&
-                    _resolutionStack.LastOrDefault() is ProgramSkillFrame
-                        { } awaited && IsAwaitingProgramMovement(awaited))
-                    ReturnRuntimeProgramMovement(awaited.Id);
-                return;
-            }
-            var candidate = frame.Candidates[frame.CandidateIndex];
-            var context = CreateCardsMovedProgramContext(frame, candidate);
-            if (!CanRunProgramTrigger(candidate, context))
-            {
-                AdvanceCardsMovedProgramCandidate(frame, candidate, activated: false, completed: false);
-                continue;
-            }
-            var trigger = _contentRegistry!.GetSkill(candidate.SkillId).Program!.Triggers
-                .Single(item => item.Id == candidate.BindingId);
-            if (trigger.Optional)
-            {
-                ReplaceRuntimeTop(frame with { Step = ResolutionFrameStep.AwaitingResponse });
-                ExposeProgramTriggerDecision(candidate, context);
-                return;
-            }
-            BeginProgramBinding(candidate, context);
+            if (_resolutionStack.LastOrDefault() is not FriendDuelResponseFrame friendParent || !IsFriendDuelResponseMovementReturn(friendParent, frame))
+                throw new InvalidOperationException("Friend Duel response lost its actual movement return.");
+            ContinueFriendDuelResponse(friendId); return;
+        }
+        if (frame.ResumePaidCardUseFrameId is { } paidUseId)
+        {
+            if (_resolutionStack.LastOrDefault() is not CardUseFrame paidParent ||
+                paidParent.Id != paidUseId || !IsPaidCardUseMovementReturn(paidParent, frame))
+                throw new InvalidOperationException("A card-use payment lost its original typed movement return.");
+            ContinueRecoveryPaidCardUse(paidUseId);
             return;
         }
+        if (frame.DeferredTurnEndReturn is not null)
+        {
+            ReturnDeferredTurnEndPrelude(frame);
+            return;
+        }
+        if (frame.SoleTargetQuarantineEndReturn is not null)
+        { ReturnSoleTargetQuarantineMovement(frame); return; }
+        if (_resolutionStack.LastOrDefault() is ProgramSkillFrame
+            { SelectedCardPayment: { } payment, SelectedCardPaymentResult: null } parent)
+        {
+            if (payment.ActiveChildFrameId != frame.Id)
+                throw new InvalidOperationException("A selected-card payment lost its movement child frame.");
+            ReplaceRuntimeTop(parent with
+            {
+                SelectedCardPayment = payment with
+                {
+                    ActiveChildFrameId = null,
+                    LastCompletedChildFrameId = frame.Id
+                }
+            });
+        }
+        if (frame.ResumeDeclarationFrameId is { } declarationId)
+        {
+            if (_resolutionStack.LastOrDefault() is not CardDeclarationFrame declarationParent || declarationParent.Id != declarationId || declarationParent.ActiveChildFrameId != frame.Id)
+                throw new InvalidOperationException("A declaration payment lost its exact movement child.");
+            ReplaceRuntimeTop(declarationParent with { ActiveChildFrameId = null });
+            AdvanceRuntimeFrame(declarationId); return;
+        }
+        if (frame.ResumeDrawFundedDistinctBasicFrameId is not null)
+        { ResumeDrawFundedDistinctBasicMovement(frame); return; }
+        if (frame.ResumeRecoveryReplacementFrameId is { } recoveryId)
+        { AdvanceRuntimeFrame(recoveryId); return; }
+        if (frame.ResumeDrawPhaseObligationFrameId is { } drawId)
+        {
+            if (_resolutionStack.LastOrDefault() is not DrawPhaseObligationFrame drawParent || drawParent.Id != drawId ||
+                frame.Batch.ParentFrameId != drawId && drawParent.InheritedMovementBatchIds?.Contains(frame.Batch.Id) != true)
+                throw new InvalidOperationException("An actual draw lost its exact gain movement return.");
+            AdvanceRuntimeFrame(drawId); return;
+        }
+        if (frame.ResumeDenglouUseFrameId is { } denglouId)
+        { ContinueDenglouNativePayment(denglouId); return; }
+        if (frame.ResumeGuoSiUseFrameId is { } guoSiId)
+        {
+            if (_resolutionStack.LastOrDefault() is not CardUseFrame { GuoSiNative: not null, GuoSiCostDrained: false } guoSiParent || guoSiParent.Id != guoSiId || frame.Batch.ParentFrameId != guoSiId || frame.Batch.AwaitingProgramFrameId is not null)
+                throw new InvalidOperationException("Sidao lost its exact native hand-material payment return.");
+            AssertGuoSiNativeUse(guoSiParent);
+            ContinueGuoSiNativePayment(guoSiId); return;
+        }
+        if (frame.ResumeHistoricalEndingUseFrameId is { } historyId)
+        {
+            if (_resolutionStack.LastOrDefault() is not CardUseFrame { EndingHistoricalUseReturn: not null, EndingHistoricalCostDrained: false } historyParent || historyParent.Id != historyId || frame.Batch.ParentFrameId != historyId || frame.Batch.AwaitingProgramFrameId is not null)
+                throw new InvalidOperationException("Historical Ending lost its exact one-Hand movement return.");
+            ContinueHistoricalEndingPayment(historyId); return;
+        }
+        if (frame.ResumeRoundPileAlcoholUseFrameId is { } wineId)
+        {
+            if (_resolutionStack.LastOrDefault() is not CardUseFrame { RoundPileAlcoholReturn: not null, RoundPileAlcoholCostDrained: false } wineParent ||
+                wineParent.Id != wineId || frame.Batch.ParentFrameId != wineId || frame.Batch.AwaitingProgramFrameId is not null)
+                throw new InvalidOperationException("Pile Alcohol lost its exact cost movement return.");
+            ContinueRoundPileAlcoholUse(wineId); return;
+        }
+        if (frame.ResumeCounterspellPaymentFrameId is { } counterId)
+        {
+            if (_resolutionStack.LastOrDefault() is not NullificationWindowFrame { CounterspellPayment: not null } counterParent ||
+                counterParent.Id != counterId || frame.Batch.ParentFrameId != counterId || frame.Batch.AwaitingProgramFrameId is not null)
+                throw new InvalidOperationException("Counterspell lost its exact payment movement return.");
+            ContinuePolicyCounterspellPayment(counterId); return;
+        }
+        if (frame.ResumeMouZhitianFireFrameId is { } mouFireId) { ContinueMouZhitianFirePayment(mouFireId); return; }
+        if (frame.ResumeColorFireAttackFrameId is { } fireId)
+        {
+            if (_resolutionStack.LastOrDefault() is not CardUseFrame { ColorFireAttack.PaidCardId: not null } fireParent ||
+                fireParent.Id != fireId || frame.Batch.ParentFrameId != fireId || frame.Batch.AwaitingProgramFrameId is not null)
+                throw new InvalidOperationException("Color Fire Attack lost its exact movement return.");
+            ContinueColorFireAttackPayment(fireId); return;
+        }
+        if (frame.ResumeEquipmentRecastFrameId is { } recastId)
+        {
+            if (_resolutionStack.LastOrDefault() is not EquipmentRecastFrame recastParent ||
+                recastParent.Id != recastId || frame.Batch.ParentFrameId != recastId)
+                throw new InvalidOperationException("Equipment recast lost its exact movement return.");
+            AdvanceRuntimeFrame(recastId); return;
+        }
+        if (frame.ResumeProgramFrameId is { } resume)
+        {
+            AdvanceRuntimeProgram(resume);
+            return;
+        }
+        if (frame.ResumeFactionRequestCostFrameId is { } requestCostId)
+        {
+            if (_resolutionStack.LastOrDefault() is not { PaidFactionRequestCostRecovery: not null } requestProducer ||
+                requestProducer.Id != requestCostId || frame.Batch.ParentFrameId != requestCostId)
+                throw new InvalidOperationException("Faction request cost lost its exact movement return.");
+            ContinuePaidFactionRequestCost(requestCostId); return;
+        }
+        if (!TryBeginCardsMovedProgramWindow() &&
+            _resolutionStack.LastOrDefault() is ProgramSkillFrame
+                { } awaited && IsAwaitingProgramMovement(awaited))
+            ReturnRuntimeProgramMovement(awaited.Id);
+        return;
     }
 
     private void AdvanceCardsMovedProgramCandidate(

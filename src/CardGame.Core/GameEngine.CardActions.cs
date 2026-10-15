@@ -507,98 +507,80 @@ public sealed partial class GameEngine
                     ? SkillProgramTriggerWindow.CardUseTargetsFinalized
                     : SkillProgramTriggerWindow.CardResponseAccepted;
 
-    private void ContinueProgramCardWindowCore()
+    private void ContinueProgramCardWindowCore() =>
+        ProgramTriggerWindowDriver.Run(new CardActionTriggerWindowHost(this));
+
+    private ProgramTriggerWindowPreparation<ProgramCardTriggerWindowFrame> PrepareProgramCardWindow(ProgramCardTriggerWindowFrame frame)
     {
-        while (_resolutionStack.LastOrDefault() is ProgramCardTriggerWindowFrame frame)
-        {
-            if (TryDrainCardSupplyCompletionCosts(frame)) return;
-            frame = (ProgramCardTriggerWindowFrame)_resolutionStack[^1];
-            if (TryDrainCardResponseCompletionCosts(frame)) return;
-            frame = (ProgramCardTriggerWindowFrame)_resolutionStack[^1];
-            if (TryBeginSoleTargetRedirect(frame)) continue;
-            frame = AppendActorHandLimitTargetCandidates(frame);
-            frame = DeferFirstSlashDuelCandidates(frame);
-            if (frame.CandidateIndex == frame.Candidates.Count)
-            {
-                if (TryReturnSoleTargetRedirect(frame)) continue;
-                if (GetCardActionWindow(frame) == SkillProgramTriggerWindow.CardUseTargetsFinalized)
-                    SettleDamageMarkerBudgetTargets(frame.ParentFrameId);
-                var attack = frame.AttackOwnerFrameId is { } attackId ? new CardAttackHandle(this, attackId) : null;
-                PopResolutionFrame(frame.Id, ResolutionFrameKind.ProgramCardTriggerWindow);
-                if (TryCompleteOverflowCanceledUse(frame)) return;
-                if (GetCardActionWindow(frame) == SkillProgramTriggerWindow.CardUseTargetsFinalized &&
-                    TryCompleteSoleTargetQuarantinedUse(frame.ParentFrameId)) return;
-                if (frame.CardSupplyCompletion is not null)
-                    ContinueCardSupplyAfterCompletion(attack ?? throw new InvalidOperationException("A supplied card lost its native Slash."), frame);
-                else if (frame.ResponseCompletion is not null)
-                    ContinueCardResponseAfterCompletion(attack, frame);
-                else if (frame.Continuation is ProgramCardContinuation.CommittedSimpleCard or ProgramCardContinuation.FinalizedSimpleCard)
-                    ContinueSimpleCardUse(frame.ParentFrameId, frame.SimpleContinuation ??
-                        throw new InvalidOperationException("The simple card use lost its continuation."));
-                else if (frame.Continuation == ProgramCardContinuation.CommittedTrick)
-                    ContinueCommittedTrickUse(frame);
-                else if (frame.Continuation == ProgramCardContinuation.CompletedCard)
-                    PopFinishedCardUse(frame.ParentFrameId);
-                else if (frame.CompletedResponseReturn is { IsCommitted: true })
-                    ContinueCommittedResponseUse(attack, frame);
-                else if (frame.CompletedResponseReturn is not null)
-                    ContinueCompletedResponseUse(attack, frame);
-                else if (frame.Continuation == ProgramCardContinuation.CommittedSlash)
-                    ContinueCommittedSlashAfterPrograms(attack ??
-                        throw new InvalidOperationException("A committed Slash trigger lost its attack continuation."));
-                else if (frame.Continuation == ProgramCardContinuation.BeforeTargetEffects)
-                    ContinueSlashAfterProgramTargetEffects(attack ??
-                        throw new InvalidOperationException("A before-target-effects trigger lost its attack continuation."));
-                else if (frame.Continuation == ProgramCardContinuation.SlashTargetRedirecting)
-                    ContinueSlashAfterRedirectPrograms(attack ??
-                        throw new InvalidOperationException("A Slash redirection trigger lost its attack continuation."));
-                else if (frame.Continuation == ProgramCardContinuation.SlashBeforeResponse)
-                    ContinueSlashAfterResponsePrograms(attack ??
-                        throw new InvalidOperationException("A Slash response trigger lost its attack continuation."));
-                else if (frame.Continuation == ProgramCardContinuation.SlashFullyDodged)
-                    ContinueSlashAfterDodgePrograms(attack ??
-                        throw new InvalidOperationException("A dodged Slash trigger lost its attack continuation."));
-                else if (frame.Continuation is ProgramCardContinuation.BeforeTrickTargetEffects or ProgramCardContinuation.FinalizedTrick)
-                    ContinueTrickAfterProgramTargetEffects(frame);
-                else if (frame.Continuation == ProgramCardContinuation.Slash)
-                    ContinueSlashAfterFinalizedTargets(attack ??
-                        throw new InvalidOperationException("A Slash card trigger lost its attack continuation."));
-                else if (frame.Continuation == ProgramCardContinuation.CompletedSlash)
-                    ContinueCompletedSlashAfterPrograms(attack ??
-                        throw new InvalidOperationException("A completed Slash trigger lost its attack continuation."));
-                else if (frame.Continuation == ProgramCardContinuation.DelayedCard)
-                    ContinueAcceptedDelayedCardUse(frame);
-                else if (frame.Continuation == ProgramCardContinuation.FinalizedDelayedPlacement)
-                    ContinueFinalizedDelayedPlacement(frame);
-                else if (frame.Continuation == ProgramCardContinuation.NullificationResponse)
-                    ContinueNullificationAfterResponseUse(frame.Action);
-                else ContinueAcceptedCardResponse(attack ??
-                    throw new InvalidOperationException("A response card trigger lost its attack continuation."),
-                    frame.Action, frame.Continuation ??
-                    throw new InvalidOperationException("A response card trigger lost its return continuation."));
-                return;
-            }
-            var candidate = frame.Candidates[frame.CandidateIndex];
-            var program = _contentRegistry!.Skills[candidate.SkillId].Program!;
-            if (program.GameplayHash != candidate.GameplayHash)
-                throw new InvalidOperationException("A running card trigger definition changed.");
-            var trigger = ProgramInstructionResolver.Default.Resolve(program,
-                ProgramInstructionSourceKind.Trigger, candidate.TriggerId).Trigger!;
-            var shared = ToSharedCandidate(candidate);
-            var context = CreateCardActionProgramContext(frame, candidate);
-            if (!CanRunProgramTrigger(shared, context))
-            {
-                AdvanceProgramCardCandidate(frame);
-                continue;
-            }
-            if (trigger.Optional)
-            {
-                ExposeProgramTriggerDecision(shared, context);
-                return;
-            }
-            BeginProgramBinding(shared, context);
-            return;
-        }
+        if (TryDrainCardSupplyCompletionCosts(frame)) return new(ProgramTriggerWindowFlow.Yield, frame);
+        frame = (ProgramCardTriggerWindowFrame)_resolutionStack[^1];
+        if (TryDrainCardResponseCompletionCosts(frame)) return new(ProgramTriggerWindowFlow.Yield, frame);
+        frame = (ProgramCardTriggerWindowFrame)_resolutionStack[^1];
+        if (TryBeginSoleTargetRedirect(frame)) return new(ProgramTriggerWindowFlow.Retry, frame);
+        frame = AppendActorHandLimitTargetCandidates(frame);
+        frame = DeferFirstSlashDuelCandidates(frame);
+        return new(ProgramTriggerWindowFlow.Ready, frame);
+    }
+
+    private ProgramTriggerWindowFlow CompleteProgramCardWindow(ProgramCardTriggerWindowFrame frame)
+    {
+        if (TryReturnSoleTargetRedirect(frame)) return ProgramTriggerWindowFlow.Retry;
+        if (GetCardActionWindow(frame) == SkillProgramTriggerWindow.CardUseTargetsFinalized)
+            SettleDamageMarkerBudgetTargets(frame.ParentFrameId);
+        var attack = frame.AttackOwnerFrameId is { } attackId ? new CardAttackHandle(this, attackId) : null;
+        PopResolutionFrame(frame.Id, ResolutionFrameKind.ProgramCardTriggerWindow);
+        if (TryCompleteOverflowCanceledUse(frame)) return ProgramTriggerWindowFlow.Yield;
+        if (GetCardActionWindow(frame) == SkillProgramTriggerWindow.CardUseTargetsFinalized &&
+            TryCompleteSoleTargetQuarantinedUse(frame.ParentFrameId)) return ProgramTriggerWindowFlow.Yield;
+        if (frame.CardSupplyCompletion is not null)
+            ContinueCardSupplyAfterCompletion(attack ?? throw new InvalidOperationException("A supplied card lost its native Slash."), frame);
+        else if (frame.ResponseCompletion is not null)
+            ContinueCardResponseAfterCompletion(attack, frame);
+        else if (frame.Continuation is ProgramCardContinuation.CommittedSimpleCard or ProgramCardContinuation.FinalizedSimpleCard)
+            ContinueSimpleCardUse(frame.ParentFrameId, frame.SimpleContinuation ??
+                throw new InvalidOperationException("The simple card use lost its continuation."));
+        else if (frame.Continuation == ProgramCardContinuation.CommittedTrick)
+            ContinueCommittedTrickUse(frame);
+        else if (frame.Continuation == ProgramCardContinuation.CompletedCard)
+            PopFinishedCardUse(frame.ParentFrameId);
+        else if (frame.CompletedResponseReturn is { IsCommitted: true })
+            ContinueCommittedResponseUse(attack, frame);
+        else if (frame.CompletedResponseReturn is not null)
+            ContinueCompletedResponseUse(attack, frame);
+        else if (frame.Continuation == ProgramCardContinuation.CommittedSlash)
+            ContinueCommittedSlashAfterPrograms(attack ??
+                throw new InvalidOperationException("A committed Slash trigger lost its attack continuation."));
+        else if (frame.Continuation == ProgramCardContinuation.BeforeTargetEffects)
+            ContinueSlashAfterProgramTargetEffects(attack ??
+                throw new InvalidOperationException("A before-target-effects trigger lost its attack continuation."));
+        else if (frame.Continuation == ProgramCardContinuation.SlashTargetRedirecting)
+            ContinueSlashAfterRedirectPrograms(attack ??
+                throw new InvalidOperationException("A Slash redirection trigger lost its attack continuation."));
+        else if (frame.Continuation == ProgramCardContinuation.SlashBeforeResponse)
+            ContinueSlashAfterResponsePrograms(attack ??
+                throw new InvalidOperationException("A Slash response trigger lost its attack continuation."));
+        else if (frame.Continuation == ProgramCardContinuation.SlashFullyDodged)
+            ContinueSlashAfterDodgePrograms(attack ??
+                throw new InvalidOperationException("A dodged Slash trigger lost its attack continuation."));
+        else if (frame.Continuation is ProgramCardContinuation.BeforeTrickTargetEffects or ProgramCardContinuation.FinalizedTrick)
+            ContinueTrickAfterProgramTargetEffects(frame);
+        else if (frame.Continuation == ProgramCardContinuation.Slash)
+            ContinueSlashAfterFinalizedTargets(attack ??
+                throw new InvalidOperationException("A Slash card trigger lost its attack continuation."));
+        else if (frame.Continuation == ProgramCardContinuation.CompletedSlash)
+            ContinueCompletedSlashAfterPrograms(attack ??
+                throw new InvalidOperationException("A completed Slash trigger lost its attack continuation."));
+        else if (frame.Continuation == ProgramCardContinuation.DelayedCard)
+            ContinueAcceptedDelayedCardUse(frame);
+        else if (frame.Continuation == ProgramCardContinuation.FinalizedDelayedPlacement)
+            ContinueFinalizedDelayedPlacement(frame);
+        else if (frame.Continuation == ProgramCardContinuation.NullificationResponse)
+            ContinueNullificationAfterResponseUse(frame.Action);
+        else ContinueAcceptedCardResponse(attack ??
+            throw new InvalidOperationException("A response card trigger lost its attack continuation."),
+            frame.Action, frame.Continuation ??
+            throw new InvalidOperationException("A response card trigger lost its return continuation."));
+        return ProgramTriggerWindowFlow.Yield;
     }
 
     private void ContinueCompletedSlashAfterPrograms(CardAttackHandle attack)
