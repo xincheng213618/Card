@@ -237,6 +237,8 @@ var tests = new (string Name, Action Body)[]
     ("Triggered card conversion: real hand equipment materials and cold replay", TriggeredCardConversionChecks.BlackHandAndEquipmentUseRealMaterialsAndColdReplay),
     ("Triggered card conversion: first round opportunity decline and extra turn", TriggeredCardConversionChecks.RoundFirstOpportunityDoesNotMoveAfterDeclineOrExtraTurn),
     ("program continuation registration preserves ordered typed returns", ProgramContinuationChecks.OrderedRegistrationPreservesReturnBoundaries),
+    ("native return protocol preserves ordered preparation and isolation", ProgramNativeReturnChecks.OrderedNativeBoundariesPreservePreparationAndIsolation),
+    ("native return protocol rejects invalid metadata", ProgramNativeReturnChecks.InvalidNativeReturnMetadataFailsBeforeDispatch),
     ("program window returns preserve typed parent guards and registration", ProgramWindowReturnChecks.RegistrationAndTypedParentGuardsPreserveBoundaries),
     ("typed trigger window driver preserves candidate and closing boundaries", ProgramTriggerWindowDriverChecks.TypedWindowDriverPreservesCandidateAndClosingBoundaries),
     ("trigger window protocol preserves ordered skip and typed returns", TriggerWindowProtocolChecks.OrderedSkipAndTypedReturnsPreserveBoundaries),

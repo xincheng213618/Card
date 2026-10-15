@@ -85,6 +85,7 @@ public sealed partial class GameEngine
         return true;
     }
 
+    [NativeUseReturn(320)]
     private void ReturnLegacyDyingAlcoholCompletion(CardUseFrame completed)
     {
         if (completed.LegacyDyingAlcoholReturn is not { } returned) return;

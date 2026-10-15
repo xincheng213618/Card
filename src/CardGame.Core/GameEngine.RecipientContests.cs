@@ -128,6 +128,13 @@ public sealed partial class GameEngine
         if (!TryBeginProgramCardWindow(attack, action, SkillProgramTriggerWindow.CardUseCommitted, [target], ProgramCardContinuation.CommittedSlash)) BeginSlashTargetResolution(attack);
         return SkillProgramStepOutcome.AwaitChild;
     }
+    [NativeAttackReturn(NativeAttackReturnPhase.AfterBorrowedSword, 70)]
+    private bool ReturnRegisteredCompletePindianWinnerSlash(AttackCompletionReceipt completion)
+    {
+        if (completion.PindianWinnerSlashReturn is null) return false;
+        CompletePindianWinnerSlash(completion);
+        return true;
+    }
     private void CompletePindianWinnerSlash(AttackCompletionReceipt completion)
     {
         var returned = completion.PindianWinnerSlashReturn ?? throw new InvalidOperationException("Missing recipient winner typed return.");

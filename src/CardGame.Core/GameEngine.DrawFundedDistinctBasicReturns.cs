@@ -43,6 +43,7 @@ public sealed partial class GameEngine
         return exactParentIds.All(id => processing.Any(c => c.Id == id)) && processing.Select(c => c.Id).Order().SequenceEqual(exactParentIds.Order());
     }
 
+    [NativeUseValidation(20)]
     private void AssertDrawFundedDistinctBasicUseCompletion(CardUseFrame use)
     {
         if (use.DrawFundedDistinctBasicUse is null && use.DrawFundedDistinctBasicResponse is null) return;
@@ -104,6 +105,7 @@ public sealed partial class GameEngine
             choice.Parameters.GetValueOrDefault("seat") == paid.Payment.Source.OwnerSeat.ToString(System.Globalization.CultureInfo.InvariantCulture)) &&
             native.Choices.Any(choice => choice.Parameters.GetValueOrDefault("program-action") == "request-slash-nearest-decline");
     }
+    [NativeUseReturn(90)]
     private void ReturnDrawFundedDistinctBasicUse(CardUseFrame completed)
     {
         if (completed.DrawFundedDistinctBasicUse is not { } receipt) return;

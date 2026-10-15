@@ -249,6 +249,7 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new ChosenAssaultUseIssuedEvent(f.Id, r.Source, useId, use.Action!.ActionId, r.SelectedTargets));
         BeginJizhiOrNullificationWindow(useId, card, f.OwnerSeat, targets, LegalActionKind.BarbarianAssault, requiredCardKind: CardKind.Slash, playedCardKind: CardKind.BarbarianAssault);
     }
+    [NativeUseReturn(220)]
     private void ReturnBaoAssault(CardUseFrame use)
     {
         if (use.ChosenAssault is not { } ret) return;

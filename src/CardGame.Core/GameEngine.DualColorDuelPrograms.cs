@@ -209,6 +209,7 @@ public sealed partial class GameEngine
         origin.InitialActorSeat == (origin.OwnerDiscardCount > origin.OtherDiscardCount ? frame.OwnerSeat : draft.OtherSeat) &&
         origin.InitialTargetSeat == (origin.InitialActorSeat == frame.OwnerSeat ? draft.OtherSeat : frame.OwnerSeat);
 
+    [NativeUseReturn(240)]
     private void ReturnDualColorDuel(CardUseFrame use)
     {
         if (use.DualColorDuelOrigin is not { AttackStarted: false } origin) return;
@@ -217,6 +218,15 @@ public sealed partial class GameEngine
         FinishDualColorDuel(frame);
     }
 
+    [NativeAttackReturn(NativeAttackReturnPhase.AfterBorrowedSword, 110)]
+    private bool CompleteIssuedDualColorDuelAttack(AttackCompletionReceipt completion)
+    {
+        if (completion.ProgramFrameId is not { } parentId ||
+            _resolutionStack.LastOrDefault() is not ProgramSkillFrame frame || frame.Id != parentId ||
+            frame.DualColorDuel is not { Stage: ProgramDualColorDuelStage.DuelIssued }) return false;
+        CompleteDualColorDuelAttackReturn(frame, completion);
+        return true;
+    }
     private void CompleteDualColorDuelAttackReturn(ProgramSkillFrame frame, AttackCompletionReceipt completion)
     {
         if (completion.DualColorDuelReturn is not { AttackStarted: true } origin ||

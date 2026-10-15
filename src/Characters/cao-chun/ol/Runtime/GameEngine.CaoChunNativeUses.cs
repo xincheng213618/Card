@@ -28,11 +28,21 @@ public sealed partial class GameEngine
   if(n.ChainedPayment is{}chained&&(use.ChainedStateBasicUse?.Payment!=chained||!ValidChainedStateBasicPayment(chained)))return false;
   return CompleteProgramEventHistory().OfType<ShanjiaNativeSlashIssuedEvent>().Count(e=>e.FrameId==parent.Id&&e.NativeUseId==use.Id&&e.ActionId==n.ActionId&&e.Ending==n.Ending&&e.TargetSeat==n.TargetSeat)==1;
  }
+ [NativeUseReturn(30)]
+ private bool CompleteCaoChunUseReturn(CardUseFrame use)
+ {
+     if (use.CaoChunSlash is null) return false;
+     ReturnDrawFundedDistinctBasicUse(use);
+     ReturnChainedStateBasicUse(use);
+     return true;
+ }
+ [NativeUseValidation(70)]
  private void AssertCaoChunNativeUse(CardUseFrame use)
  {
   if(use.CaoChunSlash is not{}n)return;if(_resolutionStack.SingleOrDefault(f=>f.Id==n.ParentFrameId)is not ProgramSkillFrame parent||!CaoChunNativeRidesOn(parent,use))throw new InvalidOperationException("Shanjia lost its exact owned native Slash or legitimate actor replacement.");
  }
  // Native AttackCompletionReceipt is captured before its actual CardUseFrame is removed.
+ [NativeAttackReturn(NativeAttackReturnPhase.AfterBorrowedSword, 140)]
  private bool CompleteCaoChunSlash(AttackCompletionReceipt receipt)
  {
   if(receipt.ProgramFrameId is not{}parentId||_resolutionStack.LastOrDefault()is not ProgramSkillFrame{CaoChun:{Stage:CaoChunStage.NativeSlash,Slash:{}n}r}parent||parent.Id!=parentId)return false;

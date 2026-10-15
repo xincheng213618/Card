@@ -39,12 +39,20 @@ public sealed partial class GameEngine
         CompleteProgramEventHistory().OfType<ConditionalDiscardDuelIssuedEvent>().Count(e => e.Origin == (o with { AttackStarted = false })) == 1;
     private bool IsConditionalDiscardDuelUse(long id) => LifecycleCardUse(id) is
         { ConditionalDiscardDuelOrigin: not null, CardId: 0, CardKind: CardKind.Duel, PhysicalCardIds.Count: 0 };
+    [NativeUseReturn(250)]
     private void ReturnConditionalDiscardDuel(CardUseFrame use)
     {
         if (use.ConditionalDiscardDuelOrigin is not { AttackStarted: false } origin) return;
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame f || use.Id != origin.CardUseFrameId || !MatchesConditionalDuelOrigin(f, origin))
             throw new InvalidOperationException("Conditional Duel lost its exact no-attack typed return.");
         FinishConditionalDiscardDuel(f, true);
+    }
+    [NativeAttackReturn(NativeAttackReturnPhase.AfterBorrowedSword, 50)]
+    private bool ReturnRegisteredCompleteConditionalDiscardDuelAttackReturn(AttackCompletionReceipt completion)
+    {
+        if (completion.ConditionalDiscardDuelReturn is null) return false;
+        CompleteConditionalDiscardDuelAttackReturn(completion);
+        return true;
     }
     private void CompleteConditionalDiscardDuelAttackReturn(AttackCompletionReceipt completion)
     {

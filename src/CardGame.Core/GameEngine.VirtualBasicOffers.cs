@@ -143,6 +143,8 @@ public sealed partial class GameEngine
         PopFinishedCardUse(id);
     }
 
+    [NativeUseReturn(190)]
+    private void CompleteVirtualBasicUseReturn(NativeUseReturnContext context) => ReturnVirtualBasicUse(context.BasicReturn, context.Use.Id);
     private void ReturnVirtualBasicUse(ProgramVirtualBasicReturn? receipt, long childId)
     {
         if (receipt is null) return;

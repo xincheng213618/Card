@@ -228,6 +228,7 @@ public sealed partial class GameEngine
             o.TurnNumber == _turnNumber && f.FriendEventFlow is { Stage: FriendEventFlowStage.DuelIssued } flow && flow.UseFrameId == use.Id && flow.Count == o.RecastCount &&
             ProgramInstructionResolver.Default.Resolve(f, _contentRegistry.GetSkill(f.SkillId).Program!).Instructions is [{ Op: SkillProgramEffectOp.RecastOwnedCardsAndDuel }];
     }
+    [NativeUseReturn(260)]
     private void ReturnFriendRecastDuel(CardUseFrame use)
     {
         if (use.FriendRecastDuel is not { AttackStarted: false } o) return;
@@ -235,6 +236,13 @@ public sealed partial class GameEngine
             f.InstructionIndex != o.InstructionIndex || f.FriendEventFlow.UseFrameId != use.Id || f.SkillInstanceId != o.SkillInstanceId || f.GameplayHash != o.GameplayHash)
             throw new InvalidOperationException("Recast Duel lost its typed Program return.");
         FinishFriendEvent(f);
+    }
+    [NativeAttackReturn(NativeAttackReturnPhase.AfterBorrowedSword, 60)]
+    private bool ReturnRegisteredCompleteFriendRecastDuelAttackReturn(AttackCompletionReceipt completion)
+    {
+        if (completion.FriendRecastDuelReturn is null) return false;
+        CompleteFriendRecastDuelAttackReturn(completion);
+        return true;
     }
     private void CompleteFriendRecastDuelAttackReturn(AttackCompletionReceipt completion)
     {

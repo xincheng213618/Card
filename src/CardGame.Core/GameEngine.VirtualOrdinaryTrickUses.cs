@@ -159,6 +159,12 @@ public sealed partial class GameEngine
             option.ActionKind, option.TargetCardId, option.RequiredCardKind, effect.OutputKind);
     }
 
+    [NativeUseValidation(100)]
+    private void ValidateVirtualOrdinaryTrickReturn(CardUseFrame use)
+    {
+        if (use.VirtualOrdinaryTrickOrigin is not null && !ValidProgramVirtualOrdinaryTrickUse(use))
+            throw new InvalidOperationException("A virtual ordinary trick lost its issuance before completion.");
+    }
     private bool ValidProgramVirtualOrdinaryTrickUse(CardUseFrame use)
     {
         if (use.VirtualOrdinaryTrickOrigin is not { } origin || use.CardId != 0 ||
@@ -203,6 +209,7 @@ public sealed partial class GameEngine
         action.EffectiveKind == LifecycleCardUse(frameId)!.CardKind && action.PhysicalCards.Count == 0 &&
         action.ConversionChain.Count == 0;
 
+    [NativeUseReturn(210)]
     private void ReturnProgramVirtualOrdinaryTrick(CardUseFrame use)
     {
         if (use.VirtualOrdinaryTrickOrigin is not { } origin) return;

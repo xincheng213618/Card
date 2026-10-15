@@ -64,6 +64,25 @@ public sealed partial class GameEngine
     private bool ValidWangYunRoundOnceHeader(RoundOnceCardlessBasicPaymentReceipt payment,CardActionContext action,int actor)=>
         payment.Source.OwnerSeat==actor&&payment.ActualTurnNumber==_turnNumber&&payment.ActualTurnOwnerSeat==_currentSeat&&payment.RoundNumber==_roundNumber&&payment.PhaseInstanceId==_cardUseDebitPhaseInstanceId&&action.Type==CardActionType.Use&&action.ActorSeat==actor&&action.ProviderSeat==actor&&action.RequesterSeat is null&&action.EffectiveKind==CardKind.Slash&&action.PhysicalCards.Count==0&&action.ConversionChain is[var source]&&source==payment.Source&&ViewAsRule(source)is{OutputKind:CardKind.Slash,ForPlay:true,ForResponse:false,RoundOnceCardlessBasic:{}policy}&&policy.UsageGroup==payment.UsageGroup&&_contentRegistry.GetSkill(source.SkillId).Program?.GameplayHash==payment.GameplayHash&&CompleteProgramEventHistory().OfType<RoundOnceCardlessBasicQuotaPaidEvent>().Count(e=>e.Receipt==payment)==1;
     private bool WangYunCardUseRidesOn(CardUseFrame use,ProgramSkillFrame parent)=>use.WangYunNativeOrigin is{}r && r.ProgramFrameId==parent.Id && ValidWangYunNativeUse(use) && ValidWangYun(parent);
+    // A native Slash still owns its AttackCompletionReceipt. Only that later
+    // attack boundary may resume this parent after the once-returned use.
+    private void ResumeWangYunCompletedNativeUse(CardUseFrame use)
+    {
+        if (use.WangYunNativeOrigin!.Kind != "slash")
+            AdvanceRuntimeProgram(use.WangYunNativeOrigin.ProgramFrameId);
+    }
+
+    [NativeAttackReturn(NativeAttackReturnPhase.BeforeParentResume, 10)]
+    private void ValidateWangYunNativeAttackReturn(AttackCompletionReceipt completion)
+    {
+        if (_resolutionStack.LastOrDefault() is ProgramSkillFrame frame &&
+            completion.ProgramFrameId is { } frameId &&
+            frame.WangYunPlan is { NativeUse: { Kind: "slash" } origin } plan &&
+            (!plan.NativeReturned || origin.ProgramFrameId != frameId ||
+             origin.UseId != completion.ResolutionId || !CanContinueWangYun(frame)))
+            throw new InvalidOperationException("A Wang Yun Slash completion lost its exact once-returned native use.");
+    }
+    [NativeUsePreparation(20, 80, nameof(ResumeWangYunCompletedNativeUse))]
     private bool ReturnWangYunNativeUse(CardUseFrame use)
     {
         if(use.WangYunNativeOrigin is not{}r)return false;CompleteWangYunNativePayment(use.Id);use=LifecycleCardUse(use.Id)!;r=use.WangYunNativeOrigin!;

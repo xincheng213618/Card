@@ -172,6 +172,13 @@ public sealed partial class GameEngine
         if (!TryBeginProgramCardWindow(attack, action, SkillProgramTriggerWindow.CardUseCommitted, action.TargetSeats,
                 ProgramCardContinuation.CommittedSlash)) BeginSlashTargetResolution(attack);
     }
+    [NativeAttackReturn(NativeAttackReturnPhase.AfterBorrowedSword, 30)]
+    private bool ReturnRegisteredCompleteKuangfuSlash(AttackCompletionReceipt completion)
+    {
+        if (completion.KuangfuSlashReturn is null) return false;
+        CompleteKuangfuSlash(completion);
+        return true;
+    }
     private void CompleteKuangfuSlash(AttackCompletionReceipt completion)
     {
         var returned = completion.KuangfuSlashReturn ?? throw new InvalidOperationException("Missing equipment Slash return.");

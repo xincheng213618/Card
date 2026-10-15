@@ -364,6 +364,7 @@ public sealed partial class GameEngine
         r.Cards is [var card] && u.CardId == card && a.ActorSeat == f.OwnerSeat && a.EffectiveKind == CardKind.Xuanjian &&
         a.ConversionChain.Any(s => s.OwnerSeat == f.OwnerSeat && s.SkillId == f.SkillId && s.BindingId == GetProgramBindingId(f) && s.SkillInstanceId == f.SkillInstanceId) &&
         CompleteProgramEventHistory().OfType<FriendXuanjianUseIssuedEvent>().Count(e => e.ProgramFrameId == f.Id && e.UseFrameId == u.Id && e.ActionId == a.ActionId && e.CardId == card) == 1;
+    [NativeUseReturn(140)]
     private void ReturnFriendXuanjianUse(CardUseFrame use)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame { FriendTrio: { Stage: FriendTrioStage.EquipmentUse } r } f || !FriendXuanjianFrameRidesOn(use, f)) return;

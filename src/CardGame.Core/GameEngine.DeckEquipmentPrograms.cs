@@ -74,6 +74,7 @@ public sealed partial class GameEngine
         return SkillProgramStepOutcome.AwaitChild;
     }
 
+    [NativeUseReturn(130)]
     private void ContinueProgramAfterRandomEquipmentUse()
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame frame || frame.PendingMovementContinuation is null) return;

@@ -461,6 +461,7 @@ public sealed partial class GameEngine
 
     // The bespoke duel launch is an activation instruction; when its committed
     // use finishes, the program frame advances past the launch instruction.
+    [NativeUseReturn(170)]
     private void ContinueProgramAfterRuiJiDuelUse()
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame frame || frame.TriggerId is not null)

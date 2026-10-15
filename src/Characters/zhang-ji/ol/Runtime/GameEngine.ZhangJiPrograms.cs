@@ -96,6 +96,9 @@ public sealed partial class GameEngine
   return CompleteProgramEventHistory().OfType<ZhangJiNativeUseIssuedEvent>().Count(e=>e.Origin==o)==1 && _cardMovements.Count(m=>m.Sequence>o.Before && m.CardId==o.CardId && m.From==CardLocation.DrawPile && m.To==CardLocation.Processing)<=1;
  }
  private bool ZhangJiCardUseRidesOn(CardUseFrame u,ProgramSkillFrame f)=>u.ZhangJiNativeOrigin?.ProgramFrameId==f.Id && ValidZhangJiNativeUse(u);
+ private void ResumeZhangJiCompletedNativeUse(CardUseFrame use) =>
+     AdvanceRuntimeProgram(use.ZhangJiNativeOrigin!.ProgramFrameId);
+ [NativeUsePreparation(10, 70, nameof(ResumeZhangJiCompletedNativeUse))]
  private bool ReturnZhangJiNativeUse(CardUseFrame u)
  {
   if(u.ZhangJiNativeOrigin is not{}o)return false;

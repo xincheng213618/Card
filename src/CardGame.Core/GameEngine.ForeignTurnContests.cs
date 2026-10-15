@@ -231,6 +231,13 @@ public sealed partial class GameEngine
         if (!TryBeginProgramCardWindow(attack, action, SkillProgramTriggerWindow.CardUseCommitted, action.TargetSeats, ProgramCardContinuation.CommittedSlash))
             BeginSlashTargetResolution(attack);
     }
+    [NativeAttackReturn(NativeAttackReturnPhase.AfterBorrowedSword, 80)]
+    private bool ReturnRegisteredCompleteForeignTurnContestSlash(AttackCompletionReceipt completion)
+    {
+        if (completion.ForeignTurnContestSlashReturn is null) return false;
+        CompleteForeignTurnContestSlash(completion);
+        return true;
+    }
     private void CompleteForeignTurnContestSlash(AttackCompletionReceipt completion)
     {
         var returned = completion.ForeignTurnContestSlashReturn ?? throw new InvalidOperationException("Missing foreign Slash return.");

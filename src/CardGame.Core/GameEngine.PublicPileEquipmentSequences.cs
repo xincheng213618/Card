@@ -138,6 +138,7 @@ public sealed partial class GameEngine
         }
         throw new InvalidOperationException("A game-domain operation lost its typed cursor.");
     }
+    [NativeUseReturn(120)]
     private void ContinueProgramAfterPileEquipmentUse(long completedUseId)
     {
         if(_resolutionStack.LastOrDefault() is not ProgramSkillFrame {PileEquipment:{Stage:"equipment-use"} p} f)return;

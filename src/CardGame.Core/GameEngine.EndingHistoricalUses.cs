@@ -155,12 +155,20 @@ public sealed partial class GameEngine
         }
         BeginJizhiOrNullificationWindow(id,card,actor.Seat,LifecycleCardUse(id)!.TargetSeats,use.EndingHistoricalActionKind!.Value,use.EndingHistoricalTargetCardId,use.EndingHistoricalRequiredCardKind,kind);
     }
+    [NativeUseReturn(290)]
     private void ReturnHistoricalEndingUse(CardUseFrame use)
     {
         // This completed frame has already been popped. Its frozen Active bit
         // distinguishes a real attack completion from a later skipped trick tail.
         if(use.EndingHistoricalUseReturn is not {} ret || use.CardAttack is { Active: true })return;
         FinishHistoricalEndingReturn(ret);
+    }
+    [NativeAttackReturn(NativeAttackReturnPhase.AfterBorrowedSword, 20)]
+    private bool ReturnRegisteredCompleteHistoricalEndingAttack(AttackCompletionReceipt completion)
+    {
+        if (completion.EndingHistoricalUseReturn is null) return false;
+        CompleteHistoricalEndingAttack(completion);
+        return true;
     }
     private void CompleteHistoricalEndingAttack(AttackCompletionReceipt completion) => FinishHistoricalEndingReturn(completion.EndingHistoricalUseReturn!);
     private void FinishHistoricalEndingReturn(EndingHistoricalUseReturn ret)

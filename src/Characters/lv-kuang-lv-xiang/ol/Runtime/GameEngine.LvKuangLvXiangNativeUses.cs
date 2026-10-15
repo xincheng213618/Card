@@ -66,10 +66,32 @@ public sealed partial class GameEngine
  private bool IsQigongIssuedDistance(long? id,int actor)=>id is{}useId&&LifecycleCardUse(useId)is{Qigong:{Paid:true},Action:{}action}use&&action.ActorSeat==actor&&ValidQigongNativeUse(use);
  private bool IsQigongUnrespondable(long id)=>LifecycleCardUse(id)is{Qigong:{Paid:true}}use&&ValidQigongNativeUse(use);
  private bool QigongCardUseRidesOn(CardUseFrame use,ProgramSkillFrame parent)=>use.Qigong?.ProgramId==parent.Id&&ValidQigongNativeUse(use);
+ [NativeUseValidation(80)]
+ private void ValidateQigongNativeUseReturn(ref CardUseFrame use)
+ {
+     AssertQigongNativeUse(use);
+     if (use.Qigong is not null) use = LifecycleCardUse(use.Id)!;
+ }
  private void AssertQigongNativeUse(CardUseFrame use){if(use.Qigong is null)return;CompleteQigongNativePayment(use.Id);if(!ValidQigongNativeUse(LifecycleCardUse(use.Id)!))throw new InvalidOperationException("Qigong lost its exact paid native child before retirement.");}
+ [NativeUseReturn(20)]
+ private bool CompleteQigongUseReturn(CardUseFrame use)
+ {
+     if (use.Qigong is null) return false;
+     ReturnDrawFundedDistinctBasicUse(use);
+     ReturnChainedStateBasicUse(use);
+     return true;
+ }
+ [NativeUsePreparation(30)]
  private bool ReturnQigongNativeUse(CardUseFrame use)
  {
   if(use.Qigong is not{}r)return false;if(!ValidQigongNativeUse(use)||!r.Paid||CompleteProgramEventHistory().OfType<QigongNativeReturnedEvent>().Any(e=>e.UseId==use.Id))throw new InvalidOperationException("Qigong native child cannot return another or twice-paid invoice.");var parent=_resolutionStack.OfType<ProgramSkillFrame>().Single(f=>f.Id==r.ProgramId);ReplaceRuntimeFrame(parent.Id,parent with{LvKuangLvXiang=parent.LvKuangLvXiang!with{Returned=true}});AdvanceEventRulesAndQueueFact(new QigongNativeReturnedEvent(parent.Id,use.Id,r.ActionId));return true;
+ }
+ [NativeAttackReturn(NativeAttackReturnPhase.AfterBorrowedSword, 130)]
+ private bool ReturnRegisteredCompleteQigongSlash(AttackCompletionReceipt completion)
+ {
+     if (completion.Qigong is null) return false;
+     CompleteQigongSlash(completion);
+     return true;
  }
  private void CompleteQigongSlash(AttackCompletionReceipt completion)
  {

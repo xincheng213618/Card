@@ -27,6 +27,8 @@
         'Identity concealment: NativeProgramHpLossAndDamageReplacementRespectUndefinedHp',
         'Identity concealment: PaidGaolingRecoveryChildCanKillAppearingOwnerAndReturnOnce',
         'program continuation registration preserves ordered typed returns',
+        'native return protocol preserves ordered preparation and isolation',
+        'native return protocol rejects invalid metadata',
         'program window returns preserve typed parent guards and registration',
         'typed trigger window driver preserves candidate and closing boundaries',
         'trigger window protocol preserves ordered skip and typed returns',

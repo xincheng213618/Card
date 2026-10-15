@@ -198,6 +198,13 @@ public sealed partial class GameEngine
             BeginSlashTargetResolution(attack);
     }
 
+    [NativeAttackReturn(NativeAttackReturnPhase.AfterBorrowedSword, 90)]
+    private bool ReturnRegisteredCompleteSharedSlashBenefit(AttackCompletionReceipt completion)
+    {
+        if (completion.SharedSlashBenefit is null) return false;
+        CompleteSharedSlashBenefit(completion);
+        return true;
+    }
     private void CompleteSharedSlashBenefit(AttackCompletionReceipt completion)
     {
         var returned = completion.SharedSlashBenefit ?? throw new InvalidOperationException("A shared Slash lost its typed return.");

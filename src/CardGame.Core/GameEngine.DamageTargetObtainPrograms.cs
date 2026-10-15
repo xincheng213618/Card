@@ -160,6 +160,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("Nested Duel processing lost its exact suspended outer Use.");
         return (outer.PhysicalCardIds ?? []).Where(id=>_cardZones.GetLocation(id)==CardLocation.Processing).ToArray();
     }
+    [NativeUseReturn(230)]
     private void ReturnDamageTargetDuel(CardUseFrame use)
     {
         if(use.DamageTargetDuelOrigin is not {AttackStarted:false} o)return;
@@ -173,6 +174,17 @@ public sealed partial class GameEngine
         o.OuterCardUseFrameId==d.OuterCardUseFrameId && o.OuterActionId==d.OuterActionId && o.DamageWindowId==d.DamageWindowId && o.DamageFrameId==d.DamageFrameId &&
         o.InitialActorSeat==d.OwnerSeat && o.VictimChooserSeat==d.VictimSeat && IsValidPlayerSeat(o.InitialTargetSeat) && o.InitialTargetSeat!=d.OwnerSeat && o.InitialTargetSeat!=d.VictimSeat &&
         o.SkillId==f.SkillId && o.BindingId==d.BindingId && o.SkillInstanceId==f.SkillInstanceId && o.GameplayHash==f.GameplayHash && o.TurnNumber==_turnNumber;
+    [NativeAttackReturn(NativeAttackReturnPhase.AfterBorrowedSword, 100)]
+    private bool CompleteIssuedDamageTargetDuelAttack(AttackCompletionReceipt completion)
+    {
+        if (completion.ProgramFrameId is not { } parentId ||
+            _resolutionStack.LastOrDefault() is not ProgramSkillFrame frame || frame.Id != parentId ||
+            frame.DamageTargetObtain is not { Stage: ProgramDamageTargetObtainStage.DuelIssued }) return false;
+        if (completion.DamageTargetDuelReturn is not { AttackStarted: true } origin || !MatchesDamageTargetDuelParent(frame, origin))
+            throw new InvalidOperationException("True Duel completion lost its exact typed receipt return.");
+        CompleteDamageTargetDuelReturn(frame);
+        return true;
+    }
     private void CompleteDamageTargetDuelReturn(ProgramSkillFrame f)
     {
         if(!IsValidDamageTargetObtain(f) || f.DamageTargetObtain is not {Stage:ProgramDamageTargetObtainStage.DuelIssued} d || LifecycleCardUse(d.OuterCardUseFrameId)?.CardAttack is not {Active:false})

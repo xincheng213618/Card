@@ -88,6 +88,13 @@ public sealed partial class GameEngine
         if (!TryBeginProgramCardWindow(attack, action, SkillProgramTriggerWindow.CardUseCommitted, action.TargetSeats,
                 ProgramCardContinuation.CommittedSlash)) BeginSlashTargetResolution(attack);
     }
+    [NativeAttackReturn(NativeAttackReturnPhase.AfterBorrowedSword, 40)]
+    private bool ReturnRegisteredCompleteInspectedHandSlash(AttackCompletionReceipt completion)
+    {
+        if (completion.InspectedHandSlashReturn is null) return false;
+        CompleteInspectedHandSlash(completion);
+        return true;
+    }
     private void CompleteInspectedHandSlash(AttackCompletionReceipt completion)
     {
         var returned = completion.InspectedHandSlashReturn ?? throw new InvalidOperationException("Missing inspected Slash return.");

@@ -106,6 +106,7 @@ public sealed partial class GameEngine
         if (AwaitProgramBoundCardMovements(frame.Id, frame.OwnerSeat) == SkillProgramStepOutcome.Continue) AdvanceRuntimeProgram(frame.Id);
     }
 
+    [NativeUseReturn(110)]
     private void ContinueProgramAfterDiamondDelayedUse(long completedUseId)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame frame || frame.DiamondDelayed is not { Stage: ProgramDiamondDelayedStage.Using } d) return;

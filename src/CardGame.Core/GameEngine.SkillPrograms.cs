@@ -854,6 +854,7 @@ public sealed partial class GameEngine
             BoundEquipmentUseMatches(frame, effect, pending, use);
     }
 
+    [NativeUseReturn(150)]
     private void ContinueProgramAfterBoundEquipmentUse(CardUseFrame completed)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame { PendingMovementContinuation: { } pending } frame) return;
@@ -864,6 +865,13 @@ public sealed partial class GameEngine
         if (!TryBeginCardsMovedProgramWindow()) ReturnRuntimeProgramMovement(frame.Id);
     }
 
+    [NativeUseReturn(160)]
+    private void ContinueAfterSelectedNativeUse(NativeUseReturnContext context)
+    {
+        var use = context.Use;
+        if (use.ChosenAssault is null && !HasExactNextActualUseAdjustedProgramReturn(use) && !context.HpLossMaterialReturn)
+            ContinueProgramAfterSelectedCardUse();
+    }
     private void ContinueProgramAfterSelectedCardUse()
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame frame || frame.TriggerId is not null)

@@ -171,6 +171,7 @@ public sealed partial class GameEngine
         else FinishCardUse(id,new(0,CardKind.Peach,Suit.None,0),CardKind.Peach);
         return true;
     }
+    [NativeUseReturn(280)]
     private void ReturnDyingSuitsPeach(CardUseFrame use)
     {
         if (use.DyingSuitsPeachReturn is not { } ret) return; var f = GetActiveProgramFrame(ret.ProgramFrameId);

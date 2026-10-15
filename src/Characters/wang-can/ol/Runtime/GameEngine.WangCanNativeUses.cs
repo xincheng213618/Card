@@ -41,6 +41,11 @@ public sealed partial class GameEngine
  }
  private bool IsDenglouNativeUse(CardUseFrame use)=>use.DenglouNative is not null;
  private bool DenglouNativeRidesOn(ProgramSkillFrame parent,CardUseFrame use)=>parent.WangCan is{Stage:WangCanStage.DenglouNative,Native:{}n}r&&use.DenglouNative==n&&n.ProgramFrameId==parent.Id&&n.Source==WangCanSource(parent)&&n.GameplayHash==parent.GameplayHash&&n.From==r.Lease&&r.Entities.Contains(n.CardId)&&!r.Remaining.Contains(n.CardId);
+ [NativeUseValidation(90)]
+ private void ValidateDenglouNativeUseReturn(CardUseFrame use)
+ {
+     if (IsDenglouNativeUse(use)) AssertDenglouNativeUse(use);
+ }
  private void AssertDenglouNativeUse(CardUseFrame use)
  {
   if(use.DenglouNative is not{}n||_resolutionStack.OfType<ProgramSkillFrame>().SingleOrDefault(p=>p.Id==n.ProgramFrameId)is not{}parent||!DenglouNativeRidesOn(parent,use)||use.Id!=n.UseId||use.Action is not{Type:CardActionType.Use}a||!ShownEntityUseActorMatches(use,parent.OwnerSeat,parent.OwnerSeat)||a.ActionId!=n.ActionId||a.ParentActionId!=n.ParentActionId||a.EffectiveKind!=n.EffectiveKind||use.CardId!=n.CardId||use.CardKind!=n.EffectiveKind||!a.PhysicalCards.Select(c=>c.CardId).SequenceEqual([n.CardId])||a.PhysicalCards.Single().From!=n.From||!a.ConversionChain.SequenceEqual([n.Conversion??n.Source])||!a.TargetSeats.SequenceEqual(use.TargetSeats)||use.DenglouCostBefore is not{}before||use.DenglouCostAfter is not{}after||_cardMovements.Count(m=>m.Sequence>before&&m.Sequence<=after&&m.CardId==n.CardId&&m.From==n.From&&m.To==CardLocation.Processing&&m.Reason==CardMoveReasons.Use)!=1||CompleteProgramEventHistory().OfType<WangCanNativeIssuedEvent>().Count(e=>e.FrameId==parent.Id&&e.Source==n.Source&&e.GameplayHash==n.GameplayHash&&e.UseId==use.Id&&e.ActionId==n.ActionId&&e.ActorSeat==parent.OwnerSeat&&e.EffectiveKind==n.EffectiveKind)!=1)throw new InvalidOperationException("Denglou native use lost its exact private entity, source, original actor, native action or once-only payment.");
@@ -58,9 +63,23 @@ public sealed partial class GameEngine
   {var pending=new FangtianHalberdHandle(this,id,actor.Seat,card,n.EffectiveKind,false,amount,targets.ToArray(),false,false,n.Conversion??n.Source);ActiveFangtianHalberd=pending;var rule=EvaluateCardTargetCount(actor,n.EffectiveKind);AdvanceEventRulesAndQueueFact(new ProgramCardTargetCountAppliedEvent(id,actor.Seat,n.EffectiveKind,targets,Array.AsReadOnly(rule.Value.Contributions.Select(c=>c.SourceId).ToArray())));AdvanceEventRulesAndQueueFact(new CardUsedEvent(card.Id,n.EffectiveKind,actor.Seat,targets[0]));foreach(var target in targets)NotifyAiOfSlash(actor,_players[target]);BeginNextFangtianHalberdTarget(pending);return;}
   var attack=new CardAttackHandle(this,id,actor.Seat,targets.Single(),card,damageAmount:amount,playedCardKind:n.EffectiveKind,physicalCards:[card],ignoresArmor:HasCardArmorBypass(actor,_players[targets.Single()],n.EffectiveKind),programSkillCardUseFrameId:n.ProgramFrameId);ActiveCardAttack=attack;CaptureProgramAdjustedSlashBaseDamage(attack);MarkSlashUsedOrPlayedDuringCurrentPlayPhase(actor.Seat,n.EffectiveKind);AdvanceEventRulesAndQueueFact(new CardUsedEvent(card.Id,n.EffectiveKind,actor.Seat,targets.Single()));TryMarkProgramUseCommitted(id);if(!TryBeginProgramCardWindow(attack,LifecycleCardUse(id)!.Action!,SkillProgramTriggerWindow.CardUseCommitted,targets,ProgramCardContinuation.CommittedSlash))BeginSlashTargetResolution(attack);
  }
+ [NativeUseReturn(10)]
+ private bool CompleteDenglouUseReturn(CardUseFrame use)
+ {
+     if (!IsDenglouNativeUse(use)) return false;
+     ReturnDenglouNativeUse(use);
+     return true;
+ }
  private void ReturnDenglouNativeUse(CardUseFrame use)
  {
   if(use.DenglouNative is not{}n||use.CardAttack is{Active:true})return;FinishDenglouNativeReturn(n);
+ }
+ [NativeAttackReturn(NativeAttackReturnPhase.AfterBorrowedSword, 120)]
+ private bool ReturnRegisteredCompleteDenglouNativeAttack(AttackCompletionReceipt completion)
+ {
+     if (completion.DenglouNative is null) return false;
+     CompleteDenglouNativeAttack(completion);
+     return true;
  }
  private void CompleteDenglouNativeAttack(AttackCompletionReceipt completion)=>FinishDenglouNativeReturn(completion.DenglouNative!);
  private void FinishDenglouNativeReturn(WangCanNativeReceipt n)

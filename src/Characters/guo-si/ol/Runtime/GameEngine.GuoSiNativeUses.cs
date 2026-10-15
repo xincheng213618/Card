@@ -14,6 +14,11 @@ public sealed partial class GameEngine
  }
  private bool IsGuoSiNativeUse(CardUseFrame use)=>use.GuoSiNative is not null;
  private bool GuoSiNativeRidesOn(ProgramSkillFrame f,CardUseFrame use)=>f.GuoSi is{Stage:GuoSiStage.NativeUse,Native:{}r}&&r.ProgramFrameId==f.Id&&use.GuoSiNative==r&&r.Source==GuoSiSource(f)&&r.GameplayHash==f.GameplayHash;
+ [NativeUseValidation(60)]
+ private void ValidateGuoSiNativeUseReturn(CardUseFrame use)
+ {
+     if (IsGuoSiNativeUse(use)) AssertGuoSiNativeUse(use);
+ }
  private void AssertGuoSiNativeUse(CardUseFrame use)
  {
   if(use.GuoSiNative is not{}r||_resolutionStack.OfType<ProgramSkillFrame>().SingleOrDefault(f=>f.Id==r.ProgramFrameId)is not{}parent||!GuoSiNativeRidesOn(parent,use)||use.Id!=r.NativeUseId||use.Action is not{Type:CardActionType.Use}a||a.ActorSeat!=r.Source.OwnerSeat||a.ProviderSeat!=a.ActorSeat||a.ActionId!=r.ActionId||a.ParentActionId!=r.ParentActionId||parent.WindowContext?.CardUse?.CardActionId!=r.ParentActionId||a.EffectiveKind!=CardKind.Snatch||use.CardKind!=CardKind.Snatch||use.CardId!=r.Material||!a.PhysicalCards.Select(c=>c.CardId).SequenceEqual([r.Material])||a.PhysicalCards.Single().From!=CardLocation.Hand(a.ActorSeat)||!a.ConversionChain.SequenceEqual([r.Source])||!use.TargetSeats.SequenceEqual([r.Target])||use.GuoSiCostBefore is not{}before||use.GuoSiCostAfter is not{}after||before>after||_cardMovements.Count(m=>m.Sequence>before&&m.Sequence<=after&&m.CardId==r.Material&&m.From==CardLocation.Hand(a.ActorSeat)&&m.To==CardLocation.Processing&&m.Reason==CardMoveReasons.Use)!=1||CompleteProgramEventHistory().OfType<GuoSiNativeIssuedEvent>().Count(e=>e.Receipt==r)!=1)throw new InvalidOperationException("Sidao native use lost its exact pair, single hand material, source, accepted action or payment invoice.");
@@ -24,6 +29,13 @@ public sealed partial class GameEngine
   UpdateLifecycleCardUse(id,u=>u with{GuoSiCostDrained=true});var r=use.GuoSiNative!;var card=GetAttackCard(r.Material);
   if(_winner!=Winner.None||!_players[use.SourceSeat].IsAlive){FinishCardUse(id,card,CardKind.Snatch);return;}
   BeginJizhiOrNullificationWindow(id,card,use.SourceSeat,use.TargetSeats,r.ActionKind,r.TargetCardId,r.RequiredKind,CardKind.Snatch);
+ }
+ [NativeUseReturn(40)]
+ private bool CompleteGuoSiUseReturn(CardUseFrame use)
+ {
+     if (!IsGuoSiNativeUse(use)) return false;
+     ReturnGuoSiNativeUse(use);
+     return true;
  }
  private void ReturnGuoSiNativeUse(CardUseFrame use)
  {

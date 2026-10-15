@@ -44,6 +44,7 @@ public sealed partial class GameEngine
         cardId==0 && IsIssuedZeroEntityDuel(frameId) && LifecycleCardUse(frameId)?.Action?.ActionId==action.ActionId &&
         action.Type==CardActionType.Use && action.EffectiveKind==CardKind.Duel && action.PhysicalCards.Count==0 && action.ConversionChain.Count==0;
 
+    [NativeUseReturn(200)]
     private void ReturnSelectedActorDuel(CardUseFrame use)
     {
         if(use.SelectedActorDuelOrigin is not {AttackStarted:false} origin)return;

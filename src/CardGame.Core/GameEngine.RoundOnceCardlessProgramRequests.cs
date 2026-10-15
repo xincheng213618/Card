@@ -97,11 +97,13 @@ public sealed partial class GameEngine
   foreach(var parent in _resolutionStack.OfType<ProgramSkillFrame>().Where(f=>f.RoundOnceCardlessProgramRequest is not null))if(!CanContinueIssuedRoundOnceCardlessProgramRequest(parent))throw new InvalidOperationException("Cardless request lost its exact original actor, instruction, source invoice or paid native return.");
   foreach(var use in _resolutionStack.OfType<CardUseFrame>().Where(f=>f.RoundOnceCardlessProgramRequest is not null))if(_resolutionStack.SingleOrDefault(f=>f.Id==use.RoundOnceCardlessProgramRequest!.ProgramFrameId)is not ProgramSkillFrame parent||!RoundOnceCardlessProgramRequestRidesOn(use,parent))throw new InvalidOperationException("Cardless request child lost its original paid program parent.");
  }
+ [NativeUseValidation(40)]
  private void AssertRoundOnceCardlessProgramRequestCompletion(CardUseFrame use)
  {
   if(use.RoundOnceCardlessProgramRequest is not {} r)return;
   if(use.Step!=ResolutionFrameStep.Completed||_resolutionStack.LastOrDefault()?.Id!=use.Id||use.PendingRecoveryAttempts is {Count:>0}||use.RecoveryPaidContinuation is not null||_resolutionStack.OfType<ProgramCardTriggerWindowFrame>().Any(w=>w.ParentFrameId==use.Id)||_resolutionStack.SingleOrDefault(f=>f.Id==r.ProgramFrameId)is not ProgramSkillFrame parent||!RoundOnceCardlessProgramRequestRidesOn(use,parent))throw new InvalidOperationException("Cardless request cannot return before its actual native Use and all paid children completed.");
  }
+ [NativeUseReturn(50)]
  private void ReturnRoundOnceCardlessProgramRequestUse(CardUseFrame completed)
  {
   if(completed.RoundOnceCardlessProgramRequest is not {} r)return;

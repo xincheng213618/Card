@@ -295,6 +295,14 @@ public sealed partial class GameEngine
                 action.PhysicalCards is [var cost] && cost.CardId == paid && cost.From == CardLocation.DrawPile && ret.Kind == CardKind.FireAttack :
                 use.PhysicalCardIds is { Count: 0 } && action.PhysicalCards.Count == 0 && draft.CopiedKinds.Contains(ret.Kind));
     }
+    [NativeAttackReturn(NativeAttackReturnPhase.AfterCleanup, 20)]
+    private bool CompleteMouZhijueNativeAttackReturn()
+    {
+        if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame { MouZhijue.Stage: "returned" } parent) return false;
+        AdvanceRuntimeProgram(parent.Id);
+        return true;
+    }
+    [NativeUseReturn(300)]
     private void ReturnMouZhijueUse(CardUseFrame use)
     {
         if (use.MouZhijueReturn is not { } ret) return;

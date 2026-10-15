@@ -135,13 +135,22 @@ public sealed partial class GameEngine
  }
  private bool IsJianjiOffTurnNativeUse(long id,int actor)=>actor!=_currentSeat&&LifecycleCardUse(id)is{JianjiUse:{}r}use&&r.ActorSeat==actor&&_resolutionStack.SingleOrDefault(f=>f.Id==r.ProgramFrameId)is ProgramSkillFrame parent&&JianjiNativeUseRidesOn(use,parent);
  private bool JianjiNativeUseRidesOn(CardUseFrame use,ProgramSkillFrame parent)=>use.JianjiUse is{}r&&parent.HuangQuan is{NativeUse:{}pending}&&SameJianjiReceipt(r,pending)&&ValidJianjiReceipt(r,parent,true)&&use.Action is{Type:CardActionType.Use}a&&a.ActionId==r.ActionId&&a.ActorSeat==r.ActorSeat&&a.ProviderSeat==r.ActorSeat&&a.PhysicalCards is[var cost]&&cost.CardId==r.CardId;
+ [NativeUseValidation(50)]
  private void AssertJianjiNativeUseCompletion(CardUseFrame use)
  {if(use.JianjiUse is not{}r)return;if(use.Step!=ResolutionFrameStep.Completed||_resolutionStack.LastOrDefault()?.Id!=use.Id||_resolutionStack.SingleOrDefault(f=>f.Id==r.ProgramFrameId)is not ProgramSkillFrame parent||!JianjiNativeUseRidesOn(use,parent))throw new InvalidOperationException("Jianji must return through the exact issued native use after its children.");}
+ [NativeUseReturn(60)]
+ private bool CompleteJianjiUseReturn(CardUseFrame use)
+ {
+     if (use.JianjiUse is null) return false;
+     ReturnJianjiNativeUse(use);
+     return true;
+ }
  private void ReturnJianjiNativeUse(CardUseFrame use)
  {
   if(use.JianjiUse is not{}r)return;if(_resolutionStack.Any(f=>f.Id==use.Id)||use.Step!=ResolutionFrameStep.Completed||_resolutionStack.SingleOrDefault(f=>f.Id==r.ProgramFrameId)is not ProgramSkillFrame parent||!JianjiNativeUseRidesOn(use,parent)||CompleteProgramEventHistory().OfType<JianjiUseReturnedEvent>().Any(e=>SameJianjiReceipt(e.Receipt,r)))throw new InvalidOperationException("Jianji cannot return or repay another native use.");
   ReplaceRuntimeFrame(parent.Id,parent with{HuangQuan=parent.HuangQuan! with{Stage="returned"}});AdvanceEventRulesAndQueueFact(new JianjiUseReturnedEvent(r));if(use.CardAttack is not{Active:true})AdvanceRuntimeProgram(parent.Id);
  }
+ [NativeAttackReturn(NativeAttackReturnPhase.AfterCleanup, 10)]
  private bool TryResumeJianjiAfterNativeAttack()
  {if(_resolutionStack.LastOrDefault()is not ProgramSkillFrame{HuangQuan:{Stage:"returned",NativeUse:{}}}p)return false;AdvanceRuntimeProgram(p.Id);return true;}
  [ProgramContinuation(ProgramContinuationKind.Resume,24000)]

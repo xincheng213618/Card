@@ -125,6 +125,7 @@ public sealed partial class GameEngine
         BeginSimpleCardUse(id, new(card.Id, SimpleCardUseEffect.Recovery, 1));
     }
 
+    [NativeUseReturn(270)]
     private void ReturnRoundPileAlcoholUse(CardUseFrame use)
     {
         if (use.RoundPileAlcoholReturn is not { } token) return;

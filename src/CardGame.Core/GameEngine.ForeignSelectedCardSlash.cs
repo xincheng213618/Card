@@ -157,6 +157,13 @@ public sealed partial class GameEngine
             returned.From, movement.To, receipt.PaymentBefore, _movementSequence, batch.Id));
     }
 
+    [NativeAttackReturn(NativeAttackReturnPhase.AfterBorrowedSword, 10)]
+    private bool ReturnRegisteredCompleteSelectedForeignCardSlash(AttackCompletionReceipt completion)
+    {
+        if (completion.ForeignSelectedCardSlashReturn is null) return false;
+        CompleteSelectedForeignCardSlash(completion);
+        return true;
+    }
     private void CompleteSelectedForeignCardSlash(AttackCompletionReceipt completion)
     {
         var returned = completion.ForeignSelectedCardSlashReturn ?? throw new InvalidOperationException("The selected foreign-card Slash lost its typed completion.");

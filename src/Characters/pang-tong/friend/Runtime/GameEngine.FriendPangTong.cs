@@ -190,6 +190,14 @@ public sealed partial class GameEngine
         }
         BeginJizhiOrNullificationWindow(id, card, actor.Seat, use.TargetSeats, action.Kind, action.TargetCardId, option?.RequiredCardKind, kind);
     }
+    [NativeAttackReturn(NativeAttackReturnPhase.AfterCleanup, 30)]
+    private bool CompleteFriendYangmingNativeAttackReturn()
+    {
+        if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame { FriendPangTong.Stage: FriendPangTongStage.Returned } parent) return false;
+        AdvanceRuntimeProgram(parent.Id);
+        return true;
+    }
+    [NativeUseReturn(310)]
     private void ReturnFriendYangmingUse(CardUseFrame use)
     {
         if (use.FriendYangmingReturn is not { } ret) return;

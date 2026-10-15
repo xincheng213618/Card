@@ -199,6 +199,7 @@ public sealed partial class GameEngine
             c.Parameters.GetValueOrDefault("seat") == p.Source.OwnerSeat.ToString(System.Globalization.CultureInfo.InvariantCulture)) &&
             native.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "request-slash-nearest-decline");
     }
+    [NativeUseValidation(30)]
     private void AssertChainedStateBasicUseCompletion(CardUseFrame use)
     {
         if (use.ChainedStateBasicUse is null && use.ChainedStateBasicResponse is null) return;
@@ -211,6 +212,7 @@ public sealed partial class GameEngine
              use.CardAttack?.ProgramSkillCardUseFrameId != parent.Id))
             throw new InvalidOperationException("A chained-state Slash lost its exact original program return.");
     }
+    [NativeUseReturn(100)]
     private void ReturnChainedStateBasicUse(CardUseFrame completed)
     {
         if (completed.ChainedStateBasicUse is not { } receipt) return;

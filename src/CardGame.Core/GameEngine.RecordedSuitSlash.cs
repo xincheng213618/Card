@@ -45,6 +45,7 @@ public sealed partial class GameEngine
         return !RecordedSuitSlashReceipts(attack.ResolutionId, attack.TargetSeat).Any(r => (r.SuitMask & bit) != 0);
     }
 
+    [NativeUseValidation(10)]
     private void ClearRecordedSuitSlash(CardUseFrame use)
     {
         foreach (var receipt in use.RecordedSuitSlashReceipts ?? [])

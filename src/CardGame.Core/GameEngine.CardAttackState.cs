@@ -34,7 +34,7 @@ public sealed partial class GameEngine
         });
     }
 
-    private sealed record AttackCompletionReceipt(long ResolutionId, bool DelayedTurn,
+    internal sealed record AttackCompletionReceipt(long ResolutionId, bool DelayedTurn,
         long? ProgramFrameId, int? DelayedTurnSeat,
         bool RequestedSlashChild = false, bool DamageWasApplied = false, int FinalTargetSeat = 0, ProgramDamageTargetDuelOrigin? DamageTargetDuelReturn = null, ProgramDualColorDuelOrigin? DualColorDuelReturn = null,
         SharedSlashBenefitReturn? SharedSlashBenefit = null, bool SharedSlashCausedDamage = false,

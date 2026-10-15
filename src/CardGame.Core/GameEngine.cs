@@ -312,6 +312,7 @@ public sealed partial class GameEngine
         _programSelectionValidators = new(ProgramSelectionValidationMetadata.Value, ProgramSelectionQueries);
         _programTargetResolvers = new(ProgramTargetResolverMetadata.Value, ProgramSelectionQueries);
         _programActions = new(ProgramActionMetadata.Value, (method, type) => method.CreateDelegate(type, this));
+        _nativeReturns = new(NativeReturnMetadata.Value, (method, type) => method.CreateDelegate(type, this));
         var requiredProgramRulesVersion = contentRegistry.ProgramDependencies.RequiredProgramRulesVersion;
         if (GameCheckpoint.CurrentRulesVersion < requiredProgramRulesVersion)
             throw new InvalidOperationException(
@@ -13456,10 +13457,7 @@ public sealed partial class GameEngine
 
     private void CompleteAttackAfterCardResolution(AttackCompletionReceipt completion)
     {
-        if (RestoreContinuationAfterQinglongFollowup(completion.ResolutionId))
-        {
-            return;
-        }
+        if (NativeReturns.ReturnAttack(NativeAttackReturnPhase.BeforeCleanup, completion)) return;
         var borrowedSword = ActiveBorrowedSword is { ActiveAttack: { } borrowedAttack } pendingBorrowedSword &&
                             borrowedAttack.ResolutionId == completion.ResolutionId
             ? pendingBorrowedSword
@@ -13470,77 +13468,19 @@ public sealed partial class GameEngine
         ActiveCardAttack = null;
         ActiveDuel = null;
         _pendingDecision = null;
-        if (TryResumeJianjiAfterNativeAttack()) return;
-        if (_resolutionStack.LastOrDefault() is ProgramSkillFrame { MouZhijue.Stage: "returned" } mouParent) { AdvanceRuntimeProgram(mouParent.Id); return; }
-        if (_resolutionStack.LastOrDefault() is ProgramSkillFrame { FriendPangTong.Stage: FriendPangTongStage.Returned } pangParent) { AdvanceRuntimeProgram(pangParent.Id); return; }
+        if (NativeReturns.ReturnAttack(NativeAttackReturnPhase.AfterCleanup, completion)) return;
         if (borrowedSword is not null)
         {
             CompleteBorrowedSwordAfterSlash(borrowedSword);
             return;
         }
-        if (completion.ForeignSelectedCardSlashReturn is not null)
-        { CompleteSelectedForeignCardSlash(completion); return; }
-        if (completion.EndingHistoricalUseReturn is not null)
-        {
-            CompleteHistoricalEndingAttack(completion); return;
-        }
-        if (completion.KuangfuSlashReturn is not null)
-        {
-            CompleteKuangfuSlash(completion);
-            return;
-        }
-        if (completion.InspectedHandSlashReturn is not null)
-        {
-            CompleteInspectedHandSlash(completion); return;
-        }
-        if (completion.ConditionalDiscardDuelReturn is not null)
-        {
-            CompleteConditionalDiscardDuelAttackReturn(completion); return;
-        }
-        if (completion.FriendRecastDuelReturn is not null)
-        {
-            CompleteFriendRecastDuelAttackReturn(completion); return;
-        }
-        if (completion.PindianWinnerSlashReturn is not null)
-        {
-            CompletePindianWinnerSlash(completion); return;
-        }
-        if (completion.ForeignTurnContestSlashReturn is not null)
-        {
-            CompleteForeignTurnContestSlash(completion); return;
-        }
-        if (completion.SharedSlashBenefit is not null)
-        {
-            CompleteSharedSlashBenefit(completion); return;
-        }
-        if (resumesProgramSkill && completion.ProgramFrameId is { } obtainedParent &&
-            _resolutionStack.LastOrDefault() is ProgramSkillFrame obtainedFrame && obtainedFrame.Id == obtainedParent &&
-            obtainedFrame.DamageTargetObtain is { Stage: ProgramDamageTargetObtainStage.DuelIssued })
-        {
-            if (completion.DamageTargetDuelReturn is not {AttackStarted:true} origin || !MatchesDamageTargetDuelParent(obtainedFrame,origin))
-                throw new InvalidOperationException("True Duel completion lost its exact typed receipt return.");
-            CompleteDamageTargetDuelReturn(obtainedFrame);
-            return;
-        }
-        if (resumesProgramSkill && completion.ProgramFrameId is { } dualColorParent &&
-            _resolutionStack.LastOrDefault() is ProgramSkillFrame dualColorFrame && dualColorFrame.Id == dualColorParent &&
-            dualColorFrame.DualColorDuel is { Stage: ProgramDualColorDuelStage.DuelIssued })
-        {
-            CompleteDualColorDuelAttackReturn(dualColorFrame, completion);
-            return;
-        }
-        if (completion.DenglouNative is not null) { CompleteDenglouNativeAttack(completion); return; }
-        if (completion.Qigong is not null) { CompleteQigongSlash(completion); return; }
-        if (CompleteCaoChunSlash(completion)) return;
+        if (NativeReturns.ReturnAttack(NativeAttackReturnPhase.AfterBorrowedSword, completion)) return;
         if (resumesProgramSkill)
         {
             if (completion.ProgramFrameId is not { } frameId ||
                 _resolutionStack.LastOrDefault() is not ProgramSkillFrame frame || frame.Id != frameId)
                 throw new InvalidOperationException("The program child attack lost its parent frame.");
-            if (frame.WangYunPlan is { NativeUse: { Kind: "slash" } origin } plan &&
-                (!plan.NativeReturned || origin.ProgramFrameId != frameId ||
-                 origin.UseId != completion.ResolutionId || !CanContinueWangYun(frame)))
-                throw new InvalidOperationException("A Wang Yun Slash completion lost its exact once-returned native use.");
+            if (NativeReturns.ReturnAttack(NativeAttackReturnPhase.BeforeParentResume, completion)) return;
             if (completion.RequestedSlashChild && frame.WangYunPlan is null)
                 ReplaceRuntimeFrame(frame.Id, frame with
                 {
@@ -14170,69 +14110,10 @@ public sealed partial class GameEngine
     private void PopFinishedCardUse(long frameId)
     {
         var completedUse = _resolutionStack.OfType<CardUseFrame>().Single(frame => frame.Id == frameId);
-        ClearRecordedSuitSlash(completedUse);
-        AssertDrawFundedDistinctBasicUseCompletion(completedUse);
-        AssertChainedStateBasicUseCompletion(completedUse);
-        AssertRoundOnceCardlessProgramRequestCompletion(completedUse);
-        AssertJianjiNativeUseCompletion(completedUse);
-        if (IsGuoSiNativeUse(completedUse)) AssertGuoSiNativeUse(completedUse);
-        AssertCaoChunNativeUse(completedUse);
-        AssertQigongNativeUse(completedUse);
-        if (completedUse.Qigong is not null) completedUse = LifecycleCardUse(frameId)!;
-        if (IsDenglouNativeUse(completedUse)) AssertDenglouNativeUse(completedUse);
-        if (completedUse.VirtualOrdinaryTrickOrigin is not null && !ValidProgramVirtualOrdinaryTrickUse(completedUse))
-            throw new InvalidOperationException("A virtual ordinary trick lost its issuance before completion.");
-        var hpLossMaterialReturn = HasExactHpLossMaterialReturn(completedUse);
-        var basicReturn = completedUse.VirtualBasicReturn;
-        var dyingResponse = completedUse.DyingResponse;
-        var zhangJiReturn = ReturnZhangJiNativeUse(completedUse);
-        var wangYunReturn = ReturnWangYunNativeUse(completedUse);
-        ReturnQigongNativeUse(completedUse);
+        NativeReturns.ValidateUse(ref completedUse);
+        var completion = NativeReturns.PrepareUse(completedUse, HasExactHpLossMaterialReturn(completedUse));
         PopResolutionFrame(frameId, ResolutionFrameKind.CardUse);
-        if (IsDenglouNativeUse(completedUse)) { ReturnDenglouNativeUse(completedUse); return; }
-        if (completedUse.Qigong is not null) { ReturnDrawFundedDistinctBasicUse(completedUse); ReturnChainedStateBasicUse(completedUse); return; }
-        if (completedUse.CaoChunSlash is not null) { ReturnDrawFundedDistinctBasicUse(completedUse); ReturnChainedStateBasicUse(completedUse); return; }
-        if (IsGuoSiNativeUse(completedUse)) { ReturnGuoSiNativeUse(completedUse); return; }
-        ReturnRoundOnceCardlessProgramRequestUse(completedUse);
-        if (completedUse.JianjiUse is not null) { ReturnJianjiNativeUse(completedUse); return; }
-        if (zhangJiReturn)
-        {
-            AdvanceRuntimeProgram(completedUse.ZhangJiNativeOrigin!.ProgramFrameId);
-            return;
-        }
-        if (wangYunReturn)
-        {
-            // Native Slash completion still owns its AttackCompletionReceipt.
-            // Its typed return resumes this parent after the attack exits.
-            if (completedUse.WangYunNativeOrigin!.Kind != "slash")
-                AdvanceRuntimeProgram(completedUse.WangYunNativeOrigin.ProgramFrameId);
-            return;
-        }
-        ReturnDrawFundedDistinctBasicUse(completedUse);
-        ReturnChainedStateBasicUse(completedUse);
-        ContinueProgramAfterDiamondDelayedUse(frameId);
-        ContinueProgramAfterPileEquipmentUse(frameId);
-        ContinueProgramAfterRandomEquipmentUse();
-        ReturnFriendXuanjianUse(completedUse);
-        ContinueProgramAfterBoundEquipmentUse(completedUse);
-        if (completedUse.ChosenAssault is null && !HasExactNextActualUseAdjustedProgramReturn(completedUse) && !hpLossMaterialReturn)
-            ContinueProgramAfterSelectedCardUse();
-        ContinueProgramAfterRuiJiDuelUse();
-        if (dyingResponse is not null) CompleteDyingCardResponse(dyingResponse);
-        ReturnVirtualBasicUse(basicReturn, frameId);
-        ReturnSelectedActorDuel(completedUse);
-        ReturnProgramVirtualOrdinaryTrick(completedUse);
-        ReturnBaoAssault(completedUse);
-        ReturnDamageTargetDuel(completedUse);
-        ReturnDualColorDuel(completedUse);
-        ReturnConditionalDiscardDuel(completedUse);
-        ReturnFriendRecastDuel(completedUse);
-        ReturnRoundPileAlcoholUse(completedUse);
-        ReturnDyingSuitsPeach(completedUse);
-        ReturnHistoricalEndingUse(completedUse);
-        ReturnMouZhijueUse(completedUse);
-        ReturnFriendYangmingUse(completedUse);
-        ReturnLegacyDyingAlcoholCompletion(completedUse);
+        NativeReturns.ReturnUse(completion);
     }
 
     private bool CanUseSlashTarget(
