@@ -1,6 +1,0 @@
-{
-  "Path": "tests/CardGame.Wpf.Tests/HandResponseChecks.cs",
-  "Sha256": "9F32586CDA27AC9158BCA664ED9CC17765AC67EAFFF421CD5BF5B07DDF0ED84B",
-  "Length": 74052,
-  "MeasuredFilter": "hand responses select exact cards and confirm through shared controls"
-}

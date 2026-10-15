@@ -104,9 +104,7 @@
     "status": "verified-in-batch",
     "ranByRoot": true,
     "priorEvidenceRetainedSeparately": true,
-    "report": "docs/benchmarks/2026-10-15-tang-zi-fan-chou-guo-si-verification.json",
     "focused": {
-      "summary": "docs/benchmarks/2026-10-15-batch-16-twenty-second-post-pruning-focused-summary.json",
       "status": "passed",
       "mode": "targeted",
       "startedAt": "2026-10-15T15:21:49.0870699+08:00",
@@ -147,7 +145,6 @@
       ]
     },
     "routine": {
-      "summary": "docs/benchmarks/2026-10-15-batch-16-routine-summary.json",
       "status": "passed",
       "mode": "routine",
       "startedAt": "2026-10-15T15:22:11.6834514+08:00",
@@ -377,7 +374,6 @@
     "corePassed": 14,
     "coreFailed": 0,
     "durationMs": 29224,
-    "report": "docs/benchmarks/2026-10-15-fan-chou-verification.json",
     "sharedGallery": {
       "passed": 1,
       "failed": 0,

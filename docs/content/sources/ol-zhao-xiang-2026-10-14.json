@@ -75,9 +75,7 @@
   "workerRunnerExecuted": false,
   "verification": {
     "status": "verified-in-batch",
-    "report": "docs/benchmarks/2026-10-14-zhao-xiang-he-qi-kan-ze-verification.json",
     "focused": {
-      "summary": "docs/benchmarks/2026-10-14-batch-11-tenth-focused-summary.json",
       "status": "passed",
       "mode": "targeted",
       "durationMs": 13663,
@@ -125,7 +123,6 @@
       ]
     },
     "routine": {
-      "summary": "docs/benchmarks/2026-10-14-batch-11-routine-summary.json",
       "status": "passed",
       "mode": "routine",
       "durationMs": 96508,

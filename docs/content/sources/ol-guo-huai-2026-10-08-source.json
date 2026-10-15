@@ -450,7 +450,6 @@
     "targetedFaqFound": false
   },
   "round19Acceptance": {
-    "report": "docs/benchmarks/2026-10-08-content-continuation-round19-verification.json",
     "head": "fe90b66788b7d1866fa1e87f02d4993ad7bd0f3e",
     "inputSha256": "ad2d1743c22a27b587b8f3de67c8c41ab60d691c8252b12e5dfef20607e04827",
     "manualFullRun": false

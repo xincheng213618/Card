@@ -216,7 +216,6 @@
       "boundary:dong-zhuo",
       "boundary:jia-xu"
     ],
-    "validation": "docs/benchmarks/2026-10-04-fenglin-twenty-first-validation.json",
     "scope": "Original preflight remains a capture-time record; this field reports the later parent result."
   }
 }

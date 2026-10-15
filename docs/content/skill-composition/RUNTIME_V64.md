@@ -30,4 +30,4 @@
 
 ## 验证口径
 
-定向检查 `ZhangZhaoZhangHongChecks`（3 项：定义与触发器 schema、直谏装槽交接+回放、固政还一张得其余+回放）全部通过；解析器拒收面以 raw-string 模板单行变换覆盖（禁替换标志的四条形态约束、phaseOwnerRef 必须 eventSource、turnOwnerScope 新窗口白名单文案）。批次记录见 [2026-09-29-zhang-zhao-zhang-hong](../../benchmarks/2026-09-29-zhang-zhao-zhang-hong.md)。
+定向检查 `ZhangZhaoZhangHongChecks`（3 项：定义与触发器 schema、直谏装槽交接+回放、固政还一张得其余+回放）全部通过；解析器拒收面以 raw-string 模板单行变换覆盖（禁替换标志的四条形态约束、phaseOwnerRef 必须 eventSource、turnOwnerScope 新窗口白名单文案）。

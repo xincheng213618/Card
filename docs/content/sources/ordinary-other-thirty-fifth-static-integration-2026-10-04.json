@@ -337,7 +337,6 @@
     },
     {
       "stagePath": ".artifacts/continuation-20261003-batch17/batch35/sp-pang-de/static-data-verification.json",
-      "mainPath": "docs/benchmarks/2026-10-04-ordinary-other-thirty-fifth-sp-pang-de-static.json",
       "rawSha256": "85bea4a34107b3d714076e1918fa00301eccfc69efcaff9cd232622a9e904bac"
     },
     {
@@ -504,12 +503,10 @@
     },
     {
       "stagePath": ".artifacts/continuation-20261003-batch17/batch35/yang-xiu/registration-proof.json",
-      "mainPath": "docs/benchmarks/2026-10-04-ordinary-other-thirty-fifth-yang-xiu-registration-proof.json",
       "rawSha256": "0d97e9d780340f63ef8e2ff590d39c1adc06b0ebfd745fedb43a6118875e8bf5"
     },
     {
       "stagePath": ".artifacts/continuation-20261003-batch17/batch35/yang-xiu/STATIC-REVIEW.json",
-      "mainPath": "docs/benchmarks/2026-10-04-ordinary-other-thirty-fifth-yang-xiu-static-review.json",
       "rawSha256": "35a7750aaee9c33def86216f45d82ef9bae38e0cb9faa9fbf4f9374ce61f5cdc"
     },
     {

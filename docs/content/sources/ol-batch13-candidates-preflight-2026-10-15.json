@@ -72,7 +72,6 @@
     ]
   },
   "duplicateAudit": {
-    "rosterPath": "docs/benchmarks/2026-10-14-batch-12-final-roster.json",
     "rosterSha256": "ffe1671b60c2fbd447fcf932d64c0d36b9ec1eec2809fc0526c079f1034f5142",
     "count": 402,
     "scanRange": [

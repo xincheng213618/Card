@@ -1,3 +1,0 @@
-[PASS] Edition general gallery: namespaced portraits and real details
-[PASS] Named private pile UI: owner pairs public counts and clear
-2 WPF checks passed, 0 failed. Renders: C:\Users\17917\AppData\Local\Temp\CardGame-TestChanged-25f07ed2579f\renders

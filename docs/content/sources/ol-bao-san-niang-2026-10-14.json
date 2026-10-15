@@ -148,7 +148,6 @@
     ],
     "routine": {
       "status": "passed",
-      "summary": "docs/benchmarks/2026-10-14-batch-7-routine-summary.json",
       "corePassed": 631,
       "wpfPassed": 76,
       "durationMs": 89716,
@@ -173,8 +172,7 @@
       "actualSilverLionAtomicCostRecovery": "PASS",
       "nativeQuotaAndActualTurnExpiry": "PASS",
       "actualGrantedConsumedResetAndNativeReuse": "PASS"
-    },
-    "focusedEvidence": "docs/benchmarks/2026-10-14-batch-7-twelfth-final-focused-core-selected.log.txt"
+    }
   },
   "upstreamProvenance": {
     "fullUpstreamArchivesRetainedLocally": false,
@@ -183,10 +181,8 @@
   "disposableTemporaryDirectoriesCreated": [],
   "stage": "batch acceptance complete",
   "verifiedAt": "2026-10-14T09:13:44.111572+00:00",
-  "batchVerificationReport": "docs/benchmarks/2026-10-14-guan-suo-wang-lang-bao-san-niang-verification.json",
   "routine": {
     "status": "passed",
-    "summary": "docs/benchmarks/2026-10-14-batch-7-routine-summary.json",
     "corePassed": 631,
     "wpfPassed": 76,
     "durationMs": 89716,

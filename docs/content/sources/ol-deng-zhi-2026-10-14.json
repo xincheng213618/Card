@@ -52,16 +52,11 @@
     "groupWpfFailed": 0,
     "routine": {
       "status": "passed",
-      "summary": "docs/benchmarks/2026-10-14-batch-8-routine-summary.json",
       "corePassed": 653,
       "wpfPassed": 76,
       "durationMs": 104474,
       "manualFull": false
     },
-    "buildLog": "docs/benchmarks/2026-10-14-batch-8-fifth-group-focused-build.log.txt",
-    "coreLog": "docs/benchmarks/2026-10-14-batch-8-fifth-group-focused-core-selected.log.txt",
-    "wpfLog": "docs/benchmarks/2026-10-14-batch-8-fifth-group-focused-wpf-selected.log.txt",
-    "summary": "docs/benchmarks/2026-10-14-batch-8-fifth-group-focused-summary.json",
     "fixes": [
       "First compile failed on consecutive closing braces in two interpolated raw fixture presentation strings; repaired JSON whitespace without changing production semantics.",
       "Fixture now registers exactly the two embedded production Deng Zhi definitions; it does not broaden registry references or load all classic generals.",
@@ -77,10 +72,8 @@
   },
   "stage": "batch acceptance complete",
   "verifiedAt": "2026-10-14T10:08:39.713886+00:00",
-  "batchVerificationReport": "docs/benchmarks/2026-10-14-deng-zhi-cao-ying-dong-zhao-verification.json",
   "routine": {
     "status": "passed",
-    "summary": "docs/benchmarks/2026-10-14-batch-8-routine-summary.json",
     "corePassed": 653,
     "wpfPassed": 76,
     "durationMs": 104474,

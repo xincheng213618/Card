@@ -27,4 +27,4 @@
 
 ## 验证口径
 
-定向检查 `CaoZhiChecks`（4 项）全部通过；解析器拒收面以 raw-string 模板单行变换覆盖（claim 目标非 owner、claim+触发条件、错误窗口、useVirtualDyingAlcohol 目标非 owner/非选项条件、afterDamage 缺 damageOccurrence、turnEnding+suits、selfDyingResponse+触发条件不变式锁定）。Debug 全量 Core 647/647 全绿；Release 构建 0 error 0 warning。批次记录见 [2026-09-30-cao-zhi](../../benchmarks/2026-09-30-cao-zhi.md)。
+定向检查 `CaoZhiChecks`（4 项）全部通过；解析器拒收面以 raw-string 模板单行变换覆盖（claim 目标非 owner、claim+触发条件、错误窗口、useVirtualDyingAlcohol 目标非 owner/非选项条件、afterDamage 缺 damageOccurrence、turnEnding+suits、selfDyingResponse+触发条件不变式锁定）。Debug 全量 Core 647/647 全绿；Release 构建 0 error 0 warning。

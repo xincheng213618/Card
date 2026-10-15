@@ -7,7 +7,6 @@
   "capturedAt": "2026-10-14",
   "verification": {
     "status": "focused-and-routine-passed",
-    "report": "docs/benchmarks/2026-10-14-wu-yan-sp-zhang-he-xuan-gong-zhu-verification.json",
     "focusedCore": 68,
     "focusedWpf": 5,
     "routineCore": 679,

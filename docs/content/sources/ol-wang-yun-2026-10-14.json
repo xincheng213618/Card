@@ -47,9 +47,7 @@
     "status": "verified-in-batch",
     "ranByWorker": false,
     "ranByRoot": true,
-    "report": "docs/benchmarks/2026-10-14-wang-yun-zhuge-guo-xi-zhi-cai-verification.json",
     "focused": {
-      "summary": "docs/benchmarks/2026-10-14-batch-12-tenth-final-focused-summary.json",
       "status": "passed",
       "mode": "targeted",
       "startedAt": "2026-10-15T00:20:03.2640112+08:00",
@@ -101,7 +99,6 @@
       ]
     },
     "routine": {
-      "summary": "docs/benchmarks/2026-10-14-batch-12-routine-summary.json",
       "status": "passed",
       "mode": "routine",
       "startedAt": "2026-10-15T00:20:48.1350812+08:00",

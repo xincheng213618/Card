@@ -125,7 +125,6 @@
     "visual": "Black-and-gold armored male general, white helmet plume, red sack and weapon, burning battlefield."
   },
   "baseline": {
-    "path": "docs/benchmarks/2026-10-15-general-batch-15-roster-baseline.json",
     "sha256": "06fc8b74988ceaed729f1c2fd8d1530e1d264679777ded41cb510152fd2a6bac",
     "bytes": 198326
   },
@@ -164,9 +163,7 @@
     "status": "verified-in-batch",
     "ranByWorker": false,
     "ranByRoot": true,
-    "report": "docs/benchmarks/2026-10-15-zhang-ji-su-fei-huang-quan-verification.json",
     "focused": {
-      "summary": "docs/benchmarks/2026-10-15-batch-15-tenth-related-final-focused-summary.json",
       "status": "passed",
       "mode": "targeted",
       "startedAt": "2026-10-15T13:35:10.3305548+08:00",
@@ -238,7 +235,6 @@
       ]
     },
     "routine": {
-      "summary": "docs/benchmarks/2026-10-15-batch-15-routine-summary.json",
       "status": "passed",
       "mode": "routine",
       "startedAt": "2026-10-15T13:36:24.9703281+08:00",
@@ -703,7 +699,6 @@
       "No exhaustive multi-source, equipment replacement, judgment replacement, extra-slot, hidden-HP or every combined observer permutation is claimed tested. Existing native mechanisms are reused; root will execute selected and routine coverage."
     ],
     "thirdFocusedObserved": {
-      "path": "docs/benchmarks/2026-10-15-batch-15-third-focused-core-selected.log.txt",
       "result": "Zhang Ji behavior blocked by missing native judgment result cleanup binding; equipment fixture rejected unsupported bagua CardKind token. Declaration bridge once/cold prefixes passed but final aggregate failed; no final acceptance claimed.",
       "repairs": [
         "Judgment producer now declares CreateCardSet zhang-ji-rank and uses the original native result binding/currentlocation/finalSuit before typed return, preserving existing Processing-only bound cleanup.",
@@ -715,13 +710,11 @@
     "declarationBridgeMethod": "HuangQuanDeclarationChecks.ActualRequestedDeclarationSuccessAndChallengedFailureCold",
     "declarationBridgeScope": "Two separate task-owned files implement a typed native declaration bridge and actual success/false challenged-failure cold check; C HuangQuan files remain independently owned. No worker runner.",
     "fifthFocusedObserved": {
-      "path": "docs/benchmarks/2026-10-15-batch-15-fifth-focused-core-selected.log.txt",
       "result": "Zhang Ji catalog rejected unconsumed cleanup resource plan; declaration bridge method passed in root fifth run.",
       "repair": "Declared CreateCardSet(zhang-ji-rank,1,true) followed by MoveCardSet(zhang-ji-rank,null,DiscardPile), matching this own operation final native bound cleanup; runtime cleanup remains unchanged and NeedsCleanup remains true.",
       "rerun": "pending root"
     },
     "sixthFocusedObserved": {
-      "path": "docs/benchmarks/2026-10-15-batch-15-sixth-focused-core-selected.log.txt",
       "result": "Root17/18Core and2/2WPF passed; only ZhangJi equipment-death subfixture schema failed. Other ZhangJi checks and the ordinary historical distinct-equipment prefix passed.",
       "repair": "Death watcher uses native cardUseCompleted observer plus exact CardUseConversionSkillIs(ol:tunjun-sp) and equipment kinds. ConversionSource sourceSkillId would still fail ValidateSourceReferences because native Tunjun has no viewAs rules; Completed condition is the existing legal capability, preserving death after first issued equipment and before the second. All two-equipment and once-payment assertions retained.",
       "rerun": "pending root"

@@ -994,7 +994,6 @@
   "unresolvedLinkedIds": [],
   "linkedExtraction": "Exact recursive m IDs and explicit href/skillid/spellid references only.",
   "rosterBaseline": {
-    "path": "docs/benchmarks/2026-10-15-general-batch-14-roster-baseline.json",
     "count": 405,
     "sha256": "5d3b1331d5b4b9a3a031d2370ee2abdea411d08bd99b83d0d26fa166e88858b6"
   },

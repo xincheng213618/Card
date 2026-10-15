@@ -63,9 +63,7 @@
   "disposableTemporaryPaths": [],
   "workerStatusAtHandoff": "implementation-frozen-after-sixth-focused-native-completion-fixture-repair-awaiting-root-rerun",
   "rootVerification": {
-    "report": "docs/benchmarks/2026-10-15-zhang-ji-su-fei-huang-quan-verification.json",
     "focused": {
-      "summary": "docs/benchmarks/2026-10-15-batch-15-tenth-related-final-focused-summary.json",
       "status": "passed",
       "mode": "targeted",
       "startedAt": "2026-10-15T13:35:10.3305548+08:00",
@@ -137,7 +135,6 @@
       ]
     },
     "routine": {
-      "summary": "docs/benchmarks/2026-10-15-batch-15-routine-summary.json",
       "status": "passed",
       "mode": "routine",
       "startedAt": "2026-10-15T13:36:24.9703281+08:00",

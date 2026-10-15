@@ -173,8 +173,6 @@
     "focusedCheckFile": "tests/CardGame.Core.Tests/PhaseStartCardControlChecks.cs",
     "parentRun": {
       "startedAt": "2026-10-13T18:49:56.5678519+08:00",
-      "coreEvidence": "docs/benchmarks/2026-10-13-next-generals-focused-fifth-core.txt",
-      "runnerSummary": "docs/benchmarks/2026-10-13-next-generals-focused-fifth-summary.json",
       "scope": "Phase start card control: seven named checks, each PASS. The same union also included Named ambush and source hand checks; those separate concurrent failures mean the union summary is test-failed, not a Sun Luyu failure.",
       "passed": 7,
       "failed": 0,
@@ -191,25 +189,18 @@
       "wpfPassed": 2,
       "wpfFailed": 0,
       "ownMechanismChecks": 7,
-      "totalDurationMs": 18719,
-      "summary": "docs/benchmarks/2026-10-13-next-generals-final-focused-summary.json",
-      "coreEvidence": "docs/benchmarks/2026-10-13-next-generals-final-focused-core.txt",
-      "wpfEvidence": "docs/benchmarks/2026-10-13-next-generals-final-focused-wpf.txt"
+      "totalDurationMs": 18719
     },
     "coreRoutine": {
       "passed": 558,
       "failed": 0,
-      "summary": "docs/benchmarks/2026-10-13-next-generals-routine-first-summary.json",
-      "evidence": "docs/benchmarks/2026-10-13-next-generals-routine-first-core.txt",
       "scope": "The prescribed routine, not Full. Whole-run initial WPF had one original native response failure; unchanged isolated recheck passed, then its reused-model test lifecycle was repaired without changing production."
     },
-    "finalBatchReport": "docs/benchmarks/2026-10-13-shen-pei-sun-lu-yu-cheng-yu-verification.json",
     "finalRoutine": {
       "corePassed": 558,
       "wpfPassed": 75,
       "failed": 0,
       "durationMs": 107768,
-      "summary": "docs/benchmarks/2026-10-13-next-generals-routine-final-summary.json",
       "fullVerification": false,
       "foregroundAcceptance": false
     },
@@ -219,11 +210,6 @@
       "wpfPassed": 2,
       "failed": 0,
       "durationMs": 23239,
-      "summary": "docs/benchmarks/2026-10-13-next-generals-latest-focused-summary.json",
-      "coreEvidence": "docs/benchmarks/2026-10-13-next-generals-latest-focused-core.txt",
-      "wpfEvidence": "docs/benchmarks/2026-10-13-next-generals-latest-focused-wpf.txt",
-      "sourceBefore": "docs/benchmarks/2026-10-13-next-generals-latest-focused-source-before.json",
-      "sourceAfter": "docs/benchmarks/2026-10-13-next-generals-latest-focused-source-after.json",
       "sourcePaths": 80,
       "sourceChangedDuringRun": 0,
       "reason": "Continuing concurrent edits changed GameEngine.CardMovementPrograms.cs and GameEngine.SkillPrograms.cs after the completed 558/75 routine. Rebuild latest source and revalidate this group and relevant shared contracts, retaining all concurrent work.",

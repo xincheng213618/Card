@@ -783,7 +783,6 @@
     "generalId": "ol:jia-chong",
     "registeredJinCount": 5,
     "generalSource": "docs/content/sources/ol-jia-chong-2026-10-08-source.json",
-    "verificationReport": "docs/benchmarks/2026-10-08-content-continuation-round16-verification.json",
     "behaviorValidated": true,
     "currentRegisteredJin": [
       "ol:zhang-hu-yue-chen",

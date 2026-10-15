@@ -333,8 +333,7 @@
     "targetedCore": 148,
     "targetedWpf": 5,
     "routineCore": 445,
-    "routineWpf": 22,
-    "report": "docs/benchmarks/2026-10-09-content-continuation-round25-verification.json"
+    "routineWpf": 22
   },
   "catalogAppendProof": {
     "path": "docs/content/general-art-catalog.json",

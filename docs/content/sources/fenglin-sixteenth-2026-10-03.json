@@ -137,6 +137,5 @@
       "gender": "Male",
       "genderProvenance": "Same historical character as existing classic general; the official API has no structured gender."
     }
-  ],
-  "validationReport": "../../benchmarks/2026-10-03-fenglin-sixteenth.md"
+  ]
 }

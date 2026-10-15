@@ -3,11 +3,9 @@
   "status": "primary-preflight-complete-no-code-yet",
   "scope": "Exact current OL434 Lv Kuang Lv Xiang, OL435 Xin Pi, OL436 Hua Man. OL433 Sun Shao is already registered with current ordinary OL skills and is skipped.",
   "previousAcceptedReport": {
-    "path": "docs/benchmarks/2026-10-15-sp-pang-tong-yuan-tan-yuan-shang-lv-qian-verification.json",
     "sha256": "624783ce8b52a39f963644713a08a8c7b221065528c4fb4fde7b511bc193d6c8"
   },
   "rosterBaseline": {
-    "path": "docs/benchmarks/2026-10-15-general-batch-19-roster-baseline.json",
     "count": 420
   },
   "currentClient": {

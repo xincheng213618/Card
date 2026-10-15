@@ -1,9 +1,0 @@
-{
-  "status": "passed",
-  "exitCode": 0,
-  "durationMs": 18124,
-  "checkFilter": "native WPF audio opens and completes every effect at zero volume",
-  "effectCount": 15,
-  "foregroundSpeakersVerified": false,
-  "oldEndedInjected": false
-}

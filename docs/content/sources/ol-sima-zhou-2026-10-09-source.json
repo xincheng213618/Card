@@ -279,8 +279,7 @@
     "targetedCore": 129,
     "targetedWpf": 5,
     "routineCore": 437,
-    "routineWpf": 22,
-    "report": "docs/benchmarks/2026-10-09-content-continuation-round23-verification.json"
+    "routineWpf": 22
   },
   "currentClientCodeEvidence": [
     {

@@ -3,7 +3,6 @@
   "status": "preflight-complete-frozen; not-implemented",
   "scope": "New owned batch14 documentation and 8 raw primary files only; no source/tests/tools/art/registration/version/build/runner changes. No accepted batch13 evidence altered.",
   "rosterBaseline": {
-    "path": "docs/benchmarks/2026-10-15-general-batch-14-roster-baseline.json",
     "sha256": "5d3b1331d5b4b9a3a031d2370ee2abdea411d08bd99b83d0d26fa166e88858b6",
     "count": 405
   },

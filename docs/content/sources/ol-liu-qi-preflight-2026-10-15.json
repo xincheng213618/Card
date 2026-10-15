@@ -93,7 +93,6 @@
     }
   ],
   "rosterComparison": {
-    "path": "docs/benchmarks/2026-10-14-batch-12-final-roster.json",
     "count": 402,
     "sameNameOrIdMatches": [],
     "result": "Unregistered candidate; no existing LiuQi ordinary/variant found in accepted roster."

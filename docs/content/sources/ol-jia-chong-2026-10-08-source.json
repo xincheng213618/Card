@@ -394,7 +394,6 @@
       "jianhui-first-damage-order": "Engine mapping: a real positive other-source DamageApplied records the new stable owner/skill/state last source before freezing the same damage incoming discard eligibility. Thus the first other hit already owes discard; a later other source replaces memory. Self/source-less damage and HP loss do not replace it. Physical loss/regrant retains stable memory, and damage during absence does not update it."
     },
     "versionPolicy": "No per-general replay epoch, schema or package bump; development content hash distinguishes new programs.",
-    "verificationReport": "docs/benchmarks/2026-10-08-content-continuation-round16-verification.json",
     "nativeBoundaryRepairs": [
       "Exact same-phase uses before arming are replayed into the issued policy from scalar actual-use facts.",
       "Qualified actual Nullification/Dodge uses retain native Response Action identity; mere played Duel Slash responses remain excluded.",
@@ -403,7 +402,6 @@
     ]
   },
   "acceptance": {
-    "report": "docs/benchmarks/2026-10-08-content-continuation-round16-verification.json",
     "head": "fe90b66788b7d1866fa1e87f02d4993ad7bd0f3e",
     "buildInputAggregateSha256": "d7dde0759fccb80db9c8f55455229740c62b97aeacea7a0b6675effba258b08a",
     "focusedCorePassed": 32,

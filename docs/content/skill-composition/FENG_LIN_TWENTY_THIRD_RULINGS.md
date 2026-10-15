@@ -11,4 +11,4 @@
 
 界孙策452当前font派生英姿/英魂完整正文仍未证明，2017/2020历史普通OL资料仅作为历史辅助，不替代当前完整来源。界刘禅451思蜀895完整当前正文仍未证明，两将继续保持未部分注册。
 
-当前已测与仍待集成的分支见[能力合同](FENG_LIN_TWENTY_THIRD_CAPABILITIES.md)和[运行台账](../../benchmarks/2026-10-04-fenglin-twenty-third-validation.json)。源码静态审查、定向检查、Full和WPF分别记录，未测组合不因代码存在而自动验收。
+实现边界见[能力合同](FENG_LIN_TWENTY_THIRD_CAPABILITIES.md)。源码静态审查、定向检查、Full和WPF分别记录，未测组合不因代码存在而自动验收。

@@ -1,9 +1,0 @@
-{
-  "status": "test-failed",
-  "exitCode": 1,
-  "filter": "battle feedback sequences native dying rescue and death outcomes",
-  "recordMotion": true,
-  "durationMs": 2368,
-  "exclusiveLock": true,
-  "artifactsRoot": "C:\\Users\\17917\\AppData\\Local\\Temp\\CardGame-TestChanged-25f07ed2579f"
-}

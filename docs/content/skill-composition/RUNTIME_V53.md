@@ -1,6 +1,6 @@
 # 技能程序 schema 53：目标集合、私密置底与伤害参与者
 
-本批对应 rules 163、`standard-classic-generals@1.139.0`，Checkpoint schema 仍为 3。顾雍（2014 原版）及李典（2014 身份版）作为首批消费者。全量结果和真实开发耗时见 `docs/benchmarks/2026-09-26-new-generals.md`，不能把定义加载等同于行为验收。
+本批对应 rules 163、`standard-classic-generals@1.139.0`，Checkpoint schema 仍为 3。顾雍（2014 原版）及李典（2014 身份版）作为首批消费者。不能把定义加载等同于行为验收。
 
 ## 可复用能力
 

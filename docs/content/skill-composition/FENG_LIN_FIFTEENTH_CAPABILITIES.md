@@ -8,4 +8,4 @@
 
 2601 `RemoveSelectedCurrentArrowBarrageTarget` 对所有本人实际Use万箭的finalized窗口提供可选移除，CardUse上的scalar凭据限制整次Use一次。同步真实余集、window候选FrozenContext和live program context，保留初始历史事实；旧CurrentCardUseTargets查询本体不变。新事件只有scalar，owning集合保持只读。
 
-新规则事实通过AdvanceEventRulesAndQueueFact、新状态通过AdvanceRulesAndPublishState；四视角使用CreateSnapshot。源/Role/actor等HOST审计与正式命令/cold检查分开标识。恢复后实际验证见[批次记录](../../benchmarks/2026-10-03-fenglin-fifteenth.md)。
+新规则事实通过AdvanceEventRulesAndQueueFact、新状态通过AdvanceRulesAndPublishState；四视角使用CreateSnapshot。源/Role/actor等HOST审计与正式命令/cold检查分开标识。

@@ -592,7 +592,6 @@
     "versionPolicy": "No per-character global replay/schema/package bump. Root separately controls justified shared old-behavior version changes."
   },
   "round18Acceptance": {
-    "report": "docs/benchmarks/2026-10-08-content-continuation-round18-verification.json",
     "head": "fe90b66788b7d1866fa1e87f02d4993ad7bd0f3e",
     "inputSha256": "32724d709449707aa5636e75af43dc99b390702e915d23985a4e41b7fa77e5bf",
     "manualFullRun": false

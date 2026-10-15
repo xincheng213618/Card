@@ -1,9 +1,0 @@
-{
-  "capturedAt": "2026-10-13T17:49:11.3020470+08:00",
-  "scope": "Intermediate build after the new end-refill capability; LL behavioral red is a separate result",
-  "baseline": "docs/benchmarks/2026-10-13-next-generals-enum-baseline.json",
-  "assemblySha256": "D1E4627B40966CD1D4A61242C77AB207DFA5875D70793983A629634ED511E580",
-  "oldEnums": 206,
-  "oldMembers": 1961.0,
-  "changedMembers": []
-}

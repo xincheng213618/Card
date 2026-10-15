@@ -39,9 +39,6 @@
     "testsExecutedByThisTask": false,
     "concurrentMainAdvanced": true,
     "concurrentChanges": [
-      "docs/benchmarks/2026-10-05-boundary-cao-ren.md",
-      "docs/benchmarks/2026-10-05-boundary-zhou-tai.md",
-      "docs/benchmarks/2026-10-05-ol-yi-ji.md",
       "docs/content/sources/boundary-cao-ren-2026-10-05.json",
       "docs/content/sources/boundary-zhou-tai-2026-10-05.json",
       "docs/content/sources/ol-yi-ji-2026-10-05.json",
@@ -1882,7 +1879,6 @@
         "src/CardGame.Core/GameEngine.ProgramDiscardTopPlacement.cs"
       ],
       "concurrentMainPaths": [
-        "docs/benchmarks/2026-10-05-ol-yi-ji.md",
         "docs/content/sources/ol-yi-ji-2026-10-05.json",
         "src/CardGame.Content.Standard/OrdinaryYiJiContent.cs",
         "src/CardGame.Content.Standard/SkillPrograms/ol-yi-ji.presentation.json",
@@ -1959,7 +1955,6 @@
     "previousHead": "1394b09f1fa76a766c6baa1694a9a415c6c2800f",
     "currentHead": "4fbb20200bcbe5d38d3c57e63d6921a07813093d",
     "concurrentDeltaPaths": [
-      "docs/benchmarks/2026-10-05-ol-yi-ji.md",
       "docs/content/sources/ol-yi-ji-2026-10-05.json",
       "src/CardGame.Content.Standard/OrdinaryYiJiContent.cs",
       "src/CardGame.Content.Standard/SkillPrograms/ol-yi-ji.presentation.json",

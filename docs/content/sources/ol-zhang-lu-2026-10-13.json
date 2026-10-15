@@ -74,16 +74,8 @@
   },
   "verification": {
     "fullVerification": false,
-    "routineSummary": "docs/benchmarks/2026-10-13-batch-5-routine-summary.json",
-    "focusedSummary": "docs/benchmarks/2026-10-13-batch-5-final-focused-summary.json",
     "status": "batch-focused-and-prescribed-routine-passed",
     "foregroundAcceptance": false,
-    "coreEvidence": "docs/benchmarks/2026-10-13-batch-5-final-focused-core-selected.log.txt",
-    "summary": "docs/benchmarks/2026-10-13-batch-5-final-focused-summary.json",
-    "batchReport": "docs/benchmarks/2026-10-13-zhang-lu-wang-rong-shi-xie-verification.json",
-    "latestScopeNote": "586 Core / 76 WPF passing is evidence for the recorded earlier stable source snapshot. Two shared files subsequently changed; the current source is covered by the fresh 40 Core / 5 WPF related focused run, not another complete routine or Full.",
-    "latestCoreEvidence": "docs/benchmarks/2026-10-13-batch-5-latest-focused-core-selected.log.txt",
-    "latestFocusedSummary": "docs/benchmarks/2026-10-13-batch-5-latest-focused-summary.json",
-    "latestBatchReport": "docs/benchmarks/2026-10-13-zhang-lu-wang-rong-shi-xie-verification.json"
+    "latestScopeNote": "586 Core / 76 WPF passing is evidence for the recorded earlier stable source snapshot. Two shared files subsequently changed; the current source is covered by the fresh 40 Core / 5 WPF related focused run, not another complete routine or Full."
   }
 }

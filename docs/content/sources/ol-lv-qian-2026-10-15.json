@@ -108,11 +108,9 @@
       "ActualZengdaoDonorDeathPersistsAndRecipientDeathCleansCold"
     ],
     "coverageBoundary": "Representative native command/cold scenes include duplicate damage, paid source loss, beneficiary and owner deaths, actual Lion removal, recipient choice between two public gifts, normal/self-fire damage and gift death cleanup. Multiple distinct giver sources and inserted/skip phases are typed boundaries not separately exercised by these fixtures.",
-    "rootEvidence": "docs/benchmarks/2026-10-15-batch-18-sixth-focused-summary.json",
     "rootVerification": {
       "status": "passed",
       "rootRunner": true,
-      "focusedSummary": "docs/benchmarks/2026-10-15-batch-18-sixth-focused-summary.json",
       "focused": {
         "corePassed": 29,
         "coreFailed": 0,
@@ -120,7 +118,6 @@
         "wpfFailed": 0,
         "durationMs": 11445
       },
-      "routineSummary": "docs/benchmarks/2026-10-15-batch-18-routine-summary.json",
       "routine": {
         "corePassed": 119,
         "coreFailed": 0,
@@ -128,7 +125,6 @@
         "wpfFailed": 0,
         "durationMs": 29662
       },
-      "report": "docs/benchmarks/2026-10-15-sp-pang-tong-yuan-tan-yuan-shang-lv-qian-verification.json",
       "fullRun": false,
       "foregroundAcceptance": false,
       "serverBehaviorVerified": false

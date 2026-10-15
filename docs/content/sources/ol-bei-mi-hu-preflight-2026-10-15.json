@@ -57,7 +57,6 @@
     }
   ],
   "duplicateAudit": {
-    "path": "docs/benchmarks/2026-10-14-batch-12-final-roster.json",
     "sha256": "ffe1671b60c2fbd447fcf932d64c0d36b9ec1eec2809fc0526c079f1034f5142",
     "generalCount": 402,
     "matches": [],

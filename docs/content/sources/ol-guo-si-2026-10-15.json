@@ -148,9 +148,7 @@
     "status": "verified-in-batch",
     "ranByRoot": true,
     "priorEvidenceRetainedSeparately": true,
-    "report": "docs/benchmarks/2026-10-15-tang-zi-fan-chou-guo-si-verification.json",
     "focused": {
-      "summary": "docs/benchmarks/2026-10-15-batch-16-twenty-second-post-pruning-focused-summary.json",
       "status": "passed",
       "mode": "targeted",
       "startedAt": "2026-10-15T15:21:49.0870699+08:00",
@@ -191,7 +189,6 @@
       ]
     },
     "routine": {
-      "summary": "docs/benchmarks/2026-10-15-batch-16-routine-summary.json",
       "status": "passed",
       "mode": "routine",
       "startedAt": "2026-10-15T15:22:11.6834514+08:00",
@@ -407,7 +404,6 @@
       "round": 4,
       "passed": 5,
       "failed": 2,
-      "log": "docs/benchmarks/2026-10-15-batch-16-fourth-focused-core-selected.log.txt",
       "rootRepair": "Exact completed original/window/current candidate/paid Sidao/native Snatch proof hides only retained completed continuation projections while this child is active.",
       "newRegression": "Actual native Snatch committed child pauses, exact proof positive; temporary invalid owning-window candidate rejects proof; restore and cold replay preserve native return once.",
       "rerun": "pending",

@@ -3,7 +3,6 @@
   "status": "primary-preflight-complete; not-implemented",
   "scope": "New owned documentation and 6 exact primary raw responses only; all batch14 src/tests/source evidence frozen and unchanged",
   "rosterBaseline": {
-    "path": "docs/benchmarks/2026-10-15-general-batch-14-roster-baseline.json",
     "sha256": "5d3b1331d5b4b9a3a031d2370ee2abdea411d08bd99b83d0d26fa166e88858b6",
     "count": 405
   },

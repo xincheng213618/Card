@@ -1,6 +1,0 @@
-0 WPF checks passed, 1 failed. Renders: C:\Users\17917\AppData\Local\Temp\CardGame-TestChanged-25f07ed2579f\renders
-[FAIL] Alcohol bonus UI: stacked public bonus fallback and clearing: System.InvalidOperationException: The actual WPF seat binding visibly renders the public bonus.
-   at Program.Assert(Boolean condition, String message) in C:\Users\17917\Desktop\Card\tests\CardGame.Wpf.Tests\Program.cs:line 367
-   at AlcoholBonusUiChecks.PublicStackedBonusFallbackAndClearing(String output) in C:\Users\17917\Desktop\Card\tests\CardGame.Wpf.Tests\AlcoholBonusUiChecks.cs:line 36
-   at Program.<>c__DisplayClass12_0.<Main>b__13() in C:\Users\17917\Desktop\Card\tests\CardGame.Wpf.Tests\Program.cs:line 86
-   at Program.Check(String name, Action action) in C:\Users\17917\Desktop\Card\tests\CardGame.Wpf.Tests\Program.cs:line 225

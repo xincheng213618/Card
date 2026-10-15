@@ -58,8 +58,6 @@
   "rootVerification": {
     "verifiedAt": "2026-10-15T08:42:27.945405+00:00",
     "status": "passed",
-    "focused": "docs/benchmarks/2026-10-15-batch-17-eighth-focused-summary.json",
-    "routine": "docs/benchmarks/2026-10-15-batch-17-second-routine-summary.json",
     "workerBuildOrTestsRun": false,
     "rootOnlyRunner": true,
     "fullRun": false,

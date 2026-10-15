@@ -1,4 +1,4 @@
-2026-09-26 当前边界：rules165 / schema55 / standard-classic-generals@1.140.0 / Checkpoint3。新增朱治2015、界甘宁2014、界许褚2014首发；移动局部续接、真实指定目标子集、类型牌过滤和跨回合伤害期限均为公共能力。契约见 [schema55](content/skill-composition/RUNTIME_V55.md)，实测及父审返工见 [第四批记录](benchmarks/2026-09-26-movement-and-target-generals.md)。下方旧版本段落保留为历史记录。
+2026-09-26 当前边界：rules165 / schema55 / standard-classic-generals@1.140.0 / Checkpoint3。新增朱治2015、界甘宁2014、界许褚2014首发；移动局部续接、真实指定目标子集、类型牌过滤和跨回合伤害期限均为公共能力。契约见 [schema55](content/skill-composition/RUNTIME_V55.md)。下方旧版本段落保留为历史记录。
 
 2026-09-26 当前指令：按公共能力整批删除旧接口和执行链，不维护历史包指纹、旧版本注册树或兼容投影。当前玩法由统一执行路径及行为测试保证，开发期间仅编译和定向检查，整批合并后统一验证。下文历史验收记录不构成继续保留旧实现的要求；本轮进度与边界见 [技能边界整批迁移](SKILL_BOUNDARY_MIGRATION.md)。
 

@@ -547,9 +547,7 @@ commands, movements, zones, all four safe player views, checkpoints and RNG
 matched the control byte for byte. Internal frame representations were
 deliberately excluded because their ownership and serialization shape changed.
 These finite traces support equivalence for the exercised normal and source-loss
-returns, not every possible program or game. Verification summaries, logs and
-`trace-evidence.zip` are retained under
-`docs/benchmarks/2026-10-13-architecture-extension`.
+returns, not every possible program or game.
 
 No manual Full run or foreground-desktop acceptance was performed. The routine
 results and focused WPF checks establish their recorded scopes only.
@@ -649,9 +647,7 @@ reviews also checked continuation predicate mapping, observer suffix order,
 immutable prompt copies and WPF identity lifetime. The only source changes
 after the final verification snapshot are this report's documentation updates.
 
-Focused/routine summaries, the failing pre-fix Luochong log, intermediate
-failures, source hashes, narrow backups and static review evidence are under
-`docs/benchmarks/2026-10-13-architecture-simplification`. No manual Full run,
+No manual Full run,
 unfiltered direct runner or foreground-desktop acceptance was performed.
 The WPF results are their recorded automated control and hidden-window scopes.
 
@@ -748,10 +744,7 @@ retained with the logs. The routine remains above the approximate one-minute
 target, and these timings do not demonstrate a performance gain. No manual
 Full run, unfiltered direct runner or foreground-desktop acceptance was done.
 
-The summaries, red cursor diagnostics, narrow recovery archives, static
-reviews, source hashes and six-boundary comparison are saved under
-`docs/benchmarks/2026-10-13-architecture-state-ownership`. Its evidence archive
-contains 64 files. Previous automatic deletion was rejected as
+Previous automatic deletion was rejected as
 `blocked by policy`; those same outputs were reused and deletion was not
 retried. The exact retained directories and measured bytes are in
 `summary.json`, and the verification outputs plus this batch's recovery
@@ -832,10 +825,7 @@ evidence for its saved source snapshot, not a claim that the newest entire
 checkout is buildable. These integration drafts were preserved; their active
 chat status and build failure were inspected rather than overwriting the work.
 
-Evidence is saved under
-`docs/benchmarks/2026-10-13-architecture-committed-continuations`, including
-red and green logs, source recovery archives, independent reviews, the
-concurrent-source diff and the failed recheck summary. No manual Full run,
+No manual Full run,
 unfiltered direct runner or foreground-desktop acceptance was performed.
 The exact retained temporary directories and measured disk use are in its
 `summary.json`. Previous output deletion was rejected as `blocked by policy`;
@@ -882,9 +872,7 @@ closeout; the separate sole-target feature changed again afterward. All four
 metadata implementation/test files and the rules-version source remained
 unchanged. The successful results belong to their saved source snapshot.
 
-Evidence is saved under `docs/benchmarks/2026-10-13-architecture-catalog-facts`:
-the archive contains nineteen recovery, review, source-hash and verification
-files. The routine still exceeds the approximate one-minute target; neither
+The routine still exceeds the approximate one-minute target; neither
 these timings nor the removed scans establish an application performance gain.
 No manual Full run or foreground-desktop acceptance was performed. Task-owned
 recovery/diagnostic material is retained while simplification continues. Prior
@@ -941,9 +929,7 @@ the in-progress product feature is weakened by this architecture batch.
 All seven recorded Pindian implementation/model/version/test files remain at
 their focused hashes. Five of 2,280 wider routine inputs changed during the
 concurrent work. The successful Pindian checks do not make the newest checkout
-or the failed routine green. Detailed source hashes, independent reviews,
-recovery files, diagnostics, logs and per-check timing are retained under
-`docs/benchmarks/2026-10-13-architecture-pindian-cursor`.
+or the failed routine green.
 
 The routine's existing verbose timings contain no duplicated check names.
 Core's ten slowest checks account for 15.8 percent of its timed bodies; WPF's
@@ -1000,9 +986,7 @@ corrected original method and helpers, while excluding unrelated uncalled
 methods that require newer in-progress frame APIs. Its earlier parent-return
 failure remains recorded separately from the later passing routine check.
 
-Summaries, narrow recovery sources, exact isolated inputs, causal results and
-component measurements are saved under
-`docs/benchmarks/2026-10-13-architecture-preparation-reuse`. No assertion,
+No assertion,
 registered check or routine filter was removed. The routine remains above the
 approximate one-minute target; unrelated source/scope changes prevent treating
 its total duration as a measured speedup. No manual Full run or foreground
@@ -1045,9 +1029,7 @@ than an end-to-end speedup claim. Routine verification remains above the
 approximate one-minute target. No manual Full run or foreground desktop
 acceptance was performed.
 
-Recovery sources, narrow diffs, peer reviews, source hashes and measured logs
-are archived under
-`docs/benchmarks/2026-10-13-architecture-registry-index-reuse`. Automatic approval
+Automatic approval
 rejected cleanup of the completed earlier causal diagnostic output as
 `blocked by policy`, after its owner, links, consumers and three archived
 assembly hashes were checked. That exact path was registered for retained
@@ -1094,9 +1076,7 @@ seven other Core inputs changed during verification and need subsequent
 validation. No latest-whole-tree green claim, manual Full run or foreground
 desktop acceptance is made.
 
-Before/after sources, exact diffs, peer reviews, source manifests, red-green
-integration records and measured logs are archived under
-`docs/benchmarks/2026-10-13-architecture-binding-authority`. Existing verification
+Existing verification
 outputs remain protected after their earlier `blocked by policy` cleanup
 rejections. This batch reused them and created no new disposable build-output
 directory. Necessary recovery evidence remains registered for the continuing
@@ -1145,9 +1125,7 @@ separately. Core and WPF ran in parallel; the one-minute target remains unmet.
 The three owned source files match the final build inputs. A parallel
 named-ambush fixture changed during that run and needs later validation.
 
-Recovery sources, exact diffs, peer reviews, compiled-source checksums,
-allocation samples and red/green logs are archived under
-`docs/benchmarks/2026-10-13-architecture-empty-bindings`. Automatic approval
+Automatic approval
 rejected deletion of this batch's probe output as `blocked by policy`; its
 exact path and protected parent are queued. Earlier blocked outputs were
 reused without retrying their deletion. No manual Full or release was run.
@@ -1186,8 +1164,6 @@ before/after whole-binary, match or screen benchmark. Production code gains
 four lines for a clearer guarded block while removing duplicate data and work.
 No new registered check, framework, runner switch or rules version was added.
 
-Recovery sources, reviews, exact diffs, sample scope and verification logs are
-stored under `docs/benchmarks/2026-10-13-architecture-compiled-query-reuse`.
 Earlier compatible probe outputs were reused and their prior blocked deletion
 remains protected. No Clean, Rebuild, manual Full, release, commit or push was
 performed. After ownership, link, consumer and archive integrity checks,
@@ -1226,8 +1202,7 @@ the manifest. Parallel Core and WPF durations are not summed. This result
 does not establish an isolated speedup; the one-minute target remains unmet.
 No new registered check or rules version, manual Full or release was added.
 
-Evidence and recovery sources are stored under
-`docs/benchmarks/2026-10-13-architecture-trigger-presentation`. Earlier blocked
+Earlier blocked
 outputs were reused without retrying deletion; exact diagnostic cleanup after
 archive verification is recorded separately from the verification result.
 
@@ -1252,9 +1227,7 @@ Seventeen focused Core checks passed. Routine verification passed 558 Core and
 75 WPF checks in 97.878 seconds, with parallel test scopes. Only the runner's
 cleanup queue changed among 2,325 captured inputs, and all three edited sources
 match their run hashes. No runtime state, registered check or rules version was
-added; the three production files have zero net line growth. Recovery sources,
-exact patches, reviews and measured evidence are stored in
-`docs/benchmarks/2026-10-13-architecture-selection-movement`. This batch does not
+added; the three production files have zero net line growth. This batch does not
 claim an isolated command speedup or foreground desktop acceptance.
 
 ## UI view authority and policy reuse (2026-10-13)
@@ -1273,9 +1246,7 @@ lazy public-state initialization and source/hash/window gates remain intact.
 Ten focused Core and four WPF checks passed. Routine verification passed 558
 Core and 75 WPF checks in 94.789 seconds with parallel scopes. All six source
 hashes match the run. Six production files decrease by 13 lines, with four cache
-fields reduced to two and no extra runtime rule state or rules version. Recovery
-sources, exact diffs, boundary reviews and measured evidence are stored in
-`docs/benchmarks/2026-10-13-architecture-view-authority`. Repeated false instance
+fields reduced to two and no extra runtime rule state or rules version. Repeated false instance
 policy evaluations and unknown external reflection consumers remain stated
 verification limits; no isolated command speedup or foreground acceptance is claimed.
 
@@ -1296,6 +1267,5 @@ HP, retaining costs and cold replay assertions. After 38 focused Core and three
 WPF checks, the five initial routine failures received targeted rechecks and
 passed. Final routine: 570 Core and 76 WPF passed in 90.862 seconds, with only
 normal cleanup-queue drift among 2,351 inputs and all six source hashes matching.
-Evidence and exact ownership boundaries are stored in
-`docs/benchmarks/2026-10-13-architecture-frozen-copy-reuse`. No direct registered
+No direct registered
 Qiaoli scenario, isolated command speedup or foreground acceptance is claimed.

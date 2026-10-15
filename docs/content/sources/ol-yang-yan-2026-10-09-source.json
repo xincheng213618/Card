@@ -754,7 +754,6 @@
     "artworkDelivered": true,
     "status": "complete ordinary current OL Yang Yan; targeted and routine behavior checks passed",
     "acceptedAt": "2026-10-08T23:27:55.646260+00:00",
-    "verification": "docs/benchmarks/2026-10-09-content-continuation-round28-verification.json",
     "manualFullRun": false,
     "ordinaryJinRegisteredCountBefore": 13,
     "ordinaryJinRegisteredCountAfter": 14

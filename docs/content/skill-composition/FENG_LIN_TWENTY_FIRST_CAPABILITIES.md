@@ -1,6 +1,6 @@
 # 第二十一批共享能力合同与证据
 
-本批已通过父级集成验证：Full Core632/632、WPF57/57；无过滤日常Core219/219、WPF18/18。运行记录保存在[实际台账](../../benchmarks/2026-10-04-fenglin-twenty-first-validation.json)，实际耗时和输入摘要见[本批记录](../../benchmarks/2026-10-04-fenglin-twenty-first.md)。规则解释见[工程口径](FENG_LIN_TWENTY_FIRST_RULINGS.md)。
+本批已通过父级集成验证：Full Core632/632、WPF57/57；无过滤日常Core219/219、WPF18/18。规则解释见[工程口径](FENG_LIN_TWENTY_FIRST_RULINGS.md)。
 
 | 能力 | 所有权与返回合同 | 当前新增真实证据 |
 | --- | --- | --- |

@@ -3,11 +3,9 @@
   "status": "primary-preflight-complete-no-code-yet",
   "scope": "Exact current OL429 SP Pang Tong, OL430 Yuan Tan Yuan Shang, OL432 Lv Qian. OL431 Sha Mo Ke already has the ordinary registered classic:jili implementation and is skipped; SP429 is a distinct skill variant of already present Pang Tong editions.",
   "previousAcceptedReport": {
-    "path": "docs/benchmarks/2026-10-15-zhang-qi-ying-cao-chun-wang-can-verification.json",
     "sha256": "3f5cf998cad9efb2e056f5549719e2b2ed4b40fdc3255329e8eaa61f0e614960"
   },
   "rosterBaseline": {
-    "path": "docs/benchmarks/2026-10-15-general-batch-18-roster-baseline.json",
     "count": 417
   },
   "currentClient": {

@@ -2,7 +2,7 @@
 
 本批以当前普通OL界张郃486、界曹冲628为整合目标。当前界刘禅451授予思蜀895，但895完整当前正文尚未取得；其实现及检查留在暂存目录，未注册完整武将。官方原文、HTTP和原画摘要见[来源台账](../sources/fenglin-twentieth-2026-10-03.json)，思蜀当前缺口与2020官方历史正文分别见[来源预检](../sources/boundary-liu-shan-sishu-preflight-2026-10-03.json)。
 
-本批六项新Core检查已通过Full：Core617/617、WPF57/57；无过滤日常Core204/204、WPF18/18、63.657秒。Full起止与日常结束的2434个输入摘要一致。实际发展运行及原失败保存在[运行台账](../../benchmarks/2026-10-03-fenglin-twentieth-validation.json)。
+本批六项新Core检查已通过Full：Core617/617、WPF57/57；无过滤日常Core204/204、WPF18/18、63.657秒。Full起止与日常结束的2434个输入摘要一致。
 
 ## 下一次亮牌额度与实际获牌
 

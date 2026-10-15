@@ -12,6 +12,7 @@
 
 ## Temporary files and build artifacts
 
+- Benchmark logs, verification summaries, screenshots, source snapshots, and recovery archives are temporary outputs. Use the ignored `.artifacts/benchmarks/` directory when they need a repository-local location; do not add them to Git or maintain references to them in documentation or source manifests. Keep lasting rule explanations and source citations in the relevant documentation instead.
 - Generate release/publish outputs, installers, and distribution packages only when the user explicitly requests publishing or packaging. Ordinary development and verification must not run release/publish workflows. This restriction does not prohibit temporary archives used to complete the task.
 - Temporary archives, repository/asset copies, worktrees, and isolated build/test outputs are allowed when useful; no separate permission is needed just to use them. Track exact paths and ownership. Reuse compatible checkouts and build outputs, respecting locks and concurrent work, instead of creating a new timestamp/GUID directory for each feature.
 - Automatically clean up this task's disposable temporary files and directories as soon as their purpose is complete, including `%TEMP%` diagnostics, isolated `.artifacts` build/test outputs, temporary archives, and small test fixtures. This standing instruction authorizes ordinary task-owned cleanup without another confirmation. Preserve deliverables, necessary diagnostic evidence, recovery backups, and outputs the user explicitly requested to keep before cleanup.

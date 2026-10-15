@@ -88,9 +88,7 @@
     "focusedMethodCount": 8,
     "full": "manual-only; not requested/not run",
     "wpf": "existing gallery/portrait integration; no new bespoke UI check required",
-    "report": "docs/benchmarks/2026-10-14-sp-huang-yueying-bu-zhi-dong-bai-verification.json",
     "focused": {
-      "summary": "docs/benchmarks/2026-10-14-batch-10-thirteenth-empty-binding-focused-summary.json",
       "status": "passed",
       "mode": "targeted",
       "durationMs": 25251,
@@ -135,7 +133,6 @@
       ]
     },
     "routine": {
-      "summary": "docs/benchmarks/2026-10-14-batch-10-post-empty-binding-routine-summary.json",
       "status": "passed",
       "mode": "routine",
       "durationMs": 90172,

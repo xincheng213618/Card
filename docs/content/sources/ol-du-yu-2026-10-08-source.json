@@ -454,7 +454,6 @@
     "status": "Root integrated build, six shared behavior checks, focused regressions and routine passed.",
     "registered": true,
     "behaviorValidated": true,
-    "acceptanceReport": "docs/benchmarks/2026-10-08-content-continuation-round15-verification.json",
     "focusedCorePassed": 26,
     "focusedWpfPassed": 2,
     "routineCorePassed": 384,

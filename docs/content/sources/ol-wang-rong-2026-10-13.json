@@ -137,13 +137,6 @@
         "ActualSlashExtraEffectRetainsLegitimatelyClaimedMaterial"
       ],
       "independentPaidSourceProof": "ExtraCardEffectPaidSourceChecks.PaidHandCostSourceLossAndOwnerDeathKeepOriginalUseOnce",
-      "evidence": [
-        "docs/benchmarks/2026-10-13-batch-5-before-claimed-material-focused-core-selected.log.txt",
-        "docs/benchmarks/2026-10-13-batch-5-ninth-focused-core-selected.log.txt",
-        "docs/benchmarks/2026-10-13-batch-5-claimed-material-red-core-selected.log.txt",
-        "docs/benchmarks/2026-10-13-batch-5-claimed-material-old-flow-core-selected.log.txt",
-        "docs/benchmarks/2026-10-13-batch-5-claimed-material-green-core-selected.log.txt"
-      ],
       "claimAuditDisposition": "The initially static claimed-material conflict is closed by actual ArrowBarrage red/control/green commands, an additional native Slash green case, a legitimate full classic Jianxiong claim, and cold replay of the second counterspell window. The catalog without the new capability retains its actual three-target/one-claim/one-completion behavior. The red failure surfaced at an outer Damage finally; the strict new-capability material-disposition fix passes without a global Damage pop relaxation or old-content rules change.",
       "scope": "Real serialized accepted commands and checkpoint replay, not injected runtime frames. Shared receipts and privacy checks are covered. These representative cases do not claim every physical material, card kind, combination or foreground WPF interaction was executed."
     }
@@ -161,16 +154,8 @@
   ],
   "verification": {
     "fullVerification": false,
-    "routineSummary": "docs/benchmarks/2026-10-13-batch-5-routine-summary.json",
-    "focusedSummary": "docs/benchmarks/2026-10-13-batch-5-final-focused-summary.json",
     "status": "batch-focused-and-prescribed-routine-passed",
     "foregroundAcceptance": false,
-    "coreEvidence": "docs/benchmarks/2026-10-13-batch-5-final-focused-core-selected.log.txt",
-    "summary": "docs/benchmarks/2026-10-13-batch-5-final-focused-summary.json",
-    "batchReport": "docs/benchmarks/2026-10-13-zhang-lu-wang-rong-shi-xie-verification.json",
-    "latestScopeNote": "586 Core / 76 WPF passing is evidence for the recorded earlier stable source snapshot. Two shared files subsequently changed; the current source is covered by the fresh 40 Core / 5 WPF related focused run, not another complete routine or Full.",
-    "latestCoreEvidence": "docs/benchmarks/2026-10-13-batch-5-latest-focused-core-selected.log.txt",
-    "latestFocusedSummary": "docs/benchmarks/2026-10-13-batch-5-latest-focused-summary.json",
-    "latestBatchReport": "docs/benchmarks/2026-10-13-zhang-lu-wang-rong-shi-xie-verification.json"
+    "latestScopeNote": "586 Core / 76 WPF passing is evidence for the recorded earlier stable source snapshot. Two shared files subsequently changed; the current source is covered by the fresh 40 Core / 5 WPF related focused run, not another complete routine or Full."
   }
 }

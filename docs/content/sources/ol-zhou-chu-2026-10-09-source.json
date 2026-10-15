@@ -116,8 +116,7 @@
     "targetedCore": 108,
     "targetedWpf": 4,
     "routineCore": 416,
-    "routineWpf": 21,
-    "report": "docs/benchmarks/2026-10-09-content-continuation-round20-verification.json"
+    "routineWpf": 21
   },
   "behaviorCheckMethods": [
     "PhaseDefaultsRemainSeparateFromNormalModifiersAndRepeatedPlay",

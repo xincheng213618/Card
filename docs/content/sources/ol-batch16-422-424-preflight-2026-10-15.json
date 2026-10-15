@@ -3,11 +3,9 @@
   "status": "primary-preflight-complete-no-code-yet",
   "scope": "Exact ordinary OL422/423/424, current primary pages/API reconciled with prior bounded exact current-client extraction.",
   "previousAcceptedReport": {
-    "path": "docs/benchmarks/2026-10-15-zhang-ji-su-fei-huang-quan-verification.json",
     "sha256": "390615f1639c4f24c383d017ed05d2ed66deed19ed19f2b01d605412f2be89c8"
   },
   "rosterBaseline": {
-    "path": "docs/benchmarks/2026-10-15-general-batch-16-roster-baseline.json",
     "count": 411
   },
   "currentClient": {

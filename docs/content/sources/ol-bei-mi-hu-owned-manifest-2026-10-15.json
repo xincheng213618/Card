@@ -57,9 +57,6 @@
   "zeroAdditionRegression": "owned implementation/test frozen; root runner pending",
   "workerVerificationAtHandoff": "implementation-ready-focused-pending",
   "verification": {
-    "report": "docs/benchmarks/2026-10-15-bei-mi-hu-liu-qi-lu-zhi-wei-verification.json",
-    "focused": "docs/benchmarks/2026-10-15-batch-13-thirteenth-final-focused-summary.json",
-    "routine": "docs/benchmarks/2026-10-15-batch-13-routine-summary.json",
     "status": "passed",
     "ranByWorker": false,
     "ranByRoot": true

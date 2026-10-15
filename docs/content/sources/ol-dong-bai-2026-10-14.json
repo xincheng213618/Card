@@ -132,9 +132,7 @@
   "verification": {
     "previousStage": "Coordinator reported eight existing focused methods green before the added original-equipment regression. New black equipment gain/use-block/HP-release/cold scene awaits rerun. Private-pile origin interactions and repeated multi-source/re-entry combinations are not claimed tested.",
     "status": "verified-in-batch",
-    "report": "docs/benchmarks/2026-10-14-sp-huang-yueying-bu-zhi-dong-bai-verification.json",
     "focused": {
-      "summary": "docs/benchmarks/2026-10-14-batch-10-thirteenth-empty-binding-focused-summary.json",
       "status": "passed",
       "mode": "targeted",
       "durationMs": 25251,
@@ -179,7 +177,6 @@
       ]
     },
     "routine": {
-      "summary": "docs/benchmarks/2026-10-14-batch-10-post-empty-binding-routine-summary.json",
       "status": "passed",
       "mode": "routine",
       "durationMs": 90172,

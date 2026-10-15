@@ -67,12 +67,8 @@
   },
   "verification": {
     "status": "passed",
-    "focusedSummary": "docs/benchmarks/2026-10-13-batch-6-sixth-focused-summary.json",
-    "focusedCoreLog": "docs/benchmarks/2026-10-13-batch-6-sixth-focused-core-selected.log.txt",
-    "routineSummary": "docs/benchmarks/2026-10-13-batch-6-routine-summary.json",
     "routineCorePassed": 608,
     "routineWpfPassed": 76,
-    "manualFull": false,
-    "finalBatchReport": "docs/benchmarks/2026-10-13-ma-yun-lu-ta-dun-yan-bai-hu-verification.json"
+    "manualFull": false
   }
 }

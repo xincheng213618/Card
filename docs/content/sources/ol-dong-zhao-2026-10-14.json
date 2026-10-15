@@ -67,14 +67,11 @@
     "groupWpfPassed": 1,
     "dongZhaoCorePassed": 8,
     "groupDurationMs": 12132,
-    "summaryPath": "docs/benchmarks/2026-10-14-batch-8-fifth-group-focused-summary.json",
-    "coreLogPath": "docs/benchmarks/2026-10-14-batch-8-fifth-group-focused-core-selected.log.txt",
     "routineStatus": "pending",
     "fullRunPerformed": false,
     "foregroundAcceptancePerformed": false,
     "routine": {
       "status": "passed",
-      "summary": "docs/benchmarks/2026-10-14-batch-8-routine-summary.json",
       "corePassed": 653,
       "wpfPassed": 76,
       "durationMs": 104474,
@@ -83,10 +80,8 @@
     "focusedPassed": true
   },
   "verifiedAt": "2026-10-14T10:08:39.713886+00:00",
-  "batchVerificationReport": "docs/benchmarks/2026-10-14-deng-zhi-cao-ying-dong-zhao-verification.json",
   "routine": {
     "status": "passed",
-    "summary": "docs/benchmarks/2026-10-14-batch-8-routine-summary.json",
     "corePassed": 653,
     "wpfPassed": 76,
     "durationMs": 104474,

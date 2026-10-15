@@ -135,7 +135,6 @@
     "rootVerification": {
       "status": "passed",
       "rootRunner": true,
-      "focusedSummary": "docs/benchmarks/2026-10-15-batch-18-sixth-focused-summary.json",
       "focused": {
         "corePassed": 29,
         "coreFailed": 0,
@@ -143,7 +142,6 @@
         "wpfFailed": 0,
         "durationMs": 11445
       },
-      "routineSummary": "docs/benchmarks/2026-10-15-batch-18-routine-summary.json",
       "routine": {
         "corePassed": 119,
         "coreFailed": 0,
@@ -151,14 +149,12 @@
         "wpfFailed": 0,
         "durationMs": 29662
       },
-      "report": "docs/benchmarks/2026-10-15-sp-pang-tong-yuan-tan-yuan-shang-lv-qian-verification.json",
       "fullRun": false,
       "foregroundAcceptance": false,
       "serverBehaviorVerified": false
     },
     "focused": "Root sixth focused: all 18 new behavior methods and 11 relevant shared regression checks passed; 1 WPF gallery passed.",
-    "routine": "Prescribed 119 Core/20 WPF routine passed in 29662ms; Full not run.",
-    "rootEvidence": "docs/benchmarks/2026-10-15-batch-18-sixth-focused-summary.json"
+    "routine": "Prescribed 119 Core/20 WPF routine passed in 29662ms; Full not run."
   },
   "implementationFiles": [
     {

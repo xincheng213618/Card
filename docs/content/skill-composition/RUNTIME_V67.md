@@ -30,4 +30,4 @@
 - 定向检查 `JiaXuChecks`（4 项，注册入口 `Program.cs` “2010 Jia Xu …”）：定义与策略 schema（含 9 条解析拒收面）、乱武最近强杀族与回放一致、乱武无杀失体力与行动顺序及回放一致、帷幕黑锦囊差异（黑南蛮/黑决斗从不指向贾诩 + 红南蛮恒指向并受伤）。
 - 共享检查：`composition kernel descriptor contracts` 已覆盖新操作的 descriptor/parse/handler 三方一致性。
 - 同一组断言另以磁盘直挂夹具（不经经典注册表，只注册本批三技能与四名无技对手）独立复验通过，用于在并行批次阻断经典注册表/测试工程期间确认引擎行为。
-- 如实记录：截至本版本落笔，并行 2011 批次的 `Fame2011FaZhengChecks.cs` 引用尚不存在的 `ProgramSkillStartedEvent.TriggerId`，测试工程整体编译失败，故本批未产生全量 Core 数字；已在该文件之外的同批改动上确认零编译错误与零新警告。批次记录见 [2026-09-30-jia-xu](../../benchmarks/2026-09-30-jia-xu.md)（含并行在制面对全量验证的阻塞归因）。
+- 如实记录：截至本版本落笔，并行 2011 批次的 `Fame2011FaZhengChecks.cs` 引用尚不存在的 `ProgramSkillStartedEvent.TriggerId`，测试工程整体编译失败，故本批未产生全量 Core 数字；已在该文件之外的同批改动上确认零编译错误与零新警告。

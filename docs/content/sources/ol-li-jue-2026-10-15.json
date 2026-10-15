@@ -118,9 +118,7 @@
     "status": "verified-in-batch",
     "ranByWorker": false,
     "ranByRoot": true,
-    "report": "docs/benchmarks/2026-10-15-sima-hui-xu-rong-li-jue-verification.json",
     "focused": {
-      "summary": "docs/benchmarks/2026-10-15-batch-14-eighth-final-focused-summary.json",
       "status": "passed",
       "mode": "targeted",
       "startedAt": "2026-10-15T12:49:12.3123858+08:00",
@@ -183,7 +181,6 @@
       ]
     },
     "routine": {
-      "summary": "docs/benchmarks/2026-10-15-batch-14-routine-summary.json",
       "status": "passed",
       "mode": "routine",
       "startedAt": "2026-10-15T12:49:43.5098000+08:00",

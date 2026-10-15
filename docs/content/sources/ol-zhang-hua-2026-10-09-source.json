@@ -481,8 +481,7 @@
     "targetedCore": 120,
     "targetedWpf": 4,
     "routineCore": 428,
-    "routineWpf": 21,
-    "report": "docs/benchmarks/2026-10-09-content-continuation-round22-verification.json"
+    "routineWpf": 21
   },
   "officialPortrait": {
     "assetPath": "src/CardGame.Wpf/Assets/official-ol-zhang-hua.png",

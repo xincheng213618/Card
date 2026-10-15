@@ -23,4 +23,4 @@
 
 ## 验证口径
 
-定向检查 `BoundaryZhaoYunChecks`（4项）、`ShenZhaoYunChecks`（4项）、`GaoDaYiHaoChecks`（5项）全部通过；测试内自建 fixture 模式与牌堆（物理牌列表），濒死救援按"濒死询问中的 program-trigger 选项"驱动（NiepanChecks 同构），出牌结算后一律驱动到 seat-0 PlayCard/DiscardCards 再断言。快照全量 Core 591/599，8 失败均外部归因（详见批次记录 [2026-09-29-zhao-yun-family-gaoda](../../benchmarks/2026-09-29-zhao-yun-family-gaoda.md)）。
+定向检查 `BoundaryZhaoYunChecks`（4项）、`ShenZhaoYunChecks`（4项）、`GaoDaYiHaoChecks`（5项）全部通过；测试内自建 fixture 模式与牌堆（物理牌列表），濒死救援按"濒死询问中的 program-trigger 选项"驱动（NiepanChecks 同构），出牌结算后一律驱动到 seat-0 PlayCard/DiscardCards 再断言。快照全量 Core 591/599，8 失败均外部归因。

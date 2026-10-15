@@ -7,6 +7,8 @@ TestResults/
 *.log
 /dist/
 /.artifacts/
+# Legacy verification output; new temporary evidence belongs under .artifacts/benchmarks/.
+/docs/benchmarks/
 /.codex-artifacts/
 /artifacts/
 /--m3/
@@ -19,3 +21,5 @@ TestResults/
 /.tmp_*.py
 /tools/cleanup_queue.json.lock
 /tools/cleanup_queue.json.tmp
+# Machine-local cleanup records contain temporary paths and are not source files.
+/tools/cleanup_queue.json

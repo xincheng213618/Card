@@ -1,9 +1,0 @@
-{
-  "mode": "filtered-native-motion",
-  "filter": "response context",
-  "recordMotion": true,
-  "exitCode": 0,
-  "startedAt": "2026-10-13T01:13:18.9095413+08:00",
-  "durationMs": 9815,
-  "fullRun": false
-}

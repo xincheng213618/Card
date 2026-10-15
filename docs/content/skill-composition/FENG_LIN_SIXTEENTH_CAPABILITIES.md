@@ -16,4 +16,4 @@
 
 2801 `DeclareDeckCriterionAndGiveMatchingCard` 先声明红/黑颜色或基本/锦囊/装备的打印类别（锦囊包含延时锦囊），再按当前牌堆顶逐张公开并检索首张符合牌，由发动者选择当前存活男性角色获得，可以选择自己。检索和给牌凭据由 owning program frame 持有，每次移动及给牌后的 children 可暂停和冷恢复。工程默认只在初始空堆时按既有方式补充，随后冻结初始堆牌数为检索预算；中途不再补充，无匹配则有限结束。失败牌进入弃牌堆但不是弃置动作；命中牌公开暂存 Processing，给牌前来源失效或没有男性接收者时沿绑定牌清理进入弃牌堆。
 
-新规则事实通过 `AdvanceEventRulesAndQueueFact`，新状态通过 `AdvanceRulesAndPublishState`；集合与嵌套凭据在暴露前冻结，玩家视角使用 `CreateSnapshot`。正式命令/冷恢复与 HOST 来源失效审计分别标注，实际验证见[批次记录](../../benchmarks/2026-10-03-fenglin-sixteenth.md)。
+新规则事实通过 `AdvanceEventRulesAndQueueFact`，新状态通过 `AdvanceRulesAndPublishState`；集合与嵌套凭据在暴露前冻结，玩家视角使用 `CreateSnapshot`。正式命令/冷恢复与 HOST 来源失效审计分别标注。

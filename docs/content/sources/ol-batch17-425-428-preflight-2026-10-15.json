@@ -3,11 +3,9 @@
   "status": "primary-preflight-reconciled-current-client-contracts-pending",
   "scope": "Exact ordinary OL425/426/428. OL427 Xu Jing already exists and is deliberately skipped. Current-client text is authoritative for current variant; official-page differences require explicit reconciliation.",
   "previousAcceptedReport": {
-    "path": "docs/benchmarks/2026-10-15-tang-zi-fan-chou-guo-si-verification.json",
     "sha256": "4633b6434cfbd602dda120c524f4246e1e094b13a4ffe9157de8ccce8b25d646"
   },
   "rosterBaseline": {
-    "path": "docs/benchmarks/2026-10-15-general-batch-17-roster-baseline.json",
     "count": 414
   },
   "currentClient": {

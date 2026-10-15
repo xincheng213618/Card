@@ -12,7 +12,6 @@
   "registered": true,
   "productionImplemented": true,
   "behaviorValidated": true,
-  "verificationRecord": "docs/benchmarks/2026-10-08-content-continuation-round14-verification.json",
   "sourcePage": "https://www.sanguosha.com/hero/7020",
   "sources": [
     {
@@ -103,7 +102,7 @@
   "evidenceLimits": [
     "The current primary page says 使用. Semantic-use response classification and interruption/regrant behavior are explicit engine mappings, not a claimed Bingxin-specific official supplemental FAQ.",
     "At zero HP, a nonempty hand cannot meet unpaid Bingxin qualification. The tested self-Alcohol rescue in a paid draw child is issued by an independent registered legacy ability before returning to the original Bingxin payment; it is not a positive unpaid Bingxin self-rescue test.",
-    "Implementation and verification evidence are tracked separately in docs/benchmarks/2026-10-08-content-continuation-round14-verification.json. Primary capture alone does not establish behavioral correctness or official-client acceptance."
+    "Primary capture alone does not establish behavioral correctness or official-client acceptance."
   ],
   "priorResearchPlan": "docs/content/sources/ol-wang-xiang-2026-10-08-plan.json"
 }

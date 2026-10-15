@@ -12,7 +12,7 @@
 
 这些候选仅完成来源预检，尚未分配实现或登记主线。现有三个子代理先完成其持有的第29批交付，再按空闲情况分配。所有规则须保持原实体、有效花色、实际阶段或回合、轮次失效及冷恢复归属；不能拿经典版本替代当前文本或虚造 accepted action。
 
-进度记录为 `docs/benchmarks/2026-10-04-fenglin-thirtieth-validation.json`，来源摘要为 `docs/content/sources/fenglin-thirtieth-preflight-2026-10-04.json`。按用户睡醒后统一测试的要求，本次只保存来源、做有界静态名字核对；未构建、执行生产 loader、运行检查、基准或全资源验收。
+来源摘要为 `docs/content/sources/fenglin-thirtieth-preflight-2026-10-04.json`。按用户睡醒后统一测试的要求，本次只保存来源、做有界静态名字核对；未构建、执行生产 loader、运行检查、基准或全资源验收。
 
 三张官方原始 PNG 已各读取一次 HTTP200，均为750×950，原字节和精确来源 SHA 另存第30批 art 记录。图片仍在 owned stage，未复制到主线 Assets、登记 catalog 或进行离线全目录验收；source 记录中的 mediaDownloaded=false 保留其来源捕获时快照。
 

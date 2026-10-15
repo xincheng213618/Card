@@ -64,7 +64,6 @@
   ],
   "verification": {
     "focused": {
-      "summary": "docs/benchmarks/2026-10-14-batch-10-thirteenth-empty-binding-focused-summary.json",
       "status": "passed",
       "mode": "targeted",
       "durationMs": 25251,
@@ -110,7 +109,6 @@
     },
     "ownedRunnerExecuted": false,
     "routine": {
-      "summary": "docs/benchmarks/2026-10-14-batch-10-post-empty-binding-routine-summary.json",
       "status": "passed",
       "mode": "routine",
       "durationMs": 90172,
@@ -522,7 +520,6 @@
       ]
     },
     "status": "verified-in-batch",
-    "report": "docs/benchmarks/2026-10-14-sp-huang-yueying-bu-zhi-dong-bai-verification.json",
     "full": "manual-only; not requested/not run",
     "foregroundAcceptance": false
   },

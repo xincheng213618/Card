@@ -1,7 +1,0 @@
-  CardGame.Wpf.Tests -> C:\Users\17917\AppData\Local\Temp\CardGame-TestChanged-25f07ed2579f\bin\CardGame.Wpf.Tests\release\CardGame.Wpf.Tests.dll
-
-已成功生成。
-    0 个警告
-    0 个错误
-
-已用时间 00:00:02.03

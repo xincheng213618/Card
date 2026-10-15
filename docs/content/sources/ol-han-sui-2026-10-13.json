@@ -32,7 +32,6 @@
       "TriggeredCardConversionChecks.EndingGatesAndConsumedWeaponRangeAreExact",
       "TriggeredCardConversionChecks.RoundFirstOpportunityDoesNotMoveAfterDeclineOrExtraTurn"
     ],
-    "status": "2026-10-13 聚焦 Core 4 项全部通过；覆盖手牌/装备真实转杀、银狮支付子结算、装备范围、轮首拒绝/额外回合/翻面跳过、轮首 SelfOnly、冷回放",
-    "summary": "docs/benchmarks/2026-10-13-han-sui-focused-summary.json"
+    "status": "2026-10-13 聚焦 Core 4 项全部通过；覆盖手牌/装备真实转杀、银狮支付子结算、装备范围、轮首拒绝/额外回合/翻面跳过、轮首 SelfOnly、冷回放"
   }
 }

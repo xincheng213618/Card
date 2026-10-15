@@ -62,9 +62,7 @@
     "status": "verified-in-batch",
     "ranByWorker": false,
     "ranByRoot": true,
-    "report": "docs/benchmarks/2026-10-15-bei-mi-hu-liu-qi-lu-zhi-wei-verification.json",
     "focused": {
-      "summary": "docs/benchmarks/2026-10-15-batch-13-thirteenth-final-focused-summary.json",
       "status": "passed",
       "mode": "targeted",
       "startedAt": "2026-10-15T03:19:54.4762189+08:00",
@@ -124,7 +122,6 @@
       ]
     },
     "routine": {
-      "summary": "docs/benchmarks/2026-10-15-batch-13-routine-summary.json",
       "status": "passed",
       "mode": "routine",
       "startedAt": "2026-10-15T03:21:06.9723264+08:00",

@@ -10,7 +10,6 @@
       "sha256": "1a06c0e8ecf85ee0c2511d5e15b71adbfe5123728dae4f20e5a8c775e7ffc07e"
     }
   ],
-  "rosterBaseline": "docs/benchmarks/2026-10-15-general-batch-14-roster-baseline.json",
   "count": 405,
   "comparisons": [
     {

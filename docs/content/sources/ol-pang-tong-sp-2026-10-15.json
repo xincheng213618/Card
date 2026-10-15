@@ -147,7 +147,6 @@
     "rootVerification": {
       "status": "passed",
       "rootRunner": true,
-      "focusedSummary": "docs/benchmarks/2026-10-15-batch-18-sixth-focused-summary.json",
       "focused": {
         "corePassed": 29,
         "coreFailed": 0,
@@ -155,7 +154,6 @@
         "wpfFailed": 0,
         "durationMs": 11445
       },
-      "routineSummary": "docs/benchmarks/2026-10-15-batch-18-routine-summary.json",
       "routine": {
         "corePassed": 119,
         "coreFailed": 0,
@@ -163,13 +161,11 @@
         "wpfFailed": 0,
         "durationMs": 29662
       },
-      "report": "docs/benchmarks/2026-10-15-sp-pang-tong-yuan-tan-yuan-shang-lv-qian-verification.json",
       "fullRun": false,
       "foregroundAcceptance": false,
       "serverBehaviorVerified": false
     },
-    "rootFocusedStatus": "passed",
-    "rootEvidence": "docs/benchmarks/2026-10-15-batch-18-sixth-focused-summary.json"
+    "rootFocusedStatus": "passed"
   },
   "ownedFiles": [
     {

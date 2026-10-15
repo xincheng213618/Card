@@ -42,9 +42,6 @@
   "workerVerificationAtHandoff": "implementation-ready-focused-pending",
   "routine": "passed-by-root",
   "verification": {
-    "report": "docs/benchmarks/2026-10-14-wang-yun-zhuge-guo-xi-zhi-cai-verification.json",
-    "focused": "docs/benchmarks/2026-10-14-batch-12-tenth-final-focused-summary.json",
-    "routine": "docs/benchmarks/2026-10-14-batch-12-routine-summary.json",
     "status": "passed",
     "ranByWorker": false,
     "ranByRoot": true

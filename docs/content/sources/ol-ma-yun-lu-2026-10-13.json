@@ -88,9 +88,7 @@
     "verificationScope": "Real serialized commands, fixed small seed/deck, genuine native frames and actual GameReplay.Restore engines continued at paused choices/children. No injected frames or seed searches. Root alone runs checks.",
     "legacyVirtual": "The actual existing UseVirtualCard(false) producer keeps Action-null and its original owning use. A new capability-owned predicate validates the exact parent, paused instruction, original singleton target, binding-started/declaration/confirmation facts and supports both normalSlashTarget and distanceUnlimitedAgainstTarget. The mature shared SameTypeAid legacy predicate is unchanged. A dedicated FirstSlashDuelLegacyWindowFrame with ResolutionFrameKind 21100 returns to the same native Slash target/response continuation. No manufactured CardAction, recommit, altered nativeWindows alcohol/armor behavior or parallel pending sidecar.",
     "focusedPassed": true,
-    "focusedSummary": "docs/benchmarks/2026-10-13-batch-6-sixth-focused-summary.json",
-    "focusedCoreLog": "docs/benchmarks/2026-10-13-batch-6-sixth-focused-core-selected.log.txt",
-    "routine": "passed prescribed scope 608 Core / 76 WPF; docs/benchmarks/2026-10-13-batch-6-routine-summary.json"
+    "routine": "passed prescribed scope 608 Core / 76 WPF"
   },
   "portrait": {
     "url": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/34600.png",
@@ -109,12 +107,8 @@
   "temporaryFiles": "No temporary directory created. Raw upstream bundles decoded in memory. Source/evidence/portrait/checks are retained deliverables; historical policy-blocked outputs were not deleted or retried.",
   "verification": {
     "status": "passed",
-    "focusedSummary": "docs/benchmarks/2026-10-13-batch-6-sixth-focused-summary.json",
-    "focusedCoreLog": "docs/benchmarks/2026-10-13-batch-6-sixth-focused-core-selected.log.txt",
-    "routineSummary": "docs/benchmarks/2026-10-13-batch-6-routine-summary.json",
     "routineCorePassed": 608,
     "routineWpfPassed": 76,
-    "manualFull": false,
-    "finalBatchReport": "docs/benchmarks/2026-10-13-ma-yun-lu-ta-dun-yan-bai-hu-verification.json"
+    "manualFull": false
   }
 }

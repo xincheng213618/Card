@@ -2,7 +2,6 @@
   "capturedAt": "2026-10-14T13:48:44.862434+00:00",
   "scope": "read-only primary preflight; no src/test/art/registration changes or runner",
   "rosterAudit": {
-    "path": "docs/benchmarks/2026-10-14-batch-10-final-roster.json",
     "sha256": "4567b683fa566ae0a04a2c5debc390a976ab5b598003887691481a1ae1bf9ff5",
     "count": 396
   },

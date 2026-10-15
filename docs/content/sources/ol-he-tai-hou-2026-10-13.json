@@ -29,8 +29,6 @@
   "verification": {
     "filter": "Forced phase Wine:",
     "status": "2026-10-13聚焦Core四项全部通过，增量构建及测试6.080秒；不包含Wine取消窗口",
-    "summary": "docs/benchmarks/2026-10-13-forced-phase-wine-focused-summary.json",
-    "log": "docs/benchmarks/2026-10-13-forced-phase-wine-focused-core.txt",
     "checks": [
       "ForcedPhaseAlcoholChecks.ContractsRequireRealPaymentAndPositiveFrozenDeaths",
       "ForcedPhaseAlcoholChecks.RealActorWineCommitQuotaAndColdReturns",

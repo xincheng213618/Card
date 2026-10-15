@@ -32,7 +32,6 @@
 - Release 构建：0 error；4 warning 均为 GaoDaYiHaoChecks.cs 既有 CS8602（赵云家族批提交态，非本批引入）。
 - 版本分层：Checkpoint SchemaVersion 3 不变；规则 185→186；经典包 1.156.0→1.157.0。
 - WPF：构建 0 error；套件因既有鬼龙斩月刀缺牌面中止，start-after 盘点修复三处内容-检查漂移（界一将/神势力真实成员断言、开局发牌应答 SelectFaction——基线复现同败非本批引入），移交缺立绘与吕蒙卡面两则既有项。
-- 细节、提交链与诚实归因（神司马懿 CRLF 承接性失败、奇袭/麒麟弓种子位移加固、WPF 盘点）以[批次记录](../../benchmarks/2026-09-29-zhang-he.md)为准。
 
 ## 边界与未覆盖
 

@@ -50,6 +50,6 @@
   "observations": [
     "官方页 fetch 时间 2026-10-04，两次 HTTP 200（页面 + /api/v1/hero/info?gid=479）；官方页签为巨象/烈刃/长标三个技能，界版巨象文案较 classic 多出“其他角色使用的”定语。",
     "本批为单武将批次，在独立 worktree（batch/zhu-rong）开发；未触碰主区并行工作。",
-    "共享能力扩展（详见 docs/benchmarks/2026-10-04-boundary-zhu-rong.md）：viewAs 新增 inputCount:null 变量输入与 distanceUnlimited 标志（仅限 forPlay 无类别过滤的手牌【杀】直接转换，useSelectedCardsAs 路径专用，变量规则不参与组合枚举）；draw 新增 numberExpression phaseSkillUsage（配 sourceBind 携带用量 id，经新指令 PhaseSkillUsageProgramAmount 读取 Phase 范围技能用量）。均为可选附加节点，RulesSchemaVersion 62 与 GameCheckpoint.CurrentRulesVersion 193 均不变，新内容以 minimumRulesVersion 193 与内容指纹区分。"
+    "共享能力扩展：viewAs 新增 inputCount:null 变量输入与 distanceUnlimited 标志（仅限 forPlay 无类别过滤的手牌【杀】直接转换，useSelectedCardsAs 路径专用，变量规则不参与组合枚举）；draw 新增 numberExpression phaseSkillUsage（配 sourceBind 携带用量 id，经新指令 PhaseSkillUsageProgramAmount 读取 Phase 范围技能用量）。均为可选附加节点，RulesSchemaVersion 62 与 GameCheckpoint.CurrentRulesVersion 193 均不变，新内容以 minimumRulesVersion 193 与内容指纹区分。"
   ]
 }

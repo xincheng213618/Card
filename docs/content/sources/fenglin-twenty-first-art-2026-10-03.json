@@ -52,6 +52,5 @@
       "localPath": "src/CardGame.Wpf/Assets/official-boundary-jia-xu.png"
     }
   ],
-  "evidenceBoundary": "Original HTTP PNG bytes in owned stage, no compiled resource claim yet",
-  "validation": "docs/benchmarks/2026-10-04-fenglin-twenty-first-validation.json"
+  "evidenceBoundary": "Original HTTP PNG bytes in owned stage, no compiled resource claim yet"
 }

@@ -1,5 +1,0 @@
-[PASS] Extra card effect and rank guess: legitimately claimed global material and cold second counterspell
-[PASS] Extra card effect and rank guess: claimed global existing flow without extra capability
-[PASS] Extra card effect and rank guess: legitimately claimed Slash material retains native use
-
-3 passed, 0 failed, 0 skipped (3 total).

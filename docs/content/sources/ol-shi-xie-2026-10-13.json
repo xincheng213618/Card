@@ -84,25 +84,11 @@
     "scope": "All six incoming-distance/courtesy mechanism checks passed after all temporary Console/reflection/shared diagnostic hooks were removed. Every paused cost/selected benefit/gain child/HP child/dying source-loss/death child resumes on the actual GameReplay.Restore instance, retaining full state equivalence and original behavior assertions. The same union run had eight separate extra-effect fixture failures; this is not a claim that the whole selection or routine passed.",
     "earlierMovementWatchObservation": {
       "status": "not-reproduced-in-current-clean-source",
-      "evidence": [
-        "docs/benchmarks/2026-10-13-batch-5-third-focused-core-selected.log.txt",
-        "docs/benchmarks/2026-10-13-batch-5-courtesy-diagnostic-core-selected.log.txt",
-        "docs/benchmarks/2026-10-13-batch-5-fourth-focused-core-selected.log.txt"
-      ],
       "explanation": "Earlier three movement Watch fixtures did not enter their observer despite exact real costs/draws and valid queued candidate identity. Later instrumented and then clean current-source runs passed. No specific production root cause or production repair is confirmed; reflection/Console diagnostics are not treated as the cause or the acceptance proof."
     },
-    "readonlyMechanismAudit": "docs/benchmarks/2026-10-13-shi-xie-extra-effect-readonly-audit.json",
     "fullVerification": false,
-    "routineSummary": "docs/benchmarks/2026-10-13-batch-5-routine-summary.json",
-    "focusedSummary": "docs/benchmarks/2026-10-13-batch-5-final-focused-summary.json",
     "status": "batch-focused-and-prescribed-routine-passed",
     "foregroundAcceptance": false,
-    "coreEvidence": "docs/benchmarks/2026-10-13-batch-5-final-focused-core-selected.log.txt",
-    "summary": "docs/benchmarks/2026-10-13-batch-5-final-focused-summary.json",
-    "batchReport": "docs/benchmarks/2026-10-13-zhang-lu-wang-rong-shi-xie-verification.json",
-    "latestScopeNote": "586 Core / 76 WPF passing is evidence for the recorded earlier stable source snapshot. Two shared files subsequently changed; the current source is covered by the fresh 40 Core / 5 WPF related focused run, not another complete routine or Full.",
-    "latestCoreEvidence": "docs/benchmarks/2026-10-13-batch-5-latest-focused-core-selected.log.txt",
-    "latestFocusedSummary": "docs/benchmarks/2026-10-13-batch-5-latest-focused-summary.json",
-    "latestBatchReport": "docs/benchmarks/2026-10-13-zhang-lu-wang-rong-shi-xie-verification.json"
+    "latestScopeNote": "586 Core / 76 WPF passing is evidence for the recorded earlier stable source snapshot. Two shared files subsequently changed; the current source is covered by the fresh 40 Core / 5 WPF related focused run, not another complete routine or Full."
   }
 }

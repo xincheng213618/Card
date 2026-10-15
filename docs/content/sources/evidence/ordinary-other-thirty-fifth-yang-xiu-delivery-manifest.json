@@ -551,8 +551,7 @@
     },
     {
       "stagePath": "STATIC-REVIEW.json",
-      "sha256": "35a7750aaee9c33def86216f45d82ef9bae38e0cb9faa9fbf4f9374ce61f5cdc",
-      "mainPath": "docs/benchmarks/2026-10-04-ordinary-other-thirty-fifth-yang-xiu-static.json"
+      "sha256": "35a7750aaee9c33def86216f45d82ef9bae38e0cb9faa9fbf4f9374ce61f5cdc"
     }
   ],
   "patch": {

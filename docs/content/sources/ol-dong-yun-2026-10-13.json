@@ -62,7 +62,6 @@
   },
   "verification": {
     "status": "passed",
-    "scope": "17 focused Core checks including 11 new behavior checks, plus routine 535 Core and 74 WPF checks; not manual Full.",
-    "report": "docs/benchmarks/2026-10-13-wen-pin-dong-yun-verification.json"
+    "scope": "17 focused Core checks including 11 new behavior checks, plus routine 535 Core and 74 WPF checks; not manual Full."
   }
 }
