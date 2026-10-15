@@ -45,9 +45,6 @@ internal static class ProgramExecutionPlanChecks
             trigger.DamageOccurrence, trigger.DrawPhaseMode, trigger.Optional, trigger.Condition, instructions);
     }
 
-    private static ProgramSkillFrame Frame(SkillProgram program) =>
-        new(1, 0, program.Id, "draw", program.GameplayHash, 1, [], []);
-
     private static SkillProgram Load() => SkillProgramCatalog.Load(
         """
         {"schemaVersion":62,"skills":[{"id":"fixture:plan","revision":1,"minimumRulesVersion": 171,

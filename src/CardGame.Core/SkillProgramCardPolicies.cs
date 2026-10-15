@@ -65,7 +65,9 @@ public enum SkillProgramCardPolicyKind
     IgnoreTurnObtainedHandCardsForDiscard = 1000,
     NullifyBlackSlashByCurrentHp = 6602, ProhibitBlackSlashResponseByCurrentHand = 6603,
     DyingSelfRescueOnly = 6604,
-    StopUsingAfterTrickOrHpCount = 20600}
+    StopUsingAfterTrickOrHpCount = 20600,
+    XiaHuiBlackHandAndGainedEntityRestrictions = 22400
+}
 
 public sealed record SkillProgramCardPolicy(
     string Id,

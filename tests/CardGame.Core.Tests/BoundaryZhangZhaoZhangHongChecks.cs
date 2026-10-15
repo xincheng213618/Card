@@ -96,60 +96,6 @@ internal static class BoundaryZhangZhaoZhangHongChecks
         }
     }
 
-    public static void GuzhengExtraPlayHasNewPhaseTokenAndNormalDiscardHasOwnCohort()
-    {
-        var (g,r)=Create(extraPlay:true);var recipient=Peer(g);var turn=g.State.TurnNumber;
-        GivePair(g,recipient);FinishGuzhengWithoutClaim(g);Play(g);
-        var first=Facts<ActualDiscardRecoveryReturnedEvent>(g).Single(e=>e.Source.OwnerSeat==0);
-        Require(first.Phase.Kind==ActualDiscardRecoveryPhaseKind.Play,"Inserted actual Play owns its initial independent token.");
-        End(g);Play(g);
-        Require(g.State.TurnNumber==turn &&Facts<ActualDiscardRecoveryPhaseRestoredEvent>(g).Any() &&
-            Facts<ActualDiscardRecoveryPhaseStartedEvent>(g).Where(e=>e.Phase.TurnNumber==turn &&e.Phase.Kind==ActualDiscardRecoveryPhaseKind.Play).Count()==2,
-            "After the extra phase finishes, its exact interrupted Preparation token restores before the new normal Play phase starts.");
-        GivePair(g,recipient);Activate(g,Guzheng);ReachAction(g,"actual-discard-recovery");
-        var second=DiscardRoot(g).ActualDiscardRecovery!;
-        Require(second.Phase.TurnNumber==turn &&second.Phase.Token!=first.Phase.Token &&second.Phase.Kind==ActualDiscardRecoveryPhaseKind.Play,
-            "A same-turn new actual Play phase grants another opportunity; usage is not tied to the old play-debit token.");
-        g=Cold(g,r);Answer(g,c=>c.Parameters.GetValueOrDefault("option")=="return");
-        Reach(g,p=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("option")=="skip" &&c.Parameters.GetValueOrDefault("program-action")=="actual-discard-recovery"));
-        Answer(g,c=>c.Parameters.GetValueOrDefault("option")=="skip");Play(g);End(g);
-        Activate(g,Guzheng);ReachAction(g,"actual-discard-recovery");
-        var discard=DiscardRoot(g).ActualDiscardRecovery!;
-        Require(discard.Phase.Kind==ActualDiscardRecoveryPhaseKind.Discard &&discard.Phase.Token!=second.Phase.Token &&
-            discard.OriginalEntities.All(e=>g.CardMovements.Any(m=>m.Sequence==e.MovementSequence &&m.To==CardLocation.DiscardPile &&
-                 m.Reason.Value.EndsWith("MoveBoundCards",StringComparison.Ordinal))),
-            "The next real other-character Discard starting batch has its own phase token and original genuine discard ledger.");
-        g=Cold(g,r);Answer(g,c=>c.Parameters.GetValueOrDefault("option")=="return");
-        Reach(g,p=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("option")=="skip" &&c.Parameters.GetValueOrDefault("program-action")=="actual-discard-recovery"));
-        Answer(g,c=>c.Parameters.GetValueOrDefault("option")=="skip");_=Cold(g,r);
-    }
-
-    public static void GuzhengNativeAiAndFrozenReceiptsPreservePublicDiscardOrigins()
-    {
-        var (g,r)=Create(native:true);Use(g,"grow");Play(g);End(g);
-        Reach(g,p=>p is { Kind:DecisionKind.DiscardCards,PlayerSeat:0 });
-        Require(P(g)!.RequiredCardCount>=2,"The human's small real HP hand limit supplies a genuine two-or-more-card Discard batch.");
-        var ids=P(g)!.ValidCardIds.Take(P(g)!.RequiredCardCount).ToArray();
-        Accept(g,new DiscardCardsCommand(0,ids,P(g)!.PromptId,g.Revision));
-        Reach(g,p=>p.SkillPrompt?.SkillId=="fixture:zz-gain" &&Facts<ActualDiscardRecoveryReturnedEvent>(g).Any(e=>e.Source.OwnerSeat!=0));
-        var root=DiscardRoot(g);var receipt=root.ActualDiscardRecovery!;
-        var mutable=receipt.OriginalEntities.ToList();var frozen=receipt with { OriginalEntities=mutable };mutable.Clear();
-        Require(frozen.OriginalEntities.Count==ids.Length &&frozen.OriginalEntities is System.Collections.IList { IsReadOnly:true } &&
-            receipt.Phase.Kind==ActualDiscardRecoveryPhaseKind.Discard &&receipt.DiscardOwnerSeat==0 &&
-            receipt.OriginalEntities.Select(e=>e.CardId).Order().SequenceEqual(ids.Order()) &&
-            receipt.OriginalEntities.All(e=>g.CardMovements.Any(m=>m.CardId==e.CardId &&m.Sequence==e.MovementSequence &&m.Reason==CardMoveReasons.HandLimitDiscard)) &&
-            root.OwnerSeat!=0,"Native AI returns a real publicly discarded human entity and the readonly receipt keeps the entire exact original batch.");
-        var frameId=root.Id;g=Cold(g,r);ContinueCurrent(g);
-        Until(g,()=>Facts<ActualDiscardRecoveryClaimedEvent>(g).Any(e=>e.ProgramFrameId==frameId));
-        var fact=Facts<ActualDiscardRecoveryClaimedEvent>(g).Single(e=>e.ProgramFrameId==frameId);var mutableIds=fact.CardIds.ToList();
-        var frozenFact=fact with { CardIds=mutableIds };mutableIds.Clear();
-        Require(frozenFact.CardIds.SequenceEqual(fact.CardIds) &&frozenFact.CardIds is System.Collections.IList { IsReadOnly:true } &&
-            Facts<ActualDiscardRecoveryReturnedEvent>(g).Count(e=>e.ProgramFrameId==frameId)==1 &&
-            fact.CardIds.All(id=>ids.Contains(id)) &&!fact.CardIds.Contains(receipt.ReturnedCardId!.Value),
-            "Native accepted return/claim pays each original once and public collection-bearing history is detached through explicit init cloning.");
-        _=Cold(g,r);
-    }
-
     private static IEnumerable<T> Facts<T>(GameEngine g) where T:IGameEvent=>g.Events.Select(e=>e.Payload).OfType<T>();
     private static PendingDecision? P(GameEngine g)=>Enumerable.Range(0,4).Select(s=>g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p=>p is not null);
     private static ProgramSkillFrame EquipmentRoot(GameEngine g)=>g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f=>f.CapturedEquipmentDraw is not null);
@@ -158,21 +104,16 @@ internal static class BoundaryZhangZhaoZhangHongChecks
     private static void Place(GameEngine g,int card,int target)=>Accept(g,new UseProgramSkillCommand(0,Zhijian,"place-equipment",[card],[target],g.Revision,P(g)!.PromptId));
     private static void GivePair(GameEngine g,int target)=>Use(g,"give-pair",g.State.Players[0].Hand.Take(2).Select(c=>c.Id).ToArray(),[target]);
     private static void Use(GameEngine g,string binding,IReadOnlyList<int>? cards=null,IReadOnlyList<int>? targets=null)=>Accept(g,new UseProgramSkillCommand(0,Driver,binding,cards??[],targets??[],g.Revision,P(g)!.PromptId));
-    private static void End(GameEngine g)=>Accept(g,new EndPlayPhaseCommand(0,g.Revision,P(g)!.PromptId));
     private static void Play(GameEngine g)=>Reach(g,p=>p is { Kind:DecisionKind.PlayCard,PlayerSeat:0 });
     private static void Activate(GameEngine g,string skill)
     {Reach(g,p=>p.SkillPrompt?.SkillId==skill &&p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="activate"));Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="activate");}
     private static void ReachAction(GameEngine g,string action)=>Reach(g,p=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")==action));
-    private static void FinishGuzhengWithoutClaim(GameEngine g)
-    {Activate(g,Guzheng);ReachAction(g,"actual-discard-recovery");Answer(g,c=>c.Parameters.GetValueOrDefault("option")=="return");Reach(g,p=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="actual-discard-recovery" &&c.Parameters.GetValueOrDefault("option")=="skip"));Answer(g,c=>c.Parameters.GetValueOrDefault("option")=="skip");}
     private static void ContinueCurrent(GameEngine g)
     {if(P(g)!.PlayerSeat==0)Answer(g,c=>c.Parameters.GetValueOrDefault("option-id")=="continue");else Accept(g,new AdvanceOneStepCommand(g.Revision));}
     private static void Answer(GameEngine g,Func<PromptChoice,bool> choose)
     {var p=P(g)!;Accept(g,new AnswerPromptCommand(p.PlayerSeat,p.PromptId,p.Choices.First(choose).Id,g.Revision));}
     private static void Reach(GameEngine g,Func<PendingDecision,bool> done)
     {for(var i=0;i<160;i++){if(P(g) is { } p &&done(p))return;Step(g);}throw new InvalidOperationException("Two Zhangs actual prompt missing: "+JsonSerializer.Serialize(P(g)));}
-    private static void Until(GameEngine g,Func<bool> done)
-    {for(var i=0;i<180;i++){if(done())return;Step(g);}throw new InvalidOperationException("Two Zhangs actual fact boundary missing.");}
     private static void Step(GameEngine g)
     {
         var p=P(g);

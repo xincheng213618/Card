@@ -96,6 +96,13 @@ public sealed partial class GameEngine
             seat != frame.OwnerSeat || !decision.Choices.Any(item => item.Id == choice.Id))
             throw new InvalidOperationException("Top ordering choice is not current.");
         if (state.RequiredTopCount is not null) ValidateExactTopReorder(frame);
+        if (GetPausedPrivateOfferEffect(frame)?.Op == SkillProgramEffectOp.ReorderTopByCurrentFaluTokens &&
+            (!_players[frame.OwnerSeat].IsAlive || !HasRuntimeSkillInstance(_players[frame.OwnerSeat], frame.SkillId, frame.SkillInstanceId)))
+        {
+            ClearPendingDecision();
+            CancelProgramBindingAndCleanup(frame, "观看技能的来源已失效，未提交的排序结束。");
+            return;
+        }
         if (state.Population is not null)
         {
             ValidatePopulationTopReorder(frame);
@@ -130,6 +137,11 @@ public sealed partial class GameEngine
         if (state.TopCardIds.Count + state.BottomCardIds.Count == state.ViewedCardIds.Count)
         {
             _cardZones.ReorderDrawPileTop(state.ViewedCardIds, state.TopCardIds, state.BottomCardIds);
+            if (frame.ZhugeGuo is not null)
+            {
+                MarkYuhuaTopPlacement(frame, state);
+                frame = GetActiveProgramFrame(frame.Id);
+            }
             if (state.Population?.AllBottomStateId is { } completionState)
                 SetProgramBooleanState(frame, completionState, state.ViewedCardIds.Count > 0 &&
                     state.TopCardIds.Count == 0 && state.BottomCardIds.Count == state.ViewedCardIds.Count);

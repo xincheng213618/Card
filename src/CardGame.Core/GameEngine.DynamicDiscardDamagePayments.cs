@@ -55,6 +55,7 @@ public sealed partial class GameEngine
         {PromptId=CreatePromptId(),IsPrivate=true,Choices=choices,SkillPrompt=new(f.SkillId,skill.Name,skill.Name,skill.Description)};
         _status=_players[f.OwnerSeat].IsHuman?EngineStatus.AwaitingHumanResponse:EngineStatus.Running;
     }
+    [ProgramAnswer("dynamic-discard-damage")]
     private void ResolveDynamicDiscardDamageChoice(PromptChoice c)
     {
         var f=_resolutionStack.LastOrDefault() as ProgramSkillFrame??throw new InvalidOperationException("Variable payment lost its parent.");

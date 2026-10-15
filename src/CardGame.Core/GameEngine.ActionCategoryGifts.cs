@@ -34,6 +34,7 @@ public sealed partial class GameEngine
         string resultBind, string action) => new Dictionary<string, string>
         { ["program-action"] = action, ["frame-id"] = frame.Id.ToString(), ["result-bind"] = resultBind };
 
+    [ProgramAnswer("different-action-category-gift", "different-action-category-decline")]
     private void ResolveDifferentActionCategoryGift(PromptChoice choice)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ??

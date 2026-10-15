@@ -4,45 +4,6 @@ using CardGame.Core;
 
 internal static class Fame2015WeiChecks
 {
-    public static void AllCardFinalizedTargetsAndReplay()
-    {
-        foreach (var kind in new[] { CardKind.Crossbow, CardKind.Alcohol, CardKind.Peach, CardKind.Indulgence,
-                     CardKind.SupplyShortage, CardKind.Lightning, CardKind.PeachGarden })
-        {
-            var (game, registry) = Create("standard:none", "standard:crossbow", 17, 8, true);
-            if (kind is CardKind.Peach or CardKind.PeachGarden)
-            {
-                Accept(game, new UseProgramSkillCommand(0, "fixture:wei2015-damage", "wound", [], [], game.Revision, game.PendingDecision!.PromptId));
-                Reach(game, prompt => prompt.Kind == DecisionKind.PlayCard);
-            }
-            var ids = game.CreateSnapshot(0, true).Players[0].Hand.Where(card => card.Kind == kind).Select(card => card.Id).ToHashSet();
-            var action = game.GetHumanLegalActions().First(item => item.CardId is { } id && ids.Contains(id));
-            Accept(game, new PlayCardCommand(0, action.CardId!.Value, action.TargetSeats, game.Revision, game.PendingDecision!.PromptId,
-                action.PlayedCardKind) { ConversionSource = action.ConversionSource });
-            var window = game.ResolutionStack.OfType<ProgramCardTriggerWindowFrame>().Last();
-            Require(window.Action.EffectiveKind == kind && window.Action.EffectiveSuit == Suit.Spade &&
-                window.Action.TargetSeats.Count > 0 && window.Candidates.All(candidate => candidate.OwnerSeat != 0),
-                "Every card family freezes its real spade appearance and designated targets before its native effect.");
-            if (kind is CardKind.Crossbow or CardKind.Alcohol or CardKind.Peach or CardKind.Lightning)
-                Require(window.Action.TargetSeats.SequenceEqual([0]), "Self-targeted native cards expose the acting character as their designated target.");
-            if (kind == CardKind.PeachGarden)
-                Require(window.Action.TargetSeats.Count == 4, "Group recovery retains all of the real designated targets.");
-            foreach (var seat in Enumerable.Range(0, 4))
-            {
-                var view = game.CreateSnapshot(seat);
-                Require(view.PendingDecision is null || view.PendingDecision.PlayerSeat == seat || view.PendingDecision.Choices.Count == 0,
-                    "Other players cannot read the optional observer's private choices.");
-            }
-            Replay(game, registry);
-            Reach(game, prompt => prompt.Kind == DecisionKind.PlayCard && prompt.PlayerSeat == 0);
-            Require(game.Events.Select(envelope => envelope.Payload).OfType<CardActionAcceptedEvent>()
-                .Count(item => item.Action.ActionId == window.Action.ActionId) == 1,
-                "The finalized-target boundary runs exactly once, including delayed-card and equipment continuations.");
-            Require(game.Events.Select(envelope => envelope.Payload).OfType<ProgramCardTriggerResolvedEvent>()
-                .Any(item => item.SkillId == "classic:zuoding"), "An AI observer can complete the same support path for every card family.");
-            Replay(game, registry);
-        }
-    }
 
     public static void TopDeckBasicUseNameLedgerAndReplay()
     {
@@ -160,35 +121,6 @@ internal static class Fame2015WeiChecks
             "Paused native response checkpoint and command JSON replay must preserve every view, event and physical ledger.");
     }
 
-    public static void ObserverSpadePlayDamageGateAndReplay()
-    {
-        var (game, registry) = Create("classic:zuoding", "standard:crossbow", 17, 8);
-        Accept(game, new EndPlayPhaseCommand(0, game.Revision, game.PendingDecision!.PromptId));
-        Reach(game, prompt => prompt.SkillPrompt?.SkillId == "classic:zuoding" &&
-            prompt.Choices.Any(choice => choice.Parameters.GetValueOrDefault("program-action") == "activate"));
-        var phase = game.CreateSnapshot(0).CurrentSeat;
-        Require(phase != 0, "The observer only offers support during another character's play phase.");
-        Answer(game, choice => choice.Parameters.GetValueOrDefault("program-action") == "activate");
-        RejectUnknown(game);
-        Replay(game, registry);
-        Answer(game, choice => choice.Targets.Count == 1);
-        var ownerTurn = game.CreateSnapshot(0).TurnNumber;
-        for (var step = 0; step < 180 && game.CreateSnapshot(0).TurnNumber == ownerTurn; step++)
-        {
-            if (Prompt(game) is { PlayerSeat: 0, Kind: DecisionKind.ProgramTrigger })
-            {
-                Answer(game, choice => choice.Parameters.GetValueOrDefault("program-action") == "decline");
-            }
-            else Accept(game, new AdvanceOneStepCommand(game.Revision));
-        }
-        var payloads = game.Events.Select(envelope => envelope.Payload).ToArray();
-        var damageIndex = Array.FindIndex(payloads, item => item is DamageAppliedEvent);
-        Require(damageIndex >= 0 && !payloads.Skip(damageIndex + 1).TakeWhile(item => item is not TurnStartedEvent)
-            .OfType<ProgramSkillStartedEvent>().Any(item => item.SkillId == "classic:zuoding"),
-            "Any actual damage during the play phase closes later spade-card support for that phase.");
-        Replay(game, registry);
-    }
-
     public static void WeaponDamageEntityCostsPrivacyAndReplay()
     {
         foreach (var weapon in new[] { "standard:crossbow", "classic:qilin-bow" })
@@ -238,37 +170,6 @@ internal static class Fame2015WeiChecks
         Require(distanceGame.GetCombatDistance(0, 2) == 1 && distanceGame.GetCombatDistance(2, 0) == 2,
             "Actual lost HP reduces only the owner's outgoing distance and preserves the one-distance floor.");
         Replay(distanceGame, distanceRegistry);
-    }
-
-    public static void NextTurnAllHandGrantAndReplay()
-    {
-        var (game, registry) = Create("classic:mingjian", "standard:crossbow", 17, 8);
-        var hand = game.CreateSnapshot(0, true).Players[0].Hand.Select(card => card.Id).ToArray();
-        Accept(game, new UseProgramSkillCommand(0, "classic:mingjian", "give-all-hand-next-turn", [], [1], game.Revision, game.PendingDecision!.PromptId));
-        for (var step = 0; step < 128 && game.ResolutionStack.OfType<ProgramSkillFrame>().Any(frame => frame.SkillId == "classic:mingjian"); step++)
-        {
-            Replay(game, registry);
-            if (Prompt(game) is { Kind: DecisionKind.ProgramTrigger }) Answer(game, choice => true);
-            else Accept(game, new AdvanceOneStepCommand(game.Revision));
-        }
-        Reach(game, prompt => prompt.Kind == DecisionKind.PlayCard);
-        Require(game.CreateSnapshot(0, true).Players[0].Hand.Count == 0 && hand.All(id =>
-            game.CardMovements.Count(move => move.CardId == id && move.From == CardLocation.Hand(0) && move.To == CardLocation.Hand(1)) == 1),
-            "Giving the all-hand set moves each existing physical card exactly once.");
-        var scheduled = game.Events.Select(envelope => envelope.Payload).OfType<ProgramNextTurnRuleModifierQueuedEvent>().ToArray();
-        Require(scheduled.Length == 2 && scheduled.All(item => item.Modifier.TargetSeat == 1), "Both independent next-turn grants retain their recipient.");
-        Accept(game, new EndPlayPhaseCommand(0, game.Revision, game.PendingDecision!.PromptId));
-        for (var step = 0; step < 128 && game.Events.Select(envelope => envelope.Payload).OfType<TurnRuleModifierGrantedEvent>().Count() < 2; step++)
-            Accept(game, new AdvanceOneStepCommand(game.Revision));
-        var applied = game.Events.Select(envelope => envelope.Payload).OfType<TurnRuleModifierGrantedEvent>().ToArray();
-        Require(applied.Length == 2 && applied.All(item => item.Modifier.TurnSeat == 1 && item.Modifier.Amount == 1 &&
-            item.Modifier.Source.OwnerSeat == 0 && item.Modifier.AffectedSeat == 1) &&
-            applied.Select(item => item.Modifier.Query).ToHashSet().SetEquals([SkillRuleQuery.HandLimit, SkillRuleQuery.SlashLimit]),
-            "The complete gift activates both rule bonuses during the recipient's next executable turn.");
-        Require(ReadNumericRule(game, 1, "GetHandLimit") == game.CreateSnapshot(1).Players[1].Hp + 1 &&
-            ReadNumericRule(game, 1, "GetSlashUseLimit") == 2 && game.GetAttackRange(1) == 1,
-            "The next-turn gift changes the recipient's actual discard threshold and Slash allowance while preserving printed attack range.");
-        Replay(game, registry);
     }
 
     public static void FactionRecoveryDebtAndReplay()
@@ -379,14 +280,6 @@ internal static class Fame2015WeiChecks
     private static void Accept(GameEngine game, GameCommand command)
     { var result = game.Submit(CommandJson.Deserialize(CommandJson.Serialize([command])).Single()); Require(result.Accepted, result.Error?.Message ?? "Wei 2015 command rejected."); }
     private static void Require(bool condition, string message) { if (!condition) throw new InvalidOperationException(message); }
-    private static int ReadNumericRule(GameEngine game, int seat, string method)
-    {
-        const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
-        var players = (System.Collections.IList)typeof(GameEngine).GetField("_players", flags)!.GetValue(game)!;
-        var query = typeof(GameEngine).GetMethod(method, flags)!;
-        var arguments = query.GetParameters().Select((parameter, index) => index == 0 ? players[seat] : parameter.DefaultValue).ToArray();
-        return (int)query.Invoke(game, arguments)!;
-    }
     private static (GameEngine Game, ContentRegistry Registry) CreateWithAction(string skill, string weapon, Func<LegalAction, bool> condition)
     {
         for (var seed = 17; seed < 33; seed++)

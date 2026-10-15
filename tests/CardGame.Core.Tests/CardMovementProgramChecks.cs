@@ -21,7 +21,7 @@ internal static class CardMovementProgramChecks
         var handLocation = CardLocation.Hand(HumanSeat);
         var knownHandId = hand[0].Id;
         var invalidZone = (CardZoneKind)int.MaxValue;
-        var invalidLocation = new CardLocation(invalidZone, HumanSeat);
+        var invalidLocation = new CardLocation(invalidZone);
         var hostType = typeof(GameEngine).GetNestedType("ProgramSkillHost", BindingFlags.NonPublic)!;
         var host = (ISkillProgramExecutionHost)hostType.GetConstructors(
             BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).Single().Invoke([game]);

@@ -57,6 +57,7 @@ public sealed partial class GameEngine
         _status = _players[f.OwnerSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
 
+    [ProgramAnswer("round-pile-alcohol")]
     private void ResolveRoundPileAlcohol(PromptChoice choice)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame f || f.RoundPileAlcohol is not { Stage: RoundPileAlcoholStage.Choosing } r ||

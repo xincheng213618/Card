@@ -64,6 +64,10 @@ public sealed partial class GameEngine
         if (parent.Id != payment.ParentFrameId || parent.Id != payment.RequestFrameId || parent.InstructionIndex != payment.Cursor ||
             parent.InstructionIndex < 1 || _contentRegistry.Skills.GetValueOrDefault(parent.SkillId)?.Program is not { } definition ||
             definition.GameplayHash != parent.GameplayHash) return false;
+        if (parent.LvKuangLvXiang is not null) return payment.Intent == DrawFundedDistinctBasicIntent.AssistedSlash &&
+            QigongAdapterActor(parent,payment.Source.OwnerSeat,payment.TargetSeat,payment.Cursor,payment.ParentFrameId,payment.RequestFrameId);
+        if (parent.CaoChun is not null) return payment.Intent == DrawFundedDistinctBasicIntent.AssistedSlash &&
+            CaoChunInitialAdapterActor(parent,payment.Source.OwnerSeat,payment.TargetSeat,payment.Cursor,payment.ParentFrameId,payment.RequestFrameId);
         var plan = ProgramInstructionResolver.Default.Resolve(parent, definition);
         if (parent.InstructionIndex > plan.Instructions.Count) return false;
         var op = plan.GetPausedInstruction(parent.InstructionIndex).Effect.Op;

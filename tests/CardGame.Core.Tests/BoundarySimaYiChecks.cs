@@ -143,58 +143,6 @@ internal static class BoundarySimaYiChecks
         throw new InvalidOperationException($"No bounded Feedback amount={amount}, equipment={requireSourceEquipment} fixture.");
     }
 
-    private static (GameEngine Game, int CardId, int JudgedSeat) FindJudgment(
-        ContentRegistry registry, bool useEquipment)
-    {
-        for (var seed = 1; seed <= 2048; seed++)
-        {
-            var game = Start(registry, JudgmentMode, seed);
-            if (game.PendingDecision is not { Kind: DecisionKind.PlayCard }) continue;
-            var target = game.CreateSnapshot(0, true).Players.Single(player =>
-                player.GeneralId == "classic:xiahou-dun").Seat;
-            int? equippedId = null;
-            if (useEquipment)
-            {
-                var hand = game.CreateSnapshot(0, true).Players[0].Hand.ToDictionary(card => card.Id);
-                var equip = game.GetHumanLegalActions().FirstOrDefault(action =>
-                    action.Kind == LegalActionKind.Equip && action.CardId is { } id &&
-                    hand[id].Suit is Suit.Heart or Suit.Diamond);
-                if (equip?.CardId is not { } equipmentId) continue;
-                equippedId = equipmentId;
-                if (!game.Submit(new PlayCardCommand(0, equipmentId, [], game.Revision,
-                        Prompt(game).PromptId)).Accepted) continue;
-                for (var step = 0; step < 8 && game.PendingDecision?.Kind != DecisionKind.PlayCard; step++)
-                    if (!game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted) break;
-            }
-            if (game.PendingDecision is not { Kind: DecisionKind.PlayCard }) continue;
-            var slash = game.GetHumanLegalActions().FirstOrDefault(action =>
-                action.Kind == LegalActionKind.Slash && action.TargetSeats.SequenceEqual([target]));
-            if (slash?.CardId is not { } slashId) continue;
-            if (!game.Submit(new PlayCardCommand(0, slashId, slash.TargetSeats,
-                    game.Revision, Prompt(game).PromptId, slash.PlayedCardKind, slash.TargetCardId)).Accepted)
-                continue;
-            for (var step = 0; step < 85 && game.State.Status != EngineStatus.Completed; step++)
-            {
-                if (game.PendingDecision is { Kind: DecisionKind.ProgramJudgmentReplacement, PlayerSeat: 0 } prompt &&
-                    game.ResolutionStack.OfType<JudgmentFrame>().SingleOrDefault() is { TargetSeat: var judged } &&
-                    judged == target)
-                {
-                    var owner = game.CreateSnapshot(0, true).Players[0];
-                    var candidate = useEquipment
-                        ? equippedId
-                        : owner.Hand.FirstOrDefault(card => card.Kind != CardKind.Slash &&
-                            card.Suit is Suit.Heart or Suit.Diamond &&
-                            prompt.ValidCardIds.Contains(card.Id))?.Id;
-                    if (candidate is { } cardId && prompt.ValidCardIds.Contains(cardId))
-                        return (game, cardId, target);
-                    break;
-                }
-                if (!Step(game)) break;
-            }
-        }
-        throw new InvalidOperationException($"No bounded Guicai other-player judgment with equipment={useEquipment}.");
-    }
-
     private static ContentRegistry Registry() => ContentRegistry.Build(
         new StandardContentPackage(), new StandardActiveSkillExpansionPackage(),
         new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage(),

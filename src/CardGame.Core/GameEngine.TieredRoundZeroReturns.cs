@@ -30,14 +30,17 @@ public sealed partial class GameEngine
         _resolutionStack.LastOrDefault() is ProgramSkillFrame && HasTieredRoundZeroDyingRide(dying.FrameId);
 
     private Card ReadTieredRoundUseAppearance(long ownerId, CardAppearanceReference appearance) =>
+        appearance.Id == 0 && IsRoundOnceCardlessBasicUse(ownerId) && LifecycleCardUse(ownerId)!.CardKind == appearance.Kind &&
+            appearance.Suit == Suit.None && appearance.Rank == 0 ? RoundOnceCardlessNativeRepresentation(ownerId) :
+        appearance.Id == 0 && IsChosenAssaultUse(ownerId) && appearance.Kind == CardKind.BarbarianAssault && appearance.Suit == Suit.None && appearance.Rank == 0 ? new Card(0,CardKind.BarbarianAssault,Suit.None,0) :
         appearance.Id == 0 && IsMouZhijueZeroUse(ownerId) && LifecycleCardUse(ownerId)!.CardKind == appearance.Kind && appearance.Suit == Suit.None && appearance.Rank == 0 ? new Card(0, appearance.Kind, Suit.None, 0) :
         appearance.Id == 0 && IsTieredRoundZeroUse(ownerId) && LifecycleCardUse(ownerId)!.CardKind == appearance.Kind &&
             appearance.Suit == Suit.None && appearance.Rank == 0
             ? TieredRoundZeroRepresentation(ownerId) : ReadCardAppearance(appearance);
 
-    private bool IsTieredRoundZeroAttackConsistent(CardAttackHandle attack, IReadOnlyList<Card> processing)
+    private bool IsPaidZeroMaterialAttackConsistent(CardAttackHandle attack, IReadOnlyList<Card> processing)
     {
-        if (!IsTieredRoundZeroUse(attack.ResolutionId) || LifecycleCardUse(attack.ResolutionId) is not { } use ||
+        if ((!IsTieredRoundZeroUse(attack.ResolutionId) && !IsRoundOnceCardlessBasicUse(attack.ResolutionId)) || LifecycleCardUse(attack.ResolutionId) is not { } use ||
             attack.Card is not null || attack.PhysicalCards.Count != 0 || attack.EffectiveCardKind != use.CardKind) return false;
         var remaining = processing;
         if (ActiveBorrowedSword is { ActiveAttack: { } forced } borrowed && SameAttackOwner(forced, attack))
@@ -91,7 +94,8 @@ public sealed partial class GameEngine
                 { CausedDamage: true, MatchingDiscardCardId: > 0 } paid &&
         paid.SourceSeat == use.SourceSeat && use.TargetSeats.Contains(paid.TargetSeat);
 
-    private bool IsTieredRoundZeroProcessingParent(long id, int cardId) => cardId == 0 && IsTieredRoundZeroUse(id);
+    private bool IsTieredRoundZeroProcessingParent(long id, int cardId) =>
+        cardId == 0 && (IsTieredRoundZeroUse(id) || IsRoundOnceCardlessBasicUse(id));
 
     private bool MatchesTieredRoundZeroUseAction(long id, CardActionContext action, int cardId) =>
         cardId == 0 && LifecycleCardUse(id) is { } use && IsIssuedTieredRoundUse(use, true) &&

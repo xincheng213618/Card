@@ -1,20 +1,48 @@
-﻿namespace CardGame.Core;
+namespace CardGame.Core;
 
 /// <summary>
 /// One character in one match. General definitions supply initial content;
 /// mutable attributes and skill grants belong to this instance, not the engine.
 /// </summary>
-public sealed class CharacterState
+public sealed partial class CharacterState
 {
+    private IReadOnlyList<XiaHuiCardRestriction>? _xiaHuiRestrictions;
+    internal IReadOnlyList<XiaHuiCardRestriction>? XiaHuiRestrictions
+    {
+        get => _xiaHuiRestrictions;
+        set => _xiaHuiRestrictions = value is null ? null : Array.AsReadOnly(value.ToArray());
+    }
+    internal QimeiPairGrant? QimeiActivePair { get; set; }
+    internal List<ZhuijiPlayGrant> ZhuijiPlayDebts { get; } = [];
+    internal IdentityConcealmentState? IdentityConcealment { get; set; }
+    public bool IdentityConcealed => IdentityConcealment is not null;
+    public bool HasHpValue => !IdentityConcealed;
+    private readonly List<ZaowangIdentityGrant> _zaowangGrants = [];
+    internal IReadOnlyList<ZaowangIdentityGrant> ZaowangGrants => _zaowangGrants.AsReadOnly();
+    internal void AddZaowangGrant(ZaowangIdentityGrant grant)
+    {
+        if (grant.TargetSeat != Seat || _zaowangGrants.Any(g => g.FrameId == grant.FrameId))
+            throw new InvalidOperationException("An identity grant must belong to its unique actual recipient.");
+        _zaowangGrants.Add(grant);
+    }
     public const string PrimarySkillSource = "template:primary";
     public const string SecondarySkillSource = "template:secondary";
     private GeneralDefinition _general = null!;
     private GeneralDefinition? _secondaryGeneral;
+    private Role _role;
 
     public required int Seat { get; init; }
     public required string Name { get; init; }
     public required bool IsHuman { get; init; }
-    public required Role Role { get; init; }
+    public required Role Role { get => _role; init => _role = value; }
+
+    internal void ExchangeIdentityWith(CharacterState other)
+    {
+        ArgumentNullException.ThrowIfNull(other);
+        if (ReferenceEquals(this, other) || Seat == other.Seat)
+            throw new InvalidOperationException("Identity exchange requires two distinct characters.");
+        (_role, other._role) = (other._role, _role);
+    }
     public string? TeamId { get; init; }
     public bool TeamRevealed { get; set; }
     public string? NationalFactionId { get; init; }
@@ -48,7 +76,7 @@ public sealed class CharacterState
     public required int Hp { get; set; }
     public GeneralGender? GenderOverride { get; set; }
     internal Func<CharacterState,GeneralGender?>? GeneralLibraryGenderQuery {get;set;}
-    public GeneralGender Gender => GeneralLibraryGenderQuery?.Invoke(this) ?? GenderOverride ?? General.Gender;
+    public GeneralGender Gender => IdentityConcealed ? GeneralGender.Male : GeneralLibraryGenderQuery?.Invoke(this) ?? GenderOverride ?? General.Gender;
     public bool IsAlive { get; set; } = true;
     public int AlcoholDamageBonus { get; set; }
     public bool HasAlcoholEffect { get => AlcoholDamageBonus > 0; set => AlcoholDamageBonus = value ? 1 : 0; }

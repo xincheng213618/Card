@@ -2,6 +2,15 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    [ProgramAiChoice(
+        SkillProgramEffectOp.SampleFactionSkills,
+        SkillProgramEffectOp.ReplaceSkillsOnAwakening,
+        SkillProgramEffectOp.ObtainDeckRankSum,
+        SkillProgramEffectOp.DamageAfterDeckShuffle,
+        SkillProgramEffectOp.EquipSampledGenerals,
+        SkillProgramEffectOp.InheritWeapon,
+        SkillProgramEffectOp.BalanceHandAttackTricks,
+        SkillProgramEffectOp.DamageFarthestCharacter)]
     private PromptChoice SelectAiAdvancedLifecycleChoice(PendingDecision decision, ProgramSkillFrame frame)
     {
         var draft = frame.AdvancedSelection ?? throw new InvalidOperationException("The advanced AI choice lost its draft.");

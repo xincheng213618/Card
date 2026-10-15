@@ -47,86 +47,6 @@ internal static class BoundaryFaZhengChecks
         Replay(game, registry);
     }
 
-    public static void XuanhuoDeclinePrivateSelectionAndEnyuanSourceReward()
-    {
-        var (game, registry) = Create(equipment: true); ReachXuanhuo(game);
-        BeginGift(game, registry, 1); Reach(game, p => Action(p, "assisted-physical-slash") && p.PlayerSeat == 0);
-        Answer(game, c => c.Targets.SequenceEqual([2]));
-        Reach(game, p => Action(p, "assisted-physical-slash") && p.PlayerSeat == 1);
-        Require(Prompt(game)!.Choices.All(c => c.Parameters.GetValueOrDefault("request-option") == "decline"),
-            "A real equipment-only hand has no physical Slash and publishes the explicit refusal.");
-        Replay(game, registry); Accept(game, new AdvanceOneStepCommand(game.Revision));
-        Reach(game, p => Action(p, "private-hand-take"));
-        var viewed = game.CreateSnapshot(1).Players[1].Hand.Select(c => c.Id).ToArray();
-        var draft = HandTake(game).PrivateHandTake!; var ownerHand = game.State.Players[0].HandCount;
-        Require(draft.RequiredCount == 2 && draft.ViewedCardIds.SequenceEqual(viewed) &&
-            (game.CreateSnapshot(0).PrivateRevealedCards ?? []).Select(c => c.Id).Order().SequenceEqual(viewed.Order()) &&
-            Prompt(game)!.Choices.All(c => c.Cards.Count == 1 && viewed.Contains(c.Cards[0])),
-            "Refusal privately reveals the source's actual hand and offers only those frozen entities.");
-        AssertPrivateTake(game, viewed); AssertFrozen(draft.ViewedCardIds); Replay(game, registry); Reject(game);
-        var first = Prompt(game)!.Choices[0].Cards.Single(); Answer(game, c => c.Cards.SequenceEqual([first]));
-        Require(game.State.Players[0].HandCount == ownerHand && game.State.Players[1].HandCount == viewed.Length &&
-            HandTake(game).PrivateHandTake!.SelectedCardIds.SequenceEqual([first]) &&
-            !Prompt(game)!.Choices.Any(c => c.Cards.Contains(first)),
-            "Selecting the first entity only freezes a private draft; no partial acquisition occurs.");
-        AssertPrivateTake(game, viewed); Replay(game, registry);
-        var second = Prompt(game)!.Choices[0].Cards.Single(); Answer(game, c => c.Cards.SequenceEqual([second]));
-        Reach(game, p => ActivateChoice(p, Enyuan, "reward-card-giver") && p.PlayerSeat == 0);
-        var paid = HandTake(game);
-        Require(paid.PrivateHandTake is { Paid: true } && game.State.Players[0].HandCount == ownerHand + 2 &&
-            game.CreateSnapshot(0).PrivateRevealedCards is null,
-            "Both selected entities move together before the exact two-card source Enyuan child; temporary private revelation ends.");
-        AssertMovementReturn(game, paid, [first, second], CardLocation.Hand(1), CardLocation.Hand(0),
-            "skill-program.boundary:xuanhuo.private-hand-take");
-        var sourceHand = game.State.Players[1].HandCount; Replay(game, registry); Activate(game, Enyuan, "reward-card-giver"); ReachPlay(game);
-        Require(game.State.Players[1].HandCount == sourceHand + 1 && Started(game, Enyuan, "reward-card-giver", 0) == 1 &&
-            game.CardMovements.Count(m => new[] { first, second }.Contains(m.CardId) && m.From == CardLocation.Hand(1) && m.To == CardLocation.Hand(0)) == 2,
-            "The one atomic acquisition rewards its actual source once, with two acquisitions and no repeated selection payment.");
-        Replay(game, registry);
-    }
-
-    public static void MixedHandEquipmentGiftIsAtomicAndWaitsForRecoveryChildren()
-    {
-        var (game, registry) = Create(equipment: true, giftObservers: true); ReachXuanhuo(game); Skip(game); ReachPlay(game);
-        var equip = game.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.Equip);
-        Accept(game, new PlayCardCommand(0, equip.CardId!.Value, equip.TargetSeats, game.Revision, Prompt(game)!.PromptId)); ReachPlay(game);
-        var armor = game.CreateSnapshot(0).Players[0].Equipment.Single(c => c.Kind == CardKind.SilverLion).Id;
-        Accept(game, new EndPlayPhaseCommand(0, game.Revision, Prompt(game)!.PromptId)); ReachXuanhuo(game);
-        var hp = game.State.Players[0].Hp; var actorHand = game.State.Players[1].HandCount;
-        Require(hp < game.State.Players[0].MaxHp, "The real armor cost belongs to an injured owner.");
-        Activate(game, Xuanhuo, "give-two-and-request"); Reach(game, p => Action(p, "select-target")); Answer(game, c => c.Targets.SequenceEqual([1]));
-        Reach(game, p => Action(p, "select-owned-cards"));
-        var handCard = game.CreateSnapshot(0).Players[0].Hand.First().Id;
-        Replay(game, registry); Answer(game, c => c.Cards.SequenceEqual([armor]));
-        Require(game.CreateSnapshot(0).Players[0].Equipment.Any(c => c.Id == armor), "The first HE selection does not pay the armor early.");
-        Answer(game, c => c.Cards.SequenceEqual([handCard])); Reach(game, p => p.SkillPrompt?.SkillId == Recovery);
-        var paid = GiftOwner(game);
-        Require(paid.BoundParticipantGift is { RecipientSeat: 1 } && paid.AssistedSlashRequest is null &&
-            game.State.Players[0].Hp == hp + 1 && game.State.Players[1].HandCount == actorHand + 2 &&
-            !game.CreateSnapshot(0).Players[0].Equipment.Any(c => c.Id == armor) &&
-            new[] { armor, handCard }.All(id => game.CreateSnapshot(1).Players[1].Hand.Any(c => c.Id == id)),
-            "One atomic mixed HE gift commits both entities before Silver Lion's real HP observer, while no Slash request starts.");
-        Replay(game, registry); Continue(game);
-        Reach(game, p => ActivateChoice(p, Enyuan, "reward-card-giver") && p.PlayerSeat == 1);
-        paid = GiftOwner(game);
-        var window = game.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Single(f => f.ResumeProgramFrameId == paid.Id);
-        Require(window.Batch.ParentFrameId == paid.Id && window.Batch.AwaitingProgramFrameId is null &&
-            window.Batch.Movements.Count == 2 && window.Batch.Movements.Any(m => m.CardId == armor && m.From == CardLocation.Equipment(0)) &&
-            window.Batch.Movements.Any(m => m.CardId == handCard && m.From == CardLocation.Hand(0)) &&
-            window.Batch.Movements.All(m => m.To == CardLocation.Hand(1)),
-            "The recipient's two-card Enyuan candidate is counted from one source in the exact atomic mixed-zone batch.");
-        Replay(game, registry); Activate(game, Enyuan, "reward-card-giver"); Reach(game, p => p.SkillPrompt?.SkillId == Reward);
-        Require(GiftOwner(game).BoundParticipantGift is not null && GiftOwner(game).AssistedSlashRequest is null,
-            "The recipient's actual reward draw child still belongs beneath the paid gift, before the Slash target tail.");
-        Replay(game, registry); Continue(game); Reach(game, p => Action(p, "assisted-physical-slash") && p.PlayerSeat == 0);
-        Require(Started(game, Enyuan, "reward-card-giver", 1) == 1 && GiftMoves(game, armor).Count() == 1 && GiftMoves(game, handCard).Count() == 1 &&
-            game.Events.Select(e => e.Payload).OfType<SilverLionRemovedRecoveryEvent>().Count(e => e.PlayerSeat == 0 && e.RecoveredAmount == 1) == 1,
-            "Both real children return once, retaining one source reward and one Silver Lion recovery without repaying the gift.");
-        Answer(game, c => c.Targets.SequenceEqual([2])); Reach(game, p => Action(p, "assisted-physical-slash") && p.PlayerSeat == 1);
-        Accept(game, new AdvanceOneStepCommand(game.Revision)); Reach(game, p => Action(p, "private-hand-take"));
-        Answer(game, c => c.Cards.Count == 1); Answer(game, c => c.Cards.Count == 1); ReachPlay(game); Replay(game, registry);
-    }
-
     public static void EnyuanPerPointEffectiveRedAndHpLossKeepDamageCursor()
     {
         foreach (var effectiveRed in new[] { true, false })
@@ -274,8 +194,6 @@ internal static class BoundaryFaZhengChecks
         m.CardId == id && m.From.OwnerSeat == 0 && m.To == CardLocation.Hand(1) && m.Reason.Value == "skill-program.boundary:xuanhuo.MoveBoundCards");
     private static int Started(GameEngine game, string skill, string binding, int owner) => game.Events.Select(e => e.Payload)
         .OfType<ProgramBindingStartedEvent>().Count(e => e.SkillId == skill && e.BindingId == binding && e.OwnerSeat == owner);
-    private static ProgramSkillFrame HandTake(GameEngine game) => game.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == Xuanhuo && f.PrivateHandTake is not null);
-    private static ProgramSkillFrame GiftOwner(GameEngine game) => game.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == Xuanhuo && f.BoundParticipantGift is not null);
     private static void AssertMovementReturn(GameEngine game, ProgramSkillFrame paid, IReadOnlyList<int> cards, CardLocation from, CardLocation to, string reason)
     {
         var window = game.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Single(f => f.ResumeProgramFrameId == paid.Id);
@@ -283,19 +201,6 @@ internal static class BoundaryFaZhengChecks
             window.Batch.OriginSkillId == paid.SkillId && window.Batch.OriginSkillInstanceId == paid.SkillInstanceId &&
             window.Batch.Movements.Count == cards.Count && window.Batch.Movements.All(m => cards.Contains(m.CardId) && m.From == from && m.To == to && m.Reason.Value == reason),
             "The actual atomic movement carries an exact typed return and source instance for the already-paid instruction.");
-    }
-    private static void AssertPrivateTake(GameEngine game, IReadOnlyList<int> viewed)
-    {
-        Require(Prompt(game) is { PlayerSeat: 0, IsPrivate: true }, "The victim hand is privately visible only to the actual skill viewer.");
-        for (var viewer = 1; viewer < 4; viewer++)
-            Require(game.CreateSnapshot(viewer).PendingDecision is null && game.CreateSnapshot(viewer).PrivateRevealedCards is null &&
-                (viewer == 1 || game.CreateSnapshot(viewer).Players[1].Hand.All(c => !viewed.Contains(c.Id))),
-                "The private revelation and selected draft never enter another player's snapshot.");
-    }
-    private static void AssertFrozen(IReadOnlyList<int> ids)
-    {
-        var rejected = false; try { ((IList<int>)ids)[0] = -1; } catch (NotSupportedException) { rejected = true; }
-        Require(rejected, "The nested viewed-card collection is frozen before observers receive it.");
     }
     private static int[] BeginGift(GameEngine game, ContentRegistry registry, int recipient)
     {

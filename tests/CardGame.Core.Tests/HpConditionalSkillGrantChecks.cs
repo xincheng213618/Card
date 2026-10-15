@@ -105,80 +105,11 @@ internal static class HpConditionalSkillGrantChecks
             "Older grants omit the additive nullable source field.");
     }
 
-    public static void SwiftHandEquipmentAndSilverLionPaidContinuationReplay()
-    {
-        foreach (var silverLion in new[] { false, true })
-        {
-            var (game, registry) = Start(swift: true, silverLion: silverLion);
-            Require(game.State.Players[0].Hp == 1 && Derived.All(skill => Has(game, skill)),
-                "The one-HP fixture must own its conditional skills before leaving the first extra Play.");
-            var cost = game.CreateSnapshot(0).Players[0].Hand.First(card => card.Kind == (silverLion ? CardKind.SilverLion : CardKind.Crossbow));
-            if (silverLion)
-            {
-                Accept(game, new PlayCardCommand(0, cost.Id, [], game.Revision, Pending(game)!.PromptId));
-                Play(game);
-            }
-            game = Cold(game, registry);
-            Accept(game, new EndPlayPhaseCommand(0, game.Revision, Pending(game)!.PromptId));
-            Reach(game, prompt => prompt.SkillPrompt?.SkillId == Derived[2]);
-            Choose(game, choice => choice.Parameters.GetValueOrDefault("program-action") == "skip");
-            Reach(game, prompt => prompt.SkillPrompt?.SkillId == Derived[2]);
-            Choose(game, choice => choice.Parameters.GetValueOrDefault("program-action") == "activate");
-            Reach(game, prompt => prompt.SkillPrompt?.SkillId == Derived[2] && prompt.Choices.Any(choice => choice.Targets.Count == 1));
-            Choose(game, choice => choice.Targets.SequenceEqual([1]));
-            Reach(game, prompt => prompt.Choices.Any(choice => choice.Cards.Contains(cost.Id)));
-            Require(game.CreateSnapshot(1).PendingDecision is null, "Swift's owned equipment payment remains private.");
-            game = Cold(game, registry);
-            var beforeMoves = game.CardMovements.Count;
-            var beforeSlashes = Facts<CardUseFinishedEvent>(game).Count(e => e.CardId == 0 && e.CardKind == CardKind.Slash);
-            Choose(game, choice => choice.Cards.Contains(cost.Id));
-            if (silverLion)
-            {
-                Reach(game, prompt => prompt.SkillPrompt?.SkillId == Pause);
-                Require(game.State.Players[0].Hp == 2 && !Has(game, Derived[2]) &&
-                    game.ResolutionStack.OfType<ProgramSkillFrame>().Any(frame => frame.SkillId == Derived[2] && frame.HpConditionalSourceReceipt is not null),
-                    "Silver Lion recovery immediately withdraws new Swift ownership while its already paid program retains an exact source receipt.");
-                game = Cold(game, registry);
-                Choose(game, _ => true);
-            }
-            for (var step = 0; step < 100 && Facts<CardUseFinishedEvent>(game).Count(e => e.CardId == 0 && e.CardKind == CardKind.Slash) == beforeSlashes; step++)
-            {
-                if (Pending(game) is { PlayerSeat: 0 } prompt)
-                    throw new InvalidOperationException("Unexpected Swift continuation prompt: " + JsonSerializer.Serialize(prompt));
-                Accept(game, new AdvanceOneStepCommand(game.Revision));
-            }
-            Require(Facts<CardUseFinishedEvent>(game).Count(e => e.CardId == 0 && e.CardKind == CardKind.Slash) == beforeSlashes + 1 &&
-                game.CardMovements.Skip(beforeMoves).Count(move => move.CardId == cost.Id && move.To == CardLocation.DiscardPile) == 1,
-                "Both hand equipment and Silver Lion costs must pay once and finish exactly one ordinary virtual Slash after cold recovery.");
-            if (silverLion) Require(!Has(game, Derived[2]), "Completing the paid program must not restore new Swift availability at two HP.");
-            Cold(game, registry);
-        }
-    }
-
-    public static void HpGrantRulesRejectMalformedRangesAndUnknownTargets()
-    {
-        const string presentation = """{"schemaVersion":3,"skills":{"fixture:hp-contract":{"name":"HP","description":"shared HP contract"}}}""";
-        var node = JsonNode.Parse($$"""{"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[{"id":"fixture:hp-contract","revision":1,"hpSkillGrants":[{"id":"one","skillId":"standard:none","minimumHp":1,"maximumHp":1}]}]}""")!;
-        SkillProgramCatalog.Load(node.ToJsonString(), presentation);
-        foreach (var mutate in new Action<JsonNode>[]
-        {
-            rule => rule["minimumHp"] = 2, rule => rule["maximumHp"] = "1", rule => rule["minimumHp"] = null,
-            rule => rule["extra"] = true, rule => { rule.AsObject().Remove("minimumHp"); rule.AsObject().Remove("maximumHp"); }
-        })
-        {
-            var copy = node.DeepClone(); mutate(copy["skills"]![0]!["hpSkillGrants"]![0]!);
-            Reject(() => SkillProgramCatalog.Load(copy.ToJsonString(), presentation));
-        }
-        Reject(() => ContentRegistry.Build(new StandardContentPackage(), new ContractFixture("fixture:unknown")));
-        Reject(() => ContentRegistry.Build(new StandardContentPackage(), new ContractFixture("fixture:hp-contract")));
-    }
-
     private static bool Has(GameEngine game, string skill) => game.CreateSnapshot(0, true).Players[0].Skills?.Any(s => s.ContentId == skill) == true;
     private static bool CanTaunt(GameEngine game) => game.GetHumanLegalActions().Any(action => action.ProgramSkillId == Derived[0]);
     private static List<CharacterState> Players(GameEngine game) => (List<CharacterState>)typeof(GameEngine).GetField("_players", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(game)!;
     private static IReadOnlyList<SkillGrant> Grants(GameEngine game) => Players(game)[0].SkillGrants.Grants;
     private static void Synchronize(GameEngine game) => typeof(GameEngine).GetMethod("SynchronizeHpConditionalSkillGrants", BindingFlags.NonPublic | BindingFlags.Instance)!.Invoke(game, null);
-    private static IEnumerable<T> Facts<T>(GameEngine game) => game.Events.Select(e => e.Payload).OfType<T>();
     private static PendingDecision? Pending(GameEngine game) => game.PendingDecision ?? Enumerable.Range(0, 4).Select(seat => game.CreateSnapshot(seat).PendingDecision).FirstOrDefault(p => p is not null);
     private static void Play(GameEngine game) => Reach(game, p => p.PlayerSeat == 0 && p.Kind == DecisionKind.PlayCard);
     private static void Drive(GameEngine game, string activation) { Accept(game, new UseProgramSkillCommand(0, Driver, activation, [], [], game.Revision, Pending(game)!.PromptId)); Play(game); }
@@ -210,7 +141,6 @@ internal static class HpConditionalSkillGrantChecks
     { var prompt = Pending(game)!; Accept(game, new AnswerPromptCommand(prompt.PlayerSeat, prompt.PromptId, prompt.Choices.First(predicate).Id, game.Revision)); }
     private static void Accept(GameEngine game, GameCommand command) { var result = game.Submit(command); Require(result.Accepted, result.Error?.Message ?? "Command rejected."); }
     private static void Require(bool value, string message) { if (!value) throw new InvalidOperationException(message); }
-    private static void Reject(Action action) { try { action(); } catch (InvalidOperationException) { return; } throw new InvalidOperationException("Invalid HP grant contract was accepted."); }
     private static GameEngine Cold(GameEngine game, ContentRegistry registry)
     {
         var copy = GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint())), registry);

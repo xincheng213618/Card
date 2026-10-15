@@ -89,6 +89,7 @@ public sealed partial class GameEngine
         _status = _players[seat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
 
+    [ProgramAnswer("configured-card-declaration")]
     private void ResolveConfiguredCardDeclaration(PromptChoice choice)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ??

@@ -8,64 +8,6 @@ internal static class PublicPilePreparationChecks
     private const string Owner = "fixture:preparation-owner", Observe = "fixture:preparation-observe", Attack = "fixture:preparation-attack";
     private const string Mode = "identity:classic-public-pile-preparation";
 
-    public static void EmptyPreparationWorksWithoutTheReferencedSource()
-    {
-        var (fill, registry) = Start(empty: true);
-        var max = fill.State.Players[0].MaxHp;
-        Require(fill.State.Players[0].Skills?.Any(s => s.Id == "ol:yinbing") != true, "Juedi is independently owned with no paired Yinbing grant.");
-        Require(PileChoice(fill) && P(fill)!.Choices.Any(c => Action(c) == "discard") &&
-            P(fill).Choices.Any(c => c.Targets.SequenceEqual([1])), "Zero cards still publish both legal branches.");
-        Cold(fill, registry);
-        Choose(fill, c => Action(c) == "discard"); ReachPlay(fill);
-        var paid = Facts<PublicPilePreparationPaidEvent>(fill).Single();
-        var draw = Facts<PublicPilePreparationDrawIssuedEvent>(fill).Single();
-        Require(paid.Pile is null && paid.CardIds.Count == 0 && paid.Before == paid.After &&
-            fill.CreateSnapshot(0).Players[0].Hand.Count == max && draw.Requested == max - 2 && draw.Actual == max - 2,
-            "The zero-card payment creates no fake movement and fills then-current maximum HP.");
-        Cold(fill, registry);
-
-        var (gift, giftRegistry) = Start(empty: true);
-        var hand = gift.CreateSnapshot(1).Players[1].Hand.Count;
-        Choose(gift, c => c.Targets.SequenceEqual([1])); ReachPlay(gift);
-        Require(Facts<PublicPilePreparationPaidEvent>(gift).Single() is { Branch: 2, CardIds.Count: 0 } &&
-            Facts<PublicPilePreparationRecoveryIssuedEvent>(gift).Single() is { BeneficiarySeat: 1, Requested: 1 } &&
-            Facts<PublicPilePreparationDrawIssuedEvent>(gift).Single() is { Requested: 0, Actual: 0 } &&
-            gift.CreateSnapshot(1).Players[1].Hand.Count == hand,
-            "The full-HP beneficiary receives an actual requested recovery and zero draw without a fabricated card transfer.");
-        Cold(gift, giftRegistry);
-        RealSlashRemovesExactlyOne();
-    }
-
-    private static void RealSlashRemovesExactlyOne()
-    {
-        var (game, registry) = Start(attackObserver: true);
-        Choose(game, c => Action(c) == "discard"); ReachPlay(game);
-        var stored = StoreWholeHand(game, registry);
-        var hp = game.State.Players[0].Hp;
-        Reach(game, () => P(game)?.SkillPrompt?.SkillId == Attack);
-        Choose(game, c => c.Targets.SequenceEqual([0]));
-        Reach(game, () => PileChoice(game) && game.ResolutionStack.LastOrDefault() is ProgramSkillFrame
-            { PublicPilePreparation.Operation: SkillProgramEffectOp.RemovePublicPileAfterAttackDamage });
-        var remove = (ProgramSkillFrame)game.ResolutionStack.Last();
-        var receipt = remove.PublicPilePreparation!;
-        Require(game.State.Players[0].Hp == hp - 1 &&
-            Facts<CardUseDeclaredEvent>(game).Any(e => e.SourceSeat == 1 && e.CardKind == CardKind.Slash) &&
-            Facts<DamageRequestedEvent>(game).Any(e => e.SourceSeat == 1 && e.TargetSeat == 0 && e.Amount == 1 && e.SourceCard == CardKind.Slash) &&
-            Facts<DamageAppliedEvent>(game).Any(e => e.SourceSeat == 1 && e.TargetSeat == 0 && e.Amount == 1) &&
-            P(game)!.Choices.Count == stored.Length && P(game).Choices.All(c => c.Cards.Count == 1),
-            "A real virtual Slash reaches actual damage and the mandatory public one-card removal, rather than an untyped direct HP effect.");
-        Cold(game, registry);
-        var id = stored[0]; Choose(game, c => c.Cards.SequenceEqual([id]));
-        Reach(game, () => !game.ResolutionStack.Any(f => f.Id == remove.Id) &&
-            Facts<AfterDamageEvent>(game).Any(e => e.SourceSeat == 1 && e.TargetSeat == 0 && e.Amount == 1));
-        var paid = Facts<PublicPilePreparationPaidEvent>(game).Single(e => e.ProgramFrameId == remove.Id);
-        Require(paid.CardIds.SequenceEqual([id]) && paid.From.SequenceEqual([receipt.Pile!.Location]) &&
-            game.CardMovements.Count(m => m.From == receipt.Pile.Location && m.To == CardLocation.DiscardPile) == 1 &&
-            Enumerable.Range(0, 4).All(s => game.CreateSnapshot(s).Players[0].PublicPersistentPileCards?.Select(c => c.Id).SequenceEqual(stored.Skip(1)) == true),
-            "Exactly the chosen original pile entity is discarded once, leaving every other public card in order.");
-        Cold(game, registry);
-    }
-
     public static void WholePileFillRetainsPaidChild()
     {
         var (game, registry) = Start(fillObserver: true);

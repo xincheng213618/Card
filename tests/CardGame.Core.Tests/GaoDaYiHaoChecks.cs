@@ -194,11 +194,6 @@ internal static class GaoDaYiHaoChecks
         Require(result.Accepted, result.Error?.Message ?? "Gundam One card action failed.");
     }
 
-    private static void Accept(CommandResult result)
-    {
-        Require(result.Accepted, result.Error?.Message ?? "Gundam One command failed.");
-    }
-
     private static string Snapshot(GameEngine game) =>
         JsonSerializer.Serialize(game.CreateSnapshot(0, true));
 

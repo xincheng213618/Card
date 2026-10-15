@@ -214,6 +214,9 @@ public sealed partial class GameEngine
         ReplaceRuntimeTop(f with { PendingMovementContinuation = null });
         AdvanceRuntimeProgram(f.Id); return true;
     }
+    [ProgramAiChoice(
+        SkillProgramEffectOp.ObtainOneFromEachSelectedTarget,
+        SkillProgramEffectOp.GiveShownCardToLeastOriginalTarget)]
     private PromptChoice SelectAiPairBenefit(PendingDecision decision, ProgramSkillFrame f)
     {
         if (f.ShownPairGift is not null)

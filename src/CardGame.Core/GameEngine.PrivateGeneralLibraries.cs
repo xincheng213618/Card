@@ -174,6 +174,7 @@ public sealed partial class GameEngine
         _pendingDecision=new(DecisionKind.ProgramTrigger,f.OwnerSeat,skill.Description,[],[],f.OwnerSeat){PromptId=CreatePromptId(),IsPrivate=true,Choices=Array.AsReadOnly(choices.ToArray()),SkillPrompt=new(f.SkillId,skill.Name,skill.Name,skill.Description)};
         _status=_players[f.OwnerSeat].IsHuman?EngineStatus.AwaitingHumanResponse:EngineStatus.Running;AdvanceRulesAndPublishState();
     }
+    [ProgramAnswer("private-general-library")]
     private void ResolvePrivateGeneralLibraryChoice(PromptChoice choice)
     {
         var f=_resolutionStack.LastOrDefault() as ProgramSkillFrame??throw new InvalidOperationException("Private library selection lost its owning frame.");

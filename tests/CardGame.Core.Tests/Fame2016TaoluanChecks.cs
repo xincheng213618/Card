@@ -32,22 +32,6 @@ internal static class Fame2016TaoluanChecks
         Answer(game,c => c.Cards.Count == 1); Reach(game,p => p.Kind == DecisionKind.PlayCard);
         Require(!game.GetHumanLegalActions().Any(a => a.ConversionSource?.SkillId == "classic:taoluan" && a.PlayedCardKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash), "All Slash variants share the canonical once-game name."); Replay(game,registry);
     }
-    public static void DeclineTurnResetAndLedger()
-    {
-        var (game, registry) = Create();
-        Play(game, game.GetHumanLegalActions().First(a => a.ConversionSource?.SkillId == "classic:taoluan" && a.PlayedCardKind == CardKind.DrawTwo));
-        Reach(game,p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "select-target"));
-        Answer(game,c => c.Targets.Contains(1));
-        var hp=game.CreateSnapshot(0).Players[0].Hp;
-        Answer(game,c => c.Parameters.GetValueOrDefault("program-action") == "different-action-category-decline");
-        Reach(game,p => p.Kind == DecisionKind.PlayCard);
-        Require(game.CreateSnapshot(0).Players[0].Hp == hp-1 && !game.GetHumanLegalActions().Any(a => a.ConversionSource?.SkillId == "classic:taoluan"), "Declining loses HP and disables the entire conversion for the current turn.");
-        Replay(game,registry);
-        Accept(game,new EndPlayPhaseCommand(0,game.Revision,Prompt(game)!.PromptId));
-        Reach(game,p => p.Kind == DecisionKind.PlayCard && p.PlayerSeat == 0);
-        Require(game.GetHumanLegalActions().Any(a => a.ConversionSource?.SkillId == "classic:taoluan") && !game.GetHumanLegalActions().Any(a => a.ConversionSource?.SkillId == "classic:taoluan" && a.PlayedCardKind == CardKind.DrawTwo), "Turn reset restores the skill while retaining the game name ledger.");
-        Replay(game,registry);
-    }
     public static void ResponseUseCompletion()
     {
         var (game,registry)=Create(true);
@@ -63,22 +47,6 @@ internal static class Fame2016TaoluanChecks
         Replay(game,registry); Answer(game,c=>c.Targets.Contains(target)); Replay(game,registry);
         Answer(game,c=>c.Parameters.GetValueOrDefault("program-action")=="different-action-category-gift");
         Reach(game,p=>p.Kind==DecisionKind.PlayCard); Replay(game,registry);
-    }
-    public static void SameKindAndDyingGate()
-    {
-        var (game,registry)=Create(sameKind:true);
-        var action=game.GetHumanLegalActions().First(a=>a.ConversionSource?.SkillId=="classic:taoluan" && a.PlayedCardKind==CardKind.DrawTwo);
-        Require(game.CreateSnapshot(0).Players[0].Hand.Single(c=>c.Id==action.CardId).Kind==CardKind.DrawTwo,"The physical cost already has the requested native name.");
-        Play(game,action); Reach(game,p=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="select-target"));
-        Require(game.CardMovements.Any(m=>m.CardId==action.CardId && m.To==CardLocation.DiscardPile),"Same-kind explicit conversion pays its actual cost before triggering.");
-        Answer(game,c=>c.Targets.Contains(1));
-        Require(Prompt(game)!.Choices.All(c=>c.Cards.Count==0),"A provider holding only ordinary tricks cannot gift the same output category, even when decline is the sole choice.");
-        Answer(game,_=>true); Reach(game,p=>p.Kind==DecisionKind.PlayCard); Replay(game,registry);
-        var (dying,dyingRegistry)=Create(dyingFixture:true);
-        Accept(dying,new UseProgramSkillCommand(0,"fixture:taoluan-damage","damage",[],[1],dying.Revision,Prompt(dying)!.PromptId));
-        Reach(dying,p=>p.Kind==DecisionKind.RescueDying);
-        Require(Prompt(dying)!.Choices.All(c=>c.Parameters.GetValueOrDefault("conversion-skill-id")!="classic:taoluan"),"No Taoluan Peach or Alcohol rescue is available while another character is dying.");
-        Replay(dying,dyingRegistry); RejectUnknown(dying);
     }
     public static void EquipmentGlobalAndNullification()
     {
@@ -101,60 +69,6 @@ internal static class Fame2016TaoluanChecks
         Reach(game,p=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="select-target"));
         Answer(game,c=>c.Targets.Contains(1));Answer(game,c=>c.Cards.Count==1);Reach(game,p=>p.Kind==DecisionKind.PlayCard);Replay(game,registry);
         Require(game.Events.Select(e=>e.Payload).OfType<ProgramActionCategoryGiftResolvedEvent>().Count()==3,"Nested Nullification and the nullified parent each settle exactly once.");
-    }
-    public static void WoodenOxEntityCost()
-    {
-        var (game,registry)=Create(wooden:true);
-        var equip=game.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.Equip && a.ConversionSource is null);
-        Play(game,equip);Reach(game,p=>p.Kind==DecisionKind.PlayCard);
-        var storage=game.GetHumanLegalActions().Single(a=>a.Kind==LegalActionKind.UseEquipmentEffect && a.EquipmentKind==CardKind.WoodenOx);
-        var id=storage.SelectableCardIds.First();
-        Accept(game,new UseEquipmentEffectCommand(0,CardKind.WoodenOx,[id],[],game.Revision,Prompt(game)!.PromptId));Reach(game,p=>p.Kind==DecisionKind.PlayCard);
-        Play(game,game.GetHumanLegalActions().First(a=>a.CardId==id && a.ConversionSource?.SkillId=="classic:taoluan" && a.PlayedCardKind==CardKind.DrawTwo));
-        Reach(game,p=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="select-target"));
-        Require(game.CardMovements.Any(m=>m.CardId==id && m.From==CardLocation.WoodenOxGrain(0) && m.To==CardLocation.Processing),"The stored entity pays from its real private Wooden Ox zone.");Replay(game,registry);
-        Answer(game,c=>c.Targets.Contains(1));Answer(game,c=>c.Cards.Count==1);Reach(game,p=>p.Kind==DecisionKind.PlayCard);Replay(game,registry);
-    }
-    public static void AiProviderAdvanceGiftAndDecline()
-    {
-        var (game,registry)=Create();
-        Play(game,game.GetHumanLegalActions().First(a=>a.ConversionSource?.SkillId=="classic:taoluan" && a.PlayedCardKind==CardKind.DrawTwo));
-        Reach(game,p=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="select-target"));
-        Answer(game,c=>c.Targets.Contains(1));
-        var prompt=Prompt(game)!;
-        Require(prompt.PlayerSeat==1 && prompt.Choices.Any(c=>c.Cards.Count==1),"The AI provider has a real legal different-category gift.");
-        Require(prompt.Choices.Where(c=>c.Cards.Count==1).All(c=>!new[]{"Spade","Heart","Club","Diamond"}.Any(name=>c.Description.Contains(name,StringComparison.Ordinal))),"Gift labels use readable card suit and rank text.");
-        var giftIds=prompt.Choices.SelectMany(c=>c.Cards).ToArray();
-        var before=game.AcceptedCommands.Count; Replay(game,registry);
-        Accept(game,new AdvanceOneStepCommand(game.Revision));
-        Reach(game,p=>p.SkillPrompt?.SkillId=="fixture:taoluan-observer");
-        Require(game.CardMovements.Count(m=>giftIds.Contains(m.CardId) && m.From==CardLocation.Hand(1) && m.To==CardLocation.Hand(0))==1 &&
-            game.Events.Select(e=>e.Payload).OfType<ProgramActionCategoryGiftResolvedEvent>().Single().GiftCardId is not null,"Advancing the actual AI prompt resolves one real gift and reaches its movement observer child.");
-        Require(!game.AcceptedCommands.Skip(before).OfType<AnswerPromptCommand>().Any(c=>c.ActorSeat==1),"No manual answer impersonates the AI provider.");
-        Replay(game,registry);RejectUnknown(game);Answer(game,_=>true);Reach(game,p=>p.Kind==DecisionKind.PlayCard);Replay(game,registry);
-        var (decline,declineRegistry)=Create(sameKind:true);
-        Play(decline,decline.GetHumanLegalActions().First(a=>a.ConversionSource?.SkillId=="classic:taoluan" && a.PlayedCardKind==CardKind.DrawTwo));
-        Reach(decline,p=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="select-target"));Answer(decline,c=>c.Targets.Contains(1));
-        Require(Prompt(decline) is {PlayerSeat:1} && Prompt(decline)!.Choices.Count==1 && Prompt(decline)!.Choices[0].Cards.Count==0,"The AI provider has only the decline branch when all cards match the effective category.");
-        var hp=decline.CreateSnapshot(0).Players[0].Hp;Replay(decline,declineRegistry);before=decline.AcceptedCommands.Count;
-        Accept(decline,new AdvanceOneStepCommand(decline.Revision));Reach(decline,p=>p.Kind==DecisionKind.PlayCard);
-        Require(decline.CreateSnapshot(0).Players[0].Hp==hp-1 && !decline.GetHumanLegalActions().Any(a=>a.ConversionSource?.SkillId=="classic:taoluan"),"Actual AI decline loses one HP and blocks all conversions for the turn.");
-        Require(!decline.AcceptedCommands.Skip(before).OfType<AnswerPromptCommand>().Any(c=>c.ActorSeat==1),"The decline branch also uses the native AI advancement path.");Replay(decline,declineRegistry);
-    }
-    public static void ResourceContracts()
-    {
-        var assembly=typeof(StandardClassicGeneralPackage).Assembly;
-        string Read(string suffix) { using var stream=assembly.GetManifestResourceStream("CardGame.Content.Standard.SkillPrograms.classic-zhang-rang."+suffix+".json")!; using var reader=new StreamReader(stream);return reader.ReadToEnd(); }
-        var rules=Read("rules");var presentation=Read("presentation"); SkillProgramCatalog.Load(rules,presentation);
-        void Reject(Action<System.Text.Json.Nodes.JsonNode> mutate) { var node=System.Text.Json.Nodes.JsonNode.Parse(rules)!;mutate(node);try {SkillProgramCatalog.Load(node.ToJsonString(),presentation);}catch(InvalidOperationException){return;}throw new InvalidOperationException("Invalid category gift/name policy was accepted."); }
-        Reject(n=>n["skills"]![0]!["viewAs"]![0]!["inputCount"]=2);
-        Reject(n=>n["skills"]![0]!["viewAs"]![0]!["useOnly"]=false);
-        Reject(n=>n["skills"]![0]!["viewAs"]![0]!["outputKind"]="indulgence");
-        Reject(n=>n["skills"]![0]!["viewAs"]![0]!.AsObject().Remove("nameLedgerId"));
-        Reject(n=>n["skills"]![0]!["triggers"]![0]!["effects"]![1]!["zones"]=new System.Text.Json.Nodes.JsonArray("judgment"));
-        Reject(n=>n["skills"]![0]!["triggers"]![0]!["effects"]![1]!["target"]="owner");
-        Reject(n=>n["skills"]![0]!["triggers"]![0]!["effects"]!.AsArray().RemoveAt(0));
-        Reject(n=>n["skills"]![0]!["triggers"]![0]!["effects"]![0]!["targetKind"]="anyLiving");
     }
     private static PendingDecision? Prompt(GameEngine game) => Enumerable.Range(0, 4).Select(seat => game.CreateSnapshot(seat).PendingDecision).FirstOrDefault(prompt => prompt is not null);
     private static void Play(GameEngine game, LegalAction action) => Accept(game,

@@ -172,6 +172,7 @@ public sealed partial class GameEngine
         { PromptId = CreatePromptId(), IsPrivate = true, Choices = choices, SkillPrompt = new(f.SkillId, skill.Name, skill.Name, skill.Description) };
         _status = _players[f.OwnerSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
+    [ProgramAnswer("original-hand-entity")]
     private void ResolveOriginalHandEntityChoice(PromptChoice choice)
     {
         var f = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("Original-hand choice lost its frame.");
@@ -270,9 +271,6 @@ public sealed partial class GameEngine
         f.OriginalHandBenefit is { DrawIssued: true } && ValidOriginalHandBenefitReceipt(f) ||
         f.OriginalHandInheritance is not null && ValidOriginalHandInheritanceReceipt(f) ||
         f.OriginalHandAwakening is not null && ValidOriginalHandAwakeningReceipt(f);
-    private PromptChoice SelectAiOriginalHandEntityChoice(PendingDecision decision, ProgramSkillFrame f) =>
-        decision.Choices.FirstOrDefault(c => c.Targets.Contains(f.OwnerSeat)) ??
-        decision.Choices.FirstOrDefault(c => c.Parameters.GetValueOrDefault("option") == "draw") ?? decision.Choices[0];
     private sealed partial class ProgramSkillHost : IOriginalHandEntitiesProgramHost
     {
         public SkillProgramStepOutcome ExecuteOriginalHandEntityOperation(ProgramSkillFrame f, SkillProgramEffect e) => e.Op switch {

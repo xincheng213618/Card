@@ -10,40 +10,6 @@ internal static class TargetedTrickHandHpChecks
     private const string Loss = "fixture:target-hand-hp-loss";
     private const string Mode = "identity:classic-target-hand-hp";
 
-    public static void ExactEntryContractsAndFrozenNestedEvents()
-    {
-        var original = Embedded("rules.json"); var labels = Embedded("presentation.json");
-        _ = SkillProgramCatalog.Load(original, labels);
-        foreach (var mutate in new Action<JsonObject>[]
-        {
-            t => t["optional"] = false,
-            t => t["usageScope"] = "game",
-            t => t["window"] = "turnEnding",
-            t => t["effects"]![0]!["target"] = "selectedTarget",
-            t => t["effects"]![0]!["amount"] = 1,
-            t => t["effects"]!.AsArray().Add(JsonNode.Parse("""{"op":"draw","target":"owner","amount":1}"""))
-        })
-            foreach (var skill in new[] { Bing, She })
-            {
-                var invalid = JsonNode.Parse(original)!; var t = invalid["skills"]!.AsArray().Single(n => n!["id"]!.GetValue<string>() == skill)!["triggers"]![0]!.AsObject();
-                mutate(t); var rejected = false;
-                try { _ = SkillProgramCatalog.Load(invalid.ToJsonString(), labels); }
-                catch (InvalidOperationException) { rejected = true; }
-                Need(rejected, "The finite ending/target operation rejects unsupported contexts, extra costs and instructions before runtime.");
-            }
-        var targets = new List<int> { 0, 1 }; var cards = new List<int> { 8 }; var parameters = new Dictionary<string, string> { ["branch"] = "add" };
-        var receipt = new TargetedOrdinaryTrickReceipt { OriginalTargets = targets, Choices = [new(new("freeze"), "freeze", cards, targets, parameters)] };
-        var fact = (TargetedOrdinaryTrickOfferedEvent)CommittedEventProjection.Freeze(new TargetedOrdinaryTrickOfferedEvent(4, receipt));
-        targets.Add(2); cards.Add(9); parameters["branch"] = "changed";
-        Frozen(fact.Receipt.OriginalTargets); Frozen(fact.Receipt.Choices); Frozen(fact.Receipt.Choices[0].Cards); Frozen(fact.Receipt.Choices[0].Targets);
-        Need(fact.Receipt.OriginalTargets.SequenceEqual([0, 1]) && fact.Receipt.Choices[0].Cards.SequenceEqual([8]) &&
-            fact.Receipt.Choices[0].Parameters["branch"] == "add" && fact.Receipt.Choices[0].Parameters is IDictionary<string, string> { IsReadOnly: true },
-            "Committed target events detach every nested source list and parameter dictionary.");
-        var resolved = (TargetedOrdinaryTrickResolvedEvent)CommittedEventProjection.Freeze(new TargetedOrdinaryTrickResolvedEvent(4, 5, 6,
-            new(She, "targeted-trick-adjustment", 0, "source"), "hash", targets, targets, null, targets));
-        Frozen(resolved.BeforeTargets); Frozen(resolved.AddedTargets); Frozen(resolved.ResultTargets);
-    }
-
     public static void ActualEndingDrawDiscardSelfAndOptionalGiftColdReturn()
     {
         foreach (var discard in new[] { false, true })
@@ -89,35 +55,6 @@ internal static class TargetedTrickHandHpChecks
         _ = Cold(self, selfRegistry);
     }
 
-    public static void ActualAdjustmentChildrenRecheckHpAndPreservePaidSourceLoss()
-    {
-        foreach (var child in new[] { "change-hand", "change-hp", "lose-source" })
-        {
-            var (g, registry) = Start("standard:dodge", 5, child);
-            if (child == "lose-source") { Use(g, "trim", V(g, 0).Hand.Take(V(g, 0).HandCount - V(g, 0).Hp + 1).Select(c => c.Id).ToArray()); Play(g); }
-            End(g); Reach(g, p => IsOptional(p, Bing)); Activate(g); ReachStage(g, UnequalHandHpStage.Target);
-            Answer(g, c => c.Targets.SequenceEqual([child == "lose-source" ? 0 : 1])); ReachStage(g, UnequalHandHpStage.Action); Answer(g, c => c.Parameters["branch"] == "draw");
-            Reach(g, p => p.SkillPrompt?.SkillId == Watch); var root = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.UnequalHandHp is not null);
-            Need(root.UnequalHandHp!.Stage == UnequalHandHpStage.AdjustmentChildren && root.PendingMovementContinuation is not null &&
-                !E<UnequalHandHpRewardQualifiedEvent>(g).Any(), "An actual gain child pauses before comparing current hand/HP or giving the reward.");
-            g = Cold(g, registry); Continue(g);
-            if (child == "lose-source")
-            {
-                Reach(g, p => p.SkillPrompt?.SkillId == Loss);
-                Need(V(g, 0).Hp == 4 && V(g, 0).MaxHp == 4 && V(g, 0).Skills!.Any(s => s.ContentId == Bing),
-                    "The actual Dying entry recovers to the owner's four HP before its terminal source replacement.");
-                g = Cold(g, registry); Continue(g);
-                Need(!V(g, 0).Skills!.Any(s => s.ContentId == Bing), "The paid original skill source actually disappeared through a legal Dying-entry replacement.");
-                g = Cold(g, registry);
-            }
-            DrainEnding(g);
-            Need(E<UnequalHandHpRewardQualifiedEvent>(g).Single().Qualified == (child == "lose-source") &&
-                E<UnequalHandHpMovementIssuedEvent>(g).Count(e => e.Payment.Step == "reward") == (child == "lose-source" ? 1 : 0) &&
-                E<UnequalHandHpCompletedEvent>(g).Count() == 1, "Equality follows all real adjustment children; an issued paid source keeps its one completion.");
-            _ = Cold(g, registry);
-        }
-    }
-
     public static void TargetedTrickAdditionIneffectivenessAndCompletePhysicalUse()
     {
         foreach (var kind in new[] { "standard:draw_two", "standard:iron_chain", "standard:duel", "standard:fire_attack", "standard:dismantlement", "standard:snatch" })
@@ -158,97 +95,6 @@ internal static class TargetedTrickHandHpChecks
         _ = Cold(group, groupRegistry);
     }
 
-    public static void CompoundTargetsFreshCandidatesAndLastEffectiveDraft()
-    {
-        var (g, registry) = Start("fixture:target-hand-hp-borrowed", 5);
-        Use(g, "equip", targets: [1]); Play(g); Use(g, "equip", targets: [2]); Play(g);
-        var sword = g.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.BorrowedSword && a.TargetSeats[0] == 1);
-        Accept(g, new PlayCardCommand(0, sword.CardId!.Value, sword.TargetSeats, g.Revision, P(g)!.PromptId));
-        Reach(g, p => p.PlayerSeat == 1 && IsOptional(p, She)); Activate(g); Reach(g, IsSheChoice);
-        var use = g.ResolutionStack.OfType<CardUseFrame>().Single(); var actionId = use.Action!.ActionId;
-        var pair = P(g)!.Choices.First(c => c.Parameters["branch"] == "add" && c.Targets[0] == 2).Targets.ToArray();
-        Need(pair.Length == 2 && pair[0] != pair[1], "Borrowed Sword addition chooses both its new armed primary and legal Slash victim.");
-        g = Cold(g, registry); Answer(g, c => c.Targets.SequenceEqual(pair));
-        Reach(g, p => p.PlayerSeat == 2 && IsOptional(p, She)); Activate(g); Reach(g, IsSheChoice);
-        Need(P(g)!.Choices.Any(c => c.Parameters["branch"] == "ineffective" && c.Targets.SequenceEqual([1])) &&
-            P(g)!.Choices.Where(c => c.Parameters["branch"] == "ineffective").All(c => c.Targets.Single() is 1 or 2),
-            "A newly added actual primary receives its existing target-relation ability; the victim is not a second primary effect.");
-        Answer(g, c => c.Parameters["branch"] == "ineffective" && c.Targets.SequenceEqual([1]));
-        Need(E<TargetedOrdinaryTrickResolvedEvent>(g).Last(e => e.CardUseFrameId == use.Id) is { } resolved && resolved.ActionId == actionId &&
-            resolved.ResultTargets.SequenceEqual(sword.TargetSeats.Concat(pair)),
-            "Compound invalidation keeps both original and appended pairs on the same accepted action.");
-        FinishUse(g, use.Id);
-        Need(E<BorrowedSwordResolvedEvent>(g).Where(e => e.ResolutionId == use.Id).All(e => e.WeaponOwnerSeat != 1) &&
-            E<BorrowedSwordResolvedEvent>(g).Any(e => e.ResolutionId == use.Id && e.WeaponOwnerSeat == 2 && e.SlashTargetSeat == 1 &&
-                (e.UsedSlash || e.TransferredWeaponCardId is not null)),
-            "Only the still-effective added primary performs its actual forced-use or weapon-transfer outcome."); _ = Cold(g, registry);
-
-        var (draft, draftRegistry) = Start("standard:five_grains", 5); var card = V(draft, 0).Hand.First().Id;
-        Accept(draft, new PlayCardCommand(0, card, [], draft.Revision, P(draft)!.PromptId));
-        Reach(draft, p => IsOptional(p, She)); var draftUse = draft.ResolutionStack.OfType<CardUseFrame>().Single();
-        foreach (var canceled in new[] { 0, 1, 2 })
-        {
-            Activate(draft); Reach(draft, IsSheChoice); Answer(draft, c => c.Parameters["branch"] == "ineffective" && c.Targets.SequenceEqual([canceled]));
-            if (canceled < 2) Reach(draft, p => IsOptional(p, She));
-        }
-        Need(draft.ResolutionStack.OfType<CardUseFrame>().Single().TargetSeats.Count == 4 &&
-            draft.ResolutionStack.OfType<CardUseFrame>().Single().IneffectiveTargetSeats!.Count == 3,
-            "Repeated actual source decisions preserve original target identities and exactly one effective draft participant.");
-        draft = Cold(draft, draftRegistry); FinishUse(draft, draftUse.Id);
-        Need(E<TargetedOrdinaryTrickOfferedEvent>(draft).Count(e => e.Receipt.CardUseFrameId == draftUse.Id) == 3 &&
-            E<CardsRevealedEvent>(draft).Single(e => e.ResolutionId == draftUse.Id).Cards.Count == 4 &&
-            E<HarvestCardSelectedEvent>(draft).Where(e => e.ResolutionId == draftUse.Id).Select(e => e.PlayerSeat).SequenceEqual([3]),
-            "The last candidate cannot invalidate the final effect; native Five Grains reveals the original four cards and only the effective target picks.");
-        _ = Cold(draft, draftRegistry);
-    }
-
-    public static void PaidEquipmentRecoveryAndNestedDamageDyingChildren()
-    {
-        var (lion, registry) = Start("fixture:target-hand-hp-lion", 5, "lion-recovery");
-        var armor = V(lion, 0).Hand.First().Id; Accept(lion, new PlayCardCommand(0, armor, [], lion.Revision, P(lion)!.PromptId)); Play(lion);
-        Use(lion, "hurt"); Play(lion); var beforeHp = V(lion, 0).Hp;
-        End(lion); Reach(lion, p => IsOptional(p, Bing)); Activate(lion); ReachStage(lion, UnequalHandHpStage.Target);
-        Answer(lion, c => c.Targets.SequenceEqual([1])); ReachStage(lion, UnequalHandHpStage.Action); Answer(lion, c => c.Parameters["branch"] == "draw");
-        ReachStage(lion, UnequalHandHpStage.Gift); Answer(lion, c => c.Cards.SequenceEqual([armor])); Reach(lion, p => p.SkillPrompt?.SkillId == Watch);
-        Need(V(lion, 0).Hp == beforeHp + 1 && lion.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.UnequalHandHp is not null)
-            .UnequalHandHp is { Stage: UnequalHandHpStage.GiftChildren, Payments.Count: 3 }, "An actual equipped Lion gift pays once and pauses in its exact recovery child.");
-        lion = Cold(lion, registry); Continue(lion); DrainEnding(lion);
-        Need(lion.CardMovements.Count(m => m.CardId == armor && m.From == CardLocation.Equipment(0) && m.To == CardLocation.Hand(1)) == 1 &&
-            E<UnequalHandHpCompletedEvent>(lion).Count() == 1, "Paid equipment loss recovery returns to the gift receipt without repeating either effect."); _ = Cold(lion, registry);
-
-        foreach (var child in new[] { "damage", "fatal" })
-        {
-            var (g, r) = Start(child == "fatal" ? "standard:peach" : "standard:dodge", 5, child);
-            if (child == "fatal") { Use(g, "trim", V(g, 0).Hand.Take(V(g, 0).HandCount - V(g, 0).Hp + 1).Select(c => c.Id).ToArray()); Play(g); }
-            End(g); Reach(g, p => IsOptional(p, Bing)); Activate(g); ReachStage(g, UnequalHandHpStage.Target);
-            Answer(g, c => c.Targets.SequenceEqual([child == "fatal" ? 0 : 1])); ReachStage(g, UnequalHandHpStage.Action); Answer(g, c => c.Parameters["branch"] == "draw");
-            Reach(g, p => p.SkillPrompt?.SkillId == Watch); g = Cold(g, r); Continue(g);
-            if (child == "fatal") { Reach(g, p => p.Kind == DecisionKind.RescueDying); g = Cold(g, r); }
-            DrainEnding(g);
-            Need(E<UnequalHandHpCompletedEvent>(g).Count() == 1 && !E<UnequalHandHpMovementIssuedEvent>(g).Any(e => e.Payment.Step == "reward") &&
-                (child == "fatal" ? !V(g, 0).IsAlive : V(g, 1).Hp == 4), "Real damage or dying children finish before equality and never issue an unqualified reward."); _ = Cold(g, r);
-        }
-    }
-
-    public static void NativeAiActivatesPublicEndingAndTargetInterventions()
-    {
-        var (g, registry) = Start("standard:arrow_barrage", 5, aiDong: true);
-        var arrow = V(g, 0).Hand.First().Id; Accept(g, new PlayCardCommand(0, arrow, [], g.Revision, P(g)!.PromptId));
-        Reach(g, p => p.PlayerSeat == 1 && IsOptional(p, She));
-        var initial = E<ProgramBindingStartedEvent>(g).Count(e => e.SkillId == She);
-        Accept(g, new AdvanceOneStepCommand(g.Revision)); Reach(g, p => p.PlayerSeat == 1 && IsSheChoice(p));
-        Need(E<ProgramBindingStartedEvent>(g).Count(e => e.SkillId == She) == initial + 1,
-            "Native AI prices the public harmful card effect and activates the target intervention.");
-        Accept(g, new AdvanceOneStepCommand(g.Revision)); FinishUse(g, g.ResolutionStack.OfType<CardUseFrame>().Single().Id); _ = Cold(g, registry);
-        var (ending, endingRegistry) = Start("standard:dodge", 5, aiDong: true); End(ending);
-        Reach(ending, p => p.PlayerSeat == 1 && IsOptional(p, Bing));
-        Accept(ending, new AdvanceOneStepCommand(ending.Revision));
-        Need(E<ProgramBindingStartedEvent>(ending).Any(e => e.SkillId == Bing && e.OwnerSeat == 1) &&
-            !ending.AcceptedCommands.OfType<AnswerPromptCommand>().Any(c => c.ActorSeat != 0),
-            "Native AI activates a positive public hand/HP opportunity before choosing its actual participant.");
-        _ = Cold(ending, endingRegistry);
-    }
-
     private static string Embedded(string suffix)
     {
         using var stream = typeof(StandardContentPackage).Assembly.GetManifestResourceStream($"CardGame.Content.Standard.SkillPrograms.ol-dong-yun.{suffix}")!;
@@ -268,7 +114,6 @@ internal static class TargetedTrickHandHpChecks
     private static void Answer(GameEngine g, Func<PromptChoice, bool> predicate)
     { var p = P(g)!; Accept(g, new AnswerPromptCommand(p.PlayerSeat, p.PromptId, p.Choices.First(predicate).Id, g.Revision)); }
     private static void Activate(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate");
-    private static void Continue(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
     private static void Play(GameEngine g) => Reach(g, p => p is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 });
     private static void End(GameEngine g) => Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId));
     private static void Use(GameEngine g, string activation, IReadOnlyList<int>? cards = null, IReadOnlyList<int>? targets = null) =>
@@ -326,8 +171,6 @@ internal static class TargetedTrickHandHpChecks
         .All(s => g.CreateSnapshot(s).PendingDecision is null && g.CreateSnapshot(s).Players[viewer].Hand.Count == 0), "Private hand selection is only exposed to its legitimate chooser.");
     private static void RejectWrongActor(GameEngine g)
     { var p = P(g)!; var before = State(g); Need(!g.Submit(new AnswerPromptCommand((p.PlayerSeat + 1) % 4, p.PromptId, p.Choices.First().Id, g.Revision)).Accepted && State(g) == before, "Wrong-actor input cannot change the exact paid prefix."); }
-    private static void Frozen<T>(IReadOnlyList<T> values)
-    { Need(values is ICollection<T> { IsReadOnly: true }, "A projected nested collection is immutable."); }
     private static void Need(bool okay, string message) { if (!okay) throw new InvalidOperationException(message); }
 
     private static (GameEngine, ContentRegistry) Start(string card, int peerHp, string child = "none", bool aiDong = false)

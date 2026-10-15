@@ -102,6 +102,7 @@ public sealed partial class GameEngine
         { "gain" => $"获得 {Math.Min(draft.Quota, draft.ViewedIds.Count)} 张牌。", "order" => "依次选择剩余牌：先选的牌在牌堆最上方。", _ => "选择另一名角色，你与其依次失去1点体力。" }, choices, draft.Stage != "loss-choice");
     }
 
+    [ProgramAnswerPrefix("quota-top-")]
     private void ResolveQuotaTopChoice(PromptChoice choice)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("Quota choice requires its program.");

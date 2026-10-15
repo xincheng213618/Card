@@ -122,6 +122,7 @@ public sealed partial class GameEngine
         return SkillProgramStepOutcome.AwaitChoice;
     }
 
+    [ProgramAnswer("sequential-discard")]
     private void ResolveSequentialDiscardChoice(PromptChoice choice)
     {
         var f = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("Missing sequential discard owner.");
@@ -212,6 +213,9 @@ public sealed partial class GameEngine
         if (!TryBeginCardsMovedProgramWindow()) ReturnRuntimeProgramMovement(frame.Id);
     }
 
+    [ProgramAiChoice(
+        SkillProgramEffectOp.ChooseCategoryOrSequentialDiscard,
+        SkillProgramEffectOp.EscalatingDiscardOrDamageFromSelected)]
     private PromptChoice SelectAiSequentialDiscard(PendingDecision decision, ProgramSkillFrame frame)
     {
         var d = frame.SequentialDiscard!; var effect = SequentialDiscardEffect(frame);

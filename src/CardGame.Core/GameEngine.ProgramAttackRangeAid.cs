@@ -209,6 +209,7 @@ public sealed partial class GameEngine
         PublishProgramAttackRangeAid(frame, expectedReason);
     }
 
+    [ProgramAiChoice(SkillProgramEffectOp.RequestAttackRangeAid)]
     private PromptChoice SelectAiProgramAttackRangeAid(PendingDecision decision, ProgramSkillFrame frame)
     {
         var aid = frame.AttackRangeAid ??

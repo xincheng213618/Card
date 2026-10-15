@@ -80,6 +80,7 @@ public sealed partial class GameEngine
         _status = _players[f.OwnerSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
         return SkillProgramStepOutcome.AwaitChoice;
     }
+    [ProgramAnswer("targeted-ordinary-trick")]
     private void ResolveTargetedOrdinaryTrickChoice(PromptChoice selected)
     {
         var f = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("No owning targeted trick frame.");
@@ -117,6 +118,7 @@ public sealed partial class GameEngine
             !AssistedChoicesEqual(r.Choices, TargetedTrickChoices(f.Id, use)))
             throw new InvalidOperationException("An issued targeted-trick receipt lost its frozen actual action or current legal choices.");
     }
+    [ProgramAiChoice(SkillProgramEffectOp.AdjustTargetedOrdinaryTrick)]
     private PromptChoice SelectAiTargetedOrdinaryTrick(PendingDecision p, ProgramSkillFrame f)
     {
         var use = RequireTargetedOrdinaryTrickParent(f, out _);

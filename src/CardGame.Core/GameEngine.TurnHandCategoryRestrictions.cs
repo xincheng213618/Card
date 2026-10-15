@@ -30,9 +30,9 @@ public sealed partial class GameEngine
             _turnNumber, _currentSeat, owner.Seat, GetProgramCardCategory(AdvancedEffectiveHandKind(owner, card)));
     private bool IsHandCategoryMaterialRestricted(IReadOnlyList<int> ids) => ids.Any(id =>
         _cardZones.GetLocation(id) is { Zone: CardZoneKind.Hand, OwnerSeat: { } owner } from &&
-        IsTurnHandCategoryRestricted(_players[owner], _cardZones.CardsAt(from).Single(c => c.Id == id)));
+        (IsXiaHuiPhysicalRestricted(owner,id) || IsTurnHandCategoryRestricted(_players[owner], _cardZones.CardsAt(from).Single(c => c.Id == id))));
     private bool IsSelfHandCategoryDiscardForbidden(int actor, Card card, CardLocation from, OwnedCardMoveIntent intent) =>
-        intent == OwnedCardMoveIntent.Discard && from == CardLocation.Hand(actor) && IsTurnHandCategoryRestricted(_players[actor], card);
+        IsXiaHuiDiscardForbidden(actor,card,from,intent) || intent == OwnedCardMoveIntent.Discard && from == CardLocation.Hand(actor) && IsTurnHandCategoryRestricted(_players[actor], card);
     // Hand-limit exemptions and self-discard prohibitions answer different questions.
     private IReadOnlyList<Card> GetSelfDiscardableHand(CharacterState owner) => GetDiscardEligibleHand(owner)
         .Where(c => !IsSelfHandCategoryDiscardForbidden(owner.Seat, c, CardLocation.Hand(owner.Seat), OwnedCardMoveIntent.Discard)).ToArray();
@@ -51,7 +51,7 @@ public sealed partial class GameEngine
         // Do not infer an unchosen future discard branch from the binding name.
         // Other conditional destinations are revalidated with the frozen actual
         // selection actor by MoveProgramBoundCards only when that node executes.
-        return instructions.Any(e => e.Op == SkillProgramEffectOp.MoveBoundCards && e.SourceBind == bind &&
+        return instructions.Any(e => e.Op == SkillProgramEffectOp.DiscardEquipmentAndResolveJiqiao && e.SourceBind == bind) || instructions.Any(e => e.Op == SkillProgramEffectOp.MoveBoundCards && e.SourceBind == bind &&
             e.Destination == SkillProgramCardDestination.DiscardPile && (e.Condition.Kind == SkillProgramConditionKind.Always ||
             e.Condition.Kind == SkillProgramConditionKind.ChoiceIs && f.ChoiceBindings.Any(c =>
                 c.Name == e.Condition.SourceBind && c.OptionId == e.Condition.OptionId)));

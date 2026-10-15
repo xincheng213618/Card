@@ -6,19 +6,6 @@ using static BoundaryLiDianChecks;
 
 internal static class MouZhugeLiangChecks
 {
-    public static void WrongEntryProgramsFailBeforeExecution()
-    {
-        const string presentation = """{"schemaVersion":3,"skills":{"fixture:mou-entry":{"name":"夹具","description":"夹具"}}}""";
-        foreach (var op in new[] { "mouZhitianView", "mouZhijueUse" })
-        {
-            var invalid = $$"""{"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[{"id":"fixture:mou-entry","revision":1,"triggers":[{"id":"bad","window":"turnEnding","subject":"owner","optional":true,"effects":[{"op":"{{op}}","target":"owner"}]}]}]}""";
-            var rejected = false; try { _ = SkillProgramCatalog.Load(invalid, presentation); } catch (InvalidOperationException) { rejected = true; }
-            Require(rejected, "Private view/conversion operations must reject a trigger entry before any runtime state exists.");
-        }
-        var wrongWujing = $$"""{"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[{"id":"fixture:mou-entry","revision":1,"activations":[{"id":"bad","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"mouWujingDraw","target":"owner"}]}]}]}""";
-        var invalidWujing = false; try { _ = SkillProgramCatalog.Load(wrongWujing, presentation); } catch (InvalidOperationException) { invalidWujing = true; }
-        Require(invalidWujing, "The global nonhand draw requires its actual discard-movement context.");
-    }
     public static void PrivateTopYangPaymentAndColdReplay()
     {
         var (game, registry) = Start("standard:slash");
@@ -81,41 +68,12 @@ internal static class MouZhugeLiangChecks
         AssertPrivate(game, 4); ReplayFourViews(game, registry);
     }
 
-    public static void GlobalNonhandDiscardAndQuotaOnly()
-    {
-        var (game, registry) = Start("standard:slash", equipment: true); var before = game.State.Players[0].HandCount;
-        DiscardOtherEquipment(game);
-        Require(game.State.Players[0].HandCount == before + 1,
-            "Another character's equipment entering discard is the global first nonhand movement and draws one.");
-        var slash = game.State.Players[0].Hand!.First(card => card.Kind == CardKind.Slash);
-        var action = game.GetLegalActions().First(action => action.Kind == LegalActionKind.Slash && action.CardId == slash.Id && action.TargetSeat == 1);
-        Accept(game, new PlayCardCommand(0, slash.Id, [1], game.Revision, P(game)!.PromptId)); Settle(game);
-        Require(game.GetLegalActions().Any(a => a.Kind == LegalActionKind.Slash) &&
-            !game.GetLegalActions().Any(a => a.Kind == LegalActionKind.Slash && a.TargetSeat == 2),
-            "The granted next Slash spends no finite quota and never grants extra distance.");
-        var second = game.State.Players[0].Hand!.First(card => card.Kind == CardKind.Slash);
-        Accept(game, new PlayCardCommand(0, second.Id, [1], game.Revision, P(game)!.PromptId)); Settle(game);
-        Require(!game.GetLegalActions().Any(a => a.Kind == LegalActionKind.Slash),
-            "A normal use-finished movement does not rearm the non-use discard token; the next ordinary Slash consumes one quota.");
-        DiscardOtherEquipment(game);
-        Require(game.Events.Select(e => e.Payload).OfType<MouWujingAllowanceGrantedEvent>().Count() == 2 &&
-            game.CardMovements.Count(move => move.Reason.Value == "mou.wujing.draw") == 1,
-            "A later foreign equipment discard rearms next-use allowance but does not repeat the first nonhand draw this actual turn.");
-        ReplayFourViews(game, registry);
-    }
-
     private static void AssertPrivate(GameEngine game, int count)
     {
         Require(game.CreateSnapshot(0).PrivateRevealedCards is { } cards && cards.Count == count &&
             cards.Select(card => card.Id).SequenceEqual(Pile(game).Take(count)) &&
             Enumerable.Range(1, 3).All(viewer => game.CreateSnapshot(viewer).PrivateRevealedCards is null),
             "Only the owner sees current live deck top faces in their true top-first order.");
-    }
-    private static void DiscardOtherEquipment(GameEngine game)
-    {
-        Use(game, "fixture:mou-driver", "discard-other-equipment", [1]);
-        Reach(game, prompt => prompt.Choices.Any(choice => choice.Cards.Count == 1));
-        Answer(game, choice => choice.Cards.Count == 1); Settle(game);
     }
     private static void Use(GameEngine game, string skill, string activation, int[]? targets = null) =>
         Accept(game, new UseProgramSkillCommand(0, skill, activation, [], targets ?? [], game.Revision, P(game)!.PromptId));

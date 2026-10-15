@@ -90,8 +90,6 @@ internal static class Fame2014ControlChecks
     }
     private static void ActivatePindi(GameEngine game, int card, int target) => Accept(game.Submit(new UseProgramSkillCommand(0,
         "classic:pindi", "rank-category-target", [card], [target], game.Revision, Pending(game)!.PromptId)));
-    private static void Driver(GameEngine game, string activation, IReadOnlyList<int> targets) => Accept(game.Submit(new UseProgramSkillCommand(0,
-        "fixture:control-driver", activation, [], targets, game.Revision, Pending(game)!.PromptId)));
     private static void AnswerOption(GameEngine game, string option) => Answer(game,
         Pending(game)!.Choices.Single(choice => choice.Parameters.GetValueOrDefault("option-id") == option));
     private static void Answer(GameEngine game, PromptChoice choice) => Accept(game.Submit(new AnswerPromptCommand(

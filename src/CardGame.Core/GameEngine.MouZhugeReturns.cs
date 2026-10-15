@@ -4,7 +4,7 @@ public sealed partial class GameEngine
 {
     // Both producers prove their own issuance before sharing native zero-entity
     // processing boundaries. The tiered producer's receipt is not fabricated.
-    private bool IsZeroEntityUse(long id) => IsTieredRoundZeroUse(id) || IsMouZhijueZeroUse(id);
+    private bool IsZeroEntityUse(long id) => IsTieredRoundZeroUse(id) || IsMouZhijueZeroUse(id) || IsChosenAssaultUse(id);
     private bool IsZeroEntityProcessingParent(long id, int cardId) => cardId == 0 && IsZeroEntityUse(id);
     private bool MatchesMouZhijueUseAction(long id, CardActionContext action, int cardId) =>
         cardId == 0 && IsMouZhijueZeroUse(id) && LifecycleCardUse(id)?.Action is { } issued &&

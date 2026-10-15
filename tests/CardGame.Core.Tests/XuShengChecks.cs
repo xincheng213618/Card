@@ -152,16 +152,6 @@ internal static class XuShengChecks
         return true;
     }
 
-    private static bool ReachPlay(GameEngine game)
-    {
-        for (var step = 0; step < 12; step++)
-        {
-            if (game.PendingDecision is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 }) return true;
-            if (!game.Submit(new AdvanceCommand(game.Revision)).Accepted) return false;
-        }
-        return game.PendingDecision is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 };
-    }
-
     /// <summary>Advances through intervening turns (answering human prompts) until
     /// Xu Sheng's next play decision or the game blocks.</summary>
     private static bool AdvanceToOwnPlay(GameEngine game)

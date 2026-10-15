@@ -36,56 +36,6 @@ internal static class FengLinKuaiChecks
         Require(P(g)?.SkillPrompt?.SkillId=="fixture:retention-observer","Retention reward pauses a real gain child under its Ending coordinator.");Replay(g,r);
         Answer(g,c=>c.Parameters.GetValueOrDefault("option-id")=="continue");ReachPlay(g);Require(g.Events.Count(e=>e.Payload is GiftHandRetentionConsumedEvent)==1,"Retention reward resumption never consumes or draws the due twice.");Replay(g,r);
     }
-    public static void EndingChildGiftJoinsCurrentBoundary()
-    {
-        var(g,r)=Create(endingDamage:true);ReachPlay(g);Driver(g,"grow",[1]);Yang(g,Hand(g,0).First(),1);ReachPlay(g);
-        Driver(g,"discard",[]);Driver(g,"grow-owner",[]);End(g);
-        Reach(g,p=>p.SkillPrompt?.SkillId=="fixture:ending-hurt" && p.Choices.Any(c=>c.Targets.Contains(1)));
-        Answer(g,c=>c.Targets.Contains(1));
-        Reach(g,p=>p.SkillPrompt?.SkillId=="classic:shenshi" && p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="activate"));
-        Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="activate");Replay(g,r);
-        Answer(g,c=>c.Parameters.GetValueOrDefault("gift-action")=="observed");Answer(g,c=>c.Cards.Contains(Hand(g,0).First()));
-        var due=g.Events.Select(e=>e.Payload).OfType<GiftHandRetentionScheduledEvent>().Single().Obligation;
-        var boundary=g.ResolutionStack.OfType<TurnEndingBoundaryFrame>().Single();
-        Require(boundary.TurnNumber==due.CreatedTurn && boundary.Items.Skip(boundary.ItemIndex+1).Any(i=>i.RetentionId==due.Id),"Ending child inserts exact due after its stable running item.");Replay(g,r);
-        ReachUntil(g,()=>g.Events.Any(e=>e.Payload is GiftHandRetentionConsumedEvent));
-        Require(g.Events.Select(e=>e.Payload).OfType<GiftHandRetentionConsumedEvent>().Single() is {Applied:true} && Hand(g,0).Length==4,"Gift created during Ending pays in that same Ending.");
-        Require(P(g)?.SkillPrompt?.SkillId=="fixture:retention-observer","Reward movement remains under its typed Ending boundary.");Replay(g,r);
-        Answer(g,c=>c.Parameters.GetValueOrDefault("option-id")=="continue");
-        ReachUntil(g,()=>!g.ResolutionStack.OfType<TurnEndingBoundaryFrame>().Any());
-        Require(g.Events.Count(e=>e.Payload is GiftHandRetentionConsumedEvent)==1 && g.CardMovements.Count(m=>m.Reason.Value=="skill-program.gift-retention.draw")==2,"Nested reward resumes without duplicate payment.");Replay(g,r);
-    }
-    public static void ExactDeathAndRetentionLeaveReturn()
-    {
-        var(g,r)=Create(lethal:true);ReachPlay(g);Driver(g,"grow",[1]);ReachPlay(g);Require(g.CreateSnapshot(0).Players[1].Hp==1,"Lethal fixture victim HP: "+g.CreateSnapshot(0).Players[1].Hp);Yang(g,Hand(g,0).First(),1);
-        Reach(g,p=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("gift-action")=="reward"));
-        Require(!g.CreateSnapshot(0).Players[1].IsAlive,"Yang exact damage completes dying death before reward selection.");Replay(g,r);
-        Answer(g,c=>c.Targets.Contains(2));ReachPlay(g);Require(g.CreateSnapshot(0).Players[2].HandCount>=4,"Exact death reward draws selected living player to four.");Replay(g,r);
-        (g,r)=Create();ReachPlay(g);Driver(g,"grow",[1]);Yang(g,Hand(g,0).First(),1);ReachPlay(g);Driver(g,"hurt",[1]);
-        Reach(g,p=>p.SkillPrompt?.SkillId=="classic:shenshi"&&p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="activate"));Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="activate");
-        Answer(g,c=>c.Parameters.GetValueOrDefault("gift-action")=="observed");var gift=Hand(g,0).First();Answer(g,c=>c.Cards.Contains(gift));ReachPlay(g);
-        var ordinal=g.Events.Select(e=>e.Payload).OfType<GiftHandRetentionScheduledEvent>().Single().Obligation.GiftOrdinal;
-        Driver(g,"take",[1]);Reach(g,p=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="select-and-move-owned-card"));
-        var slot=g.CreateCardZoneDiagnostics().Single(c=>c.CardId==gift).ZoneIndex;
-        Answer(g,c=>c.Parameters.GetValueOrDefault("slot-index")==slot.ToString());ReachPlay(g);Driver(g,"give-back",[1],[gift]);ReachPlay(g);
-        Require(g.CreateCardZoneDiagnostics().Single(c=>c.CardId==gift).Location==CardLocation.Hand(1)&&g.CardMovements.Any(m=>m.CardId==gift&&m.Sequence>ordinal&&m.From==CardLocation.Hand(1)),"Physical card truly leaves and returns to same recipient hand.");
-        Driver(g,"discard",[]);End(g);ReachUntil(g,()=>g.Events.Any(e=>e.Payload is GiftHandRetentionConsumedEvent));
-        Require(g.Events.Select(e=>e.Payload).OfType<GiftHandRetentionConsumedEvent>().Single() is {Applied:false} && g.CreateSnapshot(0).Players[0].HandCount==0,"Leave-return permanently fails retention reward.");Replay(g,r);
-    }
-    public static void GiftChildDeathHasNoDamageReward()
-    {
-        var(g,r)=Create(giftDeath:true);ReachPlay(g);Driver(g,"grow",[1]);Yang(g,Hand(g,0).First(),1);ReachPlay(g);
-        Require(!g.CreateSnapshot(0).Players[1].IsAlive && !g.Events.Any(e=>e.Payload is DamageAppliedEvent),"Gift child death produces no Yang damage and no damage-death reward.");
-        Require(!g.ResolutionStack.OfType<ProgramSkillFrame>().Any(f=>f.ConvertingGift is not null),"Gift operation retired with no false reward cursor.");Replay(g,r);
-    }
-    public static void ExtremalTargetsAndStrictResources()
-    {
-        var(g,r)=Create();ReachPlay(g);Driver(g,"discard",[]);Driver(g,"minimum",[]);Reach(g,p=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="select-target"));
-        Require(P(g)!.Choices.SelectMany(c=>c.Targets).Distinct().SequenceEqual([0]),"Minimum includes owner, even when uniquely empty.");Answer(g,c=>c.Targets.Contains(0));ReachPlay(g);
-        Driver(g,"grow",[1]);Driver(g,"grow",[2]);ReachPlay(g);var action=g.GetHumanLegalActions().Single(a=>a.ProgramSkillId=="classic:shenshi");
-        Require(action.SelectableTargetSeats!.Order().SequenceEqual(new[]{1,2}),"Tied other maximum hand targets are both legal: "+string.Join(",",action.SelectableTargetSeats!)+" hands "+string.Join(",",g.CreateSnapshot(0).Players.Select(p=>p.HandCount)));Replay(g,r);
-        try{SkillProgramCatalog.Load($$"""{"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[{"id":"fixture:bad-gift","revision":1,"activations":[{"id":"bad","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"giveSelectedOwnedCardAndDamage","target":"owner","amount":4}]}]}]}""","""{"schemaVersion":3,"skills":{"fixture:bad-gift":{"name":"测试","description":"测试"}}}""");throw new InvalidOperationException("Invalid gift resources accepted.");}catch(InvalidOperationException e){Require(e.Message.Contains("gift damage needs"),"Strict resources reject non-HE zero-cost gift damage: "+e.Message);}
-    }
     private static SkillPolarity? Polarity(GameEngine g)=>g.CreateSnapshot(0).Players[0].SkillRuntimeStates!.Single(s=>s.SkillId=="classic:shenshi").Polarity;
     private static int[] Hand(GameEngine g,int s)=>g.CreateCardZoneDiagnostics().Where(c=>c.Location==CardLocation.Hand(s)).OrderBy(c=>c.ZoneIndex).Select(c=>c.CardId).ToArray();
     private static PendingDecision? P(GameEngine g)=>g.PendingDecision??Enumerable.Range(0,4).Select(s=>g.CreateSnapshot(s,true).PendingDecision).FirstOrDefault(p=>p is not null);

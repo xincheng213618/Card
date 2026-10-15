@@ -55,6 +55,7 @@ public sealed partial class GameEngine
         _status = _players[chooserSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
 
+    [ProgramAnswer("virtual-slash-offer")]
     private void ResolveProgramVirtualSlashOfferChoice(PromptChoice selected)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("A virtual Slash offer lost its frame.");

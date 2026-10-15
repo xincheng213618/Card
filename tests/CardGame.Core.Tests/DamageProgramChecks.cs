@@ -555,25 +555,6 @@ internal static class DamageProgramChecks
                         JsonSerializer.Serialize(item.Payload, item.Payload.GetType()))
         .ToArray();
 
-    private static void Reject(string rules, string? expectedMessage)
-    {
-        const string presentation =
-            "{\"schemaVersion\":3,\"skills\":{\"fixture:damage\":{\"name\":\"Damage\",\"description\":\"Fixture\"}}}";
-        try
-        {
-            _ = SkillProgramCatalog.Load(rules, presentation);
-        }
-        catch (InvalidOperationException exception) when (
-            expectedMessage is null || exception.Message.Contains(
-                expectedMessage, StringComparison.OrdinalIgnoreCase))
-        {
-            return;
-        }
-        throw new InvalidOperationException(expectedMessage is null
-            ? "The invalid schema-15 damage program was accepted."
-            : $"The invalid schema-15 damage program did not mention '{expectedMessage}'.");
-    }
-
     private static void Require(bool condition, string message)
     {
         if (!condition) throw new InvalidOperationException(message);

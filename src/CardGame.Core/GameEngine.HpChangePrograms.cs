@@ -7,10 +7,15 @@ public sealed partial class GameEngine
     private void RecordHpChange(long? parentFrameId, int? sourceSeat, int targetSeat,
         int before, int after, HpChangeKind kind)
     {
+        ObserveDongBaiHpDecreased(targetSeat,before,after);
         var amount = kind == HpChangeKind.Loss ? before - after : after - before;
         if (!_setupComplete || amount <= 0 || _winner != Winner.None || _status == EngineStatus.Completed) return;
-        _pendingHpChanges.Add(new(++_resolutionSequence, parentFrameId, sourceSeat, targetSeat, kind, amount, before, after, kind == HpChangeKind.Loss && HasTurnRedSlashCapability ? new LossOccurrence(_turnNumber, _currentSeat, _phase) : null,
-            kind == HpChangeKind.Loss && HasTurnRedSlashCapability ? Array.AsReadOnly(new[] { SkillProgramTriggerWindow.AfterHpLost, SkillProgramTriggerWindow.AfterHealthChanged }.SelectMany(window=>CollectProgramTriggerCandidates(_players[targetSeat],window)).ToArray()) : null));
+        var change = new HpChangeContext(++_resolutionSequence, parentFrameId, sourceSeat, targetSeat, kind, amount, before, after, kind == HpChangeKind.Loss && HasTurnRedSlashCapability ? new LossOccurrence(_turnNumber, _currentSeat, _phase) : null,
+            kind == HpChangeKind.Loss && HasTurnRedSlashCapability ? Array.AsReadOnly(new[] { SkillProgramTriggerWindow.AfterHpLost, SkillProgramTriggerWindow.AfterHealthChanged }.SelectMany(window=>CollectProgramTriggerCandidates(_players[targetSeat],window)).ToArray()) : null);
+        _pendingHpChanges.Add(change);
+        CaptureQimeiHpQualification(change);
+        CaptureXianfuRecoveryQualification(change);
+        CaptureDianhuRecoveryQualification(change);
     }
 
     private bool TryBeginHpChangedProgramWindow(long? resumeFrameId = null,
@@ -32,9 +37,12 @@ public sealed partial class GameEngine
                 HpChangeKind.Recovery => new[] { SkillProgramTriggerWindow.AfterHpRecovered, SkillProgramTriggerWindow.AfterHealthChanged },
                 _ => new[] { SkillProgramTriggerWindow.AfterHealthChanged }
             };
-            var registered = change.FrozenLossCandidates ??
-                windows.SelectMany(window => CollectProgramTriggerCandidates(owner, window)).ToArray();
-            if (registered.Count == 0) continue;
+            var registered = (change.FrozenLossCandidates ??
+                windows.SelectMany(window => CollectProgramTriggerCandidates(owner, window)).ToArray())
+                .Where(candidate => !IsQimeiEqualityTrigger(GetProgramTrigger(candidate)) &&
+                    !IsXianfuEchoTrigger(GetProgramTrigger(candidate)) && !IsDianhuDrawTrigger(GetProgramTrigger(candidate)))
+                .Concat(CollectQimeiHpCandidates(change)).Concat(CollectXianfuHpCandidates(change)).Concat(CollectDianhuHpCandidates(change)).ToArray();
+            if (registered.Length == 0) continue;
             var facts = CaptureProgramTriggerFacts(owner) with
             {
                 HpChangeAmount = change.Amount, HpBeforeChange = change.HpBefore, HpAfterChange = change.HpAfter,
@@ -49,7 +57,11 @@ public sealed partial class GameEngine
                         .HpChangeOccurrence == SkillProgramHpChangeOccurrence.PerPoint ? change.Amount : 1)
                     .Select(index => candidate with { OccurrenceIndex = index })).ToArray();
             if (candidates.Length == 0) continue;
-            var contexts = candidates.Select(candidate => new ProgramSkillWindowContext(GetProgramTrigger(candidate).Window, change.Id,
+            var contexts = candidates.Select(candidate => IsQimeiEqualityTrigger(GetProgramTrigger(candidate))
+                ? CreateQimeiHpContext(change, candidate)
+                : IsXianfuEchoTrigger(GetProgramTrigger(candidate)) ? CreateXianfuHpContext(change, candidate)
+                : IsDianhuDrawTrigger(GetProgramTrigger(candidate)) ? CreateDianhuHpContext(change, candidate)
+                : new ProgramSkillWindowContext(GetProgramTrigger(candidate).Window, change.Id,
                 owner.Seat, SourceSeat: change.SourceSeat, TargetSeat: owner.Seat, Amount: change.Amount,
                 OccurrenceIndex: candidate.OccurrenceIndex, Facts: facts, HpChange: change)).ToArray();
             if (continuation == PostEventContinuation.AwaitedProgramMovement &&
@@ -125,6 +137,12 @@ public sealed partial class GameEngine
                         break;
                     case PostEventContinuation.DrawPhaseObligation:
                         AdvanceRuntimeFrame(frame.ResumeFrameId!.Value);
+                        break;
+                    case PostEventContinuation.DenglouCardUse:
+                        ContinueDenglouNativePayment(frame.ResumeFrameId!.Value);
+                        break;
+                    case PostEventContinuation.GuoSiCardUse:
+                        ContinueGuoSiNativePayment(frame.ResumeFrameId!.Value);
                         break;
                     case PostEventContinuation.HistoricalEndingCardUse:
                         ContinueHistoricalEndingPayment(frame.ResumeFrameId!.Value);
@@ -211,6 +229,8 @@ public sealed partial class GameEngine
                 PostEventContinuation.VirtualBasicCardUse => parent is CardUseFrame basic && basic.Id == hp.ResumeFrameId && basic.CardId == 0 && basic.VirtualBasicReturn is not null && basic.VirtualBasicEffectApplied == true && hp.CardId is null && hp.CardKind == basic.CardKind,
                 PostEventContinuation.RecoveryReplacement => parent is RecoveryReplacementFrame recovery && recovery.Id == hp.ResumeFrameId,
                 PostEventContinuation.RecoveryPaidCardUse => parent is CardUseFrame paidUse && paidUse.Id == hp.ResumeFrameId && paidUse.RecoveryPaidContinuation is not null,
+                PostEventContinuation.DenglouCardUse => parent is CardUseFrame { DenglouNative: not null, DenglouCostDrained: false } denglou && denglou.Id == hp.ResumeFrameId && hp.Change.ParentFrameId == denglou.Id,
+                PostEventContinuation.GuoSiCardUse => parent is CardUseFrame { GuoSiNative: not null, GuoSiCostDrained: false } guoSi && guoSi.Id == hp.ResumeFrameId && hp.Change.ParentFrameId == guoSi.Id,
                 PostEventContinuation.HistoricalEndingCardUse => parent is CardUseFrame { EndingHistoricalUseReturn: not null, EndingHistoricalCostDrained: false } history && history.Id == hp.ResumeFrameId && hp.Change.ParentFrameId == history.Id,
                 PostEventContinuation.CounterspellPayment => parent is NullificationWindowFrame { CounterspellPayment: not null } counter && counter.Id == hp.ResumeFrameId && hp.Change.ParentFrameId == counter.Id,
                 PostEventContinuation.ColorFireAttackPayment => parent is CardUseFrame { ColorFireAttack.PaidCardId: not null } fire && fire.Id == hp.ResumeFrameId && hp.Change.ParentFrameId == fire.Id,

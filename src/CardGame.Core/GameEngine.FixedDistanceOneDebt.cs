@@ -119,6 +119,7 @@ public sealed partial class GameEngine
         _status = _players[f.OwnerSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
         AdvanceRulesAndPublishState();
     }
+    [ProgramAnswer("fixed-distance-ending-debt")]
     private void ResolveFixedDistanceDebtChoice(PromptChoice choice)
     {
         var f = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("Distance debt has no owning program.");
@@ -202,6 +203,7 @@ public sealed partial class GameEngine
         if (grants.Any(e => !ValidFixedDistanceOneGrant(e.Grant)) || consumed
             .GroupBy(e => e.Grant.ProgramFrameId).Any(g => g.Count() != 1)) throw new InvalidOperationException("A fixed-distance issuance or Ending consumption duplicated its original identity.");
     }
+    [ProgramAiChoice(SkillProgramEffectOp.SettleFixedDistanceOneEndingDebt)]
     private PromptChoice SelectAiFixedDistanceDebt(PendingDecision d)
     {
         var snapshot = CreateSnapshot(d.PlayerSeat);

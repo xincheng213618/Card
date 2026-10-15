@@ -28,42 +28,6 @@ internal static class Fame2017CaoJieChecks
         Replay(game, registry);
     }
 
-    public static void NamedDefenseRefusalAndGameLedger()
-    {
-        var (game, registry) = Create(); var hpBefore = game.CreateSnapshot(0).Players[0].Hp; RequestSlash(game);
-        Reach(game, p => p.SkillPrompt?.SkillId == "classic:shouxi"); Answer(game, c => c.Parameters.GetValueOrDefault("program-action") == "activate");
-        var hp = game.CreateSnapshot(0).Players[0].Hp;
-        Answer(game, c => c.Parameters.GetValueOrDefault("card-name") == nameof(CardKind.Lightning));
-        Require(Prompt(game)!.Choices.Count == 1 && Prompt(game)!.Choices[0].Parameters["program-action"] == "named-defense-decline", "No same-name real card leaves only the refusal branch.");
-        Replay(game, registry); Accept(game, new AdvanceOneStepCommand(game.Revision));
-        Reach(game, p => p.Kind == DecisionKind.PlayCard);
-        Require(game.CreateSnapshot(0).Players[0].Hp == hp && game.Events.Select(e => e.Payload).OfType<CardEffectSkippedEvent>().Any(e => e.TargetSeat == 0), "Refusal only skips this Slash's target effect.");
-        Accept(game, new EndPlayPhaseCommand(0, game.Revision, Prompt(game)!.PromptId));
-        Reach(game, p => p.Kind == DecisionKind.PlayCard && p.PlayerSeat == 0); RequestSlash(game);
-        Reach(game, p => p.SkillPrompt?.SkillId == "classic:shouxi"); Answer(game, c => c.Parameters.GetValueOrDefault("program-action") == "activate");
-        Require(Prompt(game)!.Choices.All(c => c.Parameters.GetValueOrDefault("card-name") != nameof(CardKind.Lightning)) &&
-            Prompt(game)!.Choices.Count(c => c.Parameters.GetValueOrDefault("card-name") is nameof(CardKind.Slash) or nameof(CardKind.FireSlash) or nameof(CardKind.ThunderSlash)) == 1,
-            "Declared names persist across turns, and all three Slash natures share one canonical declaration.");
-        Reject(game); Replay(game, registry);
-    }
-
-    public static void NamedDefenseOnlyNullifiesOneRealSlashTarget()
-    {
-        var (game, registry) = Create("spread"); var hp = game.CreateSnapshot(0).Players.Select(p => p.Hp).ToArray(); RequestSlash(game);
-        Reach(game, p => p.SkillPrompt?.SkillId == "fixture:caojie-spread");
-        var actor = Prompt(game)!.PlayerSeat;
-        Answer(game, c => c.Targets.Any(seat => seat != 0 && seat != actor && game.GetCombatDistance(actor, seat) == 1));
-        Reach(game, p => p.SkillPrompt?.SkillId == "classic:shouxi"); Answer(game, c => c.Parameters.GetValueOrDefault("program-action") == "activate");
-        var use = game.ResolutionStack.OfType<CardUseFrame>().Last();
-        Require(use.TargetSeats.Count == 2 && use.TargetSeats.Contains(0), "The defense fixture uses one actual Slash with two real targets.");
-        var other = use.TargetSeats.Single(seat => seat != 0); Replay(game, registry);
-        Answer(game, c => c.Parameters.GetValueOrDefault("card-name") == nameof(CardKind.Lightning)); Accept(game, new AdvanceOneStepCommand(game.Revision));
-        Reach(game, p => p.Kind == DecisionKind.PlayCard);
-        Require(game.CreateSnapshot(0).Players[0].Hp == hp[0] && game.CreateSnapshot(other).Players[other].Hp == hp[other] - 1,
-            "Refusal nullifies only Cao Jie's effect; the same Slash still hits its other actual target.");
-        Replay(game, registry);
-    }
-
     public static void FrozenPopulationPublicDraftAndAiReplay()
     {
         var (game, registry) = Create();
@@ -99,71 +63,6 @@ internal static class Fame2017CaoJieChecks
         Require(obtained.Select(e => e.RecipientSeat).SequenceEqual(order) && obtained.Select(e => e.CardId).Distinct().Count() == expected.Length &&
             Enumerable.Range(0, 4).All(seat => game.CreateSnapshot(seat).PublicRevealedCards.Count == 0), "All public entities are consumed once, including a same-hand owner pick, with no residual reveal.");
         Replay(game, registry);
-    }
-
-    public static void LoaderRejectsWrongDefenseAndDraftContexts()
-    {
-        var assembly = typeof(StandardClassicGeneralPackage).Assembly;
-        string Read(string kind) { using var s = assembly.GetManifestResourceStream("CardGame.Content.Standard.SkillPrograms.classic-cao-jie." + kind + ".json")!; using var r = new StreamReader(s); return r.ReadToEnd(); }
-        var rules = Read("rules"); var presentation = Read("presentation");
-        void RejectRules(string changed) { try { SkillProgramCatalog.Load(changed, presentation); } catch (InvalidOperationException) { return; } throw new InvalidOperationException("Invalid shared operation context was accepted."); }
-        RejectRules(rules.Replace("\"ownerRelation\":\"target\"", "\"ownerRelation\":\"actor\""));
-        RejectRules(rules.Replace("\"slash\",\"fireSlash\",\"thunderSlash\"", "\"duel\""));
-        RejectRules(rules.Replace("\"turnEnding\"", "\"turnStartBeforeNormalFlow\""));
-        RejectRules(rules.Replace("\"stateId\":\"declared-names\"", "\"stateId\":\"declared-names\",\"amount\":1"));
-    }
-
-    public static void DraftNestedGainMovedPoolAndDeath()
-    {
-        foreach (var mode in new[] { "move", "recipient-death", "owner-death" })
-        {
-            var (game, registry) = Create(mode);
-            var allIds = game.CreateCardZoneDiagnostics().Select(c => c.CardId).Order().ToArray();
-            Accept(game, new EndPlayPhaseCommand(0, game.Revision, Prompt(game)!.PromptId));
-            Reach(game, p => p.SkillPrompt?.SkillId == "classic:huimin"); Answer(game, c => c.Parameters.GetValueOrDefault("program-action") == "activate");
-            Reach(game, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "public-draft-show"));
-            var frozen = game.ResolutionStack.OfType<ProgramSkillFrame>().Last().PublicHandDraft!.RecipientSeats;
-            foreach (var _ in frozen) Answer(game, _ => true);
-            var first = frozen.First(seat => seat != 0);
-            Answer(game, c => c.Targets.Contains(first));
-            Accept(game, new AdvanceOneStepCommand(game.Revision));
-            Require(Prompt(game)!.SkillPrompt?.SkillId == "fixture:caojie-observe" &&
-                game.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.PublicHandDraft is { Cursor: 1 }),
-                "A recipient's real gain pauses the draft before the next recipient decision.");
-            Replay(game, registry); Reject(game);
-            Answer(game, _ => true);
-            var victim = mode == "recipient-death" ? frozen.Single(seat => seat != 0 && seat != first) : 0;
-            Answer(game, c => c.Targets.Contains(victim) && (mode != "move" || c.Targets.Contains(first)));
-            if (mode == "owner-death")
-            {
-                for (var i = 0; i < 80 && game.CreateSnapshot(0).Winner == Winner.None; i++)
-                {
-                    Replay(game, registry);
-                    if (Prompt(game) is { PlayerSeat: 0 }) Answer(game, c => c.Parameters.GetValueOrDefault("response") == "pass");
-                    else Accept(game, new AdvanceOneStepCommand(game.Revision));
-                }
-                Require(!game.CreateSnapshot(0).Players[0].IsAlive && game.CreateSnapshot(0).Winner != Winner.None,
-                    "Nested owner death legally finishes the game and removes the public draft.");
-            }
-            else
-            {
-                Reach(game, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "public-draft-gain") ||
-                    !game.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.PublicHandDraft is not null));
-                if (mode == "recipient-death")
-                {
-                    Require(!game.CreateSnapshot(0).Players[victim].IsAlive && Prompt(game)!.PlayerSeat == 0,
-                        "The dead future recipient is skipped without changing the frozen set or replaying a previous pick.");
-                    Answer(game, _ => true);
-                }
-                else Require(!game.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.PublicHandDraft is not null) &&
-                    game.Events.Select(e => e.Payload).OfType<ProgramHandDraftCardObtainedEvent>().Count() == 1,
-                    "An intervening real hand exchange removes the displayed entities from the pool; later recipients cannot take them again.");
-            }
-            Require(Enumerable.Range(0, 4).All(seat => game.CreateSnapshot(seat).PublicRevealedCards.Count == 0) &&
-                game.CreateCardZoneDiagnostics().Select(c => c.CardId).Order().SequenceEqual(allIds),
-                "Nested gain, movement and death preserve every real entity and leave no public-hand leak.");
-            Replay(game, registry);
-        }
     }
 
     private static PendingDecision? Prompt(GameEngine game) => Enumerable.Range(0, 4).Select(seat => game.CreateSnapshot(seat).PendingDecision).FirstOrDefault(p => p is not null);

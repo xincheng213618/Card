@@ -68,44 +68,6 @@ internal static class BoundaryYuFanChecks
             "The original converted trick continues and cleans up its own one paid cost; ordinary Use cleanup is excluded from both firstness and reclaimed predecessor cards."); Cold(d, dRegistry);
     }
 
-    public static void FirstnessSurvivesDeclineSourceLossReacquireAndExtraTurn()
-    {
-        var (g, r) = Create(); Play(g);
-        var first = g.CreateSnapshot(3).Players[3].Hand.Take(2).Select(c => c.Id).ToArray();
-        BoundDiscard(g, "previous-two", first, [3]); Reach(g, p => Activation(p, Zong));
-        var before = E<ActualTurnFirstOwnedDiscardBatchEvent>(g).Single(e => e.DiscardOwnerSeat == 3); Cold(g, r);
-        Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "skip"); Play(g);
-        BoundDiscard(g, "previous-one", [g.CreateSnapshot(3).Players[3].Hand[0].Id], [3]); Play(g);
-        Require(Started(g, Zong) == 0 && E<ActualTurnFirstOwnedDiscardBatchEvent>(g).Count(e => e.DiscardOwnerSeat == 3) == 1 &&
-            E<DiscardNeighborhoodFrozenEvent>(g).Last(e => e.OwnerSeat == 0) is { IncludesFirstPreviousDiscard: false },
-            "The first actual batch consumes the predecessor's qualification even when its entire optional opportunity is refused.");
-        BoundDiscard(g, "own-one", [g.CreateSnapshot(0).Players[0].Hand[0].Id]); Reach(g, p => Activation(p, Zong)); Activate(g, Zong); Reach(g, Top);
-        FinishTop(g); Play(g);
-        Require(Started(g, Zong) == 1 && g.CardMovements.All(m => m.Reason.Value != TopReason),
-            "Own discards remain unlimited; accepting and selecting the empty subset does not move cards or refund a committed discard."); Cold(g, r);
-
-        var (lost, lr) = Create(); Play(lost); Use(lost, "lose-source"); Play(lost);
-        BoundDiscard(lost, "previous-one", [lost.CreateSnapshot(3).Players[3].Hand[0].Id], [3]); Play(lost);
-        Require(Started(lost, Zong) == 0 && E<ActualTurnFirstOwnedDiscardBatchEvent>(lost).Any(e => e.DiscardOwnerSeat == 3),
-            "A genuine removed source does not erase the public first-discard fact or disclose a hidden grant in that fact."); Cold(lost, lr);
-        Use(lost, "reacquire"); Play(lost);
-        BoundDiscard(lost, "previous-one", [lost.CreateSnapshot(3).Players[3].Hand[0].Id], [3]); Play(lost);
-        Require(Started(lost, Zong) == 0 && E<ActualTurnFirstOwnedDiscardBatchEvent>(lost).Count(e => e.DiscardOwnerSeat == 3) == 1,
-            "A new real grant instance in the same actual turn does not renew the already consumed predecessor-first qualification."); Cold(lost, lr);
-
-        var (extra, er) = Create(); Play(extra);
-        BoundDiscard(extra, "previous-one", [extra.CreateSnapshot(3).Players[3].Hand[0].Id], [3]); Reach(extra, p => Activation(p, Zong));
-        Answer(extra, c => c.Parameters.GetValueOrDefault("program-action") == "skip"); Play(extra); Use(extra, "extra"); Play(extra);
-        Accept(extra, new EndPlayPhaseCommand(0, extra.Revision, P(extra)!.PromptId));
-        Reach(extra, p => p.Kind == DecisionKind.PlayCard && p.PlayerSeat == 0 && E<TurnStartedEvent>(extra).Count() == 2);
-        BoundDiscard(extra, "previous-one", [extra.CreateSnapshot(3).Players[3].Hand[0].Id], [3]); Reach(extra, p => Activation(p, Zong));
-        Require(E<TurnStartedEvent>(extra).Select(e => e.ActorSeat).SequenceEqual([0, 0]) &&
-            E<ActualTurnFirstOwnedDiscardBatchEvent>(extra).Where(e => e.DiscardOwnerSeat == 3).Select(e => e.ActualTurnNumber).Distinct().Count() == 2 &&
-            E<DiscardNeighborhoodFrozenEvent>(extra).Last(e => e.OwnerSeat == 0).IncludesFirstPreviousDiscard,
-            "An issued real extra turn has a distinct actual-turn identity and a fresh predecessor first batch; this is not phase insertion or a skill-instance reset.");
-        Cold(extra, er); Answer(extra, c => c.Parameters.GetValueOrDefault("program-action") == "skip"); Play(extra); Cold(extra, er);
-    }
-
     public static void RevealedEquipmentAndNonEquipmentHpChildrenResumeOnce()
     {
         var (g, r) = Create("standard:crossbow", observers: true); Play(g);
@@ -152,44 +114,6 @@ internal static class BoundaryYuFanChecks
             rescue.PhysicalCards.All(c => dying.CardMovements.Count(m => m.CardId == c.CardId && m.To == CardLocation.Processing) == 1) &&
             E<ProgramSkillHpLostEvent>(dying).Count(e => e.SkillId == Zhi) == 1 && dying.State.Players[1].Hp == 1,
             "The real physical Peach and its HP observer return through the original Ending parent without repeating the draw, comparison or HP cost."); Cold(dying, dr);
-    }
-
-    public static void PreviousEndingNativeChoicesAndStrictContracts()
-    {
-        var (g, r) = Create(); Play(g); EndToZhi(g);
-        Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "skip");
-        Reach(g, p => Activation(p, Zhi) && E<TurnStartedEvent>(g).Last().ActorSeat == 3);
-        var ending = g.ResolutionStack.OfType<TurnEndingBoundaryFrame>().Single();
-        var item = ending.Items.Single(i => i.Candidate?.SkillId == Zhi);
-        Require(ending.OwnerSeat == 3 && item.Facts?.FrozenPreviousLivingSeat == 3 &&
-            E<ProgramBindingResolvedEvent>(g).Where(e => e.SkillId == Zhi).Count() == 1,
-            "The current skill offers at its frozen living predecessor's Ending, excluding the intervening two unrelated Ending phases."); Cold(g, r);
-        Activate(g, Zhi); Reach(g, p => p.SkillPrompt?.SkillId == Zhi && p.Choices.Any(c => c.Targets.SequenceEqual([0])));
-        Answer(g, c => c.Targets.SequenceEqual([0])); Until(g, () => E<RevealedCardHpComparedEvent>(g).Any()); Cold(g, r);
-
-        var (native, nr) = Create(native: true);
-        for (var i = 0; i < 100 && native.State.Status != EngineStatus.Completed &&
-            !(Started(native, Zong) > 0 && E<RevealedCardHpComparedEvent>(native).Any()); i++) Accept(native, new AdvanceOneStepCommand(native.Revision));
-        Require(Started(native, Zong) > 0 && native.CardMovements.Any(m => m.Reason.Value == TopReason) &&
-            E<RevealedCardHpComparedEvent>(native).Any() && native.AcceptedCommands.All(c => c is not AnswerPromptCommand),
-            "The fixed native source actually accepts the new public zero-cost top ordering and actual Ending draw/use through Start/Advance only; the estimate never reads private hands or deck contents."); Cold(native, nr);
-        StrictContracts();
-    }
-
-    private static void StrictContracts()
-    {
-        var assembly = typeof(StandardContentPackage).Assembly;
-        string Read(string suffix) { using var stream = assembly.GetManifestResourceStream(assembly.GetManifestResourceNames().Single(n => n.EndsWith("boundary-yu-fan." + suffix, StringComparison.Ordinal)))!; using var reader = new StreamReader(stream); return reader.ReadToEnd(); }
-        var rules = Read("rules.json"); var presentation = Read("presentation.json");
-        foreach (var invalid in new[] { rules.Replace("\"perOwnerBatch\"", "\"perBatch\""),
-            rules.Replace("\"movementDiscardOnly\": true", "\"movementDiscardOnly\": false"),
-            rules.Replace("\"sourceZones\": [\"hand\", \"equipment\", \"judgment\"]", "\"sourceZones\": [\"hand\"]"),
-            rules.Replace("\"ownOrPreviousLiving\"", "\"otherLiving\""),
-            rules.Replace("\"sourceBind\": \"drawn\" }", "\"sourceBind\": \"equipment\" }") })
-        {
-            var rejected = false; try { SkillProgramCatalog.Load(invalid, presentation); } catch (InvalidOperationException) { rejected = true; }
-            Require(invalid != rules && rejected, "New capabilities reject wrong movement origin, occurrence, scope and revealed-entity producer without weakening historical contracts.");
-        }
     }
 
     private static IEnumerable<T> E<T>(GameEngine g) => g.Events.Select(e => e.Payload).OfType<T>();

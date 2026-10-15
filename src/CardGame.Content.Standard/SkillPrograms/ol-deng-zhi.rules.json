@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "ol:xiuhao", "revision": 1, "triggers": [
+      { "id": "outgoing-prevention", "window": "beforeDamageApplied", "subject": "damageSource", "optional": true,
+        "usageScope": "turn", "usageLimit": 1, "namedUsageGroup": "participant-prevention",
+        "effects": [{ "op": "preventParticipantDamageDrawActualSource", "target": "owner" }] },
+      { "id": "incoming-prevention", "window": "beforeDamageApplied", "subject": "damageTarget", "optional": true,
+        "usageScope": "turn", "usageLimit": 1, "namedUsageGroup": "participant-prevention", "condition": { "kind": "otherDamageSourceAlive" },
+        "effects": [{ "op": "preventParticipantDamageDrawActualSource", "target": "owner" }] }
+    ] },
+    { "id": "ol:sujian", "revision": 1, "triggers": [
+      { "id": "old-hand-replacement", "window": "discardPhaseStarting", "subject": "owner", "turnOwnerScope": "own", "optional": false,
+        "effects": [{ "op": "replaceDiscardWithOldHandDisposition", "target": "owner" }] }
+    ] }
+  ]
+}

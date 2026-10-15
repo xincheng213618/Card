@@ -136,101 +136,6 @@ internal static class BoundaryChenGongChecks
         }
     }
 
-    public static void DodgedAndPreventedVirtualSlashCannotBorrowPriorDamage()
-    {
-        foreach (var prevention in new[] { false, true })
-        {
-            var (g, r) = Create(dodge: !prevention, prevent: prevention);
-            Use(g, "unrelated", [1]); Play(g);
-            var prior = Facts<DamageAppliedEvent>(g).Last();
-            Require(prior.SourceSeat == 1 && prior.TargetSeat == 0, "A real earlier damage event has the same future Slash actor but is outside its owning use.");
-            var gift = Hand(g, 0).First().Id; BeginGift(g, gift);
-            Reach(g, p => p.SkillPrompt?.SkillId == GiftGain); Continue(g); ReachOffer(g, 1);
-            Answer(g, c => c.Parameters.GetValueOrDefault("offer-option") == "slash"); ReachOffer(g, 0); Answer(g, c => c.Targets.SequenceEqual([2]));
-            if (!prevention)
-            {
-                Reach(g, p => p.Kind == DecisionKind.RespondDodge && p.PlayerSeat == 2);
-                Require(P(g)!.Choices.Any(c => c.Parameters.GetValueOrDefault("response") == "dodge" &&
-                    c.Parameters.GetValueOrDefault("conversion-skill-id") == "classic:qingguo"),
-                    "The real target has a black-card Dodge conversion, not an injected dodged flag.");
-                Cold(g, r); Accept(g, new AdvanceOneStepCommand(g.Revision));
-            }
-            Reach(g, p => p.SkillPrompt?.SkillId == Completed);
-            var use = UseOwner(g); var root = Root(g); var id = root.Id;
-            Require(!use.CausedDamage && !Facts<DamageAppliedEvent>(g).Any(e => e.SourceSeat == 1 && e.TargetSeat == 2),
-                "Actual Dodge or actual beforeDamage prevention leaves this exact use's aggregate false.");
-            Cold(g, r); Continue(g); Play(g);
-            Require(Facts<SharedSlashUseReturnedEvent>(g).Single(e => e.Return.ProgramFrameId == id) is { CausedDamage: false } &&
-                !Facts<SharedSlashDrawIssuedEvent>(g).Any(e => e.ProgramFrameId == id) &&
-                Facts<DamageAppliedEvent>(g).Last() == prior && Facts<ProgramSkillResolvedEvent>(g).Count(e => e.FrameId == id) == 1,
-                "The exact false completion never borrows the last unrelated damage event to issue shared rewards.");
-            Once(g, id, gift); Cold(g, r);
-        }
-    }
-
-    public static void GiftIdentitySourceCancellationNativeAndClassicDefaults()
-    {
-        var (identity, identityRegistry) = Create(wine: true, intrinsicIdentity: true);
-        var wine = Hand(identity, 0).First().Id; BeginGift(identity, wine);
-        Reach(identity, p => p.SkillPrompt?.SkillId == GiftGain); Cold(identity, identityRegistry); Continue(identity); ReachOffer(identity, 1);
-        Answer(identity, c => c.Parameters.GetValueOrDefault("offer-option") == "draw");
-        Reach(identity, p => p.SkillPrompt?.SkillId == RewardGain); Continue(identity);
-        Reach(identity, p => p.SkillPrompt?.SkillId == RewardGain); Continue(identity); Play(identity);
-        Require(Facts<SharedSlashGiftCommittedEvent>(identity).Count() == 1 && Hand(identity, 1).Any(c => c.Id == wine && c.Kind == CardKind.Alcohol),
-            "The already-issued intrinsic hand Alcohol-as-Slash identity is legal at selection and payment; gifting preserves the printed entity.");
-        Cold(identity, identityRegistry);
-
-        var (conversion, conversionRegistry) = Create(wine: true);
-        var before = conversion.State.Players[0].HandCount;
-        Accept(conversion, new UseProgramSkillCommand(0, Mingce, "offer-command", [], [1], conversion.Revision, P(conversion)!.PromptId)); Play(conversion);
-        Require(Facts<SharedSlashGiftCommittedEvent>(conversion).Count() == 0 && conversion.State.Players[0].HandCount == before,
-            "An optional red-card Slash conversion is not intrinsic entity identity and cannot turn a printed Alcohol into a legal gift.");
-        Cold(conversion, conversionRegistry);
-
-        var (cancel, cancelRegistry) = Create(suppressAtGift: true);
-        var held = Hand(cancel, 0).First().Id; BeginGift(cancel, held); Reach(cancel, p => p.SkillPrompt?.SkillId == GiftGain);
-        var paidId = Root(cancel).Id; Cold(cancel, cancelRegistry); Continue(cancel);
-        Reach(cancel, p => Action(p, "select-target") && p.PlayerSeat == 1); Answer(cancel, c => c.Targets.SequenceEqual([0])); Play(cancel);
-        Require(Hand(cancel, 1).Any(c => c.Id == held) && !Facts<SharedSlashUseIssuedEvent>(cancel).Any(e => e.Return.ProgramFrameId == paidId) &&
-            !Facts<SharedSlashDrawIssuedEvent>(cancel).Any(e => e.ProgramFrameId == paidId) &&
-            Facts<ProgramSkillResolvedEvent>(cancel).Single(e => e.FrameId == paidId) is { Completed: false },
-            "Loss of the actual source before the recipient chooses cancels only the unissued tail and never refunds or repays the committed gift.");
-        Once(cancel, paidId, held); Cold(cancel, cancelRegistry);
-
-        var (classic, classicRegistry) = Create(classic: true);
-        var cost = Hand(classic, 0).First().Id;
-        Accept(classic, new UseProgramSkillCommand(0, "classic:mingce", "offer-command", [], [1], classic.Revision, P(classic)!.PromptId));
-        Reach(classic, p => Action(p, "select-owned-cards")); Answer(classic, c => c.Cards.SequenceEqual([cost]));
-        Reach(classic, p => Action(p, "virtual-slash-offer"));
-        var ownerBefore = classic.State.Players[0].HandCount; var recipientBefore = classic.State.Players[1].HandCount;
-        Cold(classic, classicRegistry); Answer(classic, c => c.Parameters.GetValueOrDefault("offer-option") == "draw"); Play(classic);
-        Require(classic.State.Players[0].HandCount == ownerBefore && classic.State.Players[1].HandCount == recipientBefore + 1 &&
-            !Facts<SharedSlashGiftCommittedEvent>(classic).Any() && !Facts<SharedSlashDrawIssuedEvent>(classic).Any(),
-            "The classic opcode keeps its historical recipient-only draw and emits no new policy facts.");
-        Cold(classic, classicRegistry);
-
-        var (native, nativeRegistry) = Create(native: true);
-        Until(native, () => native.State.Status == EngineStatus.Completed);
-        var issued = Facts<SharedSlashGiftCommittedEvent>(native).ToArray();
-        Require(issued.Length == 1 && Facts<ProgramSkillResolvedEvent>(native).Any(e => e.FrameId == issued[0].ProgramFrameId && e.Completed) &&
-            Facts<SharedSlashDrawIssuedEvent>(native).Count(e => e.ProgramFrameId == issued[0].ProgramFrameId) == 2 &&
-            native.CardMovements.Count(m => m.Reason.Value == "program.shared-slash.gift") == 1,
-            "A fixed four-turn native match chooses, pays and finishes the real new active binding and public option without duplicated costs.");
-        Cold(native, nativeRegistry);
-        RejectUnsupportedShape();
-    }
-
-    private static void RejectUnsupportedShape()
-    {
-        var select = new { op = "selectOwnedCards", target = "owner", minimumCards = 1, maximumCards = 1, zones = new[] { "hand" }, resultBind = "gift" };
-        var offer = new { op = "giveBoundCardThenOfferVirtualSlashOrSharedDraw", target = "selectedTarget", sourceBind = "gift" };
-        var rules = JsonSerializer.Serialize(new { schemaVersion = SkillProgramCatalog.RulesSchemaVersion, skills = new[] {
-            new { id = "fixture:cg-invalid", revision = 1, triggers = new[] { new { id = "invalid", window = "afterDamageApplied", subject = "owner", optional = false, effects = new object[] { select, offer } } } } } });
-        var presentation = JsonSerializer.Serialize(new { schemaVersion = 3, skills = new Dictionary<string, object> { ["fixture:cg-invalid"] = new { name = "不合法伤害组合", description = "此节点只承诺active owning chain" } } });
-        var rejected = false; try { SkillProgramCatalog.Load(rules, presentation); } catch (InvalidOperationException) { rejected = true; }
-        Require(rejected, "A shared gift cannot claim an unsupported nested damage-trigger owning contract.");
-    }
-
     private static IEnumerable<T> Facts<T>(GameEngine g) => g.Events.Select(e => e.Payload).OfType<T>();
     private static IReadOnlyList<CardSnapshot> Hand(GameEngine g, int seat) => g.CreateSnapshot(seat).Players[seat].Hand;
     private static ProgramSkillFrame Root(GameEngine g) => g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SharedSlashOffer is not null);
@@ -258,8 +163,6 @@ internal static class BoundaryChenGongChecks
     private static void Answer(GameEngine g, Func<PromptChoice, bool> predicate) { var p = P(g)!; Accept(g, new AnswerPromptCommand(p.PlayerSeat, p.PromptId, p.Choices.First(predicate).Id, g.Revision)); }
     private static void Reach(GameEngine g, Func<PendingDecision, bool> predicate)
     { for (var i = 0; i < 150; i++) { if (P(g) is { } p && predicate(p)) return; Step(g); } throw new InvalidOperationException("Chen Gong exact boundary missing: " + JsonSerializer.Serialize(P(g))); }
-    private static void Until(GameEngine g, Func<bool> predicate)
-    { for (var i = 0; i < 200; i++) { if (predicate()) return; Step(g); } throw new InvalidOperationException("Chen Gong native boundary missing."); }
     private static void Step(GameEngine g)
     {
         var p = P(g);

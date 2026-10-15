@@ -123,6 +123,7 @@ public sealed partial class GameEngine
 
     // Prompt router: every Wei Zi prompt rides one op, so the shared program
     // dispatch hands each accepted choice back through this single entry.
+    [ProgramAnswer("yuanzi-draw", "yuanzi-decline", "liejie-pick", "liejie-finish", "liejie-decline")]
     private void ResolveWeiZiProgramChoice(PromptChoice selected)
     {
         switch (selected.Parameters.GetValueOrDefault("program-action"))
@@ -169,10 +170,8 @@ public sealed partial class GameEngine
             AdvanceRuntimeProgram(active.Id);
     }
 
-    // 援资 payoff prompt: the optional draw is always worth taking.
-    private PromptChoice SelectAiYuanziDamageDrawChoice(PendingDecision decision) =>
-        decision.Choices.First(choice => choice.Parameters.GetValueOrDefault("program-action") == "yuanzi-draw");
 
+    [ProgramAiChoice(SkillProgramEffectOp.LiejieSourceDiscard)]
     private PromptChoice SelectAiLiejieSourceDiscardChoice(PendingDecision decision) =>
         SelectAiLiejieDiscardChoice(decision);
 

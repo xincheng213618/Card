@@ -10,6 +10,8 @@ public sealed partial class GameEngine
             PostEventContinuation.FriendDuelResponse => beneath is FriendDuelResponseFrame,
             PostEventContinuation.CardUse or PostEventContinuation.GroupRecovery or
                 PostEventContinuation.VirtualBasicCardUse or PostEventContinuation.RecoveryProducer => beneath is CardUseFrame,
+            PostEventContinuation.DenglouCardUse => beneath is CardUseFrame { DenglouNative: not null, DenglouCostDrained: false },
+            PostEventContinuation.GuoSiCardUse => beneath is CardUseFrame { GuoSiNative: not null, GuoSiCostDrained: false },
             PostEventContinuation.RecoveryPaidCardUse => beneath is CardUseFrame { RecoveryPaidContinuation: not null },
             PostEventContinuation.FactionRequestCost => beneath.PaidFactionRequestCostRecovery is not null,
             PostEventContinuation.RecoveryReplacement => beneath is RecoveryReplacementFrame,

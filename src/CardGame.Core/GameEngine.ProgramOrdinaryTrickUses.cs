@@ -42,6 +42,7 @@ public sealed partial class GameEngine
         return SkillProgramStepOutcome.AwaitChoice;
     }
 
+    [ProgramAnswer("use-all-hand-as-ordinary-trick")]
     private void ResolveProgramOrdinaryTrickUseChoice(PromptChoice selected)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ??

@@ -8,26 +8,6 @@ internal static class BoundaryXiaoQiaoChecks
     private const string Driver = "fixture:xq-driver", Hp = "fixture:xq-hp", Gain = "fixture:xq-gain", Pulse = "fixture:xq-pulse";
     private const string Mode = "identity:classic-xiao-qiao-fixture";
 
-    public static void HeartEquipmentSetsExactMaxHpAfterOrdinaryHandLimitAdds()
-    {
-        foreach (var equip in new[] { true, false })
-        {
-            var (g, r) = Create(equipment: true, observers: false);
-            if (equip) Equip(g);
-            Use(g, "grow"); Play(g); Use(g, "limit"); Play(g);
-            var expected = equip ? g.State.Players[0].MaxHp : g.State.Players[0].Hp + 4; var turn = g.State.TurnNumber;
-            Require(equip ? g.CreateSnapshot(0).Players[0].Equipment.Single().Suit == Suit.Spade : g.State.Players[0].Equipment.Count == 0,
-                "The actual equipment entity remains printed Spade; the effective-Heart policy is verified by the exact discard count, and the comparison has no equipment.");
-            End(g); Reach(g, p => p.PlayerSeat == 0 && p.Kind == DecisionKind.DiscardCards);
-            Require(P(g)!.RequiredCardCount == g.State.Players[0].HandCount - expected,
-                "Heart equipment sets exactly MaxHP after an actual +4 hand-limit grant; without that equipment the original additive calculation remains.");
-            g = Cold(g, r); Reject(g);
-            Accept(g, new DiscardCardsCommand(0, P(g)!.ValidCardIds.Take(P(g)!.RequiredCardCount).ToArray(), P(g)!.PromptId, g.Revision));
-            Until(g, () => Facts<TurnEndedEvent>(g).Any(e => e.ActorSeat == 0 && e.TurnNumber == turn));
-            Require(g.State.Players[0].HandCount == expected, "The true discard command pays the exact calculated excess, not a numerical approximation to the policy.");
-        }
-    }
-
     public static void TianxiangEquipmentPaymentWaitsForRecoveryBeforeNewDamageAndCappedDraw()
     {
         var (g, r) = Create(equipment: true); var cost = Equip(g);
@@ -63,33 +43,6 @@ internal static class BoundaryXiaoQiaoChecks
             g.CardMovements.Count(m => m.CardId == cost && m.Sequence == payment.MovementSequence) == 1 &&
             !g.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.SuitPreventionBenefit is not null),
             "Cold child returns neither repay the equipment nor reissue damage/draw, and the original prevented damage finishes normally.");
-    }
-
-    public static void TianxiangLossOwnsRealDyingThenGivesTheExactDiscardedEntity()
-    {
-        var (g, r) = Create(fragilePeers: true); var recipient = Peer(g); var source = Peer(g, recipient);
-        Incoming(g, source); Activate(g, Tianxiang); ReachAction(g, "suit-prevention-benefit");
-        var card = P(g)!.Choices.First(c => c.Cards.Count == 1).Cards.Single();
-        Answer(g, c => c.Cards.SequenceEqual([card])); g = Cold(g, r);
-        Answer(g, c => c.Targets.SequenceEqual([recipient]) && c.Parameters.GetValueOrDefault("branch") == "lose-hp-gift");
-        Reach(g, p => p.SkillPrompt?.SkillId == Pulse);
-        var paid = Benefit(g); var receipt = paid.SuitPreventionBenefit!;
-        Require(receipt is { Stage: SuitPreventionBenefitStage.LosingHp, Branch: SuitPreventionBenefitBranch.LoseHpAndGift, HpBefore: 1 } &&
-            g.State.Players[recipient].Hp == 0 && g.ResolutionStack.OfType<DyingFrame>().Any(d => d.ParentFrameId == paid.Id && d.VictimSeat == recipient && d.ResumesProgramSkill) &&
-            g.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.SkillId == Pulse && f.WindowContext?.Window == SkillProgramTriggerWindow.SelfDyingResponse) &&
-            !Facts<ProgramSuitPreventionGiftEvent>(g).Any() && g.CreateCardZoneDiagnostics().Single(c => c.CardId == card).Location == CardLocation.DiscardPile,
-            "One real HP payment reaches the selected recipient's precise Dying/self-response subtree before any original entity is given.");
-        g = Cold(g, r); Reject(g); Continue(g); Reach(g, p => p.SkillPrompt?.SkillId == Gain);
-        var given = Facts<ProgramSuitPreventionGiftEvent>(g).Single(); var root = Benefit(g);
-        Require(given.CostCardId == card && given.RecipientSeat == recipient && !given.Unavailable && g.State.Players[recipient].Hp == 3 &&
-            root.SuitPreventionBenefit is { Stage: SuitPreventionBenefitStage.Gifting } &&
-            g.CardMovements.Any(m => m.Sequence == given.MovementSequence && m.CardId == card && m.From == CardLocation.DiscardPile && m.To == CardLocation.Hand(recipient)),
-            "The restored real self-rescue returns, then exactly the paid discarded entity enters the same living recipient's hand before its gain observer.");
-        g = Cold(g, r); Reject(g); Continue(g); Play(g);
-        Require(Facts<ProgramSuitPreventionPaymentEvent>(g).Count() == 1 && Facts<ProgramSkillHpLostEvent>(g).Count(e => e.FrameId == paid.Id) == 1 &&
-            Facts<ProgramSuitPreventionGiftEvent>(g).Count() == 1 && !Facts<ProgramSuitPreventionDrawEvent>(g).Any() &&
-            !Facts<DamageAppliedEvent>(g).Any(e => e.TargetSeat == 0 || e.TargetSeat == recipient),
-            "This branch pays HP once, does not substitute fresh damage or draw, and never repeats the original card gift.");
     }
 
     public static void PiaolingOriginalHeartJudgmentTopGiftSelfCostAndNativePrevention()

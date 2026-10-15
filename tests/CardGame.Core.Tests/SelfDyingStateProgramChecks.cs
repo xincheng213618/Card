@@ -168,20 +168,6 @@ internal static class SelfDyingStateProgramChecks
         throw new InvalidOperationException("The fixture did not reach human play within its bounded schedule.");
     }
 
-    private static void Reject(string rules, string expected)
-    {
-        try
-        {
-            _ = SkillProgramCatalog.Load(rules, Presentation);
-        }
-        catch (InvalidOperationException exception) when (
-            exception.Message.Contains(expected, StringComparison.OrdinalIgnoreCase))
-        {
-            return;
-        }
-        throw new InvalidOperationException($"Expected invalid schema 22 fixture containing '{expected}'.");
-    }
-
     private static void Require(bool condition, string message)
     {
         if (!condition) throw new InvalidOperationException(message);

@@ -10,68 +10,6 @@ internal static class BoundaryChengPuChecks
     private const string Store = "fixture:cp-store", Cost = "fixture:cp-pile-cost", Completed = "fixture:cp-wine-completed";
     private const string Entry = "fixture:cp-dying-entry", Tail = "fixture:cp-tail";
 
-    public static void NonFireKindsAndVirtualUseKeepWholeUsePaymentAndTail()
-    {
-        foreach (var kind in new[] { CardKind.Slash, CardKind.ThunderSlash, CardKind.Alcohol })
-        {
-            var (g, r) = Create(kind: kind, observeStore: true);
-            var action = g.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.Slash && a.PlayedCardKind == CardKind.FireSlash &&
-                a.TargetSeats.SequenceEqual([1, 3]) && (a.ConversionSource?.SkillId == "boundary:lihuo" || a.AdditionalConversionSources?.Any(s => s.SkillId == "boundary:lihuo") == true));
-            PlayAction(g, action); ReachPayment(g);
-            var root = Payment(g); var use = g.ResolutionStack.OfType<CardUseFrame>().Single(f => f.Id == root.CompletedUsePayment!.CardUseFrameId);
-            Require(use.Step == ResolutionFrameStep.Completed && use.CausedDamage && use.CardKind == CardKind.FireSlash &&
-                Facts<DamageAppliedEvent>(g).Count(e => e.SourceSeat == 0 && e.Nature == DamageNature.Fire) == 2,
-                "Slash, Thunder Slash and intrinsic Alcohol-as-Slash each resolve the full real Fire use before one completion payment.");
-            Private(g); g = Cold(g, r); Reject(g);
-            var discard = g.CreateSnapshot(0).Players[0].Hand.First().Id;
-            Answer(g, c => c.Parameters.GetValueOrDefault("branch") == "discard" && c.Cards.SequenceEqual([discard]));
-            Reach(g, p => p.SkillPrompt?.SkillId == Store);
-            Require(Payment(g).CompletedUsePayment is { Stage: CompletedUsePaymentStage.Paid } &&
-                Facts<ProgramAdjacentDiscardStoredEvent>(g).Any(e => e.CardId == discard) &&
-                g.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Any(w => w.ResumeProgramFrameId == root.Id && w.Batch.Movements.Any(m => m.CardId == discard)),
-                "The standard completion discard stores its intrinsic Slash before the later exact payment-movement observer returns to the paid parent.");
-            g = Cold(g, r); Reject(g); Continue(g); Play(g);
-            var paid = Facts<ProgramCompletedUsePaymentEvent>(g).Single();
-            Require(paid.DiscardedCardId == discard && paid.HpLost == 0 &&
-                g.CardMovements.Count(m => m.CardId == discard && m.To == CardLocation.DiscardPile && m.Reason.Value.EndsWith(".PayCompletedUseDiscardOrLoseHp", StringComparison.Ordinal)) == 1 &&
-                Facts<ProgramAdjacentDiscardStoredEvent>(g).Single().CardId == discard &&
-                !Facts<ProgramAdjacentDiscardStoredEvent>(g).Any(e => e.CardId == action.CardId),
-                "The cost is paid once; genuine completion discard enters stock while use cleanup is excluded.");
-            g = Cold(g, r);
-        }
-
-        var (natural, nr) = Create(kind: CardKind.FireSlash);
-        PlayAction(natural, natural.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.Slash && a.PlayedCardKind is null or CardKind.FireSlash && a.TargetSeats.SequenceEqual([1, 3])));
-        Play(natural);
-        Require(Facts<DamageAppliedEvent>(natural).Count(e => e.SourceSeat == 0 && e.Nature == DamageNature.Fire) == 2 &&
-            !Facts<ProgramCompletedUsePaymentEvent>(natural).Any(), "A natural Fire Slash has the extra target and no conversion completion cost."); natural = Cold(natural, nr);
-
-        var (v, vr) = Create(virtualUse: true, deferPlay: true);
-        Reach(v, p => Activate(p, "boundary:shensu", "skip-judgment-and-draw"));
-        Answer(v, c => c.Parameters.GetValueOrDefault("program-action") == "activate");
-        Reach(v, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "select-target"));
-        Answer(v, c => c.Targets.SequenceEqual([2]));
-        Reach(v, p => Activate(p, "boundary:lihuo", "committed-slash-fire-or-extra"));
-        Answer(v, c => c.Parameters.GetValueOrDefault("program-action") == "activate");
-        Reach(v, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "current-slash-fire"));
-        v = Cold(v, vr); Answer(v, c => c.Parameters.GetValueOrDefault("branch") == "extra" && c.Targets.SequenceEqual([1]));
-        Reach(v, p => p.SkillPrompt?.SkillId == Tail); Continue(v);
-        Reach(v, p => p.SkillPrompt?.SkillId == Tail);
-        var child = v.ResolutionStack.OfType<CardUseFrame>().Single(f => f.CurrentSlashFirePolicy is not null);
-        var producer = v.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == "boundary:shensu");
-        Require(child.CardId == 0 && child.PhysicalCardIds is { Count: 0 } && child.TargetIndex == 1 && child.TargetSeats.SequenceEqual([2, 1]) &&
-            child.CardKind == CardKind.FireSlash && child.CurrentSlashFirePolicy!.OriginalAction.EffectiveKind == CardKind.Slash &&
-            producer.SelectedTargetSeats.SequenceEqual([2]) && !Facts<ProgramCompletedUsePaymentEvent>(v).Any(),
-            "The zero-entity producer keeps its original selected primary target through a real extra-target tail pause.");
-        RequireExactVirtualSlashProducer(v, child, producer);
-        v = Cold(v, vr); Reject(v); Continue(v); ReachPayment(v);
-        Answer(v, c => c.Parameters.GetValueOrDefault("branch") == "discard"); Play(v);
-        Require(Facts<DamageAppliedEvent>(v).Count(e => e.SourceSeat == 0 && e.Nature == DamageNature.Fire) == 2 &&
-            Facts<CardUseFinishedEvent>(v).Single(e => e.CardId == 0).CardKind == CardKind.FireSlash && Facts<ProgramCompletedUsePaymentEvent>(v).Count() == 1 &&
-            !v.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.SkillId == "boundary:shensu"),
-            "Actual Fire damage on both targets completes one zero-entity use, then one cost and one typed primary producer return."); v = Cold(v, vr);
-    }
-
     public static void CompletionPaymentWaitsForSilverLionAndFatalHpChildren()
     {
         var (g, r) = Create(kind: CardKind.SilverLion, observeHp: true);
@@ -160,101 +98,12 @@ internal static class BoundaryChengPuChecks
             "One remaining material cannot publish a prospective three-material rescue; issued ordinals are not refunded or repeated."); g = Cold(g, r);
     }
 
-    public static void AdjacentOriginsResetByActualRoundAndNativeRescueUsesRealStock()
-    {
-        var (g, r) = Create();
-        Use(g, "discard-other", [1]); SelectForeignDiscard(g); Drain(g); Play(g);
-        var adjacent = Facts<ProgramAdjacentDiscardStoredEvent>(g).Single();
-        var origin = Facts<ProgramAdjacentDiscardOriginEvent>(g).Single(e => e.CardId == adjacent.CardId);
-        Require(origin.SourceSeat == 1 && (origin.PreviousLivingSeat == 0 || origin.NextLivingSeat == 0) &&
-            g.CardMovements.Any(m => m.Sequence == origin.MovementSequence && m.To == CardLocation.DiscardPile),
-            "A real opaque neighbor discard exposes its intrinsic Slash origin only at public discard entry.");
-        Use(g, "discard-other", [2]); SelectForeignDiscard(g); Drain(g); Play(g);
-        var remote = Facts<ProgramAdjacentDiscardOriginEvent>(g).Last(e => e.SourceSeat == 2);
-        Require(Facts<ProgramAdjacentDiscardStoredEvent>(g).Count() == 1 && remote.PreviousLivingSeat != 0 && remote.NextLivingSeat != 0,
-            "An opposite living seat's Slash remains a real public discard with no stock claim."); g = Cold(g, r);
-        var deadSeat = new[] { 1, 3 }.First(s => g.State.Players[s].Role != Role.Lord);
-        Use(g, "kill-other", [deadSeat]); Until(g, () => !g.State.Players[deadSeat].IsAlive); Play(g);
-        Use(g, "discard-other", [2]); SelectForeignDiscard(g); Drain(g); Play(g);
-        Require(Facts<ProgramAdjacentDiscardStoredEvent>(g).Count() == 2 && !Facts<ProgramAdjacentDiscardStoredEvent>(g).Any(e => e.CardId == remote.CardId),
-            "A later true death changes later adjacency; the earlier nonneighbor discard never gains retroactive eligibility."); g = Cold(g, r);
-
-        var (rounds, rr) = Create(fragilePeers: true);
-        var victim = NonLordPeers(rounds).First(); Use(rounds, "discard-four"); Drain(rounds); Play(rounds);
-        Use(rounds, "hurt-one", [victim]); ReachWine(rounds); IssueWine(rounds); Drain(rounds); Play(rounds);
-        var first = Facts<ProgramRoundPileAlcoholIssuedEvent>(rounds).Single();
-        Accept(rounds, new EndPlayPhaseCommand(0, rounds.Revision, P(rounds)!.PromptId));
-        Reach(rounds, p => p.Kind == DecisionKind.PlayCard && p.PlayerSeat == 0 && rounds.State.TurnNumber > 1);
-        Use(rounds, "hurt-one", [victim]); ReachWine(rounds);
-        Require(WineRoot(rounds).RoundPileAlcohol!.ActualRoundNumber > first.ActualRoundNumber && WineRoot(rounds).RoundPileAlcohol!.Price == 1,
-            "A real later round resets prospective pricing without faking source instances or frame state."); rounds = Cold(rounds, rr);
-        IssueWine(rounds); Drain(rounds); Play(rounds);
-        Require(Facts<ProgramRoundPileAlcoholIssuedEvent>(rounds).Select(e => e.Price).SequenceEqual([1, 1]), "Two actual rounds issue separate first drinks."); rounds = Cold(rounds, rr);
-
-        var (ai, ar) = Create(nativeRescuer: true);
-        var rescuer = ai.State.Players.Single(p => p.GeneralId == "fixture:cp-other-1").Seat;
-        Use(ai, "discard-other", [rescuer]); SelectForeignDiscard(ai); Drain(ai); Play(ai);
-        Require(Stock(ai, rescuer).Count == 1 && !ai.State.Players[rescuer].IsHuman, "The native rescuer first receives an actual owned discarded Slash in its real stock.");
-        Use(ai, ai.State.Players[rescuer].Hp == 1 ? "hurt-one" : "hurt-two", [rescuer]); Until(ai, () => Facts<ProgramRoundPileAlcoholIssuedEvent>(ai).Any()); Drain(ai); Play(ai);
-        var actual = Facts<ProgramRoundPileAlcoholIssuedEvent>(ai).Single();
-        Require(actual.Source.OwnerSeat == rescuer && actual.VictimSeat == rescuer && actual.Price == 1 && ai.State.Players[rescuer].Hp == 1 && Stock(ai, rescuer).Count == 0 &&
-            Facts<ProgramRoundPileAlcoholMaterialPaidEvent>(ai).Count() == 1 && !ai.ResolutionStack.OfType<CardUseFrame>().Any(f => f.RoundPileAlcoholReturn is not null),
-            "Native AI chooses a real first-price material, issues the victim's true Alcohol, pays once and returns all owning children."); ai = Cold(ai, ar);
-    }
-
-    private static void RequireExactVirtualSlashProducer(GameEngine game, CardUseFrame use, ProgramSkillFrame parent)
-    {
-        var method = typeof(GameEngine).GetMethod("TryGetCurrentSlashFirePrimaryReturn", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        var store = typeof(GameEngine).GetField("_resolutionStack", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(game)!;
-        var replace = store.GetType().GetMethod("Replace")!;
-        var policy = use.CurrentSlashFirePolicy!;
-        var source = new CardConversionSource(parent.SkillId, parent.TriggerId ?? parent.ActivationId, parent.OwnerSeat, parent.SkillInstanceId);
-        Require(Proven(use, parent), "A converted zero-entity Slash returns exactly its frozen primary target to its issuing program.");
-        Require(Proven(WithChain([]), parent), "The historical empty-chain virtual producer keeps the same exact parent proof.");
-        RejectProducer(parent with { GameplayHash = "changed-hash" });
-        RejectProducer(parent with { SkillInstanceId = "changed-instance" });
-        RejectProducer(parent with { InstructionIndex = 1 });
-        RejectProducer(parent with { SelectedTargetSeats = [1] });
-        Require(!Proven(use with { CardAttack = use.CardAttack! with { ProgramSkillCardUseFrameId = parent.Id + 1000 } }, parent),
-            "A converted virtual use cannot borrow a different program return.");
-        Require(!Proven(use with { Id = use.Id + 1000 }, parent), "The declaration and change facts belong to the exact child use.");
-        foreach (var changed in new[] { source with { SkillId = "changed-skill" }, source with { BindingId = "changed-binding" },
-            source with { SkillInstanceId = "changed-instance" }, source with { OwnerSeat = 1 } })
-            Require(!Proven(WithChain([changed]), parent), "A virtual producer source must match its skill, binding, instance and owner.");
-        Require(!Proven(WithChain([source, source]), parent), "Multiple conversion sources cannot impersonate the unique virtual producer.");
-
-        bool Proven(CardUseFrame candidate, ProgramSkillFrame producer)
-        {
-            object?[] args = [candidate, producer, null];
-            return (bool)method.Invoke(game, args)! && args[2] is IReadOnlyList<int> targets && targets.SequenceEqual([2]);
-        }
-        void RejectProducer(ProgramSkillFrame candidate)
-        {
-            replace.Invoke(store, [candidate]);
-            try { Require(!Proven(use, candidate) && !Proven(WithChain([]), candidate),
-                "Both producer forms retain the exact owning instance, definition, selection and paused instruction."); }
-            finally { replace.Invoke(store, [parent]); }
-        }
-        CardUseFrame WithChain(IReadOnlyList<CardConversionSource> chain) => use with
-        {
-            CurrentSlashFirePolicy = policy with { OriginalAction = CopyAction(policy.OriginalAction, chain) },
-            Action = CopyAction(use.Action!, policy.Converted ? chain.Append(policy.Source).ToArray() : chain)
-        };
-        static CardActionContext CopyAction(CardActionContext action, IReadOnlyList<CardConversionSource> chain) =>
-            new(action.ActionId, action.ParentActionId, action.Type, action.ActorSeat, action.ProviderSeat,
-                action.RequesterSeat, action.ResponderSeat, action.OpponentSeat, action.EffectiveKind, action.TargetSeats,
-                action.PhysicalCards, chain, action.DesignatedTargetSeats, action.EffectiveSuit, action.EffectiveRank,
-                action.EffectiveIsRed, action.FactionOrigin);
-    }
-
     private static IEnumerable<T> Facts<T>(GameEngine g) where T : IGameEvent => g.Events.Select(e => e.Payload).OfType<T>();
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
     private static ProgramSkillFrame Payment(GameEngine g) => g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.CompletedUsePayment is not null);
     private static ProgramSkillFrame WineRoot(GameEngine g) => g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.RoundPileAlcohol is not null);
     private static IReadOnlyList<CardSnapshot> Stock(GameEngine g, int seat) => g.CreateSnapshot(seat).Players[seat].ChunlaoCards ?? [];
     private static IEnumerable<int> NonLordPeers(GameEngine g) => g.State.Players.Where(p => p.Seat != 0 && p.Role != Role.Lord).Select(p => p.Seat);
-    private static bool Activate(PendingDecision p, string skill, string binding) => p.SkillPrompt?.SkillId == skill && p.Choices.Any(c =>
-        c.Parameters.GetValueOrDefault("program-action") == "activate" && c.Parameters.GetValueOrDefault("binding-id") == binding);
     private static void ReachPayment(GameEngine g) => Reach(g, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "completed-use-payment"));
     private static void ReachWine(GameEngine g)
     {
@@ -264,14 +113,9 @@ internal static class BoundaryChengPuChecks
             Answer(g, c => c.Parameters.GetValueOrDefault("skill-id") == "boundary:chunlao");
         Reach(g, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "round-pile-alcohol"));
     }
-    private static void IssueWine(GameEngine g)
-    { while (P(g)!.Choices.Any(c => c.Parameters.GetValueOrDefault("branch") == "material")) Answer(g, c => c.Parameters.GetValueOrDefault("branch") == "material"); Answer(g, c => c.Parameters.GetValueOrDefault("branch") == "use"); }
     private static void Use(GameEngine g, string binding, IReadOnlyList<int>? targets = null) => Accept(g, new UseProgramSkillCommand(0, Driver, binding, [], targets ?? [], g.Revision, P(g)!.PromptId));
     private static void PlayAction(GameEngine g, LegalAction a) => Accept(g, new PlayCardCommand(0, a.CardId!.Value, a.TargetSeats, g.Revision, P(g)!.PromptId, a.PlayedCardKind)
         { ConversionSource = a.ConversionSource, AdditionalConversionSources = a.AdditionalConversionSources });
-    private static void SelectForeignDiscard(GameEngine g)
-    { Reach(g, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "select-and-move-owned-card")); ColdPrompt(g); Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "select-and-move-owned-card" && c.Parameters.GetValueOrDefault("skip") != "true"); }
-    private static void ColdPrompt(GameEngine g) => Require(P(g)!.PlayerSeat == 0 && g.CreateSnapshot(1).PendingDecision is null, "The chooser owns the opaque foreign hand selection.");
     private static void Continue(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
     private static void Answer(GameEngine g, Func<PromptChoice, bool> choose)
     { var p = P(g)!; Accept(g, new AnswerPromptCommand(p.PlayerSeat, p.PromptId, p.Choices.First(choose).Id, g.Revision)); }

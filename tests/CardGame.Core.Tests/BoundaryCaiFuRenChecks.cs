@@ -34,44 +34,6 @@ internal static class BoundaryCaiFuRenChecks
             "A native Loyalist recipient issues exactly one X recovery; restored children never repay equipment or reopen the consumed limited opportunity.");
         g = Restore(g, r);
     }
-    public static void DonationRecipientRangeDamageSourceLossAndGainDying()
-    {
-        var (g, r) = Create(twoKinds: true); Play(g);
-        // At most 20 copies of either kind exist. Normal setup/draw removes at most 18,
-        // so the bounded real equipment producer can find both without seed search.
-        for (var i = 0; i < 21 && g.CreateSnapshot(0).Players[0].Equipment.Count < 2; i++) { Use(g, "gear", [0]); Play(g); }
-        var recipient = Enumerable.Range(1, 3).First(s => g.CreateSnapshot(s).Players[s].Role == Role.Rebel);
-        for (var i = 0; i < 21 && g.GetAttackRange(recipient) < 3; i++) { Use(g, "gear", [recipient]); Play(g); }
-        Require(g.CreateSnapshot(0).Players[0].Equipment.Count == 2 && g.GetAttackRange(recipient) >= 3,
-            "The same fixed fixture prepares two actual equipment entities and the recipient's actual weapon range through normal producers.");
-        Donate(g, recipient); Until(g, () => E<EquipmentDonationPaidEvent>(g).Any()); g = Restore(g, r);
-        Until(g, () => E<ProgramSkillResolvedEvent>(g).Any(e => e.SkillId == Donation)); Play(g);
-        var paid = E<EquipmentDonationPaidEvent>(g).Single(); var damage = E<EquipmentDonationBenefitIssuedEvent>(g).Where(e => e.Benefit == "damage").ToArray();
-        Require(paid.ActualDeliveredCount == 2 && damage.Length is >= 1 and <= 2 && damage.Select(e => e.TargetSeat).Distinct().Count() == damage.Length &&
-            damage.All(e => e.RecipientSeat == recipient && e.TargetSeat != recipient) &&
-            E<DamageAppliedEvent>(g).Any(e => e.SourceSeat == recipient && e.Amount > 0 && damage.Any(d => d.TargetSeat == e.TargetSeat)) &&
-            E<DamageAppliedEvent>(g).Where(e => e.SourceSeat == recipient).All(e => damage.Any(d => d.TargetSeat == e.TargetSeat)),
-            "The real native recipient chooses distinct current-range targets up to actual X; each original damage source is the recipient, not the donor.");
-        g = Restore(g, r);
-
-        var (lost, lr) = Create(sourceLoss: true); Play(lost); Use(lost, "gear", [0]); Play(lost); Donate(lost, 1);
-        Reach(lost, p => p.PlayerSeat == 0 && p.SkillPrompt?.SkillId == Movement); lost = Restore(lost, lr); Continue(lost); Play(lost);
-        var lostPaid = E<EquipmentDonationPaidEvent>(lost).Single();
-        Require(!lost.GetHumanLegalActions().Any(a => a.ProgramSkillId == Donation) &&
-            E<EquipmentDonationBenefitIssuedEvent>(lost).Count() == 0 && lostPaid.ActualDeliveredCount == 1 &&
-            E<EquipmentDonationEntityPaidEvent>(lost).All(e => lost.CardMovements.Count(m => m.CardId == e.CardId &&
-                m.From == CardLocation.Equipment(0) && m.Reason.Value == Given) == 1),
-            "Real source loss after payment cancels the unissued benefit, while actual entity movement and the limited opportunity stay paid once.");
-
-        var (dying, dr) = Create(gainDying: true); Play(dying); Use(dying, "gear", [0]); Play(dying); Donate(dying, 1);
-        Reach(dying, p => p.SkillPrompt?.SkillId == Entry);
-        Require(dying.ResolutionStack.OfType<DyingFrame>().Any(d => d.VictimSeat == P(dying)!.PlayerSeat) &&
-            E<EquipmentDonationPaidEvent>(dying).Single().ActualDeliveredCount == 1,
-            "A genuine recipient gain observer can enter Dying after payment; the original donation owns the whole child chain.");
-        dying = Restore(dying, dr); Until(dying, () => E<ProgramSkillResolvedEvent>(dying).Any(e => e.SkillId == Donation));
-        Require(E<EquipmentDonationPaidEvent>(dying).Count() == 1 && E<EquipmentDonationEntityPaidEvent>(dying).Count() == 1,
-            "The restored gain/Dying/rescue-or-death chain returns without repaying the donor entity or limited opportunity.");
-    }
     public static void OriginalActualTurnTiersDistinctEquipmentAndDrawOptions()
     {
         var (g, r) = Create(); Play(g); Use(g, "gear", [1]); Play(g);

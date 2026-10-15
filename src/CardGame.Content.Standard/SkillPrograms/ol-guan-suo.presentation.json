@@ -1,0 +1,4 @@
+{"schemaVersion":3,"skills":{
+ "ol:zhengnan":{"name":"征南","description":"当其他角色死亡后，你可以摸三张牌，然后获得“武圣”“当先”“制蛮”中的一个。"},
+ "ol:xiefang":{"name":"撷芳","description":"锁定技，你计算与其他角色的距离-X（X为全场女性角色数）。"}
+}}

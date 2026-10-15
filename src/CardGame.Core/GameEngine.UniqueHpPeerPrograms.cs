@@ -86,6 +86,7 @@ public sealed partial class GameEngine
         _status = _players[r.ChooserSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
         AdvanceRulesAndPublishState();
     }
+    [ProgramAnswer("unique-hp-peer")]
     private void ResolveUniqueHpPeerChoice(PromptChoice choice)
     {
         var f = (ProgramSkillFrame)_resolutionStack.Last(); AssertRecipientContestPrograms(f); var r = f.UniqueHpPeer!;
@@ -167,6 +168,9 @@ public sealed partial class GameEngine
         }
         FinishProgramSkill(f, true); return true;
     }
+    [ProgramAiChoice(
+        SkillProgramEffectOp.DiscardDrawAndOfferUniqueHpPeer,
+        SkillProgramEffectOp.GiveAllHandAndStartRecipientPindian)]
     private PromptChoice SelectAiRecipientContest(PendingDecision decision, ProgramSkillFrame f)
     {
         if (f.UniqueHpPeer is { } r)

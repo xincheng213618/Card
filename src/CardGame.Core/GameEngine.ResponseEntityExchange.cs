@@ -131,6 +131,7 @@ public sealed partial class GameEngine
         _pendingDecision=new(DecisionKind.ProgramTrigger,draft.TargetSeat,$"{skill.Name}：选择弃置 {draft.Required} 张手牌或装备牌。",cards.Select(c=>c.Id).ToArray(),[],draft.TargetSeat){PromptId=CreatePromptId(),IsPrivate=true,Choices=choices,SkillPrompt=new(frame.SkillId,skill.Name,skill.Name,skill.Description)};
         _status=_players[draft.TargetSeat].IsHuman?EngineStatus.AwaitingHumanResponse:EngineStatus.Running;
     }
+    [ProgramAnswer("public-suit-discard")]
     private void ResolvePublicSuitDiscard(PromptChoice choice)
     {
         var frame=(ProgramSkillFrame)_resolutionStack[^1];var draft=frame.PublicSuitDiscard!;var id=choice.Cards.Single();

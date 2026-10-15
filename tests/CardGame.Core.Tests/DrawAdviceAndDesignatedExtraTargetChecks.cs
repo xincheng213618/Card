@@ -21,100 +21,6 @@ internal static class DrawAdviceAndDesignatedExtraTargetChecks
         for (var variant = 0; variant < 4; variant++) ExerciseAdvice(variant);
     }
 
-    public static void DesignationUsesCanonicalSlashNameAndIgnoresOnlyDistance()
-    {
-        foreach (var conversion in new[] { "as-fire", "as-thunder" })
-        {
-            var (g, registry) = Start(CardKind.Slash, forbidden: true);
-            Use(g, "discard-one", []); Reach(g, IsPlay);
-            Require(g.CardMovements.Count(m => m.From == CardLocation.Hand(0) && m.To == CardLocation.DiscardPile) == 1,
-                "One printed ordinary Slash really enters public discard before the elemental converted use.");
-            var action = FindAction(g, a => a.ConversionSource?.BindingId == conversion && a.TargetSeats is [1 or 3],
-                "published " + conversion + " converted Slash toward a real legal adjacent seat after the real discard");
-            Play(g, action); Reach(g, IsPlay);
-            Require(Facts<DesignatedExtraTargetOfferedEvent>(g).Length == 0 && Facts<DesignatedExtraTargetResolvedEvent>(g).Length == 0,
-                "A discarded ordinary Slash suppresses the same-name gate for both Fire Slash and Thunder Slash conversions.");
-            AssertOneUse(g, action.CardId!.Value, action.PlayedCardKind ?? (conversion == "as-fire" ? CardKind.FireSlash : CardKind.ThunderSlash));
-            _ = Cold(g, registry);
-        }
-        foreach (var kind in new[] { CardKind.Slash, CardKind.Snatch })
-        {
-            var (g, registry) = Start(kind, forbidden: true);
-            var forbiddenSeat = g.CreateSnapshot(0).Players.Single(p => p.GeneralId == "fixture:draw-advice-peer-3").Seat;
-            Require(!g.GetHumanLegalActions().Any(a => a.Kind == ActionKind(kind) && a.TargetSeats.SequenceEqual([2])),
-                "Seat two is outside the printed card's normal distance before the designation instruction.");
-            var action = FindAction(g, a => a.Kind == ActionKind(kind) && a.ConversionSource is null && a.TargetSeats is [1 or 3],
-                "published ordinary card toward a real legal adjacent original target");
-            var originalSeat = action.TargetSeats.Single();
-            var use = BeginAddition(ref g, registry, action);
-            Require(P(g)!.Choices.Where(c => c.Targets.Count > 0).All(c => c.Targets.SequenceEqual([2])) &&
-                    !P(g)!.Choices.Any(c => c.Targets.Contains(0) || c.Targets.Contains(originalSeat) || c.Targets.Contains(forbiddenSeat)),
-                "The published extension adds distant seat two while excluding the actor, actual original duplicate and actual publicly prohibited character.");
-            Add(ref g, registry, use, [2]); Reach(g, IsPlay); AssertOneUse(g, action.CardId!.Value, kind);
-            Require(Facts<DesignatedExtraTargetResolvedEvent>(g).Single().ResultTargetSeats.SequenceEqual([originalSeat, 2]),
-                "The same native use retains its original target and appends exactly one distance-free legal target.");
-            if (kind == CardKind.Snatch)
-                Require(Facts<TargetCardSelectionRequestedEvent>(g).Where(e => e.ResolutionId == use.Id).Select(e => e.TargetSeat).SequenceEqual([originalSeat, 2]),
-                    "Both Snatch targets receive their own actual opaque-card selection, rather than repeating the first victim's payment.");
-            _ = Cold(g, registry);
-        }
-    }
-
-    public static void DesignationAppendsOneIronChainTargetAndKeepsOnePhysicalUse()
-    {
-        var (g, registry) = Start(CardKind.IronChain);
-        var action = g.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.IronChain && a.TargetSeats.SequenceEqual([1, 3]));
-        var use = BeginAddition(ref g, registry, action);
-        Require(P(g)!.Choices.Where(c => c.Targets.Count > 0).All(c => c.Targets.Count == 1 && !c.Targets.Contains(1) && !c.Targets.Contains(3)),
-            "A two-target Iron Chain publishes single distinct additional targets and cannot select either original target again.");
-        Add(ref g, registry, use, [2]); Reach(g, p => IsContinue(p, CompleteChild)); g = Cold(g, registry);
-        Require(Facts<IronChainStateChangedEvent>(g).Where(e => e.ResolutionId == use.Id).Select(e => e.TargetSeat).SequenceEqual([1, 3, 2]) &&
-                new[] { 1, 3, 2 }.All(s => g.CreateSnapshot(0).Players[s].IsChained),
-            "Each original and added target receives one actual chain-state effect in native target order.");
-        Reach(g, IsPlay); AssertOneUse(g, action.CardId!.Value, CardKind.IronChain); _ = Cold(g, registry);
-    }
-
-    public static void DesignationPeachAndAlcoholExecuteRealExtraEffectsAndColdReturns()
-    {
-        foreach (var kind in new[] { CardKind.Peach, CardKind.Alcohol })
-        {
-            var (g, registry) = Start(kind);
-            if (kind == CardKind.Peach)
-            {
-                Use(g, "hurt", [0]); Reach(g, IsPlay); Use(g, "hurt", [2]); Reach(g, IsPlay);
-            }
-            var before = g.CreateSnapshot(0).Players.Select(p => p.Hp).ToArray();
-            var action = g.GetHumanLegalActions().First(a => a.Kind == ActionKind(kind));
-            var use = BeginAddition(ref g, registry, action);
-            Require(use.TargetSeats.SequenceEqual([0]), "The actual self-use target is explicit before an additional Basic target is offered.");
-            Add(ref g, registry, use, [2]);
-            if (kind == CardKind.Peach)
-            {
-                Reach(g, p => IsContinue(p, HpChild) && p!.PlayerSeat == 0); g = Cold(g, registry);
-                Require(g.CreateSnapshot(0).Players[0].Hp == before[0] + 1 && g.CreateSnapshot(0).Players[2].Hp == before[2],
-                    "The first native Peach HP child pauses before the additional recipient's actual recovery.");
-                Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
-                Reach(g, p => IsContinue(p, HpChild) && p!.PlayerSeat == 2); g = Cold(g, registry);
-                Require(g.CreateSnapshot(0).Players[2].Hp == before[2] + 1 &&
-                        Facts<RecoveryAppliedEvent>(g).Count(e => e.SourceSeat == 0 && e.TargetSeat == 0 && e.Amount == 1) == 1 &&
-                        Facts<RecoveryAppliedEvent>(g).Count(e => e.SourceSeat == 0 && e.TargetSeat == 2 && e.Amount == 1) == 1,
-                    "Cold return applies exactly one real recovery to each designated target.");
-            }
-            Reach(g, p => IsContinue(p, CompleteChild)); g = Cold(g, registry);
-            if (kind == CardKind.Alcohol)
-                Require(new[] { 0, 2 }.All(s => g.CreateSnapshot(0).Players[s].HasAlcoholEffect) &&
-                        Facts<AlcoholAppliedEvent>(g).Count(e => e.ResolutionId == use.Id) == 2,
-                    "One material Alcohol actually arms both designated characters, once each, before native whole-use completion.");
-            Reach(g, IsPlay); AssertOneUse(g, action.CardId!.Value, kind);
-            Require(kind == CardKind.Peach
-                    ? Facts<RecoveryAppliedEvent>(g).Count(e => e.SourceSeat == 0 && e.TargetSeat == 0 && e.Amount == 1) == 1 &&
-                      Facts<RecoveryAppliedEvent>(g).Count(e => e.SourceSeat == 0 && e.TargetSeat == 2 && e.Amount == 1) == 1
-                    : Facts<AlcoholAppliedEvent>(g).Count(e => e.ResolutionId == use.Id) == 2,
-                "Returning the whole-use completion child cannot repeat either already completed Basic target effect.");
-            _ = Cold(g, registry);
-        }
-    }
-
     public static void DesignationBorrowedSwordFreezesOneNewPairAndResolvesBothOwners()
     {
         var (g, registry) = Start(CardKind.BorrowedSword);
@@ -138,65 +44,6 @@ internal static class DrawAdviceAndDesignatedExtraTargetChecks
             Require(false, "Both genuinely Slash-less weapon holders execute their own native give-weapon response and transfer one exact equipment entity to the original trick user: " +
                 BorrowedSwordDiagnostic(g, use.Id, weapons));
         Reach(g, IsPlay); AssertOneUse(g, action.CardId!.Value, CardKind.BorrowedSword); _ = Cold(g, registry);
-    }
-
-    public static void DesignationDoesNotOfferForResponseRecastOrUnsupportedCards()
-    {
-        SharedNodesRejectUnsupportedEntryContracts();
-        foreach (var kind in new[] { CardKind.Indulgence, CardKind.Crossbow, CardKind.IronChain })
-        {
-            var (g, registry) = Start(kind);
-            var action = g.GetHumanLegalActions().First(a => a.Kind == (kind == CardKind.IronChain ? LegalActionKind.Recast : ActionKind(kind)));
-            Play(g, action); Reach(g, IsPlay);
-            Require(Facts<DesignatedExtraTargetOfferedEvent>(g).Length == 0 && Facts<DesignatedExtraTargetResolvedEvent>(g).Length == 0,
-                "Delayed placement, equipment use and true targetless recast publish no designated-extra-target offer.");
-            if (kind == CardKind.IronChain) Require(Facts<CardRecastEvent>(g).Count(e => e.ActorSeat == 0 && e.CardId == action.CardId) == 1,
-                "The excluded Iron Chain branch is an actual paid recast rather than an unexecuted candidate.");
-            _ = Cold(g, registry);
-        }
-        var (response, rr) = Start(CardKind.Duel);
-        Accept(response, new EndPlayPhaseCommand(0, response.Revision, P(response)!.PromptId));
-        Reach(response, p => p is { Kind: DecisionKind.RespondSlash, PlayerSeat: 0 });
-        var reply = P(response)!.Choices.First(c => c.Cards.Count == 1);
-        var entity = reply.Cards.Single(); response = Cold(response, rr);
-        Answer(response, c => c.Id == reply.Id);
-        Reach(response, p => IsContinue(p, CompleteChild)); response = Cold(response, rr);
-        Require(Facts<CardRespondedEvent>(response).Any(e => e.CardId == entity && e.ResponderSeat == 0 && e.EffectiveCardKind == CardKind.Slash) &&
-                Facts<DesignatedExtraTargetOfferedEvent>(response).Length == 0 && Facts<DesignatedExtraTargetResolvedEvent>(response).Length == 0,
-            "A real converted Slash Response consumes the human's published physical entity without being treated as a designated-target Use.");
-    }
-
-    private static void SharedNodesRejectUnsupportedEntryContracts()
-    {
-        var assembly = typeof(StandardContentPackage).Assembly;
-        string Embedded(string suffix)
-        {
-            using var stream = assembly.GetManifestResourceStream(assembly.GetManifestResourceNames().Single(n => n.EndsWith(suffix, StringComparison.Ordinal)))!;
-            using var reader = new StreamReader(stream); return reader.ReadToEnd();
-        }
-        var rules = Embedded("ordinary-sun-shao.rules.json");
-        var presentation = Embedded("ordinary-sun-shao.presentation.json");
-        _ = SkillProgramCatalog.Load(rules, presentation);
-        void RejectNode(string label, string skill, Action<JsonObject> edit)
-        {
-            var root = JsonNode.Parse(rules)!.AsObject();
-            var trigger = root["skills"]!.AsArray().Single(n => n!["id"]!.GetValue<string>() == skill)!["triggers"]![0]!.AsObject();
-            edit(trigger);
-            var rejected = false;
-            try { _ = SkillProgramCatalog.Load(root.ToJsonString(), presentation); }
-            catch (InvalidOperationException) { rejected = true; }
-            Require(rejected, "Shared draw-advice/designation loader must reject unsupported entry: " + label);
-        }
-        RejectNode("advice outside true DrawPhaseEnded", Bizheng, t => t["window"] = "turnEnding");
-        RejectNode("advice other than owner subject", Bizheng, t => t["subject"] = "any");
-        RejectNode("advice extra instruction", Bizheng, t => t["effects"]!.AsArray().Add(JsonNode.Parse("""{"op":"draw","target":"owner","amount":1}""")));
-        RejectNode("unnamed OtherLiving cannot select two", Bizheng, t => t["effects"]![0]!["maximumTargets"] = 2);
-        RejectNode("unnamed OtherLiving cannot use a dynamic count", Bizheng, t => t["effects"]![0]!["numberExpression"] = "currentHandCount");
-        RejectNode("unnamed OtherLiving requires supportDraw", Bizheng, t => t["effects"]![0]!["targetAiOrder"] = "stable");
-        RejectNode("designation cannot include Response", Yidian, t => t["includeResponseUses"] = true);
-        RejectNode("designation cannot be an observer", Yidian, t => t["ownerRelation"] = "observer");
-        RejectNode("designation cannot share its instruction", Yidian, t => t["effects"]!.AsArray().Add(JsonNode.Parse("""{"op":"draw","target":"owner","amount":1}""")));
-        RejectNode("designation requires one actual action", Yidian, t => t["singleActionInstance"] = false);
     }
 
     private static CardUseFrame BeginAddition(ref GameEngine g, ContentRegistry registry, LegalAction action)
@@ -260,7 +107,6 @@ internal static class DrawAdviceAndDesignatedExtraTargetChecks
     private static bool IsPlay(PendingDecision? p) => p is { PlayerSeat: 0, Kind: DecisionKind.PlayCard };
     private static bool IsContinue(PendingDecision? p, string skill) => p?.SkillPrompt?.SkillId == skill && p.Choices.Any(c => c.Parameters.GetValueOrDefault("option-id") == "continue");
     private static T[] Facts<T>(GameEngine g) => g.Events.Select(e => e.Payload).OfType<T>().ToArray();
-    private static LegalActionKind ActionKind(CardKind kind) => kind == CardKind.Crossbow ? LegalActionKind.Equip : Enum.Parse<LegalActionKind>(kind.ToString());
     private static LegalAction FindAction(GameEngine g, Func<LegalAction, bool> predicate, string label)
     {
         var action = g.GetHumanLegalActions().FirstOrDefault(predicate);

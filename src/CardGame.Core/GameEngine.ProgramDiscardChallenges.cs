@@ -29,6 +29,9 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("A discard challenge must retain its chooser's private prompt.");
     }
 
+    [ProgramAiChoice(
+        SkillProgramEffectOp.ChooseCategoryAlternativeDiscard,
+        SkillProgramEffectOp.EscalatingDiscardOrDamage)]
     private PromptChoice SelectAiProgramDiscardChallenge(PendingDecision decision, ProgramSkillFrame frame)
     {
         var draft = frame.DiscardChallenge!;
@@ -108,6 +111,7 @@ public sealed partial class GameEngine
         _status = _players[draft.ChooserSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
 
+    [ProgramAnswer("discard-challenge")]
     private void ResolveProgramDiscardChallengeChoice(PromptChoice choice)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("Missing discard challenge frame.");

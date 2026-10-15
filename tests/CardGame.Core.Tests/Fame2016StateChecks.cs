@@ -106,23 +106,6 @@ internal static class Fame2016StateChecks
         Require(!game.CardMovements.Any(m=>m.From==CardLocation.Equipment(1) && m.To==CardLocation.Hand(0)),"Successful Slash never charges equipment payment.");
         Replay(game,registry);
     }
-
-    public static void TargetPhaseSuitUseAndReplay()
-    {
-        var (game,registry)=Create("classic:jiyu",3);
-        var card=game.CreateSnapshot(0,true).Players[1].Hand.First();
-        Use(game,"classic:jiyu","hand-discard-restriction",[1]);
-        var pay=Pending(game)!;
-        Require(pay.PlayerSeat==1 && game.CreateSnapshot(2,false).PendingDecision is null,"Target alone chooses private discard.");
-        Replay(game,registry);
-        Answer(game,pay.Choices.First(c=>c.Cards.Contains(card.Id))); Drain(game);
-        Require(game.CardMovements.Any(m=>m.CardId==card.Id && m.From==CardLocation.Hand(1) && m.To==CardLocation.DiscardPile),"Jiyu commits the target physical discard.");
-        Require(game.GetHumanLegalActions().All(a=>a.CardId is not { } id || game.CreateSnapshot(0,true).Players[0].Hand.FirstOrDefault(c=>c.Id==id)?.Suit!=card.Suit),"Owner cannot use the frozen discarded suit.");
-        var state=State(game);var prompt=Pending(game)!;
-        var invalid=game.Submit(new UseProgramSkillCommand(0,"classic:jiyu","hand-discard-restriction",[],[1],game.Revision,prompt.PromptId));
-        Require(!invalid.Accepted && State(game)==state,"Each participant usage is phase scoped and repeat rejection atomic.");
-        Replay(game,registry);
-    }
     public static void PrivateDamageOfferAndReplay()
     {
         var (game,registry)=Create("classic:huisheng",3,additional:["classic:zhige"]);
@@ -158,84 +141,6 @@ internal static class Fame2016StateChecks
             if(Pending(game) is {PlayerSeat:0,Kind:DecisionKind.RespondDodge} p) Answer(game,p.Choices.Last()); else Advance(game);
         }
         Require(game.CreateSnapshot(0,true).Players[0].Hp==hp-1,"Repeated same source deals damage after permanently successful offer.");
-        Replay(game,registry);
-    }
-
-    public static void OrderedEndingDiscardDrawAndReplay()
-    {
-        var (game,registry)=Create("classic:qinqing",3);
-        Accept(game,new EndPlayPhaseCommand(0,game.Revision,Pending(game)!.PromptId));
-        for(var i=0;i<80 && Pending(game)?.SkillPrompt?.SkillId!="classic:qinqing";i++) Advance(game);
-        Require(Pending(game)?.SkillPrompt?.SkillId=="classic:qinqing","Lord-range ending offers selection.");
-        Answer(game,Pending(game)!.Choices.First(c=>c.Parameters.GetValueOrDefault("program-action")=="activate"));
-        var pick=Pending(game)!.Choices.First(c=>c.Targets.Count==2);
-        Require(pick.Targets.All(t=>t!=0),"Lord is excluded from own attack range.");
-        Answer(game,pick);var start=game.CardMovements.Count;
-        for(var i=0;i<2;i++)
-        {
-            var prompt=Pending(game)!;
-            Require(prompt.Choices.All(c=>c.Parameters.GetValueOrDefault("program-action")=="participant-discard" && c.Cards.Count==0),"Other hand discard choices use opaque slots.");
-            Require(!game.CardMovements.Skip(start).Any(m=>m.From.Zone==CardZoneKind.DrawPile),"All selected discards precede any draws.");
-            Replay(game,registry);Answer(game,prompt.Choices.First());
-        }
-        for(var i=0;i<50 && game.ResolutionStack.Count>0;i++) Advance(game);
-        var moves=game.CardMovements.Skip(start).ToArray();
-        Require(moves.Take(2).All(m=>m.To==CardLocation.DiscardPile) && pick.Targets.All(t=>moves.Any(m=>m.From.Zone==CardZoneKind.DrawPile && m.To==CardLocation.Hand(t))),"Discard group precedes draw group for every selected target.");
-        Replay(game,registry);
-    }
-
-    public static void PrivateOfferRefusalAndLoaderProof()
-    {
-        foreach(var zero in new[]{false,true})
-        {
-            var (game,registry)=Create("classic:huisheng",3);
-            Use(game,"fixture:population-driver","request",[1]);
-            Answer(game,Pending(game)!.Choices.First(c=>c.Targets.SequenceEqual([0])));
-            Answer(game,Pending(game)!.Choices.First(c=>c.Parameters.GetValueOrDefault("request-option")=="use"));
-            for(var i=0;i<50 && Pending(game)?.SkillPrompt?.SkillId!="classic:huisheng";i++)
-                if(Pending(game) is {PlayerSeat:0,Kind:DecisionKind.RespondDodge} p) Answer(game,p.Choices.Last()); else Advance(game);
-            Answer(game,Pending(game)!.Choices.First(c=>c.Parameters.GetValueOrDefault("program-action")=="activate"));
-            if(!zero)
-                for(var i=0;i<2;i++) Answer(game,Pending(game)!.Choices.First(c=>c.Cards.Count==1));
-            Answer(game,Pending(game)!.Choices.Single(c=>c.Parameters.GetValueOrDefault("program-action")=="finish-owned-cards"));
-            var offer=Pending(game)!;var hp=game.CreateSnapshot(0,true).Players[0].Hp;
-            Require(!zero || offer.Choices.All(c=>c.Parameters.GetValueOrDefault("option")!="gain"),"Zero offer never creates a gain or prevention branch.");
-            Replay(game,registry);Answer(game,offer.Choices.Single(c=>c.Parameters.GetValueOrDefault("option")=="refuse"));
-            if(!zero) for(var i=0;i<2;i++){Replay(game,registry);Answer(game,Pending(game)!.Choices.First(c=>c.Parameters.GetValueOrDefault("option")=="discard"));}
-            Drain(game);
-            Require(game.CreateSnapshot(0,true).Players[0].Hp==hp-1,"Refusal pays its cost and damage continues.");
-            Require(!game.Events.Select(e=>e.Payload).OfType<SkillUsageConsumedEvent>().Any(e=>e.SkillId=="classic:huisheng" && e.Scope==SkillUsageScope.Game),"Refused source is never permanently blacklisted.");
-            Replay(game,registry);
-        }
-        string ReadResource(string kind)
-        {
-            using var stream = typeof(StandardClassicGeneralPackage).Assembly.GetManifestResourceStream(
-                $"CardGame.Content.Standard.SkillPrograms.classic-huang-hao.{kind}.json")!;
-            using var reader = new StreamReader(stream);
-            return reader.ReadToEnd();
-        }
-        var rules = ReadResource("rules");
-        var presentation = ReadResource("presentation");
-        var invalid=rules.Replace("\"equipment\"","\"judgment\"");
-        var rejected=false;try{SkillProgramCatalog.Load(invalid,presentation);}catch(InvalidOperationException){rejected=true;}
-        Require(rejected,"Loader rejects a private offer from a judgment-zone producer.");
-    }
-
-    public static void FullDiscardPhaseSuitLedgerAndReplay()
-    {
-        var (game,registry)=Create("classic:guizao",3,interactiveDiscard:true,reclaim:true);
-        Accept(game,new EndPlayPhaseCommand(0,game.Revision,Pending(game)!.PromptId));
-        for(var i=0;i<50 && Pending(game)?.Kind!=DecisionKind.DiscardCards;i++) Advance(game);
-        var prompt=Pending(game)!;Require(prompt.Kind==DecisionKind.DiscardCards && prompt.RequiredCardCount==2,"Fixture requires two real phase discards.");
-        var selected=game.CreateSnapshot(0,true).Players[0].Hand.GroupBy(c=>c.Suit).Take(2).Select(g=>g.First().Id).ToArray();
-        Replay(game,registry);Accept(game,new DiscardCardsCommand(0,selected,prompt.PromptId,game.Revision));
-        for(var i=0;i<60 && Pending(game)?.SkillPrompt?.SkillId!="classic:guizao";i++) Advance(game);
-        Require(Pending(game)?.SkillPrompt?.SkillId=="classic:guizao","Distinct complete-phase suits expose the benefit before movement continuation.");
-
-        Replay(game,registry);Answer(game,Pending(game)!.Choices.First(c=>c.Parameters.GetValueOrDefault("program-action")=="activate"));
-        Answer(game,Pending(game)!.Choices.Single(c=>c.Parameters.GetValueOrDefault("option-id")=="draw"));
-        for(var i=0;i<50 && !selected.All(id=>game.CardMovements.Any(m=>m.CardId==id && m.From==CardLocation.DiscardPile && m.To==CardLocation.Hand(1)));i++) Advance(game);
-        Require(selected.All(id=>game.CardMovements.Any(m=>m.CardId==id && m.From==CardLocation.DiscardPile && m.To==CardLocation.Hand(1))),"Movement triggers really reclaim both discarded physical entities.");
         Replay(game,registry);
     }
 

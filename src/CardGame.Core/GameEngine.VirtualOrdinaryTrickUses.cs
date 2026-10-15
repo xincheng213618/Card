@@ -119,6 +119,7 @@ public sealed partial class GameEngine
             ["frame-id"] = frame.Id.ToString(CultureInfo.InvariantCulture)
         });
 
+    [ProgramAnswer("use-virtual-ordinary-trick")]
     private void ResolveProgramVirtualOrdinaryTrickChoice(PromptChoice selected)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ??
@@ -168,7 +169,7 @@ public sealed partial class GameEngine
                 EffectiveSuit: Suit.None, EffectiveRank: 0, EffectiveIsRed: not true, RequesterSeat: null,
                 ResponderSeat: null, OpponentSeat: null } action ||
             action.EffectiveKind != origin.OutputKind || action.ActionId != origin.CardActionId ||
-            !action.TargetSeats.SequenceEqual(use.TargetSeats) || use.TargetSeats.Count == 0 && !HasOverflowTargetCancellation(use) ||
+            !action.TargetSeats.SequenceEqual(use.TargetSeats) || use.TargetSeats.Count == 0 && !(HasHuaManSouyingCancellation(use) || HasOverflowTargetCancellation(use)) ||
             use.TargetSeats.Distinct().Count() != use.TargetSeats.Count ||
             use.TargetSeats.Any(seat => !IsValidPlayerSeat(seat)) ||
             action.ProviderSeat != origin.InitialActorSeat || origin.TurnNumber != _turnNumber ||

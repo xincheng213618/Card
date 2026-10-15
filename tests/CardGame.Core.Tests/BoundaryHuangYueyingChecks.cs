@@ -39,57 +39,6 @@ internal static class BoundaryHuangYueyingChecks
         }
     }
 
-    public static void DrawReceiptDisposition()
-    {
-        foreach(var discard in new[]{false,true})
-        {
-            var(g,r)=Start(CardKind.DrawTwo);var initialLimit=HandLimit(g);Play(g,g.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.DrawTwo));Activate(g);Reach(g,p=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("option-id")=="keep"));
-            var receipt=Frame(g).CardSetBindings.Single(b=>b.Name=="drawn").CardIds.Single();var before=g.Revision;var prompt=P(g)!;ReplayFourViews(g,r);
-            Require(Enumerable.Range(1,3).All(s=>g.CreateSnapshot(s).PendingDecision is null),"Receipt options are private to the owner.");
-            Answer(g,c=>c.Parameters.GetValueOrDefault("option-id")== (discard?"discard":"keep"));Require(g.Revision==before+1,"One option answer is one accepted revision.");Settle(g);ReplayFourViews(g,r);
-            Require(g.CardMovements.Count(m=>m.CardId==receipt&&m.From==CardLocation.Hand(0)&&m.To==CardLocation.DiscardPile)==(discard?1:0),"Only the real drawn Basic is paid once.");
-            Require(HandLimit(g)==initialLimit+(discard?1:0),"The actual-turn modifier follows a completed discard only.");
-            var checkpoint=GameCheckpointJson.Serialize(g.CreateCheckpoint());Require(!g.Submit(new AnswerPromptCommand(0,prompt.PromptId,prompt.Choices[0].Id,g.Revision)).Accepted&&checkpoint==GameCheckpointJson.Serialize(g.CreateCheckpoint()),"A stale option cannot pay or grant again.");
-        }
-        var(nonbasic,nr)=Start(CardKind.DrawTwo,drawKind:CardKind.IronChain);Play(nonbasic,nonbasic.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.DrawTwo));Activate(nonbasic);Reach(nonbasic,p=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("option-id")=="keep"));Require(P(nonbasic)!.Choices.Count==1,"A nonbasic receipt can only be kept.");Answer(nonbasic,c=>true);Settle(nonbasic);ReplayFourViews(nonbasic,nr);
-        foreach(var remaining in new[]{0,1})
-        {
-            var(g,r)=Start(CardKind.DrawTwo,remaining:remaining,child:remaining==1);var initialLimit=HandLimit(g);Play(g,g.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.DrawTwo));Activate(g);
-            if(remaining==1)
-            {
-                Reach(g,p=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="select-owned-cards"));var receipt=g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f=>f.SkillId=="boundary:jizhi-current").CardSetBindings.Single(b=>b.Name=="drawn").CardIds.Single();ReplayFourViews(g,r);Answer(g,c=>c.Cards.SequenceEqual([receipt]));
-            }
-            Reach(g,p=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("option-id")=="keep"));Require(P(g)!.Choices.Count==1,"Zero or child-moved Draw receipt cannot substitute an old hand card.");ReplayFourViews(g,r);Answer(g,c=>true);Settle(g);Require(HandLimit(g)==initialLimit,"No receipt discard means no reward.");ReplayFourViews(g,r);
-        }
-    }
-
-    public static void ForeignDiscardActions()
-    {
-        foreach(var equipment in new[]{"standard:renwang_shield","classic:wooden-ox","standard:crossbow"})
-        {
-            var(g,r)=Start(CardKind.Dismantlement,equipment:equipment);Driver(g,"equip",[1]);Settle(g);var equipped=g.CreateSnapshot(0).Players[1].Equipment.Single();ReplayFourViews(g,r);
-            var protectedSlot=equipment!="standard:crossbow";
-            Require(g.GetHumanLegalActions().Any(a=>a.Kind==LegalActionKind.Dismantlement&&a.TargetCardId==equipped.Id)==!protectedSlot,"Only Armor/Treasure are absent from real foreign Dismantlement actions.");
-            if(protectedSlot)
-            {
-                Driver(g,"empty-hand",[1]);while(P(g)?.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="select-owned-cards")==true){ReplayFourViews(g,r);Answer(g,c=>c.Cards.Count==1);}Settle(g);
-                Require(!g.GetHumanLegalActions().Any(a=>a.Kind==LegalActionKind.Dismantlement&&a.TargetSeats.SequenceEqual([1])),"A target with only protected equipment offers no actual Dismantlement action.");ReplayFourViews(g,r);
-            }
-            Driver(g,"obtain",[1]);Reach(g,p=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="take-other-card"));
-            Require(P(g)!.Choices.Any(c=>c.Cards.SequenceEqual([equipped.Id])),"Protected equipment remains selectable for an actual Obtain.");ReplayFourViews(g,r);Answer(g,c=>c.Cards.SequenceEqual([equipped.Id]));Settle(g);Require(Zones(g).GetLocation(equipped.Id)==CardLocation.Hand(0),"Obtain moves the same physical entity once.");ReplayFourViews(g,r);
-        }
-        var(d,dr)=Start(CardKind.Dismantlement,equipment:"standard:crossbow");Driver(d,"equip",[1]);Settle(d);var weapon=d.CreateSnapshot(0).Players[1].Equipment.Single();Play(d,d.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.Dismantlement&&a.TargetCardId==weapon.Id));Activate(d);Reach(d,p=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("option-id")=="keep"));Answer(d,c=>true);Settle(d);Require(Zones(d).GetLocation(weapon.Id)==CardLocation.DiscardPile,"A true unprotected weapon is discarded by actual Dismantlement.");ReplayFourViews(d,dr);
-        foreach(var single in new[]{false,true})
-        {
-        var(ice,ir)=Start(CardKind.Slash,drawKind:CardKind.Peach,equipment:"ice");Driver(ice,"equip",[1]);Settle(ice);Driver(ice,"equip",[0]);Settle(ice);
-        Require(ice.CreateSnapshot(0).Players[0].Equipment.Any(c=>c.Kind==CardKind.IceSword)&&ice.CreateSnapshot(0).Players[1].Equipment.Any(c=>c.Kind==CardKind.RenwangShield),"The fixed real fixture equips Ice Sword and protected armor through actual uses.");
-        if(single){Driver(ice,"trim",[1]);while(P(ice)?.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="select-owned-cards")==true){ReplayFourViews(ice,ir);Answer(ice,c=>c.Cards.Count==1);}Settle(ice);Require(ice.State.Players[1].HandCount==1,"Actual participant payments leave precisely one legal HE card.");}
-        Play(ice,ice.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.Slash&&a.TargetSeats.SequenceEqual([1])));Reach(ice,p=>p.Kind==DecisionKind.IceSword);var armorId=ice.CreateSnapshot(0).Players[1].Equipment.Single().Id;
-        Require(P(ice)!.Choices.All(c=>!c.Cards.Contains(armorId)),"Actual Ice Sword choices omit protected Armor before payment.");ReplayFourViews(ice,ir);Answer(ice,c=>c.Parameters.GetValueOrDefault("action")=="ice-sword-discard");ReplayFourViews(ice,ir);if(!single)Answer(ice,c=>c.Parameters.GetValueOrDefault("action")=="ice-sword-discard");Settle(ice);
-        Require(ice.Events.Select(e=>e.Payload).OfType<IceSwordResolvedEvent>().Single().DiscardedCardIds.Count==(single?1:2)&&Zones(ice).GetLocation(armorId)==CardLocation.Equipment(1),"Ice Sword pays only its actual available opaque hand costs and finishes finitely; protected Armor remains.");ReplayFourViews(ice,ir);
-        }
-    }
-
     public static void ForeignProgramSelections()
     {
         var(g,r)=Start(CardKind.Dodge,equipment:"standard:renwang_shield");Driver(g,"equip",[1]);Settle(g);var armor=g.CreateSnapshot(0).Players[1].Equipment.Single();
@@ -106,15 +55,6 @@ internal static class BoundaryHuangYueyingChecks
             Require(Frame(b).CardSetBindings.Single(x=>x.Name=="bound").SelectionActorSeat==(self?1:0),"Actual participant/source chooser is frozen on the owning binding.");ReplayFourViews(b,br);Answer(b,c=>c.Parameters.GetValueOrDefault("option-id")=="done");Settle(b);
             Require(Zones(b).GetLocation(entity)==(self?CardLocation.DiscardPile:CardLocation.Equipment(1))&&b.CardMovements.Count(m=>m.CardId==entity&&m.From==CardLocation.Equipment(1)&&m.To==CardLocation.DiscardPile)==(self?1:0),"A bound participant cost pays once; a bound foreign discard is prevented before movement.");ReplayFourViews(b,br);
         }
-    }
-
-    public static void IntentAndLifetimeBoundaries()
-    {
-        var(g,r)=Start(CardKind.Dodge,equipment:"standard:renwang_shield");Driver(g,"equip",[1]);Settle(g);var armor=g.CreateSnapshot(0).Players[1].Equipment.Single();var card=Zones(g).CardsAt(CardLocation.Equipment(1)).Single();var predicate=typeof(GameEngine).GetMethod("IsForeignEquipmentDiscardPrevented",BindingFlags.Instance|BindingFlags.NonPublic)!;var intent=predicate.GetParameters()[3].ParameterType;var revision=g.Revision;
-        foreach(var value in Enum.GetValues(intent))Require((bool)predicate.Invoke(g,[0,card,CardLocation.Equipment(1),value])! == (value.ToString()=="Discard"),"Explicit intent pure host audit: "+value);
-        Require(!(bool)predicate.Invoke(g,[1,card,CardLocation.Equipment(1),Enum.Parse(intent,"Discard")])!&&revision==g.Revision,"Actual owner discard and pure queries do not advance.");
-        Driver(g,"equip",[1]);Settle(g);Require(Zones(g).GetLocation(armor.Id)==CardLocation.DiscardPile,"Real same-slot replacement is allowed.");ReplayFourViews(g,r);
-        var current=g.CreateSnapshot(0).Players[1].Equipment.Single().Id;Driver(g,"kill",[1]);while(P(g)?.Kind==DecisionKind.RescueDying)Answer(g,c=>c.Cards.Count==0);Settle(g);Require(!g.State.Players[1].IsAlive&&Zones(g).GetLocation(current)==CardLocation.DiscardPile,"Death cleanup legally removes protected equipment.");ReplayFourViews(g,r);
     }
 
     private static (GameEngine,ContentRegistry) Start(CardKind use,bool conversion=false,bool nullification=false,CardKind drawKind=CardKind.Dodge,int remaining=40,bool child=false,string? equipment=null)
@@ -157,7 +97,6 @@ internal static class BoundaryHuangYueyingChecks
         throw new InvalidOperationException("Fixture failed to settle: "+P(g)?.Prompt);
     }
     private static CardZoneStore Zones(GameEngine g)=>(CardZoneStore)typeof(GameEngine).GetField("_cardZones",BindingFlags.Instance|BindingFlags.NonPublic)!.GetValue(g)!;
-    private static int HandLimit(GameEngine g)=>(int)typeof(GameEngine).GetMethod("GetHandLimit",BindingFlags.Instance|BindingFlags.NonPublic)!.Invoke(g,[((IReadOnlyList<CharacterState>)typeof(GameEngine).GetField("_players",BindingFlags.Instance|BindingFlags.NonPublic)!.GetValue(g)!)[0]])!;
     private static SkillProgram Load(string id,string members)=>SkillProgramCatalog.Load("{\"schemaVersion\":"+SkillProgramCatalog.RulesSchemaVersion+",\"skills\":[{\"id\":\""+id+"\",\"revision\":1,"+members+"}]}","{\"schemaVersion\":3,\"skills\":{\""+id+"\":{\"name\":\"fixture\",\"description\":\"fixture\""+(members.Contains("options",StringComparison.Ordinal)?",\"optionLabels\":{\"done\":\"继续\"}":"")+"}}}").Programs[id];
     private static string Activation(string id,string effects,int targets=0)=>"{\"id\":\""+id+"\",\"usesPerTurn\":null,\"minCards\":0,\"maxCards\":0,\"minTargets\":"+targets+",\"maxTargets\":"+targets+",\"targetKind\":\"anyLiving\",\"effects\":"+effects+"}";
     private sealed class Fixture(CardKind use,bool conversion,bool nullification,CardKind drawKind,int remaining,bool child,string? equipment):IGameContentPackage

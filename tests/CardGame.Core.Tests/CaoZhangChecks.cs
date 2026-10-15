@@ -62,20 +62,6 @@ internal static class CaoZhangChecks
         ReachHumanPlay(game);
     }
 
-
-    private static void Play(GameEngine game, LegalAction action)
-    {
-        var prompt = RequirePrompt(game, DecisionKind.PlayCard);
-        var result = game.Submit(new PlayCardCommand(
-            0,
-            action.CardId!.Value,
-            action.TargetSeats,
-            game.Revision,
-            prompt.PromptId,
-            action.PlayedCardKind));
-        Require(result.Accepted, result.Error?.Message ?? "The Jiangchi Slash was rejected.");
-    }
-
     private static void Answer(GameEngine game, string action)
     {
         var prompt = RequirePrompt(game, DecisionKind.ProgramTrigger);

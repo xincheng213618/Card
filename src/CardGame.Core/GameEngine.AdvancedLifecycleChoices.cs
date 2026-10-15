@@ -47,6 +47,7 @@ public sealed partial class GameEngine
         _status = _players[frame.OwnerSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
 
+    [ProgramAnswer("advanced-lifecycle")]
     private void ResolveAdvancedLifecycleChoice(PromptChoice choice)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("Advanced choice lost its frame.");

@@ -1,4 +1,4 @@
-namespace CardGame.Core;
+﻿namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
@@ -103,6 +103,7 @@ public sealed partial class GameEngine
         _status = _players[draft.OwnerSeat].IsHuman ? EngineStatus.AwaitingHumanCardSelection : EngineStatus.Running;
     }
 
+    [ProgramAnswer("public-pile")]
     private void ResolvePublicPileChoice(PromptChoice selected)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("Missing public pile program.");
@@ -184,6 +185,10 @@ public sealed partial class GameEngine
         return e.Op==SkillProgramEffectOp.ExchangePublicPileHand ? GetHand(_players[frame.OwnerSeat]) : GetHand(_players[frame.OwnerSeat]).Concat(GetEquipment(_players[frame.OwnerSeat])).ToArray();
     }
 
+    [ProgramAiChoice(
+        SkillProgramEffectOp.ExchangePublicPileHand,
+        SkillProgramEffectOp.ExchangePublicPile,
+        SkillProgramEffectOp.DistributePublicPileIfAllSuits)]
     private PromptChoice SelectAiPublicPileChoice(PendingDecision decision, ProgramSkillFrame frame)
     {
         var draft = frame.PublicPileDraft!;
@@ -229,7 +234,7 @@ public sealed partial class GameEngine
     private void CleanupLostPublicPersistentPiles()
     {
         foreach (var source in _publicPersistentPiles.Values.Where(source => !_players[source.OwnerSeat].IsAlive ||
-            !_players[source.OwnerSeat].SkillGrants.Grants.Any(grant => grant.SkillId == source.SkillId && grant.SkillInstanceId == source.SkillInstanceId)).ToArray())
+            !_players[source.OwnerSeat].SkillGrants.Grants.Any(grant => grant.SkillId == source.SkillId && grant.SkillInstanceId == source.SkillInstanceId) && !IsDurableZengdaoPublicPile(source)).ToArray())
         {
             _publicPersistentPiles.Remove((source.OwnerSeat, source.SkillId, source.SkillInstanceId));
             for (var index = 0; index < _resolutionStack.Count; index++)

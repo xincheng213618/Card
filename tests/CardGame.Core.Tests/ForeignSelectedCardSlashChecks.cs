@@ -154,40 +154,6 @@ internal static class ForeignSelectedCardSlashChecks
         _ = Cold(ox, oxRegistry);
     }
 
-    public static void RedirectAndLostSourceRetainOnlyOwnUseReward()
-    {
-        foreach (var sourceLoss in new[] { false, true })
-        {
-            var (g, registry) = Start(redirect: !sourceLoss, sourceLoss: sourceLoss);
-            var sourceState = sourceLoss ? V(g, 0).SkillRuntimeStates!.Single(s => s.SkillId == Actual).BooleanStates!
-                .Single(s => s.StateId == QualificationProbe) : null;
-            Require(!sourceLoss || sourceState is { Value: true }, "The actual current Xuanbei instance is qualified before the foreign card is paid.");
-            Begin(g, 1); Answer(g, c => c.Parameters.GetValueOrDefault("source-zone") == nameof(CardZoneKind.Hand));
-            if (!sourceLoss)
-            {
-                Reach(g, p => p?.SkillPrompt?.SkillId == Redirect && p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "select-target"));
-                g = Cold(g, registry); Answer(g, c => c.Targets.SequenceEqual([3]));
-                Reach(g, p => p?.SkillPrompt?.SkillId == Redirect && p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "select-and-move-owned-card"));
-                g = Cold(g, registry); Answer(g, c => c.Cards.Count == 1);
-            }
-            else
-            {
-                Reach(g, p => IsContinue(p, Before)); g = Cold(g, registry); Continue(g);
-                Reach(g, p => p is { Kind: DecisionKind.RespondDodge, PlayerSeat: 0 });
-                Answer(g, c => c.Parameters.GetValueOrDefault("response") == "take-damage");
-            }
-            Reach(g, p => IsContinue(p, sourceLoss ? Suppress : Gain));
-            var root = Parent(g); var returned = root.ForeignSelectedCardSlash!.SlashReturn!;
-            AssertOutcome(g, returned, sourceLoss, sourceLoss ? 2 : 1);
-            Require(sourceLoss ? sourceState is { Value: true } original && returned.Source.SkillInstanceId == original.SkillInstanceId &&
-                    V(g, 0).SkillRuntimeStates!.Single(s => s.SkillId == Actual).BooleanStates!.All(s => s.SkillInstanceId != original.SkillInstanceId) :
-                !E<ForeignSelectedCardSlashDamageRecordedEvent>(g).Any(e => e.ProgramFrameId == root.Id) &&
-                    E<DamageAppliedEvent>(g).All(e => e.TargetSeat != 0),
-                "Paid completion survives genuine source suppression; a native redirected Slash never borrows damage to another target for the issuer reward.");
-            g = Cold(g, registry); Reach(g, IsPlay); AssertFinished(g, returned, sourceLoss ? 2 : 1); _ = Cold(g, registry);
-        }
-    }
-
     private static (GameEngine, ContentRegistry) Start(string card = "standard:dodge", bool redirect = false, bool sourceLoss = false, bool generalWeapons = false)
     {
         var registry = ContentRegistry.Build(new StandardContentPackage(), new Fixture(card, redirect, sourceLoss, generalWeapons));

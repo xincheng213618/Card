@@ -311,10 +311,13 @@ public sealed partial class GameEngine
         }
         if (success && parent.Purpose == CardDeclarationPurpose.Use)
         {
-            ReplaceRuntimeTop(frame with { Stage = CardDeclarationStage.Applying });
+            ReplaceRuntimeTop(frame = frame with { Stage = CardDeclarationStage.Applying });
+            if (TryApplyQigongDeclaration(frame)) return;
             ExecuteAction(owner, parent.UseAction!); return;
         }
         PopResolutionFrame(frame.Id, ResolutionFrameKind.CardDeclaration);
+        if (TryReturnQigongDeclaration(frame, success)) return;
+        if (TryReturnJianjiDeclaration(frame, success)) return;
         if (cancelled) return;
         if (success)
         {

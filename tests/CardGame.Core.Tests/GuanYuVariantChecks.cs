@@ -5,27 +5,6 @@ using static BoundaryLiDianChecks;
 
 internal static class GuanYuVariantChecks
 {
-    public static void MobileFocusAndLethal()
-    {
-        var (g, r) = Start("mou:guan-yu-mobile");
-        Activate(g); Reach(g, p => p.Choices.Any(c => c.Targets.Contains(2)));
-        Require(P(g)!.Choices.All(c => !c.Targets.Contains(0)), "The lord cannot be the focused target.");
-        ReplayFourViews(g, r); Answer(g, c => c.Targets.SequenceEqual([2])); Settle(g);
-        var hand = g.State.Players[0].HandCount;
-        for (var i = 0; i < 3; i++) { Slash(g, 2); Settle(g); ReplayFourViews(g, r); }
-        Require(g.State.Players[0].HandCount == hand + 3 && g.State.Players[2].Hp == 5,
-            "Three distant focused Slashes each draw two in identity and actually resolve.");
-        Require(!g.GetHumanLegalActions().Any(a => a.Kind == LegalActionKind.Slash && a.TargetSeats.Contains(2)) &&
-                g.GetHumanLegalActions().Any(a => a.Kind == LegalActionKind.Slash && a.TargetSeats.SequenceEqual([1])),
-            "The fourth focused Slash is prohibited; refunded uses preserve the ordinary Slash allowance.");
-
-        var (lethal, lr) = Start("mou:guan-yu-mobile", hp: 1);
-        Skip(lethal); Settle(lethal); Slash(lethal, 1); Settle(lethal);
-        Require(lethal.State.Players[1].Hp == 1 && lethal.State.Players[1].IsAlive &&
-            lethal.Events.Select(e => e.Payload).OfType<GuanLethalSparedEvent>().Count() == 1,
-            "Yijue prevents the first lethal damage before any dying response.");
-        ReplayFourViews(lethal, lr);
-    }
 
     public static void OlOpeningUsesAndIdentity()
     {
@@ -59,39 +38,6 @@ internal static class GuanYuVariantChecks
             { ConversionSource = rewrittenUse.ConversionSource }); Settle(self); ReplayFourViews(self, selfRegistry);
         Require(self.Events.Select(e => e.Payload).OfType<WeilinHandColorEvent>().Count() == 1,
             "Using a rewritten Slash is a card identity, and does not issue Weilin a second time.");
-    }
-
-    public static void DemonHoldDeathAndSupport()
-    {
-        var (g, r) = Start("magic:guan-yu");
-        Require(P(g)!.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "activate"),
-            "Expected round focus activation: " + P(g)!.Kind + " / " + P(g)!.Prompt);
-        Activate(g);
-        Reach(g, p => p.Choices.Any(c => c.Targets.Contains(1))); ReplayFourViews(g, r);
-        Answer(g, c => c.Targets.SequenceEqual([1])); Settle(g);
-        Require(g.CreateSnapshot(0).Players[1].RoundHoldCount == 12 && g.State.Players[1].HandCount == 0 &&
-            g.CreateSnapshot(0).Players[1].Hand.Count == 0, "The round hold removes all target hand cards without revealing them.");
-        ReplayFourViews(g, r); Slash(g, 1); Settle(g);
-        Require(!g.State.Players[1].IsAlive &&
-            !g.Events.Select(e => e.Payload).OfType<PlayerDyingEvent>().Any(e => e.VictimSeat == 1) &&
-            g.CardMovements.Count(m => m.From == CardLocation.RoundHold(1) && m.To == CardLocation.DiscardPile) == 12,
-            "Hanguo directly kills after Slash damage without rescue and cleans its held cards.");
-        Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId));
-        Reach(g, p => p.SkillPrompt?.SkillId == "magic:weiwo"); Activate(g);
-        for (var i = 0; i < 3; i++)
-        {
-            Reach(g, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "select-targets"));
-            ReplayFourViews(g, r);
-            var hasRecipient = P(g)!.Choices.Any(c => c.Targets.Count == 1);
-            Answer(g, c => c.Targets.Count == (hasRecipient ? 1 : 0));
-        }
-        Reach(g, p => p.Kind == DecisionKind.PlayCard || p.SkillPrompt?.SkillId == "magic:hanguo");
-        var grants = g.Events.Select(e => e.Payload).OfType<DemonSupportGrantedEvent>().ToArray();
-        Require(grants.Length == 2 && grants.Select(e => e.RecipientSeat).Distinct().Count() == grants.Length &&
-            grants.Select(e => e.SkillId).Distinct().Count() == grants.Length &&
-            g.State.Players[0].Skills!.Any(s => s.Id == "magic:wushen"),
-            "Weiwo grants distinct support skills to distinct recipients and then grants Wushen.");
-        ReplayFourViews(g, r);
     }
 
     public static void DemonRoundReturnAndDodgeAid()

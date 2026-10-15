@@ -134,6 +134,7 @@ public sealed partial class GameEngine
         var index = _resolutionStack.FindIndex(frame => frame.Id == use.Id);
         if (index < 0) throw new InvalidOperationException("A card-use role change lost its parent.");
         ReplaceRuntimeFrame(_resolutionStack[index].Id, use);
+        if (HasHuaManCapability) CaptureHuaManCompletedUse(use.Id, action);
         for (var cursor = index + 1; cursor < _resolutionStack.Count; cursor++)
             if (_resolutionStack[cursor] is ProgramCardTriggerWindowFrame window && window.ParentFrameId == use.Id)
                 ReplaceRuntimeFrame(_resolutionStack[cursor].Id, window with { Action = action });

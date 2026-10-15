@@ -42,6 +42,7 @@ public sealed partial class GameEngine
             .Select(c => c with { Parameters = new System.Collections.ObjectModel.ReadOnlyDictionary<string, string>(
                 new Dictionary<string, string>(c.Parameters) { ["program-action"] = "dying-owned-card" }) }).ToArray());
 
+    [ProgramAnswer("dying-owned-card")]
     private void ResolveDyingOwnedCardChoice(PromptChoice choice)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame frame || frame.InstructionIndex != 1 || frame.DyingOwnedCard is not null ||
@@ -126,6 +127,7 @@ public sealed partial class GameEngine
                 pair.First.Parameters.Count == pair.Second.Parameters.Count &&
                 pair.Second.Parameters.All(parameter => pair.First.Parameters.GetValueOrDefault(parameter.Key) == parameter.Value));
     }
+    [ProgramAiChoice(SkillProgramEffectOp.SelectDyingOwnedCard)]
     private PromptChoice SelectAiDyingOwnedCard(PendingDecision decision) => decision.Choices
         .OrderBy(c => c.Cards.Count == 1 && _cardZones.CardsAt(_cardZones.GetLocation(c.Cards[0])).Any(card => card.Id == c.Cards[0] &&
             !MatchesProgramCardCategory(card.Kind, [SkillProgramCardCategory.Basic])) ? 0 : 1)

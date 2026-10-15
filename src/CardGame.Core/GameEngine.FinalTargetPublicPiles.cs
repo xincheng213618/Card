@@ -54,6 +54,7 @@ public sealed partial class GameEngine
         _status=_players[frame.OwnerSeat].IsHuman?EngineStatus.AwaitingHumanResponse:EngineStatus.Running;
         return SkillProgramStepOutcome.AwaitChoice;
     }
+    [ProgramAnswer("public-pile-flow")]
     private void ResolveFinalTargetPileChoice(PromptChoice selected)
     {
         var frame=_resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("Public pile flow lost its owner.");

@@ -68,6 +68,7 @@ public sealed partial class GameEngine
         _status = _players[f.OwnerSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
 
+    [ProgramAnswer("suit-prevention-benefit")]
     private void ResolveSuitPreventionBenefit(PromptChoice choice)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame f || f.SuitPreventionBenefit is not { } r ||
@@ -196,6 +197,7 @@ public sealed partial class GameEngine
         if (f.PendingMovementContinuation is null) throw new InvalidOperationException("Suit placement lost its typed movement return.");
         ReplaceRuntimeTop(f with { PendingMovementContinuation = null }); AdvanceRuntimeProgram(f.Id); return true;
     }
+    [ProgramAiChoice(SkillProgramEffectOp.DiscardSuitPreventDamageAndBenefit)]
     private PromptChoice SelectAiSuitPreventionBenefit(PendingDecision decision, ProgramSkillFrame f)
     {
         if (f.SuitPreventionBenefit!.Stage == SuitPreventionBenefitStage.ChoosingCost)

@@ -149,6 +149,7 @@ public sealed partial class GameEngine
             r.Qualification.TurnNumber, r.Qualification.TurnOwnerSeat, r.Qualification.MaximumDistinctOptions, option, id, before, after, draw, replacedId, replacedGeneral));
         if (AwaitEquipmentDonationMovements(f.Id) == SkillProgramStepOutcome.Continue) AdvanceRuntimeProgram(f.Id);
     }
+    [ProgramAiChoice(SkillProgramEffectOp.ChooseEquipmentOrDrawAfterOtherActualTurn)]
     private PromptChoice SelectAiActualEndedEquipment(PendingDecision decision, ProgramSkillFrame f) =>
         decision.Choices.OrderByDescending(c => c.Parameters["option"] == "equipment" ?
             GetKeepValue(GetAdvancedCard(c.Cards.Single()), _players[f.OwnerSeat]) : 5d)

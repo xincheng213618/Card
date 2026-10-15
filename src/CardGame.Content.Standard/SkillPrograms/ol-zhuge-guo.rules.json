@@ -1,0 +1,134 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:qirang",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "actual-equipment-trick",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "actor",
+          "cardCategories": [
+            "equipment"
+          ],
+          "optional": true,
+          "effects": [
+            {
+              "op": "obtainDeckTrickForActualEquipmentUse",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "physical-trick-extra-target",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "actor",
+          "cardCategories": [
+            "instantTrick"
+          ],
+          "optional": true,
+          "effects": [
+            {
+              "op": "addTargetForQirangPhysicalTrick",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:yuhua",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "prepare-private-top",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "turnOwnerScope": "own",
+          "optional": false,
+          "effects": [
+            {
+              "op": "inspectYuhuaTop",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "ending-private-top",
+          "window": "turnEnding",
+          "subject": "owner",
+          "turnOwnerScope": "own",
+          "optional": false,
+          "effects": [
+            {
+              "op": "inspectYuhuaTop",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "nonbasic-handlimit-exemption",
+          "window": "discardPhaseStarting",
+          "subject": "owner",
+          "turnOwnerScope": "own",
+          "optional": false,
+          "effects": [
+            {
+              "op": "grantTurnHandLimitCardKindExemption",
+              "target": "owner",
+              "cardKinds": [
+                "duel",
+                "drawTwo",
+                "barbarianAssault",
+                "arrowBarrage",
+                "peachGarden",
+                "fiveGrains",
+                "dismantlement",
+                "snatch",
+                "fireAttack",
+                "crossbow",
+                "baguaFormation",
+                "renwangShield",
+                "offensiveHorse",
+                "defensiveHorse",
+                "jadeSeal",
+                "qinggangSword",
+                "nullification",
+                "ironChain",
+                "indulgence",
+                "supplyShortage",
+                "lightning",
+                "borrowedSword",
+                "stoneAxe",
+                "zhangbaSerpentSpear",
+                "cixiongDoubleSwords",
+                "qinglongCrescentBlade",
+                "iceSword",
+                "qilinBow",
+                "fangtianHalberd",
+                "gudingBlade",
+                "zhuqueFan",
+                "tengjia",
+                "silverLion",
+                "woodenOx",
+                "dawan",
+                "zixing",
+                "dilu",
+                "zhaohuangfeidian",
+                "hualiu",
+                "ghostDragonCrescentBlade",
+                "scarletBloodSword",
+                "xingtianAxe",
+                "redBloodBlade",
+                "generalWeapon",
+                "unexpectedAssault",
+                "xuanjian"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

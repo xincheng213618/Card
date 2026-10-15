@@ -161,6 +161,7 @@ public sealed partial class GameEngine
         _status = _players[f.OwnerSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
         AdvanceRulesAndPublishState();
     }
+    [ProgramAnswer("turn-default-stat")]
     private void ResolveTurnDefaultStatChoice(PromptChoice choice)
     {
         var f = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("Default-stat choice lost its owner.");

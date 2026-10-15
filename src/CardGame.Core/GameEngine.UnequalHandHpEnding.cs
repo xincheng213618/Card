@@ -65,6 +65,7 @@ public sealed partial class GameEngine
             Choices = choices, TargetSeat = r.TargetSeat >= 0 ? r.TargetSeat : null, SkillPrompt = new(f.SkillId, skill.Name, skill.Name, skill.Description) };
         _status = _players[chooser].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
+    [ProgramAnswer("unequal-hand-hp-ending")]
     private void ResolveUnequalHandHpChoice(PromptChoice choice)
     {
         var f = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("No owning unequal hand/HP frame.");
@@ -219,6 +220,7 @@ public sealed partial class GameEngine
         if (f.UnequalHandHp is not { Payments.Count: > 0 }) return false;
         RequireUnequalHandHpReceipt(f); return true;
     }
+    [ProgramAiChoice(SkillProgramEffectOp.ResolveUnequalHandHpEnding)]
     private PromptChoice SelectAiUnequalHandHp(PendingDecision prompt, ProgramSkillFrame f)
     {
         var r = f.UnequalHandHp!;

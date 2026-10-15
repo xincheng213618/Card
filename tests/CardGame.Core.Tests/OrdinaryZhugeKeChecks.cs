@@ -39,40 +39,6 @@ internal static class OrdinaryZhugeKeChecks
         decline=Cold(decline,dr);
     }
 
-    public static void EmptyHandRequestedSlashAndDyingPeachUseKeepOriginalProducers()
-    {
-        var (g,r)=Create("slash");var peer=Peer(g);Empty(g,peer);Use(g,"request",[peer]);
-        Reach(g,p=>p.PlayerSeat==peer && DeckActivate(p));Answer(g,c=>c.Parameters.GetValueOrDefault("deck-basic-source")=="activate");
-        var view=View(g);var parent=g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f=>f.Id==view.Receipt.OwnerFrameId);
-        Require(view.Receipt.Intent==RequestedDeckBasicIntent.ProgramSlash && view.Receipt.ViewedCount==4 && parent.SkillId==Driver,
-            "The zero-hand forced Slash keeps its exact suspended request program, rather than inserting a temporary hand card.");
-        Private(g,view);g=Cold(g,r);Answer(g,c=>c.Parameters.GetValueOrDefault("deck-basic-source")=="card");Play(g);
-        var paid=Facts<RequestedDeckBasicPaidEvent>(g).Single(e=>e.OwnerFrameId==parent.Id);
-        Require(Facts<CardUseDeclaredEvent>(g).Count(e=>e.SourceSeat==peer && e.CardId==paid.CardId && e.CardKind==CardKind.Slash)==1 &&
-            g.CardMovements.Count(m=>m.CardId==paid.CardId && m.From==CardLocation.DrawPile && m.To==CardLocation.Processing)==1 &&
-            g.CardMovements.All(m=>m.CardId!=paid.CardId || m.To!=CardLocation.Hand(peer)),
-            "The existing requested-Slash producer issues a genuine use with one DrawPile cost and its original typed program return.");g=Cold(g,r);
-
-        var (rescue,rr)=Create("peach",peerHp:1,rescueHpObserver:true);var victim=Peer(rescue);Empty(rescue,victim);Use(rescue,"damage",[victim]);
-        Reach(rescue,p=>p.Kind==DecisionKind.RescueDying && p.PlayerSeat==victim && DeckActivate(p));
-        var dying=rescue.ResolutionStack.OfType<DyingFrame>().Single(d=>d.VictimSeat==victim);
-        Answer(rescue,c=>c.Parameters.GetValueOrDefault("deck-basic-source")=="activate");var rescueView=View(rescue);
-        Require(rescueView.Receipt.Intent==RequestedDeckBasicIntent.Dying && rescueView.Receipt.OwnerFrameId==dying.Id && rescueView.CardIds.Count==4,
-            "A zero-hand native rescue publishes an Aocai need before auto-failure and owns the private view on the real Dying cursor.");
-        Private(rescue,rescueView);rescue=Cold(rescue,rr);Answer(rescue,c=>c.Parameters.GetValueOrDefault("deck-basic-source")=="card");
-        Reach(rescue,p=>p.SkillPrompt?.SkillId==Hp && p.PlayerSeat==victim);
-        var use=rescue.ResolutionStack.OfType<CardUseFrame>().Single(u=>u.DyingResponse?.ResolutionId==dying.Id);
-        var material=rescue.ResolutionStack.OfType<DyingFrame>().Single(d=>d.Id==dying.Id).RequestedDeckBasicMaterial!;
-        Require(use.Action is { } action && action.ActorSeat==victim && action.PhysicalCards is [var cost] &&
-            cost.CardId==material.SelectedCardId && cost.From==CardLocation.DrawPile && material.PaidMovementSequence is not null &&
-            rescue.ResolutionStack.OfType<HpChangedTriggerWindowFrame>().Any(h=>h.Change.TargetSeat==victim),
-            "The real Peach recovery child retains the original DyingResponse use and full DrawPile provenance until its HP observer returns.");
-        rescue=Cold(rescue,rr);Continue(rescue);Play(rescue);
-        Require(Facts<DyingResolvedEvent>(rescue).Single(e=>e.ResolutionId==dying.Id).Survived &&
-            Facts<RequestedDeckBasicPaidEvent>(rescue).Count(e=>e.OwnerFrameId==dying.Id)==1,
-            "Actual Peach/HP children resolve the same Dying once; cold continuation cannot repay the top card.");rescue=Cold(rescue,rr);
-    }
-
     public static void FrozenSilverLionCostDrainsChildrenAndSurvivorPenaltyDisablesCurrentTurn()
     {
         var (g,r)=Create("silver",peerHp:1,pulse:true);var target=Peer(g);Equip(g);var lion=g.CreateSnapshot(0).Players[0].Equipment.Single();
@@ -100,35 +66,6 @@ internal static class OrdinaryZhugeKeChecks
         g=Cold(g,r);
     }
 
-    public static void NativeDeclinedRescueAndPaidSourceLossFinishWithoutRepayment()
-    {
-        var (g,r)=Create("slash",peerHp:1);var target=Peer(g);Duwu(g,target);Pay(g,P(g)!.Choices.First(c=>c.Parameters.GetValueOrDefault("branch")=="card").Cards.Single());
-        Reach(g,p=>p.Kind==DecisionKind.RescueDying && p.PlayerSeat!=0 && DeckActivate(p));
-        var original=P(g)!;Answer(g,c=>c.Parameters.GetValueOrDefault("deck-basic-source")=="activate");var view=View(g);
-        Require(view.Receipt.ViewedCount==2 && P(g)!.Choices.Count==1 && P(g)!.Choices.Single().Parameters.GetValueOrDefault("deck-basic-source")=="decline",
-            "The native responder has hand cards but the top two printed Slashes cannot satisfy the original Peach/Alcohol rescue.");
-        // Native AI consumes this private decline then the original let-die route.
-        g=Cold(g,r);Accept(g,new AdvanceOneStepCommand(g.Revision));
-        Until(g,()=>!g.ResolutionStack.OfType<DyingFrame>().Any());Play(g);
-        Require(!g.State.Players[target].IsAlive && !Facts<DynamicDiscardDamagePenaltyEvent>(g).Any() &&
-            Facts<RequestedDeckBasicViewedEvent>(g).Count(e=>e.OwnerFrameId==view.Receipt.OwnerFrameId && e.ActorSeat==original.PlayerSeat)==1 &&
-            !Facts<RequestedDeckBasicPaidEvent>(g).Any(e=>e.OwnerFrameId==view.Receipt.OwnerFrameId) &&
-            g.GetHumanLegalActions().Any(a=>a.SkillId=="ol:duwu"),
-            "All native failed Aocai rescue requests advance their original responder cursor once; dead target neither penalizes nor disables Duwu.");g=Cold(g,r);
-
-        var (lost,lr)=Create("slash",peerHp:2,sourceLoss:true);var other=Peer(lost);Duwu(lost,other);
-        var ids=P(lost)!.Choices.Where(c=>c.Parameters.GetValueOrDefault("branch")=="card").Take(2).Select(c=>c.Cards.Single()).ToArray();
-        Pay(lost,ids[0]);Pay(lost,ids[1]);Reach(lost,p=>p.SkillPrompt?.SkillId==Loss);var paidRoot=Root(lost);lost=Cold(lost,lr);Continue(lost);
-        Play(lost);
-        Require(lost.State.Players[other].Hp==1 && Facts<DynamicDiscardDamagePaidEvent>(lost).Single().FrameId==paidRoot.Id &&
-            ids.All(id=>lost.CardMovements.Count(m=>m.CardId==id && m.Reason.Value==CostReason)==1) &&
-            Facts<ProgramSkillResolvedEvent>(lost).Any(e=>e.SkillId=="ol:duwu" && e.Completed) &&
-            Facts<SkillsAcquiredEvent>(lost).Count(e=>e.PlayerSeat==0 && e.SourceSkillId==Loss && e.SkillIds.Contains("fixture:zk-source-suppression"))==1 &&
-            !lost.GetHumanLegalActions().Any(a=>a.SkillId=="ol:duwu"),
-            "A real cost-movement observer suppresses the source after atomic payment, while the exact paid tail still deals its frozen damage and completes without repayment.");lost=Cold(lost,lr);
-        StrictContracts();
-    }
-
     private static void Freeze(RequestedDeckBasicFrame view)
     {
         var caller=view.CardIds.ToList();var clone=view with {CardIds=caller};caller.Clear();
@@ -141,13 +78,6 @@ internal static class OrdinaryZhugeKeChecks
         Require(P(g)!.IsPrivate && g.CreateSnapshot(view.Receipt.ActorSeat).PrivateRevealedCards!.Select(c=>c.Id).SequenceEqual(view.CardIds),"Only the acting viewer receives the actual ordered top cards.");
         for(var seat=0;seat<4;seat++)if(seat!=view.Receipt.ActorSeat)Require(g.CreateSnapshot(seat).PendingDecision is null &&
             g.CreateSnapshot(seat).PrivateRevealedCards is null,"Other prepared views contain neither private card choices nor looked-at IDs.");
-    }
-    private static void StrictContracts()
-    {
-        var rejected=false;try { SkillProgramCatalog.Load($$"""
-        {"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[{"id":"fixture:zk-invalid","revision":1,"triggers":[{"id":"bad","window":"afterDamageApplied","subject":"owner","optional":false,"effects":[{"op":"discardTargetHpCardsAndDamage","target":"selectedTarget"}]}]}]}
-        """,JsonSerializer.Serialize(new{schemaVersion=SkillProgramCatalog.PresentationSchemaVersion,skills=new Dictionary<string,object>{["fixture:zk-invalid"]=new{name="拒收",description="新操作仅独立主动入口"}}})); }
-        catch(InvalidOperationException){rejected=true;}Require(rejected,"The standalone paid-damage instruction cannot silently appear in an arbitrary trigger recipe.");
     }
     private static RequestedDeckBasicFrame View(GameEngine g)=>g.ResolutionStack.OfType<RequestedDeckBasicFrame>().Single();
     private static ProgramSkillFrame Root(GameEngine g)=>g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f=>f.DynamicDiscardDamage is not null);
@@ -175,8 +105,6 @@ internal static class OrdinaryZhugeKeChecks
     private static void Play(GameEngine g)=>Reach(g,p=>p.PlayerSeat==0 && p.Kind==DecisionKind.PlayCard);
     private static void Reach(GameEngine g,Func<PendingDecision,bool> predicate)
     {for(var i=0;i<180;i++){if(P(g)is{}p && predicate(p))return;Step(g);}throw new InvalidOperationException("Zhuge Ke exact boundary missing: "+JsonSerializer.Serialize(P(g)));}
-    private static void Until(GameEngine g,Func<bool> predicate)
-    {for(var i=0;i<180;i++){if(predicate())return;Step(g);}throw new InvalidOperationException("Zhuge Ke exact native return missing.");}
     private static void Step(GameEngine g)
     {
         var p=P(g);

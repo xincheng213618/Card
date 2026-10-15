@@ -133,6 +133,7 @@ public sealed partial class GameEngine
 
     // Prompt router: every 鬻爵 prompt rides one op, so the shared program
     // dispatch hands each accepted choice back through this single entry.
+    [ProgramAnswer("yujue-slot", "yujue-decline", "yujue-target", "yujue-give")]
     private void ResolveYujueProgramChoice(PromptChoice selected)
     {
         switch (selected.Parameters.GetValueOrDefault("program-action"))
@@ -546,6 +547,7 @@ public sealed partial class GameEngine
     private PromptChoice SelectAiYujueGiveChoice(PendingDecision decision) =>
         decision.Choices.OrderBy(choice => choice.Id.Value, StringComparer.Ordinal).First();
 
+    [ProgramAiChoice(SkillProgramEffectOp.YujueResolve)]
     private PromptChoice SelectAiYujueChoice(PendingDecision decision)
     {
         var first = decision.Choices[0].Parameters.GetValueOrDefault("program-action");

@@ -80,6 +80,7 @@ public sealed partial class GameEngine
         _status = _players[frame.OwnerSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
         AdvanceRulesAndPublishState();
     }
+    [ProgramAnswer("short-range-slash-target")]
     private void ResolveShortRangeSlashTarget(PromptChoice selected)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("The short-range chooser lost its owning program.");
@@ -118,6 +119,7 @@ public sealed partial class GameEngine
                     !AssistedChoicesEqual(prompt.Choices, ShortRangeSlashChoices(frame))))
             throw new InvalidOperationException("A short-range target draft lost its source, actual use or frozen target choices.");
     }
+    [ProgramAiChoice(SkillProgramEffectOp.OfferShortRangeSlashTarget)]
     private PromptChoice SelectAiShortRangeSlash(PendingDecision decision, ProgramSkillFrame frame)
     {
         var view = CreateSnapshot(decision.PlayerSeat); var brain = _aiBrains[decision.PlayerSeat];

@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:lianpian",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "consecutive-native-use",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "actor",
+          "optional": true,
+          "usageScope": "turn",
+          "usageLimit": 3,
+          "effects": [
+            {
+              "op": "drawThenOfferActualConsecutiveTargetGift",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

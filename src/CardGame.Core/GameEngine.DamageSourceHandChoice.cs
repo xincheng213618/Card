@@ -57,6 +57,7 @@ public sealed partial class GameEngine
         _status = _players[f.OwnerSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
         static int rSource(ProgramSkillFrame frame) => frame.DamageSourceHandChoice!.DamageSourceSeat;
     }
+    [ProgramAnswer("damage-source-hand")]
     private void ResolveDamageSourceHandChoice(PromptChoice choice)
     {
         var f = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("Damage hand choice lost owner.");
@@ -150,6 +151,7 @@ public sealed partial class GameEngine
         if (f.DamageSourceHandChoice is not { Stage: DamageSourceHandChoiceStage.MovementChildren or DamageSourceHandChoiceStage.DamageIssued }) return false;
         RequireDamageSourceHandChoice(f); return true;
     }
+    [ProgramAiChoice(SkillProgramEffectOp.ResolveDamageSourceHandChoice)]
     private PromptChoice SelectAiDamageSourceHandChoice(PendingDecision d, ProgramSkillFrame f)
     {
         if (f.DamageSourceHandChoice!.Stage == DamageSourceHandChoiceStage.Branch)

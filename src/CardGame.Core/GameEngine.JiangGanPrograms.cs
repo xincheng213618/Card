@@ -77,6 +77,7 @@ public sealed partial class GameEngine
         _status = _players[frame.OwnerSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
 
+    [ProgramAnswer("daoshu-suit")]
     private void ResolveDaoshuSuitChoice(PromptChoice selected)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ??
@@ -201,6 +202,7 @@ public sealed partial class GameEngine
         _status = owner.IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
 
+    [ProgramAnswer("daoshu-give-back")]
     private void ResolveDaoshuGiveBackChoice(PromptChoice selected)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ??
@@ -248,8 +250,6 @@ public sealed partial class GameEngine
             AdvanceRuntimeProgram(active.Id);
     }
 
-    private PromptChoice SelectAiDaoshuChoice(PendingDecision decision) =>
-        decision.Choices.OrderBy(choice => choice.Id.Value, StringComparer.Ordinal).First();
 
     private sealed partial class ProgramSkillHost : IJiangGanProgramHost
     {

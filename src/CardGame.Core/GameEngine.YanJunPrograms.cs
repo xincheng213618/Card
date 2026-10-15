@@ -148,6 +148,7 @@ public sealed partial class GameEngine
         return SkillProgramStepOutcome.AwaitChoice;
     }
 
+    [ProgramAnswer("guanchao-pattern")]
     private void ResolveGuanchaoPatternChoice(PromptChoice selected)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ??
@@ -249,6 +250,7 @@ public sealed partial class GameEngine
         return SkillProgramStepOutcome.AwaitChoice;
     }
 
+    [ProgramAnswer("xunxian-gift")]
     private void ResolveXunxianGiftChoice(PromptChoice selected)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ??
@@ -292,11 +294,7 @@ public sealed partial class GameEngine
             AdvanceRuntimeProgram(active.Id);
     }
 
-    private PromptChoice SelectAiGuanchaoPatternChoice(PendingDecision decision) =>
-        decision.Choices.OrderBy(choice => choice.Id.Value, StringComparer.Ordinal).First();
 
-    private PromptChoice SelectAiXunxianGiftChoice(PendingDecision decision) =>
-        decision.Choices.OrderBy(choice => choice.Id.Value, StringComparer.Ordinal).First();
 
     private sealed partial class ProgramSkillHost : IYanJunProgramHost
     {

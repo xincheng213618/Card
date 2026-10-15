@@ -250,6 +250,7 @@ public sealed partial class GameEngine
         FinishProgramSkill(frame, true);
     }
 
+    [ProgramAiChoice(SkillProgramEffectOp.OfferCurrentTurnHandExchange)]
     private PromptChoice SelectAiCurrentTurnHandExchange(PendingDecision decision, ProgramSkillFrame frame)
     {
         AssertCurrentTurnHandExchange(frame);

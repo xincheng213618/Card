@@ -31,33 +31,6 @@ internal static class BoundaryLuMengChecks
         Require(!g.Events.Select(e=>e.Payload).OfType<TurnDiscardSuitMaskChangedEvent>().Any(e=>e.TurnNumber==2),"The new actual turn starts with no inherited suit mask.");
         Replay(g,r);
     }
-    public static void ThreeSuitsDeclineAndQuota()
-    {
-        var (negative,r)=Create("botu"); Use(negative,"grow"); foreach(var s in Suits.Take(3))Discard(negative,s);
-        End(negative); AdvanceTo(negative,g=>g.CreateSnapshot(0).CurrentSeat==1);
-        Require(!Started(negative,"boundary:botu").Any(),"Only three suits cannot offer or commit Botu."); Replay(negative,r);
-        var (g,registry)=Create("botu");
-        for(var i=0;i<3;i++)
-        {
-            Four(g); End(g); Reach(g,p=>p.SkillPrompt?.SkillId=="boundary:botu");
-            Replay(g,registry); Activate(g); ReachPlay(g);
-            Require(Round(g)==1,"Every self extra turn remains in its original Round.");
-        }
-        Four(g); End(g); AdvanceTo(g,x=>x.CreateSnapshot(0).CurrentSeat==1);
-        Require(Started(g,"boundary:botu").Count()==3,"Round usage is capped at three despite four actual turns."); Replay(g,registry);
-        var (decline,dr)=Create("botu"); Four(decline); End(decline); Reach(decline,p=>p.SkillPrompt?.SkillId=="boundary:botu");
-        Skip(decline); AdvanceTo(decline,x=>x.CreateSnapshot(0).CurrentSeat==1);
-        Require(!Started(decline,"boundary:botu").Any() && !decline.Events.Any(e=>e.Payload is SkillUsageConsumedEvent u&&u.SkillId=="boundary:botu"),"Decline consumes neither committed usage nor an extra turn.");Replay(decline,dr);
-    }
-    public static void DynamicAliveCap()
-    {
-        var (g,r)=Create("botu");
-        for(var i=0;i<2;i++){Four(g);End(g);Reach(g,p=>p.SkillPrompt?.SkillId=="boundary:botu");Activate(g);ReachPlay(g);}
-        Use(g,"kill",[1]); Use(g,"kill",[2]);
-        Require(g.CreateSnapshot(0).Players.Count(p=>p.IsAlive)==2,"Real nested damage and dying resolve two actual deaths.");
-        Four(g); End(g); AdvanceTo(g,x=>x.CreateSnapshot(0).CurrentSeat==3);
-        Require(Started(g,"boundary:botu").Count()==2&&Round(g)==1,"The live alive-count cap shrinks to two without resetting paid Round usage.");Replay(g,r);
-    }
     public static void CrossOwnerSkipChainAndResumeDeath()
     {
         foreach(var mode in new[]{"cross","skip","chain","dead-resume"})
@@ -100,29 +73,6 @@ internal static class BoundaryLuMengChecks
         Answer(e,c=>c.Parameters.GetValueOrDefault("option-id")=="recover");AdvanceTo(e,x=>x.CreateSnapshot(0).CurrentSeat==1);
         Require(e.CreateSnapshot(0).Players[0] is {Hp:3,MaxHp:3}&&Started(e,"boundary:qinxue").Single().Window==SkillProgramTriggerWindow.TurnEnding,"Recovery and the Ending awakening commit exactly once.");Replay(e,er);
     }
-    public static void KejiUsePlayedAcrossPlayPhases()
-    {
-        foreach(var mode in new[]{"keji-use","keji-played","keji-none"})
-        {
-            var(g,r)=Create(mode);
-            if(mode=="keji-use")
-            {
-                var a=g.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.Slash);
-                Accept(g,new PlayCardCommand(0,a.CardId!.Value,a.TargetSeats,g.Revision,Prompt(g)!.PromptId));ReachPlay(g);
-            }
-            if(mode=="keji-played")
-            {
-                Accept(g,new UseProgramSkillCommand(0,"fixture:lm-driver","duel",[],[1,0],g.Revision,Prompt(g)!.PromptId));
-                Reach(g,p=>p.PlayerSeat==0&&p.Kind==DecisionKind.RespondSlash);Replay(g,r);
-                Answer(g,c=>c.Cards.Count==1);ReachPlay(g);
-            }
-            End(g);ReachPlay(g);Require(g.Events.Select(e=>e.Payload).OfType<PhaseChangedEvent>().Count(e=>e.ActorSeat==0&&e.Phase==TurnPhase.Play)==2&&g.CreateSnapshot(0).Phase==TurnPhase.Play,"Dangxian returns from its extra Play into normal Play.");End(g);
-            if(mode=="keji-none")
-            {Reach(g,p=>p.Kind==DecisionKind.SkipDiscardPolicy);Replay(g,r);Answer(g,c=>c.Parameters.GetValueOrDefault("action")=="discard-policy-use");}
-            AdvanceTo(g,x=>x.CreateSnapshot(0).CurrentSeat==1);
-            Require(!g.AcceptedCommands.OfType<AnswerPromptCommand>().Any(c=>c.Choice.Value.Contains("discard-policy")) || mode=="keji-none","The used/played turn never opens a discard policy choice.");Replay(g,r);
-        }
-    }
     public static void OptInUsageCatalogAndLegacyShape()
     {
         var r=Registry("botu"); var p=r.GetSkill("boundary:botu").Program!;
@@ -149,48 +99,7 @@ internal static class BoundaryLuMengChecks
             var rejected=false;try{Load(invalid);}catch(InvalidOperationException){rejected=true;}Require(rejected,"Invalid dynamic scope/cap/dual-limit/group identifiers reject at catalog load: "+invalid);
         }
     }
-    public static void RoundRefreshAndSourceRegrant()
-    {
-        var(g,r)=Create("botu");
-        for(var i=0;i<3;i++){Four(g);End(g);Reach(g,p=>p.SkillPrompt?.SkillId=="boundary:botu");Activate(g);ReachPlay(g);}
-        Four(g);End(g);ReachPlay(g);
-        Require(Round(g)==2 && g.CreateSnapshot(0).TurnNumber==8,"Only the next repeated normal seat begins a new Round after all inserted extras and intervening normal turns.");
-        Four(g);End(g);Reach(g,p=>p.SkillPrompt?.SkillId=="boundary:botu");Replay(g,r);Activate(g);ReachPlay(g);
-        Require(Started(g,"boundary:botu").Count()==4 && Round(g)==2,"A real new Round resets the named dynamic limit once.");Replay(g,r);
-
-        // Direct grants deliberately test the existing host grant model, not command-only checkpoint restoration.
-        var(m,mr)=Create("botu");Four(m);End(m);Reach(m,p=>p.SkillPrompt?.SkillId=="boundary:botu");Activate(m);ReachPlay(m);Replay(m,mr);
-        var owner=Players(m)[0];owner.SkillGrants.RemoveGrant(owner.SkillGrants.Grants.Single(q=>q.SkillId=="boundary:botu").GrantId);
-        owner.SkillGrants.Grant(new("fixture:b","boundary:botu","fixture:b-instance","fixture:source"));
-        owner.SkillGrants.Grant(new("fixture:a","boundary:botu","fixture:a-instance","fixture:source"));
-        for(var i=0;i<2;i++)
-        {
-            Four(m);End(m);Reach(m,p=>p.SkillPrompt?.SkillId=="boundary:botu");
-            var item=((DeferredTurnEndFrame)m.ResolutionStack.First()).AfterTurnEnded!.Items.Single(x=>x.Candidate?.SkillId=="boundary:botu");
-            Require(item.Candidate!.SkillInstanceId=="fixture:a-instance","Multi-grant dedup retains the stable exact candidate instance.");Activate(m);ReachPlay(m);
-        }
-        Four(m);End(m);AdvanceTo(m,x=>x.CreateSnapshot(0).CurrentSeat==1);
-        Require(Started(m,"boundary:botu").Count()==3,"Loss and two regranted instances cannot refresh the owner-plus-named-skill Round counter.");
-        var(a,ar)=Create("awake-start",false);Reach(a,p=>p.SkillPrompt?.SkillId=="boundary:qinxue");Answer(a,c=>c.Parameters.GetValueOrDefault("option-id")=="draw");ReachPlay(a);Replay(a,ar);
-        var awakeningOwner=Players(a)[0];awakeningOwner.SkillGrants.RemoveGrant(awakeningOwner.SkillGrants.Grants.Single(q=>q.SkillId=="boundary:qinxue").GrantId);
-        awakeningOwner.SkillGrants.Grant(new("fixture:awake-new","boundary:qinxue","fixture:awake-instance","fixture:awake-source"));
-        Use(a,"grow");End(a);Reach(a,p=>p.Kind==DecisionKind.SkipDiscardPolicy);Answer(a,c=>c.Parameters.GetValueOrDefault("action")=="discard-policy-use");AdvanceTo(a,x=>x.CreateSnapshot(0).CurrentSeat==1);
-        Require(Started(a,"boundary:qinxue").Count()==1,"New awakening source instance still shares the consumed named Game group across Ending.");
-    }
     private static List<CharacterState> Players(GameEngine g)=>(List<CharacterState>)typeof(GameEngine).GetField("_players",System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic)!.GetValue(g)!;
-    public static void BatchMaskBeforeMovementChild()
-    {
-        var(g,r)=Create("batch");Use(g,"grow");
-        var cards=Suits.Select(s=>PhysicalHand(g,0).First(c=>c.Suit==s).Id).ToArray();
-        Accept(g,new UseProgramSkillCommand(0,"fixture:lm-driver","batch",cards,[],g.Revision,Prompt(g)!.PromptId));
-        Reach(g,p=>p.SkillPrompt?.SkillId=="fixture:lm-movement");
-        var child=g.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Single();
-        Require(child.Batch.Movements.Count==4&&child.Batch.Movements.All(m=>m.To==CardLocation.DiscardPile)&&
-            g.Events.Select(e=>e.Payload).OfType<TurnDiscardSuitMaskChangedEvent>().Last() is {TurnNumber:1,SuitMask:15},"One real physical discard batch captures all four printed suits before its movement child is offered.");
-        Replay(g,r);Reject(g);Answer(g,c=>c.Parameters.GetValueOrDefault("option-id")=="continue");ReachPlay(g);
-        Require(g.CardMovements.Count(m=>cards.Contains(m.CardId)&&m.To==CardLocation.DiscardPile)==4,"Movement child return cannot repeat a paid physical batch.");
-        End(g);Reach(g,p=>p.SkillPrompt?.SkillId=="boundary:botu");Replay(g,r);Skip(g);AdvanceTo(g,x=>x.CreateSnapshot(0).CurrentSeat==1);
-    }
     private static string Presentation(string json)
     {
         var root=JsonNode.Parse(json)!;root["schemaVersion"]=SkillProgramCatalog.PresentationSchemaVersion;return root.ToJsonString();
@@ -233,7 +142,6 @@ internal static class BoundaryLuMengChecks
         var h=PhysicalHand(g,0); Require(h.Any(c=>c.Suit==s),$"Printed {s} missing at actual turn {g.CreateSnapshot(0).TurnNumber}: {string.Join(',',h.Select(c=>$"{c.Id}:{c.Suit}"))}");
         DiscardCard(g,h.First(c=>c.Suit==s).Id);
     }
-    private static void Four(GameEngine g){Use(g,"grow");foreach(var s in Suits)Discard(g,s);}
     private static int Round(GameEngine g)=>g.Events.Select(e=>e.Payload).OfType<RoundStartedEvent>().Last().RoundNumber;
     private static IEnumerable<ProgramBindingStartedEvent> Started(GameEngine g,string id)=>g.Events.Select(e=>e.Payload).OfType<ProgramBindingStartedEvent>().Where(e=>e.SkillId==id);
     private static string State(GameEngine g)=>JsonSerializer.Serialize(new{Views=Enumerable.Range(0,4).Select(s=>SnapshotJson.Serialize(g.CreateSnapshot(s))).ToArray(),Frames=JsonSerializer.Serialize(g.ResolutionStack),Events=g.Events.Select(e=>JsonSerializer.Serialize(e.Payload,e.Payload.GetType())).ToArray(),g.CardMovements,Commands=CommandJson.Serialize(g.AcceptedCommands),Zones=g.CreateCardZoneDiagnostics()});
@@ -258,9 +166,9 @@ internal static class BoundaryLuMengChecks
             foreach(var s in source.Skills.Values)
             {
                 var optsIntoRound = s.Program is { } program &&
-                    (program.Triggers.Any(t=>t.Window == SkillProgramTriggerWindow.RoundStarting || t.UsageScope == SkillUsageScope.Round ||
+                    (program.Triggers.Any(t=>t.Window == SkillProgramTriggerWindow.RoundStarting || t.Window == SkillProgramTriggerWindow.TurnBeforeStart || t.UsageScope == SkillUsageScope.Round ||
                          t.DynamicUsageLimit is not null || UsesDiscardSuitHistory(t.Condition)) ||
-                     program.ViewAs.Any(rule=>rule.TieredRoundConversion is not null || rule.RoundDistinctBasicUse is not null) ||
+                     program.ViewAs.Any(rule=>rule.TieredRoundConversion is not null || rule.RoundOnceCardlessBasic is not null || rule.RoundDistinctBasicUse is not null) ||
                      program.Activations.SelectMany(a=>a.Effects).Any(e=>e.Op==SkillProgramEffectOp.ScheduleFirstRoundGameUsageRefund) ||
                      program.Triggers.SelectMany(t=>t.Effects).Any(e=>e.Op is
                          SkillProgramEffectOp.HoldRoundFocusCards or

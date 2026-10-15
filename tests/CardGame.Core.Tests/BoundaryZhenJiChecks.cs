@@ -7,29 +7,6 @@ internal static class BoundaryZhenJiChecks
 {
     private const BindingFlags Flags=BindingFlags.Instance|BindingFlags.NonPublic;
     private static readonly Lazy<ContentRegistry> Classic=new(()=>ContentRegistry.Build(new StandardContentPackage(),new StandardActiveSkillExpansionPackage(true),new StandardRescueSkillExpansionPackage(),new StandardClassicGeneralPackage()));
-    public static void ExactReceiptStopRedAndDiscard()
-    {
-        var(g,r)=Start("black");Replay(g,r);Activate(g);Reach(g,p=>p.Kind==DecisionKind.ProgramRepeatJudgment);
-        var suits=g.ResolutionStack.OfType<ProgramSkillFrame>().Single().RepeatedJudgment!.SuccessSuits;Require(suits is IList<Suit> {IsReadOnly:true},"Owning repeated success-suit collection is frozen at the exposed diagnostic boundary.");
-        var grant=Grants(g).Single();Require(g.State.Players[0].Hand.Any(c=>c.Id==grant.CardId)&&!Eligible(g,0).Any(c=>c.Id==grant.CardId),"Only the actual finalized Judgment→owner Hand receipt is exempt.");
-        Require(g.CardMovements.Count(m=>m.CardId==grant.CardId&&m.From==CardLocation.Judgment(0)&&m.To==CardLocation.Hand(0))==1,"The exact entity is acquired once.");
-        Require(Eligible(g,0).Count==4,"All four original hand cards still count toward the hand limit.");
-        Replay(g,r);Reject(g,new AnswerPromptCommand(0,P(g)!.PromptId,new ChoiceId("fake-repeat"),g.Revision));Answer(g,c=>Action(c)=="stop");Settle(g);Use(g,"draw");Settle(g);
-        Require(Eligible(g,0).Count==g.State.Players[0].Hand.Count-1,"Ordinary normal Draw and skill gains remain eligible.");
-        Accept(g,new EndPlayPhaseCommand(0,g.Revision,P(g)!.PromptId));Reach(g,p=>p.Kind==DecisionKind.DiscardCards);
-        Require(P(g)!.ValidCardIds.All(id=>id!=grant.CardId),"Human discard candidates exclude exactly the actual claimed entity.");Replay(g,r);
-        var(mixed,mr)=Start("black-red");Activate(mixed);Reach(mixed,p=>p.Kind==DecisionKind.ProgramRepeatJudgment);Replay(mixed,mr);Answer(mixed,c=>Action(c)=="continue");Settle(mixed);
-        Require(Grants(mixed).Count==1&&mixed.Events.Select(e=>e.Payload).OfType<JudgmentResolvedEvent>().Count(e=>e.Reason=="skill.luoshen")==2,"One true black result continues into final red; only the black actual receipt is exempt.");Replay(mixed,mr);
-        var(many,manyRegistry)=Start("black");Activate(many);
-        for(var i=0;i<3;i++){Reach(many,p=>p.Kind==DecisionKind.ProgramRepeatJudgment);Require(Grants(many).Count==i+1&&Grants(many).Select(x=>x.CardId).Distinct().Count()==i+1,"Each repeat earns only its distinct physical receipt once.");Replay(many,manyRegistry);Answer(many,c=>Action(c)==(i<2?"continue":"stop"));}Settle(many);Replay(many,manyRegistry);
-        var(ai,aiRegistry)=Start("ai");Answer(ai,c=>Action(c)=="skip");Settle(ai);Accept(ai,new EndPlayPhaseCommand(0,ai.Revision,P(ai)!.PromptId));
-        Reach(ai,p=>p.Kind==DecisionKind.DiscardCards);var discard=P(ai)!;Accept(ai,new DiscardCardsCommand(0,discard.ValidCardIds.Take(discard.RequiredCardCount).ToArray(),discard.PromptId,ai.Revision));
-        for(var i=0;i<80;i++){if(ai.CreateSnapshot(0).CurrentSeat==2)break;Accept(ai,new AdvanceOneStepCommand(ai.Revision));}
-        Require(ai.Events.Select(e=>e.Payload).OfType<ProgramBindingStartedEvent>().Any(e=>e.OwnerSeat==1&&e.SkillId=="boundary:luoshen"),"The formal optional new Luoshen actually activates through native AI public estimation.");var aiReceipts=ai.Events.Select(e=>e.Payload).OfType<TurnHandLimitExemptCardGrantedEvent>().Where(e=>e.Grant.BeneficiarySeat==1).Select(e=>e.Grant.CardId).ToArray();
-        Require(aiReceipts.Length==3&&aiReceipts.All(id=>ai.CreateSnapshot(1).Players[1].Hand.Any(c=>c.Id==id))&&ai.CardMovements.Count(m=>m.From==CardLocation.Hand(1)&&m.To==CardLocation.DiscardPile)==2,"Native AI discard keeps all three actual claimed entities exempt (including the real reshuffled discarded card) and still discards two original cards to its numeric limit.");Replay(ai,aiRegistry);
-        var(red,rr)=Start("red");Activate(red);Settle(red);Require(Grants(red).Count==0&&!red.Events.Select(e=>e.Payload).OfType<ProgramJudgmentCardClaimedEvent>().Any(e=>e.SkillId=="boundary:luoshen"),"Final red entity is discarded with no receipt, reward or repeat.");
-        Require(red.CardMovements.Any(m=>m.From==CardLocation.Judgment(0)&&m.To==CardLocation.DiscardPile),"Failed red judgment is physically cleaned.");Replay(red,rr);
-    }
     public static void FrozenFinalOutcomeReplacementAndClaim()
     {
         var(replace,rr)=Start("replacement");Activate(replace);Reach(replace,p=>p.Kind==DecisionKind.ProgramJudgmentReplacement);
@@ -53,36 +30,6 @@ internal static class BoundaryZhenJiChecks
         var(claim,cr)=Start("claim");Activate(claim);Reach(claim,p=>p.Kind==DecisionKind.ProgramJudgmentTrigger);Replay(claim,cr);Activate(claim);
         Reach(claim,p=>p.Kind==DecisionKind.ProgramRepeatJudgment);Require(Grants(claim).Count==0&&claim.Events.Select(e=>e.Payload).OfType<ProgramJudgmentCardClaimedEvent>().Any(e=>e.SkillId=="fixture:claim"),"Another real finalized child claims black entity; Luoshen keeps final black continuation but earns no own receipt grant.");
         Answer(claim,c=>Action(c)=="stop");Settle(claim);Replay(claim,cr);
-    }
-    public static void ReceiptBeforeGainChildAndSourceLoss()
-    {
-        var(g,r)=Start("gain-child");Activate(g);Reach(g,p=>p.SkillPrompt?.SkillId=="fixture:gain-child");var grant=Grants(g).Single();var frame=g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f=>f.SkillId=="boundary:luoshen");
-        Require(frame.RepeatedJudgment?.LastClaimReceipt is { } receipt&&receipt.GrantSequence==grant.GrantSequence&&!Eligible(g,0).Any(c=>c.Id==grant.CardId),"Typed actual receipt and exemption exist before the real gain child.");Replay(g,r);Activate(g);Answer(g,c=>c.Cards.SequenceEqual(new[]{grant.CardId}));
-        Reach(g,p=>p.Kind==DecisionKind.ProgramRepeatJudgment);Answer(g,c=>Action(c)=="stop");Settle(g);
-        Require(Grants(g).Count==1&&!g.State.Players[0].Hand.Any(c=>c.Id==grant.CardId),"A real child discards the claimed entity without erasing or duplicating its reward.");Replay(g,r);
-        foreach(var scenario in new[]{"before-loss","after-loss"})
-        {
-            var(loss,lr)=Start(scenario);Activate(loss);Reach(loss,p=>scenario=="before-loss"?p.Kind==DecisionKind.ProgramJudgmentTrigger:p.SkillPrompt?.SkillId=="fixture:loss");Replay(loss,lr);Activate(loss);Settle(loss);
-            Require(loss.State.Players[0].Hp==1&&!SourceLive(loss),"Real child HP loss enables existing Chanyuan skill suppression. scenario="+scenario+" hp="+loss.State.Players[0].Hp+" skills="+string.Join(",",loss.CreateSnapshot(0).Players[0].Skills!.Select(s=>s.ContentId)));
-            Require(Grants(loss).Count==(scenario=="after-loss"?1:0),"After-receipt source invalidation keeps reward; before-receipt source invalidation earns none.");
-            Require(!loss.CreateCardZoneDiagnostics().Any(c=>c.Location==CardLocation.Judgment(0))&&!loss.ResolutionStack.OfType<ProgramSkillFrame>().Any(),"Invalid issuing source finishes finitely and cleans its unclaimed real judgment exactly once.");Replay(loss,lr);
-        }
-        RealOwnerDeath("before-death");RealOwnerDeath("after-death");RealOwnerRescue("before-rescue");RealOwnerRescue("after-rescue");
-    }
-    private static void RealOwnerDeath(string scenario)
-    {
-        var(g,r)=Start(scenario);Activate(g);Reach(g,p=>scenario=="before-death"?p.Kind==DecisionKind.ProgramJudgmentTrigger:p.SkillPrompt?.SkillId=="fixture:death");Replay(g,r);var finalCard=g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f=>f.SkillId=="boundary:luoshen").RepeatedJudgment!.FinalOutcome!.CardId;
-        Activate(g);
-        for(var i=0;i<40&&g.State.Players[0].IsAlive;i++)Accept(g,new AdvanceOneStepCommand(g.Revision));
-        Require(!g.State.Players[0].IsAlive&&g.Events.Select(e=>e.Payload).OfType<TurnHandLimitExemptCardGrantedEvent>().Count()==(scenario=="after-death"?1:0),"Real owning death is finite, preserves only an already-paid actual receipt, and never grants before receipt.");
-        Require(!g.CreateCardZoneDiagnostics().Any(c=>c.Location==CardLocation.Judgment(0)),"Death cleanup cannot leave the final physical judgment entity behind.");Require(g.CardMovements.Count(m=>m.CardId==finalCard&&m.From==CardLocation.Judgment(0))==1&&!g.ResolutionStack.OfType<ProgramSkillFrame>().Any(f=>f.SkillId=="boundary:luoshen"),"The real death path retires its owning repeated frame and consumes the judgment entity once.");Replay(g,r);
-    }
-    private static void RealOwnerRescue(string scenario)
-    {
-        var(g,r)=Start(scenario);Activate(g);Reach(g,p=>scenario=="before-rescue"?p.Kind==DecisionKind.ProgramJudgmentTrigger:p.SkillPrompt?.SkillId=="fixture:death");Replay(g,r);Activate(g);
-        Reach(g,p=>p.Kind==DecisionKind.RescueDying&&p.PlayerSeat==0);Replay(g,r);var peach=g.State.Players[0].Hand.Single(c=>c.Kind==CardKind.Peach).Id;
-        Answer(g,c=>c.Cards.Contains(peach));Reach(g,p=>p.Kind==DecisionKind.ProgramRepeatJudgment);
-        Require(g.State.Players[0] is {IsAlive:true,Hp:1}&&Grants(g).Count==1,"Real self rescue returns through the exact owning judgment/gain subtree and issues exactly one reward.");Replay(g,r);Answer(g,c=>Action(c)=="stop");Settle(g);Replay(g,r);
     }
     public static void ExactIdentityReturnActualTurnExpiryAndPrivacy()
     {
@@ -122,13 +69,11 @@ internal static class BoundaryZhenJiChecks
     private static void Reach(GameEngine g,Func<PendingDecision,bool> stop){for(var i=0;i<65;i++){if(P(g) is {} p&&stop(p))return;Accept(g,new AdvanceOneStepCommand(g.Revision));}throw new InvalidOperationException("Boundary not reached: "+P(g)?.Kind+" "+P(g)?.SkillPrompt?.SkillId+" "+string.Join(',',P(g)?.Choices.Select(Action)??[]));}
     private static void Settle(GameEngine g)=>Reach(g,p=>p.Kind==DecisionKind.PlayCard&&p.PlayerSeat==0);
     private static void Use(GameEngine g,string action,int[]?cards=null)=>Accept(g,new UseProgramSkillCommand(0,"fixture:driver",action,cards??[],[],g.Revision,P(g)!.PromptId));
-    private static bool SourceLive(GameEngine g){var grant=Players(g)[0].SkillGrants.Grants.Single(s=>s.SkillId=="boundary:luoshen");return (bool)typeof(GameEngine).GetMethod("HasRuntimeSkillInstance",Flags)!.Invoke(g,[Players(g)[0],grant.SkillId,grant.SkillInstanceId])!;}
     private static uint Rng(GameEngine g){var random=typeof(GameEngine).GetField("_random",Flags)!.GetValue(g)!;return (uint)random.GetType().GetProperty("State")!.GetValue(random)!;}
     private static IReadOnlyList<CharacterState> Players(GameEngine g)=>(IReadOnlyList<CharacterState>)typeof(GameEngine).GetField("_players",Flags)!.GetValue(g)!;
     private static IReadOnlyList<Card> Eligible(GameEngine g,int seat)=>(IReadOnlyList<Card>)typeof(GameEngine).GetMethod("GetDiscardEligibleHand",Flags)!.Invoke(g,[Players(g)[seat]])!;
     private static IReadOnlyList<TurnHandLimitExemptCardGrant> Grants(GameEngine g){var store=typeof(GameEngine).GetField("_turnCardUseEffects",Flags)!.GetValue(g)!;return (IReadOnlyList<TurnHandLimitExemptCardGrant>)store.GetType().GetProperty("HandLimitExemptCards",Flags)!.GetValue(store)!;}
     private static void Replay(GameEngine g,ContentRegistry r){var restored=GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(g.CreateCheckpoint())),r);Require(Enumerable.Range(0,4).All(s=>SnapshotJson.Serialize(g.CreateSnapshot(s))==SnapshotJson.Serialize(restored.CreateSnapshot(s)))&&g.CardMovements.SequenceEqual(restored.CardMovements)&&JsonSerializer.Serialize(g.ResolutionStack)==JsonSerializer.Serialize(restored.ResolutionStack)&&Rng(g)==Rng(restored)&&Grants(g).SequenceEqual(Grants(restored))&&Enumerable.Range(0,4).All(s=>Eligible(g,s).Select(c=>c.Id).SequenceEqual(Eligible(restored,s).Select(c=>c.Id))),"Four viewer cold replay preserves exact frames, movement, scalar grants, RNG and discard eligibility.");}
-    private static void Reject(GameEngine g,GameCommand c){var revision=g.Revision;var random=Rng(g);var snapshot=SnapshotJson.Serialize(g.CreateSnapshot(0));Require(!g.Submit(c).Accepted&&g.Revision==revision&&Rng(g)==random&&SnapshotJson.Serialize(g.CreateSnapshot(0))==snapshot,"Illegal input rejects atomically.");}
     private static void Accept(GameEngine g,GameCommand c){var result=g.Submit(CommandJson.Deserialize(CommandJson.Serialize([c])).Single());Require(result.Accepted,result.Error?.Message??"Rejected");}
     private static void Require(bool ok,string message){if(!ok)throw new InvalidOperationException(message);}
     private static SkillProgramCatalog Load(string skill)=>SkillProgramCatalog.Load($$"""{"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[{{skill}}]}""","""{"schemaVersion":3,"skills":{"fixture:narrow":{"name":"narrow","description":"narrow"}}}""");

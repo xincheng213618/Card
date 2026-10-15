@@ -44,9 +44,10 @@ public sealed partial class GameEngine
         };
         ReplaceRuntimeTop(active);
         var choices = NearestLegalSlashChoices(active);
-        if (choices.All(choice => choice.Parameters["request-option"] == "decline") &&
+        if (choices.All(choice => choice.Parameters.GetValueOrDefault("request-option") == "decline") &&
             !HasChainedStateBasicProgramSlash(_players[actorSeat], nearest) &&
-            !HasDrawFundedDistinctBasicProgramSlash(_players[actorSeat], nearest))
+            !HasDrawFundedDistinctBasicProgramSlash(_players[actorSeat], nearest) &&
+            !HasRoundOnceCardlessProgramSlash(_players[actorSeat], nearest))
         {
             ReplaceRuntimeTop(active with { NearestLegalSlashRequest = null });
             return new ProgramSkillHost(this).LoseHp(active.Id, active.SkillId, actorSeat, hpAmount);
@@ -85,6 +86,7 @@ public sealed partial class GameEngine
                 });
             }
         }
+        choices.AddRange(RoundOnceCardlessProgramSlashChoices(frame, draft.ActorSeat, draft.NearestSeats));
         choices.Add(new(new ChoiceId($"nearest.{frame.Id}.{draft.ActorSeat}.decline"), "失去1点体力。", [], [],
             new Dictionary<string, string> { ["program-action"] = "nearest-legal-slash", ["request-option"] = "decline", ["frame-id"] = frame.Id.ToString(System.Globalization.CultureInfo.InvariantCulture) }));
         return choices;
@@ -259,11 +261,13 @@ public sealed partial class GameEngine
             AdvanceRuntimeProgram(frame.Id);
     }
 
+    [ProgramAiChoice(SkillProgramEffectOp.RequestLegalSlashByNearest)]
     private PromptChoice SelectAiNearestLegalSlash(PendingDecision decision) => decision.Choices
-        .Select(choice => (Choice: choice, Value: choice.Parameters["request-option"] == "decline" ? -22d :
+        .Select(choice => (Choice: choice, Value: choice.Parameters.GetValueOrDefault("request-option") == "decline" ? -22d :
             _aiBrains[decision.PlayerSeat].ScoreProgramTarget(CreateSnapshot(decision.PlayerSeat), choice.Targets.Single(), new(0, 0, 0, 0, 0, 1, false, false))))
         .OrderByDescending(item => item.Value).ThenBy(item => item.Choice.Id.Value, StringComparer.Ordinal).First().Choice;
 
+    [ProgramAiChoice(SkillProgramEffectOp.OfferUnlimitedVirtualSlash)]
     private PromptChoice SelectAiUnlimitedSlash(PendingDecision decision) => decision.Choices
         .Select(choice => (Choice: choice, Value: choice.Parameters["offer-option"] == "decline" ? 0d :
             _aiBrains[decision.PlayerSeat].ScoreProgramTarget(CreateSnapshot(decision.PlayerSeat), choice.Targets.Single(), new(0, 0, 0, 0, 0, 1, false, false))))
@@ -308,6 +312,7 @@ public sealed partial class GameEngine
             {
                 ChainedStateBasicFrame paid => IsChainedStateBasicProgramSelection(frame, effect, paid),
                 DrawFundedDistinctBasicFrame paid => IsDrawFundedDistinctBasicProgramSelection(frame, effect, paid),
+                CardUseFrame { RoundOnceCardlessProgramRequest: not null } use => RoundOnceCardlessProgramRequestRidesOn(use, frame),
                 CardUseFrame use => use.SourceSeat == actor && use.CardAttack?.ProgramSkillCardUseFrameId == frame.Id &&
                     use.Action is { Type: CardActionType.Use } action && action.ActorSeat == actor && IsSlashCard(use.CardKind),
                 DyingFrame dying => dying.ParentFrameId == frame.Id && dying.Continuation == DyingContinuationKind.ProgramSkill && dying.VictimSeat == actor,

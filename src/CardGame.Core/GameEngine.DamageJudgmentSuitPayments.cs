@@ -83,7 +83,7 @@ public sealed partial class GameEngine
             judgment.Continuation != JudgmentContinuationKind.ProgramSkill || draft.JudgmentCardId is not null)
             throw new InvalidOperationException("The finalized damage judgment changed its owning parent or result.");
         ReplaceRuntimeFrame(frame.Id, frame with { DamageJudgmentSuitPayment = draft with
-        { JudgmentCardId = card.Id, JudgmentCardKind = card.Kind, JudgmentSuit = suit, JudgmentRank = card.Rank } });
+        { JudgmentCardId = card.Id, JudgmentCardKind = card.Kind, JudgmentSuit = suit, JudgmentRank = EffectiveZhenyiJudgmentRank(judgment, card.Rank) } });
     }
 
     private bool TryReturnDamageJudgmentSuitPayment(JudgmentFrame judgment)

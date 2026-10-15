@@ -78,6 +78,7 @@ public sealed partial class GameEngine
         return SkillProgramStepOutcome.AwaitChoice;
     }
 
+    [ProgramAnswer("zhanyi-launch")]
     private void ResolveZhanyiCategoryChoice(PromptChoice selected)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ??
@@ -194,6 +195,7 @@ public sealed partial class GameEngine
         return SkillProgramStepOutcome.AwaitChoice;
     }
 
+    [ProgramAnswer("zhanyi-punish-target")]
     private void ResolveZhanyiPunishTargetChoice(PromptChoice selected)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ??
@@ -272,6 +274,7 @@ public sealed partial class GameEngine
         _status = owner.IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
 
+    [ProgramAnswer("zhanyi-punish-card")]
     private void ResolveZhanyiPunishCardChoice(PromptChoice selected)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ??
@@ -333,13 +336,7 @@ public sealed partial class GameEngine
             AdvanceRuntimeProgram(active.Id);
     }
 
-    private PromptChoice SelectAiZhanyiCategoryChoice(PendingDecision decision) =>
-        decision.Choices.OrderBy(choice => choice.Cards.Count)
-            .ThenBy(choice => choice.Id.Value, StringComparer.Ordinal).First();
 
-    private PromptChoice SelectAiZhanyiPunishChoice(PendingDecision decision) =>
-        decision.Choices.OrderBy(choice => choice.Targets.Count)
-            .ThenBy(choice => choice.Id.Value, StringComparer.Ordinal).First();
 
     private sealed partial class ProgramSkillHost : IZhuLingProgramHost
     {

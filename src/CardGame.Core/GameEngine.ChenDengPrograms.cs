@@ -151,6 +151,7 @@ public sealed partial class GameEngine
         return SkillProgramStepOutcome.AwaitChoice;
     }
 
+    [ProgramAnswer("fengji-option")]
     private void ResolveFengjiOptionChoice(PromptChoice selected)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ??
@@ -223,6 +224,7 @@ public sealed partial class GameEngine
         _status = owner.IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
 
+    [ProgramAnswer("fengji-recipient")]
     private void ResolveFengjiRecipientChoice(PromptChoice selected)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ??
@@ -299,9 +301,6 @@ public sealed partial class GameEngine
         return SkillProgramStepOutcome.Continue;
     }
 
-    private PromptChoice SelectAiFengjiChoice(PendingDecision decision) =>
-        decision.Choices.FirstOrDefault(choice => choice.Parameters.GetValueOrDefault("accept") == "false") ??
-        decision.Choices.OrderBy(choice => choice.Id.Value, StringComparer.Ordinal).First();
 
     private sealed partial class ProgramSkillHost : IChenDengProgramHost
     {

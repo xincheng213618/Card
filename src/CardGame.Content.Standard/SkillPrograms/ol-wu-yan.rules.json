@@ -1,0 +1,4 @@
+{"schemaVersion":62,"skills":[{"id":"ol:lanjiang","revision":1,"triggers":[
+ {"id":"frozen-ending-roster","window":"turnEnding","subject":"owner","turnOwnerScope":"own","optional":true,
+  "effects":[{"op":"resolveFrozenHandRosterEndingExchange","target":"owner"}]}
+]}]}

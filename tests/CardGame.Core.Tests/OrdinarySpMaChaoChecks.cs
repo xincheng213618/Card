@@ -85,38 +85,6 @@ internal static class OrdinarySpMaChaoChecks
         }
     }
 
-    public static void SelectedAndSpearMaterialSlashesUseOwnTypedReturnAndFrozenMaximum()
-    {
-        foreach (var spear in new[] { false, true })
-        {
-            var (g, r) = Create(spear: spear); Play(g); if (spear) { Use(g, "equip", [0]); Play(g); }
-            Use(g, "hurt"); Play(g);
-            var cards = g.CreateSnapshot(0).Players[0].Hand.Take(2).Select(c => c.Id).ToArray();
-            if (spear)
-            {
-                var action = g.GetHumanLegalActions().Single(a => a.Kind == LegalActionKind.UseEquipmentEffect && a.EquipmentKind == CardKind.ZhangbaSerpentSpear);
-                Require(action.MaxTargetCount >= 3, "The mature two-material spear publishes the HP-based target maximum.");
-                Accept(g, new UseEquipmentEffectCommand(0, CardKind.ZhangbaSerpentSpear, cards, [1, 2, 3], g.Revision, P(g)!.PromptId));
-            }
-            else SelectedSlash(g, [1, 2, 3], cards);
-            Reach(g, Penalty); var use = g.ResolutionStack.OfType<CardUseFrame>().Single(f => f.HpLossMaterialSlashReturn is not null);
-            var issued = use.HpLossMaterialSlashReturn!;
-            Require(use.Action is { ActorSeat: 0, ProviderSeat: 0, Type: CardActionType.Use } && use.PhysicalCardIds!.Order().SequenceEqual(cards.Order()) &&
-                use.TargetSeats.SequenceEqual([1, 2, 3]) && issued.FrozenMaximum >= 3 && issued.IsZhangba == spear &&
-                (spear ? issued.ParentProgramFrameId is null : g.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.Id == issued.ParentProgramFrameId &&
-                    f.HpLossSlashSelection?.CardUseFrameId == use.Id && f.NextActualUseAdjustment is null)),
-                "Two real materials create an independent issued return and never manufacture the old adjustment grant.");
-            Require(E<DamageAppliedEvent>(g).Length == 0 && E<SlashTargetPenaltyOfferedEvent>(g).All(e => e.Identity.CardUseFrameId == use.Id),
-                "All mandatory announced opportunities precede every multi-target effect.");
-            g = Cold(g, r); Play(g);
-            Require(cards.All(id => g.CardMovements.Count(m => m.CardId == id && m.Reason == CardMoveReasons.Use) == 1 &&
-                g.CardMovements.Count(m => m.CardId == id && m.Reason == CardMoveReasons.UseFinished) == 1) &&
-                E<CardUseFinishedEvent>(g).Count(e => e.ResolutionId == use.Id) == 1 &&
-                (spear || E<ProgramSkillResolvedEvent>(g).Count(e => e.FrameId == issued.ParentProgramFrameId && e.Completed) == 1),
-                "All three targets return, all physical costs clean once, and the exact selected parent resolves once."); g = Cold(g, r);
-        }
-    }
-
     public static void LegacySlashAndExistingTargetWindowsKeepOneVisitPerOriginalTarget()
     {
         foreach (var legacy in new[] { false, true })

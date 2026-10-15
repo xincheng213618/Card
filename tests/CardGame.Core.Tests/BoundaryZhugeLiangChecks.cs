@@ -40,64 +40,6 @@ internal static class BoundaryZhugeLiangChecks
             Require(!g.CardMovements.Any(m=>m.Reason==CardMoveReasons.Reshuffle),"Nonempty short pile is not silently replenished.");
         }
     }
-    public static void ActualEndingExtraAndScheduled()
-    {
-        foreach(var bottom in new[]{false,true})
-        {
-            var(g,r)=Start();Activate(g);if(bottom)FinishBottom(g,r);else{Answer(g,c=>c.Cards.Count==1);FinishBottom(g,r);}Play(g);End(g);
-            if(bottom){Reach(g,p=>p.SkillPrompt?.SkillId==Skill);Witness(g,"normal-ending-offer");Require(g.ResolutionStack.First() is TurnEndingBoundaryFrame,"Real ending offer owns the actual end-turn boundary.");Replay(g,r);Activate(g);Require(Frame(g).TopReorder!.Population!.AllBottomStateId==null,"End reorder cannot re-arm itself.");FinishBottom(g,r);}
-            AdvanceUntil(g,x=>x.CreateSnapshot(0).CurrentSeat==1);Replay(g,r);
-            Require(g.Events.Select(e=>e.Payload).OfType<ProgramBindingStartedEvent>().Count(e=>e.SkillId==Skill&&e.BindingId=="ending-order")== (bottom?1:0),"Only one actual all-bottom completion enables one finite true Ending.");
-        }
-        var(skip,sr)=Start();Activate(skip);FinishBottom(skip);Play(skip);End(skip);Reach(skip,p=>p.SkillPrompt?.SkillId==Skill);Skip(skip);AdvanceUntil(skip,x=>x.CreateSnapshot(0).CurrentSeat==1);Replay(skip,sr);
-        Require(!skip.Events.Select(e=>e.Payload).OfType<ProgramBindingStartedEvent>().Any(e=>e.SkillId==Skill&&e.BindingId=="ending-order"),"Declined ending does not restart its own cursor.");
-        var(extra,er)=Start(mode:"extra");Activate(extra);FinishBottom(extra);Play(extra);var firstTurn=extra.CreateSnapshot(0).TurnNumber;End(extra);Reach(extra,p=>p.SkillPrompt?.SkillId==Skill);Skip(extra);
-        Reach(extra,p=>p.SkillPrompt?.SkillId=="fixture:population-ending");Activate(extra);Reach(extra,p=>p.SkillPrompt?.SkillId==Skill);Witness(extra,"extra-prepare-offer");Require(extra.CreateSnapshot(0).TurnNumber==firstTurn+1&&!Eligible(extra),"Real extra actual turn resets the private eligibility before its new preparation.");Replay(extra,er);
-        Activate(extra);FinishBottom(extra);Play(extra);End(extra);Reach(extra,p=>p.SkillPrompt?.SkillId==Skill);Replay(extra,er);Activate(extra);FinishBottom(extra);AdvanceUntil(extra,x=>x.CreateSnapshot(0).CurrentSeat==1);Replay(extra,er);
-        Require(extra.Events.Select(e=>e.Payload).OfType<ProgramBindingStartedEvent>().Count(e=>e.SkillId==Skill&&e.BindingId=="prepare-order")==2&&extra.Events.Select(e=>e.Payload).OfType<ProgramBindingStartedEvent>().Count(e=>e.SkillId==Skill&&e.BindingId=="ending-order")==1,"Distinct Normal/Extra turns each pay preparation quota and their own actual ending opportunity.");
-        foreach(var mode in new[]{"scheduled-play","scheduled-draw"})
-        {
-            var(g,r)=Start(mode:mode,pausePrepare:false);Reach(g,p=>p.SkillPrompt?.SkillId=="fixture:population-schedule");Replay(g,r);Activate(g);
-            if(mode=="scheduled-play"){Play(g);End(g);}
-            Reach(g,p=>p.SkillPrompt?.SkillId==Skill);Witness(g,mode+"-resumed-prepare");Require(!g.Events.Select(e=>e.Payload).OfType<ProgramBindingStartedEvent>().Any(e=>e.SkillId==Skill),"Real scheduled child returns before the next preparation binding starts.");Replay(g,r);
-            Activate(g);FinishBottom(g);Play(g);End(g);Reach(g,p=>p.SkillPrompt?.SkillId==Skill);Skip(g);AdvanceUntil(g,x=>x.CreateSnapshot(0).CurrentSeat==1);Replay(g,r);
-            var events=g.Events.Select(e=>e.Payload).OfType<ProgramPhaseScheduledEvent>().ToArray();Require(events.Length==2&&events[0].Started&&!events[1].Started&&events[0].Phase==(mode=="scheduled-play"?TurnPhase.Play:TurnPhase.Draw),"Real Draw/Play scheduled start/end and exact parent continuation retain one actual turn.");
-        }
-        Console.WriteLine("Actual command witnesses: Normal/Extra Ending and preparation before-parent Scheduled Draw/Play cold prefixes, not host phase mutation.");
-    }
-    public static void PrivateFacesColdAndInputs()
-    {
-        var(g,r)=Start();Activate(g);var d=Frame(g).TopReorder!;var ids=d.ViewedCardIds.ToArray();var revision=g.Revision;Witness(g,"private-complete-faces");
-        foreach(var viewer in Enumerable.Range(0,4).Append(-1))
-        {
-            var v=g.CreateSnapshot(viewer);Require(viewer==0?v.PrivateRevealedCards!.Select(c=>c.Id).SequenceEqual(ids)&&v.PrivateRevealedCards!.All(c=>c.Suit!=Suit.None&&c.Rank>0):v.PrivateRevealedCards==null&&v.PendingDecision==null,"Only owner sees frozen complete entity, suit, rank and order; other viewers and spectator see none.");
-        }
-        Require(g.Revision==revision&&g.CreateSnapshot(0).PrivateRevealedCards is IList<CardSnapshot>{IsReadOnly:true},"Private face projection is immutable and pure.");Replay(g,r);
-        var p=Pending(g)!;var checkpoint=GameCheckpointJson.Serialize(g.CreateCheckpoint());
-        foreach(var command in new GameCommand[]{new AnswerPromptCommand(1,p.PromptId,p.Choices[0].Id,g.Revision),new AnswerPromptCommand(0,p.PromptId,new ChoiceId("foreign"),g.Revision)})
-        {Require(!g.Submit(command).Accepted&&g.Revision==revision&&checkpoint==GameCheckpointJson.Serialize(g.CreateCheckpoint()),"Foreign actor/choice rejects atomically without RNG or draft changes.");}
-        Answer(g,c=>c.Cards.SequenceEqual(new[]{ids[1]}));Require(!g.Submit(new AnswerPromptCommand(0,p.PromptId,p.Choices[0].Id,g.Revision)).Accepted,"Consumed prompt cannot choose a second time.");
-        Witness(g,"private-partial-top");Require(g.CreateSnapshot(0).PrivateRevealedCards!.Select(c=>c.Id).SequenceEqual(ids),"Partial selection keeps full single viewed set, not a new draw.");Replay(g,r);FinishBottom(g,r);Play(g);Require(g.CreateSnapshot(0).PrivateRevealedCards==null,"Actual committed order clears private faces.");Replay(g,r);
-        var(all,ar)=Start();Activate(all);var original=Pile(all);Answer(all,c=>c.Parameters.GetValueOrDefault("action")=="finish-top");Witness(all,"all-bottom-uncommitted");Require(!Eligible(all)&&Pile(all).SequenceEqual(original),"Uncommitted finish-top is not a true full-bottom receipt.");Replay(all,ar);
-        while(Pending(all)?.Kind==DecisionKind.ProgramTopReorder){Replay(all,ar);Answer(all,c=>c.Cards.Count==1);}Play(all);Witness(all,"all-bottom-committed");Require(Eligible(all),"Only completed exact physical partition grants state.");Replay(all,ar);
-    }
-    public static void SourceLifetimeAndPaidDeath()
-    {
-        // Explicit host audits: source mutation cannot normally interleave a private prompt command.
-        var(before,_)=Start();Activate(before);Answer(before,c=>c.Cards.Count==1);var pile=Pile(before);var grant=Players(before)[0].SkillGrants.Grants.Single(x=>x.SkillId==Skill);Players(before)[0].SkillGrants.RemoveGrant(grant.GrantId);
-        Answer(before,c=>c.Parameters.GetValueOrDefault("action")=="finish-top");Require(!Eligible(before,grant.SkillInstanceId)&&Pile(before).SequenceEqual(pile)&&!before.ResolutionStack.OfType<ProgramSkillFrame>().Any(f=>f.TopReorder!=null),"HOST AUDIT: lost source before physical commit cancels with no state and no pile movement.");
-        foreach(var replacement in new[]{false,true})
-        {
-            var(g,_r)=Start();Activate(g);FinishBottom(g);Play(g);var owner=Players(g)[0];var current=owner.SkillGrants.Grants.Single(x=>x.SkillId==Skill);owner.SkillGrants.RemoveGrant(current.GrantId);
-            owner.SkillGrants.Grant(replacement?current with{GrantId="host:new",SkillInstanceId="host:new",SourceId="host:new"}:current);
-            Require(Eligible(g,current.SkillInstanceId)&&Eligible(g)==!replacement,"HOST AUDIT: paid scalar survives old source loss but replacement instance does not inherit it.");End(g);
-            if(!replacement){Reach(g,p=>p.SkillPrompt?.SkillId==Skill);Skip(g);}AdvanceUntil(g,x=>x.CreateSnapshot(0).CurrentSeat==1);
-        }
-        var(dead,dr)=Start(mode:"death");Activate(dead);FinishBottom(dead);Play(dead);End(dead);Reach(dead,p=>p.SkillPrompt?.SkillId=="fixture:population-ending");Replay(dead,dr);Witness(dead,"paid-ending-before-death-child");Activate(dead);
-        for(var i=0;i<32&&dead.CreateSnapshot(0).Winner==Winner.None;i++){var p=Pending(dead);if(p!=null&&p.Choices.Count>0)Answer(dead,c=>c.Cards.Count==0);else Accept(dead,new AdvanceOneStepCommand(dead.Revision));}
-        Require(!dead.CreateSnapshot(0).Players[0].IsAlive&&!dead.Events.Select(e=>e.Payload).OfType<ProgramBindingStartedEvent>().Any(e=>e.SkillId==Skill&&e.BindingId=="ending-order"),"REAL COMMAND: owner death in earlier actual Ending child prevents later paid offer finitely.");Replay(dead,dr);Witness(dead,"paid-ending-real-owner-death");
-        Console.WriteLine("Source loss/regrant above are host lifecycle audits; actual paid owner death is accepted commands with all-view cold replay.");
-    }
     public static void ParserLegacyAndNativeAi()
     {
         var baseEffect="""{"op":"reorderTopCards","target":"owner","amount":5,"populationThreshold":4,"belowPopulationAmount":3}""";

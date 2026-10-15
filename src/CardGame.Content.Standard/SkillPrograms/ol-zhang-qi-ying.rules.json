@@ -1,0 +1,145 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:falu",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "initial-four",
+          "window": "gameStarting",
+          "subject": "owner",
+          "optional": false,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "initializeFaluSuitTokens",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "discard-suits",
+          "window": "cardsMoved",
+          "subject": "owner",
+          "optional": false,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "gainFaluTokensAfterActualDiscard",
+              "target": "owner"
+            }
+          ],
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "movementDiscardOnly": true,
+          "movementOccurrence": "perOwnerBatch"
+        }
+      ]
+    },
+    {
+      "id": "ol:dianhua",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "prepare-order",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": true,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "reorderTopByCurrentFaluTokens",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "ending-order",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": true,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "reorderTopByCurrentFaluTokens",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:zhenyi",
+      "revision": 1,
+      "viewAs": [
+        {
+          "id": "houtu-peach",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "peach",
+          "forPlay": false,
+          "forResponse": true
+        }
+      ],
+      "triggers": [
+        {
+          "id": "ziwei-final-five",
+          "window": "judgmentBeforeResult",
+          "subject": "any",
+          "optional": true,
+          "effects": [
+            {
+              "op": "chooseFinalJudgmentFiveByZiwei",
+              "target": "owner"
+            }
+          ],
+          "suits": [
+            "spade",
+            "heart",
+            "club",
+            "diamond"
+          ],
+          "minimumRank": 1,
+          "maximumRank": 13,
+          "excludedReasons": []
+        },
+        {
+          "id": "yuqing-damage",
+          "window": "beforeDamageApplied",
+          "subject": "damageSource",
+          "optional": true,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "increaseActualSourceDamageByYuqing",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "gouchen-elemental",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "optional": true,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "gainThreeDeckCategoriesAfterElementalDamage",
+              "target": "owner"
+            }
+          ],
+          "damageOccurrence": "perDamage"
+        }
+      ]
+    }
+  ]
+}

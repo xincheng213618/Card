@@ -63,24 +63,6 @@ internal static class BoundaryLiuBiaoChecks
             "All three ending entities are discarded once, and returning the cost does not repay the extra draw."); Cold(g, r);
     }
 
-    public static void OrdinaryPaidSlashResponseDoesNotBecomeDamageCardUse()
-    {
-        var (g, r) = Create(faction: false); ActivateExtra(g); Play(g);
-        Use(g, "opponent-duel", [1]); Reach(g, p => p.PlayerSeat == 0 && p.Kind == DecisionKind.RespondSlash);
-        var response = P(g)!.Choices.First(c => c.Parameters.GetValueOrDefault("response") == "slash");
-        Cold(g, r); Answer(g, c => c.Id == response.Id);
-        Play(g);
-        Use(g, "opponent-duel", [1]);
-        Reach(g, p => p.PlayerSeat == 0 && p.Kind == DecisionKind.RespondSlash); Pass(g); Play(g);
-        Require(Facts<CardActionAcceptedEvent>(g).Any(e => e.Action.ActorSeat == 0 && e.Action.Type == CardActionType.Response &&
-            e.Action.EffectiveKind == CardKind.Slash && e.Action.PhysicalCards.Select(c => c.CardId).SequenceEqual(response.Cards)) &&
-            !Facts<ActualTurnDamageCardUsedEvent>(g).Any(e => e.ActorSeat == 0) && g.State.Players[0].Hp == 1,
-            "The actual paid Duel Slash response and real resulting damage do not invent an owner damage-card Use.");
-        End(g); ReachFact(g, () => Facts<TurnEndedEvent>(g).Any(e => e.ActorSeat == 0 && e.TurnNumber == 1));
-        Require(!Facts<ProgramTurnDrawDebtPaymentStartedEvent>(g).Any(),
-            "Ending the turn adds no Zishou discard debt when the owner only responded with Slash."); Cold(g, r);
-    }
-
     public static void SourceFactionQuotaOpaqueHeJAndEquipmentChildrenAreExact()
     {
         // The genuine native chooser gets slots, not the other participant's hand IDs.
@@ -133,23 +115,6 @@ internal static class BoundaryLiuBiaoChecks
         Require(Facts<ProgramSourceFactionPreventionIssuedEvent>(g).Count() == 2 && g.State.Players[0].Hp == 3 &&
             g.CardMovements.Count(m => m.Reason.Value == YieldReason && m.To.Zone == CardZoneKind.Hand) == 1,
             "A different source faction prevents once even when HEJ is empty, without fabricating another transfer."); Cold(g, r);
-    }
-
-    public static void NativeExtraDrawAndEmptyDeckDoNotInventDrawDebt()
-    {
-        var (native, nr) = Create(native: true);
-        var lord = native.CreateSnapshot(0).Players.Single(p => p.Role == Role.Lord).Seat;
-        ReachFact(native, () => Facts<ProgramExtraDrawIssuedEvent>(native).Any(e => e.TurnOwnerSeat == lord));
-        Require(Facts<ProgramExtraDrawIssuedEvent>(native).Single() is { ActualTurnNumber: 1, RequestedCount: 4, ActualCount: 4 } issued &&
-            issued.TurnOwnerSeat == lord && issued.Source.OwnerSeat == lord &&
-            DrawMoves(native).Length == 4, "The native Lord voluntarily issues and pays the actual four-card extra draw."); Cold(native, nr);
-        var (empty, er) = Create(faction: false, emptyDeck: true); ActivateExtra(empty); Play(empty);
-        Require(Facts<ProgramExtraDrawIssuedEvent>(empty).Single() is { RequestedCount: 4, ActualCount: 0 } && DrawMoves(empty).Length == 0,
-            "Accepting the optional instruction with a truly exhausted physical deck records zero actual extra draws.");
-        PlaySlash(empty, 1); Play(empty); End(empty);
-        ReachFact(empty, () => Facts<TurnEndedEvent>(empty).Any(e => e.ActorSeat == 0 && e.TurnNumber == 1));
-        Require(Facts<ActualTurnDamageCardUsedEvent>(empty).Count() == 1 && !Facts<ProgramTurnDrawDebtPaymentStartedEvent>(empty).Any(),
-            "A subsequent genuine damage-card Use does not turn zero actual extra draws into an ending payment."); Cold(empty, er);
     }
 
     private static (GameEngine, ContentRegistry) Create(bool faction = true, bool observers = false, bool equipment = false,

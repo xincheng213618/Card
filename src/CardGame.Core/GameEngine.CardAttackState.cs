@@ -38,7 +38,7 @@ public sealed partial class GameEngine
         long? ProgramFrameId, int? DelayedTurnSeat,
         bool RequestedSlashChild = false, bool DamageWasApplied = false, int FinalTargetSeat = 0, ProgramDamageTargetDuelOrigin? DamageTargetDuelReturn = null, ProgramDualColorDuelOrigin? DualColorDuelReturn = null,
         SharedSlashBenefitReturn? SharedSlashBenefit = null, bool SharedSlashCausedDamage = false,
-        ForeignTurnContestSlashReturn? ForeignTurnContestSlashReturn = null, PindianWinnerSlashReturn? PindianWinnerSlashReturn = null, ConditionalDiscardDuelOrigin? ConditionalDiscardDuelReturn = null, EndingHistoricalUseReturn? EndingHistoricalUseReturn = null, InspectedHandSlashReturn? InspectedHandSlashReturn = null, KuangfuSlashReturn? KuangfuSlashReturn = null, ForeignSelectedCardSlashReturn? ForeignSelectedCardSlashReturn = null, FriendRecastDuelOrigin? FriendRecastDuelReturn = null);
+        ForeignTurnContestSlashReturn? ForeignTurnContestSlashReturn = null, PindianWinnerSlashReturn? PindianWinnerSlashReturn = null, ConditionalDiscardDuelOrigin? ConditionalDiscardDuelReturn = null, EndingHistoricalUseReturn? EndingHistoricalUseReturn = null, InspectedHandSlashReturn? InspectedHandSlashReturn = null, KuangfuSlashReturn? KuangfuSlashReturn = null, ForeignSelectedCardSlashReturn? ForeignSelectedCardSlashReturn = null, FriendRecastDuelOrigin? FriendRecastDuelReturn = null, CaoChunNativeSlash? CaoChunSlash = null, WangCanNativeReceipt? DenglouNative = null, QigongNativeReceipt? Qigong = null);
     private AttackCompletionReceipt CaptureAttackCompletion(CardAttackHandle attack) =>
         new(attack.ResolutionId, attack.IsDelayedJudgmentDamage,
             attack.ProgramSkillFrameId ?? attack.ProgramSkillCardUseFrameId ?? NextActualUseAdjustedSlashParent(attack) ?? HpLossMaterialSlashParent(attack),
@@ -56,7 +56,10 @@ public sealed partial class GameEngine
             LifecycleCardUse(attack.ResolutionId)?.InspectedHandSlashReturn,
             LifecycleCardUse(attack.ResolutionId)?.KuangfuSlashReturn,
             LifecycleCardUse(attack.ResolutionId)?.ForeignSelectedCardSlashReturn,
-            LifecycleCardUse(attack.ResolutionId)?.FriendRecastDuel);
+            LifecycleCardUse(attack.ResolutionId)?.FriendRecastDuel,
+            LifecycleCardUse(attack.ResolutionId)?.CaoChunSlash,
+            LifecycleCardUse(attack.ResolutionId)?.DenglouNative,
+            LifecycleCardUse(attack.ResolutionId)?.Qigong);
     private Card ReadCardAppearance(CardAppearanceReference appearance) => GetAttackCard(appearance.Id) with
         { Kind = appearance.Kind, Suit = appearance.Suit, Rank = appearance.Rank };
     private CardResolutionContinuations GetCardContinuations(long id) =>
@@ -84,7 +87,7 @@ public sealed partial class GameEngine
     private long? FindCardContinuationOwner(Func<CardResolutionContinuations, bool> matches) =>
         _resolutionStack.LastOrDefault(frame => frame switch
         {
-            CardUseFrame use => matches(use.Continuations),
+            CardUseFrame use => matches(use.Continuations) && !IsSuspendedGuoSiCompletedParent(use),
             ProgramSkillFrame program => matches(program.Continuations),
             JudgmentFrame judgment => matches(judgment.Continuations),
             _ => false

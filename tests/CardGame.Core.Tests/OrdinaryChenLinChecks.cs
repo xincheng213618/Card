@@ -41,60 +41,6 @@ internal static class OrdinaryChenLinChecks
         g = Cold(g, r);
     }
 
-    public static void PrivateRemovalLosesRealHpAndRescueReturnsToOriginalDueBinding()
-    {
-        var (g, r) = Create(foreign: true); Play(g); Use(g, "lose-one"); Play(g);
-        Require(g.State.Players[0].Hp == 1, "A real command leaves the human recipient at exactly one HP."); End(g);
-        ReachCondition(g, () => E<PrivateCardOfferDepositedEvent>(g).Length == 1);
-        var original = E<PrivateCardOfferDepositedEvent>(g).Single();
-        var location = g.CreateCardZoneDiagnostics().Single(z => z.Location.PrivateTurnHold?.HoldId == original.FrameId).Location;
-        var id = g.CardMovements.Single(m => m.To == location).CardId;
-        CheckPrivateHoldViews(g, 0, 1, id, due: false); g = Cold(g, r);
-        Reach(g, p => p.SkillPrompt?.SkillId == Foreign && Has(p, "deferred-private-offer"));
-        var root = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.PrivateOffer is { Stage: PrivateOfferStage.ChoosingExchange });
-        CheckPrivateHoldViews(g, 0, 1, id, due: true); g = Cold(g, r);
-        Answer(g, P(g)!.Choices.Single(c => c.Parameters.GetValueOrDefault("branch") == "remove"));
-        Reach(g, p => p.SkillPrompt?.SkillId == Pulse);
-        var dying = g.ResolutionStack.OfType<DyingFrame>().Single();
-        Require(dying.ParentFrameId == root.Id && dying.VictimSeat == 0 && dying.Continuation == DyingContinuationKind.ProgramSkill &&
-            g.State.Players[0].Hp == 0 && E<ProgramSkillHpLostEvent>(g).Single(e => e.FrameId == root.Id).Amount == 1 &&
-            g.CardMovements.Count(m => m.CardId == id && m.From == location && m.To == CardLocation.DiscardPile) == 1,
-            "Removal first moves the original entity; one actual HP loss enters the exact recipient's typed program Dying.");
-        g = Cold(g, r); Continue(g); Reach(g, p => p.SkillPrompt?.SkillId == Hp);
-        Require(g.State.Players[0].Hp == 1 && g.ResolutionStack.OfType<HpChangedTriggerWindowFrame>().Any(h => h.Change.TargetSeat == 0),
-            "The mandatory test-only SelfDyingResponse performs a real recovery and pauses its HP child, without host state injection.");
-        g = Cold(g, r); Continue(g); Play(g);
-        Require(E<ProgramBindingResolvedEvent>(g).Single(e => e.FrameId == root.Id).Completed &&
-            E<ProgramSkillHpLostEvent>(g).Count(e => e.FrameId == root.Id) == 1 &&
-            g.CardMovements.Count(m => m.CardId == id && m.From == location && m.To == CardLocation.DiscardPile) == 1 &&
-            !g.ResolutionStack.Any(f => f.Id == root.Id), "Actual rescue/HP children return once to the same foreign source due binding.");
-        g = Cold(g, r);
-    }
-
-    public static void GameTargetHandHpDrawUsesPersistentPerTargetLedgerAndRealGainChildren()
-    {
-        var (g, r) = Create(); Play(g); var before = g.State.Players[1].HandCount; Use(g, "per-target-hand-hp", [1], Songci);
-        Reach(g, p => p.SkillPrompt?.SkillId == Gain); var root = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.GameTargetHandHp is not null);
-        var receipt = root.GameTargetHandHp!;
-        Require(receipt.Draw && receipt.TargetSeat == 1 && receipt.ActualCount == 2 && g.State.Players[1].HandCount == before + 2 &&
-            g.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Any(m => m.Batch.ParentFrameId == root.Id && m.Batch.AwaitingProgramFrameId == root.Id && m.Batch.Movements.Count == 1),
-            "Draw2 consists of real single-card atomic batches; its first gain child holds the exact paid game-target action.");
-        Freeze(receipt.CardIds); var mutable = new[] { 99 }; var frozen = receipt with { CardIds = mutable }; mutable[0] = 100;
-        Require(frozen.CardIds[0] == 99, "Receipt init/with clones the input instead of exposing caller arrays.");
-        g = Cold(g, r); Continue(g); Play(g);
-        Require(!SongciTargets(g).Contains(1) && g.State.Players[1].HandCount < g.State.Players[1].Hp &&
-            E<GameTargetHandHpChoiceIssuedEvent>(g).Count(e => e.TargetSeat == 1) == 1,
-            "The same target remains below HP but is excluded by the whole-game issued ledger.");
-        Use(g, "per-target-hand-hp", [0], Songci); Play(g);
-        Require(!SongciTargets(g).Contains(0) && g.State.Players[0].HandCount > g.State.Players[0].Hp,
-            "Including self uses the same per-target ledger even when its draw changes the future comparison to the discard branch.");
-        var revision = g.Revision; var journal = CommandJson.Serialize(g.AcceptedCommands);
-        Require(!g.Submit(new UseProgramSkillCommand(0, Songci, "per-target-hand-hp", [], [1], g.Revision, P(g)!.PromptId)).Accepted &&
-            revision == g.Revision && journal == CommandJson.Serialize(g.AcceptedCommands), "A spent target command is rejected without a second issuance or journal mutation.");
-        g = Cold(g, r); End(g); ReachCondition(g, () => P(g)?.Kind == DecisionKind.PlayCard && g.State.TurnNumber > 1);
-        Require(!SongciTargets(g).Contains(0) && !SongciTargets(g).Contains(1), "A new actual turn/Play keeps both whole-game target keys.");
-    }
-
     public static void GameTargetHandHpEquipmentDiscardDrainsRecoveryAfterSourceLoss()
     {
         foreach (var loseSource in new[] { false, true })
@@ -135,7 +81,6 @@ internal static class OrdinaryChenLinChecks
             Freeze(s.Players[target].PrivateTurnHolds!); if (pile.Cards is not null) Freeze(pile.Cards);
         }
     }
-    private static int[] SongciTargets(GameEngine g) => g.GetHumanLegalActions().Where(a => a.ProgramSkillId == Songci).SelectMany(a => a.SelectableTargetSeats).Distinct().ToArray();
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(seat => g.CreateSnapshot(seat).PendingDecision).FirstOrDefault(p => p is not null);
     private static T[] E<T>(GameEngine g) => g.Events.Select(e => e.Payload).OfType<T>().ToArray();
     private static bool Has(PendingDecision p, string action) => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == action);

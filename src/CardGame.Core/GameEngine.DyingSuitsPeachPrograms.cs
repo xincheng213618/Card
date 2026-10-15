@@ -50,6 +50,7 @@ public sealed partial class GameEngine
         !c.IsGeneralWeapon && !IsSelfHandCategoryDiscardForbidden(payer, c, _cardZones.GetLocation(c.Id), OwnedCardMoveIntent.Discard) &&
         !IsForeignEquipmentDiscardPrevented(payer, c, _cardZones.GetLocation(c.Id), OwnedCardMoveIntent.Discard) &&
         !(payer == f.OwnerSeat && IsActiveProgramSourceEquipmentCard(payer, f.SkillId, f.SkillInstanceId, c))).OrderBy(c => c.Id).ToArray();
+    [ProgramAiChoice(SkillProgramEffectOp.DrawThenDiscardSuitsForDyingPeach)]
     private PromptChoice SelectAiDyingSuits(PendingDecision decision, ProgramSkillFrame f)
     {
         var r = f.DyingSuits!; var recipientChoice = r.Stage == DyingSuitsStage.Recipient;
@@ -71,6 +72,7 @@ public sealed partial class GameEngine
         { PromptId=CreatePromptId(), IsPrivate=true, TargetSeat=seat, Choices=choices, SkillPrompt=new(f.SkillId,skill.Name,skill.Name,skill.Description) };
         _status = _players[seat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
+    [ProgramAnswer("dying-suits")]
     private void ResolveDyingSuitsChoice(PromptChoice choice)
     {
         var f = (ProgramSkillFrame)_resolutionStack.Last(); AssertDyingSuits(f); var r = f.DyingSuits!;

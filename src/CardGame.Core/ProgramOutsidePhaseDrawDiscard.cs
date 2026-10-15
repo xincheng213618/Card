@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 namespace CardGame.Core;
 
 public sealed record NativeDrawMaterial(int CardId, CardKind PrintedKind, long MovementSequence);
-public sealed record NativeDrawInvocationProof
+public sealed partial record NativeDrawInvocationProof
 {
     private IReadOnlyList<NativeDrawMaterial> _materials = Array.AsReadOnly(Array.Empty<NativeDrawMaterial>());
     public long InvocationId { get; init; }

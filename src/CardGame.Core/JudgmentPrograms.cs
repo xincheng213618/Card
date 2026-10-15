@@ -27,7 +27,7 @@ public sealed record ProgramJudgmentReplacementContext(
 public sealed record ProgramJudgmentTriggerCandidate(
     int OwnerSeat, string SkillId, string TriggerId, string SkillInstanceId, string GameplayHash);
 
-public sealed record ProgramJudgmentTriggerWindowFrame(
+public sealed partial record ProgramJudgmentTriggerWindowFrame(
     long Id,
     long ParentFrameId,
     JudgmentFinalizedContext Judgment,

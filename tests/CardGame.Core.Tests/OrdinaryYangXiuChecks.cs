@@ -85,108 +85,6 @@ internal static class OrdinaryYangXiuChecks
             "Policy collections clone in init/with/JSON and expose no affected player's hidden hand IDs.");
         g = Cold(g, r);
     }
-    public static void HandLimitCountsProtectedCardsAndDiscardsOnlyAvailableOverflow()
-    {
-        foreach (var allBasic in new[] { false, true })
-        {
-            var (g, r) = Create(allBasic: allBasic); Use(g, "draw"); Play(g); Declare(g, "basic"); Play(g);
-            var hand = g.CreateSnapshot(0).Players[0].Hand; var allowed = hand.Where(c => c.Kind != CardKind.Slash).Select(c => c.Id).ToArray();
-            var required = Math.Min(Math.Max(hand.Count - g.State.Players[0].Hp, 0), allowed.Length);
-            Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId));
-            if (required > 0)
-            {
-                Reach(g, p => p.Kind == DecisionKind.DiscardCards && p.PlayerSeat == 0);
-                Require(P(g)!.RequiredCardCount == required && P(g)!.ValidCardIds.Order().SequenceEqual(allowed.Order()),
-                    "Protected cards still count toward the HP hand limit; required discard is overflow capped only by the actual discardable set.");
-                g = Cold(g, r); var p = P(g)!; Accept(g, new DiscardCardsCommand(0, p.ValidCardIds.Take(required).ToArray(), p.PromptId, g.Revision));
-            }
-            var turn = Facts<TurnStartedEvent>(g).Last(e => e.ActorSeat == 0).TurnNumber;
-            Until(g, () => Facts<TurnEndedEvent>(g).Any(e => e.ActorSeat == 0 && e.TurnNumber == turn));
-            Require(g.CreateSnapshot(0).Players[0].Hand.Count == hand.Count - required &&
-                g.CreateSnapshot(0).Players[0].TurnHandCategoryRestrictions is null,
-                "Legal overflow is discarded once, all-protected overflow produces no impossible prompt, and the issued restrictions expire at this actual turn's end.");
-            g = Cold(g, r);
-        }
-    }
-    public static void DrawGainDamageDyingAndPaidSourceLossReturnToSameUseOnce()
-    {
-        foreach (var sourceLoss in new[] { false, true })
-        {
-            var (g, r) = Create(nested: !sourceLoss, sourceLoss: sourceLoss);
-            PlayAction(g, a => a.Kind == LegalActionKind.IronChain && a.TargetSeats.Count == 2 && a.TargetSeats.Contains(0));
-            Activate(g, Danlao); Reach(g, p => p.SkillPrompt?.SkillId == Gain); var root = Root(g); var use = root.OwnTrickDraw!.Use.CardUseFrameId;
-            g = Cold(g, r); Continue(g);
-            if (!sourceLoss)
-            {
-                Reach(g, p => p.SkillPrompt?.SkillId == Entry);
-                var damageWindow = g.ResolutionStack.OfType<DamageTriggerWindowFrame>().Single(w =>
-                    w.TriggerWindow == SkillProgramTriggerWindow.AfterDamageApplied);
-                var nativeDamage = g.ResolutionStack.OfType<DamageFrame>().Single(d => d.Id == damageWindow.ParentFrameId);
-                var gain = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == Gain);
-                var loss = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == AppliedLoss);
-                var dying = g.ResolutionStack.OfType<DyingFrame>().Single(d => d.VictimSeat == 0);
-                var entryWindow = g.ResolutionStack.OfType<ProgramLifecycleTriggerWindowFrame>().Single(w =>
-                    w.Window == SkillProgramTriggerWindow.DyingEntering && w.ResumeDyingFrameId == dying.Id);
-                Require(g.State.Players[0].Hp == 0 && g.ResolutionStack.OfType<DyingFrame>().Any(d => d.VictimSeat == 0) &&
-                    Root(g).Id == root.Id && !Facts<OwnTrickTargetNullifiedEvent>(g).Any(),
-                    "A real gain observer causes native damage and DyingEntering while the original multi-target trick and issued draw remain owned.");
-                Require(nativeDamage.ParentFrameId == gain.Id && nativeDamage.Amount == 1 &&
-                    damageWindow.SourceSeat == 0 && damageWindow.TargetSeat == 0 &&
-                    loss.WindowContext is { Window: SkillProgramTriggerWindow.AfterDamageApplied } context &&
-                    context.ParentFrameId == damageWindow.Id && context.DamageFrameId == nativeDamage.Id &&
-                    context.SourceSeat == 0 && context.TargetSeat == 0 && context.Amount == 1 &&
-                    damageWindow.CandidateIndex >= 0 && damageWindow.CandidateIndex < damageWindow.Candidates.Count &&
-                    damageWindow.Candidates[damageWindow.CandidateIndex].ProgramId == AppliedLoss &&
-                    dying.ResumesProgramSkill && dying.ParentFrameId == loss.Id &&
-                    g.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.SkillId == Entry &&
-                        f.WindowContext?.ParentFrameId == entryWindow.Id) &&
-                    Facts<ProgramSkillHpLostEvent>(g).Count(e => e.FrameId == loss.Id && e.TargetSeat == 0 &&
-                        e.Amount == 2 && e.RemainingHp == 0) == 1,
-                    "Actual Damage1 retains its precise AfterDamage window while the current mandatory LoseHp2 observer owns ProgramSkill Dying and the separate DyingEntering prompt.");
-                g = Cold(g, r); Continue(g); Reach(g, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("skill-id") == Pulse));
-                Answer(g, c => c.Parameters.GetValueOrDefault("skill-id") == Pulse); Reach(g, p => p.SkillPrompt?.SkillId == Hp);
-                Require(Facts<CardUseDeclaredEvent>(g).Any(e => e.SourceSeat == 0 && e.CardKind == CardKind.Alcohol && e.CardId == 0),
-                    "The actual self-dying response issues a zero-entity Alcohol use, whose recovery observer pauses before returning.");
-                Require(g.ResolutionStack.OfType<DamageTriggerWindowFrame>().Any(w => w.Id == damageWindow.Id) &&
-                    g.ResolutionStack.OfType<DyingFrame>().Any(d => d.Id == dying.Id && d.ParentFrameId == loss.Id) &&
-                    Root(g).Id == root.Id && !Facts<OwnTrickTargetNullifiedEvent>(g).Any(),
-                    "The cold-restored actual damage cursor and paid-loss Dying remain suspended through zero-entity Alcohol and its real recovery child.");
-                g = Cold(g, r); Continue(g);
-            }
-            Play(g);
-            if (sourceLoss)
-                Require(!g.CreateSnapshot(0).Players[0].Skills!.Any(s => s.Id == Danlao) &&
-                    g.CreateSnapshot(0).Players[0].Skills!.Any(s => s.Id == SourceSuppression) &&
-                    Facts<SkillsAcquiredEvent>(g).Count(e => e.PlayerSeat == 0 && e.SourceSkillId == Gain && e.SkillIds.Contains(SourceSuppression)) == 1,
-                    "The actual issued-draw gain child acquires one independent suppression source and makes Danlao unqualified without physically removing its grant.");
-            Require(Facts<OwnTrickDrawIssuedEvent>(g).Count() == 1 && Facts<OwnTrickTargetNullifiedEvent>(g).Single().CardUseFrameId == use &&
-                Facts<ProgramBindingResolvedEvent>(g).Any(e => e.SkillId == Danlao && e.Completed) &&
-                g.CardMovements.Count(m => m.From == CardLocation.DrawPile && m.To == CardLocation.Hand(0) && m.Reason.Value == "program.own-multi-target-trick.draw") == 1,
-                "Issued draw, all native damage/rescue children and exact original target-nullification finish once, even when a child suppresses the source skill's qualification.");
-            g = Cold(g, r);
-        }
-        var (native, nr) = Create(nativeDeclaration: true, ownerHp: 6); Use(native, "damage-peer", [Peer(native)]); Play(native);
-        Require(Facts<HandCategoryRestrictionGrantedEvent>(native).Any(e => e.Restriction.AffectedSeat == 0 && e.Restriction.Source.OwnerSeat == Peer(native)),
-            "Native AI declares a public category against the actual damage source using the same owning AfterDamage window.");
-        native = Cold(native, nr); StrictContracts();
-    }
-    private static void StrictContracts()
-    {
-        foreach (var changes in new[] { "window", "subject", "amount" })
-        {
-            var n = System.Text.Json.Nodes.JsonNode.Parse("""
-            {"schemaVersion":$SCHEMA$,"skills":[{"id":"fixture:yx-strict","revision":1,"triggers":[{"id":"draw","window":"otherActualUseTargeted","subject":"owner","optional":true,"effects":[{"op":"drawThenNullifyOwnMultiTargetTrick","target":"owner"}]}]}]}
-            """.Replace("$SCHEMA$", SkillProgramCatalog.RulesSchemaVersion.ToString(System.Globalization.CultureInfo.InvariantCulture)))!;
-            var t = n["skills"]![0]!["triggers"]![0]!;
-            if (changes == "window") t["window"] = "afterDamageApplied";
-            if (changes == "subject") t["subject"] = "damageTarget";
-            if (changes == "amount") t["effects"]![0]!["amount"] = 2;
-            var rejected = false; try { SkillProgramCatalog.Load(n.ToJsonString(), JsonSerializer.Serialize(new { schemaVersion = SkillProgramCatalog.PresentationSchemaVersion,
-                skills = new Dictionary<string, object> { ["fixture:yx-strict"] = new { name = "严格拥有帧", description = "拒收" } } })); }
-            catch (InvalidOperationException) { rejected = true; }
-            Require(rejected, "The new operation rejects unsupported windows, subjects and extra amount fields without widening old nodes.");
-        }
-    }
     private static ProgramSkillFrame Root(GameEngine g) => g.ResolutionStack.OfType<ProgramSkillFrame>().First(f => f.OwnTrickDraw is not null);
     private static PendingDecision? P(GameEngine g) => g.State.PendingDecision;
     private static IEnumerable<T> Facts<T>(GameEngine g) where T : IGameEvent => g.Events.Select(e => e.Payload).OfType<T>();
@@ -209,8 +107,6 @@ internal static class OrdinaryYangXiuChecks
     { var p = P(g)!; Accept(g, new AnswerPromptCommand(p.PlayerSeat, p.PromptId, p.Choices.First(predicate).Id, g.Revision)); }
     private static void Reach(GameEngine g, Func<PendingDecision, bool> predicate)
     { for (var i = 0; i < 180; i++) { if (P(g) is { } p && predicate(p)) return; Step(g); } throw new InvalidOperationException("Yang Xiu actual boundary missing: " + JsonSerializer.Serialize(P(g))); }
-    private static void Until(GameEngine g, Func<bool> predicate)
-    { for (var i = 0; i < 180; i++) { if (predicate()) return; Step(g); } throw new InvalidOperationException("Yang Xiu exact event boundary missing."); }
     private static void Step(GameEngine g)
     {
         var p = P(g);

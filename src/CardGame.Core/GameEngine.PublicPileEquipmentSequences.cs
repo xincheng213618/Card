@@ -66,6 +66,7 @@ public sealed partial class GameEngine
         _pendingDecision=new(DecisionKind.ProgramTrigger,seat,skill.Description,choices.SelectMany(c=>c.Cards).Distinct().ToArray(),choices.SelectMany(c=>c.Targets).Distinct().ToArray(),seat){PromptId=CreatePromptId(),IsPrivate=f.DomainCrossing is {Stage:"discard"}||f.PileEquipment is {Stage:"store-choice"},Choices=choices,SkillPrompt=new(f.SkillId,skill.Name,skill.Name,skill.Description)};
         _status=_players[seat].IsHuman?EngineStatus.AwaitingHumanResponse:EngineStatus.Running;AdvanceRulesAndPublishState();
     }
+    [ProgramAnswer("game-domain")]
     private void ResolveGameDomainChoice(PromptChoice choice)
     {
         var f=_resolutionStack.LastOrDefault() as ProgramSkillFrame??throw new InvalidOperationException("A domain choice lost its owning frame.");
@@ -148,6 +149,10 @@ public sealed partial class GameEngine
         use.Id==id&&use.CardId==card&&action.ActorSeat==recipient&&EquipmentCatalog.IsEquipment(action.EffectiveKind)&&
         action.PhysicalCards is [var cost]&&cost.CardId==card&&cost.From==parent.PileEquipment.PileLocation&&
         action.ConversionChain.Any(s=>s.OwnerSeat==parent.OwnerSeat&&s.SkillId==parent.SkillId&&s.SkillInstanceId==parent.SkillInstanceId&&s.BindingId==GetProgramBindingId(parent));
+    [ProgramAiChoice(
+        SkillProgramEffectOp.ResolveFirstGameDomainCrossing,
+        SkillProgramEffectOp.StoreArbitraryOwnedPublicPile,
+        SkillProgramEffectOp.UsePublicPileEquipmentSequence)]
     private PromptChoice SelectAiDomainChoice(PendingDecision pending,ProgramSkillFrame f)=>pending.Choices
         .OrderByDescending(c=>c.Targets.Count==1&&AreProgramDistributionAllies(_players[pending.PlayerSeat],_players[c.Targets[0]]))
         .ThenBy(c=>c.Parameters.GetValueOrDefault("domain-action")=="store-finish"?(f.PileEquipment?.SelectedIds.Count>=3?0:2):1)

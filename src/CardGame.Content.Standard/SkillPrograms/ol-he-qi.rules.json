@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "ol:shanxi", "revision": 1, "activations": [
+      { "id": "joint-reveal-dodges", "minCards": 0, "maxCards": 0, "minTargets": 1, "maxTargets": 1,
+        "targetKind": "otherLiving", "usesPerTurn": null, "usesPerPhase": 1,
+        "effects": [{ "op": "revealJointHandsAndDiscardDodges", "target": "selectedTarget" }] }
+    ] },
+    { "id": "ol:qizhou", "revision": 1, "equipmentSuitSkillGrants": [
+      { "id": "one-short-blade", "skillId": "ol:duanbing", "minimumDistinctSuits": 1 },
+      { "id": "two-valiant", "skillId": "boundary:yingzi", "minimumDistinctSuits": 2 },
+      { "id": "three-awe", "skillId": "boundary:fenwei", "minimumDistinctSuits": 3 },
+      { "id": "four-river", "skillId": "ol:lanjiang", "minimumDistinctSuits": 4 }
+    ] }
+  ]
+}

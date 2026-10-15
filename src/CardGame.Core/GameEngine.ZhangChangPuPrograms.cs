@@ -45,6 +45,7 @@ public sealed partial class GameEngine
         return SkillProgramStepOutcome.AwaitChoice;
     }
 
+    [ProgramAnswer("yanjiao-split")]
     private void ResolveYanjiaoSplitChoice(PromptChoice selected)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ??
@@ -227,17 +228,6 @@ public sealed partial class GameEngine
         Enumerable.Range(0, cards.Count).Where(index => (mask & (1 << index)) != 0)
             .Select(index => cards[index].Id).ToArray();
 
-    private PromptChoice SelectAiYanjiaoSplit(PendingDecision decision, ProgramSkillFrame frame)
-    {
-        if (decision.Choices[0].Parameters.GetValueOrDefault("stage") == "first")
-            return decision.Choices
-                .OrderByDescending(choice => choice.Cards.Count)
-                .ThenByDescending(choice => int.Parse(
-                    choice.Parameters.GetValueOrDefault("rank-sum", "0"),
-                    System.Globalization.CultureInfo.InvariantCulture))
-                .ThenBy(choice => choice.Id.Value, StringComparer.Ordinal).First();
-        return decision.Choices.OrderBy(choice => choice.Id.Value, StringComparer.Ordinal).First();
-    }
 
     private sealed partial class ProgramSkillHost : IZhangChangPuProgramHost
     {

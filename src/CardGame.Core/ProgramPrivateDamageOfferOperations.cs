@@ -88,6 +88,7 @@ public sealed partial class GameEngine
         {PromptId=CreatePromptId(),IsPrivate=true,Choices=choices,SkillPrompt=new(frame.SkillId,skill.Name,skill.Name,skill.Description)};
         _status=_players[frame.OwnerSeat].IsHuman ? EngineStatus.AwaitingHumanResponse:EngineStatus.Running;
     }
+    [ProgramAnswer("participant-discard")]
     private void ResolveSelectedParticipantDiscard(PromptChoice choice)
     {
         var frame=_resolutionStack.LastOrDefault() as ProgramSkillFrame??throw new InvalidOperationException("Missing participant discard frame.");
@@ -134,6 +135,7 @@ public sealed partial class GameEngine
         {PromptId=CreatePromptId(),IsPrivate=true,Choices=choices,SkillPrompt=new(frame.SkillId,skill.Name,skill.Name,skill.Description)};
         _status=_players[draft.SourceSeat].IsHuman ? EngineStatus.AwaitingHumanResponse:EngineStatus.Running;
     }
+    [ProgramAnswer("damage-card-offer")]
     private void ResolveDamageCardOffer(PromptChoice choice)
     {
         var frame=_resolutionStack.LastOrDefault() as ProgramSkillFrame??throw new InvalidOperationException("Missing private offer frame.");var draft=frame.DamageCardOffer??throw new InvalidOperationException("Missing private offer draft.");

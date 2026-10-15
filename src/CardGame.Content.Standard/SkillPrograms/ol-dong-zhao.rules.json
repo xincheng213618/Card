@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:xianlue",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "lord-record",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "xianlueRecord",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "other-lord-record",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "xianlueRecord",
+              "target": "owner"
+            }
+          ],
+          "turnOwnerScope": "otherLiving"
+        },
+        {
+          "id": "matched-completed-use",
+          "window": "cardUseCompleted",
+          "optional": false,
+          "effects": [
+            {
+              "op": "xianlueRedistribute",
+              "target": "owner"
+            }
+          ],
+          "ownerRelation": "observer"
+        }
+      ]
+    },
+    {
+      "id": "ol:zaowang",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "make-king",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "anyLiving",
+          "usesPerGame": 1,
+          "effects": [
+            {
+              "op": "zaowangResolve",
+              "target": "owner"
+            },
+            {
+              "op": "recover",
+              "target": "selectedTarget",
+              "amount": 1
+            },
+            {
+              "op": "draw",
+              "target": "selectedTarget",
+              "amount": 3
+            }
+          ],
+          "usesPerTurn": null
+        }
+      ]
+    }
+  ]
+}

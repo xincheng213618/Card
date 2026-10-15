@@ -61,6 +61,7 @@ public sealed partial class GameEngine
             SkillPrompt = new(f.SkillId, _contentRegistry.GetSkill(f.SkillId).Name, "获得指定牌", _contentRegistry.GetSkill(f.SkillId).Description) };
         _status = _players[f.OwnerSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
+    [ProgramAnswer("named-card-acquisition")]
     private void ResolveNamedCardAcquisitionChoice(PromptChoice selected)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame { NamedCardAcquisition: { Stage: NamedCardAcquisitionStage.Selecting } d } f ||

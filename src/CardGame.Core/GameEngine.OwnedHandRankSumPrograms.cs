@@ -90,6 +90,7 @@ public sealed partial class GameEngine
         _status = _players[frame.OwnerSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
 
+    [ProgramAnswer("owned-hand-rank-sum")]
     private void ResolveOwnedHandRankSumChoice(PromptChoice selected)
     {
         if (!long.TryParse(selected.Parameters.GetValueOrDefault("frame-id"), NumberStyles.None,
@@ -162,6 +163,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("A private rank-sum draft lost its exact activation, complete physical hand, completion path or published prompt.");
     }
 
+    [ProgramAiChoice(SkillProgramEffectOp.SelectOwnedHandRankSum)]
     private PromptChoice SelectAiOwnedHandRankSum(PendingDecision decision, ProgramSkillFrame frame)
     {
         if (frame.OwnedHandRankSumSelection is null || decision.PlayerSeat != frame.OwnerSeat)

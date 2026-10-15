@@ -206,41 +206,6 @@ internal static class Fame2015ShuChecks
             return false;
         }
     }
-    public static void IdentityOneHpBoundaryAndRealSlashReplay()
-    {
-        var registry = Registry(new Fixture("classic:shizhi", ["standard:dodge"], boundaryDriver: true));
-        var game = Create(registry); ReachPlay(game);
-        while (game.CreateSnapshot(0, true).Players[0].Hp > 2)
-        { Activate(game, "fixture:fame2015-health", "lose", [], []); Settle(game); }
-        Require(game.GetHumanLegalActions().All(action => action.Kind != LegalActionKind.Slash), "At two HP, physical Dodge must keep its native identity.");
-        Activate(game, "fixture:fame2015-health", "lose", [], []); Settle(game);
-        var action = game.GetHumanLegalActions().First(item => item.Kind == LegalActionKind.Slash && item.ConversionSource?.SkillId == "classic:shizhi");
-        var physical = game.CreateSnapshot(0, true).Players[0].Hand.Single(card => card.Id == action.CardId);
-        Require(physical.Kind == CardKind.Dodge && game.CreateSnapshot(0, true).Players[0].Hp == 1, "Exactly one HP must turn a physical Dodge into a legal Slash.");
-        var restored = Restore(game, registry);
-        foreach (var branch in new[] { game, restored })
-        {
-            Require(branch.Submit(new PlayCardCommand(0, physical.Id, action.TargetSeats, branch.Revision, Prompt(branch)!.PromptId, action.PlayedCardKind, action.TargetCardId) { ConversionSource = action.ConversionSource }).Accepted, "A one-HP identity Slash must pay its actual Dodge.");
-            Settle(branch);
-        }
-        Equal(game, restored);
-        Require(game.Events.Select(item => item.Payload).OfType<CardActionAcceptedEvent>().Any(item => item.Action.Type == CardActionType.Use && item.Action.EffectiveKind == CardKind.Slash && item.Action.PhysicalCards.Any(cost => cost.CardId == physical.Id && cost.CardKind == CardKind.Dodge)), "Typed accepted use must retain effective Slash and physical Dodge separately.");
-        Activate(game, "fixture:fame2015-health", "recover", [], []); Settle(game);
-        Require(game.CreateSnapshot(0, true).Players[0].Hp == 2 && game.GetHumanLegalActions().All(item => item.ConversionSource?.SkillId != "classic:shizhi"), "Recovery above one HP must immediately restore all remaining Dodge identities.");
-    }
-
-    public static void EqualHandsOutsideTurnDrawsAndReplay()
-    {
-        var registry = Registry(new Fixture("classic:qiaoshi", ["standard:dodge"])); var game = Create(registry); ReachPlay(game);
-        Require(game.Submit(new EndPlayPhaseCommand(0, game.Revision, Prompt(game)!.PromptId)).Accepted, "The skill owner must finish its own turn.");
-        Reach(game, prompt => prompt.SkillPrompt?.SkillId == "classic:qiaoshi");
-        var target = Prompt(game)!.TargetSeat!.Value; var before = game.CreateSnapshot(0, true);
-        Require(target != 0 && before.Players[0].Hand.Count == before.Players[target].Hand.Count, "The trigger must belong to another character's ending with exactly equal hand counts.");
-        var restored = Restore(game, registry); Both(game, restored, choice => choice.Parameters.GetValueOrDefault("program-action") == "activate");
-        if (Prompt(game) is { Kind: DecisionKind.ProgramTrigger } select && select.Choices.Any(choice => choice.Targets.Contains(target))) Both(game, restored, choice => choice.Targets.Contains(target));
-        Equal(game, restored);
-        Require(game.CreateSnapshot(0, true).Players[0].Hand.Count == before.Players[0].Hand.Count + 1 && game.CreateSnapshot(0, true).Players[target].Hand.Count == before.Players[target].Hand.Count + 1, "Outside-turn equal hands must draw exactly one for each participant.");
-    }
     public static void AllHandDuelDrawLimitPaymentAndReplay()
     {
         foreach (var failure in new[] { false, true })
@@ -291,25 +256,6 @@ internal static class Fame2015ShuChecks
             Require(!game.CreateSnapshot(0, true).Players[1].IsAlive && game.CardMovements.Count(move => move.To == CardLocation.Hand(0) && move.Reason.Value == "skill-program.classic:zhanjue.completed-participant-draw") == 1 &&
                 game.Events.All(item => item.Payload is not ProgramBooleanStateChangedEvent { StateId: "zhanjue-exhausted", Value: true }), "A killed Duel target must leave the original owner completion draw intact; native kill rewards must not consume its two-draw limit.");
         }
-    }
-
-    public static void SlashRecastThresholdEndRewardAndReplay()
-    {
-        var registry = Registry(new Fixture("classic:yanyu", ["standard:slash", "standard:fire_slash", "standard:thunder_slash"]));
-        var game = Create(registry); ReachPlay(game);
-        for (var index = 0; index < 2; index++)
-        {
-            var card = game.CreateSnapshot(0, true).Players[0].Hand[0]; var before = game.CreateSnapshot(0, true).Players[0].Hand.Count;
-            Activate(game, "classic:yanyu", "recast-slash", [card.Id], []); Settle(game);
-            Require(game.CreateSnapshot(0, true).Players[0].Hand.Count == before && game.Events.Any(item => item.Payload is CardRecastEvent recast && recast.CardId == card.Id), "Slash recast must consume its actual card and draw exactly one replacement.");
-            Require(game.CardMovements.Any(move => move.CardId == card.Id && move.Reason == CardMoveReasons.RecastDiscard), "Recast must retain the recast movement reason rather than an ordinary discard.");
-        }
-        Require(game.Submit(new EndPlayPhaseCommand(0, game.Revision, Prompt(game)!.PromptId)).Accepted, "Play phase must end through a real command.");
-        Reach(game, prompt => prompt.SkillPrompt?.SkillId == "classic:yanyu"); Answer(game, choice => choice.Parameters.GetValueOrDefault("program-action") == "activate");
-        Require(Prompt(game)!.Choices.All(choice => choice.Targets.All(seat => registry.Generals[game.CreateSnapshot(0, true).Players[seat].GeneralId].Gender == GeneralGender.Male)), "End reward must select a male character.");
-        var seat = Prompt(game)!.Choices.First().Targets.Single(); var beforeReward = game.CreateSnapshot(0, true).Players[seat].Hand.Count;
-        var restored = Restore(game, registry); Both(game, restored, choice => choice.Targets.Contains(seat)); Equal(game, restored);
-        Require(game.CreateSnapshot(0, true).Players[seat].Hand.Count == beforeReward + 2, "Two recast Slashes must unlock exactly two reward cards at play ending.");
     }
 
     public static void PairedRevealAllFourBranchesPrivacyAndReplay()

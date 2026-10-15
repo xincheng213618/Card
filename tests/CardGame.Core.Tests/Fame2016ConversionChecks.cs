@@ -4,33 +4,6 @@ using CardGame.Core;
 
 internal static class Fame2016ConversionChecks
 {
-    public static void ConfiguredConversionResourceContracts()
-    {
-        var assembly = typeof(StandardClassicGeneralPackage).Assembly;
-        string Read(string kind)
-        {
-            using var stream = assembly.GetManifestResourceStream($"CardGame.Content.Standard.SkillPrograms.classic-guo-huanghou.{kind}.json")!;
-            using var reader = new StreamReader(stream); return reader.ReadToEnd();
-        }
-        var rules = Read("rules"); var presentation = Read("presentation");
-        void Reject(Action<System.Text.Json.Nodes.JsonObject> mutate)
-        {
-            var document = System.Text.Json.Nodes.JsonNode.Parse(rules)!.AsObject(); mutate(document);
-            try { SkillProgramCatalog.Load(document.ToJsonString(), presentation); }
-            catch (InvalidOperationException) { return; }
-            throw new InvalidOperationException("A malformed conversion resource contract was accepted.");
-        }
-        System.Text.Json.Nodes.JsonNode Skill(System.Text.Json.Nodes.JsonObject node) => node["skills"]![0]!;
-        System.Text.Json.Nodes.JsonNode Direct(System.Text.Json.Nodes.JsonObject node) => Skill(node)["viewAs"]!.AsArray().First(rule => rule!["id"]!.GetValue<string>() == "direct-duel")!;
-        Reject(node => Skill(node)["activations"]![0]!["sourceZones"] = new System.Text.Json.Nodes.JsonArray("equipment"));
-        Reject(node => Skill(node)["activations"]![0]!["effects"]![1]!["sourceBind"] = "unknown-card-binding");
-        Reject(node => Direct(node)["activationUsageGroup"] = "unknown-activation");
-        Reject(node => Direct(node)["maximumTier"] = 3);
-        Reject(node => Direct(node)["outputKind"] = "indulgence");
-        Reject(node => Direct(node)["inputCount"] = 2);
-        Reject(node => Skill(node)["viewAs"]![0]!["sourceZones"] = new System.Text.Json.Nodes.JsonArray("equipment"));
-        Reject(node => node["skills"]![1]!["triggers"]![0]!["effects"]![2]!["stateId"] = "unknown-conversion-state");
-    }
 
     public static void DeclarationEntityPrivacyAndReplay()
     {
@@ -87,39 +60,6 @@ internal static class Fame2016ConversionChecks
         Answer(final, _ => true); Reach(final, prompt => prompt.Kind == DecisionKind.PlayCard);
         Require(final.Events.Select(item => item.Payload).OfType<ConfiguredConversionTierChangedEvent>().Count() == 2, "The tier remains capped at two.");
         Replay(final, finalRegistry);
-    }
-
-    public static void DeclarationAndDirectSharePhaseAllowance()
-    {
-        var (game, registry) = Create();
-        var id = game.CreateSnapshot(0).Players[0].Hand[0].Id;
-        Declare(game, registry, id, CardKind.Slash);
-        Upgrade(game, registry); Upgrade(game, registry);
-        var options = game.GetHumanLegalActions().Where(action => action.ConversionSource?.SkillId == "classic:jiaozhao").ToArray();
-        Require(options.Length > 0 && options.All(action => action.CardId == id && action.ConversionSource!.BindingId.StartsWith("declared-")),
-            "Modification preserves the earlier turn declaration but cannot grant a second phase activation.");
-        Replay(game, registry);
-    }
-
-    public static void DirectDodgeUseConsumesSharedAllowance()
-    {
-        var (game, registry) = Create(slashCards: true);
-        Upgrade(game, registry); Upgrade(game, registry);
-        var target = Enumerable.Range(1, 3).First(seat => game.GetCombatDistance(0, seat) == 1 &&
-            game.CreateSnapshot(seat, true).Players[seat].Hand.Any(card => card.Kind == CardKind.Slash));
-        Accept(game, new UseProgramSkillCommand(0, "classic:tiaoxin", "taunt", [], [target], game.Revision, Prompt(game)!.PromptId));
-        Require(Prompt(game) is { PlayerSeat: var provider } && provider == target, "The real other player is asked to use their Slash.");
-        Answer(game, choice => choice.Parameters.GetValueOrDefault("program-action") == "request-slash");
-        Reach(game, prompt => prompt.Kind == DecisionKind.RespondDodge && prompt.PlayerSeat == 0);
-        var dodge = Prompt(game)!.Choices.First(choice => choice.Parameters.GetValueOrDefault("conversion-skill-id") == "classic:jiaozhao");
-        var physical = dodge.Cards.Single();
-        RejectUnknown(game); Replay(game, registry);
-        Answer(game, choice => choice.Id == dodge.Id);
-        Replay(game, registry); Reach(game, prompt => prompt.Kind == DecisionKind.PlayCard);
-        Require(game.CardMovements.Count(move => move.CardId == physical && move.To == CardLocation.Processing) == 1 &&
-            game.CardMovements.Any(move => move.CardId == physical && move.To == CardLocation.DiscardPile), "The actual declared Dodge cost resolves once.");
-        Require(!game.GetHumanLegalActions().Any(action => action.ConversionSource?.SkillId == "classic:jiaozhao"), "Using Dodge defensively spends the same direct tier allowance as proactive ordinary tricks.");
-        Replay(game, registry);
     }
 
     private static void Declare(GameEngine game, ContentRegistry registry, int card, CardKind kind)

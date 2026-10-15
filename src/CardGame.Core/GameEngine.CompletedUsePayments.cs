@@ -32,6 +32,7 @@ public sealed partial class GameEngine
         _status = _players[f.OwnerSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
 
+    [ProgramAnswer("completed-use-payment")]
     private void ResolveCompletedUsePayment(PromptChoice choice)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame f || f.CompletedUsePayment is not { Stage: CompletedUsePaymentStage.Choosing } r ||
@@ -80,6 +81,7 @@ public sealed partial class GameEngine
         ReplaceRuntimeTop(f with { CompletedUsePayment = null }); return false;
     }
 
+    [ProgramAiChoice(SkillProgramEffectOp.PayCompletedUseDiscardOrLoseHp)]
     private PromptChoice SelectAiCompletedUsePayment(PendingDecision decision) =>
         decision.Choices.FirstOrDefault(c => c.Parameters.GetValueOrDefault("branch") == "discard" &&
             _cardZones.GetLocation(c.Cards[0]).Zone == CardZoneKind.Hand) ??

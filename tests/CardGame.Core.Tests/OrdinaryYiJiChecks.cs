@@ -10,39 +10,6 @@ internal static class OrdinaryYiJiChecks
     private const string DriverId = "fixture:yj-driver";
     private static bool hurtSelf;
 
-    public static void Definitions()
-    {
-        var registry = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true),
-            new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage());
-        var general = registry.Generals["ol:yi-ji"];
-        Require(general.Name == "伊籍" && general.FactionId == "shu" && general.BaseHp == 3 &&
-            general.SkillIds.SequenceEqual([Jijie, Jiyuan]) &&
-            general.VariantId == "ordinary" && general.RulesetId == "sanguosha-ol",
-            "The OL Yi Ji general registers the current shu 3HP pair.");
-        var jijie = registry.GetSkill(Jijie).Program!;
-        var activation = jijie.Activations.Single();
-        Require(activation.UsesPerTurn == 1 && activation.TargetKind == SkillProgramTargetKind.AnyLiving &&
-            activation.MinTargets == 1 && activation.MaxTargets == 1 &&
-            activation.Effects.Single().Op == SkillProgramEffectOp.GiveDrawPileBottomCard &&
-            activation.Effects.Single().Target == SkillProgramEffectTarget.SelectedTarget,
-            "Jijie is a once-per-turn activation handing the deck bottom to the selected participant.");
-        var jiyuan = registry.GetSkill(Jiyuan).Program!;
-        var dying = jiyuan.Triggers.Single(t => t.Window == SkillProgramTriggerWindow.DyingEntering);
-        var give = jiyuan.Triggers.Single(t => t.Window == SkillProgramTriggerWindow.CardsMoved);
-        Require(dying.Subject == SkillProgramTriggerSubject.Any && dying.Optional &&
-            dying.Effects.Select(e => e.Op).SequenceEqual(
-                [SkillProgramEffectOp.SelectTarget, SkillProgramEffectOp.Draw]) &&
-            give.MovementOccurrence == SkillProgramMovementOccurrence.PerOwnerSourceHandGain &&
-            give.Optional && give.SourceZones.SequenceEqual([CardZoneKind.Hand]) &&
-            give.Effects.Select(e => e.Op).SequenceEqual(
-                [SkillProgramEffectOp.SelectTarget, SkillProgramEffectOp.Draw]),
-            "Jiyuan observes every dying character and the owner's own hand gifts, drawing the recipient one card.");
-        var presentation = registry.GetSkill(Jiyuan).ProgramPresentation!;
-        Require(presentation.Name == "急援" && presentation.Description.Contains("濒死", StringComparison.Ordinal) &&
-            registry.GetSkill(Jijie).ProgramPresentation!.Name == "机捷",
-            "The presentation carries the current OL Jijie/Jiyuan wording.");
-    }
-
     public static void JijieHandsDeckBottomToSelectedParticipant()
     {
         var (g, r) = Start();

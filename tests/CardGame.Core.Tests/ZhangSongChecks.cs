@@ -188,42 +188,6 @@ internal static class ZhangSongChecks
         return game.Submit(command).Accepted;
     }
 
-    private static bool RunToEndOfTurn(GameEngine game)
-    {
-        var startTurn = game.CreateSnapshot(0, true).TurnNumber;
-        for (var step = 0; step < 200; step++)
-        {
-            if (game.CreateSnapshot(0, true).TurnNumber > startTurn) return true;
-            var prompt = game.PendingDecision;
-            if (prompt is null)
-            {
-                if (game.State.Status == EngineStatus.Completed ||
-                    !game.Submit(new AdvanceCommand(game.Revision)).Accepted) return false;
-                continue;
-            }
-            if (prompt is { Kind: DecisionKind.ProgramTrigger, PlayerSeat: 0 } trigger &&
-                trigger.SkillPrompt?.SkillId is not null && IsZhangSongSkill(trigger.SkillPrompt.SkillId))
-            {
-                var skip = trigger.Choices.FirstOrDefault(choice =>
-                    choice.Parameters.GetValueOrDefault("program-action") == "skip");
-                if (skip is null || !Answer(game, skip.Id).Accepted) return false;
-                continue;
-            }
-            GameCommand command = prompt.Kind switch
-            {
-                DecisionKind.PlayCard when prompt.PlayerSeat == 0 =>
-                    new EndPlayPhaseCommand(0, game.Revision, prompt.PromptId),
-                DecisionKind.DiscardCards => new DiscardCardsCommand(prompt.PlayerSeat,
-                    prompt.ValidCardIds.Take(prompt.RequiredCardCount).ToArray(),
-                    prompt.PromptId, game.Revision),
-                _ => new AnswerPromptCommand(prompt.PlayerSeat, prompt.PromptId,
-                    prompt.Choices.First().Id, game.Revision)
-            };
-            if (!game.Submit(command).Accepted) return false;
-        }
-        return false;
-    }
-
     private static bool Play(GameEngine game, LegalAction action)
     {
         if (game.PendingDecision is not { Kind: DecisionKind.PlayCard } prompt) return false;

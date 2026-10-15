@@ -271,6 +271,7 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new SoleTargetQuarantineIssuedEvent(receipt)); AdvanceRuntimeProgram(f.Id);
     }
 
+    [ProgramAiChoice(SkillProgramEffectOp.ProtectOtherSoleCardTarget)]
     private PromptChoice SelectAiSoleProtection(PendingDecision decision, ProgramSkillFrame f)
     {
         if (f.SoleTargetProtection!.Stage == SoleTargetProtectionStage.ChoosingCost)

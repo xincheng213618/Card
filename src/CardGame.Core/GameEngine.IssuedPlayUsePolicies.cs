@@ -20,6 +20,7 @@ public sealed partial class GameEngine
         _winner != Winner.None || _phase != TurnPhase.Play || policy.ActorSeat != _currentSeat || policy.TurnNumber != _turnNumber || policy.PhaseInstanceId != _cardUseDebitPhaseInstanceId);
     private bool HasIssuedPolicyForAction(long actionId) => _issuedPlayPhaseUseProhibitions.Any(policy => policy.CardActionId == actionId);
     private bool IsIssuedCardUnrespondable(long frameId) =>
+        IsQigongUnrespondable(frameId) || HasIssuedNonBasicSlashDistance(frameId) ||
         _resolutionStack.OfType<CardUseFrame>().SingleOrDefault(frame => frame.Id == frameId) is { Action: { } action, IssuedNoResponse: { } issued } &&
         issued.CardActionId == action.ActionId && issued.ParentFrameId == frameId;
 

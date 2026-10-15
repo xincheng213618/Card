@@ -72,6 +72,7 @@ public sealed partial class GameEngine
         _status = _players[seat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
         AdvanceRulesAndPublishState();
     }
+    [ProgramAnswer("black-gift-contest")]
     private void ResolveBlackGiftChoice(PromptChoice choice)
     {
         var f = (ProgramSkillFrame)_resolutionStack.Last(); AssertRecipientConsequences(f); var r = f.BlackGiftContest!;

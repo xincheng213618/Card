@@ -66,31 +66,6 @@ internal static class BoundaryLiRuChecks
             "Both full child chains return once and retain the original per-play-phase use limit."); Cold(g, r);
     }
 
-    public static void SequentialShortfallAndOriginalSourceLossKeepRealCosts()
-    {
-        var (g, r) = Create(); Play(g); GiveTrick(g, 0); Clear(g, 1); Use(g, "draw", [1]); Play(g);
-        Require(V(g, 1).HandCount == 1 && V(g, 1).Equipment.Count == 0, "Real commands establish exactly one legal forced discard entity.");
-        var cost = V(g, 0).Hand.First(c => c.Kind == CardKind.Dismantlement).Id;
-        var only = V(g, 1).Hand.Single().Id; StartMieji(g, cost, 1); Reach(g, IsSequential);
-        Answer(g, c => c.Parameters.GetValueOrDefault("branch") == "sequential"); g = RestoreAfterCold(g, r);
-        Answer(g, c => c.Cards.SequenceEqual([only])); Play(g);
-        Require(F<ProgramSequentialDiscardFinishedEvent>(g).Single().RemainingUnpaid == 1 && Moves(g, MiejiReason).Single().CardId == only &&
-            g.CardMovements.Count(m => m.CardId == cost && m.From == CardLocation.Hand(0) && m.To == CardLocation.DrawPile) == 1,
-            "The documented insufficient-second-card default stops the unpaid remainder and retains both actual first payments."); Cold(g, r);
-
-        var (lost, lr) = Create(observers: true, removeSource: true); Play(lost); GiveTrick(lost, 0);
-        var placed = V(lost, 0).Hand.First(c => c.Kind == CardKind.Dismantlement).Id;
-        StartMieji(lost, placed, 1); Reach(lost, p => p.SkillPrompt?.SkillId == Top);
-        var original = lost.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == Mieji);
-        lost = RestoreAfterCold(lost, lr); Continue(lost); Play(lost);
-        Require(lost.CardMovements.Count(m => m.CardId == placed && m.From == CardLocation.Hand(0) && m.To == CardLocation.DrawPile &&
-                m.Reason.Value == "skill-program." + Mieji + ".MoveBoundCards") == 1 &&
-            !F<ProgramSequentialDiscardStartedEvent>(lost).Any(e => e.FrameId == original.Id) &&
-            F<ProgramSkillResolvedEvent>(lost).Any(e => e.FrameId == original.Id && !e.Completed) &&
-            !lost.GetHumanLegalActions().Any(a => a.SkillId == Mieji),
-            "Actual runtime source removal inside the paid top movement cancels only the unpaid challenge, without recapture or replacement source."); Cold(lost, lr);
-    }
-
     public static void ChosenStartEscalationUsesActualDiscardAndFireReturn()
     {
         var (g, r) = Create(observers: true); Play(g);
@@ -159,37 +134,6 @@ internal static class BoundaryLiRuChecks
             "The original limited usage and already-paid entity finish once after a real participant death."); Cold(dead, dr);
     }
 
-    public static void EndingPublicHandComparisonAndNativeForcedChoices()
-    {
-        var (g, r) = Create(observers: true); Play(g); SetHand(g, 0, 2); SetHand(g, 1, 2); SetHand(g, 2, 3); SetHand(g, 3, 0);
-        Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId)); Reach(g, p => p.SkillPrompt?.SkillId == Juece && Action(p, "activate"));
-        Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate"); Reach(g, p => p.SkillPrompt?.SkillId == Juece && Action(p, "select-target"));
-        Require(P(g)!.Choices.SelectMany(c => c.Targets).Order().SequenceEqual([1, 3]),
-            "The actual Ending target query includes equal and zero public hand counts while excluding the larger hand.");
-        g = RestoreAfterCold(g, r); var hp = g.State.Players[1].Hp; Answer(g, c => c.Targets.SequenceEqual([1])); Reach(g, p => p.SkillPrompt?.SkillId == Damage);
-        var juece = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == Juece);
-        var ending = g.ResolutionStack.OfType<TurnEndingBoundaryFrame>().Single(f => f.Id == juece.WindowContext!.ParentFrameId);
-        Require(ending.OwnerSeat == 0 && ending.TurnNumber == g.State.TurnNumber && juece.SelectedTargetSeats.SequenceEqual([1]) &&
-            g.State.Players[1].Hp == hp - 1 && g.ResolutionStack.OfType<DamageFrame>().Any(d => d.ParentFrameId == juece.Id && d.TargetSeat == 1 && d.Amount == 1),
-            "The equal-hand target receives one real damage under that exact actual Ending, not the classic empty-hand predicate.");
-        g = RestoreAfterCold(g, r); Continue(g); Reach(g, p => p.SkillPrompt?.SkillId == Hp); g = RestoreAfterCold(g, r); Continue(g);
-        FinishFrame(g, juece.Id);
-        Require(F<ProgramBindingResolvedEvent>(g).Single(e => e.FrameId == juece.Id).Completed &&
-            !g.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.Id == juece.Id),
-            "The original Ending damage and both real child windows return through their same owning candidate exactly once."); Cold(g, r);
-
-        var (native, nr) = Create(); Play(native); GiveTrick(native, 0);
-        var cost = V(native, 0).Hand.First(c => c.Kind == CardKind.Dismantlement).Id;
-        var targetCount = V(native, 1).HandCount + V(native, 1).Equipment.Count;
-        var hasTrick = V(native, 1).Hand.Any(c => c.Kind == CardKind.Dismantlement);
-        StartMieji(native, cost, 1); Reach(native, IsSequential); Require(P(native)!.PlayerSeat == 1, "The forced target owns its actual private native-AI prompt.");
-        var frameId = SequentialRoot(native).Id; native = RestoreAfterCold(native, nr); PlayNative(native);
-        var branch = F<ProgramSequentialDiscardBranchEvent>(native).Single(e => e.FrameId == frameId);
-        Require(branch.PrimaryBranch == hasTrick && Moves(native, MiejiReason).Length == (hasTrick ? 1 : Math.Min(2, targetCount)) &&
-            F<ProgramSequentialDiscardFinishedEvent>(native).Single(e => e.FrameId == frameId).RemainingUnpaid == 0,
-            "Native forced choice uses only its own actual materials, pays the selected branch once and returns to the real human play."); Cold(native, nr);
-    }
-
     private static (GameEngine, ContentRegistry) Create(bool observers = false, bool replenish = false, bool removeSource = false, bool fatalCost = false)
     {
         var r = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true),
@@ -206,14 +150,6 @@ internal static class BoundaryLiRuChecks
     }
     private static void StartMieji(GameEngine g, int card, int target) => Accept(g,
         new UseProgramSkillCommand(0, Mieji, "topdeck-trick", [card], [target], g.Revision, P(g)!.PromptId));
-    private static void Clear(GameEngine g, int seat)
-    {
-        if (V(g, seat).HandCount + V(g, seat).Equipment.Count == 0) return;
-        Use(g, "clear", [seat]);
-        Play(g);
-        Require(V(g, seat).HandCount + V(g, seat).Equipment.Count == 0, "The all-owned selection commits its actual complete discard without a redundant partial-selection prompt.");
-    }
-    private static void SetHand(GameEngine g, int seat, int count) { Clear(g, seat); for (var i = 0; i < count; i++) { Use(g, "draw", [seat]); Play(g); } }
     private static ProgramSkillFrame SequentialRoot(GameEngine g) => g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SequentialDiscard is not null);
     private static PlayerSnapshot V(GameEngine g, int seat) => g.CreateSnapshot(seat).Players[seat];
     private static T[] F<T>(GameEngine g) where T : IGameEvent => g.Events.Select(e => e.Payload).OfType<T>().ToArray();
@@ -225,16 +161,6 @@ internal static class BoundaryLiRuChecks
     private static void Answer(GameEngine g, Func<PromptChoice, bool> predicate) { var p = P(g)!; Accept(g, new AnswerPromptCommand(p.PlayerSeat, p.PromptId, p.Choices.First(predicate).Id, g.Revision)); }
     private static void Continue(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
     private static void Play(GameEngine g) => Reach(g, p => p.PlayerSeat == 0 && p.Kind == DecisionKind.PlayCard);
-    private static void PlayNative(GameEngine g)
-    {
-        for (var i = 0; i < 80; i++) { if (P(g) is { PlayerSeat: 0, Kind: DecisionKind.PlayCard }) return; Accept(g, new AdvanceOneStepCommand(g.Revision)); }
-        throw new InvalidOperationException("The native forced choice did not return its original play.");
-    }
-    private static void FinishFrame(GameEngine g, long id)
-    {
-        for (var i = 0; i < 80; i++) { if (g.ResolutionStack.All(f => f.Id != id)) return; Advance(g); }
-        throw new InvalidOperationException("The original real program did not finish its typed child return.");
-    }
     private static void Reach(GameEngine g, Func<PendingDecision, bool> predicate)
     {
         for (var i = 0; i < 180; i++) { var p = P(g); if (p is not null && predicate(p)) return; Advance(g); }

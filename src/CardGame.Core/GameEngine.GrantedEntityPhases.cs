@@ -72,6 +72,7 @@ public sealed partial class GameEngine
         { PromptId = CreatePromptId(), IsPrivate = true, Choices = choices, SkillPrompt = new(f.SkillId, skill.Name, skill.Name, skill.Description) };
         _status = _players[f.OwnerSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
+    [ProgramAnswer("granted-phase-slash")]
     private void ResolveGrantedPhaseSlashChoice(PromptChoice choice)
     {
         var f = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("A phase claim lost its current program.");
@@ -191,9 +192,6 @@ public sealed partial class GameEngine
         AssertGrantedEntityPhase(owner);
         return owner.Id;
     }
-    private PromptChoice SelectAiGrantedPhaseSlash(PendingDecision decision) =>
-        decision.Choices.FirstOrDefault(c => c.Parameters.GetValueOrDefault("option") == "deck") ??
-        decision.Choices.FirstOrDefault(c => c.Cards.Count == 1) ?? decision.Choices.Single(c => c.Parameters.GetValueOrDefault("option") == "skip");
     private void AssertGrantedEntityPhase(ProgramSkillFrame f)
     {
         if (f.IssuedEntityPhase is { } phase && (phase.Source != new CardConversionSource(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId) ||

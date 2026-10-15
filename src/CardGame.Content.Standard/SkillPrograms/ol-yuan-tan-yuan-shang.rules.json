@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:neifa",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "actual-play-gain-discard",
+          "window": "playPhaseStarting",
+          "subject": "owner",
+          "turnOwnerScope": "own",
+          "optional": true,
+          "effects": [
+            {
+              "op": "gainThenDiscardAndArmNeifaActualTurn",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "issued-turn-trick-targets",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "actor",
+          "effects": [
+            {
+              "op": "adjustNeifaOrdinaryTrickTargets",
+              "target": "owner"
+            }
+          ],
+          "optional": false
+        },
+        {
+          "id": "issued-turn-equipment-draw",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "actor",
+          "effects": [
+            {
+              "op": "drawForFirstTwoPaidNeifaEquipmentUses",
+              "target": "owner"
+            }
+          ],
+          "optional": false
+        }
+      ]
+    }
+  ]
+}

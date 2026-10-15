@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:langxi",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "actual-prepare-random",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "turnOwnerScope": "own",
+          "optional": true,
+          "effects": [
+            {
+              "op": "chooseHpBoundOtherAndDealRandomDamage",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:yisuan",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "actual-used-trick-discard",
+          "window": "cardsMoved",
+          "subject": "owner",
+          "turnOwnerScope": "own",
+          "sourceZones": [
+            "processing"
+          ],
+          "destinationZones": [
+            "discardPile"
+          ],
+          "movementOccurrence": "perBatch",
+          "usageScope": "phase",
+          "usageLimit": 1,
+          "optional": true,
+          "effects": [
+            {
+              "op": "payMaxHpAndObtainActualUsedTrick",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

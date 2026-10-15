@@ -84,6 +84,11 @@ public sealed partial class GameEngine
                 if (!IsTargetedOrdinaryTrickResolvedFact(use, targeted, actual)) return false;
                 actual = targeted.ResultTargets.ToList(); designated = targeted.ResultTargets.ToList();
             }
+            else if (fact is SouyingNativeMutationEvent souying && souying.NativeUseId == use.Id && souying.Cancelled)
+            {
+                if (!IsHuaManSouyingMutationFact(use, souying, actual)) return false;
+                designated.Clear(); actual.Clear();
+            }
             else if (fact is OverflowUseTargetsCanceledEvent canceled && canceled.Receipt.CardUseFrameId == use.Id)
             {
                 if (canceled.Receipt.Source.OwnerSeat != actor || !IsOverflowTargetCancellationFact(use, canceled, actual)) return false;
@@ -161,6 +166,15 @@ public sealed partial class GameEngine
                 if (!actual.SequenceEqual(designated) || !IsUniqueLeaderTrickTargetFact(use, leaderTarget, originalTargets)) return false;
                 designated = leaderTarget.ResultTargetSeats.ToList(); actual = leaderTarget.ResultTargetSeats.ToList();
             }
+            else if (fact is NeifaTargetsResolvedEvent neifa && neifa.UseId == use.Id)
+            {
+                IReadOnlyList<int> originalTargets = designated;
+                if (kind == CardKind.DrawTwo && designated.Count == 0 && actual.Count == 0 &&
+                    neifa.OriginalTargets is [var neifaSelf] && neifaSelf == actor)
+                    originalTargets = [actor];
+                if (!actual.SequenceEqual(designated) || !IsNeifaTargetsResolvedFact(use, neifa, originalTargets)) return false;
+                designated = neifa.ResultTargets.ToList(); actual = neifa.ResultTargets.ToList();
+            }
             else if (fact is RoundGainedTrickTargetResolvedEvent roundTarget && roundTarget.Qualification.CardUseFrameId == use.Id)
             {
                 IReadOnlyList<int> originalTargets = designated;
@@ -169,6 +183,19 @@ public sealed partial class GameEngine
                     originalTargets = [actor];
                 if (!actual.SequenceEqual(designated) || !IsRoundGainedTrickTargetFact(use, roundTarget, originalTargets)) return false;
                 designated = roundTarget.ResultTargetSeats.ToList(); actual = roundTarget.ResultTargetSeats.ToList();
+            }
+            else if (fact is BeiMiHuTargetsPaidEvent kuiTargets && kuiTargets.Receipt.CardUseId == use.Id)
+            {
+                var receipt = kuiTargets.Receipt;
+                IReadOnlyList<int> originalTargets = designated;
+                if (kind == CardKind.DrawTwo && designated.Count == 0 && actual.Count == 0 &&
+                    receipt.BeforeTargets is [var self] && self == actor)
+                    originalTargets = [actor];
+                if (!actual.SequenceEqual(designated) || !originalTargets.SequenceEqual(receipt.BeforeTargets) ||
+                    receipt.ActionId != completed.ActionId || use.BeiMiHuTargetMutation is not { } mutation ||
+                    !BeiMiHuMutationEqual(mutation, receipt) ||
+                    !ValidBeiMiHuTargetMutation(use)) return false;
+                designated = receipt.AfterTargets.ToList(); actual = receipt.AfterTargets.ToList();
             }
             else if (fact is RecipientCategorySlashTargetsResolvedEvent categoryTargets && categoryTargets.CardUseFrameId == use.Id)
             {

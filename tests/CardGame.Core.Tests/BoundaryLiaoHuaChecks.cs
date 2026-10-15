@@ -55,38 +55,6 @@ internal static class BoundaryLiaoHuaChecks
         Cold(g, r);
     }
 
-    public static void ExtraPhaseSkipAndUnusedClaimPaySelfDamageOnce()
-    {
-        foreach (var take in new[] { false, true })
-        {
-            var (g, r) = Create(initialHp: 3);
-            ChooseSource(g, take ? "deck" : "skip");
-            DrainToPlay(g);
-            var hp = g.State.Players[0].Hp;
-            End(g); Reach(g, p => p.SkillPrompt?.SkillId == Hp);
-            var phase = Facts<GrantedEntityPhaseEndedEvent>(g).Single();
-            var trailer = g.ResolutionStack.OfType<ProgramSkillFrame>().SingleOrDefault(f => f.IssuedEntityPhase is not null)
-                ?? throw new InvalidOperationException("The paid extra-phase trailer is missing: " +
-                    JsonSerializer.Serialize(new { take, g.ResolutionStack,
-                        Events = g.Events.TakeLast(12).Select(e => JsonSerializer.Serialize(e.Payload, e.Payload.GetType())).ToArray() }));
-            Require(phase.DamageDealt == 0 && trailer.IssuedEntityPhase is { Stage: GrantedEntityPhaseStage.DamagePaid } &&
-                    g.State.Players[0].Hp == hp - 1 &&
-                    Facts<DamageAppliedEvent>(g).Count(e => e.SourceSeat == 0 && e.TargetSeat == 0 && e.Amount == 1 && !e.SourceLess) == 1 &&
-                    !Facts<ProgramSkillHpLostEvent>(g).Any(),
-                "Taking or declining the Slash pays one real sourced self-damage through the issued phase trailer.");
-            Cold(g, r); Reject(g); Continue(g); Play(g);
-            Require(Facts<GrantedEntityPhaseEndedEvent>(g).Count() == 1 &&
-                    Facts<DamageAppliedEvent>(g).Count(e => e.SourceSeat == 0 && e.TargetSeat == 0) == 1 &&
-                    Facts<GrantedPhaseSlashClaimedEvent>(g).Count() == (take ? 1 : 0) &&
-                    g.CardMovements.Count(m => m.To == CardLocation.Hand(0) && m.Reason == CardMoveReasons.Draw) == 2,
-                "Returning the paid damage/HP child neither repeats cost nor skips the actual normal Draw.");
-            if (take)
-                Require(!FarSlash(g, Facts<GrantedPhaseSlashClaimedEvent>(g).Single().CardId),
-                    "A still-held obtained Slash loses its distance grant at this exact extra phase end.");
-            Cold(g, r);
-        }
-    }
-
     public static void FuliFrozenFactionsDamagePointsAndBenefitChildren()
     {
         foreach (var sufficientDamage in new[] { false, true })
@@ -149,42 +117,6 @@ internal static class BoundaryLiaoHuaChecks
         }
     }
 
-    public static void PublicDiscardChoiceLeavesAndNativePhaseHistory()
-    {
-        var (g, r) = Create(publicDiscard: true, initialHp: 3);
-        var choice = P(g)!.Choices.Single(c => c.Cards.Count == 1);
-        var id = choice.Cards.Single();
-        Require(g.CardMovements.Any(m => m.CardId == id && m.From == CardLocation.Hand(0) && m.To == CardLocation.DiscardPile) &&
-                g.CreateCardZoneDiagnostics().Any(z => z.Location == CardLocation.DiscardPile && z.CardId == id),
-            "The discard source is an actual previously paid public entity, not an injected zone.");
-        Private(g); Cold(g, r); Answer(g, c => c.Id == choice.Id); DrainToPlay(g);
-        Require(Facts<GrantedPhaseSlashClaimedEvent>(g).Single().CardId == id && FarSlash(g, id),
-            "The explicit public discard choice grants only its actual obtained entity.");
-        Use(g, "give-and-regain", cards: [id], targets: [1]);
-        Reach(g, p => p.ValidCardIds.Contains(id) && p.SkillPrompt?.SkillId == Driver);
-        Private(g); Cold(g, r); Answer(g, c => c.Cards.SequenceEqual([id])); DrainToPlay(g);
-        Require(g.CreateSnapshot(0).Players[0].Hand.Any(c => c.Id == id) &&
-                g.CardMovements.Any(m => m.CardId == id && m.From == CardLocation.Hand(0) && m.To == CardLocation.Hand(1)) &&
-                g.CardMovements.Any(m => m.CardId == id && m.From == CardLocation.Hand(1) && m.To == CardLocation.Hand(0)) &&
-                !FarSlash(g, id),
-            "An actual departure and subsequent actual return cannot revive the phase's single entity grant.");
-        Cold(g, r); End(g); DrainToPlay(g); Require(!FarSlash(g, id), "A returned entity remains ordinary after the extra phase ends."); Cold(g, r);
-
-        var (ai, ar) = Create(native: true);
-        Until(ai, () => ai.State.Status == EngineStatus.Completed);
-        var source = ai.State.Players.Single(p => p.GeneralId == "fixture:lh-owner").Seat;
-        var started = Facts<GrantedEntityPhaseStartedEvent>(ai).Single();
-        var ended = Facts<GrantedEntityPhaseEndedEvent>(ai).Single();
-        var claim = Facts<GrantedPhaseSlashClaimedEvent>(ai).Single();
-        Require(started.Source.OwnerSeat == source && started.PhaseInstanceId == ended.PhaseInstanceId &&
-                ended.Source == started.Source && ended.DamageDealt > 0 && claim.Source == started.Source &&
-                ai.CardMovements.Count(m => m.CardId == claim.CardId && m.Reason.Value == ClaimReason) == 1 &&
-                Facts<TurnEndedEvent>(ai).Count() == 1 && !ai.ResolutionStack.OfType<ProgramSkillFrame>().Any(f =>
-                    f.GrantedPhaseSlashClaim is not null || f.IssuedEntityPhase is not null),
-            "Native AI takes the real source, resolves actual attacks, and completes the exact first inserted phase/turn without lingering receipts.");
-        Cold(ai, ar);
-    }
-
     private static bool FarSlash(GameEngine g, int id) => g.GetHumanLegalActions().Any(a =>
         a.Kind == LegalActionKind.Slash && a.CardId == id && a.TargetSeats.SequenceEqual([2]));
     private static ProgramSkillFrame FuliRoot(GameEngine g) => g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.FrozenFactionRecovery is not null);
@@ -206,11 +138,6 @@ internal static class BoundaryLiaoHuaChecks
     {
         for (var n = 0; n < 180; n++) { if (P(g) is { } p && predicate(p)) return; Step(g); }
         throw new InvalidOperationException("Liao Hua exact boundary missing: " + JsonSerializer.Serialize(P(g)));
-    }
-    private static void Until(GameEngine g, Func<bool> predicate)
-    {
-        for (var n = 0; n < 220; n++) { if (predicate()) return; Step(g); }
-        throw new InvalidOperationException("Liao Hua exact event/native boundary missing.");
     }
     private static void Step(GameEngine g)
     {

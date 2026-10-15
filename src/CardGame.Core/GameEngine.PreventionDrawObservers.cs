@@ -4,21 +4,24 @@ public sealed partial class GameEngine
 {
     private bool IsValidPreventionDrawReceipt(ProgramSkillFrame root, BeforeDamageProgramWindowFrame parent)
     {
+        var participant = IsParticipantPreventionDraw(root);
         if (root.PreventionDrawReceipt is not { } receipt || root.WindowContext is not
             { Window: SkillProgramTriggerWindow.BeforeDamageApplied } context ||
-            context.ParentFrameId != parent.Id || context.TargetSeat != root.OwnerSeat || context.Amount != parent.Amount ||
-            receipt.BeforeDamageFrameId != parent.Id || receipt.TargetSeat != root.OwnerSeat || parent.TargetSeat != root.OwnerSeat ||
+            context.ParentFrameId != parent.Id || !participant && context.TargetSeat != root.OwnerSeat || context.Amount != parent.Amount ||
+            receipt.BeforeDamageFrameId != parent.Id || receipt.TargetSeat != parent.TargetSeat || !participant && parent.TargetSeat != root.OwnerSeat ||
+            participant && (parent.SourceSeat == parent.TargetSeat || !IsValidPlayerSeat(parent.SourceSeat) || root.OwnerSeat != parent.SourceSeat && root.OwnerSeat != parent.TargetSeat) ||
             receipt.SourceSeat != parent.SourceSeat || receipt.PreventedAmount != parent.Amount || !parent.Prevented ||
             parent.Amount <= 0 || receipt.InstructionIndex != root.InstructionIndex - 1 ||
             parent.CandidateIndex < 0 || parent.CandidateIndex >= parent.Candidates.Count ||
             !MountObserverCandidateMatches(root, parent.Candidates[parent.CandidateIndex].Candidate)) return false;
         var instructions = ProgramInstructionResolver.Default.Resolve(root, _contentRegistry.GetSkill(root.SkillId).Program!).Instructions;
         if (receipt.InstructionIndex < 0 || receipt.InstructionIndex >= instructions.Count ||
-            instructions[receipt.InstructionIndex] is not { Op: SkillProgramEffectOp.PreventCurrentDamageAndDrawMultiple } effect ||
-            effect.Amount != receipt.Multiplier || receipt.ActualDrawCount < 0 || receipt.ActualDrawCount > checked(parent.Amount * effect.Amount) ||
+            instructions[receipt.InstructionIndex] is not { } effect ||
+            effect.Op != (participant ? SkillProgramEffectOp.PreventParticipantDamageDrawActualSource : SkillProgramEffectOp.PreventCurrentDamageAndDrawMultiple) ||
+            receipt.Multiplier != (participant ? 2 : effect.Amount) || receipt.ActualDrawCount < 0 || receipt.ActualDrawCount > (participant ? 2 : checked(parent.Amount * effect.Amount)) ||
             receipt.MovementSequenceBefore < 0 || receipt.MovementSequenceAfter < receipt.MovementSequenceBefore) return false;
         var movements = _cardMovements.Where(m => m.Sequence > receipt.MovementSequenceBefore && m.Sequence <= receipt.MovementSequenceAfter).ToArray();
-        bool IsActualDraw(CardMovementRecord m) => m.From == CardLocation.DrawPile && m.To == CardLocation.Hand(root.OwnerSeat) &&
+        bool IsActualDraw(CardMovementRecord m) => m.From == CardLocation.DrawPile && m.To == CardLocation.Hand(participant ? parent.SourceSeat : root.OwnerSeat) &&
             m.Reason.Value == $"skill-program.{root.SkillId}.prevented-damage-draw";
         if (movements.Count(IsActualDraw) != receipt.ActualDrawCount || movements.Any(m => !IsActualDraw(m) &&
             !(m.From == CardLocation.DiscardPile && m.To == CardLocation.DrawPile && m.Reason == CardMoveReasons.Reshuffle))) return false;

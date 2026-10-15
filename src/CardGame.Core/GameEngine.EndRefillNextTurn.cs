@@ -47,6 +47,7 @@ public sealed partial class GameEngine
             SkillPrompt = new(f.SkillId, skill.Name, skill.Name, skill.Description) };
         _status = _players[f.OwnerSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
+    [ProgramAnswer("end-refill-next-turn")]
     private void ResolveEndRefillNextTurnChoice(PromptChoice choice)
     {
         var f = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("End refill lost its frame.");
@@ -170,6 +171,7 @@ public sealed partial class GameEngine
         var likelyMost = p.HandCount + draw >= snapshot.Players.Where(q => q.IsAlive && q.Seat != target).Select(q => q.HandCount).DefaultIfEmpty(0).Max();
         return -cancelDraw * draw / 2d + (likelyMost ? cancelDraw * .5d : 0d);
     }
+    [ProgramAiChoice(SkillProgramEffectOp.RefillAndScheduleNextTurnSelfOnly)]
     private PromptChoice SelectAiEndRefillNextTurn(PendingDecision prompt, ProgramSkillFrame f) =>
         prompt.Choices.OrderByDescending(c => c.Targets.Count == 0 ? 0d : EndRefillPublicChoiceScore(f.OwnerSeat, c.Targets[0])).First();
     private double EndRefillNextTurnPublicScore(int owner) => CreateSnapshot(owner).Players.Where(p => p.IsAlive)

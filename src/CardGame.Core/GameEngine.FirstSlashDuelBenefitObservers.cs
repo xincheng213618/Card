@@ -10,11 +10,16 @@ public sealed partial class GameEngine
             f.WindowContext?.Window != SkillProgramTriggerWindow.CardUseTargetsFinalized || f.WindowContext.ParentFrameId != r.WindowFrameId ||
             GetPausedPrivateOfferEffect(f)?.Op != SkillProgramEffectOp.ChooseFirstSlashDuelDiamondBenefit) return false;
         var window = _resolutionStack.OfType<ProgramCardTriggerWindowFrame>().SingleOrDefault(w => w.Id == r.WindowFrameId);
+        var legacy = _resolutionStack.OfType<FirstSlashDuelLegacyWindowFrame>().SingleOrDefault(w => w.Id == r.WindowFrameId);
         var use = LifecycleCardUse(r.CardUseFrameId);
-        if (window is null || use is null || window.ParentFrameId != use.Id || window.Action.ActionId != r.ActionId ||
+        var candidateMatches = window is not null && r.LegacyProducerFrameId is null && window.ParentFrameId == use?.Id &&
+            window.Action.ActionId == r.ActionId && window.CandidateIndex >= 0 && window.CandidateIndex < window.Candidates.Count &&
+            MountObserverCandidateMatches(f, ToSharedCandidate(window.Candidates[window.CandidateIndex])) ||
+            legacy is not null && use is not null && r.ActionId is null && r.LegacyProducerFrameId == legacy.ProducerFrameId &&
+            legacy.ParentFrameId == use.Id && legacy.CandidateIndex >= 0 && legacy.CandidateIndex < legacy.Candidates.Count &&
+            MountObserverCandidateMatches(f, legacy.Candidates[legacy.CandidateIndex]) && IsFirstLegacySlashUse(use, legacy.ProducerFrameId, requireSingle: r.SelectedBranch is null);
+        if (!candidateMatches || use is null ||
             use.Action?.ActionId != r.ActionId || use.SourceSeat != f.OwnerSeat || !IsFirstSlashDuelKind(use.CardKind) ||
-            window.CandidateIndex < 0 || window.CandidateIndex >= window.Candidates.Count ||
-            !MountObserverCandidateMatches(f, ToSharedCandidate(window.Candidates[window.CandidateIndex])) ||
             !CompleteProgramEventHistory().OfType<FirstSlashDuelUseRecordedEvent>().Any(e => e.CardUseFrameId == use.Id &&
                 e.ActionId == r.ActionId && e.Ordinal == 1 && e.ActorSeat == f.OwnerSeat && e.TurnNumber == r.TurnNumber && e.TurnOwnerSeat == r.TurnOwnerSeat)) return false;
         var issued = CompleteProgramEventHistory().OfType<FirstSlashDuelBenefitIssuedEvent>().Where(e => e.ProgramFrameId == f.Id).ToArray();

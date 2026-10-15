@@ -327,7 +327,11 @@ public enum ProgramLifecycleContinuation
     ResumeCardDeclaration = 1600,
     ResumeParentProgram = 500, ResumeDyingEntry = 660,
     CompleteJudgmentPhaseStarting = 800, ResumeCharacterStateChange = 820, CompleteDrawPhaseEnded = 1140, ResumeDrawPhaseObligation = 3800, CompletePhaseHandDebtForcedEnd = 8007,
-    RoundProgramsTurnStart = 8040
+    RoundProgramsTurnStart = 8040,
+    ResumeIdentityAppearance = 22203,
+    BeiMiHuPreludeRound = 23200,
+    BeiMiHuPreludeOwn = 23201,
+    CompleteWeiluForcedPlayEnd = 24900
 }
 
 public enum TurnEndingBoundaryItemKind { Program, GiftRetention = 1460 }
@@ -369,7 +373,7 @@ public sealed record TurnEndingBoundaryFrame(
 /// opportunities from both the turn owner (own-scope triggers) and observers
 /// (other-living-scope triggers).
 /// </summary>
-public sealed record PlayPhaseStartingBoundaryFrame(
+public sealed partial record PlayPhaseStartingBoundaryFrame(
     long Id,
     int OwnerSeat,
     IReadOnlyList<TurnEndingBoundaryItem> Items,
@@ -378,7 +382,7 @@ public sealed record PlayPhaseStartingBoundaryFrame(
     ResolutionFrameStep Step = ResolutionFrameStep.ResolvingEffect)
     : ResolutionFrame(Id, ResolutionFrameKind.PlayPhaseStartingBoundary, Step);
 
-public sealed record ProgramLifecycleTriggerWindowFrame(
+public sealed partial record ProgramLifecycleTriggerWindowFrame(
     long Id,
     int OwnerSeat,
     SkillProgramTriggerWindow Window,
@@ -394,6 +398,10 @@ public sealed record ProgramLifecycleTriggerWindowFrame(
 {
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public PhaseNamePredictionPhaseKey? PhaseNamePredictionPhase { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public long? IdentityAppearanceFrameId { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public ZhuijiPlayPhaseKey? ZhuijiEndingPhase { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public DeferredPrivateOfferDue? DeferredPrivateOffers { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]

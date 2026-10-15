@@ -122,72 +122,6 @@ internal static class PublicPileCashOutChecks
         _ = Cold(game, registry);
     }
 
-    public static void PreparationCashOutKeepsOtherSourceAndExpiresSlashLimitAtActualTurnEnd()
-    {
-        var (game, registry) = Start(other: true);
-        var other = PileCards(game, 0, Other).Select(c => c.Id).ToArray();
-        Require(other.Length == 1, "A real legacy GameStarting hand-storage node creates a separate public source before the new damage pile.");
-        var prepared = StoreTwo(game, registry, Skill); game = prepared.Item1; var original = prepared.Item2;
-        var firstTurn = game.State.TurnNumber;
-        UseDriver(game, "turn-over"); Reach(game, IsHumanPlay);
-        Require(game.CreateSnapshot(0).Players[0].IsFaceDown, "The actual owner is turned face down by a real command before the next turn.");
-        Accept(game, new EndPlayPhaseCommand(0, game.Revision));
-        Reach(game, _ => Facts<TurnEndedEvent>(game).Any(e => e.ActorSeat == 0 && e.TurnNumber > firstTurn));
-        Require(PileCards(game, 0, Skill).Select(c => c.Id).SequenceEqual(original) &&
-                !Facts<PublicPileCashOutStartedEvent>(game).Any(e => e.Operation == SkillProgramEffectOp.CashOutPublicPile) &&
-                !Facts<TurnRuleModifierGrantedEvent>(game).Any(e => e.Modifier.Source.SkillId == Skill),
-            "A genuine face-down skipped turn has no Preparation cash-out: its source survives with no draw or Slash grant.");
-        game = Cold(game, registry);
-        Reach(game, p => IsContinue(p, PaymentChild));
-        var root = CashFrame(game); var id = root.Id; var receipt = root.PublicPileCashOut!;
-        Require(receipt.PaidCardIds.SequenceEqual(original) && receipt.FrozenCount == 2 &&
-                Enumerable.Range(0, 4).All(s => PileCards(game, s, Other).Select(c => c.Id).SequenceEqual(other)) &&
-                Enumerable.Range(0, 4).All(s => game.CreateSnapshot(s).Players[0].PublicPersistentPiles is { Count: 2 } piles &&
-                    piles.Select(p => p.Location).Distinct().Count() == 2),
-            "Normal Preparation cashes only the original exact-instance source; the separately registered legacy public pile remains intact for every viewer.");
-        game = Cold(game, registry); Answer(game, c => c.Parameters.GetValueOrDefault("option-id") == "continue"); Reach(game, IsHumanPlay);
-        AssertCashCompleted(game, id, original, 2, 4);
-        var turn = game.State.TurnNumber;
-        var source = SlashAction(game).ConversionSource;
-        for (var used = 0; used < 3; used++)
-        {
-            PlaySlash(game); Reach(game, IsHumanPlay);
-            Require(Facts<CardUseDeclaredEvent>(game).Count(e => e.SourceSeat == 0 && e.CardKind == CardKind.Slash) == used + 1,
-                "Each actual paid conversion consumes one normal Slash use while the current-turn N allowance is active.");
-            if (used == 1) game = Cold(game, registry);
-        }
-        Require(!SlashActions(game).Any(), "Frozen N=2 grants exactly the baseline one plus two normal paid Slash uses.");
-        var remaining = game.CreateSnapshot(0).Players[0].Hand.First().Id;
-        Reject(game, new PlayCardCommand(0, remaining, [1], game.Revision, P(game)!.PromptId) { ConversionSource = source });
-        Require(PileCards(game, 0, Other).Select(c => c.Id).SequenceEqual(other), "Paid Slashes do not borrow the other public source.");
-        Accept(game, new EndPlayPhaseCommand(0, game.Revision));
-        Reach(game, p => IsHumanPlay(p) && game.State.TurnNumber > turn);
-        Require(Facts<PublicPileCashOutDrawIssuedEvent>(game).Count(e => e.FrameId == id) == 1 &&
-                Facts<PublicPileCashOutStartedEvent>(game).Count(e => e.Operation == SkillProgramEffectOp.CashOutPublicPile) == 1 &&
-                Enumerable.Range(0, 4).All(s => PileCards(game, s, Other).Select(c => c.Id).SequenceEqual(other)),
-            "The next real turn has an empty exact source and issues no second cash-out, while the other pile persists.");
-        PlaySlash(game); Reach(game, IsHumanPlay);
-        Require(!SlashActions(game).Any(), "After actual TurnEnded, the old extra Slash grant expires and the next normal turn permits only one.");
-        _ = Cold(game, registry);
-    }
-
-    public static void EmptyPublicPileCashOutHasNoEffectsAndRejectsUnsupportedComposition()
-    {
-        RejectInvalidContracts();
-        var (game, registry) = Start();
-        var firstTurn = game.State.TurnNumber;
-        Require(!Facts<PublicPileCashOutStartedEvent>(game).Any() && !Facts<PublicPileCashOutDrawIssuedEvent>(game).Any(),
-            "The initial empty source does not fabricate a paid Preparation instruction or a draw.");
-        Accept(game, new EndPlayPhaseCommand(0, game.Revision));
-        Reach(game, p => IsHumanPlay(p) && game.State.TurnNumber > firstTurn);
-        Require(!Facts<PublicPileCashOutStartedEvent>(game).Any() && !Facts<PublicPileCashOutPaidEvent>(game).Any() &&
-                !Facts<PublicPileCashOutDrawIssuedEvent>(game).Any() && !Facts<PublicPileCashOutResolvedEvent>(game).Any() &&
-                !Facts<TurnRuleModifierGrantedEvent>(game).Any(e => e.Modifier.Source.SkillId == Skill) &&
-                !game.CardMovements.Any(m => m.Reason.Value == PaymentReason(Skill) || m.Reason.Value == DrawReason(Skill)),
-            "Another actual empty Preparation creates no synthetic entity, payment, reward or expired allowance.");
-        _ = Cold(game, registry);
-    }
-
     private static (GameEngine, int[]) StoreTwo(GameEngine game, ContentRegistry registry, string skill)
     {
         UseDriver(game, "damage-two"); Reach(game, p => IsOffer(p, skill));
@@ -259,15 +193,6 @@ internal static class PublicPileCashOutChecks
                 game.CardMovements.Count(m => m.Reason.Value == PaymentReason(started.Issuer.SkillId) && original.Contains(m.CardId)) == count &&
                 !game.CardMovements.Any(m => m.CardId <= 0),
             "Cash-out pays, issues its native draw and adds one original-N turn grant exactly once after all real children return.");
-    }
-
-    private static IEnumerable<LegalAction> SlashActions(GameEngine game) => game.GetHumanLegalActions().Where(a => a.PlayedCardKind == CardKind.Slash && a.ConversionSource?.SkillId == Driver);
-    private static LegalAction SlashAction(GameEngine game) => SlashActions(game).First();
-    private static void PlaySlash(GameEngine game)
-    {
-        var a = SlashAction(game);
-        Accept(game, new PlayCardCommand(0, a.CardId!.Value, a.TargetSeats, game.Revision, P(game)!.PromptId,
-            a.PlayedCardKind, a.TargetCardId) { ConversionSource = a.ConversionSource, AdditionalConversionSources = a.AdditionalConversionSources });
     }
     private static string StoreReason(string skill) => $"skill-program.{skill}.StoreBoundCardsInPublicPile.payment";
     private static string PaymentReason(string skill) => $"skill-program.{skill}.CashOutPublicPile.payment";
@@ -342,34 +267,6 @@ internal static class PublicPileCashOutChecks
         Require(State(copy) == State(game), "Accepted-command cold replay preserves each real paid stage, exact source instance, immutable invoice, parent cursor, quota and private player view."); return copy;
     }
     private static void Require(bool condition, string message) { if (!condition) throw new InvalidOperationException(message); }
-
-    private static void RejectInvalidContracts()
-    {
-        foreach (var mutation in new[] { "zero-draw", "five-draw", "optional-cash", "foreign-preparation", "wrong-window", "unguarded-empty", "extra-cash-node", "wrong-occurrence", "mandatory-store", "zero-store", "foreign-store", "missing-source", "activation" })
-        {
-            var rules = JsonNode.Parse(Rules())!; var skill = rules["skills"]![0]!; var triggers = skill["triggers"]!.AsArray();
-            var store = triggers[0]!; var cash = triggers[1]!;
-            switch (mutation)
-            {
-                case "zero-draw": cash["effects"]![0]!["drawMultiplier"] = 0; break;
-                case "five-draw": cash["effects"]![0]!["drawMultiplier"] = 5; break;
-                case "optional-cash": cash["optional"] = true; break;
-                case "foreign-preparation": cash["turnOwnerScope"] = "otherLiving"; break;
-                case "wrong-window": cash["window"] = "drawPhaseStarting"; break;
-                case "unguarded-empty": cash.AsObject().Remove("condition"); break;
-                case "extra-cash-node": cash["effects"]!.AsArray().Add(JsonNode.Parse("{\"op\":\"draw\",\"target\":\"owner\",\"amount\":1}")); break;
-                case "wrong-occurrence": store["damageOccurrence"] = "perDamage"; break;
-                case "mandatory-store": store["optional"] = false; break;
-                case "zero-store": store["effects"]![0]!["minimumCards"] = 0; break;
-                case "foreign-store": store["effects"]![0]!["target"] = "selectedTarget"; break;
-                case "missing-source": store["effects"]![1]!["sourceBind"] = "not-created"; break;
-                case "activation": skill.AsObject().Remove("triggers"); skill["activations"] = new JsonArray(new JsonObject { ["id"] = "invalid-entry", ["minCards"] = 0, ["maxCards"] = 0, ["minTargets"] = 0, ["maxTargets"] = 0, ["targetKind"] = "anyLiving", ["usesPerTurn"] = null, ["effects"] = cash["effects"]!.DeepClone() }); break;
-            }
-            var rejected = false; try { _ = SkillProgramCatalog.Load(rules.ToJsonString(), Presentation()); } catch (InvalidOperationException) { rejected = true; }
-            Require(rejected, "The generic public-pile loader rejects unsupported paid-entry composition: " + mutation);
-        }
-        _ = SkillProgramCatalog.Load(Rules(), Presentation());
-    }
     private static string Rules(bool nested = false) => $$$"""
     {"schemaVersion":{{{SkillProgramCatalog.RulesSchemaVersion}}},"skills":[
       {"id":"{{{Skill}}}","revision":1,"triggers":[

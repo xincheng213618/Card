@@ -28,10 +28,14 @@ public sealed partial class GameEngine
         if (index != _resolutionStack.Count - 1) return;
         switch (_resolutionStack[index])
         {
+            case BeiMiHuTurnPreludeFrame: ContinueBeiMiHuTurnPrelude(); break;
+            case IdentityAppearanceFrame appearance: AdvanceIdentityAppearance(appearance); break;
             case FriendDuelResponseFrame: ContinueFriendDuelResponse(frameId); break;
             case NullificationWindowFrame { CounterspellPayment: not null }: ContinuePolicyCounterspellPayment(frameId); break;
             case CardUseFrame { ColorFireAttack.PaidCardId: not null }: ContinueColorFireAttackPayment(frameId); break;
             case CardUseFrame { MouZhitianPayment: not null }: ContinueMouZhitianFirePayment(frameId); break;
+            case CardUseFrame { GuoSiNative: not null, GuoSiCostDrained: false }: ContinueGuoSiNativePayment(frameId); break;
+            case CardUseFrame { DenglouNative: not null, DenglouCostDrained: false }: ContinueDenglouNativePayment(frameId); break;
             case CardUseFrame { EndingHistoricalUseReturn: not null, EndingHistoricalCostDrained: false }: ContinueHistoricalEndingPayment(frameId); break;
             case CardUseFrame { RoundPileAlcoholReturn: not null, RoundPileAlcoholCostDrained: false }: ContinueRoundPileAlcoholUse(frameId); break;
             case CardEffectBeforeApplyFrame: ContinueCardEffectBeforeApply(); break;
@@ -45,6 +49,8 @@ public sealed partial class GameEngine
             case ForeignActualTurnStartWindowFrame: ContinueForeignActualTurnStartCore(); break;
             case ActualUseTargetWindowFrame: ContinueActualUseTargetWindowCore(); break;
             case SlashTargetBenefitWindowFrame: ContinueSlashTargetBenefitWindowCore(); break;
+            case FirstSlashDuelLegacyWindowFrame: ContinueFirstSlashDuelLegacyWindow(); break;
+            case PindianRevealWindowFrame: ContinuePindianRevealWindow(); break;
             case SlashTargetPenaltyWindowFrame: ContinueSlashTargetPenaltyWindow(); break;
             case ProgramCardTriggerWindowFrame: ContinueProgramCardWindowCore(); break;
             case ProgramLifecycleTriggerWindowFrame: ContinueProgramLifecycleWindowCore(); break;
@@ -74,11 +80,14 @@ public sealed partial class GameEngine
         // to completed facts, so they are validated by their typed return path.
         var parentId = frame switch
         {
+            IdentityAppearanceFrame child => child.Receipt.ParentFrameId ?? 0,
             RequestedDeckBasicFrame child => child.ParentFrameId,
             DrawFundedDistinctBasicFrame child => child.Payment.RequestFrameId ?? child.Payment.ParentFrameId ?? 0,
             ChainedStateBasicFrame child => child.Payment.RequestFrameId ?? child.Payment.ParentFrameId ?? 0,
             ActualUseTargetWindowFrame child => child.ParentFrameId,
             SlashTargetBenefitWindowFrame child => child.ParentFrameId,
+            FirstSlashDuelLegacyWindowFrame child => child.ParentFrameId,
+            PindianRevealWindowFrame child => child.ParentFrameId,
             SlashTargetPenaltyWindowFrame child => child.ParentFrameId,
             CardDeclarationFrame child => child.Return.ParentFrameId,
             CardDeclarationChallengeFrame child => child.ParentFrameId,
@@ -212,6 +221,14 @@ public sealed partial class GameEngine
 
     private void RunOneEngineStep()
     {
+        if (_pendingDecision is null && _resolutionStack.LastOrDefault() is BeiMiHuTurnPreludeFrame beforeTurn)
+        { AdvanceRuntimeFrame(beforeTurn.Id); AdvanceRulesAndPublishState(); return; }
+        if (_pendingDecision is null && _resolutionStack.LastOrDefault() is IdentityAppearanceFrame appearance)
+        { AdvanceRuntimeFrame(appearance.Id); AdvanceRulesAndPublishState(); return; }
+        if (_pendingDecision is null && _resolutionStack.LastOrDefault() is PindianRevealWindowFrame reveal)
+        { AdvanceRuntimeFrame(reveal.Id); AdvanceRulesAndPublishState(); return; }
+        if (_pendingDecision is null && _resolutionStack.LastOrDefault() is FirstSlashDuelLegacyWindowFrame legacyBenefit)
+        { AdvanceRuntimeFrame(legacyBenefit.Id); AdvanceRulesAndPublishState(); return; }
         if (_pendingDecision is null && _resolutionStack.LastOrDefault() is FriendDuelResponseFrame friendResponse)
         { ContinueFriendDuelResponse(friendResponse.Id); AdvanceRulesAndPublishState(); return; }
         if (_pendingDecision is null && _resolutionStack.LastOrDefault() is ChainedStateBasicFrame chained)
@@ -352,10 +369,21 @@ public sealed partial class GameEngine
         if (TryAdvanceNamedHandChoiceSubtree()) return;
         if (TryAdvanceExtraEffectsAndRankGuessSubtree()) return;
         if (TryAdvanceFirstSlashDuelSubtree()) return;
+        if (TryAdvanceCaoYingSubtree()) return;
+        if (TryAdvancePrivateWhirlSubtree()) return;
+        if (TryAdvanceBuZhiSubtree() || TryAdvanceLianZhuSubtree() || TryAdvanceJiqiaoSubtree() || TryAdvanceKanZeSubtree() || TryAdvanceHeQiSubtree() || TryAdvanceZhaoXiangSubtree()) return;
+        if (TryAdvanceWangYunSubtree() || TryAdvanceZhugeGuoSubtree() || TryAdvanceXiZhiCaiSubtree() || TryAdvanceLiuQiSubtree() || TryAdvanceBeiMiHuSubtree() || TryAdvanceLuZhiWeiSubtree() || TryAdvanceSimaHuiSubtree() || TryAdvanceXuRongSubtree() || TryAdvanceLiJueSubtree() || TryAdvanceZhangJiSubtree() || TryAdvanceSuFeiSubtree() || TryAdvanceHuangQuanSubtree() || TryAdvanceFanChouSubtree() || TryAdvanceGuoSiSubtree() || TryAdvanceZhangQiYingSubtree() || TryAdvanceCaoChunSubtree() || TryAdvanceWangCanSubtree() || TryAdvanceSpPangTongSubtree() || TryAdvanceNeifaSubtree() || TryAdvanceLvQianSubtree() || TryAdvanceLvKuangLvXiangSubtree() || TryAdvanceXinPiSubtree() || TryAdvanceHuaManSubtree()) return;
+        if (TryAdvanceXuanGongZhuSubtree()) return;
+        if (TryAdvanceDongZhaoSubtree()) return;
+        if (TryAdvanceDeathGrowthSubtree()) return;
+        if (TryAdvanceBaoSubtree()) return;
+        if (TryAdvanceSimultaneousSubtree()) return;
         if (TryAdvanceRiceSubtree()) return;
         if (TryAdvanceDamageAcquisitionSubtree()) return;
         if (TryAdvanceKuangfuSubtree()) return;
         if (TryAdvanceActualHandGainSubtree()) return;
+        if (TryAdvanceOldHandDispositionSubtree()) return;
+        if (TryAdvanceFrozenHandRosterSubtree()) return;
         if (TryAdvanceDyingSuitsSubtree()) return;
         if (TryAdvanceRecipientConsequencesSubtree()) return;
         if (TryAdvanceOwnedDeathBenefitSubtree()) return;
@@ -519,8 +547,15 @@ public sealed partial class GameEngine
             frame.Id, frame.SkillId, frame.TriggerId!, frame.SkillInstanceId,
             frame.OwnerSeat, context.Window, Activated: true, Completed: completed));
         if (CompleteDeferredTurnEndBinding(frame, context)) return;
+        if (_resolutionStack.LastOrDefault() is FirstSlashDuelLegacyWindowFrame)
+        {
+            CompleteFirstLegacyBenefitCandidate(new(frame.OwnerSeat, frame.SkillId, frame.TriggerId!, frame.SkillInstanceId,
+                frame.GameplayHash, GetProgramTrigger(frame).Priority), context); return;
+        }
         switch (context.Window)
         {
+            case SkillProgramTriggerWindow.PindianCardsRevealed:
+                CompletePindianRevealBinding(frame); break;
             case SkillProgramTriggerWindow.ActualSlashTargetPenalty:
                 CompleteSlashTargetPenaltyBinding(frame); break;
             case SkillProgramTriggerWindow.ActualSlashTargetBenefit:
@@ -531,6 +566,7 @@ public sealed partial class GameEngine
                 break;
             case SkillProgramTriggerWindow.ProgramTargetCommitted:
             case SkillProgramTriggerWindow.DyingEntering:
+            case SkillProgramTriggerWindow.IdentityGeneralAppeared:
             case SkillProgramTriggerWindow.SkillsChanged:
             case SkillProgramTriggerWindow.JudgmentPhaseStarting:
             case SkillProgramTriggerWindow.DrawPhaseSkipped:
@@ -544,6 +580,7 @@ public sealed partial class GameEngine
                 break;
             case SkillProgramTriggerWindow.OtherActualTurnStarted:
                 CompleteForeignActualTurnStartBinding(frame); break;
+            case SkillProgramTriggerWindow.TurnBeforeStart:
             case SkillProgramTriggerWindow.TurnStartBeforeNormalFlow:
                 if (_resolutionStack.LastOrDefault() is not ProgramLifecycleTriggerWindowFrame lifecycle ||
                     lifecycle.Id != context.ParentFrameId)
@@ -554,7 +591,7 @@ public sealed partial class GameEngine
             case SkillProgramTriggerWindow.RoundStarting:
                 if (_resolutionStack.LastOrDefault() is not ProgramLifecycleTriggerWindowFrame roundStart ||
                     roundStart.Id != context.ParentFrameId ||
-                    roundStart.Continuation != ProgramLifecycleContinuation.RoundProgramsTurnStart)
+                    roundStart.Continuation != ProgramLifecycleContinuation.RoundProgramsTurnStart && !ValidBeiMiHuPreludeLifecycleWindow(roundStart))
                     throw new InvalidOperationException("The round-starting program lost its parent window.");
                 AdvanceProgramLifecycleCursor(roundStart);
                 AdvanceRuntimeTop<ProgramLifecycleTriggerWindowFrame>();
@@ -602,12 +639,17 @@ public sealed partial class GameEngine
                 if (_resolutionStack.LastOrDefault() is not ProgramLifecycleTriggerWindowFrame playEnding ||
                     playEnding.Id != context.ParentFrameId ||
                     playEnding.Continuation is not (ProgramLifecycleContinuation.CompletePlayPhase or
-                        ProgramLifecycleContinuation.CompletePhaseHandDebtForcedEnd) ||
+                        ProgramLifecycleContinuation.CompletePhaseHandDebtForcedEnd or ProgramLifecycleContinuation.CompleteWeiluForcedPlayEnd) ||
                     playEnding.Continuation == ProgramLifecycleContinuation.CompletePhaseHandDebtForcedEnd &&
                     (playEnding.OwnerSeat != frame.OwnerSeat || playEnding.Window != context.Window ||
                      playEnding.CandidateIndex < 0 || playEnding.CandidateIndex >= playEnding.Candidates.Count ||
                      !IsPhaseHandDebtResolver(playEnding.Candidates[playEnding.CandidateIndex]) ||
-                     !MountObserverCandidateMatches(frame, playEnding.Candidates[playEnding.CandidateIndex])))
+                     !MountObserverCandidateMatches(frame, playEnding.Candidates[playEnding.CandidateIndex])) ||
+                    playEnding.Continuation == ProgramLifecycleContinuation.CompleteWeiluForcedPlayEnd &&
+                    (playEnding.OwnerSeat != frame.OwnerSeat || playEnding.Window != context.Window ||
+                     playEnding.CandidateIndex < 0 || playEnding.CandidateIndex >= playEnding.Candidates.Count ||
+                     !MountObserverCandidateMatches(frame, playEnding.Candidates[playEnding.CandidateIndex]) ||
+                     playEnding.WeiluEndingPhase != context.WeiluPhase))
                     throw new InvalidOperationException("The play-ending program lost its parent window.");
                 AdvanceProgramLifecycleCursor(playEnding);
                 AdvanceRuntimeTop<ProgramLifecycleTriggerWindowFrame>();
@@ -779,7 +821,9 @@ public sealed partial class GameEngine
                 AdvanceRuntimeTop<ProgramCardTriggerWindowFrame>();
                 break;
             case SkillProgramTriggerWindow.JudgmentFinalized:
+            case SkillProgramTriggerWindow.JudgmentBeforeResult:
                 if (_resolutionStack.LastOrDefault() is not ProgramJudgmentTriggerWindowFrame finalizedWindow ||
+                    (finalizedWindow.ZhenyiBeforeResult == true) != (context.Window == SkillProgramTriggerWindow.JudgmentBeforeResult) ||
                     finalizedWindow.Id != context.ParentFrameId ||
                     finalizedWindow.CandidateIndex >= finalizedWindow.Candidates.Count)
                     throw new InvalidOperationException("The finalized judgment program lost its parent window.");
@@ -805,7 +849,7 @@ public sealed partial class GameEngine
                 throw new InvalidOperationException("A selected-card payment cannot return before its movement children finish.");
             var valid = _players[frame.OwnerSeat].IsAlive &&
                 (HasRuntimeSkillInstance(_players[frame.OwnerSeat], frame.SkillId, frame.SkillInstanceId) ||
-                 CanContinueHpConditionalProgram(frame) || CanContinuePhaseAlcohol(frame));
+                 CanContinueEquipmentSuitProgram(frame) || CanContinueHpConditionalProgram(frame) || CanContinuePhaseAlcohol(frame));
             ReplaceRuntimeTop(frame with
             {
                 SelectedCardPaymentResult = new ProgramSelectedCardPaymentResult(
@@ -840,7 +884,7 @@ public sealed partial class GameEngine
         ReplaceRuntimeTop(frame with { PendingMovementContinuation = null });
         if (!_players[frame.OwnerSeat].IsAlive || !_players[pending.SubjectSeat].IsAlive ||
             !HasRuntimeSkillInstance(_players[frame.OwnerSeat], frame.SkillId, frame.SkillInstanceId) &&
-            !CanContinueHpConditionalProgram(frame) && !CanContinuePhaseAlcohol(frame))
+            !CanContinueEquipmentSuitProgram(frame) && !CanContinueHpConditionalProgram(frame) && !CanContinuePhaseAlcohol(frame))
         {
             CancelProgramBindingAndCleanup(GetActiveProgramFrame(frameId),
                 "移动响应后技能持有人、装备持有人或技能实例已失效。");

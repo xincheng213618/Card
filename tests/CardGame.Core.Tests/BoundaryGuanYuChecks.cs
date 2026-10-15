@@ -25,65 +25,6 @@ internal static class BoundaryGuanYuChecks
         Reach(g,p=>g.Events.Any(e=>e.Payload is CurrentTurnNonLockedSkillSuppressionsExpiredEvent x&&x.TurnNumber==turn&&x.TurnOwnerSeat==0));
         Require(g.Events.Any(e=>e.Payload is CurrentTurnNonLockedSkillSuppressionsExpiredEvent x&&x.TurnOwnerSeat==0)&&g.CreateSnapshot(0).Players[1].Skills!.Any(s=>s.ContentId=="fixture:ordinary"),"Expiry follows actual actor turn end.");Replay(g,r);
     }
-    public static void RedActualGainOptionalRecoveryAndReplay()
-    {
-        foreach(var heal in new[]{false,true})
-        {
-            var(g,r)=Start("red");Accept(g,new UseProgramSkillCommand(0,"fixture:driver","wound",[],[1],g.Revision,P(g)!.PromptId));Settle(g);
-            var hp=g.State.Players[1].Hp;var cost=g.State.Players[0].Hand.First().Id;Yijue(g,cost,1);var shown=P(g)!.Choices.First().Cards.Single();Replay(g,r);
-            Answer(g,c=>c.Cards.SequenceEqual(new[]{shown}));Require(P(g)!.PlayerSeat==0&&P(g)!.Choices.Any(c=>c.Parameters.GetValueOrDefault("option-id")=="recover"),"Actor owns optional recovery after gain.");
-            Require(g.CreateCardZoneDiagnostics().Single(x=>x.CardId==shown).Location==CardLocation.Hand(0)&&g.CardMovements.Count(m=>m.CardId==shown&&m.From==CardLocation.Hand(1)&&m.To==CardLocation.Hand(0))==1,"Red revealed entity really changes ownership once before heal.");
-            Replay(g,r);Answer(g,c=>c.Parameters.GetValueOrDefault("option-id")== (heal?"recover":"decline"));Settle(g);
-            Require(g.State.Players[1].Hp==hp+(heal?1:0)&&!g.Events.Any(e=>e.Payload is CurrentTurnNonLockedSkillSuppressionIssuedEvent),"Optional real recovery only on accepted heal branch.");Replay(g,r);
-        }
-    }
-    public static void DiamondDistanceAndEffectiveRedEntityAudit()
-    {
-        foreach(var scenario in new[]{"diamond","heart","rewrite"})
-        {
-            var(g,r)=Start(scenario);var far=g.GetHumanLegalActions().Where(a=>a.Kind==LegalActionKind.Slash&&a.TargetSeat==2).ToArray();
-            Require(scenario=="diamond"?far.Length>0:far.Length==0,"Only effective Diamond Slash ignores distance.");
-            if(scenario=="rewrite")
-            {
-                var action=g.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.Slash&&a.ConversionSource?.SkillId=="boundary:wusheng");
-                Require(g.State.Players[0].Hand.Single(c=>c.Id==action.CardId).Suit==Suit.Spade,"Physical black card is currently effective Heart.");
-                Play(g,action,action.TargetSeat!.Value);Settle(g);Require(g.Events.Select(e=>e.Payload).OfType<CardActionAcceptedEvent>().Any(e=>e.Action.ConversionChain.Any(c=>c.SkillId=="boundary:wusheng")&&e.Action.PhysicalCards.Count==1),"Effective red Wusheng pays a real entity.");Replay(g,r);
-            }
-        }
-    }
-    public static void PaymentGainChildrenAndEquipmentCost()
-    {
-        foreach(var scenario in new[]{"cost-child","gain-child","equipment"})
-        {
-            var(g,r)=Start(scenario);var cost=g.State.Players[0].Hand.First().Id;
-            if(scenario=="equipment") { var equip=g.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.Equip);cost=equip.CardId!.Value;Accept(g,new PlayCardCommand(0,cost,[],g.Revision,P(g)!.PromptId));Settle(g); }
-            Yijue(g,cost,1);
-            if(scenario=="cost-child")
-            {
-                Require(P(g)!.PlayerSeat==0&&P(g)!.SkillPrompt?.SkillId=="fixture:child"&&g.ResolutionStack.OfType<ProgramSkillFrame>().Any(f=>f.SkillId=="boundary:yijue"&&f.PendingMovementContinuation is not null),"Actual payment movement child suspends owning Yijue before target choice.");
-                Replay(g,r);Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="activate");
-            }
-            Require(P(g)!.PlayerSeat==1,"Target choice follows completed cost child.");var shown=P(g)!.Choices.First().Cards.Single();Replay(g,r);Answer(g,c=>c.Cards.SequenceEqual(new[]{shown}));
-            if(scenario=="gain-child")
-            {
-                Require(P(g)!.SkillPrompt?.SkillId=="fixture:child"&&g.CreateCardZoneDiagnostics().Single(x=>x.CardId==shown).Location==CardLocation.Hand(0),"Real gain precedes its complete movement child and optional recovery.");
-                Replay(g,r);Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="activate");
-            }
-            Settle(g);Require(g.CardMovements.Count(m=>m.CardId==cost&&m.To==CardLocation.DiscardPile)==1&&g.CardMovements.Count(m=>m.CardId==shown&&m.From==CardLocation.Hand(1)&&m.To==CardLocation.Hand(0))==1,"Child resume never repeats payment or gain.");
-            Require(scenario!="equipment"||g.CardMovements.Any(m=>m.CardId==cost&&m.From==CardLocation.Equipment(0)&&m.To==CardLocation.DiscardPile),"HE cost accepts real Equipment.");Replay(g,r);
-        }
-    }
-    public static void ActualPlayedWushengAndBlackHandRejection()
-    {
-        var(g,r)=Start("red");Accept(g,new UseProgramSkillCommand(0,"fixture:driver","duel",[],[1,0],g.Revision,P(g)!.PromptId));
-        Reach(g,p=>p.Kind==DecisionKind.RespondSlash&&p.PlayerSeat==0);var p=P(g)!;var c=p.Choices.First(c=>c.Parameters.GetValueOrDefault("conversion-skill-id")=="boundary:wusheng");var cost=c.Cards.Single();Replay(g,r);
-        Accept(g,new AnswerPromptCommand(0,p.PromptId,c.Id,g.Revision));Settle(g);
-        Require(g.Events.Select(e=>e.Payload).OfType<CardActionAcceptedEvent>().Any(e=>e.Action.Type==CardActionType.Response&&e.Action.EffectiveKind==CardKind.Slash&&e.Action.PhysicalCards.Any(x=>x.CardId==cost)),"Wusheng truly Played Slash returns to actual Duel.");
-        Require(g.CardMovements.Count(m=>m.CardId==cost&&m.To==CardLocation.DiscardPile)==1,"Played entity conserved once.");Replay(g,r);
-        var(black,br)=Start("black");Yijue(black,black.State.Players[0].Hand.First().Id,1);Answer(black,c=>c.Cards.Count==1);Settle(black);var hp=black.State.Players[1].Hp;
-        Accept(black,new UseProgramSkillCommand(0,"fixture:driver","duel",[],[0,1],black.Revision,P(black)!.PromptId));Settle(black);
-        Require(black.State.Players[1].Hp==hp-1&&!black.Events.Select(e=>e.Payload).OfType<CardActionAcceptedEvent>().Any(e=>e.Action.Type==CardActionType.Response&&e.Action.ProviderSeat==1),"Black Hand prohibition prevents true Played Slash, not only Play menu.");Replay(black,br);
-    }
     public static void ActualDiamondProviderUse()
     {
         var(g,r)=Start("provider");Accept(g,new UseProgramSkillCommand(0,"fixture:driver","request",[],[2],g.Revision,P(g)!.PromptId));

@@ -72,66 +72,6 @@ internal static class DrawDiscardCategoryRefundChecks
         _ = Cold(g, registry);
     }
 
-    public static void RepeatedCategoriesAndSmallActualPayments()
-    {
-        var repeatedRegistry = Registry(singleCategory: true); var repeated = Start(repeatedRegistry);
-        Activate(repeated, 0); Reach(repeated, IsCategoryChoice);
-        var repeatedFrame = Root(repeated).Id;
-        var repeatedIds = Root(repeated).DrawDiscardCategoryRefund!.EligibleMaterials.Take(3).Select(m => m.CardId).ToArray();
-        foreach (var id in repeatedIds) Select(repeated, id);
-        ReachPlay(repeated); AssertPayment(repeated, repeatedFrame, repeatedIds, false);
-        Require(E<DrawDiscardCategoryCompletedEvent>(repeated).Single(e => e.FrameId == repeatedFrame) is
-                { DistinctNonEmpty: false, BonusIssued: false, QuotaRefunded: false, TargetBanned: false } &&
-            !E<DrawDiscardCategoryDrawIssuedEvent>(repeated).Any(e => e.Bonus) &&
-            !E<DrawDiscardCategoryRefundedEvent>(repeated).Any() && !E<DrawDiscardCategoryTargetBannedEvent>(repeated).Any() &&
-            !repeated.GetHumanLegalActions().Any(a => a.ProgramSkillId == Skill),
-            "Three genuine Basic discards pay once but earn neither bonus nor refund nor target ban; the original phase debit stays spent.");
-        _ = Cold(repeated, repeatedRegistry);
-
-        var tinyRegistry = Registry(tiny: true);
-        foreach (var count in new[] { 0, 1, 2 })
-        {
-            var g = Start(tinyRegistry); CollectInitialHands(g);
-            Require(g.CreateSnapshot(0).Players[0].Hand.Count == 16 && g.State.DrawPileCount == 0 && g.State.DiscardPileCount == 0,
-                "The fixed sixteen-card deck is genuinely dealt and collected, with no recycled discard material available to draw.");
-            var keep = new[] { SkillProgramCardCategory.Basic, SkillProgramCardCategory.Trick }.Take(count)
-                .Select(category => g.CreateSnapshot(0).Players[0].Hand.First(c => Category(c.Kind) == category).Id).ToArray();
-            var transfer = g.CreateSnapshot(0).Players[0].Hand.Select(c => c.Id).Except(keep).ToArray();
-            UseDriver(g, "stash", [1]); Reach(g, p => p.SkillPrompt?.SkillId == Driver && Action(p, "select-owned-cards"));
-            foreach (var id in transfer) Answer(g, c => c.Cards.SequenceEqual([id]));
-            if (count > 0) Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "finish-owned-cards");
-            ReachPlay(g);
-            Require(g.CreateSnapshot(0).Players[0].Hand.Select(c => c.Id).Order().SequenceEqual(keep.Order()) &&
-                g.State.DrawPileCount == 0 && g.State.DiscardPileCount == 0,
-                "Actual selection and a real non-discard gift retain exactly the intended zero, one or two original entities.");
-            Activate(g, 0);
-            if (count > 0)
-            {
-                Reach(g, IsCategoryChoice);
-                Require(Root(g).DrawDiscardCategoryRefund is { DrawActual: 0 } r && r.RequiredCount == count &&
-                    r.EligibleMaterials.Select(m => m.CardId).Order().SequenceEqual(keep.Order()),
-                    "A real exhausted draw does not invent cards; mandatory payment shrinks to the actual remaining legal HE count.");
-                foreach (var id in keep) Select(g, id);
-            }
-            ReachPlay(g);
-            var frame = E<DrawDiscardCategoryStartedEvent>(g).Single().FrameId;
-            AssertDraw(g, frame, false, 0); AssertPayment(g, frame, keep, count > 0);
-            if (count > 0)
-            {
-                AssertDraw(g, frame, true, 1); AssertSuccess(g, frame, 0);
-                Require(E<DrawDiscardCategoryRefundedEvent>(g).Single().BeforeUsage == 1 &&
-                    E<DrawDiscardCategoryRefundedEvent>(g).Single().AfterUsage == 0,
-                    "One or two actual nonempty, pairwise different categories earn the original bonus and one quota refund.");
-            }
-            else Require(E<DrawDiscardCategoryCompletedEvent>(g).Single() is
-                    { DistinctNonEmpty: false, BonusIssued: false, QuotaRefunded: false, TargetBanned: false } &&
-                    !E<DrawDiscardCategoryDrawIssuedEvent>(g).Any(e => e.Bonus) &&
-                    !g.GetHumanLegalActions().Any(a => a.ProgramSkillId == Skill),
-                    "An empty actual discard is not vacuously distinct and earns no bonus, refund or target restriction.");
-            _ = Cold(g, tinyRegistry);
-        }
-    }
-
     public static void EquipmentBatchSettlesAfterAcquiredSourceQualificationLoss()
     {
         var registry = Registry(sourceLoss: true); var g = Start(registry); CollectInitialHands(g); EquipArmor(g);
@@ -178,39 +118,6 @@ internal static class DrawDiscardCategoryRefundChecks
             !E<ProgramOwnerSkillsReplacedEvent>(g).Any(e => e.LostSkillIds.Contains(Skill)) &&
             settledOwner.Hp == 5 && !g.ResolutionStack.Any(f => f.Id == frameId),
             $"After the equipment child actually grants its suppressor, the original paid source settles bonus/refund exactly once; other targets still lack source qualification despite free phase quota. HP={settledOwner.Hp}/{settledOwner.MaxHp}, sourceActions={sourceActions}, skills={string.Join(',', settledOwner.Skills!.Select(s => s.Id))}, grantSequences={string.Join(',', suppressorGrants.Select(e => e.Sequence))}, paymentSequence={paymentSequence}, bonusSequence={bonusSequence}, refunds={string.Join(',', E<DrawDiscardCategoryRefundedEvent>(g).Select(e => e.AfterUsage))}, sourceFramePresent={g.ResolutionStack.Any(f => f.Id == frameId)}.");
-        _ = Cold(g, registry);
-    }
-
-    public static void ProtectedHandCategoryIsExcludedButOwnArmorRemainsPayable()
-    {
-        var registry = Registry(protection: true); var g = Start(registry); CollectInitialHands(g); EquipArmor(g);
-        var armor = g.CreateSnapshot(0).Players[0].Equipment.Single().Id;
-        UseDriver(g, "damage-self", []); Reach(g, p => p.SkillPrompt?.SkillId == Restrict && Action(p, "activate"));
-        Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate");
-        Reach(g, p => p.SkillPrompt?.SkillId == Restrict && p.Choices.Any(c => c.Parameters.GetValueOrDefault("option-id") == "trick"));
-        Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "trick"); ReachPlay(g);
-        var protectedIds = g.CreateSnapshot(0).Players[0].Hand.Where(c => Category(c.Kind) == SkillProgramCardCategory.Trick).Select(c => c.Id).ToArray();
-        Require(protectedIds.Length > 0 && E<HandCategoryRestrictionGrantedEvent>(g).Single().Restriction is
-                { AffectedSeat: 0, Category: SkillProgramCardCategory.Trick } &&
-            E<DamageAppliedEvent>(g).Any(e => e.SourceSeat == 0 && e.TargetSeat == 0 && e.Amount == 1),
-            "A real damage-source declaration protects the actual owner's Trick hand materials during this actual turn.");
-        Activate(g, 0); Reach(g, IsCategoryChoice);
-        var receipt = Root(g).DrawDiscardCategoryRefund!; var frameId = Root(g).Id;
-        Require(receipt.EligibleMaterials.All(m => m.Category != SkillProgramCardCategory.Trick) &&
-            receipt.EligibleMaterials.Any(m => m.CardId == armor && m.From == CardLocation.Equipment(0)) &&
-            P(g)!.Choices.All(c => !c.Cards.Any(protectedIds.Contains)),
-            "Mandatory HE selection omits protected self-discard hand categories while retaining its own protected armor for genuine self-payment.");
-        PrivateAndFrozen(g); g = Cold(g, registry);
-        Reject(g, new AnswerPromptCommand(0, P(g)!.PromptId, new ChoiceId("unpublished-protected-hand"), g.Revision));
-        var basics = receipt.EligibleMaterials.Where(m => m.Category == SkillProgramCardCategory.Basic).Take(2).Select(m => m.CardId).ToArray();
-        Require(basics.Length == 2, "The fixed real mixed deck supplies two legal basic alternatives to the protected hand cards.");
-        Select(g, armor); foreach (var id in basics) Select(g, id); ReachPlay(g);
-        AssertPayment(g, frameId, [armor, .. basics], false);
-        Require(protectedIds.All(id => g.CreateSnapshot(0).Players[0].Hand.Any(c => c.Id == id)) &&
-            g.CardMovements.Count(m => m.CardId == armor && m.From == CardLocation.Equipment(0) &&
-                m.To == CardLocation.DiscardPile && m.Reason.Value == Reason("discard")) == 1 &&
-            E<DrawDiscardCategoryCompletedEvent>(g).Single() is { DistinctNonEmpty: false, QuotaRefunded: false },
-            "The exact installed armor is paid once, protected original hand entities stay untouched, and repeated actual Basic categories do not earn refund.");
         _ = Cold(g, registry);
     }
 

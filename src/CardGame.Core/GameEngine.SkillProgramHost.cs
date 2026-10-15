@@ -120,6 +120,7 @@ public sealed partial class GameEngine
             SkillProgramNumberExpression? numberExpression, string? sourceBind)
         {
             var target = engine._players[targetSeat];
+            if (!target.HasHpValue) return;
             var requested = numberExpression switch
             {
                 null => amount,
@@ -160,6 +161,7 @@ public sealed partial class GameEngine
 
         public SkillProgramStepOutcome LoseHp(long frameId, string skillId, int targetSeat, int amount)
         {
+            if (engine.TryBeginIdentityAppearanceForProgramHpLoss(frameId, skillId, targetSeat, amount)) return SkillProgramStepOutcome.AwaitChild;
             var target = engine._players[targetSeat];
             var before = target.Hp;
             var lost = Math.Min(target.Hp, amount);

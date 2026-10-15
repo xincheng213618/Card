@@ -141,6 +141,7 @@ public sealed partial class GameEngine
         ReplaceRuntimeTop(f = f with { EquipmentDonation = receipt, ReexecuteParticipantInstruction = true });
         PublishEquipmentDonationPrompt(f, receipt.RecipientSeat, $"已选择 {receipt.DamageTargets.Count} 名角色。", EquipmentDonationChoices(f));
     }
+    [ProgramAiChoice(SkillProgramEffectOp.DonateAllEquipmentAndOfferRecipientBenefits)]
     private PromptChoice SelectAiEquipmentDonation(PendingDecision decision, ProgramSkillFrame f)
     {
         var r = f.EquipmentDonation!; var view = CreateSnapshot(r.RecipientSeat);

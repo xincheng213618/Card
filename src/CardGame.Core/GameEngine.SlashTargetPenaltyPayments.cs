@@ -44,6 +44,7 @@ public sealed partial class GameEngine
                     ["frame-id"] = f.Id.ToString(CultureInfo.InvariantCulture) }));
         return Array.AsReadOnly(choices.ToArray());
     }
+    [ProgramAnswer("slash-target-penalty")]
     private void ResolveTargetPenaltyChoice(PromptChoice selected)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame f || f.SlashTargetPenaltyDraft is not { Stage: SlashTargetPenaltyStage.Offered } d ||
@@ -163,6 +164,7 @@ public sealed partial class GameEngine
         if (f.PendingMovementContinuation is null || !ValidTargetPenaltyPayment(f)) throw new InvalidOperationException("The target penalty movement lost its original paid parent.");
         ContinueTargetPenaltyChildren(f); return true;
     }
+    [ProgramAiChoice(SkillProgramEffectOp.RequireTargetDiscardOrEquipmentRecast)]
     private PromptChoice SelectAiTargetPenalty(PendingDecision decision, ProgramSkillFrame f)
     {
         // Choices expose only the chooser's own cards and public equipment.

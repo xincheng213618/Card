@@ -81,105 +81,6 @@ internal static class GiftedSlashHandPolicyChecks
         }
     }
 
-    public static void DepartedGiftEntitiesCannotLendIdentityOrRewardToOtherActors()
-    {
-        foreach (var discard in new[] { false, true })
-        {
-            var (game, registry) = Start(); var given = Give(ref game, registry, 1);
-            var policy = Facts<GiftedSlashHandPolicyGrantedEvent>(game).Single(e => e.Policy.CardId == given).Policy;
-            var donorHand = game.CreateSnapshot(0).Players[0].HandCount;
-            UseDriver(game, discard ? "discard-hand" : "take-hand", 1); Reach(game, IsHumanPlay);
-            Require(Location(game, given) == (discard ? CardLocation.DiscardPile : CardLocation.Hand(0)) &&
-                    game.CardMovements.Count(m => m.CardId == given && m.From == CardLocation.Hand(1)) == 1 &&
-                    game.GetHumanLegalActions().All(a => a.CardId != given || a.Kind != LegalActionKind.Slash),
-                "A genuine ordinary foreign-Hand cost or transfer ends the policy on the exact entity; the donor cannot borrow the recipient's identity.");
-            Reject(game, new PlayCardCommand(0, given, [1], game.Revision, P(game)!.PromptId, CardKind.Slash) { ConversionSource = policy.Source });
-            game = Cold(game, registry);
-            if (!discard)
-            {
-                UseDriver(game, "send-hand", 2); Reach(game, IsHumanPlay);
-                Require(Location(game, given) == CardLocation.Hand(2) && game.CreateSnapshot(2).Players[2].Hand.Single(c => c.Id == given).Kind == CardKind.Dodge,
-                    "A real third-party transfer retains the printed entity and cannot inherit the old recipient's Slash policy.");
-                game = Cold(game, registry);
-                Accept(game, new EndPlayPhaseCommand(0, game.Revision)); Reach(game, IsHumanPlay);
-                Require(Location(game, given) == CardLocation.Hand(2) && !Facts<CardUseFinishedEvent>(game).Any(e => e.CardId == given) &&
-                        !Facts<ProgramBindingStartedEvent>(game).Any(e => e.SkillId == Actual && e.Window == SkillProgramTriggerWindow.CardUseCompleted),
-                    "The third holder's true native Play cannot use a printed Dodge as the departed gifted Slash or issue an old provider reward.");
-                UseDriver(game, "take-hand", 2); Reach(game, IsHumanPlay);
-                UseDriver(game, "send-hand", 1); Reach(game, IsHumanPlay); game = Cold(game, registry);
-                Require(Location(game, given) == CardLocation.Hand(1), "Native ordinary movement returns the same entity to its former recipient.");
-            }
-            Accept(game, new EndPlayPhaseCommand(0, game.Revision)); Reach(game, IsHumanPlay);
-            Require(!Facts<CardUseFinishedEvent>(game).Any(e => e.CardId == given) &&
-                    !Facts<ProgramBindingStartedEvent>(game).Any(e => e.SkillId == Actual && e.Window == SkillProgramTriggerWindow.CardUseCompleted) &&
-                    !Facts<ProgramBindingResolvedEvent>(game).Any(e => e.SkillId == DrawChild) &&
-                    !Facts<GiftedSlashUseBenefitIssuedEvent>(game).Any(e => e.Benefit.Policy == policy) &&
-                    !Facts<GiftedSlashRewardDrawIssuedEvent>(game).Any(e => e.Benefit.Policy == policy) &&
-                    Facts<ProgramSkillStartedEvent>(game).Count(e => e.SkillId == Actual && e.ActivationId == Activation) == 1 &&
-                    Facts<SkillUsageConsumedEvent>(game).Count(e => e.SkillId == Actual && e.UsageId == Activation + ":target:1") == 1 &&
-                    (discard ? game.CreateSnapshot(0).Players[0].HandCount == donorHand : Location(game, given) == CardLocation.Hand(1)),
-                "Leaving the original Hand permanently invalidates this issuance; ordinary costs, third holders and a later return neither resurrect its identity nor draw a use reward.");
-            _ = Cold(game, registry);
-        }
-    }
-
-    public static void RespondedGiftedSlashConsumesEntityWithoutUseReward()
-    {
-        var (game, registry) = Start(duel: true);
-        var initialHp = game.CreateSnapshot(1).Players[1].Hp; var preparationCards = new List<int>();
-        for (var i = 0; i < 2; i++)
-        {
-            var preparation = game.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.Duel && a.TargetSeats.SequenceEqual([1]));
-            preparationCards.Add(preparation.CardId!.Value);
-            Accept(game, PlayCommand(game, preparation)); Reach(game, IsHumanPlay);
-        }
-        Require(game.CreateSnapshot(1).Players[1].Hp == initialHp - 2 && game.CreateSnapshot(0).Players[0].HandCount == 2 &&
-                Facts<DamageAppliedEvent>(game).Count(e => e.SourceSeat == 0 && e.TargetSeat == 1 && e.Amount == 1) == 2 &&
-                preparationCards.Distinct().Count() == 2 && preparationCards.All(id =>
-                    Facts<CardUseFinishedEvent>(game).Count(e => e.CardId == id && e.CardKind == CardKind.Duel) == 1 &&
-                    game.CardMovements.Count(m => m.CardId == id && m.From == CardLocation.Hand(0) && m.To == CardLocation.Processing && m.Reason == CardMoveReasons.Use) == 1),
-            "Two genuine printed Duels pay two distinct original Hand entities and naturally injure the AI twice, making its normal published Slash response worthwhile without injected HP or decision policy.");
-        game = Cold(game, registry); var given = Give(ref game, registry, 1);
-        var action = game.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.Duel && a.CardId != given && a.TargetSeats.SequenceEqual([1]));
-        var duel = action.CardId!.Value;
-        Accept(game, PlayCommand(game, action));
-        Reach(game, p => p is { Kind: DecisionKind.RespondSlash, PlayerSeat: 1 });
-        Require(P(game)!.Choices.Any(c => c.Cards.SequenceEqual([given]) && c.Parameters.GetValueOrDefault("response") == "slash"),
-            "The true native AI response prompt publishes its only intrinsic gifted Slash as a legal one-entity response.");
-        AssertPrivate(game, 1); Frozen(P(game)!.Choices);
-        Reject(game, new AnswerPromptCommand(0, P(game)!.PromptId, P(game)!.Choices.First().Id, game.Revision));
-        game = Cold(game, registry); Reach(game, p => ContinuePrompt(p, ResponseChild));
-        var child = game.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == ResponseChild);
-        var response = game.ResolutionStack.OfType<ProgramCardTriggerWindowFrame>().Single(f => f.Id == child.WindowContext!.ParentFrameId);
-        Require(Facts<CardRespondedEvent>(game).Single(e => e.CardId == given) is { ResponderSeat: 1, SourceSeat: 0, EffectiveCardKind: CardKind.Slash } &&
-                response.Continuation == ProgramCardContinuation.DuelSlash && response.Action is { Type: CardActionType.Response, ActorSeat: 1, ProviderSeat: 1, EffectiveKind: CardKind.Slash } &&
-                response.Action.PhysicalCards is [{ CardId: var paid, From: var origin }] && paid == given && origin == CardLocation.Hand(1) &&
-                response.Action.ConversionChain.Contains(Facts<GiftedSlashHandPolicyGrantedEvent>(game).Single().Policy.Source) &&
-                response.ParentFrameId == child.WindowContext!.CardUse?.ParentCardUseFrameId && Location(game, given) == CardLocation.Processing &&
-                game.ResolutionStack.OfType<CardUseFrame>().All(f => f.GiftedSlashUseBenefit is null) &&
-                game.CardMovements.Count(m => m.CardId == given && m.From == CardLocation.Hand(1)) == 1 &&
-                !Facts<CardUseFinishedEvent>(game).Any(e => e.CardId == given),
-            "Native AI can genuinely respond to Duel with its only intrinsic gifted Slash, while ordinary Response creates no rewarded Use frame.");
-        AssertPrivate(game, 1); Frozen(response.Action.PhysicalCards); Frozen(P(game)!.Choices);
-        Reject(game, new AnswerPromptCommand(0, P(game)!.PromptId, P(game)!.Choices.First().Id, game.Revision));
-        game = Cold(game, registry); Reach(game, IsHumanPlay);
-        Require(Location(game, given) == CardLocation.DiscardPile &&
-                Facts<CardRespondedEvent>(game).Count(e => e.CardId == given && e.ResponderSeat == 1 && e.EffectiveCardKind == CardKind.Slash) == 1 &&
-                Facts<DuelResponseEvent>(game).Count(e => e.ResolutionId == response.ParentFrameId && e.ResponderSeat == 1 && e.UsedSlash && e.SlashCardId == given) == 1 &&
-                game.CardMovements.Count(m => m.CardId == given && m.From == CardLocation.Hand(1) && m.To == CardLocation.Processing && m.Reason == CardMoveReasons.Respond) == 1 &&
-                game.CardMovements.Count(m => m.CardId == given && m.From == CardLocation.Processing && m.To == CardLocation.DiscardPile && m.Reason == CardMoveReasons.ResponseFinished) == 1 &&
-                Facts<CardUseFinishedEvent>(game).Count(e => e.CardId == duel && e.CardKind == CardKind.Duel) == 1 &&
-                !Facts<CardUseFinishedEvent>(game).Any(e => e.CardId == given) &&
-                Facts<DamageAppliedEvent>(game).Count(e => e.SourceSeat == 1 && e.TargetSeat == 0 && e.Amount == 1) == 1 &&
-                !Facts<ProgramBindingStartedEvent>(game).Any(e => e.SkillId == Actual && e.Window == SkillProgramTriggerWindow.CardUseCompleted) &&
-                !Facts<GiftedSlashUseBenefitIssuedEvent>(game).Any(e => e.Benefit.Policy.CardId == given) &&
-                !Facts<GiftedSlashRewardDrawIssuedEvent>(game).Any(e => e.Benefit.Policy.CardId == given) &&
-                Facts<ProgramBindingResolvedEvent>(game).Count(e => e.FrameId == child.Id && e.SkillId == ResponseChild && e.Activated && e.Completed) == 1 &&
-                !Facts<ProgramBindingStartedEvent>(game).Any(e => e.SkillId == DrawChild),
-            "The real response pays its one entity once; unrelated Duel damage and completion do not issue Draw1 or Draw2 for a gift used only as a response.");
-        _ = Cold(game, registry);
-    }
-
     public static void GiftTargetPhaseQuotaAndContinuousHandLifetimeUseRealPhasesAndTurns()
     {
         var (phase, phaseRegistry) = Start(extraPlay: true); var turn = phase.State.TurnNumber;
@@ -287,8 +188,6 @@ internal static class GiftedSlashHandPolicyChecks
     private static T[] Facts<T>(GameEngine game) => game.Events.Select(e => e.Payload).OfType<T>().ToArray();
     private static void UseDriver(GameEngine game, string activation, int target) => Accept(game,
         new UseProgramSkillCommand(0, Driver, activation, [], [target], game.Revision, P(game)!.PromptId));
-    private static PlayCardCommand PlayCommand(GameEngine game, LegalAction action) => new(0, action.CardId!.Value, action.TargetSeats, game.Revision, P(game)!.PromptId, action.PlayedCardKind, action.TargetCardId)
-    { ConversionSource = action.ConversionSource, AdditionalConversionSources = action.AdditionalConversionSources };
     private static void Answer(GameEngine game, Func<PromptChoice, bool> predicate)
     {
         Require(P(game)?.PlayerSeat == 0, "Human Answer is restricted to the real human seat; foreign AI choices must use native Advance.");

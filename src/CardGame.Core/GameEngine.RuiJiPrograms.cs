@@ -181,6 +181,7 @@ public sealed partial class GameEngine
         _status = owner.IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
 
+    [ProgramAnswer("ruiji-distribution")]
     private void ResolveQiaoliDistributionChoice(PromptChoice selected)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ??
@@ -346,6 +347,7 @@ public sealed partial class GameEngine
         _status = _players[active.OwnerSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
 
+    [ProgramAnswer("qingliang-option")]
     private void ResolveQingliangOptionChoice(PromptChoice selected)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ??
@@ -419,6 +421,7 @@ public sealed partial class GameEngine
         _status = owner.IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
 
+    [ProgramAnswer("qingliang-suit")]
     private void ResolveQingliangSuitChoice(PromptChoice selected)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ??
@@ -470,16 +473,7 @@ public sealed partial class GameEngine
         AdvanceRuntimeProgram(frame.Id);
     }
 
-    private PromptChoice SelectAiQiaoliDistributionChoice(PendingDecision decision) =>
-        decision.Choices.OrderBy(choice => choice.Id.Value, StringComparer.Ordinal).First();
 
-    private PromptChoice SelectAiQingliangChoice(PendingDecision decision)
-    {
-        if (decision.Choices.Any(choice => choice.Parameters.GetValueOrDefault("program-action") == "qingliang-suit"))
-            return decision.Choices.OrderBy(choice => choice.Id.Value, StringComparer.Ordinal).First();
-        return decision.Choices.FirstOrDefault(choice => choice.Parameters.GetValueOrDefault("choice") == "draw") ??
-            decision.Choices.OrderBy(choice => choice.Id.Value, StringComparer.Ordinal).First();
-    }
 
     private sealed partial class ProgramSkillHost : IRuiJiProgramHost
     {

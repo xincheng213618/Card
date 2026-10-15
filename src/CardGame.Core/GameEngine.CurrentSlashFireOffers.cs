@@ -110,6 +110,7 @@ public sealed partial class GameEngine
         _status = _players[f.OwnerSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
 
+    [ProgramAnswer("current-slash-fire")]
     private void ResolveCurrentSlashFireChoice(PromptChoice selected)
     {
         var f = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("Slash fire producer disappeared.");
@@ -186,6 +187,13 @@ public sealed partial class GameEngine
                 if (!after || !actual.SequenceEqual(designated) || !IsSoleTargetAfterProtectionRedirectFact(use, protectedRedirect, actual))
                     throw new InvalidOperationException("A protected converted Slash lost its exact new-target redirect.");
                 designated = protectedRedirect.AfterTargets.ToList(); actual = designated.ToList();
+                continue;
+            }
+            if (e is SouyingNativeMutationEvent { Cancelled: true } souying && souying.NativeUseId == use.Id)
+            {
+                if (!after || !IsHuaManSouyingMutationFact(use, souying, actual))
+                    throw new InvalidOperationException("A converted Slash lost its exact paid Souying cancellation.");
+                designated.Clear(); actual.Clear(); planned.Clear();
                 continue;
             }
             if (e is ShortRangeSlashTargetResolvedEvent { Added: true } shortRange && shortRange.CardUseFrameId == use.Id)

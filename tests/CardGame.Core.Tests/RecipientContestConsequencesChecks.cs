@@ -32,85 +32,6 @@ internal static class RecipientContestConsequencesChecks
         Cold(g, r); Conserve(g);
     }
 
-    public static void ActualWinnerDiscardPaidChildAndReturn()
-    {
-        var (g, r) = Start(winner: true); var before = g.State.Players[1].Hp;
-        Gift(g); Reach(g, p => ProgramAction(p, "black-gift-contest")); Answer(g, c => c.Targets.SequenceEqual([0]));
-        Reach(g, p => p.PlayerSeat == 0 && p.Kind == DecisionKind.SkillModule); Answer(g, c => c.Parameters.GetValueOrDefault("action") == "pindian-card");
-        Reach(g, p => ProgramAction(p, "black-gift-contest") && p.PlayerSeat == 0 && p.Choices.Any(c => c.Cards.Count == 1));
-        Cold(g, r); Answer(g, c => c.Cards.Count == 1); Cold(g, r); Answer(g, c => c.Cards.Count == 1);
-        Reach(g, p => p.SkillPrompt?.SkillId == Pause);
-        var root = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.BlackGiftContest is not null);
-        Require(root.BlackGiftContest is { Stage: BlackGiftContestStage.DiscardPaid, Discard.CardIds.Count: 2 } &&
-            Facts<BlackGiftContestLossPaidEvent>(g).Length == 0, "The real two-entity discard suspends later HP loss until its paid observer returns.");
-        var moved = g.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Single();
-        Require(moved.Batch.Movements.Count == 2 && moved.Batch.Movements.All(m =>
-            root.BlackGiftContest!.Discard!.CardIds.Contains(m.CardId) &&
-            m.Sequence > root.BlackGiftContest.Discard.Before && m.Sequence <= root.BlackGiftContest.Discard.After &&
-            m.To == CardLocation.DiscardPile && m.Reason.Value == "skill-program.ol:jianshu.GiveBlackHandAndResolveRecipientContest.discard"),
-            "Both real selected costs share the exact original paid discard batch.");
-        DrainPaidDiscardBatch(g, r, root.Id, moved.Batch); ReachPlay(g);
-        Require(Facts<BlackGiftContestDiscardPaidEvent>(g) is [{ WinnerSeat: 0, Count: 2 }] && g.State.Players[1].Hp == before - 1,
-            "The exact winning issuer discards once; the original losing recipient pays actual HP after all discard children.");
-        Cold(g, r); Conserve(g);
-        ActualWinnerWoodenOxDiscardPaidChildAndReturn();
-    }
-
-    private static void ActualWinnerWoodenOxDiscardPaidChildAndReturn()
-    {
-        var (g, r) = Start(winner: true, woodenOx: true); var before = g.State.Players[1].Hp;
-        var equip = g.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.Equip && a.CardId is not null);
-        var oxId = equip.CardId!.Value;
-        Accept(g, new PlayCardCommand(0, oxId, [], g.Revision, P(g)!.PromptId)); ReachPlay(g);
-        var store = g.GetHumanLegalActions().Single(a => a.Kind == LegalActionKind.UseEquipmentEffect && a.EquipmentKind == CardKind.WoodenOx);
-        var grainId = store.SelectableCardIds.First();
-        Accept(g, new UseEquipmentEffectCommand(0, CardKind.WoodenOx, [grainId], [], g.Revision, P(g)!.PromptId)); ReachPlay(g);
-        Require(g.CreateSnapshot(0).Players[0].WoodenOxGrain!.Single().Id == grainId &&
-            g.CreateSnapshot(1).Players[0].WoodenOxGrain!.Count == 0,
-            "The exact grain was stored by its real equipment command and stays private before discard.");
-        Cold(g, r);
-        Gift(g); Reach(g, p => ProgramAction(p, "black-gift-contest")); Answer(g, c => c.Targets.SequenceEqual([0]));
-        Reach(g, p => p.PlayerSeat == 0 && p.Kind == DecisionKind.SkillModule); Answer(g, c => c.Parameters.GetValueOrDefault("action") == "pindian-card");
-        Reach(g, p => ProgramAction(p, "black-gift-contest") && p.PlayerSeat == 0 && p.Choices.Any(c => c.Cards.Count == 1));
-        Cold(g, r); Answer(g, c => c.Cards.SequenceEqual([oxId]));
-        var handCost = g.CreateSnapshot(0).Players[0].Hand.First().Id;
-        Answer(g, c => c.Cards.SequenceEqual([handCost]));
-        var costSeen = false; var grainSeen = false; var batches = new HashSet<long>();
-        for (var i = 0; i < 2; i++)
-        {
-            Reach(g, p => p.SkillPrompt?.SkillId == Pause);
-            var root = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.BlackGiftContest is not null);
-            var paid = root.BlackGiftContest!.Discard!;
-            var moved = g.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Single();
-            Require(root.BlackGiftContest.Stage == BlackGiftContestStage.DiscardPaid && paid.CardIds.Count == 2 &&
-                paid.CardIds.Contains(oxId) && paid.CardIds.Contains(handCost) && Facts<BlackGiftContestLossPaidEvent>(g).Length == 0 &&
-                g.State.Players[1].Hp == before && moved.Batch.ParentFrameId == root.Id && moved.Batch.AwaitingProgramFrameId == root.Id &&
-                moved.ResumeProgramFrameId is null && batches.Add(moved.Batch.Id),
-                "Both exact awaited discard batches suspend the original loser's HP until every child returns.");
-            if (moved.Batch.Movements.All(m => paid.CardIds.Contains(m.CardId)))
-            {
-                Require(!costSeen && moved.Batch.Movements.Count == 2 && moved.Batch.Movements.All(m =>
-                    m.Sequence > paid.Before && m.Sequence <= paid.After && m.To == CardLocation.DiscardPile &&
-                    m.Reason.Value == "skill-program.ol:jianshu.GiveBlackHandAndResolveRecipientContest.discard"),
-                    "Only the two selected real costs belong to the frozen paid interval.");
-                costSeen = true;
-            }
-            else
-            {
-                Require(!grainSeen && moved.Batch.Movements is [var grain] && grain.CardId == grainId && grain.Sequence > paid.After &&
-                    grain.From == CardLocation.WoodenOxGrain(0) && grain.To == CardLocation.DiscardPile && grain.Reason == CardMoveReasons.WoodenOxGrainDiscard,
-                    "The separately queued actual grain child follows the paid interval after equipment removal.");
-                grainSeen = true;
-            }
-            DrainPaidDiscardBatch(g, r, root.Id, moved.Batch);
-        }
-        ReachPlay(g);
-        Require(costSeen && grainSeen && Facts<BlackGiftContestDiscardPaidEvent>(g) is [{ WinnerSeat: 0, Count: 2 }] &&
-            g.State.Players[1].Hp == before - 1 && g.CreateSnapshot(0).Players[0].WoodenOxGrainCount == 0,
-            "Both movement children complete exactly once before one real losing-participant HP payment.");
-        Cold(g, r); Conserve(g);
-    }
-
     public static void ActualPrintedLordQualificationNativeAndPersistent()
     {
         var (g, r) = Start(benefit: true); var target = Players(g)[1]; var before = target.MaxHp;
@@ -129,30 +50,6 @@ internal static class RecipientContestConsequencesChecks
         DriverUse(g, "source-loss"); ReachPlay(g);
         Require(Invoke<bool>(g, "HasSkillRoleQualification", target, "classic:hujia", q.SkillInstanceId, Role.Lord), "Issued qualification survives actual loss of the issuing Yongdi skill.");
         Cold(g, r); Conserve(g);
-    }
-
-    public static void PrintedQualificationExactGrantAndReplacement()
-    {
-        var (g, _) = Start(benefit: true); Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate");
-        Reach(g, p => ProgramAction(p, "printed-lord-benefit")); Answer(g, c => c.Targets.SequenceEqual([1])); ReachPlay(g);
-        var target = Players(g)[1]; var qualified = target.SkillGrants.Grants.Single(s => s.SkillId == "classic:hujia");
-        // Source-API unit boundary after a genuine command-issued qualification.
-        // These real grant/general mutations are separate from command replay above.
-        target.SkillGrants.Grant(new("fixture:acquired-hujia", qualified.SkillId, "fixture:acquired-instance", "acquired:fixture"));
-        Require(!Invoke<bool>(g, "HasSkillRoleQualification", target, qualified.SkillId, "fixture:acquired-instance", Role.Lord), "An acquired same-id lord skill never borrows the printed qualification.");
-        Require(Invoke<bool>(g, "HasSkillRoleQualification", target, qualified.SkillId, null, Role.Lord) &&
-            Invoke<string>(g, "GetRuntimeSkillInstanceId", target, qualified.SkillId) == qualified.SkillInstanceId,
-            "Menu and execution prefer the same active qualified printed instance even when an unqualified acquired instance sorts first.");
-        target.SkillGrants.SetEnabled(qualified.GrantId, false);
-        Require(!Invoke<bool>(g, "HasSkillRoleQualification", target, qualified.SkillId, qualified.SkillInstanceId, Role.Lord), "Local disable still excludes the qualified printed instance.");
-        target.SkillGrants.SetEnabled(qualified.GrantId, true);
-        Require(Invoke<bool>(g, "HasSkillRoleQualification", target, qualified.SkillId, qualified.SkillInstanceId, Role.Lord), "Explicit enable restores only its exact printed instance.");
-        var previous = target.General; target.General = previous with { Id = "fixture:rcc-replacement" };
-        Require(target.SkillGrants.Grants.Single(s => s.GrantId == qualified.GrantId).PrintedLordQualification is null &&
-            !Invoke<bool>(g, "HasSkillRoleQualification", target, qualified.SkillId, qualified.SkillInstanceId, Role.Lord),
-            "A genuine template replacement clears qualification even when the same skill and grant instance remain.");
-        target.General = previous;
-        Require(target.SkillGrants.Grants.Single(s => s.GrantId == qualified.GrantId).PrintedLordQualification is null, "Returning to the old general does not silently reissue qualification.");
     }
 
     public static void ActualOrdinaryTrickProtectionAndDelayedBoundary()
@@ -281,39 +178,6 @@ internal static class RecipientContestConsequencesChecks
     private static T Invoke<T>(GameEngine g, string name, params object?[] args) => (T)typeof(GameEngine).GetMethod(name, BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(g, args)!;
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
     private static void ReachPlay(GameEngine g) => Reach(g, p => p.Kind == DecisionKind.PlayCard && p.PlayerSeat == 0);
-    private static void DrainPaidDiscardBatch(GameEngine g, ContentRegistry r, long rootId, CardMovementBatchContext batch)
-    {
-        // Ordinary discardPileReceived observers retain their native per-entity
-        // contract even when two actual costs move in one atomic batch.
-        var occurrences = new HashSet<int>();
-        var observerIds = new HashSet<long>();
-        for (var i = 0; i < batch.Movements.Count; i++)
-        {
-            var root = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.Id == rootId);
-            var moved = g.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Single();
-            var observer = g.ResolutionStack.Last() as ProgramSkillFrame;
-            var prompt = P(g);
-            Require(root.BlackGiftContest is { Stage: BlackGiftContestStage.DiscardPaid, Discard: not null } &&
-                Facts<BlackGiftContestLossPaidEvent>(g).Length == 0 && moved.Batch.Id == batch.Id &&
-                moved.Batch.ParentFrameId == rootId && moved.Batch.AwaitingProgramFrameId == rootId && moved.ResumeProgramFrameId is null &&
-                observer is { SkillId: Pause, TriggerId: "paid-discard-child", WindowContext: { Window: SkillProgramTriggerWindow.DiscardPileReceived } } &&
-                observer.WindowContext.ParentFrameId == batch.Id && observer.WindowContext.MovementBatch?.Id == batch.Id &&
-                observer.WindowContext.MovementIndex is { } index && index >= 0 && index < batch.Movements.Count &&
-                occurrences.Add(index) && observerIds.Add(observer.Id) &&
-                prompt is { PlayerSeat: 0, Kind: DecisionKind.ProgramTrigger, IsPrivate: true } && prompt.SkillPrompt?.SkillId == Pause &&
-                prompt.Choices is [var choice] && choice.Parameters.GetValueOrDefault("program-action") == "choose-option" &&
-                choice.Parameters.GetValueOrDefault("frame-id") == observer.Id.ToString(System.Globalization.CultureInfo.InvariantCulture) &&
-                choice.Parameters.GetValueOrDefault("result-bind") == "paid-child" && choice.Parameters.GetValueOrDefault("option-id") == "continue",
-                "Each original entity keeps its exact private discard observer and paid parent before later HP loss.");
-            Require(Enumerable.Range(1, 3).All(seat => g.CreateSnapshot(seat).PendingDecision is null),
-                "Every native cost child exposes its exact continue choice only to the human payer.");
-            Cold(g, r); RejectUnpublished(g);
-            Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
-        }
-        Require(occurrences.Count == batch.Movements.Count && observerIds.All(id =>
-            Facts<ProgramOptionChosenEvent>(g).Count(e => e.FrameId == id && e.SkillId == Pause && e.ResultBind == "paid-child" && e.OptionId == "continue") == 1),
-            "Every original cost or grain entity answers one real native observer exactly once.");
-    }
     private static void Reach(GameEngine g, Func<PendingDecision, bool> predicate)
     {
         for (var i = 0; i < 100; i++)

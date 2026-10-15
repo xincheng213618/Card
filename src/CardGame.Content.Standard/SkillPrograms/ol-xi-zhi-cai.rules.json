@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:xianfu",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "game-start-relation",
+          "window": "gameStarting",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "otherLiving"
+            },
+            {
+              "op": "armXianfuRelation",
+              "target": "selectedTarget"
+            }
+          ]
+        },
+        {
+          "id": "actual-relation-damage",
+          "window": "afterDamageApplied",
+          "subject": "any",
+          "damageOccurrence": "perDamage",
+          "optional": false,
+          "effects": [
+            {
+              "op": "settleXianfuNativeEcho",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "actual-relation-recovery",
+          "window": "afterHpRecovered",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "settleXianfuNativeEcho",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:chouce",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "each-actual-damage-point",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "damageOccurrence": "perDamagePoint",
+          "optional": true,
+          "effects": [
+            {
+              "op": "startChouceDamagePointJudgment",
+              "target": "owner",
+              "judgmentReason": "skill.ol.chouce",
+              "resultBind": "chouce-judgment",
+              "visibility": "public"
+            },
+            {
+              "op": "resolveChouceFrozenJudgment",
+              "target": "owner",
+              "sourceBind": "chouce-judgment"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

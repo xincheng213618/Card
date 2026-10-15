@@ -127,6 +127,7 @@ public sealed partial class GameEngine
             SkillPrompt = new(frame.SkillId, skill.Name, skill.Name, skill.Description) };
         _status = _players[frame.OwnerSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
+    [ProgramAnswer("friend-pang-tong")]
     private void ResolveFriendPangTongChoice(PromptChoice selected)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("Friend Pang Tong lost its program.");
@@ -263,11 +264,6 @@ public sealed partial class GameEngine
         if (receipt.Stage == FriendPangTongStage.Issued) return true;
         if (_pendingDecision is null) ContinueFriendPangTong(frame); return true;
     }
-    private PromptChoice SelectAiFriendPangTongChoice(PendingDecision decision, ProgramSkillFrame frame) =>
-        frame.FriendPangTong!.Stage == FriendPangTongStage.Select
-            ? frame.FriendPangTong.Selected.Count < Math.Min(5, frame.FriendPangTong.Cards.Count)
-                ? decision.Choices.FirstOrDefault(choice => choice.Cards.Count == 1) ?? decision.Choices.Last() : decision.Choices.Last()
-            : decision.Choices.FirstOrDefault(choice => choice.Cards.Count == 1) ?? decision.Choices.Last();
     private bool IsFriendPangTongMovement(ProgramSkillFrame frame, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
         frame.FriendPangTong is { Stage: FriendPangTongStage.Movement } receipt && effect?.Op == receipt.Operation &&
         frame.PendingMovementContinuation == pending && pending.SubjectSeat == frame.OwnerSeat && pending.BeforeCount == 0 && pending.CoverageResultBind is null;

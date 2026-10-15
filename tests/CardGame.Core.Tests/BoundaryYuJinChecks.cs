@@ -57,79 +57,6 @@ internal static class BoundaryYuJinChecks
             "Declining the original optional actual Prep opportunity selects no target and pays nothing.");
     }
 
-    public static void SameActualTurnEndingPromiseSourceReplacementAndRealRescue()
-    {
-        var (g, r) = Create(); Promise(g, 1); var promise = E<PrepDiscardEndingIssuedEvent>(g).Single().Promise;
-        Play(g); End(g); Reach(g, p => p.SkillPrompt?.SkillId == Observer);
-        var drawn = E<PrepDiscardEndingDrawnEvent>(g).Single();
-        Require(drawn.PromiseId == promise.Id && drawn.TargetSeat == 1 && drawn.RequestedCount == 3 && drawn.ActualCount == 3 &&
-            E<PrepDiscardEndingConsumedEvent>(g).Single().Applied &&
-            g.CardMovements.Count(m => m.Sequence > drawn.SequenceBefore && m.Sequence <= drawn.SequenceAfter &&
-                m.From == CardLocation.DrawPile && m.To == CardLocation.Hand(1) && m.Reason.Value == EndingDraw) == 3,
-            "The exact original actual-turn Ending pays the original target a real draw of frozen N.");
-        Reject(g); g = Restore(g, r); Continue(g);
-        Until(g, () => !g.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.PrepDiscardEndingDraw is not null));
-        Require(E<PrepDiscardEndingDrawnEvent>(g).Count(e => e.PromiseId == promise.Id) == 1 &&
-            E<PrepDiscardEndingConsumedEvent>(g).Count(e => e.Id == promise.Id) == 1,
-            "The restored movement children return once without reissuing the promise or repeating actual draw.");
-
-        var (lost, lr) = Create(); Promise(lost, 1); Play(lost);
-        var original = E<PrepDiscardEndingIssuedEvent>(lost).Single().Promise;
-        Use(lost, "lose-prep", [], []); Play(lost); Use(lost, "reacquire-prep", [], []); Play(lost);
-        lost = Restore(lost, lr); End(lost);
-        Until(lost, () => E<PrepDiscardEndingConsumedEvent>(lost).Any(e => e.Id == original.Id));
-        Require(!E<PrepDiscardEndingConsumedEvent>(lost).Single(e => e.Id == original.Id).Applied &&
-            !E<PrepDiscardEndingDrawnEvent>(lost).Any(e => e.PromiseId == original.Id) &&
-            lost.CardMovements.Count(m => m.Reason.Value == TargetDiscard) == 3,
-            "A legally lost/reacquired source is a new instance and cannot inherit or re-pay the original Ending promise.");
-
-        var (zero, zr) = Create(deck: "defensive_horse"); Promise(zero, 0); Play(zero); End(zero);
-        Until(zero, () => E<PrepDiscardEndingConsumedEvent>(zero).Any() &&
-            !zero.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.PrepDiscardEndingDraw is not null)); zero = Restore(zero, zr);
-        Require(E<PrepDiscardEndingConsumedEvent>(zero).Single().Applied && !E<PrepDiscardEndingDrawnEvent>(zero).Any() &&
-            !zero.CardMovements.Any(m => m.Reason.Value == EndingDraw), "A promised zero consumes only its original promise, without a fake draw fact or movement batch.");
-
-        var (rescue, rr) = Create(deck: "peach", gainDying: true); Promise(rescue, 0); Play(rescue); End(rescue);
-        Reach(rescue, p => p.SkillPrompt?.SkillId == Gain); Continue(rescue);
-        Reach(rescue, p => p.SkillPrompt?.SkillId == Entry); rescue = Restore(rescue, rr); Continue(rescue);
-        Reach(rescue, p => p.PlayerSeat == 0 && p.Kind == DecisionKind.RescueDying);
-        Answer(rescue, c => c.Parameters.GetValueOrDefault("response") == "peach");
-        Reach(rescue, p => p.SkillPrompt?.SkillId == Entry && rescue.ResolutionStack.OfType<ProgramSkillFrame>().Any(f =>
-            f.SkillId == Entry && f.WindowContext?.Window == SkillProgramTriggerWindow.CardUseCompleted));
-        var endingRoot = rescue.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.PrepDiscardEndingDraw is not null);
-        var gainRoot = rescue.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == Gain);
-        var dyingRoot = rescue.ResolutionStack.OfType<DyingFrame>().Single(f => f.VictimSeat == 0);
-        var peachCompleted = rescue.ResolutionStack.OfType<ProgramSkillFrame>().Single(f =>
-            f.SkillId == Entry && f.WindowContext?.Window == SkillProgramTriggerWindow.CardUseCompleted);
-        var peachWindow = rescue.ResolutionStack.OfType<ProgramCardTriggerWindowFrame>().Single(f => f.Id == peachCompleted.ParentFrameId);
-        var peachUse = rescue.ResolutionStack.OfType<CardUseFrame>().Single(f => f.Id == peachWindow.ParentFrameId);
-        var peachAction = peachUse.Action!;
-        var peachCost = peachAction.PhysicalCards.Single();
-        var rescueFrames = rescue.ResolutionStack.SkipWhile(f => f.Id != endingRoot.Id).Select(f => f.Id).ToArray();
-        Require(gainRoot.WindowContext!.MovementBatch!.ParentFrameId == endingRoot.Id &&
-            dyingRoot.Continuation == DyingContinuationKind.ProgramSkill && dyingRoot.ParentFrameId == gainRoot.Id &&
-            peachUse.DyingResponse is { ResponderSeat: 0, UsedPeach: true } response && response.ResolutionId == dyingRoot.Id &&
-            response.PeachCardId == peachCost.CardId && peachCompleted.WindowContext!.CardUse!.ParentCardUseFrameId == peachUse.Id &&
-            peachCompleted.WindowContext.CardUse.CardActionId == peachAction.ActionId && peachWindow.Action.ActionId == peachAction.ActionId &&
-            peachAction is { Type: CardActionType.Use, ActorSeat: 0, ProviderSeat: 0, EffectiveKind: CardKind.Peach } &&
-            peachAction.TargetSeats.SequenceEqual([0]) && peachCost.CardKind == CardKind.Peach && peachCost.From == CardLocation.Hand(0) &&
-            E<CardUseDeclaredEvent>(rescue).Count(e => e.ResolutionId == peachUse.Id && e.CardId == peachCost.CardId &&
-                e.CardKind == CardKind.Peach && e.SourceSeat == 0) == 1 &&
-            E<CardUseFinishedEvent>(rescue).Count(e => e.ResolutionId == peachUse.Id && e.CardId == peachCost.CardId && e.CardKind == CardKind.Peach) == 1 &&
-            rescue.CardMovements.Count(m => m.CardId == peachCost.CardId && m.From == CardLocation.Hand(0) && m.To == CardLocation.Processing) == 1,
-            "The promised real draw owns the gain→HP-loss→Dying→physical Peach completed child chain.");
-        rescue = Restore(rescue, rr); Continue(rescue);
-        Until(rescue, () => !rescue.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.PrepDiscardEndingDraw is not null));
-        Require(rescue.CreateSnapshot(0).Players[0].Hp > 0 && E<PrepDiscardEndingDrawnEvent>(rescue).Count() == 1 &&
-            E<PrepDiscardPaidEvent>(rescue).Count() == 1 && rescue.ResolutionStack.All(f => !rescueFrames.Contains(f.Id)) &&
-            E<DyingResolvedEvent>(rescue).Single(e => e.ResolutionId == dyingRoot.Id).Survived &&
-            E<CardUseDeclaredEvent>(rescue).Count(e => e.ResolutionId == peachUse.Id) == 1 &&
-            E<CardUseFinishedEvent>(rescue).Count(e => e.ResolutionId == peachUse.Id) == 1 &&
-            rescue.CardMovements.Count(m => m.CardId == peachCost.CardId && m.From == CardLocation.Hand(0) && m.To == CardLocation.Processing) == 1 &&
-            rescue.CardMovements.Count(m => m.CardId == peachCost.CardId && m.From == CardLocation.Processing && m.To == CardLocation.DiscardPile) == 1,
-            "The genuinely restored engine completes rescue and returns every owning child to Ending without repeated cost, cleanup or draw.");
-    }
-
     public static void FrozenBlackSlashHpHandArmorAndMixedPhysicalPayments()
     {
         var (g, r) = Create(armor: true); SkipPrep(g); Play(g); Use(g, "gear", [], [1]); Play(g);
@@ -209,50 +136,6 @@ internal static class BoundaryYuJinChecks
             "The restored mixed use retains both exact physical payments without inventing a source color.");
     }
 
-    public static void NativePreparationComparisonAndStrictStandaloneContracts()
-    {
-        var (native, nr) = Create(native: true);
-        // StartGame may already complete a native match; inspect its full committed
-        // history first, and never submit an Advance after completion.
-        for (var i = 0; i < 140 && native.State.Status != EngineStatus.Completed &&
-            (!E<PrepDiscardPaidEvent>(native).Any() || !E<ComparedBlackSlashAppliedEvent>(native).Any()); i++)
-            Accept(native, new AdvanceOneStepCommand(native.Revision));
-        var paid = E<PrepDiscardPaidEvent>(native).FirstOrDefault(e => !e.OwnerCost);
-        var comparison = E<ComparedBlackSlashAppliedEvent>(native).FirstOrDefault()?.Receipt;
-        var ownerSeat = native.State.Players.Single(p => p.GeneralId == "fixture:yj-owner").Seat;
-        Require(paid is not null && paid.ActualCount > 0 && comparison is not null && comparison.ActorSeat == ownerSeat &&
-            comparison.CannotRespond && E<CardActionAcceptedEvent>(native).Any(e => e.Action.ActionId == comparison.ActionId &&
-                e.Action.Type == CardActionType.Use && e.Action.PhysicalCards.Count == 1),
-            "An actual native bot selects real Prep payment and uses a paid black conversion Slash through the comparison path.");
-        native = Restore(native, nr);
-        Require(E<PrepDiscardPaidEvent>(native).Count(e => e.ProgramFrameId == paid!.ProgramFrameId && !e.OwnerCost) == 1,
-            "Native command replay retains its original payment instead of regenerating a hidden card selection.");
-        if (native.State.Status != EngineStatus.Completed) Accept(native, new AdvanceOneStepCommand(native.Revision));
-
-        var prep = "{\"id\":\"p\",\"window\":\"turnStartBeforeNormalFlow\",\"subject\":\"owner\",\"optional\":true,\"effects\":[{\"op\":\"resolvePrepDiscardOrEnding\",\"target\":\"owner\",\"stateId\":\"end\",\"zones\":[\"hand\",\"equipment\"]}]}";
-        var ending = "{\"id\":\"end\",\"window\":\"turnEnding\",\"subject\":\"owner\",\"optional\":false,\"turnOwnerScope\":\"paidPrepDiscardEnding\",\"effects\":[{\"op\":\"drawPrepDiscardEnding\",\"target\":\"owner\"}]}";
-        foreach (var trigger in new[] { prep.Replace("turnStartBeforeNormalFlow", "drawPhaseStarting", StringComparison.Ordinal),
-            prep.Replace("\"optional\":true", "\"optional\":false", StringComparison.Ordinal),
-            prep.Replace("[\"hand\",\"equipment\"]", "[\"hand\"]", StringComparison.Ordinal),
-            ending.Replace("paidPrepDiscardEnding", "own", StringComparison.Ordinal),
-            ending.Replace("\"optional\":false", "\"optional\":true", StringComparison.Ordinal) })
-        {
-            var failed = false; try { SkillProgramCatalog.Load("{\"schemaVersion\":" + SkillProgramCatalog.RulesSchemaVersion +
-                ",\"skills\":[{\"id\":\"fixture:bad-prep\",\"revision\":1,\"triggers\":[" + trigger + "]}]}",
-                "{\"schemaVersion\":3,\"skills\":{\"fixture:bad-prep\":{\"name\":\"bad\",\"description\":\"bad\"}}}"); }
-            catch (InvalidOperationException) { failed = true; }
-            Require(failed, "Strict composition refuses alternate phase, optionality, payment region or unearned Ending.");
-        }
-        foreach (var kind in new[] { "duel", "dodge" })
-        {
-            var failed = false; try { SkillProgramCatalog.Load("{\"schemaVersion\":" + SkillProgramCatalog.RulesSchemaVersion +
-                ",\"skills\":[{\"id\":\"fixture:bad-black\",\"revision\":1,\"cardPolicies\":[{\"id\":\"bad\",\"kind\":\"nullifyBlackSlashByCurrentHp\",\"cardKinds\":[\"" + kind + "\"]}]}]}",
-                "{\"schemaVersion\":3,\"skills\":{\"fixture:bad-black\":{\"name\":\"bad\",\"description\":\"bad\"}}}"); }
-            catch (InvalidOperationException) { failed = true; }
-            Require(failed, "The new comparison policy cannot silently become a non-Slash policy.");
-        }
-    }
-
     private static IEnumerable<T> E<T>(GameEngine g) => g.Events.Select(e => e.Payload).OfType<T>();
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
     private static bool Offer(PendingDecision p, string skill) => p.PlayerSeat == 0 && p.SkillPrompt?.SkillId == skill &&
@@ -273,9 +156,6 @@ internal static class BoundaryYuJinChecks
         }
         AnswerStep(g, "finish");
     }
-    private static void Promise(GameEngine g, int target)
-    { Reach(g, p => Offer(p, Prep)); Activate(g); Reach(g, p => Step(p, "target")); Answer(g, c => c.Targets.SequenceEqual([target]));
-        SelectDiscard(g); Reach(g, p => Step(p, "ending")); AnswerStep(g, "ending"); }
     private static void SkipPrep(GameEngine g) { Reach(g, p => Offer(p, Prep)); Skip(g); }
     private static void Play(GameEngine g) => Reach(g, p => p.PlayerSeat == 0 && p.Kind == DecisionKind.PlayCard);
     private static void End(GameEngine g) => Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId));

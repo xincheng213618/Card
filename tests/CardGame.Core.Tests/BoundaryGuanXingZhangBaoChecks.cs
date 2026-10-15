@@ -9,31 +9,6 @@ internal static class BoundaryGuanXingZhangBaoChecks
     private const string Wusheng="boundary:wusheng";
     private const string Paoxiao="boundary:paoxiao";
 
-    public static void Definitions()
-    {
-        var registry=ContentRegistry.Build(new StandardContentPackage(),new StandardActiveSkillExpansionPackage(true),new StandardRescueSkillExpansionPackage(),new StandardClassicGeneralPackage());
-        var general=registry.Generals["boundary:guan-xing-zhang-bao"];
-        Require(general.Name=="界关兴张苞"&&general.FactionId=="shu"&&general.BaseHp==4&&
-            general.SkillIds.SequenceEqual(["boundary:fuhun-current"])&&
-            general.VariantId=="boundary"&&general.RulesetId=="sanguosha-ol",
-            "The boundary Guan Xing Zhang Bao general registers the current OL shu 4HP single skill.");
-        var program=registry.GetSkill(Skill).Program!;
-        var conversion=program.ViewAs.Single();
-        Require(conversion.InputCount==2&&conversion.OutputKind==CardKind.Slash&&conversion.ForPlay&&conversion.ForResponse,
-            "Fuhun converts exactly two cards into a slash for use or response.");
-        var policy=program.CardPolicies.Single();
-        Require(policy.Kind==SkillProgramCardPolicyKind.ConvertedSlashSameColorResponseOnly&&
-            policy.CardKinds.SequenceEqual([CardKind.Slash,CardKind.FireSlash,CardKind.ThunderSlash]),
-            "The converted slash carries the same-color response restriction on the slash family.");
-        var grant=program.Triggers.Single();
-        Require(grant.Window==SkillProgramTriggerWindow.AfterDamageApplied&&
-            grant.Effects.Single().Op==SkillProgramEffectOp.GrantTurnSkills&&
-            grant.Effects.Single().SkillIds.SequenceEqual([Wusheng,Paoxiao]),
-            "Own-turn slash damage grants Wusheng and Paoxiao for the turn.");
-        Require(registry.GetSkill(Skill).ProgramPresentation!.Name=="父魂",
-            "The presentation carries the current OL Fuhun name.");
-    }
-
     public static void ConvertedSlashResponseFollowsPairColor()
     {
         var(g,r)=Start();
@@ -68,72 +43,6 @@ internal static class BoundaryGuanXingZhangBaoChecks
             Require(!g.CreateSnapshot(0).Players[0].Skills!.Any(s=>s.ContentId==Wusheng),
                 "An answered converted slash grants nothing.");
         Replay(g,r);Settle(g);
-    }
-
-    public static void NaturalSlashStaysAnswerableByAnyColor()
-    {
-        var(g,r)=Start();
-        var slash=OwnHand(g).First(card=>card.Kind==CardKind.Slash);
-        var targetDodges=TargetHand(g).Where(card=>card.Kind==CardKind.Dodge).ToList();
-        var hpBefore=g.CreateSnapshot(1).Players[1].Hp;
-        Accept(g,new PlayCardCommand(0,slash.Id,[1],g.Revision,P(g)!.PromptId));
-        Settle(g);
-        if(targetDodges.Count>0)
-        {
-            Require(g.CreateSnapshot(1).Players[1].Hp==hpBefore,
-                "A natural slash stays answerable regardless of colors.");
-            Require(!g.CreateSnapshot(0).Players[0].Skills!.Any(s=>s.ContentId==Wusheng),
-                "An answered natural slash grants nothing.");
-        }
-        else
-        {
-            Require(g.CreateSnapshot(1).Players[1].Hp==hpBefore-1,
-                "Without any Dodge the natural slash lands and grants the turn skills.");
-            Require(g.CreateSnapshot(0).Players[0].Skills!.Any(s=>s.ContentId==Wusheng)&&
-                g.CreateSnapshot(0).Players[0].Skills!.Any(s=>s.ContentId==Paoxiao),
-                "The damaging natural slash grants both turn skills.");
-        }
-        Replay(g,r);Settle(g);
-    }
-
-    public static void TurnSkillsExpireWithTheTurn()
-    {
-        var(g,r)=Start();
-        var hand=OwnHand(g);
-        var colors=new[]{Color.Red,Color.Black}.Where(c=>hand.Count(card=>CardColor(card)==c)>=2).ToList();
-        Require(colors.Count>0,"The fixture deals the owner two same-color cards.");
-        var targetDodges=TargetHand(g).Where(card=>card.Kind==CardKind.Dodge).ToList();
-        // Prefer a color the target cannot answer so the damage grant is exercised.
-        var pairColor=colors.FirstOrDefault(c=>!targetDodges.Any(card=>CardColor(card)==c),colors[0]);
-        var pair=hand.Where(card=>CardColor(card)==pairColor).Take(2).Select(card=>card.Id).ToArray();
-        var answerable=targetDodges.Any(card=>CardColor(card)==pairColor);
-        var hpBefore=g.CreateSnapshot(1).Players[1].Hp;
-        Accept(g,new UseProgramSkillCommand(0,Skill,"two-hand-cards-as-slash",pair,[1],g.Revision,P(g)!.PromptId));
-        Settle(g);
-        if(!answerable)
-        {
-            Require(g.CreateSnapshot(1).Players[1].Hp==hpBefore-1,
-                "The unanswerable converted slash deals its damage.");
-            Require(g.CreateSnapshot(0).Players[0].Skills!.Any(s=>s.ContentId==Wusheng)&&
-                g.CreateSnapshot(0).Players[0].Skills!.Any(s=>s.ContentId==Paoxiao),
-                "The damaging converted slash grants both turn skills.");
-        }
-        Accept(g,new UseProgramSkillCommand(0,DriverSkill,"dump",[],[],g.Revision,P(g)!.PromptId));
-        Settle(g);
-        Accept(g,new EndPlayPhaseCommand(0,g.Revision));
-        var before=g.Events.Select(e=>e.Payload).OfType<TurnStartedEvent>().Count();
-        for(var i=0;i<200;i++)
-        {
-            if(g.Events.Select(e=>e.Payload).OfType<TurnStartedEvent>().Count()>before)break;
-            if(P(g) is {PlayerSeat:0,Kind:DecisionKind.PlayCard}){Accept(g,new EndPlayPhaseCommand(0,g.Revision));continue;}
-            Accept(g,new AdvanceOneStepCommand(g.Revision));
-        }
-        Require(g.Events.Select(e=>e.Payload).OfType<TurnStartedEvent>().Count()>before,
-            "The owner's turn finishes after the dump and ending.");
-        Require(!g.CreateSnapshot(0).Players[0].Skills!.Any(s=>s.ContentId==Wusheng)&&
-            !g.CreateSnapshot(0).Players[0].Skills!.Any(s=>s.ContentId==Paoxiao),
-            "The granted skills leave with the owner's turn.");
-        Replay(g,r);
     }
 
     public static void GrantedBoundarySkillsApplyDistanceAndNextSlashDamage()

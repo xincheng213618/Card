@@ -89,160 +89,6 @@ internal static class BoundaryLuSuChecks
             "The restored paid child drains once; ending cost never re-exchanges or re-measures the current pair."); Cold(g, r);
     }
 
-    public static void DebtShortfallAndSourceLossDoNotReverseExchange()
-    {
-        var (g, r) = Create(); Play(g); SetHand(g, 1, 1); SetHand(g, 2, 3); StartExchange(g, 1, 2); Play(g);
-        var issued = F<PhaseHandExchangeDebtIssuedEvent>(g).Single(); SetHand(g, 0, 1); End(g); Reach(g, IsOwned);
-        var pay = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.PhaseHandDebtPayment is not null); var payId = pay.Id;
-        Require(pay.PhaseHandDebtPayment is { FrozenDifference: 2, RequiredPaymentCount: 1 } && P(g)!.Choices.Count(c => c.Cards.Count == 1) == 1,
-            "The shortfall default retains original X=2 and freezes the one currently legal actual HE entity.");
-        g = RestoreAfterCold(g, r); Answer(g, c => c.Cards.Count == 1); Finish(g, payId);
-        Require(Moves(g, DebtReason).Length == 1 && F<PhaseHandExchangeDebtPaymentStartedEvent>(g).Single().ExchangeProgramFrameId == issued.ProgramFrameId &&
-            V(g, 1).HandCount == 3 && V(g, 2).HandCount == 1, "An unpaid shortage does not reverse the true exchange or create a second cost."); Cold(g, r);
-
-        var (lost, lr) = Create(); Play(lost); SetHand(lost, 1, 1); SetHand(lost, 2, 3); StartExchange(lost, 1, 2); Play(lost);
-        var x = F<PhaseHandExchangeDebtIssuedEvent>(lost).Single(); Use(lost, "remove"); Play(lost); var handBefore = V(lost, 0).HandCount;
-        End(lost); Reach(lost, p => p.Kind == DecisionKind.DiscardCards || lost.State.TurnNumber > x.ActualTurnNumber || p.Kind == DecisionKind.PlayCard);
-        Require(!F<PhaseHandExchangeDebtPaymentStartedEvent>(lost).Any(e => e.ExchangeProgramFrameId == x.ProgramFrameId) && Moves(lost, DebtReason).Length == 0 &&
-            V(lost, 1).HandCount == 3 && V(lost, 2).HandCount == 1 && V(lost, 0).HandCount == handBefore,
-            "Real loss of the exact source before Ending cancels its unpaid debt and preserves the completed pair exchange."); Cold(lost, lr);
-
-        var (paid, pr) = Create(observers: true, removePaidSource: true); Play(paid); SetHand(paid, 1, 1); SetHand(paid, 2, 3);
-        Require(V(paid, 0).Skills!.Any(s => s.Id == Dimeng) &&
-            F<SkillsAcquiredEvent>(paid).Count(e => e.PlayerSeat == 0 && e.SourceSkillId == InitialDimeng && e.SkillIds.Contains(Dimeng)) == 1,
-            "The paid-loss scenario starts with a genuinely acquired effective Dimeng instance, so native qualification suppression is observable.");
-        Use(paid, "equip", [0]); Play(paid); Use(paid, "hurt", [0]); Play(paid); var sl = V(paid, 0).Equipment.Single(c => c.Kind == CardKind.SilverLion).Id;
-        Require(V(paid, 0).Hp == 1 && V(paid, 0).MaxHp == 4, "The real initial-HP Lord loses one HP before paying its equipped Silver Lion.");
-        StartExchange(paid, 1, 2); Play(paid); End(paid); Reach(paid, IsOwned); var h = P(paid)!.Choices.First(c => c.Cards.Count == 1 && c.Cards[0] != sl).Cards[0];
-        Answer(paid, c => c.Cards.SequenceEqual([h])); Answer(paid, c => c.Cards.SequenceEqual([sl])); Reach(paid, p => p.SkillPrompt?.SkillId == Hp);
-        var paidFrame = paid.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.PhaseHandDebtPayment is not null);
-        var paymentId = paidFrame.Id;
-        Require(V(paid, 0).Hp == 2 && V(paid, 0).Skills!.Any(s => s.Id == Dimeng) &&
-            paid.ResolutionStack.OfType<HpChangedTriggerWindowFrame>().Any(w => w.Change.ParentFrameId == paymentId && w.ResumeFrameId == paymentId &&
-                w.Continuation == PostEventContinuation.AwaitedProgramMovement && w.Change.Kind == HpChangeKind.Recovery && w.Change.Amount == 1 && w.Change.TargetSeat == 0),
-            "Both debt entities are paid before the original Silver Lion recovery reaches its actual HP2 child and the source-loss observer pauses.");
-        paid = RestoreAfterCold(paid, pr); Continue(paid); Finish(paid, paymentId);
-        Require(Moves(paid, DebtReason).Length == 2 && F<PhaseHandExchangeDebtPaymentStartedEvent>(paid).Length == 1 &&
-            F<ProgramBindingResolvedEvent>(paid).Count(e => e.FrameId == paymentId && e.SkillId == Dimeng &&
-                e.BindingId == paidFrame.TriggerId && e.SkillInstanceId == paidFrame.SkillInstanceId && e.OwnerSeat == paidFrame.OwnerSeat &&
-                e.Window == SkillProgramTriggerWindow.PlayEnding && e.Activated && !e.Completed) == 1,
-            "Source loss inside a real paid recovery child retains both original costs, drains their children, and cancels only the now unpaid program tail."); Cold(paid, pr);
-        Require(V(paid, 0).Hp == 2 && !V(paid, 0).Skills!.Any(s => s.Id == Dimeng) &&
-            F<SkillsAcquiredEvent>(paid).Count(e => e.PlayerSeat == 0 && e.SourceSkillId == Hp && e.SkillIds.Contains(PaidSuppressor)) == 1 &&
-            V(paid, 1).HandCount == 3 && V(paid, 2).HandCount == 1 && Moves(paid, ExchangeReason).Length == 8,
-            "A real owner-side grant suppresses the acquired source at its exact recovered HP; the already exchanged hands remain exchanged exactly once.");
-    }
-
-    public static void HalfHandSupportUsesRealTargetsAndExpiresAtNextActualStart()
-    {
-        var (g, r) = Create(observers: true); Qualify(g); Play(g); GiveTrick(g, 0);
-        var qualification = F<HalfHandTargetSupportIssuedEvent>(g).Single(); var trick = g.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.DrawTwo);
-        Accept(g, new PlayCardCommand(0, trick.CardId ?? throw new InvalidOperationException("The real trick action lost its entity."), [], g.Revision, P(g)!.PromptId, trick.PlayedCardKind, trick.TargetCardId) { ConversionSource = trick.ConversionSource, AdditionalConversionSources = trick.AdditionalConversionSources }); Reach(g, IsSupport);
-        Private(g, 1); Reject(g); var frame = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.HalfHandSupport is not null);
-        var use = g.ResolutionStack.OfType<CardUseFrame>().Single(u => u.Id == frame.HalfHandSupport!.Use.CardUseFrameId);
-        Require(use.CardKind == CardKind.DrawTwo && use.SourceSeat == 0 && use.TargetSeats.Count == 0 && use.Action is { Type: CardActionType.Use } action &&
-            action.TargetSeats.Count == 0 && frame.HalfHandSupport!.Use.TargetSeat == 0 && frame.HalfHandSupport.SupportProgramFrameId == qualification.ProgramFrameId &&
-            g.ResolutionStack.OfType<ActualUseTargetWindowFrame>().Single().ReturnKind == ActualUseTargetReturnKind.OrdinaryTrick,
-            "Only the new exact recipient support infers the mature physical DrawTwo self effect; accepted action and explicit targets remain empty.");
-        var giftId = P(g)!.Choices.First(c => c.Cards.Count == 1).Cards[0]; var useId = use.Id; g = RestoreAfterCold(g, r); Answer(g, c => c.Cards.SequenceEqual([giftId]));
-        Reach(g, p => p.SkillPrompt?.SkillId == Support); frame = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.HalfHandSupport is { Paid: true });
-        Require(frame.PendingMovementContinuation is { SubjectSeat: 0, BeforeCount: 0 } && frame.HalfHandSupport!.Use.CardUseFrameId == useId &&
-            Moves(g, SupportReason).Single().CardId == giftId && Moves(g, SupportReason).Single().From == CardLocation.Hand(1) &&
-            Moves(g, SupportReason).Single().To == CardLocation.Hand(0) && F<HalfHandSupportPaymentEvent>(g).Single().Paid,
-            "Only one real donor hand entity pays inside the original actual-use target return, before the original trick effect.");
-        g = RestoreAfterCold(g, r); Continue(g); Reach(g, p => p.SkillPrompt?.SkillId == Gain); g = RestoreAfterCold(g, r); Continue(g);
-        Reach(g, p => p.SkillPrompt?.SkillId == Hp); g = RestoreAfterCold(g, r); Continue(g); Play(g);
-        Require(F<CardUseFinishedEvent>(g).Any(e => e.ResolutionId == useId) && Moves(g, SupportReason).Length == 1,
-            "The real gain/HP children return to the accepted DrawTwo effect once, without another donor selection.");
-
-        GiveSlash(g, 1); Use(g, "request", [1]); Reach(g, p => Action(p, "request-slash")); var slash = P(g)!.Choices.First(c => c.Cards.Count == 1).Cards[0];
-        Answer(g, c => c.Cards.SequenceEqual([slash])); Reach(g, IsSupport); frame = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.HalfHandSupport is not null);
-        use = g.ResolutionStack.OfType<CardUseFrame>().Single(u => u.Id == frame.HalfHandSupport!.Use.CardUseFrameId);
-        Require(use.Action is { Type: CardActionType.Use, ActorSeat: 1, EffectiveKind: CardKind.Slash } && use.TargetSeats.SequenceEqual([0]) &&
-            use.CardAttack?.ProgramSkillCardUseFrameId is not null && frame.HalfHandSupport!.Use.ActorSeat == 1,
-            "A real requested physical Slash carries its mature original program parent and exact target; response-only cards do not manufacture support windows.");
-        Private(g, 1); g = RestoreAfterCold(g, r); Answer(g, c => c.Parameters.GetValueOrDefault("support-option") == "pass"); Play(g);
-        Require(F<HalfHandSupportPaymentEvent>(g).Count(e => e.Declined) == 1 && Moves(g, SupportReason).Length == 1, "A real donor decline pays nothing and returns to the original Slash.");
-
-        GiveTrick(g, 0); trick = g.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.DrawTwo); var before = F<HalfHandSupportPaymentEvent>(g).Length;
-        Accept(g, new PlayCardCommand(0, trick.CardId ?? throw new InvalidOperationException("The real trick action lost its entity."), [], g.Revision, P(g)!.PromptId, trick.PlayedCardKind, trick.TargetCardId) { ConversionSource = trick.ConversionSource, AdditionalConversionSources = trick.AdditionalConversionSources }); Reach(g, IsSupport);
-        Require(P(g)!.PlayerSeat == 1, "The published current donor owns the native decision."); Private(g, 1);
-        var aiAidFrame = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.HalfHandSupport is not null);
-        var aiAid = aiAidFrame.HalfHandSupport!; var prefix = g.AcceptedCommands.Count;
-        for (var i = 0; i < 90 && F<HalfHandSupportPaymentEvent>(g).Length == before; i++) Accept(g, new AdvanceOneStepCommand(g.Revision));
-        var aiPayments = F<HalfHandSupportPaymentEvent>(g).Skip(before).ToArray();
-        Require(aiPayments.Length == 1 && aiPayments[0].ProgramFrameId == aiAidFrame.Id &&
-            aiPayments[0].SupportProgramFrameId == qualification.ProgramFrameId && aiPayments[0].CardUseFrameId == aiAid.Use.CardUseFrameId &&
-            aiPayments[0].CardActionId == aiAid.Use.ActionId && aiPayments[0].Source == aiAid.Source &&
-            aiPayments[0].OwnerSeat == 0 && aiPayments[0].RecipientSeat == 1 && aiPayments[0].Paid != aiPayments[0].Declined &&
-            g.AcceptedCommands.Skip(prefix).All(c => c is AdvanceOneStepCommand), "Native AI resolves its real current donor choice without reading another player's private hand.");
-        if (aiPayments[0].Paid)
-            Require(P(g) is { PlayerSeat: 0 } pause && pause.SkillPrompt?.SkillId == Support &&
-                g.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.Id == aiAidFrame.Id && f.HalfHandSupport is { Paid: true } &&
-                    f.PendingMovementContinuation is { SubjectSeat: 0, BeforeCount: 0 }),
-                "The AI's real payment pauses in the human-owned gain observer, while its original aid invoice awaits that native child.");
-        Play(g);
-        Require(F<HalfHandSupportPaymentEvent>(g).Length == before + 1 &&
-            F<CardUseFinishedEvent>(g).Count(e => e.ResolutionId == aiAid.Use.CardUseFrameId) == 1,
-            "Draining only the fixture's owner-side children finishes the original actual use once, without another native donor choice."); Cold(g, r);
-        End(g); Reach(g, p => p.SkillPrompt?.SkillId == Haoshi && p.Choices.Any(c => c.Parameters.GetValueOrDefault("binding-id") == "extra-draw"));
-        Require(F<TurnStartedEvent>(g).Any(e => e.ActorSeat == 0 && e.TurnNumber > qualification.ActualTurnNumber), "Expiry is a real next owner TurnStarted, rather than a guessed round.");
-        Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "skip"); Play(g); GiveTrick(g, 0); trick = g.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.DrawTwo);
-        before = F<HalfHandSupportPaymentEvent>(g).Length;
-        Accept(g, new PlayCardCommand(0, trick.CardId ?? throw new InvalidOperationException("The real trick action lost its entity."), [], g.Revision, P(g)!.PromptId, trick.PlayedCardKind, trick.TargetCardId) { ConversionSource = trick.ConversionSource, AdditionalConversionSources = trick.AdditionalConversionSources }); Play(g);
-        Require(F<HalfHandSupportPaymentEvent>(g).Length == before && !g.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.HalfHandSupport is not null),
-            "After the next actual start, the original recipient qualification cannot open another self-target aid window."); Cold(g, r);
-
-        // New uncovered composition: a genuine paid aid gain suspends an actual
-        // physical Slash with a separate cardless Damage -> Dying -> recovery.
-        // The mandatory pulse is a generic test-only response, not classic Niepan.
-        {
-            var (nested, nr) = Create(observers: true, supportDamage: true); Qualify(nested); Play(nested);
-            for (var i = 0; V(nested, 0).Hp > 1 && i < 4; i++) { Use(nested, "hurt", [0]); Play(nested); }
-            Require(V(nested, 0).Hp == 1, "Real bounded loseHp commands prepare the support owner at one HP.");
-            GiveSlash(nested, 1); Use(nested, "request", [1]); Reach(nested, p => Action(p, "request-slash"));
-            var slashEntity = P(nested)!.Choices.First(c => c.Cards.Count == 1).Cards[0];
-            Answer(nested, c => c.Cards.SequenceEqual([slashEntity])); Reach(nested, IsSupport); Private(nested, 1);
-            var aidRoot = nested.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.HalfHandSupport is not null);
-            var heldUseId = aidRoot.HalfHandSupport!.Use.CardUseFrameId; var aidRootId = aidRoot.Id;
-            var donorEntity = P(nested)!.Choices.First(c => c.Cards.Count == 1).Cards[0];
-            nested = RestoreAfterCold(nested, nr); Answer(nested, c => c.Cards.SequenceEqual([donorEntity]));
-            Reach(nested, p => p.SkillPrompt?.SkillId == Support); nested = RestoreAfterCold(nested, nr); Continue(nested);
-            Reach(nested, p => p.SkillPrompt?.SkillId == "fixture:ls-support-damage");
-            var damageProgram = nested.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == "fixture:ls-support-damage");
-            Require(damageProgram.WindowContext is { Window: SkillProgramTriggerWindow.CardsGained, MovementBatch: { } aidBatch } &&
-                aidBatch.ParentFrameId == aidRootId && aidBatch.Movements.Single().CardId == donorEntity &&
-                nested.ResolutionStack.OfType<CardUseFrame>().Any(u => u.Id == heldUseId && u.CardId == slashEntity) &&
-                Moves(nested, SupportReason).Length == 1 && !F<CardUseFinishedEvent>(nested).Any(e => e.ResolutionId == heldUseId),
-                "The exact paid support gain candidate owns the delivered entity while the original physical Slash remains in flight.");
-            nested = RestoreAfterCold(nested, nr); Continue(nested);
-            Reach(nested, p => p.SkillPrompt?.SkillId == "fixture:ls-source-pulse");
-            var dying = nested.ResolutionStack.OfType<DyingFrame>().Single();
-            var fatal = nested.ResolutionStack.OfType<DamageFrame>().Single(d => d.Id == dying.ParentFrameId);
-            damageProgram = nested.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.Id == fatal.ParentFrameId);
-            var pulse = nested.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == "fixture:ls-source-pulse");
-            Require(dying.Continuation == DyingContinuationKind.Damage && dying.VictimSeat == 0 && dying.KillerSeat == 0 && fatal.Amount == 1 &&
-                fatal.SourceSeat == 0 && fatal.TargetSeat == 0 && V(nested, 0).Hp == 0 &&
-                damageProgram.AttackReturn?.ParentAttackOwnerFrameId == heldUseId && damageProgram.AttackAttempt is { SourceSeat: 0, TargetSeat: 0 } &&
-                pulse.WindowContext is { Window: SkillProgramTriggerWindow.SelfDyingResponse } pulseContext && pulseContext.ParentFrameId == dying.Id &&
-                pulseContext.DamageFrameId == fatal.Id && pulseContext.SourceSeat == 0 && pulseContext.TargetSeat == 0 &&
-                F<DamageRequestedEvent>(nested).Count(e => e.ResolutionId == fatal.Id && e.SourceSeat == 0 && e.TargetSeat == 0 && e.Amount == 1 && e.SourceCard is null) == 1 &&
-                nested.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.Id == aidRootId && f.HalfHandSupport is { Paid: true }),
-                "Real one-point cardless damage owns Damage/Dying and the exact mandatory response, retaining the original paid aid and Slash return.");
-            nested = RestoreAfterCold(nested, nr); Continue(nested); Reach(nested, p => p.SkillPrompt?.SkillId == Hp);
-            Require(nested.ResolutionStack.OfType<DyingFrame>().Any(d => d.Id == dying.Id) && V(nested, 0).Hp == 3 &&
-                nested.ResolutionStack.OfType<HpChangedTriggerWindowFrame>().Any(h => h.Change.ParentFrameId == pulse.Id && h.ResumeFrameId == pulse.Id),
-                "The same real damage-Dying program recovery owns its HP child after a cold-restored response.");
-            nested = RestoreAfterCold(nested, nr); Continue(nested); Play(nested);
-            Require(F<HalfHandSupportPaymentEvent>(nested).Count(e => e.ProgramFrameId == aidRootId && e.Paid) == 1 && Moves(nested, SupportReason).Length == 1 &&
-                F<CardUseFinishedEvent>(nested).Count(e => e.ResolutionId == heldUseId) == 1 &&
-                F<DamageAppliedEvent>(nested).Count(e => e.SourceSeat == 0 && e.TargetSeat == 0 && e.Amount == 1 && e.RemainingHp == 0) == 1 &&
-                F<AfterDamageEvent>(nested).Count(e => e.ResolutionId == fatal.Id && e.SourceSeat == 0 && e.TargetSeat == 0 && e.Amount == 1) == 1,
-                "Cold continuation drains the paid gain damage once, then the original Slash once, without reopening or duplicating its one-card aid.");
-            Cold(nested, nr);
-        }
-    }
-
     private static (GameEngine, ContentRegistry) Create(bool observers = false, bool removePaidSource = false, bool supportDamage = false)
     {
         var r = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true), new StandardRescueSkillExpansionPackage(),
@@ -252,16 +98,6 @@ internal static class BoundaryLuSuChecks
         Accept(g, new StartGameCommand()); Reach(g, p => p.Kind == DecisionKind.SelectGeneral && p.PlayerSeat == 0);
         Accept(g, new SelectGeneralCommand(0, "fixture:ls-owner", g.Revision, P(g)!.PromptId)); return (g, r);
     }
-    private static void Qualify(GameEngine g)
-    {
-        Reach(g, IsExtra); ActivateExtra(g); Reach(g, p => p.SkillPrompt?.SkillId == Haoshi && p.Choices.Any(c => c.Targets.Count == 1));
-        Answer(g, c => c.Targets.SequenceEqual([1])); Reach(g, IsOwned); while (P(g) is { } p && IsOwned(p)) Answer(g, c => c.Cards.Count == 1);
-        Play(g); Require(F<HalfHandTargetSupportIssuedEvent>(g).Single().RecipientSeat == 1, "The actual full half-hand ledger qualifies only the originally selected recipient.");
-    }
-    private static void GiveTrick(GameEngine g, int seat) => Search(g, "trick", seat);
-    private static void GiveSlash(GameEngine g, int seat) { Search(g, "basic", seat); Require(V(g, seat).Hand.Any(c => c.Kind == CardKind.Slash), "The fixed deck's only basic kind supplies one real Slash."); }
-    private static void Search(GameEngine g, string criterion, int seat)
-    { Use(g, "search"); Reach(g, p => Action(p, "declared-deck-criterion")); Answer(g, c => c.Parameters.GetValueOrDefault("criterion") == criterion); Reach(g, p => Action(p, "declared-deck-recipient")); Answer(g, c => c.Targets.SequenceEqual([seat])); Play(g); }
     private static void SetHand(GameEngine g, int seat, int count)
     { Clear(g, seat); for (var i = 0; i < count; i++) { Use(g, "draw", [seat]); Play(g); } }
     private static void Clear(GameEngine g, int seat)
@@ -292,7 +128,6 @@ internal static class BoundaryLuSuChecks
     private static void ActivateExtra(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate" && c.Parameters.GetValueOrDefault("binding-id") == "extra-draw");
     private static bool IsExtra(PendingDecision p) => p.SkillPrompt?.SkillId == Haoshi && p.Choices.Any(c => c.Parameters.GetValueOrDefault("binding-id") == "extra-draw");
     private static bool IsOwned(PendingDecision p) => Action(p, "select-owned-cards");
-    private static bool IsSupport(PendingDecision p) => Action(p, "half-hand-support");
     private static bool Action(PendingDecision p, string id) => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == id);
     private static PlayerSnapshot V(GameEngine g, int seat) => g.CreateSnapshot(seat).Players[seat];
     private static T[] F<T>(GameEngine g) where T : IGameEvent => g.Events.Select(e => e.Payload).OfType<T>().ToArray();

@@ -29,7 +29,16 @@ public sealed partial class GameEngine
         use.Action?.ActionId == action.ActionId && use.TargetSeats is [var target] && IsValidPlayerSeat(target) && _players[target].IsAlive &&
         CompleteProgramEventHistory().OfType<FirstSlashDuelUseRecordedEvent>().Any(e =>
             e.TurnNumber == _turnNumber && e.TurnOwnerSeat == _currentSeat && e.ActorSeat == owner && e.CardUseFrameId == use.Id &&
-            e.ActionId == action.ActionId && e.EffectiveKind == use.CardKind && e.Ordinal == 1);
+            e.ActionId == action.ActionId && FirstSlashDuelDeclaredKindMatches(use, e.EffectiveKind) && e.Ordinal == 1);
+    private bool FirstSlashDuelDeclaredKindMatches(CardUseFrame use, CardKind declaredKind)
+    {
+        if (declaredKind == use.CardKind) return true;
+        if (use.CurrentSlashFirePolicy is not { Converted: true } policy || policy.OriginalKind != declaredKind ||
+            !IsSlashCard(declaredKind) || use.CardKind != CardKind.FireSlash) return false;
+        // Declaration order remains frozen. An exact existing committed kind
+        // change belongs to the same use, rather than a second first-use slot.
+        AssertCurrentSlashFirePolicy(use); return true;
+    }
     private bool CanCollectFirstSlashDuelCandidate(int owner, SkillProgramTrigger trigger, CardActionContext action)
     {
         if (!trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.ChooseFirstSlashDuelDiamondBenefit)) return true;
@@ -39,6 +48,8 @@ public sealed partial class GameEngine
     private bool CanOfferFirstSlashDuelBenefit(ProgramTriggerCandidate candidate, SkillProgramTrigger trigger, ProgramSkillWindowContext context)
     {
         if (!trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.ChooseFirstSlashDuelDiamondBenefit)) return true;
+        if (_resolutionStack.OfType<FirstSlashDuelLegacyWindowFrame>().Any(w => w.Id == context.ParentFrameId))
+            return CanRunFirstLegacyBenefit(candidate, context);
         var window = _resolutionStack.OfType<ProgramCardTriggerWindowFrame>().SingleOrDefault(w => w.Id == context.ParentFrameId);
         var use = window is null ? null : LifecycleCardUse(window.ParentFrameId);
         return context.Window == SkillProgramTriggerWindow.CardUseTargetsFinalized && context.CardUse?.CardActionId == window?.Action.ActionId &&
@@ -51,15 +62,16 @@ public sealed partial class GameEngine
     {
         var f = GetActiveProgramFrame(supplied.Id);
         if (f.FirstSlashDuelBenefit is not null || f.WindowContext is not { } c ||
-            !CanOfferFirstSlashDuelBenefit(new(f.OwnerSeat, f.SkillId, f.TriggerId!, f.SkillInstanceId, f.GameplayHash, 0), GetProgramTrigger(f), c))
+            !CanOfferFirstSlashDuelBenefit(new(f.OwnerSeat, f.SkillId, f.TriggerId!, f.SkillInstanceId, f.GameplayHash, GetProgramTrigger(f).Priority), GetProgramTrigger(f), c))
             throw new InvalidOperationException("The first Slash/Duel benefit requires its exact unpaid own-turn finalized use.");
-        var window = _resolutionStack.OfType<ProgramCardTriggerWindowFrame>().Single(w => w.Id == c.ParentFrameId);
-        var use = LifecycleCardUse(window.ParentFrameId)!; var target = use.TargetSeats.Single();
+        var window = _resolutionStack.OfType<ProgramCardTriggerWindowFrame>().SingleOrDefault(w => w.Id == c.ParentFrameId);
+        var legacy = _resolutionStack.OfType<FirstSlashDuelLegacyWindowFrame>().SingleOrDefault(w => w.Id == c.ParentFrameId);
+        var use = LifecycleCardUse(window?.ParentFrameId ?? legacy!.ParentFrameId)!; var target = use.TargetSeats.Single();
         // The count is trusted pending state. Neither choice labels nor public
         // facts expose the target's suits before the owner selects an effect.
         var x = GetHand(_players[target]).Count(card => EffectiveSuit(_players[target], card) == Suit.Diamond);
-        ReplaceRuntimeTop(f = f with { FirstSlashDuelBenefit = new(f.InstructionIndex, window.Id, use.Id, window.Action.ActionId,
-            _turnNumber, _currentSeat, target, x, FirstSlashDuelSource(f), f.GameplayHash), Step = ResolutionFrameStep.AwaitingResponse });
+        ReplaceRuntimeTop(f = f with { FirstSlashDuelBenefit = new(f.InstructionIndex, c.ParentFrameId, use.Id, use.Action?.ActionId,
+            _turnNumber, _currentSeat, target, x, FirstSlashDuelSource(f), f.GameplayHash, LegacyProducerFrameId: legacy?.ProducerFrameId), Step = ResolutionFrameStep.AwaitingResponse });
         var skill = _contentRegistry.GetSkill(f.SkillId);
         _pendingDecision = new(DecisionKind.ProgramTrigger, f.OwnerSeat, $"【{skill.Name}】请选择一项。", [], [target], f.OwnerSeat)
         { PromptId = CreatePromptId(), IsPrivate = true, Choices = FirstSlashDuelChoices(f),
@@ -72,6 +84,7 @@ public sealed partial class GameEngine
     private static PromptChoice FirstSlashDuelChoice(ProgramSkillFrame f, string branch, string label) => new(
         new($"first-slash-duel.{f.Id}.{branch}"), label, [], [], new Dictionary<string, string> {
             ["program-action"] = "first-slash-duel-benefit", ["frame-id"] = f.Id.ToString(CultureInfo.InvariantCulture), ["branch"] = branch });
+    [ProgramAnswer("first-slash-duel-benefit")]
     private void ResolveFirstSlashDuelChoice(PromptChoice selected)
     {
         var f = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("The first-use choice lost its owning frame.");
@@ -120,6 +133,7 @@ public sealed partial class GameEngine
         f.FirstSlashDuelBenefit is { SelectedBranch: "draw" } r && e?.Op == SkillProgramEffectOp.ChooseFirstSlashDuelDiamondBenefit &&
         r.InstructionIndex == f.InstructionIndex && pending.SubjectSeat == f.OwnerSeat && pending.CoverageResultBind is null;
     private bool CanContinueFirstSlashDuelBenefit(ProgramSkillFrame f) => f.FirstSlashDuelBenefit?.SelectedBranch == "draw" && ValidFirstSlashDuelBenefit(f);
+    [ProgramAiChoice(SkillProgramEffectOp.ChooseFirstSlashDuelDiamondBenefit)]
     private PromptChoice SelectAiFirstSlashDuelBenefit(PendingDecision decision, ProgramSkillFrame f) =>
         decision.Choices.Single(c => c.Parameters["branch"] == (GetHand(_players[f.OwnerSeat]).Count < 3 ? "draw" : "damage"));
     private int FirstSlashDuelDamage(IDamageAttempt attack)

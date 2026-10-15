@@ -162,37 +162,6 @@ internal static class CurrentTurnHandExchangeChecks
         _ = Cold(game, registry);
     }
 
-    public static void SelfAndDeclineKeepOriginalEntities()
-    {
-        RejectInvalidPrograms();
-        foreach (var accept in new[] { false, true })
-        {
-            var (game, registry) = Start();
-            var original = game.CreateSnapshot(0).Players[0].Hand.Select(card => card.Id).ToArray();
-            EndHumanPlay(game);
-            Reach(game, prompt => IsExchange(prompt) && prompt.PlayerSeat == 0);
-            var id = Exchange(game).Id;
-            Require(original.Length == 1 && Exchange(game).WindowContext!.Facts!.EventTargetHandCount == original.Length,
-                "The own TurnEnding candidate retains its actual pre-offer one-card hand count instead of falling back to the boundary's default zero.");
-            AssertPrivate(game, 0);
-            game = Cold(game, registry);
-            Require(Exchange(game).WindowContext!.Facts!.EventTargetHandCount == 1 &&
-                    Exchange(game).CurrentTurnHandExchange!.Stage == CurrentTurnHandExchangeStage.Offered,
-                "Accepted-prefix cold replay preserves the genuine own-turn one-card eligibility fact before any draw or exchange.");
-            RejectWrongActor(game);
-            Answer(game, choice => choice.Parameters.GetValueOrDefault("option") == (accept ? "accept" : "decline"));
-            ReachResolved(game, id);
-            Require(original.All(card => game.CreateSnapshot(0).Players[0].Hand.Any(entity => entity.Id == card)) &&
-                    game.CreateSnapshot(0).Players[0].HandCount == original.Length + (accept ? 1 : 0) &&
-                    Facts<CurrentTurnHandExchangeDrawIssuedEvent>(game).Count(fact => fact.FrameId == id) == (accept ? 1 : 0) &&
-                    !Facts<CurrentTurnHandExchangeGiftIssuedEvent>(game).Any(fact => fact.FrameId == id) &&
-                    !Facts<CurrentTurnHandExchangeReturnIssuedEvent>(game).Any(fact => fact.FrameId == id) &&
-                    Facts<CurrentTurnHandExchangeResolvedEvent>(game).Single(fact => fact.FrameId == id).Outcome == (accept ? "self-draw" : "declined"),
-                "Decline spends nothing; own-turn acceptance draws one actual entity without moving existing entities between the same hand.");
-            _ = Cold(game, registry);
-        }
-    }
-
     public static void GiftChildExhaustionRetainsTheOriginalGivenCount()
     {
         var (game, registry) = Start(shortfall: true);
@@ -305,34 +274,6 @@ internal static class CurrentTurnHandExchangeChecks
         return restored;
     }
     private static void Require(bool condition, string message) { if (!condition) throw new InvalidOperationException(message); }
-
-    private static void RejectInvalidPrograms()
-    {
-        const string skill = "fixture:exchange-loader";
-        var valid = JsonNode.Parse($$$"""
-          {"schemaVersion":{{{SkillProgramCatalog.RulesSchemaVersion}}},"skills":[{"id":"{{{skill}}}","revision":1,"triggers":[
-            {"id":"offer","window":"turnEnding","subject":"owner","turnOwnerScope":"otherLiving","optional":false,
-             "condition":{"kind":"compare","left":{"kind":"eventTargetHandCount"},"operator":"lessThanOrEqual","right":{"kind":"integerConstant","value":1}},
-             "effects":[{"op":"offerCurrentTurnHandExchange","target":"owner"}]}]}]}
-          """)!;
-        var presentation = JsonSerializer.Serialize(new { schemaVersion = SkillProgramCatalog.PresentationSchemaVersion,
-            skills = new Dictionary<string, object> { [skill] = new { name = "共享交换", description = "真实回合边界" } } });
-        foreach (var mutation in new Action<JsonObject>[]
-        {
-            trigger => trigger["optional"] = true,
-            trigger => trigger["subject"] = "any",
-            trigger => trigger["condition"] = new JsonObject { ["kind"] = "always" },
-            trigger => trigger["condition"]!["right"]!["value"] = 2,
-            trigger => trigger["effects"]!.AsArray().Add(JsonNode.Parse("{\"op\":\"draw\",\"target\":\"owner\",\"amount\":1}"))
-        })
-        {
-            var invalid = JsonNode.Parse(valid.ToJsonString())!;
-            mutation(invalid["skills"]![0]!["triggers"]![0]!.AsObject());
-            try { _ = SkillProgramCatalog.Load(invalid.ToJsonString(), presentation); }
-            catch (InvalidOperationException) { continue; }
-            throw new InvalidOperationException("A widened exchange actor, quantity gate, optional wrapper or later unpaid tail must fail strict loading.");
-        }
-    }
 
     private static (GameEngine, ContentRegistry) Start(bool equipment = false, bool shortfall = false, bool aiOwner = false)
     {

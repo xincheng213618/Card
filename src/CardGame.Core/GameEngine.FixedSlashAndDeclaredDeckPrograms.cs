@@ -92,8 +92,9 @@ public sealed partial class GameEngine
             var p = Parameters("faction"); p["skill"] = policy.SkillId;
             choices.Add(new(new($"fixed-slash.{frame.Id}.faction"), "发动技能请求其他角色提供【杀】", [], [target.Seat], p));
         }
+        if (!d.Issued) choices.AddRange(RoundOnceCardlessProgramSlashChoices(frame, actor.Seat, [target.Seat]));
         choices.Add(new(new($"fixed-slash.{frame.Id}.decline"), "不使用【杀】", [], [], Parameters("decline")));
-        return choices.Where(choice => choice.Parameters["request-option"] != "use" ||
+        return choices.Where(choice => choice.Parameters.GetValueOrDefault("request-option") != "use" ||
             !IsTurnPhysicalUseForbidden(actor.Seat, choice.Cards)).ToArray();
     }
 
@@ -285,6 +286,7 @@ public sealed partial class GameEngine
         _status = _players[frame.OwnerSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
 
+    [ProgramAnswer("fixed-target-slash", "declared-deck-criterion", "declared-deck-recipient")]
     private void ResolveFixedSlashAndDeclaredDeckChoice(PromptChoice selected)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("Fixed Slash or deck choice lost its frame.");
@@ -323,13 +325,17 @@ public sealed partial class GameEngine
         AwaitDeckProgramMovement(frame.Id);
     }
 
+    [ProgramAiChoice(
+        SkillProgramEffectOp.UseOwnerSlashAgainstTurnOwner,
+        SkillProgramEffectOp.DeclareDeckCriterionAndGiveMatchingCard)]
     private PromptChoice SelectAiFixedSlashAndDeclaredDeck(PendingDecision decision, ProgramSkillFrame frame)
     {
         if (frame.DeckCriterion is { Stage: "recipient" })
             return decision.Choices.FirstOrDefault(choice => choice.Targets.Contains(frame.OwnerSeat)) ?? decision.Choices[0];
         if (frame.DeckCriterion is { Stage: "declare" })
             return decision.Choices.Single(choice => choice.Parameters.GetValueOrDefault("criterion") == "trick");
-        return decision.Choices.FirstOrDefault(choice => choice.Parameters.GetValueOrDefault("request-option") == "use") ?? decision.Choices[0];
+        return decision.Choices.FirstOrDefault(choice => choice.Parameters.GetValueOrDefault("request-option") == "use" ||
+            choice.Parameters.GetValueOrDefault("program-action") == RoundOnceCardlessProgramMarker) ?? decision.Choices[0];
     }
 
     private void AssertFixedSlashAndDeclaredDeckDrafts(ProgramSkillFrame frame, SkillProgramEffect paused)

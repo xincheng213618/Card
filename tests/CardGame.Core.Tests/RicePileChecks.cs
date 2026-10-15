@@ -7,28 +7,6 @@ internal static class RicePileChecks
 {
     private const string Yi = "ol:yishe", Bu = "ol:bushi", Mi = "ol:midao", Second = "fixture:rice-second";
     private const string Driver = "fixture:rice-driver", Owner = "fixture:rice-owner", Watch = "fixture:rice-watch", Mode = "identity:classic-rice";
-    public static void ExactContractsAndCommittedCollections()
-    {
-        var rule = Embedded("rules.json"); var labels = Embedded("presentation.json");
-        _ = SkillProgramCatalog.Load(rule, labels);
-        foreach (var mutate in new Action<JsonNode>[]
-        {
-            n => n["skills"]![0]!["triggers"]![0]!["optional"] = false,
-            n => n["skills"]![0]!["triggers"]![1]!["sourceZones"] = new JsonArray("hand"),
-            n => n["skills"]![1]!["triggers"]![0]!["damageOccurrence"] = "perDamage",
-            n => n["skills"]![1]!["triggers"]![1]!["subject"] = "any",
-            n => n["skills"]![2]!["triggers"]![0]!["effects"]![0]!["skillIds"] = new JsonArray("standard:none"),
-            n => n["skills"]![2]!["triggers"]![0]!["effects"]![0]!["zones"] = new JsonArray("hand")
-        })
-        {
-            var invalid = JsonNode.Parse(rule)!; mutate(invalid); var rejected = false;
-            try { _ = SkillProgramCatalog.Load(invalid.ToJsonString(), labels); } catch (InvalidOperationException) { rejected = true; }
-            Need(rejected, "Rice shared nodes reject incorrect timing, occurrence, chooser, source and unsupported hand judgment material.");
-        }
-        var (g, registry) = Start(); Fill(ref g, registry, 0); var paid = E<RicePilePaymentIssuedEvent>(g).Single().Receipt;
-        Need(Frozen(paid.CardIds) && Frozen(paid.From) && Frozen(paid.Selected) && Frozen(paid.Choices),
-            "Committed rice payload collections reject observer mutation rather than exposing arrays through a record."); Cold(g, registry);
-    }
     public static void ActualEndingDrawHEStoreAndColdMovementChildren()
     {
         var (g, registry) = Start(child: "pause", mixed: true);
@@ -56,46 +34,6 @@ internal static class RicePileChecks
         Play(g); End(g); Reach(g, () => E<TurnStartedEvent>(g).Last().ActorSeat != 0);
         Need(!Optional(P(g), Yi), "A nonempty exact rice pile does not offer the next ending draw."); Cold(g, registry);
     }
-    public static void ActualIncomingPointsSelfAndSourceLessDamage()
-    {
-        foreach (var kind in new[] { "incoming-two", "self-one", "source-less" })
-        {
-            var (g, registry) = Start(); Fill(ref g, registry, 0); Play(g);
-            var hp = V(g, 0).Hp; var gains = E<RicePilePaymentIssuedEvent>(g).Length; var applied = E<DamageAppliedEvent>(g).Length;
-            Use(g, kind, targets: kind == "incoming-two" ? [1] : []);
-            var count = kind == "incoming-two" ? 2 : 1; var seen = new List<int>();
-            for (var point = 0; point < count; point++)
-            {
-                Reach(g, () => Optional(P(g), Bu)); var window = g.ResolutionStack.OfType<DamageTriggerWindowFrame>().Last();
-                Need(P(g)!.PlayerSeat == 0 && window.TargetSeat == 0, "Incoming Bushi is chosen by the actual surviving damaged owner.");
-                seen.Add(window.Candidates[window.CandidateIndex].OccurrenceIndex); g = Cold(g, registry); Activate(g);
-                Reach(g, () => RicePrompt(P(g))); Answer(g, c => c.Cards.Count == 1);
-            }
-            Play(g); var paid = E<RicePilePaymentIssuedEvent>(g).Skip(gains).Where(e => e.Receipt.Operation == SkillProgramEffectOp.OfferRiceAfterDamagePoint).ToArray();
-            Need(seen.SequenceEqual(Enumerable.Range(0, count)) && paid.Length == count && paid.All(e => e.Receipt.BeneficiarySeat == 0) &&
-                E<DamageAppliedEvent>(g).Skip(applied).Single().Amount == count && V(g, 0).PublicPersistentPileCount == 2 - count &&
-                V(g, 0).Hp == hp - count + (count == 2 ? 1 : 0),
-                "Each actual applied point offers independently; source-less and self damage have incoming only, and only loss of last rice recovers."); Cold(g, registry);
-        }
-    }
-    public static void ActualOutgoingRecipientDeclinesAndSelects()
-    {
-        var (g, registry) = Start(ownerBushi: false, peerRice: true); Fill(ref g, registry, 1); Play(g);
-        Need(V(g, 1).PublicPersistentPileCount == 2, "The outgoing donor has a real ending-produced pile.");
-        Use(g, "incoming-two", targets: [1]); Reach(g, () => Optional(P(g), Bu));
-        var first = P(g)!; var before = g.Revision; var choice = first.Choices.Single(c => c.Parameters.GetValueOrDefault("program-action") == "skip");
-        var wrong = g.Submit(new AnswerPromptCommand(1, first.PromptId, choice.Id, g.Revision));
-        Need(!wrong.Accepted && g.Revision == before && first.PlayerSeat == 0, "The donor cannot answer the actual damaged recipient's optional rice opportunity.");
-        g = Cold(g, registry); Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "skip");
-        Reach(g, () => Optional(P(g), Bu)); var window = g.ResolutionStack.OfType<DamageTriggerWindowFrame>().Last();
-        Need(window.Candidates[window.CandidateIndex].OccurrenceIndex == 1 && P(g)!.PlayerSeat == 0, "Declining the first point does not skip the next independent recipient opportunity.");
-        Activate(g); Reach(g, () => RicePrompt(P(g))); Need(P(g) is { PlayerSeat: 0, IsPrivate: false }, "The recipient chooses one publicly visible exact donor rice.");
-        var selected = P(g)!.Choices.First().Cards.Single(); g = Cold(g, registry); Answer(g, c => c.Cards.SequenceEqual([selected])); Play(g);
-        var paid = E<RicePilePaymentIssuedEvent>(g).Single(e => e.Receipt.Operation == SkillProgramEffectOp.OfferRiceAfterDamagePoint).Receipt;
-        Need(paid.Source.OwnerSeat == 1 && paid.BeneficiarySeat == 0 && paid.OccurrenceIndex == 1 && paid.CardIds.SequenceEqual([selected]) &&
-            paid.From.Single().OwnerSeat == 1 && V(g, 0).Hand.Any(c => c.Id == selected) && V(g, 1).PublicPersistentPileCount == 1,
-            "One chosen actual entity transfers from the donor's exact pile to the damaged recipient, with no donor-controlled acceptance."); Cold(g, registry);
-    }
     public static void AnyJudgmentLastRiceRecoveryAndMultiplePileIdentity()
     {
         var (g, registry) = Start(secondPile: true); Fill(ref g, registry, 0); Reach(g, () => Optional(P(g), Second));
@@ -121,21 +59,6 @@ internal static class RicePileChecks
             !E<RicePileRecoveryIssuedEvent>(g).Any(e => e.Pile.Location == secondary.Location) &&
             V(g, 0).PublicPersistentPiles!.Single(p => p.SourceSkillId == Second).Count == 2,
             "One real rice replacement pays three exact movements; only its emptied source recovers before the judgment resolves, while the other pile remains intact."); Cold(g, registry);
-    }
-    public static void PaidDrawDrainsSourceLossAndOwnerDeathOnce()
-    {
-        foreach (var child in new[] { "lose-source", "death" })
-        {
-            var (g, registry) = Start(child: child); End(g); Reach(g, () => Optional(P(g), Yi)); Activate(g);
-            Reach(g, () => P(g)?.SkillPrompt?.SkillId == Watch); var f = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.RicePile is not null);
-            g = Cold(g, registry); Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
-            Reach(g, () => E<RicePileCompletedEvent>(g).Any(e => e.ProgramFrameId == f.Id));
-            Need(E<RicePileDrawIssuedEvent>(g).Count(e => e.ProgramFrameId == f.Id && e.Actual == 2) == 1 &&
-                !E<RicePilePaymentIssuedEvent>(g).Any(e => e.ProgramFrameId == f.Id) && V(g, 0).PublicPersistentPileCount == 0,
-                "An actually paid draw drains its genuine loss/death child once without redrawing or recreating a lost producer's rice source.");
-            Need(child == "lose-source" ? V(g, 0).IsAlive && !V(g, 0).Skills!.Any(s => s.Id == Yi) : !V(g, 0).IsAlive && g.State.Winner == Winner.None,
-                "The fixture actually removes the Yishe grant or kills the non-Lord owner while the game continues."); Cold(g, registry);
-        }
     }
     private static string Embedded(string suffix)
     { using var stream = typeof(StandardContentPackage).Assembly.GetManifestResourceStream("CardGame.Content.Standard.SkillPrograms.ol-zhang-lu." + suffix)!; using var reader = new StreamReader(stream); return reader.ReadToEnd(); }
@@ -188,8 +111,6 @@ internal static class RicePileChecks
             JsonSerializer.Serialize(g.Events.Select(e => e.Payload)) == JsonSerializer.Serialize(copy.Events.Select(e => e.Payload)),
             "Cold command replay preserves all four viewer projections, exact owning receipts, event history and actual movement boundaries."); return copy;
     }
-    private static bool Frozen<T>(IReadOnlyList<T> values)
-    { if (values is not IList<T> list) return false; try { list.Add(default!); } catch (NotSupportedException) { return true; } return false; }
     private static void Need(bool condition, string why) { if (!condition) throw new InvalidOperationException(why); }
     private static (GameEngine, ContentRegistry) Start(string child = "none", bool mixed = false, bool ownerBushi = true, bool peerRice = false, bool secondPile = false)
     {

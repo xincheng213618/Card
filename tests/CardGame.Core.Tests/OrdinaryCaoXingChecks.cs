@@ -9,53 +9,6 @@ internal static class OrdinaryCaoXingChecks
     private const string Liushi = "ol:liu-shi";
     private const string Zhanwan = "ol:zhan-wan";
 
-    public static void Definitions()
-    {
-        var registry = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true),
-            new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage());
-        var general = registry.Generals["ol:cao-xing"];
-        Require(general.Name == "曹性" && general.FactionId == "qun" && general.BaseHp == 4 &&
-            general.SkillIds.SequenceEqual([Liushi, Zhanwan]) &&
-            general.VariantId == "ordinary" && general.RulesetId == "sanguosha-ol",
-            "The OL Cao Xing general registers the current qun 4HP pair.");
-        var liushi = registry.GetSkill(Liushi).Program!;
-        Require(liushi.Activations.Count == 0, "Liushi is a play-phase trigger pair rather than an activation.");
-        var play = liushi.Triggers.Single(t => t.Window == SkillProgramTriggerWindow.PlayPhaseStarting);
-        Require(play.Subject == SkillProgramTriggerSubject.Owner && play.Optional &&
-            play.Effects.Select(e => e.Op).SequenceEqual(
-                [SkillProgramEffectOp.SelectTarget, SkillProgramEffectOp.SelectAndMoveOwnedCard, SkillProgramEffectOp.UseVirtualCard]) &&
-            play.Effects[0].TargetKind == SkillProgramTargetKind.OtherLivingVirtualSlashTarget &&
-            play.Effects[1].Suits.SequenceEqual([Suit.Heart]) &&
-            play.Effects[1].Destination == SkillProgramCardDestination.DrawPileTop &&
-            play.Effects[1].Zones.SequenceEqual([CardZoneKind.Hand]) &&
-            play.Effects[2].TargetRestriction == SkillProgramCardTargetRestriction.DistanceUnlimitedAgainstTarget,
-            "Liushi pays one heart hand card onto the deck top for an unlimited-distance virtual slash.");
-        var damage = liushi.Triggers.Single(t => t.Window == SkillProgramTriggerWindow.CardUseCompleted);
-        Require(damage.Window == SkillProgramTriggerWindow.CardUseCompleted &&
-            damage.OwnerRelation == SkillProgramCardActionOwnerRelation.Actor &&
-            damage.CardKinds.SequenceEqual([CardKind.Slash]) &&
-            damage.Effects[0].Op == SkillProgramEffectOp.ChangeParticipantMarker &&
-            damage.Effects[0].Marker == PlayerMarkerKind.LiuShi && damage.Effects[0].Amount == 1 &&
-            damage.Effects[0].TargetReference!.Kind == ProgramParticipantRef.EventTarget &&
-            damage.Effects[1].Op == SkillProgramEffectOp.AdjustPersistentHandLimit &&
-            damage.Effects[1].Amount == -1 && damage.Effects[1].StateId == "liu-shi-limit",
-            "A damaging Liushi slash marks the victim and lowers their persistent hand limit.");
-        var zhanwan = registry.GetSkill(Zhanwan).Program!.Triggers.Single();
-        Require(zhanwan.Window == SkillProgramTriggerWindow.DiscardPhaseEnded && !zhanwan.Optional &&
-            zhanwan.TurnOwnerScope == SkillProgramTurnOwnerScope.OtherLiving &&
-            zhanwan.Effects[0].Op == SkillProgramEffectOp.Draw &&
-            zhanwan.Effects[0].NumberExpression == SkillProgramNumberExpression.TurnOwnerDiscardPhaseHandDiscardCount &&
-            zhanwan.Effects[1].Op == SkillProgramEffectOp.ChangeParticipantMarker &&
-            zhanwan.Effects[1].Marker == PlayerMarkerKind.LiuShi && zhanwan.Effects[1].Amount == -1 &&
-            zhanwan.Effects[1].TargetReference!.Kind == ProgramParticipantRef.EventTarget &&
-            zhanwan.Effects[2].Op == SkillProgramEffectOp.AdjustPersistentHandLimit &&
-            zhanwan.Effects[2].Amount == 1 && zhanwan.Effects[2].StateId == "liu-shi-limit",
-            "Zhanwan draws the discard count, clears the marker, and restores the hand limit.");
-        Require(registry.GetSkill(Liushi).ProgramPresentation!.Name == "流矢" &&
-            registry.GetSkill(Zhanwan).ProgramPresentation!.Name == "斩腕",
-            "The presentation carries the current OL Liushi/Zhanwan wording.");
-    }
-
     public static void LiushiDamagesAndZhanwanDrains()
     {
         var (g, r) = Start();

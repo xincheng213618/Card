@@ -26,9 +26,25 @@ public sealed partial class GameEngine
         var i = _resolutionStack.FindIndex(x => x.Id == f.Id);
         return i > 0 && _resolutionStack[i - 1] is DamageTriggerWindowFrame w && w.Id == c.ParentFrameId && w.ParentFrameId == damageId &&
             w.TriggerWindow == c.Window && w.SourceSeat == source && w.TargetSeat == target && w.CandidateIndex >= 0 && w.CandidateIndex < w.Candidates.Count &&
-            MountObserverCandidateMatches(f, w.Candidates[w.CandidateIndex].ToProgramCandidate()) && !GetDamageTriggerAttack(w).IsSourceLess &&
+            MountObserverCandidateMatches(f, w.Candidates[w.CandidateIndex].ToProgramCandidate()) &&
             _resolutionStack.OfType<DamageFrame>().SingleOrDefault(d => d.Id == damageId) is { } damage &&
-            damage.SourceSeat == source && damage.TargetSeat == target && damage.Amount == c.Amount;
+            damage.SourceSeat == source && damage.TargetSeat == target && damage.Amount == c.Amount && DamageAcquisitionHasExactOwningAttack(damage, w);
+    }
+    private bool DamageAcquisitionHasExactOwningAttack(DamageFrame damage, DamageTriggerWindowFrame window)
+    {
+        // A paid gain observer may issue its own damage and dying child. The
+        // global current attack then belongs to that child; the original damage
+        // remains suspended on its own typed frame and must be proved there.
+        IDamageAttempt? attack = _resolutionStack.SingleOrDefault(x => x.Id == damage.ParentFrameId) switch
+        {
+            ProgramSkillFrame { AttackAttempt: not null } => new ProgramAttackHandle(this, damage.ParentFrameId),
+            CardUseFrame { CardAttack: not null } or ProgramSkillFrame { CardAttack: not null } or JudgmentFrame { CardAttack: not null } =>
+                new CardAttackHandle(this, damage.ParentFrameId),
+            _ => null
+        };
+        return attack is { IsSourceLess: false, DamageWasApplied: true } && attack.SourceSeat == damage.SourceSeat &&
+            attack.TargetSeat == damage.TargetSeat && attack.DamageAmount == damage.Amount && window.SourceCardId == attack.Card?.Id &&
+            window.SourceCard == attack.EffectiveCardKind;
     }
     private SkillProgramStepOutcome BeginDamageZoneAcquisition(ProgramSkillFrame input)
     {
@@ -67,6 +83,7 @@ public sealed partial class GameEngine
         }
         IssueDamageZoneAcquisition(f);
     }
+    [ProgramAnswer("damage-zone-acquisition")]
     private void ResolveDamageAcquisitionChoice(PromptChoice selected)
     {
         var f = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("Damage acquisition lost its owning program.");
@@ -172,6 +189,7 @@ public sealed partial class GameEngine
         if (f.DamageZoneAcquisition?.Stage != DamageZoneAcquisitionStage.MovementChildren) return false;
         RequireDamageAcquisitionReceipt(f); return true;
     }
+    [ProgramAiChoice(SkillProgramEffectOp.ObtainEachDamageTargetZoneThenSelfOnly)]
     private PromptChoice SelectAiDamageAcquisition(PendingDecision p, ProgramSkillFrame f) => p.Choices
         .OrderByDescending(c => c.Cards is [var id] ? GetKeepValue(GetAttackCard(id), _players[f.OwnerSeat]) : 0).First();
     private sealed partial class ProgramSkillHost : IDamageZoneAndAdjacentTargetHost

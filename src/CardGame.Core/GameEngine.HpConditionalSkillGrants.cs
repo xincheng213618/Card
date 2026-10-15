@@ -43,7 +43,8 @@ public sealed partial class GameEngine
             candidate.HpConditionalSource is null);
         if (source is null || !HpConditionalSourceQualified(owner, source)) return false;
         return _contentRegistry.GetSkill(source.SkillId).Program?.HpSkillGrants.Any(rule =>
-            rule.Id == relation.RuleId && rule.SkillId == grant.SkillId && rule.Matches(owner.Hp)) == true;
+            rule.Id == relation.RuleId && rule.SkillId == grant.SkillId && rule.Matches(owner.Hp) &&
+            MatchesTangZiWoundedGrant(owner, rule)) == true;
     }
 
     private bool HpConditionalSourceQualified(CharacterState owner, SkillGrant source)
@@ -81,7 +82,8 @@ public sealed partial class GameEngine
                 foreach (var source in owner.SkillGrants.Grants.Where(grant => grant.HpConditionalSource is null &&
                              _contentRegistry.GetSkill(grant.SkillId).Program?.HpSkillGrants.Count > 0 &&
                              HpConditionalSourceQualified(owner, grant)))
-                foreach (var rule in _contentRegistry.GetSkill(source.SkillId).Program!.HpSkillGrants.Where(rule => rule.Matches(owner.Hp)))
+                foreach (var rule in _contentRegistry.GetSkill(source.SkillId).Program!.HpSkillGrants.Where(rule =>
+                             rule.Matches(owner.Hp) && MatchesTangZiWoundedGrant(owner, rule)))
                 {
                     var relation = new HpConditionalSkillGrantSource(source.GrantId, source.SkillId, source.SkillInstanceId, rule.Id);
                     var id = HpConditionalGrantId(owner.Seat, relation);

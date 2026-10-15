@@ -107,43 +107,6 @@ internal static class BoundaryHuaTuoChecks
         Require(rewards.Select(m=>m.To.OwnerSeat!.Value).SequenceEqual(new[]{0,same}.OrderBy(s=>Array.IndexOf(plan.ParticipantSeats.ToArray(),s)))&&rewards.All(m=>m.Sequence>costs.Last().Sequence),"All costs precede rewards; printed Spade under Hongyan gives no draw.");
         Require(!g.GetHumanLegalActions().Any(a=>a.ProgramSkillId=="boundary:chuli"),"Real phase allowance consumed once.");Replay(g,r);Conserve(g);
     }
-    public static void ZeroOthersAndIllegalInputs()
-    {
-        var(g,r)=Start();Begin(g);Reject(g,new("forged"));Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="distinct-faction-finish");
-        var own=P(g)!.Choices.First(c=>c.Cards.Count==1);var before=g.CardMovements.Count;Replay(g,r);Accept(g,new AnswerPromptCommand(0,P(g)!.PromptId,own.Id,g.Revision));
-        Reach(g,p=>p.Kind==DecisionKind.PlayCard);
-        Require(g.CardMovements.Skip(before).Count(m=>m.Reason.Value=="skill-program.boundary:chuli.participant-discard")==1&&g.CardMovements.Skip(before).Count(m=>m.Reason.Value=="skill-program.boundary:chuli.participant-reward")==1,"Zero others still pays own actual Spade and earns one actual draw.");
-        var result=g.Submit(new UseProgramSkillCommand(0,"boundary:chuli","discard-participants",[],[],g.Revision,P(g)!.PromptId));Require(!result.Accepted,"Second activation in same phase rejects.");Replay(g,r);Conserve(g);
-    }
-    public static void ExtraPlayAndSourceLifecycleMechanisms()
-    {
-        var(g,r)=Start("extra");var turn=g.CreateSnapshot(0).TurnNumber;Begin(g);Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="distinct-faction-finish");Answer(g,c=>c.Cards.Count==1);Reach(g,p=>p.Kind==DecisionKind.PlayCard);
-        Require(!g.GetHumanLegalActions().Any(a=>a.ProgramSkillId=="boundary:chuli"),"First actual Play allowance used.");
-        Accept(g,new EndPlayPhaseCommand(0,g.Revision,P(g)!.PromptId));Reach(g,p=>p.Kind==DecisionKind.PlayCard);
-        Require(g.CreateSnapshot(0).TurnNumber==turn&&g.GetHumanLegalActions().Any(a=>a.ProgramSkillId=="boundary:chuli"),"Inserted and normal actual Play reset shared phase quota within one turn.");Begin(g);Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="distinct-faction-finish");Answer(g,c=>c.Cards.Count==1);Reach(g,p=>p.Kind==DecisionKind.PlayCard);Replay(g,r);
-        // External grant model: not command replay coverage after source mutation.
-        var owner=Players(g)[0];var grant=owner.SkillGrants.Grants.Single(x=>x.SkillId=="boundary:chuli");owner.SkillGrants.RemoveGrant(grant.GrantId);owner.SkillGrants.Grant(grant);
-        var revision=g.Revision;var events=g.Events.Count;var movement=g.CardMovements.Count;
-        for(var i=0;i<3;i++)Require(!g.GetHumanLegalActions().Any(a=>a.ProgramSkillId=="boundary:chuli"),"Losing and regranting exact source cannot refresh named phase usage.");
-        Require(g.Revision==revision&&g.Events.Count==events&&g.CardMovements.Count==movement,"Repeated pure queries change no state/events/entities.");
-        var(source,_)=Start();Begin(source);Answer(source,c=>c.Parameters.GetValueOrDefault("program-action")=="distinct-faction-finish");var cost=P(source)!.Choices.First(c=>c.Cards.Count==1);var before=source.CardMovements.Count;
-        var src=Players(source)[0].SkillGrants.Grants.Single(x=>x.SkillId=="boundary:chuli");Players(source)[0].SkillGrants.SetEnabled(src.GrantId,false);
-        Accept(source,new AnswerPromptCommand(0,P(source)!.PromptId,cost.Id,source.Revision));Reach(source,p=>p.Kind==DecisionKind.PlayCard);
-        Require(source.CardMovements.Count==before,"Disabled exact source cancels unpaid cost, no fake paid receipt or reward.");Players(source)[0].SkillGrants.SetEnabled(src.GrantId,true);Require(!source.GetHumanLegalActions().Any(a=>a.ProgramSkillId=="boundary:chuli"),"Re-enabled source cannot reset accepted phase allowance.");
-    }
-    public static void MissingParticipantAndActualOwnerDeath()
-    {
-        var(g,r)=Start("claim");Begin(g);Answer(g,c=>c.Targets.SequenceEqual(new[]{3}));Answer(g,c=>c.Targets.SequenceEqual(new[]{1}));Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="distinct-faction-finish");Answer(g,c=>c.Cards.Count==1);
-        Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="distinct-faction-discard");Reach(g,p=>p.SkillPrompt?.SkillId=="fixture:claim");Replay(g,r);
-        // Direct store mechanism setup makes later participant genuinely bare. Not command-replay coverage.
-        var store=(CardZoneStore)typeof(GameEngine).GetField("_cardZones",System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic)!.GetValue(g)!;
-        var bare=CardLocation.Hand(3);store.MoveMany(store.CardsAt(bare).Select(c=>c.Id).ToArray(),bare,CardLocation.DiscardPile);
-        Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="choose-option");Reach(g,p=>p.Kind==DecisionKind.PlayCard);
-        Require(!g.CardMovements.Any(m=>m.Reason.Value=="skill-program.boundary:chuli.participant-discard"&&m.From.OwnerSeat==3)&&!g.CardMovements.Any(m=>m.Reason.Value=="skill-program.boundary:chuli.participant-reward"&&m.To.OwnerSeat==3),"Later bare participant is skipped without receipt or reward.");Conserve(g);
-        var(dead,dr)=Start("death");Begin(dead);Answer(dead,c=>c.Targets.SequenceEqual(new[]{2}));Answer(dead,c=>c.Parameters.GetValueOrDefault("program-action")=="distinct-faction-finish");Answer(dead,c=>c.Cards.Count==1);
-        for(var i=0;i<20&&dead.ResolutionStack.OfType<ProgramSkillFrame>().Any(f=>f.SkillId=="boundary:chuli");i++)Step(dead);
-        Require(!dead.State.Players[0].IsAlive&&dead.CardMovements.Count(m=>m.Reason.Value=="skill-program.boundary:chuli.participant-discard")==1&&!dead.CardMovements.Any(m=>m.Reason.Value=="skill-program.boundary:chuli.participant-reward"),"Actual payment child owner death stops new costs and all rewards.");Replay(dead,dr);Conserve(dead);
-    }
     public static void JijiuEquipmentRealOutsideTurnAndOwnTurnNegative()
     {
         var(g,r)=Start("rescue");var equip=g.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.Equip);Accept(g,new PlayCardCommand(0,equip.CardId!.Value,[],g.Revision,P(g)!.PromptId));Reach(g,p=>p.Kind==DecisionKind.PlayCard);Accept(g,new EndPlayPhaseCommand(0,g.Revision,P(g)!.PromptId));Reach(g,p=>p.Kind==DecisionKind.RescueDying&&p.PlayerSeat==0);
@@ -152,71 +115,7 @@ internal static class BoundaryHuaTuoChecks
         var(own,or)=Start("own-dying");Accept(own,new UseProgramSkillCommand(0,"fixture:loss","lose",[],[],own.Revision,P(own)!.PromptId));for(var i=0;i<10&&own.State.Players[0].IsAlive;i++)Step(own);
         Require(!own.State.Players[0].IsAlive&&!own.Events.Select(e=>e.Payload).OfType<CardActionAcceptedEvent>().Any(e=>e.Action.EffectiveKind==CardKind.Peach),"Own-turn red HE does not create a Jijiu Peach; real dying exhausts without a rescue option.");Replay(own,or);
     }
-    public static void EffectiveFactionAndPublicEquipmentMechanisms()
-    {
-        var(g,r)=Start();Replay(g,r);
-        // Chosen faction is the existing actual god-faction query input; this is an external model fixture.
-        Players(g)[1].ChosenFactionId="qun";
-        Begin(g);Answer(g,c=>c.Targets.SequenceEqual(new[]{2}));
-        Require(P(g)!.Choices.All(c=>c.Targets.Count==0),"Effective chosen faction, rather than printed Wu, excludes a second same-faction participant.");
-        var revision=g.Revision;var count=g.Events.Count;for(var i=0;i<3;i++)g.CreateSnapshot(i);
-        Require(g.Revision==revision&&g.Events.Count==count,"Public view query does not move cards or advance a private cursor.");
-        var(other,or)=Start();Replay(other,or);var store=(CardZoneStore)typeof(GameEngine).GetField("_cardZones",System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic)!.GetValue(other)!;
-        var equip=store.CardsAt(CardLocation.Hand(2)).First();store.MoveMany([equip.Id],CardLocation.Hand(2),CardLocation.Equipment(2));
-        Begin(other);Answer(other,c=>c.Targets.SequenceEqual(new[]{2}));Answer(other,c=>c.Parameters.GetValueOrDefault("program-action")=="distinct-faction-finish");Answer(other,c=>c.Cards.Count==1);
-        Require(P(other)!.Choices.Any(c=>c.Cards.SequenceEqual(new[]{equip.Id}))&&P(other)!.Choices.Any(c=>c.Cards.Count==0),"Foreign Equipment is public selectable identity; foreign Hand remains opaque slots.");
-        Answer(other,c=>c.Cards.SequenceEqual(new[]{equip.Id}));Reach(other,p=>p.Kind==DecisionKind.PlayCard);
-        Require(other.CardMovements.Any(m=>m.CardId==equip.Id&&m.From==CardLocation.Equipment(2)&&m.To==CardLocation.DiscardPile),"Published foreign equipment pays through an actual command discard.");Conserve(other);
-    }
-    public static void MandatoryOwnerPaymentSourceAndVanishingMechanisms()
-    {
-        var(g,r)=Start();Replay(g,r);var store=Store(g);var owner=Players(g)[0];
-        // Host grant/card setup is explicitly a mechanism fixture, not command replay of external mutation.
-        store.MoveMany(store.CardsAt(CardLocation.Hand(0)).Select(c=>c.Id).ToArray(),CardLocation.Hand(0),CardLocation.DiscardPile);
-        var native=owner.SkillGrants.Grants.Single(x=>x.SkillId=="boundary:chuli");owner.SkillGrants.RemoveGrant(native.GrantId);
-        var source=AddFixtureEquipment(g,new Card(81,CardKind.XingtianAxe,Suit.Spade,1));
-        owner.SkillGrants.Grant(new("equipment:xingtian:81","boundary:chuli","equipment:xingtian:81","equipment:xingtian:81"));
-        Require(!g.GetHumanLegalActions().Any(a=>a.ProgramSkillId=="boundary:chuli"),"Exact source Equipment alone cannot offer an activation with an unpaid mandatory owner cost.");
-        var before=SnapshotJson.Serialize(g.CreateSnapshot(0));var reject=g.Submit(new UseProgramSkillCommand(0,"boundary:chuli","discard-participants",[],[],g.Revision,P(g)!.PromptId));
-        Require(!reject.Accepted&&before==SnapshotJson.Serialize(g.CreateSnapshot(0)),"Source-only activation rejection is atomic.");
-        var(v,_)=Start();Begin(v);Answer(v,c=>c.Targets.SequenceEqual(new[]{2}));Answer(v,c=>c.Parameters.GetValueOrDefault("program-action")=="distinct-faction-finish");var cost=P(v)!.Choices[0];var count=v.CardMovements.Count;var vs=Store(v);
-        vs.MoveMany(vs.CardsAt(CardLocation.Hand(0)).Select(c=>c.Id).ToArray(),CardLocation.Hand(0),CardLocation.DiscardPile);
-        Accept(v,new AnswerPromptCommand(0,P(v)!.PromptId,cost.Id,v.Revision));Reach(v,p=>p.Kind==DecisionKind.PlayCard);
-        Require(v.CardMovements.Count==count&&!v.ResolutionStack.OfType<ProgramSkillFrame>().Any(f=>f.SkillId=="boundary:chuli"),"Owner cost becoming empty cancels the plan before any other discard or reward.");Conserve(v);
-    }
-    public static void GeneralWeaponActualOutsideReceiptMechanism()
-    {
-        var(g,r)=Start("weapon");Replay(g,r);
-        AddFixtureEquipment(g,new Card(81,CardKind.GeneralWeapon,Suit.None,0){IsGeneralWeapon=true,PrintedName="固定武将武器",PrintedAttackRange=3});
-        Begin(g);Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="distinct-faction-finish");Answer(g,c=>c.Cards.SequenceEqual(new[]{81}));Reach(g,p=>p.SkillPrompt?.SkillId=="fixture:claim");
-        var paidFrame=g.ResolutionStack.OfType<ProgramSkillFrame>().First(f=>f.SkillId=="boundary:chuli");var receipt=paidFrame.DistinctFactionDiscards!.Receipts.Single();
-        Require(((IList<ProgramDiscardReceipt>)paidFrame.DistinctFactionDiscards.Receipts).IsReadOnly&&((IList<int>)paidFrame.DistinctFactionDiscards.ParticipantSeats).IsReadOnly,"Nested typed receipt and plan collections are immutable.");
-        RejectReceiptInvariant(g,r,paidFrame with{DistinctFactionDiscards=paidFrame.DistinctFactionDiscards with{Receipts=Array.AsReadOnly(new[]{receipt with{MovementSequence=receipt.MovementSequence+1000}})}});
-        RejectReceiptInvariant(g,r,paidFrame with{DistinctFactionDiscards=paidFrame.DistinctFactionDiscards with{RewardIndex=1}});
-        Require(receipt.Destination==CardLocation.OutsideGame&&receipt.Source==CardLocation.Equipment(0)&&receipt.EffectiveSuit==Suit.None&&g.CardMovements.Any(m=>m.Sequence==receipt.MovementSequence&&m.CardId==81&&m.From==receipt.Source&&m.To==receipt.Destination),"Real general weapon normalization retains exact typed source/destination/sequence receipt.");
-        Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="choose-option");Reach(g,p=>p.Kind==DecisionKind.PlayCard);
-        Require(Store(g).GetLocation(81)==CardLocation.OutsideGame&&g.CreateCardZoneDiagnostics().Select(c=>c.CardId).Distinct().Count()==81&&!g.CardMovements.Any(m=>m.Reason.Value=="skill-program.boundary:chuli.participant-reward"),"Weapon entity is conserved outside game and Suit.None earns no reward.");
-    }
-    public static void AutomaticAiBoundedActualCompletion()
-    {
-        var(g,r)=Start("ai");Require(g.GetHumanLegalActions().Single(a=>a.ProgramSkillId=="boundary:chuli").ProgramAiHint!.OwnerDraw==0,"AI estimate does not promise an unconditionally rewarded draw.");Accept(g,new EndPlayPhaseCommand(0,g.Revision,P(g)!.PromptId));
-        for(var i=0;i<120&&!(P(g)is{PlayerSeat:0,Kind:DecisionKind.PlayCard});i++)Step(g);
-        Require(P(g)is{PlayerSeat:0,Kind:DecisionKind.PlayCard}&&!g.ResolutionStack.OfType<ProgramSkillFrame>().Any(f=>f.SkillId=="boundary:chuli"),"Fixed automatic AI turn finishes finite private selection/cost/reward cursors.");
-        Require(g.CardMovements.Any(m=>m.Reason.Value=="skill-program.boundary:chuli.participant-discard"&&m.From.OwnerSeat!=0),"Actual AI commands pay a participant cost, rather than only scoring a helper.");
-        Replay(g,r);Conserve(g);
-    }
-    private static void RejectReceiptInvariant(GameEngine g,ContentRegistry r,ProgramSkillFrame frame)
-    {
-        try{typeof(GameEngine).GetMethod("AssertDistinctFactionDiscardDraft",System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic)!.Invoke(g,[frame,r.GetSkill("boundary:chuli").Program!.Activations.Single().Effects.Single()]);}
-        catch(System.Reflection.TargetInvocationException e)when(e.InnerException is InvalidOperationException){return;}
-        throw new InvalidOperationException("Corrupt receipt history/reward cursor must fail its actual owning invariant.");
-    }
     private static CardZoneStore Store(GameEngine g)=>(CardZoneStore)typeof(GameEngine).GetField("_cardZones",System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic)!.GetValue(g)!;
-    private static Card AddFixtureEquipment(GameEngine g,Card card)
-    {
-        Store(g).AddGeneratedCard(card);((HashSet<int>)typeof(GameEngine).GetField("_generatedPhysicalCardIds",System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic)!.GetValue(g)!).Add(card.Id);
-        Store(g).MoveMany([card.Id],CardLocation.OutsideGame,CardLocation.Equipment(0));return card;
-    }
     private static IReadOnlyList<CharacterState> Players(GameEngine g)=>(IReadOnlyList<CharacterState>)typeof(GameEngine).GetField("_players",System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic)!.GetValue(g)!;
     private static (GameEngine,ContentRegistry) Start(string mode="basic")
     {

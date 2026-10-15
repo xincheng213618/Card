@@ -82,15 +82,15 @@ internal static class DamageZoneAndAdjacentTargetContract
     {
         if (!t.Effects.Any(e => e.Op is SkillProgramEffectOp.ObtainEachDamageTargetZoneThenSelfOnly or SkillProgramEffectOp.JoinAdjacentRedCardTarget)) return;
         if (t.Effects is not [var e] || e.Target != SkillProgramEffectTarget.Owner || e.Condition.Kind != SkillProgramConditionKind.Always ||
-            t.Optional || t.Subject != SkillProgramTriggerSubject.Any || t.Condition.Kind != SkillProgramTriggerConditionKind.Always ||
+            t.Optional || t.Condition.Kind != SkillProgramTriggerConditionKind.Always ||
             t.UsageScope is not null || t.UsageLimit is not null || t.IncludeResponseUses || t.OnlyDesignatedCardTargets || t.SingleActionInstance ||
             t.AllowNoEventTarget || t.MarkerCost is not null || t.ChoiceGroup is not null || t.CardKinds.Count != 0 || t.CardCategories.Count != 0 ||
             t.SourceSkillId is not null || t.SourceViewAsId is not null || t.RequireDamageSource is not null || t.RequireNoCardConversion is not null ||
             (e.Op == SkillProgramEffectOp.ObtainEachDamageTargetZoneThenSelfOnly
                 ? t.Window != SkillProgramTriggerWindow.AfterDamageApplied || t.DamageOccurrence != SkillProgramDamageOccurrence.PerDamage ||
-                    t.TurnOwnerScope != SkillProgramTurnOwnerScope.Own || t.OwnerRelation is not null
+                    t.TurnOwnerScope != SkillProgramTurnOwnerScope.Own || t.Subject != SkillProgramTriggerSubject.Any || t.OwnerRelation is not null
                 : e.Op != SkillProgramEffectOp.JoinAdjacentRedCardTarget || t.Window != SkillProgramTriggerWindow.CardUseTargetsFinalized ||
-                    t.OwnerRelation != SkillProgramCardActionOwnerRelation.Observer || t.TurnOwnerScope != SkillProgramTurnOwnerScope.AnyLiving))
+                    t.OwnerRelation != SkillProgramCardActionOwnerRelation.Observer || t.Subject is not null || t.TurnOwnerScope != SkillProgramTurnOwnerScope.Own))
             throw new InvalidOperationException($"{path}: damage-zone acquisition or adjacent red targeting requires its exact mandatory native boundary.");
     }
 }

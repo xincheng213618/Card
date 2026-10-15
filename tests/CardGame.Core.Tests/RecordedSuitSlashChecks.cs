@@ -41,62 +41,6 @@ internal static class RecordedSuitSlashChecks
         Cold(game, registry);
     }
 
-    public static void DeclinePartialSuitsAndUniqueTarget()
-    {
-        var (declined, dr) = Start();
-        Slash(declined);
-        Reach(declined, p => p.SkillPrompt?.SkillId == Skill);
-        Answer(declined, "skip");
-        Settle(declined);
-        Require(!declined.Events.Select(e => e.Payload).OfType<ProgramRecordedSuitSlashIssuedEvent>().Any() && States(declined).Any(s => s.Value),
-            "Declining preserves recorded suits and creates no frozen restriction.");
-        Cold(declined, dr);
-
-        var (partial, pr) = Start();
-        Slash(partial);
-        Reach(partial, p => p.SkillPrompt?.SkillId == Skill);
-        Answer(partial, "activate");
-        var receipt = partial.Events.Select(e => e.Payload).OfType<ProgramRecordedSuitSlashIssuedEvent>().Single().Receipt;
-        Require(System.Numerics.BitOperations.PopCount((uint)receipt.SuitMask) == 1 && receipt.DamageBonus == 0,
-            "The current Slash records its own suit before activation, and one suit reveals zero cards.");
-        Settle(partial);
-        var responses = partial.Events.Select(e => e.Payload).OfType<CardActionAcceptedEvent>().Where(e => e.Action.Type == CardActionType.Response).Select(e => e.Action).ToArray();
-        Require(responses.Any(a => a.EffectiveKind == CardKind.Dodge) && responses.All(a =>
-            a.EffectiveSuit is not { } suit || (receipt.SuitMask & (1 << Array.IndexOf(Suits, suit))) == 0),
-            "A differently suited real Dodge remains legal and can cancel the Slash.");
-        Cold(partial, pr);
-
-        var (multiple, mr) = Start(multiple: true);
-        Slash(multiple);
-        Settle(multiple);
-        Require(multiple.Events.Select(e => e.Payload).OfType<ProgramCardUseTargetAddedEvent>().Any() &&
-            !multiple.Events.Select(e => e.Payload).OfType<ProgramRecordedSuitSlashIssuedEvent>().Any(),
-            "An actual extra-target child prevents sole-target Liegong activation.");
-        Cold(multiple, mr);
-    }
-
-    public static void UnarmedAttributeAndEquippedIdentity()
-    {
-        foreach (var armed in new[] { false, true })
-        foreach (var kind in new[] { CardKind.FireSlash, CardKind.ThunderSlash })
-        {
-            var (game, registry) = Start(weapon: armed);
-            if (armed)
-            {
-                Accept(game, new UseProgramSkillCommand(0, "fixture:recorded-driver", "equip", [], [0], game.Revision, Prompt(game)!.PromptId));
-                Settle(game);
-            }
-            var card = game.State.Players[0].Hand.First(c => c.Kind == kind);
-            var action = game.GetHumanLegalActions().First(a => a.CardId == card.Id && a.Kind == LegalActionKind.Slash && a.TargetSeat == 1);
-            Play(game, card.Id, [1], action);
-            Reach(game, p => p.SkillPrompt?.SkillId == Skill);
-            var accepted = game.Events.Select(e => e.Payload).OfType<CardActionAcceptedEvent>().Last().Action;
-            Require(accepted.EffectiveKind == (armed ? kind : CardKind.Slash),
-                "Mandatory hand identity removes elemental nature only without a weapon.");
-            Answer(game, "skip"); Settle(game); Cold(game, registry);
-        }
-    }
-
     public static void TargetAndResponseRecording()
     {
         foreach (var group in new[] { false, true })

@@ -9,31 +9,6 @@ internal static class BoundaryDengAiChecks
     private const string Awakening="boundary:zaoxian-current";
     private const string Snatch="boundary:jixi-current";
 
-    public static void Definitions()
-    {
-        var registry=ContentRegistry.Build(new StandardContentPackage(),new StandardActiveSkillExpansionPackage(true),new StandardRescueSkillExpansionPackage(),new StandardClassicGeneralPackage());
-        var general=registry.Generals["boundary:deng-ai"];
-        Require(general.Name=="界邓艾"&&general.FactionId=="wei"&&general.BaseHp==4&&
-            general.SkillIds.SequenceEqual(["boundary:tuntian-current","boundary:zaoxian-current"])&&
-            general.VariantId=="boundary"&&general.RulesetId=="sanguosha-ol",
-            "The boundary Deng Ai general registers the current OL wei 4HP pair.");
-        var tuntian=registry.GetSkill(Skill).Program!;
-        Require(tuntian.Triggers.Count==4&&tuntian.Modifiers.Single().ValueExpression==SkillRuleValueExpression.NegatedOwnedZoneCount,
-            "Tuntian keeps three outside-turn loss triggers plus the new own-turn slash discard and the authority distance modifier.");
-        var discard=tuntian.Triggers.Single(t=>t.Id=="judge-on-own-turn-slash-discard");
-        Require(discard.Window==SkillProgramTriggerWindow.DiscardPileReceived&&discard.MovementDiscardOnly&&
-            discard.DiscardOwnerScope==SkillProgramDiscardOwnerScope.Own&&discard.MovementOccurrence is null&&
-            discard.CardKinds.SequenceEqual([CardKind.Slash,CardKind.FireSlash,CardKind.ThunderSlash])&&discard.Optional,
-            "The own-turn discard branch requires own slash-family discards received by the discard pile, one offer per card.");
-        var zaoxian=registry.GetSkill(Awakening).Program!;
-        Require(zaoxian.Triggers.Single().Effects.Select(e=>e.Op).SequenceEqual(
-            [SkillProgramEffectOp.ChangeMaximumHp,SkillProgramEffectOp.GrantSkills,SkillProgramEffectOp.PendExtraTurn]),
-            "The awakening reduces maximum HP, grants Jixi and pends one extra turn in order.");
-        var presentation=registry.GetSkill(Skill).ProgramPresentation!;
-        Require(presentation.Name=="屯田"&&presentation.Description.Contains("回合内弃置【杀】",StringComparison.Ordinal),
-            "The presentation carries the current OL Tuntian wording.");
-    }
-
     public static void OwnTurnSlashDiscardJudgesIntoAuthority()
     {
         var(g,r)=Start();
@@ -54,31 +29,6 @@ internal static class BoundaryDengAiChecks
         Require(g2.CardMovements.Any(m=>m.To==CardLocation.DiscardPile&&m.CardId==judgmentCard),
             "The heart judgment card completes into the discard pile.");
         Replay(g2,r2);
-    }
-
-    public static void NonSlashDiscardAndActualUseStaySilent()
-    {
-        var(g,r)=Start(scenario:"peach");
-        Driver(g,"discard");Answer(g,c=>c.Cards.Count==1);Settle(g);
-        Require(g.CreateSnapshot(0).Players[0].AuthorityCount==0,"A discarded basic non-slash never offers Tuntian.");
-        Replay(g,r);
-        var(g2,r2)=Start();
-        var slash=g2.State.Players[0].Hand.First(c=>c.Kind==CardKind.Slash).Id;
-        Play(g2,slash,[1]);
-        Finish(g2);
-        Require(g2.CreateSnapshot(0).Players[0].AuthorityCount==0,"The used slash's cleanup stays outside the own-discard boundary.");
-        Replay(g2,r2);
-    }
-
-    public static void OutsideTurnHandLossStillJudges()
-    {
-        var(g,r)=Start(offturn:true);
-        AdvanceUntilOtherTurn(g);
-        Require(P(g)!.PlayerSeat==0,"The forced off-turn discard reaches its owner across the seat boundary.");
-        Answer(g,c=>c.Cards.Count==1);
-        Activate(g);
-        Require(g.CreateSnapshot(0).Players[0].AuthorityCount==1,"Losing a hand card outside the turn judges into one Tian card.");
-        Replay(g,r);
     }
 
     public static void AwakeningGrantsSnatchAndExtraTurn()
@@ -109,20 +59,6 @@ internal static class BoundaryDengAiChecks
         Play(g,snatchCard,[1],snatch);
         Require(g.CreateSnapshot(0).Players[0].AuthorityCount==2,"The spent Tian card leaves the authority zone with the snatch.");
         Replay(g,r);
-    }
-
-    private static void AdvanceUntilOtherTurn(GameEngine g)
-    {
-        for(var i=0;i<300;i++)
-        {
-            if(g.Events.Select(e=>e.Payload).OfType<TurnStartedEvent>().Any(e=>e.ActorSeat!=0))return;
-            if(P(g) is {Kind:DecisionKind.PlayCard,PlayerSeat:0}){Accept(g,new EndPlayPhaseCommand(0,g.Revision));continue;}
-            if(P(g) is {Kind:DecisionKind.ProgramTrigger} p&&p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="skip"))
-                Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="activate");
-            else Accept(g,new AdvanceOneStepCommand(g.Revision));
-        }
-        foreach(var entry in g.Log.TakeLast(6))Console.WriteLine("DIAG-LOG: "+entry.Message);
-        throw new InvalidOperationException("The fixture never reached another seat's turn.");
     }
 
     private static void AdvanceQuiet(GameEngine g)

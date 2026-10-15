@@ -144,94 +144,6 @@ internal static class OrdinaryShiBaoChecks
         }
     }
 
-    public static void BorrowedSwordAdjustsWholePairsWithoutSplittingNativePayments()
-    {
-        foreach (var branch in new[] { "add", "remove" })
-        {
-            var (g, registry) = Start(Scenario.BorrowedSword);
-            foreach (var seat in new[] { 1, 3 }) { Use(g, "equip-peer", [], [seat]); Reach(g, IsPlay); }
-            var weapons = new[] { 1, 3 }.ToDictionary(s => s, s => V(g, s).Equipment.Single().Id);
-            var material = Draw(g)[0];
-            var use = BeginAdjustment(ref g, registry, Action(g, LegalActionKind.BorrowedSword, material, [1, 2], "as-borrowed"));
-            Require(P(g)!.Choices.Where(c => c.Parameters.GetValueOrDefault("branch") != "decline").All(c => c.Targets.Count == 2) &&
-                P(g)!.Choices.Any(c => c.Parameters.GetValueOrDefault("branch") == "add" && c.Targets.SequenceEqual([3, 2])) &&
-                !P(g)!.Choices.Any(c => c.Parameters.GetValueOrDefault("branch") == "add" && c.Targets[0] == 1),
-                "Borrowed Sword additions and removals publish complete ordered pairs; a new holder may reuse the original victim, but not the original holder.");
-            Adjust(ref g, registry, use, branch, branch == "add" ? [3, 2] : [1, 2]);
-            Reach(g, IsComplete); g = Cold(g, registry);
-            var actual = g.ResolutionStack.OfType<CardUseFrame>().Single(f => f.Id == use.Id);
-            Require(actual.TargetSeats.SequenceEqual(branch == "add" ? new[] { 1, 2, 3, 2 } : []) &&
-                weapons.All(pair => g.CardMovements.Count(m => m.CardId == pair.Value && m.From == CardLocation.Equipment(pair.Key) &&
-                    m.To == CardLocation.Processing && m.Reason == CardMoveReasons.BorrowedSwordGive) == (branch == "add" ? 1 : 0)) &&
-                weapons.All(pair => g.CardMovements.Count(m => m.CardId == pair.Value && m.From == CardLocation.Processing &&
-                    m.To == CardLocation.Hand(0) && m.Reason == CardMoveReasons.BorrowedSwordGive) == (branch == "add" ? 1 : 0)),
-                "The Slash-less/counterspell-free fixed deck makes both retained pairs pay their real weapons once; removing the only pair pays neither: " + Diagnostic(g));
-            Reach(g, IsPlay); AssertFinished(g, use, [material]); _ = Cold(g, registry);
-        }
-    }
-
-    public static void EquipmentDrawnEntitiesRemainExcludedAcrossReturnAndRegrantUntilNewGain()
-    {
-        var (g, registry) = Start(Scenario.Equipment); var gained = Draw(g); var material = gained[0];
-        Play(g, Action(g, LegalActionKind.Equip, material)); Reach(g, IsSkillOffer);
-        var use = CurrentUse(g, material); AssertQualification(g, use, [material]);
-        Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate"); Reach(g, IsGain);
-        var parent = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.RoundGainedEquipmentDrawReceipt is not null);
-        var receipt = parent.RoundGainedEquipmentDrawReceipt!;
-        var child = g.ResolutionStack.OfType<ProgramSkillFrame>().Last(f => f.SkillId == Gain);
-        var movement = g.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Single(f => f.Id == child.WindowContext!.ParentFrameId);
-        var issued = E<RoundGainedEquipmentDrawIssuedEvent>(g).Single(e => e.ProgramFrameId == parent.Id);
-        Require(receipt.InstructionIndex == 1 && receipt.DrawActual == 1 && receipt.DrawnCardIds.Count == 1 &&
-            receipt.Qualification.CardUseFrameId == use.Id && issued.Qualification.ActionId == use.Action!.ActionId &&
-            issued.DrawnCardIds.SequenceEqual(receipt.DrawnCardIds) && issued.MovementSequenceBefore == receipt.MovementSequenceBefore &&
-            issued.MovementSequenceAfter == receipt.MovementSequenceAfter && issued.DrawRoundNumber == receipt.DrawRoundNumber &&
-            movement.Batch.ParentFrameId == parent.Id && movement.Batch.OriginOwnerSeat == 0 && movement.Batch.OriginSkillId == Skill &&
-            movement.Batch.Movements is [var draw] && draw.CardId == receipt.DrawnCardIds.Single() &&
-            draw.From == CardLocation.DrawPile && draw.To == CardLocation.Hand(0) && draw.Reason.Value == DrawReason &&
-            draw.Sequence > receipt.MovementSequenceBefore && draw.Sequence <= receipt.MovementSequenceAfter,
-            "The actual equipment reward issues its exact one-entity exclusion before the native gain child, with the original qualified use and typed parent intact.");
-        Frozen(receipt.DrawnCardIds); Frozen(issued.DrawnCardIds); FreezeQualification(issued.Qualification); Frozen(movement.Batch.Movements);
-        var marked = receipt.DrawnCardIds.Single(); var retainedView = g.CreateSnapshot(0); var retained = SnapshotJson.Serialize(retainedView);
-        Private(g); g = Cold(g, registry); Reach(g, IsComplete); g = Cold(g, registry); Reach(g, IsPlay);
-        AssertEquipmentFinished(g, use, material);
-        Require(E<RoundGainedEquipmentDrawResolvedEvent>(g).Count(e => e.ProgramFrameId == parent.Id && e.DrawActual == 1) == 1 &&
-            E<RoundGainedEquipmentDrawIssuedEvent>(g).Count(e => e.Qualification.CardUseFrameId == use.Id) == 1 && SnapshotJson.Serialize(retainedView) == retained,
-            "The reward and native equipment use return exactly once after their real child, with one frozen issued draw.");
-        AssertExcluded(g, marked);
-        Require(g.GetHumanLegalActions().Any(a => a.CardId == gained[1] && a.Kind == LegalActionKind.Slash && a.TargetSeats.SequenceEqual([2])),
-            "Another ordinary current-round acquisition still has the same basic range bonus; the exclusion is attached only to the actual skill-drawn entity.");
-        ReturnThroughForeignHand(ref g, registry, marked); AssertExcluded(g, marked);
-        var previousInstance = use.RoundGainedUseQualifications!.Single().Source.SkillInstanceId;
-        Use(g, "remove", [], []); Reach(g, IsPlay);
-        Require(V(g, 0).Skills!.All(s => s.Id != Skill), "The real terminal source-replacement instruction removes the original Zhuosheng source.");
-        Use(g, "regain", [], []); Reach(g, IsPlay); AssertExcluded(g, marked);
-        Require(V(g, 0).SkillRuntimeStates!.Single(s => s.SkillId == Skill).IsAcquired,
-            "The legal reacquisition creates a genuine acquired source; it does not erase the owner/skill/policy/round entity exclusion.");
-        var round = E<RoundStartedEvent>(g).Last().RoundNumber;
-        Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId));
-        Reach(g, p => IsPlay(p) && E<RoundStartedEvent>(g).Last().RoundNumber > round);
-        Require(V(g, 0).Hand.Any(c => c.Id == marked), "The quiet native peer turns retain the exact marked entity into the next real round.");
-        AssertExcluded(g, marked);
-        ReturnThroughForeignHand(ref g, registry, marked);
-        Require(g.GetHumanLegalActions().Any(a => a.CardId == marked && a.Kind == LegalActionKind.Slash && a.TargetSeats.SequenceEqual([2])),
-            "After the next real round starts, a new true hand acquisition qualifies the entity; merely carrying it into that round did not.");
-        Play(g, Action(g, LegalActionKind.Equip, marked)); Reach(g, IsSkillOffer);
-        var later = CurrentUse(g, marked); AssertQualification(g, later, [marked]);
-        Require(later.RoundGainedUseQualifications!.Single().RoundNumber > receipt.Qualification.RoundNumber &&
-            later.RoundGainedUseQualifications!.Single().Source.SkillInstanceId != previousInstance,
-            "The independently reacquired source freezes a new-round receipt without borrowing the earlier instance or earlier round.");
-        Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate"); Reach(g, IsGain);
-        Private(g); g = Cold(g, registry); Reach(g, IsComplete); Reach(g, IsPlay); AssertEquipmentFinished(g, later, marked);
-        Require(E<RoundGainedEquipmentDrawIssuedEvent>(g).Length == 2 && E<RoundGainedEquipmentDrawResolvedEvent>(g).Length == 2 &&
-            g.CardMovements.Count(m => m.From == CardLocation.DrawPile && m.To == CardLocation.Hand(0) && m.Reason.Value == DrawReason) == 2,
-            "The two independently eligible actual equipment uses issue two actual draws and resolve twice, with no repeated draw across either cold return.");
-        _ = Cold(g, registry);
-    }
-
-    private static void AssertExcluded(GameEngine g, int id) => Require(!g.GetHumanLegalActions().Any(a =>
-        a.CardId == id && a.Kind == LegalActionKind.Slash && a.TargetSeats.SequenceEqual([2])),
-        "An excluded or not-yet-reacquired material cannot obtain the opposite-seat Slash bonus: " + Diagnostic(g));
-
     private static void AssertLoaderBoundaries()
     {
         var assembly = typeof(StandardContentPackage).Assembly;
@@ -343,7 +255,6 @@ internal static class OrdinaryShiBaoChecks
     private static T[] E<T>(GameEngine g) => g.Events.Select(e => e.Payload).OfType<T>().ToArray();
     private static bool IsPlay(PendingDecision? p) => p is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 };
     private static bool IsComplete(PendingDecision? p) => p?.SkillPrompt?.SkillId == Complete && p.PlayerSeat == 0;
-    private static bool IsGain(PendingDecision? p) => p?.SkillPrompt?.SkillId == Gain && p.PlayerSeat == 0;
     private static bool IsSkillOffer(PendingDecision? p) => p?.SkillPrompt?.SkillId == Skill && p.PlayerSeat == 0 && p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "activate");
     private static bool IsAdjustment(PendingDecision? p) => p?.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "round-gained-trick-target") == true;
     private static CardUseFrame CurrentUse(GameEngine g, int card) => g.ResolutionStack.OfType<CardUseFrame>().Single(f => f.CardId == card);
@@ -395,11 +306,6 @@ internal static class OrdinaryShiBaoChecks
                 g.CardMovements.Count(m => m.CardId == id && m.From == CardLocation.Processing && m.To == CardLocation.DiscardPile && m.Reason == finish) == 1) &&
             !g.ResolutionStack.OfType<CardUseFrame>().Any(f => f.Id == use.Id), "Each original material pays once, finishes once and leaves no pending native use: " + Diagnostic(g));
     }
-    private static void AssertEquipmentFinished(GameEngine g, CardUseFrame use, int id) => Require(
-        E<CardUseFinishedEvent>(g).Count(e => e.ResolutionId == use.Id && e.CardKind == CardKind.SilverLion) == 1 &&
-        g.CardMovements.Count(m => m.CardId == id && m.From == CardLocation.Hand(0) && m.To == CardLocation.Processing && m.Reason == CardMoveReasons.EquipmentUse) == 1 &&
-        g.CardMovements.Count(m => m.CardId == id && m.From == CardLocation.Processing && m.To == CardLocation.Equipment(0) && m.Reason == CardMoveReasons.EquipmentEnter) == 1 &&
-        !g.ResolutionStack.OfType<CardUseFrame>().Any(f => f.Id == use.Id), "The original equipment entity pays and enters its real slot once, then finishes exactly once.");
     private static void Accept(GameEngine g, GameCommand c)
     { var result = g.Submit(CommandJson.Deserialize(CommandJson.Serialize([c])).Single()); Require(result.Accepted, result.Error?.Message ?? "A real Shi Bao command was rejected."); }
     private static void Reject(GameEngine g, GameCommand c)

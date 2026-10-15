@@ -205,6 +205,7 @@ public sealed partial class GameEngine
             SkillPrompt = new(f.SkillId, skill.Name, skill.Name, skill.Description) };
         _status = _players[f.OwnerSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
+    [ProgramAnswer("actual-hand-gain-category")]
     private void ResolveActualHandGainChoice(PromptChoice choice)
     {
         var f = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("Category gift has no owning frame.");
@@ -288,6 +289,7 @@ public sealed partial class GameEngine
     private bool IsActualHandGainMovement(ProgramSkillFrame f, SkillProgramEffect? e, ProgramMovementContinuation p) =>
         f.ActualHandGain is { Stage: ActualHandGainProgramStage.MovementChildren, Issued: true } r && r.InstructionIndex == f.InstructionIndex &&
         e?.Op == r.Operation && e == ActualHandGainPausedEffect(f) && p.SubjectSeat == f.OwnerSeat && p.BeforeCount == 0 && p.CoverageResultBind is null;
+    [ProgramAiChoice(SkillProgramEffectOp.GiveSameCategoryFromDeck)]
     private PromptChoice SelectAiActualHandGain(PendingDecision decision, ProgramSkillFrame f)
     {
         var view = CreateSnapshot(f.OwnerSeat); var hint = new SkillProgramAiHint(0, 0, 0, 1, 0, 0, true, false);

@@ -86,6 +86,7 @@ public sealed partial class GameEngine
             new PromptChoice(new($"adjacent-red.{f.Id}.victim-{p.Seat}"), $"额外令你对 {p.Name} 使用杀", [], [f.OwnerSeat, p.Seat],
                 new Dictionary<string, string> { ["program-action"] = "adjacent-red-target", ["frame-id"] = f.Id.ToString(CultureInfo.InvariantCulture),
                     ["card-use-id"] = use.Id.ToString(CultureInfo.InvariantCulture), ["action-id"] = use.Action!.ActionId.ToString(CultureInfo.InvariantCulture) }))).ToArray());
+    [ProgramAnswer("adjacent-red-target")]
     private void ResolveAdjacentRedTargetChoice(PromptChoice selected)
     {
         var f = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("Adjacent red choice lost its owner.");

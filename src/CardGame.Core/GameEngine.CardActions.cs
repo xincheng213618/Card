@@ -194,14 +194,63 @@ public sealed partial class GameEngine
         SkillProgramTriggerWindow window, IReadOnlyList<int> opponents, ProgramCardContinuation? continuation,
         bool? cardUseCausedDamage = null, ProgramTrickContinuation? trickContinuation = null,
         ProgramSimpleCardContinuation? simpleContinuation = null,
-        ProgramCompletedResponseReturn? completedResponseReturn = null)
+        ProgramCompletedResponseReturn? completedResponseReturn = null,
+        CaoChunHandUsePayment? caoChunPayment = null, bool caoChunDebtOnly = false)
     {
         if ((continuation is null) != (completedResponseReturn is not null))
             throw new InvalidOperationException("A card trigger window needs exactly one return continuation.");
+        if (window is SkillProgramTriggerWindow.CardUseCommitted or SkillProgramTriggerWindow.CardResponseAccepted &&
+            action.ConversionChain.Count != 0) { PayMeiYingConversion(action); PayZhenyiHoutu(action); }
+        if ((HasWangYunPlanCapability || HasWangYunTrickCapability) &&
+            window is SkillProgramTriggerWindow.CardUseTargetsFinalized or SkillProgramTriggerWindow.CardUseCommitted)
+        {
+            for (var nativeIndex = _resolutionStack.Count - 1; nativeIndex >= 0; nativeIndex--)
+                if (_resolutionStack[nativeIndex] is CardUseFrame { WangYunNativeOrigin: not null } nativeUse &&
+                    nativeUse.Action?.ActionId == action.ActionId)
+                {
+                    CompleteWangYunNativePayment(nativeUse.Id);
+                    break;
+                }
+        }
+        if (window == SkillProgramTriggerWindow.CardUseTargetsFinalized && HasSuFeiCapability)
+        {
+            var nativeUse = _resolutionStack.OfType<CardUseFrame>().Single(use => use.Action?.ActionId == action.ActionId);
+            CaptureSuFeiFinalizedUse(nativeUse.Id, action);
+        }
+        if (HasGuoSiCapability && action.Type == CardActionType.Use &&
+            window is SkillProgramTriggerWindow.CardUseTargetsFinalized or SkillProgramTriggerWindow.CardUseCompleted)
+        {
+            var nativeUse = _resolutionStack.OfType<CardUseFrame>().Single(use => use.Action?.ActionId == action.ActionId);
+            if (window == SkillProgramTriggerWindow.CardUseTargetsFinalized)
+                CaptureGuoSiFinalizedUse(nativeUse.Id, action);
+            else CaptureGuoSiCompletedUse(nativeUse.Id, action);
+        }
+        if (window == SkillProgramTriggerWindow.CardUseTargetsFinalized && HasNeifaCapability)
+        {
+            var nativeUse = _resolutionStack.OfType<CardUseFrame>().Single(use => use.Action?.ActionId == action.ActionId);
+            CaptureNeifaPaidEquipmentUse(nativeUse.Id, action);
+        }
+        if (window == SkillProgramTriggerWindow.CardUseTargetsFinalized && HasHuaManCapability && action.Type == CardActionType.Use)
+        {
+            var nativeUse = _resolutionStack.OfType<CardUseFrame>().Single(use => use.Action?.ActionId == action.ActionId);
+            CaptureHuaManFinalizedUse(nativeUse.Id, action);
+        }
+        if (window == SkillProgramTriggerWindow.CardUseCompleted && HasHuaManCapability && action.Type == CardActionType.Use &&
+            _resolutionStack.OfType<CardUseFrame>().SingleOrDefault(use => use.Action?.ActionId == action.ActionId) is { } huaManCompleted)
+            CaptureHuaManCompletedUse(huaManCompleted.Id, action);
+        if (_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveQigongActualDodgedSlashRequest) &&
+            window is SkillProgramTriggerWindow.CardUseTargetsFinalized or SkillProgramTriggerWindow.CardUseCommitted &&
+            _resolutionStack.OfType<CardUseFrame>().SingleOrDefault(use => use.Action?.ActionId == action.ActionId) is { Qigong: not null } qigongUse)
+            CompleteQigongNativePayment(qigongUse.Id);
         RegisterFirstTurnTargetActions(action, window);
         CaptureUniqueLeaderTrickQualification(action, window);
-        var candidates = CollectSharedCardActionCandidates(action, window, opponents,
+        var candidates = caoChunDebtOnly ? new List<ProgramCardTriggerCandidate>() : CollectSharedCardActionCandidates(action, window, opponents,
             cardUseCausedDamage, continuation).ToList();
+        if (window == SkillProgramTriggerWindow.CardUseBeforeTargetEffects &&
+            (caoChunPayment ?? (action.Type == CardActionType.Use ? CaoChunPaidUseQualification(action) : null)) is { } debt &&
+            CaoChunDebtCandidate(debt) is { } issued)
+            candidates.Add(new(issued.OwnerSeat, -1, issued.SkillId, issued.BindingId, issued.GameplayHash,
+                issued.SkillInstanceId, issued.Priority, CaoChunDebtContext(debt, 0)));
         candidates = candidates
             .OrderByDescending(candidate => candidate.Priority)
             .ThenBy(candidate => candidate.OwnerSeat)
@@ -227,8 +276,12 @@ public sealed partial class GameEngine
         var frame = new ProgramCardTriggerWindowFrame(frameId,
             _resolutionStack[^1].Id, action, continuation, Array.AsReadOnly(candidates.ToArray()),
             TrickContinuation: trickContinuation, SimpleContinuation: simpleContinuation,
-            CompletedResponseReturn: completedResponseReturn, AttackOwnerFrameId: attack?.ResolutionId);
+            CompletedResponseReturn: completedResponseReturn, AttackOwnerFrameId: attack?.ResolutionId)
+            { CaoChunDebtBeforeEffects = caoChunDebtOnly ? true : null };
         PushRuntimeFrame(frame);
+        if (HasGuoSiCapability && window == SkillProgramTriggerWindow.CardUseCompleted &&
+            completedResponseReturn is not null)
+            CaptureGuoSiCompletedUse(frame.Id, action);
         AdvanceRuntimeTop<ProgramCardTriggerWindowFrame>();
         return true;
     }
@@ -288,6 +341,7 @@ public sealed partial class GameEngine
         foreach (var binding in GetSkillBindingShard(owner)?.GetInstanceTriggers(window) ?? [])
         {
             var trigger = binding.Trigger;
+            if (ProgramInstructionResolver.Default.Features(trigger).HasOperation(SkillProgramEffectOp.PayShanjiaHandUseDebt)) continue;
             if (!CanCollectFirstSlashDuelCandidate(owner.Seat, trigger, action)) continue;
             if (trigger.RequireNoCardConversion == true && !IsUnconvertedActualCardUse(action, window, continuation)) continue;
             var reward = trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.RewardOutOfTurnFactionSlash);
@@ -358,6 +412,9 @@ public sealed partial class GameEngine
                 if (trigger.Effects.Any(effect => effect.Op == SkillProgramEffectOp.GrantActorHandLimitPenalty) &&
                     !ShouldCollectActorHandLimitPenalty(action, owner.Seat, window)) continue;
                 if (!CanOfferCompletedUndamagedTargetReveal(owner.Seat, trigger, context)) continue;
+                if (ProgramInstructionResolver.Default.Features(trigger).HasOperation(SkillProgramEffectOp.DrawAfterPaidMeiYingConversion) &&
+                    !CanOfferMeiYingConversionDraw(ToSharedCandidate(new(owner.Seat, eventTarget, binding.SkillId, trigger.Id,
+                        binding.Program.GameplayHash, binding.SkillInstanceId, trigger.Priority, context)), trigger, context)) continue;
                 if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.DrawForSourceCurseUse))
                 {
                     var curse = EligibleSourceCurseUse(owner.Seat, binding.SkillId, binding.SkillInstanceId, action, trigger.Effects.Single());
@@ -372,6 +429,8 @@ public sealed partial class GameEngine
         CollectIssuedGiftedSlashRewardCandidates(action, window, result);
         CollectIssuedJoinedTrickDamageRewardCandidates(action, window, result);
         CollectIssuedRoundGainedUseCandidates(action, window, result);
+        CollectIssuedNeifaCandidates(action, window, result);
+        CollectIssuedYinjuCandidates(action, window, result);
         string GrantIdentity(ProgramCardTriggerCandidate candidate)
         {
             var trigger=_contentRegistry.GetSkill(candidate.SkillId).Program!.Triggers.Single(t=>t.Id==candidate.TriggerId);
@@ -392,9 +451,12 @@ public sealed partial class GameEngine
 
     private ProgramSkillWindowContext CreateCardActionProgramContext(
         ProgramCardTriggerWindowFrame frame, ProgramCardTriggerCandidate candidate)
-        => candidate.FrozenContext ?? CreateCardActionProgramContext(frame.Action,
+    {
+        var context = candidate.FrozenContext ?? CreateCardActionProgramContext(frame.Action,
             GetCardActionWindow(frame), frame.Id, candidate.OwnerSeat, candidate.OpponentSeat,
             CaptureProgramTriggerFacts(_players[candidate.OwnerSeat], frame.Action));
+        return CreateHuaManCardUseContext(frame, ToSharedCandidate(candidate), context);
+    }
 
     private ProgramSkillWindowContext CreateCardActionProgramContext(
         CardActionContext action, SkillProgramTriggerWindow window, long parentFrameId,
@@ -413,10 +475,16 @@ public sealed partial class GameEngine
             CardUse: new(action.ActionId, parentFrameId, action.ActorSeat,
                 eventTargetSeat >= 0 ? eventTargetSeat : null,
                 action.EffectiveKind, publicSuit, isRed, debit is not null, debit,
-                action.DesignatedTargetSeats));
+                action.DesignatedTargetSeats))
+        {
+            HuaManSouying = HasHuaManCapability
+                ? _resolutionStack.OfType<CardUseFrame>().SingleOrDefault(use => use.Action?.ActionId == action.ActionId)?.HuaManSouyingQualification
+                : null
+        };
     }
 
     private static SkillProgramTriggerWindow GetCardActionWindow(ProgramCardTriggerWindowFrame frame) =>
+        frame.CaoChunDebtBeforeEffects == true ? SkillProgramTriggerWindow.CardUseBeforeTargetEffects :
         frame.CardSupplyCompletion is not null ? SkillProgramTriggerWindow.CardSupplyCompleted :
         frame.ResponseCompletion is not null ? SkillProgramTriggerWindow.CardResponseCompleted :
         frame.CompletedResponseReturn is { IsCommitted: true } ? SkillProgramTriggerWindow.CardUseCommitted :
@@ -449,6 +517,7 @@ public sealed partial class GameEngine
             frame = (ProgramCardTriggerWindowFrame)_resolutionStack[^1];
             if (TryBeginSoleTargetRedirect(frame)) continue;
             frame = AppendActorHandLimitTargetCandidates(frame);
+            frame = DeferFirstSlashDuelCandidates(frame);
             if (frame.CandidateIndex == frame.Candidates.Count)
             {
                 if (TryReturnSoleTargetRedirect(frame)) continue;
@@ -587,7 +656,8 @@ public sealed partial class GameEngine
                 !MatchesSelectedActorDuelAction(frame.ParentFrameId, action, continuation.EffectCardId) &&
                 !MatchesVirtualOrdinaryTrickUseAction(frame.ParentFrameId, action, continuation.EffectCardId) &&
                 !MatchesTieredRoundZeroUseAction(frame.ParentFrameId, action, continuation.EffectCardId) &&
-                !MatchesMouZhijueUseAction(frame.ParentFrameId, action, continuation.EffectCardId))
+                !MatchesMouZhijueUseAction(frame.ParentFrameId, action, continuation.EffectCardId) &&
+                !MatchesChosenAssaultUseAction(frame.ParentFrameId, action, continuation.EffectCardId))
             throw new InvalidOperationException("The trick trigger continuation does not match its card action.");
         var card = GetTrickRepresentation(frame.ParentFrameId, continuation.EffectCardId, requireProcessing: true);
         var pending = new JizhiResolution(
@@ -607,6 +677,11 @@ public sealed partial class GameEngine
 
     private void ContinueCommittedSlashAfterPrograms(CardAttackHandle attack)
     {
+        if (_winner != Winner.None && IsRoundOnceCardlessBasicUse(attack.ResolutionId))
+        {
+            CompleteAttack(attack);
+            return;
+        }
         if (LifecycleCardUse(attack.ResolutionId)?.SlashTargetsCancelled == true)
         {
             UpdateLifecycleCardUse(attack.ResolutionId, use => use with { SlashTargetsCancelled = false });
@@ -731,11 +806,13 @@ public sealed partial class GameEngine
                 _resolutionStack[frameIndex + 1] is ProgramSkillFrame gift &&
                 gift.WindowContext?.ParentFrameId == frame.Id && IsUnselectedCompletedGiftQinglongRide(gift);
             var completedGiftRecipientFollowup = TryGetCompletedGiftRecipientSlashRide(frame, out var recipientUse);
+            var suspendedGuoSiParent = LifecycleCardUse(frame.ParentFrameId) is { } guoSiParent &&
+                IsSuspendedGuoSiCompletedParent(guoSiParent);
             var drawFundedQinglongFollowup = IsDrawFundedQinglongCompletedWindowRide(frame) || IsChainedStateQinglongCompletedWindowRide(frame);
-            var attackMatches = HasSoleTargetProtectionCardObserver(frame.ParentFrameId) || frame.CardSupplyCompletion is not null && ValidCardSupplyCompletionWindow(frame) || HasPairedColorDispositionCardObserver(frame.ParentFrameId) || HasJoinedTrickDamageRewardCardObserver(frame.ParentFrameId) || HasRoundGainedEquipmentDrawCardObserver(frame.ParentFrameId) || HasSameNameHandCardObserver(frame.ParentFrameId) ||
+            var attackMatches = HasLvKuangLvXiangCardObserver(frame.ParentFrameId) || HasXinPiCardObserver(frame.ParentFrameId) || HasHuaManCardObserver(frame.ParentFrameId) || IsHuaManSouyingEmptyTargetWindow(frame) || HasSoleTargetProtectionCardObserver(frame.ParentFrameId) || frame.CardSupplyCompletion is not null && ValidCardSupplyCompletionWindow(frame) || HasPairedColorDispositionCardObserver(frame.ParentFrameId) || HasJoinedTrickDamageRewardCardObserver(frame.ParentFrameId) || HasRoundGainedEquipmentDrawCardObserver(frame.ParentFrameId) || HasSameNameHandCardObserver(frame.ParentFrameId) ||
                 CompletedUndamagedTargetRevealObserverRoot()?.CompletedUndamagedTargetReveal?.CardUseFrameId == frame.ParentFrameId ||
                 OverflowTargetCancellationObserverRoot()?.OverflowTargetCancellation?.CardUseFrameId == frame.ParentFrameId ||
-                frame.ResponseCompletion is not null && ValidResponseCompletionWindow(frame) || HasSameTypeAidTargetObserver(frame.ParentFrameId) || frame != frames[^1] || resolvingProgramJudgmentDamage || suspendedCompletedGiftFollowup || completedGiftRecipientFollowup || drawFundedQinglongFollowup ||
+                frame.ResponseCompletion is not null && ValidResponseCompletionWindow(frame) || HasSameTypeAidTargetObserver(frame.ParentFrameId) || frame != frames[^1] || resolvingProgramJudgmentDamage || suspendedCompletedGiftFollowup || completedGiftRecipientFollowup || suspendedGuoSiParent || drawFundedQinglongFollowup ||
                 (frame.Continuation is ProgramCardContinuation.DelayedCard or ProgramCardContinuation.FinalizedDelayedPlacement or
                         ProgramCardContinuation.BeforeTrickTargetEffects or ProgramCardContinuation.FinalizedTrick or
                         ProgramCardContinuation.NullificationResponse or ProgramCardContinuation.CommittedTrick or
@@ -768,7 +845,8 @@ public sealed partial class GameEngine
                    MatchesSelectedActorDuelAction(frame.ParentFrameId, frame.Action, trick.EffectCardId) ||
                    MatchesVirtualOrdinaryTrickUseAction(frame.ParentFrameId, frame.Action, trick.EffectCardId) ||
                    MatchesTieredRoundZeroUseAction(frame.ParentFrameId, frame.Action, trick.EffectCardId) ||
-                   MatchesMouZhijueUseAction(frame.ParentFrameId, frame.Action, trick.EffectCardId))
+                   MatchesMouZhijueUseAction(frame.ParentFrameId, frame.Action, trick.EffectCardId) ||
+                   MatchesChosenAssaultUseAction(frame.ParentFrameId, frame.Action, trick.EffectCardId))
                 : frame.TrickContinuation is null;
             var completedResponseMatches = frame.CardSupplyCompletion is not null ? ValidCardSupplyCompletionWindow(frame) : frame.ResponseCompletion is not null ? ValidResponseCompletionWindow(frame) : frame.CompletedResponseReturn is { } completedResponse
                 ? frame.Continuation is null && IsCompletedResponseUse(frame.Action, completedResponse.Kind) &&
@@ -784,6 +862,10 @@ public sealed partial class GameEngine
                      !(frame.ResponseCompletion is not null && ValidResponseCompletionWindow(frame) && IsResponseCompletionCostFinished(frame, cost)) &&
                      !(completedGiftRecipientFollowup && _cardZones.GetLocation(cost.CardId) == CardLocation.Processing &&
                        recipientUse.Action!.PhysicalCards.Any(payment => payment.CardId == cost.CardId)) &&
+                     !(suspendedGuoSiParent && _cardZones.GetLocation(cost.CardId) == CardLocation.Processing &&
+                       _resolutionStack.OfType<CardUseFrame>().Any(use => use.GuoSiNative is { } paid &&
+                           paid.Material == cost.CardId && _resolutionStack.OfType<ProgramSkillFrame>().Any(program =>
+                               program.WindowContext?.ParentFrameId == frame.Id && GuoSiNativeRidesOn(program, use)))) &&
                      !IsExchangedCardClaim(frame.Action.ActionId,cost.CardId) &&
                      !IsSoleTargetQuarantinedMaterial(frame.ParentFrameId, cost.CardId) &&
                      !(frame.Action.Type == CardActionType.Use &&
@@ -792,7 +874,7 @@ public sealed partial class GameEngine
                        IsSelectedForeignCardSlashRemovedMaterial(frame.ParentFrameId, cost.CardId)) &&
                      !(frame.Action.Type == CardActionType.Use &&
                        _resolutionStack.OfType<CardUseFrame>().Any(use => use.Id == frame.ParentFrameId && use.Action?.ActionId == frame.Action.ActionId) &&
-                       IsCurrentUsePhysicalCardClaim(frame.ParentFrameId, cost.CardId))).Any(cost =>
+                       (IsXinPiPhysicalClaim(frame.ParentFrameId, cost.CardId) || IsHuaManClaimedEntity(frame.ParentFrameId, cost.CardId) || IsCurrentUsePhysicalCardClaim(frame.ParentFrameId, cost.CardId)))).Any(cost =>
                      frame.CompletedResponseReturn is { IsCommitted: false } ||
                      frame.Continuation is ProgramCardContinuation.CompletedSlash or ProgramCardContinuation.CompletedCard
                          ? _cardZones.GetLocation(cost.CardId).Zone is not

@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:sanwen",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "native-hand-gain",
+          "window": "cardsGained",
+          "subject": "owner",
+          "optional": true,
+          "usageScope": "turn",
+          "usageLimit": 1,
+          "effects": [
+            {
+              "op": "resolveSanwenActualGainDuplicates",
+              "target": "owner"
+            }
+          ],
+          "destinationZones": [
+            "hand"
+          ],
+          "movementOccurrence": "perBatch"
+        }
+      ]
+    },
+    {
+      "id": "ol:qiai",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "native-dying-entry",
+          "window": "dyingEntering",
+          "subject": "owner",
+          "optional": true,
+          "usageScope": "game",
+          "usageLimit": 1,
+          "effects": [
+            {
+              "op": "collectQiaiLivingContributions",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:denglou",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "native-empty-hand-ending",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": true,
+          "usageScope": "game",
+          "usageLimit": 1,
+          "effects": [
+            {
+              "op": "viewDenglouTopAndUseBasics",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

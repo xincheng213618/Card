@@ -164,6 +164,7 @@ public sealed partial class GameEngine
             AdvanceRuntimeProgram(active.Id);
     }
 
+    [ProgramAnswer("juanxia-trick")]
     private void ResolveJuanxiaTrickChoice(PromptChoice selected)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ??
@@ -285,6 +286,7 @@ public sealed partial class GameEngine
         _status = _players[active.OwnerSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
 
+    [ProgramAnswer("juanxia-target-card")]
     private void ResolveJuanxiaTargetCardChoice(PromptChoice selected)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ??
@@ -433,6 +435,7 @@ public sealed partial class GameEngine
         _status = owner.IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
 
+    [ProgramAnswer("juanxia-fire-payment")]
     private void ResolveJuanxiaFirePaymentChoice(PromptChoice selected)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ??
@@ -590,6 +593,7 @@ public sealed partial class GameEngine
         return SkillProgramStepOutcome.AwaitChoice;
     }
 
+    [ProgramAnswer("juanxia-retaliate")]
     private void ResolveJuanxiaRetaliateChoice(PromptChoice selected)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ??
@@ -736,12 +740,6 @@ public sealed partial class GameEngine
         }
     }
 
-    private PromptChoice SelectAiJuanxiaChoice(PendingDecision decision)
-    {
-        // The prompts order benefit first and decline/stop last, so the first
-        // choice is always the aggressive option.
-        return decision.Choices[0];
-    }
 
     private sealed partial class ProgramSkillHost : IYangYiProgramHost
     {

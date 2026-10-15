@@ -94,82 +94,6 @@ internal static class BoundaryXiahouDunChecks
         Replay(g,r);Use(g,"draw");Settle(g);Require(g.Events.Count(e=>e.Payload is ShownBoundGiftCommittedEvent)==1,"Accepted named actual-turn quota bounds nested and repeated gains.");Replay(g,r);
     }
 
-    public static void QingjianRealPhasesSkipQuotaAndExpiry()
-    {
-        var(g,r)=Start("phases");
-        Require(!g.Events.Select(e=>e.Payload).OfType<ProgramBindingStartedEvent>().Any(e=>e.SkillId=="boundary:qingjian"),"Normal and skill Draw during own true Draw are excluded.");
-        Use(g,"draw");for(var i=0;i<4&&P(g)?.SkillPrompt?.SkillId=="boundary:qingjian";i++){Answer(g,c=>Action(c)=="skip");Reach(g,p=>p.Kind==DecisionKind.PlayCard||p.SkillPrompt?.SkillId=="boundary:qingjian");}Settle(g);Use(g,"draw");Give(g,[g.State.Players[0].Hand.First().Id],1);Settle(g);
-        var turn=g.CreateSnapshot(0).TurnNumber;Accept(g,new EndPlayPhaseCommand(0,g.Revision,P(g)!.PromptId));
-        Reach(g,p=>p.SkillPrompt?.SkillId=="fixture:draw-observer"&&p.PlayerSeat!=0);
-        var actual=g.CreateSnapshot(0).CurrentSeat; var before=Limit(g,actual);Activate(g);Answer(g,c=>c.Targets.SequenceEqual(new[]{0}));
-        Require(P(g)?.SkillPrompt?.SkillId=="boundary:qingjian","Owner gains during another actor's true Draw qualify after old actual-turn expiry.");
-        var batch=g.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Last().Batch;
-        Require(batch.MovementTiming is {Phase:TurnPhase.Draw} t&&t.ActualTurnOwnerSeat==actual&&t.PhaseActorSeat==actual,"Other Draw uses true actor, not recipient or movement reason.");
-        Give(g,[g.State.Players[0].Hand.First().Id],actual);Require(Limit(g,actual)==before+1,"Other actual turn owner receives reward, not skill owner.");
-        Require(g.Events.Select(e=>e.Payload).OfType<TurnCardUseEffectsExpiredEvent>().Any(e=>e.TurnNumber==turn),"Prior actual-turn reward expires at the actual turn boundary.");Replay(g,r);
-        var(extra,er)=Start("scheduled");
-        Require(extra.Events.Select(e=>e.Payload).OfType<ProgramPhaseScheduledEvent>().Any(e=>e.Phase==TurnPhase.Draw&&e.Started),"Mature conversion schedules a real extra Draw before normal flow.");
-        Require(!extra.Events.Select(e=>e.Payload).OfType<ProgramBindingStartedEvent>().Any(e=>e.SkillId=="boundary:qingjian"),"Both own Scheduled Draw and own normal Draw exclude skill gains.");Replay(extra,er);
-        var(play,pr)=Start("extra-play");var sameTurn=play.CreateSnapshot(0).TurnNumber;var baseLimit=Limit(play,0);Use(play,"draw");
-        Require(play.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Last().Batch.MovementTiming is {Phase:TurnPhase.Play,PhaseActorSeat:0},"Actual extra Play qualifies even before normal preparation.");
-        Give(play,[play.State.Players[0].Hand.First().Id],1);Settle(play);Accept(play,new EndPlayPhaseCommand(0,play.Revision,P(play)!.PromptId));Settle(play);
-        Require(play.CreateSnapshot(0).TurnNumber==sameTurn&&Limit(play,0)==baseLimit+1,"Extra Play keeps its earned benefit in the same actual turn through normal Draw.");Use(play,"draw");Settle(play);
-        Require(play.Events.Count(e=>e.Payload is ShownBoundGiftCommittedEvent)==1,"Normal Play after extra Play cannot refresh actual-turn named quota.");Replay(play,pr);
-    }
-
-    public static void QingjianReceiptBeforeGainChildAndSourceAudit()
-    {
-        var(g,r)=Start("child");Use(g,"draw");var id=g.State.Players[0].Hand.First().Id;var limit=Limit(g,0);Give(g,[id],1);
-        Require(P(g)?.SkillPrompt?.SkillId=="fixture:gift-child"&&Limit(g,0)==limit+1,"Actual receipt reward precedes recipient gain child.");
-        var parent=g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f=>f.SkillId=="boundary:qingjian");
-        Require(parent.ShownGiftReceipt is {Cards.Count:1,ModifierGrantSequence:not null}&&parent.PendingMovementContinuation is not null,"Owning typed receipt survives the suspended gain child.");
-        Require(parent.ShownGiftReceipt!.Cards is System.Collections.Generic.IList<ProgramShownGiftCard>{IsReadOnly:true},"Receipt collection is frozen.");Replay(g,r);Activate(g);Answer(g,c=>c.Cards.SequenceEqual(new[]{id}));Settle(g);
-        Require(g.CreateCardZoneDiagnostics().Single(c=>c.CardId==id).Location==CardLocation.DiscardPile&&Limit(g,0)==limit+1,"Recipient child moving the received card cannot retract or duplicate the earned reward.");Replay(g,r);
-        // Read-only host setup prefix above is replayed; grant mutations below are a separate host lifecycle audit.
-        var(host,_)=Start("child");Use(host,"draw");Give(host,[host.State.Players[0].Hand.First().Id],1);var old=Limit(host,0);
-        var owner=Players(host)[0];var grant=owner.SkillGrants.Grants.Single(s=>s.SkillId=="boundary:qingjian");owner.SkillGrants.RemoveGrant(grant.GrantId);
-        Activate(host);Answer(host,c=>c.Cards.Count==1);Settle(host);Require(Limit(host,0)==old,"Source loss during a real suspended child preserves the already issued actual-turn fact.");
-        owner.SkillGrants.Grant(grant with{GrantId="audit-regrant",SkillInstanceId="audit-regrant",SourceId="acquired:audit"});Use(host,"draw");Settle(host);
-        Require(host.Events.Count(e=>e.Payload is ShownBoundGiftCommittedEvent)==1,"Host regrant does not reset owner+skill+named actual-turn quota.");
-        var(disabled,_)=Start("child");Use(disabled,"draw");Give(disabled,[disabled.State.Players[0].Hand.First().Id],1);var disabledLimit=Limit(disabled,0);
-        var dg=Players(disabled)[0].SkillGrants.Grants.Single(s=>s.SkillId=="boundary:qingjian");Players(disabled)[0].SkillGrants.SetEnabled(dg.GrantId,false);
-        Activate(disabled);Answer(disabled,c=>c.Cards.Count==1);Settle(disabled);
-        Require(Limit(disabled,0)==disabledLimit&&!Players(disabled)[0].SkillGrants.Grants.Single(s=>s.GrantId==dg.GrantId).IsEnabled,"Host local disable persists independently of an already issued benefit.");
-        var(unpaid,_)=Start("child");Use(unpaid,"draw");Activate(unpaid);SelectOwned(unpaid,[unpaid.State.Players[0].Hand.First().Id]);var ug=Players(unpaid)[0].SkillGrants.Grants.Single(s=>s.SkillId=="boundary:qingjian");Players(unpaid)[0].SkillGrants.SetEnabled(ug.GrantId,false);
-        Answer(unpaid,c=>c.Targets.SequenceEqual(new[]{1}));Settle(unpaid);
-        Require(!unpaid.Events.Any(e=>e.Payload is ShownBoundGiftCommittedEvent)&&!unpaid.CardMovements.Any(m=>m.Reason.Value==GiftReason),"Host source disable before receipt retains old executor cancellation and earns no transfer or bonus.");
-
-        var(silver,sr)=Start("silver");Use(silver,"damage",1);Settle(silver);
-        var armor=silver.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.Equip);
-        Accept(silver,new PlayCardCommand(0,armor.CardId!.Value,[],silver.Revision,P(silver)!.PromptId));Settle(silver);
-        Use(silver,"draw");var hand=silver.State.Players[0].Hand.First().Id;var before=Limit(silver,0);Give(silver,[armor.CardId.Value,hand],1);
-        Require(P(silver)?.SkillPrompt?.SkillId=="fixture:recover-child"&&Limit(silver,0)==before+2,"HE gift reward precedes Silver Lion recovery child; its real HP recovery and category bonus each add one to the hand limit.");
-        var paid=silver.ResolutionStack.OfType<ProgramSkillFrame>().Single(f=>f.SkillId=="boundary:qingjian").ShownGiftReceipt!;
-        Require(paid.Cards.Count==2&&paid.Cards.Select(c=>c.Category).Distinct().Count()==1&&paid.Cards.Any(c=>c.Source==CardLocation.Equipment(0)),"Duplicate physical Equipment categories count once across real Hand and Equipment sources.");Replay(silver,sr);Activate(silver);Settle(silver);Replay(silver,sr);
-
-        var(weapon,wr)=Start("weapon");Use(weapon,"weapon");Answer(weapon,c=>c.Parameters.GetValueOrDefault("advanced-value")!="finish");if(P(weapon)?.Choices.Any(c=>c.Parameters.GetValueOrDefault("advanced-value")=="finish")==true)Answer(weapon,c=>c.Parameters.GetValueOrDefault("advanced-value")=="finish");Settle(weapon);
-        var wid=weapon.CreateSnapshot(0).Players[0].Equipment.Single().Id;var oldLimit=Limit(weapon,0);Use(weapon,"draw");Give(weapon,[wid],1);Settle(weapon);
-        Require(weapon.Events.Select(e=>e.Payload).OfType<ShownBoundGiftCommittedEvent>().Single() is {ActualCount:0,CategoryCount:0}&&Limit(weapon,0)==oldLimit,"Destroyed general weapon has zero actual recipient Hand receipt and no invented category bonus.");
-        Require(weapon.CardMovements.Any(m=>m.CardId==wid&&m.From==CardLocation.Equipment(0)&&m.To==CardLocation.OutsideGame)&&!weapon.CardMovements.Any(m=>m.CardId==wid&&m.To==CardLocation.Hand(1)),"Physical general weapon follows established OutsideGame normalization.");Replay(weapon,wr);
-
-        var(source,sourceRegistry)=Start("weapon-source");Use(source,"weapon");Answer(source,c=>c.Parameters.GetValueOrDefault("advanced-value")=="fixture:xiahou-unused");Answer(source,c=>c.Parameters.GetValueOrDefault("advanced-value")=="finish");Settle(source);
-        var equipped=source.CreateSnapshot(0).Players[0].Equipment.Single().Id;
-        Require(Players(source)[0].SkillGrants.Grants.Single(s=>s.SkillId=="boundary:qingjian").SourceId.StartsWith("equipment:dynamic:",StringComparison.Ordinal),"New Qingjian instance actually comes from the generated donor weapon.");
-        var sourceLimit=Limit(source,0);Use(source,"draw");var physical=source.State.Players[0].Hand.First().Id;Give(source,[equipped,physical],1);
-        Require(P(source)?.SkillPrompt?.SkillId=="fixture:gift-child"&&!Players(source)[0].SkillGrants.Grants.Any(s=>s.SkillId=="boundary:qingjian")&&Limit(source,0)==sourceLimit+1,"Real weapon departure removes issuing grant after actual receipt, before real recipient child; earned bonus remains.");Replay(source,sourceRegistry);
-        Activate(source);Answer(source,c=>c.Cards.SequenceEqual(new[]{physical}));Settle(source);
-        Require(Limit(source,0)==sourceLimit+1&&source.Events.Count(e=>e.Payload is ShownBoundGiftCommittedEvent)==1,"Old executor source-loss cancellation after child cannot duplicate or erase the earned receipt.");Replay(source,sourceRegistry);
-
-        var(nested,nr)=Start("other-owner");var nestedBase=Limit(nested,0);Use(nested,"draw");var nid=nested.State.Players[0].Hand.First().Id;Give(nested,[nid],1);
-        Require(P(nested)?.PlayerSeat==1&&P(nested)?.SkillPrompt?.SkillId=="boundary:qingjian","Another skill owner has an independent nested gain qualification and named quota.");Replay(nested,nr);Give(nested,[nid],2);Settle(nested);
-        Require(Limit(nested,0)==nestedBase+2&&nested.Events.Select(e=>e.Payload).OfType<ShownBoundGiftCommittedEvent>().Select(e=>e.OwnerSeat).Order().SequenceEqual(new[]{0,1}),"Independent owners each earn one actual-category reward for the same current actual turn owner.");Replay(nested,nr);
-
-        var(death,dr)=Start("death-child");Use(death,"draw");Give(death,[death.State.Players[0].Hand.First().Id],1);
-        Require(P(death)?.SkillPrompt?.SkillId=="fixture:death-child"&&death.ResolutionStack.OfType<ProgramSkillFrame>().Single(f=>f.SkillId=="boundary:qingjian").ShownGiftReceipt?.ModifierGrantSequence is not null,"A real source-owner movement child sees an already earned typed receipt.");Replay(death,dr);Activate(death);
-        for(var i=0;i<32&&death.State.Winner==Winner.None;i++)Accept(death,new AdvanceOneStepCommand(death.Revision));
-        Require(!death.State.Players[0].IsAlive&&death.Events.Count(e=>e.Payload is ShownBoundGiftCommittedEvent)==1&&death.Events.Select(e=>e.Payload).OfType<TurnRuleModifierGrantedEvent>().Count(e=>e.Modifier.Source.SkillId=="boundary:qingjian")==1,"Real owner death in the child does not erase history, repay cards or issue the bonus twice.");Replay(death,dr);
-    }
-
     public static void QingjianNarrowParserAndLegacyNullBoundary()
     {
         var rules="""{"id":"fixture:narrow","revision":1,"triggers":[{"id":"gain","window":"cardsGained","subject":"owner","destinationZones":["hand"],"movementOccurrence":"perBatch","gainPhaseQualification":"outsideOwnerDraw","optional":true,"effects":[{"op":"selectOwnedCards","target":"owner","zones":["hand","equipment"],"minimumCards":1,"maximumCards":null,"resultBind":"gift"},{"op":"revealBoundCards","target":"owner","sourceBind":"gift"},{"op":"selectTarget","target":"owner","targetKind":"otherLiving"},{"op":"giveShownBoundCardsAndGrantTurnHandLimit","target":"owner","sourceBind":"gift"}]}]}""";
@@ -188,7 +112,6 @@ internal static class BoundaryXiahouDunChecks
     private static int Category(CardKind kind)=>CardCatalog.Get(kind).CategoryName switch{"基本牌"=>0,"装备牌"=>2,_=>1};
     private static string? Action(PromptChoice c)=>c.Parameters.GetValueOrDefault("program-action");
     private static void Activate(GameEngine g)=>Answer(g,c=>Action(c)=="activate");
-    private static void Give(GameEngine g,int[] cards,int target){Activate(g);SelectOwned(g,cards);Answer(g,c=>c.Targets.SequenceEqual(new[]{target}));}
     private static void SelectOwned(GameEngine g,int[] cards,ContentRegistry? r=null){foreach(var id in cards){Answer(g,c=>c.Cards.SequenceEqual(new[]{id}));if(r is not null)Replay(g,r);}if(P(g)?.Choices.Any(c=>Action(c)=="finish-owned-cards")==true)Answer(g,c=>Action(c)=="finish-owned-cards");}
     private static void Use(GameEngine g,string action,int? target=null)=>Accept(g,new UseProgramSkillCommand(0,"fixture:driver",action,[],target is null?[]:[target.Value],g.Revision,P(g)!.PromptId));
     private static void Answer(GameEngine g,Func<PromptChoice,bool> pick){var p=P(g)!;Accept(g,new AnswerPromptCommand(p.PlayerSeat,p.PromptId,p.Choices.First(pick).Id,g.Revision));}

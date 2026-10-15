@@ -145,6 +145,7 @@ public sealed partial class GameEngine
         _status = _players[chooser].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
 
+    [ProgramAnswer("shared-slash-offer")]
     private void ResolveSharedSlashOfferChoice(PromptChoice choice)
     {
         var f = GetActiveProgramFrame(_resolutionStack.Last().Id); AssertSharedSlashOffer(f);
@@ -272,6 +273,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("A shared Slash prompt changed its actual chooser or frozen public choices.");
     }
 
+    [ProgramAiChoice(SkillProgramEffectOp.GiveBoundCardThenOfferVirtualSlashOrSharedDraw)]
     private PromptChoice SelectAiSharedSlashOffer(PendingDecision decision, ProgramSkillFrame f)
     {
         var actor = f.SharedSlashOffer!.ActorSeat; var snapshot = CreateSnapshot(decision.PlayerSeat);

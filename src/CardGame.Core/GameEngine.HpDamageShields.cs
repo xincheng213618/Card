@@ -60,6 +60,7 @@ public sealed partial class GameEngine
         return Array.AsReadOnly(choices.ToArray());
     }
 
+    [ProgramAnswer("hp-damage-shield")]
     private void ResolveHpDamageShieldPayment(PromptChoice choice)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ??
@@ -201,6 +202,7 @@ public sealed partial class GameEngine
         return true;
     }
 
+    [ProgramAiChoice(SkillProgramEffectOp.PayHpToGrantOneUseDamageShield)]
     private PromptChoice SelectAiHpDamageShield(PendingDecision decision)
     {
         var owner = _players[decision.PlayerSeat];

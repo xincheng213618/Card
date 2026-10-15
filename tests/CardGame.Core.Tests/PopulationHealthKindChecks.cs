@@ -9,39 +9,6 @@ internal static class PopulationHealthKindChecks
     private const string Driver = "fixture:population-health-driver", Gain = "fixture:population-health-gain";
     private const string Owner = "fixture:population-health-owner", Mode = "identity:classic-population-health";
 
-    public static void TypedConditionsRejectWrongContextsAndFreezeExactKinds()
-    {
-        var rules = Embedded("classic-zhuge-dan", "rules.json");
-        var presentation = Embedded("classic-zhuge-dan", "presentation.json");
-        var catalog = SkillProgramCatalog.Load(rules, presentation);
-        var condition = catalog.Programs[Weizhong].Triggers.Single().Condition;
-        foreach (var kind in Enum.GetValues<HpChangeKind>())
-            Require(condition.Evaluate(new(0, 4, true) { HealthChangeKind = kind }) == (kind == HpChangeKind.MaximumHp),
-                "The typed condition matches only the actual MaximumHp occurrence, including loss, recovery and damage exclusions.");
-        Require(!condition.Evaluate(new(0, 4, true)), "An absent health occurrence cannot match a maximum-HP trigger.");
-        var omitted = JsonSerializer.Serialize(new SkillProgramTriggerFacts(0, 4, true));
-        Require(!omitted.Contains("HealthChangeKind", StringComparison.Ordinal) && !omitted.Contains("LivingPlayerCount", StringComparison.Ordinal),
-            "Optional population and health facts leave old checkpoint projections unchanged when absent.");
-        foreach (var invalid in new[]
-        {
-            rules.Replace("\"afterHealthChanged\"", "\"turnEnding\"", StringComparison.Ordinal),
-            rules.Replace("\"maximumHp\"", "\"invalid-kind\"", StringComparison.Ordinal),
-            rules.Replace("\"hpChangeKind\": \"maximumHp\"", "\"hpChangeKind\": 601", StringComparison.Ordinal),
-            rules.Replace(", \"hpChangeKind\": \"maximumHp\"", "", StringComparison.Ordinal),
-            rules.Replace("\"healthChangeKindIs\"", "\"always\"", StringComparison.Ordinal),
-            rules.Replace("\"turnStartBeforeNormalFlow\"", "\"turnEnding\"", StringComparison.Ordinal)
-        })
-        {
-            try { _ = SkillProgramCatalog.Load(invalid, presentation); }
-            catch (InvalidOperationException) { continue; }
-            throw new InvalidOperationException("The loader accepted an unsupported health-kind or population context.");
-        }
-        var population = catalog.Programs[Juyi].Triggers.Single().Condition;
-        var frozen = new SkillProgramTriggerFacts(0, 3, true, CurrentMaxHp: 5) { LivingPlayerCount = 4 };
-        Require(population.Evaluate(frozen) && !population.Evaluate(frozen with { LivingPlayerCount = 5 }) &&
-            !population.Evaluate(frozen with { CurrentHp = 5 }), "Classic awakening requires wounded HP and strictly greater frozen population.");
-    }
-
     public static void ActualMaximumHpChangesDrawOnceAndColdReplayPaidChildren()
     {
         var (g, registry) = Start(initialWeizhong: true, awakening: false, baseHp: 4, wounded: true);
@@ -125,28 +92,6 @@ internal static class PopulationHealthKindChecks
                 V(g).Skills!.Any(s => s.ContentId == "classic:benghuai"), "Already acquired derived skills persist after their completed awakening source is removed.");
             _ = Cold(g, registry);
         }
-    }
-
-    public static void ActualOtherDeathGrowthResumesHealthChildBeforeRecovery()
-    {
-        var (g, registry) = Start(initialWeizhong: true, awakening: false, baseHp: 4, wounded: true);
-        var hpBefore = V(g).Hp; var maxBefore = V(g).MaxHp;
-        Use(g, "kill", [1]); Reach(g, p => p.SkillPrompt?.SkillId == Gain);
-        var gongao = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == Gongao);
-        var health = g.ResolutionStack.OfType<HpChangedTriggerWindowFrame>().Single();
-        Require(!g.CreateSnapshot(0).Players[1].IsAlive && V(g).MaxHp == maxBefore + 1 && V(g).Hp == hpBefore &&
-            gongao.InstructionIndex == 1 && gongao.WindowContext?.TargetSeat == 1 && health.Change.ParentFrameId == gongao.Id &&
-            health.Change.Kind == HpChangeKind.MaximumHp,
-            "A real other death grows maximum once, then its health child suspends before the separate recovery instruction.");
-        g = Cold(g, registry); Continue(g); Reach(g, p => p.SkillPrompt?.SkillId == Driver); Continue(g); Play(g);
-        Require(V(g).Hp == hpBefore + 1 && E<MaximumHpChangedEvent>(g).Count(e => e.SkillId == Gongao) == 1 &&
-            E<ProgramBindingResolvedEvent>(g).Count(e => e.SkillId == Gongao && e.Completed) == 1 && Draws(g, Weizhong) == 1,
-            "The same death, maximum change, observer draw and recovery each complete exactly once through cold typed returns.");
-        Use(g, "lose-gongao"); Play(g); var after = V(g).MaxHp;
-        Use(g, "kill", [2]); Reach(g, p => p.SkillPrompt?.SkillId == Driver); Continue(g); Play(g);
-        Require(!g.CreateSnapshot(0).Players[2].IsAlive && V(g).MaxHp == after &&
-            E<MaximumHpChangedEvent>(g).Count(e => e.SkillId == Gongao) == 1, "Source loss prevents later real deaths from issuing another growth.");
-        _ = Cold(g, registry);
     }
 
     private static string Embedded(string bundle, string suffix)

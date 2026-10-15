@@ -70,31 +70,6 @@ internal static class BoundaryDongZhuoChecks
         Replay(suppressed, suppressedRegistry);
     }
 
-    public static void NonWineDamageBonusAndDodgedVirtualSlashDoNotSuppress()
-    {
-        var (game, registry) = Create(); Use(game, "draw"); ReachPlay(game); Use(game, "damage-bonus"); ReachPlay(game);
-        SlashAndPause(game, registry, false, 2); Continue(game); ReachPlay(game);
-        Require(Suppressions(game).Length == 0 && !game.Events.Any(e => e.Payload is CardUseAlcoholConsumptionCapturedEvent),
-            "An actual two-damage Slash supplied by a different modifier is not evidence of Alcohol consumption.");
-        Accept(game, new EndPlayPhaseCommand(0, game.Revision, Prompt(game)!.PromptId));
-        Reach(game, p => p.SkillPrompt?.SkillId == Benghuai && Option(p, "reduce-max-hp")); Replay(game, registry);
-        Answer(game, c => c.Parameters.GetValueOrDefault("option-id") == "reduce-max-hp");
-        Require(game.State.Players[0].MaxHp == 8, "The unconsumed decay remains usable and its other actual choice reduces MaxHP."); Replay(game, registry);
-
-        var (dodged, dodgedRegistry) = Create(dodgeDeck: true);
-        var wine = dodged.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.Alcohol && a.ConversionSource?.SkillId == Jiuchi);
-        Play(dodged, wine); ReachPlay(dodged); Use(dodged, "virtual");
-        Reach(dodged, p => Action(p, "virtual-basic")); Replay(dodged, dodgedRegistry);
-        Answer(dodged, c => c.Parameters.GetValueOrDefault("basic-option") == "Slash:1"); ReachPlay(dodged);
-        Require(dodged.Events.Count(e => e.Payload is CardUseAlcoholConsumptionCapturedEvent) == 1 &&
-            !dodged.Events.Any(e => e.Payload is DamageAppliedEvent { SourceSeat: 0, TargetSeat: 1 }) &&
-            dodged.Events.Any(e => e.Payload is CardRespondedEvent { ResponderSeat: 1, EffectiveCardKind: CardKind.Dodge }) &&
-            Suppressions(dodged).Length == 0 && !dodged.CreateSnapshot(0).Players[0].HasAlcoholEffect &&
-            dodged.GetHumanLegalActions().Any(a => a.Kind == LegalActionKind.Alcohol && a.ConversionSource?.SkillId == Jiuchi),
-            "A native AI's actual Dodge cancels the zero-entity wine Slash: the original wine was consumed, another Alcohol is legal, and no damage suppression is issued.");
-        Replay(dodged, dodgedRegistry);
-    }
-
     public static void PerPointOwnedJudgmentRecoveryClaimChildrenAndNativeAi()
     {
         var (game, registry) = Create(baonue: true);

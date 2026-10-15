@@ -92,6 +92,8 @@ public sealed partial class GameEngine
                 window.Judgment.Reason == receipt.Reason && window.Judgment.SourceSeat == receipt.DamageSourceSeat;
         if (child is ProgramSkillFrame final && parent is ProgramJudgmentTriggerWindowFrame finalWindow)
         {
+            if (finalWindow.ZhenyiBeforeResult == true)
+                return finalWindow.Judgment.JudgmentFrameId == receipt.JudgmentFrameId && IsExactZhenyiBeforeResultProgramChild(finalWindow, final);
             if (finalWindow.Judgment.JudgmentFrameId != receipt.JudgmentFrameId ||
                 finalWindow.CandidateIndex < 0 || finalWindow.CandidateIndex >= finalWindow.Candidates.Count ||
                 final.WindowContext is not { Window: SkillProgramTriggerWindow.JudgmentFinalized, Judgment: { } finalized } context ||

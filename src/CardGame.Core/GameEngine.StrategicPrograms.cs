@@ -251,6 +251,7 @@ public sealed partial class GameEngine
           SkillPrompt = new(frame.SkillId, skillDefinition.Name, skillDefinition.Name, skillDefinition.Description), Choices = choices.AsReadOnly() };
         _status = _players[frame.OwnerSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
+    [ProgramAnswer("strategic-choice")]
     private void ResolveStrategicProgramChoice(PromptChoice choice)
     {
         var frame = _resolutionStack.Last() as ProgramSkillFrame ?? throw new InvalidOperationException("Strategic choice lost its frame.");

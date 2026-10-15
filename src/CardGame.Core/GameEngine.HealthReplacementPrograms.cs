@@ -7,6 +7,10 @@ public sealed partial class GameEngine
 {
     private void ObserveProgramHealthChange(IGameEvent payload)
     {
+        if (payload is DamageAppliedEvent paidDamage)
+            ObserveDongBaiHpDecreased(paidDamage.TargetSeat,_players[paidDamage.TargetSeat].Hp + paidDamage.Amount,_players[paidDamage.TargetSeat].Hp);
+        else if (payload is MaximumHpChangedEvent { HpBeforeClamp: { } clampBefore } clamp)
+            ObserveDongBaiHpDecreased(clamp.PlayerSeat,clampBefore,_players[clamp.PlayerSeat].Hp);
         var changed = payload switch
         {
             DamageAppliedEvent damage => (damage.TargetSeat, HpChangeKind.Damage, damage.Amount),
@@ -14,17 +18,23 @@ public sealed partial class GameEngine
             _ => (-1, HpChangeKind.Damage, 0)
         };
         if (!_setupComplete || changed.Item1 < 0 || changed.Item3 <= 0 || _winner != Winner.None ||
-            CollectProgramTriggerCandidates(_players[changed.Item1], SkillProgramTriggerWindow.AfterHealthChanged).Count == 0) return;
+            (CollectProgramTriggerCandidates(_players[changed.Item1], SkillProgramTriggerWindow.AfterHealthChanged).Count == 0 &&
+             !HasQimeiHealthSubject(changed.Item1))) return;
         var owner = _players[changed.Item1];
         var healthOwner = GrantedEntityTrailerHealthOwner(payload) ?? _resolutionStack.LastOrDefault()?.Id;
-        _pendingHpChanges.Add(new(++_resolutionSequence, healthOwner, null, owner.Seat,
-            changed.Item2, changed.Item3, payload is DamageAppliedEvent ? owner.Hp + changed.Item3 : owner.Hp, owner.Hp));
+        var before = payload is DamageAppliedEvent ? owner.Hp + changed.Item3 :
+            payload is MaximumHpChangedEvent { HpBeforeClamp: { } beforeClamp } ? beforeClamp : owner.Hp;
+        var change = new HpChangeContext(++_resolutionSequence, healthOwner, null, owner.Seat,
+            changed.Item2, changed.Item3, before, owner.Hp);
+        _pendingHpChanges.Add(change);
+        CaptureQimeiHpQualification(change);
     }
 
     private bool ApplyAttackAsHpLoss(IDamageAttempt attack)
     {
         var target = _players[attack.TargetSeat];
         var amount = attack.DamageAmount;
+        if (TryBeginIdentityAppearanceForDamage(attack, amount)) return true;
         var before = target.Hp;
         target.Hp -= amount;
         RecordHpChange(attack.ResolutionId, null, target.Seat, before, target.Hp, HpChangeKind.Loss);

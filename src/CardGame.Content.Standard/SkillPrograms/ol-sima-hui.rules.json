@@ -1,0 +1,281 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:jianjie",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "first-actual-turn",
+          "window": "turnBeforeStart",
+          "optional": false,
+          "subject": "owner",
+          "priority": 0,
+          "effects": [
+            {
+              "op": "assignOrderedDragonPhoenixOnFirstActualTurn",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "dead-seal-transfer",
+          "window": "characterDied",
+          "optional": true,
+          "subject": "any",
+          "priority": 0,
+          "effects": [
+            {
+              "op": "transferDeadDragonPhoenixSeal",
+              "target": "owner"
+            }
+          ]
+        }
+      ],
+      "activations": [
+        {
+          "id": "transfer",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "effects": [
+            {
+              "op": "transferOwnedDragonOrPhoenixSeal",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:chenghao",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "elemental-chain-origin",
+          "window": "afterDamageApplied",
+          "optional": true,
+          "subject": "any",
+          "priority": 0,
+          "effects": [
+            {
+              "op": "distributeTopCardsAfterElementalChainOrigin",
+              "target": "owner"
+            }
+          ],
+          "damageOccurrence": "perDamage"
+        }
+      ]
+    },
+    {
+      "id": "ol:yinshi-sima-hui",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "prevent-without-seals-armor",
+          "window": "beforeDamageApplied",
+          "optional": false,
+          "subject": "damageTarget",
+          "priority": 0,
+          "effects": [
+            {
+              "op": "preventDamageWithoutSealsAndArmor",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:huoji-jianjie",
+      "revision": 1,
+      "viewAs": [
+        {
+          "id": "red-hand-as-fire-attack",
+          "inputKinds": [],
+          "inputSuits": [
+            "heart",
+            "diamond"
+          ],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "fireAttack",
+          "forPlay": true,
+          "forResponse": false,
+          "usesPerActualTurn": 3,
+          "usageGroup": "jianjie-shared-turn"
+        }
+      ]
+    },
+    {
+      "id": "ol:lianhuan-jianjie",
+      "revision": 1,
+      "viewAs": [
+        {
+          "id": "club-hand-as-iron-chain",
+          "inputKinds": [],
+          "inputSuits": [
+            "club"
+          ],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "ironChain",
+          "forPlay": true,
+          "forResponse": false,
+          "usesPerActualTurn": 3,
+          "usageGroup": "jianjie-shared-turn"
+        }
+      ]
+    },
+    {
+      "id": "ol:yeyan-jianjie",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "small",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 1,
+          "maxTargets": 3,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "usesPerGame": 1,
+          "usageGroup": "limited",
+          "effects": [
+            {
+              "op": "consumeDragonPhoenixForNativeYeyan",
+              "target": "owner"
+            },
+            {
+              "op": "damageParticipants",
+              "target": "selectedTargets",
+              "amount": 1,
+              "nature": "fire"
+            }
+          ]
+        },
+        {
+          "id": "two",
+          "minCards": 4,
+          "maxCards": 4,
+          "sourceZones": [
+            "hand"
+          ],
+          "selectedCardsDistinctSuits": true,
+          "continueAfterOwnerDeath": true,
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "usesPerGame": 1,
+          "usageGroup": "limited",
+          "effects": [
+            {
+              "op": "consumeDragonPhoenixForNativeYeyan",
+              "target": "owner"
+            },
+            {
+              "op": "discardSelected",
+              "target": "owner",
+              "amount": 4
+            },
+            {
+              "op": "loseHpUnclamped",
+              "target": "owner",
+              "amount": 3
+            },
+            {
+              "op": "damageParticipants",
+              "target": "selectedTarget",
+              "amount": 2,
+              "nature": "fire"
+            }
+          ]
+        },
+        {
+          "id": "three",
+          "minCards": 4,
+          "maxCards": 4,
+          "sourceZones": [
+            "hand"
+          ],
+          "selectedCardsDistinctSuits": true,
+          "continueAfterOwnerDeath": true,
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "usesPerGame": 1,
+          "usageGroup": "limited",
+          "effects": [
+            {
+              "op": "consumeDragonPhoenixForNativeYeyan",
+              "target": "owner"
+            },
+            {
+              "op": "discardSelected",
+              "target": "owner",
+              "amount": 4
+            },
+            {
+              "op": "loseHpUnclamped",
+              "target": "owner",
+              "amount": 3
+            },
+            {
+              "op": "damageParticipants",
+              "target": "selectedTarget",
+              "amount": 3,
+              "nature": "fire"
+            }
+          ]
+        },
+        {
+          "id": "two-and-one",
+          "minCards": 4,
+          "maxCards": 4,
+          "sourceZones": [
+            "hand"
+          ],
+          "selectedCardsDistinctSuits": true,
+          "continueAfterOwnerDeath": true,
+          "minTargets": 2,
+          "maxTargets": 2,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "usesPerGame": 1,
+          "usageGroup": "limited",
+          "effects": [
+            {
+              "op": "consumeDragonPhoenixForNativeYeyan",
+              "target": "owner"
+            },
+            {
+              "op": "discardSelected",
+              "target": "owner",
+              "amount": 4
+            },
+            {
+              "op": "loseHpUnclamped",
+              "target": "owner",
+              "amount": 3
+            },
+            {
+              "op": "damageParticipants",
+              "target": "selectedTargets",
+              "amount": 2,
+              "secondaryAmount": 1,
+              "nature": "fire"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

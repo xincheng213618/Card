@@ -96,6 +96,7 @@ public sealed partial class GameEngine
         _status = _players[f.OwnerSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
         AdvanceRulesAndPublishState(); return SkillProgramStepOutcome.AwaitChoice;
     }
+    [ProgramAnswer("damage-target-budget")]
     private void ResolveDamageBudgetChoice(PromptChoice choice)
     {
         var f = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("No owning budget choice.");
@@ -163,6 +164,7 @@ public sealed partial class GameEngine
             p.PlayerSeat != f.OwnerSeat || p.SourceSeat != f.OwnerSeat || p.SkillPrompt?.SkillId != f.SkillId || !AssistedChoicesEqual(p.Choices, r.Choices))
             throw new InvalidOperationException("A damage budget lost its owning frozen X, paid actual Use, ordered pairs or published choice.");
     }
+    [ProgramAiChoice(SkillProgramEffectOp.AddDamageMarkerBudgetTargets)]
     private PromptChoice SelectAiDamageBudgetChoice(PendingDecision p, ProgramSkillFrame f)
     {
         var use = RequireDamageBudgetUse(f, out _);

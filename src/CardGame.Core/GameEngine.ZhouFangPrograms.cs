@@ -119,6 +119,7 @@ public sealed partial class GameEngine
         _status = _players[chooserSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
 
+    [ProgramAnswer("youdi-bait-discard")]
     private void ResolveYoudiBaitChoice(PromptChoice selected)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ??
@@ -192,8 +193,6 @@ public sealed partial class GameEngine
             AdvanceRuntimeProgram(active.Id);
     }
 
-    private PromptChoice SelectAiYoudiBaitChoice(PendingDecision decision) =>
-        decision.Choices.OrderBy(choice => choice.Id.Value, StringComparer.Ordinal).First();
 
     private sealed partial class ProgramSkillHost : IZhouFangProgramHost
     {

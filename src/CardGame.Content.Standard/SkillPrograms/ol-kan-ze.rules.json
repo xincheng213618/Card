@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:xiashu",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "actual-xiashu",
+          "window": "playPhaseStarting",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "otherLiving"
+            },
+            {
+              "op": "giveAllHandAndResolveXiashu",
+              "target": "selectedTarget"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:kuanshi",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "actual-kuanshi",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "anyLiving"
+            },
+            {
+              "op": "armKuanshiProtection",
+              "target": "selectedTarget"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

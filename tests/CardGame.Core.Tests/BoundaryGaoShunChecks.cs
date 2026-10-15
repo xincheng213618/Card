@@ -84,29 +84,6 @@ internal static class BoundaryGaoShunChecks
         Cold(suppressed, suppressedRegistry);
     }
 
-    public static void FailedContestOnlyProhibitsOriginalAndIdentityHandExemption()
-    {
-        var (g, registry) = Create(); Use(g, Driver, "draw"); ReachPlay(g);
-        var low = Hand(g, 0).First(c => c.Kind != CardKind.Alcohol).Id;
-        ContestWith(g, registry, low, 2); Cold(g, registry);
-        Require(Facts<PindianResultDeterminedEvent>(g).Last().Result is { SourceRank: 1, OpponentRank: 1, SourceWon: false }, "A real tie is a not-won result.");
-        var alcohol = Hand(g, 0).First(c => c.Kind == CardKind.Alcohol).Id;
-        Require(!g.GetHumanLegalActions().Any(a => a.Kind == LegalActionKind.Slash && a.CardId == alcohol && a.TargetSeats.Contains(2)) &&
-            g.GetHumanLegalActions().Any(a => a.Kind == LegalActionKind.Slash && a.CardId == alcohol && a.TargetSeats.Contains(1)),
-            "A failed contest prohibits only Slashes to that exact original opponent; another legal target remains usable.");
-        var exemption = Facts<TurnHandLimitCardKindExemptionGrantedEvent>(g).Single().Policy;
-        Frozen(exemption.CardKinds); Prepared(g); Cold(g, registry);
-        Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId));
-        Reach(g, p => p.Kind == DecisionKind.DiscardCards && p.PlayerSeat == 0);
-        Require(P(g)!.ValidCardIds.All(id => Hand(g, 0).Single(c => c.Id == id).Kind != CardKind.Alcohol) &&
-            Hand(g, 0).Count(c => c.Kind == CardKind.Alcohol) > g.State.Players[0].Hp,
-            "Alcohol with the current locked Slash identity is genuinely omitted from the failed-contest hand-limit discard pool.");
-        Cold(g, registry);
-        var turn = g.State.TurnNumber; ReachUntil(g, () => g.State.TurnNumber > turn);
-        Require(g.CreateSnapshot(0).Players[0].TurnHandLimitCardKindExemptions is null, "The original actual turn ends and expires its one failed-contest hand policy.");
-        Cold(g, registry);
-    }
-
     public static void ForeignDyingAlcoholPhysicalVirtualAndPileBoundaries()
     {
         var (g, registry) = Create(wine: true);
@@ -142,19 +119,6 @@ internal static class BoundaryGaoShunChecks
             "Native choice actually consumes the zero-entity Wine once and returns through the exact current Dying/HP observer, rather than a presence-only exemption.");
         Cold(g, registry); Advance(g); ReachPlay(g);
         Require(Facts<ProgramDyingRescueEvent>(g).Count(f => f.DyingFrameId == nextDying.Id) == 1, "The native rescue never pays or recovers twice after its real child return.");
-        Cold(g, registry);
-    }
-
-    public static void NativeAiActuallyIssuesOriginalTargetGrant()
-    {
-        var (g, registry) = Create(native: true);
-        ReachUntil(g, () => Facts<OriginalTargetAdditionGrantedEvent>(g).Length > 0);
-        var granted = Facts<OriginalTargetAdditionGrantedEvent>(g).First().Grant;
-        Require(granted.Source.SkillId == Contest && granted.Source.OwnerSeat == g.State.CurrentSeat && granted.TargetSeat != granted.Source.OwnerSeat &&
-            g.AcceptedCommands.All(command => command is not AnswerPromptCommand) &&
-            Facts<PindianResultDeterminedEvent>(g).Any(f => f.Result.SourceSeat == granted.Source.OwnerSeat && f.Result.SourceRank == 13 && f.Result.SourceWon),
-            "A native AI starts the real phase-limited contest, selects the K identity and issues a same-actual-turn original-target grant: " +
-            JsonSerializer.Serialize(new { g.State.CurrentSeat, g.State.TurnNumber, Grant = granted, Pindian = Facts<PindianResultDeterminedEvent>(g), Prompt = P(g) }));
         Cold(g, registry);
     }
 

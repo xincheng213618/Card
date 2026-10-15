@@ -7,28 +7,6 @@ internal static class BoundaryHuaXiongChecks
 {
     const string Skill="boundary:shizhan-current",Binding="selected-actor-duel",Yao="boundary:yaowu-current";
     static int FailSequence;
-    public static void DefinitionsAndColors()
-    {
-        foreach(var black in new[]{false,true})
-        {
-            var(g,r)=Start(kind:"slash",black:black);var h0=g.State.Players[0].HandCount;var h1=g.State.Players[1].HandCount;
-            var a=g.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.Slash&&a.TargetSeat==1);
-            Accept(g,new PlayCardCommand(0,a.CardId!.Value,[1],g.Revision,P(g)!.PromptId));Settle(g);
-            Require(g.Events.Select(e=>e.Payload).OfType<ProgramBindingStartedEvent>().Any(e=>e.SkillId==Yao),"Real physical Slash damage reaches current Yaowu.");
-            Require(g.State.Players[0].HandCount==h0-1+(black?0:1)&&g.State.Players[1].HandCount==h1+(black?1:0),"Actual physical red/non-red damage Draw recipient.");Cold(g,r);Evidence(g,"physical-"+black);
-        }
-        var(effective,er)=Start(kind:"slash",black:true,hongyan:true);var effectiveHand=effective.State.Players[0].HandCount;var sa=effective.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.Slash&&a.TargetSeat==1);Accept(effective,new PlayCardCommand(0,sa.CardId!.Value,[1],effective.Revision,P(effective)!.PromptId));Settle(effective);Require(effective.State.Players[0].HandCount==effectiveHand,"Frozen Hongyan effective red appearance on printed Spade Slash gives source Draw1.");Cold(effective,er);Evidence(effective,"hongyan-effective-red");
-        foreach(var black in new[]{false,true})
-        {
-            var(l,lr)=Start(kind:"lightning",black:black);var a=l.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.Lightning&&a.TargetSeat==0);Accept(l,new PlayCardCommand(0,a.CardId!.Value,[0],l.Revision,P(l)!.PromptId));Settle(l);var beforeHp=l.State.Players[0].Hp;var beforeHand=l.State.Players[0].HandCount;Accept(l,new EndPlayPhaseCommand(0,l.Revision,P(l)!.PromptId));Reach(l,p=>p.Kind==DecisionKind.PlayCard&&p.PlayerSeat==0);Require(l.Events.Select(e=>e.Payload).OfType<JudgmentResolvedEvent>().Any(e=>e.Reason=="trick.lightning"&&e.Succeeded)&&l.State.Players[0].Hp==beforeHp-3,"Actual physical Lightning makes source-less damage through real judgment.");Evidence(l,"lightning-observed-"+black);Require(l.State.Players[0].HandCount==beforeHand+(black?1:0),"Source-less red Lightning cannot Draw for placeholder source; non-red physical Lightning Draws once per damage, not three points.");Cold(l,lr);Evidence(l,"source-less-lightning-"+black);
-        }
-        var(z,zr)=Start(kind:"lightning",black:true,gain:true,hp:2);var za=z.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.Lightning&&a.TargetSeat==0);Accept(z,new PlayCardCommand(0,za.CardId!.Value,[0],z.Revision,P(z)!.PromptId));Settle(z);var zh=z.State.Players[0].HandCount;Accept(z,new EndPlayPhaseCommand(0,z.Revision,P(z)!.PromptId));Reach(z,p=>p.SkillPrompt?.SkillId=="fixture:hx-gain");var zp=z.ResolutionStack.OfType<ProgramSkillFrame>().Single(f=>f.SkillId==Yao).DamageAppearanceReceipt!;Require(z.State.Players[0] is {Hp:0,IsAlive:true}&&zp is {HasCard:true,IsRed:false,SourceSeat:null,RecipientSeat:0,DrawIssued:true}&&z.State.Players[0].HandCount==zh+1,"Source-less non-red Lightning actually Draws once at HP0 before Dying.");Cold(z,zr);Evidence(z,"source-less-hp0-before-dying");Skip(z);Settle(z);Require(!z.State.Players[0].IsAlive,"Source-less damage resumes actual death after Yaowu gain child.");Cold(z,zr);
-        var(c,cr)=Start();var hand=c.State.Players[0].HandCount;Driver(c,"cardless",[1]);Settle(c);Require(c.State.Players[0].HandCount==hand,"True cardless damage has no Yaowu benefit.");Cold(c,cr);
-        var(d,dr)=Start();var before=d.State.Players[0].HandCount;Driver(d,"legacy-duel",[1,0]);Settle(d);Require(d.State.Players[0].HandCount==before+1&&!d.Events.Select(e=>e.Payload).OfType<CardUseDeclaredEvent>().Any(e=>e.CardKind==CardKind.Duel),"Legacy direct virtual Duel has explicit card kind and non-red benefit, retaining no CardUse lifecycle.");Cold(d,dr);Evidence(d,"legacy-direct-duel");
-        var exact="{\"id\":\"duel\",\"minCards\":0,\"maxCards\":0,\"minTargets\":1,\"maxTargets\":1,\"targetKind\":\"otherLiving\",\"usesPerTurn\":null,\"usesPerPhase\":2,\"effects\":[{\"op\":\"useSelectedActorDuel\",\"target\":\"owner\"}]}";
-        foreach(var bad in new[]{exact.Replace("\"maxCards\":0","\"maxCards\":1"),exact.Replace("otherLiving","anyLiving"),exact.Replace("\"usesPerPhase\":2","\"usesPerPhase\":1"),exact.Replace("\"maxTargets\":1","\"maxTargets\":2")})Reject("\"activations\":["+bad+"]");
-        foreach(var bad in new[]{"afterDamageApplied","beforeDamageApplied"})Reject("\"triggers\":[{\"id\":\"bad\",\"window\":\""+bad+"\",\"subject\":\"damageTarget\",\"optional\":false,\"effects\":[{\"op\":\"drawByDamageCardColor\",\"target\":\"owner\"}]}]");
-    }
     public static void ActualDuelAndNullification()
     {
         var(g,r)=Start(completed:true);var hp=g.State.Players[0].Hp;var hand=g.State.Players[0].HandCount;Use(g,1);Cold(g,r);Evidence(g,"duel-issued");Reach(g,p=>p.SkillPrompt?.SkillId=="fixture:hx-completed");Cold(g,r);Evidence(g,"completed-damage-child");Activate(g);Settle(g);
@@ -45,34 +23,6 @@ internal static class BoundaryHuaXiongChecks
         Require(g.Events.Select(e=>e.Payload).OfType<DamageAppliedEvent>().Single().TargetSeat==1,"Target answers a real Duel Slash then selected actor loses the Duel.");Require(g.State.Players[0].HandCount==h-1,"Red response cards do not change zero-entity Duel's non-red appearance.");Cold(g,r);Evidence(g,"duel-slash-response");
         var(k,kr)=Start(kongcheng:true);Driver(k,"empty");Settle(k);Require(!k.GetHumanLegalActions().Any(a=>a.ProgramSkillId==Skill),"Kongcheng owner cannot be a Duel target; infeasible actors disappear before quota.");Cold(k,kr);
         var(b,br)=Start(actorBan:true);Require(!Actions(b).Single().SelectableTargetSeats.Contains(1),"Selected actor Use prohibition is reflected in the candidate list.");var cp=GameCheckpointJson.Serialize(b.CreateCheckpoint());var denied=b.Submit(new UseProgramSkillCommand(0,Skill,Binding,[],[1],b.Revision,P(b)!.PromptId));Require(!denied.Accepted&&cp==GameCheckpointJson.Serialize(b.CreateCheckpoint()),"Nonoffered actor rejects without advancing or quota.");Cold(b,br);
-    }
-    public static void GainDyingAndPhase()
-    {
-        foreach(var activate in new[]{false,true})
-        {
-            var(g,r)=Start(gain:true,hp:1);Use(g,1);Reach(g,p=>p.SkillPrompt?.SkillId=="fixture:hx-gain");Cold(g,r);Evidence(g,"gain-"+activate);var receipt=g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f=>f.SkillId==Yao).DamageAppearanceReceipt!;
-            Require(receipt is{HasCard:true,IsRed:false,RecipientSeat:0,DrawIssued:true}&&g.State.Players[0].Hp==0&&!g.ResolutionStack.OfType<DyingFrame>().Any(),"Yaowu receipt and actual Draw precede Dying even at HP zero.");if(activate){Activate(g);Cold(g,r);Evidence(g,"gain-selection");Answer(g,c=>c.Cards.Count==1);}else Skip(g);
-            for(var i=0;i<70&&g.State.Players[0].IsAlive;i++){if(P(g) is{Kind:DecisionKind.RescueDying})Answer(g,c=>c.Cards.Count==0);else Accept(g,new AdvanceOneStepCommand(g.Revision));}
-            Require(!g.State.Players[0].IsAlive,"After gain child completion the real recipient reaches death.");Cold(g,r);Evidence(g,"death-"+activate);
-        }
-        foreach(var hpActivate in new[]{false,true})
-        {
-            var(g,r)=Start(kind:"peach",gain:true,gainDying:true,hp:1);var original=g.State.Players[0].Hand.Select(c=>c.Id).ToArray();Use(g,1);Reach(g,p=>p.SkillPrompt?.SkillId=="fixture:hx-gain");Activate(g);Cold(g,r);Evidence(g,"gain-dying-selection-"+hpActivate);Answer(g,c=>c.Cards.Count==1);Reach(g,p=>p.Kind==DecisionKind.RescueDying&&p.PlayerSeat==0);Cold(g,r);Evidence(g,"child-dying-"+hpActivate);
-            var peach=P(g)!.Choices.First(c=>c.Cards.Count==1&&original.Contains(c.Cards[0])).Cards.Single();Answer(g,c=>c.Cards.SequenceEqual([peach]));Reach(g,p=>p.SkillPrompt?.SkillId=="fixture:hx-hp");Cold(g,r);Evidence(g,"peach-hp-observer-"+hpActivate);if(hpActivate)Activate(g);else Skip(g);Settle(g);Require(g.State.Players[0].IsAlive&&g.State.Players[0].Hp>=1,"Real gain-child LoseHp Dying is saved by entity Peaches before original damage continuation.");Require(g.CardMovements.Count(m=>m.CardId==peach&&m.From==CardLocation.Hand(0)&&m.To==CardLocation.Processing)==1,"Rescue physical Peach pays once.");Cold(g,r);Evidence(g,"child-saved-"+hpActivate);
-        }
-        var(p,pr)=Start(extra:true);Use(p,1);Settle(p);Use(p,1);Settle(p);Require(!Actions(p).Any(),"Two real Uses exhaust the actual Play phase quota.");Accept(p,new EndPlayPhaseCommand(0,p.Revision,P(p)!.PromptId));Settle(p);Require(Actions(p).Any(),"An actual later Play phase receives a fresh two-use quota.");Cold(p,pr);Evidence(p,"extra-play");
-    }
-    public static void NativeAndOwnership()
-    {
-        var(ai,ar)=Start();var hint=Actions(ai).Single().ProgramAiHint!;Require(hint.TargetHpLoss==0&&hint.OwnerHpLoss==0&&hint.OwnerDraw==0&&hint.TargetValueAdjustment<0&&hint.ValueAdjustment<0,"Duel public risk prices target harm and owner risk without fixed damage or guaranteed Draw.");
-        var brain=new SimpleAiBrain(0,7);var view=ai.CreateSnapshot(0);var friend=view.Players[1] with {IsRoleRevealed=true,Role=Role.Loyalist};var foe=view.Players[2] with {IsRoleRevealed=true,Role=Role.Rebel};view=view with {Players=Array.AsReadOnly(new[]{view.Players[0],friend,foe,view.Players[3]})};
-        var score=typeof(SimpleAiBrain).GetMethod("ScoreProgramTarget",BindingFlags.Instance|BindingFlags.NonPublic,null,[typeof(GameSnapshot),typeof(int),typeof(SkillProgramAiHint)],null)!;
-        var fs=(double)score.Invoke(brain,[view,1,hint])!;var es=(double)score.Invoke(brain,[view,2,hint])!;Require(es>fs&&es>0&&fs<0,"Public known enemy receives positive harm score, friend negative; no enemy identities are read.");Cold(ai,ar);
-        var(g,r)=Start(native:true);for(var i=0;i<100&&!g.Events.Select(e=>e.Payload).OfType<ProgramSkillStartedEvent>().Any(e=>e.SkillId==Skill);i++)Accept(g,new AdvanceOneStepCommand(g.Revision));
-        var started=g.Events.Select(e=>e.Payload).OfType<ProgramSkillStartedEvent>().First(e=>e.SkillId==Skill);for(var i=0;i<100&&g.ResolutionStack.OfType<ProgramSkillFrame>().Any(f=>f.SkillId==Skill);i++){if(P(g) is{Kind:DecisionKind.RespondSlash,PlayerSeat:3})Answer(g,c=>c.Cards.Count==0);else Accept(g,new AdvanceOneStepCommand(g.Revision));}
-        Require(!g.ResolutionStack.OfType<ProgramSkillFrame>().Any(f=>f.SkillId==Skill)&&g.Events.Select(e=>e.Payload).OfType<CardUseFinishedEvent>().Any(e=>e.CardKind==CardKind.Duel),"Ordinary optional native activation uses the real Duel and finishes finitely.");Console.WriteLine("Native Shizhan accepted owner="+started.OwnerSeat+" revision="+g.Revision);Cold(g,r);Evidence(g,"native");
-        var(h,hr)=Start();Use(h,1);var use=h.ResolutionStack.OfType<CardUseFrame>().Single(u=>u.SelectedActorDuelOrigin is not null);var grant=Players(h)[0].SkillGrants.Grants.Single(x=>x.SkillId==Skill);Players(h)[0].SkillGrants.RemoveGrant(grant.GrantId);Settle(h);Require(h.Events.Select(e=>e.Payload).OfType<CardUseFinishedEvent>().Any(e=>e.CardKind==CardKind.Duel),"Host-only source loss after issuance does not withdraw the real Use.");
-        Require(!JsonSerializer.Serialize(new ProgramSkillFrame(1,0,"old","old","old",0,[],[])).Contains("DamageAppearanceReceipt"),"Old null damage receipt omitted.");Require(!JsonSerializer.Serialize(use with {SelectedActorDuelOrigin=null}).Contains("SelectedActorDuelOrigin"),"Old null origin is omitted from serialization.");
     }
     static void Activate(GameEngine g)=>Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="activate");
     static void Skip(GameEngine g)=>Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="skip");

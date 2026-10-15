@@ -532,13 +532,14 @@ public sealed partial class SimpleAiBrain
         int attackerSeat,
         int thoughtSequence,
         bool incomingIgnoresArmor,
-        bool legalDodgeAvailable)
+        bool legalDodgeAvailable,
+        bool legalConditionalBaguaAvailable = false)
     {
         var self = view.Players.Single(player => player.Seat == Seat);
         var dodgeProfile = CardCatalog.Get(CardKind.Dodge);
         var hasDodge = legalDodgeAvailable;
         var hasBagua = !incomingIgnoresArmor &&
-                       self.Equipment.Any(card => card.Kind == CardKind.BaguaFormation);
+                       (legalConditionalBaguaAvailable || self.Equipment.Any(card => card.Kind == CardKind.BaguaFormation));
         var useDodgeScore = self.Hp <= 1
             ? dodgeProfile.AiResponseValue + 35d
             : dodgeProfile.AiResponseValue + (self.MaxHp - self.Hp) * 8d;
@@ -656,11 +657,12 @@ public sealed partial class SimpleAiBrain
         GameSnapshot view,
         int ownerSeat,
         bool hasDodge,
-        int thoughtSequence)
+        int thoughtSequence,
+        bool legalConditionalBaguaAvailable = false)
     {
         var self = view.Players.Single(player => player.Seat == Seat);
         var owner = view.Players.Single(player => player.Seat == ownerSeat);
-        var hasBagua = self.Equipment.Any(card => card.Kind == CardKind.BaguaFormation);
+        var hasBagua = legalConditionalBaguaAvailable || self.Equipment.Any(card => card.Kind == CardKind.BaguaFormation);
         var shouldHelp = self.Role == Role.Loyalist ||
                          self.Role == Role.Renegade && view.Players.Count(player => player.IsAlive) > 2;
         var urgency = owner.Hp <= 1 ? 25d : Math.Max(0, owner.MaxHp - owner.Hp) * 5d;

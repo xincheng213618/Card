@@ -222,6 +222,7 @@ public sealed partial class GameEngine
         _status = _players[chooser].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
 
+    [ProgramAnswer("hand-control")]
     private void ResolveProgramHandControlChoice(PromptChoice choice)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("Missing hand-control frame.");
@@ -337,12 +338,6 @@ public sealed partial class GameEngine
         return obtained >= 2 ? new ProgramSkillHost(this).LoseHp(frame.Id, frame.SkillId, frame.OwnerSeat, 1) : SkillProgramStepOutcome.Continue;
     }
 
-    private PromptChoice SelectAiProgramHandControlChoice(PendingDecision decision, ProgramSkillFrame frame)
-    {
-        var stage = frame.HandControlDraft!.Stage;
-        return decision.Choices.FirstOrDefault(choice => choice.Parameters.GetValueOrDefault("hand-control-action") != "finish" &&
-            (stage != "participants" || frame.HandControlDraft.ParticipantSeats.Count < Math.Min(2, frame.HandControlDraft.Maximum))) ?? decision.Choices.Last();
-    }
 
     private void AssertProgramHandControlDraft(ProgramSkillFrame frame, SkillProgramEffect paused)
     {

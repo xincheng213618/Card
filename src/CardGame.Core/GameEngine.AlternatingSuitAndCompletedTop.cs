@@ -100,6 +100,7 @@ public sealed partial class GameEngine
         {PromptId=CreatePromptId(),IsPrivate=d.Mode=="alternating",Choices=choices,SkillPrompt=new(f.SkillId,skill.Name,skill.Name,skill.Description)};
         _status=_players[f.OwnerSeat].IsHuman?EngineStatus.AwaitingHumanResponse:EngineStatus.Running;
     }
+    [ProgramAnswer("alternating-suit-top")]
     private void ResolveAlternatingSuitTopChoice(PromptChoice c)
     {
         var f=GetActiveProgramFrame(long.Parse(c.Parameters["frame-id"],System.Globalization.CultureInfo.InvariantCulture));var d=f.AlternatingSuitTop!;

@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:xionghuo",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "transfer-one-marker",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLiving",
+          "usesPerTurn": null,
+          "effects": [
+            {
+              "op": "transferXionghuoMark",
+              "target": "owner"
+            }
+          ]
+        }
+      ],
+      "triggers": [
+        {
+          "id": "initial-pool",
+          "window": "gameStarting",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "initializeXionghuoPool",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "consume-mark-at-target-play",
+          "window": "playPhaseStarting",
+          "subject": "owner",
+          "turnOwnerScope": "otherLiving",
+          "optional": false,
+          "effects": [
+            {
+              "op": "settleXionghuoMarkedPlay",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:shajue",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "actual-other-dying",
+          "window": "dyingEntering",
+          "subject": "any",
+          "optional": false,
+          "effects": [
+            {
+              "op": "replenishShaJueAndClaimDyingCause",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

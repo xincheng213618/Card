@@ -179,6 +179,7 @@ public sealed partial class GameEngine
         return SkillProgramStepOutcome.AwaitChoice;
     }
 
+    [ProgramAnswer("zhuitao-mark")]
     private void ResolveZhuitaoMarkChoice(PromptChoice selected)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ??
@@ -270,6 +271,7 @@ public sealed partial class GameEngine
 
     // 追讨 mark: price every candidate through the shared target scoring; the
     // hint charges one point of prospective harm so a hostile target wins.
+    [ProgramAiChoice(SkillProgramEffectOp.ZhuitaoMarkTarget)]
     private PromptChoice SelectAiZhuitaoMarkChoice(PendingDecision decision)
     {
         var view = CreateSnapshot(decision.PlayerSeat);

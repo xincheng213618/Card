@@ -1,0 +1,139 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:jiqiao",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "actual-equipment-reveal",
+          "window": "playPhaseStarting",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "selectOwnedCards",
+              "target": "owner",
+              "minimumCards": 0,
+              "maximumCards": null,
+              "zones": [
+                "hand",
+                "equipment"
+              ],
+              "cardKinds": [
+                "xuanjian",
+                "redBloodBlade",
+                "crossbow",
+                "qinggangSword",
+                "stoneAxe",
+                "zhangbaSerpentSpear",
+                "cixiongDoubleSwords",
+                "qinglongCrescentBlade",
+                "iceSword",
+                "qilinBow",
+                "fangtianHalberd",
+                "gudingBlade",
+                "zhuqueFan",
+                "ghostDragonCrescentBlade",
+                "scarletBloodSword",
+                "xingtianAxe",
+                "baguaFormation",
+                "renwangShield",
+                "tengjia",
+                "silverLion",
+                "offensiveHorse",
+                "defensiveHorse",
+                "dawan",
+                "zixing",
+                "dilu",
+                "zhaohuangfeidian",
+                "hualiu",
+                "jadeSeal",
+                "woodenOx"
+              ],
+              "resultBind": "equipment-cost",
+              "allowDecline": true
+            },
+            {
+              "op": "discardEquipmentAndResolveJiqiao",
+              "target": "owner",
+              "sourceBind": "equipment-cost",
+              "resultBind": "jiqiao-revealed",
+              "visibility": "public"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:linglong",
+      "revision": 1,
+      "cardPolicies": [
+        {
+          "id": "empty-armor-bagua",
+          "kind": "virtualEquipment",
+          "cardKinds": [
+            "baguaFormation"
+          ],
+          "condition": {
+            "kind": "noArmor"
+          }
+        },
+        {
+          "kind": "ignoreUseDistance",
+          "cardKinds": [
+            "duel",
+            "drawTwo",
+            "barbarianAssault",
+            "arrowBarrage",
+            "peachGarden",
+            "fiveGrains",
+            "dismantlement",
+            "snatch",
+            "fireAttack",
+            "nullification",
+            "ironChain",
+            "borrowedSword",
+            "indulgence",
+            "supplyShortage",
+            "lightning"
+          ],
+          "id": "tricks-ignore-distance",
+          "condition": {
+            "kind": "noTreasure"
+          }
+        },
+        {
+          "kind": "preventForeignEquipmentDiscard",
+          "cardKinds": [],
+          "id": "foreign-armor-treasure-discard-protection",
+          "condition": {
+            "kind": "noTreasure"
+          }
+        }
+      ],
+      "modifiers": [
+        {
+          "id": "empty-weapon-slash",
+          "query": "slashLimit",
+          "operation": "add",
+          "value": 1,
+          "condition": {
+            "kind": "noWeapon"
+          },
+          "priority": 0
+        },
+        {
+          "id": "empty-mounts-hand",
+          "query": "handLimit",
+          "operation": "add",
+          "value": 1,
+          "condition": {
+            "kind": "noMounts"
+          },
+          "priority": 0
+        }
+      ]
+    }
+  ]
+}

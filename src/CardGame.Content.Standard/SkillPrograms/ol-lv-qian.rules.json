@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:weilu",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "record-damage-source",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "damageOccurrence": "perDamage",
+          "optional": false,
+          "effects": [
+            {
+              "op": "recordWeiluActualDamageSource",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "pay-next-play",
+          "window": "playPhaseStarting",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "payWeiluNextActualPlayHpLoss",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "restore-paid-phase",
+          "window": "playEnding",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "restoreWeiluExactPaidPlayHp",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:zengdao",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "deposit",
+          "minCards": 1,
+          "maxCards": null,
+          "sourceZones": [
+            "equipment"
+          ],
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLiving",
+          "usesPerTurn": null,
+          "usesPerGame": 1,
+          "effects": [
+            {
+              "op": "depositZengdaoActualEquipment",
+              "target": "owner"
+            }
+          ]
+        }
+      ],
+      "triggers": [
+        {
+          "id": "consume-gifted-damage",
+          "window": "beforeDamageApplied",
+          "subject": "damageSource",
+          "optional": false,
+          "effects": [
+            {
+              "op": "consumeZengdaoForActualSourceDamage",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

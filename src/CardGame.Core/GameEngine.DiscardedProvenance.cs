@@ -115,6 +115,7 @@ public sealed partial class GameEngine
         _status=_players[f.OwnerSeat].IsHuman?EngineStatus.AwaitingHumanResponse:EngineStatus.Running;
         return SkillProgramStepOutcome.AwaitChoice;
     }
+    [ProgramAnswer("provenance-face-up")]
     private void ResolveProvenanceFaceUp(PromptChoice choice)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame f || f.ProvenanceClaim is not { Stage:ProgramProvenanceClaimStage.Choosing } receipt || _pendingDecision?.PlayerSeat!=f.OwnerSeat || choice.Cards.Count!=0 || choice.Targets.Count!=0 || choice.Parameters.GetValueOrDefault("frame-id")!=f.Id.ToString(System.Globalization.CultureInfo.InvariantCulture) || choice.Parameters.GetValueOrDefault("option") is not ("flip" or "pass"))

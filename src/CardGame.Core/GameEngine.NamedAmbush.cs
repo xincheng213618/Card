@@ -95,6 +95,7 @@ public sealed partial class GameEngine
         { PromptId = CreatePromptId(), IsPrivate = true, Choices = choices, SkillPrompt = new(f.SkillId, skill.Name, skill.Name, skill.Description) };
         _status = _players[f.OwnerSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
+    [ProgramAnswer("named-ambush")]
     private void ResolveNamedAmbushChoice(PromptChoice choice)
     {
         var f = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("Ambush lost owning frame.");
@@ -207,6 +208,7 @@ public sealed partial class GameEngine
         return Array.AsReadOnly(deposits.GroupBy(d => (d.Source.SkillId, d.Source.SkillInstanceId)).Select(g => new NamedAmbushPileSnapshot(g.Key.SkillId,
             "伏兵", g.Count(), revealAll || owner == viewer ? Array.AsReadOnly(g.Select(d => new NamedAmbushPrivateEntrySnapshot(ToSnapshot(GetAttackCard(d.CardId)), d.RecordedKind)).ToArray()) : null)).ToArray());
     }
+    [ProgramAiChoice(SkillProgramEffectOp.RecordNamedPrivateAmbush, SkillProgramEffectOp.NullifyMatchingHandUse)]
     private PromptChoice SelectAiNamedAmbush(PendingDecision decision, ProgramSkillFrame f)
     {
         if (f.NamedAmbush!.Stage == NamedAmbushStage.SelectName)

@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:lueming",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "choose-rank",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "effects": [
+            {
+              "op": "resolveTargetChosenRankJudgment",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:tunjun-sp",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "distinct-equipment",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "usesPerGame": 1,
+          "usageGroup": "limited",
+          "effects": [
+            {
+              "op": "useDistinctDeckEquipmentByLueMingHistory",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

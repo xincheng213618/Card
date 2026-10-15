@@ -142,6 +142,7 @@ public sealed partial class GameEngine
           SkillPrompt = new(frame.SkillId, skill.Name, skill.Name, skill.Description) };
         _status = _players[frame.OwnerSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
+    [ProgramAnswer("deck-end-exchange")]
     private void ResolveDeckEndChoice(PromptChoice selected)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("Missing deck exchange frame.");

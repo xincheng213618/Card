@@ -28,7 +28,7 @@ public sealed partial class GameEngine
             judgmentCard.Id,
             judgmentCard.Kind,
             effectiveSuit,
-            judgmentCard.Rank,
+            EffectiveZhenyiJudgmentRank(pending, judgmentCard.Rank),
             succeeded,
             pending.SourceSeat);
         PushRuntimeFrame(new ProgramJudgmentTriggerWindowFrame(
@@ -52,8 +52,8 @@ public sealed partial class GameEngine
         (trigger.JudgmentReasons.Count == 0 ||
          trigger.JudgmentReasons.Contains(pending.Reason, StringComparer.Ordinal)) &&
         trigger.Suits.Contains(effectiveSuit) &&
-        judgmentCard.Rank >= trigger.MinimumRank &&
-        judgmentCard.Rank <= trigger.MaximumRank &&
+        EffectiveZhenyiJudgmentRank(pending, judgmentCard.Rank) >= trigger.MinimumRank &&
+        EffectiveZhenyiJudgmentRank(pending, judgmentCard.Rank) <= trigger.MaximumRank &&
         !trigger.ExcludedReasons.Contains(pending.Reason, StringComparer.Ordinal) &&
         CanStartFinalJudgmentEffects(owner, trigger) &&
         (!trigger.Effects.Any(effect => effect.Op == SkillProgramEffectOp.ClaimJudgmentCard) ||
@@ -66,7 +66,7 @@ public sealed partial class GameEngine
     {
         var owner = _players[candidate.OwnerSeat];
         return owner.IsAlive &&
-               trigger.Window == SkillProgramTriggerWindow.JudgmentFinalized &&
+               trigger.Window == CurrentZhenyiJudgmentWindowKind(judgment.JudgmentFrameId) &&
                (trigger.Subject == SkillProgramTriggerSubject.Any || judgment.SubjectSeat == owner.Seat) &&
                (trigger.JudgmentSource is null || trigger.JudgmentSource == SkillProgramTriggerSubject.Any ||
                 judgment.SourceSeat == owner.Seat) &&
@@ -95,6 +95,15 @@ public sealed partial class GameEngine
         {
             var pending = ActiveJudgment ??
                 throw new InvalidOperationException("Missing judgment trigger continuation.");
+            if (frame.ZhenyiBeforeResult == true)
+            {
+                frame = RefreshZhenyiBeforeResultWindow(frame, pending);
+                if (frame.CandidateIndex == frame.Candidates.Count || _winner != Winner.None)
+                {
+                    CompleteZhenyiBeforeResultWindow(frame, pending);
+                    return;
+                }
+            }
             if (_winner != Winner.None)
             {
                 ShortCircuitProgramJudgmentWindow(frame, pending);
@@ -148,7 +157,7 @@ public sealed partial class GameEngine
 
     private ProgramSkillWindowContext CreateFinalizedJudgmentProgramContext(
         ProgramJudgmentTriggerWindowFrame frame, ProgramJudgmentTriggerCandidate candidate) =>
-        new(SkillProgramTriggerWindow.JudgmentFinalized, frame.Id, candidate.OwnerSeat,
+        new(frame.ZhenyiBeforeResult == true ? SkillProgramTriggerWindow.JudgmentBeforeResult : SkillProgramTriggerWindow.JudgmentFinalized, frame.Id, candidate.OwnerSeat,
             SourceSeat: frame.Judgment.SourceSeat,
             TargetSeat: frame.Judgment.SubjectSeat,
             Facts: CaptureProgramTriggerFacts(_players[candidate.OwnerSeat]),
@@ -207,7 +216,9 @@ public sealed partial class GameEngine
         _pendingDecision = new PendingDecision(
             DecisionKind.ProgramJudgmentTrigger,
             candidate.OwnerSeat,
-            $"【{skill.Name}】：{GetSuitDisplayName(frame.Judgment.Suit)} {frame.Judgment.Rank} 的判定结果已生效。",
+            frame.ZhenyiBeforeResult == true
+                ? $"【{skill.Name}】：可在{GetSuitDisplayName(frame.Judgment.Suit)} {frame.Judgment.Rank} 的判定结果生效前修改。"
+                : $"【{skill.Name}】：{GetSuitDisplayName(frame.Judgment.Suit)} {frame.Judgment.Rank} 的判定结果已生效。",
             [],
             [],
             SourceSeat: candidate.OwnerSeat,
@@ -321,8 +332,8 @@ public sealed partial class GameEngine
         if (suspendedFrames.Any(suspended =>
                 !_resolutionStack.OfType<ProgramSkillFrame>().Any(child =>
                     child.WindowContext is
-                    { Window: SkillProgramTriggerWindow.JudgmentFinalized, ParentFrameId: var parentId } &&
-                    parentId == suspended.Id)))
+                    { Window: var suspendedWindow, ParentFrameId: var parentId } &&
+                    suspendedWindow == (suspended.ZhenyiBeforeResult == true ? SkillProgramTriggerWindow.JudgmentBeforeResult : SkillProgramTriggerWindow.JudgmentFinalized) && parentId == suspended.Id)))
             throw new InvalidOperationException("A suspended judgment trigger window lost its program child.");
         if (frame is null)
         {
@@ -338,8 +349,8 @@ public sealed partial class GameEngine
             child.AttackAttempt?.ProgramJudgmentWindowId == frame.Id);
         var resolvingProgram = _resolutionStack.LastOrDefault() is ProgramSkillFrame skillFrame &&
             skillFrame.WindowContext is
-            { Window: SkillProgramTriggerWindow.JudgmentFinalized, ParentFrameId: var parentId } &&
-            parentId == frame.Id;
+            { Window: var activeWindow, ParentFrameId: var parentId } &&
+            activeWindow == (frame.ZhenyiBeforeResult == true ? SkillProgramTriggerWindow.JudgmentBeforeResult : SkillProgramTriggerWindow.JudgmentFinalized) && parentId == frame.Id;
         // The new suit-cost instruction owns its judgment and may wait on a finalized-program child subtree.
         resolvingProgram |= judgmentFrame is not null &&
             _resolutionStack.OfType<ProgramSkillFrame>().Any(owner => owner.Id == judgmentFrame.ParentFrameId &&
@@ -352,8 +363,9 @@ public sealed partial class GameEngine
             ownedParentId == frame.Id;
         resolvingProgram |= IsExactRepeatedJudgmentFinalizedChildSubtree(frame, judgmentFrame, frameIndex);
         resolvingProgram |= IsExactOwnedDamagePointJudgmentFinalizedChildSubtree(frame, judgmentFrame, frameIndex);
+        resolvingProgram |= IsExactChouceFinalizedChildSubtree(frame, judgmentFrame, frameIndex);
         resolvingProgram |= IsExactDamageJudgmentSuitPaymentFinalizedSubtree(frame, judgmentFrame, frameIndex);
-        if (pending is null || pending.Succeeded is null ||
+        if (pending is null || (frame.ZhenyiBeforeResult == true ? pending.ZhenyiBeforeResultCompleted == true || pending.Succeeded is not null : pending.Succeeded is null) ||
             (!ReferenceEquals(_resolutionStack.Last(), frame) && !resolvingDamage && !resolvingProgram) ||
             judgmentFrame is null || judgmentFrame.Id != frame.ParentFrameId ||
             pending.Id != frame.Judgment.JudgmentFrameId ||

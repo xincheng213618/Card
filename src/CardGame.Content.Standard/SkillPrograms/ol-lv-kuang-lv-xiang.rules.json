@@ -1,0 +1,4 @@
+{"schemaVersion":62,"skills":[
+ {"id":"ol:qigong","revision":1,"triggers":[{"id":"actual-sole-slash-dodged","window":"slashFullyDodged","ownerRelation":"actor","cardKinds":["slash","fireSlash","thunderSlash"],"optional":true,"priority":0,"effects":[{"op":"resolveQigongActualDodgedSlashRequest","target":"owner"}]}]},
+ {"id":"ol:liehou","revision":1,"activations":[{"id":"range-hand-relay","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"otherLiving","usesPerTurn":null,"usesPerPhase":1,"effects":[{"op":"resolveLiehouRangeHandRelay","target":"owner"}]}]}
+]}

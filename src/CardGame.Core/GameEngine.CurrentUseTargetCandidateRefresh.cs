@@ -1,11 +1,14 @@
-namespace CardGame.Core;
+﻿namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
     private CardUseFrame NormalizeImplicitDrawTwoUseTarget(CardUseFrame use)
     {
         if (use.CardKind != CardKind.DrawTwo || use.TargetSeats.Count != 0 || use.Action is not { } old ||
-            !HasTargetedOrdinaryTrickAdjustment && !_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ProtectOtherSoleCardTarget)) return use;
+            !HasCaoChunCapability && !HasNeifaCapability && !HasSuFeiCapability && !HasJianjiNativeUseCapability && !HasFanChouCapability && !HasGuoSiCapability &&
+            !HasTargetedOrdinaryTrickAdjustment && !_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ProtectOtherSoleCardTarget) &&
+            !_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ConsumeKuiCancelSoleIncomingTarget) &&
+            !_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ConsumeKuiAppendLegalTargets)) return use;
         var targets = Array.AsReadOnly(new[] { use.SourceSeat });
         var action = CloneDesignatedExtraTargetAction(old, targets);
         use = use with { TargetSeats = targets, Action = action };

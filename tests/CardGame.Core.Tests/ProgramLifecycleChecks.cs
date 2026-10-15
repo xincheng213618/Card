@@ -168,9 +168,6 @@ internal static class ProgramLifecycleChecks
     private const string Presentation =
         "{\"schemaVersion\":3,\"skills\":{\"fixture:lifecycle\":{\"name\":\"Lifecycle\",\"description\":\"Fixture\"}}}";
 
-    private static GameCheckpoint RoundTrip(GameCheckpoint checkpoint) =>
-        GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(checkpoint));
-
     private static void Require(bool condition, string message)
     {
         if (!condition) throw new InvalidOperationException(message);

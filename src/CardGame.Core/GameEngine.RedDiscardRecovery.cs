@@ -71,6 +71,7 @@ public sealed partial class GameEngine
                 RedDiscardRecoveryParameters(f, "recovery")));
         return choices;
     }
+    [ProgramAnswer("red-discard-recovery")]
     private void ResolveRedDiscardRecoveryChoice(PromptChoice selected)
     {
         var f = GetActiveProgramFrame(long.Parse(selected.Parameters["frame-id"]));
@@ -156,6 +157,7 @@ public sealed partial class GameEngine
         PublishBudgetGiftPrompt(published, seat, $"请选择【再起】的效果。", RedDiscardRecoveryQuestionChoices(published));
         return true;
     }
+    [ProgramAiChoice(SkillProgramEffectOp.OfferRedDiscardRecoveryChoice)]
     private PromptChoice SelectAiRedDiscardRecovery(PendingDecision decision, ProgramSkillFrame frame)
     {
         if (!decision.Choices.Any(choice => choice.Parameters.GetValueOrDefault("mode") is "draw" or "recovery"))

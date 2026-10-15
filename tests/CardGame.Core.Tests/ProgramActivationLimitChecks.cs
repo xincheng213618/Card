@@ -94,12 +94,6 @@ internal static class ProgramActivationLimitChecks
             Accept(game.Submit(new AdvanceOneStepCommand(game.Revision)));
         Require(game.PendingDecision is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 }, "Fixture did not reach its Play prompt.");
     }
-    private static void Reject(string rules, string expected)
-    {
-        try { SkillProgramCatalog.Load(rules, Presentation); }
-        catch (InvalidOperationException exception) when (exception.Message.Contains(expected, StringComparison.Ordinal)) { return; }
-        throw new InvalidOperationException($"The definition did not reject {expected}.");
-    }
     private static void Accept(CommandResult result) => Require(result.Accepted, result.Error?.Message ?? "Command failed.");
     private static void Require(bool value, string message) { if (!value) throw new InvalidOperationException(message); }
     private static (GameEngine Game, ContentRegistry Registry) Create(int initialHand = 4, bool extraPhase = false,

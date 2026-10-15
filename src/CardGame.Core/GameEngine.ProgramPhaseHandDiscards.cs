@@ -145,6 +145,7 @@ public sealed partial class GameEngine
         AdvanceRuntimeProgram(frame.Id);
     }
 
+    [ProgramAiChoice(SkillProgramEffectOp.RestorePhaseHandDiscards)]
     private PromptChoice SelectAiProgramPhaseHandDiscardRestore(PendingDecision decision, ProgramSkillFrame frame)
     {
         var skill = _contentRegistry!.GetSkill(frame.SkillId);

@@ -6,7 +6,7 @@ public sealed record CardMovementTiming(int ActualTurnOwnerSeat, TurnPhase Phase
 /// Frozen facts for one atomic card-zone operation. Nested operations retain
 /// both their rules-frame parent and their immediate movement-batch parent.
 /// </summary>
-public sealed record CardMovementBatchContext(
+public sealed partial record CardMovementBatchContext(
     long Id,
     long? ParentFrameId,
     long? ParentBatchId,
@@ -25,6 +25,9 @@ public sealed record CardMovementBatchContext(
     public ActualDiscardRecoveryPhaseKey? DiscardRecoveryPhase { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public NativeDrawInvocationProof? NativeDrawInvocation { get; init; }
+
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public NativeBuZhiDiscardInvocationProof? NativeBuZhiDiscardInvocation { get; init; }
 }
 
 public sealed record CardMovementSourceCount(
@@ -44,8 +47,13 @@ public sealed record CardUsePaymentMovementReceipt(long OwnerFrameId, long Actio
         {
             Movements = Array.AsReadOnly(value.Movements.ToArray()),
             SourceCounts = Array.AsReadOnly(value.SourceCounts.ToArray()),
+            SanwenGains = value.SanwenGains,
             DestinationCounts = value.DestinationCounts is null ? null : Array.AsReadOnly(value.DestinationCounts.ToArray()),
-            NativeDrawInvocation = value.NativeDrawInvocation is { } draw ? draw with { Materials = draw.Materials } : null
+            LiJueUseDiscard = value.LiJueUseDiscard is { } usedTrick
+                ? CommittedEventProjection.FreezeLiJueUseDiscard(usedTrick) : null,
+            NativeDrawInvocation = value.NativeDrawInvocation is { } draw ? draw with { Materials = draw.Materials } : null,
+            NativeBuZhiDiscardInvocation = value.NativeBuZhiDiscardInvocation is { } discard
+                ? discard with { Zones = discard.Zones, Materials = discard.Materials } : null
         };
     }
 }
@@ -80,6 +88,8 @@ public sealed partial record CardsMovedTriggerWindowFrame(
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public long? ResumeCounterspellPaymentFrameId { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] public long? ResumeHistoricalEndingUseFrameId { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] public long? ResumeGuoSiUseFrameId { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] public long? ResumeDenglouUseFrameId { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] public long? ResumeRoundPileAlcoholUseFrameId { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public long? ResumeDrawPhaseObligationFrameId { get; init; }

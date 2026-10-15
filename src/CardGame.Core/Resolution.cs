@@ -52,7 +52,11 @@ public enum ResolutionFrameKind
     ForeignActualTurnStartWindow = 6400,
     SlashTargetBenefitWindow = 7000, SlashTargetPenaltyWindow = 7340,
     DrawFundedDistinctBasic = 8800,
-    ChainedStateBasic = 9089
+    ChainedStateBasic = 9089,
+    FirstSlashDuelLegacyWindow = 21100,
+    PindianRevealWindow = 21500,
+    IdentityAppearance = 22200,
+    BeiMiHuTurnPrelude = 23200
 }
 
 public enum ResolutionFrameStep
@@ -69,6 +73,8 @@ public enum ResolutionFrameStep
 /// can inspect and later persist the stack without coupling it to the UI.
 /// </summary>
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "$type")]
+[JsonDerivedType(typeof(BeiMiHuTurnPreludeFrame), "bei-mi-hu-turn-prelude")]
+[JsonDerivedType(typeof(IdentityAppearanceFrame), "identity-appearance")]
 [JsonDerivedType(typeof(FriendDuelResponseFrame), "friend-duel-response")]
 [JsonDerivedType(typeof(RequestedDeckBasicFrame), "requested-deck-basic")]
 [JsonDerivedType(typeof(DrawFundedDistinctBasicFrame), "draw-funded-distinct-basic")]
@@ -76,6 +82,8 @@ public enum ResolutionFrameStep
 [JsonDerivedType(typeof(ForeignActualTurnStartWindowFrame), "foreign-actual-turn-start-window")]
 [JsonDerivedType(typeof(ActualUseTargetWindowFrame), "actual-use-target-window")]
 [JsonDerivedType(typeof(SlashTargetBenefitWindowFrame), "slash-target-benefit-window")]
+[JsonDerivedType(typeof(FirstSlashDuelLegacyWindowFrame), "first-slash-duel-legacy-window")]
+[JsonDerivedType(typeof(PindianRevealWindowFrame), "pindian-reveal-window")]
 [JsonDerivedType(typeof(SlashTargetPenaltyWindowFrame), "slash-target-penalty-window")]
 [JsonDerivedType(typeof(DeferredTurnEndFrame), "deferred-turn-end")]
 [JsonDerivedType(typeof(CardEffectBeforeApplyFrame), "card-effect-before-apply")]
@@ -716,7 +724,7 @@ public sealed partial record JudgmentFrame(
         ReplacementCandidates.Select(candidate => candidate.OwnerSeat).ToArray();
 }
 
-public sealed record DamageFrame(
+public sealed partial record DamageFrame(
     long Id,
     long ParentFrameId,
     int SourceSeat,
@@ -766,7 +774,7 @@ public enum DyingContinuationKind
     AttackHpLoss
 }
 
-public sealed record DyingFrame(
+public sealed partial record DyingFrame(
     long Id,
     long ParentFrameId,
     int VictimSeat,

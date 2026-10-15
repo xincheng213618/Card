@@ -6,6 +6,7 @@ public sealed partial class GameEngine
 {
     private bool HasForeignDiscardCapability =>
         _contentRegistry.ProgramDependencies.HasCardPolicy(SkillProgramCardPolicyKind.PreventForeignEquipmentDiscard) ||
+        _contentRegistry.ProgramDependencies.HasCardPolicy(SkillProgramCardPolicyKind.XiaHuiBlackHandAndGainedEntityRestrictions) ||
         _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.SelectEquipmentPairAndPayment) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.SelectDyingOwnedCard) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.RestrictDamageSourceHandCategory);

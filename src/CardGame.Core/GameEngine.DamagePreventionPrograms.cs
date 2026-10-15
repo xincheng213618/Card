@@ -1,13 +1,17 @@
-﻿namespace CardGame.Core;
+namespace CardGame.Core;
 
 /// <summary>Generic before-damage program window. It contains no character or skill ids.</summary>
 public sealed partial class GameEngine
 {
     private bool HasRangePreventionPrograms =>
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.PreventYinjuDamageAndRecover) ||
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.PayXiliActualOtherOwnerDamage) ||
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ConsumeZengdaoForActualSourceDamage) ||
         _contentRegistry.ProgramDependencies.UsesTriggerCondition(SkillProgramTriggerConditionKind.DamageNatureIs) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.SpareFirstLethalTarget) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.PreventOwnPlayOutsideTargetRangeDamage) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.PreventCurrentDamageAndDrawMultiple) ||
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.PreventParticipantDamageDrawActualSource) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.PreventDamageAndConsumeSourceFaction) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DiscardOwnedCardToAdjustCurrentDamage);
 
@@ -84,14 +88,17 @@ public sealed partial class GameEngine
                         ? _players[sourceSeat].Gender : null
                 };
                 return CollectProgramTriggerCandidates(owner, SkillProgramTriggerWindow.BeforeDamageApplied)
-                    .Where(candidate => !rangeChainOnly || UsesDamageNatureCondition(GetProgramTrigger(candidate).Condition) || GetProgramTrigger(candidate).Effects.Any(e => e.Op is SkillProgramEffectOp.SpareFirstLethalTarget or SkillProgramEffectOp.PreventOwnPlayOutsideTargetRangeDamage or SkillProgramEffectOp.PreventCurrentDamageAndDrawMultiple or SkillProgramEffectOp.PreventDamageAndConsumeSourceFaction or SkillProgramEffectOp.DiscardOwnedCardToAdjustCurrentDamage))
+                    .Where(candidate => !ProgramInstructionResolver.Default.Features(GetProgramTrigger(candidate)).HasOperation(SkillProgramEffectOp.ConsumeZengdaoForActualSourceDamage) && !ProgramInstructionResolver.Default.Features(GetProgramTrigger(candidate)).HasOperation(SkillProgramEffectOp.PreventYinjuDamageAndRecover))
+                    .Where(candidate => !rangeChainOnly || UsesDamageNatureCondition(GetProgramTrigger(candidate).Condition) || GetProgramTrigger(candidate).Effects.Any(e => e.Op is SkillProgramEffectOp.PreventYinjuDamageAndRecover or SkillProgramEffectOp.PayXiliActualOtherOwnerDamage or SkillProgramEffectOp.SpareFirstLethalTarget or SkillProgramEffectOp.PreventOwnPlayOutsideTargetRangeDamage or SkillProgramEffectOp.PreventCurrentDamageAndDrawMultiple or SkillProgramEffectOp.PreventParticipantDamageDrawActualSource or SkillProgramEffectOp.PreventDamageAndConsumeSourceFaction or SkillProgramEffectOp.DiscardOwnedCardToAdjustCurrentDamage))
                     .Where(candidate => GetProgramTrigger(candidate).Subject switch
                     {
                         SkillProgramTriggerSubject.DamageTarget => owner.Seat == targetSeat &&
                             (CurrentDamageAttempt?.DamageRedirected != true ||
                              !ProgramInstructionResolver.Default.Features(GetProgramTrigger(candidate))
                                  .HasOperation(SkillProgramEffectOp.RedirectCurrentDamage)),
-                        SkillProgramTriggerSubject.DamageSource => CurrentDamageAttempt?.IsSourceLess != true && owner.Seat == sourceSeat && owner.Seat != targetSeat,
+                        SkillProgramTriggerSubject.DamageSource => CurrentDamageAttempt?.IsSourceLess != true && owner.Seat == sourceSeat &&
+                            (owner.Seat != targetSeat || ProgramInstructionResolver.Default.Features(GetProgramTrigger(candidate))
+                                .HasOperation(SkillProgramEffectOp.IncreaseActualSourceDamageByYuqing)),
                         SkillProgramTriggerSubject.Owner => owner.Seat != targetSeat,
                         _ => false
                     })
@@ -99,6 +106,8 @@ public sealed partial class GameEngine
                         facts, candidate.SkillId, candidate.SkillInstanceId))
                     .Select(candidate => new BeforeDamageProgramCandidate(candidate, facts));
             })
+            .Concat(CollectZengdaoDamageCandidates(sourceSeat, targetSeat, rangeChainOnly))
+            .Concat(CollectIssuedYinjuCandidates(sourceSeat, targetSeat, rangeChainOnly))
             .OrderByDescending(item => item.Candidate.Priority)
             .ThenBy(item => (item.Candidate.OwnerSeat - targetSeat + _playerCount) % _playerCount)
             .ThenBy(item => item.Candidate.SkillId, StringComparer.Ordinal)
@@ -129,7 +138,7 @@ public sealed partial class GameEngine
     private ProgramSkillWindowContext CreateBeforeDamageProgramContext(
         BeforeDamageProgramWindowFrame frame,
         BeforeDamageProgramCandidate item) =>
-        new(
+        CreateLvQianBeforeDamageContext(item, new ProgramSkillWindowContext(
             SkillProgramTriggerWindow.BeforeDamageApplied,
             frame.Id,
             item.Candidate.OwnerSeat,
@@ -137,7 +146,7 @@ public sealed partial class GameEngine
             TargetSeat: frame.TargetSeat,
             Amount: frame.Amount,
             OccurrenceIndex: item.Candidate.OccurrenceIndex,
-            Facts: item.Facts);
+            Facts: item.Facts));
 
     private bool BeforeDamageHasNoSource(BeforeDamageProgramWindowFrame frame) =>
         frame.Continuation == BeforeDamageProgramContinuation.Attack && CurrentDamageAttempt?.IsSourceLess == true;

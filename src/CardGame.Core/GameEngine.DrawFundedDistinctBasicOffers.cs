@@ -123,6 +123,10 @@ public sealed partial class GameEngine
             blade.Attack.SourceSeat == prompt.PlayerSeat && SameAttackOwner(ActiveCardAttack, blade.Attack) && blade.Attack.ResolutionId == ownerId)
             return new(DrawFundedDistinctBasicIntent.Qinglong, ownerId, top.Id, parentAction, 0, blade.Attack.TargetSeat);
         if (prompt.Kind != DecisionKind.ProgramTrigger || top is not ProgramSkillFrame program) return null;
+        if (IsQigongRequest(program) && prompt.PlayerSeat == program.LvKuangLvXiang!.Actor)
+            return new(DrawFundedDistinctBasicIntent.AssistedSlash, program.Id, program.Id, null, program.InstructionIndex, program.LvKuangLvXiang.Target);
+        if (IsCaoChunInitialRequest(program) && prompt.PlayerSeat == program.OwnerSeat)
+            return new(DrawFundedDistinctBasicIntent.AssistedSlash, program.Id, program.Id, null, program.InstructionIndex, null);
         var paused = ProgramInstructionResolver.Default.Resolve(program, _contentRegistry.GetSkill(program.SkillId).Program!).GetPausedInstruction(program.InstructionIndex).Effect;
         if (paused.Op == SkillProgramEffectOp.RequestSlashByTarget && program.SelectedTargetSeats.SequenceEqual([prompt.PlayerSeat]) &&
             prompt.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "request-slash-decline"))
@@ -154,8 +158,11 @@ public sealed partial class GameEngine
         if (need.Intent == DrawFundedDistinctBasicIntent.Qinglong)
             return ActiveQinglongCrescentBlade is { } q && q.Attack.ResolutionId == need.ParentFrameId && q.Attack.SourceSeat == actor.Seat &&
                 q.Attack.TargetSeat == seat && SameAttackOwner(ActiveCardAttack, q.Attack) && CanUseQinglongCrescentBladeTarget(actor, _players[seat], kind, null, false, Suit.None, 0);
-        if (_resolutionStack.SingleOrDefault(f => f.Id == need.ParentFrameId) is not ProgramSkillFrame program || program.InstructionIndex != need.Cursor ||
-            !_players[program.OwnerSeat].IsAlive || !HasRuntimeSkillInstance(_players[program.OwnerSeat], program.SkillId, program.SkillInstanceId)) return false;
+        if (_resolutionStack.SingleOrDefault(f => f.Id == need.ParentFrameId) is not ProgramSkillFrame program || program.InstructionIndex != need.Cursor) return false;
+        if (IsQigongRequest(program))
+            return QigongAdapterActor(program, actor.Seat, seat, need.Cursor, need.ParentFrameId, need.RequestFrameId) &&
+                CanUseSlashTarget(actor, _players[seat], new(0, kind, Suit.None, 0), effectiveKind: kind, noEffectiveRank: true, physicalCardIds: [], ignoreDistance: true);
+        if (!_players[program.OwnerSeat].IsAlive || !HasRuntimeSkillInstance(_players[program.OwnerSeat], program.SkillId, program.SkillInstanceId) && !IsCaoChunInitialRequest(program)) return false;
         if (need.FixedTargetSeat is { } fixedTarget && fixedTarget != seat ||
             need.Intent is DrawFundedDistinctBasicIntent.ProgramNearestSlash or DrawFundedDistinctBasicIntent.NearestLegalSlash && !GetNearestLivingCharacterSeats(actor.Seat).Contains(seat)) return false;
         return CanUseSlashTarget(actor, _players[seat], new(0, kind, Suit.None, 0), effectiveKind: kind, noEffectiveRank: true, physicalCardIds: []);

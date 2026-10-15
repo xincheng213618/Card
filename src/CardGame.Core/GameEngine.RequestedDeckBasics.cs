@@ -39,6 +39,8 @@ public sealed partial class GameEngine
             return(RequestedDeckBasicIntent.Qinglong,owner,top.Id,0);
         if(p.Kind==DecisionKind.ProgramTrigger && top is ProgramSkillFrame program)
         {
+            if(IsQigongRequest(program)&&p.PlayerSeat==program.LvKuangLvXiang!.Actor)return(RequestedDeckBasicIntent.AssistedSlash,program.Id,program.Id,program.InstructionIndex);
+            if(IsCaoChunInitialRequest(program)&&p.PlayerSeat==program.OwnerSeat)return(RequestedDeckBasicIntent.AssistedSlash,program.Id,program.Id,program.InstructionIndex);
             var actions=p.Choices.Select(c=>c.Parameters.GetValueOrDefault("program-action")).ToArray();
             if(actions.Contains("request-slash-decline"))return(RequestedDeckBasicIntent.ProgramSlash,program.Id,program.Id,program.InstructionIndex);
             if(actions.Contains("request-slash-nearest-decline"))return(RequestedDeckBasicIntent.ProgramNearestSlash,program.Id,program.Id,program.InstructionIndex);
@@ -141,13 +143,16 @@ public sealed partial class GameEngine
             RequestedDeckBasicIntent.BorrowedSword=>new[]{ActiveBorrowedSword!.SlashTargetSeat},
             RequestedDeckBasicIntent.Qinglong=>new[]{ActiveQinglongCrescentBlade!.Attack.TargetSeat},
             RequestedDeckBasicIntent.ProgramSlash=>new[]{((ProgramSkillFrame)_resolutionStack.Single(f=>f.Id==r.OwnerFrameId)).OwnerSeat},
-            RequestedDeckBasicIntent.AssistedSlash=>new[]{((ProgramSkillFrame)_resolutionStack.Single(f=>f.Id==r.OwnerFrameId)).AssistedSlashRequest!.TargetSeat!.Value},
+            RequestedDeckBasicIntent.AssistedSlash=>_resolutionStack.Single(f=>f.Id==r.OwnerFrameId)is ProgramSkillFrame cao&&(IsCaoChunInitialRequest(cao)||IsQigongRequest(cao))?view.OriginalDecision.ValidTargetSeats.ToArray():new[]{((ProgramSkillFrame)_resolutionStack.Single(f=>f.Id==r.OwnerFrameId)).AssistedSlashRequest!.TargetSeat!.Value},
             RequestedDeckBasicIntent.ProgramNearestSlash or RequestedDeckBasicIntent.NearestLegalSlash=>view.OriginalDecision.ValidTargetSeats.ToArray(),
             _=>Array.Empty<int>()
         };
         return targets.Where(t=>_players[t].IsAlive && (r.Intent==RequestedDeckBasicIntent.Qinglong
             ? CanUseQinglongCrescentBladeTarget(actor,_players[t],card.Kind,SuitColor(EffectiveSuit(actor,card)),false,EffectiveSuit(actor,card),SpecificSlashRank(actor,card,card.Kind))
-            : CanUseSlashTarget(actor,_players[t],card,null,card.Kind,physicalCardIds:[card.Id]))).ToArray();
+            : CanUseSlashTarget(actor,_players[t],card,null,card.Kind,physicalCardIds:[card.Id],
+                ignoreDistance:r.Intent==RequestedDeckBasicIntent.AssistedSlash &&
+                    _resolutionStack.SingleOrDefault(f=>f.Id==r.OwnerFrameId)is ProgramSkillFrame request &&
+                    QigongAdapterActor(request,actor.Seat,t,r.Cursor,r.OwnerFrameId,r.RequestFrameId)))).ToArray();
     }
     private bool RequestedDeckBasicCardMatches(RequestedDeckBasicFrame view,Card card)
     {
@@ -234,6 +239,8 @@ public sealed partial class GameEngine
     private void DispatchRequestedDeckProgramSlash(RequestedDeckBasicIntent intent,Card card,IReadOnlyList<int> targets)
     {
         var f=_resolutionStack.LastOrDefault() as ProgramSkillFrame??throw new InvalidOperationException("A deck basic program request lost its original owner.");
+        if(IsQigongRequest(f)){DispatchQigongRequestedDeckSlash(f,card,targets);return;}
+        if(IsCaoChunInitialRequest(f)){DispatchCaoChunRequestedDeckSlash(f,card,targets);return;}
         var e=ProgramInstructionResolver.Default.Resolve(f,_contentRegistry.GetSkill(f.SkillId).Program!).GetPausedInstruction(f.InstructionIndex).Effect;
         var p=new Dictionary<string,string>{["frame-id"]=f.Id.ToString(CultureInfo.InvariantCulture),["card-id"]=card.Id.ToString(CultureInfo.InvariantCulture)};
         if(intent==RequestedDeckBasicIntent.ProgramSlash)

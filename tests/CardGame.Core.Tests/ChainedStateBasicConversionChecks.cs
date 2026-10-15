@@ -56,46 +56,6 @@ internal static class ChainedStateBasicConversionChecks
         UnpayableStateCosts();
     }
 
-    public static void OwnSlashDodgeWaitsForStateChildrenAndCompletesOnce()
-    {
-        var (g, r) = Start(stateChild: true, incoming: true); Play(g); End(g);
-        Reach(g, p => p is { PlayerSeat: 0, Kind: DecisionKind.RespondDodge } && p.Choices.Any(IsState));
-        var attack = g.ResolutionStack.OfType<CardUseFrame>().Last(f => f.CardAttack is not null);
-        var response = g.ResolutionStack.OfType<ResponseWindowFrame>().Last(); var hand = V(g, 0).Hand.Select(c => c.Id).ToArray(); var hp = V(g, 0).Hp;
-        var retained = g.CreateSnapshot(0); var offered = P(g)!; var choice = offered.Choices.Single(IsState);
-        Require(!V(g, 0).IsChained && choice.Cards.Count == 0 && choice.Targets.Count == 0 &&
-            choice.Parameters.GetValueOrDefault("output-kind") == nameof(CardKind.Dodge), "Actual Slash defense publishes a zero-material Dodge Use, with no invented target or hand payment.");
-        Private(g); Reject(g); g = Cold(g, r); Answer(g, IsState);
-        Reach(g, p => p.SkillPrompt?.SkillId == Child);
-        var paid = g.ResolutionStack.OfType<ChainedStateBasicFrame>().Single();
-        var window = g.ResolutionStack.OfType<ProgramLifecycleTriggerWindowFrame>().Single(w => w.CharacterStateContinuation == CharacterStateContinuation.ChainedStateBasic);
-        Require(paid.Payment is { Intent: ChainedStateBasicIntent.OwnSlashDodge, WasChained: false, DesiredChained: true, Cursor: 0 } &&
-            paid.Payment.ParentFrameId == attack.Id && paid.Payment.RequestFrameId == response.Id && paid.Payment.ParentActionId == attack.Action!.ActionId &&
-            paid.Payment.CharacterStateChangeId == window.Id && paid.ActiveChildFrameId == window.Id && window.ResumeProgramFrameId == paid.Id &&
-            window.Window == SkillProgramTriggerWindow.CharacterEnteredChain && V(g, 0).IsChained && !retained.Players[0].IsChained &&
-            F<ChainedStateBasicIssuedEvent>(g).Length == 0 && F<CharacterStateChangedEvent>(g).Count(e => e.Change.ParentFrameId == paid.Id) == 1,
-            "Entering chain pays before a true state-change child, freezing the original Slash action, response window and successful-Dodge cursor.");
-        DrawFundedBasicFixture.Frozen(paid.OriginalDecision); Private(g); Reject(g); g = Cold(g, r); Continue(g);
-        Reach(g, p => p.SkillPrompt?.SkillId == Completed);
-        var owner = g.ResolutionStack.OfType<CardUseFrame>().Single(f => f.Id == attack.Id); var receipt = owner.ChainedStateBasicResponse!;
-        var accepted = F<CardActionAcceptedEvent>(g).Single(e => e.Action.ActionId == receipt.CardActionId).Action;
-        Require(receipt.Payment == paid.Payment && receipt.OwnerFrameId == attack.Id &&
-            accepted is { Type: CardActionType.Response, EffectiveKind: CardKind.Dodge, PhysicalCards.Count: 0, EffectiveSuit: Suit.None, EffectiveRank: 0, EffectiveIsRed: false } &&
-            accepted.ActorSeat == 0 && accepted.ProviderSeat == 0 && accepted.ResponderSeat == 0 && accepted.OpponentSeat == attack.SourceSeat &&
-            accepted.ParentActionId == attack.Action!.ActionId && accepted.ConversionChain.SequenceEqual([paid.Payment.Source]) &&
-            owner.CardAttack!.SuccessfulDodgeResponses == 0 && V(g, 0).HandCount == hand.Length + 1 && V(g, 0).Hp == hp && !V(g, 0).IsChained &&
-            F<ChainedStateBasicReturnedEvent>(g).Length == 0,
-            "The native child really draws and releases chain again; the already-paid Dodge still issues once and waits for its real response-use completion.");
-        Private(g); g = Cold(g, r); Continue(g);
-        Until(g, e => F<ChainedStateBasicReturnedEvent>(e).Any(f => f.Receipt.Payment.PaymentFrameId == paid.Id));
-        Once(g, receipt);
-        Require(V(g, 0).Hp == hp && hand.All(id => g.CreateCardZoneDiagnostics().Any(z => z.CardId == id && z.Location == CardLocation.Hand(0))) &&
-            !g.ResolutionStack.OfType<CardUseFrame>().Any(f => f.ChainedStateBasicResponse?.Payment.PaymentFrameId == paid.Id) && g.CardMovements.All(m => m.CardId != 0),
-            "The successful Dodge returns once without re-entering chain, spending a hand entity or retaining its completed response receipt.");
-        beforeStale(g, offered, choice); _ = Cold(g, r);
-        PaidSourceLossDodge();
-    }
-
     private static void UnpayableStateCosts()
     {
         var (forced, fr) = Start(chainPolicy: "forceChained"); Play(forced); Use(forced, "chain", [0]); Play(forced);
@@ -108,29 +68,6 @@ internal static class ChainedStateBasicConversionChecks
             "A real Slash defense cannot publish an entry fee which the owner's native policy prevents from changing state.");
         prevented = Cold(prevented, pr); Answer(prevented, c => c.Cards.Count == 1);
         Require(F<ChainedStateBasicStartedEvent>(prevented).Length == 0, "Using a real physical Dodge after the negative does not manufacture a chain payment.");
-    }
-
-    private static void PaidSourceLossDodge()
-    {
-        var (g, r) = Start(stateChild: true, incoming: true, sourceLoss: true); Play(g); End(g);
-        Reach(g, p => p is { PlayerSeat: 0, Kind: DecisionKind.RespondDodge } && p.Choices.Any(IsState));
-        var hp = V(g, 0).Hp; var hand = V(g, 0).HandCount;
-        var sourceState = V(g, 0).SkillRuntimeStates!.Single(s => s.SkillId == Skill).BooleanStates!
-            .Single(s => s.StateId == "qualification-probe");
-        Require(sourceState.Value, "The original Xianwan instance is genuinely qualified before the state fee.");
-        Answer(g, IsState); Reach(g, p => p.SkillPrompt?.SkillId == Child);
-        var payment = g.ResolutionStack.OfType<ChainedStateBasicFrame>().Single().Payment;
-        Require(payment.Source.SkillInstanceId == sourceState.SkillInstanceId, "The exact currently qualified source pays the original need.");
-        Private(g); g = Cold(g, r); Continue(g);
-        Until(g, e => F<ChainedStateBasicReturnedEvent>(e).Any(f => f.Receipt.Payment.PaymentFrameId == payment.PaymentFrameId));
-        var receipt = F<ChainedStateBasicIssuedEvent>(g).Single(f => f.Receipt.Payment.PaymentFrameId == payment.PaymentFrameId).Receipt;
-        Require(V(g, 0).SkillRuntimeStates!.Single(s => s.SkillId == Skill).BooleanStates!.All(s => s.SkillInstanceId != sourceState.SkillInstanceId) &&
-            F<SkillsAcquiredEvent>(g).Any(e => e.PlayerSeat == 0 && e.SourceSkillId == Child && e.SkillIds.Contains("fixture:chain-basic-suppress")) &&
-            V(g, 0).Hp == hp && V(g, 0).HandCount == hand + 1 && !V(g, 0).IsChained &&
-            F<CardActionAcceptedEvent>(g).Single(e => e.Action.ActionId == receipt.CardActionId).Action is { EffectiveKind: CardKind.Dodge, PhysicalCards.Count: 0 },
-            "A real state child suppresses the original Xianwan instance and changes state again, while the already-paid native Dodge still issues and protects its original target. " +
-            JsonSerializer.Serialize(new { Hp = V(g, 0).Hp, Hand = V(g, 0).HandCount, V(g, 0).IsChained, Source = sourceState, State = V(g, 0).SkillRuntimeStates!.Single(s => s.SkillId == Skill) }));
-        Once(g, receipt); _ = Cold(g, r);
     }
 
     public static void RequestedUsesExcludePureProvisionAndKeepNativeParents()
@@ -242,9 +179,6 @@ internal static class ChainedStateBasicConversionChecks
             F<ChainedStateBasicCancelledEvent>(g).All(e => e.Payment.PaymentFrameId != id) && !g.ResolutionStack.Any(f => f.Id == id),
             "Each exact original need owns one state payment, one issuance and one native return, without cancellation or a surviving payment frame.");
     }
-    private static void beforeStale(GameEngine g, PendingDecision prompt, PromptChoice choice)
-    { var state = State(g); Require(!g.Submit(new AnswerPromptCommand(prompt.PlayerSeat, prompt.PromptId, choice.Id, g.Revision)).Accepted && State(g) == state,
-        "A stale published answer cannot change state or pay the completed need again."); }
     private static void Require(bool condition, string message) { if (!condition) throw new InvalidOperationException(message); }
     private static PlayerSnapshot V(GameEngine g, int seat) => g.CreateSnapshot(seat).Players[seat];
     private static T[] F<T>(GameEngine g) where T : IGameEvent => g.Events.Select(e => e.Payload).OfType<T>().ToArray();

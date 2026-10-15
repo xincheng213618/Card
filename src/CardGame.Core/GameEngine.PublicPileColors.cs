@@ -63,6 +63,7 @@ public sealed partial class GameEngine
         _pendingDecision=new(DecisionKind.ProgramTrigger,frame.OwnerSeat,skill.Description,choices.SelectMany(c=>c.Cards).Distinct().ToArray(),choices.SelectMany(c=>c.Targets).Distinct().ToArray(),frame.OwnerSeat){PromptId=CreatePromptId(),IsPrivate=e.Op==SkillProgramEffectOp.PublicPileColorDamage,Choices=choices,SkillPrompt=new(frame.SkillId,skill.Name,skill.Name,skill.Description)};
         _status=_players[frame.OwnerSeat].IsHuman?EngineStatus.AwaitingHumanResponse:EngineStatus.Running;return SkillProgramStepOutcome.AwaitChoice;
     }
+    [ProgramAnswer("public-pile-color")]
     private void ResolvePublicPileColorChoice(PromptChoice choice)
     {
         var f=_resolutionStack.LastOrDefault() as ProgramSkillFrame??throw new InvalidOperationException("Color choice lost its program frame.");
@@ -92,5 +93,6 @@ public sealed partial class GameEngine
         if(!_players[f.OwnerSeat].IsAlive||!_players[payment.TargetSeat].IsAlive){AdvanceRuntimeProgram(id);return true;}
         BeginProgramSkillDamage(GetActiveProgramFrame(id),payment.TargetSeat,1,new ProgramParticipantReference(ProgramParticipantRef.Owner));return true;
     }
+    [ProgramAiChoice(SkillProgramEffectOp.PublicPileColorDamage, SkillProgramEffectOp.RewardDiscardedActionColor)]
     private PromptChoice SelectAiPublicPileColorChoice(PendingDecision p,ProgramSkillFrame f)=>p.Choices.OrderByDescending(c=>c.Targets.Count==1&&(c.Cards.Count==0?AreProgramDistributionAllies(_players[f.OwnerSeat],_players[c.Targets[0]]):!AreProgramDistributionAllies(_players[f.OwnerSeat],_players[c.Targets[0]]))).ThenBy(c=>c.Cards.Count==1?GetKeepValue(_cardZones.CardsAt(_cardZones.GetLocation(c.Cards[0])).Single(x=>x.Id==c.Cards[0]),_players[f.OwnerSeat]):0).ThenBy(c=>c.Targets[0]).First();
 }

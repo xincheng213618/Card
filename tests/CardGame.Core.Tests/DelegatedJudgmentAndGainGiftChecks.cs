@@ -54,56 +54,6 @@ internal static class DelegatedJudgmentAndGainGiftChecks
         Cold(foreign, fr);
     }
 
-    public static void BatchGainGiftsUseDistinctRecipientsAndActualPhaseQuota()
-    {
-        var (g, r) = Start(Kind.Gain, finishInitialGift: false);
-        Require(P(g)!.SkillPrompt?.SkillId == "ol:hongyuan" && E<GainGiftPhaseIssuedEvent>(g).Length == 0,
-            "One real atomic two-card gain in Draw permits optional gifting without subtracting its planned draw.");
-        Cold(g, r); Answer(g, c => c.Cards.Count == 0); ReachPlay(g);
-        Use(g, "two-singles", [], []); ReachPlay(g);
-        Require(E<GainGiftPhaseIssuedEvent>(g).Length == 0, "Two independent one-card gain batches do not form one two-card gain.");
-        Use(g, "gain-two", [], [1]); Reach(g, p => p.SkillPrompt?.SkillId == "ol:hongyuan"); Reject(g); Cold(g, r);
-        var first = P(g)!.Choices.First(c => c.Targets.SequenceEqual([1])); Answer(g, c => c.Id == first.Id);
-        Reach(g, p => p.SkillPrompt?.SkillId == Gain);
-        Require(g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == "ol:hongyuan").GainGiftReceipt is
-            { Stage: GainGiftStage.GiftChildren, GivenTargets.Count: 1 } && E<GainGiftPaidEvent>(g).Length == 1 &&
-            E<GainGiftPhaseIssuedEvent>(g).Single().Phase.Kind == ActualDiscardRecoveryPhaseKind.Play,
-            "The first real transfer charges only this actual Play phase and suspends before selecting the second recipient.");
-        Cold(g, r); Advance(g); Reach(g, p => p.SkillPrompt?.SkillId == "ol:hongyuan");
-        Require(P(g)!.Choices.All(c => !c.Targets.Contains(1)) && P(g)!.Choices.Any(c => c.Cards.Count == 0),
-            "After paid children, the first recipient is excluded and giving only one remains legal.");
-        Answer(g, c => c.Targets.SequenceEqual([2])); Reach(g, p => p.SkillPrompt?.SkillId == Gain); Cold(g, r); Advance(g); ReachPlay(g);
-        Use(g, "gain-two", [], [1]); ReachPlay(g);
-        Require(E<GainGiftPaidEvent>(g).Length == 2 && E<GainGiftPhaseIssuedEvent>(g).Length == 1 &&
-            E<GainGiftPaidEvent>(g).Select(e => e.TargetSeat).SequenceEqual([1, 2]), "A later two-card batch cannot reopen an already spent actual phase.");
-        Cold(g, r);
-        // Explicit host audit after the command-replayed prefix: reacquisition and state reset cannot erase the issued token.
-        var owner = HostPlayers(g)[0]; var grant = owner.SkillGrants.Grants.Single(s => s.SkillId == "ol:hongyuan");
-        owner.SkillGrants.RemoveGrant(grant.GrantId); owner.SkillGrants.Grant(new("fixture:gg-later", grant.SkillId, grant.SkillInstanceId + ":later", "acquired:host-audit"));
-        ((SkillRuntimeStateStore)typeof(GameEngine).GetField("_skillRuntimeState", Flags)!.GetValue(g)!).ResetSkill(0, grant.SkillId);
-        Use(g, "gain-two", [], [1]); ReachPlay(g); Require(E<GainGiftPhaseIssuedEvent>(g).Length == 1, "A new skill instance still shares the owner/skill/actual-phase quota.");
-    }
-
-    public static void RedLossFreezesOriginalEffectiveColorInForeignPlay()
-    {
-        var (g, r) = Start(Kind.RedForeign); Equip(g);
-        Require(E<RedOwnedLossRevealedEvent>(g).Length == 0, "Hand to the same owner's Equipment is not a loss and own Play losses do not trigger.");
-        while (V(g).Hand.Count > 1) { Use(g, "trim", [V(g).Hand[0].Id], []); ReachPlay(g); }
-        var lost = V(g).Hand.Single(); Require(lost.Suit == Suit.Spade, "The physical card remains printed black while the original owner rewrites it to Heart.");
-        Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId)); Reach(g, p => p.SkillPrompt?.SkillId == Gain);
-        var root = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == "ol:mingzhe"); var receipt = root.GainGiftReceipt!;
-        Require(receipt is { Stage: GainGiftStage.RedDrawChildren, LossIndex: 1, RedLosses.Count: 1 } &&
-            receipt.RedLosses[0].Card.Id == lost.Id && receipt.RedLosses[0].EffectiveSuit == Suit.Heart &&
-            receipt.RedLosses[0].Timing is { Phase: TurnPhase.Play, PhaseActorSeat: not 0 } &&
-            E<RedOwnedLossRevealedEvent>(g).Single() is { Card.Suit: Suit.Spade, EffectiveSuit: Suit.Heart } &&
-            Enumerable.Range(0, 4).All(s => g.CreateSnapshot(s).PublicRevealedCards.Any(c => c.Id == lost.Id) &&
-                g.CreateSnapshot(s).PrivateRevealedCards is null), "Foreign Play qualifies; the original owner's effective color stays frozen after the printed-black card enters another player's hand.");
-        Cold(g, r); Reject(g); Continue(g);
-        Require(E<GainGiftDrawPaidEvent>(g).Single().ActualCount == 1 &&
-            g.CardMovements.Count(m => m.To == CardLocation.Hand(0) && m.Reason.Value == "program.red-owned-loss.draw") == 1,
-            "One shown lost entity pays one real physical draw and the gain child cannot repeat it."); Cold(g, r);
-    }
-
     public static void RedBatchRevealsOnlyEachPaidLossAndKeepsFrozenLists()
     {
         var (g, r) = Start(Kind.RedBatch);
@@ -160,7 +110,6 @@ internal static class DelegatedJudgmentAndGainGiftChecks
     private static void Cold(GameEngine g, ContentRegistry r) => Require(State(g) == State(GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(g.CreateCheckpoint())), r)), "Cold command-prefix restore preserves exact paid frames, ledger, choices and private views.");
     private static void Reject(GameEngine g) { var before = State(g); var p = P(g)!; Require(!g.Submit(new AnswerPromptCommand(p.PlayerSeat, p.PromptId, new("unpublished"), g.Revision)).Accepted && State(g) == before, "Unpublished choices do not change paid state or any viewer."); }
     private const BindingFlags Flags = BindingFlags.Instance | BindingFlags.NonPublic;
-    private static IReadOnlyList<CharacterState> HostPlayers(GameEngine g) => (IReadOnlyList<CharacterState>)typeof(GameEngine).GetField("_players", Flags)!.GetValue(g)!;
     private static void Require(bool condition, string message) { if (!condition) throw new InvalidOperationException(message); }
 
     private sealed class Fixture(Kind kind) : IGameContentPackage

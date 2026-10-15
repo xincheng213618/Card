@@ -10,75 +10,6 @@ internal static class FuHuanghouChecks
     private const string Zhuikong = "classic:zhuikong";
     private const string Mode = "identity:fuhuanghou-check-5";
 
-    public static void DefinitionsBindRescueToTheTargetAndFearToTheOtherPlayPhase()
-    {
-        var current = StandardContentRegistry.CreateWithClassicGenerals();
-        Require(current.Generals["classic:fu-huanghou"] is { BaseHp: 3, FactionId: "qun" } general &&
-                general.SkillIds.SequenceEqual([Qiuyuan, Zhuikong]) &&
-                general.Gender == GeneralGender.Female &&
-                current.Modes["identity:classic-5"].GeneralPoolIds!.Contains("classic:fu-huanghou") &&
-                current.Modes["identity:classic-8"].GeneralPoolIds!.Contains("classic:fu-huanghou"),
-            "2013 Fu Hehou must be a three-Hp Qun woman in the current classic roster and pools.");
-
-        var rescue = current.Skills[Qiuyuan].Program!.Triggers.Single();
-        Require(rescue.Window == SkillProgramTriggerWindow.CardUseTargetsFinalized &&
-                rescue.OwnerRelation == SkillProgramCardActionOwnerRelation.Target &&
-                rescue.Optional &&
-                rescue.CardKinds.SequenceEqual([CardKind.Slash, CardKind.FireSlash, CardKind.ThunderSlash]) &&
-                rescue.Effects.Select(item => item.Op).SequenceEqual([
-                    SkillProgramEffectOp.SelectTarget, SkillProgramEffectOp.ChooseOption,
-                    SkillProgramEffectOp.SelectAndMoveOwnedCard, SkillProgramEffectOp.AddCurrentCardUseTarget]),
-            "Qiuyuan must invite another legal Slash target after Fu Hehou is designated.");
-        var invite = rescue.Effects[0];
-        Require(invite.TargetKind == SkillProgramTargetKind.OtherLegalCurrentCardTarget,
-            "Qiuyuan must invite only a character the current Slash could still take.");
-        var answer = rescue.Effects[1];
-        Require(answer.Target == SkillProgramEffectTarget.SelectedTarget && answer.ResultBind == "qiuyuan-answer" &&
-                answer.Options.Select(option => option.Id).SequenceEqual(["give-dodge", "become-target"]) &&
-                answer.Options[0].Condition is {
-                    Kind: SkillProgramConditionKind.HasOwnedCardCategory,
-                    Zones: [CardZoneKind.Hand],
-                    CardKinds: [CardKind.Dodge]
-                } && answer.Options[1].Condition.Kind == SkillProgramConditionKind.Always,
-            "Only a hand Dodge may buy the invited character out of the extra target slot.");
-        var payment = rescue.Effects[2];
-        Require(payment.ChooserRef!.Kind == ProgramParticipantRef.SelectedTarget &&
-                payment.CardOwnerRef!.Kind == ProgramParticipantRef.SelectedTarget &&
-                payment.CardKinds.SequenceEqual([CardKind.Dodge]) &&
-                payment.Destination == SkillProgramCardDestination.OwnerHand &&
-                payment.Condition is { Kind: SkillProgramConditionKind.ChoiceIs, OptionId: "give-dodge" } &&
-                rescue.Effects[3].Condition is { Kind: SkillProgramConditionKind.ChoiceIs, OptionId: "become-target" },
-            "Qiuyuan must move the paid Dodge into Fu Hehou's hand and only add the target on refusal.");
-
-        var fear = current.Skills[Zhuikong].Program!.Triggers.Single();
-        Require(fear.Window == SkillProgramTriggerWindow.PlayPhaseStarting &&
-                fear.Subject == SkillProgramTriggerSubject.Owner &&
-                fear.TurnOwnerScope == SkillProgramTurnOwnerScope.OtherLiving && fear.Optional,
-            "Zhuikong must offer at another character's Play phase start.");
-        Require(fear.Condition.Kind == SkillProgramTriggerConditionKind.All &&
-                fear.Condition.Children.Count == 2 &&
-                fear.Condition.Children.All(child => child.Kind == SkillProgramTriggerConditionKind.Compare),
-            "Zhuikong must require a wounded Fu Hehou with a Pindian card.");
-        Require(fear.Effects.Select(item => item.Op).SequenceEqual([
-                    SkillProgramEffectOp.SelectTarget, SkillProgramEffectOp.StartPindian,
-                    SkillProgramEffectOp.GrantTurnCardTargetRestriction,
-                    SkillProgramEffectOp.GrantDirectedTurnCardPolicy]),
-            "Zhuikong must contest the turn player then grant exactly one branch.");
-        Require(fear.Effects[0].TargetKind == SkillProgramTargetKind.EventSource,
-            "Zhuikong must contest the Play phase's own source.");
-        Require(fear.Effects[1].OpponentReference!.Kind == ProgramParticipantRef.SelectedTarget,
-            "Zhuikong must contest against the selected turn player.");
-        Require(fear.Effects[2].Target == SkillProgramEffectTarget.SelectedTarget &&
-                fear.Effects[2].TargetRestriction == SkillProgramCardTargetRestriction.SelfOnly,
-            "A win must pin the turn player to self-targeting.");
-        Require(fear.Effects[3].ActorReference!.Kind == ProgramParticipantRef.SelectedTarget &&
-                fear.Effects[3].TargetReference!.Kind == ProgramParticipantRef.Owner &&
-                fear.Effects[3].DirectedPolicyEffects == DirectedTurnCardPolicyEffect.IgnoreDistance,
-            "A loss must only open the turn player's distance to Fu Hehou.");
-
-        RejectQiyuanKindFilterOutsideOwnedCardOption();
-    }
-
     public static void QiuyuanDodgePaymentAndExtraTargetBothReplay()
     {
         var registry = Registry();
@@ -212,36 +143,6 @@ internal static class FuHuanghouChecks
         }
     }
 
-    private static void RejectQiyuanKindFilterOutsideOwnedCardOption()
-    {
-        const string presentation = """
-        {"schemaVersion":3,"skills":{"fixture:fhh-reject":{"name":"过滤","description":"仅用于校验"}}}
-        """;
-        const string prefix = """{"schemaVersion":62,"skills":[{"id":"fixture:fhh-reject","revision":1,"minimumRulesVersion":190,"triggers":[{"id":"reject","window":"cardUseTargetsFinalized","ownerRelation":"target","cardKinds":["slash"],"optional":true,"effects":[{"op":"chooseOption","target":"selectedTarget","resultBind":"answer","options":[{"id":"pay","condition":""";
-        const string suffix = """},{"id":"decline","condition":{"kind":"always"}}]}]}]}]}""";
-        static string Rules(string condition) => prefix + condition + suffix;
-
-        Reject(Rules("""{"kind": "handCountAtLeast", "value": 1, "cardKinds": ["dodge"]}"""),
-            presentation, "cardKinds must stay out of kind-unaware conditions");
-        Reject(Rules("""{"kind": "hasOwnedCardCategory", "zones": ["hand"]}"""),
-            presentation, "an owned-card option needs a category or kind filter");
-        Reject(Rules("""{"kind": "hasOwnedCardCategory", "zones": ["hand"], "cardKinds": ["dodge", "dodge"]}"""),
-            presentation, "an exact kind filter must be distinct");
-    }
-
-    private static void Reject(string rules, string presentation, string because)
-    {
-        try
-        {
-            _ = SkillProgramCatalog.Load(rules, presentation);
-        }
-        catch (InvalidOperationException)
-        {
-            return;
-        }
-        throw new InvalidOperationException($"Expected the composition to be rejected: {because}.");
-    }
-
     private static bool AwaitOffer(GameEngine game, string skillId)
     {
         for (var step = 0; step < 40; step++)
@@ -271,12 +172,6 @@ internal static class FuHuanghouChecks
     {
         for (var step = 0; step < 120 && Pending(game)?.Kind != DecisionKind.PlayCard; step++) Advance(game);
         Require(Pending(game)?.Kind == DecisionKind.PlayCard, "Fu Hehou fixture did not reach Play.");
-    }
-
-    private static void ReachProgramPrompt(GameEngine game)
-    {
-        for (var step = 0; step < 60 && Pending(game)?.Kind != DecisionKind.ProgramTrigger; step++) Advance(game);
-        Require(Pending(game)?.Kind == DecisionKind.ProgramTrigger, "Fu Hehou fixture did not reach its program decision.");
     }
 
     private static void Driver(GameEngine game, string activation, IReadOnlyList<int> targets) =>

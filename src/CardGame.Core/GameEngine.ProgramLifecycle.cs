@@ -1,8 +1,43 @@
-﻿namespace CardGame.Core;
+namespace CardGame.Core;
 
 /// <summary>Generic lifecycle-program host. It contains no character or skill ids.</summary>
 public sealed partial class GameEngine
 {
+    private static readonly Lazy<ProgramInteractionCatalog> ProgramInteractionMetadata = new(() =>
+        ProgramInteractionCatalog.Discover(
+            typeof(GameEngine).GetMethods(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Static |
+                System.Reflection.BindingFlags.NonPublic)
+                .Concat(typeof(ProgramAiChoiceSelector).GetMethods(
+                    System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic))), true);
+    private ProgramInteractionRouter? _programInteractions;
+    private ProgramInteractionRouter ProgramInteractions => _programInteractions ??= new(
+        ProgramInteractionMetadata.Value,
+        (method, type) => method.IsStatic ? method.CreateDelegate(type) : method.CreateDelegate(type, this),
+        ResolveProgramActivationChoice);
+
+    [ProgramAnswerBefore(1)]
+    private bool TryResolveRoundOnceProgramAnswer(PromptChoice selected) =>
+        TryResolveRoundOnceCardlessProgramSlash(selected, false);
+
+    [ProgramAiChoice(SkillProgramEffectOp.ChooseHpBoundOtherAndDealRandomDamage)]
+    private PromptChoice SelectAiLangxiChoice(PendingDecision decision, ProgramSkillFrame frame, SkillProgramEffect effect) =>
+        LangxiChoices(frame).First();
+
+    [ProgramAiChoice(SkillProgramEffectOp.AddTargetForQirangPhysicalTrick)]
+    private PromptChoice SelectAiQirangExtraChoice(PendingDecision decision, ProgramSkillFrame frame, SkillProgramEffect effect) =>
+        QirangExtraChoices(frame).Last();
+
+    [ProgramAiChoice(SkillProgramEffectOp.SelectTargets)]
+    private PromptChoice SelectAiConfiguredProgramTargets(PendingDecision decision, ProgramSkillFrame frame, SkillProgramEffect effect) =>
+        effect.TargetAiOrder is { } order
+            ? SelectAiProgramTargets(decision, order)
+            : throw ProgramAiChoiceSelector.UnsupportedInstruction(effect);
+
+    [ProgramAiChoice(SkillProgramEffectOp.SelectAndMoveOwnedCard)]
+    private PromptChoice SelectAiCoverageAwareOwnedCard(PendingDecision decision, ProgramSkillFrame frame, SkillProgramEffect effect) =>
+        ProgramAiChoiceSelector.SelectByCoverage(decision, effect, cardId =>
+            WouldEquipmentRemovalReduceCoverage(ResolveProgramParticipant(frame, effect.CardOwnerRef!), cardId));
+
     private SkillProgramStepOutcome StartProgramPindian(
         ProgramSkillFrame frame,
         ProgramParticipantReference opponentReference,
@@ -308,6 +343,7 @@ public sealed partial class GameEngine
     {
         _ = GetActiveProgramFrame(frameId);
         var target = _players[targetSeat];
+        if (!target.HasHpValue) return;
         var value = expression switch
         {
             SkillProgramNumberExpression.IntegerConstant => minimumValue,
@@ -342,6 +378,8 @@ public sealed partial class GameEngine
         }
 
         var owner = _players[frame.OwnerSeat];
+        var nativeDiscard = CaptureNativeBuZhiDiscardInvocation(active, zones, reason);
+        List<int>? actualDiscardIds = nativeDiscard is null ? null : [];
         var discarded = 0;
         foreach (var zone in zones)
         {
@@ -356,10 +394,12 @@ public sealed partial class GameEngine
             {
                 if (IsSelfHandCategoryDiscardForbidden(owner.Seat, card, location, OwnedCardMoveIntent.Discard)) continue;
                 MoveCard(card, location, CardLocation.DiscardPile, reason);
+                actualDiscardIds?.Add(card.Id);
                 discarded++;
             }
         }
 
+        CompleteNativeBuZhiDiscardInvocation(nativeDiscard, actualDiscardIds ?? []);
         AdvanceEventRulesAndQueueFact(new ProgramOwnedZoneCardsDiscardedEvent(
             frame.Id,
             frame.SkillId,
@@ -402,6 +442,7 @@ public sealed partial class GameEngine
 
         var owner = _players[frame.OwnerSeat];
         var previous = owner.MaxHp;
+        var hpBeforeClamp = owner.Hp;
         if (sourceSkillId is not null && sourceSkillId != frame.SkillId &&
             !HasRuntimeSkillInstance(owner, sourceSkillId, GetRuntimeSkillInstanceId(owner, sourceSkillId)))
             throw new InvalidOperationException("Maximum-HP attribution requires the owner's actual source skill instance.");
@@ -411,7 +452,8 @@ public sealed partial class GameEngine
             owner.Seat,
             owner.MaxHp - previous,
             owner.MaxHp,
-            sourceSkillId ?? frame.SkillId));
+            sourceSkillId ?? frame.SkillId)
+        { HpBeforeClamp = HasQimeiHealthSubject(owner.Seat) || owner.XiaHuiRestrictions is { Count: > 0 } ? hpBeforeClamp : null });
     }
 
     private void GrantProgramSkills(ProgramSkillFrame frame, IReadOnlyList<string> skillIds)
@@ -493,6 +535,7 @@ public sealed partial class GameEngine
     private bool IsValidProgramJudgmentContinuation(JudgmentFrame pending,
         ProgramSkillFrame? frame)
     {
+        if (frame?.ZhangJi is not null) return IsZhangJiJudgment(pending, frame);
         if (pending.Continuation != JudgmentContinuationKind.ProgramSkill || frame is null ||
             pending.ParentFrameId != frame.Id ||
             pending.ProgramResultBind is not { } bind ||
@@ -505,7 +548,7 @@ public sealed partial class GameEngine
                 _contentRegistry!.GetSkill(frame.SkillId).Program!)
             .Instructions;
         if (frame.InstructionIndex < 1 || frame.InstructionIndex > judged.Count ||
-            judged[frame.InstructionIndex - 1] is not { Op: SkillProgramEffectOp.StartJudgment or SkillProgramEffectOp.StartOwnedDamagePointJudgment or SkillProgramEffectOp.JudgeDamageTargetThenOfferSuitDiscard } effect)
+            judged[frame.InstructionIndex - 1] is not { Op: SkillProgramEffectOp.StartJudgment or SkillProgramEffectOp.StartOwnedDamagePointJudgment or SkillProgramEffectOp.StartChouceDamagePointJudgment or SkillProgramEffectOp.JudgeDamageTargetThenOfferSuitDiscard } effect)
             return true;
         var expectedSourceSeat = effect.SourceRef is { } sourceRef
             ? ResolveProgramParticipant(frame, sourceRef)
@@ -516,6 +559,8 @@ public sealed partial class GameEngine
     private bool MatchesProgramJudgmentInstruction(ProgramSkillFrame frame, int targetSeat,
         string reason, string resultBind, SkillProgramCardSetVisibility visibility)
     {
+        if (frame.ZhangJi is not null)
+            return CanBeginZhangJiJudgment(frame, targetSeat, reason, resultBind, visibility);
         if (visibility != SkillProgramCardSetVisibility.Public || string.IsNullOrWhiteSpace(reason) ||
             string.IsNullOrWhiteSpace(resultBind) ||
             (ProgramEntryCapabilities.For(frame.WindowContext?.Window) & ProgramContextCapability.Judgment) == 0 ||
@@ -525,7 +570,7 @@ public sealed partial class GameEngine
         var instructions = ProgramInstructionResolver.Default.Resolve(frame, program).Instructions;
         if (frame.InstructionIndex < 1 || frame.InstructionIndex > instructions.Count ||
             instructions[frame.InstructionIndex - 1] is not
-            { Op: SkillProgramEffectOp.StartJudgment or SkillProgramEffectOp.StartOwnedDamagePointJudgment or SkillProgramEffectOp.RepeatJudgment or SkillProgramEffectOp.SuppressCurrentSlashTargetAndJudgeSuitDiscard or SkillProgramEffectOp.JudgeDamageTargetThenOfferSuitDiscard } effect ||
+            { Op: SkillProgramEffectOp.StartJudgment or SkillProgramEffectOp.StartOwnedDamagePointJudgment or SkillProgramEffectOp.StartChouceDamagePointJudgment or SkillProgramEffectOp.RepeatJudgment or SkillProgramEffectOp.SuppressCurrentSlashTargetAndJudgeSuitDiscard or SkillProgramEffectOp.JudgeDamageTargetThenOfferSuitDiscard } effect ||
             reason != effect.JudgmentReason || resultBind != effect.ResultBind)
             return false;
         if (effect.Op == SkillProgramEffectOp.RepeatJudgment &&
@@ -552,6 +597,8 @@ public sealed partial class GameEngine
         SkillProgramCardSetVisibility visibility)
     {
         var frame = GetActiveProgramFrame(frameId);
+        if (numberExpression == SkillProgramNumberExpression.OwnerLostHp && !_players[ownerSeat].HasHpValue)
+        { CancelProgramBindingAndCleanup(frame, "体力值未定义，无法计算此效果。"); return; }
         var revealCount = numberExpression switch
         {
             null => amount,
@@ -627,6 +674,10 @@ public sealed partial class GameEngine
     {
         var frame = GetActiveProgramFrame(frameId);
         var target = _players[targetSeat];
+        if (numberExpression == SkillProgramNumberExpression.OwnerLostHp && !_players[frame.OwnerSeat].HasHpValue ||
+            (numberExpression is SkillProgramNumberExpression.LostHpMinusHandCount or SkillProgramNumberExpression.TargetMaxHpMinusHandCount) && !target.HasHpValue ||
+            numberExpression == SkillProgramNumberExpression.LivingPlayersMinHp && _players.Any(p => p.IsAlive && !p.HasHpValue) && !_players.Any(p => p.IsAlive && p.HasHpValue))
+        { CancelProgramBindingAndCleanup(frame, "体力值未定义，无法计算此效果。"); return; }
         var drawCount = numberExpression switch
         {
             null => amount,
@@ -709,7 +760,7 @@ public sealed partial class GameEngine
             return _players.Where(p => p.IsAlive && p.Seat != ownerSeat && !CompleteProgramEventHistory().OfType<DemonRoundFocusEvent>().Any(e => e.Source.OwnerSeat == ownerSeat && e.TargetSeat == p.Seat && e.RoundNumber == _roundNumber - 1)).Select(p => p.Seat).ToArray();
         if (targetKind is SkillProgramTargetKind.ExclusiveRendeBeneficiary or SkillProgramTargetKind.ExclusiveQingnangBeneficiary)
             return ExclusiveSupportTargets(ownerSeat, targetKind == SkillProgramTargetKind.ExclusiveRendeBeneficiary ? "magic:rende" : "magic:qingnang")
-                .Where(seat => targetKind != SkillProgramTargetKind.ExclusiveQingnangBeneficiary || _players[seat].Hp < _players[seat].MaxHp).ToArray();
+                .Where(seat => targetKind != SkillProgramTargetKind.ExclusiveQingnangBeneficiary || _players[seat].HasHpValue && _players[seat].Hp < _players[seat].MaxHp).ToArray();
         if (targetKind == SkillProgramTargetKind.OtherLivingWithoutEndingSupport)
         {
             var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame;
@@ -812,7 +863,7 @@ public sealed partial class GameEngine
                 SkillProgramTargetKind.AnyLivingMale => target.Gender == GeneralGender.Male,
                 SkillProgramTargetKind.OtherWoundedMale =>
                     target.Seat != ownerSeat && target.Gender == GeneralGender.Male &&
-                    target.Hp < target.MaxHp,
+                    target.HasHpValue && target.Hp < target.MaxHp,
                 SkillProgramTargetKind.OtherLivingInAttackRange =>
                     target.Seat != ownerSeat &&
                     IsWithinAttackRange(ownerSeat, target.Seat),
@@ -857,7 +908,7 @@ public sealed partial class GameEngine
                     target.Seat != ownerSeat && GetHand(target).Count <= GetHand(_players[ownerSeat]).Count,
                 SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
                                     target.Seat != ownerSeat && GetHand(target).Count > 0 &&
-                                    target.Hp > _players[ownerSeat].Hp,
+                                    target.HasHpValue && _players[ownerSeat].HasHpValue && target.Hp > _players[ownerSeat].Hp,
                 SkillProgramTargetKind.OtherLivingHandAtLeastOwner =>
                                     target.Seat != ownerSeat && GetHand(target).Count > 0 &&
                                     GetHand(target).Count >= GetHand(_players[ownerSeat]).Count,
@@ -876,16 +927,16 @@ public sealed partial class GameEngine
                         .Select(peer => GetHand(peer).Count).Min(),
                 SkillProgramTargetKind.OtherLivingAtDistanceOne =>
                     target.Seat != ownerSeat && GetCombatDistance(ownerSeat, target.Seat) == 1,
-                SkillProgramTargetKind.AnyLivingHighestHp => target.Hp == _players.Where(player => player.IsAlive).Max(player => player.Hp),
+                SkillProgramTargetKind.AnyLivingHighestHp => target.HasHpValue && target.Hp == _players.Where(player => player.IsAlive && player.HasHpValue).Max(player => player.Hp),
                 SkillProgramTargetKind.AnyLivingLeastHandCount => GetHand(target).Count == _players.Where(player => player.IsAlive).Min(player => GetHand(player).Count),
                 SkillProgramTargetKind.OtherLivingHighestHand => target.Seat != ownerSeat && GetHand(target).Count == _players.Where(player => player.IsAlive && player.Seat != ownerSeat).Max(player => GetHand(player).Count),
                 SkillProgramTargetKind.AnyLivingHighestHand => GetHand(target).Count == _players.Where(player => player.IsAlive).Max(player => GetHand(player).Count),
                 SkillProgramTargetKind.AnyLiving => true,
                 SkillProgramTargetKind.OtherWounded =>
-                    target.Seat != ownerSeat && target.Hp < target.MaxHp,
-                SkillProgramTargetKind.AnyWounded => target.Hp < target.MaxHp,
+                    target.Seat != ownerSeat && target.HasHpValue && target.Hp < target.MaxHp,
+                SkillProgramTargetKind.AnyWounded => target.HasHpValue && target.Hp < target.MaxHp,
                 SkillProgramTargetKind.AnyLivingHandBelowMaxHp =>
-                    GetHand(target).Count < target.MaxHp,
+                    target.HasHpValue && GetHand(target).Count < target.MaxHp,
                 SkillProgramTargetKind.OtherLivingExceptSource =>
                     target.Seat != ownerSeat && target.Seat != windowContext?.SourceSeat,
                 SkillProgramTargetKind.EventSource =>
@@ -930,6 +981,8 @@ public sealed partial class GameEngine
                 NumberExpression: SkillProgramNumberExpression.BoundCardCount, SourceBind: not null })
             return SelectProgramNamedBoundTargets(frame, paused);
         var targetSeats = GetProgramTargetSeats(ownerSeat, targetKind, frame.WindowContext);
+        if ((numberExpression is SkillProgramNumberExpression.CurrentHp or SkillProgramNumberExpression.OwnerLostHpAtLeastOne) && !_players[ownerSeat].HasHpValue)
+        { CancelProgramBindingAndCleanup(frame, "体力值未定义，无法计算技能目标数量。"); return SkillProgramStepOutcome.Continue; }
         var expressionMaximum = numberExpression switch
         {
             SkillProgramNumberExpression.EventMovedCardCount => frame.WindowContext?.Window == SkillProgramTriggerWindow.CardsMoved ? frame.WindowContext.Facts?.MovedCardCount ?? 0 : throw new InvalidOperationException("Moved-card target count requires its owning movement window."),
@@ -1974,16 +2027,19 @@ public sealed partial class GameEngine
         if (context.Window == SkillProgramTriggerWindow.ActualSlashTargetPenalty) return CanRunSlashTargetPenalty(candidate, context);
         if (IsSlashTargetBenefitWindow(context.Window)) return CanRunSlashTargetBenefitCandidate(candidate, context);
         var owner = _players[candidate.OwnerSeat];
-        if (context.Window != SkillProgramTriggerWindow.OwnerDied && !owner.IsAlive ||
-            !HasRuntimeSkillInstance(owner, candidate.SkillId, candidate.SkillInstanceId) && !HasIssuedOriginalTargetCandidate(candidate, context) && !HasIssuedPhaseNamePrediction(candidate, context) && !HasIssuedFixedDistanceDebtCandidate(candidate, context) && !HasIssuedGiftedSlashRewardCandidate(candidate, context) && !HasIssuedJoinedTrickDamageRewardCandidate(candidate, context) && !HasIssuedRoundGainedUseCandidate(candidate, context) ||
+        if (context.Window != SkillProgramTriggerWindow.OwnerDied && !owner.IsAlive && !HasIssuedWeiluDebtCandidate(candidate, context) ||
+            !HasRuntimeSkillInstance(owner, candidate.SkillId, candidate.SkillInstanceId) && !HasIssuedOriginalTargetCandidate(candidate, context) && !HasIssuedPhaseNamePrediction(candidate, context) && !HasIssuedFixedDistanceDebtCandidate(candidate, context) && !HasIssuedGiftedSlashRewardCandidate(candidate, context) && !HasIssuedJoinedTrickDamageRewardCandidate(candidate, context) && !HasIssuedRoundGainedUseCandidate(candidate, context) && !HasIssuedZhuijiDebtCandidate(candidate, context) && !HasIssuedQingzhongDebtCandidate(candidate, context) && !HasIssuedCaoChunDebtCandidate(candidate, context) && !HasIssuedNeifaCandidate(candidate, context) && !HasIssuedWeiluDebtCandidate(candidate, context) && !IsIssuedZengdaoCandidate(candidate, context) && !HasIssuedYinjuCandidate(candidate, context) ||
             _contentRegistry.Skills.GetValueOrDefault(candidate.SkillId)?.Program is not { } program ||
             program.GameplayHash != candidate.GameplayHash)
             return false;
         var trigger = ProgramInstructionResolver.Default.FindTrigger(program, candidate.BindingId);
         if (trigger is null || trigger.Window != context.Window || !CanPayProgramMarkerCost(owner, trigger.MarkerCost))
             return false;
+        if (_resolutionStack.OfType<FirstSlashDuelLegacyWindowFrame>().Any(w => w.Id == context.ParentFrameId))
+            return CanRunFirstLegacyBenefit(candidate, context);
         if (!CanRunSoleTargetReplacementTargetCandidate(candidate, trigger, context)) return false;
         if (!CanOfferPhaseStartCardControl(candidate, trigger, context)) return false;
+        if (!CanOfferDongZhao(candidate, trigger, context)) return false;
         if (!CanOfferIncomingDistanceCourtesy(candidate, trigger, context)) return false;
         if (!CanRunTurnDrawDebtPayment(candidate, trigger, context) || !CanRunSourceFactionPrevention(candidate, trigger, context)) return false;
         if (!CanRunDyingSuitsAndEndingHistory(candidate, trigger, context)) return false;
@@ -2008,11 +2064,31 @@ public sealed partial class GameEngine
         if (!CanOfferGiftedSlashUseReward(candidate, trigger, context)) return false;
         if (!CanOfferDesignatedExtraTarget(candidate, trigger, context)) return false;
         if (!CanOfferDamageTargetBudget(candidate, trigger, context)) return false;
+        if (!CanRunPindianReveal(candidate,context)) return false;
         if (!CanOfferSoleTargetProtection(candidate, trigger, context)) return false;
         if (!CanOfferNamedAmbush(candidate, trigger, context) || !CanOfferDamageSourceHandChoice(candidate, trigger, context)) return false;
         if (!CanOfferRicePile(candidate, trigger, context)) return false;
         if (!CanOfferExtraEffectsAndRankGuess(candidate, trigger, context)) return false;
         if (!CanOfferFirstSlashDuelBenefit(candidate, trigger, context)) return false;
+        if (!CanOfferDeathGrowthSkill(candidate, trigger, context)) return false;
+        if (!CanOfferBao2025(candidate, trigger, context)) return false;
+        if (!CanOfferCaoYing(candidate, trigger, context)) return false;
+        if (!CanOfferPrivateWhirl(candidate, trigger, context)) return false;
+        if (ProgramInstructionResolver.Default.Features(trigger).HasOperation(SkillProgramEffectOp.GiveAllHandAndResolveXiashu) &&
+            !CanOfferXiashu(candidate.OwnerSeat)) return false;
+        if (!CanAwakenWangYun(candidate.OwnerSeat, trigger)) return false;
+        if (!CanOfferZhugeGuo(candidate, trigger, context)) return false;
+        if (!CanOfferLiuQi(candidate, trigger, context) || !CanOfferBeiMiHuLifecycle(candidate.OwnerSeat, trigger, context) || !CanOfferBeiMiHuCardAction(candidate, trigger, context)) return false;
+        if (!CanOfferSimaHuiLifecycle(candidate, trigger, context) || !CanPreventSimaHuiDamage(candidate.OwnerSeat, trigger, context) ||
+            !CanOfferXuRongLifecycle(candidate, context) || !CanOfferLiJue(candidate, trigger, context) || !CanOfferSuFei(candidate, trigger, context) || !CanOfferFanChou(candidate, trigger, context) || !CanOfferGuoSi(candidate, trigger, context) || !CanOfferZhangQiYing(candidate, trigger, context) || !CanOfferCaoChun(candidate, trigger, context) || !CanOfferWangCan(candidate, trigger, context) || !CanOfferSpPangTong(candidate, trigger, context) || !CanOfferNeifa(candidate, trigger, context) || !CanOfferLvQian(candidate, trigger, context) || !CanOfferLvKuangLvXiang(candidate, trigger, context) || !CanOfferXinPi(candidate, trigger, context) || !CanOfferHuaMan(candidate, trigger, context)) return false;
+        if (ProgramInstructionResolver.Default.Features(trigger).HasOperation(SkillProgramEffectOp.SettleQingzhongActualPlayDebt) &&
+            !HasIssuedQingzhongDebtCandidate(candidate, context)) return false;
+        if (features.HasOperation(SkillProgramEffectOp.DistributeTopCardsAfterElementalChainOrigin) &&
+            !TrySimaHuiChainOrigin(candidate.OwnerSeat, trigger, context, out _)) return false;
+        if (IsXianfuEchoTrigger(trigger) && !CanRunXianfuEcho(candidate, context)) return false;
+        if (IsDianhuDrawTrigger(trigger) && !CanRunDianhu(candidate, context)) return false;
+        if (!CanOfferZhaoXiangExchange(candidate.OwnerSeat, trigger) ||
+            !CanOfferMeiYingConversionDraw(candidate, trigger, context)) return false;
         if (!CanOfferUniqueLeaderTrickTarget(candidate, trigger, context)) return false;
         if (!CanOfferRoundGainedTrickTarget(candidate, trigger, context)) return false;
         if (!CanOfferRoundGainedEquipmentDraw(candidate, trigger, context)) return false;
@@ -2159,6 +2235,7 @@ public sealed partial class GameEngine
         if (features.ForOperation(SkillProgramEffectOp.SelectTargets).Any(effect => effect.TargetKind == SkillProgramTargetKind.LivingWhoseAttackRangeIncludesLord && GetProgramTargetSeats(owner.Seat, effect.TargetKind.Value, context).Count < effect.MinimumTargets)) return false;
         return context.Window switch
         {
+            SkillProgramTriggerWindow.PindianCardsRevealed => true,
             SkillProgramTriggerWindow.OtherActualUseTargeted => CanRunActualUseTarget(candidate, context),
             SkillProgramTriggerWindow.SkillsChanged => true,
             SkillProgramTriggerWindow.ProgramTargetCommitted => IsProgramTargetContextValid(context) && EnabledSkillPrograms(owner).Any(item => item.Id == candidate.SkillId),
@@ -2172,12 +2249,16 @@ public sealed partial class GameEngine
                 (trigger.TurnOwnerScope == SkillProgramTurnOwnerScope.Own ? owner.Seat == _currentSeat : owner.Seat != _currentSeat) &&
                 _resolutionStack.OfType<ProgramLifecycleTriggerWindowFrame>().LastOrDefault() is { } judgmentStart &&
                 judgmentStart.Id == context.ParentFrameId && judgmentStart.Window == context.Window,
+            SkillProgramTriggerWindow.TurnBeforeStart =>
+                context.BeforeTurnPreludeProof is { } proof && ValidBeiMiHuBeforeTurnPrelude(proof) &&
+                context.SourceSeat == proof.UpcomingOwnerSeat && context.TargetSeat == proof.UpcomingOwnerSeat && owner.Seat == proof.UpcomingOwnerSeat,
             SkillProgramTriggerWindow.TurnStartBeforeNormalFlow =>
                 context.SourceSeat == _currentSeat &&
                 (owner.Seat == _currentSeat
                     ? context.SourceSeat == owner.Seat
                     : trigger.TurnOwnerScope == SkillProgramTurnOwnerScope.OtherLiving &&
                       _players[_currentSeat].IsAlive),
+            SkillProgramTriggerWindow.IdentityGeneralAppeared => CanRunIdentityAppearanceCandidate(candidate, context),
             SkillProgramTriggerWindow.RoundStarting =>
                 owner.IsAlive && context.SourceSeat == _currentSeat && _roundNumber > 0,
             SkillProgramTriggerWindow.DrawPhaseStarting =>
@@ -2224,7 +2305,7 @@ public sealed partial class GameEngine
             SkillProgramTriggerWindow.DyingEntering =>
                 ActiveDying is { } entering && entering.VictimSeat == context.TargetSeat &&
                 (trigger.Subject == SkillProgramTriggerSubject.Any || entering.VictimSeat == owner.Seat) &&
-                _players[entering.VictimSeat].Hp <= 0 &&
+                (_players[entering.VictimSeat].Hp <= 0 || HasXuRongDyingQualification(candidate, context)) &&
                 _resolutionStack.OfType<ProgramLifecycleTriggerWindowFrame>().LastOrDefault() is { } entry &&
                 entry.Id == context.ParentFrameId && entry.ResumeDyingFrameId == entering.FrameId,
             SkillProgramTriggerWindow.SelfDyingResponse =>
@@ -2246,7 +2327,9 @@ public sealed partial class GameEngine
                       !(features.HasOperation(SkillProgramEffectOp.RedirectCurrentDamage) &&
                         CurrentDamageAttempt?.DamageRedirected == true)
                     : trigger.Subject == SkillProgramTriggerSubject.DamageSource
-                        ? !BeforeDamageHasNoSource(beforeDamage) && owner.Seat == beforeDamage.SourceSeat && owner.Seat != beforeDamage.TargetSeat
+                        ? !BeforeDamageHasNoSource(beforeDamage) && owner.Seat == beforeDamage.SourceSeat &&
+                          (owner.Seat != beforeDamage.TargetSeat || features.HasOperation(SkillProgramEffectOp.IncreaseActualSourceDamageByYuqing) ||
+                           features.HasOperation(SkillProgramEffectOp.ConsumeZengdaoForActualSourceDamage) && IsIssuedZengdaoCandidate(candidate, context))
                         : owner.Seat != beforeDamage.TargetSeat),
             SkillProgramTriggerWindow.DamageAppliedBeforeDying or
                 SkillProgramTriggerWindow.AfterDamageApplied =>
@@ -2266,7 +2349,8 @@ public sealed partial class GameEngine
                 CanRunAfterDamageProgramTrigger(owner, trigger, context),
             SkillProgramTriggerWindow.OtherActualTurnStarted => CanRunForeignActualTurnContest(candidate, context),
             SkillProgramTriggerWindow.AfterHpLost or SkillProgramTriggerWindow.AfterHpRecovered or SkillProgramTriggerWindow.AfterHealthChanged =>
-                context.HpChange is { } change && change.TargetSeat == owner.Seat && change.Amount > 0 &&
+                context.HpChange is { } change &&
+                (IsQimeiEqualityTrigger(trigger) ? CanRunQimeiEquality(candidate, context) : IsXianfuEchoTrigger(trigger) ? CanRunXianfuEcho(candidate, context) : IsDianhuDrawTrigger(trigger) ? CanRunDianhu(candidate, context) : change.TargetSeat == owner.Seat) && change.Amount > 0 &&
                 _resolutionStack.OfType<HpChangedTriggerWindowFrame>().LastOrDefault() is { } hpWindow &&
                 hpWindow.Id == context.ParentFrameId && hpWindow.Change == change &&
                 hpWindow.Candidates[hpWindow.CandidateIndex] == candidate,
@@ -2274,7 +2358,9 @@ public sealed partial class GameEngine
                 context.MovementBatch is { } batch &&
                 batch.Id == context.ParentFrameId &&
                 _resolutionStack.OfType<CardsMovedTriggerWindowFrame>().LastOrDefault()?.Id == batch.Id &&
-                (IsNeighborDiscardTopTrigger(trigger)
+                (features.HasOperation(SkillProgramEffectOp.PayMaxHpAndObtainActualUsedTrick)
+                    ? MatchingLiJueUseDiscardIndexes(batch, candidate).Length > 0
+                    : trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.OfferNativeBatchHandGainOrCardLossBenefit) ? BuZhiMovementQualifies(batch, owner.Seat) : IsQimeiEqualityTrigger(trigger) ? CanRunQimeiEquality(candidate, context) : IsNeighborDiscardTopTrigger(trigger)
                     ? NeighborDiscardIndexes(batch, owner.Seat).Length > 0 &&
                       context.TargetSeat == owner.Seat && context.SourceSeat == NeighborDiscardSourceSeat(batch, owner.Seat) &&
                       NeighborDiscardFact(batch, owner.Seat)?.PreviousLivingSeat == context.Facts?.FrozenPreviousLivingSeat
@@ -2321,11 +2407,12 @@ public sealed partial class GameEngine
                 killWindow.CandidateIndex < killWindow.Candidates.Count &&
                 killWindow.Candidates[killWindow.CandidateIndex] == candidate &&
                 killWindow.Contexts[killWindow.CandidateIndex] == context,
-            SkillProgramTriggerWindow.JudgmentFinalized =>
+            SkillProgramTriggerWindow.JudgmentFinalized or SkillProgramTriggerWindow.JudgmentBeforeResult =>
                 context.Judgment is { } finalized &&
                 ActiveJudgment is { } pendingJudgment &&
                 finalized.JudgmentFrameId == pendingJudgment.Id &&
                 _resolutionStack.LastOrDefault() is ProgramJudgmentTriggerWindowFrame judgmentWindow &&
+                (judgmentWindow.ZhenyiBeforeResult == true) == (context.Window == SkillProgramTriggerWindow.JudgmentBeforeResult) &&
                 judgmentWindow.Id == context.ParentFrameId &&
                 judgmentWindow.CandidateIndex < judgmentWindow.Candidates.Count &&
                 judgmentWindow.Candidates[judgmentWindow.CandidateIndex] ==
@@ -2556,15 +2643,15 @@ public sealed partial class GameEngine
                 ? EventsSinceLastBoundary(item => item is TurnStartedEvent).OfType<PlayerDiedEvent>()
                     .Any(item => item.KillerSeat == owner.Seat) : null,
             LivingWoundedCount: UsesStrategicTriggerValue(SkillProgramTriggerValueKind.LivingWoundedCount)
-                ? _players.Count(player => player.IsAlive && player.Hp < player.MaxHp) : 0,
+                ? _players.Count(player => player.IsAlive && player.HasHpValue && player.Hp < player.MaxHp) : 0,
             PlayPhaseDamageTakenByAny: UsesStrategicTriggerValue(SkillProgramTriggerValueKind.PlayPhaseDamageTakenByAny)
                 ? CountPlayPhaseDamageTakenByAny() : 0,
             LowHandPopulationSeats: _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DrawAndDraftLowHandPopulation)
-                ? _players.Where(player => player.IsAlive && GetHand(player).Count < player.Hp).Select(player => player.Seat).ToArray() : null,
+                ? _players.Where(player => player.IsAlive && player.HasHpValue && GetHand(player).Count < player.Hp).Select(player => player.Seat).ToArray() : null,
             GlobalMarkerCounts: UsesStrategicTriggerValue(SkillProgramTriggerValueKind.GlobalMarkerCount)
                 ? Enum.GetValues<PlayerMarkerKind>().Where(marker => marker is PlayerMarkerKind.Camp or PlayerMarkerKind.Junlue).ToDictionary(marker => marker,
                     marker => _players.Where(player => player.IsAlive).Sum(player => player.Markers.GetValueOrDefault(marker))) : null)
-        { TurnOwnerHp = _contentRegistry.ProgramDependencies.UsesTriggerValue(SkillProgramTriggerValueKind.TurnOwnerHp)
+        { OwnerHpUndefined = !owner.HasHpValue, TurnOwnerHpUndefined = !_players[_currentSeat].HasHpValue, LivingMinHpUndefined = _players.Any(p => p.IsAlive && !p.HasHpValue) && !_players.Any(p => p.IsAlive && p.HasHpValue), TurnOwnerHp = _contentRegistry.ProgramDependencies.UsesTriggerValue(SkillProgramTriggerValueKind.TurnOwnerHp)
               ? _players[_currentSeat].Hp : null,
           RoundTurnSeatCount = _contentRegistry.ProgramDependencies.UsesTriggerValue(SkillProgramTriggerValueKind.RoundTurnSeatCount)
               ? _roundTurnSeats.Count : null,
@@ -2637,7 +2724,7 @@ public sealed partial class GameEngine
         ConsumeEarnedActualEndingAtBegin(candidate, context);
         ConsumePrepDiscardEndingAtBegin(candidate, context);
         ConsumeFixedDistanceDebtAtBegin(candidate, context);
-        if (!GetProgramTrigger(candidate).Effects.Any(e => e.Op == SkillProgramEffectOp.DiscardSameCategoryForExtraEffect))
+        if (!GetProgramTrigger(candidate).Effects.Any(e => e.Op is SkillProgramEffectOp.DiscardSameCategoryForExtraEffect or SkillProgramEffectOp.PayTwoForChosenAssaultAndApplyTargetOutcomes or SkillProgramEffectOp.DyingRecipientChooseReplaceOrGrantThenRecover or SkillProgramEffectOp.GuessTargetCategoriesAndArmTurnDamage))
             ConsumeProgramTriggerUsage(candidate);
         PayProgramMarkerCost(_players[candidate.OwnerSeat], GetProgramTrigger(candidate).MarkerCost,
             candidate.SkillId, candidate.BindingId);
@@ -2661,6 +2748,7 @@ public sealed partial class GameEngine
             DyingAlcoholPermission = CaptureProgramDyingAlcoholPermission(candidate, context)
         };
         frame = CaptureHpConditionalProgramSource(frame);
+        frame = CaptureEquipmentSuitProgramSource(frame);
         AttachAfterTurnEndedChild(frame, candidate, context);
         PushRuntimeFrame(frame);
         AdvanceEventRulesAndQueueFact(new ProgramBindingStartedEvent(
@@ -2804,7 +2892,8 @@ public sealed partial class GameEngine
     // the own-turn boundary only when some registered skill needs them; every
     // existing own-turn content keeps the original single-owner enumeration.
     private bool TracksForeignTurnStartPrograms =>
-        _contentRegistry?.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ZhuihuanRetaliate) == true;
+        _contentRegistry?.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ZhuihuanRetaliate) == true ||
+        _contentRegistry?.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.XianlueRecord) == true;
 
     private IReadOnlyList<ProgramTriggerCandidate> CollectForeignTurnStartCandidates(
         CharacterState turnOwner, SkillProgramTriggerFacts turnOwnerFacts)
@@ -2831,7 +2920,7 @@ public sealed partial class GameEngine
         if (!owner.IsAlive || owner.Seat != _currentSeat || _phase != TurnPhase.Play ||
             _pendingDecision is not null || _resolutionStack.Count != 0)
             return false;
-        if (!HasLivingProgramTriggerBindings(SkillProgramTriggerWindow.PlayEnding) && _phaseNamePredictions.Count == 0)
+        if (!HasLivingProgramTriggerBindings(SkillProgramTriggerWindow.PlayEnding) && _phaseNamePredictions.Count == 0 && !IssuedZhuijiEndingCandidates(owner).Any() && !IssuedQingzhongEndingCandidates(owner).Any() && !IssuedWeiluEndingCandidates(owner).Any())
             return false;
         var participants = _players.Where(player => player.IsAlive).ToArray();
         var participantFacts = participants.ToDictionary(player => player.Seat, CaptureProgramTriggerFacts);
@@ -2842,6 +2931,12 @@ public sealed partial class GameEngine
                     .Where(candidate => MatchesPlayEndingTurnOwnerScope(
                         GetProgramTrigger(candidate).TurnOwnerScope, player.Seat == owner.Seat))).ToList();
         AppendPhaseNamePredictionCandidates(candidates);
+        foreach (var issued in IssuedQingzhongEndingCandidates(owner))
+            if (!candidates.Contains(issued)) candidates.Add(issued);
+        foreach (var issued in IssuedWeiluEndingCandidates(owner))
+            if (!candidates.Contains(issued)) candidates.Add(issued);
+        foreach (var issued in IssuedZhuijiEndingCandidates(owner))
+            if (!candidates.Contains(issued)) candidates.Add(issued);
         var orderedCandidates = candidates.OrderBy(candidate => (candidate.OwnerSeat - owner.Seat + _players.Count) % _players.Count)
             .ThenByDescending(candidate => candidate.Priority)
             .ThenBy(candidate => candidate.SkillId, StringComparer.Ordinal)
@@ -2850,7 +2945,7 @@ public sealed partial class GameEngine
         var frame = new ProgramLifecycleTriggerWindowFrame(
             ++_resolutionSequence, owner.Seat, SkillProgramTriggerWindow.PlayEnding,
             orderedCandidates, ProgramLifecycleContinuation.CompletePlayPhase, facts)
-        { ParticipantFacts = participantFacts, PhaseNamePredictionPhase = TracksPhaseNamePredictions
+        { ParticipantFacts = participantFacts, WeiluEndingPhase = CaptureWeiluEndingPhase(owner), QingzhongEndingPhase = CaptureQingzhongEndingPhase(owner), ZhuijiEndingPhase = CaptureZhuijiEndingPhase(owner), PhaseNamePredictionPhase = TracksPhaseNamePredictions
             ? new(_turnNumber, _currentSeat, _cardUseDebitPhaseInstanceId) : null };
         PushRuntimeFrame(frame);
         AdvanceRuntimeTop<ProgramLifecycleTriggerWindowFrame>();
@@ -3163,7 +3258,8 @@ public sealed partial class GameEngine
         if (ordered.Length == 0) return false;
 
         PushRuntimeFrame(new PlayPhaseStartingBoundaryFrame(
-            ++_resolutionSequence, owner.Seat, Array.AsReadOnly(ordered), facts));
+            ++_resolutionSequence, owner.Seat, Array.AsReadOnly(ordered), facts)
+        { QingzhongStartingPhase = CaptureQingzhongStartingPhase(owner), WeiluStartingPhase = CaptureWeiluStartingPhase(owner) });
         AdvanceRuntimeTop<PlayPhaseStartingBoundaryFrame>();
         return true;
     }
@@ -3179,7 +3275,8 @@ public sealed partial class GameEngine
             SourceSeat: frame.OwnerSeat,
             TargetSeat: frame.OwnerSeat,
             OccurrenceIndex: candidate.OccurrenceIndex,
-            Facts: candidateFacts ?? frame.Facts);
+            Facts: candidateFacts ?? frame.Facts)
+        { QingzhongPhase = frame.QingzhongStartingPhase, WeiluPhase = frame.WeiluStartingPhase };
 
     private void ContinuePlayPhaseStartingBoundaryCore()
     {
@@ -3281,6 +3378,13 @@ public sealed partial class GameEngine
                     case ProgramLifecycleContinuation.NormalTurnStart:
                         BeginNormalTurnStartAfterProgramBindings(_players[frame.OwnerSeat]);
                         break;
+                    case ProgramLifecycleContinuation.ResumeIdentityAppearance:
+                        ResumeIdentityAppearanceWindow(frame);
+                        break;
+                    case ProgramLifecycleContinuation.BeiMiHuPreludeRound:
+                    case ProgramLifecycleContinuation.BeiMiHuPreludeOwn:
+                        ReturnBeiMiHuTurnPreludeWindow(frame);
+                        break;
                     case ProgramLifecycleContinuation.RoundProgramsTurnStart:
                         ContinueTurnAfterRoundPrograms(_players[frame.OwnerSeat]);
                         break;
@@ -3295,6 +3399,7 @@ public sealed partial class GameEngine
                         CompletePlayPhaseAfterProgramWindow();
                         break;
                     case ProgramLifecycleContinuation.CompletePhaseHandDebtForcedEnd:
+                    case ProgramLifecycleContinuation.CompleteWeiluForcedPlayEnd:
                         EndTurn();
                         break;
                     case ProgramLifecycleContinuation.CompleteJudgmentPhaseStarting:
@@ -3330,6 +3435,12 @@ public sealed partial class GameEngine
                 Facts: frame.Window==SkillProgramTriggerWindow.DrawPhaseStarting && HasAttributedEventOperations() ? (frame.ParticipantFacts?.GetValueOrDefault(candidate.OwnerSeat) ?? frame.Facts) with { EventTargetMarkerCounts = new Dictionary<PlayerMarkerKind,int>(_players[frame.OwnerSeat].Markers) } :
                     frame.Window==SkillProgramTriggerWindow.DiscardPhaseEnded && HasAttributedEventOperations() ? (frame.ParticipantFacts?.GetValueOrDefault(candidate.OwnerSeat) ?? frame.Facts) with { EventTargetMarkerCounts = new Dictionary<PlayerMarkerKind,int>(_players[frame.OwnerSeat].Markers) } :
                     frame.ParticipantFacts?.GetValueOrDefault(candidate.OwnerSeat) ?? frame.Facts);
+            if (frame.Window == SkillProgramTriggerWindow.IdentityGeneralAppeared) context = CreateIdentityAppearanceContext(frame, candidate);
+            context = context with { BeforeTurnPreludeProof = frame.BeforeTurnPreludeProof };
+            context = CreateQingzhongEndingContext(frame, candidate, context);
+            context = CreateWeiluEndingContext(frame, candidate, context);
+            context = CreateXuRongDyingContext(context);
+            context = CreateZhuijiEndingContext(frame, candidate, context);
             context = AttachPhaseNamePredictionContext(candidate, context);
             if (frame.ProgramTarget is { } commit) context = context with { SourceSeat = commit.OwnerSeat, TargetSeat = commit.TargetSeat, ProgramTarget = commit };
             if (!CanRunProgramTrigger(candidate, context))
@@ -3508,433 +3619,107 @@ public sealed partial class GameEngine
             return Reject(CommandErrorCode.InvalidChoice, "The damage cards are no longer available for this choice.");
         return Accept(() =>
         {
-            ResolveProgramTriggerChoice(selected);
+            ProgramInteractions.Resolve(selected);
             AdvanceRulesAndPublishState();
             if (_options.AdvanceAfterHumanCommands) AdvanceToHumanBoundary();
         });
     }
 
-    private void ResolveProgramTriggerChoice(PromptChoice selected)
+    [ProgramAnswer("current-turn-hand-exchange")]
+    private void ResolveCurrentTurnHandExchangeAnswer(PromptChoice selected)
     {
-        if (selected.Parameters.GetValueOrDefault("program-action") == "draw-discard-category")
-        { ResolveDrawDiscardCategoryChoice(selected); return; }
-        if (selected.Parameters.GetValueOrDefault("program-action") == "draw-advice-discard")
-        { ResolveDrawAdviceChoice(selected); return; }
-        if (selected.Parameters.GetValueOrDefault("program-action") == "designated-extra-target")
-        { ResolveDesignatedExtraTargetChoice(selected); return; }
-        if (selected.Parameters.GetValueOrDefault("program-action") == "damage-target-budget")
-        { ResolveDamageBudgetChoice(selected); return; }
-        if (selected.Parameters.GetValueOrDefault("program-action") == "current-turn-hand-exchange")
-        {
-            var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ??
-                throw new InvalidOperationException("The current-turn hand exchange choice lost its owning program.");
-            ResolveCurrentTurnHandExchangeChoice(frame, selected);
-            return;
-        }
-        if (selected.Parameters.GetValueOrDefault("program-action") == "gain-after-batch") { ResolveGainGiftChoice(selected); return; }
-        if (selected.Parameters.GetValueOrDefault("program-action") == "actual-hand-gain-category") { ResolveActualHandGainChoice(selected); return; }
-        if (selected.Parameters.GetValueOrDefault("program-action") == "public-pile-preparation") { ResolvePublicPilePreparationChoice(selected); return; }
-        if (selected.Parameters.GetValueOrDefault("program-action") == "phase-hand-debt-return") { ResolvePhaseHandDebtChoice(selected); return; }
-        if (selected.Parameters.GetValueOrDefault("program-action") == "dynamic-discard-damage") { ResolveDynamicDiscardDamageChoice(selected); return; }
-        if (selected.Parameters.GetValueOrDefault("program-action") is "alternative-phase-cost-card" or "alternative-phase-cost-marker")
-        { ResolveAlternativePhaseCost(selected); return; }
-        if (selected.Parameters.GetValueOrDefault("program-action") == "decline-owned-field-move")
-        { ResolveDeclinedOwnedFieldMove(selected); return; }
-        if (selected.Parameters.GetValueOrDefault("program-action") == "hp-damage-shield") { ResolveHpDamageShieldPayment(selected); return; }
-        if (selected.Parameters.GetValueOrDefault("program-action") is "damage-target-obtain" or "damage-target-duel") { ResolveDamageTargetObtainChoice(selected); return; }
-        if (selected.Parameters.GetValueOrDefault("program-action") == "damage-target-mount") { ResolveDamageTargetMount(selected); return; }
-        if (selected.Parameters.GetValueOrDefault("program-action") == "hp-loss-quantity") { ResolveHpLossQuantity(selected); return; }
-        if (selected.Parameters.GetValueOrDefault("program-action") == "slash-suit-discard") { ResolveProgramSlashSuitDiscardChoice(selected); return; }
-        if (selected.Parameters.GetValueOrDefault("program-action") == "diamond-delayed") { ResolveDiamondDelayedChoice(selected); return; }
-        if (selected.Parameters.GetValueOrDefault("program-action") == "public-suit-discard") { ResolvePublicSuitDiscard(selected); return; }
-        if (selected.Parameters.GetValueOrDefault("program-action") is { } namedAction && (namedAction.StartsWith("named-defense-", StringComparison.Ordinal) || namedAction.StartsWith("public-draft-", StringComparison.Ordinal)))
-        { ResolveNamedDefenseAndDraftChoice(selected); return; }
-        if (selected.Parameters.GetValueOrDefault("program-action") == "final-target-gift") { ResolveFinalTargetGiftChoice(selected); return; }
-        if (selected.Parameters.GetValueOrDefault("program-action") == "converting-gift") { ResolveConvertingGiftChoice(selected); return; }
-        if (selected.Parameters.GetValueOrDefault("program-action")?.StartsWith("quota-top-", StringComparison.Ordinal) == true) { ResolveQuotaTopChoice(selected); return; }
-        if (selected.Parameters.GetValueOrDefault("program-action") == "named-turn-flow") { ResolveNamedTurnFlowChoice(selected); return; }
-        if (selected.Parameters.GetValueOrDefault("program-action") == "alternating-suit-top") { ResolveAlternatingSuitTopChoice(selected); return; }
-        if (selected.Parameters.GetValueOrDefault("program-action") == "equipment-pair-payment") { ResolveEquipmentPairPaymentChoice(selected); return; }
-        if (selected.Parameters.GetValueOrDefault("program-action") == "dying-suits") { ResolveDyingSuitsChoice(selected); return; }
-        if (selected.Parameters.GetValueOrDefault("program-action") == "historical-ending") { ResolveHistoricalEndingChoice(selected); return; }
-        if (selected.Parameters.GetValueOrDefault("program-action") == "dying-owned-card") { ResolveDyingOwnedCardChoice(selected); return; }
-        if (selected.Parameters.GetValueOrDefault("program-action") == "sequential-discard") { ResolveSequentialDiscardChoice(selected); return; }
-        if (selected.Parameters.GetValueOrDefault("program-action") == "half-hand-support") { ResolveHalfHandSupportChoice(selected); return; }
-        if (selected.Parameters.GetValueOrDefault("program-action") == "unique-hp-peer") { ResolveUniqueHpPeerChoice(selected); return; }
-        if (selected.Parameters.GetValueOrDefault("program-action") == "recipient-contest") { ResolveRecipientContestChoice(selected); return; }
-        if (selected.Parameters.GetValueOrDefault("program-action") == "black-gift-contest") { ResolveBlackGiftChoice(selected); return; }
-        if (selected.Parameters.GetValueOrDefault("program-action") == "printed-lord-benefit") { ResolvePrintedLordChoice(selected); return; }
-        if (selected.Parameters.GetValueOrDefault("program-action") == "foreign-selected-slash") { ResolveSelectedForeignCardSlashChoice(selected); return; }
-        if (selected.Parameters.GetValueOrDefault("program-action") == "kuangfu") { ResolveKuangfuChoice(selected); return; }
-        var action = selected.Parameters.GetValueOrDefault("program-action");
-        if (action == "relative-zone-target") { ResolveRelativeZoneTarget(selected); return; }
-        if (action == "deck-end-exchange") { ResolveDeckEndChoice(selected); return; }
-        if (action == "private-general-library") {ResolvePrivateGeneralLibraryChoice(selected);return;}
-        if (action == "game-domain") {ResolveGameDomainChoice(selected);return;}
-        if (action == "public-pile-color") {ResolvePublicPileColorChoice(selected);return;}
-        if (action == "public-pile-flow") { ResolveFinalTargetPileChoice(selected); return; }
-        if (action == "public-pile") { ResolvePublicPileChoice(selected); return; }
-        if (action == "hand-comparison") { ResolveHandComparison(selected); return; }
-        if (action == "participant-discard") { ResolveSelectedParticipantDiscard(selected); return; }
-        if (action == "damage-card-offer") { ResolveDamageCardOffer(selected); return; }
-        if (action == "faction-recovery") { ResolveFactionRecoveryChoice(selected); return; }
-        if (action == "weapon-damage") { ResolveWeaponDamageChoice(selected); return; }
-        if (action == "paired-hand-reveal") { ResolvePairedHandRevealChoice(selected); return; }
-        if (action == "hand-control") { ResolveProgramHandControlChoice(selected); return; }
-        if (action == "equipment-color-discard")
-        {
-            ResolveProgramEquipmentColorDiscardChoice(selected);
-            return;
-        }
-        if (action == "add-compound-card-target")
-        {
-            ResolveProgramCompoundCardTarget(selected);
-            return;
-        }
-        if (action == "discard-budget") { ResolveDiscardBudgetChoice(selected); return; }
-        if (action == "actual-discard-recovery") { ResolveActualDiscardRecovery(selected); return; }
-        if (action == "signed-damage-payment") { ResolveSignedDamagePayment(selected); return; }
-        if (action == "suit-prevention-benefit") { ResolveSuitPreventionBenefit(selected); return; }
-        if (action == "matched-judgment-placement") { ResolveMatchedJudgmentPlacement(selected); return; }
-        if (action == "completed-use-payment") { ResolveCompletedUsePayment(selected); return; }
-        if (action == "round-pile-alcohol") { ResolveRoundPileAlcohol(selected); return; }
-        if (action == "current-slash-fire") { ResolveCurrentSlashFireChoice(selected); return; }
-        if (action == "red-discard-recovery") { ResolveRedDiscardRecoveryChoice(selected); return; }
-        if (action == "outside-range-discard") { ResolveOutsideRangeDiscard(selected); return; }
-        if (action == "faction-cost-gift") { ResolveCompletedFactionGift(selected); return; }
-        if (action == "completed-card-gift")
-        {
-            ResolveCompletedCardGiftChoice(selected);
-            return;
-        }
-        if (action == "named-card-acquisition") { ResolveNamedCardAcquisitionChoice(selected); return; }
-        if (action == "slash-target-penalty") { ResolveTargetPenaltyChoice(selected); return; }
-        if (action == "slash-target-benefit") { ResolveSlashTargetBenefitChoice(selected); return; }
-        if (action == "prep-discard-ending")
-        {
-            ResolvePrepDiscardChoice(_resolutionStack.LastOrDefault() as ProgramSkillFrame ??
-                throw new InvalidOperationException("The preparation choice lost its owning program."), selected); return;
-        }
-        if (action == "same-type-actual-use-aid") { ResolveSameTypeAidChoice(selected); return; }
-        if (action == "original-target-addition") { ResolveOriginalTargetAdditionChoice(selected); return; }
-        if (action == "damage-zone-acquisition") { ResolveDamageAcquisitionChoice(selected); return; }
-        if (action == "adjacent-red-target") { ResolveAdjacentRedTargetChoice(selected); return; }
-        if (action == "short-range-slash-target") { ResolveShortRangeSlashTarget(selected); return; }
-        if (action is "phase-name-cost" or "phase-name-reveal" or "phase-name-guess") { ResolvePhaseNamePredictionChoice(selected); return; }
-        if (action == "friend-trio") { ResolveFriendTrioChoice(selected); return; }
-        if (action == "friend-pang-tong") { ResolveFriendPangTongChoice(selected); return; }
-        if (action == "last-damage-source-discard") { ResolveLastDamageSourceReciprocityChoice(selected); return; }
-        if (action == "matching-recast") { ResolveMatchingRecastChoice(selected); return; }
-        if (action == "paired-hand-recast") { ResolvePairedHandRecastChoice(selected); return; }
-        if (action == "outside-phase-draw-discard") { ResolveOutsidePhaseDrawDiscardChoice(selected); return; }
-        if (action == "original-hand-entity") { ResolveOriginalHandEntityChoice(selected); return; }
-        if (action == "turn-default-stat") { ResolveTurnDefaultStatChoice(selected); return; }
-        if (action == "paired-color-disposition") { ResolvePairedColorDisposition(selected); return; }
-        if (action == "round-gained-trick-target") { ResolveRoundGainedTrickTargetChoice(selected); return; }
-        if (action == "unique-leader-trick-target") { ResolveUniqueLeaderTrickTargetChoice(selected); return; }
-        if (action == "same-name-hand") { ResolveSameNameHandDiscardOrDamageChoice(selected); return; }
-        if (action == "completed-undamaged-target-reveal") { ResolveCompletedUndamagedTargetRevealChoice(selected); return; }
-        if (action == "recipient-category-mark") { ResolveRecipientCategoryMarkChoice(selected); return; }
-        if (action == "off-turn-used-card-gift") { ResolveOffTurnUsedCardGift(selected); return; }
-        if (action == "fixed-distance-ending-debt") { ResolveFixedDistanceDebtChoice(selected); return; }
-        if (action == "current-card-enhancement")
-        {
-            ResolveCardEnhancementChoice(selected);
-            return;
-        }
-        if (action == "discard-challenge")
-        {
-            ResolveProgramDiscardChallengeChoice(selected);
-            return;
-        }
-        if (action is "discard-top-select" or "discard-top-finish")
-        {
-            ResolveProgramDiscardTopPlacementChoice(selected);
-            return;
-        }
-        if (action == "participant-top-view")
-        {
-            ResolveParticipantTopView(selected);
-            return;
-        }
-        if (action == "public-pile-collection")
-        {
-            ResolvePublicPileCollectionChoice(selected);
-            return;
-        }
-        if (action == "marker-payment")
-        {
-            ResolveMarkerOrHpPayment(selected);
-            return;
-        }
-        if (action == "private-reserve-choice")
-        {
-            ResolvePrivateReserveChoice(selected);
-            return;
-        }
-        if (action == "different-action-category-gift" || action == "different-action-category-decline")
-        {
-            ResolveDifferentActionCategoryGift(selected);
-            return;
-        }
-        if (action == "configured-card-declaration")
-        {
-            ResolveConfiguredCardDeclaration(selected);
-            return;
-        }
-        if (action == "strategic-choice")
-        {
-            ResolveStrategicProgramChoice(selected);
-            return;
-        }
-        if (action == "advanced-lifecycle")
-        {
-            ResolveAdvancedLifecycleChoice(selected);
-            return;
-        }
-        if (action == "choose-option")
-        {
-            ResolveProgramOptionChoice(selected);
-            return;
-        }
-        if (action is "distinct-faction-select" or "distinct-faction-finish" or "distinct-faction-discard")
-        { ResolveDistinctFactionDiscardChoice(selected); return; }
-        if (action is "sole-target-protection" or "pair-obtain" or "shown-pair-gift" or "equipment-donation" or
-            "actual-ended-equipment" or "limited-owned-gift" or "finish-limited-owned-gift" or
-            "select-target" or "select-targets" or "select-source-card" or "select-and-move-owned-card" or
-            "choose-other-owned-card-discard" or "choose-other-owned-card-decline" or
-            "restore-phase-hand-discard" or "restore-phase-hand-decline" or
-            "choose-own-card-discard" or
-            "select-owned-cards" or "finish-owned-cards" or
-            "give-bound-card" or "keep-bound-cards" or
-            "distribute-owned-card" or "decline-owned-card-distribution" or
-            "reveal-target-hand-card" or "reveal-target-hand-card-decline" or
-            "request-slash" or "request-slash-decline" or
-            "request-slash-nearest" or "request-slash-nearest-decline" or
-            "nearest-legal-slash" or "unlimited-virtual-slash" or "damage-judgment-suit-payment" or
-            "attack-range-aid-discard-weapon" or "attack-range-aid-draw")
-        {
-            ResolveProgramInstructionChoice(selected, action);
-            return;
-        }
-        if (action is "different-category-discard" or "different-category-decline")
-        {
-            ResolveProgramDifferentCategoryDiscardChoice(selected);
-            return;
-        }
-        if (action == "granted-phase-slash") { ResolveGrantedPhaseSlashChoice(selected); return; }
-        if (action is "mou-zhijue" or "mou-zhitian-confirm") { ResolveMouZhugeChoice(selected); return; }
-        if (action == "provenance-face-up")
-        {
-            ResolveProvenanceFaceUp(selected); return;
-        }
-        if (action == "virtual-basic")
-        {
-            ResolveVirtualBasicChoice(selected);
-            return;
-        }
-        if (action == "shared-slash-offer")
-        {
-            ResolveSharedSlashOfferChoice(selected); return;
-        }
-        if (action == "virtual-slash-offer")
-        {
-            ResolveProgramVirtualSlashOfferChoice(selected);
-            return;
-        }
-        if (action == "assisted-physical-slash")
-        {
-            ResolveAssistedPhysicalSlashChoice(selected);
-            return;
-        }
-        if (action is "fixed-target-slash" or "declared-deck-criterion" or "declared-deck-recipient")
-        {
-            ResolveFixedSlashAndDeclaredDeckChoice(selected);
-            return;
-        }
-        if (action == "placed-equipment-benefit")
-        {
-            ResolvePlacedEquipmentChoice(selected);
-            return;
-        }
-        if (action == "inspected-hand-slash")
-        {
-            ResolveInspectedHandChoice(selected);
-            return;
-        }
-        if (action == "friend-configuration") { ResolveFriendConfiguration(selected); return; }
-        if (action == "conditional-discard-duel")
-        {
-            ResolveConditionalDuelPayment(selected);
-            return;
-        }
-        if (action == "dual-color-choice")
-        {
-            ResolveDualColorChoice(selected);
-            return;
-        }
-        if (action == "capped-hand-discard")
-        {
-            ResolveCappedHandRefreshChoice(selected);
-            return;
-        }
-        if (action == "take-other-card")
-        {
-            ResolveOtherCardSelectionChoice(selected);
-            return;
-        }
-        if (action is "private-hand-take" or "hand-repayment")
-        {
-            ResolveParticipantHandChoice(selected);
-            return;
-        }
-        if (action == "use-all-hand-as-ordinary-trick")
-        {
-            ResolveProgramOrdinaryTrickUseChoice(selected);
-            return;
-        }
-        if (action == "use-virtual-ordinary-trick")
-        {
-            ResolveProgramVirtualOrdinaryTrickChoice(selected);
-            return;
-        }
-        if (action == "deferred-private-offer") { ResolveDeferredPrivateOfferChoice(selected); return; }
-        if (action == "game-hand-hp-discard") { ResolveGameHandHpDiscard(selected); return; }
-        if (action == "unequal-hand-hp-ending") { ResolveUnequalHandHpChoice(selected); return; }
-        if (action == "phase-start-card-control") { ResolvePhaseStartCardControlChoice(selected); return; }
-        if (action == "end-refill-next-turn") { ResolveEndRefillNextTurnChoice(selected); return; }
-        if (action == "incoming-distance-courtesy") { ResolveIncomingDistanceCourtesyChoice(selected); return; }
-        if (action == "named-ambush") { ResolveNamedAmbushChoice(selected); return; }
-        if (action == "extra-effects-rank-guess") { ResolveExtraEffectsAndRankGuessChoice(selected); return; }
-        if (action == "first-slash-duel-benefit") { ResolveFirstSlashDuelChoice(selected); return; }
-        if (action == "rice-pile") { ResolveRiceChoice(selected); return; }
-        if (action == "damage-source-hand") { ResolveDamageSourceHandChoice(selected); return; }
-        if (action == "targeted-ordinary-trick") { ResolveTargetedOrdinaryTrickChoice(selected); return; }
-        if (action == "order-bound-cards")
-        {
-            var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ??
-                throw new InvalidOperationException("The bottom-order choice lost its program frame.");
-            var paused = ProgramInstructionResolver.Default
-                .Resolve(frame, _contentRegistry!.GetSkill(frame.SkillId).Program!)
-                .GetPausedInstruction(frame.InstructionIndex);
-            if (paused.Effect is not
-                {
-                    Op: SkillProgramEffectOp.MoveBoundCards,
-                    Destination: SkillProgramCardDestination.DrawPileBottom
-                } effect ||
-                selected.Parameters.GetValueOrDefault("source-bind") != effect.SourceBind ||
-                selected.Parameters.GetValueOrDefault("except-bind") != (effect.ExceptBind ?? string.Empty))
-                throw new InvalidOperationException("The bottom-order choice does not match its suspended instruction.");
-            ClearPendingDecision();
-            _ = MoveProgramBoundCards(frame.Id, frame.OwnerSeat, effect.SourceBind!, effect.ExceptBind,
-                SkillProgramCardDestination.DrawPileBottom, null,
-                new CardMoveReason($"skill-program.{frame.SkillId}.{effect.Op}"), selected.Cards);
-            AdvanceRuntimeProgram(frame.Id);
-            return;
-        }
-        if (action == "owned-hand-rank-sum")
-        {
-            ResolveOwnedHandRankSumChoice(selected);
-            return;
-        }
-        if (action == "select-subset")
-        {
-            var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ??
-                throw new InvalidOperationException("The subset choice lost its program frame.");
-            var paused = ProgramInstructionResolver.Default
-                .Resolve(frame, _contentRegistry!.GetSkill(frame.SkillId).Program!)
-                .GetPausedInstruction(frame.InstructionIndex);
-            if (paused.Effect is not
-                { Op: SkillProgramEffectOp.SelectCardSubset } effect ||
-                selected.Parameters.GetValueOrDefault("source-bind") != effect.SourceBind ||
-                selected.Parameters.GetValueOrDefault("result-bind") != effect.ResultBind)
-                throw new InvalidOperationException("The subset choice does not match the suspended instruction.");
-            var source = GetProgramCardSet(frame, effect.SourceBind!);
-            var sourceIndexes = source.CardIds
-                .Select((cardId, index) => (cardId, index))
-                .ToDictionary(item => item.cardId, item => item.index);
-            var cards = selected.Cards.Select(cardId =>
-            {
-                if (!sourceIndexes.TryGetValue(cardId, out var sourceIndex) ||
-                    sourceIndex >= source.SourceLocations.Count)
-                {
-                    throw new InvalidOperationException("The selected program card lost its frozen source.");
-                }
-                return _cardZones.CardsAt(source.SourceLocations[sourceIndex])
-                    .Single(card => card.Id == cardId);
-            }).ToArray();
-            var rankSum = cards.Sum(card => card.Rank);
-            if (rankSum > effect.MaximumRankSum)
-                throw new InvalidOperationException("The selected subset exceeds its rank-sum limit.");
-            if (effect.OnePerSuit
-                    ? cards.Length != (effect.AvailableAtSourceOnly == true
-                        ? CountAvailableBoundSuits(source)
-                        : source.CardIds.Select((cardId, index) =>
-                              _cardZones.CardsAt(source.SourceLocations[index])
-                                  .Single(card => card.Id == cardId).Suit)
-                          .Distinct().Count()) ||
-                      cards.Select(card => card.Suit).Distinct().Count() != cards.Length
-                    : selected.Cards.Distinct().Count() != selected.Cards.Count ||
-                    selected.Cards.Any(cardId => !source.CardIds.Contains(cardId)) ||
-                    selected.Cards.Count < (effect.AllowFewerWhenInsufficient
-                        ? Math.Min(effect.MinimumCards, effect.AvailableAtSourceOnly == true ? CountAvailableBoundCards(source) : source.CardIds.Count) : effect.MinimumCards) ||
-                    selected.Cards.Count > (effect.AllowFewerWhenInsufficient
-                        ? Math.Min(effect.MaximumCards, effect.AvailableAtSourceOnly == true ? CountAvailableBoundCards(source) : source.CardIds.Count) : effect.MaximumCards))
-                throw new InvalidOperationException("The selected subset is no longer legal.");
-            ClearPendingDecision();
-            SetProgramCardSet(frame.Id, effect.ResultBind!, selected.Cards,
-                SkillProgramCardSetVisibility.Private, selectionActorSeat: source.SelectionActorSeat);
-            AdvanceEventRulesAndQueueFact(new ProgramCardSubsetSelectedEvent(
-                frame.Id, frame.SkillId, GetProgramBindingId(frame), effect.SourceBind!, effect.ResultBind!,
-                Array.AsReadOnly(selected.Cards.ToArray()), rankSum));
-            AdvanceRuntimeProgram(frame.Id);
-            return;
-        }
-        if (action == "yanjiao-split") { ResolveYanjiaoSplitChoice(selected); return; }
-        if (action == "tunan-branch") { ResolveTunanBranchChoice(selected); return; }
-        if (action == "tunan-target") { ResolveTunanTargetChoice(selected); return; }
-        if (action == "bijing-punish-discard") { ResolveBijingPunishChoice(selected); return; }
-        if (action == "zhiren-field-discard") { ResolveZhirenFieldChoice(selected); return; }
-        if (action == "youdi-bait-discard") { ResolveYoudiBaitChoice(selected); return; }
-        if (action == "guanchao-pattern") { ResolveGuanchaoPatternChoice(selected); return; }
-        if (action == "xunxian-gift") { ResolveXunxianGiftChoice(selected); return; }
-        if (action == "daoshu-suit") { ResolveDaoshuSuitChoice(selected); return; }
-        if (action == "daoshu-give-back") { ResolveDaoshuGiveBackChoice(selected); return; }
-        if (action == "zecai-target" || action == "zecai-decline") { ResolveZecaiChoice(selected); return; }
-        if (action == "juanxia-trick") { ResolveJuanxiaTrickChoice(selected); return; }
-        if (action == "juanxia-target-card") { ResolveJuanxiaTargetCardChoice(selected); return; }
-        if (action == "juanxia-fire-payment") { ResolveJuanxiaFirePaymentChoice(selected); return; }
-        if (action == "juanxia-retaliate") { ResolveJuanxiaRetaliateChoice(selected); return; }
-        if (action == "zhanyi-launch") { ResolveZhanyiCategoryChoice(selected); return; }
-        if (action == "zhanyi-punish-target") { ResolveZhanyiPunishTargetChoice(selected); return; }
-        if (action == "zhanyi-punish-card") { ResolveZhanyiPunishCardChoice(selected); return; }
-        if (action == "fengji-option") { ResolveFengjiOptionChoice(selected); return; }
-        if (action == "fengji-recipient") { ResolveFengjiRecipientChoice(selected); return; }
-        if (action == "changji-ending-choice") { ResolveChangjiEndingChoice(selected); return; }
-        if (action == "changji-discard") { ResolveChangjiDiscardChoice(selected); return; }
-        if (action == "zengou-cost") { ResolveZengouCostChoice(selected); return; }
-        if (action == "zhuihuan-arm") { ResolveZhuihuanArmChoice(selected); return; }
-        if (action == "tongxie-arm") { ResolveTongxieArmChoice(selected); return; }
-        if (action is "tongxie-follow-up" or "tongxie-follow-up-decline")
-        { ResolveTongxieFollowUpChoice(selected); return; }
-        if (action is "tongxie-guard" or "tongxie-guard-decline")
-        { ResolveTongxieGuardChoice(selected); return; }
-        if (action == "kangge-choose") { ResolveKanggeChooseChoice(selected); return; }
-        if (action == "kangge-heal") { ResolveKanggeHealChoice(selected); return; }
-        if (action == "jielie-gift") { ResolveJielieSuitChoice(selected); return; }
-        if (action == "ruiji-distribution") { ResolveQiaoliDistributionChoice(selected); return; }
-        if (action == "qingliang-option") { ResolveQingliangOptionChoice(selected); return; }
-        if (action == "qingliang-suit") { ResolveQingliangSuitChoice(selected); return; }
-        if (action == "luochong-pick" || action == "luochong-decline") { ResolveLuochongPickChoice(selected); return; }
-        if (action == "luochong-discard") { ResolveLuochongDiscardChoice(selected); return; }
-        if (action == "aichen-remove") { ResolveAichenRemoveChoice(selected); return; }
-        if (action == "yujue-slot" || action == "yujue-decline" || action == "yujue-target" ||
-            action == "yujue-give") { ResolveYujueProgramChoice(selected); return; }
-        if (action == "yuanzi-draw" || action == "yuanzi-decline" ||
-            action == "liejie-pick" || action == "liejie-finish" || action == "liejie-decline")
-        { ResolveWeiZiProgramChoice(selected); return; }
-        if (action == "zhuitao-mark") { ResolveZhuitaoMarkChoice(selected); return; }
+        var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ??
+            throw new InvalidOperationException("The current-turn hand exchange choice lost its owning program.");
+        ResolveCurrentTurnHandExchangeChoice(frame, selected);
+    }
 
+    [ProgramAnswer("prep-discard-ending")]
+    private void ResolvePrepDiscardEndingAnswer(PromptChoice selected)
+    {
+        ResolvePrepDiscardChoice(_resolutionStack.LastOrDefault() as ProgramSkillFrame ??
+            throw new InvalidOperationException("The preparation choice lost its owning program."), selected);
+    }
+
+    [ProgramAnswer("order-bound-cards")]
+    private void ResolveProgramBoundCardOrderAnswer(PromptChoice selected)
+    {
+        var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ??
+            throw new InvalidOperationException("The bottom-order choice lost its program frame.");
+        var paused = ProgramInstructionResolver.Default
+            .Resolve(frame, _contentRegistry!.GetSkill(frame.SkillId).Program!)
+            .GetPausedInstruction(frame.InstructionIndex);
+        if (paused.Effect is not
+            {
+                Op: SkillProgramEffectOp.MoveBoundCards,
+                Destination: SkillProgramCardDestination.DrawPileBottom
+            } effect ||
+            selected.Parameters.GetValueOrDefault("source-bind") != effect.SourceBind ||
+            selected.Parameters.GetValueOrDefault("except-bind") != (effect.ExceptBind ?? string.Empty))
+            throw new InvalidOperationException("The bottom-order choice does not match its suspended instruction.");
+        ClearPendingDecision();
+        _ = MoveProgramBoundCards(frame.Id, frame.OwnerSeat, effect.SourceBind!, effect.ExceptBind,
+            SkillProgramCardDestination.DrawPileBottom, null,
+            new CardMoveReason($"skill-program.{frame.SkillId}.{effect.Op}"), selected.Cards);
+        AdvanceRuntimeProgram(frame.Id);
+    }
+
+    [ProgramAnswer("select-subset")]
+    private void ResolveProgramCardSubsetAnswer(PromptChoice selected)
+    {
+        var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ??
+            throw new InvalidOperationException("The subset choice lost its program frame.");
+        var paused = ProgramInstructionResolver.Default
+            .Resolve(frame, _contentRegistry!.GetSkill(frame.SkillId).Program!)
+            .GetPausedInstruction(frame.InstructionIndex);
+        if (paused.Effect is not
+            { Op: SkillProgramEffectOp.SelectCardSubset } effect ||
+            selected.Parameters.GetValueOrDefault("source-bind") != effect.SourceBind ||
+            selected.Parameters.GetValueOrDefault("result-bind") != effect.ResultBind)
+            throw new InvalidOperationException("The subset choice does not match the suspended instruction.");
+        var source = GetProgramCardSet(frame, effect.SourceBind!);
+        var sourceIndexes = source.CardIds
+            .Select((cardId, index) => (cardId, index))
+            .ToDictionary(item => item.cardId, item => item.index);
+        var cards = selected.Cards.Select(cardId =>
+        {
+            if (!sourceIndexes.TryGetValue(cardId, out var sourceIndex) ||
+                sourceIndex >= source.SourceLocations.Count)
+            {
+                throw new InvalidOperationException("The selected program card lost its frozen source.");
+            }
+            return _cardZones.CardsAt(source.SourceLocations[sourceIndex])
+                .Single(card => card.Id == cardId);
+        }).ToArray();
+        var rankSum = cards.Sum(card => card.Rank);
+        if (rankSum > effect.MaximumRankSum)
+            throw new InvalidOperationException("The selected subset exceeds its rank-sum limit.");
+        if (effect.OnePerSuit
+                ? cards.Length != (effect.AvailableAtSourceOnly == true
+                    ? CountAvailableBoundSuits(source)
+                    : source.CardIds.Select((cardId, index) =>
+                          _cardZones.CardsAt(source.SourceLocations[index])
+                              .Single(card => card.Id == cardId).Suit)
+                      .Distinct().Count()) ||
+                  cards.Select(card => card.Suit).Distinct().Count() != cards.Length
+                : selected.Cards.Distinct().Count() != selected.Cards.Count ||
+                selected.Cards.Any(cardId => !source.CardIds.Contains(cardId)) ||
+                selected.Cards.Count < (effect.AllowFewerWhenInsufficient
+                    ? Math.Min(effect.MinimumCards, effect.AvailableAtSourceOnly == true ? CountAvailableBoundCards(source) : source.CardIds.Count) : effect.MinimumCards) ||
+                selected.Cards.Count > (effect.AllowFewerWhenInsufficient
+                    ? Math.Min(effect.MaximumCards, effect.AvailableAtSourceOnly == true ? CountAvailableBoundCards(source) : source.CardIds.Count) : effect.MaximumCards))
+            throw new InvalidOperationException("The selected subset is no longer legal.");
+        ClearPendingDecision();
+        SetProgramCardSet(frame.Id, effect.ResultBind!, selected.Cards,
+            SkillProgramCardSetVisibility.Private, selectionActorSeat: source.SelectionActorSeat);
+        AdvanceEventRulesAndQueueFact(new ProgramCardSubsetSelectedEvent(
+            frame.Id, frame.SkillId, GetProgramBindingId(frame), effect.SourceBind!, effect.ResultBind!,
+            Array.AsReadOnly(selected.Cards.ToArray()), rankSum));
+        AdvanceRuntimeProgram(frame.Id);
+    }
+
+    private void ResolveProgramActivationChoice(PromptChoice selected)
+    {
+        var action = selected.Parameters.GetValueOrDefault("program-action");
         var (candidate, context) = GetPendingProgramTriggerCandidate();
         if (_resolutionStack.LastOrDefault() is ProgramLifecycleTriggerWindowFrame lifecycle &&
             GetProgramTrigger(candidate).ChoiceGroup is { } choiceGroup)
@@ -4075,6 +3860,40 @@ public sealed partial class GameEngine
         BeginProgramBinding(selectedCandidate, selectedContext);
     }
 
+    [ProgramAnswer(
+        "sole-target-protection",
+        "pair-obtain",
+        "shown-pair-gift",
+        "equipment-donation",
+        "actual-ended-equipment",
+        "limited-owned-gift",
+        "finish-limited-owned-gift",
+        "select-target",
+        "select-targets",
+        "select-source-card",
+        "select-and-move-owned-card",
+        "choose-other-owned-card-discard",
+        "choose-other-owned-card-decline",
+        "restore-phase-hand-discard",
+        "restore-phase-hand-decline",
+        "choose-own-card-discard",
+        "select-owned-cards",
+        "finish-owned-cards",
+        "give-bound-card",
+        "keep-bound-cards",
+        "distribute-owned-card",
+        "decline-owned-card-distribution",
+        "reveal-target-hand-card",
+        "reveal-target-hand-card-decline",
+        "request-slash",
+        "request-slash-decline",
+        "request-slash-nearest",
+        "request-slash-nearest-decline",
+        "nearest-legal-slash",
+        "unlimited-virtual-slash",
+        "damage-judgment-suit-payment",
+        "attack-range-aid-discard-weapon",
+        "attack-range-aid-draw")]
     private void ResolveProgramInstructionChoice(PromptChoice selected, string action)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ??
@@ -4376,6 +4195,9 @@ public sealed partial class GameEngine
     private (ProgramTriggerCandidate Candidate, ProgramSkillWindowContext Context)
         GetPendingProgramTriggerCandidate()
     {
+        if (TryGetPindianRevealTrigger(out var revealCandidate,out var revealContext)) return (revealCandidate,revealContext);
+        if (_resolutionStack.LastOrDefault() is FirstSlashDuelLegacyWindowFrame legacyBenefit)
+            return (legacyBenefit.Candidates[legacyBenefit.CandidateIndex], legacyBenefit.Contexts[legacyBenefit.CandidateIndex]);
         if (_resolutionStack.LastOrDefault() is ForeignActualTurnStartWindowFrame foreign)
             return (foreign.Candidates[foreign.CandidateIndex], foreign.Contexts[foreign.CandidateIndex]);
         if (_resolutionStack.LastOrDefault() is ActualUseTargetWindowFrame actualTargets)
@@ -4409,12 +4231,18 @@ public sealed partial class GameEngine
         if (_resolutionStack.LastOrDefault() is ProgramLifecycleTriggerWindowFrame lifecycle)
         {
             var candidate = lifecycle.Candidates[lifecycle.CandidateIndex];
-            return (candidate, new ProgramSkillWindowContext(
+            if (lifecycle.Window == SkillProgramTriggerWindow.IdentityGeneralAppeared) return (candidate, CreateIdentityAppearanceContext(lifecycle, candidate));
+            var context = new ProgramSkillWindowContext(
                 lifecycle.Window, lifecycle.Id, candidate.OwnerSeat,
                 SourceSeat: lifecycle.OwnerSeat, TargetSeat: lifecycle.OwnerSeat,
                 OccurrenceIndex: candidate.OccurrenceIndex,
                 Facts: lifecycle.ParticipantFacts?.GetValueOrDefault(candidate.OwnerSeat) ?? lifecycle.Facts)
-            { ProgramTarget = lifecycle.ProgramTarget, SourceSeat = lifecycle.ProgramTarget?.OwnerSeat ?? lifecycle.OwnerSeat, TargetSeat = lifecycle.ProgramTarget?.TargetSeat ?? lifecycle.OwnerSeat });
+            { ProgramTarget = lifecycle.ProgramTarget, BeforeTurnPreludeProof = lifecycle.BeforeTurnPreludeProof,
+                SourceSeat = lifecycle.ProgramTarget?.OwnerSeat ?? lifecycle.OwnerSeat, TargetSeat = lifecycle.ProgramTarget?.TargetSeat ?? lifecycle.OwnerSeat };
+            context = CreateQingzhongEndingContext(lifecycle, candidate, context);
+            context = CreateWeiluEndingContext(lifecycle, candidate, context);
+            context = CreateXuRongDyingContext(context);
+            return (candidate, CreateZhuijiEndingContext(lifecycle, candidate, context));
         }
         if (_resolutionStack.LastOrDefault() is HpChangedTriggerWindowFrame hpChanged)
             return (hpChanged.Candidates[hpChanged.CandidateIndex], hpChanged.Contexts[hpChanged.CandidateIndex]);
@@ -4449,6 +4277,13 @@ public sealed partial class GameEngine
 
     private void CompleteSkippedProgramCandidate(ProgramTriggerCandidate candidate)
     {
+        if (_resolutionStack.LastOrDefault() is PindianRevealWindowFrame reveal && reveal.Candidates[reveal.CandidateIndex] == candidate)
+        { CompletePindianRevealBinding(candidate,PindianRevealContext(reveal,candidate)); return; }
+        if (_resolutionStack.LastOrDefault() is FirstSlashDuelLegacyWindowFrame legacyBenefit &&
+            legacyBenefit.Candidates[legacyBenefit.CandidateIndex] == candidate)
+        {
+            CompleteFirstLegacyBenefitCandidate(candidate, legacyBenefit.Contexts[legacyBenefit.CandidateIndex]); return;
+        }
         if (_resolutionStack.LastOrDefault() is ForeignActualTurnStartWindowFrame foreign &&
             foreign.Candidates[foreign.CandidateIndex] == candidate)
         {
@@ -4567,233 +4402,13 @@ public sealed partial class GameEngine
             var paused = ProgramInstructionResolver.Default
                 .Resolve(frame, _contentRegistry!.GetSkill(frame.SkillId).Program!)
                 .GetPausedInstruction(frame.InstructionIndex).Effect;
-            selected = paused.Op switch
-            {
-                SkillProgramEffectOp.DrawThenDiscardDistinctCategories => SelectAiDrawDiscardCategory(decision, frame),
-                SkillProgramEffectOp.OfferCurrentTurnHandExchange => SelectAiCurrentTurnHandExchange(decision, frame),
-                SkillProgramEffectOp.DrawTwoThenDiscardTwoIfOverMaxHp => SelectAiProgramOwnCardDiscard(decision, frame),
-                SkillProgramEffectOp.AddOneDistanceFreeCurrentUseTarget => SelectAiDesignatedExtraTargetChoice(decision, frame),
-                SkillProgramEffectOp.ObtainEachDamageTargetZoneThenSelfOnly => SelectAiDamageAcquisition(decision, frame),
-                SkillProgramEffectOp.JoinAdjacentRedCardTarget => decision.Choices[0],
-                SkillProgramEffectOp.AddDamageMarkerBudgetTargets => SelectAiDamageBudgetChoice(decision, frame),
-                SkillProgramEffectOp.ResolveUnequalHandHpEnding => SelectAiUnequalHandHp(decision, frame),
-                SkillProgramEffectOp.RefillAndScheduleNextTurnSelfOnly => SelectAiEndRefillNextTurn(decision, frame),
-                SkillProgramEffectOp.AdjustIncomingDistanceByLivingFactions or SkillProgramEffectOp.ChooseEndingCourtesyBenefits => SelectAiIncomingDistanceCourtesy(decision, frame),
-                SkillProgramEffectOp.RecordNamedPrivateAmbush or SkillProgramEffectOp.NullifyMatchingHandUse => SelectAiNamedAmbush(decision, frame),
-                SkillProgramEffectOp.ResolveDamageSourceHandChoice => SelectAiDamageSourceHandChoice(decision, frame),
-                SkillProgramEffectOp.DiscardSameCategoryForExtraEffect or SkillProgramEffectOp.GuessRanksForDrawReplacement or SkillProgramEffectOp.DeathRecipientChooseSkill => SelectAiExtraEffectsAndRankGuess(decision, frame),
-                SkillProgramEffectOp.ChooseFirstSlashDuelDiamondBenefit => SelectAiFirstSlashDuelBenefit(decision, frame),
-                SkillProgramEffectOp.DrawAndStoreTwoPublicRice or SkillProgramEffectOp.OfferRiceAfterDamagePoint => SelectAiRiceChoice(decision, frame),
-                SkillProgramEffectOp.ProtectOtherSoleCardTarget => SelectAiSoleProtection(decision, frame),
-                SkillProgramEffectOp.GrantOtherPlayUseRestriction or SkillProgramEffectOp.ChooseStartingEquipmentControl => SelectAiPhaseStartCardControl(decision, frame),
-                SkillProgramEffectOp.AdjustTargetedOrdinaryTrick => SelectAiTargetedOrdinaryTrick(decision, frame),
-                SkillProgramEffectOp.SelectOwnedHandRankSum => SelectAiOwnedHandRankSum(decision, frame),
-                SkillProgramEffectOp.DiscardHandOrUseEquipment or SkillProgramEffectOp.MoveFieldEquipment =>
-                    decision.Choices.First(),
-                SkillProgramEffectOp.DonateAllEquipmentAndOfferRecipientBenefits => SelectAiEquipmentDonation(decision, frame),
-                SkillProgramEffectOp.ChooseEquipmentOrDrawAfterOtherActualTurn => SelectAiActualEndedEquipment(decision, frame),
-                SkillProgramEffectOp.DrawLostHpThenOfferOwnedCardsUpTo => SelectAiLostHpOwnedGift(decision, frame),
-                SkillProgramEffectOp.ClaimGrantedPhaseSlash => SelectAiGrantedPhaseSlash(decision),
-                SkillProgramEffectOp.ChoosePrivateColorsDiscardAndDuel => SelectAiDualColorChoice(decision, frame),
-                SkillProgramEffectOp.DiscardSlashThenOtherCardAndUseDuel => SelectAiConditionalDuel(decision, frame),
-                SkillProgramEffectOp.PayHpInspectHandThenDiscardOrSlash => SelectAiInspectedHand(decision, frame),
-                SkillProgramEffectOp.UseSelectedForeignCardAsSlash => SelectAiSelectedForeignCardSlashChoice(decision, frame),
-                SkillProgramEffectOp.DiscardEquipmentThenSlashAndOwnershipOutcome => SelectAiKuangfu(decision, frame),
-                SkillProgramEffectOp.PlaceOwnedEquipmentThenResolveSlotBenefit => SelectAiPlacedEquipmentBenefit(decision, frame),
-                SkillProgramEffectOp.PayOwnedCardOrMarker => SelectAiAlternativePhaseCost(decision, frame),
-                SkillProgramEffectOp.ObtainDamageTargetCardAndResolveCategory => SelectAiDamageTargetObtain(decision, frame),
-                SkillProgramEffectOp.OfferSameTypeDifferentNameOrExtraTarget => SelectAiSameTypeAid(decision, frame),
-                SkillProgramEffectOp.DiscardDamageTargetAndClaimMount => SelectAiProgramOtherOwnedCardDiscard(decision, frame),
-                SkillProgramEffectOp.ChooseOwnerHpLoss => SelectAiHpLossQuantity(decision),
-                SkillProgramEffectOp.PayHpToGrantOneUseDamageShield => SelectAiHpDamageShield(decision),
-                SkillProgramEffectOp.SuppressCurrentSlashTargetAndJudgeSuitDiscard => SelectAiSlashSuitDiscard(decision, frame),
-                SkillProgramEffectOp.DiscardDistinctFactionParticipants => SelectAiDistinctFactionDiscard(decision,frame),
-                SkillProgramEffectOp.ResolveDiscardBudgetParticipants or SkillProgramEffectOp.DiscardOutsideRangeAfterInsufficientUses or SkillProgramEffectOp.OfferCompletedFactionCostGift => decision.Choices[0],
-                SkillProgramEffectOp.OfferRedDiscardRecoveryChoice => SelectAiRedDiscardRecovery(decision, frame),
-                SkillProgramEffectOp.SelectRelativeZoneDemandTarget => decision.Choices[0],
-                SkillProgramEffectOp.ExchangeOwnedCardThroughDeckEnd => decision.Choices[0],
-                SkillProgramEffectOp.DrawPublicSuitThenEscalatingDiscard or SkillProgramEffectOp.DeclareNameForTargetDefense or SkillProgramEffectOp.DrawAndDraftLowHandPopulation => decision.Choices[0],
-                SkillProgramEffectOp.ViewTopCardsAndObtainMatchingCards => decision.Choices[0],
-                SkillProgramEffectOp.ChooseDifferentActionCategoryGift => decision.Choices[0],
-                SkillProgramEffectOp.RequestFactionRecovery => SelectAiFactionRecovery(decision, frame),
-                SkillProgramEffectOp.WeaponDiscardOrDamageBonus => SelectAiWeaponDamage(decision, frame),
-                SkillProgramEffectOp.RevealSelectedHandAgainstTarget => decision.Choices[0],
-                SkillProgramEffectOp.ChooseHandCountIntervention or SkillProgramEffectOp.RevealHandColorDiscardAndTake or
-                    SkillProgramEffectOp.DrawThenPutOwnedCardOnTopParticipants or SkillProgramEffectOp.DrawTurnOwnerThenDiscardMaximumHandForDodge =>
-                    SelectAiProgramHandControlChoice(decision, frame),
-                SkillProgramEffectOp.SampleFactionSkills or SkillProgramEffectOp.ReplaceSkillsOnAwakening or
-                    SkillProgramEffectOp.ObtainDeckRankSum or SkillProgramEffectOp.DamageAfterDeckShuffle or
-                    SkillProgramEffectOp.EquipSampledGenerals or SkillProgramEffectOp.InheritWeapon or
-                    SkillProgramEffectOp.BalanceHandAttackTricks or SkillProgramEffectOp.DamageFarthestCharacter =>
-                    SelectAiAdvancedLifecycleChoice(decision, frame),
-                SkillProgramEffectOp.ExchangePrivatePile or SkillProgramEffectOp.DiscardParticipantCards or
-                    SkillProgramEffectOp.SpendMarkerOrLoseHp => decision.Choices[0],
-                SkillProgramEffectOp.SelectDistinctSuitHandDiscards or SkillProgramEffectOp.SuppressGeneralSkill or SkillProgramEffectOp.SelectChainedByMarker or SkillProgramEffectOp.SelectOneSelectedTarget => decision.Choices[0],
-                SkillProgramEffectOp.OfferOriginalTargetAddition => SelectAiOriginalTargetAddition(decision, frame),
-                SkillProgramEffectOp.DiscardOwnedCardToAdjustCurrentDamage => SelectAiSignedDamagePayment(decision, frame),
-                SkillProgramEffectOp.DiscardSuitPreventDamageAndBenefit => SelectAiSuitPreventionBenefit(decision, frame),
-                SkillProgramEffectOp.RestoreActualDiscardBatch => SelectAiActualDiscardRecovery(decision, frame),
-                SkillProgramEffectOp.GiveAfterBatchGain => SelectAiGainGift(decision, frame),
-                SkillProgramEffectOp.GiveSameCategoryFromDeck => SelectAiActualHandGain(decision, frame),
-                SkillProgramEffectOp.PlaceMatchedJudgmentCard => SelectAiMatchedJudgmentPlacement(decision, frame),
-                SkillProgramEffectOp.PayCompletedUseDiscardOrLoseHp => SelectAiCompletedUsePayment(decision),
-                SkillProgramEffectOp.OfferShortRangeSlashTarget => SelectAiShortRangeSlash(decision, frame),
-                SkillProgramEffectOp.BeginPhaseNamePrediction or SkillProgramEffectOp.SettlePhaseNamePrediction => decision.Choices[0],
-                SkillProgramEffectOp.BeginFriendPrediction or SkillProgramEffectOp.ObserveFriendPrediction or SkillProgramEffectOp.ReclaimFriendXuanjian or SkillProgramEffectOp.GainFriendCategoryMark => SelectAiFriendTrioChoice(decision, frame),
-                SkillProgramEffectOp.ExchangeFriendGainForDiscard or SkillProgramEffectOp.UseFriendDeckSuitsAtPlayEnd => SelectAiFriendPangTongChoice(decision, frame),
-                SkillProgramEffectOp.LastDamageSourceReciprocity => SelectAiLastDamageSourceReciprocity(decision, frame),
-                SkillProgramEffectOp.RecastMatchingCardsThenPeerChoice => SelectAiMatchingRecast(decision, frame),
-                SkillProgramEffectOp.PairedHandRecast => SelectAiPairedHandRecast(decision, frame),
-                SkillProgramEffectOp.DrawAfterActualOutsideDraw or SkillProgramEffectOp.DiscardAfterActualOutsideDiscard => SelectAiOutsidePhaseDrawDiscard(decision, frame),
-                SkillProgramEffectOp.OfferOriginalHandLossBenefit or SkillProgramEffectOp.InheritOriginalHandBonuses => SelectAiOriginalHandEntityChoice(decision, frame),
-                SkillProgramEffectOp.OfferPairedColorCardDisposition => SelectAiPairedColorDisposition(decision, frame),
-                SkillProgramEffectOp.OfferUniqueLargestHandTrickTargetAddition or
-                    SkillProgramEffectOp.JoinUniqueLargestHpTrickTargetAndDrawAfterDamage => SelectAiUniqueLeaderTrickTargetChoice(decision, frame),
-                SkillProgramEffectOp.AdjustOneRoundGainedOrdinaryTrickTarget => SelectAiRoundGainedTrickTargetChoice(decision, frame),
-                SkillProgramEffectOp.OfferSameNameHandDiscardOrDamage => SelectAiSameNameHandDiscardOrDamage(decision, frame),
-                SkillProgramEffectOp.AllocateCurrentTurnDefaultStats => decision.Choices[0],
-                SkillProgramEffectOp.GiveHandAndGrantCategoryMark or SkillProgramEffectOp.SpendCategoryMarkForDyingRecovery or
-                    SkillProgramEffectOp.SpendCategoryMarkForAreaDiscard or SkillProgramEffectOp.SpendCategoryMarkForSlashTargets => SelectAiRecipientCategoryMarkChoice(decision, frame),
-                SkillProgramEffectOp.GiveOffTurnUsedCards => SelectAiOffTurnUsedCardGift(decision),
-                SkillProgramEffectOp.RevealUndamagedUseTargetHandAndDiscardSameColor => SelectAiCompletedUndamagedTargetReveal(decision, frame),
-                SkillProgramEffectOp.SettleFixedDistanceOneEndingDebt => SelectAiFixedDistanceDebt(decision),
-                SkillProgramEffectOp.UseRoundPricedPileDyingAlcohol => decision.Choices.First(c => c.Parameters.GetValueOrDefault("branch") != "pass"),
-                SkillProgramEffectOp.OfferCurrentSlashFireAndExtraTarget => decision.Choices[0],
-                SkillProgramEffectOp.OfferCompletedCardGift or SkillProgramEffectOp.ApplyCurrentCardEnhancements or
-                    SkillProgramEffectOp.PayEquipmentColorDiscard or SkillProgramEffectOp.AddCurrentCardUseTarget => decision.Choices[0],
-                SkillProgramEffectOp.AlternatingSuitDrawDiscard or SkillProgramEffectOp.FirstCategoryCompletedTop => decision.Choices[0],
-                SkillProgramEffectOp.DiscardNonFinalTargetCardThenDraw or SkillProgramEffectOp.DiscardHandToNamedTurnCount => decision.Choices[0],
-                SkillProgramEffectOp.InitializePrivateGeneralLibrary or SkillProgramEffectOp.AcquirePrivateGeneralAvatar or SkillProgramEffectOp.ChoosePrivateGeneralAvatar => decision.Choices[0],
-                SkillProgramEffectOp.ResolveFirstGameDomainCrossing or SkillProgramEffectOp.StoreArbitraryOwnedPublicPile or SkillProgramEffectOp.UsePublicPileEquipmentSequence => SelectAiDomainChoice(decision,frame),
-                SkillProgramEffectOp.PublicPileColorDamage or SkillProgramEffectOp.RewardDiscardedActionColor => SelectAiPublicPileColorChoice(decision,frame),
-                SkillProgramEffectOp.PeekTurnQuotaTop or SkillProgramEffectOp.UseDiamondDelayedOrDiscard => decision.Choices[0],
-                SkillProgramEffectOp.CompareSelectedHandWithHpHand => decision.Choices[0],
-                SkillProgramEffectOp.OfferFaceUpForOutsideClaims => decision.Choices[0],
-                SkillProgramEffectOp.ChooseOption => SelectAiProgramOption(decision, frame),
-                SkillProgramEffectOp.MouZhitianView or SkillProgramEffectOp.MouZhijueUse => decision.Choices[0],
-                SkillProgramEffectOp.ReturnIssuedPhaseHandDebt => SelectAiPhaseHandDebt(decision, frame),
-                SkillProgramEffectOp.OfferHalfHandRecipientSupport => SelectAiHalfHandSupport(decision, frame),
-                SkillProgramEffectOp.ObtainOneFromEachSelectedTarget or SkillProgramEffectOp.GiveShownCardToLeastOriginalTarget => SelectAiPairBenefit(decision, frame),
-                SkillProgramEffectOp.ChooseCategoryOrSequentialDiscard or SkillProgramEffectOp.EscalatingDiscardOrDamageFromSelected =>
-                    SelectAiSequentialDiscard(decision, frame),
-                SkillProgramEffectOp.ChooseCategoryAlternativeDiscard or SkillProgramEffectOp.EscalatingDiscardOrDamage =>
-                    SelectAiProgramDiscardChallenge(decision, frame),
-                SkillProgramEffectOp.PutDiscardedCardsOnDrawPileTop or SkillProgramEffectOp.PutOwnOrPreviousFirstDiscardOnTop => decision.Choices[0],
-                SkillProgramEffectOp.CollectPublicPile => decision.Choices.OrderByDescending(choice => choice.Targets.Count).First(),
-                SkillProgramEffectOp.ChooseDifferentCategoryDiscard =>
-                    SelectAiProgramCategoryDiscard(decision, frame),
-                SkillProgramEffectOp.ChooseOtherOwnedCardDiscard =>
-                    SelectAiProgramOtherOwnedCardDiscard(decision, frame),
-                SkillProgramEffectOp.RestorePhaseHandDiscards =>
-                    SelectAiProgramPhaseHandDiscardRestore(decision, frame),
-                SkillProgramEffectOp.ChooseOwnCardDiscard =>
-                    SelectAiProgramOwnCardDiscard(decision, frame),
-                SkillProgramEffectOp.DiscardDrawAndOfferUniqueHpPeer or SkillProgramEffectOp.GiveAllHandAndStartRecipientPindian => SelectAiRecipientContest(decision, frame),
-                SkillProgramEffectOp.StoreNonBasicOwnedPublicPile or SkillProgramEffectOp.RemovePublicPileAfterAttackDamage or SkillProgramEffectOp.ResolvePreparationPublicPile => SelectAiPublicPilePreparation(decision, frame),
-                SkillProgramEffectOp.GiveBlackHandAndResolveRecipientContest or SkillProgramEffectOp.RaiseMaximumRecoverAndQualifyPrintedLord => SelectAiRecipientConsequences(decision, frame),
-                SkillProgramEffectOp.SelectEquipmentPairAndPayment => SelectAiEquipmentPairPayment(decision, frame),
-                SkillProgramEffectOp.SelectDyingOwnedCard => SelectAiDyingOwnedCard(decision),
-                SkillProgramEffectOp.SelectOwnedCards or SkillProgramEffectOp.ResolveDeferredHandAlignment or SkillProgramEffectOp.SelectTurnDamageUseDebtPayment or SkillProgramEffectOp.SelectFrozenHandExchangeDebtPayment => SelectAiProgramOwnedCards(decision, frame),
-                SkillProgramEffectOp.DrawThenDiscardHandToMaximumHp => decision.Choices[0],
-                SkillProgramEffectOp.HoldTargetCards => SelectAiProgramHoldCards(decision, frame),
-                SkillProgramEffectOp.ResolvePrepDiscardOrEnding => SelectAiPrepDiscard(decision, frame),
-                SkillProgramEffectOp.RequireTargetDiscardOrEquipmentRecast => SelectAiTargetPenalty(decision, frame),
-                SkillProgramEffectOp.OfferSlashTargetBenefit or SkillProgramEffectOp.SettleDodgeCancelledSlashBenefit => SelectAiSlashTargetBenefit(decision, frame),
-                SkillProgramEffectOp.ResolveDeferredPrivateCardOffer or SkillProgramEffectOp.ResolveGameTargetHandHpChoice => decision.Choices[0],
-                SkillProgramEffectOp.DiscardTargetHpCardsAndDamage => decision.Choices[0],
-                SkillProgramEffectOp.RequestSlashByTarget => SelectAiProgramRequestSlash(decision, frame),
-                SkillProgramEffectOp.UseOwnerSlashAgainstTurnOwner or SkillProgramEffectOp.DeclareDeckCriterionAndGiveMatchingCard =>
-                    SelectAiFixedSlashAndDeclaredDeck(decision, frame),
-                SkillProgramEffectOp.RequestSlashByNearest => SelectAiProgramRequestSlashByNearest(decision),
-                SkillProgramEffectOp.JudgeDamageTargetThenOfferSuitDiscard => SelectAiDamageJudgmentSuitPayment(decision),
-                SkillProgramEffectOp.RequestLegalSlashByNearest => SelectAiNearestLegalSlash(decision),
-                SkillProgramEffectOp.OfferUnlimitedVirtualSlash => SelectAiUnlimitedSlash(decision),
-                SkillProgramEffectOp.DiscardSelectedParticipantCards or SkillProgramEffectOp.OfferBoundCardsForDamagePrevention => decision.Choices[0],
-                SkillProgramEffectOp.OfferVirtualSlashOrDraw or SkillProgramEffectOp.OfferVirtualBasicCard => decision.Choices[0],
-                SkillProgramEffectOp.GiveBoundCardThenOfferVirtualSlashOrSharedDraw => SelectAiSharedSlashOffer(decision, frame),
-                SkillProgramEffectOp.RequestSlashAgainstChosenTarget or SkillProgramEffectOp.TakeSelectedTargetCards => decision.Choices[0],
-                SkillProgramEffectOp.ViewAndTakeSelectedTargetHand or SkillProgramEffectOp.RequestHandBySuitsOrLoseHp => SelectAiParticipantHandChoice(decision, frame),
-                SkillProgramEffectOp.RevealTargetHandCard => decision.Choices
-                    .OrderBy(choice => choice.Id.Value, StringComparer.Ordinal).First(),
-                SkillProgramEffectOp.DistributeOwnedCards =>
-                    SelectAiProgramOwnedCardDistribution(decision, frame),
-                SkillProgramEffectOp.GiveOwnedCardToOtherFinalTargetAndDraw or SkillProgramEffectOp.CollectFinalTargetCardInPublicPile or SkillProgramEffectOp.ObtainPublicPileCard or SkillProgramEffectOp.DiscardPublicZoneAfterHandPayment => decision.Choices[0],
-                SkillProgramEffectOp.ExchangePublicPileHand or SkillProgramEffectOp.ExchangePublicPile or SkillProgramEffectOp.DistributePublicPileIfAllSuits =>
-                    SelectAiPublicPileChoice(decision, frame),
-                SkillProgramEffectOp.RequestAttackRangeAid =>
-                    SelectAiProgramAttackRangeAid(decision, frame),
-                SkillProgramEffectOp.SelectCardSubset
-                    when paused.AiOrder == SkillProgramSubsetAiOrder.MostCardsThenRankSum =>
-                    decision.Choices
-                        .OrderByDescending(choice => choice.Cards.Count)
-                        .ThenByDescending(choice => int.Parse(
-                            choice.Parameters.GetValueOrDefault("rank-sum", "0"),
-                            System.Globalization.CultureInfo.InvariantCulture))
-                        .ThenBy(choice => choice.Id.Value, StringComparer.Ordinal)
-                        .First(),
-                SkillProgramEffectOp.MoveBoundCards
-                    when paused.Destination == SkillProgramCardDestination.DrawPileBottom =>
-                    decision.Choices.OrderBy(choice => choice.Id.Value, StringComparer.Ordinal).First(),
-                SkillProgramEffectOp.SelectTargets when paused.TargetAiOrder is { } targetAiOrder =>
-                    SelectAiProgramTargets(decision, targetAiOrder),
-                SkillProgramEffectOp.SelectTarget =>
-                    SelectAiCompositionTarget(decision, frame),
-                SkillProgramEffectOp.SelectAndMoveOwnedCard when paused.CoverageResultBind is not null =>
-                    decision.Choices.OrderByDescending(choice => choice.Cards.Count == 1 &&
-                        WouldEquipmentRemovalReduceCoverage(
-                            ResolveProgramParticipant(frame, paused.CardOwnerRef!), choice.Cards[0]))
-                        .ThenBy(choice => choice.Id.Value, StringComparer.Ordinal).First(),
-                SkillProgramEffectOp.SelectSourceCard or SkillProgramEffectOp.SelectAndMoveOwnedCard or
-                    SkillProgramEffectOp.GiveBoundCard => decision.Choices[0],
-                SkillProgramEffectOp.UseAllHandCardsAsOrdinaryTrick => decision.Choices
-                    .OrderBy(choice => choice.Parameters.GetValueOrDefault("card-kind") == nameof(CardKind.DrawTwo) ? 0 : 1)
-                    .ThenBy(choice => choice.Id.Value, StringComparer.Ordinal)
-                    .First(),
-                SkillProgramEffectOp.UseVirtualOrdinaryTrick => decision.Choices[0],
-                SkillProgramEffectOp.ConfigureFriendDuelCategories or SkillProgramEffectOp.ConfigureFriendUseSuits => decision.Choices[0],
-                SkillProgramEffectOp.DrawThenDiscardSuitsForDyingPeach => SelectAiDyingSuits(decision, frame),
-                SkillProgramEffectOp.UseOwnPlayHistoryAtEnding => SelectAiHistoricalEndingUse(decision, frame),
-                SkillProgramEffectOp.YanjiaoSplitRevealedCards => SelectAiYanjiaoSplit(decision, frame),
-                SkillProgramEffectOp.TunanUseRevealedCard => SelectAiTunanChoice(decision),
-                SkillProgramEffectOp.DaoshuGuessAndTake => SelectAiDaoshuChoice(decision),
-                SkillProgramEffectOp.ZhirenResolveFieldTiers => SelectAiZhirenFieldChoice(decision),
-                SkillProgramEffectOp.BijingPunishDiscardPhase => decision.Choices
-                    .OrderBy(choice => choice.Id.Value, StringComparer.Ordinal).First(),
-                SkillProgramEffectOp.YoudiBaitDiscard => SelectAiYoudiBaitChoice(decision),
-                SkillProgramEffectOp.GuanchaoChoosePattern => SelectAiGuanchaoPatternChoice(decision),
-                SkillProgramEffectOp.XunxianGiftUsedCard => SelectAiXunxianGiftChoice(decision),
-                SkillProgramEffectOp.ZecaiRoundSettlement => SelectAiZecaiChoice(decision),
-                SkillProgramEffectOp.JuanxiaDeclareTricks or SkillProgramEffectOp.JuanxiaRetaliation =>
-                    SelectAiJuanxiaChoice(decision),
-                SkillProgramEffectOp.ZhuLingZhanyiChooseCategory => SelectAiZhanyiCategoryChoice(decision),
-                SkillProgramEffectOp.ZhuLingZhanyiEquipmentPunish => SelectAiZhanyiPunishChoice(decision),
-                SkillProgramEffectOp.FengjiRoundChoice => SelectAiFengjiChoice(decision),
-                SkillProgramEffectOp.ChangjiEndingDamageChoice => SelectAiChangjiEndingChoice(decision),
-                SkillProgramEffectOp.ZengouNullifyDodge => SelectAiZengouCostChoice(decision),
-                SkillProgramEffectOp.ZhuihuanArm => SelectAiZhuihuanArmChoice(decision),
-                SkillProgramEffectOp.TongxieArm => SelectAiTongxieArmChoice(decision),
-                SkillProgramEffectOp.TongxieFollowUp => SelectAiTongxieFollowUpChoice(decision),
-                SkillProgramEffectOp.TongxieGuard => SelectAiTongxieGuardChoice(decision),
-                SkillProgramEffectOp.KanggeChooseTarget => SelectAiKanggeChooseChoice(decision),
-                SkillProgramEffectOp.KanggeHealVictim => SelectAiKanggeHealChoice(decision),
-                SkillProgramEffectOp.JieliePreventAndGift => SelectAiJielieSuitChoice(decision, frame),
-                SkillProgramEffectOp.QiaoliWeaponDamageDraw => SelectAiQiaoliDistributionChoice(decision),
-                SkillProgramEffectOp.QingliangChooseOption => SelectAiQingliangChoice(decision),
-                SkillProgramEffectOp.LuochongResolve => SelectAiLuochongResolveChoice(decision),
-                SkillProgramEffectOp.AichenRemoveOption => SelectAiAichenRemoveChoice(decision),
-                SkillProgramEffectOp.YujueResolve => SelectAiYujueChoice(decision),
-                SkillProgramEffectOp.YuanziDamageDraw => SelectAiYuanziDamageDrawChoice(decision),
-                SkillProgramEffectOp.LiejieSourceDiscard => SelectAiLiejieSourceDiscardChoice(decision),
-                SkillProgramEffectOp.ZhuitaoMarkTarget => SelectAiZhuitaoMarkChoice(decision),
-                _ => throw new InvalidOperationException(
-                    $"The AI does not support suspended program instruction '{paused.Op}'.")
-            };
+            selected = ProgramInteractions.SelectAi(decision, frame, paused);
         }
         else
         {
             selected = SelectAiProgramActivation(decision);
         }
-        ResolveProgramTriggerChoice(selected);
+        ProgramInteractions.Resolve(selected);
         AdvanceRulesAndPublishState();
     }
 
@@ -4906,6 +4521,11 @@ public sealed partial class GameEngine
         CharacterState owner,
         int ownerSeat)
     {
+        if (trigger.Effects is [{ Op: SkillProgramEffectOp.ChooseFirstSlashDuelDiamondBenefit }] &&
+            _resolutionStack.LastOrDefault() is FirstSlashDuelLegacyWindowFrame legacyBenefit &&
+            LifecycleCardUse(legacyBenefit.ParentFrameId) is { } legacyUse)
+            return CreateAttributedPaymentAiContext(owner, trigger) with
+            { Actor = CreateSkillContext(owner), CardActionActorIsOwner = true, CardUseEffectiveKind = legacyUse.CardKind };
         if (trigger.Window == SkillProgramTriggerWindow.TurnEnding &&
             trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.DrawEndingPairThenBlockRoundIfUnequal))
             return CreateAttributedPaymentAiContext(owner, trigger) with
@@ -5084,6 +4704,7 @@ public sealed partial class GameEngine
             .First();
     }
 
+    [ProgramAiChoice(SkillProgramEffectOp.SelectTarget)]
     private PromptChoice SelectAiCompositionTarget(PendingDecision decision, ProgramSkillFrame frame)
     {
         var owner = _players[decision.PlayerSeat];
@@ -5143,6 +4764,11 @@ public sealed partial class GameEngine
         return decision.Choices.Single(choice => choice.Id == choiceId);
     }
 
+    [ProgramAiChoice(
+        SkillProgramEffectOp.SelectOwnedCards,
+        SkillProgramEffectOp.ResolveDeferredHandAlignment,
+        SkillProgramEffectOp.SelectTurnDamageUseDebtPayment,
+        SkillProgramEffectOp.SelectFrozenHandExchangeDebtPayment)]
     private PromptChoice SelectAiProgramOwnedCards(PendingDecision decision, ProgramSkillFrame frame)
     {
         var draft = frame.OwnedCardSelection ??
@@ -5157,21 +4783,6 @@ public sealed partial class GameEngine
             .ThenBy(choice => choice.Cards[0]).First();
     }
 
-    private PromptChoice SelectAiProgramHoldCards(PendingDecision decision, ProgramSkillFrame frame)
-    {
-        var draft = frame.HoldCardSelection ??
-            throw new InvalidOperationException("The card-hold choice lost its draft.");
-        if (draft.SelectedCardIds.Count >= draft.RequiredCount)
-            return decision.Choices.Single(choice =>
-                choice.Parameters.GetValueOrDefault("program-action") == "finish-owned-cards");
-        // Public equipment is held first; hidden hand slots follow in fixed order.
-        return decision.Choices
-            .Where(choice => choice.Parameters.GetValueOrDefault("program-action") == "select-owned-cards")
-            .OrderByDescending(choice =>
-                choice.Parameters.GetValueOrDefault("source-zone") == nameof(CardZoneKind.Equipment))
-            .ThenBy(choice => choice.Id.Value, StringComparer.Ordinal)
-            .First();
-    }
 
     private void CompleteDetachedProgramBinding(ProgramSkillFrame frame, bool completed)
     {
@@ -5282,6 +4893,8 @@ public sealed partial class GameEngine
         DamageTriggerWindowFrame damage,
         ProgramTriggerCandidate candidate)
     {
+        if (IsXianfuEchoTrigger(GetProgramTrigger(candidate))) return CreateXianfuDamageContext(damage, candidate);
+        if (IsDianhuDrawTrigger(GetProgramTrigger(candidate))) return CreateDianhuDamageContext(damage, candidate);
         var attack = GetDamageTriggerAttack(damage);
         var owner = _players[candidate.OwnerSeat];
         var appearanceSourceLess = attack.IsDelayedJudgmentDamage &&
@@ -5304,6 +4917,7 @@ public sealed partial class GameEngine
                 CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash,
             SourceToTargetDistanceAtDamage = attack.IsSourceLess ? null : attack.SourceToTargetDistanceAtDamage,
             EventTargetHp = _players[attack.TargetSeat].Hp,
+            EventTargetHpUndefined = !_players[attack.TargetSeat].HasHpValue,
             EventTargetMaxHp = _players[attack.TargetSeat].MaxHp,
             EventTargetDamageInstancesTakenThisTurn = damage.EventTargetDamageInstancesTakenThisTurn,
             DamageTargetIsOther = candidate.OwnerSeat != attack.TargetSeat,

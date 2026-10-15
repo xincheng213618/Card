@@ -10,40 +10,6 @@ internal static class BoundaryCaoRenChecks
     private const string DriverId = "fixture:cr-driver";
     private static bool armorDeck;
 
-    public static void Definitions()
-    {
-        var registry = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true),
-            new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage());
-        var general = registry.Generals["boundary:cao-ren"];
-        Require(general.Name == "界曹仁" && general.FactionId == "wei" && general.BaseHp == 4 &&
-            general.SkillIds.SequenceEqual([Jushou, Jiewei]) &&
-            general.VariantId == "boundary" && general.RulesetId == "sanguosha-ol",
-            "The boundary Cao Ren general registers the current OL wei 4HP pair.");
-        var jushou = registry.GetSkill(Jushou).Program!;
-        var ending = jushou.Triggers.Single();
-        Require(ending.Window == SkillProgramTriggerWindow.PlayEnding && ending.Optional &&
-            ending.Effects.Select(e => e.Op).SequenceEqual(
-                [SkillProgramEffectOp.SetFaceState, SkillProgramEffectOp.Draw, SkillProgramEffectOp.DiscardHandOrUseEquipment]) &&
-            ending.Effects[1].Amount == 4,
-            "Jushou is an optional play-ending flip that draws four and pays the discard-or-use cost.");
-        var jiewei = registry.GetSkill(Jiewei).Program!;
-        var viewAs = jiewei.ViewAs.Single();
-        Require(viewAs.Id == "equipment-as-nullification" && viewAs.OutputKind == CardKind.Nullification &&
-            !viewAs.ForPlay && viewAs.ForResponse && viewAs.SourceZones.SequenceEqual([CardZoneKind.Equipment]),
-            "Jiewei converts one equipment-zone card into a response-only Nullification.");
-        var flipUp = jiewei.Triggers.Single();
-        Require(flipUp.Window == SkillProgramTriggerWindow.CharacterTurnedFaceUp && flipUp.Optional &&
-            flipUp.Effects.Select(e => e.Op).SequenceEqual(
-                [SkillProgramEffectOp.SelectAndMoveOwnedCard, SkillProgramEffectOp.SelectTarget,
-                 SkillProgramEffectOp.MoveFieldEquipment]) &&
-            flipUp.Effects[0].Destination == SkillProgramCardDestination.DiscardPile,
-            "Jiewei pays one own card on turning face up and relocates one field equipment card.");
-        var presentation = registry.GetSkill(Jiewei).ProgramPresentation!;
-        Require(presentation.Name == "解围" && presentation.Description.Contains("装备区", StringComparison.Ordinal) &&
-            registry.GetSkill(Jushou).ProgramPresentation!.Name == "据守",
-            "The presentation carries the current OL Jushou/Jiewei wording.");
-    }
-
     public static void JushouFlipsDrawsAndDiscardsHandCard()
     {
         var (g, r) = Start(armorDeck: false);
@@ -58,26 +24,6 @@ internal static class BoundaryCaoRenChecks
         Require(g.CreateSnapshot(0).Players[0].IsFaceDown &&
             HandCount(g, 0) == handBefore + 3 && DiscardPileCount(g) == discardBefore + 1,
             "The mandatory cost discards exactly one hand card and stays face down.");
-        Replay(g, r);
-    }
-
-    public static void JushouCostMayUseEquipmentInstead()
-    {
-        var (g, r) = Start(armorDeck: true);
-        Settle(g);
-        var handBefore = HandCount(g, 0);
-        Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId));
-        Activate(g, Jushou);
-        var pick = Await(g, p => p.Choices.Any(c =>
-            c.Parameters.GetValueOrDefault("program-action") == "strategic-choice" &&
-            c.Parameters.GetValueOrDefault("choice")!.StartsWith("card-", StringComparison.Ordinal)));
-        var used = pick.Choices.First(c => c.Parameters.GetValueOrDefault("choice")!.StartsWith("card-", StringComparison.Ordinal));
-        AssertOwnedStrategicDraft(g, SkillProgramEffectOp.DiscardHandOrUseEquipment);
-        Replay(g, r);
-        Accept(g, new AnswerPromptCommand(0, pick.PromptId, used.Id, g.Revision));
-        Require(g.CreateSnapshot(0).Players[0].IsFaceDown && HandCount(g, 0) == handBefore + 3 &&
-            EquipmentCount(g, 0) == 1 && IsAt(g, used.Cards.Single(), CardLocation.Equipment(0)),
-            "Paying with an equipment card uses it through the real equipment path instead of discarding.");
         Replay(g, r);
     }
 

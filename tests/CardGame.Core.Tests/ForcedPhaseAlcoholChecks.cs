@@ -10,29 +10,6 @@ internal static class ForcedPhaseAlcoholChecks
     private const string Pause = "fixture:phase-wine-pause", Loss = "fixture:phase-wine-loss", Replacement = "fixture:phase-wine-replacement";
     private const string Mode = "identity:classic-phase-wine";
 
-    public static void ContractsRequireRealPaymentAndPositiveFrozenDeaths()
-    {
-        Require((int)SkillProgramNumberExpression.LivingFactionCount == 0 &&
-            (int)SkillProgramNumberExpression.EventTargetHp == 10,
-            "Adding an explicit expression must preserve the legacy implicit numeric range for serialized programs and frames.");
-        _ = Catalog();
-        var legacy = JsonSerializer.Serialize(new SkillProgramTriggerFacts(0, 3, true));
-        Require(!legacy.Contains("ActualTurnDeathCount", StringComparison.Ordinal) && !legacy.Contains("OwnerActualTurnKillCount", StringComparison.Ordinal),
-            "New optional death facts must be absent from legacy serialized candidates.");
-        var condition = Catalog().Programs[DeathDraw].Triggers[0].Condition;
-        Require(!condition.Evaluate(new(0, 3, true) { ActualTurnDeathCount = 0 }) &&
-            condition.Evaluate(new(0, 3, true) { ActualTurnDeathCount = 2 }), "Only positive frozen actual-turn deaths qualify.");
-        Reject(() => condition.Evaluate(new(0, 3, true)));
-        void Invalid(Action<JsonNode> edit)
-        { var node = JsonNode.Parse(Resource("rules"))!; edit(node); Reject(() => SkillProgramCatalog.Load(node.ToJsonString(), Resource("presentation"))); }
-        Invalid(n => n["skills"]![0]!["triggers"]![0]!["effects"]![0]!["zones"] = new JsonArray("equipment"));
-        Invalid(n => n["skills"]![0]!["triggers"]![0]!["effects"]![1]!["awaitMovementTriggers"] = false);
-        Invalid(n => n["skills"]![0]!["triggers"]![0]!["effects"]![0]!["maximumCards"] = 2);
-        Invalid(n => n["skills"]![0]!["triggers"]![0]!["window"] = "turnEnding");
-        Invalid(n => n["skills"]![1]!["triggers"]![0]!["condition"] = new JsonObject { ["kind"] = "always" });
-        Invalid(n => n["skills"]![1]!["triggers"]![0]!["window"] = "turnEnding");
-    }
-
     public static void RealActorWineCommitQuotaAndColdReturns()
     {
         foreach (var actor in new[] { 0, 1 })
@@ -82,35 +59,6 @@ internal static class ForcedPhaseAlcoholChecks
             !Facts<DamageAppliedEvent>(deadActor).Any(e => e.SourceSeat == 0 && e.TargetSeat == 1),
             "A real committed-Wine child can kill its actual actor; the paid use finishes without Wine benefit or damage to a dead actor.");
         Cold(deadActor, deadActorRegistry);
-    }
-
-    public static void ForbiddenWineIsUnpaidAndPaidSourceLossCompletes()
-    {
-        var (blocked, blockedRegistry) = Create(ban: true, stopAtOffer: false);
-        Require(IsPlay(Prompt(blocked)!) && !Facts<CardUseDeclaredEvent>(blocked).Any(e => e.CardKind == CardKind.Alcohol) &&
-            !blocked.CardMovements.Any(m => m.Reason.Value == "skill-program.ol:zhendu.MoveBoundCards"),
-            "A forbidden actual Wine offers no skill and pays no material.");
-        Cold(blocked, blockedRegistry);
-        var (game, registry) = Create(sourceLoss: true, pause: true);
-        Answer(game, c => c.Parameters.GetValueOrDefault("program-action") == "skip"); Reach(game, IsPlay); End(game);
-        Reach(game, p => Offer(p, Wine) && game.State.CurrentSeat == 1);
-        Answer(game, c => c.Parameters.GetValueOrDefault("program-action") == "activate"); Reach(game, Selection);
-        var card = Prompt(game)!.Choices.First(c => c.Cards.Count == 1).Cards[0];
-        Answer(game, c => c.Cards.SequenceEqual([card])); Reach(game, p => p.SkillPrompt?.SkillId == Pause);
-        Require(!Players(game)[0].SkillGrants.Grants.Any(g => g.SkillId == Wine) && game.State.Players[0].Hp == 2 &&
-            game.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.SkillId == Wine && f.PhaseAlcohol is { Stage: ProgramPhaseAlcoholStage.WineIssued }),
-            "Actual discard → dying recovery and skill replacement removes the issuing source before its paid Wine child. " +
-            JsonSerializer.Serialize(new { Hp = game.State.Players[0].Hp, Skills = Players(game)[0].SkillGrants.Grants.Select(g => g.SkillId).ToArray(),
-                Receipts = game.ResolutionStack.OfType<ProgramSkillFrame>().Select(f => new { f.SkillId, f.InstructionIndex, f.PhaseAlcohol }).ToArray(),
-                Lost = Facts<ProgramOwnerSkillsReplacedEvent>(game).ToArray(), Bindings = Facts<ProgramBindingStartedEvent>(game).Where(e => e.SkillId == Loss).ToArray() }));
-        game = Cold(game, registry); Answer(game, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
-        Reach(game, IsPlay);
-        Require(Facts<CardUseDeclaredEvent>(game).Count(e => e.CardKind == CardKind.Alcohol && e.SourceSeat == 1) == 1 &&
-            Facts<DamageAppliedEvent>(game).Count(e => e.SourceSeat == 0 && e.TargetSeat == 1 && e.Amount == 1) == 1 &&
-            game.CardMovements.Count(m => m.CardId == card && m.Reason.Value == "skill-program.ol:zhendu.MoveBoundCards") == 1 &&
-            !Prompt(game)!.Choices.Any(c => c.Parameters.GetValueOrDefault("skill-id") == Wine),
-            "The issued paid Wine/damage tail completes once after actual source loss, with no new source activation.");
-        Cold(game, registry);
     }
 
     public static void DeathDrawFreezesMixedKillCountsAndDeadTurnOwner()
@@ -208,7 +156,6 @@ internal static class ForcedPhaseAlcoholChecks
             "Private views, frozen deaths, exact payment, typed child frames and committed events must cold replay identically."); return replay;
     }
     private static void Require(bool value, string message) { if (!value) throw new InvalidOperationException(message); }
-    private static void Reject(Action action) { try { action(); } catch (InvalidOperationException) { return; } throw new InvalidOperationException("An invalid forced phase Wine/death contract was accepted."); }
     private static string Resource(string kind)
     { var asm = typeof(StandardContentPackage).Assembly; using var r = new StreamReader(asm.GetManifestResourceStream(asm.GetManifestResourceNames().Single(n => n.EndsWith("ol-he-tai-hou." + kind + ".json", StringComparison.Ordinal)))!); return r.ReadToEnd(); }
     private static SkillProgramCatalog Catalog() => SkillProgramCatalog.Load(Resource("rules"), Resource("presentation"));

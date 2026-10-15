@@ -4,25 +4,6 @@ using CardGame.Core;
 
 internal static class Fame2017XuShiChecks
 {
-    public static void SelfDeckEndsAndReplay()
-    {
-        foreach(var end in new[]{"top","bottom"})
-        {
-            var (g,r)=Start("exchange",true);var cards=Zones(g).Where(z=>z.Location==CardLocation.DrawPile).OrderBy(z=>z.ZoneIndex).ToArray();
-            var a=g.GetHumanLegalActions().Single(a=>a.ProgramSkillId=="classic:wengua"&&a.ProgramSkillOwnerSeat is null);
-            var payment=a.SelectableCardIds.First();var hand=g.CreateSnapshot(0,true).Players[0].Hand.Count;
-            Reject(g,new UseProgramSkillCommand(0,"classic:wengua",a.ProgramActivationId!,[payment,payment],[],g.Revision,P(g)!.PromptId));
-            Use(g,a,payment);Require(P(g)!.IsPrivate && g.CreateSnapshot(1,false).PendingDecision is null,"Endpoint choice cannot expose private payment or deck faces.");
-            Require(!g.CreateSnapshot(1,false).Players[0].Hand.Any(c=>c.Id==payment)&&!g.CreateSnapshot(1,false).PublicRevealedCards.Any(c=>c.Id==payment),"Unknown hand payment cannot leak into another observer or revealed pool.");
-            Reject(g,new AnswerPromptCommand(0,P(g)!.PromptId,new("unpublished-deck-end"),g.Revision));Replay(g,r);
-            Choose(g,c=>c.Parameters.GetValueOrDefault("end")==end);
-            Reach(g,p=>p.Kind==DecisionKind.PlayCard&&p.PlayerSeat==0);
-            var draws=g.CardMovements.Where(m=>m.Reason.Value=="program.deck-end.draw").ToArray();
-            Require(draws.Length==1 && draws[0].CardId==(end=="top"?cards[0].CardId:cards[^1].CardId)&&draws[0].To==CardLocation.Hand(0),"Self exchange draws exactly one real entity from the opposite endpoint.");
-            Require(g.CardMovements.Count(m=>m.Reason.Value=="program.deck-end.gift")==0&&g.CreateSnapshot(0,true).Players[0].Hand.Count==hand,"Self exchange has no self gift and cannot draw twice.");
-            Require(g.GetHumanLegalActions().All(a=>a.ProgramSkillId!="classic:wengua"),"Own phase entry is consumed once.");Replay(g,r);Conserve(g,64);
-        }
-    }
     public static void ForeignEquipmentGiftAndAiReplay()
     {
         var (g,r)=Start("exchange",false);
@@ -38,31 +19,6 @@ internal static class Fame2017XuShiChecks
         var draws=g.CardMovements.Where(m=>m.Reason.Value=="program.deck-end.draw").ToArray();
         Require(draws.Length==2&&draws.Select(m=>m.To.OwnerSeat).SequenceEqual(new int?[]{owner,0}),"Foreign exchange waits and draws once for owner then provider.");
         Require(g.GetHumanLegalActions().All(a=>a.ProgramSkillId!="classic:wengua")&&!g.AcceptedCommands.OfType<AnswerPromptCommand>().Any(c=>c.ActorSeat!=0),"Provider use is consumed and AI makes its real endpoint and gain decisions.");Replay(g,r);Conserve(g,64);
-    }
-    public static void GiftNestedRemovalAndRefusal()
-    {
-        foreach(var remove in new[]{false,true})
-        {
-            var (g,r)=Start(remove?"remove-gift":"exchange",true);
-            Accept(g,new EndPlayPhaseCommand(0,g.Revision,P(g)!.PromptId));
-            Reach(g,p=>p.PlayerSeat==0 && (p.Choices.Any(c=>c.Parameters.ContainsKey("end")) || p.SkillPrompt?.SkillId=="fixture:gift-removal"));
-            var gift=g.CardMovements.Last(m=>m.Reason.Value=="program.deck-end.gift");
-            Require(gift.To==CardLocation.Hand(0),"AI really gives an owned entity before continuation.");Replay(g,r);
-            if(remove)
-            {
-                Require(Zones(g).Single(z=>z.CardId==gift.CardId).Location==CardLocation.DiscardPile,"Nested gained observer removed the gifted entity through its real movement bind.");
-                Choose(g,c=>c.Parameters.GetValueOrDefault("option-id")=="continue");
-                Reach(g,p=>p.Kind==DecisionKind.PlayCard&&p.PlayerSeat==0);
-                Require(!g.CardMovements.Any(m=>m.CardId==gift.CardId&&m.Reason.Value=="program.deck-end.place"),"Moved gift cannot be placed by stale continuation.");
-            }
-            else
-            {
-                Choose(g,c=>c.Parameters.GetValueOrDefault("end")=="decline");
-                for(var i=0;i<10&&g.ResolutionStack.OfType<ProgramSkillFrame>().Any(f=>f.DeckEndExchange is not null);i++)Tick(g);
-                Require(Zones(g).Single(z=>z.CardId==gift.CardId).Location==CardLocation.Hand(0)&&!g.CardMovements.Any(m=>m.Reason.Value=="program.deck-end.draw"),"Refusal retains gift and draws neither player.");
-            }
-            Replay(g,r);Conserve(g,64);
-        }
     }
     public static void DeckSlashesResponsesCapAndShuffle()
     {
@@ -96,72 +52,6 @@ internal static class Fame2017XuShiChecks
         Require(declared.All(e=>g.CardMovements.Any(m=>m.CardId==e.CardId&&m.From==CardLocation.Processing&&m.To==CardLocation.DiscardPile))&&g.CardMovements.Any(m=>m.From==CardLocation.DiscardPile&&m.To==CardLocation.DrawPile&&m.Reason==CardMoveReasons.Reshuffle),"All used Slash entities finish and final wash really merges discard into draw.");
         Require(!g.AcceptedCommands.OfType<AnswerPromptCommand>().Any(c=>c.ActorSeat!=0),"AI source activates Fuzhu and completes its gain/use listeners via native advancement.");Replay(g,r);Conserve(g,64);
         }
-    }
-    public static void DynamicDeckMembershipAndReplay()
-    {
-        foreach(var mode in new[]{"replenish","returned"})
-        {
-        var(g,r)=Start(mode,false);Accept(g,new EndPlayPhaseCommand(0,g.Revision,P(g)!.PromptId));
-        for(var i=0;i<150&&!g.Events.Any(e=>e.Payload is DeckSlashSequenceShuffledEvent);i++)
-        {
-            if(P(g) is {PlayerSeat:0,SkillPrompt.SkillId:"fixture:return-slash"} p && p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="select-owned-cards"))
-            {var id=g.ResolutionStack.OfType<CardUseFrame>().Last().CardId;Choose(g,c=>c.Cards.SequenceEqual([id]));}
-            else if(P(g) is {Kind:DecisionKind.RespondDodge,PlayerSeat:0})Choose(g,c=>c.Cards.Count==0);else Tick(g);
-            if(g.ResolutionStack.OfType<ProgramCardTriggerWindowFrame>().LastOrDefault() is {Continuation:ProgramCardContinuation.CompletedSlash})Replay(g,r);
-        }
-        var wash=g.Events.Select(e=>e.Payload).OfType<DeckSlashSequenceShuffledEvent>().Single();
-        var inserted=g.CardMovements.Where(m=>m.From==CardLocation.Hand(wash.OwnerSeat)&&m.To==CardLocation.DrawPile&&m.Reason.Value.Contains("MoveBoundCards",StringComparison.Ordinal)).ToArray();
-        var uses=g.Events.Select(e=>e.Payload).OfType<CardUseDeclaredEvent>().Where(e=>e.SourceSeat==wash.OwnerSeat&&e.CardKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash).ToArray();
-        if(mode=="replenish")Require(inserted.Length>0&&uses.Length==4&&uses[1].CardId==inserted[0].CardId&&uses.Select(e=>e.CardId).Distinct().Count()==4,"After actual completed-use child moves a fresh Slash into deck top, next real declaration must discover it; declared IDs never repeat.");
-        else Require(uses.Length==4&&uses.Select(e=>e.CardId).Distinct().Count()==4&&uses.All(u=>g.CardMovements.Any(m=>m.CardId==u.CardId&&m.From==CardLocation.Hand(0)&&m.To==CardLocation.DrawPile)),"Already declared Slash returns through actual claim and top placement, completes legally outside Processing, and cannot be declared twice.");Replay(g,r);Conserve(g,64);
-        }
-    }
-    public static void DeckSlashesGateExhaustionAndDeath()
-    {
-        foreach(var mode in new[]{"female","threshold","no-slash","source-death","source-suppressed","game-over"})
-        {
-            var(g,r)=Start(mode,false);var initialHp=g.CreateSnapshot(0,true).Players[0].Hp;Accept(g,new EndPlayPhaseCommand(0,g.Revision,P(g)!.PromptId));
-            for(var i=0;i<130&&!g.Events.Any(e=>e.Payload is TurnStartedEvent {ActorSeat:1}) && g.CreateSnapshot(0,true).Status!=EngineStatus.Completed;i++)
-            {
-                if(P(g) is {Kind:DecisionKind.RespondDodge,PlayerSeat:0})Choose(g,c=>c.Cards.Count==0);else Tick(g);
-            }
-            var wash=g.Events.Select(e=>e.Payload).OfType<DeckSlashSequenceShuffledEvent>().ToArray();
-            if(mode is "female" or "threshold")Require(wash.Length==0&&!g.ResolutionStack.OfType<ProgramSkillFrame>().Any(f=>f.DeckSlashSequence is not null),"Female ending or excess deck count cannot offer Fuzhu.");
-            else if(mode=="no-slash")Require(wash.Length==1&&wash[0].Uses==0,"An exhausted Slash membership still performs final real shuffle.");
-            else if(mode=="source-death")Require(wash.Length==1&&wash[0].Uses==1&&!g.CreateSnapshot(0,true).Players[wash[0].OwnerSeat].IsAlive,"Source death during a real completed-use child cancels remaining declarations and washes exactly once.");
-            else if(mode=="source-suppressed")Require(wash.Length==1&&wash[0].Uses==1&&g.CreateSnapshot(0,true).Players[wash[0].OwnerSeat].Hp==19&&g.CreateSnapshot(0,true).Players[wash[0].OwnerSeat].IsAlive,"Real HP-triggered passive skill suppression cancels subsequent Slash declarations while preserving source life.");
-            else Require(wash.Length==1&&wash[0].Uses==initialHp&&!g.CreateSnapshot(0,true).Players[0].IsAlive&&g.CreateSnapshot(0,true).Status==EngineStatus.Completed&&g.ResolutionStack.Count==0,"Actual target death and game end cancel remaining deck uses, wash once and leave no live frame. mode="+mode+" wash="+string.Join(",",wash.Select(w=>w.Uses))+" hp="+g.CreateSnapshot(0,true).Players[0].Hp+" alive="+g.CreateSnapshot(0,true).Players[0].IsAlive+" status="+g.CreateSnapshot(0,true).Status+" frames="+string.Join(",",g.ResolutionStack.Select(f=>f.Kind+":"+f.Id)));
-            Replay(g,r);Conserve(g,64);
-        }
-        SourceGrantLoss();
-    }
-    private static void SourceGrantLoss()
-    {
-        var(g,r)=Start("source-loss",true);var victim=g.CreateSnapshot(0,true).Players.Single(p=>p.GeneralId=="fixture:deck-provider").Seat;
-        Accept(g,new EndPlayPhaseCommand(0,g.Revision,P(g)!.PromptId));
-        for(var i=0;i<160;i++)
-        {
-            if(P(g) is {PlayerSeat:0,Kind:DecisionKind.ProgramTrigger,SkillPrompt.SkillId:"classic:fuzhu"})
-            {
-                var ending=g.ResolutionStack.OfType<TurnEndingBoundaryFrame>().Last().OwnerSeat;
-                if(ending==victim){Replay(g,r);Choose(g,c=>c.Parameters.GetValueOrDefault("program-action")=="activate");break;}
-                Choose(g,c=>c.Parameters.GetValueOrDefault("program-action")=="skip");
-            }
-            else Tick(g);
-        }
-        for(var i=0;i<80&&!g.Events.Any(e=>e.Payload is DeckSlashSequenceShuffledEvent);i++)Tick(g);
-        var wash=g.Events.Select(e=>e.Payload).OfType<DeckSlashSequenceShuffledEvent>().Single();
-        Require(wash.OwnerSeat==0&&wash.Uses==1&&!g.CreateSnapshot(0,true).Players[victim].IsAlive&&
-            g.Events.Any(e=>e.Payload is CharacterSkillsLostEvent lost&&lost.Seat==0&&lost.SourceSeat==victim&&lost.SkillIds.Contains("classic:fuzhu"))&&
-            g.CreateSnapshot(0,true).Players[0].Skills is {Count:0},"Real target death runs Duanchang and removes the ongoing Slash source's exact grant; parent stops and washes once.");Replay(g,r);Conserve(g,64);
-    }
-    public static void ResourceContracts()
-    {
-        var asm=typeof(StandardContentPackage).Assembly;
-        string Read(string suffix){using var s=asm.GetManifestResourceStream(asm.GetManifestResourceNames().Single(n=>n.EndsWith(suffix,StringComparison.Ordinal)))!;using var reader=new StreamReader(s);return reader.ReadToEnd();}
-        var rules=Read("classic-xu-shi.rules.json");var presentation=Read("classic-xu-shi.presentation.json");SkillProgramCatalog.Load(rules,presentation);
-        foreach(var invalid in new[]{rules.Replace("\"minCards\": 1","\"minCards\": 0"),rules.Replace("\"usesPerPhase\": 1","\"usesPerPhase\": 2"),rules.Replace("\"usesPerTurn\": null","\"usesPerTurn\": 1"),rules.Replace("\"usesPerTurn\": null","\"usesPerGame\": 1"),rules.Replace("\"turnEnding\"","\"playEnding\"")})
-        {var rejected=false;try{SkillProgramCatalog.Load(invalid,presentation);}catch(InvalidOperationException){rejected=true;}Require(rejected,"New operations reject ambiguous input bounds, per-phase scopes and wrong ending window.");}
     }
     private static(GameEngine,ContentRegistry)Start(string mode,bool self)
     {

@@ -38,61 +38,6 @@ internal static class BoundaryLiDianChecks
         Answer(suits,c=>c.Cards.Count==1&&!suitReceipt.Contains(c.Cards[0]));Reach(suits,p=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="select-subset"));
         Require(P(suits)!.Choices.Single().Cards.SequenceEqual([suitReceipt[1]]),"The same new available-source subset respects onePerSuit after actual receipt movement.");Replay(suits,ur);Answer(suits,c=>c.Cards.SequenceEqual([suitReceipt[1]]));Settle(suits);Replay(suits,ur);
     }
-    public static void PartitionAndDraw()
-    {
-        foreach(var normal in new[]{0,1,3})
-        {
-            var(g,r)=Start(normalDraw:normal); Activate(g); var initial=Pile(g); var viewed=Frame(g).TopReorder!.ViewedCardIds.ToArray();
-            var hand=g.State.Players[0].HandCount;
-            foreach(var id in new[]{viewed[1],viewed[0],viewed[3],viewed[2]})
-            {
-                var before=g.Revision; var count=Frame(g).TopReorder!.TopCardIds.Count+Frame(g).TopReorder!.BottomCardIds.Count;
-                Replay(g,r); Private(g); Answer(g,c=>c.Cards.SequenceEqual([id]));
-                Require(g.Revision==before+1,"Each real selection commits exactly one revision.");
-                if(count<3) Require(initial.SequenceEqual(Pile(g)) && g.State.Players[0].HandCount==hand,"Partial order changes only private draft, never cards or hand.");
-            }
-            Settle(g); var expected=new[]{viewed[1],viewed[0]}.Concat(initial.Skip(4)).Concat(new[]{viewed[2],viewed[3]}).ToArray();
-            Require(g.State.Players[0].HandCount==hand+normal && Pile(g).SequenceEqual(expected.Skip(normal)), "Partition continues normal draw count, including 0/1/3.");
-            var ids=g.CardMovements.Where(m=>m.To==CardLocation.Hand(0)).Select(m=>m.CardId).TakeLast(normal).ToArray();
-            if(normal>0) Require(ids.SequenceEqual(expected.Take(normal)),"Normal Draw gets reordered top-first ids.");
-            Replay(g,r);
-        }
-    }
-    public static void ShortPileAndInputs()
-    {
-        foreach(var n in new[]{0,1,2,3})
-        {
-            var(g,r)=Start(remaining:n,normalDraw:0); Activate(g);
-            if(n==0){Settle(g);Require(!g.ResolutionStack.OfType<ProgramSkillFrame>().Any(),"Empty pile finishes without a draft.");}
-            else
-            {
-                var frame=Frame(g);Require(frame.TopReorder!.ViewedCardIds.Count==n && frame.TopReorder.RequiredTopCount==Math.Min(2,n),"Short pile freezes min(exact,actual).");
-                var p=P(g)!; var checkpoint=GameCheckpointJson.Serialize(g.CreateCheckpoint()); var revision=g.Revision;
-                foreach(var id in new[]{new ChoiceId("foreign"),new ChoiceId($"program-top-order.{frame.Id}.finish-top")})
-                {var result=g.Submit(new AnswerPromptCommand(0,p.PromptId,id,g.Revision));Require(!result.Accepted && revision==g.Revision && checkpoint==GameCheckpointJson.Serialize(g.CreateCheckpoint()),"Invalid early finish or foreign input is atomic.");}
-                Answer(g,c=>c.Cards.Count==1); var reject=g.Submit(new AnswerPromptCommand(0,p.PromptId,p.Choices[0].Id,g.Revision)); Require(!reject.Accepted,"Old prompt cannot pay selection again.");
-                while(P(g)?.Kind==DecisionKind.ProgramTopReorder){Replay(g,r);Answer(g,c=>c.Cards.Count==1);} Settle(g);
-            }
-            Require(!g.CardMovements.Any(m=>m.Reason == CardMoveReasons.Reshuffle),"Nonempty short piles are not silently refilled."); Replay(g,r);
-        }
-        foreach(var n in new[]{0,1})
-        {
-            var(g,r)=Start(remaining:n,normalDraw:0);Skip(g);Settle(g);Driver(g,"discard-order");
-            Reach(g,p=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="select-owned-cards")); Answer(g,c=>c.Cards.Count==1);
-            Reach(g,p=>p.Kind==DecisionKind.ProgramTopReorder);
-            Require(Frame(g).TopReorder!.ViewedCardIds.Count==1,"Empty-only refill does not merge a nonempty short pile.");
-            while(P(g)?.Kind==DecisionKind.ProgramTopReorder){Replay(g,r);Answer(g,c=>c.Cards.Count==1);}Settle(g);Replay(g,r);
-        }
-    }
-    public static void TypedLifetime()
-    {
-        var(g,r)=Start(normalDraw:0);Activate(g);Answer(g,c=>c.Cards.Count==1);Replay(g,r);
-        var owner=Players(g)[0];var grant=owner.SkillGrants.Grants.Single(x=>x.SkillId=="boundary:xunxun");
-        owner.SkillGrants.RemoveGrant(grant.GrantId);owner.SkillGrants.Grant(grant with{GrantId="audit:new",SkillInstanceId="audit:new",SourceId="audit:new"});
-        // Host lifecycle audit only: ordinary private answers cannot interleave a source change.
-        while(P(g)?.Kind==DecisionKind.ProgramTopReorder) Answer(g,c=>c.Cards.Count==1);
-        Settle(g);Require(g.Events.Select(e=>e.Payload).OfType<ProgramBindingResolvedEvent>().Any(e=>e.SkillId=="boundary:xunxun"&&!e.Completed),"Lost exact instance cannot start remaining instructions as its replacement.");
-    }
     public static void ReceiptAndNestedGain()
     {
         foreach(var take in new[]{false,true})

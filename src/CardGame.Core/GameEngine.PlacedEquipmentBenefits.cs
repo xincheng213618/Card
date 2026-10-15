@@ -85,6 +85,7 @@ public sealed partial class GameEngine
             r.TurnNumber, r.TurnOwnerSeat, r.EndingFrameId, r.OccurrenceIndex));
         PublishPlacedEquipmentChoice(f); return SkillProgramStepOutcome.AwaitChoice;
     }
+    [ProgramAnswer("placed-equipment-benefit")]
     private void ResolvePlacedEquipmentChoice(PromptChoice selected)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame f || !ValidPlacedEquipmentBenefit(f) ||
@@ -186,7 +187,8 @@ public sealed partial class GameEngine
         }
         if (payment.Slot is EquipmentSlot.OffensiveHorse or EquipmentSlot.DefensiveHorse)
         {
-            var amount = Math.Min(1, _players[payment.RecipientSeat].MaxHp - _players[payment.RecipientSeat].Hp);
+            var recipient = _players[payment.RecipientSeat];
+            var amount = recipient.HasHpValue ? Math.Min(1, recipient.MaxHp - recipient.Hp) : 0;
             ReplaceRuntimeTop(f with { PlacedEquipmentBenefit = r with { Stage = PlacedEquipmentBenefitStage.RecoveryChildren, RecoveryIssued = true, ActualRecoveryRequest = amount } });
             AdvanceEventRulesAndQueueFact(new PlacedEquipmentBenefitRecoveryIssuedEvent(id, payment.RecipientSeat, amount));
             new ProgramSkillHost(this).Recover(id, f.OwnerSeat, payment.RecipientSeat, 1, null, null);
@@ -201,6 +203,7 @@ public sealed partial class GameEngine
         // The sole opt-in instruction owns paid completion even after source invalidation. Unpaid cancellation pays nothing.
         FinishProgramSkill(f, completed: true);
     }
+    [ProgramAiChoice(SkillProgramEffectOp.PlaceOwnedEquipmentThenResolveSlotBenefit)]
     private PromptChoice SelectAiPlacedEquipmentBenefit(PendingDecision decision, ProgramSkillFrame f)
     {
         var r = f.PlacedEquipmentBenefit!; var view = CreateSnapshot(f.OwnerSeat);

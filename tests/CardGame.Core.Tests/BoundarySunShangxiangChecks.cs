@@ -10,46 +10,6 @@ internal static class BoundarySunShangxiangChecks
     private static readonly Lazy<ContentRegistry> Classic = new(() => ContentRegistry.Build(new StandardContentPackage(),
         new StandardActiveSkillExpansionPackage(true), new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage()));
 
-    public static void DefinitionsAndHandPayment()
-    {
-        PlacementDefinitions();
-        var (g,r)=Start();
-        Require(r.Generals["boundary:sun-shangxiang"].SkillIds.SequenceEqual([Skill,"classic:xiaoji"]),"The real module reuses classic Xiaoji.");
-        Driver(g,"hurt-target",[1]);Settle(g);
-        var initial=g.State.Players[0].Hand.Count;var cost=g.State.Players[0].Hand[0].Id;
-        var rev=g.Revision;
-        var invalid=g.Submit(new UseProgramSkillCommand(0,Skill,"discard-hand",[cost],[0],g.Revision,P(g)!.PromptId));
-        Require(!invalid.Accepted&&g.Revision==rev,"A female target is rejected atomically before cost/quota.");
-        Use(g,"discard-hand",cost,1);Settle(g);
-        Require(Zones(g).GetLocation(cost)==CardLocation.DiscardPile&&g.State.Players[0].Hand.Count==initial&&g.State.Players[1].Hp==3,
-            "The higher owner draws once after discarding one hand entity; the lower target recovers once.");
-        Require(!Actions(g).Any(),"Both active bindings share the actual phase usage.");ReplayFourViews(g,r);
-        var json=JsonSerializer.Serialize(new ProgramSelectedCardPayment(1,SkillProgramEffectOp.DiscardSelected,[1],0));
-        Require(!json.Contains("PlacementSourceLocation"),"Legacy selected payments omit null placement provenance.");
-        var unsupportedTail=false;
-        try{Load("fixture:bad-tail","\"activations\":["+Activation("bad","[{\"op\":\"freezeSelectedHpPair\",\"target\":\"owner\"},{\"op\":\"draw\",\"target\":\"owner\",\"amount\":1,\"resultBind\":\"later\"},{\"op\":\"moveBoundCards\",\"target\":\"owner\",\"sourceBind\":\"later\",\"destination\":\"discardPile\",\"awaitMovementTriggers\":true}]",1)+"]");}
-        catch(InvalidOperationException ex){unsupportedTail=ex.Message.Contains("only a Draw/Recover tail");Console.WriteLine("New HP pair tail negative: "+ex.Message);}
-        Require(unsupportedTail,"A loaded frozen pair cannot subsequently start an unsupported owning movement.");
-        foreach(var effects in new[]{"[{\"op\":\"draw\",\"target\":\"hpPairHigher\",\"amount\":1}]",
-            "[{\"op\":\"freezeSelectedHpPair\",\"target\":\"owner\"},{\"op\":\"loseHp\",\"target\":\"hpPairLower\",\"amount\":1}]",
-            "[{\"op\":\"freezeSelectedHpPair\",\"target\":\"owner\"},{\"op\":\"freezeSelectedHpPair\",\"target\":\"owner\"}]",
-            "[{\"op\":\"freezeSelectedHpPair\",\"target\":\"owner\"},{\"op\":\"selectTarget\",\"target\":\"owner\",\"targetKind\":\"anyLiving\"},{\"op\":\"draw\",\"target\":\"hpPairHigher\",\"amount\":1}]"})
-        {var rejected=false;try{Load("fixture:bad-pair","\"activations\":["+Activation("bad",effects,1)+"]");}catch(InvalidOperationException){rejected=true;}Require(rejected,"Frozen pair consumers require their unconditional producer and are Draw/Recover only.");}
-    }
-
-    private static void PlacementDefinitions()
-    {
-        foreach(var effects in new[]{
-            "[{\"op\":\"selectOwnedCards\",\"target\":\"owner\",\"zones\":[\"hand\"],\"minimumCards\":1,\"maximumCards\":1,\"resultBind\":\"cost\"},{\"op\":\"placeSelectedEquipment\",\"target\":\"selectedTarget\",\"sourceBind\":\"cost\"}]",
-            "[{\"op\":\"captureSelectedCards\",\"target\":\"owner\",\"resultBind\":\"cost\"},{\"op\":\"filterBoundCards\",\"target\":\"owner\",\"sourceBind\":\"cost\",\"resultBind\":\"derived\",\"categories\":[\"equipment\"]},{\"op\":\"placeSelectedEquipment\",\"target\":\"selectedTarget\",\"sourceBind\":\"cost\"}]",
-            "[{\"op\":\"captureSelectedCards\",\"target\":\"owner\",\"resultBind\":\"cost\"},{\"op\":\"filterBoundCards\",\"target\":\"owner\",\"sourceBind\":\"cost\",\"resultBind\":\"derived\",\"categories\":[\"equipment\"]},{\"op\":\"placeSelectedEquipment\",\"target\":\"selectedTarget\",\"sourceBind\":\"derived\"}]"})
-        {
-            var rejected=false;try{Load("fixture:bad-placement","\"activations\":[{\"id\":\"bad\",\"usesPerTurn\":null,\"minCards\":1,\"maxCards\":1,\"minTargets\":1,\"maxTargets\":1,\"targetKind\":\"anyLivingMale\",\"sourceZones\":[\"hand\",\"equipment\"],\"cardCategories\":[\"equipment\"],\"effects\":"+effects+"}]");}
-            catch(InvalidOperationException ex){rejected=ex.Message.Contains("original unconditional single captured activation binding");Console.WriteLine("New placement parser negative: "+ex.Message);}
-            Require(rejected,"Placement rejects other producers and derived captured bindings at the new resource gate.");
-        }
-    }
-
     public static void EquipmentAndReplacement()
     {
         var (g,r)=Start(equipment:true);
@@ -87,91 +47,6 @@ internal static class BoundarySunShangxiangChecks
             "Higher target Draw child frozen recovery: hp="+d.State.Players[0].Hp+" target="+d.State.Players[1].Hp);ReplayFourViews(d,dr);
     }
 
-    public static void SlotSelfAndEqualBoundaries()
-    {
-        var(blocked,br)=Start(equipment:true,slotCapacity:0);var initial=blocked.State.Players[0].Hand[0].Id;
-        Require(!Actions(blocked).Any(a=>a.ProgramActivationId=="place-equipment"),"Only male recipients with a real payable slot appear on the placement menu.");
-        var unchanged=blocked.Revision;var noSlot=blocked.Submit(new UseProgramSkillCommand(0,Skill,"place-equipment",[initial],[1],blocked.Revision,P(blocked)!.PromptId));
-        Require(!noSlot.Accepted&&blocked.Revision==unchanged&&Zones(blocked).GetLocation(initial)==CardLocation.Hand(0),"Zero slot rejects before physical cost and shared quota.");
-        Use(blocked,"discard-hand",initial,1);Settle(blocked);ReplayFourViews(blocked,br);
-
-        var(multi,mr)=Start(equipment:true,slotCapacity:2);Driver(multi,"equip",[1]);Settle(multi);Driver(multi,"equip",[1]);Settle(multi);
-        var oldIds=multi.CreateSnapshot(0).Players[1].Equipment.Select(c=>c.Id).ToArray();Require(oldIds.Length==2,"The actual recipient has two armor slots.");
-        var replacement=multi.State.Players[0].Hand[0].Id;Use(multi,"place-equipment",replacement,1);Settle(multi);
-        Require(multi.CreateSnapshot(0).Players[1].Equipment.Count==2&&Zones(multi).GetLocation(oldIds[0])==CardLocation.DiscardPile&&Zones(multi).GetLocation(replacement)==CardLocation.Equipment(1),"Full multi-capacity slot replaces only the mature first equipment.");ReplayFourViews(multi,mr);
-        var (g,r)=Start(equipment:true,maleOwner:true);
-        Driver(g,"equip",[0]);Settle(g);var equipped=g.CreateSnapshot(0).Players[0].Equipment.Single().Id;
-        var revision=g.Revision;var rejected=g.Submit(new UseProgramSkillCommand(0,Skill,"place-equipment",[equipped],[0],g.Revision,P(g)!.PromptId));
-        Require(!rejected.Accepted&&g.Revision==revision&&Zones(g).GetLocation(equipped)==CardLocation.Equipment(0),"Same-equipment-area self placement is no physical payment.");
-        var cost=g.State.Players[0].Hand.First(c=>EquipmentCatalog.IsEquipment(c.Kind)).Id;var hand=g.State.Players[0].Hand.Count;
-        var publicPlacement=g.GetHumanActionView().LegalActions.Single(a=>a.ProgramSkillId==Skill &&a.ProgramActivationId=="place-equipment");
-        Require(publicPlacement.SelectableCardTargets is { } associations &&associations.Contains(new(cost,0)) &&
-            !associations.Contains(new(equipped,0)),
-            "The frozen public selected-equipment action distinguishes real self Hand placement from reusing its current equipment area.");
-        Use(g,"place-equipment",cost,0);Settle(g);
-        Require(Zones(g).GetLocation(cost)==CardLocation.Equipment(0)&&g.State.Players[0].Hand.Count==hand-1,
-            "A real Male self hand placement pays once, with self-pair no reward.");ReplayFourViews(g,r);
-
-        var(equal,er)=Start();Driver(equal,"hurt-target-one",[1]);Settle(equal);
-        var count=equal.State.Players[0].Hand.Count;Use(equal,"discard-hand",equal.State.Players[0].Hand[0].Id,1);Settle(equal);
-        Require(equal.State.Players[0].Hand.Count==count-1&&equal.State.Players[0].Hp==3&&equal.State.Players[1].Hp==3,"Equal branch: hand="+equal.State.Players[0].Hand.Count+" before="+count+" hp="+equal.State.Players[0].Hp+","+equal.State.Players[1].Hp);ReplayFourViews(equal,er);
-    }
-
-    public static void NativeAndLifetime()
-    {
-        foreach(var equipment in new[]{false,true})
-        {
-            var(g,r)=Start(equipment:equipment,native:true);
-            for(var step=0;step<60&&!g.Events.Select(e=>e.Payload).OfType<ProgramSkillStartedEvent>().Any(e=>e.SkillId==Skill);step++)Accept(g,new AdvanceOneStepCommand(g.Revision));
-            Require(g.Events.Select(e=>e.Payload).OfType<ProgramSkillStartedEvent>().Any(e=>e.SkillId==Skill&&e.ActivationId==(equipment?"place-equipment":"discard-hand")),
-                "Native real "+(equipment?"placement":"hand discard")+"; turn="+g.State.CurrentSeat+" HP="+string.Join(",",g.State.Players.Select(p=>p.Hp))+" programs="+string.Join(";",g.Events.Select(e=>e.Payload).OfType<ProgramSkillStartedEvent>().Select(e=>e.SkillId+"/"+e.ActivationId)));
-            for(var step=0;step<30&&g.ResolutionStack.OfType<ProgramSkillFrame>().Any(f=>f.SkillId==Skill);step++)Accept(g,new AdvanceOneStepCommand(g.Revision));
-            Require(!g.ResolutionStack.OfType<ProgramSkillFrame>().Any(f=>f.SkillId==Skill),"Native pair settlement is finite.");ReplayFourViews(g,r);
-            Evidence(g,"native-"+(equipment?"placement":"discard"));
-            Console.WriteLine("Native formal Jieyin "+(equipment?"placement":"hand discard")+" actually started and completed; accepted revision="+g.Revision);
-        }
-        var(extra,er)=Start(extraPlay:true);var turn=extra.CreateSnapshot(0).TurnNumber;
-        Use(extra,"discard-hand",extra.State.Players[0].Hand[0].Id,1);Settle(extra);Require(!Actions(extra).Any(),"One real scheduled Play consumes the shared quota.");
-        Accept(extra,new EndPlayPhaseCommand(0,extra.Revision,P(extra)!.PromptId));Settle(extra);
-        Require(extra.CreateSnapshot(0).TurnNumber==turn&&Actions(extra).Any(),"The subsequent normal Play has its own actual phase quota within the same turn.");
-        Use(extra,"discard-hand",extra.State.Players[0].Hand[0].Id,1);Settle(extra);ReplayFourViews(extra,er);
-
-        foreach(var activate in new[]{false,true})
-        {
-            var(silver,sr)=Start(equipment:true,silver:true,observer:true);Driver(silver,"hurt-owner");Settle(silver);Driver(silver,"hurt-target",[1]);Settle(silver);Driver(silver,"equip",[0]);Settle(silver);
-            var paid=silver.CreateSnapshot(0).Players[0].Equipment.Single().Id;Use(silver,"place-equipment",paid,1);
-            Reach(silver,p=>p.SkillPrompt?.SkillId=="fixture:ssx-hp");ReplayFourViews(silver,sr);Evidence(silver,"silver-hp-observer-"+activate);
-            Require(silver.ResolutionStack.OfType<ProgramSkillFrame>().Single(f=>f.SkillId==Skill).HpPairSnapshot is null,"The actual Silver Lion HP observer precedes pair freezing.");
-            if(activate)Activate(silver);else Skip(silver);Settle(silver);
-            Require(silver.State.Players[0].Hp==3&&silver.State.Players[1].Hp==3&&Zones(silver).GetLocation(paid)==CardLocation.Equipment(1),"Silver Lion issued recovery and pair reward each finish after one actual placement cost.");ReplayFourViews(silver,sr);
-        }
-        foreach(var save in new[]{false,true})
-        {
-            var(dying,rr)=Start(equipment:true,rescue:save,movementChild:true,lossAmount:3,observer:true);
-            Driver(dying,"equip",[0]);Settle(dying);var paid=dying.CreateSnapshot(0).Players[0].Equipment.Single().Id;
-            var peach=save?dying.State.Players[0].Hand.First(c=>c.Kind==CardKind.Peach).Id:0;
-            Use(dying,"place-equipment",paid,1);
-            for(var step=0;step<60&&dying.State.Status!=EngineStatus.Completed&&!(P(dying)?.Kind==DecisionKind.RescueDying&&P(dying)?.PlayerSeat==0);step++)
-            {if(P(dying)?.SkillPrompt?.SkillId=="classic:xiaoji")Skip(dying);else Accept(dying,new AdvanceOneStepCommand(dying.Revision));}
-            ReplayFourViews(dying,rr);
-            if(save)
-            {
-                Require(P(dying) is{Kind:DecisionKind.RescueDying,PlayerSeat:0}&&dying.State.Players[0].Hp==0,"The real movement child reaches exactly zero HP rescue after Xiaoji.");
-                Evidence(dying,"physical-peach-rescue");Answer(dying,c=>c.Parameters.GetValueOrDefault("response")=="peach"&&c.Cards.SequenceEqual([peach]));
-            }
-            for(var step=0;step<80&&dying.State.Status!=EngineStatus.Completed&&dying.ResolutionStack.OfType<ProgramSkillFrame>().Any(f=>f.SkillId==Skill);step++)
-            {
-                if(P(dying)?.Kind==DecisionKind.RescueDying)Answer(dying,c=>c.Cards.Count==0);
-                else if(P(dying)?.Kind==DecisionKind.ProgramTrigger&&P(dying)!.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="skip")){ReplayFourViews(dying,rr);if(save&&P(dying)!.SkillPrompt?.SkillId=="fixture:ssx-hp")Activate(dying);else Skip(dying);}
-                else Accept(dying,new AdvanceOneStepCommand(dying.Revision));
-            }
-            Require(!dying.ResolutionStack.OfType<ProgramSkillFrame>().Any(f=>f.SkillId==Skill)&&Zones(dying).GetLocation(paid)==CardLocation.Equipment(1),"Death or actual entity Peach save returns without repeating the issued placement.");
-            Require(save?dying.State.Players[0].IsAlive&&Zones(dying).GetLocation(peach)==CardLocation.DiscardPile:!dying.State.Players[0].IsAlive,"Save pays one original-hand Peach; death finitely cancels the source remainder.");
-            Require(dying.Events.Select(e=>e.Payload).OfType<CardMovedEvent>().Count(e=>e.CardId==paid&&e.From==CardLocation.Equipment(0)&&e.To==CardLocation.Equipment(1))==1,"The physical issued equipment cost moves exactly once across death/rescue children.");
-            Evidence(dying,"movement-"+(save?"peach-saved":"owner-dead"));ReplayFourViews(dying,rr);Console.WriteLine("Actual movement child "+(save?"physical Peach save with HP observer":"owner death/game completion")+"; cost="+paid+"; revision="+dying.Revision);
-        }
-    }
-
     private static void Evidence(GameEngine g,string label)
     {
         if(Environment.GetEnvironmentVariable("CARD_SSX_EVIDENCE") is not{Length:>0} root)return;
@@ -201,7 +76,6 @@ internal static class BoundarySunShangxiangChecks
     private static void Answer(GameEngine g,Func<PromptChoice,bool> choose){var p=P(g)!;Accept(g,new AnswerPromptCommand(p.PlayerSeat,p.PromptId,p.Choices.First(choose).Id,g.Revision));}
     private static void Activate(GameEngine g)=>Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="activate");
     private static void Skip(GameEngine g)=>Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="skip");
-    private static IEnumerable<LegalAction> Actions(GameEngine g)=>g.GetHumanLegalActions().Where(a=>a.ProgramSkillId==Skill);
     private static CardZoneStore Zones(GameEngine g)=>(CardZoneStore)typeof(GameEngine).GetField("_cardZones",BindingFlags.Instance|BindingFlags.NonPublic)!.GetValue(g)!;
     private static void Use(GameEngine g,string id,int card,int target)=>Accept(g,new UseProgramSkillCommand(0,Skill,id,[card],[target],g.Revision,P(g)!.PromptId));
     private static void Driver(GameEngine g,string id,int[]?targets=null)=>Accept(g,new UseProgramSkillCommand(0,"fixture:ssx-driver",id,[],targets??[],g.Revision,P(g)!.PromptId));

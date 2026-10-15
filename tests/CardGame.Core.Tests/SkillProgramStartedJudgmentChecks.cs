@@ -307,15 +307,6 @@ internal static class SkillProgramStartedJudgmentChecks
     private static GameCheckpoint RoundTrip(GameCheckpoint checkpoint) =>
         GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(checkpoint));
 
-    private static void AssertReject(string rules, string expected)
-    {
-        try { _ = SkillProgramCatalog.Load(rules, Presentation); }
-        catch (InvalidOperationException exception) when (
-            exception.Message.Contains(expected, StringComparison.OrdinalIgnoreCase))
-        { return; }
-        throw new InvalidOperationException($"Expected rejection containing '{expected}'.");
-    }
-
     private static void Require(bool condition, string message)
     {
         if (!condition) throw new InvalidOperationException(message);

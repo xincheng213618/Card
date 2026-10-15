@@ -39,6 +39,7 @@ public sealed partial class GameEngine
         if(d.Mode=="draw" || selected.Count>0&&sum==d.Budget)Add("finish","确认目标并依次结算",selected);
         Add("reset","重新选择模式",[]);return choices;
     }
+    [ProgramAnswer("discard-budget")]
     private void ResolveDiscardBudgetChoice(PromptChoice c)
     {
         var f=GetActiveProgramFrame(long.Parse(c.Parameters["frame-id"]));var d=f.DiscardBudgetDraft!;
@@ -102,6 +103,7 @@ public sealed partial class GameEngine
         if(GetActualPlayPhaseUseCount(f.OwnerSeat)>=OutsideRangePlayers(f.OwnerSeat).Length||choices.Count==0)return SkillProgramStepOutcome.Continue;
         PublishBudgetGiftPrompt(f,f.OwnerSeat,"使用牌数不足，弃置攻击范围不包含你的角色一张牌。",choices,true);return SkillProgramStepOutcome.AwaitChoice;
     }
+    [ProgramAnswer("outside-range-discard")]
     private void ResolveOutsideRangeDiscard(PromptChoice c)
     {
         var f=GetActiveProgramFrame(long.Parse(c.Parameters["frame-id"]));
@@ -135,6 +137,7 @@ public sealed partial class GameEngine
         return [new(new($"faction-gift.{f.Id}.{action}"),reward?"令赠牌角色摸一张牌且杀次数+1":"交出本次【杀】的牌",reward?[]:d.CardIds,[reward?d.ProviderSeat:f.OwnerSeat],BudgetGiftParameters(f,"faction-cost-gift",action)),
             new(new($"faction-gift.{f.Id}.decline"),reward?"不奖励":"不赠予",[],[],BudgetGiftParameters(f,"faction-cost-gift","decline"))];
     }
+    [ProgramAnswer("faction-cost-gift")]
     private void ResolveCompletedFactionGift(PromptChoice c)
     {
         var f=GetActiveProgramFrame(long.Parse(c.Parameters["frame-id"]));var d=f.CompletedFactionGiftDraft!;c=CompletedFactionGiftChoices(f).Single(x=>x.Id==c.Id);ClearPendingDecision();

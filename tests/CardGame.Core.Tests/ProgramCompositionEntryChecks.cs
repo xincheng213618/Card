@@ -21,15 +21,6 @@ internal static class ProgramCompositionEntryChecks
         Require(used.Accepted, used.Error?.Message ?? "The active composition was rejected.");
     }
 
-    private static void EndPlay(GameEngine game)
-    {
-        ReachPlay(game);
-        var play = game.PendingDecision is { Kind: DecisionKind.PlayCard } prompt
-            ? prompt : throw new InvalidOperationException("Play prompt missing after activation.");
-        var ended = game.Submit(new EndPlayPhaseCommand(Human, game.Revision, play.PromptId));
-        Require(ended.Accepted, ended.Error?.Message ?? "Could not end Play.");
-    }
-
     internal static void ReachPlay(GameEngine game)
     {
         for (var step = 0; step < 256; step++)
@@ -39,20 +30,6 @@ internal static class ProgramCompositionEntryChecks
             Advance(game);
         }
         throw new InvalidOperationException("Fixture did not reach Play.");
-    }
-
-
-
-    private static void AnswerAction(GameEngine game, string action) => Answer(game,
-        game.PendingDecision!.Choices.Single(item =>
-            item.Parameters.GetValueOrDefault("program-action") == action));
-
-    private static void Answer(GameEngine game, PromptChoice choice)
-    {
-        var prompt = game.PendingDecision ?? throw new InvalidOperationException("Prompt missing.");
-        var result = game.Submit(new AnswerPromptCommand(
-            prompt.PlayerSeat, prompt.PromptId, choice.Id, game.Revision));
-        Require(result.Accepted, result.Error?.Message ?? "Program answer rejected.");
     }
 
     private static void Advance(GameEngine game)

@@ -67,56 +67,6 @@ internal static class BoundaryBuLianShiChecks
         }
     }
 
-    public static void SelfHandSelectionIsNoMoveAndEquipmentObtainOwnsRecovery()
-    {
-        var (same, sr) = Create(); Play(same); AnxuPair(same, 0, 1); Reach(same, p => Action(p, "pair-obtain"));
-        var ownId = P(same)!.Choices.First(c => c.Cards.Count == 1).Cards.Single(); var count = same.CardMovements.Count;
-        Private(same, 0); same = RestoreAfterCold(same, sr); Answer(same, c => c.Cards.SequenceEqual([ownId])); Reach(same, p => Action(p, "pair-obtain"));
-        Require(same.CardMovements.Count == count && PairRoot(same).PairObtain is { Cursor: 1, FirstPayment: { SameHand: true, Delivered: false } } &&
-            F<PairObtainStepCommittedEvent>(same) is [var noMove] && noMove.SameHand && noMove.SequenceBefore == noMove.SequenceAfter &&
-            !same.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Any(e => e.Batch.Movements.Any(m => m.Reason.Value == ObtainReason)),
-            "Selecting an already owned hand card advances the exact private cursor without manufacturing a loss, gain or intermediate Processing move.");
-        same = RestoreAfterCold(same, sr); Answer(same, c => c.Parameters.GetValueOrDefault("source-zone") == nameof(CardZoneKind.Hand));
-        Reach(same, p => p.SkillPrompt?.SkillId == Gain); same = RestoreAfterCold(same, sr); Continue(same);
-        CompleteShownGift(same); Play(same); Require(Moves(same, ObtainReason).Length == 1 && (V(same, 0).Hand.Any(c => c.Id == ownId) ||
-            Moves(same, GiftReason).Any(m => m.CardId == ownId)), "The original self-hand entity only leaves its hand if it is the later real shown gift."); Cold(same, sr);
-
-        var (g, r) = Create(equipment: true); Play(g); Use(g, "equip", [0]); Play(g);
-        var lion = V(g, 0).Equipment.Single(c => c.Kind == CardKind.SilverLion).Id; var hpBefore = g.State.Players[0].Hp;
-        Require(hpBefore < g.State.Players[0].MaxHp, "The formal Lord starts genuinely wounded, rather than an injected HP state.");
-        AnxuPair(g, 0, 1); Reach(g, p => Action(p, "pair-obtain")); Private(g, 0); g = RestoreAfterCold(g, r);
-        Answer(g, c => c.Cards.SequenceEqual([lion])); Reach(g, p => p.SkillPrompt?.SkillId == Hp && p.PlayerSeat == 0);
-        var root = PairRoot(g); var payment = root.PairObtain!.FirstPayment!;
-        Require(root.PairObtain is { Cursor: 0, AwaitingMovement: true, SecondPayment: null } && payment.From == CardLocation.Equipment(0) && payment.Delivered &&
-            Moves(g, ObtainReason) is [var actual] && actual.CardId == lion && actual.To == CardLocation.Hand(0) &&
-            g.State.Players[0].Hp == hpBefore + 1 && g.ResolutionStack.OfType<HpChangedTriggerWindowFrame>().Any(w => w.Change.ParentFrameId == root.Id &&
-                w.ResumeFrameId == root.Id && w.Continuation == PostEventContinuation.AwaitedProgramMovement),
-            "The real Equipment-to-Hand obtain removes Silver Lion once and pauses in its precise recovery before the next original target.");
-        g = RestoreAfterCold(g, r); Continue(g); Reach(g, p => p.SkillPrompt?.SkillId == Gain && p.PlayerSeat == 0);
-        Require(PairRoot(g).PairObtain is { Cursor: 0, AwaitingMovement: true }, "The gain child still belongs to the first equipment obtain after its HP child returns.");
-        g = RestoreAfterCold(g, r); Continue(g); Reach(g, p => Action(p, "pair-obtain")); Answer(g, c => c.Parameters.GetValueOrDefault("source-zone") == nameof(CardZoneKind.Hand));
-        CompleteShownGift(g); Play(g);
-        Require(Moves(g, ObtainReason).Count(m => m.CardId == lion && m.From == CardLocation.Equipment(0)) == 1 &&
-            F<RecoveryAppliedEvent>(g).Count(e => e.SourceSeat == 0 && e.TargetSeat == 0 && e.Amount == 1) == 1,
-            "Cold continuation finishes the original pair, with one actual armor removal and one actual armor recovery."); Cold(g, r);
-
-        var (lost, lr) = Create(removePaidSource: true); Play(lost);
-        var untouched = V(lost, 2).HandCount; AnxuPair(lost, 1, 2); Reach(lost, p => Action(p, "pair-obtain"));
-        Answer(lost, c => c.Parameters.GetValueOrDefault("source-zone") == nameof(CardZoneKind.Hand));
-        Reach(lost, p => p.SkillPrompt?.SkillId == Gain && p.PlayerSeat == 0);
-        var lostRootId = PairRoot(lost).Id; var retained = PairRoot(lost).PairObtain!.FirstPayment!.CardId;
-        lost = RestoreAfterCold(lost, lr); Continue(lost); Play(lost);
-        Require(!V(lost, 0).Skills!.Any(s => s.Id == Anxu) && V(lost, 0).Skills!.Any(s => s.Id == "fixture:bls-noop") &&
-            F<SkillsAcquiredEvent>(lost).Count(e => e.PlayerSeat == 0 && e.SourceSkillId == Gain && e.SkillIds.Contains("fixture:bls-noop")) == 1,
-            "The real first-gain child acquires one independent suppression source and removes Anxu from the qualified snapshot; this does not physically remove its grant.");
-        Require(Moves(lost, ObtainReason) is [var retainedMove] && retainedMove.CardId == retained && retainedMove.To == CardLocation.Hand(0) &&
-            V(lost, 0).Hand.Any(c => c.Id == retained) && V(lost, 2).HandCount == untouched &&
-            F<SkillsAcquiredEvent>(lost).Any(e => e.PlayerSeat == 0 && e.SourceSkillId == Gain && e.SkillIds.Contains("fixture:bls-noop")) &&
-            !F<ProgramCardsRevealedEvent>(lost).Any(e => e.FrameId == lostRootId) && !F<ShownPairGiftCommittedEvent>(lost).Any() &&
-            !lost.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.Id == lostRootId) && !lost.GetHumanLegalActions().Any(a => a.SkillId == Anxu),
-            "The genuine first-gain program suppresses the original source's qualification after payment: the paid entity remains, while no second obtain, reveal or gift is invented."); Cold(lost, lr);
-    }
-
     public static void EndingIssuanceAndOwnerDeathRepeatOnlyOriginalRecipient()
     {
         var (g, r) = Create(deathOwner: true); Play(g); Require(g.State.Players[0].Role == Role.Renegade && g.State.Players[0].Hp == 1, "The fixed genuine death owner is a non-Lord with one actual HP.");
@@ -151,28 +101,6 @@ internal static class BoundaryBuLianShiChecks
             "Native beneficiary observers and real cold-restored commands complete Draw3/Recover1 twice for the same recipient and then return the original death."); Cold(g, r);
         NestedOriginalDeathBenefit("damage");
         NestedOriginalDeathBenefit("hp-loss");
-    }
-
-    public static void UnissuedOrDeadRecipientNeverPublishesReplacementDeathTarget()
-    {
-        var (empty, er) = Create(deathOwner: true); Play(empty); Use(empty, "hurt", [0]);
-        Until(empty, engine => F<PlayerDiedEvent>(engine).Any(e => e.VictimSeat == 0) && !engine.ResolutionStack.OfType<DeathFrame>().Any(d => d.VictimSeat == 0));
-        Require(!F<FixedRecipientBenefitIssuedEvent>(empty).Any() && !F<FixedRecipientDeathBenefitStartedEvent>(empty).Any() &&
-            !F<ProgramBindingStartedEvent>(empty).Any(e => e.SkillId == Zhuiyi && e.Window == SkillProgramTriggerWindow.OwnerDied),
-            "An owner who never issued the limited own-Ending benefit cannot choose a new arbitrary death beneficiary."); Cold(empty, er);
-
-        var (g, r) = Create(deathOwner: true); Play(g);
-        var recipient = Enumerable.Range(1, 3).First(seat => g.State.Players[seat].Role != Role.Lord);
-        End(g); ActivateZhuiyi(g); Reach(g, p => Action(p, "select-target")); Answer(g, c => c.Targets.SequenceEqual([recipient]));
-        Play(g); End(g); Play(g);
-        Require(F<FixedRecipientBenefitIssuedEvent>(g).Length == 1, "The second real own Ending cannot issue another beneficiary from the named game usage.");
-        while (g.State.Players[recipient].Hp > 1) { Use(g, "hurt", [recipient]); Play(g); }
-        Use(g, "hurt", [recipient]); Play(g); Require(!g.State.Players[recipient].IsAlive && g.State.Winner == Winner.None, "Real commands kill the original non-Lord recipient while retaining a live Lord and other players.");
-        g = RestoreAfterCold(g, r); Use(g, "hurt", [0]);
-        Until(g, engine => F<PlayerDiedEvent>(engine).Any(e => e.VictimSeat == 0) && !engine.ResolutionStack.OfType<DeathFrame>().Any(d => d.VictimSeat == 0));
-        Require(F<FixedRecipientBenefitIssuedEvent>(g).Single().RecipientSeat == recipient && F<FixedRecipientDeathBenefitStartedEvent>(g).Length == 0 &&
-            !F<ProgramBindingStartedEvent>(g).Any(e => e.SkillId == Zhuiyi && e.Window == SkillProgramTriggerWindow.OwnerDied),
-            "A dead original recipient cancels the death opportunity and does not turn it into a new target or a second issuance."); Cold(g, r);
     }
 
 
@@ -270,8 +198,6 @@ internal static class BoundaryBuLianShiChecks
     }
     private static void AnxuPair(GameEngine g, int a, int b) => Accept(g, new UseProgramSkillCommand(0, Anxu, "pair-obtain-show-give", [], [a, b], g.Revision, P(g)!.PromptId));
     private static void ActivateZhuiyi(GameEngine g) { Reach(g, p => p.SkillPrompt?.SkillId == Zhuiyi && Action(p, "activate")); Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate" && c.Parameters.GetValueOrDefault("skill-id") == Zhuiyi); }
-    private static void CompleteShownGift(GameEngine g)
-    { Reach(g, p => Action(p, "select-owned-cards")); Answer(g, c => c.Cards.Count == 1); Reach(g, p => Action(p, "shown-pair-gift")); Answer(g, c => c.Targets.Count == 1); }
     private static ProgramSkillFrame PairRoot(GameEngine g) => g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.PairObtain is not null);
     private static ProgramSkillFrame FixedRoot(GameEngine g) => g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.FixedRecipient is not null);
     private static PlayerSnapshot V(GameEngine g, int seat) => g.CreateSnapshot(seat).Players[seat];

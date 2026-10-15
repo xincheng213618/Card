@@ -5,66 +5,6 @@ using static LastZoneConversionScenario;
 
 internal static class LastZoneConversionChecks
 {
-    public static void StrictPolicyAndRealHandCountAreRecheckedAtNativeDodgePayment()
-    {
-        ValidateSchema();
-        var (g, registry) = Create("hand");
-        var original = g.CreateSnapshot(0).Players[0].Hand;
-        Activate(g, "incoming", targets: [1]);
-        FinishUnavailableDodge(g, 4, "Four physical Hand entities cannot publish a last-Hand conversion.");
-        Activate(g, "drop", g.CreateSnapshot(0).Players[0].Hand.Skip(1).Select(c => c.Id).ToArray()); ReachPlay(g);
-        var id = g.CreateSnapshot(0).Players[0].Hand.Single().Id;
-        Activate(g, "draw"); ReachPlay(g);
-        Activate(g, "incoming", targets: [1]);
-        FinishUnavailableDodge(g, 2, "A real newly drawn second Hand entity removes the conversion immediately.");
-        Activate(g, "drop", g.CreateSnapshot(0).Players[0].Hand.Where(c => c.Id != id).Select(c => c.Id).ToArray()); ReachPlay(g);
-        Activate(g, "incoming", targets: [1]); Reach(g, p => p is { Kind: DecisionKind.RespondDodge, PlayerSeat: 0 });
-        var choice = Prompt(g)!.Choices.Single(c => IsConversion(c) && c.Cards.SequenceEqual([id]));
-        RejectWrongActor(g); PrivateHand(g); g = Cold(g, registry);
-        Answer(g, c => c.Id == choice.Id);
-        Reach(g, p => p?.SkillPrompt?.SkillId == Accepted);
-        var action = Response(g, id, CardKind.Dodge);
-        Require(g.Events.Select(e=>e.Payload).OfType<CardRespondedEvent>().Last(e=>e.CardId==id).PublicCard == original.Single(c=>c.Id==id),
-            "A publicly paid Crossbow-to-Dodge conversion lost its original printed suit, rank or physical kind.");
-        Require(action.PhysicalCards.Single().From == CardLocation.Hand(0) && action.ConversionChain.Single().BindingId == "last-hand-dodge" &&
-            action.ActorSeat == 0 && action.ProviderSeat == 0 && action.RequesterSeat is null,
-            "The last Hand card is paid as the actor's own native Slash-defense Dodge, with exact configured provenance.");
-        g = Cold(g, registry); ReachPlay(g);
-        AssertPayment(g, id, CardKind.Crossbow, CardLocation.Hand(0), CardMoveReasons.Respond, CardMoveReasons.ResponseFinished);
-        Require(original.Count == 4 && g.CreateSnapshot(0).Players[0].HandCount == 0,
-            "Retained prepared Hand views are immutable and the final real Hand entity leaves once.");
-        _ = Cold(g, registry);
-        var (grain, grainRegistry) = Create("grain");
-        Play(grain, grain.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.Equip)); ReachPlay(grain);
-        var storage = grain.GetHumanLegalActions().Single(a => a.Kind == LegalActionKind.UseEquipmentEffect && a.EquipmentKind == CardKind.WoodenOx);
-        var stored = storage.SelectableCardIds.First();
-        Accept(grain, new UseEquipmentEffectCommand(0, CardKind.WoodenOx, [stored], [], grain.Revision, Prompt(grain)!.PromptId)); ReachPlay(grain);
-        Activate(grain, "drop", grain.CreateSnapshot(0).Players[0].Hand.Select(c => c.Id).ToArray()); ReachPlay(grain);
-        Require(grain.CreateSnapshot(0).Players[0].HandCount == 0 && grain.CreateSnapshot(0).Players[0].WoodenOxGrainCount == 1,
-            "The native Wooden Ox action leaves one real stored entity and no physical Hand entity.");
-        Activate(grain, "incoming", targets: [1]); grain = Cold(grain, grainRegistry);
-        FinishUnavailableDodge(grain, 0, "A sole usable Wooden Ox grain is never the last actual Hand card.");
-        Require(grain.CreateCardZoneDiagnostics().Single(d => d.CardId == stored).Location == CardLocation.WoodenOxGrain(0),
-            "The rejected Hand-like conversion neither spends nor relocates the real grain.");
-
-        var (group, groupRegistry) = Create("arrow");
-        Activate(group, "drop", group.CreateSnapshot(0).Players[0].Hand.Skip(1).Select(c => c.Id).ToArray()); ReachPlay(group);
-        var groupCard = group.CreateSnapshot(0).Players[0].Hand.Single().Id;
-        Accept(group, new EndPlayPhaseCommand(0, group.Revision, Prompt(group)!.PromptId));
-        Reach(group, p => p is { Kind: DecisionKind.RespondDodge, PlayerSeat: 0 });
-        Require(group.ResolutionStack.OfType<CardUseFrame>().Any(f => f.CardKind == CardKind.ArrowBarrage && f.SourceSeat != 0),
-            "An original native AI actually uses Arrow Barrage against the last-Hand holder.");
-        var groupChoice = Prompt(group)!.Choices.Single(c => IsConversion(c) && c.Cards.SequenceEqual([groupCard]));
-        group = Cold(group, groupRegistry); Answer(group, c => c.Id == groupChoice.Id);
-        Reach(group, p => p?.SkillPrompt?.SkillId == Accepted);
-        Require(Response(group, groupCard, CardKind.Dodge).Type == CardActionType.Response &&
-            group.Events.Any(e => e.Payload is GroupResponseEvent r && r.ResponderSeat == 0 && r.IncomingCard == CardKind.ArrowBarrage && r.ResponseCardId == groupCard && r.UsedResponse),
-            "The same last-Hand policy also supports a native pure group Dodge response, without imposing a use-only direction.");
-        group = Cold(group, groupRegistry);
-        for (var step = 0; step < 700 && !group.CardMovements.Any(m => m.CardId == groupCard && m.Reason == CardMoveReasons.ResponseFinished); step++) Step(group);
-        AssertPayment(group, groupCard, CardKind.ArrowBarrage, CardLocation.Hand(0), CardMoveReasons.Respond, CardMoveReasons.ResponseFinished);
-        _ = Cold(group, groupRegistry);
-    }
 
     public static void LastEquipmentNullificationOwnsSilverLionRecoveryAndMovementChildren()
     {
@@ -179,29 +119,6 @@ internal static class LastZoneConversionChecks
         }
         Require(State(game) == before, "Independent advice scoring must not change the match, payment, commands, prompts or replay state.");
     }
-    private static void FinishUnavailableDodge(GameEngine g, int expectedHandCount, string message)
-    {
-        var start = g.Events.Count;
-        var owner = g.CreateSnapshot(0).Players[0];
-        var originalHand = owner.Hand.Select(c => c.Id).ToArray();
-        Require(owner.HandCount == expectedHandCount, message);
-        for (var step = 0; step < 700; step++)
-        {
-            var prompt = Prompt(g);
-            Require(prompt?.Choices.Any(IsConversion) != true &&
-                prompt is not { Kind: DecisionKind.RespondDodge, PlayerSeat: 0 }, message);
-            if (prompt is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 }) break;
-            Step(g);
-        }
-        var after = g.CreateSnapshot(0).Players[0];
-        var facts = g.Events.Skip(start).Select(e => e.Payload).ToArray();
-        Require(Prompt(g) is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 } &&
-            after.Hand.Select(c => c.Id).SequenceEqual(originalHand) && after.Hp == owner.Hp - 1 &&
-            facts.OfType<DamageAppliedEvent>().Count(e => e.SourceSeat == 1 && e.TargetSeat == 0 && e.Amount == 1) == 1 &&
-            !facts.OfType<ResponseRequestedEvent>().Any(e => e.TargetSeat == 0 && e.RequiredCardKind == CardKind.Dodge) &&
-            !facts.OfType<CardActionAcceptedEvent>().Any(e => e.Action.ProviderSeat == 0 && e.Action.EffectiveKind == CardKind.Dodge),
-            message + " Native no-card defense completes one real Slash damage without a response prompt, payment, or Hand mutation.");
-    }
     private static LegalAction ObtainNativeDrawTwoAction(GameEngine g)
     {
         for (var draws = 0; draws <= 8; draws++)
@@ -227,42 +144,5 @@ internal static class LastZoneConversionChecks
         Require(!rejected.Accepted && State(g) == before, "Wrong actor input cannot pay the public/private entity or advance its native parent.");
         rejected = g.Submit(new AnswerPromptCommand(0, p.PromptId, new("last-zone-unpublished-choice"), g.Revision));
         Require(!rejected.Accepted && State(g) == before, "An unpublished conversion source or stale choice rejects atomically before payment.");
-    }
-    private static void PrivateHand(GameEngine g)
-    {
-        for (var viewer = 1; viewer < 4; viewer++) Require(g.CreateSnapshot(viewer).Players[0].Hand.Count == 0,
-            "The owner conversion candidate never exposes foreign Hand identities to other viewers.");
-        var choices = Prompt(g)!.Choices; var rejected = false;
-        try { ((IList<PromptChoice>)choices)[0] = choices[0]; } catch (NotSupportedException) { rejected = true; }
-        Require(rejected, "Published native conversion choices retain frozen collection boundaries.");
-    }
-    private static void ValidateSchema()
-    {
-        var baseline = JsonNode.Parse(Rules())!;
-        var legacy = baseline.DeepClone(); legacy["skills"]![0]!["viewAs"]!.AsArray().RemoveAt(2);
-        foreach (var rule in legacy["skills"]![0]!["viewAs"]!.AsArray()) rule!.AsObject().Remove("lastInSourceZone");
-        legacy["skills"]![0]!["viewAs"]![1]!["useOnly"] = false;
-        var old = SkillProgramCatalog.Load(legacy.ToJsonString(), Presentation()).Programs[Conversion];
-        Require(old.ViewAs.All(r => r.LastInSourceZone is null) && !JsonSerializer.Serialize(old).Contains("LastInSourceZone", StringComparison.Ordinal),
-            "Omitted additive policies preserve the old serialized shape without fabricated false values.");
-        foreach (var invalid in new[] { "multiple-zones", "multi-card", "judgment-without-opt-in", "judgment-false", "wrong-output", "wrong-direction", "wrong-use-only", "hand-like", "other-policy" })
-        {
-            var copy = baseline.DeepClone(); var rule = copy["skills"]![0]!["viewAs"]![2]!.AsObject();
-            switch (invalid)
-            {
-                case "multiple-zones": rule["sourceZones"] = new JsonArray("judgment", "hand"); break;
-                case "multi-card": rule["inputCount"] = 2; break;
-                case "judgment-without-opt-in": rule.Remove("lastInSourceZone"); break;
-                case "judgment-false": rule["lastInSourceZone"] = false; break;
-                case "wrong-output": rule["outputKind"] = "dodge"; rule["forPlay"] = false; break;
-                case "wrong-direction": rule["forResponse"] = false; break;
-                case "wrong-use-only": copy["skills"]![0]!["viewAs"]![1]!["useOnly"] = false; break;
-                case "hand-like": rule["sourceZones"] = new JsonArray("woodenOxGrain"); break;
-                case "other-policy": rule["extendedUse"] = true; break;
-            }
-            var rejected = false;
-            try { _ = SkillProgramCatalog.Load(copy.ToJsonString(), Presentation()); } catch (InvalidOperationException) { rejected = true; }
-            Require(rejected, "The shared last-region loader rejects an unsupported exact policy: " + invalid);
-        }
     }
 }

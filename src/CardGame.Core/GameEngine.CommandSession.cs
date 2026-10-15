@@ -1,4 +1,4 @@
-﻿namespace CardGame.Core;
+namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
@@ -57,6 +57,7 @@ public sealed partial class GameEngine
             SynchronizePrivateGeneralLibraries();
             SynchronizeLordSkillProjections();
             SynchronizeHpConditionalSkillGrants();
+            SynchronizeEquipmentSuitSkillGrants();
             AssertCoreInvariants();
 
             // Nothing is visible to callbacks yet. Project with the new decision

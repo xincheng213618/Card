@@ -149,6 +149,7 @@ public sealed partial class GameEngine
         f.LastDamageSourceReciprocity!.ParticipantSeat, LastDamageSourceDiscardChoices(f),
         "选择并弃置一张自己的手牌或装备牌。", f.LastDamageSourceReciprocity.ParticipantSeat);
 
+    [ProgramAnswer("last-damage-source-discard")]
     private void ResolveLastDamageSourceReciprocityChoice(PromptChoice choice)
     {
         var f = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("Last-source discard lost its owning program.");
@@ -220,6 +221,7 @@ public sealed partial class GameEngine
         f.PendingMovementContinuation == pending && pending.SubjectSeat == receipt.ParticipantSeat && ValidLastDamageSourceReceipt(f);
     private bool CanContinueLastDamageSourceReciprocity(ProgramSkillFrame f) =>
         f.LastDamageSourceReciprocity is { MovementIssued: true } && ValidLastDamageSourceReceipt(f);
+    [ProgramAiChoice(SkillProgramEffectOp.LastDamageSourceReciprocity)]
     private PromptChoice SelectAiLastDamageSourceReciprocity(PendingDecision decision, ProgramSkillFrame f) => decision.Choices
         .OrderBy(c => GetKeepValue(GetAdvancedCard(c.Cards.Single()), _players[f.LastDamageSourceReciprocity!.ParticipantSeat]))
         .ThenBy(c => c.Cards.Single()).First();

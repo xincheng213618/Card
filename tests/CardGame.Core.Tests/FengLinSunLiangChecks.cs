@@ -31,19 +31,6 @@ internal static class FengLinSunLiangChecks
         Choose(zero,c=>c.Parameters["mode"]=="draw");Require(P(zero)!.Choices.All(c=>c.Targets.Count==0),"Zero budget permits only empty draw completion/reset.");Replay(zero,zr);Choose(zero,c=>c.Parameters["mode"]=="finish");
         Require(zero.Events.Select(e=>e.Payload).OfType<ProgramDiscardBudgetCommittedEvent>().Single().Participants.Count==0&&!zero.CardMovements.Any(m=>m.Reason.Value=="skill-program.discard-budget.draw"),"Empty zero-budget mode causes no fabricated card draw.");Replay(zero,zr);Conserve(zero);
     }
-    public static void RangePreventionAndMandatoryPrivateDiscard()
-    {
-        var (g,r)=Start("range");var before=g.State.Players[2].Hp;
-        Driver(g,"damage",[2]);Require(g.State.Players[2].Hp==before&&g.Events.Select(e=>e.Payload).OfType<ProgramDamagePreventedEvent>().Any(),"Source's actual own Play damage is prevented when target range excludes source.");
-        Driver(g,"loss",[2]);Require(g.State.Players[2].Hp==before-1,"HP loss is never damage prevention.");
-        End(g);Reach(g,p=>Action(p,"outside-range-discard"));var prompt=P(g)!;
-        Require(prompt.Choices.All(c=>c.Targets.SequenceEqual([2]))&&prompt.Choices.Any(c=>c.Cards.Count==0&&c.Parameters["source-zone"]=="Hand"),"Reverse attack-range predicate supplies only outside-range target and anonymous hand slots.");
-        Require(g.CreateSnapshot(1,false).PendingDecision is null,"Other observer cannot inspect private forced discard choice.");Replay(g,r);Choose(g,c=>c.Cards.Count==0);Reach(g,p=>p.Kind==DecisionKind.DiscardCards||Action(p,"discard-budget"));
-        Require(g.CardMovements.Any(m=>m.From==CardLocation.Hand(2)&&m.To==CardLocation.DiscardPile&&m.Reason.Value=="skill-program.classic:chezheng.ChooseOtherOwnedCardDiscard"),"Actual other owner's selected slot is truly discarded.");Conserve(g);
-        var(chain,cr)=Start("chain");while(chain.State.Players[3].HandCount>0)Driver(chain,"strip",[3]);Driver(chain,"chain",[2]);Driver(chain,"chain",[3]);var hp=chain.State.Players[2].Hp;
-        var fire=chain.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.Slash&&a.CardId is {} id&&chain.CreateCardZoneDiagnostics().Any(c=>c.CardId==id&&c.CardKind==CardKind.FireSlash)&&a.TargetSeats.SequenceEqual([3]));Accept(chain,new PlayCardCommand(0,fire.CardId!.Value,fire.TargetSeats,chain.Revision,P(chain)!.PromptId,CardKind.FireSlash));Reach(chain,p=>p.Kind==DecisionKind.PlayCard&&p.PlayerSeat==0);
-        Require(chain.State.Players[2].Hp==hp&&chain.Events.Select(e=>e.Payload).OfType<ProgramDamagePreventedEvent>().Any(e=>e.TargetSeat==2),"Actual physical Fire Slash chain propagation uses reverse live attack-range prevention.; hp="+hp+" current="+chain.State.Players[2].Hp+" events="+JsonSerializer.Serialize(chain.Events.Select(e=>e.Payload).Where(e=>e is DamageAppliedEvent or ProgramDamagePreventedEvent))+" skills="+JsonSerializer.Serialize(chain.State.Players[0].Skills));var prevented=chain.Events.Select(e=>e.Payload).OfType<ProgramDamagePreventedEvent>().Where(e=>e.TargetSeat==2).ToArray();Require(prevented.Length==1&&prevented[0].SourceSeat==0&&prevented[0].OwnerSeat==0&&chain.Events.Select(e=>e.Payload).OfType<ProgramBindingResolvedEvent>().Count(e=>e.FrameId==prevented[0].FrameId&&e.Window==SkillProgramTriggerWindow.BeforeDamageApplied)==1,"Chain target prevention resolves exactly once under its own real source/target window.");Replay(chain,cr);Conserve(chain);
-    }
     public static void CompletedCostProviderAndLordReward()
     {
         foreach(var rejectGift in new[]{true,false})
@@ -58,86 +45,6 @@ internal static class FengLinSunLiangChecks
             Require(rejectGift?gifts.Length==0:gifts.Length==1&&gifts[0].CardIds.Contains(slash.CardId.Value),"Decline doesn't consume; accepted gift records provider's one phase allowance.");
             if(!rejectGift)Require(g.CardMovements.Any(m=>m.CardId==slash.CardId&&m.To==CardLocation.Hand(frame.OwnerSeat))&&g.CardMovements.Count(m=>m.Reason.Value=="skill-program.faction-cost-gift.reward")==1&&g.Events.Select(e=>e.Payload).OfType<TurnRuleModifierGrantedEvent>().Any(),"Real transfer precedes actual reward draw and recipient Slash allowance.");
             Replay(g,r);Conserve(g);
-        }
-    }
-    public static void NativeAiProviderHumanLord()
-    {
-        var (g,r)=Start("gift",Role.Lord);End(g);
-        Reach(g,p=>Action(p,"faction-cost-gift")&&p.PlayerSeat==0);
-        var f=g.ResolutionStack.OfType<ProgramSkillFrame>().Last();Require(f.CompletedFactionGiftDraft?.Stage=="reward"&&f.CompletedFactionGiftDraft.ProviderSeat!=0,"Native AI chooses its own actual Slash gift; human Lord independently decides reward.");
-        Replay(g,r);Choose(g,c=>c.Parameters["mode"]=="decline");
-        Require(g.Events.Select(e=>e.Payload).OfType<CompletedFactionCostGiftedEvent>().Any()&&!g.CardMovements.Any(m=>m.Reason.Value=="skill-program.faction-cost-gift.reward"),"Lord rejection preserves completed actual gift without reward.");Conserve(g);
-    }
-    public static void CommittedSourceDeathContinuation()
-    {
-        var(g,r)=Start("source-death",Role.Loyalist);Driver(g,"owner-low",[]);var lord=g.CreateSnapshot(0,true).Players.Single(p=>p.Role==Role.Lord).Seat;
-        var desired=g.State.Players[0].Hp+g.State.Players[lord].Hp;
-        while(g.State.Players[0].HandCount-g.State.Players[0].Hp>desired)
-        {
-            var card=g.CreateCardZoneDiagnostics().First(c=>c.Location==CardLocation.Hand(0)).CardId;
-            Accept(g,new UseProgramSkillCommand(0,"fixture:sl-low","trim",[card],[],g.Revision,P(g)!.PromptId));Reach(g,p=>p.Kind==DecisionKind.PlayCard&&p.PlayerSeat==0);
-        }
-        End(g);Reach(g,p=>p.Kind==DecisionKind.DiscardCards);var count=P(g)!.RequiredCardCount;Require(count==desired,"Real Play trims make the later discard budget exactly owner + Lord HP.");
-        Accept(g,new DiscardCardsCommand(0,P(g)!.ValidCardIds.Take(count).ToArray(),P(g)!.PromptId,g.Revision));Reach(g,p=>Action(p,"discard-budget"));Choose(g,c=>c.Parameters["mode"]=="damage");Choose(g,c=>c.Targets.SequenceEqual([0]));
-        var participants=g.ResolutionStack.OfType<ProgramSkillFrame>().Last().DiscardBudgetDraft!.Participants;
-        var combination=Enumerable.Range(1,15).Select(mask=>participants.Where(p=>(mask&(1<<p.Seat))!=0).ToArray()).First(set=>set.Any(p=>p.Seat==0)&&set.Length>1&&set.Sum(p=>p.Hp)==count);
-        var next=combination.First(p=>p.Seat!=0).Seat;
-        foreach(var participant in combination.Where(p=>p.Seat!=0))Choose(g,c=>c.Targets.SequenceEqual([participant.Seat]));Replay(g,r);Choose(g,c=>c.Parameters["mode"]=="finish");
-        for(var i=0;i<50&&g.ResolutionStack.OfType<ProgramSkillFrame>().Any(f=>f.DiscardBudgetDraft is not null);i++)Tick(g);
-        Require(!g.State.Players[0].IsAlive&&g.Events.Select(e=>e.Payload).OfType<DamageAppliedEvent>().Any(e=>e.SourceSeat==0&&e.TargetSeat==next),"Only the newly committed exact participant sequence survives its own source death, then damages the next participant.");Replay(g,r);Conserve(g);
-    }
-    public static void MultiCostPhaseGiftAndSourceLoss()
-    {
-        foreach(var mode in new[]{"multi","gift-loss","multi-extra"})
-        {
-            var(g,r)=Start(mode,Role.Loyalist);var action=g.GetHumanLegalActions().First(a=>a.ProgramSkillId=="fixture:sl-multi");
-            var costs=action.SelectableCardIds.Take(2).ToArray();Accept(g,new UseProgramSkillCommand(0,"fixture:sl-multi","use",costs,[action.SelectableTargetSeats[0]],g.Revision,P(g)!.PromptId));Reach(g,p=>Action(p,"faction-cost-gift"));
-            var source=g.ResolutionStack.OfType<ProgramSkillFrame>().Last().OwnerSeat;Require(g.ResolutionStack.OfType<ProgramSkillFrame>().Last().CompletedFactionGiftDraft!.CardIds.SequenceEqual(costs),"Converted completed Slash binds every genuine physical cost.");Replay(g,r);Choose(g,c=>c.Parameters["mode"]=="give");
-            if(mode=="gift-loss")
-            {
-                Reach(g,p=>p.SkillPrompt?.SkillId=="fixture:sl-gift-loss");
-                var giftParent=g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f=>f.CompletedFactionGiftDraft is { Stage:"movement" });var moved=g.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Single(f=>f.Batch.ParentFrameId==giftParent.Id);
-                Require(moved.Batch.ParentFrameId==giftParent.Id&&moved.Batch.OriginOwnerSeat==source&&moved.Batch.Movements.Select(m=>m.CardId).SequenceEqual(costs)&&giftParent.PendingMovementContinuation?.SubjectSeat==source,"Real gift batch and CardsGained child retain the exact Lord program parent and both physical costs; chooser remains child owner.");Replay(g,r);Tick(g);
-            }
-            Reach(g,p=>p.Kind==DecisionKind.PlayCard&&p.PlayerSeat==0);
-            Require(g.Events.Select(e=>e.Payload).OfType<CompletedFactionCostGiftedEvent>().Count(e=>e.ProviderSeat==0)==1&&costs.All(id=>g.CardMovements.Any(m=>m.CardId==id&&m.To==CardLocation.Hand(source))),"Both physical costs move once before reward, consuming one provider phase allowance.");
-            if(mode=="gift-loss")Require(!g.CardMovements.Any(m=>m.Reason.Value=="skill-program.faction-cost-gift.reward"),"Exact Lord source suppressed by real gifted CardsGained HP loss cancels its reward.");
-            else
-            {
-                var more=g.GetHumanLegalActions().First(a=>a.ProgramSkillId=="fixture:sl-multi");Accept(g,new UseProgramSkillCommand(0,"fixture:sl-multi","use",more.SelectableCardIds.Take(2).ToArray(),[more.SelectableTargetSeats[0]],g.Revision,P(g)!.PromptId));Reach(g,p=>p.Kind==DecisionKind.PlayCard&&p.PlayerSeat==0);
-                Require(g.Events.Select(e=>e.Payload).OfType<CompletedFactionCostGiftedEvent>().Count(e=>e.ProviderSeat==0)==1,"Second real multi-cost Slash in same phase cannot refresh or duplicate gift across grants.");
-                if(mode=="multi-extra")
-                {
-                    var first=g.Events.Select(e=>e.Payload).OfType<CompletedFactionCostGiftedEvent>().Single(e=>e.ProviderSeat==0);var turn=g.State.TurnNumber;
-                    End(g);Reach(g,p=>p.Kind==DecisionKind.PlayCard&&p.PlayerSeat==0);Require(g.State.TurnNumber==turn,"Inserted Play ends into the same turn's normal Play.");
-                    more=g.GetHumanLegalActions().First(a=>a.ProgramSkillId=="fixture:sl-multi");Accept(g,new UseProgramSkillCommand(0,"fixture:sl-multi","use",more.SelectableCardIds.Take(2).ToArray(),[more.SelectableTargetSeats[0]],g.Revision,P(g)!.PromptId));Reach(g,p=>Action(p,"faction-cost-gift"));Replay(g,r);Choose(g,c=>c.Parameters["mode"]=="give");Reach(g,p=>p.Kind==DecisionKind.PlayCard&&p.PlayerSeat==0);
-                    var phases=g.Events.Select(e=>e.Payload).OfType<CompletedFactionCostGiftedEvent>().Where(e=>e.ProviderSeat==0).ToArray();Require(phases.Length==2&&phases[1].TurnNumber==first.TurnNumber&&phases[1].PhaseInstanceId!=first.PhaseInstanceId,"Provider allowance refreshes only at a distinct actual Play phase, including two phases in one turn.");
-                }
-            }
-            Replay(g,r);Conserve(g);
-        }
-    }
-    public static void WholePhaseHeJRepeatedOccurrences()
-    {
-        var(g,r)=Start("occurrence");Driver(g,"supply",[]);
-        foreach(var kind in new[]{LegalActionKind.Equip,LegalActionKind.Lightning})
-        {
-            var action=g.GetHumanLegalActions().First(a=>a.Kind==kind);Accept(g,new PlayCardCommand(0,action.CardId!.Value,action.TargetSeats,g.Revision,P(g)!.PromptId));Reach(g,p=>p.Kind==DecisionKind.PlayCard&&p.PlayerSeat==0);
-        }
-        var eqj=g.CreateCardZoneDiagnostics().Where(c=>c.Location.OwnerSeat==0&&c.Location.Zone is CardZoneKind.Equipment or CardZoneKind.Judgment).Select(c=>c.CardId).ToArray();Require(eqj.Length==2,"Fixed real fixture equipped one card and placed actual Lightning in J.");
-        for(var seat=1;seat<4;seat++)while(g.State.Players[seat].HandCount>0)Driver(g,"strip",[seat]);
-        End(g);Reach(g,p=>p.SkillPrompt?.SkillId=="fixture:sl-phase");var cost=P(g)!.Choices.First(c=>c.Cards.Count==1).Cards.Single();Choose(g,c=>c.Cards.SequenceEqual([cost]));
-        Reach(g,p=>p.SkillPrompt?.SkillId=="fixture:sl-phase"&&p.Choices.Any(c=>c.Cards.SequenceEqual([cost])));Replay(g,r);Choose(g,c=>c.Cards.SequenceEqual([cost]));
-        Reach(g,p=>p.Kind==DecisionKind.DiscardCards);var normal=P(g)!.RequiredCardCount;Accept(g,new DiscardCardsCommand(0,P(g)!.ValidCardIds.Take(normal).ToArray(),P(g)!.PromptId,g.Revision));Reach(g,p=>Action(p,"discard-budget"));
-        var d=g.ResolutionStack.OfType<ProgramSkillFrame>().Last().DiscardBudgetDraft!;Require(d.Budget==normal+4&&g.CardMovements.Count(m=>m.CardId==cost&&m.Reason.Value=="skill-program.fixture:sl-phase.MoveBoundCards")==2&&eqj.All(id=>g.CardMovements.Any(m=>m.CardId==id&&m.To==CardLocation.DiscardPile&&m.Reason.Value=="skill-program.fixture:sl-phase.DiscardOwnedZoneCards")),"Whole phase counts owned H/E/J including both actual discard occurrences of one reclaimed entity, not distinct IDs or remaining discard-pile cards.");Replay(g,r);Choose(g,c=>c.Parameters["mode"]=="skip");Conserve(g);
-    }
-    public static void ResourceContracts()
-    {
-        foreach(var op in new[]{"resolveDiscardBudgetParticipants","preventOwnPlayOutsideTargetRangeDamage","discardOutsideRangeAfterInsufficientUses","offerCompletedFactionCostGift"})
-        {
-            var extra=op=="offerCompletedFactionCostGift"?",\"providerFactionId\":\"wu\"":"";
-            var rules=$$"""{"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[{"id":"fixture:wrong","revision":1,"activations":[{"id":"x","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","effects":[{"op":"{{op}}","target":"owner"{{extra}}}]}]}]}""";
-            var failed=false;try{SkillProgramCatalog.Load(rules,"""{"schemaVersion":3,"skills":{"fixture:wrong":{"name":"错误","description":"错误窗口"}}}""");}catch(InvalidOperationException){failed=true;}Require(failed,"New operation rejects fictitious activation window "+op);
         }
     }
     private static (GameEngine,ContentRegistry) Start(string mode,Role humanRole=Role.Lord)

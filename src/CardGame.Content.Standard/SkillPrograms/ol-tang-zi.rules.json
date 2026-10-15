@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:xingzhao",
+      "revision": 1,
+      "hpSkillGrants": [
+        {
+          "id": "wounded-xunxun",
+          "skillId": "boundary:xunxun",
+          "minimumLivingWounded": 1
+        }
+      ],
+      "triggers": [
+        {
+          "id": "equipment-wounded-draw",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "actor",
+          "cardCategories": [
+            "equipment"
+          ],
+          "optional": false,
+          "priority": 0,
+          "condition": {
+            "kind": "compare",
+            "left": {
+              "kind": "livingWoundedCount"
+            },
+            "operator": "greaterThanOrEqual",
+            "right": {
+              "kind": "integerConstant",
+              "value": 2
+            }
+          },
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 1
+            }
+          ]
+        },
+        {
+          "id": "wounded-skip-discard",
+          "window": "discardPhaseStarting",
+          "subject": "owner",
+          "turnOwnerScope": "own",
+          "optional": false,
+          "priority": 0,
+          "condition": {
+            "kind": "compare",
+            "left": {
+              "kind": "livingWoundedCount"
+            },
+            "operator": "greaterThanOrEqual",
+            "right": {
+              "kind": "integerConstant",
+              "value": 3
+            }
+          },
+          "effects": [
+            {
+              "op": "skipTurnPhases",
+              "target": "owner",
+              "phases": [
+                "discard"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

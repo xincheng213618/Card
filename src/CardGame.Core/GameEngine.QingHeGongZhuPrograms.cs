@@ -95,6 +95,7 @@ public sealed partial class GameEngine
         return SkillProgramStepOutcome.AwaitChoice;
     }
 
+    [ProgramAnswer("changji-ending-choice")]
     private void ResolveChangjiEndingChoice(PromptChoice selected)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ??
@@ -177,6 +178,7 @@ public sealed partial class GameEngine
         _status = _players[state.EndingSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
 
+    [ProgramAnswer("changji-discard")]
     private void ResolveChangjiDiscardChoice(PromptChoice selected)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ??
@@ -281,6 +283,7 @@ public sealed partial class GameEngine
         return SkillProgramStepOutcome.AwaitChoice;
     }
 
+    [ProgramAnswer("zengou-cost")]
     private void ResolveZengouCostChoice(PromptChoice selected)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ??
@@ -384,22 +387,7 @@ public sealed partial class GameEngine
             .Where(card => CardCatalog.Get(card.Kind).CategoryName != "基本牌")
             .ToArray();
 
-    private PromptChoice SelectAiChangjiEndingChoice(PendingDecision decision)
-    {
-        if (decision.Choices[0].Parameters.GetValueOrDefault("program-action") == "changji-discard")
-            return decision.Choices.OrderBy(choice => choice.Id.Value, StringComparer.Ordinal).First();
-        var draw = decision.Choices.FirstOrDefault(choice => choice.Parameters.GetValueOrDefault("branch") == "draw");
-        var discard = decision.Choices.FirstOrDefault(choice => choice.Parameters.GetValueOrDefault("branch") == "discard");
-        var skip = decision.Choices.First(choice => choice.Parameters.GetValueOrDefault("branch") == "skip");
-        return decision.TargetSeat == decision.PlayerSeat ? draw ?? skip : discard ?? skip;
-    }
 
-    private PromptChoice SelectAiZengouCostChoice(PendingDecision decision)
-    {
-        var discard = decision.Choices.FirstOrDefault(choice =>
-            choice.Parameters.GetValueOrDefault("cost") == "discard");
-        return discard ?? decision.Choices.First();
-    }
 
     private sealed partial class ProgramSkillHost : IQingHeGongZhuProgramHost
     {

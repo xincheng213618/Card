@@ -203,6 +203,7 @@ public sealed partial class GameEngine
         { PromptId = CreatePromptId(), Choices = choices, SkillPrompt = new(f.SkillId, skill.Name, skill.Name, skill.Description) };
         _status = _players[f.OwnerSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
+    [ProgramAnswer("friend-configuration")]
     private void ResolveFriendConfiguration(PromptChoice selected)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame { FriendEventFlow.Stage: FriendEventFlowStage.Configuration } f ||

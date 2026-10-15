@@ -69,6 +69,7 @@ public sealed partial class GameEngine
     }
     private Dictionary<string, string> HalfHandSupportParameters(ProgramSkillFrame f, string option) => new()
     { ["program-action"] = "half-hand-support", ["frame-id"] = f.Id.ToString(CultureInfo.InvariantCulture), ["support-option"] = option };
+    [ProgramAnswer("half-hand-support")]
     private void ResolveHalfHandSupportChoice(PromptChoice choice)
     {
         var f = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("Missing support owning frame.");
@@ -102,6 +103,7 @@ public sealed partial class GameEngine
         });
         if (!TryBeginCardsMovedProgramWindow(f.Id)) ReturnRuntimeProgramMovement(f.Id);
     }
+    [ProgramAiChoice(SkillProgramEffectOp.OfferHalfHandRecipientSupport)]
     private PromptChoice SelectAiHalfHandSupport(PendingDecision decision, ProgramSkillFrame frame)
     {
         var donor = frame.HalfHandSupport!.RecipientSeat;

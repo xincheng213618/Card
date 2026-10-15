@@ -38,6 +38,7 @@ public sealed partial class GameEngine
         return SkillProgramStepOutcome.AwaitChoice;
     }
 
+    [ProgramAnswer("choose-option")]
     private void ResolveProgramOptionChoice(PromptChoice selected)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ??
@@ -135,6 +136,7 @@ public sealed partial class GameEngine
         _ => throw new InvalidOperationException("Unsupported program option chooser.")
     };
 
+    [ProgramAiChoice(SkillProgramEffectOp.ChooseOption)]
     private PromptChoice SelectAiProgramOption(PendingDecision decision, ProgramSkillFrame frame)
     {
         var program = _contentRegistry!.GetSkill(frame.SkillId).Program!;

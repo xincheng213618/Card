@@ -63,16 +63,6 @@ internal static class PanZhangMaZhongChecks
         new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage(),
         new Scenario(targetsHaveDuodao, armorSynthetic, noWeapons, tianxiang));
 
-    private static void AnswerAction(GameEngine game, string action) => Answer(game,
-        game.PendingDecision!.Choices.Single(choice => choice.Parameters.GetValueOrDefault("program-action") == action));
-
-    private static void Answer(GameEngine game, PromptChoice choice)
-    {
-        var prompt = game.PendingDecision!;
-        var result = game.Submit(new AnswerPromptCommand(prompt.PlayerSeat, prompt.PromptId, choice.Id, game.Revision));
-        Require(result.Accepted, result.Error?.Message ?? "Pan Zhang skill answer failed.");
-    }
-
     private static GameEngine Start(ContentRegistry registry, int seed, string generalId = General)
     {
         var game = GameEngine.CreateStandard(new GameOptions
@@ -128,12 +118,6 @@ internal static class PanZhangMaZhongChecks
     private static string[] Events(GameEngine game) => game.Events.Select(item =>
         $"{item.Sequence}|{item.Payload.GetType().Name}|{JsonSerializer.Serialize(item.Payload, item.Payload.GetType())}")
         .ToArray();
-    private static void Reject(string rules, string presentation)
-    {
-        try { _ = SkillProgramCatalog.Load(rules, presentation); }
-        catch (InvalidOperationException) { return; }
-        throw new InvalidOperationException("Expected invalid schema-56 composition to be rejected.");
-    }
     private static void Require(bool value, string message)
     {
         if (!value) throw new InvalidOperationException(message);

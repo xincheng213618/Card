@@ -134,6 +134,7 @@ public sealed partial class GameEngine
             $"手牌数超过体力上限，请弃置{frame.DrawAdviceReceipt!.RequiredDiscardCount}张手牌或装备牌（选齐后同时弃置）。",
             DrawAdviceDiscardSeat(frame));
 
+    [ProgramAnswer("draw-advice-discard")]
     private void ResolveDrawAdviceChoice(PromptChoice selected)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ??

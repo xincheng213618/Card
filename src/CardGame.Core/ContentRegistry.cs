@@ -541,6 +541,12 @@ public sealed class ContentRegistry
             RicePileContract.ValidatePrograms(_skills.Values.Where(s => s.Program is not null).ToDictionary(s => s.Id, s => s.Program!, StringComparer.Ordinal));
             foreach (var skill in _skills.Values.Where(item => item.Program is not null))
             {
+                foreach (var restore in skill.Program!.Triggers.SelectMany(t => t.Effects)
+                    .Where(e => e.Op == SkillProgramEffectOp.AddRaoshePindianRankAndRestoreGushe))
+                    if (!_skills.TryGetValue(restore.SourceBind!, out var contest) || contest.Program is null ||
+                        contest.Program.Activations.Where(a => a.Effects is [{ Op: SkillProgramEffectOp.StartSimultaneousPindian }]).ToArray() is not [var activation] ||
+                        activation.UsesPerPhase != 1)
+                        throw new InvalidOperationException("A Pindian rank restore requires its exact registered simultaneous contest phase activation.");
                 foreach (var schedule in skill.Program!.Triggers.SelectMany(t => t.Effects)
                     .Where(e => e.Op == SkillProgramEffectOp.ScheduleEarnedActualEndingBenefit))
                 {
@@ -610,10 +616,19 @@ public sealed class ContentRegistry
                             target.Op == SkillProgramEffectOp.ExchangeRespondedCardEntities && target.StateId == effect.StateId) != true)
                         throw new InvalidOperationException($"Skill '{skill.Id}' requires the upgraded skill's matching response-exchange state.");
                 }
+                foreach (var suitGrant in skill.Program!.EquipmentSuitSkillGrants)
+                {
+                    if (!_skills.TryGetValue(suitGrant.SkillId, out var leaf) || leaf.SuppressionRule is not null ||
+                        leaf.Program is not { } target || target.EquipmentSuitSkillGrants.Count != 0 ||
+                        target.HpSkillGrants.Count != 0 || target.LordSkillProjection ||
+                        target.CardPolicies.Any(policy => policy.Kind == SkillProgramCardPolicyKind.RewriteSuit) ||
+                        target.Triggers.Any(t => t.Effects.Any(e => e.Op == SkillProgramEffectOp.InitializePrivateGeneralLibrary)))
+                        throw new InvalidOperationException($"Skill '{skill.Id}' must grant a known leaf without another projection or suppression capability.");
+                }
                 foreach (var hpGrant in skill.Program!.HpSkillGrants)
                 {
                     if (!_skills.TryGetValue(hpGrant.SkillId, out var derived) ||
-                        derived.Program?.HpSkillGrants.Count > 0 || derived.SuppressionRule is not null ||
+                        derived.Program?.HpSkillGrants.Count > 0 || derived.Program?.EquipmentSuitSkillGrants.Count > 0 || derived.SuppressionRule is not null ||
                         derived.Program?.LordSkillProjection == true ||
                         derived.Program?.Triggers.Any(trigger => trigger.Effects.Any(effect =>
                             effect.Op == SkillProgramEffectOp.InitializePrivateGeneralLibrary)) == true)
@@ -626,13 +641,15 @@ public sealed class ContentRegistry
                         derived.Program is not { CardPolicies: [{ Kind: SkillProgramCardPolicyKind.StopUsingAfterTrickOrHpCount }] } leaf ||
                         leaf.Activations.Count != 0 || leaf.Triggers.Count != 0 || leaf.ViewAs.Count != 0 ||
                         leaf.Modifiers.Count != 0 || leaf.Contributions.Count != 0 || leaf.CardIdentities.Count != 0 ||
-                        leaf.BooleanStates.Count != 0 || leaf.DamageModifiers.Count != 0 || leaf.HpSkillGrants.Count != 0 ||
+                        leaf.BooleanStates.Count != 0 || leaf.DamageModifiers.Count != 0 || leaf.HpSkillGrants.Count != 0 || leaf.EquipmentSuitSkillGrants.Count != 0 ||
                         leaf.LordSkillProjection || leaf.CannotChallengeDeclarations)
                         throw new InvalidOperationException($"Skill '{skill.Id}' requires a known leaf with exactly its phase use restriction policy.");
                 }
+                Bao2025Contract.ValidateReferences(skill, _skills);
+                CaoYingContract.ValidateReferences(skill, _skills);
                 foreach (var grantedSkillId in skill.Program!.Triggers
                              .SelectMany(trigger => trigger.Effects)
-                             .Where(effect => effect.Op is SkillProgramEffectOp.DeathRecipientChooseSkill or SkillProgramEffectOp.GrantOtherPlayUseRestriction or SkillProgramEffectOp.AwakenAfterGameActivations or SkillProgramEffectOp.DiscardHandToNamedTurnCount or SkillProgramEffectOp.GrantSkills or SkillProgramEffectOp.GrantPlayPhaseSkills or SkillProgramEffectOp.GrantRandomSkillAndSuitShield or SkillProgramEffectOp.ExchangePublicPileHand or SkillProgramEffectOp.ObtainPublicPileCard or SkillProgramEffectOp.ExchangePublicPile or SkillProgramEffectOp.DistributePublicPileIfAllSuits or SkillProgramEffectOp.DrawPublicSuitThenEscalatingDiscard)
+                             .Where(effect => effect.Op is SkillProgramEffectOp.DyingRecipientChooseReplaceOrGrantThenRecover or SkillProgramEffectOp.DrawAfterOtherDeathThenChooseMissingSkill or SkillProgramEffectOp.DeathRecipientChooseSkill or SkillProgramEffectOp.GrantOtherPlayUseRestriction or SkillProgramEffectOp.AwakenAfterGameActivations or SkillProgramEffectOp.DiscardHandToNamedTurnCount or SkillProgramEffectOp.GrantSkills or SkillProgramEffectOp.GrantPlayPhaseSkills or SkillProgramEffectOp.GrantRandomSkillAndSuitShield or SkillProgramEffectOp.ExchangePublicPileHand or SkillProgramEffectOp.ObtainPublicPileCard or SkillProgramEffectOp.ExchangePublicPile or SkillProgramEffectOp.DistributePublicPileIfAllSuits or SkillProgramEffectOp.DrawPublicSuitThenEscalatingDiscard)
                              .SelectMany(effect => effect.SkillIds)
                              .Concat(skill.Program.Activations.SelectMany(activation => activation.Effects)
                                  .Where(effect => effect.Op is SkillProgramEffectOp.ObtainPublicPileCard or SkillProgramEffectOp.GrantPlayPhaseSkills)

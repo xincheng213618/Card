@@ -83,6 +83,7 @@ public sealed partial class GameEngine
             Choices = choices, SkillPrompt = new(f.SkillId, skill.Name, skill.Name, skill.Description) };
         _status = _players[f.OwnerSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
+    [ProgramAnswer("phase-start-card-control")]
     private void ResolvePhaseStartCardControlChoice(PromptChoice selected)
     {
         var f = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("No phase-starting control frame.");
@@ -174,6 +175,9 @@ public sealed partial class GameEngine
                 r.ActualTurnNumber, r.ActualTurnOwnerSeat, p.CardId, p.From, p.To, r.ArmorAcquired, p.SequenceBefore, p.SequenceAfter));
         ReplaceRuntimeTop(f = f with { PhaseStartCardControl = null, PendingMovementContinuation = null }); FinishProgramSkill(f, true);
     }
+    [ProgramAiChoice(
+        SkillProgramEffectOp.GrantOtherPlayUseRestriction,
+        SkillProgramEffectOp.ChooseStartingEquipmentControl)]
     private PromptChoice SelectAiPhaseStartCardControl(PendingDecision decision, ProgramSkillFrame f) =>
         f.PhaseStartCardControl!.Kind == PhaseStartCardControlKind.OtherPlayRestriction
             ? decision.Choices.Where(c => c.Cards.Count == 1).OrderBy(c => GetKeepValue(GetAttackCard(c.Cards[0]), _players[f.OwnerSeat])).ThenBy(c => c.Cards[0]).FirstOrDefault() ?? decision.Choices[^1]

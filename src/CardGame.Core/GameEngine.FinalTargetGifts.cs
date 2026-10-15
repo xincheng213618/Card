@@ -44,6 +44,7 @@ public sealed partial class GameEngine
         {PromptId=CreatePromptId(),IsPrivate=true,Choices=choices,SkillPrompt=new(frame.SkillId,skill.Name,skill.Name,skill.Description)};
         _status=_players[frame.OwnerSeat].IsHuman?EngineStatus.AwaitingHumanResponse:EngineStatus.Running;return SkillProgramStepOutcome.AwaitChoice;
     }
+    [ProgramAnswer("final-target-gift")]
     private void ResolveFinalTargetGiftChoice(PromptChoice selected)
     {
         var frame=_resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("Final gift lost owning frame.");

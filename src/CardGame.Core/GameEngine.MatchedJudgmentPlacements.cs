@@ -59,6 +59,7 @@ public sealed partial class GameEngine
         { PromptId = CreatePromptId(), IsPrivate = true, Choices = choices, SkillPrompt = new(f.SkillId, skill.Name, skill.Name, skill.Description) };
         _status = _players[f.OwnerSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
+    [ProgramAnswer("matched-judgment-placement")]
     private void ResolveMatchedJudgmentPlacement(PromptChoice choice)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame f || f.MatchedJudgmentPlacement is not { } r ||
@@ -124,6 +125,7 @@ public sealed partial class GameEngine
         { PublishMatchedJudgmentPlacement(f); return true; }
         ReplaceRuntimeTop(f with { MatchedJudgmentPlacement = null }); return false;
     }
+    [ProgramAiChoice(SkillProgramEffectOp.PlaceMatchedJudgmentCard)]
     private PromptChoice SelectAiMatchedJudgmentPlacement(PendingDecision decision, ProgramSkillFrame f)
     {
         if (f.MatchedJudgmentPlacement!.Stage == MatchedJudgmentPlacementStage.ChoosingSelfDiscard)

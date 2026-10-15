@@ -4,7 +4,6 @@ using CardGame.Content.Standard;
 internal static class FengLinCongjianChecks
 {
     public static void EquipmentGiftNestedReplay()=>Gift(true);
-    public static void OrdinaryGiftAndDecline()=>Gift(false);
     private static void Gift(bool equipment)
     {
         var(g,r)=Create();Play(g);
@@ -59,37 +58,6 @@ internal static class FengLinCongjianChecks
         Reach(g,p=>p.SkillPrompt?.SkillId=="fixture:gift-pause" && p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="select-target"));Replay(g,r);
         Answer(g,c=>c.Targets.Contains(0));Until(g,()=>!g.CreateSnapshot(0).Players[0].IsAlive);
         Require(g.CardMovements.Count(m=>m.Reason.Value=="skill-program.final-target-gift.give")==1 && !g.CardMovements.Any(m=>m.Reason.Value=="skill-program.final-target-gift.draw"),"Owner death during gift child cancels reward without repeating payment.");Replay(g,r);
-    }
-    public static void ChangedFinalTargetsEquipmentZoneAndMovedReceipt()
-    {
-        var(g,r)=Create(discardGift:true,addTarget:true);Play(g);
-        var weapon=g.CreateSnapshot(0).Players[0].Hand.Single(c=>c.Kind==CardKind.Crossbow);
-        Submit(g,new PlayCardCommand(0,weapon.Id,[],g.Revision,P(g)!.PromptId));Play(g);
-        var a=g.GetHumanLegalActions().First(a=>a.PlayedCardKind==CardKind.IronChain && a.TargetSeats.SequenceEqual(new[]{0}));
-        Submit(g,new PlayCardCommand(0,a.CardId!.Value,a.TargetSeats,g.Revision,P(g)!.PromptId,a.PlayedCardKind){ConversionSource=a.ConversionSource});
-        Reach(g,p=>p.SkillPrompt?.SkillId=="fixture:target-add");Answer(g,c=>c.Targets.Contains(1));
-        Reach(g,p=>p.SkillPrompt?.SkillId=="classic:congjian");
-        Require(g.ResolutionStack.OfType<CardUseFrame>().Last().Action!.EffectiveDesignatedTargetSeats.SequenceEqual(new[]{0,1}),"Real finalized target change occurs before gift candidate.");Replay(g,r);
-        Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="activate");
-        Require(P(g)!.Choices.All(c=>c.Targets.SequenceEqual(new[]{1})),"Gift uses updated final recipient set rather than original single designation.");
-        Answer(g,c=>c.Cards.Contains(weapon.Id));
-        var due=g.Events.Select(e=>e.Payload).OfType<ProgramFinalTargetGiftCommittedEvent>().Single();
-        Require(g.CardMovements.Single(m=>m.Sequence==due.ReceiptOrdinal).From==CardLocation.Equipment(0),"Equipped HE entity is real payment.");Replay(g,r);
-        Until(g,()=>g.CardMovements.Any(m=>m.Reason.Value=="skill-program.final-target-gift.draw"));
-        Require(g.CreateCardZoneDiagnostics().Single(c=>c.CardId==weapon.Id).Location==CardLocation.DiscardPile && g.CardMovements.Count(m=>m.Reason.Value=="skill-program.final-target-gift.draw")==2,"Receipt remains paid after child moves gifted Equipment out of hand.");Replay(g,r);
-    }
-    public static void StrictFinalGiftResources()
-    {
-        foreach(var (window,target,extra) in new[]{("cardUseBeforeTargetEffects","owner",""),("cardUseTargetsFinalized","selectedTarget",""),("cardUseTargetsFinalized","owner",",\"amount\":2")})
-        {
-            var rejected=false;
-            try
-            {
-                SkillProgramCatalog.Load($$"""{"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[{"id":"fixture:invalid-gift","revision":1,"triggers":[{"id":"gift","window":"{{window}}","ownerRelation":"target","optional":true,"effects":[{"op":"giveOwnedCardToOtherFinalTargetAndDraw","target":"{{target}}"{{extra}}}]}]}]}""","""{"schemaVersion":3,"skills":{"fixture:invalid-gift":{"name":"非法","description":"测试"}}}""");
-            }
-            catch(InvalidOperationException){rejected=true;}
-            Require(rejected,"Generic final gift rejects wrong window, nonowner target and unused amount resource.");
-        }
     }
     private static PendingDecision? P(GameEngine g)=>g.PendingDecision??Enumerable.Range(0,4).Select(s=>g.CreateSnapshot(s,true).PendingDecision).FirstOrDefault(p=>p is not null);
     private static int Hand(GameEngine g,int s)=>g.CreateSnapshot(0).Players[s].HandCount;

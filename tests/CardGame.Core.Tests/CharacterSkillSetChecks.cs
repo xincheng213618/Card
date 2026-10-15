@@ -44,11 +44,6 @@ internal static class CharacterSkillSetChecks
             "Grant snapshots and effective skill identities must have deterministic ordering.");
     }
 
-
-    private static GeneralDefinition Template(string name, string skillId) =>
-        new($"fixture:{name}", name, name,
-            [new GeneralSkillDefinition("Skill", "Test") { ContentId = skillId }]);
-
     private static CharacterState Character(GeneralDefinition template) => new()
     {
         Seat = 0, Name = "Fixture", IsHuman = true, Role = Role.Rebel,

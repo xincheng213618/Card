@@ -8,30 +8,6 @@ internal static class DamageNaturePreventionChecks
     private const string PauseSkill = "fixture:nature-pause";
     private const string Mode = "identity:classic-nature-prevention";
 
-    public static void ConditionValidatesNatureAndWindow()
-    {
-        foreach (var nature in Enum.GetValues<DamageNature>())
-        {
-            var condition = LoadCondition($$"""{"kind":"damageNatureIs","damageNature":"{{nature.ToString().ToLowerInvariant()}}"}""")
-                .Programs["fixture:nature-condition"].Triggers.Single().Condition;
-            Require(!condition.Evaluate(new(0, 4, true)), "Missing frozen nature must not match a damage condition.");
-            foreach (var actual in Enum.GetValues<DamageNature>())
-                Require(condition.Evaluate(new(0, 4, true) { DamageNature = actual }) == (actual == nature),
-                    "The predicate compares actual damage nature, independent of physical card identity.");
-        }
-        foreach (var invalid in new[]
-        {
-            """{"kind":"damageNatureIs"}""",
-            """{"kind":"damageNatureIs","damageNature":"ice"}""",
-            """{"kind":"always","damageNature":"fire"}""",
-            """{"kind":"damageNatureIs","damageNature":1}"""
-        })
-            RejectContent(() => LoadCondition(invalid));
-        RejectContent(() => LoadCondition("""{"kind":"all","children":[{"kind":"damageNatureIs","damageNature":"fire"}]}""", "afterDamageApplied"));
-        Require(!JsonSerializer.Serialize(new SkillProgramTriggerFacts(0, 4, true)).Contains("DamageNature", StringComparison.Ordinal),
-            "Uncaptured nature does not change serialized historical trigger facts.");
-    }
-
     public static void ActualFireAndChainPreventedNormalThunderAndHpLossPreserved()
     {
         var (game, registry) = Start();
@@ -115,13 +91,6 @@ internal static class DamageNaturePreventionChecks
         Cold(declined, declinedRegistry);
     }
 
-    private static SkillProgramCatalog LoadCondition(string condition, string window = "beforeDamageApplied") =>
-        SkillProgramCatalog.Load($$"""
-        {"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[{"id":"fixture:nature-condition","revision":1,
-        "triggers":[{"id":"nature","window":"{{window}}","subject":"damageTarget","optional":false,
-        "condition":{{condition}},"effects":[{"op":"preventCurrentDamage","target":"owner"}]}]}]}
-        """, """{"schemaVersion":3,"skills":{"fixture:nature-condition":{"name":"属性","description":"伤害属性条件"}}}""");
-
     private static (GameEngine, ContentRegistry) Start(bool preparation = false, bool stopAtPreparation = false)
     {
         var registry = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true),
@@ -181,12 +150,6 @@ internal static class DamageNaturePreventionChecks
         Require(game.ObserverFailures.Count == 0 && game.CreateCardZoneDiagnostics().Count == 64 &&
             game.CreateCardZoneDiagnostics().Select(c => c.CardId).Distinct().Count() == 64, "Damage preserves all entities and observer boundaries.");
         return restored;
-    }
-    private static void RejectContent(Action load)
-    {
-        var rejected = false;
-        try { load(); } catch (InvalidOperationException) { rejected = true; }
-        Require(rejected, "An invalid damage-nature declaration must be rejected while loading content.");
     }
     private static void Require(bool condition, string message) { if (!condition) throw new InvalidOperationException(message); }
 

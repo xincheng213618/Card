@@ -29,7 +29,7 @@ public sealed partial class GameEngine
     {
         if (HasUnstartedExtraCardEffect(frameId)) return;
         if (SkipTieredRoundZeroFinishedMovement(frameId, card)) return;
-        if (card.Id == 0 && (IsMouZhijueZeroUse(frameId) || IsProgramVirtualOrdinaryTrickUse(frameId))) return;
+        if (card.Id == 0 && (IsZeroEntityUse(frameId) || IsProgramVirtualOrdinaryTrickUse(frameId))) return;
         if (IsClaimedUseCardEntity(frameId,card.Id) || HasRemainingSequentialTrickTargets(frameId) || HasRemainingAdjustedBorrowedSwordTargets(frameId)) return;
         MoveCard(card, CardLocation.Processing, CardLocation.DiscardPile, CardMoveReasons.UseFinished);
     }

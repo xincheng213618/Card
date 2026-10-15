@@ -29,7 +29,9 @@ public sealed partial class GameEngine
     internal static bool IsDiscardMovementReason(CardMoveReason reason)
     {
         var value = reason.Value;
-        if (value is PairedColorDiscardReason or SoleProtectionCostReason) return true;
+        if (value is PairedColorDiscardReason or SoleProtectionCostReason or FanChouDiscardReason or
+            "skill-program.sanwen.discard" or "skill-program.denglou.unusable-discard" or
+            "skill-program.shanjia.discard" or "skill-program.neifa.discard" or "skill-program.huaman.discard") return true;
         if (value is "card.effect.dismantlement" or "card.effect.dismantlement-judgment" or
             "mode.identity.lord-killed-loyalist" or "skill.gongqi.cost" or
             "program.phase-name-prediction.cost") return true;
@@ -110,6 +112,7 @@ public sealed partial class GameEngine
         _status = _players[frame.OwnerSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
 
+    [ProgramAnswer("discard-top-select", "discard-top-finish")]
     private void ResolveProgramDiscardTopPlacementChoice(PromptChoice choice)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ??

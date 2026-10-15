@@ -34,7 +34,6 @@ public sealed record LuochongPendingState(string OptionId, int TargetSeat, int R
 public sealed partial class GameEngine
 {
     internal static readonly string[] LuochongOptionIds = ["recover", "loseHp", "discardTwo", "drawTwo"];
-    private static readonly string[] AichenRemovalPreference = ["recover", "loseHp", "discardTwo", "drawTwo"];
 
     internal static string LuochongOptionDisplayName(string optionId) => optionId switch
     {
@@ -171,6 +170,7 @@ public sealed partial class GameEngine
         return SkillProgramStepOutcome.AwaitChoice;
     }
 
+    [ProgramAnswer("luochong-pick", "luochong-decline")]
     private void ResolveLuochongPickChoice(PromptChoice selected)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ??
@@ -315,6 +315,7 @@ public sealed partial class GameEngine
         _status = _players[pending.TargetSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
 
+    [ProgramAnswer("luochong-discard")]
     private void ResolveLuochongDiscardChoice(PromptChoice selected)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ??
@@ -405,6 +406,7 @@ public sealed partial class GameEngine
         return SkillProgramStepOutcome.AwaitChoice;
     }
 
+    [ProgramAnswer("aichen-remove")]
     private void ResolveAichenRemoveChoice(PromptChoice selected)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ??
@@ -432,6 +434,7 @@ public sealed partial class GameEngine
 
     // 落宠 pick: price every offered pair through the shared target scoring; the
     // decline choice only survives when every pair scores negatively.
+    [ProgramAiChoice(SkillProgramEffectOp.LuochongResolve)]
     private PromptChoice SelectAiLuochongResolveChoice(PendingDecision decision)
     {
         if (decision.Choices[0].Parameters.GetValueOrDefault("program-action") == "luochong-discard")
@@ -463,14 +466,6 @@ public sealed partial class GameEngine
             .First().Choice;
     }
 
-    // 哀尘 removal: drop the lowest retention value first — recovery, then the
-    // direct hp loss, then the two-card discard; the two-card draw outlasts all.
-    private PromptChoice SelectAiAichenRemoveChoice(PendingDecision decision) =>
-        decision.Choices
-            .OrderBy(choice => Array.IndexOf(AichenRemovalPreference,
-                choice.Parameters.GetValueOrDefault("option")))
-            .ThenBy(choice => choice.Id.Value, StringComparer.Ordinal)
-            .First();
 
     private sealed partial class ProgramSkillHost : ITengFangLanProgramHost
     {

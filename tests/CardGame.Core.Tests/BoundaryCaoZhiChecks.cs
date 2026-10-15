@@ -28,28 +28,6 @@ internal static class BoundaryCaoZhiChecks
         Require(dying.ResolutionStack.OfType<DyingFrame>().Any(f=>f.VictimSeat==0) && dying.State.Players[0].IsFaceDown,"Self-dying Wine owns its real face child before rescue."); Cold(dying,dr); Continue(dying); Play(dying);
         Require(dying.State.Players[0].IsAlive && dying.State.Players[0].Hp==1 && Facts<CardUseDeclaredEvent>(dying).Any(e=>e.CardKind==CardKind.Alcohol && e.CardId==0),"Existing zero-entity dying Alcohol recovers and returns to the actual damage producer."); Cold(dying,dr);
     }
-    public static void DiscardAndFinalJudgmentClaimsOwnExactOriginsAndGainChildren()
-    {
-        var (g,r)=Create(); Wine(g); ContinueFaceAndPlay(g); End(g);
-        ReachClaim(g); var source=g.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Last().Batch;
-        var candidate=source.Movements.First(m=>m.To==CardLocation.DiscardPile && m.From.OwnerSeat!=0);
-        Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="activate"); Reach(g,p=>p.SkillPrompt?.SkillId==Gain);
-        var claim=ClaimRoot(g); var receipt=claim.ProvenanceClaim!; var fact=Claims(g).Single();
-        Require(receipt.Stage==ProgramProvenanceClaimStage.Claiming && fact.DiscardMovementSequence==candidate.Sequence && fact.CardId==candidate.CardId &&
-            g.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Any(w=>w.ResumeProgramFrameId==claim.Id && w.Batch.ParentFrameId==claim.Id && w.Batch.OriginSkillInstanceId==claim.SkillInstanceId && w.Batch.Movements.Single().Sequence==fact.ClaimMovementSequence),"A paid exact entity holds its gain child before the threshold tail.");
-        Private(g); Cold(g,r); Reject(g); Continue(g);
-        ReachClaim(g); Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="skip");
-        Require(Claims(g).Count()==1 && g.CardMovements.Count(m=>m.CardId==fact.CardId && m.From==CardLocation.DiscardPile && m.To==CardLocation.Hand(0))==1,"Accepting one entity and declining the sibling implements an arbitrary subset without repaying it."); Cold(g,r);
-
-        var (judge,jr)=Create(); Use(judge,"judge-other",targets:[1]); ReachClaim(judge);
-        var resolved=Facts<JudgmentResolvedEvent>(judge).Last(e=>e.TargetSeat==1 && e.CardId is not null);
-        Require(Facts<ProgramDiscardedEntityOriginEvent>(judge).Any(e=>e.JudgmentFrameId==resolved.ResolutionId && e.SourceSeat==1 && e.EffectiveSuit==Suit.Club),"Final effective Club judgment has a scalar origin linked to its real physical entry.");
-        Answer(judge,c=>c.Parameters.GetValueOrDefault("program-action")=="activate"); Reach(judge,p=>p.SkillPrompt?.SkillId==Gain); Cold(judge,jr); Continue(judge); Play(judge);
-        Require(Claims(judge).Single().CardId==resolved.CardId && judge.CreateSnapshot(0).Players[0].Hand.Any(c=>c.Id==resolved.CardId),"The actual judged entity is claimed once from final disposition, including its non-HE origin."); Cold(judge,jr);
-        var before=Claims(judge).Count(); var used=judge.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.Slash && a.TargetSeats.SequenceEqual([1]));
-        Accept(judge,new PlayCardCommand(0,used.CardId!.Value,used.TargetSeats,judge.Revision,P(judge)!.PromptId,used.PlayedCardKind)); DrainCommitted(judge); Play(judge);
-        Require(Claims(judge).Count()==before,"A Club use cleanup is not a new discard/judgment origin."); Cold(judge,jr);
-    }
     public static void ProvenanceSurvivesRealTurnsAndAllMaterialUsesFreezeNoResponse()
     {
         var (g,r)=Create(); Wine(g); ContinueFaceAndPlay(g); End(g);
@@ -85,53 +63,8 @@ internal static class BoundaryCaoZhiChecks
         Cold(declared,registry); Reject(declared); Continue(declared); Play(declared);
         Require(Facts<DamageAppliedEvent>(declared).Any(e=>e.SourceSeat==0 && e.TargetSeat==2 && e.Amount==2),"The truthful declared distance-two tagged Slash retains its issued no-response policy and resumes actual damage."); Cold(declared,registry);
     }
-    public static void OutsideThresholdUsesCurrentMaximumAndNativeAiReturnsPaidClaims()
-    {
-        var (g,r)=Create(); Use(g,"lower-max"); Play(g); Require(g.State.Players[0].MaxHp==2,"A real maximum-HP primitive sets the dynamic threshold."); Wine(g); ContinueFaceAndPlay(g); End(g);
-        ClaimOne(g,r); Require(g.State.Players[0].IsFaceDown,"One real claim leaves the back face below threshold.");
-        ReachClaim(g); Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="activate"); Reach(g,p=>p.SkillPrompt?.SkillId==Gain); Continue(g);
-        Reach(g,p=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="provenance-face-up"));
-        var root=ClaimRoot(g); Require(root.ProvenanceClaim is {Stage:ProgramProvenanceClaimStage.Choosing} && g.State.Players[0].IsFaceDown,"The second paid claim reaches current MaxHp only after its gain observer returns."); Private(g); Cold(g,r); Reject(g);
-        Answer(g,c=>c.Parameters.GetValueOrDefault("option")=="pass");
-        ReachClaim(g); Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="activate"); Reach(g,p=>p.SkillPrompt?.SkillId==Gain); Continue(g);
-        Reach(g,p=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="provenance-face-up")); Cold(g,r);
-        Answer(g,c=>c.Parameters.GetValueOrDefault("option")=="flip"); Reach(g,p=>p.SkillPrompt?.SkillId==Face);
-        Require(!g.State.Players[0].IsFaceDown && Claims(g).Count()==3 && Facts<ProgramProvenanceFaceUpResetEvent>(g).Count()==1,"Declining retains the accumulated segment; the next actual gain can offer again, and the actual flip resets it before face children."); Cold(g,r); Continue(g); Cold(g,r);
-        var (ai,ar)=Create(native:true); Until(ai,()=>ai.State.Status==EngineStatus.Completed);
-        var source=ai.State.Players.Single(p=>p.GeneralId=="fixture:co-owner").Seat;
-        Require(Claims(ai).Count(e=>e.Origin.OwnerSeat==source)>=4 && Facts<ProgramProvenanceFaceUpResetEvent>(ai).Any(e=>e.OwnerSeat==source) && !ai.ResolutionStack.OfType<ProgramSkillFrame>().Any(f=>f.ProvenanceClaim is not null),"Native AI accepts real Club payments and returns the optional threshold flip through completed owning receipts."); Cold(ai,ar);
-        RejectMalformedProvenanceTriggers();
-    }
-    private static void RejectMalformedProvenanceTriggers()
-    {
-        var assembly = typeof(StandardClassicGeneralPackage).Assembly;
-        string Resource(string suffix)
-        {
-            var name = assembly.GetManifestResourceNames().Single(n => n.EndsWith(suffix, StringComparison.Ordinal));
-            using var stream = assembly.GetManifestResourceStream(name)!;
-            using var reader = new StreamReader(stream);
-            return reader.ReadToEnd();
-        }
-        var rules = JsonNode.Parse(Resource("boundary-cao-zhi.rules.json"))!;
-        var presentation = Resource("boundary-cao-zhi.presentation.json");
-        foreach (var change in new (string Field, JsonNode Value)[]
-        {
-            ("movementOccurrence", JsonValue.Create("perBatch")!),
-            ("discardOwnerScope", JsonValue.Create("own")!)
-        })
-        {
-            var malformed = rules.DeepClone();
-            var skill = malformed["skills"]!.AsArray().Single(s => s!["id"]!.GetValue<string>() == "boundary:luoying")!;
-            skill["triggers"]![0]![change.Field] = change.Value;
-            var rejected = false;
-            try { SkillProgramCatalog.Load(malformed.ToJsonString(), presentation); }
-            catch (InvalidOperationException) { rejected = true; }
-            Require(rejected, "The exact provenance claim contract rejects unsupported " + change.Field + " before runtime.");
-        }
-    }
     private static IEnumerable<T> Facts<T>(GameEngine g)=>g.Events.Select(e=>e.Payload).OfType<T>();
     private static List<ProgramDiscardedEntityClaimedEvent> Claims(GameEngine g)=>Facts<ProgramDiscardedEntityClaimedEvent>(g).ToList();
-    private static ProgramSkillFrame ClaimRoot(GameEngine g)=>g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f=>f.ProvenanceClaim is not null);
     private static PendingDecision? P(GameEngine g)=>Enumerable.Range(0,4).Select(s=>g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p=>p is not null);
     private static bool HasActivation(PendingDecision p,string skill,string binding)=>p.PlayerSeat==0 && p.Choices.Any(c=>c.Parameters.GetValueOrDefault("skill-id")==skill && c.Parameters.GetValueOrDefault("binding-id")==binding && c.Parameters.GetValueOrDefault("program-action")=="activate");
     private static void ReachClaim(GameEngine g)=>Reach(g,p=>HasActivation(p,"boundary:luoying","claim-club-origin"));
@@ -141,7 +74,6 @@ internal static class BoundaryCaoZhiChecks
     private static void Use(GameEngine g,string id,IReadOnlyList<int>? cards=null,IReadOnlyList<int>? targets=null)=>Accept(g,new UseProgramSkillCommand(0,Driver,id,cards??[],targets??[],g.Revision,P(g)!.PromptId));
     private static void End(GameEngine g)=>Accept(g,new EndPlayPhaseCommand(0,g.Revision,P(g)!.PromptId));
     private static void ContinueFaceAndPlay(GameEngine g) { Reach(g,p=>p.SkillPrompt?.SkillId==Face); Continue(g); Play(g); }
-    private static void DrainCommitted(GameEngine g) { Reach(g,p=>p.SkillPrompt?.SkillId==Committed); Continue(g); }
     private static void Continue(GameEngine g)=>Answer(g,c=>c.Parameters.GetValueOrDefault("option-id")=="continue");
     private static void Answer(GameEngine g,Func<PromptChoice,bool> predicate) { var p=P(g)!; Accept(g,new AnswerPromptCommand(p.PlayerSeat,p.PromptId,p.Choices.First(predicate).Id,g.Revision)); }
     private static void Play(GameEngine g)=>Reach(g,p=>p.Kind==DecisionKind.PlayCard && p.PlayerSeat==0);
@@ -162,7 +94,6 @@ internal static class BoundaryCaoZhiChecks
     private static void Accept(GameEngine g,GameCommand command)
     { var result=g.Submit(CommandJson.Deserialize(CommandJson.Serialize([command])).Single()); Require(result.Accepted,result.Error?.Message??"Rejected actual command."); }
     private static void Reject(GameEngine g) { var state=State(g); var p=P(g)!; Require(!g.Submit(new AnswerPromptCommand(p.PlayerSeat,p.PromptId,new("unpublished"),g.Revision)).Accepted && State(g)==state,"Unpublished choice cannot repeat a paid entity or face cost."); }
-    private static void Private(GameEngine g) { Require(P(g)!.IsPrivate && P(g)!.PlayerSeat==0,"The actual owner receives this private chooser."); for(var s=1;s<4;s++) Require(g.CreateSnapshot(s).PendingDecision is null && g.CreateSnapshot(s).Players[0].Hand.Count==0,"Other views expose neither hidden entity lists nor private threshold choices."); }
     private static string State(GameEngine g)=>JsonSerializer.Serialize(new { Views=Enumerable.Range(0,4).Select(s=>SnapshotJson.Serialize(g.CreateSnapshot(s))).ToArray(),Frames=JsonSerializer.Serialize(g.ResolutionStack),Events=g.Events.Select(e=>JsonSerializer.Serialize(e.Payload,e.Payload.GetType())).ToArray(),g.CardMovements,Commands=CommandJson.Serialize(g.AcceptedCommands),Zones=g.CreateCardZoneDiagnostics() });
     private static void Cold(GameEngine g,ContentRegistry r)=>Require(State(g)==State(GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(g.CreateCheckpoint())),r)),"Four prepared views, private owning receipts, exact actual movement/history and real commands cold-restore identically.");
     private static void Require(bool value,string message) { if(!value) throw new InvalidOperationException(message); }

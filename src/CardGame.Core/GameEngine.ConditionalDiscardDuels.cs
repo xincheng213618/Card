@@ -69,6 +69,7 @@ public sealed partial class GameEngine
             SkillPrompt = new(f.SkillId, skill.Name, skill.Name + " · 实际弃牌", skill.Description) };
         _status = _players[payer].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
+    [ProgramAnswer("conditional-discard-duel")]
     private void ResolveConditionalDuelPayment(PromptChoice selected)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame f || !ConditionalDuelParentMatches(f) ||
@@ -158,6 +159,7 @@ public sealed partial class GameEngine
         else if (ConditionalDuelSourceCurrent(f)) AdvanceRuntimeProgram(f.Id);
         else CancelProgramBindingAndCleanup(f, "已付弃牌保留，未发行决斗取消。");
     }
+    [ProgramAiChoice(SkillProgramEffectOp.DiscardSlashThenOtherCardAndUseDuel)]
     private PromptChoice SelectAiConditionalDuel(PendingDecision decision, ProgramSkillFrame f)
     {
         var choices = decision.Choices.Where(c => c.Parameters.GetValueOrDefault("cost-side") != "cancel").ToArray();

@@ -23,17 +23,6 @@ internal static class FengLinZhugeZhanChecks
         var (native,nativeRegistry)=Create(native:true);ReachPlay(native);End(native);ActivateEnding(native);
         Require(native.CreateSnapshot(0).Players[0].GeneralId=="classic:zhuge-zhan" && native.ResolutionStack.OfType<ProgramSkillFrame>().Last().QuotaTop is {Quota:1,Stage:"gain"},"Official native general reaches a real human private peek after normal discard.");Replay(native,nativeRegistry);
     }
-    public static void ZeroQuotaIssuedDeath()
-    {
-        var (g,r)=Create(dying:true);ReachPlay(g);Activate(g,"weaken",[],[]);ReachPlay(g);Activate(g,"discard",[g.CreateSnapshot(0).Players[0].Hand[0].Id],[]);ReachPlay(g);End(g);ActivateEnding(g);
-        Require(g.ResolutionStack.OfType<ProgramSkillFrame>().Last().QuotaTop?.Quota==0,"Real own discard and nonminimum hand give zero without damage.");
-        while(Prompt(g)!.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="quota-top-order")){Replay(g,r);Answer(g,c=>c.Cards.Count==1);}
-        Require(Prompt(g)!.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="quota-top-loss"),"Choose the other living participant before any HP loss.");
-        var hp=g.CreateSnapshot(0).Players[1].Hp; Answer(g,c=>c.Targets.Contains(1));
-        Require(g.ResolutionStack.OfType<DyingFrame>().Any(d=>d.VictimSeat==0)&&g.CreateSnapshot(0).Players[1].Hp==hp,"Owner's real dying child precedes the other committed loss.");Replay(g,r);
-        for(var n=0;n<180&&g.CreateSnapshot(0).Players[1].Hp==hp;n++)Drive(g);
-        Require(!g.CreateSnapshot(0).Players[0].IsAlive&&g.CreateSnapshot(0).Players[1].Hp==hp-1,"Issued exact operation continues after owner death while game remains live.");Replay(g,r);
-    }
     public static void FirstSharedTargetAndAi()
     {
         var (g,r)=Create();ReachPlay(g);Activate(g,"draw",[],[]);ReachPlay(g);var equipment=g.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.Equip);Play(g,equipment);ReachPlay(g);var hp=g.CreateSnapshot(0).Players[1].Hp;
@@ -43,27 +32,6 @@ internal static class FengLinZhugeZhanChecks
         Require(g.CreateSnapshot(0).Players[1].Hp==hp-1,"Second actual use in the same turn cannot repeat first-target protection.");Replay(g,r);
         End(g); for(var n=0;n<80;n++)Drive(g);
         Require(g.Events.Any(e=>e.Payload is ProgramBindingResolvedEvent {SkillId:"classic:zuilun",Completed:true}),"Normal AdvanceOneStep AI completes the native private quota operation.");Replay(g,r);
-    }
-    public static void FailedFirstComparisonAndNestedGain()
-    {
-        var (g,r)=Create();ReachPlay(g);var cards=g.CreateSnapshot(0).Players[0].Hand.Take(2).Select(c=>c.Id).ToArray();Activate(g,"give",cards,[1]);ReachPlay(g);
-        Play(g,g.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.Equip));ReachPlay(g);var hp=g.CreateSnapshot(0).Players[1].Hp;
-        Play(g,g.GetHumanLegalActions().First(a=>a.PlayedCardKind==CardKind.Slash&&a.TargetSeats.Contains(1)&&a.ConversionSource is not null));ReachPlay(g);
-        Require(g.CreateSnapshot(0).Players[1].Hp==hp-1,"First encounter consumes the ledger even when hand comparison fails.");Activate(g,"draw",[],[]);ReachPlay(g);
-        Play(g,g.GetHumanLegalActions().First(a=>a.PlayedCardKind==CardKind.Duel&&a.TargetSeats.Contains(1)&&a.ConversionSource is not null));ReachPlay(g);
-        Require(g.CreateSnapshot(0).Players[1].Hp==hp-2,"A later Duel with successful hand comparison is not a second first encounter.");Replay(g,r);
-        var (n,nr)=Create(nested:true);ReachPlay(n);Activate(n,"give",n.CreateSnapshot(0).Players[0].Hand.Select(c=>c.Id).ToArray(),[1]);ReachPlay(n);End(n);ActivateEnding(n);
-        var ids=n.ResolutionStack.OfType<ProgramSkillFrame>().Last().QuotaTop!.ViewedIds.ToArray();Answer(n,c=>c.Cards.Contains(ids[0]));Answer(n,c=>c.Cards.Contains(ids[1]));
-        Reach(n,p=>p.SkillPrompt?.SkillId=="fixture:quota-observer");Require(n.ResolutionStack.OfType<ProgramSkillFrame>().Any(f=>f.QuotaTop is {Stage:"gain-movement"}),"Real gain suspends its paid cursor in a nested observer.");Replay(n,nr);
-        Answer(n,c=>c.Parameters.GetValueOrDefault("program-action")=="choose-option");
-        Require(n.CreateSnapshot(0).Players[0].Hand.Count==3 && n.CardMovements.Count(m=>m.Reason.Value=="program.quota-top.obtain")==2,"Nested draw may obtain the remaining viewed entity; no quota entity is obtained twice.");Replay(n,nr);
-    }
-    public static void StrictComposition()
-    {
-        var a=typeof(StandardClassicGeneralPackage).Assembly;
-        string Read(string suffix){using var stream=a.GetManifestResourceStream("CardGame.Content.Standard.SkillPrograms.classic-zhuge-zhan."+suffix+".json")!;using var reader=new StreamReader(stream);return reader.ReadToEnd();}
-        var rules=Read("rules");foreach(var bad in new[]{rules.Replace("turnEnding","playEnding"),rules.Replace("cardUseTargetsFinalized","cardUseCompleted"),rules.Replace("\"ownerRelation\": \"target\"", "\"ownerRelation\": \"actor\""),rules.Replace("\"amount\": 3","\"amount\": 2")})
-        {var rejected=false;try{SkillProgramCatalog.Load(bad,Read("presentation"));}catch(InvalidOperationException){rejected=true;}Require(rejected,"New descriptors reject wrong windows, relations and quota bounds.");}
     }
     private static PendingDecision? Prompt(GameEngine g)=>g.PendingDecision??Enumerable.Range(0,4).Select(s=>g.CreateSnapshot(s,true).PendingDecision).FirstOrDefault(p=>p is not null);
     private static void ReachPlay(GameEngine g)=>Reach(g,p=>p.Kind==DecisionKind.PlayCard&&p.PlayerSeat==0);

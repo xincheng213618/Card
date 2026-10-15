@@ -133,6 +133,7 @@ public sealed partial class GameEngine
         AdvanceRuntimeProgram(frame.Id);
     }
 
+    [ProgramAiChoice(SkillProgramEffectOp.DrawTwoThenDiscardTwoIfOverMaxHp, SkillProgramEffectOp.ChooseOwnCardDiscard)]
     private PromptChoice SelectAiProgramOwnCardDiscard(PendingDecision decision, ProgramSkillFrame frame)
     {
         var skill = _contentRegistry!.GetSkill(frame.SkillId);

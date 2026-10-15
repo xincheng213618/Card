@@ -171,6 +171,9 @@ public sealed partial class GameEngine
         AdvanceRuntimeProgram(frame.Id);
     }
 
+    [ProgramAiChoice(
+        SkillProgramEffectOp.DiscardDamageTargetAndClaimMount,
+        SkillProgramEffectOp.ChooseOtherOwnedCardDiscard)]
     private PromptChoice SelectAiProgramOtherOwnedCardDiscard(PendingDecision decision, ProgramSkillFrame frame)
     {
         var skill = _contentRegistry!.GetSkill(frame.SkillId);

@@ -205,6 +205,7 @@ public sealed partial class GameEngine
         _status = _players[active.OwnerSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
 
+    [ProgramAnswer("zhiren-field-discard")]
     private void ResolveZhirenFieldChoice(PromptChoice selected)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ??
@@ -327,7 +328,7 @@ public sealed partial class GameEngine
     private void ApplyProgramSkillRecovery(long frameId, int sourceSeat, int targetSeat)
     {
         var target = _players[targetSeat];
-        if (!target.IsAlive) return;
+        if (!target.IsAlive || !target.HasHpValue) return;
         var recovered = Math.Min(1, target.MaxHp - target.Hp);
         if (recovered <= 0) return;
         if (TryQueueRecoveryReplacement(frameId, sourceSeat, targetSeat, recovered,
@@ -338,9 +339,6 @@ public sealed partial class GameEngine
         PopResolutionFrame(recovery, ResolutionFrameKind.Recovery);
     }
 
-    private PromptChoice SelectAiZhirenFieldChoice(PendingDecision decision) => decision.Choices
-        .OrderBy(choice => choice.Parameters.GetValueOrDefault("action") == "skip" ? 1 : 0)
-        .ThenBy(choice => choice.Id.Value, StringComparer.Ordinal).First();
 
     private sealed partial class ProgramSkillHost : IPanShuProgramHost
     {

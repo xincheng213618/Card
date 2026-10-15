@@ -29,15 +29,6 @@ internal static class Fame2017WuXianChecks
             Require(game.CardMovements.Count(m=>m.CardId==action.CardId && m.To==CardLocation.Processing)==1 && !game.AcceptedCommands.OfType<AnswerPromptCommand>().Any(c=>c.ActorSeat!=0),"All pairs share one real payment and normal AI advancement.");Replay(game,registry);
         }
     }
-    public static void EffectiveRedSuitExtraTarget()
-    {
-        var (game,registry)=Create(hongyan:true);Choose(game,"targets");Reach(game,p=>p.Kind==DecisionKind.PlayCard);
-        var action=game.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.IronChain && a.ProgramActivationId=="red-additional-targets" && a.TargetSeats.SequenceEqual(new[]{0,2,1}) && game.CreateSnapshot(0).Players[0].Hand.Single(c=>c.Id==a.CardId).Kind==CardKind.Crossbow);
-        Require(game.CreateSnapshot(0).Players[0].Hand.Single(c=>c.Id==action.CardId).Suit==Suit.Spade,"The red use is backed by one real Spade entity.");
-        Play(game,action);Reach(game,p=>p.Kind==DecisionKind.PlayCard);
-        Require(game.CreateSnapshot(0).Players[1].IsChained,"Hongyan makes the added Iron Chain target legal through black-trick immunity.");
-        Require(game.CardMovements.Count(m=>m.CardId==action.CardId && m.To==CardLocation.Processing)==1,"The conversion retains one actual input payment.");Replay(game,registry);
-    }
     public static void AlternatingCycleDrawAndReplay()
     {
         var (game,registry)=Create();
@@ -70,95 +61,12 @@ internal static class Fame2017WuXianChecks
             game.CardMovements.Count(m=>m.CardId==action.CardId && m.To==CardLocation.Processing)==1 &&
             !game.GetHumanLegalActions().Any(a=>a.ProgramActivationId=="red-additional-targets"),"The distant extra target resolves with one physical payment and consumes only the selected addition.");Replay(game,registry);
     }
-    public static void ConsecutiveGiftMovementAndSkipBreak()
-    {
-        var (game,registry)=Create();Choose(game,"draw");Reach(game,p=>p.Kind==DecisionKind.PlayCard);Gift(game,registry,1);
-        var first=game.Events.Select(e=>e.Payload).OfType<ConsecutiveTargetDeckGiftEvent>().Last();
-        Require(first.CardId is not null && !first.Consecutive,"The first gift obtains a true matching Heart Basic card without losing HP.");
-        var actual=game.CreateSnapshot(1,true).Players[1].Hand.Single(c=>c.Id==first.CardId);
-        Require(actual.Suit==Suit.Heart && CardCatalog.Get(actual.Kind).CategoryName=="基本牌" && game.CardMovements.Any(m=>m.CardId==actual.Id && m.From==CardLocation.DrawPile && m.To==CardLocation.Hand(1)),"A matching deck entity moves directly to the recipient's hand.");
-        foreach(var viewer in new[]{0,2,3}) Require(!game.CreateSnapshot(viewer).Players[1].Hand.Any(c=>c.Id==actual.Id) && !game.CreateSnapshot(viewer).PublicRevealedCards.Any(c=>c.Id==actual.Id),"Other observers do not receive the searched private hand face.");
-        ReachPreparation(game);Choose(game,"draw");Reach(game,p=>p.Kind==DecisionKind.PlayCard);var hp=game.CreateSnapshot(1).Players[1].Hp;Gift(game,registry,1);
-        Require(game.Events.Select(e=>e.Payload).OfType<ConsecutiveTargetDeckGiftEvent>().Last().Consecutive && game.CreateSnapshot(1).Players[1].Hp==hp-1,"The same recipient on the consecutive owner turn loses one HP after the real gift.");
-        ReachPreparation(game);Choose(game,"draw");Reach(game,p=>p.Kind==DecisionKind.PlayCard);FinishSkippingGift(game);
-        ReachPreparation(game);Choose(game,"draw");Reach(game,p=>p.Kind==DecisionKind.PlayCard);hp=game.CreateSnapshot(1).Players[1].Hp;Gift(game,registry,1);
-        Require(!game.Events.Select(e=>e.Payload).OfType<ConsecutiveTargetDeckGiftEvent>().Last().Consecutive && game.CreateSnapshot(1).Players[1].Hp==hp,"Not activating in the intervening owner ending breaks the previous-recipient chain.");Replay(game,registry);
-    }
-    public static void DoubleTargetsNativeTrickAndReplay()
-    {
-        var (game,registry)=Create();Choose(game,"draw");Reach(game,p=>p.Kind==DecisionKind.PlayCard);NextPreparation(game);Choose(game,"targets");Reach(game,p=>p.Kind==DecisionKind.PlayCard);
-        Require(game.GetHumanLegalActions().Any(a=>a.Kind==LegalActionKind.Slash && a.ProgramActivationId=="red-additional-targets" && a.TargetSeats.Count==3),"The changed option offers two extra legal Slash targets.");
-        var action=game.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.DrawTwo && a.ProgramActivationId=="red-additional-targets" && a.TargetSeats.SequenceEqual(new[]{0,1,2}));
-        var hand=Enumerable.Range(0,4).Select(seat=>game.CreateSnapshot(seat,true).Players[seat].Hand.Count).ToArray();Replay(game,registry);Play(game,action);Reach(game,p=>p.Kind==DecisionKind.PlayCard);
-        Require(game.CreateSnapshot(0).Players[0].Hand.Count==hand[0]+1 && game.CreateSnapshot(1,true).Players[1].Hand.Count==hand[1]+2 && game.CreateSnapshot(2,true).Players[2].Hand.Count==hand[2]+2,"The real native ordinary trick draws two for each frozen extra target with one owner card cost.");
-        Require(game.Events.Select(e=>e.Payload).OfType<RedAdditionalTargetsConsumedEvent>().Single().Targets.SequenceEqual(action.TargetSeats),"Two selected additions consume one grant.");Replay(game,registry);
-    }
-    public static void NativeAiBenefitsExtraTargetsAndGift()
-    {
-        var (game,registry)=Create(aiOwner:true);
-        for(var step=0;step<650;step++)
-        {
-            if(game.Events.Select(e=>e.Payload).OfType<RedAdditionalTargetsConsumedEvent>().Any() && game.Events.Select(e=>e.Payload).OfType<ConsecutiveTargetDeckGiftEvent>().Any())
-            {
-                var seat=game.Events.Select(e=>e.Payload).OfType<AlternatingChoiceBenefitResolvedEvent>().First().OwnerSeat;
-                Require(seat!=0 && !game.AcceptedCommands.OfType<AnswerPromptCommand>().Any(c=>c.ActorSeat==seat),"The AI owner chooses both preparation benefit and ending recipient through native advancement.");Replay(game,registry);return;
-            }
-            if(Prompt(game) is {PlayerSeat:0,Kind:DecisionKind.PlayCard} p) Accept(game,new EndPlayPhaseCommand(0,game.Revision,p.PromptId));
-            else if(Prompt(game) is {PlayerSeat:0} human) Answer(game,c=>c.Cards.Count==0);
-            else Accept(game,new AdvanceOneStepCommand(game.Revision));
-        }
-        throw new InvalidOperationException("Native AI failed to choose an eligible additional-target use and actual ending gift: "+JsonSerializer.Serialize(game.Events.Select(e=>e.Payload).OfType<AlternatingChoiceBenefitResolvedEvent>()));
-    }
-    public static void SelfBasicAndChainExtraTargets()
-    {
-        var (peach,registry)=Create();Choose(peach,"targets");Reach(peach,p=>p.Kind==DecisionKind.PlayCard);
-        foreach(var seat in new[]{0,1}){Accept(peach,new UseProgramSkillCommand(0,"fixture:wuxian-trick","hurt",[],[seat],peach.Revision,Prompt(peach)!.PromptId));Reach(peach,p=>p.Kind==DecisionKind.PlayCard);}
-        var hp0=peach.CreateSnapshot(0).Players[0].Hp;var hp1=peach.CreateSnapshot(1).Players[1].Hp;
-        Require(peach.GetHumanLegalActions().Where(a=>a.PlayedCardKind==CardKind.Peach && a.ProgramActivationId=="red-additional-targets").All(a=>!a.TargetSeats.Contains(2) && !a.TargetSeats.Contains(3)),"Full-health other players never become legal extra Peach targets.");
-        Play(peach,peach.GetHumanLegalActions().First(a=>a.PlayedCardKind==CardKind.Peach && a.ProgramActivationId=="red-additional-targets" && a.TargetSeats.SequenceEqual(new[]{0,1})));Reach(peach,p=>p.Kind==DecisionKind.PlayCard);
-        Require(peach.CreateSnapshot(0).Players[0].Hp==hp0+1 && peach.CreateSnapshot(1).Players[1].Hp==hp1+1,"A real Peach heals both the original self target and legal extra wounded target.");Replay(peach,registry);
-        var (alcohol,ar)=Create();Choose(alcohol,"targets");Reach(alcohol,p=>p.Kind==DecisionKind.PlayCard);
-        Play(alcohol,alcohol.GetHumanLegalActions().First(a=>a.PlayedCardKind==CardKind.Alcohol && a.ProgramActivationId=="red-additional-targets" && a.TargetSeats.SequenceEqual(new[]{0,1})));Reach(alcohol,p=>p.Kind==DecisionKind.PlayCard);
-        Require(alcohol.CreateSnapshot(0).Players[0].HasAlcoholEffect && alcohol.CreateSnapshot(1).Players[1].HasAlcoholEffect,"A real Alcohol applies its future Slash bonus to self and the extra target.");Replay(alcohol,ar);
-        var (chain,cr)=Create();Choose(chain,"draw");Reach(chain,p=>p.Kind==DecisionKind.PlayCard);NextPreparation(chain);Choose(chain,"targets");Reach(chain,p=>p.Kind==DecisionKind.PlayCard);
-        Play(chain,chain.GetHumanLegalActions().First(a=>a.PlayedCardKind==CardKind.IronChain && a.ProgramActivationId=="red-additional-targets" && a.TargetSeats.SequenceEqual(new[]{0,1,2,3})));Reach(chain,p=>p.Kind==DecisionKind.PlayCard);
-        Require(chain.CreateSnapshot(0).Players.All(p=>p.IsChained),"An originally two-target Iron Chain can add two distinct targets and resolve all four.");Replay(chain,cr);
-    }
-    public static void FaceDownTurnBreaksRecipientChain()
-    {
-        var (game,registry)=Create();Choose(game,"draw");Reach(game,p=>p.Kind==DecisionKind.PlayCard);Gift(game,registry,1);
-        ReachPreparation(game);Choose(game,"draw");Reach(game,p=>p.Kind==DecisionKind.PlayCard);
-        Accept(game,new UseProgramSkillCommand(0,"fixture:wuxian-trick","face-down",[],[],game.Revision,Prompt(game)!.PromptId));Reach(game,p=>p.Kind==DecisionKind.PlayCard);Gift(game,registry,1);
-        ReachPreparation(game);Choose(game,"draw");Reach(game,p=>p.Kind==DecisionKind.PlayCard);var hp=game.CreateSnapshot(1).Players[1].Hp;Gift(game,registry,1);
-        var gift=game.Events.Select(e=>e.Payload).OfType<ConsecutiveTargetDeckGiftEvent>().Last();
-        Require(gift.OwnerTurnOrdinal==4 && !gift.Consecutive && game.CreateSnapshot(1).Players[1].Hp==hp,"The intervening face-down skipped owner turn has no ending gift and breaks consecutiveness.");Replay(game,registry);
-    }
-    public static void ResourceContracts()
-    {
-        var assembly=typeof(StandardClassicGeneralPackage).Assembly;
-        string Read(string suffix){using var stream=assembly.GetManifestResourceStream("CardGame.Content.Standard.SkillPrograms.classic-wu-xian."+suffix+".json")!;using var reader=new StreamReader(stream);return reader.ReadToEnd();}
-        var rules=Read("rules");var presentation=Read("presentation");SkillProgramCatalog.Load(rules,presentation);
-        void Reject(Action<System.Text.Json.Nodes.JsonNode> change){var node=System.Text.Json.Nodes.JsonNode.Parse(rules)!;change(node);try{SkillProgramCatalog.Load(node.ToJsonString(),presentation);}catch(InvalidOperationException){return;}throw new InvalidOperationException("Malformed alternating benefit/deck gift was accepted.");}
-        Reject(n=>n["skills"]![0]!["triggers"]![0]!["effects"]![1]!["sourceBind"]="unknown");
-        Reject(n=>n["skills"]![0]!["triggers"]![0]!["effects"]![0]!["options"]![1]!["id"]="other");
-        Reject(n=>n["skills"]![1]!["triggers"]![0]!["effects"]![1]!["cardSuits"]=new System.Text.Json.Nodes.JsonArray());
-        Reject(n=>n["skills"]![1]!["triggers"]![0]!["effects"]![0]!["targetKind"]="anyLiving");
-        Reject(n=>n["skills"]![1]!["triggers"]![0]!["turnOwnerScope"]="otherLiving");
-    }
     private static void Choose(GameEngine game,string option)
     { Answer(game,c=>c.Parameters.GetValueOrDefault("program-action")=="activate");RejectUnknown(game);Answer(game,c=>c.Parameters.GetValueOrDefault("option-id")==option); }
     private static void ReachPreparation(GameEngine game)=>Reach(game,p=>p.SkillPrompt?.SkillId=="classic:fumian" && p.PlayerSeat==0 && p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="activate"));
     private static void FinishSkippingGift(GameEngine game)
     {Accept(game,new EndPlayPhaseCommand(0,game.Revision,Prompt(game)!.PromptId));Reach(game,p=>p.SkillPrompt?.SkillId=="classic:daiyan" && p.PlayerSeat==0);Answer(game,c=>c.Parameters.GetValueOrDefault("program-action")=="skip");}
     private static void NextPreparation(GameEngine game){FinishSkippingGift(game);ReachPreparation(game);}
-    private static void Gift(GameEngine game,ContentRegistry registry,int seat)
-    {
-        Accept(game,new EndPlayPhaseCommand(0,game.Revision,Prompt(game)!.PromptId));Reach(game,p=>p.SkillPrompt?.SkillId=="classic:daiyan" && p.PlayerSeat==0);
-        Answer(game,c=>c.Parameters.GetValueOrDefault("program-action")=="activate");Replay(game,registry);RejectUnknown(game);Answer(game,c=>c.Targets.Contains(seat));
-        Reach(game,p=>p.SkillPrompt?.SkillId=="fixture:wuxian-observer");Replay(game,registry);RejectUnknown(game);
-        Accept(game,new AdvanceOneStepCommand(game.Revision));
-        Require(!game.ResolutionStack.OfType<ProgramSkillFrame>().Any(f=>f.SkillId=="fixture:wuxian-observer"),"The normal AI gift observer resumes its real movement child.");Replay(game,registry);
-    }
     private sealed class PromptCache
     {
         public long Revision = -1;

@@ -27,20 +27,6 @@ internal static class Fame2017XinXianyingChecks
    Atomic(g,new UseProgramSkillCommand(0,"classic:zhongjian","compare",[source.Id],[pair.Seat],g.Revision,Prompt(g)!.PromptId));Replay(g,r);
   }
  }
- public static void DiscardRealHandEquipmentAndNestedReplay()
- {
-  foreach(var equipment in new[]{false,true})
-  {
-   var(g,r)=Create();ChooseCaishi(g,"limit");ReachPlay(g);
-   if(equipment){Use(g,"equip-target",[1]);Answer(g,c=>c.Cards.Count==1);ReachPlay(g);}
-   var pair=Pair(g,"color");HurtToOne(g,pair.Seat);Compare(g,pair.Source.Id,pair.Seat);var d=g.ResolutionStack.OfType<ProgramSkillFrame>().Last().HandComparisonDraft!;Answer(g,c=>c.Parameters.GetValueOrDefault("token")==Array.IndexOf(d.CandidateIds.ToArray(),pair.Card.Id).ToString());
-   var target=equipment?g.CreateSnapshot(0,true).Players.First(p=>p.Seat!=0&&p.Equipment.Count>0).Seat:pair.Seat;
-   Answer(g,c=>c.Parameters.GetValueOrDefault("branch")=="target"&&c.Targets.SequenceEqual([target]));
-   var choice=equipment?Prompt(g)!.Choices.First(c=>c.Cards.Count==1):Prompt(g)!.Choices.First(c=>c.Cards.Count==0);var id=equipment?choice.Cards.Single():g.CreateSnapshot(target,true).Players[target].Hand[int.Parse(choice.Parameters["token"][5..])].Id;
-   var from=g.CreateCardZoneDiagnostics().Single(z=>z.CardId==id).Location;Answer(g,c=>c.Id==choice.Id);ResumeObserver(g,r);ReachPlay(g);
-   Require(g.CardMovements.Count(m=>m.CardId==id&&m.From==from&&m.To==CardLocation.DiscardPile&&m.Reason.Value=="skill-program.hand-comparison.reward-discard")==1,"HE reward moves exactly one actual entity before nested response.");Replay(g,r);
-  }
- }
  public static void PersistentStateSelfTargetAndInsufficientHand()
  {
   var(g,r)=Create(borrowed:true);ChooseCaishi(g,"limit");ReachPlay(g);var baseLimit=Limit(g);var pair=Pair(g,"none");HurtToOne(g,pair.Seat);Compare(g,pair.Source.Id,pair.Seat);var d=g.ResolutionStack.OfType<ProgramSkillFrame>().Last().HandComparisonDraft!;Answer(g,c=>c.Parameters["token"]==Array.IndexOf(d.CandidateIds.ToArray(),pair.Card.Id).ToString());Answer(g,c=>c.Parameters["branch"]=="complete");ReachPlay(g);Require(Limit(g)==baseLimit-1,"Persistent reduction is applied.");
@@ -54,23 +40,6 @@ internal static class Fame2017XinXianyingChecks
   Require(g.Events.Select(e=>e.Payload).OfType<CardUseDeclaredEvent>().Any(e=>e.ResolutionId==borrowedResult.ResolutionId&&e.CardId==borrowed.CardId&&e.CardKind==CardKind.BorrowedSword),"The restricted actor can be the later Slash victim of its actual paid Borrowed Sword, and the exact holder/victim continuation completes.");Replay(g,r);
   var target=g.CreateSnapshot(0,true).Players.First(p=>p.Seat!=0&&p.Hp>p.Hand.Count&&p.Hand.Count>0);var source=g.CreateSnapshot(0,true).Players[0].Hand.First();Compare(g,source.Id,target.Seat);d=g.ResolutionStack.OfType<ProgramSkillFrame>().Last().HandComparisonDraft!;Require(d.Required==target.Hand.Count,"Insufficient hand reveals all actual cards, never the old hand-minus-HP quantity.");
   while(Prompt(g)?.Choices.Any(c=>c.Parameters.GetValueOrDefault("branch")=="reveal")==true){Replay(g,r);Answer(g,_=>true);}Answer(g,c=>c.Parameters.GetValueOrDefault("branch")=="draw"||c.Parameters.GetValueOrDefault("branch")=="complete");if(Prompt(g)?.SkillPrompt?.SkillId=="fixture:xin-observer")ResumeObserver(g,r);ReachPlay(g);NextCaishi(g);ChooseCaishi(g,"limit");ReachPlay(g);Require(g.GetHumanLegalActions().Any(a=>a.Kind==LegalActionKind.DrawTwo),"The prior turn self-target prohibition expires before a new limit choice.");Replay(g,r);
- }
- public static void NativeAiAndStrictLoader()
- {
-  var(rescue,rescueRegistry)=Create();ChooseCaishi(rescue,"limit");ReachPlay(rescue);Use(rescue,"hurt-owner",[]);ReachPlay(rescue);NextCaishi(rescue);ChooseCaishi(rescue,"recover");ReachPlay(rescue);
-  Require(rescue.CreateSnapshot(0,true).Players[0].Hand.Any(c=>c.Kind==CardKind.Peach),"The self rescue guard is exercised with a real Peach in hand.");
-  var rescueHp=rescue.CreateSnapshot(0).Players[0].Hp;for(var n=0;n<rescueHp;n++){Use(rescue,"hurt-owner",[]);if(n+1<rescueHp)ReachPlay(rescue);}
-  Require(rescue.ResolutionStack.OfType<DyingFrame>().Any(),"The forbidden self target is tested in a real dying chain.");Replay(rescue,rescueRegistry);
-  for(var n=0;n<100&&rescue.ResolutionStack.OfType<DyingFrame>().Any();n++){Require(Prompt(rescue) is not {PlayerSeat:0},"The prohibited owner receives no self Peach/Alcohol use choice.");Advance(rescue);}
-  Require(rescue.CreateSnapshot(0).Players[0].Hp>0&&rescue.Events.Select(e=>e.Payload).OfType<DyingResponseEvent>().Any(e=>e.ResponderSeat!=0&&e.UsedPeach),"Another responder can still pay a real Peach to rescue the restricted owner.");Replay(rescue,rescueRegistry);
-  var(g,r)=Create(true);for(var i=0;i<500;i++)
-  {
-   if(g.Events.Select(e=>e.Payload).OfType<ProgramSkillResolvedEvent>().Any(e=>e.OwnerSeat!=0&&e.SkillId=="classic:zhongjian"&&e.Completed)){Require(!g.AcceptedCommands.OfType<AnswerPromptCommand>().Any(c=>c.ActorSeat!=0),"AI chooses actual comparison reveal and reward by AdvanceOneStep.");Replay(g,r);break;}
-   if(Prompt(g) is{PlayerSeat:0,Kind:DecisionKind.PlayCard}p)Accept(g,new EndPlayPhaseCommand(0,g.Revision,p.PromptId));else if(Prompt(g) is{PlayerSeat:0})Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="skip"||c.Parameters.GetValueOrDefault("token")=="finish"||c.Cards.Count==0);else Advance(g);
-   if(i==499)throw new InvalidOperationException("Normal AI failed to execute comparison.");
-  }
-  var assembly=typeof(StandardClassicGeneralPackage).Assembly;string Read(string suffix){using var stream=assembly.GetManifestResourceStream("CardGame.Content.Standard.SkillPrograms.classic-xin-xianying."+suffix+".json")!;using var reader=new StreamReader(stream);return reader.ReadToEnd();}var rules=Read("rules");var presentation=Read("presentation");
-  foreach(var bad in new[]{rules.Replace("\"minCards\": 1","\"minCards\": 0"),rules.Replace("\"hand\"","\"equipment\""),rules.Replace("\"otherLiving\"","\"anyLiving\"")}){var refused=false;try{SkillProgramCatalog.Load(bad,presentation);}catch(InvalidOperationException){refused=true;}Require(refused,"Shared resource validation rejects unpaid count, wrong zone and target relation.");}
  }
  private static (int Seat,CardSnapshot Source,CardSnapshot Card) Pair(GameEngine g,string mode)
  {

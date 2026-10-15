@@ -124,6 +124,7 @@ public sealed partial class GameEngine
         _status = _players[chooser].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
 
+    [ProgramAnswer("completed-card-gift")]
     private void ResolveCompletedCardGiftChoice(PromptChoice selected)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("Completed gift lost its frame.");

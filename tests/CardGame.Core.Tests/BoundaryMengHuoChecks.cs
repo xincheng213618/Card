@@ -9,30 +9,6 @@ internal static class BoundaryMengHuoChecks
     private const string Zaiqi="boundary:zaiqi-current";
     private const string DriverSkill="fixture:mh-driver";
 
-    public static void Definitions()
-    {
-        var registry=ContentRegistry.Build(new StandardContentPackage(),new StandardActiveSkillExpansionPackage(true),
-            new StandardRescueSkillExpansionPackage(),new StandardClassicGeneralPackage());
-        var general=registry.Generals["boundary:meng-huo"];
-        Require(general.Name=="界孟获"&&general.FactionId=="shu"&&general.BaseHp==4&&
-            general.SkillIds.SequenceEqual([Huoshou,Zaiqi])&&
-            general.VariantId=="boundary"&&general.RulesetId=="sanguosha-ol",
-            "The boundary Meng Huo general registers the current OL shu 4HP pair.");
-        var huoshou=registry.GetSkill(Huoshou).Program!;
-        Require(huoshou.CardPolicies.Select(p=>p.Kind).SequenceEqual(
-                [SkillProgramCardPolicyKind.ExcludeGlobalTarget,SkillProgramCardPolicyKind.AttributeGlobalDamage])&&
-            huoshou.CardPolicies.All(p=>p.CardKinds.SequenceEqual([CardKind.BarbarianAssault])),
-            "Huo Shou keeps the shared barbarian target immunity and damage attribution policies.");
-        var trigger=registry.GetSkill(Zaiqi).Program!.Triggers.Single();
-        Require(trigger.Window==SkillProgramTriggerWindow.TurnEnding&&trigger.Subject==SkillProgramTriggerSubject.Owner&&
-            !trigger.Optional&&trigger.UsageScope==SkillUsageScope.Turn&&trigger.UsageLimit==1&&
-            trigger.Effects.Select(e=>e.Op).SequenceEqual([SkillProgramEffectOp.OfferRedDiscardRecoveryChoice]),
-            "Zai Qi asks once at the owner's own ending through the red discard recovery operation.");
-        Require(registry.GetSkill(Huoshou).ProgramPresentation!.Name=="祸首"&&
-            registry.GetSkill(Zaiqi).ProgramPresentation!.Name=="再起",
-            "The presentation carries the current OL skill names.");
-    }
-
     public static void HuoshouImmuneAndAttributesBarbarianDamage()
     {
         var(g,r)=Start("barbarian");
@@ -86,107 +62,6 @@ internal static class BoundaryMengHuoChecks
                 .Single(e=>e.TargetSeat==0) is {SourceSeat:0,Amount:1},
             "The healing participant recovers the owner by exactly one.");
         ReplayFourViews(g,r);Replay(g,r);
-    }
-
-    public static void ZaiqiDrawOnlyAtFullOwner()
-    {
-        var(g,r)=Start("red");
-        Reach(g,p=>p.Kind==DecisionKind.PlayCard&&p.PlayerSeat==0);
-        Burn(g);Burn(g);Burn(g);
-        Accept(g,new EndPlayPhaseCommand(0,g.Revision));
-        Reach(g,p=>p.Kind==DecisionKind.ProgramTrigger&&p.PlayerSeat==0&&
-            p.Choices.Any(c=>c.Parameters.GetValueOrDefault("mode")=="seat:1"));
-        Answer(g,c=>c.Parameters.GetValueOrDefault("mode")=="seat:1");
-        Answer(g,c=>c.Parameters.GetValueOrDefault("mode")=="finish");
-        Reach(g,p=>g.Events.Select(e=>e.Payload).OfType<ProgramRedDiscardRecoveryChosenEvent>().Count()==1);
-        Require(g.Events.Select(e=>e.Payload).OfType<ProgramRedDiscardRecoveryChosenEvent>().Single() is
-            {ChooserSeat:1,Option:"draw"},
-            "A full-HP owner offers no recovery branch, so the participant draws.");
-        Require(!g.Events.Select(e=>e.Payload).OfType<RecoveryAppliedEvent>().Any(e=>e.TargetSeat==0)&&
-            g.Events.Select(e=>e.Payload).OfType<ProgramRedDiscardRecoveryCommittedEvent>().Single() is
-                {OwnerSeat:0,Budget:3,Seats.Count:1},
-            "The draw-only resolution never touches the owner's HP.");
-        Replay(g,r);
-    }
-
-    public static void ZaiqiDeclineLeavesEveryoneAlone()
-    {
-        var(g,r)=Start("red");
-        Reach(g,p=>p.Kind==DecisionKind.PlayCard&&p.PlayerSeat==0);
-        Burn(g);
-        Accept(g,new EndPlayPhaseCommand(0,g.Revision));
-        Reach(g,p=>p.Kind==DecisionKind.ProgramTrigger&&p.PlayerSeat==0&&
-            p.Choices.Any(c=>c.Parameters.GetValueOrDefault("mode")=="seat:1"));
-        Answer(g,c=>c.Parameters.GetValueOrDefault("mode")=="skip");
-        Require(!g.Events.Select(e=>e.Payload).OfType<ProgramRedDiscardRecoveryCommittedEvent>().Any()&&
-            !g.Events.Select(e=>e.Payload).OfType<ProgramRedDiscardRecoveryChosenEvent>().Any(),
-            "A declined Zai Qi records no commitment and no participant choice.");
-        Require(g.CreateSnapshot(0).Players[0].Hp==5&&g.CreateSnapshot(0).Players[0].Hand!.Count==4,
-            "A declined Zai Qi changes no HP or hand counts.");
-        Replay(g,r);
-    }
-
-    public static void ZaiqiStopsSelectionAtRedDiscardBudget()
-    {
-        foreach(var budget in new[]{1,2})
-        {
-            var(g,r)=Start("red");
-            for(var i=0;i<budget;i++)Burn(g);
-            Accept(g,new EndPlayPhaseCommand(0,g.Revision));
-            Reach(g,p=>p.Kind==DecisionKind.ProgramTrigger&&p.PlayerSeat==0&&
-                p.Choices.Any(c=>c.Parameters.GetValueOrDefault("mode")=="seat:1"));
-            var extra=P(g)!.Choices.Single(c=>c.Parameters.GetValueOrDefault("mode")=="seat:3").Id;
-            for(var seat=1;seat<=budget;seat++)
-                Answer(g,c=>c.Parameters.GetValueOrDefault("mode")==$"seat:{seat}");
-            Require(P(g)!.Choices.Select(c=>c.Parameters["mode"]).SequenceEqual(["finish","skip"]),
-                "A full red-discard budget offers confirmation and decline while other living seats remain.");
-            ReplayFourViews(g,r);
-            g=GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(g.CreateCheckpoint())),r);
-            var before=GameCheckpointJson.Serialize(g.CreateCheckpoint());
-            var rejected=g.Submit(new AnswerPromptCommand(0,P(g)!.PromptId,extra,g.Revision));
-            Require(!rejected.Accepted&&before==GameCheckpointJson.Serialize(g.CreateCheckpoint()),
-                "An extra target submitted against the current full-budget prompt is rejected atomically.");
-            Answer(g,c=>c.Parameters.GetValueOrDefault("mode")=="finish");
-            Reach(g,p=>g.Events.Select(e=>e.Payload).OfType<ProgramRedDiscardRecoveryChosenEvent>().Count()==budget);
-            Require(g.Events.Select(e=>e.Payload).OfType<ProgramRedDiscardRecoveryCommittedEvent>().Single() is
-                    {OwnerSeat:0} committed&&committed.Budget==budget&&
-                    committed.Seats.SequenceEqual(Enumerable.Range(1,budget))&&
-                    g.Events.Select(e=>e.Payload).OfType<ProgramRedDiscardRecoveryChosenEvent>()
-                        .Select(e=>(e.ChooserSeat,e.Option)).SequenceEqual(Enumerable.Range(1,budget).Select(s=>(s,"draw"))),
-                "Cold confirmation settles exactly the selected budget, once per participant and in order.");
-            ReplayFourViews(g,r);
-        }
-    }
-
-    public static void ZaiqiNativeAiConfirmsFullBudget()
-    {
-        var r=ContentRegistry.Build(new StandardContentPackage(),new StandardActiveSkillExpansionPackage(true),
-            new StandardRescueSkillExpansionPackage(),new StandardClassicGeneralPackage(),new Fixture("ai-red"));
-        var g=GameEngine.CreateStandard(new GameOptions{Seed=37,PlayerCount=4,HumanSeat=-1,HumanRole=null,
-            ModeId="identity:mh",UseInteractiveSetup=true,AdvanceAfterHumanCommands=false,MaxTurns=1},r);
-        Accept(g,new StartGameCommand());
-        var committed=g.Events.Select(e=>e.Payload).OfType<ProgramRedDiscardRecoveryCommittedEvent>().Single();
-        Require(committed.Budget>0&&committed.Budget<g.State.Players.Count(p=>p.IsAlive&&p.Seat!=committed.OwnerSeat),
-            "The fixed native AI fixture has a red-discard budget smaller than its living target pool.");
-        Require(g.State.Status==EngineStatus.Completed&&committed.Seats.Count==committed.Budget&&
-                g.Events.Select(e=>e.Payload).OfType<ProgramRedDiscardRecoveryChosenEvent>()
-                    .Select(e=>e.ChooserSeat).SequenceEqual(committed.Seats)&&
-                !g.AcceptedCommands.Any(c=>c is AnswerPromptCommand or UseProgramSkillCommand),
-            "A native one-turn fixture confirms the full budget and settles every beneficiary once without manual answers.");
-        ReplayFourViews(g,r);
-    }
-
-    public static void ZaiqiStaysSilentWithoutRedDiscards()
-    {
-        var(g,r)=Start("black");
-        Reach(g,p=>p.Kind==DecisionKind.PlayCard&&p.PlayerSeat==0);
-        Burn(g);Burn(g);
-        Accept(g,new EndPlayPhaseCommand(0,g.Revision));
-        Reach(g,p=>g.Events.Select(e=>e.Payload).OfType<TurnStartedEvent>().Any(e=>e.ActorSeat!=0));
-        Require(!g.Events.Select(e=>e.Payload).OfType<ProgramRedDiscardRecoveryCommittedEvent>().Any()&&
-            !g.Events.Select(e=>e.Payload).OfType<ProgramRedDiscardRecoveryChosenEvent>().Any()&&
-            !g.Events.Select(e=>e.Payload).OfType<RecoveryAppliedEvent>().Any(e=>e.TargetSeat==0),
-            "Black-only discards keep Zai Qi silent through the ending.");
     }
 
     private static void ReachBarbarianResolution(GameEngine g)

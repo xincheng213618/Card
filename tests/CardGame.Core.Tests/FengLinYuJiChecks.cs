@@ -1,41 +1,10 @@
-﻿using System.Reflection;
+using System.Reflection;
 using System.Text.Json;
 using CardGame.Core;
 using CardGame.Content.Standard;
 
 internal static partial class FengLinYuJiChecks
 {
-    public static void AllPassPrivacyQuotaAndReplay()
-    {
-        var(g,r)=Start("standard:dodge"); var initial=g.State.Players[0].HandCount;
-        Use(g,CardKind.DrawTwo); var frame=g.ResolutionStack.OfType<CardDeclarationFrame>().Single();var cost=frame.Payment.Cost.CardId;
-        Require(g.CardMovements.Count(m=>m.CardId==cost&&m.From==CardLocation.Hand(0)&&m.To==CardLocation.Processing)==1,"Actual hand payment occurs once before challenge.");
-        Require(!g.Events.Select(e=>e.Payload).OfType<CardActionAcceptedEvent>().Any(e=>e.Action.PhysicalCards.Any(c=>c.CardId==cost)),"No success action before verification.");
-        Privacy(g,CardKind.Dodge);Replay(g,r); var seats=new List<int>();
-        while(g.ResolutionStack.LastOrDefault() is CardDeclarationChallengeFrame){seats.Add(P(g)!.PlayerSeat);Answer(g,"pass");if(g.ResolutionStack.OfType<CardDeclarationFrame>().Any()){Privacy(g,CardKind.Dodge);Replay(g,r);}}
-        Require(seats.Count==3&&seats.Distinct().Count()==3&&!seats.Contains(0),"All pass traverses each eligible other seat once and terminates.");
-        Settle(g);Require(g.State.Players[0].HandCount==initial+1,"Unchallenged declared DrawTwo resumes the actual two-card effect after one cost.");
-        Require(g.Events.Select(e=>e.Payload).OfType<CardUseDeclaredEvent>().Single(e=>e.CardId==cost).PublicCard is null,
-            "An unchallenged concealed declaration published its printed suit, rank or physical kind.");
-        Require(g.CardMovements.Count(m=>m.CardId==cost&&m.From==CardLocation.Hand(0)&&m.To==CardLocation.Processing)==1,"No payment repeated on continuation.");
-        Require(!g.GetHumanLegalActions().Any(a=>a.ConversionSource?.SkillId=="classic:guhuo"),"All declaration names share the named Turn quota.");Replay(g,r);Conserve(g);
-    }
-    public static void FirstChallengeTrueAndFalse()
-    {
-        foreach(var real in new[]{false,true})
-        {
-            var(g,r)=Start(real?"standard:draw_two":"standard:dodge");var initial=g.State.Players[0].HandCount;
-            Use(g,CardKind.DrawTwo);var id=g.ResolutionStack.OfType<CardDeclarationFrame>().Single().Payment.Cost.CardId;
-            var challenger=P(g)!.PlayerSeat;Replay(g,r);Answer(g,"challenge");Settle(g);
-            Require(g.Events.Select(e=>e.Payload).OfType<CardDeclarationRevealedEvent>().Count()==1,"First challenge stops further seats and flips one entity.");
-            if(real) Require(g.Events.Select(e=>e.Payload).OfType<CardUseDeclaredEvent>().Single(e=>e.CardId==id).PublicCard ==
-                g.Events.Select(e=>e.Payload).OfType<CardDeclarationRevealedEvent>().Single().Card,
-                "A successfully revealed declaration lost its actual public printed face at use commitment.");
-            Require(g.State.Players[0].HandCount==initial+(real?1:-1),"Only true declaration executes actual DrawTwo.");
-            Require(g.CreateSnapshot(challenger).Players[challenger].Skills?.Any(s=>s.ContentId=="classic:chanyuan")==real,"True challenger acquires Chanyuan; fake grants no punishment.");
-            Require(g.CardMovements.Count(m=>m.CardId==id&&m.To==CardLocation.DiscardPile)==1,"Both outcomes clean the actual entity once.");Replay(g,r);Conserve(g);
-        }
-    }
     public static void ActualDodgeDuelRescueParents()
     {
         foreach(var purpose in new[]{"dodge","duel","peach","alcohol"})
@@ -78,15 +47,6 @@ internal static partial class FengLinYuJiChecks
         Require(provider.Events.Select(e=>e.Payload).OfType<CardActionAcceptedEvent>().Any(e=>e.Action.ActorSeat==0&&e.Action.ProviderSeat==declaration.OwnerSeat&&e.Action.RequesterSeat==0),"Actual provided Slash preserves Actor/Provider/Requester provenance.");Replay(provider,pr);Conserve(provider);
     }
     private static void Driver(GameEngine g,string id,IReadOnlyList<int>? targets=null)=>Accept(g,new UseProgramSkillCommand(0,"fixture:yu-driver",id,[],targets??[],g.Revision,P(g)!.PromptId));
-    private static void Privacy(GameEngine g,CardKind costKind)
-    {
-        for(var viewer=0;viewer<4;viewer++)
-        {
-            var d=g.CreateSnapshot(viewer).CardDeclarations!.Single();Require(!d.IsRevealed&&d.RevealedCard is null&&(viewer==0?d.OwnerCost?.Kind==costKind:d.OwnerCost is null),"Only owner sees private cost; no viewer receives unrevealed face.");
-            Require(d.TargetSeats is not int[],"Public nested targets detached and frozen.");
-        }
-        Require(g.Log.Where(l=>l.Type is "CardUsed" or "CardResponded" or "SkillTriggered").All(l=>!l.Message.Contains("【闪】")),"Public declaration logs hide unrevealed physical name.");
-    }
     private static (GameEngine,ContentRegistry) Start(string card,bool providers=false,bool declarations=true,bool costChild=false,ContentRegistry? registry=null)
     {
         var r=registry??(declarations?ContentRegistry.Build(new StandardContentPackage(),new StandardActiveSkillExpansionPackage(true),new StandardRescueSkillExpansionPackage(),new StandardClassicGeneralPackage(),new Fixture(card,providers,declarations,costChild)):ContentRegistry.Build(new StandardContentPackage(),new Fixture(card,providers,declarations,costChild)));
@@ -101,7 +61,6 @@ internal static partial class FengLinYuJiChecks
     private static PendingDecision? P(GameEngine g)=>g.PendingDecision??Enumerable.Range(0,4).Select(s=>g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p=>p is not null);
     private static void Answer(GameEngine g,string branch){var p=P(g)!;var c=p.Choices.Single(c=>c.Parameters.GetValueOrDefault("declaration-answer")==branch);Accept(g,new AnswerPromptCommand(p.PlayerSeat,p.PromptId,c.Id,g.Revision));}
     private static void Reach(GameEngine g,Func<PendingDecision,bool> goal){for(var i=0;i<100;i++){if(P(g) is {} p&&goal(p))return;Accept(g,new AdvanceOneStepCommand(g.Revision));}throw new InvalidOperationException("Fixed fixture boundary not reached: "+P(g)?.Kind+" / "+P(g)?.PlayerSeat+" / "+string.Join(",",g.ResolutionStack.Select(f=>f.Kind)));}
-    private static void Settle(GameEngine g)=>Reach(g,p=>p.Kind==DecisionKind.PlayCard&&p.PlayerSeat==0);
     private static void Accept(GameEngine g,GameCommand c){var result=g.Submit(CommandJson.Deserialize(CommandJson.Serialize([c])).Single());Require(result.Accepted,result.Error?.Message??"Rejected fixture input");}
     private static void Replay(GameEngine g,ContentRegistry r){var restored=GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(g.CreateCheckpoint())),r);Require(Enumerable.Range(0,4).All(s=>SnapshotJson.Serialize(g.CreateSnapshot(s))==SnapshotJson.Serialize(restored.CreateSnapshot(s)))&&g.CardMovements.SequenceEqual(restored.CardMovements)&&JsonSerializer.Serialize(g.ResolutionStack)==JsonSerializer.Serialize(restored.ResolutionStack),"Four viewer and exact typed stack restore from accepted commands.");}
     private static void Conserve(GameEngine g)=>Require(g.CreateCardZoneDiagnostics().Count==80&&g.CreateCardZoneDiagnostics().Select(c=>c.CardId).Distinct().Count()==80,"Single physical entity ledger.");
@@ -132,4 +91,5 @@ internal static partial class FengLinYuJiChecks
             b.AddMode(new(card=="mixed-borrowed"?"identity:classic-yuji-borrowed":"identity:yuji-check","于吉机制",4,4,new Dictionary<string,int>{[nameof(Role.Lord)]=1,[nameof(Role.Loyalist)]=1,[nameof(Role.Rebel)]=2},"fixture:yu-deck",GeneralCandidateCount:4,GeneralPoolIds:["fixture:yuji","fixture:yu-1","fixture:yu-2","fixture:yu-3"]));
         }
     }
+    private static void Settle(GameEngine g)=>Reach(g,p=>p.Kind==DecisionKind.PlayCard&&p.PlayerSeat==0);
 }

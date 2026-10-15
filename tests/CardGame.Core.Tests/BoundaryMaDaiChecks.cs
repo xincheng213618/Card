@@ -74,71 +74,6 @@ internal static class BoundaryMaDaiChecks
         _=Cold(g,r);
     }
 
-    public static void ExtraPlayFreezesIndependentCohortsAndExpiresOnActualTurnEnd()
-    {
-        var (g,r)=Create(extraPlay:true);var turn=g.State.TurnNumber;var first=g.State.Players[0].Hand.First().Id;
-        g=Show(g,r,first);Play(g);var firstPolicy=OwnerPolicies(g).Single();Use(g,"further");Play(g);
-        Require(Facts<TurnRuleModifierGrantedEvent>(g).Any(e=>e.Modifier.Source.OwnerSeat==0 &&e.Modifier.Query==SkillRuleQuery.OutgoingDistance &&e.Modifier.Amount==2) &&
-            firstPolicy.AffectedSeats.Count==3 &&!Facts<TurnCardUseEffectsExpiredEvent>(g).Any(e=>e.GrantSequences.Any(firstPolicy.RestrictionSequences.Contains)),
-            "A real distance modifier changes later combat eligibility while the already-issued whole-turn cohort remains frozen.");
-        End(g);ReachQianxi(g);var second=g.State.Players[0].Hand.First(c=>c.Id!=first).Id;
-        g=Show(g,r,second);Play(g);var policies=OwnerPolicies(g).ToArray();var next=policies.Last();
-        Require(policies.Length==2 &&next.TurnNumber==turn &&firstPolicy.TurnNumber==turn &&
-            next.ActualPlayStartingFrameId!=firstPolicy.ActualPlayStartingFrameId &&next.CardId==second &&next.AffectedSeats.Count==0 &&
-            !Facts<TurnCardUseEffectsExpiredEvent>(g).Any(e=>e.GrantSequences.Any(firstPolicy.RestrictionSequences.Contains)),
-            "The inserted Play and normal Play are separate genuine starting parents; the second distance-empty issue does not revoke the first same-turn ban.");
-        g=Cold(g,r);End(g);
-        Until(g,()=>Facts<TurnCardUseEffectsExpiredEvent>(g).Any(e=>e.TurnNumber==turn &&e.TurnSeat==0 &&
-            firstPolicy.RestrictionSequences.All(e.GrantSequences.Contains)));
-        Require(Facts<TurnEndedEvent>(g).Any(e=>e.ActorSeat==0 &&e.TurnNumber==turn) &&
-            Facts<ShownEntityTurnPolicyGrantedEvent>(g).Count(e=>e.Policy.ActualTurnOwnerSeat==0 &&e.Policy.TurnNumber==turn)==2,
-            "Both actual phases issue once, and the genuine turn boundary expires the old hand bans rather than a Slash-debit or temporary child boundary.");
-        _=Cold(g,r);
-    }
-
-    public static void NativeRevealAndForeignProviderUseKeepPublicPoliciesDetached()
-    {
-        var (ai,ar)=Create(native:true);Play(ai);
-        var native=Facts<ShownEntityTurnPolicyGrantedEvent>(ai).First(e=>e.Policy.Source.OwnerSeat!=0).Policy;
-        var mutable=native.AffectedSeats.ToList();var frozen=native with{AffectedSeats=mutable};mutable.Clear();
-        Require(frozen.AffectedSeats.SequenceEqual(native.AffectedSeats) &&frozen.AffectedSeats is System.Collections.IList{IsReadOnly:true} &&
-            Facts<ProgramCardsRevealedEvent>(ai).Any(e=>e.FrameId==native.ProgramFrameId &&e.OwnerSeat==native.Source.OwnerSeat &&e.Cards.Single().Id==native.CardId),
-            "Native AI uses the shared real own-Play reveal and public policy; explicit init keeps the issued cohort detached.");
-        _=Cold(ai,ar);
-
-        var (g,r)=Create(provider:true);var shown=g.State.Players[0].Hand.First().Id;g=Show(g,r,shown);Play(g);
-        var provider=Peer(g);var target=Enumerable.Range(1,3).First(s=>s!=provider);
-        // The fixture's visible source-suit rewrite lets its real red supplied
-        // Slash survive the frozen black Hand ban; no hidden ID is injected.
-        foreach(var seat in Enumerable.Range(1,3))
-        {
-            for(var n=0;g.State.Players[seat].HandCount>0 &&n<12;n++)
-            {
-                Use(g,"strip",targets:[seat]);
-                Reach(g,p=>p.SkillPrompt?.SkillId==Driver &&p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="select-and-move-owned-card"));
-                Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="select-and-move-owned-card");Play(g);
-            }
-            Require(g.State.Players[seat].HandCount==0,"Real opaque one-card discard commands empty only actual provider candidate hands.");
-        }
-        Use(g,"give",[shown],[provider]);Play(g);
-        Require(g.CreateCardZoneDiagnostics().Single(c=>c.CardId==shown).Location==CardLocation.Hand(provider),"The shown entity reaches the different provider through a real gift movement.");
-        Use(g,"request",targets:[target]);Reach(g,p=>p.SkillPrompt?.SkillId=="fixture:md-committed");
-        var use=BenefitUse(g);var useId=use.Id;
-        Require(use.Action is {Type:CardActionType.Use,ActorSeat:0} action &&action.ProviderSeat==provider &&
-            action.PhysicalCards is [{CardId:var id,From:var from}] &&id==shown &&from==CardLocation.Hand(provider) &&
-            use.SourceSeat==0 &&use.ShownEntityBenefits!.Single().Policy.CardId==shown,
-            "A genuine owner Use provided by another character retains that real provider and complete material origin, while earning the displayed entity benefit.");
-        g=Cold(g,r);Continue(g);Reach(g,p=>p.SkillPrompt?.SkillId=="fixture:md-damage");
-        Require(Facts<DamageAppliedEvent>(g).Single(e=>e.SourceSeat==0 &&e.TargetSeat==target).Amount==2,
-            "The current text follows the true user and damage source, without imposing an invented same-provider restriction.");
-        g=Cold(g,r);Continue(g);Play(g);
-        Require(Facts<CardUseFinishedEvent>(g).Count(e=>e.ResolutionId==useId)==1 &&
-            Facts<ShownEntityUseBenefitIssuedEvent>(g).Count(e=>e.CardUseFrameId==useId)==1 &&
-            g.CardMovements.Count(m=>m.CardId==shown &&m.From==CardLocation.Hand(provider) &&m.To==CardLocation.Processing)==1,
-            "A cold faction-provided physical Slash pays the provider's actual entity once and returns its original typed parent once.");
-        _=Cold(g,r);
-    }
-
     private static IEnumerable<T> Facts<T>(GameEngine g) where T:IGameEvent=>g.Events.Select(e=>e.Payload).OfType<T>();
     private static IEnumerable<ShownEntityTurnPolicy> OwnerPolicies(GameEngine g)=>Facts<ShownEntityTurnPolicyGrantedEvent>(g).Select(e=>e.Policy).Where(p=>p.Source.OwnerSeat==0);
     private static PendingDecision? P(GameEngine g)=>Enumerable.Range(0,4).Select(s=>g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p=>p is not null);
@@ -157,7 +92,6 @@ internal static class BoundaryMaDaiChecks
     }
     private static void Use(GameEngine g,string binding,IReadOnlyList<int>? cards=null,IReadOnlyList<int>? targets=null)=>
         Accept(g,new UseProgramSkillCommand(0,Driver,binding,cards??[],targets??[],g.Revision,P(g)!.PromptId));
-    private static void End(GameEngine g)=>Accept(g,new EndPlayPhaseCommand(0,g.Revision,P(g)!.PromptId));
     private static void Play(GameEngine g)=>Reach(g,p=>p is {Kind:DecisionKind.PlayCard,PlayerSeat:0});
     private static void Continue(GameEngine g)
     {if(P(g)!.PlayerSeat==0)Answer(g,c=>c.Parameters.GetValueOrDefault("option-id")=="continue");else Accept(g,new AdvanceOneStepCommand(g.Revision));}

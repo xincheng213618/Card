@@ -141,6 +141,7 @@ public sealed partial class GameEngine
         return SkillProgramStepOutcome.AwaitChoice;
     }
 
+    [ProgramAnswer("zhuihuan-arm")]
     private void ResolveZhuihuanArmChoice(PromptChoice selected)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ??
@@ -309,6 +310,7 @@ public sealed partial class GameEngine
             .Select(armed => armed.FrameId).ToArray();
     }
 
+    [ProgramAiChoice(SkillProgramEffectOp.ZhuihuanArm)]
     private PromptChoice SelectAiZhuihuanArmChoice(PendingDecision decision) =>
         decision.Choices
             .OrderByDescending(choice => choice.Targets.Contains(decision.PlayerSeat))

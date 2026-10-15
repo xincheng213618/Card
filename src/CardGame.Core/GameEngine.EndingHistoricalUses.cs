@@ -66,6 +66,7 @@ public sealed partial class GameEngine
         result.Add(new(new($"historical-ending.{f.Id}.skip"),"不使用，结束本次技能。",[],[],new Dictionary<string,string>{["program-action"]="historical-ending",["frame-id"]=f.Id.ToString(CultureInfo.InvariantCulture),["option"]="skip"}));
         return Array.AsReadOnly(result.ToArray());
     }
+    [ProgramAiChoice(SkillProgramEffectOp.UseOwnPlayHistoryAtEnding)]
     private PromptChoice SelectAiHistoricalEndingUse(PendingDecision decision, ProgramSkillFrame f)
     {
         var (index, thought) = _aiBrains[decision.PlayerSeat].ChooseHistoricalEndingUse(CreateSnapshot(decision.PlayerSeat), HistoricalEndingActions(f), ++_thoughtSequence);
@@ -80,6 +81,7 @@ public sealed partial class GameEngine
         {PromptId=CreatePromptId(),IsPrivate=true,TargetSeat=f.OwnerSeat,Choices=choices,SkillPrompt=new(f.SkillId,skill.Name,skill.Name,skill.Description)};
         _status=_players[f.OwnerSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
+    [ProgramAnswer("historical-ending")]
     private void ResolveHistoricalEndingChoice(PromptChoice choice)
     {
         var f=(ProgramSkillFrame)_resolutionStack.Last(); AssertEndingHistoricalUses(f); var r=f.EndingHistoricalUses!;

@@ -136,6 +136,7 @@ public sealed partial class GameEngine
         choice.Parameters.GetValueOrDefault("frame-id") == frame.Id.ToString(System.Globalization.CultureInfo.InvariantCulture) &&
         SlashSuitDiscardChoices(frame).Any(candidate => candidate.Id == choice.Id);
 
+    [ProgramAnswer("slash-suit-discard")]
     private void ResolveProgramSlashSuitDiscardChoice(PromptChoice choice)
     {
         var frame = GetActiveProgramFrame(_resolutionStack[^1].Id);
@@ -176,6 +177,7 @@ public sealed partial class GameEngine
         HasCurrentCardEnhancement(attack.ResolutionId, CurrentCardEnhancement.Uncancelable) ||
         GetCardAttackState(attack.ResolutionId).JudgmentSuitDodgeRestriction?.TargetSeat == attack.TargetSeat;
 
+    [ProgramAiChoice(SkillProgramEffectOp.SuppressCurrentSlashTargetAndJudgeSuitDiscard)]
     private PromptChoice SelectAiSlashSuitDiscard(PendingDecision decision, ProgramSkillFrame frame) =>
         decision.Choices.OrderBy(choice => choice.Cards.Count == 0 ? double.MaxValue :
             GetKeepValue(SlashSuitDiscardCards(frame.SlashSuitDiscard!).Single(card => card.Id == choice.Cards[0]),

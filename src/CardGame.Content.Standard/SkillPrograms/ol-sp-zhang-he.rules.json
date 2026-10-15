@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 62,
+  "skills": [{ "id": "ol:zhouxuan", "revision": 1, "triggers": [
+    { "id": "discard-private-whirl", "window": "discardPhaseStarting", "subject": "owner", "optional": true,
+      "effects": [{ "op": "depositPrivateWhirlUntilNextPlayEnding", "target": "owner" }] },
+    { "id": "use-private-whirl", "window": "cardUseCommitted", "ownerRelation": "actor", "optional": false,
+      "effects": [{ "op": "consumePrivateWhirlForActualUse", "target": "owner" }] },
+    { "id": "next-play-whirl-expiry", "window": "playEnding", "subject": "owner", "optional": false,
+      "effects": [{ "op": "clearPrivateWhirlAtNextPlayEnding", "target": "owner" }] }
+  ] }]
+}

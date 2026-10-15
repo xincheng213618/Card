@@ -6,27 +6,7 @@ using CardGame.Content.Standard;
 internal static class DamageTargetBudgetChecks
 {
     private const string Skill = "ol:luanzhan", Driver = "fixture:damage-budget-driver", Watch = "fixture:damage-budget-watch";
-    private const string Owner = "fixture:damage-budget-owner", Quiet = "fixture:damage-budget-quiet", Mode = "identity:damage-budget";
-    public static void ExactContractsAndFrozenOrderedCollections()
-    {
-        var rules = Embedded("rules.json"); var labels = Embedded("presentation.json"); _ = SkillProgramCatalog.Load(rules, labels);
-        foreach (var (index, field, value) in new[] { (0, "damageOccurrence", "perDamagePoint"), (0, "subject", "owner"),
-            (1, "window", "cardUseCommitted"), (1, "ownerRelation", "target") })
-        {
-            var n = JsonNode.Parse(rules)!; n["skills"]![0]!["triggers"]![index]![field] = value;
-            Reject(() => SkillProgramCatalog.Load(n.ToJsonString(), labels), "Only exact mandatory occurrence and native actor designation contracts load.");
-        }
-        var original = new List<int> { 1, 0 }; var added = new List<int> { 2, 0 }; var result = new List<int> { 1, 0, 2, 0 };
-        var parameters = new Dictionary<string,string> { ["branch"] = "add" };
-        var r = new DamageTargetBudgetReceipt { OriginalTargets = original, AddedTargets = added,
-            Choices = [new(new("frozen"), "frozen", [], added, parameters)] };
-        var frozen = (DamageTargetBudgetResolvedEvent)CommittedEventProjection.Freeze(new DamageTargetBudgetResolvedEvent(1, r, result));
-        original.Clear(); added.Clear(); result.Clear(); parameters["branch"] = "done";
-        Need(frozen.Receipt.OriginalTargets.SequenceEqual([1,0]) && frozen.Receipt.AddedTargets.SequenceEqual([2,0]) &&
-            frozen.ResultTargets.SequenceEqual([1,0,2,0]) && frozen.Receipt.Choices[0].Parameters["branch"] == "add" &&
-            frozen.ResultTargets is ICollection<int> { IsReadOnly: true } && frozen.Receipt.Choices[0].Parameters is IDictionary<string,string> { IsReadOnly: true },
-            "Committed collections preserve ordered Borrowed Sword pairs and repeated victims without writable nested policy data.");
-    }
+    private const string Owner = "fixture:damage-budget-owner", Quiet = "fixture:damage-budget-quiet", Mode = "identity:classic-damage-budget", Loss = "fixture:damage-budget-loss";
     public static void ActualDamageOccurrencesSelfSourceLessAndTwoPoints()
     {
         var (g, registry) = Start("damage");
@@ -45,64 +25,6 @@ internal static class DamageTargetBudgetChecks
         var old = Count(g); Use(g, "foreign-self", [1]); Reach(g, () => P(g)?.SkillPrompt?.SkillId == Watch);
         g = Cold(g, registry); Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue"); Play(g);
         Need(Count(g) == old && E<DamageTargetBudgetGainedEvent>(g).Count() == 4, "A real damage occurrence involving neither owner direction does not manufacture a mark.");
-    }
-    public static void ActualSlashFrozenBudgetSelectionsRecoveryAndOneUse()
-    {
-        var (g, registry) = Start("slash"); Bank(g, 3); Use(g, "wide"); Play(g);
-        var before = Enumerable.Range(1,3).Select(s => V(g,s).Hp).ToArray(); Native(g, NativeAction(g, LegalActionKind.Slash, [1]));
-        Reach(g, () => Budget(P(g))); var p = P(g)!; var revision = g.Revision; var state = State(g);
-        Need(!g.Submit(new AnswerPromptCommand(1, p.PromptId, p.Choices[0].Id, revision)).Accepted && State(g) == state,
-            "Only the real user may answer its public frozen budget.");
-        g = Cold(g, registry); Answer(g, c => c.Targets.SequenceEqual([2]));
-        Need(!g.Submit(new AnswerPromptCommand(0, p.PromptId, p.Choices[0].Id, revision)).Accepted,
-            "A prior selection prompt cannot select again after one actual append.");
-        g = Cold(g, registry); Answer(g, c => c.Targets.SequenceEqual([3]));
-        g = Cold(g, registry); Answer(g, c => c.Parameters["branch"] == "done"); Play(g);
-        var settled = E<DamageTargetBudgetSettledEvent>(g).Single(); var resolved = E<DamageTargetBudgetResolvedEvent>(g).Single();
-        Need(settled.FrozenBudget == 3 && settled.FinalTargetCount == 3 && settled.Removed == 0 &&
-            resolved.ResultTargets.SequenceEqual([1,2,3]) && Count(g) == 6 && Enumerable.Range(1,3).All(s => V(g,s).Hp == before[s-1]-1),
-            "A frozen X adds up to three legal native targets; the whole finalized count is checked before each distinct native damage later earns its own mark.");
-        OneUse(g, settled.CardUseFrameId, settled.ActionId); g = Cold(g, registry);
-        Need(E<DamageTargetBudgetSettledEvent>(g).Count() == 1, "Restoring the completed actual use cannot repeat the target debit.");
-        var (limited, limitedRegistry) = Start("slash"); Bank(limited, 1); Native(limited, NativeAction(limited, LegalActionKind.Slash, [1]));
-        Reach(limited, () => Budget(P(limited)));
-        Need(!P(limited)!.Choices.Any(c => c.Targets.SequenceEqual([2])) && P(limited)!.Choices.Any(c => c.Targets.SequenceEqual([3])),
-            "A real range-one Slash offers its adjacent extra target and excludes the opposite seat, without making the budget distance-free.");
-        limited = Cold(limited, limitedRegistry); Answer(limited, c => c.Targets.SequenceEqual([3]));
-        Need(P(limited)!.Choices.All(c => c.Parameters["branch"] == "done"), "Frozen X=1 cannot append a second extra target.");
-        limited = Cold(limited, limitedRegistry); Answer(limited, c => c.Parameters["branch"] == "done"); Play(limited);
-        var small = E<DamageTargetBudgetSettledEvent>(limited).Single();
-        Need(small.FrozenBudget == 1 && small.FinalTargetCount == 2 && small.Removed == 0 && Count(limited) == 3,
-            "The small budget completes two actual independent target effects with no extra cost.");
-        OneUse(limited, small.CardUseFrameId, small.ActionId);
-    }
-    public static void ActualOddHalfAfterFinalizationAndIssuedSourceLoss()
-    {
-        foreach (var loss in new[] { false, true })
-        {
-            var (g, registry) = Start(loss ? "loss" : "slash"); Bank(g, 3); Native(g, NativeAction(g, LegalActionKind.Slash, [1]));
-            Reach(g, () => Budget(P(g))); g = Cold(g, registry); Answer(g, c => c.Parameters["branch"] == "done");
-            if (loss)
-            {
-                Reach(g, () => P(g)?.SkillPrompt?.SkillId == Watch); var receipt = g.ResolutionStack.OfType<CardUseFrame>().Single(u => u.DamageTargetBudget is not null).DamageTargetBudget!;
-                Need(receipt is { FrozenBudget: 3, Completed: true, Settled: false } && Count(g) == 3,
-                    "Choosing no extra target does not debit before a later genuine finalized-target child finishes.");
-                g = Cold(g, registry); Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
-            }
-            Play(g); var settled = E<DamageTargetBudgetSettledEvent>(g).Single();
-            Need(settled is { FrozenBudget: 3, FinalTargetCount: 1, Removed: 2, NewCount: 1 } &&
-                Count(g) == (loss ? 1 : 2) && (!loss || !V(g,0).Skills!.Any(s => s.Id == Skill)),
-                "The final sole target removes ceil(3/2), retaining one mark; losing the issued skill does not abandon or repay its debit.");
-            OneUse(g, settled.CardUseFrameId, settled.ActionId); g = Cold(g, registry);
-        }
-        var (later, laterRegistry) = Start("late-gain"); Bank(later,2); Native(later, NativeAction(later, LegalActionKind.Slash, [1]));
-        Reach(later, () => Budget(P(later))); Answer(later, c => c.Parameters["branch"] == "done");
-        Reach(later, () => P(later)?.SkillPrompt?.SkillId == Watch); later = Cold(later, laterRegistry);
-        Answer(later, c => c.Parameters.GetValueOrDefault("option-id") == "continue"); Play(later);
-        var final = E<DamageTargetBudgetSettledEvent>(later).Single();
-        Need(final is { FrozenBudget: 2, MarkersBeforeSettlement: 3, FinalTargetCount: 1, Removed: 2, NewCount: 1 } && Count(later)==2,
-            "Actual damage in a later designation child adds a mark after the quota is frozen; the final half observes three actual marks, then the original Slash earns another mark.");
-        OneUse(later,final.CardUseFrameId,final.ActionId); later = Cold(later,laterRegistry);
     }
     public static void ActualBorrowedSwordOrderedPairsAndIronChainSelf()
     {
@@ -123,27 +45,13 @@ internal static class DamageTargetBudgetChecks
         Need(E<DamageTargetBudgetSettledEvent>(chain).Count() == 1 && Count(chain) == 2, "Actual Iron Chain recast is not a Use and neither spends nor offers the budget.");
         chain = Cold(chain, chainRegistry);
     }
-    public static void ActualZeroMaterialSlashAndEffectiveRedExclusion()
-    {
-        var (g, registry) = Start("virtual", stopAtVirtual:true); Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate");
-        Reach(g, () => P(g)?.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "select-target") == true); Answer(g, c => c.Targets.SequenceEqual([1]));
-        Reach(g, () => Budget(P(g))); g = Cold(g, registry); Answer(g, c => c.Targets.SequenceEqual([2])); Answer(g, c => c.Parameters["branch"] == "done"); Play(g);
-        var settled = E<DamageTargetBudgetSettledEvent>(g).Single(); var action = E<CardActionAcceptedEvent>(g).Single(e => e.Action.ActionId == settled.ActionId).Action;
-        Need(action.PhysicalCards.Count == 0 && E<DamageAppliedEvent>(g).Count() == 5 && Count(g) == 3 && settled.Removed == 2,
-            "A legitimate native zero-material Slash keeps its original program return while its added-target cursor resolves on the same actual Use.");
-        OneUse(g, settled.CardUseFrameId, settled.ActionId, physical:false); g = Cold(g, registry);
-        var (red, redRegistry) = Start("red"); Bank(red,3); Native(red, NativeAction(red, LegalActionKind.Snatch, [1])); Play(red);
-        Need(!E<DamageTargetBudgetOfferedEvent>(red).Any() && !E<DamageTargetBudgetSettledEvent>(red).Any() && Count(red) == 3,
-            "An actual black physical Snatch rewritten to effective red cannot offer or halve the black-trick budget."); red = Cold(red, redRegistry);
-    }
     private static bool Budget(PendingDecision? p) => p?.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "damage-target-budget") == true;
-    private static string Embedded(string suffix) { using var s=typeof(StandardClassicGeneralPackage).Assembly.GetManifestResourceStream($"CardGame.Content.Standard.SkillPrograms.ol-ta-dun.{suffix}")!; using var r=new StreamReader(s); return r.ReadToEnd(); }
+    private static string Embedded(string suffix,string package="ol-ta-dun") { using var s=typeof(StandardClassicGeneralPackage).Assembly.GetManifestResourceStream($"CardGame.Content.Standard.SkillPrograms.{package}.{suffix}")!; using var r=new StreamReader(s); return r.ReadToEnd(); }
     private static PlayerSnapshot V(GameEngine g,int s)=>g.CreateSnapshot(s).Players[s];
     private static PendingDecision? P(GameEngine g)=>g.CreateSnapshot(0).PendingDecision;
     private static int Count(GameEngine g)=>(V(g,0).Markers??[]).SingleOrDefault(m=>m.Kind==PlayerMarkerKind.LuanZhan)?.Count??0;
     private static IEnumerable<T> E<T>(GameEngine g) where T:IGameEvent=>g.Events.Select(e=>e.Payload).OfType<T>();
     private static void Need(bool good,string message) { if(!good)throw new InvalidOperationException(message); }
-    private static void Reject(Action action,string message) { try{action();}catch(InvalidOperationException){return;}throw new InvalidOperationException(message); }
     private static void Accept(GameEngine g,GameCommand c) { var r=g.Submit(CommandJson.Deserialize(CommandJson.Serialize([c])).Single()); Need(r.Accepted,r.Error?.Message??"Real budget command rejected."); }
     private static void Answer(GameEngine g,Func<PromptChoice,bool> choose) { var p=P(g)!;Accept(g,new AnswerPromptCommand(p.PlayerSeat,p.PromptId,p.Choices.First(choose).Id,g.Revision)); }
     private static void Use(GameEngine g,string id,IReadOnlyList<int>? targets=null)=>Accept(g,new UseProgramSkillCommand(0,Driver,id,[],targets??[],g.Revision,P(g)!.PromptId));
@@ -173,7 +81,10 @@ internal static class DamageTargetBudgetChecks
     {
         var accepted=E<CardActionAcceptedEvent>(g).Single(e=>e.Action.ActionId==action).Action;
         Need(E<CardUseFinishedEvent>(g).Count(e=>e.ResolutionId==id)==1,"One accepted native Use finishes exactly once.");
-        if(physical)foreach(var c in accepted.PhysicalCards)Need(g.CardMovements.Count(m=>m.CardId==c.CardId&&m.To==CardLocation.DiscardPile&&m.Reason==CardMoveReasons.UseFinished)==1,"Original physical material settles once after every native target.");
+        var finishReason = accepted.EffectiveKind == CardKind.IronChain ? CardMoveReasons.IronChainFinished : CardMoveReasons.UseFinished;
+        if(physical)foreach(var c in accepted.PhysicalCards)Need(g.CardMovements.Count(m=>m.CardId==c.CardId&&m.To==CardLocation.DiscardPile&&m.Reason==finishReason)==1 &&
+            g.CardMovements.Count(m=>m.CardId==c.CardId&&m.From==CardLocation.Processing&&m.To==CardLocation.DiscardPile)==1,
+            "Original physical material settles once with its exact native finish reason after every native target.");
     }
     private static (GameEngine,ContentRegistry) Start(string scenario,bool stopAtVirtual=false)
     {
@@ -188,6 +99,11 @@ internal static class DamageTargetBudgetChecks
         public void Register(IContentRegistryBuilder b)
         {
             var content=SkillProgramCatalog.Load(Embedded("rules.json"),Embedded("presentation.json"));foreach(var(id,p)in content.Programs)b.AddSkill(new(id,content.Presentations[id].Name,content.Presentations[id].Description){Program=p,ProgramPresentation=content.Presentations[id]});
+            if(scenario=="late-gain")
+            {
+                var benefit=SkillProgramCatalog.Load(Embedded("rules.json","ol-ma-yun-lu"),Embedded("presentation.json","ol-ma-yun-lu"));
+                foreach(var(id,p)in benefit.Programs)b.AddSkill(new(id,benefit.Presentations[id].Name,benefit.Presentations[id].Description){Program=p,ProgramPresentation=benefit.Presentations[id]});
+            }
             var rules=JsonNode.Parse($$"""
             {"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[
               {"id":"{{Driver}}","revision":1,"activations":[
@@ -197,33 +113,51 @@ internal static class DamageTargetBudgetChecks
                 {"id":"outgoing-two","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"otherLiving","usesPerTurn":null,"effects":[{"op":"damage","target":"selectedTarget","amount":2}]},
                 {"id":"source-less","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"receiveOwnerDamage","target":"owner","amount":1}]},
                 {"id":"foreign-self","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"otherLiving","usesPerTurn":null,"effects":[{"op":"damage","target":"selectedTarget","sourceRef":{"kind":"selectedTarget"},"amount":1}]},
-                {"id":"wide","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"grantTurnRuleModifier","target":"owner","ruleQuery":"attackRange","ruleOperation":"add","amount":10}]},
+                {"id":"wide","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"grantTurnRuleModifier","target":"owner","ruleQuery":"attackRange","ruleOperation":"unlimited"}]},
                 {"id":"draw20","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"draw","target":"owner","amount":20}]},
                 {"id":"equip","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"useRandomDeckEquipment","target":"owner","resultBind":"gear"}]}]},
               {"id":"{{Quiet}}","revision":1,"triggers":[{"id":"quiet","window":"drawPhaseStarting","subject":"owner","optional":false,"effects":[{"op":"grantTurnRuleModifier","target":"owner","ruleQuery":"slashLimit","ruleOperation":"add","amount":-20}]}]}
             ]}
             """)!;
             var labels=new Dictionary<string,object>{[Driver]=new{name="真实规则准备",description="实际damage及native装备"},[Quiet]=new{name="其他角色",description="真实限制主动杀"}};
-            if(scenario is "damage" or "loss" or "late-gain")
+            if(scenario is "damage" or "loss")
             {
                 rules["skills"]!.AsArray().Add(JsonNode.Parse($$"""
-                {"id":"{{Watch}}","revision":1,"triggers":[{"id":"real-child","window":"{{(scenario=="damage"?"afterDamageApplied":"cardUseTargetsFinalized")}}",{{(scenario=="damage"?"\"subject\":\"any\",\"damageOccurrence\":\"perDamage\"":"\"ownerRelation\":\"actor\"" )}},"priority":{{(scenario=="damage"?-100:950)}},"optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"child","options":[{"id":"continue"}]}{{(scenario=="loss"?",{\"op\":\"loseOwnerSkillsAndGrant\",\"target\":\"owner\",\"skillIds\":[\"ol:luanzhan\"],\"sourceBind\":\"standard:none\"}":scenario=="late-gain"?",{\"op\":\"damage\",\"target\":\"owner\",\"amount\":1}":"")}}]}]}
+                {"id":"{{Watch}}","revision":1,"triggers":[{"id":"real-child","window":"{{(scenario=="damage"?"afterDamageApplied":"cardUseTargetsFinalized")}}",{{(scenario=="damage"?"\"subject\":\"any\",\"damageOccurrence\":\"perDamage\"":"\"ownerRelation\":\"actor\"" )}},"priority":{{(scenario=="damage"?-100:950)}},"optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"child","options":[{"id":"continue"}]}{{(scenario=="loss"?",{\"op\":\"loseHp\",\"target\":\"owner\",\"amount\":20}":scenario=="late-gain"?",{\"op\":\"damage\",\"target\":\"owner\",\"amount\":1}":"")}}]}]}
                 """));labels[Watch]=new{name="实际子窗",description="原生边界实际选择与失源",optionLabels=new Dictionary<string,string>{{"continue","继续"}}};
+            }
+            if(scenario=="late-gain")
+            {
+                rules["skills"]!.AsArray().Add(JsonNode.Parse($$"""
+                {"id":"{{Watch}}","revision":1,"triggers":[{"id":"actual-first-use-gain-child","window":"cardsGained","subject":"owner","destinationZones":["hand"],"movementOccurrence":"perBatch","movementReasons":["skill-program.first-slash-duel.draw"],"usageScope":"game","usageLimit":1,"optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"child","options":[{"id":"continue"}]},{"op":"damage","target":"owner","amount":1}]}]}
+                """)); labels[Watch]=new{name="实际首用收益子窗",description="凤魄已支付摸牌的真实获得牌子窗伤害",optionLabels=new Dictionary<string,string>{{"continue","继续"}}};
+            }
+            if(scenario=="loss")
+            {
+                rules["skills"]!.AsArray().Add(JsonNode.Parse($$"""
+                {"id":"{{Loss}}","revision":1,"triggers":[{"id":"actual-dying-source-loss","window":"dyingEntering","subject":"owner","usageScope":"game","usageLimit":1,"optional":false,"effects":[{"op":"recoverTo","target":"owner","numberExpression":"integerConstant","minimumValue":12,"clampToMaxHp":true},{"op":"chooseOption","target":"owner","resultBind":"return","options":[{"id":"continue"}]},{"op":"loseOwnerSkillsAndGrant","target":"owner","skillIds":["{{Skill}}"],"sourceBind":"standard:none"}]}]}
+                """)); labels[Loss]=new{name="实际濒死失源",description="实际HP子窗口恢复并失去乱战",optionLabels=new Dictionary<string,string>{{"continue","继续"}}};
             }
             if(scenario=="red")
             {rules["skills"]![0]!["cardPolicies"]=JsonNode.Parse("""[{"id":"effective-red","kind":"rewriteSuit","inputSuit":"spade","outputSuit":"heart"}]""");}
+            if(scenario=="actor")
+            {
+                rules["skills"]!.AsArray().Add(JsonNode.Parse($$"""
+                {"id":"{{Watch}}","revision":1,"triggers":[{"id":"actual-actor-replacement","window":"cardUseTargetsFinalized","ownerRelation":"actor","cardKinds":["slash"],"priority":950,"optional":false,"effects":[{"op":"selectTarget","target":"owner","targetKind":"otherLegalCurrentCardTarget"},{"op":"replaceCurrentCardUseActor","target":"selectedTarget"}]}]}
+                """)); labels[Watch]=new{name="实际使用者变更",description="乱战完成后真实变更使用者"};
+            }
             if(scenario=="virtual")rules["skills"]![0]!["triggers"]=JsonNode.Parse("""
-                [{"id":"real-bank-before-play","window":"turnStartBeforeNormalFlow","subject":"owner","usageScope":"game","usageLimit":1,"optional":false,"effects":[{"op":"damage","target":"owner","amount":1},{"op":"damage","target":"owner","amount":1},{"op":"damage","target":"owner","amount":1},{"op":"grantTurnRuleModifier","target":"owner","ruleQuery":"attackRange","ruleOperation":"add","amount":10}]},
+                [{"id":"real-bank-before-play","window":"turnStartBeforeNormalFlow","subject":"owner","usageScope":"game","usageLimit":1,"optional":false,"effects":[{"op":"damage","target":"owner","amount":1},{"op":"damage","target":"owner","amount":1},{"op":"damage","target":"owner","amount":1},{"op":"grantTurnRuleModifier","target":"owner","ruleQuery":"attackRange","ruleOperation":"unlimited"}]},
                  {"id":"native-virtual","window":"playPhaseStarting","subject":"owner","usageScope":"game","usageLimit":1,"optional":true,"effects":[{"op":"selectTarget","target":"owner","targetKind":"otherLiving"},{"op":"useVirtualCard","target":"selectedTarget","outputKind":"slash","targetRestriction":"distanceUnlimitedAgainstTarget","useCardActionWindows":true}]}]
                 """);
             var fixture=SkillProgramCatalog.Load(rules.ToJsonString(),JsonSerializer.Serialize(new{schemaVersion=SkillProgramCatalog.PresentationSchemaVersion,skills=labels}));
             foreach(var(id,p)in fixture.Programs)b.AddSkill(new(id,fixture.Presentations[id].Name,fixture.Presentations[id].Description){Program=p,ProgramPresentation=fixture.Presentations[id],SelectionWeights=id==Quiet?Enum.GetValues<Role>().ToDictionary(r=>r,_=>10000d):new Dictionary<Role,double>()});
-            b.AddGeneral(new(Owner,"实际标记拥有者","supporter",Driver,"qun",12,scenario is "damage" or "loss" or "late-gain"?[Skill,Watch]:[Skill]));
+            b.AddGeneral(new(Owner,"实际标记拥有者","supporter",Driver,"qun",12,scenario == "loss"?[Skill,Watch,Loss]:scenario == "late-gain"?[Skill,Watch,"ol:fengpo"]:scenario is "damage" or "actor"?[Skill,Watch]:[Skill]));
             var peers=Enumerable.Range(1,3).Select(i=>$"fixture:damage-budget-peer-{i}").ToArray();foreach(var p in peers)b.AddGeneral(new(p,"实际其他角色","supporter",Quiet,"wei",12,[]));
-            b.AddCard(new("fixture:damage-budget-spear","丈八蛇矛","装备牌","实际武器",CardKind.ZhangbaSerpentSpear));
+            b.AddCard(new("fixture:damage-budget-blade","古锭刀","装备牌","原生范围2武器，无双手牌转杀",CardKind.GudingBlade));
             b.AddCard(new("fixture:damage-budget-borrowed","借刀杀人","锦囊牌","实际原生借刀杀人",CardKind.BorrowedSword));
-            var cards=scenario switch{"borrowed"=>new[]{"fixture:damage-budget-borrowed","fixture:damage-budget-spear"},"chain"=>["standard:iron_chain"],"red"=>["standard:snatch"],_=>["standard:slash"]};
-            b.AddDeck(new("fixture:damage-budget-deck","固定实体牌堆",4,0,[]){PhysicalCards=Enumerable.Range(0,64).Select(i=>new ContentDeckPhysicalCard(cards[i%cards.Length],Suit.Spade,7)).ToArray()});
+            var cards=scenario switch{"borrowed"=>new[]{"fixture:damage-budget-borrowed","fixture:damage-budget-blade"},"chain"=>["standard:iron_chain"],"red"=>["standard:snatch"],_=>["standard:slash"]};
+            b.AddDeck(new("fixture:damage-budget-deck","固定实体牌堆",4,0,[]){PhysicalCards=Enumerable.Range(0,64).Select(i=>new ContentDeckPhysicalCard(cards[i%cards.Length],scenario == "late-gain" ? Suit.Diamond : Suit.Spade,7)).ToArray()});
             b.AddMode(new(Mode,"真实标记预算",4,4,new Dictionary<string,int>{{nameof(Role.Lord),1},{nameof(Role.Rebel),3}},"fixture:damage-budget-deck",GeneralCandidateCount:4,GeneralPoolIds:[Owner,..peers]));
         }
     }

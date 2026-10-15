@@ -12,8 +12,9 @@ public sealed partial class GameEngine
 
     private int GetLivingPlayersMinHp() =>
         _players
-            .Where(player => player.IsAlive)
+            .Where(player => player.IsAlive && player.HasHpValue)
             .Select(player => player.Hp)
+            .DefaultIfEmpty()
             .Min();
 
     private RuleQueryEvaluation CalculateDistance(CharacterState source, CharacterState target,
@@ -109,6 +110,8 @@ public sealed partial class GameEngine
                 GetCurrentTurnDefaultStat(player.Seat, SkillRuleQuery.SlashLimit) ?? 1)
         };
         var contributions = CollectNumericRuleContributions(player, SkillRuleQuery.SlashLimit).ToList();
+        if (NeifaSlashLimitBonus(player.Seat) is > 0 and var neifaBonus)
+            AddFiniteContribution(contributions, $"turn:{player.Seat}:neifa:slash-limit", neifaBonus);
         if (HasNextUnlimitedCard(player)) contributions.Add(new UnlimitedRuleQueryContribution($"skill:{player.Seat}:next-card-unlimited"));
         if (HasFriendQihuiAllowance(player)) contributions.Add(new UnlimitedRuleQueryContribution($"skill:{player.Seat}:friend-qihui"));
         if (HasMouWujingAllowance(player)) contributions.Add(new UnlimitedRuleQueryContribution($"skill:{player.Seat}:mou-wujing"));
@@ -151,6 +154,7 @@ public sealed partial class GameEngine
         contributions.AddRange(ProgramDamageHandLimitContributions(player));
         contributions.AddRange(PersistentHandLimitContributions(player));
         contributions.AddRange(ActorHandLimitPenaltyContributions(player));
+        AddFiniteContribution(contributions, $"turn:{player.Seat}:xionghuo:hand-limit", -XuRongHandLimitPenalty(player));
         AddFiniteContribution(contributions, $"turn:{player.Seat}:hand-limit",
             GetAdditiveTurnRuleModifier(player.Seat, SkillRuleQuery.HandLimit));
         foreach (var (source, policy) in CardPolicies(player,
@@ -170,22 +174,19 @@ public sealed partial class GameEngine
             contributions));
     }
 
-    private RuleQueryEvaluation EvaluateCardTargetCount(
-        CharacterState player,
-        CardKind effectiveCardKind) =>
-        RuleQueryService.Evaluate(
-            SkillRuleQuery.CardTargetCount,
-            new RuleQueryBounds(1, int.MaxValue),
-            [new RuleQueryBaseTerm($"card:{effectiveCardKind}:base-target-count", 1)],
-            CollectNumericRuleContributions(
-                player,
-                SkillRuleQuery.CardTargetCount,
-                effectiveCardKind).Concat(
-                _turnCardUseEffects.GetRuleModifiers(_turnNumber, _currentSeat, player.Seat,
-                        SkillRuleQuery.CardTargetCount, effectiveCardKind)
-                    .Where(item => item.Operation == SkillRuleOperation.Add)
-                    .Select(item => (RuleQueryContribution)new FiniteRuleQueryContribution(
-                        $"turn:{item.GrantSequence}:card-target-count", SkillRuleOperation.Add, item.Amount))).ToArray());
+    private RuleQueryEvaluation EvaluateCardTargetCount(CharacterState player, CardKind effectiveCardKind)
+    {
+        var contributions = CollectNumericRuleContributions(player, SkillRuleQuery.CardTargetCount, effectiveCardKind)
+            .Concat(_turnCardUseEffects.GetRuleModifiers(_turnNumber, _currentSeat, player.Seat,
+                    SkillRuleQuery.CardTargetCount, effectiveCardKind)
+                .Where(item => item.Operation == SkillRuleOperation.Add)
+                .Select(item => (RuleQueryContribution)new FiniteRuleQueryContribution(
+                    $"turn:{item.GrantSequence}:card-target-count", SkillRuleOperation.Add, item.Amount))).ToArray();
+        if (NeifaSlashTargetBonus(player.Seat, effectiveCardKind) != 0)
+            contributions = [.. contributions, new FiniteRuleQueryContribution($"turn:{player.Seat}:neifa:slash-target", SkillRuleOperation.Add, 1)];
+        return RuleQueryService.Evaluate(SkillRuleQuery.CardTargetCount, new RuleQueryBounds(1, int.MaxValue),
+            [new RuleQueryBaseTerm($"card:{effectiveCardKind}:base-target-count", 1)], contributions);
+    }
 
     private int GetCardUseDistanceLimit(CharacterState player, CardKind effectiveCardKind) =>
         ConvertRuleValue(RuleQueryService.Evaluate(
@@ -218,6 +219,8 @@ public sealed partial class GameEngine
                 ? marker => player.Markers.GetValueOrDefault(marker) : null,
             PublicLivingFactionCount = bindings.Any(binding => binding.Modifier.ValueExpression == SkillRuleValueExpression.PublicLivingFactionCount)
                 ? GetPublicLivingFactionCount() : null,
+            LivingFemaleCount = bindings.Any(binding => binding.Modifier.ValueExpression == SkillRuleValueExpression.NegatedLivingFemaleCount)
+                ? _players.Count(p => p.IsAlive && p.Gender == GeneralGender.Female) : null,
             CurrentTurnUsedHandSuitCount = bindings.Any(binding => binding.Modifier.ValueExpression == SkillRuleValueExpression.CurrentTurnUsedHandSuitCount)
                 ? CurrentTurnUseKinds(player.Seat).HandSuits : null
         };

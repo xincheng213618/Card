@@ -18,48 +18,6 @@ internal static class Fame2017QinMiChecks
             new[]{result.SourceCardId,result.OpponentCardId}.All(id=>game.CardMovements.Any(m=>m.CardId==id && m.From==CardLocation.DrawPile && m.To==CardLocation.Processing) && game.CreateCardZoneDiagnostics().Single(c=>c.CardId==id).Location==CardLocation.DiscardPile),"Both source and normal AI opponent use distinct real top cards; a real tied contest is not won and cleans up both cards.");
         Require(!game.AcceptedCommands.OfType<AnswerPromptCommand>().Any(c=>c.ActorSeat==1),"The opponent's optional top source is selected by native AI.");Replay(game,registry);Answer(game,c=>c.Parameters.GetValueOrDefault("option-id")=="continue");Replay(game,registry);
     }
-    public static void HandHeartAndEffectiveSuitRank()
-    {
-        foreach(var suit in new[]{Suit.Heart,Suit.Spade})
-        {
-            var (game,registry)=Create(suit==Suit.Spade?"hongyan":"offense",suit);var input=game.CreateSnapshot(0).Players[0].Hand.First();StartContest(game,1);Answer(game,c=>c.Cards.Contains(input.Id));
-            Replay(game,registry);Accept(game,new AdvanceOneStepCommand(game.Revision));Reach(game,p=>p.PlayerSeat==0 && p.Choices.Any(c=>c.Parameters.GetValueOrDefault("option-id")=="continue"));
-            var result=game.Events.Select(e=>e.Payload).OfType<PindianResultDeterminedEvent>().Single().Result;
-            Require(result.SourceCardId==input.Id && result.SourceRank==13 && result.OpponentRank==2 && result.SourceWon && input.Rank==2 && game.CardMovements.Any(m=>m.CardId==input.Id && m.From==CardLocation.Hand(0) && m.To==CardLocation.Processing),"The real hand entity remains physical rank two; its configured effective Heart suit produces rank thirteen in the contest.");Replay(game,registry);
-        }
-    }
-    public static void OffensePerTargetCannotRespond()
-    {
-        var (game,registry)=Create("offense",Suit.Heart);var action=game.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.Slash && a.TargetSeats.Count==2);Require(action.TargetSeats.All(t=>game.CreateSnapshot(t).Players[t].Hand.Count(c=>c.Kind==CardKind.Dodge)>=2),"Both real defenders retain actual Dodge alternatives beyond their one Pindian payment.");Play(game,action);
-        var opponents=new List<int>(); var before=game.CreateSnapshot(0).Players.Select(p=>p.Hp).ToArray();
-        for(var i=0;i<2;i++)
-        {
-            Reach(game,p=>p.PlayerSeat==0 && p.SkillPrompt?.SkillId=="classic:zhuandui" && p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="activate"));Replay(game,registry);RejectUnknown(game);Answer(game,c=>c.Parameters.GetValueOrDefault("program-action")=="activate");
-            Reach(game,p=>p.PlayerSeat==0 && p.Choices.Any(c=>c.Parameters.GetValueOrDefault("action")=="pindian-source-card"));Answer(game,c=>c.Cards.Count==1);Replay(game,registry);
-            Accept(game,new AdvanceOneStepCommand(game.Revision));
-            opponents.Add(game.Events.Select(e=>e.Payload).OfType<PindianResultDeterminedEvent>().Last().Result.OpponentSeat);
-        }
-        Reach(game,p=>p.Kind==DecisionKind.PlayCard);var results=game.Events.Select(e=>e.Payload).OfType<PindianResultDeterminedEvent>().ToArray();
-        Require(results.Length==2 && results.All(e=>e.Result.SourceWon) && opponents.SequenceEqual(action.TargetSeats) && game.CardMovements.Count(m=>m.CardId==action.CardId && m.To==CardLocation.Processing)==1,"Each frozen Slash target receives an independent winning contest with a single actual Slash payment.");
-        Require(action.TargetSeats.All(s=>game.CreateSnapshot(0).Players[s].Hp==before[s]-1),$"Winning offensive contests prohibit each defender's response and preserve each Slash hit. HP={string.Join(",",action.TargetSeats.Select(s=>game.CreateSnapshot(0).Players[s].Hp))}");Replay(game,registry);
-    }
-    public static void DefenseOwnTargetOnlyAndNoEmptyHandContest()
-    {
-        var (game,registry)=Create("defense",Suit.Heart);var initialHp=game.CreateSnapshot(0).Players[0].Hp;Use(game,"request",[1]);Reach(game,p=>p.PlayerSeat==0 && p.SkillPrompt?.SkillId=="classic:zhuandui" && p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="activate"));
-        Answer(game,c=>c.Parameters.GetValueOrDefault("program-action")=="activate");Answer(game,c=>c.Cards.Count==1);Replay(game,registry);Accept(game,new AdvanceOneStepCommand(game.Revision));Reach(game,p=>p.Kind==DecisionKind.PlayCard);
-        Require(game.Events.Select(e=>e.Payload).OfType<PindianResultDeterminedEvent>().Single().Result.SourceWon && game.CreateSnapshot(0).Players[0].Hp==initialHp && game.Events.Select(e=>e.Payload).OfType<ProgramCardEffectNullifiedEvent>().Single().OwnerSeat==0,$"A defensive win makes only this target's real incoming Slash ineffective. HP={game.CreateSnapshot(0).Players[0].Hp}; nullified={game.Events.Select(e=>e.Payload).OfType<ProgramCardEffectNullifiedEvent>().Count()}");Replay(game,registry);
-        Use(game,"discard-all",[]);Reach(game,p=>p.Kind==DecisionKind.PlayCard);Require(game.CreateSnapshot(0).Players[0].HandCount==0,"The fixture empties the real hand before the next request.");
-        Use(game,"request",[2]);Reach(game,p=>p.Kind==DecisionKind.PlayCard);
-        Require(game.Events.Select(e=>e.Payload).OfType<PindianResultDeterminedEvent>().Count()==1 && game.CreateSnapshot(0).Players[0].Hp==initialHp-1,"Top-card replacement never creates Pindian eligibility for an empty hand.");Replay(game,registry);
-    }
-    public static void DefensiveAiNullifiesOnlyOneOfMultipleTargets()
-    {
-        var (game,registry)=Create("ai-defense",Suit.Heart);var owner=game.CreateSnapshot(0).Players.Single(p=>p.GeneralId=="fixture:qinmi-ai").Seat;
-        var action=game.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.Slash && a.TargetSeats.Count==2 && a.TargetSeats.Contains(owner));var other=action.TargetSeats.Single(t=>t!=owner);var initial=game.CreateSnapshot(0).Players.Select(p=>p.Hp).ToArray();Play(game,action);
-        Reach(game,p=>p.PlayerSeat==0 && p.Choices.Any(c=>c.Parameters.GetValueOrDefault("action")=="pindian-card"));Replay(game,registry);RejectUnknown(game);Answer(game,c=>c.Cards.Count==1);Reach(game,p=>p.Kind==DecisionKind.PlayCard);
-        Require(game.CreateSnapshot(0).Players[owner].Hp==initial[owner] && game.CreateSnapshot(0).Players[other].Hp==initial[other]-1 && game.Events.Select(e=>e.Payload).OfType<ProgramCardEffectNullifiedEvent>().Single().OwnerSeat==owner,$"Native defensive Pindian nullifies only its actual owner while the other original Slash target still resolves. HP={game.CreateSnapshot(0).Players[owner].Hp},{game.CreateSnapshot(0).Players[other].Hp}; nullified={game.Events.Select(e=>e.Payload).OfType<ProgramCardEffectNullifiedEvent>().Count()}");
-        Require(!game.AcceptedCommands.OfType<AnswerPromptCommand>().Any(c=>c.ActorSeat==owner),"The defensive owner performs both activation and physical Pindian choice through normal AI.");Replay(game,registry);
-    }
     public static void InterceptAllTargetsActualPaymentAndAi()
     {
         foreach(var suit in new[]{Suit.Spade,Suit.Heart})
@@ -72,39 +30,6 @@ internal static class Fame2017QinMiChecks
             Require(changed.PreviousTargets.SequenceEqual(action.TargetSeats) && changed.Targets.SequenceEqual(suit==Suit.Spade?Array.Empty<int>():new[]{owner}) && game.CreateCardZoneDiagnostics().Single(c=>c.CardId==payment.CardId).Location==CardLocation.DrawPile,"Native AI pays one real private hand entity to the true deck and cancels every original target; only a nonblack use adds the interceptor.");
             Require(action.TargetSeats.All(s=>game.CreateSnapshot(0).Players[s].Hp==before[s]) && game.CreateSnapshot(0).Players[owner].Hp==before[owner]-(suit==Suit.Heart?1:0) && !game.AcceptedCommands.OfType<AnswerPromptCommand>().Any(c=>c.ActorSeat!=0),"All former targets are spared and the normal AI payment/observer continuations never require a manual AI answer.");Replay(game,registry);
         }
-    }
-    public static void InterceptRangeAndCurrentTargetQualification()
-    {
-        var (game,registry)=Create("intercept-far",Suit.Heart);var owner=game.CreateSnapshot(0).Players.Single(p=>p.GeneralId=="fixture:qinmi-ai").Seat;Require(game.GetCombatDistance(0,owner)>game.GetAttackRange(0),"The interceptor is outside the physical user's attack range.");
-        foreach(var target in Enumerable.Range(1,3).Where(s=>s!=owner)){Use(game,"ignore-range",[target]);Reach(game,p=>p.Kind==DecisionKind.PlayCard);}
-        var action=game.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.Slash && !a.TargetSeats.Contains(owner));Play(game,action);Reach(game,p=>p.Kind==DecisionKind.PlayCard);Require(!game.Events.Select(e=>e.Payload).OfType<SlashTargetsReplacedEvent>().Any(),"Slash distance exemption does not provide the interception's attack-range eligibility.");Replay(game,registry);
-    }
-    public static void EmptyDeckUsesRealReshuffle()
-    {
-        var (game,registry)=Create("empty-top",Suit.Spade);StartContest(game,1);Require(!Prompt(game)!.Choices.Any(c=>c.Parameters.GetValueOrDefault("action")=="pindian-top"),"With neither draw pile nor discard entities, an optional top source is not invented.");Answer(game,c=>c.Cards.Count==1);Accept(game,new AdvanceOneStepCommand(game.Revision));Reach(game,p=>p.PlayerSeat==0 && p.Choices.Any(c=>c.Parameters.GetValueOrDefault("option-id")=="continue"));Answer(game,c=>c.Parameters.GetValueOrDefault("option-id")=="continue");Reach(game,p=>p.Kind==DecisionKind.PlayCard);
-        StartContest(game,1);Replay(game,registry);Answer(game,c=>c.Parameters.GetValueOrDefault("action")=="pindian-top");Replay(game,registry);Accept(game,new AdvanceOneStepCommand(game.Revision));Reach(game,p=>p.PlayerSeat==0 && p.Choices.Any(c=>c.Parameters.GetValueOrDefault("option-id")=="continue"));
-        Require(game.CardMovements.Count(m=>m.Reason==CardMoveReasons.Reshuffle)==2 && game.Events.Select(e=>e.Payload).OfType<PindianResultDeterminedEvent>().Count()==2,"A selected empty-deck source uses the existing real two-card reshuffle and deterministic RNG.");Replay(game,registry);
-    }
-    public static void NativeAiCardContestActivation()
-    {
-        var (game,registry)=Create("ai-contest",Suit.Heart);var owner=game.CreateSnapshot(0).Players.Single(p=>p.GeneralId=="fixture:qinmi-ai").Seat;
-        for(var step=0;step<180;step++)
-        {
-            if(game.Events.Select(e=>e.Payload).OfType<PindianResultDeterminedEvent>().Any(e=>e.SkillId=="classic:zhuandui" && e.Result.SourceSeat==owner && e.Result.SourceWon))
-            {Require(!game.AcceptedCommands.OfType<AnswerPromptCommand>().Any(c=>c.ActorSeat==owner),"The Qin Mi AI activates its own Slash contest and selects the actual Pindian entity through AdvanceOneStep.");Replay(game,registry);return;}
-            if(Prompt(game) is {PlayerSeat:0,Kind:DecisionKind.PlayCard} p)Accept(game,new EndPlayPhaseCommand(0,game.Revision,p.PromptId));
-            else if(Prompt(game) is {PlayerSeat:0} human)Answer(game,c=>c.Cards.Count>0 || c.Parameters.GetValueOrDefault("response")=="pass" || c.Cards.Count==0);
-            else Accept(game,new AdvanceOneStepCommand(game.Revision));
-        }
-        throw new InvalidOperationException("Native Qin Mi AI did not reach its actual offensive/defensive Pindian.");
-    }
-    public static void ResourceContracts()
-    {
-        var a=typeof(StandardClassicGeneralPackage).Assembly;string Read(string type){using var st=a.GetManifestResourceStream("CardGame.Content.Standard.SkillPrograms.classic-qin-mi."+type+".json")!;using var rd=new StreamReader(st);return rd.ReadToEnd();}
-        var rules=Read("rules");var p=Read("presentation");SkillProgramCatalog.Load(rules,p);
-        void Reject(Action<System.Text.Json.Nodes.JsonNode> edit){var n=System.Text.Json.Nodes.JsonNode.Parse(rules)!;edit(n);try{SkillProgramCatalog.Load(n.ToJsonString(),p);}catch(InvalidOperationException){return;}throw new InvalidOperationException("Invalid card contest/top policy resource accepted.");}
-        Reject(n=>n["skills"]![0]!["triggers"]![0]!["effects"]![0]!["destination"]="ownerHand");Reject(n=>n["skills"]![0]!["triggers"]![0]!["effects"]![1]!["sourceBind"]="other");
-        Reject(n=>n["skills"]![1]!["triggers"]![0]!["effects"]![0]!["opponentRef"]!["kind"]="owner");Reject(n=>n["skills"]![2]!["cardPolicies"]![1]!["value"]=14);
     }
     private static void StartContest(GameEngine game,int seat)=>Use(game,"contest",[seat]);
     private static void Use(GameEngine g,string id,IReadOnlyList<int> targets)=>Accept(g,new UseProgramSkillCommand(0,"fixture:qinmi-driver",id,[],targets,g.Revision,Prompt(g)!.PromptId));

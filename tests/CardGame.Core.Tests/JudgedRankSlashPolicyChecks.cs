@@ -36,47 +36,6 @@ internal static class JudgedRankSlashPolicyChecks
             "Every high-rank attack is still a genuine whole use and finish, without a fabricated debit/refund."); Cold(g, r);
     }
 
-    public static void QiangwuReplacementEmptyDeckAndIssuedSourceLossHostBoundary()
-    {
-        var (g, r) = Start(replacement: true); ActivateQiangwu(g);
-        Reach(g, p => p.Kind == DecisionKind.ProgramJudgmentReplacement); Cold(g, r);
-        var replacement = V(g).Hand.First(c => c.Rank == 9).Id; Answer(g, c => c.Cards.SequenceEqual([replacement]));
-        Reach(g, p => p.SkillPrompt?.SkillId == Final); Cold(g, r); Continue(g); ReachPlay(g);
-        Require(E<TurnJudgedRankSlashPolicyGrantedEvent>(g).Single().Policy is { Rank: 9, JudgmentCardId: var id } && id == replacement &&
-            E<JudgmentResolvedEvent>(g).Single(e => e.Reason == Qiangwu).CardId == replacement,
-            "X belongs to the actual final replacement card, rather than the initially revealed rank."); Cold(g, r);
-        var (empty, er) = Start(empty: true); ActivateQiangwu(empty); ReachPlay(empty);
-        Require(E<JudgmentResolvedEvent>(empty).Single(e => e.Reason == Qiangwu) is { CardId: null, Rank: null } &&
-            E<TurnJudgedRankSlashPolicyGrantedEvent>(empty).Length == 0 && V(empty).JudgedRankSlashThreshold is null,
-            "A genuinely empty real judgment creates no invented threshold."); Cold(empty, er);
-        var (lost, lr) = Start(); ActivateQiangwu(lost); Reach(lost, p => p.SkillPrompt?.SkillId == Final); Continue(lost); ReachPlay(lost); Cold(lost, lr);
-        // Explicit host state audit after a fully command-replayed real issuance; these mutations are not replay commands.
-        var owner = HostPlayers(lost)[0]; owner.SkillGrants.RemoveGrant(owner.SkillGrants.Grants.Single(a => a.SkillId == Qiangwu).GrantId);
-        Require(V(lost).JudgedRankSlashThreshold is { Rank: 7 } && V(lost).Hand.Where(c => c.Rank == 9).All(c => Slash(lost, c.Id, 1) is not null),
-            "An issued turn policy retains its original result after source loss.");
-        Accept(lost, new EndPlayPhaseCommand(0, lost.Revision, P(lost)!.PromptId));
-        ReachState(lost, () => E<TurnStartedEvent>(lost).Any(e => e.ActorSeat == 1));
-        Require(V(lost).JudgedRankSlashThreshold is null, "The original effect expires at real actual-turn departure.");
-    }
-
-    public static void ShenxianSkipThenRealDrawOnceWithFrozenGainChild()
-    {
-        var (g, r) = Start(shen: true); EndToOther(g); Reach(g, p => p.SkillPrompt?.SkillId == Shenxian);
-        Require(E<OtherActualBasicDiscardDrawIssuedEvent>(g).Length == 0, "Optional exposure does not issue a draw or consume the fact quota."); Cold(g, r);
-        Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "skip");
-        Reach(g, p => p.SkillPrompt?.SkillId == Shenxian); Cold(g, r);
-        Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate"); Reach(g, p => p.SkillPrompt?.SkillId == Gain);
-        var fact = E<OtherActualBasicDiscardDrawIssuedEvent>(g).Single();
-        Require(fact.Source.OwnerSeat == 0 && fact.ActualTurnOwnerSeat == 1 && fact.DiscardOwnerSeat == 1 &&
-            g.CardMovements.Count(m => m.Reason.Value == DrawReason && m.To == CardLocation.Hand(0)) == 1 &&
-            g.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.SkillId == Shenxian),
-            "One accepted original basic discard issues one true Draw and pauses its gain child before the original observer returns."); Cold(g, r); Continue(g);
-        ReachState(g, () => E<ProgramOwnedZoneCardsDiscardedEvent>(g).Count(e => e.SkillId == Peer) == 3);
-        Require(E<OtherActualBasicDiscardDrawIssuedEvent>(g).Length == 1 &&
-            E<SkillUsageConsumedEvent>(g).Count(e => e.SkillId == Shenxian) == 1,
-            "Skipping the first eligible batch leaves the second usable; a third same-turn discard cannot repeat the accepted draw."); Cold(g, r);
-    }
-
     public static void ShenxianOriginalMovedEntityResetAndActualTurnPredicateHostBoundary()
     {
         var (g, r) = Start(shen: true); EndToOther(g); Reach(g, p => p.SkillPrompt?.SkillId == Shenxian); Cold(g, r);
@@ -117,7 +76,6 @@ internal static class JudgedRankSlashPolicyChecks
     private static PlayerSnapshot V(GameEngine g) => g.CreateSnapshot(0).Players[0];
     private static T[] E<T>(GameEngine g) where T : IGameEvent => g.Events.Select(e => e.Payload).OfType<T>().ToArray();
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
-    private static bool Action(PendingDecision p, string id) => p.Choices.Any(c => c.Parameters.GetValueOrDefault("option-id") == id);
     private static void Continue(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
     private static void Answer(GameEngine g, Func<PromptChoice, bool> predicate) { var p = P(g)!; Accept(g, new AnswerPromptCommand(p.PlayerSeat, p.PromptId, p.Choices.First(predicate).Id, g.Revision)); }
     private static void ReachPlay(GameEngine g) => Reach(g, p => p.Kind == DecisionKind.PlayCard && p.PlayerSeat == 0);

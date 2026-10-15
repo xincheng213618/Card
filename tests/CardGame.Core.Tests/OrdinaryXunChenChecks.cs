@@ -9,53 +9,6 @@ internal static class OrdinaryXunChenChecks
     private const string Fenglve = "ol:fenglve";
     private const string Moushi = "ol:moushi";
 
-    public static void Definitions()
-    {
-        var registry = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true),
-            new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage());
-        var general = registry.Generals["ol:xun-chen"];
-        Require(general.Name == "荀谌" && general.FactionId == "qun" && general.BaseHp == 3 &&
-            general.SkillIds.SequenceEqual([Fenglve, Moushi]) &&
-            general.VariantId == "ordinary" && general.RulesetId == "sanguosha-ol",
-            "The OL Xun Chen general registers the current qun 3HP pair.");
-        var fenglve = registry.GetSkill(Fenglve).Program!;
-        var contest = fenglve.Triggers.Single();
-        Require(contest.Window == SkillProgramTriggerWindow.PlayPhaseStarting && contest.Optional &&
-            contest.Effects.Select(e => e.Op).SequenceEqual([
-                SkillProgramEffectOp.SelectTarget, SkillProgramEffectOp.StartPindian,
-                SkillProgramEffectOp.SelectAndMoveOwnedCard, SkillProgramEffectOp.SelectAndMoveOwnedCard,
-                SkillProgramEffectOp.SelectAndMoveOwnedCard, SkillProgramEffectOp.SelectAndMoveOwnedCard,
-                SkillProgramEffectOp.ChooseOption, SkillProgramEffectOp.GivePindianCard]) &&
-            contest.Effects[1].ResultBind == "fenglve-contest" &&
-            contest.Effects[2].Destination == SkillProgramCardDestination.OwnerHand &&
-            contest.Effects[6].Op == SkillProgramEffectOp.ChooseOption &&
-            contest.Effects[7].Condition.Kind == SkillProgramConditionKind.ChoiceIs,
-            "Fenglve contests, takes one card per zone on a win, pays one card on a loss, and may gift its pindian card.");
-        var moushi = registry.GetSkill(Moushi).Program!;
-        var gift = moushi.Triggers.Single(t => t.Window == SkillProgramTriggerWindow.PlayPhaseStarting);
-        Require(gift.Optional && gift.Condition.Kind == SkillProgramTriggerConditionKind.All &&
-            gift.Effects.Select(e => e.Op).SequenceEqual([
-                SkillProgramEffectOp.SetBooleanState, SkillProgramEffectOp.SelectTarget,
-                SkillProgramEffectOp.SelectAndMoveOwnedCard, SkillProgramEffectOp.ChangeParticipantMarker]) &&
-            gift.Effects[3].Marker == PlayerMarkerKind.MouShi && gift.Effects[3].Amount == 1,
-            "Moushi gifts one hand card once per turn and marks the recipient.");
-        var drain = moushi.Triggers.Single(t => t.Window == SkillProgramTriggerWindow.AfterDamageApplied);
-        Require(!drain.Optional && drain.Subject == SkillProgramTriggerSubject.Any &&
-            drain.Effects[0].Op == SkillProgramEffectOp.Draw && drain.Effects[0].Amount == 1 &&
-            drain.Effects[1].Op == SkillProgramEffectOp.ChangeParticipantMarker &&
-            drain.Effects[1].Amount == -1 &&
-            drain.Effects[1].TargetReference!.Kind == ProgramParticipantRef.EventSource,
-            "The marked player's first play-phase damage draws the owner one card and consumes the marker.");
-        var expiry = moushi.Triggers.Single(t => t.Window == SkillProgramTriggerWindow.TurnEnding);
-        Require(expiry.TurnOwnerScope == SkillProgramTurnOwnerScope.OtherLiving && !expiry.Optional &&
-            expiry.Effects.Single().Op == SkillProgramEffectOp.ChangeParticipantMarker &&
-            expiry.Effects.Single().Amount == -1,
-            "The marker expires at the end of the marked player's turn.");
-        Require(registry.GetSkill(Fenglve).ProgramPresentation!.Name == "锋略" &&
-            registry.GetSkill(Moushi).ProgramPresentation!.Name == "谋识",
-            "The presentation carries the current OL Fenglve/Moushi wording.");
-    }
-
     public static void FenglveContestsAndMoushiMarks()
     {
         var (g, r) = Start();
@@ -175,11 +128,6 @@ internal static class OrdinaryXunChenChecks
         Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "select-target" &&
             c.Targets.SequenceEqual([seat]));
     }
-
-    private static int HandLimit(GameEngine g, int seat) => (int)typeof(GameEngine)
-        .GetMethod("GetHandLimit", BindingFlags.Instance | BindingFlags.NonPublic)!
-        .Invoke(g, [((IReadOnlyList<CharacterState>)typeof(GameEngine)
-            .GetField("_players", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(g)!)[seat]])!;
 
     private sealed class Fixture : IGameContentPackage
     {

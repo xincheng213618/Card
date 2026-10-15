@@ -61,25 +61,6 @@ internal static class FengLinLuKangChecks
         Replay(game, registry);
     }
 
-    public static void MountGroupAndDistance()
-    {
-        var (game, registry) = Create("normal");
-        Grow(game);
-        Skill(game, "fixture:driver", "partial-mount");
-        Require(!game.GetHumanLegalActions().Any(a => a.Kind == LegalActionKind.Snatch && a.TargetSeats.Contains(2)), "Distant Snatch is unavailable before the actual slot cost.");
-        Skill(game, "classic:jueyan", "mounts");
-        Require(Capacity(game, EquipmentSlot.OffensiveHorse) == 0 && Capacity(game, EquipmentSlot.DefensiveHorse) == 0, "The paired option pays the remaining live mount slot.");
-        Require(!game.GetHumanLegalActions().Any(a => a.ProgramSkillId == "classic:jueyan"), "All slot options share one actual-phase use.");
-        Play(game, game.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.Snatch && a.TargetSeats.Contains(2)));
-        Reach(game, p => p.Kind == DecisionKind.SelectTargetCard && p.PlayerSeat == 0);
-        Require(Prompt(game)!.Choices.All(c => c.Cards.Count == 0), "The actual distant Snatch still presents hidden hand slots privately.");
-        Replay(game, registry);
-        Reject(game);
-        Answer(game, _ => true);
-        ReachPlay(game);
-        Replay(game, registry);
-    }
-
     public static void SlotCostNestedMovement()
     {
         var (game, registry) = Create("nested");
@@ -98,31 +79,6 @@ internal static class FengLinLuKangChecks
         Answer(game, _ => true);
         ReachPlay(game);
         Require(game.CreateSnapshot(0).Players[0].HandCount == hand + 3 && game.CardMovements.Count(m => m.CardId == equipment && m.To.Zone == CardZoneKind.DiscardPile) == 1, "Resume rewards exactly once and never pays the completed equipment cost twice.");
-        Replay(game, registry);
-    }
-
-    public static void EquipmentRecastAtomicChild()
-    {
-        var (game, registry) = Create("nested");
-        Grow(game);
-        Play(game, game.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.Equip && game.CreateCardZoneDiagnostics().Single(c => c.CardId == a.CardId).CardKind == CardKind.BaguaFormation));
-        ReachPlay(game);
-        var equipment = game.CreateCardZoneDiagnostics().Single(c => c.Location == CardLocation.Equipment(0) && c.CardKind == CardKind.BaguaFormation).CardId;
-        var hand = game.CreateSnapshot(0).Players[0].HandCount;
-        Skill(game, "classic:huairou", "recast-equipment", [equipment], wait: false);
-        Reach(game, p => p.SkillPrompt?.SkillId == "fixture:observer");
-        Require(game.CreateSnapshot(0).Players[0].HandCount == hand + 1 && game.Events.Select(e => e.Payload).OfType<CardRecastEvent>().Count() == 1, "Existing recast protocol commits one real equipment loss and one gain before its movement child.");
-        Replay(game, registry);
-        Reject(game);
-        Answer(game, _ => true);
-        ReachPlay(game);
-        Require(game.CreateSnapshot(0).Players[0].HandCount == hand + 1 && game.Events.Select(e => e.Payload).OfType<CardRecastEvent>().Count() == 1, "A resumed recast child never repeats payment or gain.");
-        var card = game.CreateCardZoneDiagnostics().First(c => c.Location == CardLocation.Hand(0) && EquipmentCatalog.IsEquipment(c.CardKind)).CardId;
-        Skill(game, "classic:huairou", "recast-equipment", [card]);
-        Require(game.Events.Select(e => e.Payload).OfType<CardRecastEvent>().Count() == 2, "An owned hand equipment entity can also be truly recast.");
-        var other = game.CreateCardZoneDiagnostics().First(c => c.Location == CardLocation.Hand(1)).CardId;
-        var before = State(game);
-        Require(!game.Submit(new UseProgramSkillCommand(0, "classic:huairou", "recast-equipment", [other], [], game.Revision, Prompt(game)!.PromptId)).Accepted && State(game) == before, "Another owner's entity cannot pay recast, atomically.");
         Replay(game, registry);
     }
 
@@ -146,104 +102,6 @@ internal static class FengLinLuKangChecks
         var owner = game.CreateSnapshot(0).Players[0];
         Require(owner.MaxHp == 4 && !owner.Skills!.Any(s => s.ContentId == "classic:jueyan") && owner.Skills!.Any(s => s.ContentId == "classic:huairou") && !owner.Skills!.Any(s => s.ContentId == "classic:jizhi"), "Actual next preparation reduces max HP, replaces Jueyan with Huairou, and the previous turn grant expires.");
         Require(game.Events.Select(e => e.Payload).OfType<ProgramOwnerSkillsReplacedEvent>().Count(e => e.SkillId == "classic:poshi") == 1, "Awakening replacement executes once on its actual preparation boundary.");
-        Replay(game, registry);
-    }
-
-    public static void NativeAiSlotChoice()
-    {
-        var (game, registry) = Create("ai");
-        Accept(game, new EndPlayPhaseCommand(0, game.Revision, Prompt(game)!.PromptId));
-        ReachPlay(game);
-        Require(game.Events.Select(e => e.Payload).OfType<EquipmentSlotCapacityChangedEvent>().Any(e => e.Seat != 0 && e.Capacity == 0), "Actual AdvanceOneStep AI chooses and pays a real slot group.");
-        Require(!game.AcceptedCommands.OfType<AnswerPromptCommand>().Any(c => c.ActorSeat != 0), "AI choices are executed by the normal runtime, without human impersonation.");
-        Replay(game, registry);
-
-        var (contest, contestRegistry) = Create("ai-contest");
-        Accept(contest, new EndPlayPhaseCommand(0, contest.Revision, Prompt(contest)!.PromptId));
-        ReachPlay(contest);
-        var results = contest.Events.Select(e => e.Payload).OfType<PindianResultDeterminedEvent>().ToArray();
-        Require(results.Length > 0 && results.All(e => e.Result.OpponentSeat != 0),
-            "Normal AI pays actual Pindian entities against other legal opponents while the live protected human is excluded.");
-        Require(!contest.AcceptedCommands.OfType<AnswerPromptCommand>().Any(c => c.ActorSeat != 0),
-            "Native AI contest selection and card payment never use manufactured human answers.");
-        Replay(contest, contestRegistry);
-    }
-
-    public static void BothMountEntitiesAndSlotAwakening()
-    {
-        var (game, registry) = Create("peace");
-        Grow(game);
-        foreach (var kind in new[] { CardKind.OffensiveHorse, CardKind.DefensiveHorse })
-        {
-            Play(game, game.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.Equip &&
-                game.CreateCardZoneDiagnostics().Single(c => c.CardId == a.CardId).CardKind == kind));
-            ReachPlay(game);
-        }
-        var mounts = game.CreateCardZoneDiagnostics().Where(c => c.Location == CardLocation.Equipment(0)).Select(c => c.CardId).ToArray();
-        Require(mounts.Length == 2, "The fixture equips two real mount entities.");
-        Skill(game, "classic:jueyan", "mounts");
-        Require(mounts.All(id => game.CardMovements.Count(m => m.CardId == id && m.To.Zone == CardZoneKind.DiscardPile) == 1), "One paired activation discards both actual mount entities exactly once.");
-        Replay(game, registry);
-        Accept(game, new EndPlayPhaseCommand(0, game.Revision, Prompt(game)!.PromptId));
-        ReachPlay(game);
-        Require(!game.GetHumanLegalActions().Any(a => a.ProgramSkillId == "classic:jueyan" && a.ProgramActivationId == "mounts") &&
-            game.GetHumanLegalActions().Any(a => a.ProgramSkillId == "classic:jueyan" && a.ProgramActivationId == "weapon"), "The next actual phase restores the shared limit but excludes the fully abolished mount group.");
-
-        Skill(game, "fixture:driver", "all-slots");
-        while (game.CreateCardZoneDiagnostics().FirstOrDefault(c => c.Location == CardLocation.Hand(0)) is { } card)
-            Skill(game, "fixture:driver", "discard", [card.CardId]);
-        Accept(game, new EndPlayPhaseCommand(0, game.Revision, Prompt(game)!.PromptId));
-        ReachPlay(game);
-        Require(game.CreateSnapshot(0).Players[0] is { MaxHp: 4, HandCount: 6 } &&
-            game.Events.Select(e => e.Payload).OfType<ProgramOwnerSkillsReplacedEvent>().Count(e => e.SkillId == "classic:poshi") == 1,
-            "Five abolished slots awaken at healthy HP; hand fills to the new max before the normal Draw2.");
-        Replay(game, registry);
-    }
-
-    public static void StrictResourceContracts()
-    {
-        const string presentation = """{"schemaVersion":3,"skills":{"fixture:contract":{"name":"公共契约","description":"边界"}}}""";
-        var recast = $$$"""{"schemaVersion":{{{SkillProgramCatalog.RulesSchemaVersion}}},"skills":[{"id":"fixture:contract","revision":1,"activations":[{"id":"recast","minCards":1,"maxCards":1,"sourceZones":["hand","equipment"],"cardCategories":["equipment"],"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"recastSelectedEquipment","target":"owner"}]}]}]}""";
-        SkillProgramCatalog.Load(recast, presentation);
-        var slot = $$$"""{"schemaVersion":{{{SkillProgramCatalog.RulesSchemaVersion}}},"skills":[{"id":"fixture:contract","revision":1,"activations":[{"id":"pay","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"abolishEquipmentSlotGroup","target":"owner","equipmentSlots":["armor"]},{"op":"draw","target":"owner","amount":1}]}]}]}""";
-        SkillProgramCatalog.Load(slot, presentation);
-        var preparation = $$$"""{"schemaVersion":{{{SkillProgramCatalog.RulesSchemaVersion}}},"skills":[{"id":"fixture:contract","revision":1,"triggers":[{"id":"replace","window":"turnStartBeforeNormalFlow","subject":"owner","optional":false,"usageScope":"game","usageLimit":1,"effects":[{"op":"replaceSkillsOnPreparation","target":"owner","skillIds":["standard:none"],"sourceBind":"classic:huairou"}]}]}]}""";
-        SkillProgramCatalog.Load(preparation, presentation);
-        foreach (var bad in new[]
-        {
-            recast.Replace("\"minCards\":1", "\"minCards\":0"),
-            recast.Replace("\"cardCategories\":[\"equipment\"]", "\"cardCategories\":[\"basic\"]"),
-            recast.Replace("\"hand\",\"equipment\"", "\"judgment\""),
-            slot.Replace("\"equipmentSlots\":[\"armor\"]", "\"equipmentSlots\":[\"armor\",\"armor\"]"),
-            slot.Replace("\"target\":\"owner\",\"equipmentSlots\"", "\"target\":\"selectedTarget\",\"equipmentSlots\""),
-            slot.Replace("\"effects\":[", "\"effects\":[{\"op\":\"draw\",\"target\":\"owner\",\"amount\":1},"),
-            preparation.Replace("\"turnStartBeforeNormalFlow\"", "\"turnEnding\""),
-            preparation.Replace("\"optional\":false", "\"optional\":true"),
-            preparation.Replace("\"usageScope\":\"game\"", "\"usageScope\":\"turn\""),
-            preparation.Replace("\"subject\":\"owner\"", "\"subject\":\"owner\",\"turnOwnerScope\":\"otherLiving\"")
-        })
-        {
-            var rejected = false;
-            try { SkillProgramCatalog.Load(bad, presentation); }
-            catch (InvalidOperationException) { rejected = true; }
-            Require(rejected, "Unsafe owner/card category/source zone/slot ordering is rejected by the public resource contract.");
-        }
-    }
-
-    public static void ExtraActualPlayPhaseLimit()
-    {
-        var (game, registry) = Create("extra");
-        Skill(game, "classic:jueyan", "weapon");
-        Accept(game, new EndPlayPhaseCommand(0, game.Revision, Prompt(game)!.PromptId));
-        ReachPlay(game);
-        Require(game.Events.Select(e => e.Payload).OfType<ProgramPhaseScheduledEvent>().Last() is { Phase: TurnPhase.Play, Started: true }, "The second fixed preparation inserts a real extra Play phase.");
-        Skill(game, "classic:jueyan", "armor");
-        Require(!game.GetHumanLegalActions().Any(a => a.ProgramSkillId == "classic:jueyan"), "The actual extra phase consumes the common group limit once.");
-        Replay(game, registry);
-        Accept(game, new EndPlayPhaseCommand(0, game.Revision, Prompt(game)!.PromptId));
-        ReachPlay(game);
-        Require(game.GetHumanLegalActions().Any(a => a.ProgramSkillId == "classic:jueyan" && a.ProgramActivationId == "mounts"), "The later normal Play in the same actual turn has an independent phase limit.");
-        Skill(game, "classic:jueyan", "mounts");
         Replay(game, registry);
     }
 

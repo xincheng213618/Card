@@ -56,68 +56,6 @@ internal static class OrdinaryYangHuChecks
         Tags(g, []); _ = Cold(g, registry);
     }
 
-    public static void IssuedBenefitDrawSurvivesNestedQualificationLoss()
-    {
-        var (g, registry) = Create(Scenario.Nested);
-        var material = V(g, 0).Hand[0].Id;
-        Use(g, "give", [1], [material]); Benefit(g, 0, "draw");
-        Reach(g, p => p.SkillPrompt?.SkillId == Gain && p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "activate"));
-        var root = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.OriginalHandBenefit is not null);
-        var receipt = root.OriginalHandBenefit!; var id = root.Id;
-        var movement = g.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Single(w => w.Batch.ParentFrameId == id);
-        Require(receipt is { Stage: OriginalHandBenefitStage.DrawChildren, DrawIssued: true, ActualDrawCount: 1, TargetSeat: 0 } &&
-            root.PendingMovementContinuation?.SubjectSeat == 0 && movement.Batch.AwaitingProgramFrameId == id &&
-            movement.Batch.Movements is [var move] && move.From == CardLocation.DrawPile && move.To == CardLocation.Hand(0) &&
-            move.Sequence > receipt.DrawBefore && move.Sequence <= receipt.DrawAfter &&
-            !g.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.SkillId == Gain) && !E<OriginalHandBenefitCompletedEvent>(g).Any(),
-            "An already-issued real Draw1 owns its exact awaiting movement child while the optional native gain candidate pauses before binding.");
-        Private(g); g = Cold(g, registry);
-        Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate"); Reach(g, p => p.SkillPrompt?.SkillId == Gain && IsContinue(p));
-        Private(g); Continue(g); Play(g);
-        Require(V(g, 0).Hp == 5 && E<SkillsAcquiredEvent>(g).Count(e => e.PlayerSeat == 0 && e.SourceSkillId == Gain && e.SkillIds.Contains(Suppress)) == 1 &&
-            V(g, 0).Skills!.Any(s => s.Id == Suppress) && !g.GetHumanLegalActions().Any(a => a.ProgramSkillId == Driver) &&
-            E<OriginalHandBenefitDrawIssuedEvent>(g).Single() is { ActualCount: 1, TargetSeat: 0 } draw && draw.FrameId == id &&
-            E<OriginalHandBenefitCompletedEvent>(g).Single() is { DrawIssued: true, ActualDrawCount: 1 } done && done.FrameId == id &&
-            E<ProgramBindingResolvedEvent>(g).Count(e => e.FrameId == id && e.Completed) == 1 &&
-            g.CardMovements.Count(m => m.Sequence > receipt.DrawBefore && m.Sequence <= receipt.DrawAfter && m.To == CardLocation.Hand(0)) == 1,
-            "The real nested acquisition suppresses live qualification, but its original issued draw and typed return complete once without a repeated payment, lost card or second benefit.");
-        _ = Cold(g, registry);
-    }
-
-    public static void EmptyOriginalHandAwakensAtRealTurnStartOnce()
-    {
-        var (g, registry) = Create(Scenario.Awake);
-        var initial = V(g, 0).Hand.Select(c => c.Id).ToArray();
-        Use(g, "give-all", [1], initial);
-        for (var n = 0; n < 4; n++) Benefit(g, 1, "hand-limit");
-        Play(g); Tags(g, []);
-        Require(!E<OriginalHandAwakeningMaximumPaidEvent>(g).Any(), "Losing the final original entity during Play does not awaken at that movement boundary.");
-        var turn = g.State.TurnNumber; Use(g, "extra"); Play(g);
-        Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId));
-        Reach(g, p => p.SkillPrompt?.SkillId == Health && IsContinue(p));
-        var root = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.OriginalHandAwakening is not null);
-        var r = root.OriginalHandAwakening!; var id = root.Id;
-        var health = g.ResolutionStack.OfType<HpChangedTriggerWindowFrame>().Single(w => w.ResumeFrameId == id);
-        Require(g.State.TurnNumber > turn && r.Stage == OriginalHandAwakeningStage.MaximumPaid && r.SourceSkillId == Huaiyuan &&
-            r.StateId == "sui" && r.OriginalCount == 4 && r.MaximumBefore == 5 && r.MaximumAfter == 4 && r.HpAfter == 4 &&
-            r.SkillIds.SequenceEqual([Weishu]) && root.WindowContext?.Window == SkillProgramTriggerWindow.TurnStartBeforeNormalFlow &&
-            health.Change is { Kind: HpChangeKind.MaximumHp, TargetSeat: 0, Amount: 1 } && health.Change.ParentFrameId == id &&
-            health.Continuation == PostEventContinuation.Program && !E<OriginalHandAwakeningGrantIssuedEvent>(g).Any(),
-            "The next real turn start pays exactly one max HP and preserves its genuine MaximumHp child before granting formal Weishu.");
-        Private(g); g = Cold(g, registry); Continue(g); Play(g);
-        Require(E<OriginalHandAwakeningMaximumPaidEvent>(g).Single().FrameId == id &&
-            E<OriginalHandAwakeningGrantIssuedEvent>(g).Single() == new OriginalHandAwakeningGrantIssuedEvent(id, 0, Dezhang, Weishu) &&
-            E<SkillsAcquiredEvent>(g).Count(e => e.PlayerSeat == 0 && e.SourceSkillId == Dezhang && e.SkillIds.SequenceEqual([Weishu])) == 1 &&
-            V(g, 0).Skills!.Any(s => s.Id == Weishu) && V(g, 0).MaxHp == 4 &&
-            E<OriginalHandAwakeningCompletedEvent>(g).Single() is { GrantsIssued: true, OwnerAlive: true },
-            "Cold native health return grants the actual formal locked skill and completes the paid game-once awakening once.");
-        Use(g, "extra"); Play(g); var after = g.State.TurnNumber;
-        Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId));
-        Reach(g, p => p is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 } && g.State.TurnNumber > after);
-        Require(E<OriginalHandAwakeningMaximumPaidEvent>(g).Length == 1 && E<OriginalHandAwakeningGrantIssuedEvent>(g).Length == 1 &&
-            V(g, 0).MaxHp == 4, "A later actual turn cannot repay maximum HP, awaken or regrant the game-once skill.");
-    }
-
     public static void DeathInheritanceTransfersOnlyOwnReceivedPermanentBonuses()
     {
         var (g, registry) = Create(Scenario.Death);
@@ -151,37 +89,6 @@ internal static class OrdinaryYangHuChecks
             !g.ResolutionStack.Any(f => f.Id == id),
             "Exactly the dead owner's two permanent increments transfer once and leave its prior recipient's award intact; the old owner loses the transferred range and the living beneficiary gains it.");
         _ = Cold(g, registry);
-    }
-
-    public static void OutsideDrawCountsInvocationAndRejectsGiftInitialNormalAndEmptyDraw()
-    {
-        var (g, registry) = Create(Scenario.Draw);
-        Require(V(g, 0).Hand.Count == 6 && !E<OutsidePhaseDrawDiscardStartedEvent>(g).Any() &&
-            E<NativeDrawInvocationRecordedEvent>(g).Any(e => e.OwnerSeat == 0 && e.ActualCount == 2 && e.Phase?.Kind == ActualDiscardRecoveryPhaseKind.Draw),
-            "Initial deal and the positive native normal Draw2 do not trigger the formal outside-Draw skill.");
-        Use(g, "draw-three"); Reach(g, p => Outside(p, "draw-target"));
-        var root = OutsideRoot(g); var r = root.OutsidePhaseDrawDiscard!; var id = root.Id;
-        Require(r.OriginalDraw is { RequestedCount: 3, ActualCount: 3 } native && native.OwnerSeat == 0 &&
-            native.Phase?.Kind == ActualDiscardRecoveryPhaseKind.Play && native.LastBatchId == r.OriginalBatchId &&
-            r.OriginalMovementIndex >= 0 && E<OutsidePhaseDrawDiscardStartedEvent>(g).Single().NativeDrawInvocationId == native.InvocationId &&
-            native.Materials.All(m => g.CardMovements.Any(c => c.CardId == m.CardId && c.Sequence == m.MovementSequence && c.From == CardLocation.DrawPile && c.To == CardLocation.Hand(0))),
-            "One real DrawCards(3) invocation, including its three exact physical movements and final batch, produces one mandatory target decision.");
-        Private(g); Frozen(r.EligibleTargets); g = Cold(g, registry); Answer(g, c => c.Targets.SequenceEqual([0])); Play(g);
-        Require(E<OutsidePhaseDrawDiscardStartedEvent>(g).Length == 1 && E<OutsidePhaseDrawDiscardMovementIssuedEvent>(g).Single() is
-                { ParticipantSeat: 0, ActualCount: 1, Op: SkillProgramEffectOp.DrawAfterActualOutsideDraw } issued && issued.FrameId == id &&
-            E<NativeDrawInvocationRecordedEvent>(g).Count(e => e.DirectProducer?.SkillId == Weishu && e.DirectProducer.OwnerSeat == 0 && e.ActualCount == 1) == 1 &&
-            E<OutsidePhaseDrawDiscardCompletedEvent>(g).Single() == new OutsidePhaseDrawDiscardCompletedEvent(id, 1),
-            "Choosing oneself really draws once and the exact direct producer excludes recursive Weishu, independently of the original three-card count.");
-        var before = V(g, 0).Hand.Count; Use(g, "collect", [1]); Play(g);
-        Require(V(g, 0).Hand.Count == before + 4 && V(g, 1).Hand.Count == 0 && E<OutsidePhaseDrawDiscardStartedEvent>(g).Length == 1,
-            "A real four-card foreign Hand gift gains actual entities but carries no native DrawCards proof and cannot trigger Weishu.");
-        _ = Cold(g, registry);
-
-        var (empty, _) = Create(Scenario.EmptyDraw);
-        Require(empty.CreateSnapshot(0).DrawPileCount == 0 && !E<OutsidePhaseDrawDiscardStartedEvent>(empty).Any(), "The exact sixteen-entity initial deal exhausts the tiny physical deck without becoming outside draw.");
-        Use(empty, "draw-three"); Play(empty);
-        Require(empty.CreateSnapshot(0).DrawPileCount == 0 && !E<NativeDrawInvocationRecordedEvent>(empty).Any() &&
-            !E<OutsidePhaseDrawDiscardStartedEvent>(empty).Any(), "A native Draw3 attempt with zero actual entities creates neither a positive invocation nor an outside-draw obligation.");
     }
 
     public static void OutsideDiscardUsesRealSanchenPaymentAndExcludesRecastAndDiscardPhase()

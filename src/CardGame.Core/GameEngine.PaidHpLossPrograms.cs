@@ -16,6 +16,7 @@ public sealed partial class GameEngine
         _status=owner.IsHuman?EngineStatus.AwaitingHumanResponse:EngineStatus.Running;
         return SkillProgramStepOutcome.AwaitChoice;
     }
+    [ProgramAnswer("hp-loss-quantity")]
     private void ResolveHpLossQuantity(PromptChoice choice)
     {
         var f=_resolutionStack.LastOrDefault() as ProgramSkillFrame??throw new InvalidOperationException("The quantity lost its frame.");
@@ -36,6 +37,7 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new ProgramSkillHpLostEvent(f.Id,f.SkillId,f.OwnerSeat,before-owner.Hp,owner.Hp));
         if(owner.Hp==0) BeginProgramSkillDying(f.Id,owner);else AdvanceRuntimeProgram(f.Id);
     }
+    [ProgramAiChoice(SkillProgramEffectOp.ChooseOwnerHpLoss)]
     private PromptChoice SelectAiHpLossQuantity(PendingDecision d)
     {
         var wanted=Math.Min(2,Math.Max(1,_players[d.PlayerSeat].Hp-1));

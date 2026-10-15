@@ -19,9 +19,11 @@ public sealed partial class GameEngine
         }
         var slashes = GetHand(user).Concat(SelectedRequestedDeckBasicCards(user)).Where(card => IsSlashCard(card.Kind) && !IsTurnHandCategoryRestricted(user, card)).ToArray();
         var pairChoices = RoundDistinctBasicRequestedSlashChoices(active, user.Seat, [frame.OwnerSeat], resultBind);
+        var cardlessChoices = RoundOnceCardlessProgramSlashChoices(active, user.Seat, [frame.OwnerSeat], resultBind);
         if (slashes.Length == 0 && pairChoices.Count == 0 && !HasRequestedDeckBasicSource(user, CardKind.Slash) &&
             !HasChainedStateBasicProgramSlash(user, [frame.OwnerSeat]) &&
-            !HasDrawFundedDistinctBasicProgramSlash(user, [frame.OwnerSeat]))
+            !HasDrawFundedDistinctBasicProgramSlash(user, [frame.OwnerSeat]) &&
+            !HasRoundOnceCardlessProgramSlash(user, [frame.OwnerSeat]))
         {
             CommitProgramChoiceResult(frame.Id, resultBind,
                 RequestSlashByTargetProgramOperationDescriptor.DeclinedOption,
@@ -43,6 +45,7 @@ public sealed partial class GameEngine
                 ["card-id"] = card.Id.ToString(System.Globalization.CultureInfo.InvariantCulture)
             })).ToList();
         choices.AddRange(pairChoices);
+        choices.AddRange(cardlessChoices);
         choices.Add(new PromptChoice(
             new ChoiceId($"program-request-slash.frame-{active.Id}.decline"),
             $"不使用【杀】。",
@@ -146,12 +149,13 @@ public sealed partial class GameEngine
             programSkillCardUseFrameId: frame.Id);
     }
 
+    [ProgramAiChoice(SkillProgramEffectOp.RequestSlashByTarget)]
     private PromptChoice SelectAiProgramRequestSlash(PendingDecision decision, ProgramSkillFrame frame)
     {
         // A forced Slash is worth more than a guaranteed one-card loss; prefer the
         // first physical Slash in card-id order so the answer stays deterministic.
         return decision.Choices.FirstOrDefault(choice =>
-                choice.Parameters.GetValueOrDefault("program-action") == "request-slash") ??
+                choice.Parameters.GetValueOrDefault("program-action") is "request-slash" or RoundOnceCardlessProgramMarker) ??
             decision.Choices.First();
     }
 
@@ -183,9 +187,11 @@ public sealed partial class GameEngine
             .OrderBy(card => card.Id)
             .ToArray();
         var pairChoices = RoundDistinctBasicRequestedSlashChoices(active, participantSeat, nearest);
+        var cardlessChoices = RoundOnceCardlessProgramSlashChoices(active, participantSeat, nearest);
         if (nearest.Length == 0 || slashes.Length == 0 && pairChoices.Count == 0 && !HasRequestedDeckBasicSource(participant, CardKind.Slash) &&
             !HasChainedStateBasicProgramSlash(participant, nearest) &&
-            !HasDrawFundedDistinctBasicProgramSlash(participant, nearest))
+            !HasDrawFundedDistinctBasicProgramSlash(participant, nearest) &&
+            !HasRoundOnceCardlessProgramSlash(participant, nearest))
             return new ProgramSkillHost(this).LoseHp(active.Id, active.SkillId, participantSeat, hpAmount);
 
         var skill = _contentRegistry!.GetSkill(frame.SkillId);
@@ -206,6 +212,7 @@ public sealed partial class GameEngine
                         ["target-seat"] = seat.ToString(System.Globalization.CultureInfo.InvariantCulture)
                     }));
         choices.AddRange(pairChoices);
+        choices.AddRange(cardlessChoices);
         choices.Add(new PromptChoice(
             new ChoiceId($"program-request-slash-nearest.frame-{active.Id}.decline"),
             $"不使用【杀】，失去{hpAmount}点体力。",
@@ -308,9 +315,10 @@ public sealed partial class GameEngine
             programSkillCardUseFrameId: frame.Id);
     }
 
+    [ProgramAiChoice(SkillProgramEffectOp.RequestSlashByNearest)]
     private PromptChoice SelectAiProgramRequestSlashByNearest(PendingDecision decision) =>
         decision.Choices.FirstOrDefault(choice =>
-            choice.Parameters.GetValueOrDefault("program-action") == "request-slash-nearest") ??
+            choice.Parameters.GetValueOrDefault("program-action") is "request-slash-nearest" or RoundOnceCardlessProgramMarker) ??
         decision.Choices.First();
 
     private void CommitProgramChoiceResult(long frameId, string bind, string optionId,

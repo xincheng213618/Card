@@ -55,7 +55,11 @@ public sealed record MaximumHpChangedEvent(
     int PlayerSeat,
     int Delta,
     int MaximumHp,
-    string SkillId) : IGameEvent;
+    string SkillId) : IGameEvent
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public int? HpBeforeClamp { get; init; }
+}
 
 public sealed record SkillsAcquiredEvent(
     int PlayerSeat,

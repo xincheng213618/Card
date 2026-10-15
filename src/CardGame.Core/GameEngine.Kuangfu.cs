@@ -72,6 +72,7 @@ public sealed partial class GameEngine
         _status = _players[f.OwnerSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
         AdvanceRulesAndPublishState();
     }
+    [ProgramAnswer("kuangfu")]
     private void ResolveKuangfuChoice(PromptChoice choice)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame f || !ValidKuangfu(f) ||
@@ -208,6 +209,7 @@ public sealed partial class GameEngine
         ReplaceRuntimeTop(f = GetActiveProgramFrame(f.Id) with { Kuangfu = null, PendingMovementContinuation = null });
         FinishProgramSkill(f, true);
     }
+    [ProgramAiChoice(SkillProgramEffectOp.DiscardEquipmentThenSlashAndOwnershipOutcome)]
     private PromptChoice SelectAiKuangfu(PendingDecision p, ProgramSkillFrame f)
     {
         var view = CreateSnapshot(f.OwnerSeat); var own = view.Players.Single(x => x.Seat == f.OwnerSeat);

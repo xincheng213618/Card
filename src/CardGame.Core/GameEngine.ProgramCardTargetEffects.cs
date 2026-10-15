@@ -104,7 +104,7 @@ public sealed partial class GameEngine
     private bool IsCardEffectIneffective(long resolutionId, int targetSeat)
     {
         var frame = _resolutionStack.OfType<CardUseFrame>().Single(item => item.Id == resolutionId);
-        if (IsNamedAmbushUseIneffective(frame)) return true;
+        if (IsNamedAmbushUseIneffective(frame) || IsXinPiUseIneffective(frame)) return true;
         if (frame.IneffectiveTargetSeats?.Contains(targetSeat) == true) return true;
         if (frame.Action is not { } action || !GrantTurnCardEffectImmunityProgramOperationDescriptor.CardEffectImmunityKinds.Contains(action.EffectiveKind) ||
             _turnCardUseEffects.GetRuleModifiers(_turnNumber, _currentSeat, targetSeat, SkillRuleQuery.CardEffectImmunity, action.EffectiveKind).Count == 0) return false;

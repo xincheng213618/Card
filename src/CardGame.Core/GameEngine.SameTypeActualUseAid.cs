@@ -170,6 +170,7 @@ public sealed partial class GameEngine
             SkillPrompt = new(f.SkillId, skill.Name, skill.Name, skill.Description) };
         _status = _players[chooser].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
+    [ProgramAnswer("same-type-actual-use-aid")]
     private void ResolveSameTypeAidChoice(PromptChoice selected)
     {
         var f = GetActiveProgramFrame(_resolutionStack.Last().Id); AssertSameTypeAid(f);
@@ -273,6 +274,7 @@ public sealed partial class GameEngine
         }
         FinishProgramSkill(f, true); return true;
     }
+    [ProgramAiChoice(SkillProgramEffectOp.OfferSameTypeDifferentNameOrExtraTarget)]
     private PromptChoice SelectAiSameTypeAid(PendingDecision decision, ProgramSkillFrame f)
     {
         var snapshot = CreateSnapshot(decision.PlayerSeat); var r = f.SameTypeAid!;

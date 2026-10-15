@@ -73,6 +73,7 @@ public sealed partial class GameEngine
         { PromptId = CreatePromptId(), IsPrivate = true, Choices = choices, SkillPrompt = new(f.SkillId, skill.Name, skill.Name, skill.Description) };
         _status = _players[f.OwnerSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
+    [ProgramAnswer("signed-damage-payment")]
     private void ResolveSignedDamagePayment(PromptChoice choice)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame { SignedDamagePayment.Stage: SignedDamagePaymentStage.ChoosingCost } f ||
@@ -133,6 +134,7 @@ public sealed partial class GameEngine
         if (f.PendingMovementContinuation is null) throw new InvalidOperationException("Signed damage cost lost its typed movement return.");
         ReplaceRuntimeTop(f with { PendingMovementContinuation = null }); AdvanceRuntimeProgram(f.Id); return true;
     }
+    [ProgramAiChoice(SkillProgramEffectOp.DiscardOwnedCardToAdjustCurrentDamage)]
     private PromptChoice SelectAiSignedDamagePayment(PendingDecision d, ProgramSkillFrame f) => d.Choices
         .OrderBy(c => CardCatalog.Get(GetAttackCard(c.Cards.Single()).Kind).HandKeepValue).ThenBy(c => c.Cards.Single()).First();
     private bool IsValidSignedDamagePayment(ProgramSkillFrame f, bool requirePaid)

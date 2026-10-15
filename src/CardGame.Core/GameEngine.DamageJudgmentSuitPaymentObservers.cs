@@ -96,6 +96,8 @@ public sealed partial class GameEngine
                 window.Judgment.SubjectSeat == draft.TargetSeat && window.Judgment.SourceSeat == draft.SourceSeat && window.Judgment.Reason == draft.Reason;
         if (child is ProgramSkillFrame final && parent is ProgramJudgmentTriggerWindowFrame finalized)
         {
+            if (finalized.ZhenyiBeforeResult == true)
+                return finalized.Judgment.JudgmentFrameId == draft.JudgmentFrameId && IsExactZhenyiBeforeResultProgramChild(finalized, final);
             if (finalized.Judgment.JudgmentFrameId != draft.JudgmentFrameId || finalized.CandidateIndex < 0 || finalized.CandidateIndex >= finalized.Candidates.Count ||
                 final.WindowContext is not { Window: SkillProgramTriggerWindow.JudgmentFinalized } context || context.ParentFrameId != finalized.Id ||
                 context.Judgment != finalized.Judgment) return false;
@@ -181,6 +183,7 @@ public sealed partial class GameEngine
         }
     }
 
+    [ProgramAiChoice(SkillProgramEffectOp.JudgeDamageTargetThenOfferSuitDiscard)]
     private PromptChoice SelectAiDamageJudgmentSuitPayment(PendingDecision decision)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("AI damage judgment owner missing.");

@@ -5,6 +5,9 @@ public sealed partial class GameEngine
     // Optional target windows are enabled by the loaded catalog, retaining old
     // card actions and event shapes for historical content fingerprints.
 
+    private bool HasJianjiNativeUseCapability => _contentRegistry.ProgramDependencies
+        .HasActivationOperation(SkillProgramEffectOp.DrawAndOfferJianjiExactCard);
+
     private bool HasFinalizedTargetProgram(CardKind kind)
     {
         var category = CardCatalog.Get(kind).CategoryName switch
@@ -15,7 +18,8 @@ public sealed partial class GameEngine
         };
         // Paired responses need the original trick's accepted Use identity even
         // when no target-changing skill subscribes to its finalized window.
-        return _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.JoinAdjacentRedCardTarget) &&
+        return HasHuaManCapability || HasXinPiCapability || HasCaoChunCapability || HasNeifaCapability || HasSuFeiCapability || HasJianjiNativeUseCapability || HasFanChouCapability || HasGuoSiCapability || HasYisuanCapability && category == SkillProgramCardCategory.Trick ||
+            _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.JoinAdjacentRedCardTarget) &&
             (category == SkillProgramCardCategory.Basic || IsOrdinaryTrick(kind)) ||
             _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DiscardSameCategoryForExtraEffect) && ExtraEffectCardKind(kind) ||
             HasTargetedOrdinaryTrickAdjustment && IsOrdinaryTrick(kind) ||
@@ -28,6 +32,9 @@ public sealed partial class GameEngine
               _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.OfferUniqueLargestHandTrickTargetAddition) ||
               _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.JoinUniqueLargestHpTrickTargetAndDrawAfterDamage) ||
               _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.AdjustOneRoundGainedOrdinaryTrickTarget) ||
+              _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.AddTargetForQirangPhysicalTrick) ||
+              _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ConsumeKuiCancelSoleIncomingTarget) ||
+              _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ConsumeKuiAppendLegalTargets) ||
               _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.GrantActorHandLimitPenalty)) &&
                 IsOrdinaryTrick(kind) && _contentRegistry.ProgramDependencies.HasFinalizedCardTrigger(kind, SkillProgramCardCategory.InstantTrick));
     }

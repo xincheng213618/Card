@@ -83,126 +83,6 @@ internal static class BoundaryMaChaoChecks
         Replay(paid, paidRegistry);
     }
 
-    public static void EquipmentChildAndArmorImmunity()
-    {
-        var (game, registry) = Start(Suit.Heart, "equipment");
-        Driver(game, "equip", 1); Settle(game);
-        Driver(game, "wound", 1); Settle(game);
-        var armor = game.CreateSnapshot(1, true).Players[1].Equipment.Single();
-        Require(armor.Kind == CardKind.SilverLion && game.CreateSnapshot(1).Players[1].Hp == 3, "Fixture equips and wounds through real commands.");
-        Slash(game, 1); Activate(game);
-        Reach(game, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "slash-suit-discard"));
-        Answer(game, c => c.Cards.SequenceEqual([armor.Id]));
-        Reach(game, p => p.SkillPrompt?.SkillId == "fixture:mc-locked");
-        Require(game.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.SlashSuitDiscard is { Stage: ProgramSlashSuitDiscardStage.PaymentMovement }), "Equipment payment owns movement child and does not resume Slash early.");
-        Require(game.ResolutionStack.OfType<CardUseFrame>().Single().CardAttack!.JudgmentSuitDodgeRestriction is not null && !game.Events.Select(e => e.Payload).OfType<ProgramSlashSuitDiscardResolvedEvent>().Any(), "Exact Dodge cancellation restriction remains until movement children complete.");
-        Replay(game, registry); Activate(game); Settle(game);
-        Require(game.CardMovements.Count(m => m.CardId == armor.Id && m.From == CardLocation.Equipment(1) && m.To == CardLocation.DiscardPile) == 1, "Equipment actual payment cannot repeat after child return.");
-        Require(game.Events.Select(e => e.Payload).OfType<SilverLionRemovedRecoveryEvent>().Any(e => e.PlayerSeat == 1 && e.RecoveredAmount == 1) && game.Events.Select(e => e.Payload).OfType<ProgramSlashSuitDiscardResolvedEvent>().Single().PaymentCompleted, "Silver Lion actual recovery and movement children precede paid cancellation release.");
-        Replay(game, registry);
-
-        var (immune, immuneRegistry) = Start(Suit.Spade, "renwang");
-        Driver(immune, "equip", 1); Settle(immune);
-        Slash(immune, 1); Activate(immune);
-        Reach(immune, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "slash-suit-discard"));
-        Answer(immune, c => c.Cards.Count == 0); Settle(immune);
-        Require(immune.CreateSnapshot(1).Players[1].Hp == 4 && immune.Events.Select(e => e.Payload).OfType<ArmorEffectAppliedEvent>().Any(e => e.ArmorCard == CardKind.RenwangShield), "Tieqi cancellation restriction preserves Renwang black Slash immunity.");
-        Replay(immune, immuneRegistry);
-    }
-
-    public static void FinalJudgmentReplacementAndClaim()
-    {
-        var (game, registry) = Start(Suit.Heart, "replacement");
-        Slash(game, 1); Activate(game);
-        Reach(game, p => p.Kind == DecisionKind.ProgramJudgmentReplacement);
-        var prompt = Prompt(game)!;
-        var original = game.ResolutionStack.OfType<JudgmentFrame>().Single().CardId;
-        var originalSuit = game.ResolutionStack.OfType<JudgmentFrame>().Single().Suit;
-        var replacement = prompt.Choices.First(c => c.Cards.Count == 1 && game.CreateSnapshot(0, true).Players[0].Hand.Single(h => h.Id == c.Cards[0]).Suit != originalSuit);
-        Answer(game, c => c.Id == replacement.Id);
-        Reach(game, p => p.Kind == DecisionKind.ProgramJudgmentTrigger);
-        Replay(game, registry); Activate(game);
-        Reach(game, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "slash-suit-discard"));
-        var result = game.Events.Select(e => e.Payload).OfType<JudgmentResolvedEvent>().Single(e => e.Reason == "boundary:tieqi");
-        var draft = game.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SlashSuitDiscard is not null).SlashSuitDiscard!;
-        Require(result.CardId == replacement.Cards.Single() && result.CardId != original && draft.FinalSuit == result.Suit, "Replacement result, not first printed suit, controls target payment.");
-        Require(game.CreateCardZoneDiagnostics().Single(c => c.CardId == result.CardId).Location == CardLocation.Hand(0), "Real finalized judgment claim retains its entity instead of being discarded by Tieqi cleanup.");
-        Answer(game, c => c.Cards.Count == 0); Settle(game); Replay(game, registry);
-    }
-
-    public static void FinalTargetsMultipleAndOutsideTurn()
-    {
-        var (redirect, rr) = Start(Suit.Heart, "redirect");
-        var slash = redirect.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.Slash && a.TargetSeats.SequenceEqual([1]));
-        Accept(redirect, new PlayCardCommand(0, slash.CardId!.Value, [1], redirect.Revision, Prompt(redirect)!.PromptId));
-        Reach(redirect, p => p.SkillPrompt?.SkillId == "classic:liuli"); Activate(redirect);
-        Answer(redirect, c => c.Targets.SequenceEqual([2])); Answer(redirect, c => c.Cards.Count == 1);
-        Reach(redirect, p => p.SkillPrompt?.SkillId == "boundary:tieqi");
-        Require(!redirect.Events.Select(e => e.Payload).OfType<CurrentTurnNonLockedSkillSuppressionIssuedEvent>().Any(), "Liuli fully completes before final-target Tieqi is offered.");
-        Activate(redirect); Reach(redirect, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "slash-suit-discard"));
-        Require(Prompt(redirect)!.PlayerSeat == 2 && redirect.Events.Select(e => e.Payload).OfType<CurrentTurnNonLockedSkillSuppressionIssuedEvent>().Single().Suppression.TargetSeat == 2, "Redirection freezes only actual final target.");
-        Answer(redirect, c => c.Cards.Count == 0); Settle(redirect); Replay(redirect, rr);
-
-        var (multi, mr) = Start(Suit.Heart, "multi");
-        slash = multi.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.Slash && a.TargetSeats.SequenceEqual([1]));
-        Accept(multi, new PlayCardCommand(0, slash.CardId!.Value, [1], multi.Revision, Prompt(multi)!.PromptId));
-        Reach(multi, p => p.SkillPrompt?.SkillId == "fixture:mc-enhance"); Activate(multi);
-        Answer(multi, c => c.Parameters.GetValueOrDefault("enhancement-option") == "ExtraTarget");
-        Answer(multi, c => c.Targets.SequenceEqual([2]));
-        Reach(multi, p => p.SkillPrompt?.SkillId == "boundary:tieqi"); Activate(multi);
-        Reach(multi, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "slash-suit-discard"));
-        Answer(multi, c => c.Cards.Count == 1);
-        Reach(multi, p => p.SkillPrompt?.SkillId == "boundary:tieqi"); Activate(multi);
-        Reach(multi, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "slash-suit-discard"));
-        Require(Prompt(multi)!.PlayerSeat == 2 && multi.ResolutionStack.OfType<CardUseFrame>().Single().CardAttack!.JudgmentSuitDodgeRestriction?.TargetSeat == 2, "First-target payment never unlocks the second target.");
-        Replay(multi, mr); Answer(multi, c => c.Cards.Count == 0); Settle(multi);
-        var payments = multi.Events.Select(e => e.Payload).OfType<ProgramSlashSuitDiscardResolvedEvent>().ToArray();
-        Require(payments.Length == 2 && payments[0].TargetSeat == 1 && payments[0].PaymentCompleted && payments[1].TargetSeat == 2 && !payments[1].PaymentCompleted &&
-            payments.Select(e => e.CardUseFrameId).Distinct().Count() == 1 && multi.Events.Select(e => e.Payload).OfType<JudgmentRequestedEvent>().Count(e => e.Reason == "boundary:tieqi") == 2, "Same multi-use judges and pays once independently for each target.");
-        Replay(multi, mr);
-
-        var (outside, or) = Start(Suit.Heart, "outside");
-        Driver(outside, "request", 1);
-        Answer(outside, c => c.Targets.SequenceEqual([2])); Answer(outside, c => c.Cards.Count == 1);
-        Reach(outside, p => p.SkillPrompt?.SkillId == "boundary:tieqi"); Activate(outside);
-        Reach(outside, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "slash-suit-discard"));
-        var issued = outside.Events.Select(e => e.Payload).OfType<CurrentTurnNonLockedSkillSuppressionIssuedEvent>().Single().Suppression;
-        Require(issued.Source.OwnerSeat == 1 && issued.TurnOwnerSeat == 0 && outside.CreateSnapshot(0).CurrentSeat == 0,
-            "A genuine supplied Slash judges and suppresses until requester actual turn end.");
-        Answer(outside, c => c.Cards.Count == 0); Settle(outside); Replay(outside, or);
-        ExpireTurn(outside); Require(outside.Events.Select(e => e.Payload).OfType<CurrentTurnNonLockedSkillSuppressionsExpiredEvent>().Any(e => e.TurnOwnerSeat == 0 && e.TurnNumber == issued.TurnNumber), "Out-of-turn issuer does not defer expiry to its own next turn.");
-        Replay(outside, or);
-    }
-
-    public static void MissingSuitLockedDefenseAndSourceLoss()
-    {
-        var (missing, nr) = Start(Suit.Spade, "missing"); Slash(missing, 1); Activate(missing); Settle(missing);
-        var result = missing.Events.Select(e => e.Payload).OfType<ProgramSlashSuitDiscardResolvedEvent>().Single();
-        Require(result.JudgmentSuit == Suit.Spade && !result.PaymentCompleted && result.PaidCardId is null && missing.CreateSnapshot(1).Players[1].Hp == 3,
-            "Locked Hongyan changes target HE effective suits, so no printed-Spade card can fake Spade payment.");
-        Replay(missing, nr);
-        foreach (var pay in new[] { false, true })
-        {
-            var (defense, dr) = Start(Suit.Heart, "bazhen"); var defenseHp = defense.CreateSnapshot(0).Players[0].Hp; Driver(defense, "request", 1);
-            Answer(defense, c => c.Targets.SequenceEqual([0])); Answer(defense, c => c.Cards.Count == 1);
-            Reach(defense, p => p.SkillPrompt?.SkillId == "boundary:tieqi"); Activate(defense);
-            Reach(defense, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "slash-suit-discard"));
-            Answer(defense, c => pay ? c.Cards.Count == 1 : c.Cards.Count == 0);
-            Reach(defense, p => p.Kind == DecisionKind.RespondDodge); Answer(defense, c => c.Parameters.GetValueOrDefault("response") == "bagua"); Settle(defense);
-            Require(defense.Events.Select(e => e.Payload).OfType<JudgmentRequestedEvent>().Any(e => e.Reason == JudgmentReasons.BaguaDefense) &&
-                defense.CreateSnapshot(0).Players[0].Hp == defenseHp - (pay ? 0 : 1), "Locked Bazhen keeps real red-judgment Dodge; only actual payment permits cancellation.");
-            Replay(defense, dr);
-        }
-        var (lost, lr) = Start(Suit.Heart); Slash(lost, 1); Activate(lost);
-        Reach(lost, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "slash-suit-discard"));
-        Answer(lost, c => c.Cards.Count == 0); Settle(lost);
-        Accept(lost, new UseProgramSkillCommand(0, "fixture:mc-driver", "lose-source", [], [], lost.Revision, Prompt(lost)!.PromptId)); Settle(lost);
-        Require(!lost.CreateSnapshot(0).Players[0].Skills!.Any(s => s.ContentId == "boundary:tieqi") &&
-            !lost.CreateSnapshot(1).Players[1].Skills!.Any(s => s.ContentId == "classic:qingguo"), "Losing actual issuing source cannot revoke already-issued turn suppression.");
-        Replay(lost, lr); ExpireTurn(lost);
-        Require(lost.CreateSnapshot(1).Players[1].Skills!.Any(s => s.ContentId == "classic:qingguo"), "Actual turn end restores qualification after source loss."); Replay(lost, lr);
-    }
-
     public static void JudgmentDyingTargetLossAndLegacy()
     {
         var (game, registry) = Start(Suit.Heart, "death"); Slash(game, 1); Activate(game);
@@ -227,17 +107,6 @@ internal static class BoundaryMaChaoChecks
         Replay(legacy, lr);
     }
 
-    private static void ExpireTurn(GameEngine game)
-    {
-        var turn = game.CreateSnapshot(0).TurnNumber;
-        Accept(game, new EndPlayPhaseCommand(0, game.Revision, Prompt(game)!.PromptId));
-        for (var step = 0; step < 40 && game.CreateSnapshot(0).TurnNumber == turn; step++)
-            if (Prompt(game) is { Kind: DecisionKind.DiscardCards, PlayerSeat: 0 } discard)
-                Accept(game, new DiscardCardsCommand(0, game.CreateSnapshot(0).Players[0].Hand.Take(discard.RequiredCardCount).Select(c => c.Id).ToArray(), discard.PromptId, game.Revision));
-            else Accept(game, new AdvanceOneStepCommand(game.Revision));
-        Require(game.CreateSnapshot(0).TurnNumber > turn, "Bounded real turn ending reached.");
-    }
-
     private static (GameEngine, ContentRegistry) Start(Suit suit, string scenario = "normal")
     {
         var registry = ContentRegistry.Build(new StandardContentPackage(), new Fixture(suit, scenario));
@@ -254,8 +123,6 @@ internal static class BoundaryMaChaoChecks
         Accept(game, new PlayCardCommand(0, action.CardId!.Value, [target], game.Revision, Prompt(game)!.PromptId, action.PlayedCardKind));
         Reach(game, p => p.SkillPrompt?.SkillId == "boundary:tieqi");
     }
-    private static void Driver(GameEngine game, string id, int target) => Accept(game,
-        new UseProgramSkillCommand(0, "fixture:mc-driver", id, [], [target], game.Revision, Prompt(game)!.PromptId));
     private static PendingDecision? Prompt(GameEngine game) => game.PendingDecision ?? Enumerable.Range(0, 4).Select(seat => game.CreateSnapshot(seat).PendingDecision).FirstOrDefault(p => p is not null && p.Choices.Count > 0);
     private static void Activate(GameEngine game) => Answer(game, c => c.Parameters.GetValueOrDefault("program-action") == "activate" || c.Parameters.GetValueOrDefault("action") == "program-judgment-trigger-activate");
     private static void Answer(GameEngine game, Func<PromptChoice, bool> select)

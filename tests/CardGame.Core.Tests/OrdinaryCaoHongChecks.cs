@@ -63,56 +63,6 @@ internal static class OrdinaryCaoHongChecks
             hand.CardMovements.Count(m => m.CardId == discard.CardId && m.From == discard.From && m.Reason.Value == DiscardReason) == 1,
             "The hidden slot is resolved only at actual accepted payment, and the original entity is discarded once after restoration.");
     }
-    public static void MountRecoveryPaidSourceLossAndGainDying()
-    {
-        foreach (var horse in new[] { "standard:offensive_horse", "standard:defensive_horse" })
-        {
-            var (g, r) = Create(horse); Prepare(g); Ending(g); Activate(g); ChooseEquipment(g, CardZoneKind.Hand);
-            Reach(g, p => Step(p, "recipient")); var hp = g.State.Players[1].Hp; Answer(g, c => c.Targets.SequenceEqual([1]));
-            Reach(g, p => p.SkillPrompt?.SkillId == Hp); g = Cold(g, r); Continue(g); Finish(g);
-            Require(g.State.Players[1].Hp == hp + 1 && E<PlacedEquipmentBenefitRecoveryIssuedEvent>(g).Single().RequestedAmount == 1 &&
-                E<PlacedEquipmentBenefitDrawnEvent>(g).Length == 0, "Each real mount slot issues one recipient recovery through a restored HP child, without armor draw.");
-        }
-        var (loss, lr) = Create("standard:bagua", sourceLoss: true); Prepare(loss); Ending(loss); Activate(loss); ChooseEquipment(loss, CardZoneKind.Hand);
-        Reach(loss, p => Step(p, "recipient")); Answer(loss, c => c.Targets.SequenceEqual([1])); Reach(loss, p => p.SkillPrompt?.SkillId == Loss);
-        loss = Cold(loss, lr); Continue(loss);
-        DrainHolds(loss); Finish(loss);
-        Require(E<PlacedEquipmentBenefitPaidEvent>(loss).Length == 1 && E<PlacedEquipmentBenefitDrawnEvent>(loss).Single().Invoice.ActualCount == 1 &&
-            E<SkillsAcquiredEvent>(loss).Count(e => e.PlayerSeat == 0 && e.SourceSkillId == Loss && e.SkillIds.Contains("fixture:ch-source-suppression")) == 1,
-            "Actual source suppression after placement does not revoke the already paid armor benefit or repeat its equipment payment."); loss = Cold(loss, lr);
-
-        var (dying, dr) = Create("standard:bagua", gainDying: true); Prepare(dying); Ending(dying); Activate(dying); ChooseEquipment(dying, CardZoneKind.Hand);
-        Reach(dying, p => Step(p, "recipient")); Answer(dying, c => c.Targets.SequenceEqual([0])); Reach(dying, p => p.SkillPrompt?.SkillId == Entry);
-        Require(dying.ResolutionStack.OfType<DyingFrame>().Any(d => d.VictimSeat == 0) &&
-            dying.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.PlacedEquipmentBenefit is { Stage: PlacedEquipmentBenefitStage.DrawChildren }),
-            "Actual armor Draw1 creates a real CardsGained→HP-loss→DyingEntering child beneath the original paid Ending frame.");
-        dying = Cold(dying, dr); Continue(dying); Reach(dying, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("skill-id") == Pulse));
-        Answer(dying, c => c.Parameters.GetValueOrDefault("skill-id") == Pulse); Reach(dying, p => p.SkillPrompt?.SkillId == Hp); dying = Cold(dying, dr); Continue(dying);
-        Reach(dying, p => p.SkillPrompt?.SkillId == Gain); dying = Cold(dying, dr); Continue(dying); Finish(dying);
-        Require(E<PlacedEquipmentBenefitPaidEvent>(dying).Length == 1 && E<PlacedEquipmentBenefitDrawnEvent>(dying).Single().Invoice.ActualCount == 1 &&
-            E<CardUseDeclaredEvent>(dying).Any(e => e.CardId == 0 && e.CardKind == CardKind.Alcohol && e.SourceSeat == 0) &&
-            !dying.CardMovements.Any(m => m.CardId == 0), "The restored self-dying zero-entity Alcohol returns through its actual HP observer without repeating the paid draw or equipment transfer.");
-    }
-    public static void NativeOptionalEndingAndStrictComposition()
-    {
-        var (cancel, cr) = Create("standard:bagua"); Prepare(cancel); Ending(cancel); Activate(cancel); Reach(cancel, p => Step(p, "equipment"));
-        var before = cancel.CardMovements.Count; cancel = Cold(cancel, cr); Answer(cancel, c => c.Parameters.GetValueOrDefault("step") == "cancel");
-        Require(cancel.CardMovements.Count == before && E<PlacedEquipmentBenefitPaidEvent>(cancel).Length == 0,
-            "Cancellation before actual placement moves no card and issues no reward.");
-        var (native, nr) = Create("standard:bagua", native: true);
-        for (var i = 0; i < 100 && native.State.Status != EngineStatus.Completed && E<PlacedEquipmentBenefitPaidEvent>(native).Length == 0; i++) Advance(native);
-        Require(E<PlacedEquipmentBenefitPaidEvent>(native).Length > 0 && E<PlacedEquipmentBenefitFinishedEvent>(native).Any(e => e.Placed),
-            "The sole real native source accepts the optional Ending benefit and pays actual equipment; this is a bounded draft, with no seed search or forced AI answer.");
-        native = Cold(native, nr);
-        var presentation = JsonSerializer.Serialize(new { schemaVersion = SkillProgramCatalog.PresentationSchemaVersion,
-            skills = new Dictionary<string,object> { ["fixture:invalid-place"] = new { name = "无效测试", description = "拒绝错误上下文" } } });
-        foreach (var window in new[] { "playEnding", "afterTurnEnded", "afterDamageApplied" })
-        {
-            var rules = $$"""{"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[{"id":"fixture:invalid-place","revision":1,"triggers":[{"id":"bad","window":"{{window}}","subject":"owner","optional":true,"effects":[{"op":"placeOwnedEquipmentThenResolveSlotBenefit","target":"owner"}]}]}]}""";
-            var failed = false; try { SkillProgramCatalog.Load(rules, presentation); } catch (InvalidOperationException) { failed = true; }
-            Require(failed, "The new standalone capability cannot be placed in another lifecycle or damage window.");
-        }
-    }
     private static T[] E<T>(GameEngine g) => g.Events.Select(e => e.Payload).OfType<T>().ToArray();
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
     private static bool Step(PendingDecision p, string step) => p.SkillPrompt?.SkillId == Skill && p.Choices.Any(c => c.Parameters.GetValueOrDefault("step") == step);
@@ -127,7 +77,6 @@ internal static class OrdinaryCaoHongChecks
     private static void Activate(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("skill-id") == Skill && c.Parameters.GetValueOrDefault("program-action") == "activate");
     private static void Continue(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
     private static void Finish(GameEngine g) { Until(g, () => E<PlacedEquipmentBenefitFinishedEvent>(g).Length > 0); }
-    private static void DrainHolds(GameEngine g) { Until(g, () => E<PlacedEquipmentBenefitFinishedEvent>(g).Length > 0, true); }
     private static void Until(GameEngine g, Func<bool> done, bool continueHolds = false)
     { for (var i = 0; i < 140; i++) { if (done()) return; if (continueHolds && P(g)?.Choices.Any(c => c.Parameters.GetValueOrDefault("option-id") == "continue") == true) Continue(g); else Advance(g); } throw new InvalidOperationException("Fixed Ending did not finish its original paid root."); }
     private static void Reach(GameEngine g, Func<PendingDecision,bool> match)

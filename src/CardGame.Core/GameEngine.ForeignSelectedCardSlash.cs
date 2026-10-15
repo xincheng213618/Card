@@ -81,6 +81,7 @@ public sealed partial class GameEngine
         AdvanceRulesAndPublishState();
     }
 
+    [ProgramAnswer("foreign-selected-slash")]
     private void ResolveSelectedForeignCardSlashChoice(PromptChoice selected)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame frame || !ValidSelectedForeignCardSlash(frame) ||
@@ -216,6 +217,7 @@ public sealed partial class GameEngine
         FinishProgramSkill(frame, true);
     }
 
+    [ProgramAiChoice(SkillProgramEffectOp.UseSelectedForeignCardAsSlash)]
     private PromptChoice SelectAiSelectedForeignCardSlashChoice(PendingDecision decision, ProgramSkillFrame frame) =>
         decision.Choices.OrderByDescending(choice => choice.Cards.Count == 0 ? 0 : CardCatalog.Get(GetAttackCard(choice.Cards.Single()).Kind).HandKeepValue)
             .ThenBy(choice => choice.Id.Value, StringComparer.Ordinal).First(); // Foreign Hand choices remain opaque and equally scored.

@@ -35,6 +35,7 @@ public sealed partial class GameEngine
             SkillPrompt = new(f.SkillId, skill.Name, skill.Name, skill.Description), Choices = Array.AsReadOnly(choices.ToArray()) };
         _status = _players[chooser].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
+    [ProgramAnswer("damage-target-obtain", "damage-target-duel")]
     private void ResolveDamageTargetObtainChoice(PromptChoice selected)
     {
         var f = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("Obtain choice lost its parent.");
@@ -203,6 +204,7 @@ public sealed partial class GameEngine
                 throw new InvalidOperationException("Issued damage-target Duel lost its exact paid origin.");
         }
     }
+    [ProgramAiChoice(SkillProgramEffectOp.ObtainDamageTargetCardAndResolveCategory)]
     private PromptChoice SelectAiDamageTargetObtain(PendingDecision decision, ProgramSkillFrame f)
     {
         if(f.DamageTargetObtain?.Stage!=ProgramDamageTargetObtainStage.SelectingDuelTarget)return SelectAiProgramOtherOwnedCardDiscard(decision,f);

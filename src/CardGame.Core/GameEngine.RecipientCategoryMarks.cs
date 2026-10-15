@@ -161,6 +161,7 @@ public sealed partial class GameEngine
         { PromptId = CreatePromptId(), IsPrivate = true, TargetSeat = chooser, Choices = choices, SkillPrompt = new(f.SkillId, skill.Name, skill.Name, skill.Description) };
         _status = _players[chooser].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
+    [ProgramAnswer("recipient-category-mark")]
     private void ResolveRecipientCategoryMarkChoice(PromptChoice choice)
     {
         var f = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("Category mark choice lost its owning frame.");
@@ -281,6 +282,11 @@ public sealed partial class GameEngine
     private bool IsRecipientCategoryMarkMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation p) =>
         f.RecipientCategoryMark is { } r && effect?.Op == r.Operation && f.PendingMovementContinuation == p && p.BeforeCount == 0 && p.CoverageResultBind is null &&
         p.SubjectSeat == (r.Stage == RecipientCategoryMarkStage.DiscardChildren ? r.TargetSeat : r.HolderSeat) && ValidRecipientCategoryMarkReceipt(f);
+    [ProgramAiChoice(
+        SkillProgramEffectOp.GiveHandAndGrantCategoryMark,
+        SkillProgramEffectOp.SpendCategoryMarkForDyingRecovery,
+        SkillProgramEffectOp.SpendCategoryMarkForAreaDiscard,
+        SkillProgramEffectOp.SpendCategoryMarkForSlashTargets)]
     private PromptChoice SelectAiRecipientCategoryMarkChoice(PendingDecision p, ProgramSkillFrame f) =>
         p.Choices.FirstOrDefault(c => c.Parameters.GetValueOrDefault("mark-action") != "finish" &&
             (c.Targets.Count == 0 || !AreProgramDistributionAllies(_players[f.OwnerSeat], _players[c.Targets[0]]))) ?? p.Choices[0];

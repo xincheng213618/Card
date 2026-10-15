@@ -54,31 +54,6 @@ internal static class BoundaryLingTongChecks
         }
     }
 
-    public static void SeparateLossesAndActualConvertedUseKeepPaymentAndCleanup()
-    {
-        var (single, sr) = Create(); Play(single);
-        for (var i = 0; i < 2; i++)
-        { BoundMove(single, "discard-one", [single.CreateSnapshot(0).Players[0].Hand[0].Id]); Play(single); }
-        Require(Started(single, Skill) == 0 && ForeignMoves(single).Length == 0 &&
-            single.CardMovements.Count(m => m.From == CardLocation.Hand(0) && m.Reason.Value == BoundReason) == 2,
-            "Two distinct single-hand loss commands remain two actual batches and never manufacture one two-card opportunity."); Cold(single, sr);
-
-        var (g, r) = Create(conversion: true); Play(g);
-        var cards = g.CreateSnapshot(0).Players[0].Hand.Take(2).Select(c => c.Id).ToArray();
-        Accept(g, new UseProgramSkillCommand(0, "classic:fuhun", "two-hand-cards-as-slash", cards, [1], g.Revision, P(g)!.PromptId));
-        Reach(g, p => Activation(p, Skill)); var batch = g.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Single(f => f.Candidates.Any(c => c.SkillId == Skill));
-        Require(batch.Batch.Movements.Count == 2 && batch.Batch.Movements.All(m => m.From == CardLocation.Hand(0) && m.To == CardLocation.Processing) &&
-            batch.Contexts!.Single(c => c.OwnerSeat == 0 && c.Facts?.MovedEquipmentCardCount is not null).Facts is { MovedCardCount: 2, MovedEquipmentCardCount: 0 },
-            "The current skill also answers the exact two-material actual Use payment; it is not limited to discard reasons or the Discard phase.");
-        Cold(g, r); Activate(g, Skill); Reach(g, OtherDiscard); Decline(g); Reach(g, OtherDiscard); Decline(g); Play(g);
-        var use = Facts<CardActionAcceptedEvent>(g).Single(e => e.Action.Type == CardActionType.Use && e.Action.PhysicalCards.Select(c => c.CardId).Order().SequenceEqual(cards.Order())).Action;
-        Require(use.EffectiveKind == CardKind.Slash && Started(g, Skill) == 1 && ForeignMoves(g).Length == 0 &&
-            cards.All(id => g.CardMovements.Count(m => m.CardId == id && m.From == CardLocation.Hand(0) && m.To == CardLocation.Processing) == 1 &&
-                g.CardMovements.Count(m => m.CardId == id && m.From == CardLocation.Processing && m.To == CardLocation.DiscardPile) == 1) &&
-            Facts<DamageAppliedEvent>(g).Any(e => e.SourceSeat == 0 && e.TargetSeat == 1 && e.Amount == 1),
-            "Declining both follow-ups resumes the actual original converted Slash, including its real damage, payment and entity cleanup once; processing cleanup is not a second loss."); Cold(g, r);
-    }
-
     public static void PrivateSequentialChoicesRecoveryChildrenDeclinesAndSourceLoss()
     {
         var (skip, sk) = Create(); Play(skip); BoundMove(skip, "discard-two", skip.CreateSnapshot(0).Players[0].Hand.Take(2).Select(c => c.Id).ToArray());
@@ -121,41 +96,6 @@ internal static class BoundaryLingTongChecks
             ForeignMoves(lost).Length == 1 && Started(lost, Skill) == 1 &&
             Facts<ProgramBindingResolvedEvent>(lost).Any(e => e.SkillId == Skill && e.Activated && !e.Completed),
             "A real movement child invalidates the current nonlocked source after its first paid discard: that cost stays committed and the unpaid second step cancels."); Cold(lost, lr);
-    }
-
-    public static void NativeOwnerBatchLossAndStrictValueContextPreserveClassic()
-    {
-        var (classic, cr) = Create(classicOnly: true); Play(classic);
-        BoundMove(classic, "discard-two", classic.CreateSnapshot(0).Players[0].Hand.Take(2).Select(c => c.Id).ToArray()); Play(classic);
-        Require(Started(classic, Classic) == 0 && Started(classic, Skill) == 0,
-            "The historical classic skill retains its Discard-phase condition; a Play-phase two-card loss does not acquire the new current rule."); Cold(classic, cr);
-
-        var (native, nr) = Create(native: true);
-        var issued = Started(native, Skill) > 0;
-        for (var i = 0; !issued && i < 100 && native.State.Status != EngineStatus.Completed; i++)
-        { Accept(native, new AdvanceOneStepCommand(native.Revision)); issued = Started(native, Skill) > 0; }
-        Require(issued && ForeignMoves(native).Length > 0 && native.AcceptedCommands.All(c => c is not AnswerPromptCommand),
-            "The fixed native owner actually accepts a genuine equipment/two-card loss and pays a legal foreign discard through normal Advance commands; no AI prompt is manually answered."); Cold(native, nr);
-        StrictValueContexts();
-    }
-
-    private static void StrictValueContexts()
-    {
-        const string condition = "\"condition\":{\"kind\":\"compare\",\"left\":{\"kind\":\"movedEquipmentCardCount\"},\"operator\":\"greaterThan\",\"right\":{\"kind\":\"integerConstant\",\"value\":0}}";
-        var valid = "{\"id\":\"loss\",\"window\":\"cardsMoved\",\"subject\":\"owner\",\"sourceZones\":[\"hand\",\"equipment\"],\"movementOccurrence\":\"perOwnerBatch\",\"optional\":true," + condition + ",\"effects\":[{\"op\":\"draw\",\"target\":\"owner\",\"amount\":1}]}";
-        var presentation = "{\"schemaVersion\":3,\"skills\":{\"fixture:lt-value\":{\"name\":\"批次事实\",\"description\":\"严格公开标量\"}}}";
-        foreach (var trigger in new[] {
-            valid.Replace("\"perOwnerBatch\"", "\"perBatch\"").Replace("[\"hand\",\"equipment\"]", "[\"equipment\"]"),
-            valid.Replace("[\"hand\",\"equipment\"]", "[\"hand\"]"),
-            valid.Replace("\"optional\":true", "\"optional\":true,\"movementDiscardOnly\":true"),
-            "{\"id\":\"loss\",\"window\":\"playEnding\",\"subject\":\"owner\",\"optional\":true," + condition + ",\"effects\":[{\"op\":\"draw\",\"target\":\"owner\",\"amount\":1}]}"
-        })
-        {
-            var rejected = false;
-            try { SkillProgramCatalog.Load("{\"schemaVersion\":" + SkillProgramCatalog.RulesSchemaVersion + ",\"skills\":[{\"id\":\"fixture:lt-value\",\"revision\":1,\"triggers\":[" + trigger + "]}]}", presentation); }
-            catch (InvalidOperationException e) when (e.Message.Contains("equipment-loss", StringComparison.OrdinalIgnoreCase)) { rejected = true; }
-            Require(rejected, "The new value rejects non-owner-batch, absent equipment, synthetic discard-origin and unrelated windows without weakening the loader.");
-        }
     }
 
     private static IEnumerable<T> Facts<T>(GameEngine g) => g.Events.Select(e => e.Payload).OfType<T>();

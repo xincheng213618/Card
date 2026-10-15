@@ -220,6 +220,7 @@ public sealed partial class GameEngine
         return leaders.Length == 1 ? leaders[0] : -1;
     }
 
+    [ProgramAnswer("zecai-target", "zecai-decline")]
     private void ResolveZecaiChoice(PromptChoice selected)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ??
@@ -336,14 +337,6 @@ public sealed partial class GameEngine
             _roundNumber, action.ActorSeat, action.ActionId, action.EffectiveKind));
     }
 
-    private PromptChoice SelectAiZecaiChoice(PendingDecision decision)
-    {
-        var leader = decision.Choices.FirstOrDefault(choice =>
-            choice.Parameters.GetValueOrDefault("unique-trick-leader") == "True");
-        if (leader is not null) return leader;
-        return decision.Choices.Single(choice =>
-            choice.Parameters.GetValueOrDefault("program-action") == "zecai-decline");
-    }
 
     private sealed partial class ProgramSkillHost : IHuangChengYanProgramHost
     {

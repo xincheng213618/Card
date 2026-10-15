@@ -76,6 +76,7 @@ public sealed partial class GameEngine
         _status = _players[chooser].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
 
+    [ProgramAnswer("dual-color-choice")]
     private void ResolveDualColorChoice(PromptChoice selected)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ??
@@ -237,6 +238,7 @@ public sealed partial class GameEngine
         CancelProgramBindingAndCleanup(GetActiveProgramFrame(frame.Id), "选色结算的参与者或技能来源已失效，未发行的决斗取消。");
     }
 
+    [ProgramAiChoice(SkillProgramEffectOp.ChoosePrivateColorsDiscardAndDuel)]
     private PromptChoice SelectAiDualColorChoice(PendingDecision decision, ProgramSkillFrame frame)
     {
         var chooser = decision.PlayerSeat; var other = chooser == frame.OwnerSeat ? frame.DualColorDuel!.OtherSeat : frame.OwnerSeat;

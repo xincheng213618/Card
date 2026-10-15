@@ -201,6 +201,7 @@ public sealed partial class GameEngine
             action.EffectiveKind == CardKind.BorrowedSword ? targets.Where((_, i) => i % 2 == 0).ToArray() : targets,
             action.EffectiveSuit, action.EffectiveRank, action.EffectiveIsRed, action.FactionOrigin);
 
+    [ProgramAnswer("designated-extra-target")]
     private void ResolveDesignatedExtraTargetChoice(PromptChoice selected)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ??
@@ -266,6 +267,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("A designated extra target lost its exact source, prefix, native parent or public prompt.");
     }
 
+    [ProgramAiChoice(SkillProgramEffectOp.AddOneDistanceFreeCurrentUseTarget)]
     private PromptChoice SelectAiDesignatedExtraTargetChoice(PendingDecision decision, ProgramSkillFrame frame)
     {
         var use = RequireDesignatedExtraTargetParent(frame, out _);
@@ -305,6 +307,7 @@ public sealed partial class GameEngine
 
     private bool HasDesignatedExtraTargetTail(CardUseFrame use) =>
         HasDamageTargetBudgetTail(use) || HasAdjacentRedTargetTail(use) ||
+        use.BeiMiHuTargetMutation is { Kind: "append" } && ValidBeiMiHuTargetMutation(use) ||
         CompleteProgramEventHistory().OfType<DesignatedExtraTargetResolvedEvent>().Any(e =>
             IsDesignatedExtraTargetFact(use, e, e.OriginalTargetSeats) && use.Action!.TargetSeats.Count >= e.ResultTargetSeats.Count &&
             use.Action.TargetSeats.Take(e.ResultTargetSeats.Count).SequenceEqual(e.ResultTargetSeats) &&
@@ -382,7 +385,8 @@ public sealed partial class GameEngine
                     : effect.TargetReference.Kind == ProgramParticipantRef.EventTarget && parent.WindowContext?.TargetSeat == declared.TargetSeats[0]),
             SkillProgramEffectOp.OfferVirtualSlashOrDraw => parent.SelectedTargetSeats is [var actor] && actor == use.SourceSeat && action.ConversionChain.Count == 0,
             SkillProgramEffectOp.UseVirtualCard or SkillProgramEffectOp.OfferUnlimitedVirtualSlash => parent.OwnerSeat == use.SourceSeat &&
-                parent.SelectedTargetSeats is [var selected] && selected == declared.TargetSeats[0] && action.ConversionChain.Count == 0 &&
+                parent.SelectedTargetSeats is [var selected] && selected == declared.TargetSeats[0] &&
+                (action.ConversionChain.Count == 0 || HasDamageTargetBudgetTail(use) && action.ConversionChain.SequenceEqual([issuer])) &&
                 effect.UseCardActionWindows && effect.OutputKind == CardKind.Slash && effect.TargetRestriction == SkillProgramCardTargetRestriction.DistanceUnlimitedAgainstTarget,
             _ => false
         };
@@ -407,7 +411,7 @@ public sealed partial class GameEngine
             actor.UsedPlayPhaseAlcoholThisTurn = true;
         if (actor.IsAlive && target.IsAlive && _winner == Winner.None && !IsCardEffectIneffective(id, target.Seat))
         {
-            if (use.CardKind == CardKind.Peach)
+            if (use.CardKind == CardKind.Peach && target.HasHpValue)
             {
                 var recoveryAmount = ApplyIssuedCardRecoveryModifiers(id, actor.Seat, target.Seat, continuation.RecoveryAmount);
                 if (!TryQueueRecoveryReplacement(id, actor.Seat, target.Seat, recoveryAmount, new(RecoveryAttemptProducer.VirtualBasic)))
@@ -421,7 +425,7 @@ public sealed partial class GameEngine
                     finally { PopResolutionFrame(recovery, ResolutionFrameKind.Recovery); }
                 }
             }
-            else
+            else if (use.CardKind == CardKind.Alcohol)
             {
                 ApplyExtraCapableAlcoholEffect(id, target);
                 AdvanceEventRulesAndQueueFact(new AlcoholAppliedEvent(id, target.Seat, 1));

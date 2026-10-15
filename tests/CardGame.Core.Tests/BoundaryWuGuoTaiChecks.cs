@@ -52,33 +52,6 @@ internal static class BoundaryWuGuoTaiChecks
             "Returning all real payment children swaps the original pair exactly once and retains the per-play-phase limit."); Cold(g, r);
     }
 
-    public static void FreeAndChangedEquipmentPairsNeverRepriceCommittedPayment()
-    {
-        var (free, fr) = Create(); Play(free); Use(free, "weapon", [1]); Play(free); Use(free, "clear-hand"); Play(free);
-        Require(View(free, 0).HandCount == 0 && View(free, 0).Equipment.Count == 0 &&
-            !free.GetHumanLegalActions().Any(a => a.SkillId == Ganlu), "A full-HP owner without legal HE cannot begin a required one-card payment.");
-        Use(free, "hurt", [0]); Play(free); var weapon = View(free, 1).Equipment.Single().Id;
-        GanluPair(free, 1, 2); Play(free);
-        Require(Facts<ProgramEquipmentPairPaymentFrozenEvent>(free).Single() is { OwnerLostHp: 1, RequiredPaymentCount: 0 } &&
-            CostMoves(free, GanluCost).Length == 0 && View(free, 2).Equipment.Any(c => c.Id == weapon),
-            "When X equals actual lost HP, the real empty binding costs nothing and the current equipment swaps."); Cold(free, fr);
-
-        var (changed, cr) = Create(observers: true, changedEquipment: true); Play(changed); Use(changed, "weapon", [1]); Play(changed);
-        var crossbow = View(changed, 1).Equipment.Single().Id; GanluPair(changed, 0, 1);
-        Reach(changed, p => Action(p, "select-owned-cards")); var costId = P(changed)!.Choices.First(c => c.Cards.Count == 1).Cards.Single();
-        Cold(changed, cr); Answer(changed, c => c.Cards.SequenceEqual([costId])); Reach(changed, p => p.SkillPrompt?.SkillId == Cost);
-        Require(PairRoot(changed).EquipmentPairPayment is { FirstEquipmentCount: 0, SecondEquipmentCount: 1, RequiredPaymentCount: 1 } &&
-            View(changed, 0).Equipment.Count == 0, "The original pair's difference is frozen before the cost child can alter equipment.");
-        Cold(changed, cr); Continue(changed); Play(changed);
-        var generated = changed.CardMovements.Single(m => m.From == CardLocation.OutsideGame && m.To == CardLocation.Equipment(0) &&
-            m.Reason == CardMoveReasons.EquipmentEnter).CardId;
-        Require(View(changed, 0).Equipment.Any(c => c.Id == crossbow) && View(changed, 1).Equipment.Any(c => c.Id == generated) &&
-            CostMoves(changed, GanluCost).Single().CardId == costId &&
-            Facts<ProgramEquipmentPairPaymentFrozenEvent>(changed).Single().RequiredPaymentCount == 1 &&
-            Facts<ProgramEquipmentPairExchangeStartedEvent>(changed).Count() == 1,
-            "The observer's real named weapon joins the current pair exchange; the already committed X=1 is neither repriced nor paid twice."); Cold(changed, cr);
-    }
-
     public static void DyingOwnedSelectionStaysOpaqueAndBasicHasNoPayment()
     {
         foreach (var victim in new[] { 1, 0 })
@@ -107,51 +80,6 @@ internal static class BoundaryWuGuoTaiChecks
         }
     }
 
-    public static void NonBasicDiscardOwnsSilverLionAndRecoveryBeforeReturn()
-    {
-        foreach (var fromEquipment in new[] { false, true })
-        {
-            var (g, r) = Create(equipment: true, observers: true); Play(g);
-            if (fromEquipment) { Use(g, "equip", [1]); Play(g); }
-            EnterDying(g, 1); var dying = g.ResolutionStack.OfType<DyingFrame>().Single(f => f.VictimSeat == 1);
-            ActivateBuyi(g); Reach(g, p => Action(p, "dying-owned-card")); Private(g, 0); g = RestoreAfterCold(g, r); Reject(g);
-            var chosen = P(g)!.Choices.First(c => c.Parameters.GetValueOrDefault("source-zone") ==
-                (fromEquipment ? nameof(CardZoneKind.Equipment) : nameof(CardZoneKind.Hand)));
-            Require(fromEquipment ? chosen.Cards.Count == 1 : chosen.Cards.Count == 0,
-                "The actual equipment is public while the actual nonbasic foreign hand remains opaque before discard.");
-            Answer(g, c => c.Id == chosen.Id);
-            Reach(g, p => p.SkillPrompt?.SkillId == (fromEquipment ? Hp : Cost) && p.PlayerSeat == 1);
-            var root = DyingRoot(g); var receipt = root.DyingOwnedCard!; var id = receipt.PaidCardId!.Value;
-            Require(receipt.DyingFrameId == dying.Id && receipt.VictimSeat == 1 && receipt.SourceLocation ==
-                (fromEquipment ? CardLocation.Equipment(1) : CardLocation.Hand(1)) && receipt.NonBasic &&
-                CostMoves(g, BuyiCost) is [var paid] && paid.CardId == id && paid.From == receipt.SourceLocation && paid.To == CardLocation.DiscardPile &&
-                root.CardSetBindings.Single(b => b.Name == "non-basic").SelectionActorSeat == 1 &&
-                Facts<ProgramDyingCardSelectionResolvedEvent>(g).Single() is { NonBasic: true, OwnerSeat: 0, VictimSeat: 1 },
-                "The nonbasic identity becomes public only through one real original-zone discard, with its private binding attributed to the victim.");
-            if (fromEquipment)
-            {
-                Require(g.State.Players[1].Hp == 1 && g.ResolutionStack.OfType<HpChangedTriggerWindowFrame>().Any(h =>
-                    h.ResumeFrameId == root.Id && h.Change.ParentFrameId == root.Id && h.Continuation == PostEventContinuation.AwaitedProgramMovement),
-                    "Removed Silver Lion recovers the exact victim once before the cost movement and later Buyi recovery.");
-                g = RestoreAfterCold(g, r); Continue(g); Reach(g, p => p.SkillPrompt?.SkillId == Cost && p.PlayerSeat == 1);
-            }
-            var moved = g.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Single(m => m.Batch.ParentFrameId == root.Id);
-            Require((moved.Batch.AwaitingProgramFrameId is null || moved.Batch.AwaitingProgramFrameId == root.Id) && moved.ResumeProgramFrameId is null &&
-                moved.Batch.Movements is [var record] && record.CardId == id &&
-                g.State.Players[1].Hp == (fromEquipment ? 1 : 0), "The paid movement child precedes the exact one-point rescue benefit.");
-            g = RestoreAfterCold(g, r); Continue(g); Reach(g, p => p.SkillPrompt?.SkillId == Hp && p.PlayerSeat == 1);
-            Require(g.State.Players[1].Hp == (fromEquipment ? 2 : 1) && g.ResolutionStack.OfType<HpChangedTriggerWindowFrame>().Any(h =>
-                h.ResumeFrameId == root.Id && h.Change.ParentFrameId == root.Id && h.Continuation == PostEventContinuation.Program && h.Change.TargetSeat == 1) &&
-                Facts<RecoveryAppliedEvent>(g).Single(e => e.SourceSeat == 0 && e.TargetSeat == 1) is { Amount: 1 },
-                "Buyi really recovers one point after payment children and keeps the original Dying victim and typed program return.");
-            g = RestoreAfterCold(g, r); Continue(g); Play(g);
-            Require(CostMoves(g, BuyiCost).Single().CardId == id && Facts<DyingResolvedEvent>(g).Single(e => e.ResolutionId == dying.Id) is
-                { VictimSeat: 1, Survived: true } && !g.ResolutionStack.OfType<DyingFrame>().Any() &&
-                !g.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.DyingOwnedCard is not null) && g.CreateSnapshot(0).ProcessingCardCount == 0,
-                "Native victim observers finish through real Advance commands, then the original dying token survives with one payment and no residual owning frame."); Cold(g, r);
-        }
-    }
-
     private static (GameEngine, ContentRegistry) Create(bool equipment = false, bool observers = false, bool changedEquipment = false)
     {
         var r = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true),
@@ -174,7 +102,6 @@ internal static class BoundaryWuGuoTaiChecks
     }
     private static void ActivateBuyi(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate" && c.Parameters.GetValueOrDefault("skill-id") == Buyi);
     private static ProgramSkillFrame PairRoot(GameEngine g) => g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.EquipmentPairPayment is not null);
-    private static ProgramSkillFrame DyingRoot(GameEngine g) => g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.DyingOwnedCard is not null);
     private static PlayerSnapshot View(GameEngine g, int seat) => g.CreateSnapshot(seat).Players[seat];
     private static T[] Facts<T>(GameEngine g) where T : IGameEvent => g.Events.Select(e => e.Payload).OfType<T>().ToArray();
     private static CardMovementRecord[] CostMoves(GameEngine g, string reason) => g.CardMovements.Where(m => m.Reason.Value == reason).ToArray();

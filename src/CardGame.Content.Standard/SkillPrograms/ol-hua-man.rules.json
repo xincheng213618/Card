@@ -1,0 +1,120 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:manyi",
+      "revision": 1,
+      "cardPolicies": [
+        {
+          "id": "barbarian-immunity",
+          "kind": "excludeGlobalTarget",
+          "cardKinds": [
+            "barbarianAssault"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:mansi",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "all-hand-barbarian",
+          "minCards": 1,
+          "maxCards": null,
+          "sourceZones": [
+            "hand"
+          ],
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "effects": [
+            {
+              "op": "useAllHandCardsAsOrdinaryTrick",
+              "target": "owner",
+              "viewAsId": "all-hand-barbarian",
+              "outputKind": "barbarianAssault"
+            }
+          ]
+        }
+      ],
+      "triggers": [
+        {
+          "id": "actual-barbarian-draw",
+          "window": "afterDamageApplied",
+          "subject": "any",
+          "damageOccurrence": "perDamage",
+          "optional": false,
+          "effects": [
+            {
+              "op": "drawAndCountMansiActualBarbarianDamage",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:souying",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "directional-sole-target",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "observer",
+          "optional": true,
+          "usageScope": "turn",
+          "usageLimit": 1,
+          "effects": [
+            {
+              "op": "paySouyingDirectionalSoleTarget",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:zhanyuan",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "actual-preparation-awaken",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "usageScope": "game",
+          "usageLimit": 1,
+          "effects": [
+            {
+              "op": "awakenZhanyuanAndOfferXili",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:xili",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "other-xili-turn-damage",
+          "window": "beforeDamageApplied",
+          "subject": "owner",
+          "optional": true,
+          "usageScope": "turn",
+          "usageLimit": 1,
+          "effects": [
+            {
+              "op": "payXiliActualOtherOwnerDamage",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

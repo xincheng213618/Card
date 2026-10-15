@@ -135,6 +135,7 @@ public sealed partial class GameEngine
         _status = _players[r.BeneficiarySeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
         AdvanceRulesAndPublishState();
     }
+    [ProgramAnswer("rice-pile")]
     private void ResolveRiceChoice(PromptChoice choice)
     {
         var f = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("Rice choice lost owner.");
@@ -196,6 +197,7 @@ public sealed partial class GameEngine
         if (r.Stage == RicePileStage.RecoveryChildren) { if (!DrainRiceChildren(f)) FinishRicePile(f, true); return true; }
         throw new InvalidOperationException("Rice resumed without a typed draw, payment or recovery child.");
     }
+    [ProgramAiChoice(SkillProgramEffectOp.DrawAndStoreTwoPublicRice, SkillProgramEffectOp.OfferRiceAfterDamagePoint)]
     private PromptChoice SelectAiRiceChoice(PendingDecision p, ProgramSkillFrame f)
     {
         if (f.RicePile!.Operation == SkillProgramEffectOp.DrawAndStoreTwoPublicRice)

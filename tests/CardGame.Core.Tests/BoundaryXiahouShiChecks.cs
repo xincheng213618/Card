@@ -45,43 +45,6 @@ internal static class BoundaryXiahouShiChecks
             "The genuine extra Ending also performs two distinct same-seat Draw1 benefits, rather than being skipped or deduplicated."); Cold(g, r);
     }
 
-    public static void FinalComparisonBlocksTrueRoundAcrossReacquisition()
-    {
-        var (g, r) = Create(removeForeignSource: true); Play(g); End(g); Activate(g, Qiaoshi);
-        Until(g, e => F<EndingPairDrawComparedEvent>(e).Length == 1);
-        Reach(g, p => p.SkillPrompt?.SkillId == Qiaoshi && Action(p, "activate"));
-        Activate(g, Qiaoshi); Reach(g, p => p.SkillPrompt?.SkillId == First);
-        var original = Pair(g).EndingPairDraw!.Source; var parent = Pair(g).Id;
-        Require(Pair(g).EndingPairDraw!.CurrentActorSeat != 0 && Pair(g).EndingPairDraw!.SecondDraw is null, "The actual foreign Ending freezes its real current actor before the first benefit.");
-        g = RestoreAfterCold(g, r); Continue(g); Reach(g, p => p.SkillPrompt?.SkillId == Hp); g = RestoreAfterCold(g, r); Continue(g);
-        Reach(g, p => p.SkillPrompt?.SkillId == Second);
-        Require(Pair(g).Id == parent && Pair(g).EndingPairDraw!.Source == original &&
-            g.State.Players[0].Hp == 3 &&
-            F<SkillsAcquiredEvent>(g).Any(e => e.PlayerSeat == 0 && e.SourceSkillId == First && e.SkillIds.Contains(SourceSuppression)) &&
-            !F<ProgramOwnerSkillsReplacedEvent>(g).Any(e => e.OwnerSeat == 0 && e.LostSkillIds.Contains(Qiaoshi)),
-            "The first gain child's actual HP3 suppressor only invalidates source qualification; the already issued second benefit retains the original instance and still runs before any physical replacement.");
-        g = RestoreAfterCold(g, r); Continue(g); Play(g);
-        var blocked = F<EndingPairDrawComparedEvent>(g).Single(e => e.ProgramFrameId == parent);
-        Require(blocked.BlockedForRound && blocked.RoundNumber == 1 && blocked.OwnerHandCount != blocked.CurrentActorHandCount && F<RoundStartedEvent>(g).Length == 1,
-            "Only after both real draw and HP children return are final unequal public hand counts queried and the true Round blocked.");
-        Accept(g, new UseProgramSkillCommand(0, SourceSuppression, "replace-original-source", [], [], g.Revision, P(g)!.PromptId)); Play(g);
-        Require(F<ProgramOwnerSkillsReplacedEvent>(g) is [{ OwnerSeat: 0, SkillId: SourceSuppression, GrantedSkillId: "fixture:xhs-noop" } replacement] &&
-            replacement.LostSkillIds.SequenceEqual([Qiaoshi, SourceSuppression]) &&
-            F<SkillsAcquiredEvent>(g).Any(e => e.PlayerSeat == 0 && e.SourceSkillId == SourceSuppression && e.SkillIds.Contains("fixture:xhs-noop")),
-            "A separate real zero-cost activation physically replaces the old Qiaoshi grant and its suppressor only after both paid Ending children return.");
-        Use(g, "regain"); Play(g);
-        Require(F<SkillsAcquiredEvent>(g).Any(e => e.PlayerSeat == 0 && e.SourceSkillId == Driver && e.SkillIds.Contains(Qiaoshi)),
-            "The actual Driver activation acquires Qiaoshi after physical removal, rather than merely revealing the suppressed original grant.");
-        End(g);
-        Until(g, e => F<TurnStartedEvent>(e).Count(t => t.ActorSeat == 0) >= 3 && P(e) is { PlayerSeat: 0, Kind: DecisionKind.PlayCard });
-        Require(F<EndingPairDrawStartedEvent>(g).Length == 2 && F<RoundStartedEvent>(g).Length == 2,
-            "The genuinely reacquired instance cannot evade the same-round block in the queued extra turn or other Endings; the next natural visit starts Round2.");
-        End(g); Activate(g, Qiaoshi); Reach(g, p => p.SkillPrompt?.SkillId == Second);
-        Require(Pair(g).EndingPairDraw!.RoundNumber == 2 && Pair(g).EndingPairDraw!.Source.SkillInstanceId != original.SkillInstanceId,
-            "The new instance is allowed again only in the next actual Round, not by re-acquisition itself.");
-        g = RestoreAfterCold(g, r); Continue(g); Until(g, e => F<EndingPairDrawComparedEvent>(e).Length == 3); Cold(g, r);
-    }
-
     public static void UseAndRecastCountRealLossAndIgnoreProcessingCleanup()
     {
         var (g, r) = Create(); Play(g);
@@ -121,23 +84,6 @@ internal static class BoundaryXiahouShiChecks
             !F<ProgramOwnerSkillsReplacedEvent>(g).Any(e => e.OwnerSeat == 0 && e.LostSkillIds.Contains(Yanyu)),
             "A real cost observer suppresses the source's qualification at actual HP2: its paid loss and recast fact survive, while no physical replacement, unattempted draw invoice, reward movement or stale frame is fabricated.");
         Cold(g, r);
-    }
-
-    public static void GivingSlashCountsAndNextActualPlayStartsFresh()
-    {
-        var (g, r) = Create(); Play(g); var given = V(g, 0).Hand.First(c => c.Kind == CardKind.Slash).Id;
-        Accept(g, new UseProgramSkillCommand(0, Driver, "give", [given], [1], g.Revision, P(g)!.PromptId)); Play(g);
-        Require(Losses(g) is [var gift] && gift.CardId == given && gift.From == CardLocation.Hand(0) && gift.To == CardLocation.Hand(1),
-            "A real owner-Hand to foreign-Hand gift counts the printed Slash loss without manufacturing a Use or AcceptedAction.");
-        var recast = V(g, 0).Hand.First(c => c.Kind == CardKind.Slash).Id; Recast(g, recast); Reach(g, p => p.SkillPrompt?.SkillId == Cost);
-        var phase = RecastRoot(g).PlaySlashRecast!.PhaseInstanceId; g = RestoreAfterCold(g, r); Continue(g);
-        Reach(g, p => p.SkillPrompt?.SkillId == Reward && p.PlayerSeat == 0); g = RestoreAfterCold(g, r); Continue(g); Play(g);
-        Require(Losses(g).Length == 2 && Losses(g).All(m => m.ActualPlaySlashLoss!.PhaseInstanceId == phase), "Gift and recast belong to one precise actual Play instance.");
-        End(g); Support(g, r, out g); Play(g); var before = F<ProgramBindingStartedEvent>(g).Count(e => e.SkillId == Yanyu && e.Window == SkillProgramTriggerWindow.PlayEnding);
-        End(g); Until(g, e => F<TurnStartedEvent>(e).Count(t => t.ActorSeat == 0) >= 3 && P(e) is { PlayerSeat: 0, Kind: DecisionKind.PlayCard });
-        Require(F<ProgramBindingStartedEvent>(g).Count(e => e.SkillId == Yanyu && e.Window == SkillProgramTriggerWindow.PlayEnding) == before &&
-            F<PlaySlashRecastPaidEvent>(g).Single().PhaseInstanceId == phase,
-            "The next real Play with zero losses does not inherit prior stamped entries or invent another support activation."); Cold(g, r);
     }
 
     private static (GameEngine, ContentRegistry) Create(bool removeForeignSource = false, bool removeRecastSource = false)

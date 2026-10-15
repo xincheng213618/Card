@@ -149,6 +149,7 @@ public sealed partial class GameEngine
         _status = _players[chooser].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
 
+    [ProgramAnswer("faction-recovery")]
     private void ResolveFactionRecoveryChoice(PromptChoice choice)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("Faction recovery lost its frame.");
@@ -177,6 +178,7 @@ public sealed partial class GameEngine
         else AdvanceRuntimeProgram(frame.Id);
     }
 
+    [ProgramAiChoice(SkillProgramEffectOp.RequestFactionRecovery)]
     private PromptChoice SelectAiFactionRecovery(PendingDecision decision, ProgramSkillFrame frame)
     {
         var view = CreateSnapshot(decision.PlayerSeat);
@@ -254,6 +256,7 @@ public sealed partial class GameEngine
         _status = _players[draft.TargetSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
 
+    [ProgramAnswer("weapon-damage")]
     private void ResolveWeaponDamageChoice(PromptChoice choice)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("Weapon choice lost its frame.");
@@ -298,9 +301,6 @@ public sealed partial class GameEngine
         if (!TryBeginCardsMovedProgramWindow(frame.Id)) AdvanceRuntimeProgram(frame.Id);
     }
 
-    private PromptChoice SelectAiWeaponDamage(PendingDecision decision, ProgramSkillFrame frame) =>
-        decision.Choices.FirstOrDefault(choice => choice.Parameters.GetValueOrDefault("branch") == "finish") ??
-        decision.Choices.FirstOrDefault(choice => choice.Parameters.GetValueOrDefault("branch") == "card") ?? decision.Choices.Single();
 
     private void ValidateWeaponDamageDraft(ProgramSkillFrame frame)
     {

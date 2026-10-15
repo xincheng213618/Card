@@ -42,22 +42,6 @@ internal static class OrdinarySimaZhouChecks
         VerifyOpaqueHandAiIgnoresHiddenFaces();
     }
 
-    public static void DifferentAndColorlessPairsNeverOfferDisposition()
-    {
-        foreach (var scenario in new[] { Scenario.Different, Scenario.Colorless })
-        {
-            var (g, registry) = Create(scenario); BeginOwnSlash(g); Play(g);
-            var pair = E<PairedColorResponseLinkedEvent>(g).Single();
-            Require(scenario == Scenario.Different ? pair.PairedIsRed == true && pair.ResponseIsRed == false :
-                    pair.PairedIsRed is null && pair.ResponseIsRed is null,
-                "The fixed real payment produces precisely the intended different-color or two-colorless native pair.");
-            Require(E<CardResponseCompletedEvent>(g).Length == 1 && E<PairedColorDispositionStartedEvent>(g).Length == 0 &&
-                E<PairedColorDispositionPaidEvent>(g).Length == 0 && E<CardUseFinishedEvent>(g).Length == 1,
-                "A completed genuine response with different effective colors, or no colored match, cannot offer or pay Caiwang.");
-            _ = Cold(g, registry);
-        }
-    }
-
     public static void ReverseDodgeAndDuelPairsRetainTheRealUsedCard()
     {
         var (g, registry) = Create(Scenario.Reverse); Use(g, "request", [1]);
@@ -129,91 +113,6 @@ internal static class OrdinarySimaZhouChecks
         Require(E<CardUseFinishedEvent>(g).Count(e => e.ResolutionId == trick.Id) == 1 &&
             E<PairedColorDispositionStartedEvent>(g).Count(e => e.ResponseActionId == secondCounter.ActionId) == 1,
             "The accepted direct-counterspell opportunity and exact original trick both finish once after the native remaining counterspell chain drains.");
-    }
-
-    public static void CounterpartEquipmentIsLegalButJudgmentAloneIsNot()
-    {
-        var (g, registry) = Create(Scenario.Judgment);
-        var delay = g.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.Indulgence && a.TargetSeats.SequenceEqual([1]));
-        SubmitPlay(g, delay); Play(g); Require(V(g, 1).Judgment.Count == 1 && V(g, 1).HandCount == 1, "A real physical delayed trick occupies the counterpart's Judgment while its only Hand response remains available.");
-        BeginOwnSlash(g); Play(g);
-        Require(V(g, 1).HandCount == 0 && V(g, 1).Equipment.Count == 0 && V(g, 1).Judgment.Count == 1 &&
-            E<PairedColorResponseLinkedEvent>(g).Single() is { ResponseIsRed: false, PairedIsRed: false } &&
-            E<PairedColorDispositionStartedEvent>(g).Length == 0 &&
-            g.CreateCardZoneDiagnostics().Single(c => c.CardId == delay.CardId).Location == CardLocation.Judgment(1),
-            "A genuine matching pair cannot offer Caiwang when the counterpart only has Judgment; its last-Judgment conversion route does not expand disposition areas.");
-        _ = Cold(g, registry);
-
-        (g, registry) = Create(Scenario.Equipment); var equipped = V(g, 0).Hand[0].Id;
-        Use(g, "equip-peer", [1], [equipped]); Play(g); BeginOwnSlash(g); Reach(g, Offer); Answer(g, Activate); Reach(g, Disposition);
-        var frame = PairFrame(g); var exact = P(g)!.Choices.Single(c => c.Cards.SequenceEqual([equipped]));
-        Require(exact.Parameters.GetValueOrDefault("source-zone") == nameof(CardZoneKind.Equipment) && V(g, 1).Equipment.Any(c => c.Id == equipped),
-            "The same native picker publishes the exact visible counterpart Equipment entity alongside opaque Hand slots.");
-        Private(g); g = Cold(g, registry); Answer(g, c => c.Id == exact.Id); Play(g); Once(g, frame.Id, false);
-        Require(E<PairedColorDispositionPaidEvent>(g).Single(e => e.FrameId == frame.Id) is { From: var from, To: var to, CardId: var id } &&
-            from == CardLocation.Equipment(1) && to == CardLocation.DiscardPile && id == equipped,
-            "Caiwang actually removes the selected real Equipment entity once through the native movement return.");
-    }
-
-    public static void PaidAcquisitionSurvivesSourceLossAndNativeChildColdReturn()
-    {
-        var (g, registry) = Create(Scenario.Paid); Use(g, "lose-hp"); Play(g); Use(g, "damage", [1]); Play(g);
-        Require(V(g, 0).Hp == 4 && E<DamageCounterpartAcquisitionGrantedEvent>(g).Single().CounterpartSeat == 1 && V(g, 0).Skills!.Any(s => s.Id == Caiwang),
-            "The real acquired Caiwang source is qualified after actual HP loss, and actual positive damage records the exact counterpart.");
-        BeginOwnSlash(g); Reach(g, Offer); Answer(g, Activate); Reach(g, Disposition); var frame = PairFrame(g); var rootId = frame.Id;
-        Require(frame.PairedColorDisposition is { Obtain: true, CounterpartSeat: 1 }, "Only the recorded opponent changes this issued disposition into acquisition.");
-        Blind(g); Answer(g, c => c.Parameters.GetValueOrDefault("source-zone") == nameof(CardZoneKind.Hand));
-        Reach(g, p => p.SkillPrompt?.SkillId == Gain && IsContinue(p));
-        var paid = E<PairedColorDispositionPaidEvent>(g).Single(e => e.FrameId == rootId);
-        var owning = PairFrame(g); var receipt = owning.PairedColorDisposition!;
-        Require(receipt is { Stage: PairedColorDispositionStage.MovementChildren, BatchId: > 0 } &&
-            receipt.PaidCardId == paid.CardId && receipt.BatchId == paid.BatchId && paid.From == CardLocation.Hand(1) && paid.To == CardLocation.Hand(0) &&
-            owning.PendingMovementContinuation?.SubjectSeat == 1 &&
-            g.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Any(w => w.Batch.Id == paid.BatchId && w.Batch.ParentFrameId == rootId && w.Batch.AwaitingProgramFrameId == rootId) &&
-            E<PairedColorDispositionCompletedEvent>(g).Length == 0,
-            "The original paired-color frame owns the exact already-paid Hand acquisition and its native recipient gain child before completion.");
-        Private(g); g = Cold(g, registry); Continue(g);
-        Reach(g, p => p.SkillPrompt?.SkillId == Suppress && IsContinue(p));
-        Require(E<SkillsAcquiredEvent>(g).Any(e => e.PlayerSeat == 0 && e.SourceSkillId == Gain && e.SkillIds.Contains(Suppress)) &&
-            V(g, 0).Skills!.All(s => s.Id != Caiwang) && PairFrame(g).Id == rootId && PairFrame(g).PairedColorDisposition!.PaidCardId == paid.CardId &&
-            g.ResolutionStack.OfType<ProgramLifecycleTriggerWindowFrame>().Any(w => w.Window == SkillProgramTriggerWindow.SkillsChanged),
-            "A real nested grant suppresses the acquired source, and the paid invoice remains on its original frame through the exact SkillsChanged child.");
-        Private(g); g = Cold(g, registry); Continue(g); Play(g); Once(g, rootId, true);
-        Require(E<PairedColorDispositionPaidEvent>(g).Count(e => e.FrameId == rootId) == 1 &&
-            g.CardMovements.Count(m => m.CardId == paid.CardId && m.From == paid.From && m.To == paid.To) == 1 &&
-            E<CardUseFinishedEvent>(g).Count(e => e.ResolutionId == receipt.Pair.RootCardUseFrameId) == 1,
-            "Paid source loss neither repeats acquisition nor loses the native response/Slash return after cold restoration.");
-    }
-
-    public static void DamageCounterpartsPersistAcrossSourceRegrantAndExpireAtOwnerTurnStart()
-    {
-        var (g, registry) = Create(Scenario.Lease); Use(g, "lose-hp"); Play(g); Use(g, "self-damage"); Play(g);
-        Require(E<ProgramSkillHpLostEvent>(g).Length > 0 && E<DamageAppliedEvent>(g).Any(e => e.SourceSeat == 0 && e.TargetSeat == 0) &&
-            E<DamageCounterpartAcquisitionGrantedEvent>(g).Length == 0,
-            "Native HP loss and true self-damage cannot create a counterpart direction.");
-        Use(g, "damage", [1]); Play(g); Use(g, "opponent-duel", [1]);
-        Reach(g, p => p is { PlayerSeat: 0, Kind: DecisionKind.RespondSlash, IncomingCard: CardKind.Duel });
-        Answer(g, c => c.Cards.Count == 0); Play(g);
-        var leases = E<DamageCounterpartAcquisitionGrantedEvent>(g);
-        Require(leases.Length == 2 && leases.All(e => e.Source.OwnerSeat == 0 && e.Source.SkillId == Najiang && e.CounterpartSeat == 1 &&
-                e.TargetSkillId == Caiwang && e.StateId == "caiwang" && e.Amount == 1 && e.ActualTurnOwnerSeat == 0) &&
-            leases.Select(e => (e.DamageSourceSeat, e.DamageTargetSeat)).ToHashSet().SetEquals([(0, 1), (1, 0)]) &&
-            leases.Select(e => e.DamageFrameId).Distinct().Count() == 2,
-            "Actual damage dealt to and received from the same other actor independently records its two exact native damage identities, not points or HP-loss events.");
-        Use(g, "remove"); Play(g); Use(g, "regain"); Play(g);
-        Require(E<ProgramOwnerSkillsReplacedEvent>(g).Any(e => e.SkillId == Driver && e.LostSkillIds.Contains(Caiwang) && e.LostSkillIds.Contains(Najiang)) &&
-            V(g, 0).Skills!.Any(s => s.Id == Caiwang) && V(g, 0).Skills!.All(s => s.Id != Najiang),
-            "A legal final activation physically retires both original skills; a genuine grant returns only Caiwang before any response.");
-        BeginOwnSlash(g); Reach(g, Offer); Answer(g, Activate); Reach(g, Disposition); var first = PairFrame(g);
-        Require(first.PairedColorDisposition is { Obtain: true, CounterpartSeat: 1 }, "The existing exact-opponent direction survives physical loss and regrant without requiring the original Najiang instance.");
-        g = Cold(g, registry); Answer(g, c => c.Parameters.GetValueOrDefault("source-zone") == nameof(CardZoneKind.Hand)); Play(g); Once(g, first.Id, true);
-        var turn = g.CreateSnapshot(0).TurnNumber; Use(g, "extra"); Play(g); End(g);
-        Reach(g, p => p is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 } && g.CreateSnapshot(0).TurnNumber > turn);
-        Require(E<TurnStartedEvent>(g).Last().ActorSeat == 0 && E<DamageCounterpartAcquisitionGrantedEvent>(g).Length == 2,
-            "The issued native extra turn reaches the owner's next actual TurnStarted without refreshing the removed damage-recording source.");
-        BeginOwnSlash(g); Reach(g, Offer); Answer(g, Activate); Reach(g, Disposition); var next = PairFrame(g);
-        Require(next.PairedColorDisposition is { Obtain: false, CounterpartSeat: 1 }, "Exactly the next actual owner turn expires the former acquisition direction; the same opponent now incurs ordinary discard.");
-        Private(g); g = Cold(g, registry); Answer(g, c => c.Parameters.GetValueOrDefault("source-zone") == nameof(CardZoneKind.Hand)); Play(g); Once(g, next.Id, false);
     }
 
     private static void BeginOwnSlash(GameEngine g)

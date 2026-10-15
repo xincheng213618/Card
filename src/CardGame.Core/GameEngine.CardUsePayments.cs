@@ -28,6 +28,9 @@ public sealed partial class GameEngine
 
     private void CaptureSlashUsePaymentBatch(CardMovementBatchContext batch)
     {
+        CaptureCaoChunUsePaymentBatch(batch);
+        CaptureNeifaPaymentBatch(batch);
+        CaptureXinPiUseMovementBatch(batch);
         if (_resolutionStack.LastOrDefault() is not CardUseFrame use || batch.ParentFrameId != use.Id ||
             use.Action is not { Type: CardActionType.Use } action || !IsSlashCard(action.EffectiveKind) ||
             !CardUsePaymentMaterialsMatch(use, batch)) return;
@@ -55,6 +58,7 @@ public sealed partial class GameEngine
             batch.OriginSkillId == issued.OriginSkillId && batch.OriginSkillInstanceId == issued.OriginSkillInstanceId &&
             batch.OriginOwnerSeat == issued.OriginOwnerSeat && batch.MovementTiming == issued.MovementTiming &&
             batch.DiscardRecoveryPhase == issued.DiscardRecoveryPhase && batch.NativeDrawInvocation == issued.NativeDrawInvocation &&
+            batch.NativeBuZhiDiscardInvocation == issued.NativeBuZhiDiscardInvocation &&
             batch.Movements.SequenceEqual(issued.Movements) && batch.SourceCounts.SequenceEqual(issued.SourceCounts) &&
             ((batch.DestinationCounts is null && issued.DestinationCounts is null) ||
              batch.DestinationCounts is { } destinations && issued.DestinationCounts is { } issuedDestinations &&
@@ -66,7 +70,8 @@ public sealed partial class GameEngine
         if (!OwnsGenericSlashPaymentTail(use) ||
             use.Action is not { Type: CardActionType.Use } action || !IsSlashCard(action.EffectiveKind) ||
             use.CardKind != action.EffectiveKind || batch.ParentFrameId != use.Id || batch.ParentBatchId is not null ||
-            batch.AwaitingProgramFrameId is not null || batch.NativeDrawInvocation is not null || batch.Movements.Count == 0 ||
+            batch.AwaitingProgramFrameId is not null || batch.NativeDrawInvocation is not null ||
+            batch.NativeBuZhiDiscardInvocation is not null || batch.Movements.Count == 0 ||
             batch.Movements.Count != action.PhysicalCards.Count ||
             batch.Movements.Select(move => move.CardId).Distinct().Count() != batch.Movements.Count)
             return false;
@@ -93,7 +98,7 @@ public sealed partial class GameEngine
         movement.ResumeProgramFrameId is null && movement.ResumeDeclarationFrameId is null &&
         movement.ResumeRecoveryReplacementFrameId is null && movement.ResumeDrawFundedDistinctBasicFrameId is null &&
         movement.ResumeEquipmentRecastFrameId is null && movement.ResumeColorFireAttackFrameId is null &&
-        movement.ResumeCounterspellPaymentFrameId is null && movement.ResumeHistoricalEndingUseFrameId is null &&
+        movement.ResumeCounterspellPaymentFrameId is null && movement.ResumeHistoricalEndingUseFrameId is null && movement.ResumeGuoSiUseFrameId is null && movement.ResumeDenglouUseFrameId is null &&
         movement.ResumeRoundPileAlcoholUseFrameId is null && movement.ResumeDrawPhaseObligationFrameId is null &&
         movement.ResumeFactionRequestCostFrameId is null && movement.DeferredTurnEndReturn is null &&
         movement.ResumeCardSupplyCompletionFrameId is null && movement.ResumeResponseCompletionFrameId is null &&

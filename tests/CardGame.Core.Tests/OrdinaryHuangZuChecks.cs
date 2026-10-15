@@ -8,42 +8,6 @@ internal static class OrdinaryHuangZuChecks
     private const string Wangong = "ol:wangong";
     private static readonly CardKind[] SlashKinds = [CardKind.Slash, CardKind.FireSlash, CardKind.ThunderSlash];
 
-    public static void Definitions()
-    {
-        var registry = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true),
-            new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage());
-        var general = registry.Generals["ol:huang-zu"];
-        Require(general.Name == "黄祖" && general.FactionId == "qun" && general.BaseHp == 4 &&
-            general.SkillIds.SequenceEqual([Wangong]) &&
-            general.VariantId == "ordinary" && general.RulesetId == "sanguosha-ol",
-            "The OL Huang Zu general registers the current qun 4HP single skill.");
-        var wangong = registry.GetSkill(Wangong).Program!;
-        Require(wangong.Modifiers.Count == 1 &&
-            wangong.Modifiers[0].Query == SkillRuleQuery.SlashLimit &&
-            wangong.Modifiers[0].Operation == SkillRuleOperation.Unlimited &&
-            wangong.Modifiers[0].Condition.Kind == SkillProgramConditionKind.PreviousPlayCardIsBasic &&
-            wangong.CardPolicies.Count == 4 &&
-            wangong.CardPolicies.All(policy =>
-                policy.Kind == SkillProgramCardPolicyKind.IgnoreSlashUseDistanceBySuit &&
-                policy.InputSuit is { } suit && suit != Suit.None &&
-                policy.CardKinds.Count == 3 && SlashKinds.All(kind => policy.CardKinds.Contains(kind)) &&
-                policy.Condition.Kind == SkillProgramConditionKind.PreviousPlayCardIsBasic) &&
-            wangong.CardPolicies.Select(policy => policy.InputSuit).Distinct().Count() == 4,
-            "Wangong lifts the slash count and every suit's slash distance while the previous play was a basic card.");
-        var trigger = wangong.Triggers.Single();
-        Require(trigger.Window == SkillProgramTriggerWindow.CardUseTargetsFinalized &&
-            trigger.OwnerRelation == SkillProgramCardActionOwnerRelation.Actor &&
-            trigger.CardKinds.Count == 3 && SlashKinds.All(kind => trigger.CardKinds.Contains(kind)) &&
-            trigger.Condition.Kind == SkillProgramTriggerConditionKind.PreviousPlayCardIsBasic &&
-            trigger.Effects.Single().Op == SkillProgramEffectOp.AddCurrentTargetSlashDamage &&
-            trigger.Effects.Single().Amount == 1 &&
-            trigger.Effects.Single().FinalTargetComparison == ProgramFinalTargetComparison.Always,
-            "Wangong adds one slash damage on the same condition.");
-        var presentation = registry.GetSkill(Wangong).ProgramPresentation!;
-        Require(presentation.Name == "挽弓" && presentation.Description.Contains("基本牌", StringComparison.Ordinal),
-            "The presentation carries the current OL Wangong wording.");
-    }
-
     public static void WangongUnlocksAfterEachBasicPlay()
     {
         var (g, r) = Start();

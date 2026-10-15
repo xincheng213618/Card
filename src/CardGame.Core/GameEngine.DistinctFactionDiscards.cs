@@ -47,6 +47,7 @@ public sealed partial class GameEngine
         if(order.Count!=chosen.Count+1)throw new InvalidOperationException("Participant plan lost its actual action order.");
         return Array.AsReadOnly(order.ToArray());
     }
+    [ProgramAnswer("distinct-faction-select", "distinct-faction-finish", "distinct-faction-discard")]
     private void ResolveDistinctFactionDiscardChoice(PromptChoice choice)
     {
         var f=_resolutionStack.LastOrDefault() as ProgramSkillFrame??throw new InvalidOperationException("Missing participant discard frame.");
@@ -99,6 +100,7 @@ public sealed partial class GameEngine
         ReplaceRuntimeTop(f with{DistinctFactionDiscards=d with{ParticipantIndex=d.ParticipantIndex+1}});
         AdvanceRuntimeProgram(f.Id);
     }
+    [ProgramAiChoice(SkillProgramEffectOp.DiscardDistinctFactionParticipants)]
     private PromptChoice SelectAiDistinctFactionDiscard(PendingDecision decision,ProgramSkillFrame f)
     {
         if(f.DistinctFactionDiscards!.Stage=="select")

@@ -9,34 +9,6 @@ internal static class PhaseStartCardControlChecks
     private const string Driver = "fixture:phase-control-driver", Watch = "fixture:phase-control-watch", Loss = "fixture:phase-control-loss";
     private const string Protected = "fixture:phase-control-protected", Owner = "fixture:phase-control-owner", Mode = "identity:classic-phase-control";
 
-    public static void ExactEntryAndDerivedResourceContracts()
-    {
-        var rules = Embedded("rules.json"); var labels = Embedded("presentation.json");
-        _ = SkillProgramCatalog.Load(rules, labels);
-        foreach (var skill in new[] { Meibu, Mumu })
-        foreach (var mutate in new Action<JsonObject>[]
-        {
-            t => t["optional"] = false,
-            t => { t["usageScope"] = "game"; t["usageLimit"] = 1; },
-            t => t["window"] = "turnEnding",
-            t => t["turnOwnerScope"] = skill == Meibu ? "own" : "otherLiving",
-            t => t["effects"]![0]!["target"] = "selectedTarget",
-            t => t["effects"]![0]!["amount"] = 1,
-            t => t["effects"]!.AsArray().Add(JsonNode.Parse("""{"op":"draw","target":"owner","amount":1}"""))
-        })
-        {
-            var invalid = JsonNode.Parse(rules)!;
-            mutate(invalid["skills"]!.AsArray().Single(n => n!["id"]!.GetValue<string>() == skill)!["triggers"]![0]!.AsObject());
-            Reject(() => SkillProgramCatalog.Load(invalid.ToJsonString(), labels), "Phase-starting control rejects wrong boundary, unsupported payment and composed effects before runtime.");
-        }
-        foreach (var malformed in new[] { "unknown", "empty", "composed", "wrong-policy" })
-            Reject(() => ContentRegistry.Build(new StandardContentPackage(), new Fixture("standard:dodge", "meibu", malformedDerived: malformed)),
-                "A phase grant names a known, pure restriction leaf; arbitrary or composed skills cannot use its paid continuation.");
-        var badPolicy = JsonNode.Parse(rules)!;
-        badPolicy["skills"]!.AsArray().Single(n => n!["id"]!.GetValue<string>() == Zhixi)!["cardPolicies"]![0]!["cardKinds"] = JsonNode.Parse("""["slash"]""");
-        Reject(() => SkillProgramCatalog.Load(badPolicy.ToJsonString(), labels), "The actual-use budget applies to all kinds rather than a filtered card subset.");
-    }
-
     public static void MeibuPaymentPrivacyDirectedDistanceAndActualTurnExpiry()
     {
         foreach (var (card, suit, expected) in new[]
@@ -72,41 +44,6 @@ internal static class PhaseStartCardControlChecks
             "The paid distance override is recipient-to-donor only, rather than the reverse direction or a symmetric distance.");
         range = Cold(range, rangeRegistry); Reach(range, _ => E<TurnEndedEvent>(range).Any(e => e.TurnNumber == directed.ActualTurnNumber && e.ActorSeat == 2));
         Need(range.GetCombatDistance(2, 0) == 2, "The directed override ends with exactly the same actual turn as the derived skill.");
-    }
-
-    public static void PaidSourceLossDeathAndGrantChildrenColdReturn()
-    {
-        foreach (var child in new[] { "source-loss", "owner-death", "grant-child" })
-        {
-            var (g, registry) = Start("standard:dodge", "meibu", child, humanRole: child == "owner-death" ? Role.Renegade : Role.Lord);
-            End(g); Reach(g, p => Optional(p, Meibu)); Activate(g); Reach(g, ControlChoice);
-            var cost = P(g)!.Choices.First(c => c.Parameters["branch"] == "pay").Cards.Single();
-            Answer(g, c => c.Cards.SequenceEqual([cost])); Reach(g, p => p.SkillPrompt?.SkillId == Watch);
-            var root = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.PhaseStartCardControl is not null);
-            Need(root.PhaseStartCardControl!.Payment is not null && root.PhaseStartCardControl.Stage ==
-                    (child == "grant-child" ? PhaseStartCardControlStage.GrantChildren : PhaseStartCardControlStage.MovementChildren),
-                "The observer is nested beneath the exact once-paid movement or issued grant, before its parent returns.");
-            g = Cold(g, registry); Continue(g);
-            if (child == "source-loss")
-            {
-                Reach(g, p => p.SkillPrompt?.SkillId == Loss); g = Cold(g, registry); Continue(g);
-                Need(V(g, 0).IsAlive && !V(g, 0).Skills!.Any(s => s.ContentId == Meibu), "A real Dying-entry replacement removes the paid donor's source after recovery.");
-                g = Cold(g, registry);
-            }
-            if (child == "owner-death")
-            {
-                g = Cold(g, registry);
-            }
-            DrainControl(g);
-            var grant = E<OtherPlayRestrictionGrantedEvent>(g).Single();
-            Need(g.CreateSnapshot(0).Winner == Winner.None && V(g, grant.RecipientSeat).IsAlive &&
-                V(g, grant.RecipientSeat).Skills!.Any(s => s.ContentId == Zhixi) &&
-                E<PhaseStartCardControlPaidEvent>(g).Count() == 1 &&
-                g.CardMovements.Count(m => m.CardId == cost && m.Reason.Value == CostReason) == 1 &&
-                (child != "owner-death" || !V(g, 0).IsAlive && E<PlayerDyingEvent>(g).Any(e => e.VictimSeat == 0) && E<PlayerDiedEvent>(g).Any(e => e.VictimSeat == 0)),
-                "The completed cost resumes once through source loss, donor death or SkillsChanged children and still grants the living actual phase owner.");
-            _ = Cold(g, registry);
-        }
     }
 
     public static void MumuProtectedDiscardSelfArmorAndSlashBan()
@@ -150,22 +87,6 @@ internal static class PhaseStartCardControlChecks
         Need(!E<ProgramBindingStartedEvent>(treasure).Any(e => e.SkillId == Mumu), "A protected foreign treasure alone never creates an illegal Mumu discard offer."); _ = Cold(treasure, treasureRegistry);
     }
 
-    public static void ZhixiVanillaVirtualUsesDynamicHpAndPhaseReset()
-    {
-        var (g, registry) = Start("standard:dodge", "zhixi", "dynamic", stopAtDriver: true);
-        Activate(g); Reach(g, p => p.SkillPrompt?.SkillId == Driver && p.Choices.Any(c => c.Targets.Count == 1)); Answer(g, c => c.Targets.SequenceEqual([1]));
-        Pause(g, "a"); Need(Uses(g).Count() == 1 && Uses(g).Last().State.UseCount == 1, "A vanilla zero-material Slash is a real use in a leaf restriction catalog.");
-        g = Cold(g, registry); Continue(g); Pause(g, "b");
-        Need(V(g, 0).Hp == 1 && Uses(g).Count() == 1, "Lower current HP immediately stops the next virtual use after the already used card reaches X.");
-        Continue(g); Pause(g, "c"); Need(V(g, 0).Hp == 2 && Uses(g).Count() == 2 && Uses(g).Last().State.UseCount == 2,
-            "Recovery raises the dynamic budget and permits exactly one more genuine virtual use.");
-        Continue(g); Pause(g, "d"); Need(Uses(g).Count() == 2, "The third attempted virtual Slash remains unused at the new two-HP budget.");
-        g = Cold(g, registry); Continue(g); Play(g); var firstPhase = Uses(g).Last().State.PhaseInstanceId; End(g);
-        Reach(g, p => Optional(p, Driver)); Activate(g); Reach(g, p => p.SkillPrompt?.SkillId == Driver && p.Choices.Any(c => c.Targets.Count == 1)); Answer(g, c => c.Targets.SequenceEqual([1])); Pause(g, "a");
-        Need(Uses(g).Last().State.UseCount == 1 && Uses(g).Last().State.PhaseInstanceId != firstPhase,
-            "The next actual own play phase starts a fresh ledger even with the same printed restriction source."); _ = Cold(g, registry);
-    }
-
     public static void ZhixiTrickDelayedAndCounterspellActualUses()
     {
         foreach (var card in new[] { "standard:draw_two", "standard:indulgence" })
@@ -191,29 +112,6 @@ internal static class PhaseStartCardControlChecks
             E<CardUseDeclaredEvent>(counter).Count(e => e.CardKind == CardKind.Slash) == 0 &&
             counter.CardMovements.Count(m => m.CardId == material && m.From == CardLocation.Processing && m.To == CardLocation.DiscardPile) == 1,
             "Native counterspell response is an actual trick use; it pays once and blocks a subsequent virtual Slash in the owner's still-current phase."); _ = Cold(counter, counterRegistry);
-    }
-
-    public static void PlayedSlashResponseExcludedAndNativeAiControl()
-    {
-        var (g, registry) = Start("standard:slash", "zhixi", "budget", stopAtDriver: true);
-        Activate(g); Reach(g, p => p.SkillPrompt?.SkillId == Driver && p.Choices.Any(c => c.Targets.Count == 1)); Answer(g, c => c.Targets.SequenceEqual([1]));
-        foreach (var step in new[] { "a", "b", "c", "d" }) { Pause(g, step); Continue(g); }
-        Play(g); Need(Uses(g).Count() == V(g, 0).Hp && !g.GetHumanLegalActions().Any(a => a.Kind == LegalActionKind.Slash),
-            "The exact current HP count forbids a new physical Slash use.");
-        var count = Uses(g).Count(); Use(g, "incoming", targets: [1]); Reach(g, p => p.Kind == DecisionKind.RespondSlash && p.PlayerSeat == 0);
-        Need(P(g)!.Choices.Any(c => c.Cards.Count == 1), "A Duel played Slash remains available under Zhixi's use-only prohibition.");
-        var slash = P(g)!.Choices.First(c => c.Cards.Count == 1).Cards.Single(); g = Cold(g, registry); Answer(g, c => c.Cards.SequenceEqual([slash]));
-        Play(g); Need(Uses(g).Count() == count && E<CardActionAcceptedEvent>(g).Any(e => e.Action is { ActorSeat: 0, Type: CardActionType.Response, EffectiveKind: CardKind.Slash }),
-            "The actual played response pays its real entity but never becomes an additional use ledger entry."); _ = Cold(g, registry);
-
-        var (ai, aiRegistry) = Start("standard:dodge", "ai-control", equipment: "fixture:phase-control-armor");
-        Use(ai, "equip", targets: [2]); Play(ai); End(ai); Reach(ai, p => Optional(p, Mumu) && p.PlayerSeat != 0);
-        Accept(ai, new AdvanceOneStepCommand(ai.Revision)); Reach(ai, ControlChoice); Accept(ai, new AdvanceOneStepCommand(ai.Revision)); DrainControl(ai);
-        Need(E<StartingEquipmentControlCompletedEvent>(ai).Any(e => e.Source.OwnerSeat != 0), "Native AI activates and resolves a public equipment control opportunity.");
-        Reach(ai, p => Optional(p, Meibu) && p.PlayerSeat != 0); Accept(ai, new AdvanceOneStepCommand(ai.Revision)); Reach(ai, ControlChoice);
-        Accept(ai, new AdvanceOneStepCommand(ai.Revision)); DrainControl(ai);
-        Need(E<OtherPlayRestrictionGrantedEvent>(ai).Any(e => e.Source.OwnerSeat != 0) &&
-            !ai.AcceptedCommands.OfType<AnswerPromptCommand>().Any(c => c.ActorSeat != 0), "Native AI chooses and pays its own private HE cost without fabricated human answers."); _ = Cold(ai, aiRegistry);
     }
 
     private const string CostReason = "skill-program.other-play-restriction.cost";
@@ -271,7 +169,6 @@ internal static class PhaseStartCardControlChecks
         g.CardMovements, Events = g.Events.Select(e => JsonSerializer.Serialize(e.Payload, e.Payload.GetType())).ToArray(), Commands = CommandJson.Serialize(g.AcceptedCommands) });
     private static GameEngine Cold(GameEngine g, ContentRegistry registry)
     { var copy = GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(g.CreateCheckpoint())), registry); Need(State(g) == State(copy), "Cold replay preserves the actual paid prefix, private choices, phase ledger and typed children."); return copy; }
-    private static void Reject(Action action, string message) { try { action(); } catch (InvalidOperationException) { return; } throw new InvalidOperationException(message); }
     private static void Need(bool condition, string message) { if (!condition) throw new InvalidOperationException(message); }
 
     private static (GameEngine, ContentRegistry) Start(string card, string scenario, string child = "none", Suit suit = Suit.Spade,

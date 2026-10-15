@@ -168,11 +168,6 @@ internal static class ShenSimaYiChecks
         }
     }
 
-    private static ContentRegistry Registry() => ContentRegistry.Build(
-        new StandardContentPackage(), new StandardActiveSkillExpansionPackage(includeJijiu: true),
-        new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage(),
-        new Scenario());
-
     private static ContentRegistry KillRegistry() => ContentRegistry.Build(
         new StandardContentPackage(), new StandardActiveSkillExpansionPackage(includeJijiu: true),
         new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage(),
@@ -266,20 +261,6 @@ internal static class ShenSimaYiChecks
 
     private static GameCheckpoint RoundTrip(GameCheckpoint checkpoint) =>
         GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(checkpoint));
-
-    private static void Reject(string rules, string presentation, string because = "")
-    {
-        try
-        {
-            _ = SkillProgramCatalog.Load(rules, presentation);
-        }
-        catch (InvalidOperationException)
-        {
-            return;
-        }
-        throw new InvalidOperationException(
-            $"Expected invalid Shen Sima Yi composition to be rejected{(because.Length == 0 ? "" : $": {because}")}.");
-    }
 
     private static void Require(bool value, string message)
     {

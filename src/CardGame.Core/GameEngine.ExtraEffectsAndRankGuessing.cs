@@ -105,6 +105,7 @@ public sealed partial class GameEngine
             SkillPrompt = new(f.SkillId, skill.Name, skill.Name, skill.Description) };
         _status = _players[chooser].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
+    [ProgramAnswer("extra-effects-rank-guess")]
     private void ResolveExtraEffectsAndRankGuessChoice(PromptChoice choice)
     {
         var f = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("Rank/effect choice lost its owner.");
@@ -293,12 +294,5 @@ public sealed partial class GameEngine
                 ExtraEffectsAndRankGuessStage.SkillChildren or ExtraEffectsAndRankGuessStage.Guess) ||
             r.Stage == ExtraEffectsAndRankGuessStage.Guess && r.RevealedCardIds.Count == 0) return false;
         RequireExtraEffectsAndRankGuess(f); return true;
-    }
-    private PromptChoice SelectAiExtraEffectsAndRankGuess(PendingDecision decision, ProgramSkillFrame f)
-    {
-        var r = f.ExtraEffectsAndRankGuess!;
-        if (r.Stage == ExtraEffectsAndRankGuessStage.Guess) return decision.Choices.Single(c => c.Parameters["branch"] == (r.LastRank <= 7 ? "greater" : "less"));
-        if (r.Stage == ExtraEffectsAndRankGuessStage.Cost) return decision.Choices.First();
-        return decision.Choices.First();
     }
 }

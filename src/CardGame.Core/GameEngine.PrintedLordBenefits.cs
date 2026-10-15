@@ -43,6 +43,7 @@ public sealed partial class GameEngine
         _status = _players[f.OwnerSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
         AdvanceRulesAndPublishState();
     }
+    [ProgramAnswer("printed-lord-benefit")]
     private void ResolvePrintedLordChoice(PromptChoice choice)
     {
         var f = (ProgramSkillFrame)_resolutionStack.Last(); AssertRecipientConsequences(f); var r = f.PrintedLordBenefit!;
@@ -75,7 +76,8 @@ public sealed partial class GameEngine
         { CancelProgramBindingAndCleanup(f, "拥嫡已支付的上限、回复和全部孩子保留，未发行的后继取消。"); return true; }
         if (r.Stage == PrintedLordBenefitStage.MaximumPaid)
         {
-            var requested = Math.Min(1, Math.Max(0, _players[r.BeneficiarySeat].MaxHp - _players[r.BeneficiarySeat].Hp));
+            var beneficiary = _players[r.BeneficiarySeat];
+            var requested = beneficiary.HasHpValue ? Math.Min(1, Math.Max(0, beneficiary.MaxHp - beneficiary.Hp)) : 0;
             ReplaceRuntimeTop(f with { PrintedLordBenefit = r with { Stage = PrintedLordBenefitStage.RecoveryPaid, RecoveryRequested = requested } });
             AdvanceEventRulesAndQueueFact(new PrintedLordRecoveryRequestedEvent(id, r.BeneficiarySeat, requested));
             new ProgramSkillHost(this).Recover(id, f.OwnerSeat, r.BeneficiarySeat, requested, null, null);
@@ -95,6 +97,9 @@ public sealed partial class GameEngine
         throw new InvalidOperationException("A printed qualification cannot resume a completed benefit twice.");
     }
 
+    [ProgramAiChoice(
+        SkillProgramEffectOp.GiveBlackHandAndResolveRecipientContest,
+        SkillProgramEffectOp.RaiseMaximumRecoverAndQualifyPrintedLord)]
     private PromptChoice SelectAiRecipientConsequences(PendingDecision p, ProgramSkillFrame f)
     {
         if (f.BlackGiftContest is { Stage: BlackGiftContestStage.ChoosingDiscard })

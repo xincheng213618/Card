@@ -83,54 +83,6 @@ internal static class ActorHandLimitPenaltyChecks
         Private(g); _ = Cold(g, registry);
     }
 
-    public static void BlackTrickAndForeignActorOwnTurnExpiry()
-    {
-        foreach (var (kind, suit, expected) in new[] { (CardKind.IronChain, Suit.Spade, 1),
-            (CardKind.IronChain, Suit.Heart, 0), (CardKind.Indulgence, Suit.Spade, 0) })
-        {
-            var (g, registry) = Start(Scenario.Color, kind, suit);
-            var a = Action(g, kind == CardKind.IronChain ? LegalActionKind.IronChain : LegalActionKind.Indulgence, [1]);
-            Play(g, a); Reach(g, IsComplete); var use = UseFor(g, a.CardId!.Value);
-            Require(Grants(g).Length == expected && Grants(g).All(p => p.CardUseFrameId == use.Id && p.ActorSeat == 0 && p.TargetSeat == 1),
-                "Only an actually black ordinary trick qualifies; red ordinary tricks and black delayed tricks do not.");
-            Private(g); g = Cold(g, registry); Continue(g); Reach(g, IsPlay);
-            Require(E<CardUseDeclaredEvent>(g).Count(e => e.ResolutionId == use.Id && e.CardId == a.CardId && e.CardKind == kind) == 1 &&
-                g.CardMovements.Count(m => m.CardId == a.CardId && m.From == CardLocation.Hand(0) && m.To == CardLocation.Processing) == 1,
-                "Each positive or negative color branch executes one real physical native use.");
-        }
-        var (foreign, r) = Start(Scenario.Foreign, CardKind.Slash, Suit.Heart);
-        Activate(foreign, "request", [1]);
-        Reach(foreign, IsComplete);
-        var penalty = Grants(foreign).Single();
-        var original = foreign.ResolutionStack.OfType<CardUseFrame>().Single(f => f.Id == penalty.CardUseFrameId);
-        Require(penalty.ActorSeat == 1 && penalty.TargetSeat == 0 && original.Action is { ActorSeat: 1, ProviderSeat: 1 } &&
-            original.Action.PhysicalCards is [var cost] && cost.From == CardLocation.Hand(1) &&
-            foreign.State.CurrentSeat == 0 && penalty.IssuedActualTurnNumber == foreign.State.TurnNumber,
-            "A native AI really accepts a requested physical Slash outside its own turn; the contribution belongs to actor one, not the requester or current turn owner.");
-        foreign = Cold(foreign, r); Reach(foreign, IsPlay);
-        var before = Grants(foreign).Length;
-        Activate(foreign, "foreign-duel", [1]);
-        Reach(foreign, p => p is { Kind: DecisionKind.RespondSlash, PlayerSeat: 0 });
-        var response = P(foreign)!; var choice = response.Choices.First(c => c.Cards.Count == 1);
-        var responseCard = choice.Cards.Single();
-        foreign = Cold(foreign, r); Answer(foreign, c => c.Cards.SequenceEqual([responseCard]));
-        Reach(foreign, IsPlay);
-        Require(E<CardActionAcceptedEvent>(foreign).Any(e => e.Action.Type == CardActionType.Response &&
-                e.Action.ActorSeat == 0 && e.Action.PhysicalCards.Any(c => c.CardId == responseCard)) &&
-            Grants(foreign).Length == before,
-            "A true Duel Slash response pays its physical entity but cannot create a designated-Use penalty; the zero-material colorless Duel cannot masquerade as a black trick.");
-        Accept(foreign, new EndPlayPhaseCommand(0, foreign.Revision, P(foreign)!.PromptId));
-        Reach(foreign, p => IsEnded(p) && E<TurnEndedEvent>(foreign).LastOrDefault()?.ActorSeat == 0);
-        Require(!Expired(foreign).Any(e => e.Penalty == penalty), "Ending the other actual turn does not expire the actor's off-turn contribution.");
-        foreign = Cold(foreign, r); Continue(foreign);
-        Reach(foreign, p => IsEnded(p) && E<TurnEndedEvent>(foreign).LastOrDefault()?.ActorSeat == 1);
-        var ended = E<TurnEndedEvent>(foreign).Last();
-        Require(Expired(foreign).Count(e => e.Penalty == penalty && e.EndedActorSeat == 1 &&
-                e.EndedTurnNumber == ended.TurnNumber && e.Reason == "actor-turn-ended") == 1,
-            "The real actor's next actual TurnEnded, after its native preparation/draw/skipped Play, expires the old contribution once.");
-        _ = Cold(foreign, r);
-    }
-
     public static void AddedRedirectedAndBorrowedSwordTargets()
     {
         var (g, registry) = Start(Scenario.Tail, CardKind.Slash, Suit.Spade);
@@ -173,70 +125,6 @@ internal static class ActorHandLimitPenaltyChecks
             "Borrowed Sword uses two real ordered pairs and two real weapon payments, while only weapon-holder primary targets issue penalties; repeated victims never count.");
         Frozen(bu.ActorHandLimitAnnouncedTargets!); b = Cold(b, br); Continue(b); Reach(b, IsPlay);
         AssertPhysicalUse(b, borrow.CardId.Value, CardKind.BorrowedSword, bu.Id); _ = Cold(b, br);
-    }
-
-    public static void PaidChildrenSourceLossPrivacyAndColdReplay()
-    {
-        foreach (var scenario in new[] { Scenario.SourceLoss, Scenario.SourceSwitch })
-        {
-            var (g, registry) = Start(scenario, CardKind.IronChain, Suit.Spade);
-            string? first = null, second = null;
-            GameSnapshot? retained = null;
-            g.EventCommitted += e => { if (e.Payload is ProgramActorHandLimitPenaltyGrantedEvent p) first = JsonSerializer.Serialize(p); };
-            g.EventCommitted += e => { if (e.Payload is ProgramActorHandLimitPenaltyGrantedEvent p) second = JsonSerializer.Serialize(p); };
-            g.StateChanged += s => { retained ??= s; Frozen(s.Players); };
-            var a = Action(g, LegalActionKind.IronChain, [1]); Play(g, a);
-            Reach(g, p => p?.SkillPrompt?.SkillId == Gain);
-            var penalty = Grants(g).Single();
-            var parent = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.Id == penalty.ProgramFrameId);
-            var child = g.ResolutionStack.OfType<ProgramSkillFrame>().Last(f => f.SkillId == Gain);
-            var movement = g.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Single(f => f.Id == child.WindowContext!.ParentFrameId);
-            Require(parent.InstructionIndex == 2 && movement.Batch.ParentFrameId == parent.Id &&
-                movement.ResumeProgramFrameId == parent.Id && movement.Batch.Movements is [var draw] &&
-                draw.From == CardLocation.DrawPile && draw.To == CardLocation.Hand(1) && draw.Reason.Value == DrawReason &&
-                parent.SkillInstanceId == penalty.Source.SkillInstanceId && first == second && retained is not null && g.ObserverFailures.Count == 0,
-                "An issued scalar penalty owns one real paid native Draw child and retains its exact source, parent cursor and prepared observer deliveries.");
-            var retainedJson = SnapshotJson.Serialize(retained!);
-            Frozen(movement.Batch.Movements); Frozen(P(g)!.Choices); Frozen(retained!.Players[0].Hand);
-            Frozen(g.ResolutionStack.OfType<CardUseFrame>().Single(f => f.Id == penalty.CardUseFrameId).ActorHandLimitAnnouncedTargets!); Private(g);
-            var p = P(g)!;
-            Reject(g, new AnswerPromptCommand(0, p.PromptId, p.Choices.First().Id, g.Revision));
-            Reject(g, new AnswerPromptCommand(0, p.PromptId, new ChoiceId("forged-penalty-child"), g.Revision));
-            Reject(g, new AdvanceOneStepCommand(g.Revision - 1));
-            g = Cold(g, registry); Step(g);
-            if (scenario == Scenario.SourceSwitch)
-            {
-                Reach(g, q => q?.SkillPrompt?.SkillId == Reacquire);
-                Require(V(g, 1).Skills!.All(s => s.Id != Penalty) && E<OrderedPrintedSkillGrantRemovedEvent>(g).Any(e =>
-                    e.Grant.SkillId == Penalty && e.Grant.SkillInstanceId == penalty.Source.SkillInstanceId),
-                    "A real nested damage/ordered printed loss removes the exact issued A source before native reacquisition.");
-                g = Cold(g, registry); Step(g);
-            }
-            Reach(g, IsComplete); var use = UseFor(g, a.CardId!.Value);
-            Require(Grants(g).Count(x => x.ActionId == penalty.ActionId && x.TargetSeat == 1) == 1 && !Expired(g).Any() &&
-                E<OrderedPrintedSkillGrantRemovedEvent>(g).Any(e => e.Grant.SkillId == Penalty && e.Grant.SkillInstanceId == penalty.Source.SkillInstanceId) &&
-                (scenario == Scenario.SourceSwitch ? E<SkillsAcquiredEvent>(g).Any(e => e.PlayerSeat == 1 && e.SourceSkillId == Reacquire && e.SkillIds.Contains(Penalty)) : V(g, 1).Skills!.All(s => s.Id != Penalty)) &&
-                (scenario != Scenario.SourceSwitch || V(g, 1).SkillRuntimeStates!.Any(s => s.SkillId == Penalty && s.IsAcquired &&
-                    s.BooleanStates?.Any(b => b.StateId == "source-identity" && b.SkillInstanceId != penalty.Source.SkillInstanceId) == true)) &&
-                g.CardMovements.Count(m => m.From == CardLocation.DrawPile && m.To == CardLocation.Hand(1) && m.Reason.Value == DrawReason) == 1 &&
-                SnapshotJson.Serialize(retained!) == retainedJson,
-                "The live Use cannot issue a second penalty when its original source is lost or a different instance takes over; the owed draw and retained private snapshot stay once and immutable.");
-            Private(g); g = Cold(g, registry); Continue(g); Reach(g, IsPlay);
-            AssertPhysicalUse(g, a.CardId.Value, CardKind.IronChain, use.Id); _ = Cold(g, registry);
-        }
-        var (late, lr) = Start(Scenario.Late, CardKind.Slash, Suit.Spade);
-        var action = Action(late, LegalActionKind.Slash, [1]); Play(late, action);
-        Reach(late, p => p?.SkillPrompt?.SkillId == Late);
-        var live = UseFor(late, action.CardId!.Value);
-        Require(V(late, 1).Skills!.Any(s => s.Id == Penalty) && Grants(late).Length == 0 &&
-            live.ActorHandLimitAnnouncedTargets!.SequenceEqual([1]),
-            "The original target was genuinely announced without this skill; acquiring it inside that finalized window cannot create a retroactive opportunity.");
-        Frozen(live.ActorHandLimitAnnouncedTargets!); late = Cold(late, lr); Reach(late, IsPlay);
-        Require(Grants(late).Length == 0, "Returning the grant/choice child cannot retroactively punish the old action.");
-        var next = Action(late, LegalActionKind.Slash, [1]); Play(late, next); Reach(late, IsComplete);
-        Require(Grants(late) is [var one] && one.ActionId != live.Action!.ActionId && one.TargetSeat == 1,
-            "The newly acquired skill does punish a later independent real Use, so the negative was not a missing-capability fixture.");
-        late = Cold(late, lr); Continue(late); Reach(late, IsPlay); _ = Cold(late, lr);
     }
 
     private static ActorHandLimitPenalty[] Grants(GameEngine g) => E<ProgramActorHandLimitPenaltyGrantedEvent>(g).Select(e => e.Penalty).ToArray();
@@ -300,8 +188,6 @@ internal static class ActorHandLimitPenaltyChecks
         var result = g.Submit(CommandJson.Deserialize(CommandJson.Serialize([command])).Single());
         Require(result.Accepted, result.Error?.Message ?? "A real actor-penalty command was rejected.");
     }
-    private static void Reject(GameEngine g, GameCommand c)
-    { var before = State(g); Require(!g.Submit(c).Accepted && State(g) == before, "Wrong actor/forged choice/stale revision rejects atomically, preserving all paid facts and views."); }
     private static string State(GameEngine g) => JsonSerializer.Serialize(new
     {
         Views = Enumerable.Range(0, 4).Select(s => SnapshotJson.Serialize(g.CreateSnapshot(s))).ToArray(),

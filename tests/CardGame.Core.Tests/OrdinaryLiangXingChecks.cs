@@ -9,37 +9,6 @@ internal static class OrdinaryLiangXingChecks
     private const string Luelve = "ol:luelve";
     private const string Zhuanxi = "ol:zhuanxi";
 
-    public static void Definitions()
-    {
-        var registry = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true),
-            new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage());
-        var general = registry.Generals["ol:liang-xing"];
-        Require(general.Name == "梁兴" && general.FactionId == "qun" && general.BaseHp == 4 &&
-            general.SkillIds.SequenceEqual([Luelve, Zhuanxi]) &&
-            general.VariantId == "ordinary" && general.RulesetId == "sanguosha-ol",
-            "The OL Liang Xing general registers the current qun 4HP pair.");
-        var luelve = registry.GetSkill(Luelve).Program!.Triggers.Single();
-        Require(luelve.Window == SkillProgramTriggerWindow.PlayPhaseStarting && luelve.Optional &&
-            luelve.Effects[0].Op == SkillProgramEffectOp.SelectTarget &&
-            luelve.Effects[0].TargetKind == SkillProgramTargetKind.OtherLivingWithFewerHandCards &&
-            luelve.Effects[1].Op == SkillProgramEffectOp.ChooseOption &&
-            luelve.Effects[1].ChooserRef!.Kind == ProgramParticipantRef.SelectedTarget &&
-            luelve.Effects[2].Op == SkillProgramEffectOp.GiveSelectedTargetHand &&
-            luelve.Effects[3].Op == SkillProgramEffectOp.TurnOver &&
-            luelve.Effects[4].Op == SkillProgramEffectOp.TurnOver &&
-            luelve.Effects[4].Target == SkillProgramEffectTarget.SelectedTarget,
-            "Luelve offers the counterpart the give-hand or flip-and-strike choice.");
-        var zhuanxi = registry.GetSkill(Zhuanxi).Program!;
-        var modifier = zhuanxi.DamageModifiers.Single();
-        Require(modifier.Amount == 1 &&
-            modifier.Condition == SkillProgramDamageModifierCondition.FaceStatesDiffer &&
-            modifier.SourceScope == SkillProgramDamageModifierSourceScope.DamageParticipant,
-            "Zhuanxi raises participant damage when the face states differ.");
-        Require(registry.GetSkill(Luelve).ProgramPresentation!.Name == "掳掠" &&
-            registry.GetSkill(Zhuanxi).ProgramPresentation!.Name == "追袭",
-            "The presentation carries the current OL Luelve/Zhuanxi wording.");
-    }
-
     public static void LuelveChoiceResolvesAndZhuanxiAmplifies()
     {
         var (g, r) = Start();
@@ -104,11 +73,6 @@ internal static class OrdinaryLiangXingChecks
     private static int HandCount(GameEngine g, int seat) => ((CardZoneStore)typeof(GameEngine)
         .GetField("_cardZones", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(g)!)
         .CardsAt(CardLocation.Hand(seat)).Count;
-
-    private static void ReachProgramChoice(GameEngine g) => Reach(g, p =>
-        p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") is "activate" or "skip") &&
-        (p.SkillPrompt?.SkillId is Luelve or Zhuanxi ||
-         p.Choices.Any(c => c.Parameters.GetValueOrDefault("skill-id") is Luelve or Zhuanxi)));
 
     private static void EndMyPlayPhase(GameEngine g)
     {

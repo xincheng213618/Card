@@ -6,7 +6,7 @@ public sealed partial class GameEngine
  {
   var op=ProgramInstructionResolver.Default.Features(activation).ForOperation(SkillProgramEffectOp.CompareSelectedHandWithHpHand)
    .SingleOrDefault(e=>e.Op==SkillProgramEffectOp.CompareSelectedHandWithHpHand);
-  if(op is null)return activation.UsesPerPhase;
+  if(op is null)return BuZhiPhaseLimit(owner,activation);
   var instance=instanceId??GetRuntimeSkillInstanceId(owner,program.Id);
   return HandComparisonHistory().OfType<ProgramHandComparisonResolvedEvent>().Any(e=>e.OwnerSeat==owner.Seat&&e.SkillId==program.Id&&e.SkillInstanceId==instance&&e.StateId==op.StateId&&e.TurnNumber==_turnNumber&&e.RankMatched)?2:1;
  }
@@ -23,7 +23,7 @@ public sealed partial class GameEngine
    {
     var activation=instance.Program.Activations[i];
     var features=ProgramInstructionResolver.Default.Features(activation);
-    if(features.HasOperation(SkillProgramEffectOp.CompareSelectedHandWithHpHand))
+    if(features.HasOperation(SkillProgramEffectOp.CompareSelectedHandWithHpHand) || IsBuZhiActivation(activation))
      (result??=[]).Add(new(instance.SkillInstanceId,activation.Id,ProgramPublicRuleStateKind.ActivationLimit,HandComparisonPhaseLimit(owner,instance.Program,activation,instance.SkillInstanceId)!.Value,_programPhaseUses.GetValueOrDefault((owner.Seat,skillId,activation.UsageGroup)),SkillUsageScope.Phase));
     hasPublicState|=features.HasOperation(SkillProgramEffectOp.CompareSelectedHandWithHpHand)||features.HasOperation(SkillProgramEffectOp.AdjustPersistentHandLimit)||features.HasOperation(SkillProgramEffectOp.ProhibitSelfCardTargetsForTurn);
    }
@@ -102,6 +102,7 @@ public sealed partial class GameEngine
   _pendingDecision=new(DecisionKind.ProgramTrigger,f.OwnerSeat,d.Stage=="reveal"?"选择展示与其体力值等量的手牌。":"选择同色奖励。",choices.SelectMany(c=>c.Cards).Distinct().ToArray(),choices.SelectMany(c=>c.Targets).Distinct().ToArray(),f.OwnerSeat){PromptId=CreatePromptId(),IsPrivate=false,TargetSeat=d.TargetSeat,Choices=choices.ToArray(),SkillPrompt=new(f.SkillId,skill.Name,skill.Name,skill.Description)};
   _status=_players[f.OwnerSeat].IsHuman?EngineStatus.AwaitingHumanCardSelection:EngineStatus.Running;
  }
+ [ProgramAnswer("hand-comparison")]
  private void ResolveHandComparison(PromptChoice selected)
  {
   var f=(ProgramSkillFrame)_resolutionStack[^1];var d=f.HandComparisonDraft!;var effect=ProgramInstructionResolver.Default.Resolve(f,_contentRegistry.GetSkill(f.SkillId).Program!).GetPausedInstruction(f.InstructionIndex).Effect;

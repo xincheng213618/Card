@@ -28,10 +28,10 @@ public sealed partial class GameEngine
 
     private bool IsPreventionDrawMovement(ProgramSkillFrame frame, SkillProgramEffect? paidEffect,
         ProgramMovementContinuation movement) =>
-        paidEffect?.Op == SkillProgramEffectOp.PreventCurrentDamageAndDrawMultiple &&
+        paidEffect?.Op is SkillProgramEffectOp.PreventCurrentDamageAndDrawMultiple or SkillProgramEffectOp.PreventParticipantDamageDrawActualSource &&
         movement.SubjectSeat == frame.OwnerSeat && movement.BeforeCount == 0 && movement.CoverageResultBind is null &&
         frame.WindowContext is { Window: SkillProgramTriggerWindow.BeforeDamageApplied, Amount: > 0 } context &&
-        context.TargetSeat == frame.OwnerSeat &&
+        (paidEffect.Op == SkillProgramEffectOp.PreventParticipantDamageDrawActualSource || context.TargetSeat == frame.OwnerSeat) &&
         _resolutionStack.OfType<BeforeDamageProgramWindowFrame>().Any(parent =>
             parent.Id == context.ParentFrameId && IsValidPreventionDrawReceipt(frame, parent));
 

@@ -69,6 +69,7 @@ public sealed partial class GameEngine
         f.DrawDiscardCategoryRefund!.TargetSeat, DrawDiscardCategoryChoices(f),
         $"选择 {f.DrawDiscardCategoryRefund.RequiredCount} 张手牌或装备牌，选齐后同时弃置。", f.DrawDiscardCategoryRefund.TargetSeat);
 
+    [ProgramAnswer("draw-discard-category")]
     private void ResolveDrawDiscardCategoryChoice(PromptChoice choice)
     {
         var f = _resolutionStack.LastOrDefault() as ProgramSkillFrame ??
@@ -292,6 +293,7 @@ public sealed partial class GameEngine
         effect.StateId == f.DrawDiscardCategoryRefund?.StateId && f.PendingMovementContinuation == pending && ValidDrawDiscardCategoryReceipt(f);
     private bool CanContinueDrawDiscardCategoryRefund(ProgramSkillFrame f) =>
         f.DrawDiscardCategoryRefund is { DrawIssued: true } && ValidDrawDiscardCategoryReceipt(f);
+    [ProgramAiChoice(SkillProgramEffectOp.DrawThenDiscardDistinctCategories)]
     private PromptChoice SelectAiDrawDiscardCategory(PendingDecision decision, ProgramSkillFrame f)
     {
         var r = f.DrawDiscardCategoryRefund!;

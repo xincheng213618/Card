@@ -41,6 +41,7 @@ public sealed partial class GameEngine
         _status = _players[f.OwnerSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
         AdvanceRulesAndPublishState();
     }
+    [ProgramAnswer("recipient-contest")]
     private void ResolveRecipientContestChoice(PromptChoice choice)
     {
         var f = (ProgramSkillFrame)_resolutionStack.Last(); AssertRecipientContestPrograms(f); var r = f.RecipientContest!;

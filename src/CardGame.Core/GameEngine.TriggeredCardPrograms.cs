@@ -121,6 +121,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("An equipment-color discard prompt changed its owner, candidates or binding.");
     }
 
+    [ProgramAnswer("equipment-color-discard")]
     private void ResolveProgramEquipmentColorDiscardChoice(PromptChoice choice)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("A discard payment lost its program frame.");

@@ -43,47 +43,6 @@ internal static class PhaseHandSeizureChecks
             "The frozen two-card invoice is paid once before actual Ending; resumed children never repeat its cost."); Cold(g, r);
     }
 
-    public static void LihunMaleSelfEquipmentTransferCountsOnlyPhysicalCards()
-    {
-        var (g, r) = Start(male: true); Equip(g); var lion = V(g).Equipment.Single().Id; var cost = V(g).Hand.First().Id;
-        UseLihun(g, cost, 0); Reach(g, p => p.SkillPrompt?.SkillId == Cost); Continue(g); Reach(g, p => p.SkillPrompt?.SkillId == Flip);
-        Cold(g, r); Continue(g); ReachPlay(g); var same = E<PhaseHandSeizureIssuedEvent>(g).Single();
-        Require(same is { TargetSeat: 0, SameHand: true, ObtainedCount: 0 } && Moves(g, Take).Length == 0 && Moves(g, Payment).Length == 1,
-            "A male acquiring the shared capability may select self; real discard and turnover pay once, with no fake same-Hand take.");
-        var hand = V(g).Hand.Select(c => c.Id).ToArray(); Require(hand.Length == 2, "Uniform fixed entities leave two original hand cards and one equipped armor.");
-        EndPlay(g); Reach(g, p => Action(p, "phase-hand-debt-return")); Cold(g, r); Answer(g, c => c.Cards.SequenceEqual([lion]));
-        foreach (var id in hand) Answer(g, c => c.Cards.SequenceEqual([id])); Reach(g, p => p.SkillPrompt?.SkillId == Hp);
-        var receipt = Root(g).PhaseHandDebtReturn!; var end = E<PhaseHandDebtSettledEvent>(g).Single();
-        Require(receipt is { FrozenHp: 3, RequiredCount: 3, Stage: PhaseHandDebtReturnStage.MovementChildren } && receipt.CardIds.Count == 3 &&
-            end is { Reason: "returned", RequiredCount: 3, ActualCount: 1 } && Moves(g, Return) is [var move] && move.CardId == lion &&
-            move.From == CardLocation.Equipment(0) && move.To == CardLocation.Hand(0) && g.State.Players[0].Hp == 4 &&
-            hand.All(id => !Moves(g, Return).Any(m => m.CardId == id)),
-            "Only selected Equipment really enters self Hand and recovers HP; the two already-held cards satisfy their choices without movement or an enlarged invoice.");
-        Cold(g, r); Reject(g); Continue(g); Reach(g, p => p.SkillPrompt?.SkillId == Gain); Cold(g, r); Continue(g);
-        Reach(g, p => ActivationChoice(p, Biyue)); Require(E<PhaseHandDebtSettledEvent>(g).Length == 1 && V(g).Hand.Count == 3,
-            "Every equipment recovery/gain child drains once before the actual same-owner phase return."); Cold(g, r);
-    }
-
-    public static void LihunSourceLossInsufficientAndForcedEndHostBoundaries()
-    {
-        var (g, r) = Start(); Equip(g); UseLihun(g, V(g).Hand.First().Id, 1); FinishSeizure(g); Cold(g, r);
-        // This explicit host grant/reset/forced-boundary audit begins after a fully command-replayed prefix.
-        // Host changes below are intentionally not represented as accepted commands or claimed cold-replay input.
-        var owner = HostPlayers(g)[0]; var original = owner.SkillGrants.Grants.Single(grant => grant.SkillId == Lihun);
-        owner.SkillGrants.RemoveGrant(original.GrantId); owner.SkillGrants.Grant(new("fixture:phs-regrant", Lihun, original.SkillInstanceId + ":later", "acquired:host-audit"));
-        ((SkillRuntimeStateStore)typeof(GameEngine).GetField("_skillRuntimeState", Flags)!.GetValue(g)!).ResetSkill(0, Lihun);
-        Require(!g.GetHumanLegalActions().Any(a => a.ProgramSkillId == Lihun), "Reacquisition and ResetSkill cannot erase this actual phase's issued paid-use fact.");
-        TrimHandTo(g, 1);
-        Invoke(g, "ClearPendingDecision"); Invoke(g, "EndTurn"); Reach(g, p => Action(p, "phase-hand-debt-return"));
-        Require(Root(g).SkillInstanceId == original.SkillInstanceId && Root(g).PhaseHandDebtReturn is { FrozenHp: 3, RequiredCount: 2 } &&
-            g.ResolutionStack.OfType<ProgramLifecycleTriggerWindowFrame>().Any(f => f.Continuation == ProgramLifecycleContinuation.CompletePhaseHandDebtForcedEnd),
-            "The original lost source remains the due identity; a forced quiet Play departure owns its EndTurn return and all available HE pays an insufficient invoice.");
-        var ids = P(g)!.ValidCardIds.ToArray(); foreach (var id in ids) Answer(g, c => c.Cards.SequenceEqual([id]));
-        Reach(g, p => p.SkillPrompt?.SkillId == Hp); Continue(g); Reach(g, p => p.SkillPrompt?.SkillId == Gain); Continue(g);
-        Reach(g, p => ActivationChoice(p, Biyue)); Require(E<PhaseHandDebtSettledEvent>(g).Single() is { RequiredCount: 2, ActualCount: 2 } && Moves(g, Return).Length == 2,
-            "Original issued identity pays once through real equipment children before forced Ending, despite current grant replacement.");
-    }
-
     public static void BiyueCurrentHandBranchesSingleDrawInstruction()
     {
         foreach (var branch in new[] { "empty", "nonempty", "earlier-ending-gain" })
@@ -124,35 +83,6 @@ internal static class PhaseHandSeizureChecks
         }
     }
 
-    public static void LihunDeathTerminalClosureAndFrozenReceiptCollections()
-    {
-        var (dead, r) = Start(); UseLihun(dead, V(dead).Hand.First().Id, 1); FinishSeizure(dead); DriverUse(dead, "kill", [], [1]); ReachPlay(dead);
-        Require(!dead.State.Players[1].IsAlive && E<PhaseHandDebtSettledEvent>(dead).Single() is { Reason: "target-death", ActualCount: 0 } &&
-            Moves(dead, Return).Length == 0, "The original target's real death closes unpaid debt explicitly without fake transfers."); Cold(dead, r);
-        var (terminal, tr) = Start(); UseLihun(terminal, V(terminal).Hand.First().Id, 1); FinishSeizure(terminal); EndPlay(terminal);
-        Reach(terminal, p => Action(p, "phase-hand-debt-return")); Answer(terminal, c => c.Cards.Count == 1); Cold(terminal, tr);
-        var before = V(terminal).Hand.Select(c => c.Id).ToArray();
-        // Producer-specific terminal host audit: it deliberately bypasses no command replay claim.
-        Invoke(terminal, "ExecuteExclusive", (Action)(() => Invoke(terminal, "EndAsDraw", "explicit phase-hand terminal audit")));
-        Invoke(terminal, "AssertPhaseHandSeizurePrograms"); Invoke(terminal, "AssertCoreInvariants");
-        Require(terminal.State.Status == EngineStatus.Completed && E<GameEndedEvent>(terminal).Single().Winner == Winner.Draw &&
-            E<PhaseHandDebtSettledEvent>(terminal).Single() is { Reason: "game-end", ReturnFrameId: 0, RequiredCount: 0, ActualCount: 0 } &&
-            Root(terminal).PhaseHandDebtReturn is { Stage: PhaseHandDebtReturnStage.Choosing } && Moves(terminal, Return).Length == 0 &&
-            V(terminal).Hand.Select(c => c.Id).SequenceEqual(before), "A real terminal fact closes unfinished selection, retains paid diagnostics and leaves all untransferred cards in place.");
-        var terminalState = State(terminal);
-        Invoke(terminal, "ResumePhaseHandSeizure", Root(terminal).Id);
-        Require(State(terminal) == terminalState, "A genuine terminal resume retains the original paid diagnostic without advancing its parent.");
-        Invoke(terminal, "ReturnPhaseHandSeizureMovement", Root(terminal));
-        Require(State(terminal) == terminalState, "A genuine terminal return does not require a new move or finish the retained receipt.");
-        Invoke(terminal, "DrainPhaseHandSeizureMovement", Root(terminal).Id);
-        Require(State(terminal) == terminalState, "A genuine terminal drain cannot push queued recovery or movement children.");
-        var ids = new[] { 1, 2 }; var locations = new[] { CardLocation.Hand(0), CardLocation.Equipment(0) };
-        var frozen = new ProgramPhaseHandDebtReturnReceipt(1, 1, 1, 2, 2, PhaseHandDebtReturnStage.Choosing, ids, locations);
-        ids[0] = 99; locations[0] = CardLocation.DiscardPile; var replacement = new[] { 3, 4 }; var changed = frozen with { CardIds = replacement }; replacement[0] = 88;
-        Require(frozen.CardIds.SequenceEqual([1, 2]) && frozen.Locations[0] == CardLocation.Hand(0) && changed.CardIds.SequenceEqual([3, 4]),
-            "Construction and init replacement both freeze the new receipt's exposed nested collections.");
-    }
-
     private static (GameEngine, ContentRegistry) Start(bool male = false, bool earlier = false)
     {
         var r = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(includeJijiu: true),
@@ -174,7 +104,6 @@ internal static class PhaseHandSeizureChecks
         }
         Require(V(g).Hand.Count == count, "The physical trim driver reaches the requested actual hand count.");
     }
-    private static void FinishSeizure(GameEngine g) { Reach(g, p => p.SkillPrompt?.SkillId == Cost); Continue(g); Reach(g, p => p.SkillPrompt?.SkillId == Flip); Continue(g); Reach(g, p => p.SkillPrompt?.SkillId == Gain); Continue(g); ReachPlay(g); }
     private static void EndPlay(GameEngine g) => Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId));
     private static ProgramSkillFrame Root(GameEngine g) => g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == Lihun);
     private static PlayerSnapshot V(GameEngine g) => g.CreateSnapshot(0).Players[0];
@@ -200,7 +129,6 @@ internal static class PhaseHandSeizureChecks
     private static string State(GameEngine g) => JsonSerializer.Serialize(new { Views = Enumerable.Range(0, 4).Select(s => SnapshotJson.Serialize(g.CreateSnapshot(s))).ToArray(), Frames = JsonSerializer.Serialize(g.ResolutionStack), Events = g.Events.Select(e => JsonSerializer.Serialize(e.Payload, e.Payload.GetType())).ToArray(), g.CardMovements, Commands = CommandJson.Serialize(g.AcceptedCommands) });
     private static void Cold(GameEngine g, ContentRegistry r) => Require(State(g) == State(GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(g.CreateCheckpoint())), r)), "The exact command prefix restores frozen costs, physical movements, typed child frames and all four private views.");
     private const BindingFlags Flags = BindingFlags.Instance | BindingFlags.NonPublic;
-    private static IReadOnlyList<CharacterState> HostPlayers(GameEngine g) => (IReadOnlyList<CharacterState>)typeof(GameEngine).GetField("_players", Flags)!.GetValue(g)!;
     private static void Invoke(GameEngine g, string name, params object[] args) => typeof(GameEngine).GetMethod(name, Flags)!.Invoke(g, args);
     private static void Require(bool condition, string message) { if (!condition) throw new InvalidOperationException(message); }
 

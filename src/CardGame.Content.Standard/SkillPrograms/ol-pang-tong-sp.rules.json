@@ -1,0 +1,5 @@
+{"schemaVersion":62,"skills":[
+ {"id":"ol:guolun","revision":1,"activations":[{"id":"reveal-exchange","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"otherLiving","usesPerTurn":null,"usesPerPhase":1,"effects":[{"op":"resolveGuolunRevealOptionalAtomicExchange","target":"owner"}]}]},
+ {"id":"ol:songsang","revision":1,"triggers":[{"id":"other-death","window":"characterDied","subject":"owner","optional":true,"priority":0,"usageScope":"game","usageLimit":1,"effects":[{"op":"resolveSongsangLimitedOtherDeath","target":"owner"}]}]},
+ {"id":"ol:zhanji","revision":1,"triggers":[{"id":"actual-play-draw","window":"cardsGained","subject":"owner","destinationZones":["hand"],"movementOccurrence":"perBatch","optional":false,"priority":0,"effects":[{"op":"drawAfterActualPlayDrawInvocation","target":"owner"}]}]}
+]}

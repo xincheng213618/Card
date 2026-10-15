@@ -73,7 +73,7 @@ public sealed partial class GameEngine
         if (action.ParentActionId != LifecycleCardUse(attack.ResolutionId)?.Action?.ActionId || attack.TargetSeat != action.ActorSeat ||
             action.EffectiveKind != CardKind.Dodge || matches.Any(p => !IsExactNamedAmbushInvalidation(p, action, attack.ResolutionId)))
             throw new InvalidOperationException("An ineffective Dodge changed its Slash or committed response identity.");
-        ClearTieredRoundDodgeResponse(attack); ClearChainedStateBasicDodgeResponse(attack); ClearDrawFundedDistinctBasicDodgeResponse(attack);
+        ClearRoundOnceCardlessDodgeResponse(attack); ClearTieredRoundDodgeResponse(attack); ClearChainedStateBasicDodgeResponse(attack); ClearDrawFundedDistinctBasicDodgeResponse(attack);
         SetCardUseStep(attack.ResolutionId, ResolutionFrameStep.ResolvingEffect);
         if (!ApplyAttackDamage(attack)) CompleteAttack(attack); return true;
     }
@@ -97,6 +97,7 @@ public sealed partial class GameEngine
             action.ActorSeat != r.ResponderSeat || !action.PhysicalCards.Any(c => c.CardId == r.CardId))
             throw new InvalidOperationException("A deferred counterspell lost its committed paid response.");
         ReplaceNullificationWindowFrame(pending with { NamedAmbushResponse = r with { ActionId = action.ActionId } });
+        CaptureLiJueCompletedNullificationUse(pending.Id, action);
     }
     private NullificationWindowFrame CompleteNamedAmbushCounterspell(NullificationWindowFrame pending)
     {

@@ -214,6 +214,7 @@ public sealed partial class GameEngine
             SkillPrompt = new(frame.SkillId, skill.Name, skill.Name, skill.Description) };
         _status = _players[frame.OwnerSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
+    [ProgramAnswer("phase-hand-debt-return")]
     private void ResolvePhaseHandDebtChoice(PromptChoice choice)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("Missing phase-hand return owner.");
@@ -273,6 +274,7 @@ public sealed partial class GameEngine
         { ParticipantFacts = new ReadOnlyDictionary<int, SkillProgramTriggerFacts>(new Dictionary<int, SkillProgramTriggerFacts> { [owner.Seat] = facts }) });
         AdvanceRuntimeTop<ProgramLifecycleTriggerWindowFrame>(); return true;
     }
+    [ProgramAiChoice(SkillProgramEffectOp.ReturnIssuedPhaseHandDebt)]
     private PromptChoice SelectAiPhaseHandDebt(PendingDecision decision, ProgramSkillFrame frame) => decision.Choices
         .OrderBy(c => GetKeepValue(GetAdvancedCard(c.Cards.Single()), _players[frame.OwnerSeat])).ThenBy(c => c.Id.Value, StringComparer.Ordinal).First();
     private sealed partial class ProgramSkillHost : IPhaseHandSeizureProgramHost

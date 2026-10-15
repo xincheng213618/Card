@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:fanghun",
+      "revision": 1,
+      "viewAs": [
+        {
+          "id": "dodge-to-slash",
+          "inputKinds": [
+            "dodge"
+          ],
+          "inputSuits": [],
+          "outputKind": "slash",
+          "forPlay": true,
+          "forResponse": true
+        },
+        {
+          "id": "slash-to-dodge",
+          "inputKinds": [
+            "slash",
+            "fireSlash",
+            "thunderSlash"
+          ],
+          "inputSuits": [],
+          "outputKind": "dodge",
+          "forPlay": false,
+          "forResponse": true
+        }
+      ],
+      "triggers": [
+        {
+          "id": "actual-slash-meiying",
+          "window": "afterDamageApplied",
+          "subject": "any",
+          "damageCardKinds": [
+            "slash",
+            "fireSlash",
+            "thunderSlash"
+          ],
+          "damageOccurrence": "perDamage",
+          "optional": false,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "gainMeiYingAfterActualSlashDamage",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "paid-conversion-use-draw",
+          "window": "cardUseCommitted",
+          "ownerRelation": "conversionSource",
+          "optional": false,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "drawAfterPaidMeiYingConversion",
+              "target": "owner"
+            }
+          ],
+          "sourceSkillId": "ol:fanghun",
+          "allowNoEventTarget": true,
+          "singleActionInstance": true
+        },
+        {
+          "id": "paid-conversion-response-draw",
+          "window": "cardResponseAccepted",
+          "ownerRelation": "conversionSource",
+          "optional": false,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "drawAfterPaidMeiYingConversion",
+              "target": "owner"
+            }
+          ],
+          "sourceSkillId": "ol:fanghun",
+          "allowNoEventTarget": true,
+          "singleActionInstance": true
+        }
+      ]
+    },
+    {
+      "id": "ol:fuhan",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "five-shu-replacement",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "turnOwnerScope": "own",
+          "optional": true,
+          "priority": 0,
+          "usageScope": "game",
+          "usageLimit": 1,
+          "effects": [
+            {
+              "op": "exchangeFiveShuBySpentMeiYing",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

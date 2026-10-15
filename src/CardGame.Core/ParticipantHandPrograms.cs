@@ -140,6 +140,7 @@ public sealed partial class GameEngine
         _status = _players[chooser].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
 
+    [ProgramAnswer("private-hand-take", "hand-repayment")]
     private void ResolveParticipantHandChoice(PromptChoice selected)
     {
         var frame = GetActiveProgramFrame(_resolutionStack.Last().Id); var effect = ParticipantHandPaused(frame);
@@ -279,6 +280,9 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("The hand repayment prompt changed its valid effective suits.");
     }
 
+    [ProgramAiChoice(
+        SkillProgramEffectOp.ViewAndTakeSelectedTargetHand,
+        SkillProgramEffectOp.RequestHandBySuitsOrLoseHp)]
     private PromptChoice SelectAiParticipantHandChoice(PendingDecision decision, ProgramSkillFrame frame)
     {
         if (frame.PrivateHandTake is not null)

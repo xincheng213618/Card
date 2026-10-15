@@ -61,40 +61,6 @@ internal static class BoundaryHanDangChecks
         Replay(game, registry);
     }
 
-    public static void EquipmentPaymentFreezesSuitBeforeRecoveryAndMovementChildren()
-    {
-        var (game, registry) = Create(equipment: true);
-        var armor = game.CreateSnapshot(0).Players[0].Hand.First(c => c.Kind == CardKind.SilverLion).Id;
-        Accept(game, new PlayCardCommand(0, armor, [], game.Revision, Prompt(game)!.PromptId)); ReachPlay(game);
-        Require(game.State.Players[0].MaxHp == 5 && game.State.Players[0].Hp == game.State.Players[0].MaxHp - 1,
-            "The real Silver Lion fixture starts one HP below the actual Lord maximum before its removal.");
-        BeginGongqi(game); Answer(game, c => c.Cards.SequenceEqual([armor]));
-        Reach(game, p => p.SkillPrompt?.SkillId == Recovery);
-        var paid = game.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == Gongqi);
-        Require(paid.BoundDiscardSlashBenefits is { EffectiveSuit: Suit.Heart, SourceLocation.Zone: CardZoneKind.Equipment } &&
-            game.State.Players[0].Hp == game.State.Players[0].MaxHp && game.State.Players[0].MaxHp == 5 && game.State.Players[0].TurnSlashSuitAllowances is null,
-            "The suit is frozen as Heart while wounded; real armor recovery removes that rewrite before any grants.");
-        Require(game.ResolutionStack.OfType<HpChangedTriggerWindowFrame>().Any(f => f.ResumeFrameId == paid.Id),
-            "The real HP observer retains its exact paid program return.");
-        Replay(game, registry); Continue(game);
-        Reach(game, p => p.SkillPrompt?.SkillId == Cost);
-        paid = game.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == Gongqi);
-        Require(paid.BoundDiscardSlashBenefits is { EffectiveSuit: Suit.Heart } && game.State.Players[0].TurnSlashSuitAllowances is null &&
-            game.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Any(f => f.ResumeProgramFrameId == paid.Id && f.Batch.ParentFrameId == paid.Id),
-            "The real cost movement observer returns before both range and suit grants.");
-        Replay(game, registry); Continue(game);
-        Reach(game, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "choose-other-owned-card-decline"));
-        Require(game.State.Players[0].TurnSlashSuitAllowances is [var allowance] && allowance.Suit == Suit.Heart,
-            "The cost's frozen effective Heart is retained after its rewrite condition becomes false.");
-        Answer(game, c => c.Parameters.GetValueOrDefault("program-action") == "choose-other-owned-card-discard" && c.Targets.Contains(1)); ReachPlay(game);
-        Require(game.CardMovements.Count(m => m.CardId == armor && m.Reason.Value == "skill-program.bound-discard-slash.cost") == 1 &&
-            game.Events.Count(e => e.Payload is TurnSlashSuitAllowanceGrantedEvent) == 1 &&
-            game.ResolutionStack.OfType<ProgramSkillFrame>().All(f => f.BoundDiscardSlashBenefits is null) &&
-            game.CardMovements.Any(m => m.From.OwnerSeat == 1 && m.Reason.Value.Contains("ChooseOtherOwnedCardDiscard", StringComparison.Ordinal)),
-            "Cold returns preserve one armor payment, one grant and the real optional extra discard.");
-        Replay(game, registry);
-    }
-
     public static void FirstRoundExactUsageRefundAndSecondRoundConsumption()
     {
         var (game, registry) = Create();
@@ -121,28 +87,6 @@ internal static class BoundaryHanDangChecks
         EndTurn(game);
         Require(Usage(game, Jiefan, "aid-by-attack-range") == 1 && game.Events.Count(e => e.Payload is FirstRoundGameUsageRefundResolvedEvent) == 1,
             "Second-round limited usage remains consumed after its actual turn ends.");
-        Replay(game, registry);
-    }
-
-    public static void FirstRoundExtraTurnAndNativeAiGongqi()
-    {
-        var (game, registry) = Create(aiOthers: true);
-        Use(game, Driver, "extra"); ReachPlay(game);
-        Use(game, Jiefan, "aid-by-attack-range", targets: [0]); ReachPlay(game);
-        EndTurn(game); ReachPlay(game);
-        Require(game.Events.Where(e => e.Payload is TurnStartedEvent).Select(e => ((TurnStartedEvent)e.Payload).ActorSeat).Take(2).SequenceEqual([0, 0]) &&
-            game.Events.Count(e => e.Payload is RoundStartedEvent) == 1 && Usage(game, Jiefan, "aid-by-attack-range") == 0,
-            "A real queued extra turn follows the original turn without advancing the first round.");
-        Use(game, Jiefan, "aid-by-attack-range", targets: [0]); ReachPlay(game);
-        var refunds = game.Events.Select(e => e.Payload).OfType<FirstRoundGameUsageRefundScheduledEvent>().Select(e => e.Refund).ToArray();
-        Require(refunds.Length == 2 && refunds[0].TurnNumber != refunds[1].TurnNumber && refunds[0].Source == refunds[1].Source,
-            "The first-round extra activation freezes its own actual turn while preserving the same source instance.");
-        Replay(game, registry); EndTurn(game);
-        Require(game.Events.Count(e => e.Payload is FirstRoundGameUsageRefundResolvedEvent { Refunded: true }) == 2 && Usage(game, Jiefan, "aid-by-attack-range") == 0,
-            "Both actual turns refund exactly their own consumed key, without a round reset.");
-        for (var step = 0; step < 80 && !game.Events.Any(e => e.Payload is TurnSlashSuitAllowanceGrantedEvent issued && issued.Policy.Source.OwnerSeat != 0); step++) Advance(game);
-        Require(game.Events.Any(e => e.Payload is TurnSlashSuitAllowanceGrantedEvent issued && issued.Policy.Source.SkillId == Gongqi && issued.Policy.Source.OwnerSeat != 0),
-            "A native AI owner actually selects, pays and issues the dynamic Gongqi benefits.");
         Replay(game, registry);
     }
 

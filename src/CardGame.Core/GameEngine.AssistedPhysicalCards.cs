@@ -14,7 +14,7 @@ public sealed partial class GameEngine
                 request.TargetSeat is { } target && !AssistedPhysicalSlashTargets(actor).Contains(target) || frame.ChoiceBindings.Any(binding => binding.Name == paused.ResultBind) || request.ActorChoosesTarget != (paused.ChooserRef?.Kind == ProgramParticipantRef.SelectedTarget))
                 throw new InvalidOperationException("An assisted physical Slash draft lost its frozen instruction or participants.");
             if (ReferenceEquals(frame, _resolutionStack.LastOrDefault()) && (_pendingDecision is not { Kind: DecisionKind.ProgramTrigger } prompt ||
-                prompt.PlayerSeat != (request.TargetSeat is null && !request.ActorChoosesTarget ? frame.OwnerSeat : actor) || !AssistedChoicesEqual(ChainedStateBasicNativeDecision(DrawFundedDistinctBasicNativeDecision(RequestedDeckBasicNativeDecision(prompt))).Choices, AssistedPhysicalSlashChoices(frame))))
+                prompt.PlayerSeat != (request.TargetSeat is null && !request.ActorChoosesTarget ? frame.OwnerSeat : actor) || !AssistedChoicesEqual(RoundOnceCardlessProgramNativeDecision(ChainedStateBasicNativeDecision(DrawFundedDistinctBasicNativeDecision(RequestedDeckBasicNativeDecision(prompt)))).Choices, AssistedPhysicalSlashChoices(frame))))
                 throw new InvalidOperationException("An assisted physical Slash prompt changed while suspended.");
         }
         if (frame.OtherCardSelection is { } draft)
@@ -129,13 +129,19 @@ public sealed partial class GameEngine
     {
         var draft = frame.AssistedSlashRequest!;
         var chooserSeat = draft.TargetSeat is null && !draft.ActorChoosesTarget ? frame.OwnerSeat : draft.ActorSeat;
-        var choices = AssistedPhysicalSlashChoices(frame);
+        var nativeChoices = AssistedPhysicalSlashChoices(frame);
+        var choices = draft.TargetSeat is { } target
+            ? Array.AsReadOnly(nativeChoices.Where(choice => choice.Parameters.GetValueOrDefault("request-option") != "decline")
+                .Concat(RoundOnceCardlessProgramSlashChoices(frame, draft.ActorSeat, [target], GetPausedPrivateOfferEffect(frame)!.ResultBind))
+                .Concat(nativeChoices.Where(choice => choice.Parameters.GetValueOrDefault("request-option") == "decline")).ToArray())
+            : nativeChoices;
         var skill = _contentRegistry.GetSkill(frame.SkillId);
         _pendingDecision = new PendingDecision(DecisionKind.ProgramTrigger, chooserSeat, draft.TargetSeat is null ? "请选择受令角色攻击范围内的目标。" : "使用一张【杀】，或允许技能拥有者获得你的牌。", choices.SelectMany(c => c.Cards).Distinct().ToArray(), draft.TargetSeat is null ? AssistedPhysicalSlashTargets(draft.ActorSeat) : [draft.TargetSeat.Value], frame.OwnerSeat)
         { PromptId = CreatePromptId(), IsPrivate = true, TargetSeat = chooserSeat, Choices = Array.AsReadOnly(choices.ToArray()), SkillPrompt = new(frame.SkillId, skill.Name, skill.Name, skill.Description) };
         _status = _players[chooserSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
 
+    [ProgramAnswer("assisted-physical-slash")]
     private void ResolveAssistedPhysicalSlashChoice(PromptChoice selected)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("Assisted Slash frame disappeared.");
@@ -205,6 +211,7 @@ public sealed partial class GameEngine
         _status = _players[frame.OwnerSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
 
+    [ProgramAnswer("take-other-card")]
     private void ResolveOtherCardSelectionChoice(PromptChoice selected)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("Other-card selection lost its frame.");

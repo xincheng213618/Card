@@ -67,20 +67,6 @@ internal static class DrawPolicyProgramChecks
         store.AssertInvariants();
     }
 
-    private static void Reject(string rules, string expected)
-    {
-        try
-        {
-            _ = SkillProgramCatalog.Load(rules, Presentation);
-        }
-        catch (InvalidOperationException exception) when (
-            exception.Message.Contains(expected, StringComparison.Ordinal))
-        {
-            return;
-        }
-        throw new InvalidOperationException($"Expected rejection containing '{expected}'.");
-    }
-
     private static void Require(bool condition, string message)
     {
         if (!condition) throw new InvalidOperationException(message);

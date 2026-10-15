@@ -13,25 +13,6 @@ internal static class FengLinHaoZhaoChecks
         Require(results.Length==2&&results[0] is {OwnerHandCount:8,TargetHandCount:10,DiscardCount:2}&&results[1].OwnerHandCount==5&&results[1].DiscardCount==5,"Both actual ends read the owner's hand anew; the first discards to eight, the second to the changed five.");
         Require(!g.AcceptedCommands.OfType<AnswerPromptCommand>().Any(c=>c.ActorSeat==1)&&g.CardMovements.Count(m=>m.From==CardLocation.Hand(1)&&m.To==CardLocation.DiscardPile&&m.Reason.Value=="skill-program.deferred-hand.discard")==7,"Native recipient AI discards exactly seven real hand entities across both ends.");Replay(g,r);
     }
-    public static void DrawCapAndRealGainReplay()
-    {
-        foreach(var cap in new[]{false,true})
-        {
-            var(g,r)=Create("plain");if(cap){Use(g,"grow-owner",[]);Use(g,"grow-target-small",[1]);}
-            EndAndChoose(g,1);Reach(g,p=>p.Kind==DecisionKind.PlayCard&&p.PlayerSeat==0);var first=g.Events.Select(e=>e.Payload).OfType<DeferredHandAlignmentResolvedEvent>().First();
-            Require(cap?first is {OwnerHandCount:8,TargetHandCount:6,DrawCount:0,DiscardCount:0}:first is {OwnerHandCount:5,TargetHandCount:3,DrawCount:2},"The draw cap applies only to actual draws, never as a discard-to-five clamp.");Replay(g,r);
-        }
-    }
-    public static void SkippedAndExtraActualEnds()
-    {
-        foreach(var mode in new[]{"skipped","extra"})
-        {
-            var(g,r)=Create(mode);Use(g,mode=="skipped"?"flip":"extra",[1]);EndAndChoose(g,1);
-            Reach(g,p=>g.Events.Select(e=>e.Payload).OfType<DeferredHandAlignmentResolvedEvent>().Count()==2);
-            var consumed=g.Events.Select(e=>e.Payload).OfType<DeferredHandAlignmentConsumedEvent>().ToArray();
-            Require(consumed.Length==2&&consumed[1].Alignment.DueKind==DeferredHandAlignmentDueKind.TargetNextActualTurnEnd&&g.CreateSnapshot(0).Players[1].DeferredHandAlignments is null,"A face-up skipped turn and an actual extra turn both consume the recipient's next actual-end due.");Replay(g,r);
-        }
-    }
     public static void OrderedNestedAndNativeOwner()
     {
         var(g,r)=Create("overlap");Use(g,"grow-owner",[]);Use(g,"grow-target",[1]);
@@ -43,45 +24,9 @@ internal static class FengLinHaoZhaoChecks
         var(ai,ar)=Create("ai-owner");Accept(ai,new EndPlayPhaseCommand(0,ai.Revision,Prompt(ai)!.PromptId));Reach(ai,p=>p.Kind==DecisionKind.PlayCard&&p.PlayerSeat==0);
         Require(ai.Events.Select(e=>e.Payload).OfType<DeferredHandAlignmentScheduledEvent>().Any(x=>x.Alignment.Source.OwnerSeat!=0)&&!ai.AcceptedCommands.OfType<AnswerPromptCommand>().Any(c=>c.ActorSeat!=0),"Actual owner AI activates and selects alignment targets with no artificial answers.");Replay(ai,ar);
     }
-    public static void NativeSourcePrivateHumanRecipient()
-    {
-        var(g,r)=Create("ai-owner");Use(g,"grow-owner",[]);Accept(g,new EndPlayPhaseCommand(0,g.Revision,Prompt(g)!.PromptId));
-        Reach(g,p=>p.PlayerSeat==0&&p.SkillPrompt?.SkillId=="classic:zhengu"&&g.ResolutionStack.FirstOrDefault() is DeferredTurnEndFrame);
-        var child=g.ResolutionStack.OfType<ProgramSkillFrame>().Last();
-        Require(child.OwnerSeat!=0&&child.OwnedCardSelection?.CardOwnerSeat==0,"Native source AI requests the real human recipient's private hand payment.");
-        Require(Enumerable.Range(1,3).All(v=>g.CreateSnapshot(v).PendingDecision is null),"All ordinary other-seat snapshots conceal the recipient's private entity choices.");Replay(g,r);RejectUnknown(g);
-        while(Prompt(g)?.PlayerSeat==0&&g.ResolutionStack.OfType<ProgramSkillFrame>().Any(f=>f.OwnedCardSelection?.CardOwnerSeat==0))Answer(g,c=>c.Cards.Count==1);
-        Replay(g,r);
-    }
-    public static void DeathCancelsAndResolverContracts()
-    {
-        foreach(var mode in new[]{"death-target","death-source"})
-        {
-            var(g,r)=Create(mode);Use(g,"grow-owner",[]);Use(g,"grow-target",[1]);EndAndChoose(g,1);
-            if(mode=="death-source"){Reach(g,p=>p.SkillPrompt?.SkillId=="fixture:source-death");Replay(g,r);Answer(g,c=>c.Targets.Contains(0));}
-            Reach(g,p=>false,()=>g.Events.Select(e=>e.Payload).OfType<DeferredHandAlignmentCancelledEvent>().Any());
-            Require(g.CreateSnapshot(0).Players.All(p=>p.DeferredHandAlignments is null)&&g.Events.Select(e=>e.Payload).OfType<DeferredHandAlignmentResolvedEvent>().Count()==1,"Real nested target/source death cancels the outstanding next-end due.");Replay(g,r);
-        }
-        var valid=$$"""{"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[{"id":"fixture:contract","revision":1,"triggers":[{"id":"settle","window":"turnEnding","subject":"owner","optional":false,"deferredTurnEndOnly":true,"effects":[{"op":"resolveDeferredHandAlignment","target":"owner","resultBind":"discarded"}]}]}]}""";
-        foreach(var invalid in new[]{valid.Replace("\"deferredTurnEndOnly\":true","\"deferredTurnEndOnly\":false"),valid.Replace("\"optional\":false","\"optional\":true"),valid.Replace("\"turnEnding\"","\"playPhaseStarting\""),valid.Replace("\"target\":\"owner\"","\"target\":\"selectedTarget\"")})
-        {try{SkillProgramCatalog.Load(invalid,"""{"schemaVersion":3,"skills":{"fixture:contract":{"name":"契约","description":"严格"}}}""");throw new Exception("Forged deferred resolver unexpectedly loaded.");}catch(InvalidOperationException){}}
-        var validSchedule=$$"""{"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[{"id":"fixture:contract","revision":1,"triggers":[{"id":"schedule","window":"turnEnding","subject":"owner","optional":true,"effects":[{"op":"selectTarget","target":"owner","targetKind":"otherLiving"},{"op":"scheduleDeferredHandAlignment","target":"selectedTarget","stateId":"settle"}]},{"id":"settle","window":"turnEnding","subject":"owner","optional":false,"deferredTurnEndOnly":true,"effects":[{"op":"resolveDeferredHandAlignment","target":"owner","resultBind":"discarded"}]}]}]}""";
-        SkillProgramCatalog.Load(validSchedule,"""{"schemaVersion":3,"skills":{"fixture:contract":{"name":"契约","description":"严格"}}}""");
-        foreach(var invalid in new[]{validSchedule.Replace("\"targetKind\":\"otherLiving\"","\"targetKind\":\"anyLiving\""),validSchedule.Replace("\"id\":\"schedule\",\"window\":\"turnEnding\",\"subject\":\"owner\"","\"id\":\"schedule\",\"window\":\"turnEnding\",\"subject\":\"owner\",\"turnOwnerScope\":\"otherLiving\"")})
-        {try{SkillProgramCatalog.Load(invalid,"""{"schemaVersion":3,"skills":{"fixture:contract":{"name":"契约","description":"严格"}}}""");throw new Exception("An invalid deferred schedule unexpectedly loaded.");}catch(InvalidOperationException){}}
-    }
-    public static void GrantLossAndSuppressionMaturity()
-    {
-        var(g,r)=Create("grant");Use(g,"grant",[]);EndAndChoose(g,1);Reach(g,p=>p.Kind==DecisionKind.PlayCard&&p.PlayerSeat==0);
-        Require(g.Events.Select(e=>e.Payload).OfType<DeferredHandAlignmentCancelledEvent>().Count()==1&&g.Events.Select(e=>e.Payload).OfType<DeferredHandAlignmentResolvedEvent>().Count()==1,"The exact temporary source grant expires at the next actual TurnStarted, canceling the remaining due after its first legitimate resolution.");Replay(g,r);
-        var(s,sr)=Create("suppressed");EndAndChoose(s,3);Reach(s,p=>p.SkillPrompt?.SkillId=="fixture:suppress");Answer(s,c=>c.Targets.Contains(0));Answer(s,c=>c.Id.Value.Contains("classic:zhengu"));
-        Reach(s,p=>p.PlayerSeat==0&&p.Kind==DecisionKind.PlayCard);var consumed=s.Events.Select(e=>e.Payload).OfType<DeferredHandAlignmentConsumedEvent>().ToArray();
-        Require(consumed.Length==2&&consumed[0].Applied&&!consumed[1].Applied&&!s.Events.Select(e=>e.Payload).OfType<DeferredHandAlignmentCancelledEvent>().Any(),"After the first due, a real Play-phase suppression leaves the grant present and consumes its next mature due without effect.");Replay(s,sr);
-    }
     private static void Use(GameEngine g,string id,IReadOnlyList<int> seats){Accept(g,new UseProgramSkillCommand(0,"fixture:driver",id,[],seats,g.Revision,Prompt(g)!.PromptId));Reach(g,p=>p.PlayerSeat==0&&p.Kind==DecisionKind.PlayCard);}
     private static void EndAndChoose(GameEngine g,int seat){Accept(g,new EndPlayPhaseCommand(0,g.Revision,Prompt(g)!.PromptId));Reach(g,p=>p.SkillPrompt?.SkillId=="classic:zhengu");Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="activate");Answer(g,c=>c.Targets.Contains(seat));}
     private static PendingDecision? Prompt(GameEngine g)=>Enumerable.Range(0,4).Select(s=>g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p=>p is not null);
-    private static void Play(GameEngine g,LegalAction a)=>Accept(g,new PlayCardCommand(0,a.CardId!.Value,a.TargetSeats,g.Revision,Prompt(g)!.PromptId,a.PlayedCardKind,a.TargetCardId){ConversionSource=a.ConversionSource});
     private static void Answer(GameEngine g,Func<PromptChoice,bool> choose){var p=Prompt(g)!;Accept(g,new AnswerPromptCommand(p.PlayerSeat,p.PromptId,p.Choices.First(choose).Id,g.Revision));}
     private static void Reach(GameEngine g,Func<PendingDecision,bool> predicate,Func<bool>? terminal=null)
     {

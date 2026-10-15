@@ -133,6 +133,7 @@ public sealed partial class GameEngine
         { PromptId = CreatePromptId(), IsPrivate = true, TargetSeat = actor, Choices = choices, SkillPrompt = new(f.SkillId, skill.Name, skill.Name, skill.Description) };
         _status = _players[actor].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
+    [ProgramAnswer("deferred-private-offer")]
     private void ResolveDeferredPrivateOfferChoice(PromptChoice selected)
     {
         var f = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("No owning private offer.");

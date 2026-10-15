@@ -84,6 +84,7 @@ public sealed partial class GameEngine
             Choices = f.IncomingDistanceCourtesy.Choices, SkillPrompt = new(f.SkillId, skill.Name, skill.Name, skill.Description) };
         _status = _players[f.OwnerSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
+    [ProgramAnswer("incoming-distance-courtesy")]
     private void ResolveIncomingDistanceCourtesyChoice(PromptChoice choice)
     {
         var f = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("Incoming distance lost its owning program.");
@@ -229,6 +230,9 @@ public sealed partial class GameEngine
         if (changes.Length != r.NextBenefitIndex || changes.Where((e, i) => e.StepIndex != i || e.Source != r.Source || e.Amount != -1).Any())
             throw new InvalidOperationException("Courtesy returned to an already settled or missing distance step.");
     }
+    [ProgramAiChoice(
+        SkillProgramEffectOp.AdjustIncomingDistanceByLivingFactions,
+        SkillProgramEffectOp.ChooseEndingCourtesyBenefits)]
     private PromptChoice SelectAiIncomingDistanceCourtesy(PendingDecision p, ProgramSkillFrame f) =>
         f.IncomingDistanceCourtesy!.Kind == IncomingDistanceCourtesyKind.FactionDistance
             ? p.Choices.Where(c => c.Cards.Count == 1).OrderBy(c => GetKeepValue(GetAttackCard(c.Cards[0]), _players[f.OwnerSeat])).FirstOrDefault() ?? p.Choices[^1]

@@ -7,9 +7,14 @@ namespace CardGame.Core;
 public sealed record FirstSlashDuelUseRecordedEvent(int TurnNumber, int TurnOwnerSeat,
     int ActorSeat, long CardUseFrameId, long? ActionId, CardKind EffectiveKind, int Ordinal) : IGameEvent;
 public sealed record FirstSlashDuelBenefitReceipt(int InstructionIndex, long WindowFrameId,
-    long CardUseFrameId, long ActionId, int TurnNumber, int TurnOwnerSeat, int TargetSeat,
+    long CardUseFrameId, long? ActionId, int TurnNumber, int TurnOwnerSeat, int TargetSeat,
     int FrozenDiamondCount, CardConversionSource Source, string GameplayHash,
-    string? SelectedBranch = null, long MovementBefore = 0, long MovementAfter = 0, int DrawCount = 0);
+    string? SelectedBranch = null, long MovementBefore = 0, long MovementAfter = 0, int DrawCount = 0,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] long? LegacyProducerFrameId = null);
+public sealed record FirstSlashDuelLegacyWindowFrame(long Id, long ParentFrameId, long ProducerFrameId,
+    IReadOnlyList<ProgramTriggerCandidate> Candidates, IReadOnlyList<ProgramSkillWindowContext> Contexts,
+    int CandidateIndex = 0, ResolutionFrameStep Step = ResolutionFrameStep.ResolvingEffect)
+    : ResolutionFrame(Id, ResolutionFrameKind.FirstSlashDuelLegacyWindow, Step);
 public sealed record FirstSlashDuelBenefitIssuedEvent(long ProgramFrameId,
     FirstSlashDuelBenefitReceipt Receipt) : IGameEvent;
 public sealed partial record ProgramSkillFrame

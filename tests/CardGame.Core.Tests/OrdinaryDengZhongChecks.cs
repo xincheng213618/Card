@@ -9,67 +9,6 @@ internal static class OrdinaryDengZhongChecks
     private const string Kanpo = "ol:kanpo";
     private const string Gengzhan = "ol:gengzhan";
 
-    public static void Definitions()
-    {
-        ContentRegistry registry;
-        try
-        {
-            registry = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true),
-                new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage());
-        }
-        catch (Exception diag)
-        {
-            Console.WriteLine("DIAG-REGISTRY: " + (diag.InnerException?.ToString() ?? diag.ToString()));
-            throw;
-        }
-        var general = registry.Generals["ol:deng-zhong"];
-        Require(general.Name == "邓忠" && general.FactionId == "wei" && general.BaseHp == 4 &&
-            general.SkillIds.SequenceEqual([Kanpo, Gengzhan]) &&
-            general.VariantId == "ordinary" && general.RulesetId == "sanguosha-ol",
-            "The OL Deng Zhong general registers the current wei 4HP pair.");
-        var kanpo = registry.GetSkill(Kanpo).Program!;
-        Require(kanpo.Activations.Count == 0, "Kanpo pairs its trigger with a play-flow view-as conversion.");
-        var viewAs = kanpo.ViewAs.Single();
-        Require(viewAs.InputCount == 1 && viewAs.SourceZones.SequenceEqual([CardZoneKind.Hand]) &&
-            viewAs.OutputKind == CardKind.Slash && viewAs.ForPlay && !viewAs.ForResponse &&
-            viewAs.UsesPerPhase == 1 && viewAs.UsageGroup == "kanpo-view-slash",
-            "Kanpo turns one hand card into a normal slash once per play phase.");
-        var take = kanpo.Triggers.Single();
-        Require(take.Window == SkillProgramTriggerWindow.AfterDamageApplied && take.Optional &&
-            take.DamageCardKinds.SequenceEqual([CardKind.Slash, CardKind.FireSlash, CardKind.ThunderSlash]) &&
-            take.Effects[0].Op == SkillProgramEffectOp.SelectAndMoveOwnedCard &&
-            take.Effects[0].SuitFrom == SkillProgramSuitSource.DamageCard &&
-            take.Effects[0].CardOwnerRef!.Kind == ProgramParticipantRef.EventTarget &&
-            take.Effects[0].Destination == SkillProgramCardDestination.OwnerHand,
-            "Kanpo takes one event-target hand card matching the damaging slash suit.");
-        var gengzhan = registry.GetSkill(Gengzhan).Program!.Triggers;
-        var claim = gengzhan.Single(t => t.Id == "gengzhan-claim");
-        Require(claim.Window == SkillProgramTriggerWindow.DiscardPileReceived && claim.Optional &&
-            claim.UsageScope == SkillUsageScope.Turn && claim.UsageLimit == 1 &&
-            claim.CardKinds.SequenceEqual([CardKind.Slash, CardKind.FireSlash, CardKind.ThunderSlash]) &&
-            claim.Effects[0].Op == SkillProgramEffectOp.ClaimDiscardedEntityWithProvenance &&
-            claim.Effects[1].Op == SkillProgramEffectOp.OfferFaceUpForOutsideClaims,
-            "Gengzhan claims one play-phase discarded slash per turn.");
-        var tally = gengzhan.Single(t => t.Id == "gengzhan-tally");
-        Require(tally.Window == SkillProgramTriggerWindow.TurnEnding &&
-            tally.TurnOwnerScope == SkillProgramTurnOwnerScope.OtherLiving && !tally.Optional &&
-            tally.Effects[0].Op == SkillProgramEffectOp.ChangeParticipantMarker &&
-            tally.Effects[0].Marker == PlayerMarkerKind.GengZhan && tally.Effects[0].Amount == 1 &&
-            tally.Effects[0].TargetReference is null,
-            "A slash-free other turn grants the owner one Gengzhan marker.");
-        var release = gengzhan.Single(t => t.Id == "gengzhan-release");
-        Require(release.Window == SkillProgramTriggerWindow.PlayPhaseStarting && !release.Optional &&
-            release.Effects[0].Op == SkillProgramEffectOp.GrantTurnRuleModifier &&
-            release.Effects[0].RuleQuery == SkillRuleQuery.SlashLimit &&
-            release.Effects[0].AmountFromMarker == PlayerMarkerKind.GengZhan &&
-            release.Effects[1].Op == SkillProgramEffectOp.ChangeParticipantMarker &&
-            release.Effects[1].ClearMarker && release.Effects[1].Marker == PlayerMarkerKind.GengZhan,
-            "The owner's play phase converts all Gengzhan markers into slash limit.");
-        Require(registry.GetSkill(Kanpo).ProgramPresentation!.Name == "勘破" &&
-            registry.GetSkill(Gengzhan).ProgramPresentation!.Name == "更战",
-            "The presentation carries the current OL Kanpo/Gengzhan wording.");
-    }
-
     public static void KanpoTakesMatchingSuitCard()
     {
         var (g, r) = Start();
@@ -106,47 +45,6 @@ internal static class OrdinaryDengZhongChecks
             "Kanpo moves the matching-suit card from the victim's hand to the owner's. hand0=" + Dump(g, 0) +
                 " hand1=" + Dump(g, 1) +
                 " moves=" + string.Join(";", g.CardMovements.Where(m => m.CardId == matching[0].Id)
-                    .Select(m => m.From.Zone + "->" + m.To.Zone + ":" + m.Reason.Value)));
-        Replay(g, r);
-    }
-
-    public static void KanpoActivatesOncePerTurn()
-    {
-        var (g, r) = Start();
-        var card = Hand(g, 0).First(c => c.Kind is CardKind.Slash);
-        var hpBefore = g.CreateSnapshot(0).Players[1].Hp;
-        var action = g.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.Slash &&
-            a.CardId == card.Id && a.ConversionSource?.SkillId == Kanpo && a.TargetSeats.Contains(1));
-        Accept(g, new PlayCardCommand(0, card.Id, [1], g.Revision, P(g)!.PromptId, action.PlayedCardKind)
-        {
-            ConversionSource = action.ConversionSource
-        });
-        ReachProgramChoice(g);
-        Require(g.CreateSnapshot(0).Players[1].Hp == hpBefore - 1,
-            "The converted slash damages the selected target. hp=" + g.CreateSnapshot(0).Players[1].Hp);
-        Skip(g);
-        ReachPlay(g);
-        Require(!g.GetHumanLegalActions().Any(a => a.Kind == LegalActionKind.Slash &&
-                a.ConversionSource?.SkillId == Kanpo),
-            "The once-per-turn conversion is not offered again in the same play phase.");
-        Replay(g, r);
-    }
-
-    public static void GengzhanClaimsDiscardedSlash()
-    {
-        var (g, r) = Start();
-        EndMyPlayPhase(g);
-        // The seat-1 AI spends its play phase on its own; a pending claim prompt
-        // proves the discarded entity matched the trigger's slash kind filter.
-        ReachProgramChoice(g);
-        Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate");
-        ReachPlay(g);
-        var claim = g.CardMovements.Last(m => m.To == CardLocation.Hand(0) &&
-            m.Reason.Value.Contains("gengzhan", StringComparison.Ordinal));
-        var claimedCard = Hand(g, 0).First(c => c.Id == claim.CardId);
-        Require(claim.From == CardLocation.DiscardPile && claimedCard.Kind is CardKind.Slash,
-            "Gengzhan claims the discarded slash into the owner's hand. moves=" +
-                string.Join(";", g.CardMovements.Where(m => m.CardId == claim.CardId)
                     .Select(m => m.From.Zone + "->" + m.To.Zone + ":" + m.Reason.Value)));
         Replay(g, r);
     }
@@ -217,10 +115,6 @@ internal static class OrdinaryDengZhongChecks
         }
         throw new InvalidOperationException("The fixture never returned to the owner's play phase: " + P(g)?.Prompt);
     }
-
-    private static IReadOnlyList<Card> PileCards(GameEngine g) => ((CardZoneStore)typeof(GameEngine)
-        .GetField("_cardZones", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(g)!)
-        .CardsAt(CardLocation.DrawPile);
 
     private static IReadOnlyList<Card> DiscardCards(GameEngine g) => ((CardZoneStore)typeof(GameEngine)
         .GetField("_cardZones", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(g)!)

@@ -85,6 +85,7 @@ public sealed partial class GameEngine
         _status=_players[f.OwnerSeat].IsHuman ? EngineStatus.AwaitingHumanResponse:EngineStatus.Running;
         AdvanceRulesAndPublishState();
     }
+    [ProgramAnswer("converting-gift")]
     private void ResolveConvertingGiftChoice(PromptChoice choice)
     {
         var f=GetActiveProgramFrame(_resolutionStack[^1].Id);var d=f.ConvertingGift??throw new InvalidOperationException("Gift choice lost its owner draft.");

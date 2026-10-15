@@ -129,9 +129,6 @@ internal static class DrawPhaseCompositionChecks
         var r = game.Submit(new AdvanceCommand(game.Revision));
         Require(r.Accepted && game.PendingDecision?.SkillPrompt?.SkillId == skill, r.Error?.Message ?? "Prompt not reached.");
     }
-    private static PendingDecision RequirePrompt(GameEngine game, string skill) =>
-        game.PendingDecision is { Kind: DecisionKind.ProgramTrigger, SkillPrompt.SkillId: var id } p && id == skill
-            ? p : throw new InvalidOperationException($"Expected {skill} prompt.");
     private static void Answer(GameEngine game, string action) => Submit(game,
         game.PendingDecision!.Choices.Single(c => c.Parameters.GetValueOrDefault("program-action") == action));
     private static void Submit(GameEngine game, PromptChoice choice)

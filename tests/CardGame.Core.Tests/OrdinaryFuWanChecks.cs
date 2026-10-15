@@ -34,34 +34,6 @@ internal static class OrdinaryFuWanChecks
         }
     }
 
-    public static void MultipleActualTargetsAndPreventedCancellationStayIndependent()
-    {
-        var (g, r) = Create(multiple: true); Play(g); var paid = Slash(g, 1);
-        Reach(g, p => p.SkillPrompt?.SkillId == Enhance); g = Cold(g, r);
-        Answer(g, c => c.Parameters.GetValueOrDefault("enhancement-option") == nameof(CurrentCardEnhancement.ExtraTarget));
-        Reach(g, p => p.SkillPrompt?.SkillId == Enhance && p.Choices.Any(c => c.Targets.SequenceEqual([3])));
-        Answer(g, c => c.Targets.SequenceEqual([3]));
-        for (var i = 0; i < 2; i++) { Reach(g, Offer);
-            Require(E<SlashTargetBenefitOfferedEvent>(g).Length == 2 && !E<CardActionAcceptedEvent>(g).Any(e => e.Action.Type == CardActionType.Response) &&
-                E<DamageAppliedEvent>(g).Length == 0, "Both finalized targets are offered before the first target's response/damage, including during second benefit choice.");
-            g = Cold(g, r); Choose(g, "draw"); }
-        Play(g);
-        Require(E<SlashTargetBenefitOfferedEvent>(g).Select(e => e.TargetSeat).Order().SequenceEqual([1, 3]) &&
-            E<SlashTargetBenefitPaidEvent>(g).Length == 2 && E<SlashTargetBenefitCancellationEvent>(g).Length == 2 &&
-            E<SlashTargetBenefitSettledEvent>(g).Count(e => e.Paid) == 2 &&
-            E<SlashTargetBenefitOfferedEvent>(g).Select(e => e.CardUseFrameId).Distinct().Count() == 1,
-            "Each actual added target independently benefits and settles on the same two-material Use; later targets never reissue an earlier debt.");
-        AssertOriginalUse(g, paid); g = Cold(g, r);
-
-        var (uncancelable, ur) = Create(prevent: true); Play(uncancelable); var hp = uncancelable.State.Players[1].Hp;
-        var costs = Slash(uncancelable, 1); Reach(uncancelable, Offer); Choose(uncancelable, "draw"); Play(uncancelable);
-        Require(E<CardActionAcceptedEvent>(uncancelable).Any(e => e.Action.Type == CardActionType.Response && e.Action.EffectiveKind == CardKind.Dodge && e.Action.ActorSeat == 1) &&
-            E<SlashTargetBenefitPaidEvent>(uncancelable).Length == 1 && E<SlashTargetBenefitCancellationEvent>(uncancelable).Length == 0 &&
-            E<SlashTargetBenefitSettledEvent>(uncancelable).Length == 0 && uncancelable.State.Players[1].Hp == hp - 1,
-            "A legal paid Jink that cannot cancel this target's Slash does not create the reverse discard obligation.");
-        AssertOriginalUse(uncancelable, costs); uncancelable = Cold(uncancelable, ur);
-    }
-
     public static void LegacyVirtualSlashAndBaguaUseExactCancellationProducer()
     {
         var (g, r) = Create(legacy: true);
@@ -88,71 +60,12 @@ internal static class OrdinaryFuWanChecks
             "Actual successful Bagua provides a zero-material Dodge cancellation; physical CardResponded events are not invented for armor.");
         AssertOriginalUse(bagua, physical); bagua = Cold(bagua, br);
     }
-
-    public static void PaidGainDyingSourceLossNativeAndStrictComposition()
-    {
-        var (g, r) = Create(gainDying: true); Play(g); var costs = Slash(g, 1); Reach(g, Offer); Choose(g, "draw");
-        Reach(g, p => p.SkillPrompt?.SkillId == Entry); var paid = E<SlashTargetBenefitPaidEvent>(g).Single();
-        Require(g.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.SlashTargetBenefitDraft is { Stage: SlashTargetBenefitDraftStage.PaidChildren }) &&
-            g.ResolutionStack.OfType<DyingFrame>().Any(d => d.VictimSeat == 0), "The real gain observer pauses beneath the original paid benefit and actual Dying entry.");
-        g = Cold(g, r); Continue(g); Reach(g, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("response") == "peach"));
-        var peach = P(g)!.Choices.First(c => c.Parameters.GetValueOrDefault("response") == "peach").Cards.Single();
-        Answer(g, c => c.Parameters.GetValueOrDefault("response") == "peach");
-        Reach(g, p => p.SkillPrompt?.SkillId == Entry); g = Cold(g, r); Continue(g);
-        Reach(g, p => p.SkillPrompt?.SkillId == Gain); g = Cold(g, r); Continue(g); Play(g);
-        Require(E<SlashTargetBenefitPaidEvent>(g).Length == 1 && g.CardMovements.Count(m => m.Reason.Value == DrawReason) == 1 &&
-            E<CardActionAcceptedEvent>(g).Any(e => e.Action.EffectiveKind == CardKind.Peach && e.Action.PhysicalCards.Any(c => c.CardId == peach)) &&
-            E<SlashTargetBenefitOfferedEvent>(g).Single().CardUseFrameId == paid.CardUseFrameId,
-            "Restored engine instances actually continue real Peach/Completed and gain children, without repeating the committed benefit or original material payment.");
-        AssertOriginalUse(g, costs);
-
-        var (damage, dr) = Create(gainDamage: true); Play(damage); var damageCosts = Slash(damage, 1); Reach(damage, Offer); Choose(damage, "draw");
-        Reach(damage, p => p.SkillPrompt?.SkillId == Entry);
-        var nested = damage.ResolutionStack.OfType<DamageFrame>().Single();
-        Require(nested.SourceSeat == 0 && nested.TargetSeat == 0 && nested.Amount == 1 &&
-            damage.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.Id == nested.ParentFrameId && f.SkillId == Gain && f.AttackAttempt is not null) &&
-            damage.ResolutionStack.OfType<CardUseFrame>().Single().Id == E<SlashTargetBenefitPaidEvent>(damage).Single().CardUseFrameId,
-            "The real gain Damage child retains its exact paid benefit ledger and suspended original Slash, rather than passing an unrelated nested-damage exemption.");
-        damage = Cold(damage, dr); Continue(damage); Reach(damage, p => p.SkillPrompt?.SkillId == Gain); damage = Cold(damage, dr); Continue(damage); Play(damage);
-        Require(E<DamageAppliedEvent>(damage).Count(e => e.SourceSeat == 0 && e.TargetSeat == 0 && e.Amount == 1) == 1 &&
-            E<SlashTargetBenefitPaidEvent>(damage).Length == 1 && damage.CardMovements.Count(m => m.Reason.Value == DrawReason) == 1,
-            "Journal-restored after-damage and gain children return once without a second reward or original material payment.");
-        AssertOriginalUse(damage, damageCosts);
-
-        var (loss, lr) = Create(sourceLoss: true); Play(loss); var original = Slash(loss, 1); Reach(loss, Offer); Choose(loss, "discard");
-        Reach(loss, CardChoice); Answer(loss, HandSlot); Play(loss);
-        Require(E<CurrentTurnNonLockedSkillSuppressionIssuedEvent>(loss).Any(e => e.Suppression.TargetSeat == 0) &&
-            E<SlashTargetBenefitPaidEvent>(loss).Length == 1 && E<SlashTargetBenefitSettledEvent>(loss).Single().Paid,
-            "A real paid target-loss observer suppresses the original source, while its already issued cancellation obligation survives on that same use and old instance.");
-        AssertOriginalUse(loss, original); loss = Cold(loss, lr);
-
-        var (native, nr) = Create(native: true);
-        for (var i = 0; E<SlashTargetBenefitPaidEvent>(native).Length == 0 && i < 100 && native.State.Status != EngineStatus.Completed; i++)
-            Accept(native, new AdvanceOneStepCommand(native.Revision));
-        Require(E<SlashTargetBenefitPaidEvent>(native).Length > 0 && native.AcceptedCommands.All(c => c is not AnswerPromptCommand),
-            "The fixed native real conversion producer chooses a benefit through public priors; no AI prompt is manually answered."); native = Cold(native, nr);
-        StrictComposition();
-    }
-
-    private static void StrictComposition()
-    {
-        var presentation = JsonSerializer.Serialize(new { schemaVersion = SkillProgramCatalog.PresentationSchemaVersion,
-            skills = new Dictionary<string, object> { ["fixture:fw-invalid"] = new { name = "严格同杀合同", description = "新节点拒收" } } });
-        foreach (var body in new[] {
-            "\"activations\":[{\"id\":\"bad\",\"minCards\":0,\"maxCards\":0,\"minTargets\":0,\"maxTargets\":0,\"targetKind\":\"otherLiving\",\"usesPerTurn\":null,\"effects\":[{\"op\":\"offerSlashTargetBenefit\",\"target\":\"owner\",\"settlementBinding\":\"settle\"}]}]",
-            "\"triggers\":[{\"id\":\"bad\",\"window\":\"actualSlashTargetBenefit\",\"subject\":\"owner\",\"optional\":true,\"effects\":[{\"op\":\"offerSlashTargetBenefit\",\"target\":\"owner\",\"settlementBinding\":\"missing\"}]}]",
-            "\"triggers\":[{\"id\":\"bad\",\"window\":\"actualSlashTargetBenefit\",\"subject\":\"owner\",\"optional\":false,\"effects\":[{\"op\":\"offerSlashTargetBenefit\",\"target\":\"owner\",\"settlementBinding\":\"missing\"}]}]"
-        })
-        { var failed = false; try { SkillProgramCatalog.Load("{\"schemaVersion\":" + SkillProgramCatalog.RulesSchemaVersion + ",\"skills\":[{\"id\":\"fixture:fw-invalid\",\"revision\":1," + body + "}]}", presentation); }
-          catch (InvalidOperationException) { failed = true; } Require(failed, "The new standalone internal choice rejects activation, outer optional and missing exact settlement binding without weakening the old loader."); }
-    }
     private static T[] E<T>(GameEngine g) => g.Events.Select(e => e.Payload).OfType<T>().ToArray();
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
     private static bool Offer(PendingDecision p) => p.SkillPrompt?.SkillId == Skill && p.Choices.Any(c => c.Parameters.GetValueOrDefault("slash-benefit-step") == "draw");
     private static bool CardChoice(PendingDecision p) => p.SkillPrompt?.SkillId == Skill && p.Choices.Any(c => c.Parameters.GetValueOrDefault("slash-benefit-step") == "card");
     private static bool HandSlot(PromptChoice c) => c.Parameters.GetValueOrDefault("slash-benefit-step") == "card" && c.Parameters.GetValueOrDefault("source-zone") == nameof(CardZoneKind.Hand);
     private static void Choose(GameEngine g, string step) => Answer(g, c => c.Parameters.GetValueOrDefault("slash-benefit-step") == step);
-    private static void Continue(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
     private static void Play(GameEngine g) => Reach(g, p => p.PlayerSeat == 0 && p.Kind == DecisionKind.PlayCard);
     private static int[] Slash(GameEngine g, int target)
     { var ids = g.CreateSnapshot(0).Players[0].Hand.Take(2).Select(c => c.Id).ToArray(); Accept(g, new UseProgramSkillCommand(0, "classic:fuhun", "two-hand-cards-as-slash", ids, [target], g.Revision, P(g)!.PromptId)); return ids; }

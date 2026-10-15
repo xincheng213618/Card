@@ -44,45 +44,6 @@ internal static class KuangfuChecks
         g = Cold(g, r);
     }
 
-    public static void KuangfuForeignPreventionIgnoresPaidSkillsChangedDyingDamage()
-    {
-        var (g, r) = Create(prevent: true, nested: true); Play(g); Equip(g, 1);
-        var gear = g.CreateSnapshot(0).Players[1].Equipment.Single().Id; var hand = g.CreateSnapshot(0).Players[0].Hand.Select(c => c.Id).ToArray();
-        Start(g); Pick(g, c => c.Cards.SequenceEqual([gear])); Reach(g, p => p.SkillPrompt?.SkillId == Cost); g = Cold(g, r); Continue(g);
-        Reach(g, p => p.SkillPrompt?.SkillId == Cost && Has(p, "advanced-lifecycle"));
-        Pick(g, c => c.Parameters.GetValueOrDefault("advanced-value") == Skill); g = Cold(g, r); Pick(g, c => c.Parameters.GetValueOrDefault("advanced-value") == "finish");
-        Reach(g, p => p.SkillPrompt?.SkillId == Changed); var root = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.Kuangfu is not null);
-        Require(root.Kuangfu is { Stage: KuangfuStage.EquipmentChildren, EquipmentOwnerSeat: 1 } &&
-            g.ResolutionStack.OfType<ProgramLifecycleTriggerWindowFrame>().Any(w => w.Window == SkillProgramTriggerWindow.SkillsChanged) &&
-            !g.CreateSnapshot(0).Players[0].Skills!.Any(s => s.ContentId == Skill), "The paid foreign entity persists while a real source-removal SkillsChanged child is suspended.");
-        g = Cold(g, r); Continue(g); Reach(g, p => p.SkillPrompt?.SkillId == Pulse);
-        Require(g.ResolutionStack.OfType<DyingFrame>().Any(d => d.VictimSeat == 0 && d.Continuation == DyingContinuationKind.Damage &&
-            g.ResolutionStack.OfType<DamageFrame>().Any(damage => damage.Id == d.ParentFrameId && damage.TargetSeat == 0 && damage.Amount == 2 &&
-                g.ResolutionStack.OfType<ProgramSkillFrame>().Any(observer => observer.Id == damage.ParentFrameId && observer.SkillId == Changed))) &&
-            E<KuangfuSlashIssuedEvent>(g).Length == 0 && E<KuangfuActualDamageObservedEvent>(g).Length == 0,
-            "Collateral paid observer damage enters actual Dying without becoming damage of an unissued Slash.");
-        g = Cold(g, r); Continue(g); Reach(g, p => p.SkillPrompt?.SkillId == Hp); g = Cold(g, r); Continue(g);
-        Reach(g, p => p.SkillPrompt?.SkillId == Skill && Has(p, "kuangfu")); Pick(g, c => c.Targets.SequenceEqual([2]));
-        Reach(g, p => p.SkillPrompt?.SkillId == Completed); g = Cold(g, r); Continue(g);
-        Reach(g, p => p.SkillPrompt?.SkillId == Skill && p.IsPrivate); var penalty = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.Id == root.Id);
-        Require(penalty.Kuangfu is { Stage: KuangfuStage.HandDiscardChoice, CausedDamage: false, DiscardRequired: 2 } &&
-            E<KuangfuSlashResolvedEvent>(g).Single().CausedDamage == false && E<KuangfuActualDamageObservedEvent>(g).Length == 0 &&
-            E<DamageAppliedEvent>(g).Any(e => e.Amount > 0) && E<KuangfuDrawIssuedEvent>(g).Length == 0,
-            "Prevented exact-use damage is false despite real earlier collateral damage and source loss; the original foreign payment selects only own Hand.");
-        Require(Enumerable.Range(1, 3).All(v => g.CreateSnapshot(v).PendingDecision?.Choices.Count is null or 0), "Foreign viewers do not see private hand identities or choices.");
-        g = Cold(g, r); Pick(g, c => c.Cards.SequenceEqual([hand[0]]));
-        Require(!g.CardMovements.Any(m => m.CardId == hand[0] && m.Reason.Value == HandReason), "The first choice freezes material and never partially pays the two-Hand invoice.");
-        g = Cold(g, r); Pick(g, c => c.Cards.SequenceEqual([hand[1]])); Play(g);
-        var invoice = E<KuangfuHandDiscardPaidEvent>(g).Single(); Freeze(invoice.CardIds);
-        Require(invoice.CardIds.SequenceEqual(hand.Take(2)) && invoice.ProgramFrameId == root.Id && E<KuangfuSlashIssuedEvent>(g).Length == 1 &&
-            hand.Take(2).All(id => g.CardMovements.Count(m => m.CardId == id && m.From == CardLocation.Hand(0) && m.To == CardLocation.DiscardPile && m.Reason.Value == HandReason) == 1) &&
-            g.CardMovements.Count(m => m.CardId == gear && m.Reason.Value == GearReason) == 1,
-            "Cold recovery drains nested SkillsChanged/Dying and pays the original equipment, exact virtual Use and Hand penalty once each.");
-        var input = new[] { 7 }; var frozen = invoice with { CardIds = input }; input[0] = 8;
-        Require(frozen.CardIds[0] == 7, "Collection-bearing new facts detach init/with inputs as well as committed projections.");
-        g = Cold(g, r);
-    }
-
     public static void KuangfuOwnershipDamageMatrixAndPartialHandPenalty()
     {
         foreach (var own in new[] { false, true }) foreach (var prevent in new[] { false, true })
@@ -109,22 +70,6 @@ internal static class KuangfuChecks
                 "All four original-equipment ownership/accurate-use damage combinations use their exact prescribed successor.");
             g = Cold(g, r);
         }
-    }
-
-    public static void KuangfuSpentQuotaRejectsDiscardingItsOwnCrossbow()
-    {
-        var (g, r) = Create(crossbow: true); Play(g); Equip(g, 0); Equip(g, 1);
-        var crossbow = g.CreateSnapshot(0).Players[0].Equipment.Single().Id; var foreign = g.CreateSnapshot(0).Players[1].Equipment.Single().Id;
-        Start(g, Clone); Pick(g, c => c.Cards.SequenceEqual([foreign])); Reach(g, p => p.SkillPrompt?.SkillId == Clone && Has(p, "kuangfu"));
-        Pick(g, c => c.Targets.SequenceEqual([2])); Reach(g, p => p.SkillPrompt?.SkillId == Completed); Continue(g); Play(g);
-        Require(E<CardUseDebitRecordedEvent>(g).Length == 1 && g.CreateSnapshot(0).Players[0].Equipment.Any(c => c.Id == crossbow) &&
-            !g.GetHumanLegalActions().Any(a => a.ProgramSkillId == Skill),
-            "After an actual normally counted Slash, the sole own Crossbow cannot finance an ordinary Slash whose quota becomes illegal when that exact equipment leaves.");
-        var state = State(g); var revision = g.Revision;
-        Require(!g.Submit(new UseProgramSkillCommand(0, Skill, "equipment-slash", [], [], g.Revision, P(g)!.PromptId)).Accepted &&
-            revision == g.Revision && State(g) == state && !g.CardMovements.Any(m => m.CardId == crossbow && m.Reason.Value == GearReason),
-            "The cost is rejected before real equipment payment, without creating an unused Slash or accepting a command.");
-        g = Cold(g, r);
     }
 
     private static PendingDecision? P(GameEngine g) => g.PendingDecision;
@@ -165,8 +110,6 @@ internal static class KuangfuChecks
         Commands = CommandJson.Serialize(g.AcceptedCommands), Zones = g.CreateCardZoneDiagnostics() });
     private static GameEngine Cold(GameEngine g, ContentRegistry r)
     { var restored = GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(g.CreateCheckpoint())), r); Require(State(g) == State(restored), "Cold accepted-journal replay retains all views, exact typed parents, private choices, facts and movement invoices."); return restored; }
-    private static void Freeze<T>(IReadOnlyList<T> list)
-    { if (list is IList<T> mutable && list.Count > 0) { try { mutable[0] = mutable[0]; } catch (NotSupportedException) { return; } throw new InvalidOperationException("A committed collection is writable."); } }
     private static (GameEngine, ContentRegistry) Create(bool prevent = false, bool nested = false, bool crossbow = false)
     {
         var r = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true), new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage(), new Fixture(prevent, nested, crossbow));

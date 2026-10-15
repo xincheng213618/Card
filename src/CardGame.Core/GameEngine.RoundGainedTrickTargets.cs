@@ -83,6 +83,7 @@ public sealed partial class GameEngine
         AdvanceRulesAndPublishState(); return SkillProgramStepOutcome.AwaitChoice;
     }
 
+    [ProgramAnswer("round-gained-trick-target")]
     private void ResolveRoundGainedTrickTargetChoice(PromptChoice selected)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("The round-gained trick lost its owning choice.");
@@ -138,6 +139,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("A round-gained trick target draft lost its frozen source, original targets or actual public choices.");
     }
 
+    [ProgramAiChoice(SkillProgramEffectOp.AdjustOneRoundGainedOrdinaryTrickTarget)]
     private PromptChoice SelectAiRoundGainedTrickTargetChoice(PendingDecision decision, ProgramSkillFrame frame)
     {
         RequireRoundGainedTrickTargetParent(frame, out var use);

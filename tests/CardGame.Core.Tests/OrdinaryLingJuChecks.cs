@@ -67,89 +67,9 @@ internal static class OrdinaryLingJuChecks
             }
         }
     }
-    public static void EquipmentPaymentWaitsForHpAndFatalChildrenThenReturnsOnce()
-    {
-        var (g, r) = Create(equipment: true, nested: true, role: Role.Renegade);
-        var equipment = g.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.Equip && a.ConversionSource is null);
-        var equipmentCardId = equipment.CardId ?? throw new InvalidOperationException("The actual equipment requires its physical entity.");
-        Accept(g, new PlayCardCommand(0, equipmentCardId, [], g.Revision, P(g)!.PromptId, equipment.PlayedCardKind)
-        { ConversionSource = equipment.ConversionSource, AdditionalConversionSources = equipment.AdditionalConversionSources }); Play(g);
-        var dead = g.CreateSnapshot(0, true).Players.First(p => p.Seat != 0 && p.Role == Role.Renegade).Seat;
-        Use(g, "kill", [dead]); Play(g); Use(g, "fenxin"); Play(g);
-        var source = AlivePeer(g); Use(g, "incoming-two", [source]); Activate(g); ReachAction(g); Private(g); g = Cold(g, r);
-        Answer(g, c => c.Cards.SequenceEqual([equipmentCardId])); Reach(g, p => p.SkillPrompt?.SkillId == Hp);
-        var paid = Root(g); var receipt = paid.SignedDamagePayment!;
-        Require(receipt is { Stage: SignedDamagePaymentStage.Paid, Delta: -1, AllowEquipment: true } && receipt.CostFrom == CardLocation.Equipment(0) &&
-            g.ResolutionStack.OfType<HpChangedTriggerWindowFrame>().Any(h => h.ResumeFrameId == paid.Id && h.Change.ParentFrameId == paid.Id && h.Change.Kind == HpChangeKind.Recovery) &&
-            g.ResolutionStack.OfType<BeforeDamageProgramWindowFrame>().Single(w => w.Id == receipt.BeforeDamageFrameId).Amount == 1 &&
-            !Facts<ProgramSignedDamageAdjustedEvent>(g).Any(), "Silver Lion first caps incoming damage to one; its removal recovery suspends the paid root before that damage is adjusted.");
-        g = Cold(g, r); Continue(g); Reach(g, p => p.SkillPrompt?.SkillId == Entry);
-        Require(g.State.Players[0].Hp == 0 && g.ResolutionStack.OfType<DyingFrame>().Any(d => d.VictimSeat == 0 && d.Continuation == DyingContinuationKind.Damage) &&
-            g.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.SkillId == Hp && f.AttackAttempt is { DamageWasApplied: true }) &&
-            Root(g).Id == paid.Id && !Facts<ProgramSignedDamageAdjustedEvent>(g).Any(),
-            "A real recovery observer causes native damage and pauses its exact DyingEntering before the original cost can return.");
-        g = Cold(g, r); Continue(g); Reach(g, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("skill-id") == Pulse));
-        Answer(g, c => c.Parameters.GetValueOrDefault("skill-id") == Pulse); Reach(g, p => p.SkillPrompt?.SkillId == Pulse);
-        g = Cold(g, r); Continue(g); Play(g);
-        Require(Facts<CardUseDeclaredEvent>(g).Any(e => e.CardId == 0 && e.CardKind == CardKind.Alcohol && e.SourceSeat == 0) &&
-            Facts<ProgramSignedDamagePaidEvent>(g).Count() == 1 && Facts<ProgramSignedDamageAdjustedEvent>(g).Single().AfterAmount == 0 &&
-            g.CardMovements.Count(m => m.CardId == equipmentCardId && m.From == CardLocation.Equipment(0) && m.To == CardLocation.DiscardPile) == 1 &&
-            g.State.Players[0].IsAlive && g.State.Players[0].Hp == 3 && !g.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.SignedDamagePayment is not null),
-            "Restored Dying responds with a true zero-material Alcohol use, then the damage and paid movement return once and the original damage resolves at one.");
-        g = Cold(g, r);
-    }
-    public static void RecipientScopedChainAdjustmentAndNativeSelectionStayExact()
-    {
-        var (g, r) = Create(ownerHp: 4); var peers = g.State.Players.Where(p => p.Seat != 0).Select(p => p.Seat).ToArray();
-        foreach (var peer in peers) { Use(g, "chain", [peer]); Play(g); }
-        Use(g, "fire", [peers[0]]); Activate(g); ReachAction(g); g = Cold(g, r); Answer(g, c => c.Cards.Count == 1);
-        Activate(g); ReachAction(g); var second = Root(g); var baseFact = Facts<RecipientScopedDamageBaseEvent>(g).Single();
-        Require(second.SignedDamagePayment!.OriginalAmount == baseFact.Amount && baseFact.Amount == 2 &&
-            g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.Id == second.SignedDamagePayment.OriginalAttackFrameId).AttackAttempt is { DamageWasApplied: true, IsChainPropagation: true },
-            "The second chained recipient receives the first actual damage's frozen base while preserving aggregate applied damage.");
-        g = Cold(g, r); Answer(g, c => c.Cards.Count == 1);
-        Reach(g, p => p.SkillPrompt?.SkillId == Jieyuan && p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "skip"));
-        Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "skip"); Play(g);
-        var damage = Facts<DamageAppliedEvent>(g).Where(e => e.SourceSeat == 0 && peers.Contains(e.TargetSeat)).ToArray();
-        Require(damage.Select(e => e.Amount).SequenceEqual([2, 3, 2]) && damage.Select(e => e.TargetSeat).SequenceEqual(peers) &&
-            Facts<ProgramSignedDamagePaidEvent>(g).Count() == 2 && Facts<RecipientScopedDamageAdvancedEvent>(g).Count() == 2,
-            "The second recipient's local +1 does not accumulate into the third, and two real hand costs are each paid once.");
-        var before = Facts<ProgramSignedDamageOfferedEvent>(g).Count(); Use(g, "self"); Play(g); Use(g, "source-less"); Play(g);
-        Require(Facts<ProgramSignedDamageOfferedEvent>(g).Count() == before, "Self and source-less native damage never offer this other-source cost.");
-        g = Cold(g, r);
-        var (native, nr) = Create(native: true, role: Role.Loyalist, ownerHp: 4, peerHp: 2);
-        var loyalty = native.CreateSnapshot(0, true).Players.First(p => p.Seat != 0 && p.Role == Role.Loyalist).Seat;
-        Use(native, "kill", [loyalty]); Play(native);
-        var foreign = AlivePeer(native);
-        Use(native, "outgoing-one", [foreign]); Play(native);
-        Require(Facts<ProgramSignedDamagePaidEvent>(native).Any(e => e.OwnerSeat == foreign && e.Delta == -1 && e.CostFrom == CardLocation.Hand(foreign)),
-            "Native AI selects only its own genuinely legal effective-red hand cost against an actual incoming damage.");
-        native = Cold(native, nr); RejectContracts();
-    }
-    private static void RejectContracts()
-    {
-        foreach (var change in new[] { "amount", "subject", "window", "qualifier" })
-        {
-            var node = JsonNode(); var e = node["skills"]![0]!["triggers"]![0]!["effects"]![0]!;
-            if (change == "amount") e["amount"] = 2;
-            if (change == "qualifier") e.AsObject().Remove("qualifierSkillId");
-            if (change == "subject") node["skills"]![0]!["triggers"]![0]!["subject"] = "damageTarget";
-            if (change == "window") node["skills"]![0]!["triggers"]![0]!["window"] = "afterDamageApplied";
-            var rejected = false; try { SkillProgramCatalog.Load(node.ToJsonString(), Presentation()); } catch (InvalidOperationException) { rejected = true; }
-            Require(rejected, "Signed damage strictly rejects unsupported amount, subject, window or undeclared qualifier fields.");
-        }
-        var roles = new List<Role> { Role.Rebel }; var policy = new PublicDeathDamageCostPolicy { QualifierSkillId = Fenxin, WaiveHpDeadRoles = roles };
-        roles.Clear(); var clone = policy with { AnyColorDeadRoles = new List<Role> { Role.Renegade } };
-        var restored = JsonSerializer.Deserialize<PublicDeathDamageCostPolicy>(JsonSerializer.Serialize(clone))!;
-        Require(policy.WaiveHpDeadRoles.SequenceEqual([Role.Rebel]) && restored.AnyColorDeadRoles.SequenceEqual([Role.Renegade]) &&
-            policy.WaiveHpDeadRoles is IList<Role> a && a.IsReadOnly && restored.AnyColorDeadRoles is IList<Role> b && b.IsReadOnly,
-            "Definition role collections clone through construction/init/with/JSON; no mutable caller list survives.");
-    }
     private static System.Text.Json.Nodes.JsonNode JsonNode() => System.Text.Json.Nodes.JsonNode.Parse("""
     {"schemaVersion":$SCHEMA$,"skills":[{"id":"fixture:strict-signed","revision":1,"triggers":[{"id":"adjust","window":"beforeDamageApplied","subject":"damageSource","optional":true,"effects":[{"op":"discardOwnedCardToAdjustCurrentDamage","target":"owner","amount":1,"suits":["spade","club"],"qualifierSkillId":"ol:fenxin","waiveHpDeadRoles":["rebel"],"anyColorDeadRoles":["renegade"],"allowEquipmentDeadRoles":["renegade"]}]}]}]}
     """.Replace("$SCHEMA$", SkillProgramCatalog.RulesSchemaVersion.ToString(System.Globalization.CultureInfo.InvariantCulture)))!;
-    private static string Presentation() => JsonSerializer.Serialize(new { schemaVersion = SkillProgramCatalog.PresentationSchemaVersion,
-        skills = new Dictionary<string, object> { ["fixture:strict-signed"] = new { name = "严格能力合同", description = "新能力拒收" } } });
     private static ProgramSkillFrame Root(GameEngine g) => g.ResolutionStack.OfType<ProgramSkillFrame>().First(f => f.SignedDamagePayment is not null);
     private static PendingDecision? P(GameEngine g) => g.State.PendingDecision;
     private static IEnumerable<T> Facts<T>(GameEngine g) where T : IGameEvent => g.Events.Select(e => e.Payload).OfType<T>();

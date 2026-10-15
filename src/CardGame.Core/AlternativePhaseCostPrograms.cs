@@ -166,6 +166,7 @@ public sealed partial class GameEngine
                 current.Parameters.All(pair => choice.Parameters.GetValueOrDefault(pair.Key) == pair.Value));
     }
 
+    [ProgramAnswer("alternative-phase-cost-card", "alternative-phase-cost-marker")]
     private void ResolveAlternativePhaseCost(PromptChoice choice)
     {
         if (!IsAlternativePhaseCostChoiceLegal(choice)) throw new InvalidOperationException("The published alternative cost is no longer payable.");
@@ -222,6 +223,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("A paid alternative phase cost lost its exact producer receipt.");
     }
 
+    [ProgramAiChoice(SkillProgramEffectOp.PayOwnedCardOrMarker)]
     private PromptChoice SelectAiAlternativePhaseCost(PendingDecision decision, ProgramSkillFrame frame)
     {
         // The owner may inspect its own materials; another player's private hand is never read.
@@ -263,6 +265,7 @@ public sealed partial class GameEngine
             (frame.Window == SkillProgramTriggerWindow.JudgmentPhaseStarting && receipt.SkippedPhase == SkillProgramTurnPhase.Judgment ||
              frame.Window == SkillProgramTriggerWindow.DrawPhaseStarting && receipt.SkippedPhase == SkillProgramTurnPhase.Draw));
 
+    [ProgramAnswer("decline-owned-field-move")]
     private void ResolveDeclinedOwnedFieldMove(PromptChoice choice)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame frame ||

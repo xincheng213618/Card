@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:wenji",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "actual-play-gift",
+          "window": "playPhaseStarting",
+          "subject": "owner",
+          "turnOwnerScope": "own",
+          "optional": true,
+          "effects": [
+            {
+              "op": "receiveWenjiGiftAndArmTurnName",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:tunjiang",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "untargeted-unskipped-ending",
+          "window": "turnEnding",
+          "subject": "owner",
+          "turnOwnerScope": "own",
+          "optional": true,
+          "effects": [
+            {
+              "op": "drawForUnskippedUntargetedPlay",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

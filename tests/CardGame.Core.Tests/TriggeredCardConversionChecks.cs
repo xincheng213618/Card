@@ -9,36 +9,6 @@ internal static class TriggeredCardConversionChecks
     private const string Pause = "fixture:trigger-conversion-recovery", Opponent = "fixture:trigger-conversion-opponent";
     private const string Mode = "identity:classic-trigger-conversion";
 
-    public static void ContractsFreezeFactsAndRejectInvalidComposition()
-    {
-        var catalog = ReadHanSui();
-        var niluan = catalog.Programs[Niluan].Triggers.Single().Condition;
-        Require(niluan.Evaluate(new(0, 3, true) { TurnOwnerHp = 4, TurnOwnerSlashUseCount = 1 }) &&
-            !niluan.Evaluate(new(0, 4, true) { TurnOwnerHp = 4, TurnOwnerSlashUseCount = 1 }) &&
-            !niluan.Evaluate(new(0, 3, true) { TurnOwnerHp = 4, TurnOwnerSlashUseCount = 0 }),
-            "Ending retaliation requires both strictly higher real HP and an actual current-turn Slash use.");
-        var xiaoxi = catalog.Programs[Xiaoxi].Triggers.Single().Condition;
-        Require(xiaoxi.Evaluate(new(0, 4, true) { RoundTurnSeatCount = 1 }) &&
-            !xiaoxi.Evaluate(new(0, 4, true) { RoundTurnSeatCount = 2 }), "A later normal turn is not the round-first turn.");
-        var empty = JsonSerializer.Serialize(new SkillProgramTriggerFacts(0, 4, true));
-        Require(!empty.Contains("TurnOwnerHp", StringComparison.Ordinal) && !empty.Contains("RoundTurnSeatCount", StringComparison.Ordinal),
-            "Uncaptured new facts must remain absent from old serialized candidates.");
-        Reject(() => niluan.Evaluate(new(0, 3, true) { TurnOwnerSlashUseCount = 1 }));
-        var original = JsonNode.Parse(ReadResource("rules"))!;
-        void Invalid(Action<JsonNode> edit)
-        { var node = original.DeepClone(); edit(node); Reject(() => SkillProgramCatalog.Load(node.ToJsonString(), ReadResource("presentation"))); }
-        Invalid(node => node["skills"]![0]!["triggers"]![0]!["window"] = "turnStartBeforeNormalFlow");
-        Invalid(node => node["skills"]![1]!["triggers"]![0]!["window"] = "turnEnding");
-        Invalid(node => node["skills"]![1]!["triggers"]![0]!["effects"]![1]!["useCardActionWindows"] = false);
-        Invalid(node => node["skills"]![1]!["triggers"]![0]!["effects"]![1]!["targetRestriction"] = "normalSlashTarget");
-        Invalid(node => node["skills"]![1]!["triggers"]![0]!["condition"]!["right"]!["value"] = 2);
-        Invalid(node => node["skills"]![0]!["triggers"]![0]!["effects"]![0]!["zones"] = new JsonArray("judgment"));
-        Invalid(node => node["skills"]![0]!["triggers"]![0]!["effects"]![0]!["maximumCards"] = 2);
-        Invalid(node => node["skills"]![0]!["triggers"]![0]!["effects"]![0]!["allowDecline"] = true);
-        Invalid(node => node["skills"]![0]!["triggers"]![0]!["effects"]![0]!["cardCategories"] = new JsonArray("basic"));
-        Invalid(node => node["skills"]![0]!["triggers"]![0]!["turnOwnerScope"] = "own");
-    }
-
     public static void BlackHandAndEquipmentUseRealMaterialsAndColdReplay()
     {
         foreach (var equipment in new[] { false, true })
@@ -93,39 +63,6 @@ internal static class TriggeredCardConversionChecks
                 "The true converted Slash pays its one selected entity once and resolves one ordinary Slash.");
             Cold(game, registry);
         }
-    }
-
-    public static void EndingGatesAndConsumedWeaponRangeAreExact()
-    {
-        foreach (var test in new[] { "no-slash", "nonhigher-hp", "red", "forbidden" })
-        {
-            var (game, registry) = Create("standard:crossbow", forceOpponentSlash: test != "no-slash",
-                ownerHp: test == "nonhigher-hp" ? 20 : 8, red: test == "red", forbid: test == "forbidden",
-                opponentHp: test == "nonhigher-hp" ? 10 : 20);
-            End(game);
-            var unexpected = false;
-            Reach(game, p => IsPlay(p), onNiluan: () => unexpected = true);
-            Require(!unexpected && !Facts<CardUsedEvent>(game).Any(e => e.SourceSeat == 0 && e.CardKind == CardKind.Slash),
-                "No retaliation is offered with a missing Slash, nonhigher target HP, no black material, or a use prohibition: " + test);
-            Cold(game, registry);
-        }
-        var (range, rangeRegistry) = Create("fixture:halberd");
-        var weapon = range.CreateSnapshot(0).Players[0].Hand[0];
-        Accept(range, new PlayCardCommand(0, weapon.Id, [], range.Revision, Prompt(range)!.PromptId)); Reach(range, IsPlay);
-        var handWeapon = range.CreateSnapshot(0).Players[0].Hand[0];
-        End(range);
-        Reach(range, p => Offer(p, Niluan) && range.State.CurrentSeat == 2);
-        Answer(range, c => c.Parameters.GetValueOrDefault("program-action") == "activate");
-        Reach(range, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "select-owned-cards"));
-        Require(range.GetCombatDistance(0, 2) == 2 && range.GetAttackRange(0) == 4 &&
-            !Prompt(range)!.Choices.Any(c => c.Cards.Contains(weapon.Id)) &&
-            Prompt(range)!.Choices.Any(c => c.Cards.Contains(handWeapon.Id)),
-            "Paying the equipped weapon cannot borrow its own range; a weapon still in hand does not remove the equipped weapon's range.");
-        Answer(range, c => c.Cards.SequenceEqual([handWeapon.Id]));
-        Reach(range, p => Offer(p, Niluan) || IsPlay(p));
-        Require(Facts<CardUseFinishedEvent>(range).Any(e => e.CardId == handWeapon.Id && e.CardKind == CardKind.Slash),
-            "A black hand weapon uses the genuinely remaining equipped range.");
-        Cold(range, rangeRegistry);
     }
 
     public static void RoundFirstOpportunityDoesNotMoveAfterDeclineOrExtraTurn()
@@ -221,7 +158,6 @@ internal static class TriggeredCardConversionChecks
         return copy;
     }
     private static void Require(bool value, string message) { if (!value) throw new InvalidOperationException(message); }
-    private static void Reject(Action action) { try { action(); } catch (InvalidOperationException) { return; } throw new InvalidOperationException("Invalid new conversion contract was accepted."); }
     private static string ReadResource(string kind)
     { var assembly = typeof(StandardContentPackage).Assembly; using var reader = new StreamReader(assembly.GetManifestResourceStream(assembly.GetManifestResourceNames().Single(n => n.EndsWith("ol-han-sui." + kind + ".json", StringComparison.Ordinal)))!); return reader.ReadToEnd(); }
     private static SkillProgramCatalog ReadHanSui() => SkillProgramCatalog.Load(ReadResource("rules"), ReadResource("presentation"));

@@ -10,15 +10,18 @@ public sealed partial class GameEngine
             b.Source.SkillId == source.SkillId && b.Source.SkillInstanceId == source.SkillInstanceId &&
             b.Policy.Id == source.BindingId);
 
-    private PindianRandomSelection CreatePindianRandomSelection(PindianFrame frame,
-        bool deferredTop = false, int? deferredCard = null)
+    private IReadOnlyList<PindianRandomCandidate> CollectPindianRandomPolicies(int source,int opponent)
     {
-        var opponent = frame.OpponentSeat!.Value;
-        var candidates = new[] { (Owner: frame.SourceSeat, Target: opponent), (Owner: opponent, Target: frame.SourceSeat) }
+        var candidates = new[] { (Owner: source, Target: opponent), (Owner: opponent, Target: source) }
             .SelectMany(p => CardPolicies(_players[p.Owner], SkillProgramCardPolicyKind.PindianOpponentRandomHand)
                 .Take(1).Select(b => new PindianRandomCandidate(p.Owner, p.Target,
                     new(b.Source.SkillId, b.Policy.Id, p.Owner, b.Source.SkillInstanceId)))).ToArray();
-        return new(Array.AsReadOnly(candidates), Array.AsReadOnly(Array.Empty<PindianRandomReceipt>()),
+        return Array.AsReadOnly(candidates);
+    }
+    private PindianRandomSelection CreatePindianRandomSelection(PindianFrame frame,
+        bool deferredTop = false, int? deferredCard = null)
+    {
+        return new(CollectPindianRandomPolicies(frame.SourceSeat,frame.OpponentSeat!.Value), Array.AsReadOnly(Array.Empty<PindianRandomReceipt>()),
             DeferredSourceTop: deferredTop, DeferredSourceCardId: deferredCard);
     }
 

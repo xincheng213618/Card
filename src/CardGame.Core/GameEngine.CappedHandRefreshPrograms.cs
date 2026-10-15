@@ -112,6 +112,7 @@ public sealed partial class GameEngine
         _status = _players[draft.TargetSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
 
+    [ProgramAnswer("capped-hand-discard")]
     private void ResolveCappedHandRefreshChoice(PromptChoice selected)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("Capped hand discard lost its frame.");

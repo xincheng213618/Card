@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "ol:wuniang", "revision": 1,
+      "viewAs": [{ "id": "non-basic-as-slash", "inputKinds": [], "inputSuits": [], "inputCategories": ["trick", "equipment"],
+        "sourceZones": ["hand", "equipment"], "outputKind": "slash", "forPlay": true, "forResponse": false,
+        "nonBasicUnrespondableSlash": true }],
+      "triggers": [{ "id": "converted-slash-gain", "window": "cardUseCompleted", "ownerRelation": "conversionSource",
+        "sourceSkillId": "ol:wuniang", "sourceViewAsId": "non-basic-as-slash", "singleActionInstance": true,
+        "optional": false, "effects": [{ "op": "takeConvertedSlashTargetAndResetLimitedSkill", "target": "owner", "sourceBind": "ol:zhennan" }] }]
+    },
+    { "id": "ol:zhennan", "revision": 1, "triggers": [
+      { "id": "chosen-assault", "window": "turnStartBeforeNormalFlow", "subject": "owner", "optional": true,
+        "usageScope": "game", "usageLimit": 1, "effects": [{ "op": "payTwoForChosenAssaultAndApplyTargetOutcomes", "target": "owner" }] }
+    ] },
+    { "id": "ol:xushen", "revision": 1, "triggers": [
+      { "id": "dying-recipient", "window": "dyingEntering", "subject": "owner", "optional": true,
+        "usageScope": "game", "usageLimit": 1,
+        "effects": [{ "op": "dyingRecipientChooseReplaceOrGrantThenRecover", "target": "owner", "skillIds": ["ol:zhengnan", "ol:zhennan"] }] }
+    ] }
+  ]
+}

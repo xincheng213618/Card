@@ -1,0 +1,249 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:lianji",
+      "activations": [
+        {
+          "usesPerPhase": 1,
+          "minTargets": 1,
+          "maxCards": 1,
+          "effects": [
+            {
+              "op": "resolveLianjiPaidWeaponAndSlash",
+              "target": "owner"
+            }
+          ],
+          "id": "paid-weapon-plan",
+          "maxTargets": 1,
+          "minCards": 1,
+          "sourceZones": [
+            "hand"
+          ],
+          "targetKind": "otherLiving",
+          "usesPerTurn": null
+        }
+      ],
+      "revision": 1
+    },
+    {
+      "triggers": [
+        {
+          "turnOwnerScope": "own",
+          "effects": [
+            {
+              "op": "awakenFromIssuedLianjiSlashDamage",
+              "target": "owner"
+            }
+          ],
+          "usageScope": "game",
+          "usageLimit": 1,
+          "id": "causal-plan-awakening",
+          "subject": "owner",
+          "optional": false,
+          "window": "turnStartBeforeNormalFlow",
+          "priority": 0
+        }
+      ],
+      "id": "ol:moucheng",
+      "revision": 1
+    },
+    {
+      "viewAs": [
+        {
+          "singleCardTrickUse": true,
+          "forResponse": false,
+          "inputSuits": [],
+          "id": "random-as-drawtwo",
+          "inputKinds": [],
+          "forPlay": true,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "drawTwo"
+        },
+        {
+          "singleCardTrickUse": true,
+          "forResponse": false,
+          "inputSuits": [],
+          "id": "random-as-duel",
+          "inputKinds": [],
+          "forPlay": true,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "duel"
+        },
+        {
+          "singleCardTrickUse": true,
+          "forResponse": false,
+          "inputSuits": [],
+          "id": "random-as-barbarianassault",
+          "inputKinds": [],
+          "forPlay": true,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "barbarianAssault"
+        },
+        {
+          "singleCardTrickUse": true,
+          "forResponse": false,
+          "inputSuits": [],
+          "id": "random-as-arrowbarrage",
+          "inputKinds": [],
+          "forPlay": true,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "arrowBarrage"
+        },
+        {
+          "singleCardTrickUse": true,
+          "forResponse": false,
+          "inputSuits": [],
+          "id": "random-as-peachgarden",
+          "inputKinds": [],
+          "forPlay": true,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "peachGarden"
+        },
+        {
+          "singleCardTrickUse": true,
+          "forResponse": false,
+          "inputSuits": [],
+          "id": "random-as-fivegrains",
+          "inputKinds": [],
+          "forPlay": true,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "fiveGrains"
+        },
+        {
+          "singleCardTrickUse": true,
+          "forResponse": false,
+          "inputSuits": [],
+          "id": "random-as-dismantlement",
+          "inputKinds": [],
+          "forPlay": true,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "dismantlement"
+        },
+        {
+          "singleCardTrickUse": true,
+          "forResponse": false,
+          "inputSuits": [],
+          "id": "random-as-snatch",
+          "inputKinds": [],
+          "forPlay": true,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "snatch"
+        },
+        {
+          "singleCardTrickUse": true,
+          "forResponse": false,
+          "inputSuits": [],
+          "id": "random-as-fireattack",
+          "inputKinds": [],
+          "forPlay": true,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "fireAttack"
+        },
+        {
+          "singleCardTrickUse": true,
+          "forResponse": false,
+          "inputSuits": [],
+          "id": "random-as-ironchain",
+          "inputKinds": [],
+          "forPlay": true,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "ironChain"
+        },
+        {
+          "singleCardTrickUse": true,
+          "forResponse": false,
+          "inputSuits": [],
+          "id": "random-as-borrowedsword",
+          "inputKinds": [],
+          "forPlay": true,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "borrowedSword"
+        },
+        {
+          "forResponse": false,
+          "inputSuits": [],
+          "id": "random-as-indulgence",
+          "inputKinds": [],
+          "forPlay": true,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "extendedUse": true,
+          "outputKind": "indulgence"
+        },
+        {
+          "forResponse": false,
+          "inputSuits": [],
+          "id": "random-as-supplyshortage",
+          "inputKinds": [],
+          "forPlay": true,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "extendedUse": true,
+          "outputKind": "supplyShortage"
+        }
+      ],
+      "id": "ol:jingong",
+      "activations": [
+        {
+          "usesPerPhase": 1,
+          "minTargets": 0,
+          "maxCards": 1,
+          "effects": [
+            {
+              "op": "useThreeRandomTricksFromSelectedMaterial",
+              "target": "owner"
+            }
+          ],
+          "id": "three-random-tricks",
+          "maxTargets": 0,
+          "minCards": 1,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "targetKind": "anyLiving",
+          "usesPerTurn": null
+        }
+      ],
+      "revision": 1
+    }
+  ]
+}

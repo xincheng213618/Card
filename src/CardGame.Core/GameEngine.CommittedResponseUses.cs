@@ -1,9 +1,10 @@
-namespace CardGame.Core;
+﻿namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
     private bool TryBeginCommittedResponseUsePrograms(CardAttackHandle? attack, CardActionContext action, ProgramCardContinuation continuation)
     {
+        if (TryBeginCaoChunPaidResponseDebt(attack, action, continuation)) return true;
         if (_winner != Winner.None || !IsCompletedResponseUse(action, continuation) ||
             continuation == ProgramCardContinuation.Dodge &&
             (attack is null || attack.EffectiveCardKind is not { } incoming || !IsSlashCard(incoming) || attack.TargetSeat != action.ActorSeat)) return false;

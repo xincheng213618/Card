@@ -8,16 +8,79 @@ namespace CardGame.Core;
 /// </summary>
 internal static class CommittedEventProjection
 {
+    // The invoice can also be embedded in trusted movement/payment frames. Its
+    // action constructor already detaches every nested list; copy it explicitly
+    // here so callers need not depend on the producer's object identity.
+    internal static LiJueUseDiscardInvoice FreezeLiJueUseDiscard(LiJueUseDiscardInvoice value)
+    {
+        var a = value.Action;
+        return value with
+        {
+            FinishedMovements = FreezeList(value.FinishedMovements),
+            Action = new CardActionContext(a.ActionId, a.ParentActionId, a.Type, a.ActorSeat, a.ProviderSeat,
+                a.RequesterSeat, a.ResponderSeat, a.OpponentSeat, a.EffectiveKind, a.TargetSeats,
+                a.PhysicalCards, a.ConversionChain, a.DesignatedTargetSeats,
+                a.EffectiveSuit, a.EffectiveRank, a.EffectiveIsRed, a.FactionOrigin)
+        };
+    }
+
     private static RoundGainedUseQualification FreezeRoundQualification(RoundGainedUseQualification value) =>
         value with { MaterialGains = FreezeList(value.MaterialGains) };
     private static RicePileReceipt FreezeRiceReceipt(RicePileReceipt value) => value with
     { Selected = FreezeList(value.Selected), CardIds = FreezeList(value.CardIds), From = FreezeList(value.From),
         Choices = Array.AsReadOnly(value.Choices.Select(PromptChoiceProjection.Freeze).ToArray()) };
 
+    private static JianjiNativeReceipt FreezeJianjiReceipt(JianjiNativeReceipt receipt) => receipt with
+    {
+        Action = receipt.Action with
+        {
+            TargetSeats = FreezeList(receipt.Action.TargetSeats),
+            AdditionalConversionSources = receipt.Action.AdditionalConversionSources is { } sources ? FreezeList(sources) : null,
+            SelectableCardIds = FreezeList(receipt.Action.SelectableCardIds),
+            SelectableTargetSeats = FreezeList(receipt.Action.SelectableTargetSeats),
+            SelectableCardTargets = receipt.Action.SelectableCardTargets is { } pairs ? FreezeList(pairs) : null,
+            SelectableTargetSequences = receipt.Action.SelectableTargetSequences is { } sequences
+                ? Array.AsReadOnly(sequences.Select(sequence => (IReadOnlyList<int>)FreezeList(sequence)).ToArray()) : null
+        }
+    };
+
     // Keep collection-bearing built-in facts here when adding a mechanism.
     // Rules see the original fact first; only the committed projection is copied.
     public static IGameEvent Freeze(IGameEvent payload) => payload switch
     {
+        // CardActionContext detaches all nested collections at construction;
+        // the other embedded native payment records contain scalars only.
+        QigongNativeIssuedEvent value => value with { Receipt = value.Receipt with { } },
+        QigongNativePaidEvent value => value with { Receipt = value.Receipt with { } },
+        NeifaTargetsResolvedEvent value => value with { OriginalTargets = FreezeList(value.OriginalTargets), ResultTargets = FreezeList(value.ResultTargets) },
+        JianjiUseIssuedEvent value => value with { Receipt = FreezeJianjiReceipt(value.Receipt) },
+        JianjiUseReturnedEvent value => value with { Receipt = FreezeJianjiReceipt(value.Receipt) },
+        SuFeiActualUseRecordedEvent value => value with { Use = value.Use with { PrimaryTargets = FreezeList(value.Use.PrimaryTargets) } },
+        SimaHuiChoiceStartedEvent value => value with { Candidates = FreezeList(value.Candidates) },
+        SimaHuiTopViewedEvent value => value with { CardIds = FreezeList(value.CardIds) },
+        SimaHuiUnassignedReturnedEvent value => value with { CardIds = FreezeList(value.CardIds) },
+        SimaHuiYeyanSealsPaidEvent value => value with { GrantSourceIds = FreezeList(value.GrantSourceIds), MaterialCardIds = FreezeList(value.MaterialCardIds) },
+        XuRongCardsPaidEvent value => value with { CardIds = FreezeList(value.CardIds) },
+        XuRongCausalClaimIssuedEvent value => value with { Receipt = value.Receipt with { CardIds = FreezeList(value.Receipt.CardIds) } },
+        BeiMiHuChoiceStartedEvent value => value with { Candidates = FreezeList(value.Candidates) },
+        BeiMiHuAwakeningCompletedEvent value => value with { MarkedSeats = FreezeList(value.MarkedSeats) },
+        BeiMiHuTargetsPaidEvent value => value with { Receipt = value.Receipt with
+            { BeforeTargets = FreezeList(value.Receipt.BeforeTargets), AfterTargets = FreezeList(value.Receipt.AfterTargets), PaidMarkerSeats = FreezeList(value.Receipt.PaidMarkerSeats) } },
+        WangYunNativeUseIssuedEvent value => value with { Origin = value.Origin with { Materials = FreezeList(value.Origin.Materials), Targets = FreezeList(value.Origin.Targets) } },
+        WangYunNativePaymentCompletedEvent value => value with { Origin = value.Origin with { Materials = FreezeList(value.Origin.Materials), Targets = FreezeList(value.Origin.Targets) } },
+        FrozenHandRosterStartedEvent value => value with { Seats = FreezeList(value.Seats) },
+        BuZhiMovementPaidEvent value => value with { CardIds = FreezeList(value.CardIds) },
+        OldHandDispositionPaymentEvent value => value with { CardIds = FreezeList(value.CardIds) },
+        ProgramBao2025StartedEvent value => value with { Receipt = value.Receipt with { Choices = FreezeList(value.Receipt.Choices) } },
+        ProgramBao2025MovementIssuedEvent value => value with { Receipt = value.Receipt with { Choices = FreezeList(value.Receipt.Choices) } },
+        ProgramLimitedSkillInstancesResetEvent value => value with { Entries = FreezeList(value.Entries) },
+        ChosenAssaultUseIssuedEvent value => value with { SelectedTargets = FreezeList(value.SelectedTargets) },
+        DyingRecipientSkillChoiceEvent value => value with { LostGrantIds = FreezeList(value.LostGrantIds) },
+        SimultaneousPindianStartedEvent value => value with { Opponents = FreezeList(value.Opponents) },
+        PindianCardsRevealedEvent value => value with { Cards = FreezeList(value.Cards) },
+        SimultaneousPindianClaimsIssuedEvent value => value with { Claims = value.Claims with { Claims = Array.AsReadOnly(value.Claims.Claims.Select(c => c with { CardIds = FreezeList(c.CardIds) }).ToArray()) } },
+        SimultaneousPindianClaimPaidEvent value => value with { CardIds = FreezeList(value.CardIds) },
+        DeathGrowthDrawIssuedEvent value => value with { Receipt = value.Receipt with { SkillIds = FreezeList(value.Receipt.SkillIds) } },
         DamageZoneAcquisitionStartedEvent value => value with { Receipt = value.Receipt with {
             Cards = FreezeList(value.Receipt.Cards), From = FreezeList(value.Receipt.From),
             Choices = Array.AsReadOnly(value.Receipt.Choices.Select(PromptChoiceProjection.Freeze).ToArray()) } },

@@ -123,12 +123,6 @@ internal static class ProgramOwnedCardsChecks
         skills = new Dictionary<string, object> { [SkillId] = new { name = "区域牌集合", description = "选择自己的牌，再统一移动。" } }
     });
     private static SkillProgram Load(int count, bool other = false) => SkillProgramCatalog.Load(Rules(count, other), Presentation).Programs[SkillId];
-    private static void Reject(string rules, string expected)
-    {
-        try { _ = SkillProgramCatalog.Load(rules, Presentation); }
-        catch (InvalidOperationException ex) when (ex.Message.Contains(expected, StringComparison.OrdinalIgnoreCase)) { return; }
-        throw new InvalidOperationException($"Expected definition rejection: {expected}");
-    }
 
     private static (GameEngine Game, ContentRegistry Registry) Create(int count, bool equipmentOnly = false)
     {

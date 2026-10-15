@@ -72,6 +72,7 @@ public sealed partial class GameEngine
         }).ToArray();
         PublishNamedTurnFlow(frame, choices, $"请选择 {draft.Required - draft.SelectedIds.Count} 张手牌弃置。", true);
     }
+    [ProgramAnswer("named-turn-flow")]
     private void ResolveNamedTurnFlowChoice(PromptChoice selected)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("Turn-count choice lost its frame.");

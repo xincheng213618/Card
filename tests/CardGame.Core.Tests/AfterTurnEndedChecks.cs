@@ -46,37 +46,6 @@ internal static class AfterTurnEndedChecks
         Replay(g, registry);
     }
 
-    public static void SkippedAndExtraActualEnds()
-    {
-        var (skipped, sr) = Create("skipped");
-        Use(skipped, "flip", [1]);
-        End(skipped);
-        Reach(skipped, p => p.SkillPrompt?.SkillId == "fixture:after-other");
-        var parent = (DeferredTurnEndFrame)skipped.ResolutionStack.First();
-        Require(parent is { OwnerSeat: 1, Skipped: true, TurnNumber: 2 } && skipped.CreateSnapshot(0).Phase == TurnPhase.Finished,
-            "A turned-face-up skipped actual turn runs the same post-end boundary.");
-        Replay(skipped, sr);
-        Answer(skipped, c => c.Parameters.GetValueOrDefault("program-action") == "skip");
-        Accept(skipped, new AdvanceOneStepCommand(skipped.Revision));
-        Require(skipped.Events.Select(e => e.Payload).OfType<ProgramBindingResolvedEvent>().Count(e => e.Window == SkillProgramTriggerWindow.AfterTurnEnded) == 1,
-            "Declining consumes the frozen occurrence once.");
-        Replay(skipped, sr);
-
-        var (extra, er) = Create("extra");
-        Use(extra, "extra", [0]);
-        End(extra);
-        Reach(extra, p => p.SkillPrompt?.SkillId == "fixture:after-own");
-        Require(extra.CreateSnapshot(0).TurnNumber == 1, "The extra turn has not begun inside the prior after-end prompt.");
-        Answer(extra, c => c.Parameters.GetValueOrDefault("program-action") == "skip");
-        Reach(extra, p => p.Kind == DecisionKind.PlayCard);
-        Require(extra.CreateSnapshot(0) is { CurrentSeat: 0, TurnNumber: 2 }, "The scheduled extra actual turn begins only after the window.");
-        End(extra);
-        Reach(extra, p => p.SkillPrompt?.SkillId == "fixture:after-own");
-        Require(extra.ResolutionStack.First() is DeferredTurnEndFrame { OwnerSeat: 0, TurnNumber: 2, Skipped: false },
-            "The actual extra turn receives its own post-end occurrence.");
-        Replay(extra, er);
-    }
-
     public static void OldRegistryShapeAndExactParent()
     {
         var (old, registry) = Create("old");

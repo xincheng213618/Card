@@ -52,6 +52,10 @@ public sealed partial class GameEngine
         var parent = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("A paid program Slash lost its original request.");
         if (parent.Id != p.ParentFrameId || parent.InstructionIndex != p.Cursor)
             throw new InvalidOperationException("A paid program Slash moved its original instruction cursor.");
+        if (IsQigongRequest(parent))
+        { PrepareQigongDrawFundedSlash(parent,p); BeginDrawFundedDistinctBasicSlash(actor,frame.TargetSeats,p,null,false,parent.Id); return; }
+        if (IsCaoChunInitialRequest(parent))
+        { PrepareCaoChunDrawFundedSlash(parent,p); BeginDrawFundedDistinctBasicSlash(actor,frame.TargetSeats,p,null,false,parent.Id); return; }
         var effect = ProgramInstructionResolver.Default.Resolve(parent, _contentRegistry.GetSkill(parent.SkillId).Program!).GetPausedInstruction(parent.InstructionIndex).Effect;
         if (p.Intent == DrawFundedDistinctBasicIntent.ProgramSlash)
             CommitProgramChoiceResult(parent.Id, effect.ResultBind!, RequestSlashByTargetProgramOperationDescriptor.UsedSlashOption, actor.Seat, "摸牌后视为使用【杀】。");

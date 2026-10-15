@@ -4,7 +4,7 @@ public sealed partial class GameEngine
 {
     private RuleQueryEvaluation ApplyHpOrderedDistance(CharacterState source, CharacterState target, RuleQueryEvaluation original)
     {
-        if (source.Seat == target.Seat || target.Hp > source.Hp) return original;
+        if (!source.HasHpValue || !target.HasHpValue || source.Seat == target.Seat || target.Hp > source.Hp) return original;
         var policies = CardPolicies(source, SkillProgramCardPolicyKind.DistanceOneToNotHigherHp).ToArray();
         if (policies.Length == 0) return original;
         // A final, directed Set deliberately follows both horses and additive

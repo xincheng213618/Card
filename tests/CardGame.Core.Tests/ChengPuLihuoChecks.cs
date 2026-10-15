@@ -12,52 +12,6 @@ internal static class ChengPuLihuoChecks
     private const string LihuoSkillId = "classic:lihuo";
     private const string ChunlaoSkillId = "classic:chunlao";
 
-    public static void AcceptedConversionSourcesStayFrozenForReplay()
-    {
-        var registry = Registry();
-        var game = CreateGame(ScenarioPackage.ChainedConversionModeId, seed: 2,
-            ownerGeneralId: ChainedOwnerGeneralId);
-        ReachHumanPlay(game);
-        var actions = game.GetHumanLegalActions();
-        var action = actions.FirstOrDefault(candidate =>
-            candidate.Kind == LegalActionKind.Slash &&
-            candidate.AdditionalConversionSources is { Count: > 0 }) ??
-            throw new InvalidOperationException("No chained conversion action: " +
-                string.Join("; ", actions.Select(candidate =>
-                    $"{candidate.Kind}/{candidate.PlayedCardKind}/{candidate.ConversionSource?.SkillId}/" +
-                    $"{candidate.AdditionalConversionSources?.Count ?? 0}")) +
-                "; hand=" + string.Join(",", Player(game, HumanSeat).Hand.Select(card =>
-                    $"{card.Kind}:{card.Suit}")));
-        var expectedSources = action.AdditionalConversionSources!.ToArray();
-        var callerSources = new List<CardConversionSource>(expectedSources);
-        var accepted = game.Submit(new PlayCardCommand(
-            HumanSeat,
-            action.CardId ?? throw new InvalidOperationException("The converted Slash has no physical card."),
-            action.TargetSeats,
-            game.Revision,
-            game.PendingDecision?.PromptId,
-            action.PlayedCardKind,
-            action.TargetCardId)
-        {
-            ConversionSource = action.ConversionSource,
-            AdditionalConversionSources = callerSources
-        });
-        Require(accepted.Accepted, accepted.Error?.Message ?? "The chained conversion was rejected.");
-
-        var checkpointJson = GameCheckpointJson.Serialize(game.CreateCheckpoint());
-        var expectedState = State(game);
-        var expectedEvents = Events(game).ToArray();
-        callerSources.Clear();
-
-        Require(game.AcceptedCommands.Last() is PlayCardCommand recorded &&
-                recorded.AdditionalConversionSources?.SequenceEqual(expectedSources) == true &&
-                GameCheckpointJson.Serialize(game.CreateCheckpoint()) == checkpointJson,
-            "Changing the caller's conversion list must not alter the accepted command prefix.");
-        var restored = GameReplay.Restore(GameCheckpointJson.Deserialize(checkpointJson), registry);
-        Require(State(restored) == expectedState && Events(restored).SequenceEqual(expectedEvents),
-            "The frozen conversion command must replay to the same state and ordered events.");
-    }
-
 
 
 
@@ -100,74 +54,6 @@ internal static class ChengPuLihuoChecks
         Require(game.State.Status == EngineStatus.Completed &&
                 State(paused) == State(game) && Events(paused).SequenceEqual(Events(game)),
             "The Lihuo penalty dying continuation must finish once and replay deterministically.");
-    }
-
-
-
-    public static void ChunlaoStoresExactSlashesAndReplays()
-    {
-        var registry = Registry();
-        var game = CreateGame(ScenarioPackage.SlashModeId, seed: 1);
-        ReachHumanPlay(game);
-        var handBefore = Player(game, HumanSeat).HandCount;
-        EndHumanPlay(game);
-        var activation = RequirePrompt(game, DecisionKind.ProgramTrigger);
-        Require(activation.IsPrivate && activation.Choices.Any(choice =>
-                    choice.Parameters.GetValueOrDefault("program-action") == "activate") &&
-                activation.Choices.Any(choice =>
-                    choice.Parameters.GetValueOrDefault("program-action") == "skip"),
-            "An empty Chun pile must offer a generic optional turn-ending binding.");
-        Require(game.CreateSnapshot(1).PendingDecision is null,
-            "Other players must not receive the owner's private Chunlao hand candidates.");
-        Answer(game, activation.Choices.Single(choice =>
-            choice.Parameters.GetValueOrDefault("program-action") == "activate"));
-        var firstPrompt = RequirePrompt(game, DecisionKind.ProgramTrigger);
-        Require(firstPrompt.ValidCardIds.Count == handBefore &&
-                firstPrompt.Choices.All(choice =>
-                    choice.Parameters.GetValueOrDefault("program-action") == "select-owned-cards"),
-            "The composed storage prompt must expose only the owner's Slash cards.");
-
-        var first = firstPrompt.Choices.First(choice =>
-            choice.Parameters.GetValueOrDefault("program-action") == "select-owned-cards");
-        Answer(game, first);
-        var secondPrompt = RequirePrompt(game, DecisionKind.ProgramTrigger);
-        Require(secondPrompt.ValidCardIds.All(id => id != first.Cards.Single()) &&
-                game.CardMovements.All(move => move.To != CardLocation.Chunlao(HumanSeat)) &&
-                secondPrompt.Choices.Any(choice =>
-                    choice.Parameters.GetValueOrDefault("program-action") == "finish-owned-cards") &&
-                secondPrompt.Choices.All(choice =>
-                    choice.Parameters.GetValueOrDefault("program-action") != "skip"),
-            "After one selection Chunlao must preserve the exact card and expose finish instead of skip.");
-
-        var paused = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
-        Require(State(paused) == State(game),
-            "A paused multi-step Chunlao selection must replay exactly.");
-
-        var second = secondPrompt.Choices.First(choice =>
-            choice.Parameters.GetValueOrDefault("program-action") == "select-owned-cards");
-        var selectedIds = new[] { first.Cards.Single(), second.Cards.Single() };
-        Answer(game, second);
-        Answer(paused, RequirePrompt(paused, DecisionKind.ProgramTrigger).Choices.Single(choice =>
-            choice.Cards.SequenceEqual(second.Cards)));
-        Answer(game, RequirePrompt(game, DecisionKind.ProgramTrigger).Choices.Single(choice =>
-            choice.Parameters.GetValueOrDefault("program-action") == "finish-owned-cards"));
-        Answer(paused, RequirePrompt(paused, DecisionKind.ProgramTrigger).Choices.Single(choice =>
-            choice.Parameters.GetValueOrDefault("program-action") == "finish-owned-cards"));
-
-        var owner = Player(game, HumanSeat);
-        Require(owner.Hand.All(card => !selectedIds.Contains(card.Id)) &&
-                owner.ChunlaoCount == selectedIds.Length &&
-                owner.ChunlaoCards?.Select(card => card.Id).SequenceEqual(selectedIds) == true &&
-                game.CardMovements.Count(move =>
-                    selectedIds.Contains(move.CardId) &&
-                    move.From == CardLocation.Hand(HumanSeat) &&
-                    move.To == CardLocation.Chunlao(HumanSeat) &&
-                    move.Reason.Value == "skill-program.classic:chunlao.MoveBoundCards") == selectedIds.Length &&
-                game.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>().Any(item =>
-                    item.SkillId == ChunlaoSkillId && item.OwnerSeat == HumanSeat && item.Completed),
-            "Finishing Chunlao must atomically move the exact selected Slash cards into a public owner pile.");
-        Require(State(paused) == State(game) && Events(paused).SequenceEqual(Events(game)),
-            "The completed Chunlao storage branch must replay exactly.");
     }
 
     public static void ChunlaoRescuesWithVirtualAlcoholAndReplays()

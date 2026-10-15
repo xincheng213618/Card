@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:tanbei",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "choose-target-pact",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "effects": [
+            {
+              "op": "chooseTanbeiTargetPact",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:sidao",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "completed-consecutive-pair",
+          "window": "cardUseCompleted",
+          "ownerRelation": "actor",
+          "includeResponseUses": true,
+          "optional": true,
+          "usageScope": "phase",
+          "usageLimit": 1,
+          "effects": [
+            {
+              "op": "offerSidaoCompletedPairSnatch",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

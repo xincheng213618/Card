@@ -186,10 +186,10 @@ public sealed partial class GameEngine
     private IReadOnlyList<RecoveryReplacementCandidate> RecoveryReplacementCandidates(int seat)
     {
         var target = _players[seat];
-        if (!HasRecoveryReplacementCapability || !target.IsAlive || _currentSeat != seat ||
+        if (!HasRecoveryReplacementCapability || !target.IsAlive || !target.HasHpValue || _currentSeat != seat ||
             _turnNumber <= 0 || target.Hp >= target.MaxHp || _winner != Winner.None) return [];
         var faction = GetEffectiveFactionId(target);
-        return Array.AsReadOnly(_players.Where(p => p.IsAlive && p.Seat != seat && p.Hp <= target.Hp)
+        return Array.AsReadOnly(_players.Where(p => p.IsAlive && p.HasHpValue && p.Seat != seat && p.Hp <= target.Hp)
             .OrderBy(p => (p.Seat - seat + _players.Count) % _players.Count)
             .SelectMany(owner => CardPolicies(owner, SkillProgramCardPolicyKind.RedirectOwnTurnFactionRecovery)
                 .Where(item => item.Policy.FactionId == faction)
@@ -201,7 +201,7 @@ public sealed partial class GameEngine
     private bool TryQueueRecoveryReplacement(long parentFrameId, int sourceSeat, int targetSeat,
         int amount, RecoveryAttemptCompletion completion)
     {
-        if (!HasRecoveryReplacementCapability || amount <= 0 || !_players[targetSeat].IsAlive ||
+        if (!HasRecoveryReplacementCapability || amount <= 0 || !_players[targetSeat].IsAlive || !_players[targetSeat].HasHpValue ||
             _players[targetSeat].Hp >= _players[targetSeat].MaxHp) return false;
         var parent = parentFrameId > 0 ? _resolutionStack.Single(f => f.Id == parentFrameId) : null;
         var candidates = RecoveryReplacementCandidates(targetSeat);
@@ -244,6 +244,7 @@ public sealed partial class GameEngine
         var attempt = frame.Attempt;
         if (_winner != Winner.None || !IsValidPlayerSeat(c.OwnerSeat) ||
             !_players[c.OwnerSeat].IsAlive || !_players[attempt.TargetSeat].IsAlive ||
+            !_players[c.OwnerSeat].HasHpValue || !_players[attempt.TargetSeat].HasHpValue ||
             attempt.ActualTurnNumber != _turnNumber || attempt.ActualTurnOwnerSeat != _currentSeat ||
             attempt.TargetSeat != _currentSeat || _players[c.OwnerSeat].Hp > attempt.HpBefore) return false;
         return CardPolicies(_players[c.OwnerSeat], SkillProgramCardPolicyKind.RedirectOwnTurnFactionRecovery)
@@ -316,7 +317,7 @@ public sealed partial class GameEngine
         candidateIndex = candidate is null ? null : candidateIndex;
         var recipient = _players[candidate?.OwnerSeat ?? attempt.TargetSeat];
         var source = candidate is null ? attempt.SourceSeat : attempt.TargetSeat;
-        var amount = recipient.IsAlive && _winner == Winner.None
+        var amount = recipient.IsAlive && recipient.HasHpValue && _winner == Winner.None
             ? Math.Min(candidate?.RecoveryAmount ?? attempt.Amount, Math.Max(0, recipient.MaxHp - recipient.Hp)) : 0;
         ReplaceRuntimeTop(frame with { CandidateIndex = candidateIndex, Stage = RecoveryReplacementStage.RecoveryApplied,
             OriginalRecovered = candidate is null ? amount : 0, Step = ResolutionFrameStep.ResolvingEffect });

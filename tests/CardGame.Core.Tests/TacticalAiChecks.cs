@@ -50,8 +50,6 @@ internal static class TacticalAiChecks
 
     private static GameSnapshot Change(GameSnapshot view, int seat, Func<PlayerSnapshot, PlayerSnapshot> change) =>
         view with { Players = view.Players.Select(player => player.Seat == seat ? change(player) : player).ToArray() };
-    private static LegalAction Action(LegalActionKind kind, int card, int? target = null) => new(kind, card, target, kind.ToString());
-    private static LegalAction End() => new(LegalActionKind.EndPlay, null, null, "结束出牌");
     private sealed record PlayCase(string Name, GameSnapshot View, IReadOnlyList<LegalAction> Actions, LegalActionKind Expected);
     private static void Require(bool condition, string message) { if (!condition) throw new InvalidOperationException(message); }
 }

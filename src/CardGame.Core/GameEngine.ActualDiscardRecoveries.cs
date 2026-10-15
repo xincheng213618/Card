@@ -51,6 +51,7 @@ public sealed partial class GameEngine
         _status=_players[f.OwnerSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
 
+    [ProgramAnswer("actual-discard-recovery")]
     private void ResolveActualDiscardRecovery(PromptChoice selected)
     {
         var f=_resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("Discard recovery lost its owning frame.");
@@ -128,6 +129,7 @@ public sealed partial class GameEngine
         ReplaceRuntimeTop(f with { PendingMovementContinuation=null });AdvanceRuntimeProgram(f.Id);return true;
     }
 
+    [ProgramAiChoice(SkillProgramEffectOp.RestoreActualDiscardBatch)]
     private PromptChoice SelectAiActualDiscardRecovery(PendingDecision p,ProgramSkillFrame f)
     {
         if(f.ActualDiscardRecovery!.Stage==ActualDiscardRecoveryStage.SelectingClaim)

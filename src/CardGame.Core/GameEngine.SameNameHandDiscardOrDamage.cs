@@ -81,6 +81,7 @@ public sealed partial class GameEngine
         _status = _players[chooser].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
 
+    [ProgramAnswer("same-name-hand")]
     private void ResolveSameNameHandDiscardOrDamageChoice(PromptChoice choice)
     {
         var f = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("A same-name demand lost its owning program.");
@@ -161,6 +162,7 @@ public sealed partial class GameEngine
         f.PendingMovementContinuation == pending && pending.SubjectSeat == target && ValidSameNameHandReceipt(f);
     private bool CanContinueSameNameHandDiscardOrDamage(ProgramSkillFrame f) =>
         f.SameNameHandDiscardOrDamage is { Stage: SameNameHandStage.DiscardChildren or SameNameHandStage.DamageIssued or SameNameHandStage.Complete } && ValidSameNameHandReceipt(f);
+    [ProgramAiChoice(SkillProgramEffectOp.OfferSameNameHandDiscardOrDamage)]
     private PromptChoice SelectAiSameNameHandDiscardOrDamage(PendingDecision decision, ProgramSkillFrame f)
     {
         if (f.SameNameHandDiscardOrDamage!.Stage == SameNameHandStage.ChoosingTarget)

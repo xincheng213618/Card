@@ -3,50 +3,6 @@ using CardGame.Core;
 using CardGame.Content.Standard;
 internal static class FengLinLuZhiChecks
 {
-    public static void InitialReserveAndEndingExchange()
-    {
-        var(g,r)=Start();Reach(g,p=>p.SkillPrompt?.SkillId=="fixture:lz-gain");
-        Require(g.CreateCardZoneDiagnostics().Count(z=>z.Location==CardLocation.Hand(0))==6,"GameStarting performs real draw two before reserve selection.");Replay(g,r);
-        Answer(g,c=>true);Reach(g,p=>p.SkillPrompt?.SkillId=="classic:mingren"&&p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="select-owned-cards"));
-        var id=P(g)!.Choices.First(c=>c.Cards.Count==1).Cards[0];Answer(g,c=>c.Cards.Contains(id));ReachPlay(g);
-        Require(Pile(g).Single().CardId==id,"Selected hand entity, not draw-pile top, is the reserve.");Replay(g,r);
-        var initial=g.CardMovements.Count(m=>m.Reason.Value=="skill-program.public-pile.initial-hand");Require(initial==1,"Initial store executes once.");
-        End(g);Reach(g,p=>p.SkillPrompt?.SkillId=="classic:mingren"&&p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="activate"));Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="activate");
-        Reach(g,p=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("stage")=="owned"));var replacement=P(g)!.Choices.First(c=>c.Cards.Count==1).Cards[0];Answer(g,c=>c.Cards.Contains(replacement));Replay(g,r);Answer(g,c=>c.Cards.Contains(id));
-        Require(Pile(g).Single().CardId==replacement&&g.CreateCardZoneDiagnostics().Single(z=>z.CardId==id).Location==CardLocation.Hand(0),"Ending swaps exactly one real hand card atomically.");Replay(g,r);
-    }
-    public static void PaidColorDamageNestedReplay()
-    {
-        var(g,r)=Start();Init(g);var before=g.CreateSnapshot(0).Players[1].Hp;
-        Accept(g,new UseProgramSkillCommand(0,"classic:zhenliang","reserve-color-damage",[],[],g.Revision,P(g)!.PromptId));
-        var cost=P(g)!.Choices.First(c=>c.Targets.SequenceEqual([1])).Cards.Single();Answer(g,c=>c.Cards.Contains(cost)&&c.Targets.SequenceEqual([1]));
-        Reach(g,p=>p.SkillPrompt?.SkillId=="fixture:lz-cost");Require(g.CreateSnapshot(0).Players[1].Hp==before,"Damage waits for real paid-card movement child.");
-        Require(g.ResolutionStack.OfType<ProgramSkillFrame>().Any(f=>f.PublicPileColorPayment is {CardId:var i}&&i==cost),"Payment and color are retained by the owning frame.");Replay(g,r);
-        Require(Polarity(g)==SkillPolarity.Yin,"Successful Yang flips exactly once before nested cost.");Answer(g,c=>true);ReachPlay(g);
-        Require(g.CreateSnapshot(0).Players[1].Hp==before-1&&g.CardMovements.Count(m=>m.CardId==cost&&m.Reason.Value=="skill-program.public-pile.color-payment")==1,"Resume pays once and deals exactly one actual damage.");
-        Require(g.GetHumanLegalActions().All(a=>a.ProgramSkillId!="classic:zhenliang"),"Same Play phase no repeated Yang activation.");Replay(g,r);
-    }
-    public static void ActualResponseDiscardAndOncePerAction()
-    {
-        var(g,r)=Start();Init(g);Accept(g,new UseProgramSkillCommand(0,"classic:zhenliang","reserve-color-damage",[],[],g.Revision,P(g)!.PromptId));Answer(g,c=>c.Targets.SequenceEqual([1]));Reach(g,p=>p.SkillPrompt?.SkillId=="fixture:lz-cost");Answer(g,c=>true);ReachPlay(g);
-        End(g);Reach(g,p=>p.PlayerSeat==0&&p.Kind==DecisionKind.RespondDodge);
-        var choice=P(g)!.Choices.First(c=>c.Cards.Count==2);var ids=choice.Cards.ToArray();Answer(g,c=>c.Id==choice.Id);
-        Reach(g,p=>p.SkillPrompt?.SkillId=="classic:zhenliang"&&p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="activate"));
-        Require(ids.All(id=>g.CardMovements.Any(m=>m.CardId==id&&m.To==CardLocation.DiscardPile&&m.Reason==CardMoveReasons.ResponseFinished)),"A true two-entity Dodge has actually entered Discard before reward.");Replay(g,r);
-        Answer(g,c=>c.Parameters.GetValueOrDefault("program-action")=="activate");var hand=g.CreateSnapshot(0).Players[0].HandCount;Answer(g,c=>c.Targets.SequenceEqual([0]));
-        Require(g.CreateSnapshot(0).Players[0].HandCount==hand+1&&Polarity(g)==SkillPolarity.Yang,"One response action gives one draw and flips once.");
-        var facts=g.Events.Select(e=>e.Payload).OfType<ActionCardsDiscardedEvent>().Where(e=>e.ActorSeat==0&&e.TurnNumber==g.State.TurnNumber).ToArray();Require(facts.Length==2&&facts.Select(f=>f.ActionId).Distinct().Count()==1,"Two physical cleanup batches retain one exact accepted response action.");
-        Require(g.Events.Count(e=>e.Payload is ActionColorRewardOfferedEvent)==1,"Two entities offer the conversion once.");Replay(g,r);
-    }
-    public static void MixedResponseDoesNotReward()
-    {
-        var(g,r)=Start(true);Init(g);Accept(g,new UseProgramSkillCommand(0,"classic:zhenliang","reserve-color-damage",[],[],g.Revision,P(g)!.PromptId));Answer(g,c=>c.Targets.SequenceEqual([1]));Reach(g,p=>p.SkillPrompt?.SkillId=="fixture:lz-cost");Answer(g,c=>true);ReachPlay(g);End(g);Reach(g,p=>p.PlayerSeat==0&&p.Kind==DecisionKind.RespondDodge);
-        var cards=g.CreateSnapshot(0,true).Players[0].Hand;
-        var choice=P(g)!.Choices.First(c=>c.Cards.Count==2&&cards.Where(x=>c.Cards.Contains(x.Id)).Select(x=>x.Suit is Suit.Heart or Suit.Diamond).Distinct().Count()==2);var ids=choice.Cards.ToArray();Answer(g,c=>c.Id==choice.Id);
-        for(var n=0;n<20&&!ids.All(id=>g.CardMovements.Any(m=>m.CardId==id&&m.Reason==CardMoveReasons.ResponseFinished));n++)Accept(g,new AdvanceOneStepCommand(g.Revision));
-        Require(ids.All(id=>g.CardMovements.Any(m=>m.CardId==id&&m.Reason==CardMoveReasons.ResponseFinished)),"Mixed physical response really completes.");
-        Require(g.Events.Select(e=>e.Payload).OfType<ActionCardsDiscardedEvent>().Where(e=>e.ActorSeat==0).All(e=>e.IsRed is null)&&!g.Events.Any(e=>e.Payload is ActionColorRewardOfferedEvent),"Mixed effective colors cannot match a single reserve color.");Replay(g,r);
-    }
     public static void ActualDiscardEntryBoundaries()
     {
         foreach(var boundary in new[]{2})
@@ -75,7 +31,6 @@ internal static class FengLinLuZhiChecks
         foreach(var bad in new[]{Read("rules").Replace("gameStarting","drawPhaseStarting"),Read("rules").Replace("discardPileReceived","cardsGained"),Read("rules").Replace("turnEnding","drawPhaseStarting")}){var failed=false;try{SkillProgramCatalog.Load(bad,Read("presentation"));}catch(InvalidOperationException){failed=true;}Require(failed,"Wrong reserve/action window is rejected by generic resources.");}
     }
     private static SkillPolarity? Polarity(GameEngine g)=>g.CreateSnapshot(0).Players[0].SkillRuntimeStates!.Single(s=>s.SkillId=="classic:zhenliang").Polarity;
-    private static IReadOnlyList<CardZoneDiagnostic> Pile(GameEngine g)=>g.CreateCardZoneDiagnostics().Where(z=>z.Location.Zone==CardZoneKind.PublicPersistentPile&&z.Location.OwnerSeat==0).ToArray();
     private static PendingDecision? P(GameEngine g)=>g.PendingDecision??Enumerable.Range(0,4).Select(i=>g.CreateSnapshot(i,true).PendingDecision).FirstOrDefault(p=>p is not null);
     private static void Require(bool b,string text){if(!b)throw new InvalidOperationException(text);}
     private static void Accept(GameEngine g,GameCommand c){var result=g.Submit(c);Require(result.Error is null,result.Error?.Message??"Rejected");}

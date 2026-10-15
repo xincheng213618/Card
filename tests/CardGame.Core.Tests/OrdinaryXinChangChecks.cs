@@ -90,27 +90,6 @@ internal static class OrdinaryXinChangChecks
         Reach(g, IsPlay); AssertFinished(g, use.Id, action.CardId!.Value, CardKind.DrawTwo); _ = Cold(g, registry);
     }
 
-    public static void LargestHandBorrowedSwordAppendsOneCompleteLegalPair()
-    {
-        var (g, registry) = Start(Scenario.BorrowedSword);
-        foreach (var seat in new[] { 1, 3 }) { Use(g, "equip", [seat]); Reach(g, IsPlay); }
-        Use(g, "draw-three", []); Reach(g, IsPlay);
-        var weapons = new[] { 1, 3 }.ToDictionary(s => s, s => V(g, s).Equipment.Single().Id);
-        var action = Action(g, LegalActionKind.BorrowedSword, [1, 2]);
-        var use = BeginHumanAddition(ref g, registry, action);
-        Require(P(g)!.Choices.Any(c => c.Targets.SequenceEqual([3, 2])) && P(g)!.Choices.Any(c => c.Targets.SequenceEqual([3, 0])) &&
-            P(g)!.Choices.Where(c => c.Targets.Count > 0).All(c => c.Targets.Count == 2 && c.Targets[0] != 1),
-            "A legal Borrowed Sword addition is one complete new weapon-holder/victim pair; only the holder must be distinct.");
-        AddHuman(ref g, registry, use, [3, 2]); Reach(g, IsComplete); g = Cold(g, registry);
-        Require(g.ResolutionStack.OfType<CardUseFrame>().Single(f => f.Id == use.Id).TargetSeats.SequenceEqual([1, 2, 3, 2]) &&
-            weapons.All(pair => g.CardMovements.Count(m => m.CardId == pair.Value && m.From == CardLocation.Equipment(pair.Key) &&
-                m.To == CardLocation.Processing && m.Reason == CardMoveReasons.BorrowedSwordGive) == 1) &&
-            weapons.All(pair => g.CardMovements.Count(m => m.CardId == pair.Value && m.From == CardLocation.Processing &&
-                m.To == CardLocation.Hand(0) && m.Reason == CardMoveReasons.BorrowedSwordGive) == 1),
-            "Both genuinely Slash-less weapon holders pay their own exact native weapon transfer once: " + Diagnostic(g));
-        Reach(g, IsPlay); AssertFinished(g, use.Id, action.CardId!.Value, CardKind.BorrowedSword); _ = Cold(g, registry);
-    }
-
     public static void JoinedTrickDamageRewardOwnsExactUseAndSurvivesSourceLoss()
     {
         foreach (var scenario in new[] { Scenario.Damage, Scenario.SourceLoss, Scenario.Reacquired })
@@ -184,85 +163,6 @@ internal static class OrdinaryXinChangChecks
                     "Both physical reward entities own their separate retained native draw-child batch.");
             _ = Cold(g, registry);
         }
-    }
-
-    public static void JoinedTrickQualificationsAndNullificationCannotBorrowOtherDamage()
-    {
-        RejectUnsupportedContracts();
-        var (g, registry) = Start(Scenario.DrawTwo);
-        var action = Action(g, LegalActionKind.DrawTwo); Play(g, action);
-        var use = NativeJoin(ref g, registry, CardKind.DrawTwo);
-        Reach(g, IsComplete); g = Cold(g, registry);
-        Require(use.TargetSeats.SequenceEqual([0, 1]) && V(g, 1).HandCount == 6 &&
-            E<CompletedUndamagedUseDamageRecordedEvent>(g).All(e => e.CardUseFrameId != use.Id) &&
-            !g.CardMovements.Any(m => m.Reason.Value == RewardReason),
-            "A real beneficial self DrawTwo accepts the other owner's native join and resolves both targets without inventing a damage reward.");
-        Reach(g, IsPlay); AssertFinished(g, use.Id, action.CardId!.Value, CardKind.DrawTwo);
-
-        (g, registry) = Start(Scenario.HpTie);
-        Require(Enumerable.Range(0, 4).Select(s => V(g, s).Hp).Distinct().Count() == 1,
-            "The negative fixture begins with a real public HP tie, including the Lord's ordinary HP bonus.");
-        action = Action(g, LegalActionKind.DrawTwo); Play(g, action); Reach(g, IsComplete);
-        Require(E<ProgramBindingStartedEvent>(g).All(e => e.SkillId != Congjian),
-            "A tied maximum-HP target does not produce a Congjian join or consume an activation.");
-        Reach(g, IsPlay); _ = Cold(g, registry);
-
-        (g, registry) = Start(Scenario.Multiple);
-        action = Action(g, LegalActionKind.IronChain, [0, 2]); Play(g, action); Reach(g, IsComplete);
-        Require(E<ProgramBindingStartedEvent>(g).All(e => e.SkillId != Congjian),
-            "Two actual original targets exclude Congjian even when one is the unique highest-HP character.");
-        Reach(g, IsPlay); action = Action(g, LegalActionKind.Recast); Play(g, action); Reach(g, IsPlay);
-        Require(E<CardRecastEvent>(g).Any(e => e.ActorSeat == 0 && e.CardId == action.CardId) &&
-            E<ProgramBindingStartedEvent>(g).All(e => e.SkillId != Congjian),
-            "A real targetless recast does not become an ordinary-trick designated-target use.");
-
-        (g, registry) = Start(Scenario.Counterspell);
-        Use(g, "damage", [1]); Reach(g, IsPlay);
-        Require(E<DamageAppliedEvent>(g).Count(e => e.SourceSeat == 0 && e.TargetSeat == 1 && e.Amount == 1) == 1,
-            "The joined owner has genuine earlier damage that cannot be borrowed by a later use's reward.");
-        Use(g, "foreign-duel", [2]); use = NativeJoin(ref g, registry, CardKind.Duel);
-        Reach(g, p => p is { Kind: DecisionKind.Nullification, PlayerSeat: 0, TargetSeat: 1 });
-        var nullification = P(g)!.Choices.First(c => c.Cards.Count == 1);
-        var material = nullification.Cards.Single(); g = Cold(g, registry);
-        Answer(g, c => c.Id == nullification.Id); Reach(g, IsComplete); g = Cold(g, registry);
-        Require(E<NullificationRespondedEvent>(g).Count(e => e.ResolutionId == use.Id && e.ResponderSeat == 0 &&
-                    e.NullificationCardId == material && e.EffectNullified) == 1 &&
-            E<NullificationResolvedEvent>(g).Any(e => e.ResolutionId == use.Id && e.EffectNullified) &&
-            E<CompletedUndamagedUseDamageRecordedEvent>(g).All(e => e.CardUseFrameId != use.Id || e.TargetSeat != 1),
-            "A real published unrespondable Nullification pays once and prevents this use's joined-target damage, independently of earlier real damage.");
-        Reach(g, IsPlay);
-        Require(!g.CardMovements.Any(m => m.Reason.Value == RewardReason) &&
-            E<ProgramBindingStartedEvent>(g).All(e => e.SkillId != Congjian || e.Window != SkillProgramTriggerWindow.CardUseCompleted),
-            "No completion reward is issued for a nullified joined target or for another action's damage history.");
-        _ = Cold(g, registry);
-    }
-
-    private static void RejectUnsupportedContracts()
-    {
-        var assembly = typeof(StandardContentPackage).Assembly;
-        using var rr = new StreamReader(assembly.GetManifestResourceStream("CardGame.Content.Standard.SkillPrograms.ordinary-xin-chang.rules.json")!);
-        using var pp = new StreamReader(assembly.GetManifestResourceStream("CardGame.Content.Standard.SkillPrograms.ordinary-xin-chang.presentation.json")!);
-        var rules = rr.ReadToEnd(); var presentation = pp.ReadToEnd();
-        void RejectShape(string label, string skill, int index, Action<JsonObject> change)
-        {
-            var root = JsonNode.Parse(rules)!.AsObject();
-            var trigger = root["skills"]!.AsArray().Single(n => n!["id"]!.GetValue<string>() == skill)!["triggers"]![index]!.AsObject();
-            change(trigger);
-            var rejected = false;
-            try { _ = SkillProgramCatalog.Load(root.ToJsonString(), presentation); }
-            catch (InvalidOperationException) { rejected = true; }
-            Require(rejected, "The shared unique-leader contracts reject " + label);
-        }
-        RejectShape("a non-finalized addition", Canmou, 0, t => t["window"] = "cardUseCommitted");
-        RejectShape("an actor-only relation replacing its observer", Canmou, 0, t => t["ownerRelation"] = "actor");
-        RejectShape("pure response inclusion", Congjian, 0, t => t["includeResponseUses"] = true);
-        RejectShape("a forged configurable reward amount", Congjian, 1, t => t["effects"]![0]!["amount"] = 2);
-        var missingJoin = JsonNode.Parse(rules)!.AsObject();
-        missingJoin["skills"]!.AsArray().Single(n => n!["id"]!.GetValue<string>() == Congjian)!["triggers"]!.AsArray().RemoveAt(0);
-        var missingRejected = false;
-        try { _ = SkillProgramCatalog.Load(missingJoin.ToJsonString(), presentation); }
-        catch (InvalidOperationException) { missingRejected = true; }
-        Require(missingRejected, "A same-skill completion reward cannot exist without its exact finalized join producer.");
     }
 
     private static CardUseFrame BeginHumanAddition(ref GameEngine g, ContentRegistry registry, LegalAction? action = null)

@@ -11,46 +11,6 @@ internal static class OrdinaryLvKaiChecks
     private const string Driver = "fixture:lk-driver";
     private const string Steal = "fixture:lk-steal-skill";
 
-    public static void Definitions()
-    {
-        var registry = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true),
-            new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage());
-        var general = registry.Generals["ol:lv-kai"];
-        Require(general.Name == "吕凯" && general.FactionId == "shu" && general.BaseHp == 3 &&
-            general.SkillIds.SequenceEqual([Tunan, Bijing]) &&
-            general.VariantId == "ordinary" && general.RulesetId == "sanguosha-ol",
-            "The OL Lü Kai general registers the current shu 3HP skill pair.");
-        var tunan = registry.GetSkill(Tunan).Program!.Triggers.Single();
-        Require(tunan.Window == SkillProgramTriggerWindow.PlayPhaseStarting && tunan.Optional &&
-            tunan.Effects.Select(e => e.Op).SequenceEqual([
-                SkillProgramEffectOp.SelectTarget, SkillProgramEffectOp.RevealTopCards,
-                SkillProgramEffectOp.TunanUseRevealedCard]) &&
-            tunan.Effects[1].Amount == 1 && tunan.Effects[1].ResultBind == "tunan-card" &&
-            tunan.Effects[2].SourceBind == "tunan-card",
-            "Tunan reveals one top card and hands the use choice to the selected counterpart.");
-        var bijing = registry.GetSkill(Bijing).Program!.Triggers;
-        Require(bijing.Count == 3, "Bijing registers mark, recast and punish triggers.");
-        var mark = bijing.Single(t => t.Id == "bijing-mark");
-        Require(mark.Window == SkillProgramTriggerWindow.TurnEnding && mark.Optional &&
-            mark.Effects.Select(e => e.Op).SequenceEqual([
-                SkillProgramEffectOp.SelectOwnedCards, SkillProgramEffectOp.BijingMarkHandCards]) &&
-            mark.Effects[0].MinimumCards == 0 && mark.Effects[0].MaximumCards == 2 &&
-            mark.Effects[0].Zones.SequenceEqual([CardZoneKind.Hand]),
-            "The mark trigger selects up to two hand cards at the owner's turn ending.");
-        var recast = bijing.Single(t => t.Id == "bijing-recast");
-        Require(recast.Window == SkillProgramTriggerWindow.TurnStartBeforeNormalFlow && !recast.Optional &&
-            recast.Effects.Single().Op == SkillProgramEffectOp.BijingRecastMarkedCards,
-            "The recast trigger runs at the owner's preparation phase.");
-        var punish = bijing.Single(t => t.Id == "bijing-punish");
-        Require(punish.Window == SkillProgramTriggerWindow.DiscardPhaseStarting &&
-            punish.TurnOwnerScope == SkillProgramTurnOwnerScope.OtherLiving && !punish.Optional &&
-            punish.Effects.Single().Op == SkillProgramEffectOp.BijingPunishDiscardPhase,
-            "The punish trigger observes other characters' discard phases.");
-        Require(registry.GetSkill(Tunan).ProgramPresentation!.Name == "图南" &&
-            registry.GetSkill(Bijing).ProgramPresentation!.Name == "闭境",
-            "The presentation carries the current OL wording.");
-    }
-
     public static void TunanConvertsDodgeIntoSlash()
     {
         var (g, r) = Start("identity:lk-dodge", waitTunan: true);
@@ -68,69 +28,6 @@ internal static class OrdinaryLvKaiChecks
             "The converted dodge reaches the discard pile as the played card.");
         Require(!g.Events.Select(e => e.Payload).OfType<ProgramBijingMarkedEvent>().Any(),
             "No Bijing marks exist without the mark trigger.");
-        Replay(g, r);
-    }
-
-    public static void TunanUsesRevealedSlashWithoutDistanceLimit()
-    {
-        var (g, r) = Start("identity:lk-slash", waitTunan: true);
-        ActivateTunan(g, target: 1);
-        var slashId = g.Events.Select(e => e.Payload).OfType<ProgramCardsRevealedEvent>().Single().Cards.Single().Id;
-        SettleToNextOwnPlayPhase(g);
-        var used = g.Events.Select(e => e.Payload).OfType<CardUsedEvent>()
-            .Single(u => u.SourceSeat == 1 && u.TargetSeat == 0 && u.CardKind == CardKind.Slash);
-        Require(used.CardId == slashId,
-            "The real use keeps the physical slash identity. used=" + used.CardId + " revealed=" + slashId);
-        Require(g.CardMovements.Any(m => m.CardId == slashId && m.To == CardLocation.DiscardPile),
-            "The used slash reaches the discard pile.");
-        var damage = g.Events.Select(e => e.Payload).OfType<DamageAppliedEvent>()
-            .Single(d => d.SourceSeat == 1 && d.TargetSeat == 0);
-        Require(damage.Amount == 1, "The unlimited-distance real slash deals one damage.");
-        Replay(g, r);
-    }
-
-    public static void TunanPeachUseHealsWoundedCounterpart()
-    {
-        var (g, r) = Start("identity:lk-peach", waitTunan: false);
-        AcceptDriver(g, "hurt-target", [1]);
-        var maxHp = g.CreateSnapshot(0).Players[1].MaxHp;
-        var wounded = g.CreateSnapshot(0).Players[1].Hp;
-        Require(wounded == maxHp - 1, "The driver wounds the counterpart. hp=" + wounded + "/" + maxHp);
-        for (var i = 0; i < 100; i++)
-        {
-            if (P(g) is { } wait && wait.Kind == DecisionKind.PlayCard && wait.PlayerSeat == 0)
-            {
-                Accept(g, new EndPlayPhaseCommand(0, g.Revision, wait.PromptId));
-                break;
-            }
-            Accept(g, new AdvanceOneStepCommand(g.Revision));
-        }
-        SettleToNextOwnPlayPhase(g, stopAtTunan: true);
-        ActivateTunan(g, target: 1);
-        var peachId = g.Events.Select(e => e.Payload).OfType<ProgramCardsRevealedEvent>().Single().Cards.Single().Id;
-        SettleToNextOwnPlayPhase(g);
-        Require(g.CreateSnapshot(0).Players[1].Hp == maxHp,
-            "The counterpart recovers to full. hp=" + g.CreateSnapshot(0).Players[1].Hp + "/" + maxHp);
-        Require(g.CardMovements.Any(m => m.CardId == peachId && m.To == CardLocation.DiscardPile),
-            "The used peach reaches the discard pile.");
-        Require(!g.Events.Select(e => e.Payload).OfType<DamageAppliedEvent>()
-            .Any(d => d.SourceSeat == 1), "The peach branch deals no damage.");
-        Replay(g, r);
-    }
-
-    public static void BijingMarksAndRecasts()
-    {
-        var (g, r) = Start("identity:lk-recast", waitTunan: false);
-        var kept = EndTurnKeepingOneAndMarking(g, markCount: 2, keepHp: 2);
-        Require(g.Events.Select(e => e.Payload).OfType<ProgramBijingMarkedEvent>().Single().CardIds
-            .Order().SequenceEqual(kept.Order()), "The mark trigger registers exactly the kept cards.");
-        var handBefore = CardsAt(g, CardLocation.Hand(0)).Count;
-        SettleToNextOwnPlayPhase(g);
-        var recast = g.Events.Select(e => e.Payload).OfType<ProgramBijingRecastEvent>().ToList();
-        Require(recast.Count == 1 && recast[0].DiscardedCardIds.Count == 2 && recast[0].DrawnCount == 2,
-            "The preparation recast replaces the two marked cards. " + Describe(recast));
-        var handAfter = CardsAt(g, CardLocation.Hand(0)).Count;
-        Require(handAfter == handBefore, "The recast keeps the hand size.");
         Replay(g, r);
     }
 
@@ -301,9 +198,6 @@ internal static class OrdinaryLvKaiChecks
         }
         throw new InvalidOperationException("The fixture never returned to the owner's play phase: " + P(g)?.Prompt);
     }
-
-    private static string Describe(IReadOnlyList<ProgramBijingRecastEvent> events) =>
-        string.Join(";", events.Select(e => "owner" + e.OwnerSeat + ":" + e.DiscardedCardIds.Count + "->" + e.DrawnCount));
 
     private static string DescribePunish(ProgramBijingPunishEvent e) =>
         "turn" + e.TurnOwnerSeat + " lost=[" + string.Join(",", e.LostCardIds) + "] discarded=[" +

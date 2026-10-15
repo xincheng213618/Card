@@ -1,0 +1,13 @@
+{
+ "schemaVersion":62,
+ "skills":[
+  {"id":"ol:weijing","revision":1,"viewAs":[
+   {"id":"round-slash","inputKinds":[],"inputSuits":[],"inputCount":0,"sourceZones":[],"outputKind":"slash","forPlay":true,"forResponse":false,"roundOnceCardlessBasic":{"usageGroup":"weijing","usesPerRound":1}},
+   {"id":"round-dodge","inputKinds":[],"inputSuits":[],"inputCount":0,"sourceZones":[],"outputKind":"dodge","forPlay":false,"forResponse":true,"roundOnceCardlessBasic":{"usageGroup":"weijing","usesPerRound":1}}
+  ]},
+  {"id":"ol:qingzhong","revision":1,"triggers":[
+   {"id":"actual-qingzhong-draw","window":"playPhaseStarting","subject":"owner","optional":true,"effects":[{"op":"drawAndArmQingzhongActualPlayDebt","target":"owner"}]},
+   {"id":"actual-qingzhong-ending","window":"playEnding","subject":"owner","optional":false,"effects":[{"op":"settleQingzhongActualPlayDebt","target":"owner"}]}
+  ]}
+ ]
+}

@@ -197,6 +197,7 @@ public sealed partial class GameEngine
         CardConversionSource? source)
     {
         if (source is null || source.OwnerSeat != owner.Seat) return false;
+        if (IgnoresNonBasicSlashDistance(owner, source)) return true;
         if (FriendXuanjianIgnoresDistance(owner, source)) return true;
         var context = CreateSkillContext(owner);
         return GetSkillBindingShard(owner).GetNumericModifiers(SkillRuleQuery.SlashDistanceLimit).Any(binding =>
@@ -275,6 +276,7 @@ public sealed partial class GameEngine
                                (!rule.UnusedOutputThisTurn || !HasProgramUsedBasicCardThisTurn(owner.Seat, outputKind)) &&
                                (card.Kind != outputKind || rule.InheritPreviousPlaySuit || rule.ConversionStateId is not null || rule.AllowSameKind) &&
                                CanUsePhaseLimitedViewAs(instance, rule, owner) &&
+                                CanUseActualTurnLimitedViewAs(instance, rule, owner) &&
                                (rule.Condition.Kind == SkillProgramConditionKind.Always || rule.Condition.Evaluate(context ??= CreateSkillContext(owner))) &&
                                (rule.InputKinds.Count == 0 || rule.InputKinds.Contains(card.Kind)) &&
                                (rule.InputCategories.Count == 0 ||
@@ -286,6 +288,7 @@ public sealed partial class GameEngine
                     item.Rule.Id,
                     owner.Seat,
                     item.Source.SkillInstanceId))
+            .Where(source => CanPayMeiYingConversion(owner, source) && CanPayZhenyiHoutu(owner, source) && IsWangYunRandomConversionAvailable(owner, card, source, forResponse))
             .ToArray();
         var turnScoped = !hasTurnConversions || forResponse || zone != CardZoneKind.Hand
             ? Array.Empty<CardConversionSource>()

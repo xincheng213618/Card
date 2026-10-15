@@ -257,6 +257,7 @@ public sealed partial class GameEngine
         return SkillProgramStepOutcome.AwaitChoice;
     }
 
+    [ProgramAnswer("original-target-addition")]
     private void ResolveOriginalTargetAdditionChoice(PromptChoice choice)
     {
         var frame = _resolutionStack.Last() as ProgramSkillFrame ?? throw new InvalidOperationException("Original-target program is absent.");
@@ -277,6 +278,7 @@ public sealed partial class GameEngine
         ClearPendingDecision(); ReplaceRuntimeTop(frame with { OriginalTargetAdditionDraft = null }); AdvanceRuntimeProgram(frame.Id);
     }
 
+    [ProgramAiChoice(SkillProgramEffectOp.OfferOriginalTargetAddition)]
     private PromptChoice SelectAiOriginalTargetAddition(PendingDecision decision, ProgramSkillFrame frame)
     {
         // Use the existing public role attitude; hidden hands never enter this decision.

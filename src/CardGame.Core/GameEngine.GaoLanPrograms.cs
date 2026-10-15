@@ -9,6 +9,7 @@ public sealed partial class GameEngine
         var holders = _players.Where(player => player.IsAlive && player.Markers.ContainsKey(PlayerMarkerKind.XiZhen)).ToArray();
         if (holders.Length != 1) return;
         var holder = holders[0];
+        if (!holder.HasHpValue) return;
         var requested = Math.Min(1, holder.MaxHp - holder.Hp);
         if (requested > 0)
         {

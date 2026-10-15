@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "ol:lianzhu", "revision": 1, "activations": [
+      { "id": "reveal-hand-gift", "minCards": 1, "maxCards": 1, "sourceZones": ["hand"], "minTargets": 1, "maxTargets": 1,
+        "targetKind": "otherLiving", "usesPerTurn": null, "usesPerPhase": 1,
+        "effects": [{ "op": "revealHandGiftAndResolveRecipientChoice", "target": "selectedTarget" }] }
+    ] },
+    { "id": "ol:xiahui", "revision": 1, "cardPolicies": [{ "id": "black-hand-gained-entities", "kind": "xiaHuiBlackHandAndGainedEntityRestrictions" }] }
+  ]
+}

@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:gaoling",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "actual-off-turn-appearance",
+          "window": "identityGeneralAppeared",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "anyWounded"
+            },
+            {
+              "op": "afterActualIdentityAppearanceRecover",
+              "target": "owner"
+            },
+            {
+              "op": "recover",
+              "target": "selectedTarget",
+              "amount": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:qimei",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "preparation-pair",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "otherLiving"
+            },
+            {
+              "op": "armQimeiPair",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "pair-hand-equality",
+          "window": "cardsMoved",
+          "subject": "owner",
+          "sourceZones": [
+            "hand"
+          ],
+          "movementOccurrence": "perOwnerBatch",
+          "optional": false,
+          "effects": [
+            {
+              "op": "settleQimeiPairEquality",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "pair-hp-equality",
+          "window": "afterHealthChanged",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "settleQimeiPairEquality",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:zhuiji-tj",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "actual-play-choice",
+          "window": "playPhaseStarting",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "chooseOption",
+              "target": "owner",
+              "resultBind": "zhuiji-choice",
+              "options": [
+                {
+                  "id": "recover"
+                },
+                {
+                  "id": "draw"
+                }
+              ]
+            },
+            {
+              "op": "offerZhuijiActualPlayChoice",
+              "target": "owner"
+            },
+            {
+              "op": "recover",
+              "target": "owner",
+              "amount": 1,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "zhuiji-choice",
+                "optionId": "recover"
+              }
+            },
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 2,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "zhuiji-choice",
+                "optionId": "draw"
+              }
+            }
+          ]
+        },
+        {
+          "id": "actual-play-ending-debt",
+          "window": "playEnding",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "settleZhuijiActualPlayDebt",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

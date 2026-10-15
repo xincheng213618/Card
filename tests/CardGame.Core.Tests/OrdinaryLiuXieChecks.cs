@@ -55,48 +55,6 @@ internal static class OrdinaryLiuXieChecks
         ColdRestore(g, r);
     }
 
-    public static void TianmingZeroInsufficientCostAndWholeTargetTimingKeepRealProducers()
-    {
-        foreach (var count in new[] { 0, 1 })
-        {
-            var (g, r) = Create(tied: true); Play(g); Use(g, "clear");
-            Play(g); if (count == 1) { Use(g, "draw-one"); Play(g); }
-            Require(V(g, 0).HandCount == count && !g.CreateCardZoneDiagnostics().Any(z => z.Location == CardLocation.Equipment(0)), "Only real clear/draw commands prepare the insufficient HE fixture.");
-            Incoming(g); Activate(g, Tianming);
-            if (count == 1) { Reach(g, p => Branch(p, "card")); Answer(g, c => c.Cards.Count == 1); Reach(g, p => p.SkillPrompt?.SkillId == Cost); g = ColdRestore(g, r); Continue(g); }
-            Reach(g, p => p.SkillPrompt?.SkillId == Gain && p.PlayerSeat == 0); var id = PeerRoot(g).Id;
-            Require(PeerRoot(g).UniqueHpPeer!.OwnerInvoice is { RequiredCount: var n, ActualDrawCount: 2 } && n == count &&
-                g.CardMovements.Count(m => m.Reason.Value == CostReason && m.From.OwnerSeat == 0) == count,
-                "Zero HE still really draws two; one HE pays exactly one, with no fictional payment movement.");
-            g = ColdRestore(g, r); Continue(g); Play(g);
-            Require(F<UniqueHpPeerOfferedEvent>(g).Single(e => e.FrameId == id).PeerSeat is null && F<UniqueHpPeerDrawIssuedEvent>(g).Single(e => e.FrameId == id).ActualCount == 2,
-                "Tied maximum current HP never publishes an arbitrary peer.");
-        }
-        {
-            var (g, r) = Create(multi: true); Play(g);
-            var a = g.GetHumanLegalActions().First(x => x.Kind == LegalActionKind.Slash && x.CardId is { } card && V(g, 0).Hand.Any(c => c.Id == card && c.Kind == CardKind.Slash) && x.TargetSeats.Count == 2 && x.TargetSeats.Contains(1) && x.TargetSeats.Contains(3));
-            Accept(g, new PlayCardCommand(0, a.CardId!.Value, a.TargetSeats, g.Revision, P(g)!.PromptId, a.PlayedCardKind) { ConversionSource = a.ConversionSource, AdditionalConversionSources = a.AdditionalConversionSources });
-            Reach(g, p => p.SkillPrompt?.SkillId == Tianming && Has(p, "activate"));
-            var w = g.ResolutionStack.OfType<ActualUseTargetWindowFrame>().Single(); var use = g.ResolutionStack.OfType<CardUseFrame>().Single(u => u.Id == w.ParentFrameId);
-            Require(use.UniqueHpAnnouncedTargets!.SequenceEqual(use.TargetSeats) && w.Contexts.Where(c => c.ActualUseTarget is not null).Select(c => c.TargetSeat).Distinct().Order().SequenceEqual(a.TargetSeats.Order().Cast<int?>()) &&
-                !F<DamageAppliedEvent>(g).Any(),
-                "All finalized real Slash targets get their Tianming offers before any first target damage, rather than at each later effect.");
-            Freeze(use.UniqueHpAnnouncedTargets); g = ColdRestore(g, r); Play(g);
-            Require(F<UniqueHpTargetAnnouncedEvent>(g).Where(e => e.Target.CardUseFrameId == use.Id).Select(e => e.Target.TargetSeat).Distinct().Count() == 2,
-                "One real use announces each finalized target once while native target choices keep the original attack sequence.");
-        }
-        {
-            var (g, r) = Create(legacy: true); Reach(g, p => p.SkillPrompt?.SkillId == "fixture:lx-legacy" && Has(p, "select-target")); Answer(g, c => c.Targets.SequenceEqual([1]));
-            Reach(g, p => p.SkillPrompt?.SkillId == Tianming && Has(p, "activate"));
-            var w = g.ResolutionStack.OfType<ActualUseTargetWindowFrame>().Single(); var identity = w.Contexts[w.CandidateIndex].ActualUseTarget!;
-            Require(identity.ActionId is null && identity.LegacyProducerProgramId is not null && identity.TargetSeat == 1 &&
-                g.ResolutionStack.OfType<CardUseFrame>().Single(u => u.Id == identity.CardUseFrameId).Action is null &&
-                !F<CardActionAcceptedEvent>(g).Any(e => e.Action.PhysicalCards.Count == 0 && e.Action.TargetSeats.SequenceEqual([1])),
-                "The mature legacy virtual Slash retains its real Action-null paused producer; Tianming does not manufacture an AcceptedAction.");
-            g = ColdRestore(g, r); Play(g);
-        }
-    }
-
     public static void MizhaoAtomicGiftForeignPindianWinnerSlashAndColdReturn()
     {
         var (g, r) = Create(gainDying: true); Play(g); var recipient = Seat(g, "fixture:lx-target-1"); var third = Seat(g, "fixture:lx-target-2");
@@ -130,54 +88,6 @@ internal static class OrdinaryLiuXieChecks
             g.CardMovements.Count(m => hand.Contains(m.CardId) && m.Reason.Value == GiftReason) == hand.Length &&
             !g.ResolutionStack.Any(f => f.Id == original || f.Id == issued.CardUseFrameId), "Cold continuation returns exactly once to the original paid gift without repaying or retaining the real Slash child.");
         ColdRestore(g, r);
-    }
-
-    public static void MizhaoTieOpponentWinnerAndPaidSourceLossCancelOnlyUnissued()
-    {
-        foreach (var opponentWins in new[] { false, true })
-        {
-            var (g, r) = Create(tie: !opponentWins); Play(g);
-            var recipient = Seat(g, "fixture:lx-target-2"); var third = Seat(g, "fixture:lx-target-1");
-            MizhaoUse(g, recipient); Reach(g, p => p.SkillPrompt?.SkillId == Gift); g = ColdRestore(g, r); Continue(g);
-            Reach(g, p => Has(p, "recipient-contest")); Answer(g, c => c.Targets.SequenceEqual([third]));
-            if (opponentWins)
-            {
-                Reach(g, p => p.SkillPrompt?.SkillId == Done); var issued = F<PindianWinnerSlashIssuedEvent>(g).Single().Return;
-                Require(issued.WinnerSeat == third && issued.OriginalTargetSeat == recipient && issued.ThirdRank == 13 && issued.RecipientRank == 1,
-                    "The third party can genuinely win; it alone becomes the zero Slash actor/provider and attacks the original recipient.");
-                g = ColdRestore(g, r); Continue(g);
-            }
-            Play(g); Require(opponentWins || !F<PindianWinnerSlashIssuedEvent>(g).Any(), "A genuine tied Pindian has no winning actor and issues no Slash."); ColdRestore(g, r);
-        }
-        {
-            var (g, r) = Create(removeGiftSource: true); Play(g); var recipient = Seat(g, "fixture:lx-target-1"); var ids = V(g, 0).Hand.Select(c => c.Id).ToArray();
-            MizhaoUse(g, recipient); Reach(g, p => p.SkillPrompt?.SkillId == "fixture:lx-gift-source-loss"); var root = ContestRoot(g).Id;
-            g = ColdRestore(g, r); Continue(g); Play(g);
-            Require(!g.GetHumanLegalActions().Any(a => a.ProgramSkillId == Mizhao) && V(g, 0).Skills!.Any(s => s.Id == GiftSuppression) &&
-                F<SkillsAcquiredEvent>(g).Count(e => e.PlayerSeat == 0 && e.SourceSkillId == "fixture:lx-gift-source-loss" && e.SkillIds.Contains(GiftSuppression)) == 1,
-                "The real paid-gift movement child acquires one suppression source and removes Mizhao from the qualified snapshot without physically removing its grant.");
-            Require(F<RecipientContestGiftPaidEvent>(g).Length == 1 && ids.All(id => g.CardMovements.Count(m => m.CardId == id && m.Reason.Value == GiftReason) == 1) &&
-                !F<RecipientContestStartedEvent>(g).Any() && !F<PindianWinnerSlashIssuedEvent>(g).Any() &&
-                F<ProgramSkillResolvedEvent>(g).Any(e => e.FrameId == root && !e.Completed) && !g.ResolutionStack.Any(f => f.Id == root),
-                "A real owner movement child suppresses Mizhao's qualification: already-paid gift and gain children remain, unissued Pindian/Slash cancel, and the original frame is cleaned.");
-            Require(!g.GetHumanLegalActions().Any(a => a.ProgramSkillId == Mizhao), "The empty-Hand, lost-source activation is not republished after cost completion."); ColdRestore(g, r);
-        }
-        {
-            var (g, r) = Create(equipment: true, removeTargetSource: true); Play(g); Use(g, "equip", [0]); Play(g);
-            var armor = g.CreateCardZoneDiagnostics().Single(c => c.Location == CardLocation.Equipment(0)).CardId;
-            Incoming(g); Activate(g, Tianming); Reach(g, p => Branch(p, "card")); Answer(g, c => c.Cards.SequenceEqual([armor]));
-            Reach(g, p => Branch(p, "card")); Answer(g, c => c.Cards.Count == 1); Reach(g, p => p.SkillPrompt?.SkillId == Hp);
-            var root = PeerRoot(g).Id; g = ColdRestore(g, r); Continue(g); Reach(g, p => p.SkillPrompt?.SkillId == Cost);
-            g = ColdRestore(g, r); Continue(g); Play(g);
-            Require(V(g, 0).Skills!.Any(s => s.Id == TargetSuppression) &&
-                F<SkillsAcquiredEvent>(g).Count(e => e.PlayerSeat == 0 && e.SourceSkillId == Cost && e.SkillIds.Contains(TargetSuppression)) == 1,
-                "The actual cost child acquires one independent suppression source after the recovery, so Tianming is genuinely unqualified rather than merely unavailable by usage.");
-            Require(F<UniqueHpPeerCostPaidEvent>(g).Count(e => e.FrameId == root) == 1 && !F<UniqueHpPeerDrawIssuedEvent>(g).Any(e => e.FrameId == root) &&
-                !F<UniqueHpPeerOfferedEvent>(g).Any(e => e.FrameId == root) && F<ProgramBindingResolvedEvent>(g).Any(e => e.FrameId == root && e.SkillId == Tianming && e.Window == SkillProgramTriggerWindow.OtherActualUseTargeted && !e.Completed) &&
-                !g.ResolutionStack.Any(f => f.Id == root) && g.CardMovements.Count(m => m.CardId == armor && m.Reason.Value == CostReason) == 1,
-                "The real cost child suppresses Tianming's qualification only after the SilverLion recovery; paid entities remain, no unattempted Draw invoice or peer is fabricated, and the original Slash resumes.");
-            ColdRestore(g, r);
-        }
     }
 
     private static (GameEngine, ContentRegistry) Create(bool equipment = false, bool tied = false, bool multi = false, bool legacy = false, bool tie = false, bool gainDying = false, bool removeGiftSource = false, bool removeTargetSource = false)

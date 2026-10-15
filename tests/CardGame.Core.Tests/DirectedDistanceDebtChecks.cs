@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 using System.Text.Json;
 using CardGame.Core;
 using CardGame.Content.Standard;
@@ -191,7 +191,11 @@ internal static class DirectedDistanceDebtChecks
         Accept(g,new AdvanceOneStepCommand(g.Revision));
     }
     private static void HostAnswer(GameEngine g,Func<PromptChoice,bool> predicate)
-    { InvokeHost(g,"ResolveProgramTriggerChoice",P(g)!.Choices.First(predicate)); InvokeHost(g,"AdvanceRulesAndPublishState"); }
+    {
+        var router=typeof(GameEngine).GetProperty("ProgramInteractions",Flags)!.GetValue(g)!;
+        router.GetType().GetMethod("Resolve",Flags)!.Invoke(router,[P(g)!.Choices.First(predicate)]);
+        InvokeHost(g,"AdvanceRulesAndPublishState");
+    }
     private static object? InvokeHost(GameEngine g,string method,params object?[] args) => typeof(GameEngine).GetMethod(method,Flags)!.Invoke(g,args);
     private static int Response(GameEngine g,int target) => (int)typeof(GameEngine).GetMethod("GetProgramRequiredResponseCount",Flags)!
         .Invoke(g,[HostPlayers(g)[0],0,target,CardKind.Slash,CardKind.Dodge])!;

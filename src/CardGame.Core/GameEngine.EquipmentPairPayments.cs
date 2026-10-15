@@ -51,6 +51,7 @@ public sealed partial class GameEngine
         _status = _players[frame.OwnerSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
         return SkillProgramStepOutcome.AwaitChoice;
     }
+    [ProgramAnswer("equipment-pair-payment")]
     private void ResolveEquipmentPairPaymentChoice(PromptChoice choice)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame frame || frame.InstructionIndex != 1 || frame.EquipmentPairPayment is not null ||
@@ -162,6 +163,7 @@ public sealed partial class GameEngine
              !CompleteProgramEventHistory().OfType<ProgramEquipmentPairExchangeStartedEvent>().Any(e => e.FrameId == frame.Id && e.FirstSeat == paid.FirstSeat && e.SecondSeat == paid.SecondSeat && e.MovementSequenceBefore == before)))
             throw new InvalidOperationException("The paid equipment pair lost its exact frozen pair, cost or exchange receipt.");
     }
+    [ProgramAiChoice(SkillProgramEffectOp.SelectEquipmentPairAndPayment)]
     private PromptChoice SelectAiEquipmentPairPayment(PendingDecision decision, ProgramSkillFrame frame) =>
         frame.OwnedCardSelection is not null ? SelectAiProgramOwnedCards(decision, frame) : decision.Choices
             .OrderBy(c => Math.Abs(GetEquipment(_players[c.Targets[0]]).Count - GetEquipment(_players[c.Targets[1]]).Count))

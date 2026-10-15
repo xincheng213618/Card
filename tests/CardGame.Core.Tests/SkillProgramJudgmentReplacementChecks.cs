@@ -121,89 +121,6 @@ internal static class SkillProgramJudgmentReplacementChecks
     }
 
 
-    private static (GameCheckpoint Checkpoint, int BaguaId) FindBaguaBoundary(ContentRegistry registry)
-    {
-        var baguaHands = 0;
-        var equippedGames = 0;
-        var baguaResponses = 0;
-        for (var seed = 1; seed <= 8_192; seed++)
-        {
-            var game = GameEngine.CreateStandard(new GameOptions
-            {
-                Seed = seed,
-                PlayerCount = 5,
-                ModeId = BaguaFixturePackage.ModeId,
-                HumanSeat = 0,
-                HumanRole = Role.Lord,
-                UseInteractiveSetup = true,
-                UseInteractiveDiscard = false,
-                AdvanceAfterHumanCommands = false,
-                AiPolicyVersion = 2,
-                MaxTurns = 80
-            }, registry);
-            if (!game.Submit(new StartGameCommand()).Accepted ||
-                game.PendingDecision is not { Kind: DecisionKind.SelectGeneral } setup ||
-                !game.Submit(new SelectGeneralCommand(
-                    0, BaguaFixturePackage.OwnerGeneralId, game.Revision, setup.PromptId)).Accepted ||
-                !game.Submit(new AdvanceCommand(game.Revision)).Accepted ||
-                game.PendingDecision is not { Kind: DecisionKind.PlayCard })
-                continue;
-
-            var hand = game.CreateSnapshot(0, revealAll: true).Players[0].Hand;
-            var bagua = hand.FirstOrDefault(card => card.Kind == CardKind.BaguaFormation);
-            if (bagua is not null) baguaHands++;
-            if (bagua is null ||
-                !hand.Any(card => card.Id != bagua.Id &&
-                    (card.Suit is Suit.Spade or Suit.Club)))
-                continue;
-            var equipped = game.Submit(new PlayCardCommand(
-                0, bagua.Id, [], game.Revision, game.PendingDecision!.PromptId));
-            if (!equipped.Accepted)
-                continue;
-            for (var resume = 0; resume < 8 &&
-                 game.PendingDecision is not { Kind: DecisionKind.PlayCard }; resume++)
-            {
-                if (!game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted) break;
-            }
-            if (game.PendingDecision is not { Kind: DecisionKind.PlayCard } resumedPlay ||
-                !game.Submit(new EndPlayPhaseCommand(
-                    0, game.Revision, resumedPlay.PromptId)).Accepted)
-                continue;
-            equippedGames++;
-
-            for (var step = 0; step < 2_000 && game.State.Status != EngineStatus.Completed; step++)
-            {
-                if (game.PendingDecision is { Kind: DecisionKind.RespondDodge, PlayerSeat: 0 } response &&
-                    response.Choices.Any(choice => choice.Parameters.GetValueOrDefault("response") == "bagua") &&
-                    game.CreateSnapshot(0, revealAll: true).Players[0].Hand.Any(card =>
-                        card.Suit is Suit.Spade or Suit.Club))
-                {
-                    baguaResponses++;
-                    return (game.CreateCheckpoint(), bagua.Id);
-                }
-
-                GameCommand command = game.PendingDecision is { PlayerSeat: 0 } pending
-                    ? pending.Kind switch
-                    {
-                        DecisionKind.PlayCard => new EndPlayPhaseCommand(0, game.Revision, pending.PromptId),
-                        DecisionKind.RescueDying => new AnswerPromptCommand(
-                            0, pending.PromptId,
-                            pending.Choices.First(choice =>
-                                choice.Parameters.GetValueOrDefault("response") == "let-die").Id,
-                            game.Revision),
-                        _ => new AnswerPromptCommand(
-                            0, pending.PromptId, pending.Choices.Last().Id, game.Revision)
-                    }
-                    : new AdvanceOneStepCommand(game.Revision);
-                if (!game.Submit(command).Accepted) break;
-            }
-        }
-        throw new InvalidOperationException(
-            $"No bounded equipped Bagua response retained another black hand card " +
-            $"(baguaHands={baguaHands}, equippedGames={equippedGames}, baguaResponses={baguaResponses}).");
-    }
-
-
     private static (GameEngine Game, int EquipmentId) FindBoundary(ContentRegistry registry)
     {
         for (var seed = 1; seed <= 512; seed++)
@@ -468,25 +385,6 @@ internal static class SkillProgramJudgmentReplacementChecks
                 GeneralCandidateCount: 5,
                 GeneralPoolIds: [OwnerGeneralId, .. OtherGeneralIds]));
         }
-    }
-
-    private static void AssertReject(string rules, string expected)
-    {
-        try { _ = SkillProgramCatalog.Load(rules, Presentation); }
-        catch (InvalidOperationException exception) when (
-            exception.Message.Contains(expected, StringComparison.OrdinalIgnoreCase))
-        { return; }
-        throw new InvalidOperationException($"Expected rejection containing '{expected}'.");
-    }
-
-    private static GameCheckpoint RoundTrip(GameCheckpoint checkpoint) =>
-        GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(checkpoint));
-
-    private static void RequireThrows<TException>(Action action) where TException : Exception
-    {
-        try { action(); }
-        catch (TException) { return; }
-        throw new InvalidOperationException($"Expected {typeof(TException).Name}.");
     }
 
     private static void Require(bool condition, string message)

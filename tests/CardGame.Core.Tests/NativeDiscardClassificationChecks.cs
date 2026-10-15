@@ -6,9 +6,11 @@ internal static class NativeDiscardClassificationChecks
     {
         foreach (var reason in new[]
         {
+            "skill-program.huaman.discard",
             "skill-program.fixture:refund.draw-discard-category.discard",
             "skill-program.fixture:reciprocity.last-damage-source.discard",
             "program.phase-name-prediction.cost",
+            "skill-program.xingluan.recipient.discard",
             "skill-program.fixture:outside.outside-phase-discard"
             , "skill-program.fixture:demand.same-name-hand.discard"
             , "skill-program.fixture:reveal.completed-undamaged-target.discard"
@@ -16,10 +18,17 @@ internal static class NativeDiscardClassificationChecks
             Require(GameEngine.IsDiscardMovementReason(new(reason)), $"Actual discard producer must qualify: {reason}");
         foreach (var reason in new[]
         {
+            "skill-program.huaman.draw",
+            "skill-program.huaman.claim",
+            "skill-program.liehou.hand-relay",
             "skill-program.fixture:refund.draw-discard-category.draw",
             "skill-program.fixture:refund.draw-discard-category.bonus",
             "skill-program.fixture:reciprocity.last-damage-source.draw",
             "program.phase-name-prediction.reveal",
+            "skill-program.xingluan.field-gain",
+            "skill-program.xingluan.deck-gain",
+            "skill-program.xingluan.recipient-gift",
+            "skill-program.xingluan.recipient.discard-finished",
             "program.phase-name-prediction.cost-finished",
             "skill-program.fixture:outside.outside-phase-draw",
             "skill-program.fixture:demand.same-name-hand.damage",

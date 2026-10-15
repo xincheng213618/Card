@@ -8,7 +8,9 @@ public sealed partial class GameEngine
     private long CompletedUndamagedMovementSequence => _cardMovements.LastOrDefault()?.Sequence ?? 0;
     private bool TracksCompletedUndamagedUseDamage => _contentRegistry.ProgramDependencies
         .HasTriggerOperation(SkillProgramEffectOp.RevealUndamagedUseTargetHandAndDiscardSameColor) ||
-        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.JoinUniqueLargestHpTrickTargetAndDrawAfterDamage);
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.JoinUniqueLargestHpTrickTargetAndDrawAfterDamage) ||
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.InvalidateRemainingActualDamageCardEffects) ||
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ClaimCompletedUndamagedIncomingCardEntities);
     // Native immediate damage tricks. A separate program Damage child is not damage caused by its ancestral Use.
     private static bool IsCompletedUndamagedDamageUse(CardKind kind) => IsSlashCard(kind) || kind is
         CardKind.Duel or CardKind.FireAttack or CardKind.BarbarianAssault or CardKind.ArrowBarrage or CardKind.UnexpectedAssault;
@@ -212,6 +214,7 @@ public sealed partial class GameEngine
         { PromptId = CreatePromptId(), IsPrivate = true, Choices = choices, SkillPrompt = new(f.SkillId, skill.Name, skill.Name, skill.Description) };
         _status = _players[f.OwnerSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
+    [ProgramAnswer("completed-undamaged-target-reveal")]
     private void ResolveCompletedUndamagedTargetRevealChoice(PromptChoice choice)
     {
         var f = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("Completed-target reveal lost its chooser.");
@@ -325,13 +328,6 @@ public sealed partial class GameEngine
         f.CompletedUndamagedTargetReveal is { MovementIssued: true, Stage: CompletedUndamagedTargetRevealStage.MovementChildren } r &&
         pending.SubjectSeat == r.TargetSeat && pending.BeforeCount == 0 && pending.CoverageResultBind is null &&
         f.PendingMovementContinuation == pending && ValidCompletedUndamagedTargetRevealReceipt(f);
-    private PromptChoice SelectAiCompletedUndamagedTargetReveal(PendingDecision decision, ProgramSkillFrame f)
-    {
-        // Deliberately inspect only public seat/count and opaque slots, never the target's material invoice.
-        if (f.CompletedUndamagedTargetReveal!.Stage == CompletedUndamagedTargetRevealStage.ChoosingTarget)
-            return decision.Choices.OrderBy(c => c.Targets.Single() == f.OwnerSeat).ThenBy(c => c.Targets.Single()).First();
-        return decision.Choices.FirstOrDefault(c => c.Parameters.GetValueOrDefault("branch") == "slot") ?? decision.Choices.Single();
-    }
     private sealed partial class ProgramSkillHost : ICompletedUndamagedTargetRevealProgramHost
     {
         public SkillProgramStepOutcome CompletedUndamagedTargetReveal(ProgramSkillFrame f) => engine.BeginCompletedUndamagedTargetReveal(f);

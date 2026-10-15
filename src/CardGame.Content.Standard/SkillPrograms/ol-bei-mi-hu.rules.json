@@ -1,0 +1,121 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:zongkui",
+      "triggers": [
+        {
+          "id": "before-actual-turn",
+          "window": "turnBeforeStart",
+          "optional": true,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "markUnmarkedOtherBeforeActualTurn",
+              "target": "owner"
+            }
+          ],
+          "subject": "owner"
+        },
+        {
+          "id": "first-round-minimum",
+          "window": "roundStarting",
+          "optional": false,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "markLowestHpUnmarkedOtherAtRoundStart",
+              "target": "owner"
+            }
+          ],
+          "subject": "owner"
+        }
+      ],
+      "revision": 1
+    },
+    {
+      "id": "ol:guju",
+      "triggers": [
+        {
+          "id": "marked-actual-damage",
+          "window": "afterDamageApplied",
+          "optional": false,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "drawAfterActualKuiDamage",
+              "target": "owner"
+            }
+          ],
+          "subject": "any",
+          "damageOccurrence": "perDamage"
+        }
+      ],
+      "revision": 1
+    },
+    {
+      "id": "ol:baijia",
+      "triggers": [
+        {
+          "id": "actual-seven-cards",
+          "window": "turnStartBeforeNormalFlow",
+          "optional": false,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "awakenFromActualGujuCards",
+              "target": "owner"
+            }
+          ],
+          "subject": "owner",
+          "turnOwnerScope": "own",
+          "usageScope": "game",
+          "usageLimit": 1
+        }
+      ],
+      "revision": 1
+    },
+    {
+      "id": "ol:canshi",
+      "triggers": [
+        {
+          "id": "incoming-sole-target",
+          "window": "cardUseTargetsFinalized",
+          "optional": true,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "consumeKuiCancelSoleIncomingTarget",
+              "target": "owner"
+            }
+          ],
+          "ownerRelation": "target",
+          "cardCategories": [
+            "basic",
+            "instantTrick"
+          ],
+          "singleActionInstance": true
+        },
+        {
+          "id": "outgoing-sole-target",
+          "window": "cardUseTargetsFinalized",
+          "optional": true,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "consumeKuiAppendLegalTargets",
+              "target": "owner"
+            }
+          ],
+          "ownerRelation": "actor",
+          "cardCategories": [
+            "basic",
+            "instantTrick"
+          ],
+          "singleActionInstance": true
+        }
+      ],
+      "revision": 1
+    }
+  ]
+}

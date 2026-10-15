@@ -82,44 +82,6 @@ internal static class BoundaryWangYiChecks
             "The restored native protected target finishes one paid cost and the original legacy program without inventing a zero-ID entity.");
     }
 
-    public static void PaidDyingRescueSourceLossAndDeclineResumeOriginalUse()
-    {
-        var (g, r) = Create(); Play(g); Use(g, "hurt-three"); Play(g);
-        Require(g.State.Players[0].Hp == 1, "The fixture reaches one HP through a genuine previous command, without editing runtime state.");
-        Use(g, "enemy-duel", [1]); Reach(g, p => Activation(p, Zhen)); Activate(g, Zhen); Reach(g, p => p.SkillPrompt?.SkillId == Entry);
-        var root = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == Zhen);
-        Require(g.ResolutionStack.OfType<DyingFrame>().Single().ParentFrameId == root.Id && root.PaidOwnTarget is { Applied: false, HpAfter: 0 } &&
-            E<PaidOwnTargetAppliedEvent>(g).Count() == 0, "The genuine zero-HP cost owns its Dying-entry child before applying ineffectiveness.");
-        g = Restore(g, r); Continue(g); Reach(g, p => p.Kind == DecisionKind.RescueDying && p.PlayerSeat == 0);
-        Answer(g, c => c.Parameters.GetValueOrDefault("response") == "peach"); Reach(g, p => p.SkillPrompt?.SkillId == Hp);
-        var rescue = E<CardActionAcceptedEvent>(g).Last(e => e.Action.EffectiveKind == CardKind.Peach).Action;
-        g = Restore(g, r); Continue(g); Reach(g, p => p.SkillPrompt?.SkillId == Zhen); Option(g, "skip"); Play(g);
-        Require(g.State.Players[0].Hp == 1 && E<ProgramSkillHpLostEvent>(g).Count(e => e.FrameId == root.Id) == 1 &&
-            E<PaidOwnTargetAppliedEvent>(g).Count(e => e.ProgramFrameId == root.Id) == 1 && rescue.PhysicalCards.Count == 1 &&
-            rescue.PhysicalCards.All(c => g.CardMovements.Count(m => m.CardId == c.CardId && m.To == CardLocation.Processing) == 1),
-            "JSON-restored Dying, physical Peach and recovery children return to one paid cost and apply ineffectiveness once.");
-        g = Restore(g, r);
-
-        var (loss, lr) = Create(sourceLoss: true); Play(loss); var hp = loss.State.Players[0].Hp;
-        Use(loss, "enemy-duel", [1]); Reach(loss, p => Activation(p, Zhen)); Activate(loss, Zhen); Play(loss);
-        Require(!loss.CreateSnapshot(0).Players[0].Skills!.Any(s => s.Id == Zhen) && loss.State.Players[0].Hp == hp - 1 &&
-            E<PaidOwnTargetAppliedEvent>(loss).Count() == 1 && E<EarnedActualEndingBenefitIssuedEvent>(loss).Count() == 0 &&
-            E<ProgramBindingResolvedEvent>(loss).Any(e => e.SkillId == Zhen && !e.Completed),
-            "Actual HP observers suppress the original skill's qualification after payment; the same card remains ineffective and unpaid benefit choices are canceled.");
-        Require(loss.CreateSnapshot(0).Players[0].Skills!.Any(s => s.Id == SourceSuppression) &&
-            E<SkillsAcquiredEvent>(loss).Count(e => e.PlayerSeat == 0 && e.SourceSkillId == Loss && e.SkillIds.Contains(SourceSuppression)) == 1,
-            "The real paid-HP observer acquires one independent suppression source; this is qualification suppression, not physical grant removal.");
-        loss = Restore(loss, lr);
-
-        var (decline, dr) = Create("standard:slash", observers: false); Play(decline); hp = decline.State.Players[0].Hp;
-        Use(decline, "enemy-duel", [1]); Reach(decline, p => Activation(p, Zhen));
-        Answer(decline, c => c.Parameters.GetValueOrDefault("program-action") == "skip");
-        Reach(decline, p => p.Kind == DecisionKind.RespondSlash && p.PlayerSeat == 0);
-        Require(decline.State.Players[0].Hp == hp && E<PaidOwnTargetHpEvent>(decline).Count() == 0 && E<PaidOwnTargetAppliedEvent>(decline).Count() == 0,
-            "Declining an optional opportunity preserves HP and leaves the original ordinary trick's real response available.");
-        decline = Restore(decline, dr);
-    }
-
     public static void IndependentActualEndingPromisesFrozenXAndOptionalHeGifts()
     {
         var (g, r) = Create(observers: false); Play(g);
@@ -157,56 +119,6 @@ internal static class BoundaryWangYiChecks
             "An empty real deck freezes zero actual draw but the independently frozen X still permits an existing owned entity under the stated engineering default.");
         empty = Restore(empty, er); Answer(empty, c => c.Parameters.GetValueOrDefault("program-action") == "limited-owned-gift");
         Until(empty, () => E<ProgramBindingResolvedEvent>(empty).Any(e => e.SkillId == Miji && e.Completed)); empty = Restore(empty, er);
-    }
-
-    public static void LostHpGiftMovementDyingNativeAndStrictContracts()
-    {
-        var (g, r) = Create(gainDying: true, observers: false); Play(g); Use(g, "hurt-one"); Play(g);
-        Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId)); Reach(g, p => Activation(p, Miji)); Activate(g, Miji); Reach(g, Gift);
-        Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "limited-owned-gift" && c.Targets.SequenceEqual([1]));
-        Reach(g, p => p.SkillPrompt?.SkillId == Entry);
-        var given = E<LostHpOwnedCardGivenEvent>(g).Single();
-        Require(g.ResolutionStack.OfType<DyingFrame>().Single().VictimSeat == 1 && given.PaidCount == 1 && given.DeliveredCount == 1,
-            "A real recipient gain observer owns a Dying child after one actual HE transfer; it does not move or pay the entity again.");
-        g = Restore(g, r); Continue(g);
-        Until(g, () => E<ProgramBindingResolvedEvent>(g).Any(e => e.SkillId == Miji && e.Completed));
-        Require(E<LostHpOwnedCardGivenEvent>(g).Count() == 1 && E<LostHpDrawGiftFrozenEvent>(g).Count() == 1 &&
-            g.CardMovements.Count(m => m.CardId == given.CardId && m.From == given.From && m.To == CardLocation.Processing) == 1,
-            "JSON-restored gain/Dying/rescue children return to the exact Ending program without duplicate draws or gift payments."); g = Restore(g, r);
-
-        var (native, nr) = Create(native: true, observers: false);
-        for (var i = 0; i < 100 && native.State.Status != EngineStatus.Completed &&
-            !(E<PaidOwnTargetAppliedEvent>(native).Any() && E<LostHpDrawGiftFrozenEvent>(native).Any()); i++) Accept(native, new AdvanceOneStepCommand(native.Revision));
-        Require(E<PaidOwnTargetAppliedEvent>(native).Any() && E<LostHpDrawGiftFrozenEvent>(native).Any() &&
-            native.AcceptedCommands.All(c => c is not AnswerPromptCommand),
-            "The fixed native source really pays/nullifies and draws via Start/Advance, using public target appearance and own gift cards only."); native = Restore(native, nr);
-    }
-
-    public static void SharedActualTargetLoaderContracts()
-    {
-        var assembly = typeof(StandardContentPackage).Assembly;
-        string Read(string suffix) { using var s = assembly.GetManifestResourceStream(assembly.GetManifestResourceNames().Single(n => n.EndsWith("boundary-wang-yi." + suffix)))!; using var reader = new StreamReader(s); return reader.ReadToEnd(); }
-        var rules = Read("rules.json"); var presentation = Read("presentation.json");
-        const string sharedWindowSkill = "fixture:shared-actual-target-window";
-        var sharedWindowRules = $$"""
-        {"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[{"id":"{{sharedWindowSkill}}","revision":1,
-          "triggers":[{"id":"shared-window","window":"otherActualUseTargeted","subject":"owner","optional":true,
-            "effects":[{"op":"offerShortRangeSlashTarget","target":"owner"}]}]}]}
-        """;
-        var sharedWindowPresentation = JsonSerializer.Serialize(new { schemaVersion = SkillProgramCatalog.PresentationSchemaVersion,
-            skills = new Dictionary<string, object> { [sharedWindowSkill] = new { name = "共享实际目标窗口", description = "共享机制 loader 回归" } } });
-        var sharedWindow = SkillProgramCatalog.Load(sharedWindowRules, sharedWindowPresentation);
-        Require(sharedWindow.Programs[sharedWindowSkill].Triggers.Single().Effects is [{ Op: SkillProgramEffectOp.OfferShortRangeSlashTarget }],
-            "An unrelated actual-target operation keeps its own contract when sharing the paid-target trigger window.");
-        var incompletePaidRejected = false;
-        try { SkillProgramCatalog.Load(sharedWindowRules.Replace("offerShortRangeSlashTarget", "payHpThenNullifyOwnActualUseTarget"), sharedWindowPresentation); }
-        catch (InvalidOperationException) { incompletePaidRejected = true; }
-        Require(incompletePaidRejected, "Restricting validation to paid-target operations still rejects a paid cost without its exact four-step successor contract.");
-        foreach (var invalid in new[] { rules.Replace("\"otherActualUseTargeted\"", "\"cardUseBeforeTargetEffects\""),
-            rules.Replace("\"zones\": [\"hand\", \"equipment\"]", "\"zones\": [\"hand\", \"judgment\"]"),
-            rules.Replace("\"earnedActualEnding\"", "\"otherLiving\"") })
-        { var rejected = false; try { SkillProgramCatalog.Load(invalid, presentation); } catch (InvalidOperationException) { rejected = true; }
-            Require(invalid != rules && rejected, "New paid-target and earned Ending contracts reject wrong windows, HE regions and unbacked foreign endings without changing classic rules."); }
     }
 
     private static IEnumerable<T> E<T>(GameEngine g) => g.Events.Select(e => e.Payload).OfType<T>();

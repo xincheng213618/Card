@@ -1,4 +1,4 @@
-﻿namespace CardGame.Core;
+namespace CardGame.Core;
 
 public sealed record LordSkillProjectionSource(int LordSeat, string LordGrantId, string LordSkillInstanceId,
     string CapabilityGrantId, string CapabilitySkillInstanceId);
@@ -17,7 +17,9 @@ public sealed record SkillGrant(
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     SkillGrantPhaseExpiry? PhaseExpiry = null,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
-    HpConditionalSkillGrantSource? HpConditionalSource = null);
+    HpConditionalSkillGrantSource? HpConditionalSource = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    EquipmentSuitSkillGrantSource? EquipmentSuitSource = null);
 
 /// <summary>
 /// Source-aware skill ownership for one character. Definitions and execution

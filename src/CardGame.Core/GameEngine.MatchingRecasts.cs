@@ -128,6 +128,7 @@ public sealed partial class GameEngine
     private void PublishMatchingRecastChoice(ProgramSkillFrame f) => PublishParticipantHandChoice(f, f.MatchingRecast!.Peer.Seat,
         MatchingRecastChoices(f), f.MatchingRecast.Stage == MatchingRecastStage.ChoosingPeer
             ? "选择重铸等量同类型牌，或受到1点雷电伤害。" : "选择本次重铸的牌，选齐后同时重铸。", f.MatchingRecast.Peer.Seat);
+    [ProgramAnswer("matching-recast")]
     private void ResolveMatchingRecastChoice(PromptChoice choice)
     {
         var f = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("Matching recast lost its choice owner.");
@@ -204,6 +205,7 @@ public sealed partial class GameEngine
         f.PendingMovementContinuation == pending && pending.SubjectSeat == CurrentMatchingRecast(r).Seat && pending.BeforeCount == 0 &&
         pending.CoverageResultBind is null && ValidMatchingRecastReceipt(f);
     private bool CanContinueMatchingRecast(ProgramSkillFrame f) => f.MatchingRecast is { Owner.CostIssued: true } && ValidMatchingRecastReceipt(f);
+    [ProgramAiChoice(SkillProgramEffectOp.RecastMatchingCardsThenPeerChoice)]
     private PromptChoice SelectAiMatchingRecast(PendingDecision decision, ProgramSkillFrame f) => decision.Choices
         .OrderBy(c => c.Parameters["step"] == "damage" ? 1 : 0)
         .ThenBy(c => c.Cards.Count == 1 ? GetKeepValue(GetAdvancedCard(c.Cards[0]), _players[decision.PlayerSeat]) : 0)

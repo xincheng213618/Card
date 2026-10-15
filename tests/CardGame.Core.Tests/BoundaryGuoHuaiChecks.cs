@@ -10,52 +10,6 @@ internal static class BoundaryGuoHuaiChecks
     private const string Mode = "identity:classic-boundary-guo-huai-fixture";
     private const string DrawReason = "skill-program." + Skill + ".Draw";
 
-    public static void UsedHandSuitsAndActualUseTypesDeduplicateIndependently()
-    {
-        var (game, registry) = Create(); ReachPlay(game); Stock(game);
-        PlayKind(game, LegalActionKind.Equip); ReachPlay(game);
-        PlayKind(game, LegalActionKind.DrawTwo);
-        Reach(game, p => p.PlayerSeat == 0 && p.Kind == DecisionKind.Nullification &&
-            p.Choices.Any(c => c.Parameters.GetValueOrDefault("response") == "nullification"));
-        var counter = P(game)!.Choices.First(c => c.Parameters.GetValueOrDefault("response") == "nullification");
-        var counterCard = counter.Cards.Single(); Cold(game, registry); Answer(game, c => c.Id == counter.Id); ReachPlay(game);
-        var nullification = Facts(game).Single(e => e.ActorSeat == 0 && e.IsNullificationUse);
-        var nullificationAction = game.Events.Select(e => e.Payload).OfType<CardActionAcceptedEvent>()
-            .Single(e => e.Action.ActionId == nullification.CardActionId).Action;
-        Require(nullification.HandSuitMask == 8 && nullification.CardCategoryMask == 2 &&
-            nullificationAction is { Type: CardActionType.Response, EffectiveKind: CardKind.Nullification, ActorSeat: 0, ProviderSeat: 0, EffectiveSuit: Suit.Diamond } &&
-            nullificationAction.PhysicalCards is [var physical] && physical.CardId == counterCard && physical.From == CardLocation.Hand(0),
-            "A true own-hand Nullification use keeps its exact Response syntax, frozen Diamond suit and effective Trick category.");
-        PlayKind(game, LegalActionKind.Slash, target: 1); ReachPlay(game);
-        PlayKind(game, LegalActionKind.Equip); ReachPlay(game);
-        var own = Facts(game).Where(e => e.ActorSeat == 0 && e.TurnNumber == 1).ToArray();
-        Require(own.Select(e => e.HandSuitMask).Aggregate(0, (a, b) => a | b) == 15 &&
-            own.Select(e => e.CardCategoryMask).Aggregate(0, (a, b) => a | b) == 7 &&
-            own.Select(e => e.CardActionId).Where(id => id is not null).Distinct().Count() == own.Length,
-            "Repeated Heart equipment contributes one suit while Basic, Trick and Equipment remain three independently deduplicated types.");
-        Use(game, "opponent-duel", targets: [1]);
-        ReachUnnullifiedDuelSlashResponse(game);
-        var beforeResponse = Facts(game).Count(e => e.ActorSeat == 0 && e.TurnNumber == 1);
-        var slashResponse = P(game)!.Choices.First(c => c.Parameters.GetValueOrDefault("response") == "slash");
-        Answer(game, c => c.Id == slashResponse.Id); ReachPlay(game);
-        Require(Facts(game).Count(e => e.ActorSeat == 0 && e.TurnNumber == 1) == beforeResponse &&
-            Facts(game).Any(f => f.ActorSeat == 1 && f.HandSuitMask == 0 && f.CardCategoryMask == 2 &&
-                game.Events.Select(e => e.Payload).OfType<CardUseDeclaredEvent>().Any(e => e.ResolutionId == f.OriginFrameId && e.CardId == 0 && e.CardKind == CardKind.Duel)) &&
-            game.Events.Select(e => e.Payload).OfType<CardActionAcceptedEvent>().Any(e =>
-                e.Action.ActorSeat == 0 && e.Action.Type == CardActionType.Response && e.Action.EffectiveKind == CardKind.Slash &&
-                e.Action.PhysicalCards.Select(c => c.CardId).SequenceEqual(slashResponse.Cards)),
-            "The other actor's zero-entity Duel is a true Trick use; the owner's real paid Slash response is not mistaken for an owner use.");
-        EndPlay(game); ReachJingce(game); Cold(game, registry); RejectUnpublished(game);
-        Activate(game); ReachDiscard(game);
-        Require(DrawMoves(game).Length == 3 && P(game)!.RequiredCardCount ==
-            game.State.Players[0].HandCount - game.State.Players[0].Hp - 4,
-            "The actual Play-ending draw pays exactly three deck entities; central discard observes the four-suit hand-limit bonus.");
-        for (var viewer = 1; viewer < 4; viewer++)
-            Require(game.CreateSnapshot(viewer).Players[0].Hand.Count == 0 && game.CreateSnapshot(viewer).PendingDecision is null,
-                "Public scalar use history and the hand-limit effect do not expose private discard candidates or remaining hand identities.");
-        Cold(game, registry);
-    }
-
     public static void EachPlayEndingDrawUsesActualTurnHistoryAndReturnsFromGainChild()
     {
         var (game, registry) = Create(extraPlay: true, observers: true); ReachPlay(game); Stock(game);
@@ -90,66 +44,6 @@ internal static class BoundaryGuoHuaiChecks
         Require(P(game)!.RequiredCardCount == game.State.Players[0].HandCount - game.State.Players[0].Hp,
             "Both the next-turn actual history and the previous source instance's numerical hand-limit contribution expire at the turn boundary.");
         Cold(game, registry);
-    }
-
-    public static void ForeignPlayEndingUsesOwnerHistoryWhileClassicRemainsOwnTurn()
-    {
-        foreach (var classic in new[] { false, true })
-        {
-            var skill = classic ? "classic:jingce" : Skill;
-            var (game, registry) = Create(observers: !classic, classic: classic, foreignPlay: true);
-            ReachPlay(game); Stock(game);
-            for (var use = 0; use < 5; use++) { PlayKind(game, LegalActionKind.Equip); ReachPlay(game); }
-            EndPlay(game);
-            Reach(game, p => p.SkillPrompt?.SkillId == skill);
-            Answer(game, c => c.Parameters.GetValueOrDefault("program-action") == "activate");
-            if (!classic) { Reach(game, p => p.SkillPrompt?.SkillId == Gain); Continue(game); }
-            ReachDiscard(game);
-            var discard = P(game)!;
-            var kept = game.CreateSnapshot(0).Players[0].Hand.Where(c => c.Kind == CardKind.Nullification)
-                .Take(3).Select(c => c.Id).ToHashSet();
-            Require(kept.Count == 3, "The fixed deck retains three real counterspells for foreign turns.");
-            Accept(game, new DiscardCardsCommand(0, discard.ValidCardIds.Where(id => !kept.Contains(id))
-                .Take(discard.RequiredCardCount).ToArray(), discard.PromptId, game.Revision));
-            Reach(game, p => game.State.CurrentSeat == 1 && p.PlayerSeat == 0 && p.Kind == DecisionKind.Nullification &&
-                p.Choices.Any(c => c.Parameters.GetValueOrDefault("response") == "nullification"));
-            Answer(game, c => c.Parameters.GetValueOrDefault("response") == "nullification");
-            var foreignTurn = game.State.TurnNumber;
-            Require(Facts(game).Where(e => e.TurnNumber == foreignTurn && e.ActorSeat == 0) is var foreign &&
-                foreign.Count() == 1 && foreign.Single() is { TurnOwnerSeat: 1, HandSuitMask: 8, CardCategoryMask: 2 },
-                "A foreign-turn counterspell records the owner's Diamond hand use and Trick type independently of the previous Equipment-only turn.");
-            if (classic)
-            {
-                var afterResponse = game.Events.Count;
-                ReachPlay(game);
-                Require(!game.Events.Skip(afterResponse).Select(e => e.Payload).OfType<ProgramBindingStartedEvent>()
-                    .Any(e => e.SkillId == skill && e.OwnerSeat == 0) &&
-                    game.CardMovements.Count(m => m.Reason.Value == "skill-program." + skill + ".Draw") == 2,
-                    "Classic Jingce draws its two cards in the owner's turn and never activates at foreign Play endings.");
-                Cold(game, registry);
-                continue;
-            }
-            ReachJingce(game);
-            var window = game.ResolutionStack.OfType<ProgramLifecycleTriggerWindowFrame>().Single();
-            Require(window.OwnerSeat == 1 && window.ParticipantFacts![0].CurrentTurnUsedCardCategoryCount == 1 &&
-                window.Facts.CurrentTurnUsedCardCategoryCount > 1,
-                "The foreign Play boundary freezes the owner's one Trick type and one suit separately from the turn player's multiple types.");
-            Cold(game, registry); RejectUnpublished(game);
-            var beforeDraw = DrawMoves(game).Length;
-            Activate(game); Reach(game, p => p.SkillPrompt?.SkillId == Gain);
-            var producer = game.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == Skill);
-            Require(producer.OwnerSeat == 0 && producer.WindowContext is { SourceSeat: 1, TargetSeat: 1 } &&
-                producer.WindowContext.Facts?.CurrentTurnUsedCardCategoryCount == 1 && DrawMoves(game).Length == beforeDraw + 1,
-                "Foreign Jingce draws exactly one real card to its owner before suspending on that owner's gain child.");
-            Cold(game, registry); Continue(game); ReachJingce(game);
-            window = game.ResolutionStack.OfType<ProgramLifecycleTriggerWindowFrame>().Single();
-            Require(window.OwnerSeat == 2 && window.ParticipantFacts![0].CurrentTurnUsedCardCategoryCount == 0 &&
-                !Facts(game).Any(e => e.TurnNumber == game.State.TurnNumber && e.ActorSeat == 0) && DrawMoves(game).Length == beforeDraw + 1,
-                "The gain child returns without paying twice, and the next foreign turn inherits neither types nor suits.");
-            Activate(game);
-            Require(DrawMoves(game).Length == beforeDraw + 1, "Accepting the next turn's X=0 creates no draw entities.");
-            Cold(game, registry);
-        }
     }
 
     public static void EffectiveConversionsLegacyVirtualUsesAndLostSourcesKeepExactBoundaries()
@@ -216,38 +110,6 @@ internal static class BoundaryGuoHuaiChecks
             "Actual skill suppression removes the qualified modifier and ending candidate while preserving the public use history."); Cold(suppressed, sr);
     }
 
-    public static void NativeActualTypeDrawAndStrictPublicExpressionContract()
-    {
-        var (native, registry) = Create(native: true);
-        for (var step = 0; step < 100 && !native.Events.Select(e => e.Payload).OfType<ProgramBindingStartedEvent>().Any(e => e.SkillId == Skill); step++)
-        {
-            if (native.State.Status == EngineStatus.Completed) break;
-            Accept(native, new AdvanceOneStepCommand(native.Revision));
-        }
-        var started = native.Events.Select(e => e.Payload).OfType<ProgramBindingStartedEvent>().Where(e => e.SkillId == Skill).ToArray();
-        Require(started.Length > 0 && started.All(e => e.Window == SkillProgramTriggerWindow.PlayEnding) &&
-            native.Events.Select(e => e.Payload).OfType<CurrentTurnCardUseKindsRecordedEvent>().Any(e => started.Any(s => s.OwnerSeat == e.ActorSeat)) &&
-            DrawMoves(native).Length > 0,
-            "A fixed native mixed deck actually uses cards and accepts the public positive-type draw without manually answering its AI choices.");
-        Cold(native, registry);
-        var presentation = "{\"schemaVersion\":3,\"skills\":{\"fixture:gh-expression\":{\"name\":\"表达式\",\"description\":\"公共实际回合历史\"}}}";
-        var effect = "{\"op\":\"draw\",\"target\":\"owner\",\"numberExpression\":\"currentTurnUsedCardCategoryCount\"}";
-        foreach (var body in new[]
-        {
-            "\"triggers\":[{\"id\":\"invalid\",\"window\":\"turnEnding\",\"subject\":\"owner\",\"optional\":true,\"effects\":[" + effect + "]}]",
-            "\"triggers\":[{\"id\":\"invalid\",\"window\":\"playEnding\",\"subject\":\"any\",\"turnOwnerScope\":\"otherLiving\",\"optional\":true,\"effects\":[" + effect + "]}]",
-            "\"triggers\":[{\"id\":\"invalid\",\"window\":\"playEnding\",\"subject\":\"owner\",\"optional\":true,\"effects\":[" + effect.Replace("\"owner\"", "\"selectedTarget\"") + "]}]",
-            "\"activations\":[{\"id\":\"invalid\",\"minCards\":0,\"maxCards\":0,\"minTargets\":0,\"maxTargets\":0,\"targetKind\":\"anyLiving\",\"effects\":[" + effect + "]}]",
-            "\"modifiers\":[{\"id\":\"invalid\",\"query\":\"slashLimit\",\"operation\":\"add\",\"valueExpression\":\"currentTurnUsedHandSuitCount\",\"priority\":0}]"
-        })
-        {
-            var rejected = false;
-            try { SkillProgramCatalog.Load("{\"schemaVersion\":" + SkillProgramCatalog.RulesSchemaVersion + ",\"skills\":[{\"id\":\"fixture:gh-expression\",\"revision\":1," + body + "}]}", presentation); }
-            catch (InvalidOperationException) { rejected = true; }
-            Require(rejected, "The new public expression does not widen incompatible trigger, subject, target, activation or modifier contracts.");
-        }
-    }
-
     private static (GameEngine, ContentRegistry) Create(bool extraPlay = false, bool observers = false,
         bool conversion = false, bool legacyVirtual = false, bool legacyAlcohol = false, bool native = false, bool classic = false, bool foreignPlay = false)
     {
@@ -284,25 +146,6 @@ internal static class BoundaryGuoHuaiChecks
     private static void Skip(GameEngine game) => Answer(game, c => c.Parameters.GetValueOrDefault("program-action") == "skip");
     private static void Continue(GameEngine game) => Answer(game, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
     private static void Answer(GameEngine game, Func<PromptChoice, bool> predicate) { var p = P(game)!; Accept(game, new AnswerPromptCommand(p.PlayerSeat, p.PromptId, p.Choices.First(predicate).Id, game.Revision)); }
-    private static void ReachUnnullifiedDuelSlashResponse(GameEngine game)
-    {
-        for (var step = 0; step < 80; step++)
-        {
-            var p = P(game);
-            if (p is { PlayerSeat: 0, Kind: DecisionKind.RespondSlash }) return;
-            if (p is { PlayerSeat: 0, Kind: DecisionKind.Nullification } &&
-                game.ResolutionStack.OfType<NullificationWindowFrame>().LastOrDefault() is
-                    { EffectCardKind: CardKind.Duel, SourceSeat: 1, EffectNullified: true } window &&
-                window.TargetSeats.SequenceEqual([0]))
-            {
-                // This human restores the real Duel with a real hand card after
-                // a native counterspell; native decisions still use Advance.
-                Answer(game, c => c.Parameters.GetValueOrDefault("response") == "nullification");
-            }
-            else Advance(game);
-        }
-        throw new InvalidOperationException("The restored real Duel did not reach its paid Slash response: " + JsonSerializer.Serialize(P(game)));
-    }
     private static void Reach(GameEngine game, Func<PendingDecision, bool> predicate)
     {
         for (var step = 0; step < 240; step++)

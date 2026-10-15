@@ -128,6 +128,7 @@ public sealed partial class GameEngine
                 parameters["program-action"] = "slash-target-benefit"; parameters["slash-benefit-step"] = "card";
                 return new PromptChoice(c.Id, c.Description, c.Cards, c.Targets, parameters); }).ToArray());
     }
+    [ProgramAnswer("slash-target-benefit")]
     private void ResolveSlashTargetBenefitChoice(PromptChoice selected)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame f || f.SlashTargetBenefitDraft is not { } d ||
@@ -220,6 +221,9 @@ public sealed partial class GameEngine
         if (f.PendingMovementContinuation is null || !ValidSlashBenefitDraftPayment(f)) throw new InvalidOperationException("A benefit movement lost its original paid interval.");
         ReplaceRuntimeTop(f with { PendingMovementContinuation = null }); AdvanceRuntimeProgram(f.Id); return true;
     }
+    [ProgramAiChoice(
+        SkillProgramEffectOp.OfferSlashTargetBenefit,
+        SkillProgramEffectOp.SettleDodgeCancelledSlashBenefit)]
     private PromptChoice SelectAiSlashTargetBenefit(PendingDecision decision, ProgramSkillFrame f)
     {
         var d = f.SlashTargetBenefitDraft!; var view = CreateSnapshot(decision.PlayerSeat);

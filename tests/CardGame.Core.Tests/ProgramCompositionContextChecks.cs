@@ -53,33 +53,6 @@ internal static class ProgramCompositionContextChecks
     }
 
 
-
-
-    private static int SlashLimit(GameEngine game)
-    {
-        const System.Reflection.BindingFlags flags =
-            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        var players = ((System.Collections.IEnumerable)typeof(GameEngine).GetField("_players", flags)!
-            .GetValue(game)!).Cast<CharacterState>().ToArray();
-        var evaluation = (RuleQueryEvaluation)typeof(GameEngine)
-            .GetMethod("EvaluateSlashUseLimit", flags)!.Invoke(game, [players[0]])!;
-        return (evaluation.Value as FiniteRuleQueryValue)?.Value ?? int.MaxValue;
-    }
-
-    private static void ReachPlay(GameEngine game)
-    {
-        for (var step = 0; step < 256; step++)
-        {
-            if (game.PendingDecision is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 }) return;
-            ProgramCompositionEntryChecks.Require(game.PendingDecision?.PlayerSeat != 0,
-                $"Unexpected human prompt {game.PendingDecision?.Kind} while resolving judgment.");
-            var result = game.Submit(new AdvanceOneStepCommand(game.Revision));
-            ProgramCompositionEntryChecks.Require(result.Accepted, result.Error?.Message ?? "Advance failed.");
-        }
-        throw new InvalidOperationException("Program judgment did not return to Play.");
-    }
-
-
     private static SkillProgram Load(string rules)
     {
         using var document = JsonDocument.Parse(rules);

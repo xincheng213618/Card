@@ -27,6 +27,8 @@ internal static class ProgramEntryCapabilities
     internal const ProgramContextCapability Common = ProgramContextCapability.TurnEffects;
 
     internal static bool SupportsWindow(SkillProgramTriggerWindow window) => window is
+        SkillProgramTriggerWindow.IdentityGeneralAppeared or
+        SkillProgramTriggerWindow.PindianCardsRevealed or
         SkillProgramTriggerWindow.OtherActualTurnStarted or
         SkillProgramTriggerWindow.OtherActualUseTargeted or
         SkillProgramTriggerWindow.CardEffectBeforeApply or
@@ -73,6 +75,7 @@ internal static class ProgramEntryCapabilities
         SkillProgramTriggerWindow.SlashFullyDodged or
         SkillProgramTriggerWindow.JudgmentReplacing or
         SkillProgramTriggerWindow.JudgmentFinalized or
+        SkillProgramTriggerWindow.JudgmentBeforeResult or
         SkillProgramTriggerWindow.ActualSlashTargetBenefit or
         SkillProgramTriggerWindow.ActualSlashTargetPenalty or
         SkillProgramTriggerWindow.SlashDodgeCancelledBenefit;
@@ -90,6 +93,7 @@ internal static class ProgramEntryCapabilities
         SkillProgramTriggerWindow.OtherActualUseTargeted => Common | ProgramContextCapability.ActualUseSource,
         SkillProgramTriggerWindow.CardEffectBeforeApply => Common | ProgramContextCapability.CardAction,
         SkillProgramTriggerWindow.AfterTurnEnded => Common,
+        SkillProgramTriggerWindow.TurnBeforeStart => Common,
         null => Common | ProgramContextCapability.Judgment | ProgramContextCapability.Pindian,
         SkillProgramTriggerWindow.TurnStartBeforeNormalFlow => Common | ProgramContextCapability.PhaseInsertion | ProgramContextCapability.PhaseSubstitution | ProgramContextCapability.Judgment,
         SkillProgramTriggerWindow.DrawPhaseStarting => Common | ProgramContextCapability.DrawPlan | ProgramContextCapability.Judgment | ProgramContextCapability.PhaseSubstitution,
@@ -120,6 +124,7 @@ internal static class ProgramEntryCapabilities
             Common | ProgramContextCapability.Judgment | ProgramContextCapability.JudgmentReplacement,
         SkillProgramTriggerWindow.JudgmentFinalized =>
             Common | ProgramContextCapability.Judgment | ProgramContextCapability.Damage,
+        SkillProgramTriggerWindow.JudgmentBeforeResult => Common | ProgramContextCapability.Judgment,
         SkillProgramTriggerWindow.SelfDyingResponse or SkillProgramTriggerWindow.DyingResponse =>
             Common | ProgramContextCapability.Dying,
         SkillProgramTriggerWindow.CardUseCommitted or SkillProgramTriggerWindow.CardUseBeforeTargetEffects or

@@ -181,6 +181,6 @@ public sealed partial class GameEngine
         { ApplyDyingResponse(_players[d.ResponderSeat], false, null, false, null); return; }
         if (p.Intent is DrawFundedDistinctBasicIntent.ProgramSlash or DrawFundedDistinctBasicIntent.ProgramNearestSlash or DrawFundedDistinctBasicIntent.AssistedSlash or DrawFundedDistinctBasicIntent.NearestLegalSlash &&
             _resolutionStack.LastOrDefault() is ProgramSkillFrame program && program.Id == p.ParentFrameId && program.InstructionIndex == p.Cursor)
-            CancelProgramBindingAndCleanup(program, "原用牌对象或请求已失效，已支付摸牌尝试取消。");
+        { if(IsQigongRequest(program)){FinishLvKuangLvXiang(program);return;} if(IsCaoChunInitialRequest(program)){FinishCaoChun(program);return;} CancelProgramBindingAndCleanup(program, "原用牌对象或请求已失效，已支付摸牌尝试取消。"); }
     }
 }

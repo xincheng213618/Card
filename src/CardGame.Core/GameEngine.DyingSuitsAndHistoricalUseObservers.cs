@@ -113,7 +113,7 @@ public sealed partial class GameEngine
                 ProgramCardTriggerWindowFrame w => w.CandidateIndex >= 0 && w.CandidateIndex < w.Candidates.Count &&
                     observer.OwnerSeat == w.Candidates[w.CandidateIndex].OwnerSeat && observer.SkillId == w.Candidates[w.CandidateIndex].SkillId && observer.TriggerId == w.Candidates[w.CandidateIndex].TriggerId &&
                     observer.SkillInstanceId == w.Candidates[w.CandidateIndex].SkillInstanceId && observer.GameplayHash == w.Candidates[w.CandidateIndex].GameplayHash && context.CardUse?.CardActionId == w.Action.ActionId,
-                ProgramJudgmentTriggerWindowFrame w => w.CandidateIndex >= 0 && w.CandidateIndex < w.Candidates.Count &&
+                ProgramJudgmentTriggerWindowFrame w => w.ZhenyiBeforeResult == true ? IsExactZhenyiBeforeResultProgramChild(w, observer) : w.CandidateIndex >= 0 && w.CandidateIndex < w.Candidates.Count &&
                     observer.OwnerSeat == w.Candidates[w.CandidateIndex].OwnerSeat && observer.SkillId == w.Candidates[w.CandidateIndex].SkillId && observer.TriggerId == w.Candidates[w.CandidateIndex].TriggerId &&
                     observer.SkillInstanceId == w.Candidates[w.CandidateIndex].SkillInstanceId && observer.GameplayHash == w.Candidates[w.CandidateIndex].GameplayHash &&
                     context.Window == SkillProgramTriggerWindow.JudgmentFinalized && context.Judgment == w.Judgment,

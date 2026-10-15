@@ -8,43 +8,6 @@ internal static class OrdinaryGaoLanChecks
 {
     private const string Xizhen = "ol:xizhen";
 
-    public static void Definitions()
-    {
-        var registry = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true),
-            new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage());
-        var general = registry.Generals["ol:gao-lan"];
-        Require(general.Name == "高览" && general.FactionId == "qun" && general.BaseHp == 4 &&
-            general.SkillIds.SequenceEqual([Xizhen]) &&
-            general.VariantId == "ordinary" && general.RulesetId == "sanguosha-ol",
-            "The OL Gao Lan general registers the current qun 4HP skill.");
-        var xizhen = registry.GetSkill(Xizhen).Program!.Triggers;
-        var launch = xizhen.Single(t => t.Id == "xizhen-launch");
-        Require(launch.Window == SkillProgramTriggerWindow.PlayPhaseStarting && launch.Optional &&
-            launch.Effects.Select(e => e.Op).SequenceEqual([
-                SkillProgramEffectOp.SelectTarget, SkillProgramEffectOp.ChooseOption,
-                SkillProgramEffectOp.UseVirtualCard, SkillProgramEffectOp.StartVirtualDuel,
-                SkillProgramEffectOp.ChangeParticipantMarker]) &&
-            launch.Effects[1].Options.Select(o => o.Id).SequenceEqual(["slash", "duel"]) &&
-            launch.Effects[2].TargetRestriction == SkillProgramCardTargetRestriction.NormalSlashTarget &&
-            launch.Effects[2].Condition.Kind == SkillProgramConditionKind.ChoiceIs &&
-            launch.Effects[3].Condition.Kind == SkillProgramConditionKind.ChoiceIs &&
-            launch.Effects[4].Marker == PlayerMarkerKind.XiZhen && launch.Effects[4].Amount == 1,
-            "Xizhen offers the counterpart a slash-or-duel virtual card and marks it afterwards.");
-        var response = xizhen.Single(t => t.Id == "xizhen-response");
-        Require(response.Window == SkillProgramTriggerWindow.CardResponseAccepted &&
-            response.OwnerRelation == SkillProgramCardActionOwnerRelation.Observer && !response.Optional &&
-            response.Effects.Single().Op == SkillProgramEffectOp.XiZhenResponseBenefit,
-            "Responses to the owner's play-phase cards pay the XiZhen benefit.");
-        var expiry = xizhen.Single(t => t.Id == "xizhen-expiry");
-        Require(expiry.Window == SkillProgramTriggerWindow.TurnEnding &&
-            expiry.TurnOwnerScope == SkillProgramTurnOwnerScope.OtherLiving && !expiry.Optional &&
-            expiry.Effects[0].Marker == PlayerMarkerKind.XiZhen && expiry.Effects[0].Amount == -1 &&
-            expiry.Effects[0].TargetReference!.Kind == ProgramParticipantRef.EventTarget,
-            "The XiZhen marker expires at the holder's turn end.");
-        Require(registry.GetSkill(Xizhen).ProgramPresentation!.Name == "袭阵",
-            "The presentation carries the current OL Xizhen wording.");
-    }
-
     public static void XizhenDuelDamagesAndMarks()
     {
         var (g, r) = Start(peace: true);

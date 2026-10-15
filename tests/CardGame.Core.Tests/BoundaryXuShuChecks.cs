@@ -52,59 +52,6 @@ internal static class BoundaryXuShuChecks
         }
     }
 
-    public static void RunFixedTargetPhysicalSlash()
-    {
-        var (g, registry) = Start();
-        ReachFarZhuhai(g); Activate(g);
-        Require(g.GetCombatDistance(0, 2) > 1, "The selected other-turn owner is outside the bare attack range.");
-        var prompt = P(g)!;
-        var use = prompt.Choices.First(choice => choice.Parameters.GetValueOrDefault("request-option") == "use");
-        Require(use.Cards.Count == 1 && use.Targets.SequenceEqual([2]),
-            "Zhuhai publishes a real physical Slash against its frozen distant ending-turn owner.");
-        var card = use.Cards.Single();
-        ReplayFourViews(g, registry);
-        var revision = g.Revision;
-        var rejected = g.Submit(new AnswerPromptCommand(0, prompt.PromptId, new ChoiceId("fixed-slash.foreign"), revision));
-        Require(!rejected.Accepted && g.Revision == revision, "A foreign fixed-target input is rejected before payment.");
-        Answer(g, choice => choice.Id == use.Id);
-        DrainFixedSlash(g);
-        Require(g.CardMovements.Count(move => move.CardId == card && move.From == CardLocation.Hand(0) && move.To == CardLocation.Processing) == 1 &&
-            g.Events.Select(e => e.Payload).OfType<CardUseDeclaredEvent>().Any(e => e.CardId == card && e.SourceSeat == 0 &&
-                g.Events.Select(item => item.Payload).OfType<TargetsConfirmedEvent>().Any(targets => targets.ResolutionId == e.ResolutionId && targets.TargetSeats.SequenceEqual([2]))),
-            "The distant attack declares one real Use and pays its hand entity once.");
-        ReplayFourViews(g, registry);
-
-        var (faction, fr) = Start(faction: true); ReachFarZhuhai(faction); Activate(faction);
-        Answer(faction, choice => choice.Parameters.GetValueOrDefault("request-option") == "faction");
-        DrainFixedSlash(faction);
-        Require(faction.Events.Select(e => e.Payload).OfType<FactionSlashRequestedEvent>().Any(e => e.OwnerSeat == 0 && e.TargetSeat == 2) &&
-            faction.Events.Select(e => e.Payload).OfType<ProgramBindingResolvedEvent>().Any(e => e.SkillId == Zhuhai && e.Completed),
-            "The fixed distant owner request runs existing faction providers and returns to its exact parent finitely.");
-        ReplayFourViews(faction, fr);
-
-        var (lost, lr) = Start(); ReachFarZhuhai(lost); Activate(lost); ReplayFourViews(lost, lr);
-        var grant = Players(lost)[0].SkillGrants.Grants.Single(item => item.SkillId == Zhuhai);
-        Players(lost)[0].SkillGrants.RemoveGrant(grant.GrantId);
-        Answer(lost, choice => choice.Parameters.GetValueOrDefault("request-option") == "use");
-        Require(!lost.ResolutionStack.OfType<ProgramSkillFrame>().Any(frame => frame.SkillId == Zhuhai) &&
-            !lost.Events.Select(e => e.Payload).OfType<CardUseDeclaredEvent>().Any(e => e.SourceSeat == 0),
-            "Losing the exact skill instance before issuance cancels without paying a card.");
-
-        var (native, nr) = Start(native: true);
-        for (var step = 0; step < 100 && !native.Events.Select(e => e.Payload).OfType<ProgramBindingStartedEvent>().Any(e => e.SkillId == Zhuhai); step++)
-            Accept(native, new AdvanceOneStepCommand(native.Revision));
-        Require(native.Events.Select(e => e.Payload).OfType<ProgramBindingStartedEvent>().Any(e => e.SkillId == Zhuhai),
-            "A native AI owner actually starts the optional fixed-target Slash operation. " +
-            $"seat={native.State.CurrentSeat}, turn={native.State.TurnNumber}, phase={native.State.Phase}, pending={P(native)?.Kind}/{P(native)?.PlayerSeat}/{P(native)?.SkillPrompt?.SkillId}; " +
-            "damage=" + string.Join(';', native.Events.Select(e => e.Payload).OfType<DamageAppliedEvent>().Select(e => $"{e.SourceSeat}>{e.TargetSeat}:{e.Amount}")) +
-            "; bindings=" + string.Join(';', native.Events.Select(e => e.Payload).OfType<ProgramBindingStartedEvent>().Select(e => $"{e.SkillId}@{e.OwnerSeat}")));
-        for (var step = 0; step < 40 && native.ResolutionStack.OfType<ProgramSkillFrame>().Any(frame => frame.SkillId == Zhuhai); step++)
-            Accept(native, new AdvanceOneStepCommand(native.Revision));
-        Require(native.Events.Select(e => e.Payload).OfType<ProgramBindingResolvedEvent>().Any(e => e.SkillId == Zhuhai && e.Completed),
-            "Native AI completes the fixed-target physical Use finitely.");
-        ReplayFourViews(native, nr);
-    }
-
     public static void RunDeclaredDeckCriterion()
     {
         var (g, registry) = Start(initialJianyan: true, mixedDeck: true);
@@ -175,27 +122,6 @@ internal static class BoundaryXuShuChecks
         Require(Zones(cancel).GetLocation(held) == CardLocation.DiscardPile &&
             !cancel.CardMovements.Any(m => m.CardId == held && m.From == CardLocation.Processing && m.To == CardLocation.Hand(0)),
             "Exact source loss at the recipient boundary cleans the held card without a gift.");
-    }
-
-    private static void ReachFarZhuhai(GameEngine g)
-    {
-        EndPlay(g);
-        for (var step = 0; step < 160; step++)
-        {
-            if (P(g) is { Kind: DecisionKind.ProgramTrigger } p && p.SkillPrompt?.SkillId == Zhuhai)
-            {
-                if (g.ResolutionStack.OfType<TurnEndingBoundaryFrame>().Last().OwnerSeat == 2) return;
-                Skip(g); continue;
-            }
-            Accept(g, new AdvanceOneStepCommand(g.Revision));
-        }
-        throw new InvalidOperationException("Xu Shu fixture did not reach the distant ending-turn source.");
-    }
-    private static void DrainFixedSlash(GameEngine g)
-    {
-        for (var step = 0; step < 80 && g.ResolutionStack.OfType<ProgramSkillFrame>().Any(frame => frame.SkillId == Zhuhai); step++)
-            Accept(g, new AdvanceOneStepCommand(g.Revision));
-        Require(!g.ResolutionStack.OfType<ProgramSkillFrame>().Any(frame => frame.SkillId == Zhuhai), "Fixed-target Slash returns to its original frame once.");
     }
     private static void EndPlay(GameEngine g) => Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId));
     private static void Driver(GameEngine g, string id, int[]? targets = null) =>

@@ -6,10 +6,18 @@ public sealed partial class GameEngine
 {
     private sealed record NativeDrawInvocationDraft(long Id, int Owner, int Requested, int Turn, int TurnOwner,
         int PhaseActor, ActualDiscardRecoveryPhaseKey? Phase, long? Parent, CardConversionSource? Producer,
-        CardMoveReason Reason, long Before);
+        CardMoveReason Reason, long Before)
+    {
+        private readonly IReadOnlyList<ZhanjiDrawEntitlement>? _zhanjiEntitlements;
+        public IReadOnlyList<ZhanjiDrawEntitlement>? ZhanjiEntitlements
+        { get => _zhanjiEntitlements; init => _zhanjiEntitlements = value is null ? null : Array.AsReadOnly(value.ToArray()); }
+    }
     private bool TracksNativeDrawInvocations =>
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DrawAfterActualOutsideDraw) ||
-        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ExchangeFriendGainForDiscard);
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ExchangeFriendGainForDiscard) ||
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.OfferNativeBatchHandGainOrCardLossBenefit) ||
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DrawAfterActualPlayDrawInvocation) ||
+        HasSanwenCapability;
     private long OutsidePhaseMovementSequence => _cardMovements.LastOrDefault()?.Sequence ?? 0;
     private static bool IsOutsidePhaseOperation(SkillProgramEffectOp op) => OutsidePhaseDrawDiscardComposition.IsOperation(op);
     private static string OutsidePhaseMovementReason(ProgramSkillFrame f, bool draw) =>
@@ -22,9 +30,10 @@ public sealed partial class GameEngine
             _turnNumber < 1 || !IsValidPlayerSeat(owner) || !IsValidPlayerSeat(_turnProgression.OwnerSeat) ||
             _winner != Winner.None || _status == EngineStatus.Completed) return null;
         var phase = CurrentActualDiscardRecoveryPhase();
-        return new(++_resolutionSequence, owner, requested, _turnNumber, _turnProgression.OwnerSeat,
+        var draft = new NativeDrawInvocationDraft(++_resolutionSequence, owner, requested, _turnNumber, _turnProgression.OwnerSeat,
             phase?.ActorSeat ?? _currentSeat, phase, _resolutionStack.LastOrDefault()?.Id, directProducer, reason,
             OutsidePhaseMovementSequence);
+        return draft with { ZhanjiEntitlements = CaptureZhanjiDrawEntitlements(draft.Id, owner, draft.Before) };
     }
     private void CompleteNativeDrawInvocation(NativeDrawInvocationDraft? draft, IReadOnlyList<int> actualIds)
     {
@@ -46,12 +55,13 @@ public sealed partial class GameEngine
             RequestedCount = draft.Requested, ActualTurnNumber = draft.Turn, ActualTurnOwnerSeat = draft.TurnOwner,
             PhaseActorSeat = draft.PhaseActor, Phase = draft.Phase, ParentFrameId = draft.Parent,
             DirectProducer = draft.Producer, Reason = draft.Reason, SequenceBefore = draft.Before, SequenceAfter = after,
-            LastBatchId = _pendingCardsMovedBatches[index].Id, Materials = materials };
+            LastBatchId = _pendingCardsMovedBatches[index].Id, Materials = materials, ZhanjiEntitlements = draft.ZhanjiEntitlements };
         _pendingCardsMovedBatches[index] = _pendingCardsMovedBatches[index] with { NativeDrawInvocation = proof };
         AdvanceEventRulesAndQueueFact(new NativeDrawInvocationRecordedEvent(proof.InvocationId, proof.OwnerSeat,
             proof.RequestedCount, proof.ActualCount, proof.ActualTurnNumber, proof.ActualTurnOwnerSeat, proof.PhaseActorSeat,
             proof.Phase, proof.ParentFrameId, proof.DirectProducer, proof.Reason, proof.SequenceBefore, proof.SequenceAfter,
             proof.LastBatchId));
+        CompleteSanwenNativeDrawQualification(proof);
     }
 
     private bool ValidNativeDrawInvocation(NativeDrawInvocationProof p)
@@ -75,7 +85,7 @@ public sealed partial class GameEngine
         var actual = _cardMovements.Where(m => m.Sequence > p.SequenceBefore && m.Sequence <= p.SequenceAfter &&
             m.From == CardLocation.DrawPile && m.To == CardLocation.Hand(p.OwnerSeat) && m.Reason == p.Reason)
             .OrderBy(m => m.Sequence).Select(m => new NativeDrawMaterial(m.CardId, m.CardKind, m.Sequence));
-        return p.Materials.SequenceEqual(actual);
+        return p.Materials.SequenceEqual(actual) && ValidZhanjiDrawEntitlements(p);
     }
     private int[] MatchingOutsideDrawIndexes(CardMovementBatchContext batch, ProgramTriggerCandidate candidate)
     {
@@ -196,6 +206,7 @@ public sealed partial class GameEngine
             SkillPrompt = new(f.SkillId, skill.Name, skill.Name, skill.Description) };
         _status = _players[f.OwnerSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
+    [ProgramAnswer("outside-phase-draw-discard")]
     private void ResolveOutsidePhaseDrawDiscardChoice(PromptChoice choice)
     {
         var f = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("Outside-phase choice lost its owner.");
@@ -285,6 +296,9 @@ public sealed partial class GameEngine
         pending.BeforeCount == 0 && pending.CoverageResultBind is null && ValidOutsidePhaseDrawDiscardReceipt(f);
     private bool CanContinueOutsidePhaseDrawDiscard(ProgramSkillFrame f) =>
         f.OutsidePhaseDrawDiscard is { MovementIssued: true } && ValidOutsidePhaseDrawDiscardReceipt(f);
+    [ProgramAiChoice(
+        SkillProgramEffectOp.DrawAfterActualOutsideDraw,
+        SkillProgramEffectOp.DiscardAfterActualOutsideDiscard)]
     private PromptChoice SelectAiOutsidePhaseDrawDiscard(PendingDecision decision, ProgramSkillFrame f)
     {
         if (f.OutsidePhaseDrawDiscard!.Op == SkillProgramEffectOp.DrawAfterActualOutsideDraw)

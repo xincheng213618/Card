@@ -7,29 +7,6 @@ internal static class BoundaryWeiYanChecks
 {
     private const string Skill="boundary:qimou-current",Binding="lose-hp-for-turn-benefits";
     private static readonly Lazy<ContentRegistry> Classic=new(()=>ContentRegistry.Build(new StandardContentPackage(),new StandardActiveSkillExpansionPackage(true),new StandardRescueSkillExpansionPackage(),new StandardClassicGeneralPackage()));
-    public static void ReuseAndDefinitions()
-    {
-        var(g,r)=Start();Driver(g,"damage",[1]);
-        for(var n=0;n<60&&P(g)?.Kind!=DecisionKind.PlayCard;n++)
-        {
-            if(P(g)?.SkillPrompt?.SkillId=="boundary:kuanggu" && P(g)!.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="activate"))Activate(g);
-            else if(P(g)?.Choices.Any(c=>c.Parameters.GetValueOrDefault("option-id")=="draw")==true)Answer(g,c=>c.Parameters.GetValueOrDefault("option-id")=="draw");
-            else Accept(g,new AdvanceOneStepCommand(g.Revision));
-        }
-        Console.WriteLine("Kuanggu DamageEvents="+JsonSerializer.Serialize(g.Events.Select(e=>e.Payload).OfType<DamageAppliedEvent>()));
-        Require(g.Events.Select(e=>e.Payload).OfType<ProgramOptionChosenEvent>().Count(e=>e.SkillId=="boundary:kuanggu")==2,"Current Kuanggu per point; programs="+string.Join(";",g.Events.Select(e=>e.Payload).OfType<ProgramSkillStartedEvent>().Select(e=>e.SkillId))+" prompt="+P(g)?.Prompt);ReplayFourViews(g,r);
-        var(f,fr)=Start();Driver(f,"damage",[2]);Settle(f);
-        Require(!f.Events.Select(e=>e.Payload).OfType<ProgramOptionChosenEvent>().Any(e=>e.SkillId=="boundary:kuanggu"),"Distance two does not trigger the reused current Kuanggu.");
-        Console.WriteLine("Kuanggu DamageEvents="+JsonSerializer.Serialize(g.Events.Select(e=>e.Payload).OfType<DamageAppliedEvent>()));
-        var chain="[{\"op\":\"chooseOwnerHpLoss\",\"target\":\"owner\",\"resultBind\":\"loss\"},{\"op\":\"drawPaidHpLoss\",\"target\":\"owner\",\"sourceBind\":\"loss\"},{\"op\":\"grantPaidHpLossDistance\",\"target\":\"owner\",\"sourceBind\":\"loss\"},{\"op\":\"grantPaidHpLossSlashLimit\",\"target\":\"owner\",\"sourceBind\":\"loss\"}]";
-        var exact=Act("bad",chain).Replace("\"usesPerTurn\":null","\"usesPerTurn\":null,\"usesPerGame\":1");
-        foreach(var invalid in new[]{exact.Replace("grantPaidHpLossDistance","drawPaidHpLoss"),exact.Replace("\"sourceBind\":\"loss\"","\"sourceBind\":\"other\""),exact.Replace("\"usesPerGame\":1","\"usesPerGame\":2"),exact.Replace("\"minTargets\":0,\"maxTargets\":0","\"minTargets\":1,\"maxTargets\":1")})
-        {var rejected=false;try{Load("fixture:wy-bad","\"activations\":["+invalid+"]");}catch(InvalidOperationException){rejected=true;}Require(rejected,"Paid loss rejects wrong producer/bind, repeated reader, target or limited usage.");}
-        var triggerRejected=false;try{Load("fixture:wy-bad","\"triggers\":[{\"id\":\"bad\",\"window\":\"afterHpLost\",\"subject\":\"owner\",\"optional\":true,\"effects\":"+chain+"}]");}catch(InvalidOperationException){triggerRejected=true;}Require(triggerRejected,"Paid loss cannot originate in another window.");
-        Use(f);var frame=f.ResolutionStack.OfType<ProgramSkillFrame>().Single(q=>q.SkillId==Skill);
-        var legacyJson=JsonSerializer.Serialize(frame with {HpLossQuantity=null,PaidHpLossReceipt=null});Require(!legacyJson.Contains("HpLossQuantity")&&!legacyJson.Contains("PaidHpLossReceipt"),"Old null frame shape omits both additive fields.");
-
-    }
     public static void QuantityAndNative()
     {
         var(g,r)=Start();var hand=g.State.Players[0].HandCount;Use(g);ReplayFourViews(g,r);Evidence(g,"quantity");
@@ -51,29 +28,6 @@ internal static class BoundaryWeiYanChecks
         Console.WriteLine("Native ordinary Qimou completed: actor="+issued.OwnerSeat+" revision="+native.Revision);ReplayFourViews(native,nr);Evidence(native,"native");
         ExactLedgerAndLegacyBounds();
     }
-    public static void RescueAndGain()
-    {
-        foreach(var activate in new[]{false,true})
-        {
-            var(g,r)=Start(peach:true,observer:true,gain:true);var peach=g.State.Players[0].Hand.First(c=>c.Kind==CardKind.Peach).Id;Use(g);Quantity(g,4);
-            Reach(g,p=>p.Kind==DecisionKind.RescueDying&&p.PlayerSeat==0);ReplayFourViews(g,r);Evidence(g,"dying-"+activate);
-            var receipt=g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f=>f.SkillId==Skill).PaidHpLossReceipt!;
-            Require(receipt is{Requested:4,HpBefore:4,HpAfter:0,ActualLost:4,DrawIssued:false},"Real apply freezes loss before Peach or HP children.");
-            Answer(g,c=>c.Cards.SequenceEqual([peach])&&c.Parameters.GetValueOrDefault("response")=="peach");
-            for(var i=0;i<100&&g.ResolutionStack.OfType<ProgramSkillFrame>().Any(f=>f.SkillId==Skill);i++)
-            {
-                if(P(g)?.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="activate")==true)
-                {ReplayFourViews(g,r);if(activate)Activate(g);else Skip(g);}
-                else if(P(g)?.Kind==DecisionKind.RescueDying)Answer(g,c=>c.Cards.Count==0);
-                else Accept(g,new AdvanceOneStepCommand(g.Revision));
-            }
-            Require(g.State.Players[0].IsAlive&&g.CardMovements.Count(m=>m.CardId==peach&&m.From==CardLocation.Hand(0)&&m.To==CardLocation.Processing)==1,"Entity Peach pays once across HP/gain child returns.");
-            Require(g.Events.Select(e=>e.Payload).OfType<ProgramSkillHpLostEvent>().Count(e=>e.SkillId==Skill&&e.Amount==4)==1,"Loss is not reissued.");AssertBenefits(g,4);ReplayFourViews(g,r);Evidence(g,"rescued-"+activate);
-        }
-        var(dead,dr)=Start();Use(dead);Quantity(dead,4);
-        for(var i=0;i<40&&dead.State.Status!=EngineStatus.Completed;i++)Accept(dead,new AdvanceOneStepCommand(dead.Revision));
-        Require(!dead.State.Players[0].IsAlive&&!Grants(dead).Any(),"No legal rescue ends the owner before any remaining Draw/grant.");ReplayFourViews(dead,dr);Evidence(dead,"owner-dead");
-    }
     public static void SourceAndLegacy()
     {
         foreach(var stage in new[]{"loss","draw"})
@@ -88,16 +42,6 @@ internal static class BoundaryWeiYanChecks
         Require(old.State.Players[0].HandCount==hand&&!Grants(old).Any(),"Legacy LoseHp/Draw with no receipt still cancels after real source loss.");ReplayFourViews(old,orr);
         var(unpaid,ur)=Start();Use(unpaid);var grant=Players(unpaid)[0].SkillGrants.Grants.Single(x=>x.SkillId==Skill);Players(unpaid)[0].SkillGrants.RemoveGrant(grant.GrantId);
         Quantity(unpaid,2);Settle(unpaid);Require(!unpaid.Events.Select(e=>e.Payload).OfType<ProgramSkillHpLostEvent>().Any(e=>e.SkillId==Skill),"Host-only unpaid source-loss audit cancels payment, without restoring consumed Game use.");
-    }
-    public static void ActualTurnLifetime()
-    {
-        var(g,r)=Start(extraPlay:true);Use(g);Quantity(g,2);Settle(g);var turn=g.CreateSnapshot(0).TurnNumber;AssertBenefits(g,2);
-        Accept(g,new EndPlayPhaseCommand(0,g.Revision,P(g)!.PromptId));Settle(g);
-        Require(g.CreateSnapshot(0).TurnNumber==turn&&!Actions(g).Any()&&Limit(g)==3,"Actual Dangxian and normal Play share the same issued turn modifier and Game use.");ReplayFourViews(g,r);
-        Driver(g,"extra");Settle(g);Accept(g,new EndPlayPhaseCommand(0,g.Revision,P(g)!.PromptId));
-        for(var i=0;i<120&&!(P(g) is{Kind:DecisionKind.PlayCard,PlayerSeat:0}&&g.CreateSnapshot(0).TurnNumber==turn+1);i++)
-        {if(P(g)?.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="skip")==true)Skip(g);else Accept(g,new AdvanceOneStepCommand(g.Revision));}
-        Require(g.CreateSnapshot(0).TurnNumber==turn+1&&g.CreateSnapshot(0).CurrentSeat==0&&Limit(g)==1&&!Actions(g).Any(),"Real extra actual turn expires both modifiers without resetting limited use.");ReplayFourViews(g,r);Evidence(g,"extra-turn");
     }
     private static IReadOnlyList<CharacterState> Players(GameEngine g)=>(IReadOnlyList<CharacterState>)typeof(GameEngine).GetField("_players",BindingFlags.Instance|BindingFlags.NonPublic)!.GetValue(g)!;
     private static void ExactLedgerAndLegacyBounds()

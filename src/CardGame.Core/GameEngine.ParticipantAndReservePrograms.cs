@@ -51,6 +51,7 @@ public sealed partial class GameEngine
         var owner = _players[frame.OwnerSeat];
         if (effect.Op == SkillProgramEffectOp.LoseHpUnclamped)
         {
+            if (TryBeginIdentityAppearanceForProgramHpLoss(frame.Id, frame.SkillId, owner.Seat, effect.Amount)) return SkillProgramStepOutcome.AwaitChild;
             var before = owner.Hp;
             owner.Hp -= effect.Amount;
             RecordHpChange(frame.Id, null, owner.Seat, before, owner.Hp, HpChangeKind.Loss);
@@ -165,6 +166,7 @@ public sealed partial class GameEngine
         _status = _players[draft.ChooserSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
 
+    [ProgramAnswer("private-reserve-choice")]
     private void ResolvePrivateReserveChoice(PromptChoice choice)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("Missing reserve frame.");
@@ -211,6 +213,7 @@ public sealed partial class GameEngine
         PublishPrivateReserveChoice(GetActiveProgramFrame(frame.Id));
     }
 
+    [ProgramAnswer("marker-payment")]
     private void ResolveMarkerOrHpPayment(PromptChoice choice)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("Missing marker payment frame.");

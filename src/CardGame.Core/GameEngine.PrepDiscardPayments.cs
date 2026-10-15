@@ -195,6 +195,7 @@ public sealed partial class GameEngine
         if (f.PendingMovementContinuation is null) throw new InvalidOperationException("A preparation payment lost its exact movement return.");
         ReplaceRuntimeTop(f with { PendingMovementContinuation = null }); AdvanceRuntimeProgram(f.Id); return true;
     }
+    [ProgramAiChoice(SkillProgramEffectOp.ResolvePrepDiscardOrEnding)]
     private PromptChoice SelectAiPrepDiscard(PendingDecision decision, ProgramSkillFrame f)
     {
         var d = f.PrepDiscard!; var snapshot = CreateSnapshot(decision.PlayerSeat);

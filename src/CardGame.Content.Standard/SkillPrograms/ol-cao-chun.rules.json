@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:shanjia",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "draw-and-slash",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "otherLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "effects": [
+            {
+              "op": "drawAndRequestShanjiaSlash",
+              "target": "owner"
+            }
+          ]
+        }
+      ],
+      "triggers": [
+        {
+          "id": "initial-loss",
+          "window": "gameStarting",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "initializeShanjiaLossMarkers",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "hand-use-debt",
+          "window": "cardUseBeforeTargetEffects",
+          "ownerRelation": "actor",
+          "includeResponseUses": true,
+          "optional": false,
+          "effects": [
+            {
+              "op": "payShanjiaHandUseDebt",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "ending-slash",
+          "window": "playEnding",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "requestShanjiaEndingSlash",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace CardGame.Core;
@@ -140,7 +140,18 @@ public enum PlayerMarkerKind
     CategoryFu = 4061,
     CategorySong = 4062,
     QihuiBasic = 20100, QihuiTrick = 20101, QihuiEquipment = 20102,
-    LuanZhan = 21200
+    LuanZhan = 21200,
+    RaoShe = 21500,
+    MeiYing = 22600,
+    Kui = 23200,
+    DragonSeal = 23500,
+    PhoenixSeal = 23501,
+    Baoli = 23600,
+    Ziwei = 24400,
+    Houtu = 24401,
+    Yuqing = 24402,
+    Gouchen = 24403,
+    ShanjiaLoss = 24500
 }
 
 public static class PlayerMarkerCatalog
@@ -148,6 +159,17 @@ public static class PlayerMarkerCatalog
     public static string GetDisplayName(PlayerMarkerKind marker) => marker switch
     {
         PlayerMarkerKind.LuanZhan => "乱战",
+        PlayerMarkerKind.RaoShe => "饶舌",
+        PlayerMarkerKind.MeiYing => "梅影",
+        PlayerMarkerKind.Kui => "傀",
+        PlayerMarkerKind.DragonSeal => "龙印",
+        PlayerMarkerKind.PhoenixSeal => "凤印",
+        PlayerMarkerKind.Baoli => "暴戾",
+        PlayerMarkerKind.Ziwei => "紫微",
+        PlayerMarkerKind.Houtu => "后土",
+        PlayerMarkerKind.Yuqing => "玉清",
+        PlayerMarkerKind.Gouchen => "勾陈",
+        PlayerMarkerKind.ShanjiaLoss => "损",
         PlayerMarkerKind.QihuiBasic => "启诲·基本",
         PlayerMarkerKind.QihuiTrick => "启诲·锦囊",
         PlayerMarkerKind.QihuiEquipment => "启诲·装备",
@@ -534,6 +556,10 @@ public sealed partial record PlayerSnapshot(
 
 public sealed partial record PlayerSnapshot
 {
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public bool IdentityConcealed { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public bool HpUndefined { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int? AlcoholDamageBonus { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -834,6 +860,8 @@ public sealed record LegalAction
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramTieredRoundConversionPolicy? TieredRoundZeroUse { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramRoundOnceCardlessBasicPolicy? RoundOnceCardlessBasicUse { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public DrawFundedDistinctBasicPolicy? DrawFundedDistinctBasicUse { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

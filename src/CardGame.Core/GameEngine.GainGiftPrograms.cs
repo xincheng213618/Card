@@ -135,6 +135,7 @@ public sealed partial class GameEngine
             SkillPrompt = new(f.SkillId, skill.Name, skill.Name, skill.Description) };
         _status = _players[f.OwnerSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
+    [ProgramAnswer("gain-after-batch")]
     private void ResolveGainGiftChoice(PromptChoice choice)
     {
         var f = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("Gift has no owning program.");
@@ -232,6 +233,7 @@ public sealed partial class GameEngine
     private IEnumerable<CardSnapshot> GainGiftPublicLostCards() => _resolutionStack.OfType<ProgramSkillFrame>()
         .Where(f => f.GainGiftReceipt is { Stage: GainGiftStage.RedDrawChildren, LossIndex: > 0 })
         .Select(f => f.GainGiftReceipt!.RedLosses[f.GainGiftReceipt.LossIndex - 1].Card);
+    [ProgramAiChoice(SkillProgramEffectOp.GiveAfterBatchGain)]
     private PromptChoice SelectAiGainGift(PendingDecision decision, ProgramSkillFrame f)
     {
         var view = CreateSnapshot(f.OwnerSeat); var self = view.Players.Single(p => p.Seat == f.OwnerSeat);

@@ -87,6 +87,7 @@ public sealed partial class GameEngine
         return SkillProgramStepOutcome.AwaitChoice;
     }
 
+    [ProgramAnswer("tunan-branch")]
     private void ResolveTunanBranchChoice(PromptChoice selected)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ??
@@ -153,6 +154,7 @@ public sealed partial class GameEngine
         _status = _players[user].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
 
+    [ProgramAnswer("tunan-target")]
     private void ResolveTunanTargetChoice(PromptChoice selected)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ??
@@ -224,13 +226,6 @@ public sealed partial class GameEngine
         return _cardZones.CardsAt(CardLocation.Processing).SingleOrDefault(card => card.Id == cardId);
     }
 
-    private PromptChoice SelectAiTunanChoice(PendingDecision decision)
-    {
-        if (decision.Choices[0].Parameters.GetValueOrDefault("program-action") == "tunan-branch")
-            return decision.Choices.FirstOrDefault(choice => choice.Parameters.GetValueOrDefault("branch") == "use") ??
-                decision.Choices[0];
-        return decision.Choices.OrderBy(choice => choice.Id.Value, StringComparer.Ordinal).First();
-    }
 
     // 闭境 mark: the chosen hand cards stay registered until their recast.
     private SkillProgramStepOutcome BijingProgramMarkHandCards(ProgramSkillFrame frame, SkillProgramEffect effect)
@@ -334,6 +329,7 @@ public sealed partial class GameEngine
         _status = _players[state.TurnOwnerSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
 
+    [ProgramAnswer("bijing-punish-discard")]
     private void ResolveBijingPunishChoice(PromptChoice selected)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ??

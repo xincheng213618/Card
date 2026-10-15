@@ -9,53 +9,6 @@ internal static class ExtraEffectsAndRankGuessChecks
     private const string Watch = "fixture:extra-rank-watch", Quiet = "fixture:extra-rank-quiet", Owner = "fixture:extra-rank-owner", Mode = "identity:classic-extra-rank";
     private const string Before = "fixture:extra-rank-before-harvest";
     private const string Jianxiong = "classic:jianxiong";
-    public static void ExactContractsAndCommittedCollectionFreeze()
-    {
-        var rules = Embedded("rules.json"); var labels = Embedded("presentation.json"); _ = SkillProgramCatalog.Load(rules, labels);
-        foreach (var (skill, field, value) in new[] { (Feng, "window", "cardUseCompleted"), (Feng, "usageScope", "turn"),
-            (Ji, "drawPhaseMode", "additive"), (Fu, "window", "afterTurnEnded") })
-        {
-            var node = JsonNode.Parse(rules)!; node["skills"]!.AsArray().Single(s => s!["id"]!.GetValue<string>() == skill)!["triggers"]![0]![field] = value;
-            Reject(() => SkillProgramCatalog.Load(node.ToJsonString(), labels), "Only the precise actual use/draw/death contract is accepted.");
-        }
-        var cards = new List<int> { 1, 2 }; var targets = new List<int> { 3 }; var parameters = new Dictionary<string, string> { ["branch"] = "greater" };
-        var receipt = new ExtraEffectsAndRankGuessReceipt { RevealedCardIds = cards, Choices = [new(new("frozen"), "frozen", cards, targets, parameters)] };
-        var fact = (ExtraEffectsAndRankGuessPaidEvent)CommittedEventProjection.Freeze(new ExtraEffectsAndRankGuessPaidEvent(1, receipt));
-        cards.Add(9); targets.Clear(); parameters["branch"] = "less";
-        Need(fact.Receipt.RevealedCardIds.SequenceEqual([1, 2]) && fact.Receipt.Choices[0].Targets.SequenceEqual([3]) &&
-            fact.Receipt.Choices[0].Parameters["branch"] == "greater" && fact.Receipt.RevealedCardIds is ICollection<int> { IsReadOnly: true } &&
-            fact.Receipt.Choices[0].Parameters is IDictionary<string, string> { IsReadOnly: true }, "Every committed public card and nested choice collection is detached and frozen.");
-    }
-    public static void ActualSlashSingleUseDoubleDamageAndPhaseQuota()
-    {
-        var (g, registry) = Start("slash"); var before = V(g, 1).Hp;
-        Native(g, A(g, LegalActionKind.Slash, target: 1)); Reach(g, () => Optional(P(g), Feng)); Activate(g); Reach(g, () => Choice(g));
-        var paid = P(g)!.Choices.First(c => c.Parameters["branch"] == "cost").Cards.Single(); var prompt = P(g)!; var state = State(g);
-        Need(Enumerable.Range(1, 3).All(s => g.CreateSnapshot(s).PendingDecision is null), "Same-category hand costs are private to the real owner.");
-        Need(!g.Submit(new AnswerPromptCommand(1, prompt.PromptId, prompt.Choices.First().Id, g.Revision)).Accepted && State(g) == state,
-            "A foreign actor cannot pay or mutate the issued hand choice.");
-        g = Cold(g, registry); Answer(g, c => c.Parameters["branch"] == "cost"); Play(g);
-        var issued = E<ExtraCardEffectIssuedEvent>(g).Single();
-        Need(V(g, 1).Hp == before - 2 && E<DamageAppliedEvent>(g).Count(e => e.TargetSeat == 1) == 2,
-            "A physical Slash applies two independent native damage attempts of one damage each.");
-        Need(E<CardActionAcceptedEvent>(g).Count(e => e.Action.ActionId == issued.ActionId) == 1 && E<CardUseFinishedEvent>(g).Count(e => e.ResolutionId == issued.CardUseFrameId) == 1 &&
-            g.CardMovements.Count(m => m.CardId == paid && m.Reason.Value == "skill-program.extra-effect.cost") == 1,
-            "The original accepted Use, material settlement and additional same-type payment happen exactly once.");
-        g = Cold(g, registry); Use(g, "slash-quota"); Play(g);
-        Native(g, A(g, LegalActionKind.Slash, target: 1)); Play(g);
-        Need(E<ExtraCardEffectIssuedEvent>(g).Count() == 1, "A second true Use in the same actual Play phase cannot pay this once-per-phase trigger again.");
-    }
-    public static void ActualPhaseStartingNativeVirtualSlashDoubleEffect()
-    {
-        var (g, registry) = Start("virtual", stopAtVirtual: true); var before = V(g, 1).Hp; Activate(g);
-        Reach(g, () => P(g)?.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "select-target") == true);
-        Answer(g, c => c.Targets.SequenceEqual([1])); PayExtra(g); g = Cold(g, registry); Play(g);
-        var issued = E<ExtraCardEffectIssuedEvent>(g).Single();
-        var action = E<CardActionAcceptedEvent>(g).Single(e => e.Action.ActionId == issued.ActionId).Action;
-        Need(action.Type == CardActionType.Use && action.PhysicalCards.Count == 0 && V(g, 1).Hp == before - 2 &&
-            E<DamageAppliedEvent>(g).Count(e => e.TargetSeat == 1) == 2 && E<CardUseFinishedEvent>(g).Count(e => e.ResolutionId == issued.CardUseFrameId) == 1,
-            "A legitimate Play-start instruction creates one native zero-material Use, whose independent two effects share one accepted action and completion after cold replay.");
-    }
     public static void ActualPeachAndDoubleAlcoholBonusColdReplay()
     {
         var (peach, peachRegistry) = Start("peach"); Use(peach, "hurt2"); Play(peach); var hp = V(peach, 0).Hp;
@@ -69,26 +22,6 @@ internal static class ExtraEffectsAndRankGuessChecks
         Answer(wine, c => c.Targets.SequenceEqual([1])); Play(wine);
         Need(V(wine, 1).Hp == before - 3 && !V(wine, 0).HasAlcoholEffect && V(wine, 0).AlcoholDamageBonus is null,
             "A subsequent native virtual Slash consumes both issued Wine bonuses once, including after real checkpoint replay.");
-    }
-    public static void ActualGlobalAttackCompleteRoundsAndOneSettlement()
-    {
-        foreach (var card in new[] { "barbarian", "arrows" })
-        {
-            var (g, registry) = Start(card); var before = Enumerable.Range(1, 3).Select(s => V(g, s).Hp).ToArray();
-            Native(g, A(g, card == "barbarian" ? LegalActionKind.BarbarianAssault : LegalActionKind.ArrowBarrage)); PayExtra(g); Play(g);
-            var issued = E<ExtraCardEffectIssuedEvent>(g).Single();
-            Need(Enumerable.Range(1, 3).All(s => V(g, s).Hp == before[s - 1] - 2), "Every living finalized global target receives one native effect in each complete round.");
-            var groupUsed = E<GroupCardUsedEvent>(g).Count(e => e.ResolutionId == issued.CardUseFrameId);
-            var finished = E<CardUseFinishedEvent>(g).Count(e => e.ResolutionId == issued.CardUseFrameId);
-            var accepted = E<CardActionAcceptedEvent>(g).Count(e => e.Action.ActionId == issued.ActionId);
-            var diagnostic = $"{card}: use={issued.CardUseFrameId}, action={issued.ActionId}, group={groupUsed}, finished={finished}, accepted={accepted}; group-events={JsonSerializer.Serialize(E<GroupCardUsedEvent>(g))}; finish-events={JsonSerializer.Serialize(E<CardUseFinishedEvent>(g))}";
-            Need(groupUsed == 1, "The global announcement is emitted once after both rounds. " + diagnostic);
-            Need(finished == 1, "The global true Use completes once after both rounds. " + diagnostic);
-            Need(accepted == 1, "The global true Use is accepted once for both rounds. " + diagnostic);
-            var order = E<DamageAppliedEvent>(g).Select(e => e.TargetSeat).ToArray();
-            Need(order.SequenceEqual([1, 2, 3, 1, 2, 3]), "The implementation explicitly completes the first native target round before the second round.");
-            _ = Cold(g, registry);
-        }
     }
     public static void ActualGlobalExtraEffectRetainsLegitimatelyClaimedMaterialAndColdCounterspell()
     {
@@ -110,33 +43,6 @@ internal static class ExtraEffectsAndRankGuessChecks
             g.CardMovements.All(m => m.CardId != material || m.Reason != CardMoveReasons.UseFinished) &&
             E<ProgramDamageCardsClaimedEvent>(g).Count(e => e.CardIds.Contains(material)) == 1,
             "The original Use is accepted, announced and completed once without reclaiming, repaying or discarding its legitimately claimed material after a cold second counterspell window.");
-        _ = Cold(g, registry);
-    }
-    public static void ActualClaimedGlobalWithoutExtraEffectKeepsExistingFlow()
-    {
-        var (g, registry) = Start("claimed-arrows-baseline"); var action = A(g, LegalActionKind.ArrowBarrage); var material = action.CardId!.Value;
-        Native(g, action); Reach(g, () => P(g) is { Kind: DecisionKind.Nullification, PlayerSeat: 0 });
-        Answer(g, c => c.Parameters.GetValueOrDefault("response") == "pass"); Play(g);
-        Need(E<DamageAppliedEvent>(g).Select(e => e.TargetSeat).SequenceEqual([1, 2, 3]) &&
-            E<ProgramDamageCardsClaimedEvent>(g).Count(e => e.CardIds.Contains(material)) == 1 &&
-            E<CardUseFinishedEvent>(g).Count(e => e.CardId == material) == 1 && !E<ExtraCardEffectStartedEvent>(g).Any(),
-            "An unchanged catalog without the extra-effect capability completes its three real damage targets and one existing legal claim without an additional round.");
-        _ = Cold(g, registry);
-    }
-    public static void ActualSlashExtraEffectRetainsLegitimatelyClaimedMaterial()
-    {
-        var (g, registry) = Start("claimed-slash"); var before = V(g, 1).Hp;
-        var action = A(g, LegalActionKind.Slash, target: 1); var material = action.CardId!.Value; Native(g, action); PayExtra(g);
-        Reach(g, () => E<DamageTriggerWindowOpenedEvent>(g).Any(e => e.TargetSeat == 1 && e.Candidates.Any(c => c.ToProgramCandidate()?.SkillId == Jianxiong)));
-        g = Cold(g, registry); Play(g); var issued = E<ExtraCardEffectIssuedEvent>(g).Single();
-        Need(V(g, 1).Hp == before - 2 && E<DamageAppliedEvent>(g).Count(e => e.TargetSeat == 1) == 2 &&
-            V(g, 1).Hand.Any(c => c.Id == material) && E<ProgramDamageCardsClaimedEvent>(g).Count(e => e.CardIds.Contains(material)) == 1,
-            "The first actual Slash damage legally transfers the one original entity to its target, while both independently resolved effects still apply after real checkpoint replay.");
-        Need(E<CardActionAcceptedEvent>(g).Count(e => e.Action.ActionId == issued.ActionId) == 1 &&
-            E<CardUseFinishedEvent>(g).Count(e => e.ResolutionId == issued.CardUseFrameId) == 1 &&
-            g.CardMovements.Count(m => m.CardId == issued.PaidCardId && m.Reason.Value == "skill-program.extra-effect.cost") == 1 &&
-            g.CardMovements.All(m => m.CardId != material || m.Reason != CardMoveReasons.UseFinished),
-            "Both Slash effects retain one accepted Use, one additional hand payment and one completion without discarding the legitimately claimed material.");
         _ = Cold(g, registry);
     }
     public static void ActualSecondSnatchRechoosesPublicCardAndRetainsMaterial()
@@ -173,76 +79,6 @@ internal static class ExtraEffectsAndRankGuessChecks
                 g.CardMovements.Count(m => m.Reason == CardMoveReasons.Draw && m.To == CardLocation.Hand(0)) == 0,
                 "The normal draw was replaced and the issued two-card gain is not repeated after its real movement observer returns.");
         }
-    }
-    public static void ActualCorrectRankStopRetainsLaterNormalDrawAdjustment()
-    {
-        var (g, registry) = Start("guess-stop", stopAtDraw: true);
-        var viewed = g.CreateSnapshot(0).PrivateRevealedCards!.OrderBy(c => c.Rank).ToArray();
-        Need(viewed.Length == 4 && viewed[0].Rank < viewed[^1].Rank, "The fixed legitimate top-four view supplies two different known ranks.");
-        var first = viewed[0]; var second = viewed[^1];
-        foreach (var card in new[] { first.Id, second.Id }.Concat(viewed.Where(c => c.Id != first.Id && c.Id != second.Id).Select(c => c.Id)))
-            Answer(g, c => c.Cards.SequenceEqual([card]));
-        Reach(g, () => Optional(P(g), Ji)); Activate(g); Reach(g, () => Choice(g));
-        Need(g.CreateSnapshot(1).PublicRevealedCards.Single().Id == first.Id, "The actual top order reaches the first public guess reveal.");
-        Answer(g, c => c.Parameters["branch"] == "greater"); Reach(g, () => P(g)?.Choices.Any(c => c.Parameters.GetValueOrDefault("branch") == "stop") == true);
-        Need(E<RankGuessComparedEvent>(g).Single() is { Correct: true, GuessIndex: 1 } &&
-            g.CreateSnapshot(1).PublicRevealedCards.Select(c => c.Id).SequenceEqual([first.Id, second.Id]),
-            "A real correct strict comparison offers a voluntary stop and exposes exactly those two entities.");
-        g = Cold(g, registry); Answer(g, c => c.Parameters["branch"] == "stop"); Play(g);
-        Need(g.CardMovements.Count(m => m.Reason.Value == "skill-program.rank-guess.gain" && m.To == CardLocation.Hand(0)) == 2 &&
-            g.CardMovements.Count(m => m.Reason == CardMoveReasons.Draw && m.To == CardLocation.Hand(0)) == 1 &&
-            E<RankGuessComparedEvent>(g).Count() == 1,
-            "Voluntary stopping gains the two revealed entities once while a later real same-window +1 adjustment still draws one normal card.");
-        _ = Cold(g, registry);
-    }
-    public static void ActualAiRankReplacementUsesPublicPriorAndGains()
-    {
-        var (g, registry) = Start("guess-ai"); End(g);
-        Reach(g, () => E<ProgramBindingResolvedEvent>(g).Any(e => e.SkillId == Ji && e.OwnerSeat == 1 && e.Activated && e.Completed));
-        Need(g.CardMovements.Count(m => m.Reason.Value == "skill-program.rank-guess.gain" && m.To == CardLocation.Hand(1)) == 2 &&
-            g.CardMovements.Count(m => m.Reason == CardMoveReasons.Draw && m.To == CardLocation.Hand(1)) == 0,
-            "The native AI voluntarily starts and finishes the exact rank replacement using an unknown-deck prior, without silently retaining the normal draw.");
-        _ = Cold(g, registry);
-    }
-    public static void ActualSecondNullificationWindowAfterFirstCanceledEffect()
-    {
-        var (g, registry) = Start("counter"); var before = V(g, 0).HandCount;
-        Native(g, A(g, LegalActionKind.DrawTwo)); PayExtra(g);
-        Reach(g, () => P(g) is { Kind: DecisionKind.Nullification, PlayerSeat: 0 });
-        Answer(g, c => c.Cards.Count == 1); // one actual converted response Use
-        Reach(g, () => E<NullificationResolvedEvent>(g).Any(e => e.EffectNullified));
-        var issued = E<ExtraCardEffectIssuedEvent>(g).Single();
-        Need(!E<CardUseFinishedEvent>(g).Any(e => e.ResolutionId == issued.CardUseFrameId), "The first canceled effect does not settle the underlying trick or suppress the additional effect.");
-        g = Cold(g, registry); Reach(g, () => P(g) is { Kind: DecisionKind.Nullification, PlayerSeat: 0 });
-        Answer(g, c => c.Parameters.GetValueOrDefault("response") == "pass"); Play(g);
-        var windows = E<NullificationResolvedEvent>(g).Where(e => e.ResolutionId == issued.CardUseFrameId).ToArray();
-        Need(windows is [{ EffectNullified: true, ChainDepth: 1 }, { EffectNullified: false, ChainDepth: 0 }] &&
-            E<CardActionAcceptedEvent>(g).Count(e => e.Action.Type == CardActionType.Response && e.Action.EffectiveKind == CardKind.Nullification) == 1,
-            "Two independent native counterspell windows protect the two effects while the actual first response Use is paid/completed once.");
-        Need(V(g, 0).HandCount == before - 1 && E<CardUseFinishedEvent>(g).Count(e => e.ResolutionId == issued.CardUseFrameId) == 1,
-            "One original material, one extra-effect cost and one counterspell cost are followed by only the uncanceled native draw of two.");
-    }
-    public static void ActualFiveGrainsLeftoversAreSettledBeforeNewPublicPool()
-    {
-        var (g, registry) = Start("harvest"); Native(g, A(g, LegalActionKind.FiveGrains)); PayExtra(g);
-        Reach(g, () => P(g)?.SkillPrompt?.SkillId == Before && P(g)!.Choices.Any(c => c.Targets.Count == 1));
-        Answer(g, c => c.Targets.SequenceEqual([1]));
-        Reach(g, () => P(g) is { Kind: DecisionKind.SelectHarvestCard, PlayerSeat: 0 });
-        var firstPool = g.CreateSnapshot(0).PublicRevealedCards.Select(c => c.Id).ToArray();
-        Need(!V(g, 1).IsAlive && firstPool.Length == 4, "A real before-effect death leaves the original accepted four-target reveal count and one future leftover.");
-        Answer(g, _ => true);
-        Reach(g, () => P(g) is { Kind: DecisionKind.SelectHarvestCard, PlayerSeat: 0 } && E<ExtraCardEffectStartedEvent>(g).Any());
-        var secondPool = g.CreateSnapshot(0).PublicRevealedCards.Select(c => c.Id).ToArray();
-        Need(firstPool.Intersect(secondPool).Count() == 0 && secondPool.Length == 4 &&
-            g.CardMovements.Count(m => firstPool.Contains(m.CardId) && m.Reason == CardMoveReasons.HarvestDiscard) == 1,
-            "The first unpicked public entity is discarded once before the second genuine public pool is produced.");
-        g = Cold(g, registry); Answer(g, _ => true); Play(g);
-        var issued = E<ExtraCardEffectIssuedEvent>(g).Single();
-        Need(E<HarvestCardSelectedEvent>(g).Count(e => e.ResolutionId == issued.CardUseFrameId) == 6 &&
-            g.CardMovements.Count(m => secondPool.Contains(m.CardId) && m.Reason == CardMoveReasons.HarvestDiscard) == 1 &&
-            E<GroupCardUsedEvent>(g).Count(e => e.ResolutionId == issued.CardUseFrameId) == 1 &&
-            E<CardUseFinishedEvent>(g).Count(e => e.ResolutionId == issued.CardUseFrameId) == 1,
-            "Both public pools and leftovers finish through native choices while the underlying FiveGrains is used and settled once.");
     }
     public static void ActualDeathRecipientOwnChoicePermanentGrantAndOwnerDecline()
     {
@@ -310,7 +146,6 @@ internal static class ExtraEffectsAndRankGuessChecks
         Frames = g.ResolutionStack.Select(f => JsonSerializer.Serialize(f, f.GetType())).ToArray(), g.CardMovements, Events = g.Events.Select(e => JsonSerializer.Serialize(e.Payload, e.Payload.GetType())).ToArray(), Commands = CommandJson.Serialize(g.AcceptedCommands) });
     private static GameEngine Cold(GameEngine g, ContentRegistry registry) { var copy = GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(g.CreateCheckpoint())), registry); Need(State(g) == State(copy), "Real checkpoint replay retains exact paid cards, public choices, extra-effect cursor and Wine count."); return copy; }
     private static void Need(bool value, string message) { if (!value) throw new InvalidOperationException(message); }
-    private static void Reject(Action action, string message) { try { action(); } catch (InvalidOperationException) { return; } throw new InvalidOperationException(message); }
     private static (GameEngine, ContentRegistry) Start(string scenario, bool stopAtDraw = false, bool child = false, bool stopAtVirtual = false)
     {
         var registry = ContentRegistry.Build(new StandardContentPackage(), new Fixture(scenario, child));

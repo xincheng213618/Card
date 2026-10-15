@@ -193,6 +193,7 @@ public sealed partial class GameEngine
         { "yang" => "智绝·阳：将牌堆顶的一张牌当【火攻】使用，选择目标。", "color" => "智绝·阴：选择一种颜色，置入该颜色的全部手牌。", _ => "智绝·阴：可视为使用刚置入弃牌堆的一张基本或普通锦囊牌。" });
         return true;
     }
+    [ProgramAnswer("mou-zhijue", "mou-zhitian-confirm")]
     private void ResolveMouZhugeChoice(PromptChoice choice)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("Mou Zhuge lost its program.");

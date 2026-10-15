@@ -33,7 +33,7 @@ public sealed partial class GameEngine
             AdvanceRuntimeProgram(frame.Id);
             return;
         }
-        var matched = state.SuccessSuits.Contains(EffectiveSuit(_players[pending.TargetSeat], card));
+        var matched = state.SuccessSuits.Contains(EffectiveZhenyiJudgmentSuit(pending, EffectiveSuit(_players[pending.TargetSeat], card)));
         var location = _cardZones.GetLocation(card.Id);
         if (location != CardLocation.Judgment(pending.TargetSeat))
             throw new InvalidOperationException("Repeated judgment card left its resolution zone.");

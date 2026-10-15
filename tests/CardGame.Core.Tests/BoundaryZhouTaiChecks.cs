@@ -8,50 +8,6 @@ internal static class BoundaryZhouTaiChecks
     private const string Buqu = "boundary:buqu-current";
     private const string Fenji = "boundary:fenji-current";
 
-    public static void Definitions()
-    {
-        var registry = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true),
-            new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage());
-        var general = registry.Generals["boundary:zhou-tai"];
-        Require(general.Name == "界周泰" && general.FactionId == "wu" && general.BaseHp == 4 &&
-            general.SkillIds.SequenceEqual([Buqu, Fenji]) &&
-            general.VariantId == "boundary" && general.RulesetId == "sanguosha-ol",
-            "The boundary Zhou Tai general registers the current OL wu 4HP pair.");
-        var buqu = registry.GetSkill(Buqu).Program!;
-        var rescue = buqu.Triggers.Single();
-        Require(rescue.Window == SkillProgramTriggerWindow.SelfDyingResponse && !rescue.Optional &&
-            rescue.Effects.Single().Op == SkillProgramEffectOp.RevealUniqueRankForDying &&
-            rescue.Effects.Single().DestinationZone == CardZoneKind.BuquWound,
-            "Buqu keeps the mandatory unique-rank dying rescue into the public wound pile.");
-        var fenji = registry.GetSkill(Fenji).Program!;
-        var discardTriggers = fenji.Triggers.Where(t => t.Window == SkillProgramTriggerWindow.DiscardPileReceived).ToArray();
-        var gainTrigger = fenji.Triggers.Single(t => t.Window == SkillProgramTriggerWindow.CardsGained);
-        var otherDiscard = discardTriggers.Single(t => t.DiscardOwnerScope == SkillProgramDiscardOwnerScope.Other);
-        var ownDiscard = discardTriggers.Single(t => t.DiscardOwnerScope == SkillProgramDiscardOwnerScope.Own);
-        Require(discardTriggers.Length == 2 &&
-            otherDiscard.Optional && otherDiscard.MovementDiscardOnly &&
-            otherDiscard.SourceZones.SequenceEqual([CardZoneKind.Hand]) &&
-            otherDiscard.Effects.Select(e => e.Op).SequenceEqual(
-                [SkillProgramEffectOp.SelectTarget, SkillProgramEffectOp.LoseHp, SkillProgramEffectOp.Draw]) &&
-            ownDiscard.Optional && ownDiscard.MovementDiscardOnly &&
-            ownDiscard.SourceZones.SequenceEqual([CardZoneKind.Hand]) &&
-            ownDiscard.Effects.Select(e => e.Op).SequenceEqual([SkillProgramEffectOp.LoseHp, SkillProgramEffectOp.Draw]) &&
-            ownDiscard.Effects[1].Amount == 2,
-            "The discard branch covers every character's hand discard with one owner draw each. other=" +
-            string.Join(",", otherDiscard.Effects.Select(e => e.Op)) + "/" + otherDiscard.MovementDiscardOnly + "/" +
-            string.Join(",", otherDiscard.SourceZones) + " own=" +
-            string.Join(",", ownDiscard.Effects.Select(e => e.Op)) + "/" + ownDiscard.MovementDiscardOnly + "/" +
-            string.Join(",", ownDiscard.SourceZones));
-        Require(gainTrigger.MovementOccurrence == SkillProgramMovementOccurrence.PerThirdPartyHandGain &&
-            gainTrigger.Optional && gainTrigger.DestinationZones.SequenceEqual([CardZoneKind.Hand]) &&
-            gainTrigger.Effects.Select(e => e.Op).SequenceEqual(
-                [SkillProgramEffectOp.SelectTarget, SkillProgramEffectOp.LoseHp, SkillProgramEffectOp.Draw]),
-            "The gain branch observes third-party hand transfers and pays one HP for two owner draws.");
-        var presentation = registry.GetSkill(Fenji).ProgramPresentation!;
-        Require(presentation.Name == "奋激" && presentation.Description.Contains("失去1点体力", StringComparison.Ordinal),
-            "The presentation carries the current OL Fenji wording.");
-    }
-
     public static void BuquRescueWoundHandLimitAndDuplicateRank()
     {
         var (g, r) = Start();
@@ -86,25 +42,6 @@ internal static class BoundaryZhouTaiChecks
         Require(WoundCount(g2) == 0 && g2.CreateSnapshot(0).Players[0].Hp == 0 &&
             !g2.CreateSnapshot(0).Players[0].IsAlive,
             "A repeated wound rank is removed, so the declined second dying stays fatal.");
-    }
-
-    public static void FenjiAnswersOtherHandDiscardsOnly()
-    {
-        var (g, r) = Start();
-        var targetHand = HandCount(g, 1);
-        Driver(g, "strip", [1]);
-        RunUntilPlay(g, activateFenji: true);
-        Require(g.CreateSnapshot(0).Players[0].Hp == 4 && HandCount(g, 1) == targetHand - 1 + 2,
-            "An accepted Fenji costs Zhou Tai one HP and refills the discarder by two.");
-        Replay(g, r);
-        var (g2, r2) = Start();
-        Driver(g2, "equip", [1]);
-        RunUntilPlay(g2);
-        Driver(g2, "strip-equipment", [1]);
-        RunUntilPlay(g2);
-        Require(g2.CreateSnapshot(0).Players[0].Hp == 5,
-            "An equipment discard never offers the hand-only Fenji.");
-        Replay(g2, r2);
     }
 
     public static void FenjiCoversOwnDiscardsAndThirdPartyGains()

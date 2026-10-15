@@ -505,7 +505,7 @@ public sealed partial class GameEngine
         foreach (var player in _players)
         {
             var attributed = player.MarkerSourceCounts
-                .Where(item => item.Key.SkillOwnerSeat == owner.Seat)
+                .Where(item => item.Key.SkillOwnerSeat == owner.Seat && item.Key.Marker is not (PlayerMarkerKind.Kui or PlayerMarkerKind.DragonSeal or PlayerMarkerKind.PhoenixSeal))
                 .ToArray();
             foreach (var item in attributed)
             {

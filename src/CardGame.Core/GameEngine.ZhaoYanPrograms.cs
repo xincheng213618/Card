@@ -298,6 +298,7 @@ public sealed partial class GameEngine
         return SkillProgramStepOutcome.AwaitChoice;
     }
 
+    [ProgramAnswer("tongxie-arm")]
     private void ResolveTongxieArmChoice(PromptChoice selected)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ??
@@ -476,6 +477,7 @@ public sealed partial class GameEngine
         return SkillProgramStepOutcome.AwaitChoice;
     }
 
+    [ProgramAnswer("tongxie-follow-up", "tongxie-follow-up-decline")]
     private void ResolveTongxieFollowUpChoice(PromptChoice selected)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ??
@@ -640,6 +642,7 @@ public sealed partial class GameEngine
         return PresentTongxieGuardPrompt(GetActiveProgramFrame(active.Id));
     }
 
+    [ProgramAnswer("tongxie-guard", "tongxie-guard-decline")]
     private void ResolveTongxieGuardChoice(PromptChoice selected)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ??
@@ -728,6 +731,7 @@ public sealed partial class GameEngine
 
     // 同协 arm: price every offered member set; each chosen member scores as a
     // support target and a guaranteed unique-least draw adds its card value.
+    [ProgramAiChoice(SkillProgramEffectOp.TongxieArm)]
     private PromptChoice SelectAiTongxieArmChoice(PendingDecision decision)
     {
         var view = CreateSnapshot(decision.PlayerSeat);
@@ -757,6 +761,7 @@ public sealed partial class GameEngine
 
     // 同协 follow-up: use the cheapest slash when the target is hostile enough
     // to be worth the card; the answer stays deterministic in card-id order.
+    [ProgramAiChoice(SkillProgramEffectOp.TongxieFollowUp)]
     private PromptChoice SelectAiTongxieFollowUpChoice(PendingDecision decision)
     {
         var view = CreateSnapshot(decision.PlayerSeat);
@@ -773,6 +778,7 @@ public sealed partial class GameEngine
 
     // 同协 guard: protect a friend while the preventer keeps hp above one; the
     // prevention value scales with the prevented amount.
+    [ProgramAiChoice(SkillProgramEffectOp.TongxieGuard)]
     private PromptChoice SelectAiTongxieGuardChoice(PendingDecision decision)
     {
         var view = CreateSnapshot(decision.PlayerSeat);

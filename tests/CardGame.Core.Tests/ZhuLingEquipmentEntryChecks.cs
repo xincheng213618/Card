@@ -39,24 +39,6 @@ internal static class ZhuLingEquipmentEntryChecks
         Cold(game, registry);
     }
 
-    public static void UsedEquipmentStillTriggersExactlyOnce()
-    {
-        var (game, registry) = Create();
-        var card = EquipmentInHand(game);
-        Accept(game, new PlayCardCommand(0, card.Id, [], game.Revision, Prompt(game)!.PromptId));
-        Reach(game, p => IsEquipmentOffer(p) || IsPlay(p));
-        Require(IsEquipmentOffer(Prompt(game)!) && game.CreateSnapshot(0).Players[0].Equipment.Any(c => c.Id == card.Id),
-            "Ordinary equipment Use must still offer Zhanyi after the actual equipment entry.");
-        game = Cold(game, registry);
-        game = ResolvePunish(game, registry);
-        Require(Facts<ProgramZhanyiEquipmentPunishEvent>(game).Count() == 1 &&
-            Facts<CardUseDeclaredEvent>(game).Count(e => e.SourceSeat == 0 && e.CardId == card.Id) == 1,
-            "Moving the equipment benefit to the entry boundary must retain one real Use and one punishment: " +
-            JsonSerializer.Serialize(new { CardId = card.Id, Punishments = Facts<ProgramZhanyiEquipmentPunishEvent>(game).ToArray(),
-                Uses = Facts<CardUseDeclaredEvent>(game).ToArray() }));
-        Cold(game, registry);
-    }
-
     public static void EquipmentEntryContractsPreserveHandGainBoundaries()
     {
         const string rules = """

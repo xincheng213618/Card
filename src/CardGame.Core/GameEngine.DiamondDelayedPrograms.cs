@@ -66,6 +66,7 @@ public sealed partial class GameEngine
         return DiamondDelayedChoices(frame).Any(c => c.Id == choice.Id && c.Cards.SequenceEqual(choice.Cards) && c.Targets.SequenceEqual(choice.Targets) && c.Parameters.OrderBy(p => p.Key).SequenceEqual(choice.Parameters.OrderBy(p => p.Key)));
     }
 
+    [ProgramAnswer("diamond-delayed")]
     private void ResolveDiamondDelayedChoice(PromptChoice choice)
     {
         if (!IsDiamondDelayedChoiceLegal(choice)) throw new InvalidOperationException("The exact diamond payment or target is stale.");

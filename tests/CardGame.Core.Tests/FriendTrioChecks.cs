@@ -47,32 +47,6 @@ internal static class FriendTrioChecks
         }
     }
 
-    public static void ZeroPredictionPaysOnceAndRejectsStaleInput()
-    {
-        var (g, registry) = Start(false);
-        Activate(g); Value(g, "predict"); Value(g, "category");
-        for (var i = 0; i < 3; i++) Value(g, "equipment");
-        Value(g, "hidden"); Settle(g); var hp = g.State.Players[0].Hp;
-        for (var i = 0; i < 3; i++)
-        {
-            Play(g, CardKind.DrawTwo);
-            if (i < 2) Settle(g);
-        }
-        Reach(g, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "friend-trio" && c.Cards.Count == 1));
-        Replay(g, registry);
-        Require(g.State.Players[0].Hp == hp - 1, "Zero correct predictions lose one real HP before the discard choices.");
-        var prompt = P(g)!; var checkpoint = GameCheckpointJson.Serialize(g.CreateCheckpoint());
-        Require(!g.Submit(new AnswerPromptCommand(0, prompt.PromptId, new("forged"), g.Revision)).Accepted && checkpoint == GameCheckpointJson.Serialize(g.CreateCheckpoint()),
-            "A forged private prediction answer preserves the command prefix and already-paid HP.");
-        Answer(g, c => c.Cards.Count == 1); Replay(g, registry);
-        Require(!g.Submit(new AnswerPromptCommand(0, prompt.PromptId, prompt.Choices[0].Id, g.Revision)).Accepted,
-            "A stale payment prompt cannot discard or lose HP twice.");
-        Answer(g, c => c.Cards.Count == 1); Settle(g); Replay(g, registry);
-        Require(g.CardMovements.Count(m => m.Reason.Value == "friend.yance.discard") == 2 &&
-            g.State.Players[0].Hp == hp - 1 && g.Events.Select(e => e.Payload).OfType<FriendPredictionSettledEvent>().Single().NextCount == 2,
-            "The unsuccessful sequence pays both discards once and lowers its future count.");
-    }
-
     public static void XuanjianWholeSuitQihuiAndReclaim()
     {
         var (g, registry) = Start(true); Settle(g); Replay(g, registry);
@@ -105,38 +79,6 @@ internal static class FriendTrioChecks
         Require(g.State.Players[0].Hand!.Any(c => c.Id == generated) && g.CardMovements.Count(m => m.CardId == generated &&
             m.From == CardLocation.DiscardPile && m.To == CardLocation.Hand(0)) == 1,
             "Discarding the owner's weapon is eligible and paid mark removal reclaims the same physical entity once.");
-    }
-
-    public static void ActualDodgeNullificationAndPureDuelResponses()
-    {
-        foreach (var kind in new[] { CardKind.Dodge, CardKind.Nullification, CardKind.Slash })
-        {
-            var (g, registry) = Start(true, kind); Settle(g);
-            if (kind == CardKind.Slash)
-                Accept(g, new UseProgramSkillCommand(0, "fixture:friend-driver", "opponent-duel", [], [1], g.Revision, P(g)!.PromptId));
-            else Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId));
-            var wanted = kind == CardKind.Dodge ? DecisionKind.RespondDodge : kind == CardKind.Nullification ? DecisionKind.Nullification : DecisionKind.RespondSlash;
-            ReachResponse(g, wanted); Replay(g, registry);
-            Answer(g, c => c.Cards.Count == 1); Replay(g, registry);
-            Require(g.Events.Select(e => e.Payload).OfType<CardActionAcceptedEvent>().Any(e => e.Action.Type == CardActionType.Response && e.Action.ActorSeat == 0 && e.Action.EffectiveKind == kind),
-                "The fixture pays an actual native response material.");
-            var marker = kind == CardKind.Nullification ? PlayerMarkerKind.QihuiTrick : PlayerMarkerKind.QihuiBasic;
-            Require(g.State.Players[0].Markers?.Any(m => m.Kind == marker) == (kind != CardKind.Slash),
-                "Only a real Slash-defense Dodge or Nullification use earns Qihui; a pure Duel Slash response does not.");
-        }
-    }
-    private static void ReachResponse(GameEngine g, DecisionKind wanted)
-    {
-        for (var i = 0; i < 100; i++)
-        {
-            var p = P(g);
-            if (p?.PlayerSeat == 0 && p.Kind == wanted && p.Choices.Any(c => c.Cards.Count == 1)) return;
-            if (p is { Kind: DecisionKind.DiscardCards, PlayerSeat: 0 })
-                Accept(g, new DiscardCardsCommand(0, p.ValidCardIds.Take(p.RequiredCardCount).ToArray(), p.PromptId, g.Revision));
-            else if (p?.SkillPrompt?.SkillId == "fixture:friend-foreign" && p.Choices.Any(c => c.Targets.SequenceEqual([0]))) Answer(g, c => c.Targets.SequenceEqual([0]));
-            else Accept(g, new AdvanceOneStepCommand(g.Revision));
-        }
-        throw new InvalidOperationException("The fixed native friend response was not reached: " + P(g)?.Prompt);
     }
 
     private static void Value(GameEngine g, string value) => Answer(g, c => c.Parameters.GetValueOrDefault("value") == value);

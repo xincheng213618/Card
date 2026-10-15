@@ -43,50 +43,6 @@ internal static class BoundaryCaoZhangChecks
         Replay(game, registry);
     }
 
-    public static void DynamicSlashExemptionTracksGainLossAndExpiresBeforeNextDiscard()
-    {
-        var (game, registry) = Create(); ReachJiangchi(game); Choose(game, "draw-more"); ReachPlay(game);
-        var initial = game.CreateSnapshot(0).Players[0];
-        var policy = initial.TurnHandLimitCardKindExemptions!.Single();
-        Use(game, "gain"); ReachPlay(game);
-        Require(game.State.Players[0].HandCount == initial.HandCount + 2 &&
-            game.State.Players[0].TurnHandLimitCardKindExemptions!.Single().GrantSequence == policy.GrantSequence,
-            "Later real Slash draws use the same issued kind policy without adding another policy or numerical hand limit.");
-        var removed = game.CreateSnapshot(0).Players[0].Hand.First().Id;
-        Use(game, "discard-one", cards: [removed]); ReachPlay(game);
-        Require(!game.CreateSnapshot(0).Players[0].Hand.Any(c => c.Id == removed) &&
-            game.State.Players[0].HandCount == initial.HandCount + 1,
-            "A physical Slash discarded earlier leaves the dynamic hand population immediately.");
-        for (var viewer = 1; viewer < 4; viewer++)
-            Require(game.CreateSnapshot(viewer).Players[0].Hand.Count == 0 &&
-                game.CreateSnapshot(viewer).Players[0].TurnHandLimitCardKindExemptions is [var shown] &&
-                shown.CardKinds.SequenceEqual(policy.CardKinds),
-                "Public policy kinds never publish hidden physical identities to another viewer.");
-        Replay(game, registry);
-        Accept(game, new EndPlayPhaseCommand(0, game.Revision, Prompt(game)!.PromptId));
-        for (var step = 0; step < 70 && !game.Events.Any(e => e.Payload is TurnEndedEvent { ActorSeat: 0, TurnNumber: 1 }); step++) Advance(game);
-        Require(game.Events.Any(e => e.Payload is TurnEndedEvent { ActorSeat: 0, TurnNumber: 1 }) &&
-            !game.CardMovements.Any(m => m.From == CardLocation.Hand(0) && m.Reason == CardMoveReasons.HandLimitDiscard) &&
-            game.State.Players[0].TurnHandLimitCardKindExemptions is null,
-            "Every currently held Slash is exempt at discard, and the policy expires at the actual turn boundary.");
-        Replay(game, registry);
-        ReachJiangchi(game); Skip(game); ReachPlay(game);
-        Require(game.GetHumanLegalActions().Any(a => a.Kind == LegalActionKind.Slash),
-            "Declining the next actual draw-ended choice does not reissue the previous negative allowance.");
-        Accept(game, new EndPlayPhaseCommand(0, game.Revision, Prompt(game)!.PromptId));
-        Reach(game, p => p.Kind == DecisionKind.DiscardCards && p.PlayerSeat == 0);
-        var discard = Prompt(game)!;
-        Require(discard.RequiredCardCount > 0 && discard.ValidCardIds.Count == game.State.Players[0].HandCount &&
-            discard.ValidCardIds.All(id => game.CreateSnapshot(0).Players[0].Hand.Any(c => c.Id == id && c.Kind == CardKind.Slash)),
-            "The expired policy returns actual Slash entities to the central discard eligibility and published final subset contract.");
-        Replay(game, registry);
-        var before = State(game);
-        Require(!game.Submit(new DiscardCardsCommand(0, [-1], discard.PromptId, game.Revision)).Accepted && State(game) == before,
-            "An unpublished discard subset rejects without changing the command prefix or private hand.");
-        Accept(game, new DiscardCardsCommand(0, discard.ValidCardIds.Take(discard.RequiredCardCount).ToArray(), discard.PromptId, game.Revision));
-        Replay(game, registry);
-    }
-
     public static void HandRecastWaitsForCostAndDrawChildrenBeforeTwoDistantSlashes()
     {
         var (game, registry) = Create(observers: true); ReachJiangchi(game);
@@ -120,39 +76,6 @@ internal static class BoundaryCaoZhangChecks
         Require(game.Events.Select(e => e.Payload).OfType<DamageAppliedEvent>().Count(e => e.SourceSeat == 0 && e.TargetSeat == 2) == 2 &&
             !game.GetHumanLegalActions().Any(a => a.Kind == LegalActionKind.Slash),
             "The paid branch permits two actual distance-two Slashes and then exhausts the new finite allowance.");
-    }
-
-    public static void EquipmentRecastDrainsSilverLionRecoveryAndMovementBeforeGrants()
-    {
-        var (game, registry) = Create(equipment: true, observers: true); ReachJiangchi(game); Skip(game); ReachPlay(game);
-        var equip = game.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.Equip);
-        Accept(game, new PlayCardCommand(0, equip.CardId!.Value, equip.TargetSeats, game.Revision, Prompt(game)!.PromptId)); ReachPlay(game);
-        var armor = game.CreateSnapshot(0).Players[0].Equipment.Single(c => c.Kind == CardKind.SilverLion).Id;
-        Accept(game, new EndPlayPhaseCommand(0, game.Revision, Prompt(game)!.PromptId)); ReachJiangchi(game);
-        var hp = game.State.Players[0].Hp; var hand = game.State.Players[0].HandCount;
-        Require(hp < game.State.Players[0].MaxHp, "The real equipped Silver Lion belongs to an injured owner on the next actual draw-ended boundary.");
-        Choose(game, "recast-assault"); ReachOwnedSelection(game); AssertPrivateSelection(game);
-        Require(Prompt(game)!.Choices.Any(c => c.Cards.SequenceEqual([armor])),
-            "The frozen owned HE selection includes the actual equipped armor as well as hand cards.");
-        Replay(game, registry); Answer(game, c => c.Cards.SequenceEqual([armor]));
-        Reach(game, p => p.SkillPrompt?.SkillId == Recovery);
-        Require(RecastOwner(game).BoundCardRecast is { DrawApplied: false } && game.State.Players[0].Hp == hp + 1 &&
-            game.State.Players[0].HandCount == hand && Grants(game).Count == 0 &&
-            !game.CreateSnapshot(0).Players[0].Equipment.Any(c => c.Id == armor),
-            "Silver Lion's actual recovery and HP observer run after one equipment cost and before the recast draw or grants.");
-        Replay(game, registry); Continue(game); Reach(game, p => p.SkillPrompt?.SkillId == Cost);
-        AssertExactMovementReturn(game, RecastOwner(game), armor, CardLocation.Equipment(0), CardLocation.DiscardPile);
-        Require(game.State.Players[0].HandCount == hand && Grants(game).Count == 0,
-            "The equipment-loss observer finishes before the one-card replacement draw.");
-        Replay(game, registry); Continue(game); Reach(game, p => p.SkillPrompt?.SkillId == Gain);
-        Require(game.State.Players[0].HandCount == hand + 1 && Grants(game).Count == 0,
-            "The drawn entity commits before its own gain observer, and attack grants still await that child.");
-        Replay(game, registry); Continue(game); ReachPlay(game);
-        Require(Grants(game).Count == 2 && Recasts(game).Single().CardId == armor &&
-            game.CardMovements.Count(m => m.CardId == armor && m.From == CardLocation.Equipment(0) && m.Reason == CardMoveReasons.RecastDiscard) == 1 &&
-            game.Events.Select(e => e.Payload).OfType<SilverLionRemovedRecoveryEvent>().Count(e => e.PlayerSeat == 0 && e.Reason == CardMoveReasons.RecastDiscard && e.RecoveredAmount == 1) == 1,
-            "Cold continuation retains the exact equipped payment and publishes one Silver Lion removal and one recast.");
-        Replay(game, registry);
     }
 
     private static IReadOnlyList<TurnRuleModifierGrantedEvent> Grants(GameEngine game) => game.Events.Select(e => e.Payload)

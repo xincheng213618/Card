@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:dianhu",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "record-other-at-game-start",
+          "window": "gameStarting",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "otherLiving"
+            },
+            {
+              "op": "armDianhuRelation",
+              "target": "selectedTarget"
+            }
+          ]
+        },
+        {
+          "id": "recorded-target-damaged-by-owner",
+          "window": "afterDamageApplied",
+          "subject": "damageSource",
+          "damageOccurrence": "perDamage",
+          "optional": false,
+          "effects": [
+            {
+              "op": "drawForDianhuActualOccurrence",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "recorded-target-recovered",
+          "window": "afterHpRecovered",
+          "subject": "owner",
+          "hpChangeOccurrence": "perEvent",
+          "optional": false,
+          "effects": [
+            {
+              "op": "drawForDianhuActualOccurrence",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:jianji",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "draw-and-offer-exact-card",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "effects": [
+            {
+              "op": "drawAndOfferJianjiExactCard",
+              "target": "selectedTarget"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

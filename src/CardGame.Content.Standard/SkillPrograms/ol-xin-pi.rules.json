@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:chijie",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "invalidate-after-real-damage",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "optional": true,
+          "damageOccurrence": "perDamage",
+          "effects": [
+            {
+              "op": "invalidateRemainingActualDamageCardEffects",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "claim-entire-undamaged-use",
+          "window": "cardUseCompleted",
+          "ownerRelation": "target",
+          "optional": true,
+          "effects": [
+            {
+              "op": "claimCompletedUndamagedIncomingCardEntities",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:yinju",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "actual-turn-relation",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLiving",
+          "usesPerTurn": null,
+          "usesPerGame": 1,
+          "effects": [
+            {
+              "op": "armYinjuActualTurnRelation",
+              "target": "owner"
+            }
+          ]
+        }
+      ],
+      "triggers": [
+        {
+          "id": "issued-replace-damage",
+          "window": "beforeDamageApplied",
+          "subject": "damageSource",
+          "optional": false,
+          "effects": [
+            {
+              "op": "preventYinjuDamageAndRecover",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "issued-target-draw-both",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "actor",
+          "optional": false,
+          "effects": [
+            {
+              "op": "drawBothAfterYinjuActualTargetUse",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

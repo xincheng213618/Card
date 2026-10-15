@@ -68,22 +68,6 @@ internal static class SkillOwnershipChecks
         throw new InvalidOperationException($"No bounded {role} fixture offered {generalId}.");
     }
 
-
-    private static void ReachHumanPlay(GameEngine game)
-    {
-        var started = game.Submit(new StartGameCommand());
-        Require(started.Accepted, started.Error?.Message ?? "Lord-tagged runtime fixture failed to start.");
-        for (var step = 0; step < 20 &&
-             game.PendingDecision is not { Kind: DecisionKind.PlayCard, PlayerSeat: 0 }; step++)
-        {
-            var advanced = game.Submit(new AdvanceOneStepCommand(game.Revision));
-            Require(advanced.Accepted, advanced.Error?.Message ?? "Lord-tagged runtime fixture failed to advance.");
-        }
-
-        Require(game.PendingDecision is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 },
-            "Lord-tagged runtime fixture did not reach the human play boundary.");
-    }
-
     private static void Require(bool value, string message)
     {
         if (!value) throw new InvalidOperationException(message);

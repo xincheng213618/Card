@@ -56,7 +56,7 @@ public sealed partial class GameEngine
                 EvaluateProgramActivationCondition(child, context, skillId, skillInstanceId)),
             SkillProgramConditionKind.Any => condition.Children.Any(child =>
                 EvaluateProgramActivationCondition(child, context, skillId, skillInstanceId)),
-            SkillProgramConditionKind.Not => !EvaluateProgramActivationCondition(
+            SkillProgramConditionKind.Not => !condition.MissingEquipmentPresence(context) && !EvaluateProgramActivationCondition(
                 condition.Children[0], context, skillId, skillInstanceId),
             _ => condition.Evaluate(context)
         };
@@ -99,7 +99,7 @@ public sealed partial class GameEngine
                 if (features.HasOperation(SkillProgramEffectOp.GiveAllHandAndStartRecipientPindian) && !CanStartRecipientContest(owner)) continue;
                 if (features.HasOperation(SkillProgramEffectOp.GiveBlackHandAndResolveRecipientContest) && BlackGiftGameIssued(owner.Seat, program.Id)) continue;
                 if (features.HasOperation(SkillProgramEffectOp.UseVirtualAlcohol) && !CanStartProvenanceAlcohol(owner)) continue;
-                if (!CanActivatePhaseHandSeizure(owner, program) || !CanActivateEquipmentPairPayment(owner, program.Id, features) || !CanActivateDiamondDelayed(owner, activation, program.Id) || !CanActivateConvertingGift(owner, program.Id, features) || !CanActivatePublicPileColor(owner,program.Id,features) || !CanActivatePublicPileFlow(owner, features) || !CanPayEquipmentSlotGroup(owner, activation) || !CanActivateHandComparison(owner, activation) || !EvaluateProgramActivationCondition(activation.Condition, context, program.Id, GetRuntimeSkillInstanceId(owner, program.Id)) || !CanPayProgramMarkerCost(owner, activation.MarkerCost) ||
+                if (!HeQiActivationAllowed(owner, activation) || !CanActivateSimaHui(owner.Seat, activation) || !CanActivateXuRong(owner.Seat, activation) || !CanActivateZhangJi(owner.Seat, activation) || !CanActivatePhaseHandSeizure(owner, program) || !CanActivateEquipmentPairPayment(owner, program.Id, features) || !CanActivateDiamondDelayed(owner, activation, program.Id) || !CanActivateConvertingGift(owner, program.Id, features) || !CanActivatePublicPileColor(owner,program.Id,features) || !CanActivatePublicPileFlow(owner, features) || !CanPayEquipmentSlotGroup(owner, activation) || !CanActivateHandComparison(owner, activation) || !EvaluateProgramActivationCondition(activation.Condition, context, program.Id, GetRuntimeSkillInstanceId(owner, program.Id)) || !CanPayProgramMarkerCost(owner, activation.MarkerCost) ||
                     activation.UsesPerTurn is { } limit &&
                     _programUses.GetValueOrDefault((owner.Seat, program.Id, activation.UsageGroup)) >= limit ||
                     HandComparisonPhaseLimit(owner, program, activation) is { } phaseLimit &&
@@ -177,7 +177,7 @@ public sealed partial class GameEngine
                     : allHandTrickUse is not null ? []
                     : activation.MaxTargets == 0 ? [] : _players
                     .Where(target => target.IsAlive && IsHandComparisonTarget(activation, target) &&
-                        IsAdvancedActivationTargetAllowed(owner, target, program.Id, features) &&
+                        IsAdvancedActivationTargetAllowed(owner, target, program.Id, features) && CanTargetXuRong(owner.Seat, target.Seat, activation) &&
                         (features.First(SkillProgramEffectOp.ResolveGameTargetHandHpChoice) is not { } handHp || CanSelectGameHandHpTarget(owner.Seat, program.Id, handHp.StateId!, target.Seat)) &&
                         (features.First(SkillProgramEffectOp.DrawThenDiscardDistinctCategories) is not { } categoryRefund || DrawDiscardCategoryTargetAvailable(owner.Seat, program.Id, categoryRefund.StateId!, target.Seat)) &&
                         (!features.HasOperation(SkillProgramEffectOp.DiscardTargetHpCardsAndDamage) || CanSelectDynamicDiscardDamageTarget(owner, program.Id, target.Seat)) &&
@@ -199,7 +199,7 @@ public sealed partial class GameEngine
                                 target.Seat != owner.Seat && target.Gender == GeneralGender.Male,
                             SkillProgramTargetKind.OtherWoundedMale =>
                                 target.Seat != owner.Seat && target.Gender == GeneralGender.Male &&
-                                target.Hp < target.MaxHp,
+                                target.HasHpValue && target.Hp < target.MaxHp,
                             SkillProgramTargetKind.OtherLivingInAttackRange =>
                                 target.Seat != owner.Seat &&
                                 IsWithinAttackRange(owner.Seat, target.Seat),
@@ -224,7 +224,7 @@ public sealed partial class GameEngine
                             SkillProgramTargetKind.OtherLivingEmptyHand =>
                                 target.Seat != owner.Seat && GetHand(target).Count == 0,
                             SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
-                                                    target.Seat != owner.Seat && GetHand(target).Count > 0 && target.Hp > owner.Hp,
+                                                    target.Seat != owner.Seat && GetHand(target).Count > 0 && target.HasHpValue && owner.HasHpValue && target.Hp > owner.Hp,
                             SkillProgramTargetKind.OtherLivingAtDistanceOne =>
                                                     target.Seat != owner.Seat && GetCombatDistance(owner.Seat, target.Seat) == 1,
                             SkillProgramTargetKind.AnyLiving => true,
@@ -232,9 +232,9 @@ public sealed partial class GameEngine
                             SkillProgramTargetKind.AnyLivingHighestHp or SkillProgramTargetKind.AnyLivingHighestHand or SkillProgramTargetKind.AnyLivingLeastHandCount or SkillProgramTargetKind.OtherLivingHighestHand =>
                                 GetProgramTargetSeats(owner.Seat, activation.TargetKind).Contains(target.Seat),
                             SkillProgramTargetKind.OtherWounded =>
-                                target.Seat != owner.Seat && target.Hp < target.MaxHp,
-                            SkillProgramTargetKind.AnyWounded => target.Hp < target.MaxHp,
-                            SkillProgramTargetKind.AnyLivingHandBelowMaxHp => GetHand(target).Count < target.MaxHp,
+                                target.Seat != owner.Seat && target.HasHpValue && target.Hp < target.MaxHp,
+                            SkillProgramTargetKind.AnyWounded => target.HasHpValue && target.Hp < target.MaxHp,
+                            SkillProgramTargetKind.AnyLivingHandBelowMaxHp => target.HasHpValue && GetHand(target).Count < target.MaxHp,
                             SkillProgramTargetKind.OtherLivingPair => target.Seat != owner.Seat &&
                                 _players.Count(peer => peer.IsAlive && peer.Seat != owner.Seat) >= 2,
                             SkillProgramTargetKind.EventTarget => false,
@@ -243,6 +243,7 @@ public sealed partial class GameEngine
                         (!features.ProhibitsEquipmentReplacement ||
                          HasFreeEquipmentSlotForOwnedHandEquipment(owner, target)))
                     .Select(target => target.Seat).Order().ToArray();
+                targets = targets.Where(seat => LvKuangLvXiangActivationTargetAllowed(_players[seat],activation,owner.Seat) && SpPangTongActivationTargetAllowed(_players[seat],activation) && BuZhiActivationTargetAllowed(_players[seat],activation) && HeQiActivationTargetAllowed(owner,_players[seat],activation) && ZhangJiActivationTargetAllowed(owner,_players[seat],activation)).ToArray();
                 if (features.HasOperation(SkillProgramEffectOp.DepositSelectedSourceCurse))
                     targets = targets.Where(seat => SourceCurseAt(seat) is null).ToArray();
                 if (features.HasOperation(SkillProgramEffectOp.ObtainOneFromEachSelectedTarget))
@@ -303,6 +304,7 @@ public sealed partial class GameEngine
                             dynamicSelection.Zones, seat, dynamicSelection.Marker)))
                     continue;
                 cards = OrderNextActualUsePindianCards(owner, activation, cards);
+                cards = OrderSimultaneousPindianCards(owner, activation, cards);
                 targets = NextActualUseProgramTargets(owner, plan, targets, multiCardUses).ToArray();
                 var minCardCount = allHandTrickUse is null ? requiredCards : cards.Length;
                 var maxCardCount = activation.CardCountExpression is not null ? requiredCards :
@@ -391,10 +393,11 @@ public sealed partial class GameEngine
     {
         var activation = plan.Activation!;
         var features = plan.Features;
-        return (!features.HasOperation(SkillProgramEffectOp.DiscardMaximumAndPunishHigherHand) || UniqueMaximumHandCard(ownerSeat)?.Id == card.Id && FriendHandDiscardAllowed(ownerSeat, card)) &&
+        return WangYunActivationCardAllowed(ownerSeat, activation, card) && (!features.HasOperation(SkillProgramEffectOp.DiscardMaximumAndPunishHigherHand) || UniqueMaximumHandCard(ownerSeat)?.Id == card.Id && FriendHandDiscardAllowed(ownerSeat, card)) &&
         (!features.ForOperation(SkillProgramEffectOp.DiscardSelected).Any(e => e.Condition.Kind == SkillProgramConditionKind.Always) ||
          !IsSelfHandCategoryDiscardForbidden(ownerSeat, card, _cardZones.GetLocation(card.Id), OwnedCardMoveIntent.Discard)) &&
         (!features.HasOperation(SkillProgramEffectOp.DiscardTurnOverAndTakeHand) || IsPhaseHandSeizureCost(ownerSeat, skillId, card)) &&
+        (!features.HasOperation(SkillProgramEffectOp.DepositZengdaoActualEquipment) || !card.IsGeneralWeapon) &&
         (!features.HasOperation(SkillProgramEffectOp.GiveBlackHandAndResolveRecipientContest) || BlackGiftMaterialLegal(ownerSeat, card)) &&
         (!features.HasOperation(SkillProgramEffectOp.UseDiamondDelayedOrDiscard) || DiamondPaymentLegal(ownerSeat, card, skillId) && (DiamondJudgments().Any() || _players.Any(p => DiamondUseTargetLegal(ownerSeat, card, p.Seat, skillId)))) &&
         (activation.CardKinds.Count == 0 || activation.CardKinds.Contains(card.Kind)) &&
@@ -428,6 +431,9 @@ public sealed partial class GameEngine
             hint = hint with { MatchingNameOrEquipmentRecastInput = true };
         if (features.HasOperation(SkillProgramEffectOp.RecastOwnedCardsAndDuel))
             hint = hint with { ArbitraryOwnedRecastInput = true };
+        if (features.HasOperation(SkillProgramEffectOp.StartSimultaneousPindian))
+            hint = hint with { PreferPindianInputOrder = true,
+                ValueAdjustment = hint.ValueAdjustment - (owner.Markers.GetValueOrDefault(PlayerMarkerKind.RaoShe) >= 6 ? 12d : 0d) };
         return EstimateProgramTargetReward(owner, program, activation, EstimateNextActualUsePindian(owner, activation, hint));
     }
 
@@ -620,6 +626,7 @@ public sealed partial class GameEngine
                 ? GetHand(owner).Count > 0 && GetHand(owner).All(card => cards.Contains(card.Id)) : null
         };
         frame = CaptureHpConditionalProgramSource(frame);
+        frame = CaptureEquipmentSuitProgramSource(frame);
         PushRuntimeFrame(frame);
         AdvanceEventRulesAndQueueFact(new ProgramSkillStartedEvent(frame.Id, owner.Seat, program.Id, activation.Id));
         AddLog("ActiveSkill", $"{owner.Name} 发动【{_contentRegistry!.Skills[program.Id].Name}】。", owner.Seat);
@@ -745,6 +752,42 @@ public sealed partial class GameEngine
             !AllowsNamedHandChoiceNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
             !AllowsExtraEffectsAndRankGuessNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
             !AllowsFirstSlashDuelNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsCaoYingNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsPrivateWhirlNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsBuZhiNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsLianZhuNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsJiqiaoNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsWangYunNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsZhugeGuoNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsXiZhiCaiNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsLiuQiNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsBeiMiHuNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsSimaHuiNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsXuRongNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsLiJueNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsZhangJiNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsSuFeiNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsHuangQuanNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsFanChouNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsGuoSiNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsZhangQiYingNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsCaoChunNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsWangCanNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsSpPangTongNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsNeifaNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsLvQianNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsLvKuangLvXiangNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsXinPiNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsHuaManNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsLuZhiWeiNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsKanZeNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsHeQiNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsZhaoXiangNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsXuanGongZhuNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsDongZhaoNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsDeathGrowthNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsBaoNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsSimultaneousNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
             !AllowsRiceNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
             !AllowsDamageAcquisitionNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
             !AllowsPhaseNamePredictionNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
@@ -760,6 +803,8 @@ public sealed partial class GameEngine
             !AllowsCompletedUndamagedTargetRevealNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
             !AllowsFixedDistanceDebtNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
             !AllowsActualHandGainNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsOldHandDispositionNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsFrozenHandRosterNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
             !AllowsPlacedEquipmentBenefitNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) || ActiveDying is not null ||
             _resolutionStack.LastOrDefault() is not ProgramSkillFrame current || current.Id != frame.Id ||
             amount <= 0 || !IsValidPlayerSeat(targetSeat) || !_players[targetSeat].IsAlive)
@@ -999,6 +1044,8 @@ public sealed partial class GameEngine
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame frame || frame.TriggerId is not null)
             return;
         var program = _contentRegistry.Skills.GetValueOrDefault(frame.SkillId)?.Program;
+            if (frame.EquipmentSuitSourceReceipt is not null && !ValidateEquipmentSuitProgramSource(frame))
+                throw new InvalidOperationException("An equipment-suit program lost its exact issued source receipt.");
         var activation = program is null ? null : ProgramInstructionResolver.Default.FindActivation(program, frame.ActivationId);
         if (activation is null || frame.InstructionIndex == 0 ||
             activation.Effects[frame.InstructionIndex - 1].Op is not
@@ -1037,12 +1084,20 @@ public sealed partial class GameEngine
         AssertCappedConversionBenefits();
         AssertTieredRoundConversionUses();
         AssertTieredRoundResponseUses();
+        AssertRoundOnceCardlessNativeResponses();
+        AssertRoundOnceCardlessProgramRequests();
+        AssertHuangQuanNativeUses();
         foreach (var use in _resolutionStack.OfType<CardUseFrame>())
-        { AssertHistoricalEndingUse(use); AssertRoundPileAlcoholUse(use); AssertCurrentSlashFirePolicy(use); AssertComparedBlackSlashReceipt(use); AssertRoundDistinctBasicUses(use); }
+            if (use.RoundOnceCardlessBasicUse is not null && !IsRoundOnceCardlessBasicUse(use.Id))
+                throw new InvalidOperationException("Cardless native use lost its exact independently paid source invoice.");
+        foreach (var use in _resolutionStack.OfType<CardUseFrame>())
+        { AssertCaoChunNativeUse(use); if (IsDenglouNativeUse(use)) AssertDenglouNativeUse(use); if (IsGuoSiNativeUse(use)) AssertGuoSiNativeUse(use); if (use.WangYunNativeOrigin is not null && !ValidWangYunNativeUse(use)) throw new InvalidOperationException("A Wang Yun native use lost its owning invoice."); if (use.ZhangJiNativeOrigin is not null && !ValidZhangJiNativeUse(use)) throw new InvalidOperationException("A Zhang Ji native use lost its owning invoice."); AssertHistoricalEndingUse(use); AssertRoundPileAlcoholUse(use); AssertCurrentSlashFirePolicy(use); AssertComparedBlackSlashReceipt(use); AssertRoundDistinctBasicUses(use); }
         var frames = _resolutionStack.OfType<ProgramSkillFrame>().ToArray();
         foreach (var frame in frames)
         {
             var program = _contentRegistry.Skills.GetValueOrDefault(frame.SkillId)?.Program;
+            if (frame.EquipmentSuitSourceReceipt is not null && !ValidateEquipmentSuitProgramSource(frame))
+                throw new InvalidOperationException("An equipment-suit program lost its exact issued source receipt.");
             if (frame.HpConditionalSourceReceipt is not null && !CanContinueHpConditionalProgram(frame))
                 throw new InvalidOperationException("An HP-conditional program lost its exact issued source receipt.");
             if (!IsValidPlayerSeat(frame.OwnerSeat) ||
@@ -1077,6 +1132,7 @@ public sealed partial class GameEngine
             AssertGiftedSlashPrograms(frame);
             AssertDrawAdviceReceipt(frame);
             AssertDamageTargetBudgetReceipt(frame);
+            AssertSimultaneousPindian(frame);
             AssertUniqueLeaderTrickTargetDraft(frame);
             AssertRoundGainedTrickTargetDraft(frame);
             AssertRoundGainedEquipmentDraw(frame);
@@ -1107,6 +1163,8 @@ public sealed partial class GameEngine
             AssertSameNameHandDiscardOrDamage(frame);
             AssertCompletedUndamagedTargetReveal(frame);
             AssertActualHandGain(frame);
+            AssertOldHandDisposition(frame);
+            AssertFrozenHandRoster(frame);
             AssertDyingSuits(frame); AssertEndingHistoricalUses(frame);
             AssertDyingOwnedCardReceipt(frame);
             AssertPairBenefitState(frame);
@@ -1203,6 +1261,42 @@ public sealed partial class GameEngine
             if (frame.EndRefillNextTurn is not null) RequireEndRefillNextTurnReceipt(frame);
             if (frame.ExtraEffectsAndRankGuess is not null) RequireExtraEffectsAndRankGuess(frame);
             if (frame.FirstSlashDuelBenefit is not null) RequireFirstSlashDuelBenefit(frame);
+            if (frame.DeathGrowthSkill is not null) RequireDeathGrowthSkill(frame);
+            if (frame.Bao2025 is not null) RequireBao2025(frame);
+            if (frame.CaoYing is not null) RequireCaoYing(frame);
+            if (frame.PrivateWhirl is not null) RequirePrivateWhirl(frame);
+            AssertBuZhi(frame);
+            if (frame.LianZhu is not null) RequireLianZhu(frame);
+            RequireIssuedJiqiao(frame);
+            RequireIssuedKanZe(frame);
+            RequireIssuedXiZhiCai(frame);
+            AssertWangYun(frame);
+            if (frame.ZhugeGuo is not null) RequireZhugeGuo(frame);
+            if (frame.LiuQi is not null) RequireLiuQi(frame);
+            if (frame.BeiMiHu is not null) AssertBeiMiHu(frame);
+            if (frame.SimaHui is not null) AssertSimaHui(frame);
+            RequireIssuedXuRong(frame);
+            if (frame.LiJue is not null) RequireLiJue(frame);
+            AssertZhangJi(frame);
+            if (frame.SuFei is not null) RequireSuFei(frame);
+            RequireIssuedHuangQuan(frame);
+            if (frame.FanChou is not null) RequireFanChou(frame);
+            if (frame.GuoSi is not null) RequireIssuedGuoSi(frame);
+            if (frame.ZhangQiYing is not null) AssertZhangQiYing(frame);
+            if (frame.CaoChun is not null) RequireCaoChun(frame);
+            if (frame.WangCan is not null) RequireIssuedWangCan(frame);
+            AssertSpPangTong(frame);
+            AssertNeifaFrame(frame);
+            AssertLvQian(frame);
+            AssertLvKuangLvXiang(frame);
+            AssertXinPiFrame(frame);
+            AssertHuaManFrame(frame);
+            RequireIssuedLuZhiWei(frame);
+            if (frame.HeQi is not null) RequireHeQi(frame);
+            AssertZhaoXiang(frame);
+            if (frame.QimeiDraw is not null) RequireQimeiDraw(frame);
+            if (frame.ZhuijiInitialPaid is not null || frame.ZhuijiDebt is not null || frame.GaolingRecovery is not null) RequireIssuedXuanGongZhu(frame);
+            if (frame.XianluePending is not null || frame.ZaowangPaidTargetSeat is not null) RequireDongZhao(frame);
             if (frame.RicePile is not null) RequireRiceReceipt(frame);
             if (frame.DamageZoneAcquisition is not null) RequireDamageAcquisitionReceipt(frame);
             AssertAdjacentRedTargetDraft(frame);
@@ -1281,13 +1375,13 @@ public sealed partial class GameEngine
                 var awaitsCappedHandRefresh = paidEffect?.Op == SkillProgramEffectOp.DrawThenDiscardHandToMaximumHp &&
                     frame.CappedHandRefresh is { Stage: ProgramCappedHandRefreshStage.Drawing or ProgramCappedHandRefreshStage.Discarding } refresh &&
                     pendingMovement.SubjectSeat == refresh.TargetSeat && pendingMovement.CoverageResultBind is null;
-                if (!(paidEffect?.Op == SkillProgramEffectOp.SuppressCurrentSlashTargetAndJudgeSuitDiscard && frame.SlashSuitDiscard is { Stage: ProgramSlashSuitDiscardStage.JudgmentMovement or ProgramSlashSuitDiscardStage.PaymentMovement } && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op == SkillProgramEffectOp.UseDiamondDelayedOrDiscard && frame.DiamondDelayed is { Stage: ProgramDiamondDelayedStage.Moving or ProgramDiamondDelayedStage.Drawing } && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(awaitsParticipantDiscard || awaitsPrivateHold || IsUnequalHandHpMovement(frame, paidEffect, pendingMovement) || IsPhaseStartCardControlMovement(frame, paidEffect, pendingMovement) || IsEndRefillNextTurnMovement(frame, paidEffect, pendingMovement) || IsFirstSlashDuelMovement(frame, paidEffect, pendingMovement) || IsExtraEffectsAndRankGuessMovement(frame, paidEffect, pendingMovement) || IsIncomingDistanceCourtesyMovement(frame, paidEffect, pendingMovement) || paidEffect?.Op is SkillProgramEffectOp.ResolveFirstGameDomainCrossing or SkillProgramEffectOp.StoreArbitraryOwnedPublicPile or SkillProgramEffectOp.UsePublicPileEquipmentSequence && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !awaitsAppliedDamageBenefit && !awaitsNamedTurnFlow && !awaitsConvertingGift && !(paidEffect?.Op is SkillProgramEffectOp.AwaitOwnedCardMovement or SkillProgramEffectOp.StoreBoundHandInPublicPile or SkillProgramEffectOp.PublicPileColorDamage or SkillProgramEffectOp.RewardDiscardedActionColor && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !awaitsAlternatingSuitTop && !awaitsFinalTargetPublicPile && !awaitsQuotaTop && !awaitsBudgetOrGift && !(paidEffect?.Op == SkillProgramEffectOp.DrawOnFirstProgramTargetEncounter && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op is SkillProgramEffectOp.ExchangeOwnedCardThroughDeckEnd or SkillProgramEffectOp.UseDeckSlashesThenShuffle && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op is SkillProgramEffectOp.ExchangeRespondedCardEntities or SkillProgramEffectOp.DrawPublicSuitThenEscalatingDiscard && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op == SkillProgramEffectOp.CompareSelectedHandWithHpHand && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op is SkillProgramEffectOp.DeclareNameForTargetDefense or SkillProgramEffectOp.DrawAndDraftLowHandPopulation or SkillProgramEffectOp.ObtainDeckCardWithConsecutiveTarget && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op == SkillProgramEffectOp.ChooseDifferentActionCategoryGift && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op is SkillProgramEffectOp.DepositBoundCardsUntilNextTurn or SkillProgramEffectOp.ObtainDeferredPile or SkillProgramEffectOp.ViewTopCardsAndObtainMatchingCards or SkillProgramEffectOp.StoreTopCardInPublicPile or SkillProgramEffectOp.ExchangePublicPile or SkillProgramEffectOp.DistributePublicPileIfAllSuits && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !awaitsRandomTransfer &&
+                if (!(paidEffect?.Op == SkillProgramEffectOp.SuppressCurrentSlashTargetAndJudgeSuitDiscard && frame.SlashSuitDiscard is { Stage: ProgramSlashSuitDiscardStage.JudgmentMovement or ProgramSlashSuitDiscardStage.PaymentMovement } && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op == SkillProgramEffectOp.UseDiamondDelayedOrDiscard && frame.DiamondDelayed is { Stage: ProgramDiamondDelayedStage.Moving or ProgramDiamondDelayedStage.Drawing } && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(awaitsParticipantDiscard || awaitsPrivateHold || IsUnequalHandHpMovement(frame, paidEffect, pendingMovement) || IsPhaseStartCardControlMovement(frame, paidEffect, pendingMovement) || IsEndRefillNextTurnMovement(frame, paidEffect, pendingMovement) || IsDeathGrowthMovement(frame, paidEffect, pendingMovement) || IsBaoMovement(frame, paidEffect, pendingMovement) || IsDongZhaoMovement(frame, paidEffect, pendingMovement) || IsCaoYingMovement(frame, paidEffect, pendingMovement) || IsPrivateWhirlMovement(frame, paidEffect, pendingMovement) || IsBuZhiMovement(frame, paidEffect, pendingMovement) || IsLianZhuMovement(frame, paidEffect, pendingMovement) || IsJiqiaoMovement(frame, paidEffect, pendingMovement) || IsXiashuMovement(frame, paidEffect, pendingMovement) || IsWangYunMovement(frame, paidEffect, pendingMovement) || IsZhugeGuoMovement(frame, paidEffect, pendingMovement) || IsXiZhiCaiMovement(frame, paidEffect, pendingMovement) || IsLiuQiMovement(frame, paidEffect, pendingMovement) || IsBeiMiHuMovement(frame, paidEffect, pendingMovement) || IsSimaHuiMovement(frame, paidEffect, pendingMovement) || IsXuRongMovement(frame, paidEffect, pendingMovement) || IsLiJueMovement(frame, paidEffect, pendingMovement) || IsZhangJiMovement(frame, paidEffect, pendingMovement) || IsSuFeiMovement(frame, paidEffect, pendingMovement) || IsHuangQuanMovement(frame, paidEffect, pendingMovement) || IsFanChouMovement(frame, paidEffect, pendingMovement) || IsGuoSiMovement(frame, paidEffect, pendingMovement) || IsZhangQiYingMovement(frame, paidEffect, pendingMovement) || IsCaoChunMovement(frame, paidEffect, pendingMovement) || IsWangCanMovement(frame, paidEffect, pendingMovement) || IsSpPangTongMovement(frame, paidEffect, pendingMovement) || IsNeifaMovement(frame, paidEffect, pendingMovement) || IsLvQianMovement(frame, paidEffect, pendingMovement) || IsLvKuangLvXiangMovement(frame, paidEffect, pendingMovement) || IsXinPiMovement(frame, paidEffect, pendingMovement) || IsHuaManMovement(frame, paidEffect, pendingMovement) || IsLuZhiWeiMovement(frame, paidEffect, pendingMovement) || IsHeQiMovement(frame, paidEffect, pendingMovement) || IsZhaoXiangMovement(frame, paidEffect, pendingMovement) || IsQimeiMovement(frame, paidEffect, pendingMovement) || IsZhuijiMovement(frame, paidEffect, pendingMovement) || IsFirstSlashDuelMovement(frame, paidEffect, pendingMovement) || IsExtraEffectsAndRankGuessMovement(frame, paidEffect, pendingMovement) || IsIncomingDistanceCourtesyMovement(frame, paidEffect, pendingMovement) || paidEffect?.Op is SkillProgramEffectOp.ResolveFirstGameDomainCrossing or SkillProgramEffectOp.StoreArbitraryOwnedPublicPile or SkillProgramEffectOp.UsePublicPileEquipmentSequence && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !awaitsAppliedDamageBenefit && !awaitsNamedTurnFlow && !awaitsConvertingGift && !(paidEffect?.Op is SkillProgramEffectOp.AwaitOwnedCardMovement or SkillProgramEffectOp.StoreBoundHandInPublicPile or SkillProgramEffectOp.PublicPileColorDamage or SkillProgramEffectOp.RewardDiscardedActionColor && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !awaitsAlternatingSuitTop && !awaitsFinalTargetPublicPile && !awaitsQuotaTop && !awaitsBudgetOrGift && !(paidEffect?.Op == SkillProgramEffectOp.DrawOnFirstProgramTargetEncounter && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op is SkillProgramEffectOp.ExchangeOwnedCardThroughDeckEnd or SkillProgramEffectOp.UseDeckSlashesThenShuffle && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op is SkillProgramEffectOp.ExchangeRespondedCardEntities or SkillProgramEffectOp.DrawPublicSuitThenEscalatingDiscard && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op == SkillProgramEffectOp.CompareSelectedHandWithHpHand && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op is SkillProgramEffectOp.DeclareNameForTargetDefense or SkillProgramEffectOp.DrawAndDraftLowHandPopulation or SkillProgramEffectOp.ObtainDeckCardWithConsecutiveTarget && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op == SkillProgramEffectOp.ChooseDifferentActionCategoryGift && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op is SkillProgramEffectOp.DepositBoundCardsUntilNextTurn or SkillProgramEffectOp.ObtainDeferredPile or SkillProgramEffectOp.ViewTopCardsAndObtainMatchingCards or SkillProgramEffectOp.StoreTopCardInPublicPile or SkillProgramEffectOp.ExchangePublicPile or SkillProgramEffectOp.DistributePublicPileIfAllSuits && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !awaitsRandomTransfer &&
                     !(paidEffect?.Op == SkillProgramEffectOp.ObtainDamageTargetCardAndResolveCategory && frame.DamageTargetObtain is not null && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) &&
                     !(paidEffect?.Op == SkillProgramEffectOp.DiscardDamageTargetAndClaimMount && frame.DamageTargetMount is { Receipt: not null } && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) &&
                     !(frame.FriendEventFlow is { } friendFlow && paidEffect?.Op == friendFlow.Operation && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) &&
                     !IsLiejieAwaitedMovement(frame, paidEffect, pendingMovement) &&
                     !awaitsSuitPlacement && !awaitsCappedHandRefresh && !awaitsDeclaredDeck && !awaitsShownGift && !awaitsJudgmentClaim && !awaitsRepeatedJudgment && !awaitsOwnedMovement && !awaitsLostHpOwnedGift &&
-                    !(paidEffect?.Op == SkillProgramEffectOp.MouZhijueUse && frame.MouZhijue is not null && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !IsPhaseHandSeizureMovement(frame, paidEffect, pendingMovement) && !IsPublicPilePreparationMovement(frame, paidEffect, pendingMovement) && !IsSourceCurseMovement(frame, paidEffect, pendingMovement) && !IsSelectedForeignCardSlashMovement(frame, paidEffect, pendingMovement) && !IsKuangfuMovement(frame, paidEffect, pendingMovement) && !IsGainGiftMovement(frame, paidEffect, pendingMovement) && !IsPhaseNamePredictionMovement(frame, paidEffect, pendingMovement) && !IsFriendTrioMovement(frame, paidEffect, pendingMovement) && !IsFriendPangTongMovement(frame, paidEffect, pendingMovement) && !IsLastDamageSourceReciprocityMovement(frame, paidEffect, pendingMovement) && !IsPairedColorDispositionMovement(frame, paidEffect, pendingMovement) && !IsJoinedTrickDamageRewardAwaitedMovement(frame, paidEffect, pendingMovement) && !IsRoundGainedEquipmentDrawAwaitedMovement(frame, paidEffect, pendingMovement) && !IsSameNameHandDiscardOrDamageMovement(frame, paidEffect, pendingMovement) && !IsCompletedUndamagedTargetRevealMovement(frame, paidEffect, pendingMovement) && !IsRecipientCategoryMarkMovement(frame, paidEffect, pendingMovement) && !IsOffTurnUsedCardGiftMovement(frame, paidEffect, pendingMovement) && !IsOrderedPrintedSkillLossMovement(frame, paidEffect, pendingMovement) && !IsOverflowTargetCancellationAwaitedMovement(frame, paidEffect, pendingMovement) && !IsOriginalHandEntityMovement(frame, paidEffect, pendingMovement) && !IsOutsidePhaseDrawDiscardMovement(frame, paidEffect, pendingMovement) && !IsMatchingRecastMovement(frame, paidEffect, pendingMovement) && !IsPairedHandRecastMovement(frame, paidEffect, pendingMovement) && !IsFixedDistanceDebtMovement(frame, paidEffect, pendingMovement) && !IsActualHandGainMovement(frame, paidEffect, pendingMovement) && !IsPrivateOfferMovement(frame, paidEffect, pendingMovement) && !IsGameHandHpMovement(frame, paidEffect, pendingMovement) && !IsDyingSuitsMovement(frame, paidEffect, pendingMovement) && !IsFireTargetBenefitMovement(frame, paidEffect, pendingMovement) && !IsNamedCardAcquisitionMovement(frame, paidEffect, pendingMovement) && !IsCappedConversionAwaitedMovement(frame, pendingMovement) && !IsForeignContestOrAidMovement(frame, paidEffect, pendingMovement) && !IsPlacedEquipmentBenefitMovement(frame, paidEffect, pendingMovement) && !IsDynamicDiscardDamageMovement(frame, paidEffect, pendingMovement) && !IsConditionalDuelAwaitedMovement(frame, paidEffect, pendingMovement) && !IsInspectedHandMovement(frame, paidEffect, pendingMovement) && !IsRecipientContestMovement(frame, paidEffect, pendingMovement) && !IsRecipientConsequencesMovement(frame, paidEffect, pendingMovement) && !IsPrepDiscardMovement(frame, paidEffect, pendingMovement) && !IsSlashTargetBenefitMovement(frame, paidEffect, pendingMovement) && !IsTargetPenaltyMovement(frame, paidEffect, pendingMovement) && !IsActualEquipmentOrDiscardMovement(frame, paidEffect, pendingMovement) && !IsPaidColorDamageClaimMovement(frame, paidEffect, pendingMovement) && !IsEquipmentDonationMovement(frame, paidEffect, pendingMovement) && !IsHalfHandPhaseMovement(frame, paidEffect, pendingMovement) && !IsPairBenefitMovement(frame, paidEffect, pendingMovement) && !IsEndingPairMovement(frame, paidEffect, pendingMovement) && !IsExtraDrawDebtMovement(frame, paidEffect, pendingMovement) && !IsDrawDiscardCategoryMovement(frame, paidEffect, pendingMovement) && !IsOwnTrickDrawMovement(frame, paidEffect, pendingMovement) && !IsPreventionDrawMovement(frame, paidEffect, pendingMovement) && !IsDamageJudgmentSuitPaymentMovement(frame, paidEffect, pendingMovement) && !awaitsExchangedMovement && !(paidEffect?.Op == SkillProgramEffectOp.ResolveDeferredHandAlignment && frame.DeferredHandAlignmentResolution is { } deferredAlignment && pendingMovement.SubjectSeat == deferredAlignment.TargetSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op == SkillProgramEffectOp.UseRandomDeckEquipment && frame.SelectedTargetSeats is [var equipmentUser] && pendingMovement.SubjectSeat == equipmentUser && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op is SkillProgramEffectOp.DiscardSelectedParticipantCards or SkillProgramEffectOp.OfferBoundCardsForDamagePrevention && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op == SkillProgramEffectOp.TakeSelectedTargetCards && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) &&
+                    !(paidEffect?.Op == SkillProgramEffectOp.MouZhijueUse && frame.MouZhijue is not null && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !IsPhaseHandSeizureMovement(frame, paidEffect, pendingMovement) && !IsPublicPilePreparationMovement(frame, paidEffect, pendingMovement) && !IsSourceCurseMovement(frame, paidEffect, pendingMovement) && !IsSelectedForeignCardSlashMovement(frame, paidEffect, pendingMovement) && !IsKuangfuMovement(frame, paidEffect, pendingMovement) && !IsGainGiftMovement(frame, paidEffect, pendingMovement) && !IsPhaseNamePredictionMovement(frame, paidEffect, pendingMovement) && !IsFriendTrioMovement(frame, paidEffect, pendingMovement) && !IsFriendPangTongMovement(frame, paidEffect, pendingMovement) && !IsLastDamageSourceReciprocityMovement(frame, paidEffect, pendingMovement) && !IsPairedColorDispositionMovement(frame, paidEffect, pendingMovement) && !IsJoinedTrickDamageRewardAwaitedMovement(frame, paidEffect, pendingMovement) && !IsRoundGainedEquipmentDrawAwaitedMovement(frame, paidEffect, pendingMovement) && !IsSameNameHandDiscardOrDamageMovement(frame, paidEffect, pendingMovement) && !IsCompletedUndamagedTargetRevealMovement(frame, paidEffect, pendingMovement) && !IsRecipientCategoryMarkMovement(frame, paidEffect, pendingMovement) && !IsOffTurnUsedCardGiftMovement(frame, paidEffect, pendingMovement) && !IsOrderedPrintedSkillLossMovement(frame, paidEffect, pendingMovement) && !IsOverflowTargetCancellationAwaitedMovement(frame, paidEffect, pendingMovement) && !IsOriginalHandEntityMovement(frame, paidEffect, pendingMovement) && !IsOutsidePhaseDrawDiscardMovement(frame, paidEffect, pendingMovement) && !IsMatchingRecastMovement(frame, paidEffect, pendingMovement) && !IsPairedHandRecastMovement(frame, paidEffect, pendingMovement) && !IsFixedDistanceDebtMovement(frame, paidEffect, pendingMovement) && !IsActualHandGainMovement(frame, paidEffect, pendingMovement) && !IsOldHandDispositionMovement(frame, paidEffect, pendingMovement) && !IsFrozenHandRosterMovement(frame, paidEffect, pendingMovement) && !IsPrivateOfferMovement(frame, paidEffect, pendingMovement) && !IsGameHandHpMovement(frame, paidEffect, pendingMovement) && !IsDyingSuitsMovement(frame, paidEffect, pendingMovement) && !IsFireTargetBenefitMovement(frame, paidEffect, pendingMovement) && !IsNamedCardAcquisitionMovement(frame, paidEffect, pendingMovement) && !IsCappedConversionAwaitedMovement(frame, pendingMovement) && !IsForeignContestOrAidMovement(frame, paidEffect, pendingMovement) && !IsPlacedEquipmentBenefitMovement(frame, paidEffect, pendingMovement) && !IsDynamicDiscardDamageMovement(frame, paidEffect, pendingMovement) && !IsConditionalDuelAwaitedMovement(frame, paidEffect, pendingMovement) && !IsInspectedHandMovement(frame, paidEffect, pendingMovement) && !IsRecipientContestMovement(frame, paidEffect, pendingMovement) && !IsRecipientConsequencesMovement(frame, paidEffect, pendingMovement) && !IsPrepDiscardMovement(frame, paidEffect, pendingMovement) && !IsSlashTargetBenefitMovement(frame, paidEffect, pendingMovement) && !IsTargetPenaltyMovement(frame, paidEffect, pendingMovement) && !IsActualEquipmentOrDiscardMovement(frame, paidEffect, pendingMovement) && !IsPaidColorDamageClaimMovement(frame, paidEffect, pendingMovement) && !IsEquipmentDonationMovement(frame, paidEffect, pendingMovement) && !IsHalfHandPhaseMovement(frame, paidEffect, pendingMovement) && !IsPairBenefitMovement(frame, paidEffect, pendingMovement) && !IsEndingPairMovement(frame, paidEffect, pendingMovement) && !IsExtraDrawDebtMovement(frame, paidEffect, pendingMovement) && !IsDrawDiscardCategoryMovement(frame, paidEffect, pendingMovement) && !IsOwnTrickDrawMovement(frame, paidEffect, pendingMovement) && !IsPreventionDrawMovement(frame, paidEffect, pendingMovement) && !IsDamageJudgmentSuitPaymentMovement(frame, paidEffect, pendingMovement) && !awaitsExchangedMovement && !(paidEffect?.Op == SkillProgramEffectOp.ResolveDeferredHandAlignment && frame.DeferredHandAlignmentResolution is { } deferredAlignment && pendingMovement.SubjectSeat == deferredAlignment.TargetSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op == SkillProgramEffectOp.UseRandomDeckEquipment && frame.SelectedTargetSeats is [var equipmentUser] && pendingMovement.SubjectSeat == equipmentUser && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op is SkillProgramEffectOp.DiscardSelectedParticipantCards or SkillProgramEffectOp.OfferBoundCardsForDamagePrevention && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op == SkillProgramEffectOp.TakeSelectedTargetCards && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) &&
                     !(paidEffect is { Op: SkillProgramEffectOp.MoveBoundCards, AwaitMovementTriggers: true } && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) &&
                     !(paidEffect?.Op == SkillProgramEffectOp.ObtainBoundCardsAndArmNextRevealBonus &&
                         pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.BeforeCount == 0 && pendingMovement.CoverageResultBind is null) &&
@@ -1303,6 +1397,7 @@ public sealed partial class GameEngine
                     !IsNamedHandChoiceMovement(frame, paidEffect, pendingMovement) &&
                     !IsRiceMovement(frame, paidEffect, pendingMovement) &&
                     !IsDamageAcquisitionMovement(frame, paidEffect, pendingMovement) &&
+                    !IsSimultaneousPindianMovement(frame,paidEffect,pendingMovement) &&
                     !IsDrawAdviceAwaitedMovement(frame, paidEffect, pendingMovement))
                     throw new InvalidOperationException("A movement continuation lost its paid instruction.");
             }
@@ -1524,7 +1619,7 @@ public sealed partial class GameEngine
             if (activation is null ||
                 frame.SelectedCardIds.Count < activation.MinCards ||
                 frame.SelectedCardIds.Count > activation.MaxCards ||
-                frame.FriendEventFlow is null && frame.MatchingRecast is null && frame.PhaseHandSeizure is null && frame.SourceCurseReceipt is null && frame.DiamondDelayed is null && frame.BlackGiftContest is null && frame.SelectedCardIds.Any(id => !CanSelectProgramActivationCard(plan,
+                frame.WangYunPlan is not { CostPaid: true } && frame.FriendEventFlow is null && frame.MatchingRecast is null && frame.PhaseHandSeizure is null && frame.SourceCurseReceipt is null && frame.DiamondDelayed is null && frame.BlackGiftContest is null && frame.SelectedCardIds.Any(id => !CanSelectProgramActivationCard(plan,
                     _cardZones.CardsAt(_cardZones.GetLocation(id)).Single(card => card.Id == id), frame.OwnerSeat, frame.SkillId)) ||
                 activation.CardCountExpression is not null && frame.SelectedCardIds.Count !=
                     _programPhaseUses.GetValueOrDefault((frame.OwnerSeat, frame.SkillId, activation.UsageGroup)) ||

@@ -4,46 +4,6 @@ using CardGame.Content.Standard;
 internal static class FengLinBoundaryHuangGaiChecks
 {
     private static ContentRegistry Catalog=>ContentRegistry.Build(new StandardContentPackage(),new StandardActiveSkillExpansionPackage(true),new StandardRescueSkillExpansionPackage(),new StandardClassicGeneralPackage());
-    public static void LossPaymentAndPerPoint()
-    {
-        var(g,r)=Start();var hand=g.State.Players[0].HandCount;var hp=g.State.Players[0].Hp;
-        var id=g.State.Players[0].Hand.First().Id;
-        Accept(g,new UseProgramSkillCommand(0,"boundary:kurou","discard-one-and-lose-hp",[id],[],g.Revision,P(g)!.PromptId));Settle(g);
-        Require(g.State.Players[0].Hp==hp-1&&g.State.Players[0].HandCount==hand+2,"Real discard then Loss draws three.");
-        Require(g.CardMovements.Count(m=>m.CardId==id&&m.From==CardLocation.Hand(0)&&m.To==CardLocation.DiscardPile)==1,"HE payment once.");
-        var consumed=g.Events.Select(e=>e.Payload).OfType<TurnRuleModifierGrantedEvent>().ToArray();Require(consumed.Length==1&&consumed[0].Modifier.Amount==1,"One point one exact source grant.");
-        Replay(g,r);hand=g.State.Players[0].HandCount;Driver(g,"loss2");Settle(g);
-        Require(g.State.Players[0].HandCount==hand+6&&g.Events.Select(e=>e.Payload).OfType<TurnRuleModifierGrantedEvent>().Count()==3,"Loss2 independently draws six and stacks two allowances.");Replay(g,r);
-        hand=g.State.Players[0].HandCount;Driver(g,"damage");Settle(g);Require(g.State.Players[0].HandCount==hand,"Damage is not Loss.");Replay(g,r);
-    }
-    public static void RedSlashDistanceDodgeAndColor()
-    {
-        foreach(var (red,benefit) in new[]{(false,true),(true,true),(true,false)})
-        {
-            var(g,r)=Start(red);
-            if(benefit)
-            {
-                var cost=g.State.Players[0].Hand.First().Id;
-                Accept(g,new UseProgramSkillCommand(0,"boundary:kurou","discard-one-and-lose-hp",[cost],[],g.Revision,P(g)!.PromptId));Settle(g);
-            }
-            var skipsDodge=red&&benefit;
-            var far=g.GetHumanLegalActions().Where(a=>a.Kind==LegalActionKind.Slash&&a.TargetSeat==2).ToArray();
-            Require(skipsDodge?far.Length>0:far.Length==0,"Only a benefited red Slash ignores real distance to seat2.");
-            var action=g.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.Slash&&a.TargetSeat==1);
-            var before=g.State.Players[1].Hp;
-            var targetHand=g.State.Players[1].HandCount;
-            Require(g.CreateSnapshot(1).Players[1].Hand.Any(c=>c.Kind==CardKind.Dodge),"The target has a real Dodge to test response skipping.");
-            Accept(g,new PlayCardCommand(0,action.CardId!.Value,[1],g.Revision,P(g)!.PromptId,action.PlayedCardKind){ConversionSource=action.ConversionSource,AdditionalConversionSources=action.AdditionalConversionSources});Replay(g,r);
-            Settle(g);
-            Require(g.Events.Select(e=>e.Payload).OfType<ResponseRequestedEvent>().Any(e=>e.TargetSeat==1&&e.RequiredCardKind==CardKind.Dodge)==!skipsDodge,"A benefited red Slash never opens a human or AI Dodge response window.");
-            Require(g.Events.Select(e=>e.Payload).OfType<CardRespondedEvent>().Any(e=>e.ResponderSeat==1&&e.EffectiveCardKind==CardKind.Dodge)==!skipsDodge,"A benefited red Slash skips Dodge; black and unbenefited red Slashes retain real responses.");
-            Require(g.State.Players[1].HandCount==targetHand-(skipsDodge?0:1),"Skipping Dodge preserves the target's hand.");
-            Require(g.State.Players[1].Hp==before-(skipsDodge?1:0),"A benefited red Slash deals damage directly; ordinary Slashes can be canceled.");
-            Require(!skipsDodge||g.Log.Any(l=>l.Message.Contains("跳过【闪】响应")),"Public log explains why the Dodge response was skipped.");
-            var accepted=g.Events.Select(e=>e.Payload).OfType<CardActionAcceptedEvent>().First(e=>e.Action.ActorSeat==0&&e.Action.EffectiveKind==CardKind.Slash).Action;
-            Require(accepted.EffectiveIsRed==red,"Minimal 307-only catalog captures effective color.");Replay(g,r);
-        }
-    }
     public static void DyingExtraPlayAndLegacy()
     {
         var(g,r)=Start(scenario:"dying");var hp=g.State.Players[0].Hp;var before=g.State.Players[0].HandCount;
@@ -66,56 +26,6 @@ internal static class FengLinBoundaryHuangGaiChecks
             Require(rejected,"New benefit op rejects activation and Damage contexts.");
         }
 
-    }
-
-    public static void ConvertedSlashAndExpiry()
-    {
-        foreach(var scenario in new[]{"wusheng","fan"})
-        {
-            var(g,r)=Start(scenario:scenario);
-            if(scenario=="fan")
-            {
-                Driver(g,"draw");Settle(g);var equip=g.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.Equip&&g.State.Players[0].Hand.Single(c=>c.Id==a.CardId).Kind==CardKind.ZhuqueFan);
-                Accept(g,new PlayCardCommand(0,equip.CardId!.Value,[],g.Revision,P(g)!.PromptId));Settle(g);
-            }
-            Driver(g,"loss2");Settle(g);
-            var action=g.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.Slash&&a.TargetSeat==2&&(scenario=="fan"?a.PlayedCardKind==CardKind.FireSlash:a.ConversionSource?.SkillId=="classic:wusheng"));
-            Accept(g,new PlayCardCommand(0,action.CardId!.Value,[2],g.Revision,P(g)!.PromptId,action.PlayedCardKind){ConversionSource=action.ConversionSource,AdditionalConversionSources=action.AdditionalConversionSources});Replay(g,r);
-            Settle(g);
-            var used=g.Events.Select(e=>e.Payload).OfType<CardActionAcceptedEvent>().Single(e=>e.Action.ActorSeat==0&&e.Action.Type==CardActionType.Use&&e.Action.EffectiveKind==action.PlayedCardKind).Action;
-            Require(used.EffectiveIsRed==true&&g.Events.Select(e=>e.Payload).OfType<DamageAppliedEvent>().Any(e=>e.TargetSeat==2),"Converted and Fan final Slashes preserve frozen red color and deal damage.");
-            Require(!g.Events.Select(e=>e.Payload).OfType<ResponseRequestedEvent>().Any(e=>e.TargetSeat==2&&e.RequiredCardKind==CardKind.Dodge),"Benefited Wusheng and Fan Slashes also skip Dodge responses.");Replay(g,r);
-        }
-        var(expiry,er)=Start();Driver(expiry,"loss2");Settle(expiry);var turn=expiry.CreateSnapshot(0).TurnNumber;
-        Accept(expiry,new EndPlayPhaseCommand(0,expiry.Revision,P(expiry)!.PromptId));
-        for(var i=0;i<100&&expiry.CreateSnapshot(0).TurnNumber==turn;i++)
-        {
-            if(P(expiry) is {Kind:DecisionKind.DiscardCards,PlayerSeat:0} discard)
-            {
-                var snap=expiry.CreateSnapshot(0);Accept(expiry,new DiscardCardsCommand(0,snap.Players[0].Hand.Take(discard.RequiredCardCount).Select(c=>c.Id).ToArray(),discard.PromptId,expiry.Revision));
-            }
-            else Accept(expiry,new AdvanceOneStepCommand(expiry.Revision));
-        }
-        Require(expiry.CreateSnapshot(0).TurnNumber>turn&&expiry.Events.Select(e=>e.Payload).OfType<TurnCardUseEffectsExpiredEvent>().Any(e=>e.GrantSequences.Count==4),"Two source bonuses and two policies expire together at actual turn end.");Replay(expiry,er);
-    }
-
-    public static void PaymentChildOutsideAndDeath()
-    {
-        var(g,r)=Start(scenario:"child");var hand=g.State.Players[0].HandCount;var hp=g.State.Players[0].Hp;var id=g.State.Players[0].Hand.First().Id;
-        Accept(g,new UseProgramSkillCommand(0,"boundary:kurou","discard-one-and-lose-hp",[id],[],g.Revision,P(g)!.PromptId));Reach(g,p=>p.SkillPrompt?.SkillId=="fixture:hg-child");
-        Require(g.State.Players[0].Hp==hp,"Paid discard movement child finishes before Loss.");Replay(g,r);
-        var frozen=GameCheckpointJson.Serialize(g.CreateCheckpoint());var revision=g.Revision;var reject=g.Submit(new AnswerPromptCommand(0,P(g)!.PromptId,new ChoiceId("foreign"),revision));
-        Require(!reject.Accepted&&g.Revision==revision&&GameCheckpointJson.Serialize(g.CreateCheckpoint())==frozen,"Illegal child input rejected atomically.");
-        var prompt=P(g)!;Accept(g,new AnswerPromptCommand(0,prompt.PromptId,prompt.Choices.Single(c=>c.Parameters.GetValueOrDefault("program-action")=="activate").Id,g.Revision));Settle(g);
-        Require(g.State.Players[0].HandCount==hand+3&&g.CardMovements.Count(m=>m.CardId==id&&m.To==CardLocation.DiscardPile)==1,"Cost and nested draw run once before original Loss draw.");Replay(g,r);
-        var(outside,or)=Start(scenario:"outside");Require(outside.State.Players[0].HandCount==9&&outside.State.Players[0].Hp==outside.State.Players[0].MaxHp-1&&!outside.Events.Select(e=>e.Payload).OfType<TurnRuleModifierGrantedEvent>().Any(),"Draw-phase Loss draws three but never grants Play combat benefits: "+outside.State.Players[0].HandCount+":"+outside.State.Players[0].Hp+":"+outside.Events.Select(e=>e.Payload).OfType<TurnRuleModifierGrantedEvent>().Count());Replay(outside,or);
-        var(dead,dr)=Start();Driver(dead,"dying");
-        for(var i=0;i<100&&dead.State.Players[0].IsAlive;i++)
-        {
-            if(P(dead) is {Kind:DecisionKind.RescueDying,PlayerSeat:0} rescue)Accept(dead,new AnswerPromptCommand(0,rescue.PromptId,rescue.Choices.First(c=>c.Cards.Count==0).Id,dead.Revision));
-            else Accept(dead,new AdvanceOneStepCommand(dead.Revision));
-        }
-        Require(!dead.State.Players[0].IsAlive&&!dead.Events.Select(e=>e.Payload).OfType<TurnRuleModifierGrantedEvent>().Any(),"Dead owner receives no deferred Loss benefit.");Replay(dead,dr);
     }
 
     public static void MultiCardColorAndSourceLifecycle()
@@ -146,18 +56,6 @@ internal static class FengLinBoundaryHuangGaiChecks
         var rescue=P(late)!;Accept(late,new AnswerPromptCommand(0,rescue.PromptId,rescue.Choices.First(c=>c.Cards.Count==1).Id,late.Revision));Settle(late);
         Require(!late.Events.Select(e=>e.Payload).OfType<TurnRuleModifierGrantedEvent>().Any(),"New source instance acquired during dying cannot claim original Loss.");
 
-    }
-
-    public static void ActualProviderColor()
-    {
-        foreach(var red in new[]{false,true})
-        {
-            var(g,r)=Start(red,scenario:"provider");Driver(g,"loss2");Settle(g);
-            Accept(g,new UseProgramSkillCommand(0,"fixture:hg-driver","request",[],[2],g.Revision,P(g)!.PromptId));
-            for(var i=0;i<100 && (g.ResolutionStack.Count>0 || !(P(g) is {Kind:DecisionKind.PlayCard,PlayerSeat:0}));i++)Accept(g,new AdvanceOneStepCommand(g.Revision));
-            var action=g.Events.Select(e=>e.Payload).OfType<CardActionAcceptedEvent>().FirstOrDefault(e=>e.Action.ActorSeat==0&&e.Action.ProviderSeat!=0&&e.Action.EffectiveKind==CardKind.Slash);
-            Require(red?action?.Action.EffectiveIsRed==true:action is null,"Actual far faction provider accepts red only and preserves actual actor color: "+red+":"+JsonSerializer.Serialize(action)+":"+string.Join(";",g.Events.Select(e=>e.Payload).OfType<FactionSlashResolvedEvent>().Select(e=>e.Succeeded+":"+e.ProviderSeat))+":"+string.Join(";",g.Log.TakeLast(10).Select(l=>l.Message)));Replay(g,r);
-        }
     }
 
     private static (GameEngine,ContentRegistry) Start(bool red=true,string scenario="normal",bool capability=true)

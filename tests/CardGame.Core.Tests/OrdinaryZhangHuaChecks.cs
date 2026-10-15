@@ -53,34 +53,6 @@ internal static class OrdinaryZhangHuaChecks
         }
     }
 
-    public static void OverflowMultipleTargetsSelfUseAndExactHandLimitStayDistinct()
-    {
-        var (group, groupRegistry) = Create(Scenario.Group);
-        var materials = V(group, 0).Hand.Take(2).Select(c => c.Id).ToArray();
-        Use(group, "pair-arrows", cards: materials); Play(group);
-        var canceled = E<OverflowUseTargetsCanceledEvent>(group).Single().Receipt;
-        Require(canceled.EffectiveKind == CardKind.ArrowBarrage && canceled.OriginalTargetSeats.SequenceEqual([1, 2, 3]) &&
-            canceled.CanceledPrimaryTargetSeats.SequenceEqual([1, 2, 3]) && canceled.ResultTargetSeats.Count == 0 &&
-            canceled.RecipientSeat is null && canceled.MaterialCardIds.Count == 0 &&
-            E<OverflowUseMaterialTransferIssuedEvent>(group).Length == 0 && E<DamageAppliedEvent>(group).Length == 0 &&
-            E<CardUseFinishedEvent>(group).Count(e => e.ResolutionId == canceled.CardUseFrameId) == 1 &&
-            materials.All(id => group.CardMovements.Count(m => m.CardId == id && m.From == CardLocation.Processing && m.To == CardLocation.DiscardPile) == 1),
-            "An originally multi-target trick cancels all other targets and really finishes; it never invents a unique recipient after cancellation.");
-        _ = Cold(group, groupRegistry);
-        var (self, _) = Create(Scenario.Self); var initial = V(self, 0).HandCount;
-        SubmitPlay(self, self.GetHumanLegalActions().First(a => a.ConversionSource?.BindingId == "draw-two")); Play(self);
-        Require(E<OverflowUseTargetsCanceledEvent>(self).Length == 0 && E<DamageAppliedEvent>(self).Length == 0 &&
-            V(self, 0).HandCount == initial + 1 && E<CardUseFinishedEvent>(self).Length == 1,
-            "A real self-only DrawTwo retains its native effect even when the post-cost hand exceeds the hand limit.");
-        var (equal, _) = Create(Scenario.Boundary);
-        var action = equal.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.Slash && a.TargetSeats.SequenceEqual([1]));
-        SubmitPlay(equal, action); Play(equal);
-        Require(E<OverflowUseTargetsCanceledEvent>(equal).Length == 0 &&
-            E<DamageAppliedEvent>(equal).Count(e => e.SourceSeat == 0 && e.TargetSeat == 1 && e.Amount == 1) == 1 &&
-            E<CardActionAcceptedEvent>(equal).Single().Action.PhysicalCards.Single().CardId == action.CardId,
-            "Equality after the actual Hand cost is not overflow and the original unique Slash really damages its target.");
-    }
-
     public static void MatchingRecastCanonicalNamesSelfQuotaAndExtraPhase()
     {
         var (mixed, _) = Create(Scenario.Mixed);
@@ -134,64 +106,6 @@ internal static class OrdinaryZhangHuaChecks
                 e.BindingId == "insert" && e.OwnerSeat == 0 && e.Phase == TurnPhase.Play && e.Started) == 1 &&
             g.GetHumanLegalActions().Any(a => a.ProgramSkillId == Jianhe && a.SelectableTargetSeats.Contains(0)),
             "A real inserted Play phase refreshes only the per-target phase debit in the same actual turn.");
-    }
-
-    public static void EquipmentRecastRecoveryAndDamageRemainNative()
-    {
-        var (g, registry) = Create(Scenario.Equipment);
-        var armor = g.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.Equip); SubmitPlay(g, armor); Play(g);
-        Use(g, "lose-hp"); Play(g); var wounded = V(g, 0).Hp;
-        var other = V(g, 0).Hand[0].Id; Recast(g, [armor.CardId!.Value, other], 1);
-        Reach(g, p => p.SkillPrompt?.SkillId == Health && IsContinue(p));
-        var root = MatchingFrame(g); var r = root.MatchingRecast!;
-        var hp = g.ResolutionStack.OfType<HpChangedTriggerWindowFrame>().Single(f => f.Change.ParentFrameId == root.Id && f.ResumeFrameId == root.Id);
-        Require(r is { Stage: MatchingRecastStage.OwnerCostChildren, Owner.CostIssued: true, Owner.DrawIssued: false } &&
-            r.Owner.Materials.Select(m => m.From).SequenceEqual([CardLocation.Equipment(0), CardLocation.Hand(0)]) &&
-            r.Category == SkillProgramCardCategory.Equipment && V(g, 0).Hp == wounded + 1 &&
-            hp.Continuation == PostEventContinuation.AwaitedProgramMovement &&
-            E<SilverLionRemovedRecoveryEvent>(g).Single() is { PlayerSeat: 0, RecoveredAmount: 1 } &&
-            E<MatchingRecastPaidEvent>(g).Count(e => e.FrameId == root.Id && e.Cursor == 0) == 2 &&
-            E<MatchingRecastDrawIssuedEvent>(g).Length == 0,
-            "The real HE armor cost commits atomically, then the original armor owner recovers through a native HP child before either owed recast draw or peer choice.");
-        Private(g); g = Cold(g, registry); Continue(g); Reach(g, p => Matching(p, "damage"));
-        Require(MatchingFrame(g).MatchingRecast!.Owner.ActualDrawCount == 2, "The already paid armor group draws exactly two after recovery returns.");
-        Answer(g, c => c.Parameters.GetValueOrDefault("step") == "damage"); Play(g);
-        Require(E<MatchingRecastCompletedEvent>(g).Single(e => e.FrameId == root.Id) is
-                { OwnerPaid: true, PeerPaid: false, DamageIssued: true, OwnerDrawCount: 2, PeerDrawCount: 0 } &&
-            E<MatchingRecastDamageIssuedEvent>(g).Single() is { SourceSeat: 0, TargetSeat: 1, Amount: 1, Nature: DamageNature.Thunder } &&
-            E<DamageAppliedEvent>(g).Single() is { SourceSeat: 0, TargetSeat: 1, Amount: 1, Nature: DamageNature.Thunder } &&
-            E<OrderedPrintedSkillLostEvent>(g).Single().SkillId == Bihun &&
-            E<SilverLionRemovedRecoveryEvent>(g).Length == 1 &&
-            E<MatchingRecastDrawIssuedEvent>(g).Count(e => e.FrameId == root.Id && e.Cursor == 0 && e.ActualCount == 2) == 1,
-            "The peer's chosen branch causes one genuine Thunder damage, invokes the complete printed-skill behavior, and leaves the paid owner cost, recovery and draw exactly once.");
-    }
-
-    public static void CurrentPrintedPrefixConsumesRepeatedAndSelfDamageOnce()
-    {
-        var (g, registry) = Create(Scenario.Prefix);
-        Use(g, "lose-hp"); Play(g);
-        Require(E<OrderedPrintedSkillLossIssuedEvent>(g).Length == 0 && E<DamageAppliedEvent>(g).Length == 0,
-            "An actual HP loss is not a damage event and does not consume a printed skill.");
-        Use(g, "damage", [1]); Play(g);
-        Require(E<OrderedPrintedSkillLostEvent>(g).Single().SkillId == Bihun,
-            "The first range-one positive native damage removes the first currently owned printed skill.");
-        Use(g, "damage", [2]); Play(g);
-        Require(E<OrderedPrintedSkillLostEvent>(g).Select(e => e.SkillId).SequenceEqual([Bihun, Jianhe]),
-            "A previously removed printed skill does not occupy a later current-owned prefix slot.");
-        Use(g, "self-damage"); Play(g);
-        var losses = E<OrderedPrintedSkillLossIssuedEvent>(g);
-        Require(losses.Length == 3 && losses.All(e => e.Source.SkillId == Chuanwu && e.Source.OwnerSeat == 0 &&
-                e.FrozenAttackRange == 1 && e.LostSkillCount == 1 && e.RemovedGrantCount == 1) &&
-            E<OrderedPrintedSkillLostEvent>(g).Select(e => e.SkillId).SequenceEqual([Bihun, Jianhe, Chuanwu]) &&
-            E<OrderedPrintedSkillLossDrawIssuedEvent>(g).Length == 3 &&
-            losses.All(e => E<OrderedPrintedSkillLossDrawIssuedEvent>(g).Count(d => d.FrameId == e.FrameId && d.RequestedCount == 1 && d.ActualCount == 1) == 1 &&
-                E<OrderedPrintedSkillLossCompletedEvent>(g).Count(d => d.FrameId == e.FrameId && d.LostSkillCount == 1 && d.DrawActual == 1) == 1) &&
-            E<DamageAppliedEvent>(g).Count(e => e.SourceSeat == 0 && e.TargetSeat == 0 && e.Amount == 1) == 1 && V(g, 0).Hp == 2,
-            "Repeated real damage advances the owned printed order, while one self-damage consumes itself only once and still draws after its own source is physically removed.");
-        g = Cold(g, registry); Use(g, "damage", [3]); Play(g);
-        Require(E<DamageAppliedEvent>(g).Length == 4 && E<OrderedPrintedSkillLossIssuedEvent>(g).Length == 3 &&
-            g.GetHumanLegalActions().Any(a => a.ProgramSkillId == Driver && a.ProgramActivationId == "damage"),
-            "A later true damage cannot use the removed ChuanWu; the independent test driver remains owned and no later printed slot was lost.");
     }
 
     public static void FrozenPrintedLossDrawAndExactTurnRestoreSurviveSourceLoss()

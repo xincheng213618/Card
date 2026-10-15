@@ -138,6 +138,7 @@ public sealed partial class GameEngine
             r.Obtain ? "获得本次同色响应对方的一张手牌或装备。" : "弃置本次同色响应对方的一张手牌或装备。", r.CounterpartSeat);
     }
 
+    [ProgramAnswer("paired-color-disposition")]
     private void ResolvePairedColorDisposition(PromptChoice selected)
     {
         var f = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("The paired-color chooser lost its owning frame.");
@@ -219,6 +220,7 @@ public sealed partial class GameEngine
     private bool CanContinuePairedColorDisposition(ProgramSkillFrame f) =>
         f.PairedColorDisposition is { Stage: PairedColorDispositionStage.MovementChildren } && ValidPairedColorDispositionReceipt(f);
 
+    [ProgramAiChoice(SkillProgramEffectOp.OfferPairedColorCardDisposition)]
     private PromptChoice SelectAiPairedColorDisposition(PendingDecision decision, ProgramSkillFrame f) => decision.Choices
         .OrderByDescending(c => c.Parameters.GetValueOrDefault("source-zone") == nameof(CardZoneKind.Equipment) && c.Cards.Count == 1
             ? GetKeepValue(GetAttackCard(c.Cards[0]), _players[f.PairedColorDisposition!.CounterpartSeat]) : 3)

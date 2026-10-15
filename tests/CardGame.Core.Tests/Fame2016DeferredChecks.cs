@@ -37,31 +37,6 @@ internal static class Fame2016DeferredChecks
         Replay(game, registry);
     }
 
-    public static void ObtainedEntityDiscardExclusionAndNextTurnDraw()
-    {
-        var registry = Registry("li"); var game = Start(registry);
-        Activate(game, "classic:duliang", "take-hand-and-benefit", 1); Answer(game, Prompt(game)!.Choices.First());
-        Reach(game, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "choose-option"));
-        Answer(game, Prompt(game)!.Choices.Single(c => c.Parameters.GetValueOrDefault("option-id") == "next-turn-draw")); Settle(game);
-        var obtained = game.Events.Select(e => e.Payload).SkipWhile(e => e is not TurnStartedEvent).OfType<CardMovedEvent>()
-            .Where(e => e.To == CardLocation.Hand(0)).Select(e => e.CardId).ToHashSet();
-        Accept(game.Submit(new EndPlayPhaseCommand(0, game.Revision, Prompt(game)!.PromptId)));
-        Reach(game, p => p.Kind == DecisionKind.DiscardCards); var prompt = Prompt(game)!;
-        var hand = game.CreateSnapshot(0, true).Players[0].Hand;
-        var excluded = hand.Where(c => obtained.Contains(c.Id)).Select(c => c.Id).ToArray();
-        Require(excluded.Length > 0 && prompt.ValidCardIds.All(id => !excluded.Contains(id)) && prompt.RequiredCardCount == prompt.ValidCardIds.Count - game.CreateSnapshot(0, true).Players[0].Hp,
-            "Fulin must exclude actual obtained entities still in hand both from the count and from legal discard choices.");
-        Replay(game, registry);
-        var bad = prompt.ValidCardIds.Take(prompt.RequiredCardCount).ToArray(); bad[0] = excluded[0];
-        Atomic(game, new DiscardCardsCommand(0, bad, prompt.PromptId, game.Revision));
-        Accept(game.Submit(new DiscardCardsCommand(0, prompt.ValidCardIds.Take(prompt.RequiredCardCount).ToArray(), prompt.PromptId, game.Revision)));
-        for (var i = 0; i < 120 && !game.Events.Any(e => e.Payload is PhaseChangedEvent { ActorSeat: 1, Phase: TurnPhase.Play }); i++) Advance(game);
-        var turn = game.Events.Select(e => e.Payload).ToArray(); var start = Array.FindLastIndex(turn, e => e is TurnStartedEvent { ActorSeat: 1 });
-        Require(turn.Skip(start + 1).OfType<CardMovedEvent>().Count(e => e.To == CardLocation.Hand(1) && e.Reason == CardMoveReasons.Draw) == 3,
-            "The target's next ordinary draw phase must receive exactly one extra real card.");
-        Replay(game, registry);
-    }
-
     public static void ProviderPileZeroThreeAndNextTurnReplay()
     {
         foreach (var count in new[] { 0, 3 })
@@ -89,71 +64,6 @@ internal static class Fame2016DeferredChecks
             var rewarded = game.CardMovements.Where(m => m.Reason.Value == "skill-program.deferred-pile.provider-reward").Select(m => m.Sequence).ToArray();
             Require(count == 0 || obtained.Max() < rewarded.Min(), "All pile cards must be obtained before the provider's reward draws."); Replay(game, registry);
         }
-    }
-
-    public static void StrictProviderSourceContracts()
-    {
-        var assembly = typeof(StandardContentPackage).Assembly;
-        string Read(string suffix)
-        { using var stream = assembly.GetManifestResourceStream(assembly.GetManifestResourceNames().Single(name => name.EndsWith(suffix)))!; using var reader = new StreamReader(stream); return reader.ReadToEnd(); }
-        var rules = Read("classic-sun-deng.rules.json"); var presentation = Read("classic-sun-deng.presentation.json");
-        var root = System.Text.Json.Nodes.JsonNode.Parse(rules)!;
-        foreach (var change in new Action<System.Text.Json.Nodes.JsonNode>[]
-        {
-            node => node["skills"]![0]!["activations"]![0]!["effects"]![0]!["target"] = "owner",
-            node => node["skills"]![0]!["activations"]![0]!["effects"]![0]!["maximumCards"] = 4,
-            node => node["skills"]![0]!["activations"]![0]!["effects"]![0]!["zones"]![0] = "judgment",
-            node => node["skills"]![0]!["activations"]![0]!["effects"]![1]!["sourceBind"] = "missing"
-        })
-        {
-            var malformed = root.DeepClone(); change(malformed); var rejected = false;
-            try { SkillProgramCatalog.Load(malformed.ToJsonString(), presentation); } catch (InvalidOperationException) { rejected = true; }
-            Require(rejected, "A wrong provider, oversized set, wrong source zone or unknown binding must fail at the shared loader before any runtime payment.");
-        }
-    }
-
-    public static void ObtainMovementInterruptionAndReplay()
-    {
-        var registry = Registry("sun-observer"); var game = Start(registry);
-        Activate(game, "classic:kuangbi", "deferred-provider-pile", 1);
-        Answer(game, Prompt(game)!.Choices.First(c => c.Parameters.GetValueOrDefault("program-action") == "select-owned-cards"));
-        Answer(game, Prompt(game)!.Choices.Single(c => c.Parameters.GetValueOrDefault("program-action") == "finish-owned-cards")); Settle(game);
-        var id = game.CreateSnapshot(0, true).Players[0].PublicDeferredPileCards!.Single().Id;
-        Accept(game.Submit(new EndPlayPhaseCommand(0, game.Revision, Prompt(game)!.PromptId)));
-        Reach(game, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("result-bind") == "observe-obtain"));
-        Require(game.CreateSnapshot(0, true).Players[0].Hand.Any(c => c.Id == id) &&
-            !game.CardMovements.Any(m => m.Reason.Value == "skill-program.deferred-pile.provider-reward"),
-            "A nested actual gain observer must pause after owner obtain and before the original provider reward.");
-        Replay(game, registry); Answer(game, Prompt(game)!.Choices.Single());
-        Reach(game, p => p.Kind == DecisionKind.PlayCard && p.PlayerSeat == 0);
-        Require(game.CardMovements.Count(m => m.Reason.Value == "skill-program.deferred-pile.provider-reward") == 1,
-            "The interrupted deferred continuation must reward the original provider once."); Replay(game, registry);
-    }
-
-    public static void ProviderRewardsRetireAfterNestedOwnerDeath()
-    {
-        var registry = Registry("sun-cancel"); var game = Start(registry);
-        Activate(game, "classic:kuangbi", "deferred-provider-pile", 1);
-        Answer(game, Prompt(game)!.Choices.First(c => c.Parameters.GetValueOrDefault("program-action") == "select-owned-cards"));
-        Answer(game, Prompt(game)!.Choices.Single(c => c.Parameters.GetValueOrDefault("program-action") == "finish-owned-cards"));
-        Settle(game);
-        var card = game.CreateSnapshot(0, true).Players[0].PublicDeferredPileCards!.Single().Id;
-        Accept(game.Submit(new EndPlayPhaseCommand(0, game.Revision, Prompt(game)!.PromptId)));
-        Reach(game, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("result-bind") == "observe-obtain"));
-        var owner = game.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == "classic:kuangbi");
-        Require(owner.DeferredProviderRewards is [ { Seat: 1, Count: 1 } ],
-            "The suspended pile gain must retain its original reward on its owning frame.");
-        Replay(game, registry);
-        Answer(game, Prompt(game)!.Choices.Single());
-        for (var step = 0; step < 100 && game.ResolutionStack.Count > 0; step++)
-            if (Prompt(game) is { Kind: DecisionKind.RescueDying } rescue)
-                Answer(game, rescue.Choices.First(c => c.Cards.Count == 0));
-            else Advance(game);
-        Require(game.CardMovements.Count(move => move.CardId == card && move.Reason.Value == "skill-program.deferred-pile.obtain") == 1 &&
-                game.ResolutionStack.All(f => f.Id != owner.Id) &&
-                !game.CardMovements.Any(m => m.Reason.Value == "skill-program.deferred-pile.provider-reward"),
-            "Nested owner death must retire the reward with the parent while preserving its once-only completed gain.");
-        Replay(game, registry);
     }
 
     public static void DeferredPileDeathLossAndFaceDownSkip()

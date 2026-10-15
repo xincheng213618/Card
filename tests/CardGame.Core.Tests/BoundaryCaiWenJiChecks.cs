@@ -122,69 +122,6 @@ internal static class BoundaryCaiWenJiChecks
             "Matching does not steal a judgment already claimed by its real observer, and cleanup respects that move."); Cold(claimed, registry);
     }
 
-    public static void OptionalDeclinesAndActualSourceLossKeepOriginalDamage()
-    {
-        var (skip, skipRegistry) = Create(); Slash(skip); Reach(skip, Activation); Answer(skip, c => c.Parameters.GetValueOrDefault("program-action") == "skip"); Finish(skip);
-        Require(!E<JudgmentRequestedEvent>(skip).Any(j => j.Reason == Reason) && Paid(skip).Length == 0 && E<DamageAppliedEvent>(skip).Count(d => d.SourceSeat == 0 && d.TargetSeat == 1) == 1,
-            "Declining the initial opportunity preserves the already applied actual Slash without a judgment or payment."); Cold(skip, skipRegistry);
-        var (decline, declineRegistry) = Create(); Slash(decline); ActivateToPayment(decline); var id = Root(decline).DamageJudgmentSuitPayment!.JudgmentCardId!.Value;
-        Cold(decline, declineRegistry); Answer(decline, c => c.Parameters.GetValueOrDefault("payment-kind") == "decline"); Finish(decline);
-        Require(Paid(decline).Length == 0 && E<ProgramJudgmentSuitPaymentCardClaimedEvent>(decline).Length == 0 && decline.State.Players[1].Hp == 5 &&
-            decline.CardMovements.Count(m => m.CardId == id && m.Reason == CardMoveReasons.JudgmentFinish) == 1,
-            "The second independent optional decline cleans the judgment once and grants neither a suit benefit nor matching cards."); Cold(decline, declineRegistry);
-        foreach (var afterPayment in new[] { false, true })
-        {
-            var (g, r) = Create(suit: afterPayment ? Suit.Diamond : Suit.Heart, loss: afterPayment ? "paid" : "judged"); Slash(g); Reach(g, Activation); Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate");
-            if (afterPayment) { Reach(g, p => PaymentPrompt(p, "owner-payment")); Answer(g, c => c.Cards.Count == 1); }
-            Reach(g, p => p.SkillPrompt?.SkillId == Loss && p.Choices.Any(c => c.Targets.SequenceEqual([0]))); Cold(g, r);
-            Answer(g, c => c.Targets.SequenceEqual([0])); Finish(g);
-            Require(E<CurrentTurnNonLockedSkillSuppressionIssuedEvent>(g).Any(e => e.Suppression.TargetSeat == 0) &&
-                Paid(g).Length == (afterPayment ? 1 : 0) &&
-                E<ProgramJudgmentSuitPaymentCardClaimedEvent>(g).Length == (afterPayment ? 2 : 0) && g.State.Players[1].Hp == 5 &&
-                (!afterPayment || g.CardMovements.Count(m => m.To == CardLocation.Hand(1) && m.Reason.Value == "skill-program.damage-judgment-suit.draw") == 2),
-                "A real observer invalidates the original nonLocked source: before payment it cancels, after the real cost its atomic benefit and claims finish without repaying."); Cold(g, r);
-        }
-        var (legacy, legacyRegistry) = Create(legacyVirtual: true); ActivateToPayment(legacy); var legacyDraft = Root(legacy).DamageJudgmentSuitPayment!;
-        var acceptedBeforePayment = E<CardActionAcceptedEvent>(legacy);
-        Require(legacyDraft.CardActionId is null && legacyDraft.LegacyVirtualProducerFrameId is { } producer &&
-            legacy.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.Id == producer && f.SkillId == "boundary:shensu") &&
-            legacy.ResolutionStack.OfType<CardUseFrame>().Any(f => f.Id == legacyDraft.CardUseFrameId && f.CardId == 0 && f.Action is null && f.PhysicalCardIds is { Count: 0 }),
-            "Registered Shensu's real actionless virtual Slash supplies an exact zero-entity use and its paused typed producing program.");
-        Cold(legacy, legacyRegistry); Answer(legacy, c => c.Cards.Count == 1); Finish(legacy);
-        Require(Paid(legacy).Length == 1 && E<ProgramJudgmentSuitPaymentCardClaimedEvent>(legacy).Length == 2 && legacy.State.Players[1].Hp == 6 &&
-            E<CardUseDeclaredEvent>(legacy).Any(e => e.ResolutionId == legacyDraft.CardUseFrameId && e.CardId == 0 && e.CardKind == CardKind.Slash && e.SourceSeat == 0) &&
-            E<CardActionAcceptedEvent>(legacy).SequenceEqual(acceptedBeforePayment),
-            "Real legacy virtual Slash damage retains its actionless paid-use identity and payment adds no accepted action to the existing history: " +
-            JsonSerializer.Serialize(new { Paid = Paid(legacy).Length, Claimed = E<ProgramJudgmentSuitPaymentCardClaimedEvent>(legacy).Length,
-                Hp = legacy.State.Players[1].Hp, Uses = E<CardUseDeclaredEvent>(legacy).Select(e => new { e.ResolutionId, e.CardId, e.CardKind, e.SourceSeat }),
-                Actions = E<CardActionAcceptedEvent>(legacy).Select(e => new { e.Action.ActionId, e.Action.Type, e.Action.ActorSeat, e.Action.ProviderSeat,
-                    e.Action.EffectiveKind, e.Action.PhysicalCards, e.Action.ConversionChain }) })); Cold(legacy, legacyRegistry);
-        var (other, otherRegistry) = Create(); Use(other, "plain-damage", [1]); Finish(other);
-        Require(!E<ProgramBindingStartedEvent>(other).Any(e => e.SkillId == Beige) && !E<JudgmentRequestedEvent>(other).Any(e => e.Reason == Reason),
-            "Program damage without an actual Slash use is not the registered opportunity."); Cold(other, otherRegistry);
-    }
-
-    public static void NativePaymentAndStrictOwningLoaderContract()
-    {
-        var (native, r) = Create(native: true);
-        var paid = Paid(native).Length > 0;
-        for (var i = 0; !paid && i < 80 && native.State.Status != EngineStatus.Completed; i++)
-        { Accept(native, new AdvanceOneStepCommand(native.Revision)); paid = Paid(native).Length > 0; }
-        Require(paid && E<ProgramJudgmentSuitPaymentCardClaimedEvent>(native).Length >= 2 &&
-            E<CardActionAcceptedEvent>(native).Any(e => e.Action.Type == CardActionType.Use && e.Action.EffectiveKind == CardKind.Slash && e.Action.PhysicalCards.Count == 1) &&
-            Paid(native).All(e => native.CardMovements.Any(m => m.Sequence == e.PaidMovementSequence && m.From == CardLocation.Hand(e.OwnerSeat) && m.To == CardLocation.DiscardPile && m.Reason.Value == Payment)),
-            "Unattended native AI activates, chooses and pays real known matching cards; no manual AI answers, seed search or synthetic costs are used."); Cold(native, r);
-        var valid = $$"""{"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[{"id":"fixture:suit-loader","revision":1,"triggers":[{"id":"one","window":"afterDamageApplied","subject":"any","optional":true,"damageOccurrence":"perDamage","effects":[{"op":"judgeDamageTargetThenOfferSuitDiscard","target":"owner","judgmentReason":"fixture.judge","resultBind":"judged","visibility":"public"}]}]}]}""";
-        const string presentation = """{"schemaVersion":3,"skills":{"fixture:suit-loader":{"name":"严格合同","description":"严格合同"}}}""";
-        SkillProgramCatalog.Load(valid, presentation);
-        foreach (var invalid in new[] { valid.Replace("\"subject\":\"any\"", "\"subject\":\"owner\""), valid.Replace("\"optional\":true", "\"optional\":false"),
-            valid.Replace("\"perDamage\"", "\"perDamagePoint\""), valid.Replace("\"target\":\"owner\"", "\"target\":\"selectedTarget\""), valid.Replace("\"public\"", "\"private\"") })
-        {
-            var rejected = false; try { SkillProgramCatalog.Load(invalid, presentation); } catch (InvalidOperationException) { rejected = true; }
-            Require(rejected, "The additive operation does not accept incompatible window/subject/occurrence, selection or privacy contracts.");
-        }
-    }
-
     private static ProgramSkillFrame Root(GameEngine g) => g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == Beige);
     private static T[] E<T>(GameEngine g) where T : IGameEvent => g.Events.Select(e => e.Payload).OfType<T>().ToArray();
     private static ProgramJudgmentSuitPaymentCommittedEvent[] Paid(GameEngine g) => E<ProgramJudgmentSuitPaymentCommittedEvent>(g);

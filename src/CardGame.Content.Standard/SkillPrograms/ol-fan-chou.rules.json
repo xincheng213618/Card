@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:xingluan",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "actual-completed-use-benefit",
+          "window": "cardUseCompleted",
+          "ownerRelation": "actor",
+          "includeResponseUses": true,
+          "optional": true,
+          "usageScope": "phase",
+          "usageLimit": 1,
+          "effects": [
+            {
+              "op": "chooseXingluanRankSixBenefit",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

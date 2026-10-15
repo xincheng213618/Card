@@ -114,6 +114,7 @@ public sealed partial class GameEngine
         _status = _players[f.OwnerSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
         AdvanceRulesAndPublishState();
     }
+    [ProgramAnswer("public-pile-preparation")]
     private void ResolvePublicPilePreparationChoice(PromptChoice choice)
     {
         var f = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("A preparation choice lost its owning frame.");
@@ -187,6 +188,10 @@ public sealed partial class GameEngine
     [ProgramContinuation(ProgramContinuationKind.Movement, 270)]
     private bool ReturnPublicPilePreparationMovement(ProgramSkillFrame f)
     { if (f.PublicPilePreparation is null || f.PendingMovementContinuation is null) return false; AssertPublicPilePreparation(f); AdvanceRuntimeProgram(f.Id); return true; }
+    [ProgramAiChoice(
+        SkillProgramEffectOp.StoreNonBasicOwnedPublicPile,
+        SkillProgramEffectOp.RemovePublicPileAfterAttackDamage,
+        SkillProgramEffectOp.ResolvePreparationPublicPile)]
     private PromptChoice SelectAiPublicPilePreparation(PendingDecision p, ProgramSkillFrame f)
     {
         var r = f.PublicPilePreparation!;

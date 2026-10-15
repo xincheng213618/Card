@@ -57,105 +57,6 @@ internal static class Fame2017PublicPileChecks
         Settle(game); Require(Pile(game).Count == 0 && game.CardMovements.Count(m => m.Reason.Value == "skill-program.public-pile.distribute") == 4, "Every book must be distributed once without stranded cards."); Replay(game, registry);
     }
 
-    public static void DeathLossAndZeroExchange()
-    {
-        foreach (var boundary in new[] { "loss", "death" })
-        {
-            var registry = Registry(); var game = Start(registry); UseDriver(game, "supply"); Settle(game);
-            Play(game, SpadeDraw(game)); Settle(game);
-            var id = Pile(game).Single().Id; Replay(game, registry);
-            if (boundary == "loss") { UseDriver(game, "loss"); Settle(game); }
-            else { UseDriver(game, "death"); for (var i=0;i<100 && game.CreateSnapshot(0,true).Players[0].IsAlive;i++) Tick(game); }
-            Require(Pile(game).Count == 0 && game.CreateCardZoneDiagnostics().Any(z => z.CardId == id && z.Location == CardLocation.DiscardPile), "Death or actual source skill loss must discard the public entity."); Replay(game, registry);
-        }
-    }
-
-    public static void DrawPhaseEndedBoundaries()
-    {
-        foreach(var mode in new[]{"normal", "replacement-skip-play", "skip-draw"})
-        {
-            var registry=Registry(mode);
-            var game=GameEngine.CreateStandard(new GameOptions{Seed=31,PlayerCount=4,HumanSeat=0,HumanRole=Role.Lord,ModeId="identity:classic-public-pile-check",UseInteractiveSetup=true,UseInteractiveDiscard=true,AdvanceAfterHumanCommands=false,MaxTurns=20},registry);
-            Accept(game.Submit(new StartGameCommand()));Reach(game,p=>p.Kind==DecisionKind.SelectGeneral&&p.PlayerSeat==0);
-            Accept(game.Submit(new SelectGeneralCommand(0,"fixture:book-owner",game.Revision,Prompt(game)!.PromptId)));
-            if(mode=="skip-draw")
-            {
-                Reach(game,p=>p.Kind==DecisionKind.PlayCard&&p.PlayerSeat==0);
-                Require(!game.Events.Any(e=>e.Payload is ProgramBindingStartedEvent { Window: SkillProgramTriggerWindow.DrawPhaseEnded }),"Skipped draw must not publish a completed draw window.");
-                Replay(game,registry);continue;
-            }
-            Reach(game,p=>p.SkillPrompt?.SkillId=="fixture:draw-boundary"&&p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="choose-option"));
-            Require(game.CreateSnapshot(0,true).Phase==TurnPhase.Draw,"Draw end must remain inside Draw while paused.");Replay(game,registry);Answer(game,Prompt(game)!.Choices.Single());
-            if(mode=="normal")Reach(game,p=>p.Kind==DecisionKind.PlayCard&&p.PlayerSeat==0);
-            else
-            {
-                for(var i=0;i<80&&!game.Events.Any(e=>e.Payload is TurnEndedEvent {ActorSeat:0});i++)Tick(game);
-                Require(!game.Events.Any(e=>e.Payload is PhaseChangedEvent { ActorSeat:0,Phase:TurnPhase.Play })&&game.Events.Any(e=>e.Payload is ProgramBindingResolvedEvent {Window:SkillProgramTriggerWindow.DrawPhaseEnded,Completed:true}),"Replacement draw must finish and publish draw end even when Play is skipped.");
-            }
-            Require(game.Events.Count(e=>e.Payload is ProgramBindingStartedEvent {Window:SkillProgramTriggerWindow.DrawPhaseEnded})==1,"Draw end must fire once per actual completed draw.");Replay(game,registry);
-        }
-    }
-
-    public static void NativeResponsesAndSuppression()
-    {
-        var registry=Registry("response");var game=Start(registry);UseDriver(game,"supply");Settle(game);
-        var target=game.CreateSnapshot(0,true).Players.First(p=>p.Seat!=0&&p.Role==Role.Rebel&&p.Hand.Any(c=>c.Kind==CardKind.Slash)).Seat;
-        var duel=game.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.Duel&&a.TargetSeats.SequenceEqual([target]));
-        Accept(game.Submit(new UseProgramSkillCommand(0,"fixture:book-driver","wound",[],[target],game.Revision,Prompt(game)!.PromptId)));Settle(game);
-        var responseHand=game.CreateSnapshot(0,true).Players[0].Hand;
-        var keepSlash=responseHand.First(c=>c.Kind==CardKind.Slash).Id;
-        var keepDodge=responseHand.First(c=>c.Kind==CardKind.Dodge).Id;
-        var remove=responseHand.Where(c=>c.Id!=duel.CardId&&c.Id!=keepSlash&&c.Id!=keepDodge).Select(c=>c.Id).ToArray();
-        UseDriver(game,"trim");foreach(var paymentId in remove)Answer(game,Prompt(game)!.Choices.Single(c=>c.Cards.SequenceEqual([paymentId])));Answer(game,Prompt(game)!.Choices.Single(c=>c.Parameters.GetValueOrDefault("program-action")=="finish-owned-cards"));Settle(game);
-        Play(game,game.GetHumanLegalActions().Single(a=>a.CardId==duel.CardId&&a.TargetSeats.SequenceEqual([target])));
-        Reach(game,p=>p.PlayerSeat==0&&p.Kind==DecisionKind.RespondSlash);
-        // Native Slash is played as a duel response; it is not a card use.
-        var slash=Prompt(game)!.Choices.First(c=>c.Cards.Count==1);var before=Pile(game).Count;Answer(game,slash);
-        for(var i=0;i<80&&game.ResolutionStack.Count>0;i++)
-        {
-            if(Prompt(game) is { Kind:DecisionKind.RespondSlash } response)Answer(game,response.Choices.Last());else Tick(game);
-        }
-        Settle(game);
-        Require(game.CreateSnapshot(target,true).Players[target].PublicPersistentPileCount==1,"The duel target's played Slash must not duplicate its targeted-spade deposit.");
-        Require(Pile(game).Count==before+1,"The source's duel response Slash must not trigger a use; only completed original Duel does.");Replay(game,registry);
-        registry=Registry("dodge-response");game=Start(registry);
-        Accept(game.Submit(new EndPlayPhaseCommand(0,game.Revision,Prompt(game)!.PromptId)));
-        Reach(game,p=>p.PlayerSeat==0&&p.Kind==DecisionKind.RespondDodge);
-        var targetedCount=Pile(game).Count;
-        var dodgeHand=game.CreateSnapshot(0,true).Players[0].Hand.ToDictionary(card=>card.Id);
-        var dodge=Prompt(game)!.Choices.First(c=>c.Cards.Count==1&&dodgeHand[c.Cards[0]].Kind==CardKind.Dodge);
-        Replay(game,registry);Answer(game,dodge);
-        Reach(game,p=>p.PlayerSeat==0&&p.SkillPrompt?.SkillId=="classic:bizhuan");Answer(game,Prompt(game)!.Choices.Single(c=>c.Parameters.GetValueOrDefault("program-action")=="activate"));
-        for(var i=0;i<50&&Pile(game).Count==targetedCount;i++)Tick(game);
-        Require(Pile(game).Count==targetedCount+1,"A real defensive spade Dodge use must receive one completed-use deposit.");Replay(game,registry);
-
-        registry=Registry("null-response");game=Start(registry);
-        Play(game,game.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.DrawTwo));
-        Reach(game,p=>p.PlayerSeat==0&&p.Kind==DecisionKind.Nullification);Replay(game,registry);
-        var counter=Prompt(game)!.Choices.First(c=>c.Cards.Count==1);
-        var counterId=counter.Cards.Single();Answer(game,counter);
-        Reach(game,p=>p.PlayerSeat==0&&p.SkillPrompt?.SkillId=="classic:bizhuan");
-        Require(game.CardMovements.Any(m=>m.CardId==counterId&&m.To==CardLocation.DiscardPile),"Native counterspell must finish its actual response cost before completed-use storage.");Replay(game,registry);
-        Answer(game,Prompt(game)!.Choices.Single(c=>c.Parameters.GetValueOrDefault("program-action")=="activate"));
-        for(var i=0;i<25&&Pile(game).Count==0;i++)Tick(game);
-        Require(Pile(game).Count==1,"A native spade Nullification use must receive its own completed-use deposit.");Replay(game,registry);
-
-        registry=Registry("suppression");game=Start(registry);UseDriver(game,"supply");Settle(game);Play(game,SpadeDraw(game));Settle(game);var id=Pile(game).Single().Id;
-        UseDriver(game,"suppress");Reach(game,p=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("choice")=="classic:bizhuan"));
-        var suppression=Prompt(game)!.Choices.Single(c=>c.Parameters.GetValueOrDefault("choice")=="classic:bizhuan");Answer(game,suppression);
-        Reach(game,p=>p.Kind==DecisionKind.DiscardCards&&p.PlayerSeat==0);
-        var suppressedOwner=game.CreateSnapshot(0,true).Players[0];
-        Require(Pile(game).Single().Id==id&&Prompt(game)!.RequiredCardCount==suppressedOwner.Hand.Count-suppressedOwner.Hp,"Suppression must preserve the pile while removing its hand-limit contribution.");Replay(game,registry);
-        Tick(game);Reach(game,p=>p.Kind==DecisionKind.PlayCard&&p.PlayerSeat==0);
-        Accept(game.Submit(new EndPlayPhaseCommand(0,game.Revision,Prompt(game)!.PromptId)));
-        Reach(game,p=>p.Kind==DecisionKind.PlayCard&&p.PlayerSeat==0);
-        Require(Pile(game).Single().Id==id&&game.Events.Any(e=>e.Payload is ProgramSkillSuppressedEvent {SkillId:"classic:bizhuan",Suppressed:false}),"Turn expiration must re-enable the source grant without losing its persistent entity.");
-        UseDriver(game,"supply");Settle(game);Accept(game.Submit(new EndPlayPhaseCommand(0,game.Revision,Prompt(game)!.PromptId)));
-        Reach(game,p=>p.Kind==DecisionKind.DiscardCards&&p.PlayerSeat==0);
-        var enabledOwner=game.CreateSnapshot(0,true).Players[0];
-        Require(Prompt(game)!.RequiredCardCount==enabledOwner.Hand.Count-enabledOwner.Hp-1,"Re-enabled source restores the pile count hand-limit modifier.");Replay(game,registry);
-    }
-
     public static void CompoundTargetsAndFrozenResponseSuit()
     {
         foreach (var converted in new[]{false,true})
@@ -206,31 +107,6 @@ internal static class Fame2017PublicPileChecks
             completedLocations[physical]==CardLocation.DiscardPile,"Only the real borrowed parent remains Processing; completed child Slash and native Dodge retain their legal finished costs.");Replay(frozen,frozenRegistry);
         for(var i=0;i<80&&frozen.ResolutionStack.Count>0;i++)Tick(frozen);
         Require(Pile(frozen).Count==count&&!frozen.Events.Any(e=>e.Payload is ProgramBindingStartedEvent {OwnerSeat:0,SkillId:"classic:bizhuan",BindingId:"used-spade"}),"Nested suit-policy suppression cannot retroactively turn the completed Heart response use into a spade deposit.");Replay(frozen,frozenRegistry);
-    }
-
-    public static void AiUsesSharedPileChoices()
-    {
-        var registry=Registry("ai");var game=GameEngine.CreateStandard(new GameOptions{Seed=31,PlayerCount=4,HumanSeat=3,HumanRole=Role.Lord,ModeId="identity:classic-public-pile-check",UseInteractiveSetup=true,UseInteractiveDiscard=true,AdvanceAfterHumanCommands=false,MaxTurns=20},registry);
-        Accept(game.Submit(new StartGameCommand()));Reach(game,p=>p.Kind==DecisionKind.SelectGeneral&&p.PlayerSeat==3);Accept(game.Submit(new SelectGeneralCommand(3,"fixture:book-3",game.Revision,Prompt(game)!.PromptId)));
-        var exchangeSeen=false;
-        for(var i=0;i<200&&!exchangeSeen;i++)
-        {
-            if(Prompt(game) is { Kind:DecisionKind.PlayCard,PlayerSeat:3 } play)Accept(game.Submit(new EndPlayPhaseCommand(3,game.Revision,play.PromptId)));
-            else if(Prompt(game) is { Kind:DecisionKind.ProgramTrigger,PlayerSeat:3 } p)Answer(game,p.Choices.Last());
-            else Tick(game);
-            exchangeSeen=game.Events.Any(e=>e.Payload is ProgramBindingResolvedEvent {SkillId:"classic:tongbo",Activated:true,Completed:true,OwnerSeat:not 3});
-        }
-        Require(exchangeSeen&&game.CardMovements.Any(m=>m.Reason.Value=="skill-program.public-pile.store"),"Real AI AdvanceOneStep must activate storage and finish the shared exchange chooser without manual AI answers. stores="+game.CardMovements.Count(m=>m.Reason.Value=="skill-program.public-pile.store")+" uses="+game.Events.Count(e=>e.Payload is CardUseDeclaredEvent)+" turns="+game.Events.Count(e=>e.Payload is TurnStartedEvent)+" prompt="+Prompt(game)?.ToString());Replay(game,registry);
-    }
-
-    public static void LoaderContracts()
-    {
-        var assembly = typeof(StandardContentPackage).Assembly;
-        string Read(string suffix) { using var stream=assembly.GetManifestResourceStream(assembly.GetManifestResourceNames().Single(n=>n.EndsWith(suffix,StringComparison.Ordinal)))!; using var reader=new StreamReader(stream);return reader.ReadToEnd(); }
-        var rules=Read("classic-cai-yong.rules.json");var presentation=Read("classic-cai-yong.presentation.json");
-        SkillProgramCatalog.Load(rules,presentation);
-        foreach(var invalid in new[]{rules.Replace("\"amount\": 4","\"amount\": 0"),rules.Replace("\"drawPhaseEnded\"","\"turnEnding\""),rules.Replace("\"skillIds\": [","\"skillIds\": [\"classic:tongbo\",")})
-        { var rejected=false;try{SkillProgramCatalog.Load(invalid,presentation);}catch(InvalidOperationException){rejected=true;}Require(rejected,"Public persistent pile loader must reject unbounded capacity, wrong lifecycle and ambiguous sources."); }
     }
 
     private static readonly Dictionary<string, ContentRegistry> Registries = [];

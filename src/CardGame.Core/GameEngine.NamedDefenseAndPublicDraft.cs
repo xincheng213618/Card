@@ -140,6 +140,7 @@ public sealed partial class GameEngine
         _status = _players[chooser].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
 
+    [ProgramAnswerPrefix("named-defense-", "public-draft-")]
     private void ResolveNamedDefenseAndDraftChoice(PromptChoice choice)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("The named/draft choice lost its program.");

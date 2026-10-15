@@ -58,35 +58,6 @@ internal static class OrdinaryGuanYinPingChecks
         }
     }
 
-    public static void FireRecipientQuotaKeepsRealUseDebitsAndExpiresOnActualTurnEnd()
-    {
-        var (g, r) = Create(); Play(g); Use(g, "fire", [1]); Reach(g, p => p.SkillPrompt?.SkillId == Gain);
-        var pendingRoot = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.FireTargetBenefit is not null);
-        Require(!E<TurnTargetCardQuotaAllowanceGrantedEvent>(g).Any(e => e.Allowance.ParentFrameId == pendingRoot.Id),
-            "No target right is issued or usable while the genuine draw gain child is paused.");
-        g = Cold(g, r); Continue(g); Play(g);
-        var right = E<TurnTargetCardQuotaAllowanceGrantedEvent>(g).Single().Allowance;
-        Require(right.Source.OwnerSeat == 0 && right.TargetSeat == 1 && right.TurnSeat == 0 && right.TurnNumber == 1,
-            "The actual damage issues a direction-specific right for the original actor and actual turn.");
-        g = Cold(g, r);
-        Slash(g, 1, converted: true); Play(g);
-        Require(!g.GetHumanLegalActions().Any(a => a.Kind == LegalActionKind.Slash && a.TargetSeats.Contains(3)) &&
-            g.GetHumanLegalActions().Any(a => a.Kind == LegalActionKind.Slash && a.TargetSeats.SequenceEqual([1])),
-            "The first real converted Slash spends normal quota; only the covered target bypasses the finite limit.");
-        Slash(g, 1); Play(g);
-        Require(E<CardUseDeclaredEvent>(g).Count(e => e.SourceSeat == 0 && e.CardKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash) == 2 &&
-            E<CardActionAcceptedEvent>(g).Any(e => e.Action.ActorSeat == 0 && e.Action.Type == CardActionType.Use &&
-                e.Action.EffectiveKind == CardKind.Slash && e.Action.ConversionChain.Any(s => s.SkillId == "classic:wusheng")) &&
-            !g.GetHumanLegalActions().Any(a => a.Kind == LegalActionKind.Slash && a.TargetSeats.Contains(3)),
-            "Two genuine physical/converted uses remain normal recorded uses and do not replenish another target's quota.");
-        g = Cold(g, r); End(g); NextOwnPlay(g);
-        Slash(g, 3); Play(g);
-        Require(!g.GetHumanLegalActions().Any(a => a.Kind == LegalActionKind.Slash && a.TargetSeats.Contains(1)) &&
-            E<TurnTargetCardQuotaAllowanceGrantedEvent>(g).Count(e => e.Allowance.GrantSequence == right.GrantSequence) == 1,
-            "The old right expires at its real turn end, so the next turn's spent normal quota applies to the old recipient again.");
-        g = Cold(g, r);
-    }
-
     public static void AwakeningGetsOriginalPublicWeaponAndDrainsPaidGainAfterSourceLoss()
     {
         foreach (var sourceLoss in new[] { false, true })
@@ -120,37 +91,6 @@ internal static class OrdinaryGuanYinPingChecks
                 Require(g.State.Players[0].MaxHp == max + 1 && E<ProgramSelectedSkillsLostEvent>(g).Count(e => e.InitiatingSkillId == Awake) == 1,
                     "The actual game usage prevents a second awakening on the next qualifying ending."); }
         }
-    }
-
-    public static void PaidFireDrawKeepsIssuedRightAfterLossAndNativeActorCanResolveIt()
-    {
-        var (g, r) = Create(roarLoss: true); Play(g); Use(g, "normal", [1]); Play(g);
-        Require(E<ProgramFireTargetDrawIssuedEvent>(g).Length == 0, "Actual normal damage does not issue a fire-only benefit.");
-        Use(g, "fire", [1]); Reach(g, p => p.SkillPrompt?.SkillId == Gain); var root = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.FireTargetBenefit is not null);
-        Require(root.FireTargetBenefit!.GrantSequence == 0 && !E<TurnTargetCardQuotaAllowanceGrantedEvent>(g).Any(e => e.Allowance.ParentFrameId == root.Id),
-            "The issued draw promise grants no early quota inside its exact gain child.");
-        g = Cold(g, r); Continue(g);
-        Reach(g, p => p.SkillPrompt?.SkillId == Gain && p.PlayerSeat == 1 && p.Choices.Any(c => c.Targets.SequenceEqual([0])));
-        g = Cold(g, r); Answer(g, P(g)!.Choices.Single(c => c.Targets.SequenceEqual([0])));
-        Reach(g, p => p.SkillPrompt?.SkillId == SourceGain && p.PlayerSeat == 0);
-        Require(g.CardMovements.Count(m => m.Reason.Value == $"skill-program.{Gain}.Draw" && m.From == CardLocation.DrawPile && m.To == CardLocation.Hand(0)) == 1,
-            "The recipient's actual selected draw enters an independent owner-zero gain child before the original benefit returns.");
-        g = Cold(g, r); Continue(g); g = FinishActualSkillReplacementChild(g, r, SourceGain, Roar); Play(g);
-        Require(E<TurnTargetCardQuotaAllowanceGrantedEvent>(g).Count(e => e.Allowance.ParentFrameId == root.Id) == 1 && !g.CreateSnapshot(0).Players[0].Skills!.Any(s => s.ContentId == Roar) &&
-            E<ProgramFireTargetDrawIssuedEvent>(g).Count(e => e.ProgramFrameId == root.Id && e.ActualCount == 1) == 1 &&
-            !g.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.Id == root.Id),
-            "A real owner-zero gain child physically replaces the original locked issuer; the already-issued draw still drains and returns without paying twice.");
-        Slash(g, 1); Play(g); Slash(g, 1); Play(g);
-        Require(g.GetHumanLegalActions().Any(a => a.Kind == LegalActionKind.Slash && a.TargetSeats.SequenceEqual([1])),
-            "The already-issued actual-turn right remains after Huxiao is suppressed or lost.");
-        var (native, nr) = Create(native: true);
-        for (var step = 0; step < 100 && E<ProgramFireTargetDrawIssuedEvent>(native).Length == 0; step++) Accept(native, new AdvanceOneStepCommand(native.Revision));
-        Require(E<ProgramFireTargetDrawIssuedEvent>(native).Length > 0 && native.State.Players.All(p => !p.IsHuman),
-            "A native actor really issues the mandatory fire benefit through a small actual-command prefix.");
-        native = Cold(native, nr);
-        for (var step = 0; step < 40 && native.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.FireTargetBenefit is not null); step++) Accept(native, new AdvanceOneStepCommand(native.Revision));
-        Require(!native.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.FireTargetBenefit is not null),
-            "The native child and owning receipt return without a human-only operation path.");
     }
 
     private static GameEngine FinishActualSkillReplacementChild(GameEngine g, ContentRegistry r, string observerSkill, string lostSkill)

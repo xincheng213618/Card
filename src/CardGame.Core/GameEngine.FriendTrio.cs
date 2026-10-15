@@ -182,6 +182,7 @@ public sealed partial class GameEngine
         _status = _players[f.OwnerSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
         AdvanceRulesAndPublishState();
     }
+    [ProgramAnswer("friend-trio")]
     private void ResolveFriendTrioChoice(PromptChoice choice)
     {
         var f = (ProgramSkillFrame)_resolutionStack.Last(); AssertFriendTrio(f);
@@ -235,6 +236,11 @@ public sealed partial class GameEngine
         }
         throw new InvalidOperationException("Friend skill choice has no matching stage.");
     }
+    [ProgramAiChoice(
+        SkillProgramEffectOp.BeginFriendPrediction,
+        SkillProgramEffectOp.ObserveFriendPrediction,
+        SkillProgramEffectOp.ReclaimFriendXuanjian,
+        SkillProgramEffectOp.GainFriendCategoryMark)]
     private PromptChoice SelectAiFriendTrioChoice(PendingDecision decision, ProgramSkillFrame frame)
     {
         var stage = frame.FriendTrio?.Stage;

@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "ol:gushe", "revision": 1, "activations": [
+      { "id": "simultaneous-pindian", "minCards": 1, "maxCards": 1, "minTargets": 1, "maxTargets": 3,
+        "targetKind": "otherLivingWithHand", "sourceZones": ["hand"], "usesPerTurn": null, "usesPerPhase": 1,
+        "effects": [{ "op": "startSimultaneousPindian", "target": "owner" }] }
+    ] },
+    { "id": "ol:jici", "revision": 1, "triggers": [
+      { "id": "own-pindian-reveal-raoshe", "window": "pindianCardsRevealed", "subject": "owner", "optional": true,
+        "effects": [{ "op": "addRaoshePindianRankAndRestoreGushe", "target": "owner", "sourceBind": "ol:gushe" }] }
+    ] }
+  ]
+}

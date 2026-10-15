@@ -57,6 +57,7 @@ public sealed partial class GameEngine
         f.PairedHandRecast!.Partner.Seat, PairedHandRecastChoices(f), "选择一张自己的手牌，与发动者各重铸一张牌。",
         f.PairedHandRecast.Partner.Seat);
 
+    [ProgramAnswer("paired-hand-recast")]
     private void ResolvePairedHandRecastChoice(PromptChoice choice)
     {
         var f = _resolutionStack.LastOrDefault() as ProgramSkillFrame ??
@@ -188,6 +189,7 @@ public sealed partial class GameEngine
         pending.BeforeCount == 0 && pending.CoverageResultBind is null && ValidPairedHandRecastReceipt(f);
     private bool CanContinuePairedHandRecast(ProgramSkillFrame f) =>
         f.PairedHandRecast is { Partner.Material: not null } && ValidPairedHandRecastReceipt(f);
+    [ProgramAiChoice(SkillProgramEffectOp.PairedHandRecast)]
     private PromptChoice SelectAiPairedHandRecast(PendingDecision decision, ProgramSkillFrame f) => decision.Choices
         .OrderBy(c => GetKeepValue(GetAdvancedCard(c.Cards.Single()), _players[f.PairedHandRecast!.Partner.Seat]))
         .ThenBy(c => c.Cards.Single()).First();

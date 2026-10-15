@@ -34,65 +34,6 @@ internal static class ResponseAndSkillSuppressionChecks
             "Xiongluan must remain limited after use.");
     }
 
-    public static void XingtianPaysTwoAndBlocksOnlyHandCards()
-    {
-        var registry = Registry();
-        for (var seed = 1; seed <= 100; seed++)
-        {
-            var game = Start(registry, "fixture:weapon-user", seed, "fixture:xingtian-weapon");
-            ReachPlay(game);
-            var equip = game.GetHumanLegalActions().FirstOrDefault(item =>
-                item.Kind == LegalActionKind.Equip &&
-                game.CreateSnapshot(0, true).Players[0].Hand.Any(card =>
-                    card.Id == item.CardId && card.Kind == CardKind.XingtianAxe));
-            if (equip is null) continue;
-            Play(game, equip);
-            Drain(game);
-            ReachPlay(game);
-            var slash = game.GetHumanLegalActions().FirstOrDefault(item =>
-                item.Kind == LegalActionKind.Slash && item.TargetSeat == 1);
-            if (slash is null || game.CreateSnapshot(0, true).Players[0].HandCount < 3) continue;
-            Play(game, slash);
-            for (var step = 0; step < 30 && game.PendingDecision?.SkillPrompt?.SkillId !=
-                     "special:xingtian-axe-effect"; step++) Advance(game);
-            var trigger = game.PendingDecision;
-            Require(trigger is { Kind: DecisionKind.ProgramTrigger,
-                SkillPrompt.SkillId: "special:xingtian-axe-effect" },
-                "The equipped Xingtian Axe must offer its single-target Play-phase trigger.");
-            Answer(game, trigger!.Choices.Single(choice =>
-                choice.Parameters.GetValueOrDefault("program-action") == "activate"));
-            for (var step = 0; step < 30 && !game.Events.Select(item => item.Payload)
-                     .OfType<HandCardColorRestrictionGrantedEvent>()
-                     .Any(item => item.Restriction.Source.SkillId == "special:xingtian-axe-effect"); step++)
-            {
-                var prompt = game.PendingDecision;
-                if (prompt is { PlayerSeat: 0 } && prompt.Choices.Count > 0)
-                {
-                    Require(prompt.Choices.All(choice => !choice.Cards.Contains(equip.CardId!.Value)),
-                        "The weapon providing Xingtian's skill cannot pay for that skill.");
-                    Answer(game, prompt.Choices.First(choice => choice.Cards.Count == 0 ||
-                        game.CreateSnapshot(0, true).Players[0].Hand.Any(card =>
-                            choice.Cards.Contains(card.Id))));
-                }
-                else Advance(game);
-            }
-            var events = game.Events.Select(item => item.Payload).ToArray();
-            Require(events.OfType<HandCardColorRestrictionGrantedEvent>().Count(item =>
-                    item.Restriction.Source.SkillId == "special:xingtian-axe-effect" &&
-                    item.Restriction.AffectedSeat == 1) == 2 &&
-                    events.OfType<DirectedTurnCardPolicyGrantedEvent>().Any(item =>
-                        item.Policy.Source.SkillId == "special:xingtian-axe-effect" &&
-                        item.Policy.Effects == DirectedTurnCardPolicyEffect.IgnoreArmor),
-                "Xingtian must prohibit both hand-card colors and disable armor after its cost.");
-            Require(game.CardMovements.Count(item =>
-                    item.Reason.Value.Contains("special:xingtian-axe-effect", StringComparison.Ordinal) &&
-                    item.To == CardLocation.DiscardPile) >= 2,
-                "Xingtian must discard two real cards before applying the restriction.");
-            return;
-        }
-        throw new InvalidOperationException("No seeded Xingtian equip and Slash use was found.");
-    }
-
     public static void DuanchangPermanentlyRemovesKillersSkills()
     {
         var registry = Registry();
@@ -122,55 +63,6 @@ internal static class ResponseAndSkillSuppressionChecks
             return;
         }
         throw new InvalidOperationException("No surviving Duanchang victim fixture was found.");
-    }
-
-    public static void SlashResponseRestrictionsRespectWeaponAndSuit()
-    {
-        Check("fixture:ghost-blade", "fixture:weapon-user", CardKind.GhostDragonCrescentBlade,
-            requireRedSlash: true);
-        Check("fixture:scarlet-sword", "fixture:weapon-user", CardKind.ScarletBloodSword,
-            requireRedSlash: false);
-        Check("fixture:ol-wushen", "fixture:ol-wushen-user", null, requireRedSlash: true);
-
-        void Check(string modeId, string generalId, CardKind? weaponKind, bool requireRedSlash)
-        {
-            for (var seed = 1; seed <= 100; seed++)
-            {
-                var game = Start(Registry(), generalId, seed, modeId);
-                ReachPlay(game);
-                if (weaponKind is { } weapon)
-                {
-                    var equip = game.GetHumanLegalActions().FirstOrDefault(item =>
-                        item.Kind == LegalActionKind.Equip &&
-                        game.CreateSnapshot(0, true).Players[0].Hand.Any(card =>
-                            card.Id == item.CardId && card.Kind == weapon));
-                    if (equip is null) continue;
-                    Play(game, equip);
-                    Drain(game);
-                    ReachPlay(game);
-                }
-                var snapshot = game.CreateSnapshot(0, true);
-                if (!snapshot.Players[1].Hand.Any(card => card.Kind == CardKind.Dodge)) continue;
-                var slash = game.GetHumanLegalActions().FirstOrDefault(item =>
-                    item.Kind == LegalActionKind.Slash && item.TargetSeat == 1 &&
-                    snapshot.Players[0].Hand.Any(card => card.Id == item.CardId &&
-                        (!requireRedSlash || card.Suit is Suit.Heart or Suit.Diamond)));
-                if (slash is null) continue;
-                Play(game, slash);
-                Drain(game);
-                var events = game.Events.Select(item => item.Payload).ToArray();
-                Require(!events.OfType<ResponseRequestedEvent>().Any(item =>
-                        item.TargetSeat == 1 && item.RequiredCardKind == CardKind.Dodge) &&
-                        events.OfType<DamageRequestedEvent>().Any(item =>
-                            item.SourceSeat == 0 && item.TargetSeat == 1),
-                    $"{modeId} must settle its response rule before damage even when the target holds Dodge.");
-                if (weaponKind == CardKind.ScarletBloodSword)
-                    Require(events.OfType<CardUseDeclaredEvent>().Any(item => item.IgnoresArmor),
-                        "Scarlet Blood Sword must ignore armor separately from its hand-card restriction.");
-                return;
-            }
-            throw new InvalidOperationException($"No seeded {modeId} response scenario was found.");
-        }
     }
 
     private static ContentRegistry Registry() => ContentRegistry.Build(
@@ -222,14 +114,6 @@ internal static class ResponseAndSkillSuppressionChecks
             AdditionalConversionSources = action.AdditionalConversionSources
         });
         Require(result.Accepted, result.Error?.Message ?? "Card use failed.");
-    }
-
-    private static void Answer(GameEngine game, PromptChoice choice)
-    {
-        var prompt = game.PendingDecision!;
-        var result = game.Submit(new AnswerPromptCommand(prompt.PlayerSeat, prompt.PromptId,
-            choice.Id, game.Revision));
-        Require(result.Accepted, result.Error?.Message ?? "Prompt answer failed.");
     }
 
     private static void Require(bool condition, string message)

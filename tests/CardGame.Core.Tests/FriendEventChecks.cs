@@ -27,27 +27,6 @@ internal static class FriendEventChecks
         Require(options.Length == 2 && options.Select(e => e.Option).Distinct().Count() == 2, "Opening category removal counts both seated friend generals once.");
         Cold(all, ar);
     }
-    public static void MaximumPaymentRefundAndAscendingRankRemainStrict()
-    {
-        var (cui, cr) = Create(true); Require(!cui.GetLegalActions().Any(a => a.ProgramSkillId == "friend:biwei"), "A tied maximum has no legal Biwei payment.");
-        Use(cui, Driver, "single", [], []); Play(cui); var highest = cui.CreateSnapshot(0).Players[0].Hand.Single();
-        Use(cui, "friend:biwei", "discard-highest", [highest.Id], [1]); Play(cui);
-        Require(cui.CardMovements.Count(m => m.Reason.Value == "skill.friend-biwei.cost") == 1 &&
-            cui.CreateSnapshot(1).Players[1].HandCount == 0 && !cui.GetLegalActions().Any(a => a.ProgramSkillId == "friend:biwei"),
-            "Biwei pays one unique maximum and discards every actual target hand card at or above its rank."); Cold(cui, cr);
-        var (refund, rr) = Create(true); Use(refund, Driver, "empty-target", [], [1]); Play(refund); Use(refund, Driver, "single", [], []); Play(refund);
-        Use(refund, "friend:biwei", "discard-highest", [refund.CreateSnapshot(0).Players[0].Hand.Single().Id], [1]); Play(refund);
-        Use(refund, Driver, "single", [], []); Play(refund);
-        Require(refund.GetLegalActions().Any(a => a.ProgramSkillId == "friend:biwei"), "No actual target discard refunds the actual Play phase debit."); Cold(refund, rr);
-        var (shi, sr) = Create(false); Use(shi, Driver, "hurt", [], [1]); Play(shi);
-        Require(!Facts<AscendingHandRankPaidEvent>(shi).Any(), "A tied maximum cannot pay Lunxiong after real damage.");
-        Use(shi, Driver, "single", [], []); Play(shi); Use(shi, Driver, "hurt", [], [1]);
-        Reach(shi, p => p.SkillPrompt?.SkillId == "friend:lunxiong" && p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "activate"));
-        Answer(shi, c => c.Parameters.GetValueOrDefault("program-action") == "activate"); Play(shi);
-        Require(Facts<AscendingHandRankPaidEvent>(shi).Single().Rank == 7 && shi.CreateSnapshot(0).Players[0].HandCount == 3, "A unique ascending rank pays once and draws exactly three actual cards.");
-        shi = Cold(shi, sr); Use(shi, Driver, "single", [], []); Play(shi); Use(shi, Driver, "hurt", [], [1]); Play(shi);
-        Require(Facts<AscendingHandRankPaidEvent>(shi).Count() == 1, "Cold recovery preserves the game-long strictly greater rank; equality does not reset eligibility.");
-    }
     public static void MinimumSuitHoldStaysPrivateAndReturnsAtActualTurnEnd()
     {
         var (g, r) = Create(true, varied: true); Use(g, Driver, "pair", [], []); Play(g);

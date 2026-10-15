@@ -1,0 +1,4 @@
+{"schemaVersion":62,"skills":[
+ {"id":"ol:hongde","revision":1,"triggers":[{"id":"native-batch-benefit","window":"cardsMoved","subject":"owner","optional":false,"sourceZones":["hand","equipment","judgment"],"movementOccurrence":"perOwnerBatch","effects":[{"op":"offerNativeBatchHandGainOrCardLossBenefit","target":"owner"}]}]},
+ {"id":"ol:dingpan","revision":1,"activations":[{"id":"equipment-choice","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"anyLiving","usesPerTurn":null,"usesPerPhase":1,"effects":[{"op":"resolveRebelCountEquipmentChoice","target":"owner"}]}]}
+]}

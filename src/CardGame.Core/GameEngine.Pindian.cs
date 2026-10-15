@@ -128,6 +128,7 @@ public sealed partial class GameEngine
         if(!frame.SourceUsesDrawPileTop) MoveCard(sourceCard, CardLocation.Hand(source.Seat), CardLocation.Processing, CardMoveReasons.PindianReveal);
         MoveCard(opponentCard, opponentTop?CardLocation.DrawPile:CardLocation.Hand(opponent.Seat), CardLocation.Processing, CardMoveReasons.PindianReveal);
         var result = new PindianResult(source.Seat, opponent.Seat, sourceCard.Id, opponentCard.Id, sourceIdentityRank ?? EffectivePindianRank(source,sourceCard), opponentIdentityRank ?? EffectivePindianRank(opponent,opponentCard));
+        if (TryBeginPairPindianReveal(frame,result)) return;
         AdvanceEventRulesAndQueueFact(new PindianResultDeterminedEvent(frame.Id, frame.SkillId, result));
         AddLog("Pindian", $"{source.Name} 以 {result.SourceRank} 点与 {opponent.Name} 的 {result.OpponentRank} 点拼点，" +
             (result.SourceWon ? "发起者获胜。" : "发起者未赢。"), source.Seat, opponent.Seat);
@@ -198,6 +199,7 @@ public sealed partial class GameEngine
     {
         var frames = _resolutionStack.OfType<PindianFrame>().ToArray();
         if (frames.Length == 0) return;
+        if (frames.Length == 1 && IsPairPindianRevealSubtree(frames[0])) { AssertPindianRevealWindows(); return; }
         if (frames.Length != 1 || _resolutionStack.Count < 2 || _resolutionStack[^1] != frames[0] ||
             _resolutionStack[^2].Id != frames[0].ParentFrameId ||
             _resolutionStack[^2] is not ProgramSkillFrame ||

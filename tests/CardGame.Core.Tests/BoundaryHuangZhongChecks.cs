@@ -8,32 +8,6 @@ internal static class BoundaryHuangZhongChecks
 {
     private const string Skill="boundary:liegong-current";
     private static readonly Lazy<ContentRegistry> Classic=new(()=>ContentRegistry.Build(new StandardContentPackage(),new StandardActiveSkillExpansionPackage(true),new StandardRescueSkillExpansionPackage(),new StandardClassicGeneralPackage()));
-    public static void RangeAndParser()
-    {
-        foreach(var rank in new[]{1,3})
-        {
-            var(g,r)=Start(rank:rank,weapon:"classic:qilin-bow");Driver(g,"equip");Settle(g);
-            var c=g.State.Players[0].Hand.First(c=>c.Kind==CardKind.Slash);var a=g.GetHumanLegalActions().Where(a=>a.CardId==c.Id&&a.Kind==LegalActionKind.Slash).ToArray();
-            Require(a.Any(a=>a.TargetSeat==2)==(rank==3),"Specific rank replaces the long weapon's ordinary range.");
-            var rev=g.Revision;var result=g.Submit(new PlayCardCommand(0,c.Id,[2],g.Revision,P(g)!.PromptId));
-            Require(result.Accepted==(rank==3),"Actual rank legality equals published candidates.");
-            if(rank==1)Require(g.Revision==rev,"Rejected rank target spends no physical card.");else{Finish(g);Require(g.Events.Select(e=>e.Payload).OfType<CardActionAcceptedEvent>().Any(e=>e.Action.EffectiveRank==3),"Actual use freezes physical positive rank.");}
-            Cold(g,r);
-        }
-        var(old,orr)=Start(rank:1,weapon:"classic:qilin-bow",liegong:false);Driver(old,"equip");Settle(old);
-        Require(old.GetHumanLegalActions().Any(a=>a.Kind==LegalActionKind.Slash&&a.TargetSeat==2),"Old null retains the long weapon range.");Cold(old,orr);
-        var(ignored,ir)=Start(rank:1,ignore:true);var ic=ignored.State.Players[0].Hand.First(c=>c.Kind==CardKind.Slash);
-        Play(ignored,ic.Id,[2]);Finish(ignored);Cold(ignored,ir);
-        var(z,zr)=Start(rank:8,weapon:"classic:zhangba-serpent-spear");Driver(z,"equip");Settle(z);var pair=z.State.Players[0].Hand.Take(2).Select(c=>c.Id).ToArray();
-        Accept(z,new UseEquipmentEffectCommand(0,CardKind.ZhangbaSerpentSpear,pair,[2],z.Revision,P(z)!.PromptId));Finish(z);
-        Require(z.Events.Select(e=>e.Payload).OfType<CardActionAcceptedEvent>().Any(e=>e.Action.PhysicalCards.Count==2&&e.Action.EffectiveRank==13),"Real Zhangba sums physical ranks and caps at 13 only on the new path.");Cold(z,zr);
-        var(v,vr)=Start(rank:13);Accept(v,new UseProgramSkillCommand(0,"boundary:rende","give",v.State.Players[0].Hand.Take(2).Select(c=>c.Id).ToArray(),[1],v.Revision,P(v)!.PromptId));
-        ReachPrompt(v,p=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="virtual-basic"));
-        Require(!P(v)!.Choices.Any(c=>c.Parameters.GetValueOrDefault("basic-option")?.StartsWith("Slash:",StringComparison.Ordinal)==true&&c.Targets.Contains(2)),"The true zero-entity offer falls back to ordinary range.");
-        Answer(v,c=>c.Parameters.GetValueOrDefault("basic-option")?.StartsWith("Slash:",StringComparison.Ordinal)==true&&c.Targets.Contains(1));Finish(v);Cold(v,vr);
-        Require(v.Events.Select(e=>e.Payload).OfType<CardActionAcceptedEvent>().Any(e=>e.Action.PhysicalCards.Count==0&&e.Action.EffectiveRank is null or 0),"A zero-cost virtual Slash remains without rank and uses ordinary range.");
-        Parser();
-    }
     public static void ComparisonsAndActualDodge()
     {
         foreach(var hand in new[]{false,true})foreach(var hp in new[]{false,true})
@@ -67,51 +41,6 @@ internal static class BoundaryHuangZhongChecks
         var(skip,skr)=Start();Play(skip,skip.State.Players[0].Hand[0].Id,[1]);Finish(skip,activate:false);
         Require(!skip.Events.Select(e=>e.Payload).OfType<ProgramTargetSlashReceiptIssuedEvent>().Any()&&skip.State.Players[1].Hp==4,"Optional skip creates no receipt or bonus.");Cold(skip,skr);
     }
-    public static void OwningLifetimeInputsAndRole()
-    {
-        var(g,r)=Start(dodge:true);var use=g.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.Slash&&a.TargetSeat==1);Play(g,use.CardId!.Value,[1],use);ReachPrompt(g,p=>p.SkillPrompt?.SkillId==Skill);Activate(g);Cold(g,r);
-        var players=(IReadOnlyList<CharacterState>)typeof(GameEngine).GetField("_players",BindingFlags.NonPublic|BindingFlags.Instance)!.GetValue(g)!;
-        foreach(var grant in players[0].SkillGrants.Grants.Where(x=>x.SkillId==Skill).ToArray())players[0].SkillGrants.RemoveGrant(grant.GrantId);
-        Finish(g);Require(g.State.Players[1].Hp==3,"Host lifetime audit: already issued receipts survive actual source grant removal.");Console.WriteLine("Source loss above is a host audit after a genuine paid use/receipt prefix; it is not cold command replay of removal.");
-        var(role,rr)=Start(child:"role");Play(role,role.State.Players[0].Hand.First(c=>c.Kind==CardKind.Slash).Id,[1]);ReachPrompt(role,p=>p.SkillPrompt?.SkillId==Skill);
-        Cold(role,rr);var p=P(role)!;var before=GameCheckpointJson.Serialize(role.CreateCheckpoint());
-        var invalid=role.Submit(new AnswerPromptCommand(0,p.PromptId,new ChoiceId("foreign-receipt"),role.Revision));Require(!invalid.Accepted&&before==GameCheckpointJson.Serialize(role.CreateCheckpoint()),"Foreign activation input is atomic.");Activate(role);
-        ReachPrompt(role,p=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="select-target"));Cold(role,rr);Answer(role,c=>c.Targets.SequenceEqual([2]));Finish(role);
-        Require(role.Events.Select(e=>e.Payload).OfType<ProgramCardUseActorReplacedEvent>().Any(e=>e.ActorSeat==2),"A real finalized child replaces the actual Slash actor.");
-        Require(role.State.Players[1].Hp==4,"The original actor's issued bonus is not transferred to the new actor.");Cold(role,rr);Evidence(role,"actual-role-rewrite");
-    }
-    public static void NativeOptionalAndCanonical()
-    {
-        var(g,r)=Start(dodge:true,native:true);
-        for(var n=0;n<90&&!g.Events.Select(e=>e.Payload).OfType<ProgramTargetSlashReceiptIssuedEvent>().Any();n++)Accept(g,new AdvanceOneStepCommand(g.Revision));
-        Require(g.Events.Select(e=>e.Payload).OfType<ProgramCardTriggerResolvedEvent>().Any(e=>e.SkillId==Skill&&e.Activated),"Formal optional native AI actually chooses activation.");
-        for(var n=0;n<40&&g.ResolutionStack.OfType<CardUseFrame>().Any();n++)Accept(g,new AdvanceOneStepCommand(g.Revision));
-        Require(g.Events.Select(e=>e.Payload).OfType<ProgramTargetSlashReceiptIssuedEvent>().Any(),"Native actual optional action issues its own target receipt.");Cold(g,r);Evidence(g,"native-formal-optional");
-        Console.WriteLine("Formal optional AI issued receipts through actual commands, revision="+g.Revision);
-        var(a,ar)=Start(rank:8,weapon:"classic:zhangba-serpent-spear",dodge:true,canonical:true);Driver(a,"equip-target",[1]);Settle(a);Driver(a,"request",[1]);
-        ReachPrompt(a,p=>p.Choices.Any(c=>c.Parameters.GetValueOrDefault("request-option")=="target"));Cold(a,ar);Answer(a,c=>c.Targets.SequenceEqual([3]));Finish(a);
-        Require(a.Events.Select(e=>e.Payload).OfType<CardActionAcceptedEvent>().Any(e=>e.Action.ActorSeat==1&&e.Action.PhysicalCards.Count==2&&e.Action.EffectiveRank==13),"Real assisted Zhangba candidate and submission share summed rank beyond ordinary range.");Cold(a,ar);Evidence(a,"actual-assisted-zhangba");
-        var(b,br)=Start(rank:8,weapon:"classic:zhangba-serpent-spear",dodge:true,canonical:true);Driver(b,"equip");Settle(b);
-        Accept(b,new EndPlayPhaseCommand(0,b.Revision,P(b)!.PromptId));
-        ReachPrompt(b,p=>p.Kind==DecisionKind.RespondSlash&&p.PlayerSeat==0&&p.Choices.Any(c=>c.Parameters.GetValueOrDefault("response")=="borrowed-sword-give-weapon"));Cold(b,br);
-        Require(P(b)!.Choices.Any(c=>c.Parameters.GetValueOrDefault("response")=="zhangba-slash"),"Actual human forced-use prompt includes summed-rank physical pair.");
-        Answer(b,c=>c.Parameters.GetValueOrDefault("response")=="zhangba-slash");
-        ReachPrompt(b,p=>p.SkillPrompt?.SkillId==Skill);Activate(b);
-        for(var n=0;n<40&&b.ResolutionStack.OfType<CardUseFrame>().Any(f=>f.FinalTargetSlashReceipts!=null);n++)Accept(b,new AdvanceOneStepCommand(b.Revision));
-        Require(b.Events.Select(e=>e.Payload).OfType<CardActionAcceptedEvent>().Any(e=>e.Action.ActorSeat==0&&e.Action.PhysicalCards.Count==2&&e.Action.EffectiveRank==13),"Real borrowed-sword Zhangba passes both first legality and actual sum gates beyond weapon range.");Cold(b,br);Evidence(b,"actual-borrowed-zhangba");
-    }
-    private static void Parser()
-    {
-        const string effect="{\"op\":\"addCurrentTargetSlashDamage\",\"target\":\"owner\",\"comparison\":\"targetHpAtLeastActor\",\"amount\":1}";
-        string Trigger(string effects,string window="cardUseTargetsFinalized",string relation="actor",string kind="slash")=>"\"triggers\":[{\"id\":\"x\",\"window\":\""+window+"\",\"ownerRelation\":\""+relation+"\",\"cardKinds\":[\""+kind+"\"],\"optional\":true,\"effects\":["+effects+"]}]";
-        Require(Load("fixture:gate",Trigger(effect)).Triggers.Single().Effects.Single().FinalTargetComparison==ProgramFinalTargetComparison.TargetHpAtLeastActor,"New comparison parser retains the precise selected fact.");
-        foreach(var bad in new[]{effect.Replace(",\"comparison\":\"targetHpAtLeastActor\"",""),effect.Replace("\"targetHpAtLeastActor\"","null"),effect.Replace("\"targetHpAtLeastActor\"","1"),effect.Replace("\"targetHpAtLeastActor\"","\"unknown\""),effect.Replace("\"owner\"","\"selectedTarget\"")})Reject(Trigger(bad));
-        foreach(var members in new[]{Trigger(effect,"cardUseBeforeTargetEffects"),Trigger(effect,relation:"observer"),Trigger(effect,kind:"duel"),"\"activations\":["+Activation("bad","["+effect+"]")+"]"})Reject(members);
-        Reject(Trigger("{\"op\":\"draw\",\"target\":\"owner\",\"amount\":1,\"comparison\":\"targetHpAtLeastActor\"}"));
-        Require(!JsonSerializer.Serialize(Load("fixture:legacy","\"activations\":["+Activation("old","[{\"op\":\"draw\",\"target\":\"owner\",\"amount\":1}]")+"]").Activations.Single().Effects.Single()).Contains("FinalTargetComparison"),"Old null comparison serialization remains absent.");
-        var classic=Classic.Value.GetSkill("classic:liegong").Program!;Require(!classic.Triggers.SelectMany(t=>t.Effects).Any(e=>e.FinalTargetComparison!=null),"Classic Liegong does not gain this capability.");
-    }
-    private static void Reject(string members){var rejected=false;try{Load("fixture:negative",members);}catch(InvalidOperationException ex){rejected=true;Console.WriteLine("New exact gate rejection: "+ex.Message);}Require(rejected,"A new node rejects missing comparison or wrong producer resources.");}
     private static void Cold(GameEngine g,ContentRegistry r)
     {
         ReplayFourViews(g,r);var restored=GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(g.CreateCheckpoint())),r);

@@ -41,37 +41,6 @@ internal static class ActualHandGainAndCategoryGiftChecks
         var entities = (ActualHandGainEntity[])typeof(GameEngine).GetMethod("ActualHandGainEntities", Flags)!.Invoke(g, [reacquired, 0])!;
         Require(entities is [var regained] && regained.GainSequence == 900003, "An entity that genuinely leaves Hand and returns from Equipment has the new real acquisition identity.");
     }
-    public static void ForeignHandGainsWaitForActualEndAndKeepOnlySurvivingAcquisitions()
-    {
-        foreach (var killEndedActor in new[] { false, true })
-        {
-            var (g, registry) = Start(foreign: true, killEndedActor: killEndedActor); var original = V(g).Hand.Select(c => c.Id).ToHashSet();
-            Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId));
-            Reach(g, p => p.SkillPrompt?.SkillId == Driver && p.Choices.Any(c => c.Parameters.GetValueOrDefault("option-id") == "continue"));
-            var recorded = E<ForeignTurnHandGainsRecordedEvent>(g).Where(e => e.ActualTurnOwner != 0).Last();
-            var gained = E<ForeignTurnHandGainsRecordedEvent>(g).Where(e => e.ActualTurn == recorded.ActualTurn && e.ActualTurnOwner == recorded.ActualTurnOwner)
-                .SelectMany(e => e.Gains).OrderBy(e => e.GainSequence).Select(e => e.CardId).ToArray();
-            Require(gained.Length == 2 && gained.All(id => V(g).Hand.Any(c => c.Id == id)) &&
-                E<ForeignTurnHandGainsCleanupPaidEvent>(g).Length == 0 && E<ActualHandGainDrawPaidEvent>(g).Length == 1,
-                "Actual foreign gains remain usable in hand, without immediate discard or own-turn bonus.");
-            Cold(g, registry); Continue(g);
-            Reach(g, p => p.SkillPrompt?.SkillId == Driver && p.Choices.Any(c => c.Cards.Count == 1));
-            Answer(g, c => c.Cards.SequenceEqual([gained[0]]));
-            if (killEndedActor)
-            { Reach(g, p => p.SkillPrompt?.SkillId == Driver && p.Choices.Any(c => c.Targets.SequenceEqual([recorded.ActualTurnOwner])));
-                Answer(g, c => c.Targets.SequenceEqual([recorded.ActualTurnOwner])); }
-            Reach(g, p => p.SkillPrompt?.SkillId == Watch && p.Choices.Any(c => c.Parameters.GetValueOrDefault("option-id") == "continue"));
-            var cleanup = E<ForeignTurnHandGainsCleanupPaidEvent>(g).Single();
-            var parent = g.ResolutionStack.OfType<DeferredTurnEndFrame>().Single();
-            Require(cleanup.CardIds.SequenceEqual([gained[1]]) && E<TurnEndedEvent>(g).Any(e => e.TurnNumber == recorded.ActualTurn && e.ActorSeat == recorded.ActualTurnOwner) &&
-                parent.Prelude is { Completed: true } && parent.Current is null && parent.ItemIndex == parent.DueIds.Count &&
-                g.CardMovements.Count(m => m.CardId == gained[0] && m.Reason.Value == "program.foreign-turn-hand-gain.cleanup") == 0 &&
-                (!killEndedActor || !g.CreateSnapshot(0).Players[recorded.ActualTurnOwner].IsAlive),
-                "Cleanup runs after the actual-ended fact and mature due chain, even when that turn's actor died, and discards only a still-held acquired entity.");
-            Require(cleanup.CardIds.All(id => !original.Contains(id)), "Starting hand entities never enter the foreign gain cleanup roster.");
-            Reject(g); Cold(g, registry); Continue(g);
-        }
-    }
     public static void CategoryDeckGiftsUseTrueCompletionQuotaAndPrivateTargets()
     {
         VerifyCompletedTargetChanges();

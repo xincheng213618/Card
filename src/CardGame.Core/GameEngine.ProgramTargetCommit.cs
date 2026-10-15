@@ -69,6 +69,7 @@ public sealed partial class GameEngine
         { PromptId = CreatePromptId(), TargetSeat = frame.OwnerSeat, Choices = RelativeZoneChoices(frame), SkillPrompt = new(frame.SkillId, skill.Name, skill.Name, skill.Description) };
         _status = _players[frame.OwnerSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
+    [ProgramAnswer("relative-zone-target")]
     private void ResolveRelativeZoneTarget(PromptChoice selected)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("Missing real relative-zone parent.");

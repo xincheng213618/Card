@@ -446,6 +446,7 @@ public sealed partial class GameEngine
             movement.ResumePaidCardUseFrameId is not null || movement.ResumeEquipmentRecastFrameId is not null ||
             movement.ResumeColorFireAttackFrameId is not null || movement.ResumeCounterspellPaymentFrameId is not null ||
             movement.ResumeHistoricalEndingUseFrameId is not null || movement.ResumeRoundPileAlcoholUseFrameId is not null ||
+            movement.ResumeGuoSiUseFrameId is not null || movement.ResumeDenglouUseFrameId is not null ||
             movement.ResumeDrawPhaseObligationFrameId is not null || movement.ResumeFactionRequestCostFrameId is not null ||
             movement.ResumeCardSupplyCompletionFrameId is not null || movement.ResumeResponseCompletionFrameId is not null ||
             movement.DeferredTurnEndReturn is not null || batch.Movements.Count == 0) return false;

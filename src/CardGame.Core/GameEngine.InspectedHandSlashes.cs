@@ -78,6 +78,7 @@ public sealed partial class GameEngine
         .Where(f => f.OwnerSeat == viewer && f.InspectedHandSlash is { Stage: InspectedHandSlashStage.Viewing })
         .SelectMany(f => f.InspectedHandSlash!.ViewedCardIds.Where(id => _cardZones.GetLocation(id) == CardLocation.Hand(f.InspectedHandSlash.TargetSeat))
             .Select(GetAttackCard)).Select(ToSnapshot);
+    [ProgramAnswer("inspected-hand-slash")]
     private void ResolveInspectedHandChoice(PromptChoice choice)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame f || f.InspectedHandSlash is not { Stage: InspectedHandSlashStage.Viewing } d ||
@@ -109,6 +110,7 @@ public sealed partial class GameEngine
         if (f.InspectedHandSlash is not { Stage: InspectedHandSlashStage.HpChildren or InspectedHandSlashStage.DiscardChildren }) return false;
         AdvanceRuntimeProgram(f.Id); return true;
     }
+    [ProgramAiChoice(SkillProgramEffectOp.PayHpInspectHandThenDiscardOrSlash)]
     private PromptChoice SelectAiInspectedHand(PendingDecision decision, ProgramSkillFrame f) =>
         f.InspectedHandSlash!.ContainsPrintedDodge ? decision.Choices.Single() : decision.Choices
             .OrderByDescending(c => CardCatalog.Get(GetAttackCard(c.Cards.Single()).Kind).HandKeepValue)

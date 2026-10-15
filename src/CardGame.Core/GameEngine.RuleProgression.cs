@@ -6,10 +6,24 @@ public sealed partial class GameEngine
     // so they run before the event is queued for committed observers.
     private void AdvanceEventRulesAndQueueFact(IGameEvent payload)
     {
+        if (payload is CardActionAcceptedEvent accepted && accepted.Action.ConversionChain.Count != 0)
+        {
+            PayMeiYingConversion(accepted.Action);
+            PayZhenyiHoutu(accepted.Action);
+        }
         SynchronizePrivateGeneralLibraries();
         SynchronizeLordSkillProjections();
         SynchronizeHpConditionalSkillGrants();
+        SynchronizeEquipmentSuitSkillGrants();
         CleanupLostNamedAmbushPiles();
+        CleanupLostPrivateWhirlPiles();
+        CaptureQirangDeclaredUse(payload);
+        ObserveZhugeGuoTurnAndDeath(payload);
+        if (payload is DamageAppliedEvent wangYunDamage) ObserveWangYunLianjiDamage(wangYunDamage);
+        if (payload is DamageAppliedEvent requestedDamage) ObserveRoundOnceCardlessRequestedOwnerDamage(requestedDamage);
+        ObserveXianfuDamageQualification(payload);
+        ObserveDianhuDamageQualification(payload);
+        CaptureChouceFrozenJudgment(payload);
         ObserveProgramHealthChange(payload);
         ObserveAdvancedLifecycleEvent(payload);
         ObserveMouZhugeEvent(payload);
@@ -34,6 +48,26 @@ public sealed partial class GameEngine
         ObserveUnnullifiableOrdinaryTrick(payload);
         ObserveJudgedRankSlashUse(payload);
         ObserveKuangfuAppliedDamage(payload);
+        ObserveChosenAssaultDamage(payload);
+        ObserveCaoYingDamage(payload);
+        ObserveCaoYingExpiry(payload);
+        ObserveQimeiExpiry(payload);
+        ObserveKuanshiExpiry(payload);
+        ObserveLiuQiEvent(payload);
+        ObserveXuRongDyingQualification(payload);
+        ObserveXuRongTurnExpiry(payload);
+        ObserveLiJueNativeEvent(payload);
+        ObserveSuFeiTurnOrDeath(payload);
+        ObserveGuoSiAcceptedUse(payload);
+        ObserveGuoSiTurnExpiry(payload);
+        ObserveLvQianTurnBoundary(payload);
+        ObserveNeifaTurnBoundary(payload);
+        ObserveXinPiEvent(payload);
+        if (payload is CardActionAcceptedEvent huaManAccepted) ObserveHuaManAcceptedUse(huaManAccepted.Action);
+        ObserveJianjiAlcoholExpiry(payload);
+        ObserveQingzhongDebtTermination(payload);
+        if (payload is PlayerDiedEvent dongBaiDeath) CleanupDongBaiRecipientDeath(dongBaiDeath.VictimSeat);
+        ObserveZhuijiDebtTermination(payload);
         ObserveSelectedForeignCardSlashAppliedDamage(payload);
         ObserveLastDamageSourceReciprocity(payload);
         QueueGameEvent(payload);
@@ -62,10 +96,12 @@ public sealed partial class GameEngine
         SynchronizePrivateGeneralLibraries();
         SynchronizeLordSkillProjections();
         SynchronizeHpConditionalSkillGrants();
+        SynchronizeEquipmentSuitSkillGrants();
         CleanupIssuedPlayPhaseUseBans();
         CleanupLostDeferredPileSources();
         CleanupLostPublicPersistentPiles();
         CleanupLostNamedAmbushPiles();
+        CleanupLostPrivateWhirlPiles();
         if (!TryBeginCharacterStateProgramWindow() &&
             !TryBeginHpChangedProgramWindow())
         {

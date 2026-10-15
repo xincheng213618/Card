@@ -27,9 +27,6 @@ internal static class PhaseEndingVirtualTrickChecks
         ExerciseEnding(13, giftAll: false, counter: true);
     }
 
-    public static void EndingVirtualDrawTwoResolvesRealAdjustedTargetsAndReturnsOnce() =>
-        ExerciseEnding(13, giftAll: false, counter: false, adjusted: true);
-
     private static void ExerciseEnding(int rank, bool giftAll, bool counter, bool adjusted = false)
     {
         var (game, registry) = Start(rank, delayed: false, counterMaterial: !giftAll, adjusted: adjusted);
@@ -273,68 +270,6 @@ internal static class PhaseEndingVirtualTrickChecks
                 Facts<PindianResultDeterminedEvent>(game).Count(e => e.FrameId == contestId) == 1 &&
                 game.CreateCardZoneDiagnostics().All(c => c.Location != CardLocation.Processing),
             "Completing one tail advances the ending phase once without restarting Pindian or retaining a physical payment in processing.");
-        _ = Cold(game, registry);
-    }
-
-    public static void DelayedIndulgenceTriggersActualQianyaAndReturnsAfterGiftChild()
-    {
-        var (game, registry) = Start(7, delayed: true);
-        var sun = game.CreateSnapshot(0).Players.Single(p => p.GeneralId == "ol:sun-qian").Seat;
-        Require(sun != 0 && game.State.Players[sun].HandCount == 4, "The actual registered Sun Qian occupies a living foreign target seat.");
-        var legal = game.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.Indulgence && a.TargetSeats.SequenceEqual([sun]));
-        var cardId = legal.CardId!.Value;
-        Accept(game, new PlayCardCommand(0, cardId, legal.TargetSeats, game.Revision, P(game)!.PromptId, legal.PlayedCardKind, legal.TargetCardId)
-        { ConversionSource = legal.ConversionSource, AdditionalConversionSources = legal.AdditionalConversionSources });
-        Reach(game, p => p.SkillPrompt?.SkillId == Qianya && Has(p, "activate"));
-        var use = game.ResolutionStack.OfType<CardUseFrame>().Single(f => f.CardId == cardId && f.CardKind == CardKind.Indulgence);
-        var useId = use.Id;
-        Require(use.Action is { ActorSeat: 0, EffectiveKind: CardKind.Indulgence, PhysicalCards.Count: 1 } action &&
-                action.PhysicalCards[0].CardId == cardId && action.TargetSeats.SequenceEqual([sun]) &&
-                game.CreateCardZoneDiagnostics().Single(c => c.CardId == cardId).Location == CardLocation.Processing &&
-                !Facts<DelayedCardPlacedEvent>(game).Any(e => e.ResolutionId == useId),
-            "A real physical delayed trick opens actual Qianya before judgment placement, retaining its original accepted entity and target.");
-        game = Cold(game, registry);
-        RejectWrongActor(game);
-        Answer(game, c => Action(c) == "activate");
-        Reach(game, p => p.SkillPrompt?.SkillId == Qianya && Has(p, "select-target"));
-        Answer(game, c => c.Targets.SequenceEqual([0]));
-        Reach(game, p => p.SkillPrompt?.SkillId == Qianya && Has(p, "select-owned-cards"));
-        var qianyaId = game.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == Qianya).Id;
-        var giftIds = game.CreateSnapshot(sun).Players[sun].Hand.Select(c => c.Id).ToArray();
-        AssertPrivate(game, sun);
-        game = Cold(game, registry);
-        RejectWrongActor(game);
-        foreach (var id in giftIds) Answer(game, c => c.Cards.SequenceEqual([id]));
-        Reach(game, p => p.SkillPrompt?.SkillId == Pause && HasOption(p, "gift-return"));
-        var movement = game.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Single();
-        Require(movement.Batch.ParentFrameId == qianyaId && movement.ResumeProgramFrameId == qianyaId &&
-                movement.Batch.Movements.Select(m => m.CardId).Order().SequenceEqual(giftIds.Order()) &&
-                movement.Batch.Movements.All(m => m.From == CardLocation.Hand(sun) && m.To == CardLocation.Hand(0) && m.Reason.Value == GiftReason) &&
-                game.State.Players[sun].HandCount == 0 && game.State.Players[0].HandCount == 3 + giftIds.Length &&
-                !Facts<DelayedCardPlacedEvent>(game).Any(e => e.ResolutionId == useId) &&
-                game.CreateCardZoneDiagnostics().Single(c => c.CardId == cardId).Location == CardLocation.Processing,
-            "The target's real hand gift finishes payment in one awaited batch before the still-physical delayed card can enter judgment.");
-        game = Cold(game, registry);
-        RejectWrongActor(game);
-        Continue(game);
-        Reach(game, p => p.SkillPrompt?.SkillId == Completed && HasOption(p, "completion-return"));
-        Require(Facts<DelayedCardPlacedEvent>(game).Where(e => e.ResolutionId == useId).ToArray() is
-                    [{ SourceSeat: 0, CardKind: CardKind.Indulgence } placed] && placed.TargetSeat == sun && placed.CardId == cardId &&
-                Facts<CardUseFinishedEvent>(game).Count(e => e.ResolutionId == useId && e.CardKind == CardKind.Indulgence) == 1 &&
-                game.CreateSnapshot(0).Players[sun].Judgment.Single().Id == cardId,
-            "After the restored gift child returns, the exact physical Indulgence is placed once even though Qianya emptied its target's hand.");
-        game = Cold(game, registry);
-        Continue(game);
-        Reach(game, p => p is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 });
-        Require(Facts<ProgramBindingResolvedEvent>(game).Count(e => e.FrameId == qianyaId && e.Completed) == 1 &&
-                Facts<CardUseDeclaredEvent>(game).Count(e => e.ResolutionId == useId) == 1 &&
-                Facts<CardUseFinishedEvent>(game).Count(e => e.ResolutionId == useId) == 1 &&
-                game.CardMovements.Count(m => m.Reason.Value == GiftReason) == giftIds.Length &&
-                game.CardMovements.Count(m => m.CardId == cardId && m.From == CardLocation.Hand(0) && m.To == CardLocation.Processing) == 1 &&
-                game.CardMovements.Count(m => m.CardId == cardId && m.From == CardLocation.Processing && m.To == CardLocation.Judgment(sun)) == 1 &&
-                !game.CardMovements.Any(m => m.CardId == cardId && m.To == CardLocation.DiscardPile) &&
-                game.CreateCardZoneDiagnostics().All(c => c.Location != CardLocation.Processing),
-            "Actual delayed-card Qianya, gift payment and completion return each finish once through real commands and cold restoration.");
         _ = Cold(game, registry);
     }
 

@@ -210,14 +210,6 @@ internal static class SkillProgramChecks
         throw new InvalidOperationException($"Could not find deterministic composed-skill fixture for '{generalId}'.");
     }
 
-    private static int ReadHandLimit(GameEngine game, int seat)
-    {
-        var players = (System.Collections.IList)typeof(GameEngine)
-            .GetField("_players", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(game)!;
-        return (int)typeof(GameEngine).GetMethod("GetHandLimit", BindingFlags.NonPublic | BindingFlags.Instance)!
-            .Invoke(game, [players[seat]])!;
-    }
-
     private static ContentRegistry BuildHashRegistry(string rules, string presentation) =>
         ContentRegistry.Build(new StandardContentPackage(), new HashFixturePackage(rules, presentation));
 

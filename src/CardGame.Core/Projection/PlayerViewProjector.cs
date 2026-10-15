@@ -1,4 +1,4 @@
-﻿namespace CardGame.Core;
+namespace CardGame.Core;
 
 // Snapshot construction and visibility rules live beside the observer projection.
 public sealed partial class GameEngine
@@ -40,6 +40,8 @@ public sealed partial class GameEngine
             var canSeeGeneral = player.GeneralSelected &&
                                 (revealAll || player.GeneralRevealed || player.Seat == viewerSeat);
             var general = canSeeGeneral ? player.General : CreateHiddenGeneral();
+            if (player.IdentityConcealed && !revealAll && player.Seat != viewerSeat)
+                general = IdentityConcealedGeneral();
             var canSeeSecondaryGeneral = player.SecondaryGeneralSelected &&
                                          (revealAll ||
                                           player.SecondaryGeneralRevealed ||
@@ -55,7 +57,8 @@ public sealed partial class GameEngine
                                     : (hasIdentityGodFaction || GetPrivateGeneralLibraryFaction(player) is not null) &&
                                       (revealAll || player.GeneralRevealed || player.Seat == viewerSeat));
             var primarySkills = canSeeGeneral
-                ? OwnedRuntimeSkills(player, general, includeAcquired: true).ToArray() : null;
+                ? player.IdentityConcealed ? general.Skills.ToArray()
+                    : OwnedRuntimeSkills(player, general, includeAcquired: true).ToArray() : null;
             var secondarySkills = secondaryGeneral is not null
                 ? OwnedRuntimeSkills(player, secondaryGeneral, includeAcquired: false).ToArray() : null;
             var publicPile = SinglePublicPileSource(player.Seat);
@@ -71,14 +74,16 @@ public sealed partial class GameEngine
                 general.Id,
                 general.Name,
                 general.PortraitKey,
-                player.Hp,
-                player.MaxHp,
+                player.HasHpValue ? player.Hp : 0,
+                player.HasHpValue ? player.MaxHp : 0,
                 player.IsAlive,
                 playerHand.Count,
                 hand,
                 player.GeneralSelected && player.GeneralRevealed,
                 player.HasAlcoholEffect)
             {
+                IdentityConcealed = player.IdentityConcealed,
+                HpUndefined = !player.HasHpValue,
                 AlcoholDamageBonus = player.AlcoholDamageBonus >= 2 ? player.AlcoholDamageBonus : null,
                 IsFaceDown = player.IsFaceDown,
                 OriginalHandEntities = ProjectOriginalHandEntities(player.Seat, viewerSeat, revealAll),
@@ -125,6 +130,7 @@ public sealed partial class GameEngine
                 PrivateGeneralLibraries = ProjectPrivateGeneralLibraries(player,viewerSeat,revealAll),
                 PrivateTurnHolds = ProjectPrivateTurnHolds(player.Seat, viewerSeat, revealAll),
                 NamedAmbushPiles = ProjectNamedAmbushPiles(player.Seat, viewerSeat, revealAll),
+                PrivateWhirlPiles = ProjectPrivateWhirlPiles(player.Seat, viewerSeat, revealAll),
                 PublicDeferredPileName = _deferredPublicPileDeposits.Count > 0 &&
                     _deferredPublicPileDeposits.FirstOrDefault(item => item.OwnerSeat == player.Seat) is { } deposit ? _contentRegistry.GetSkill(deposit.SkillId).ProgramPresentation?.AuthorityName : null,
                 PublicDeferredPileCount = deferredPileCards.Count,
@@ -144,8 +150,11 @@ public sealed partial class GameEngine
                 PojunHoldCards = pojunHold.Count > 0
                     ? pojunHold.Select(ToSnapshot).ToArray()
                     : null,
-                Markers = player.Markers.Count > 0
-                    ? player.Markers
+                Markers = player.Markers.Count > 0 || player.Shanjia is { LossMarks: > 0 }
+                    ? player.Markers.Where(marker => marker.Key != PlayerMarkerKind.ShanjiaLoss)
+                        .Concat(player.Shanjia is { LossMarks: > 0 } shanjia
+                            ? [new KeyValuePair<PlayerMarkerKind, int>(PlayerMarkerKind.ShanjiaLoss, shanjia.LossMarks)]
+                            : Array.Empty<KeyValuePair<PlayerMarkerKind, int>>())
                         .OrderBy(marker => marker.Key)
                         .Select(marker => new PlayerMarkerSnapshot(
                             marker.Key,
@@ -230,15 +239,19 @@ public sealed partial class GameEngine
             _cardZones.Count(CardLocation.DiscardPile),
             snapshots,
             visibleDecision,
-            _cardZones.Count(CardLocation.Processing),
+            _cardZones.CardsAt(CardLocation.Processing).Count(card =>
+                revealAll || !IsSimultaneousPrivateTopCard(card.Id)),
             _revision)
         {
             CardDeclarations = GetCardDeclarationSnapshots(viewerSeat, revealAll),
             WinnerTeamId = IsTeamMode ? _winnerTeamId : null,
             WinnerFactionId = IsNationalWarMode ? _winnerFactionId : null,
             ModeKind = _modeDefinition.ModeKind,
-            PublicRevealedCards = publicRevealedCards.Concat(FriendPangTongPublicCards()).DistinctBy(card => card.Id).ToArray(),
-            PrivateRevealedCards = GetPrivatelyViewedCards(viewerSeat) is { Length: > 0 } privateCards ? privateCards : null,
+            PublicRevealedCards = publicRevealedCards.Concat(FriendPangTongPublicCards())
+                .Where(card => revealAll || !IsSimultaneousPrivateTopCard(card.Id))
+                .DistinctBy(card => card.Id).ToArray(),
+            PrivateRevealedCards = GetPrivatelyViewedCards(viewerSeat).Concat(GetCaoYingPrivateCards(viewerSeat)).Concat(GetZhugeGuoPrivatelyViewedCards(viewerSeat))
+                .DistinctBy(card => card.Id).ToArray() is { Length: > 0 } privateCards ? privateCards : null,
             FriendPredictions = GetFriendPredictionViews(viewerSeat),
             ProgramResponseExchangeStates = GetResponseExchangeStateSnapshots(),
             TurnProhibitedPhysicalCards = GetResponseEntityRestrictionSnapshots()
@@ -296,6 +309,8 @@ public sealed partial class GameEngine
         PrivateReserveCards = FreezeViewList(player.PrivateReserveCards),
         NamedAmbushPiles = player.NamedAmbushPiles is { } ambushes
             ? Array.AsReadOnly(ambushes.Select(p => p with { Entries = FreezeViewList(p.Entries) }).ToArray()) : null,
+        PrivateWhirlPiles = player.PrivateWhirlPiles is { } whirls
+            ? Array.AsReadOnly(whirls.Select(p => p with { Cards = FreezeViewList(p.Cards) }).ToArray()) : null,
         Markers = FreezeViewList(player.Markers),
         WoodenOxGrain = FreezeViewList(player.WoodenOxGrain),
         BuquWounds = FreezeViewList(player.BuquWounds),

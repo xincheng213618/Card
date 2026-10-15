@@ -162,6 +162,7 @@ public sealed partial class GameEngine
         AdvanceRulesAndPublishState(); return SkillProgramStepOutcome.AwaitChoice;
     }
 
+    [ProgramAnswer("unique-leader-trick-target")]
     private void ResolveUniqueLeaderTrickTargetChoice(PromptChoice selected)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("A trick target choice lost its owning program.");
@@ -223,6 +224,9 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("A unique-leader trick lost its exact source, native prefix or published target choice.");
     }
 
+    [ProgramAiChoice(
+        SkillProgramEffectOp.OfferUniqueLargestHandTrickTargetAddition,
+        SkillProgramEffectOp.JoinUniqueLargestHpTrickTargetAndDrawAfterDamage)]
     private PromptChoice SelectAiUniqueLeaderTrickTargetChoice(PendingDecision decision, ProgramSkillFrame frame)
     {
         var use = RequireUniqueLeaderTrickParent(frame, out _);

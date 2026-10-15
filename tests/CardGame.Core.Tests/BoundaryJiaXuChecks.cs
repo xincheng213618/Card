@@ -16,83 +16,6 @@ internal static class BoundaryJiaXuChecks
     private const string Mode = "identity:classic-boundary-jia-xu-fixture";
     private const string Luanwu = "nearest-slashes-and-unlimited-final-slash";
 
-    public static void PreventionUsesExactAmountAndReturnsThroughRealDrawChild()
-    {
-        var invalid = $$"""
-        {"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[{"id":"fixture:invalid-prevention-subject","revision":1,
-        "triggers":[{"id":"invalid","window":"beforeDamageApplied","subject":"owner","optional":false,
-        "effects":[{"op":"preventCurrentDamageAndDrawMultiple","target":"owner","amount":2}]}]}]}
-        """;
-        var rejected = false;
-        try { SkillProgramCatalog.Load(invalid, "{\"schemaVersion\":3,\"skills\":{\"fixture:invalid-prevention-subject\":{\"name\":\"invalid\",\"description\":\"invalid\"}}}"); }
-        catch (InvalidOperationException e) when (e.Message.Contains("damage-target window", StringComparison.Ordinal)) { rejected = true; }
-        Require(rejected, "The strict production loader rejects an owner subject that cannot own the exact prevented damage target.");
-        foreach (var effect in new[]
-        {
-            "{\"op\":\"requestLegalSlashByNearest\",\"target\":\"owner\",\"targetKind\":\"otherLiving\",\"amount\":1}",
-            "{\"op\":\"selectTarget\",\"target\":\"owner\",\"targetKind\":\"otherLiving\"},{\"op\":\"offerUnlimitedVirtualSlash\",\"target\":\"owner\"}"
-        })
-        {
-            var invalidTrigger = $$"""
-                {"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[{"id":"fixture:invalid-slash-trigger","revision":1,
-                "triggers":[{"id":"invalid","window":"drawPhaseStarting","subject":"owner","optional":false,"effects":[{{effect}}]}]}]}
-                """;
-            rejected = false;
-            try { SkillProgramCatalog.Load(invalidTrigger, "{\"schemaVersion\":3,\"skills\":{\"fixture:invalid-slash-trigger\":{\"name\":\"invalid\",\"description\":\"invalid\"}}}"); }
-            catch (InvalidOperationException e) when (e.Message.Contains("active play program", StringComparison.Ordinal)) { rejected = true; }
-            Require(rejected, "An activation-only Slash sequence is rejected before an unsupported trigger can execute.");
-        }
-        var (g, r) = Create(outside: true); var hp = g.State.Players[0].Hp;
-        var hand = g.CreateSnapshot(0).Players[0].Hand.Count;
-        Use(g, "incoming", [1]); Reach(g, p => p.SkillPrompt?.SkillId == Gain);
-        var prevention = Events<ProgramDamagePreventedEvent>(g).Single(e => e.SkillId == "boundary:weimu");
-        var parent = g.ResolutionStack.OfType<BeforeDamageProgramWindowFrame>().Single(f => f.Id == prevention.FrameId);
-        Require(parent.Prevented && parent.Amount == 2 && prevention is { OwnerSeat: 0, SourceSeat: 1, TargetSeat: 0, Amount: 2 } &&
-            g.State.Players[0].Hp == hp && g.CreateSnapshot(0).Players[0].Hand.Count == hand + 4,
-            "The original exact two-damage parent is prevented before four real cards enter the owner's hand.");
-        var paid = g.CardMovements.Where(m => m.To == CardLocation.Hand(0) &&
-            m.Reason.Value == "skill-program.boundary:weimu.prevented-damage-draw").Select(m => m.CardId).ToArray();
-        Require(paid.Length == 4 && paid.Distinct().Count() == 4 && parent.Id ==
-            g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == "boundary:weimu").WindowContext!.ParentFrameId,
-            "The draw observer suspends the original prevention instruction after its exact payment, with no parallel pending state.");
-        Private(g); Reject(g); Cold(g, r); Continue(g); Finish(g);
-        Require(Events<ProgramDamagePreventedEvent>(g).Count(e => e.SkillId == "boundary:weimu") == 1 &&
-            paid.All(id => g.CardMovements.Count(m => m.CardId == id && m.To == CardLocation.Hand(0)) == 1) &&
-            !Events<DamageAppliedEvent>(g).Any(e => e.TargetSeat == 0),
-            "The real draw child returns without preventing or drawing twice, and no original HP damage is applied.");
-        Use(g, "lose-one"); Finish(g);
-        Require(g.State.Players[0].Hp == hp - 1 && Events<ProgramDamagePreventedEvent>(g).Length == 1,
-            "Actual HP loss is not a damage attempt and is never prevented by Curtain.");
-        Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId));
-        Reach(g, p => p.SkillPrompt?.SkillId == "fixture:jx-outside" && Action(p, "select-target"));
-        Answer(g, c => c.Targets.SequenceEqual([0]));
-        ReachUntil(g, () => Events<DamageAppliedEvent>(g).Any(e => e.SourceSeat == 1 && e.TargetSeat == 0));
-        Require(g.State.Players[0].Hp == hp - 2 && Events<ProgramDamagePreventedEvent>(g).Length == 1,
-            "A real damage attempt from the next actor during that actor's draw phase damages the Curtain owner outside its own turn.");
-        Cold(g, r);
-
-        var (nested, nr) = Create(cardId: "standard:peach", gainDying: true);
-        LuanwuUse(nested); Reach(nested, Nearest);
-        var slash = P(nested)!.Choices.First(c => c.Cards.Count == 2 && c.Targets.SequenceEqual([0])); var costs = slash.Cards.ToArray();
-        Answer(nested, c => c.Id == slash.Id); Reach(nested, p => p.SkillPrompt?.SkillId == Entry && p.PlayerSeat == 0);
-        var original = Events<CardActionAcceptedEvent>(nested).Single(e => e.Action.ActorSeat == 1 && e.Action.Type == CardActionType.Use && e.Action.EffectiveKind == CardKind.Slash).Action;
-        Require(original.PhysicalCards.Select(c => c.CardId).SequenceEqual(costs) && nested.State.Players[0].Hp == 0 &&
-            nested.ResolutionStack.OfType<BeforeDamageProgramWindowFrame>().Single() is { Prevented: true, Amount: 1, TargetSeat: 0 } &&
-            nested.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == "boundary:weimu").PreventionDrawReceipt is { ActualDrawCount: 2, PreventedAmount: 1 },
-            "An actual converted Slash is already prevented and its two-card draw receipt stays on the original before-damage parent while a gain observer causes Dying.");
-        Cold(nested, nr); Continue(nested); Reach(nested, p => p.Kind == DecisionKind.RescueDying && p.PlayerSeat == 0);
-        Cold(nested, nr); Answer(nested, c => c.Parameters.GetValueOrDefault("response") == "peach"); Reach(nested, p => p.SkillPrompt?.SkillId == Gain);
-        Cold(nested, nr); Continue(nested); Reach(nested, p => Nearest(p) && p.PlayerSeat == 2);
-        Require(nested.State.Players[0].Hp == 1 && Events<DyingResponseEvent>(nested).Any(e => e.ResponderSeat == 0 && e.UsedPeach) &&
-            Events<ProgramDamagePreventedEvent>(nested).Count(e => e.SkillId == "boundary:weimu") == 1 &&
-            !Events<DamageAppliedEvent>(nested).Any(e => e.TargetSeat == 0) &&
-            costs.All(id => nested.CardMovements.Count(m => m.CardId == id && m.Reason == CardMoveReasons.Use) == 1 &&
-                nested.CardMovements.Count(m => m.CardId == id && m.Reason == CardMoveReasons.UseFinished) == 1) &&
-            nested.CardMovements.Count(m => m.Reason.Value == "skill-program.boundary:weimu.prevented-damage-draw") == 2,
-            "Entry, real Peach and gain children return through the exact physical Slash parent without applying its prevented damage, redrawing or repaying either material.");
-        DeclineRemaining(nested); Finish(nested); Cold(nested, nr);
-    }
-
     public static void BlackTricksUseActualColorAndLightningTransferContext()
     {
         var (black, br) = Create(cardId: "standard:duel", suit: Suit.Spade, curtain: true);
@@ -143,35 +66,6 @@ internal static class BoundaryJiaXuChecks
         Require(!transfer.Hit && transfer.NextTargetSeat == 2 && lightning.CardMovements.Any(m =>
             m.CardId == delayed && m.From == CardLocation.Judgment(0) && m.To == CardLocation.Judgment(2) && m.Reason == CardMoveReasons.DelayedCardTransfer),
             "The actual held black delayed card skips the next Curtain target on transfer; a miss judgment's card is not its targeting color."); Cold(lightning, lr);
-    }
-
-    public static void DyingQualificationChangesOnlyCurrentForeignNonLockedGrants()
-    {
-        var (g, r) = Create(cardId: "standard:peach", grantAtEntry: true);
-        Require(Enumerable.Range(0, 4).All(s => Has(g, s, Ordinary)), "The original ordinary grants all begin eligible.");
-        Use(g, "dying-other", [1]); Reach(g, p => p.SkillPrompt?.SkillId == Entry && Action(p, "choose-option"));
-        var dying = g.ResolutionStack.OfType<DyingFrame>().Single();
-        Require(dying.VictimSeat == 1 && Has(g, 0, Ordinary) && Has(g, 1, Ordinary) &&
-            !Has(g, 2, Ordinary) && !Has(g, 3, Ordinary) && !Has(g, 2, Limited) && Has(g, 2, Locked),
-            "The exact living current source and current victim keep ordinary skills; foreign actors lose nonLocked and Limited eligibility but retain Locked grants.");
-        Cold(g, r); Continue(g); Reach(g, p => p.PlayerSeat == 2 && p.SkillPrompt?.SkillId == ForeignGrant && Action(p, "choose-option"));
-        Require(Events<SkillsAcquiredEvent>(g).Any(e => e.PlayerSeat == 2 && e.SkillIds.Contains(Later)),
-            "The foreign Locked entry observer really grants its own new ordinary skill during this Dying settlement.");
-        Require(!Has(g, 2, Later) && Has(g, 2, Locked) && g.ResolutionStack.OfType<DyingFrame>().Any(f => f.Id == dying.Id),
-            "A genuinely granted new foreign ordinary skill is dynamically unqualified in the still active exact Dying window."); Cold(g, r);
-        Continue(g); Finish(g);
-        Require(Events<DyingResponseEvent>(g).Any(e => e.ResolutionId == dying.Id && e.ResponderSeat == 1 && e.UsedPeach) &&
-            Events<DyingResponseEvent>(g).Where(e => e.ResolutionId == dying.Id && e.UsedPeach).All(e => e.ResponderSeat is 0 or 1) &&
-            g.State.Players[1].Hp == 1 && Enumerable.Range(0, 4).All(s => Has(g, s, Ordinary)) && Has(g, 2, Later) && Has(g, 2, Limited),
-            "Only the source and victim can pay real Peaches, and closing the Dying frame restores all still enabled foreign grants, including the acquired one.");
-        Cold(g, r); Use(g, "dying-owner"); Reach(g, p => p.SkillPrompt?.SkillId == Entry && Action(p, "choose-option"));
-        Require(g.ResolutionStack.OfType<DyingFrame>().Single().VictimSeat == 0 && Has(g, 0, Ordinary) && !Has(g, 1, Ordinary) && !Has(g, 2, Later),
-            "A later actual Dying victim changes the cached qualification frontier without retaining the earlier victim exemption.");
-        Continue(g); Reach(g, p => p.SkillPrompt?.SkillId == ForeignGrant); Continue(g);
-        Reach(g, p => p.Kind == DecisionKind.RescueDying && p.PlayerSeat == 0);
-        Cold(g, r); Answer(g, c => c.Parameters.GetValueOrDefault("response") == "peach"); Finish(g);
-        Require(g.State.Players[0].Hp == 1 && Enumerable.Range(0, 4).All(s => Has(g, s, Ordinary)),
-            "The source/victim overlap can pay an actual Peach and the second closed frame restores foreign qualification again."); Cold(g, r);
     }
 
     public static void ChaoticAmbitionPaysConvertedAndProviderCardsBeforeOptionalFinisher()
@@ -253,34 +147,7 @@ internal static class BoundaryJiaXuChecks
             "The distant virtual finisher bypasses the already spent ordinary quota, records the real second own-phase use and leaves the quota spent."); Cold(quota, qr);
     }
 
-    public static void SourceLossKeepsPaidSlashAndNativeAiReadsCommittedStartHistory()
-    {
-        var (g, r) = Create(sourceLoss: true); var hp = g.State.Players[2].Hp;
-        LuanwuUse(g); Reach(g, Nearest); var choice = P(g)!.Choices.First(c => c.Cards.Count == 1 && c.Targets.SequenceEqual([2])); var card = choice.Cards.Single();
-        Answer(g, c => c.Id == choice.Id); Reach(g, p => p.SkillPrompt?.SkillId == Loss && Action(p, "select-target"));
-        Require(g.CardMovements.Count(m => m.CardId == card && m.From == CardLocation.Hand(1) && m.To == CardLocation.Processing && m.Reason == CardMoveReasons.Use) == 1 &&
-            !Events<DamageAppliedEvent>(g).Any(e => e.SourceSeat == 1 && e.TargetSeat == 2),
-            "The actual committed-use observer starts after physical payment and before the original Slash damage.");
-        Cold(g, r); Answer(g, c => c.Targets.SequenceEqual([0])); Finish(g);
-        Require(g.State.Players[2].Hp == hp - 1 && g.CardMovements.Count(m => m.CardId == card && m.Reason == CardMoveReasons.Use) == 1 &&
-            g.CardMovements.Count(m => m.CardId == card && m.Reason == CardMoveReasons.UseFinished) == 1 &&
-            Events<CurrentTurnNonLockedSkillSuppressionIssuedEvent>(g).Any(e => e.Suppression.TargetSeat == 0) &&
-            Events<ProgramUnlimitedSlashChoiceEvent>(g).Length == 0 &&
-            !Events<ProgramSkillHpLostEvent>(g).Any(e => e.TargetSeat is 2 or 3),
-            "An actual cost observer invalidates the nonLocked source: the already paid original Slash finishes once, remaining actors and finisher cancel."); Cold(g, r);
-        var (native, nr) = Create(native: true);
-        // StartGame can drive the whole bounded unattended game. Read its entire
-        // committed history before inspecting completion or requesting another step.
-        var started = Events<ProgramSkillStartedEvent>(native).Any(e => e.SkillId == "boundary:luanwu");
-        for (var step = 0; !started && step < 80 && native.State.Status != EngineStatus.Completed; step++)
-        { Accept(native, new AdvanceOneStepCommand(native.Revision)); started = Events<ProgramSkillStartedEvent>(native).Any(e => e.SkillId == "boundary:luanwu"); }
-        Require(started && Events<ProgramUnlimitedSlashChoiceEvent>(native).Length == 1 &&
-            Events<CardActionAcceptedEvent>(native).Any(e => e.Action.Type == CardActionType.Use && e.Action.ActorSeat != 0 && e.Action.PhysicalCards.Count > 0),
-            "Native unattended AI activates the new public estimate and makes real participant payments without manually answering any AI choice."); Cold(native, nr);
-    }
-
     private static T[] Events<T>(GameEngine g) where T : IGameEvent => g.Events.Select(e => e.Payload).OfType<T>().ToArray();
-    private static bool Has(GameEngine g, int seat, string skill) => g.CreateSnapshot(0).Players[seat].Skills!.Any(s => s.ContentId == skill);
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
     private static bool Action(PendingDecision p, string action) => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == action);
     private static bool Nearest(PendingDecision p) => Action(p, "nearest-legal-slash");

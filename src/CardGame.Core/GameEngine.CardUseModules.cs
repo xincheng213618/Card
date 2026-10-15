@@ -4,7 +4,7 @@ public sealed partial class GameEngine
 {
     private bool IsTurnHandCardRestricted(CharacterState player, Card card)
     {
-        if (IsTurnHandCategoryRestricted(player, card) || IsResponseEntityRestricted(player.Seat, card.Id)) return true;
+        if (IsXiaHuiPhysicalRestricted(player.Seat,card.Id) || IsTurnHandCategoryRestricted(player, card) || IsResponseEntityRestricted(player.Seat, card.Id)) return true;
         if (IsPlayPhasePhysicalCardRestricted(player, card)) return true;
         if (_cardZones.GetLocation(card.Id) != CardLocation.Hand(player.Seat)) return false;
         if (ActiveCardAttack is { ProhibitsTargetHandResponses: true } attack &&
@@ -29,7 +29,7 @@ public sealed partial class GameEngine
             effectiveKind,
             actionType) || IsExclusiveTurnPeachUseForbidden(actorSeat, effectiveKind, actionType) ||
         IsNextActualUseCounterspellForbidden(actorSeat, effectiveKind, actionType) || IsForeignTurnAlcoholUseForbidden(actorSeat, effectiveKind, actionType) ||
-        IsOtherPlayRestrictionUseForbidden(actorSeat, effectiveKind, actionType);
+        IsOtherPlayRestrictionUseForbidden(actorSeat, effectiveKind, actionType) || IsNeifaUseForbidden(actorSeat, effectiveKind, actionType);
 
     private IReadOnlyList<LegalAction> FilterTurnCardUseRestrictions(
         CharacterState actor,

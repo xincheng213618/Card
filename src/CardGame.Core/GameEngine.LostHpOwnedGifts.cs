@@ -112,6 +112,7 @@ public sealed partial class GameEngine
             ids.Count, gift.DeliveredCount, gift.MaximumGiftCount, before, after));
         if (AwaitLostHpOwnedGiftMovements(frame.Id) == SkillProgramStepOutcome.Continue) AdvanceRuntimeProgram(frame.Id);
     }
+    [ProgramAiChoice(SkillProgramEffectOp.DrawLostHpThenOfferOwnedCardsUpTo)]
     private PromptChoice SelectAiLostHpOwnedGift(PendingDecision decision, ProgramSkillFrame frame)
     {
         var stop = decision.Choices.Single(c => c.Parameters.GetValueOrDefault("program-action") == "finish-limited-owned-gift");

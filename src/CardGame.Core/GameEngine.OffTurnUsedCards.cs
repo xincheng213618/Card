@@ -208,6 +208,7 @@ public sealed partial class GameEngine
             new Dictionary<string, string> { ["program-action"] = "off-turn-used-card-gift", ["frame-id"] = f.Id.ToString(CultureInfo.InvariantCulture) })).ToArray());
     }
 
+    [ProgramAnswer("off-turn-used-card-gift")]
     private void ResolveOffTurnUsedCardGift(PromptChoice selected)
     {
         var f = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("Off-turn gift lost its exact program.");
@@ -259,8 +260,6 @@ public sealed partial class GameEngine
         AdvanceRuntimeProgram(f.Id); return true;
     }
 
-    private PromptChoice SelectAiOffTurnUsedCardGift(PendingDecision p) =>
-        p.Choices.OrderBy(c => c.Targets.Single()).ThenBy(c => c.Id.Value, StringComparer.Ordinal).First();
 
     private void AssertOffTurnUsedCardGift(ProgramSkillFrame f)
     {

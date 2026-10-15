@@ -1,4 +1,4 @@
-namespace CardGame.Core;
+﻿namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
@@ -98,6 +98,7 @@ public sealed partial class GameEngine
     private void BeginSimpleCardUse(long frameId, ProgramSimpleCardContinuation continuation)
     {
         var use = _resolutionStack.OfType<CardUseFrame>().Single(frame => frame.Id == frameId);
+        if (continuation.Effect == SimpleCardUseEffect.Alcohol) RecordJianjiOrdinaryAlcoholUse(frameId);
         if (TryPauseRecoveryPaidCardUse(frameId, new(RecoveryPaidCardUseKind.Simple, use.SourceSeat, continuation.CardId, Simple: continuation))) return;
         if ((LifecycleCardUse(frameId)?.TargetsAdjusted == true) && use.TargetSeats.Count > 1 &&
             continuation.Effect is SimpleCardUseEffect.Recovery or SimpleCardUseEffect.Alcohol)
@@ -111,6 +112,7 @@ public sealed partial class GameEngine
     private void ContinueSimpleCardUse(long frameId, ProgramSimpleCardContinuation continuation)
     {
         if (TryBeginFinalizedSimpleCardPrograms(frameId, continuation)) return;
+        if (TryBeginCaoChunSimpleDebt(frameId, continuation)) return;
         var frame = _resolutionStack.OfType<CardUseFrame>().Single(item => item.Id == frameId);
         if (ContinueDyingSuitsPeach(frameId, continuation)) return;
         if (ContinueTieredRoundZeroSimpleUse(frameId, continuation)) return;

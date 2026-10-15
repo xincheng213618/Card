@@ -86,6 +86,7 @@ public sealed partial class GameEngine
         return SkillProgramStepOutcome.AwaitChoice;
     }
 
+    [ProgramAnswer("kangge-choose")]
     private void ResolveKanggeChooseChoice(PromptChoice selected)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ??
@@ -199,6 +200,7 @@ public sealed partial class GameEngine
         return SkillProgramStepOutcome.AwaitChoice;
     }
 
+    [ProgramAnswer("kangge-heal")]
     private void ResolveKanggeHealChoice(PromptChoice selected)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ??
@@ -399,6 +401,7 @@ public sealed partial class GameEngine
         Suit.Spade => "黑桃", Suit.Heart => "红桃", Suit.Club => "梅花", _ => "方块"
     };
 
+    [ProgramAnswer("jielie-gift")]
     private void ResolveJielieSuitChoice(PromptChoice selected)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ??
@@ -475,6 +478,7 @@ public sealed partial class GameEngine
         JieliePaidObserverRoot(beforeDamageId) is { } frame &&
         (HasJielieGiftDying(beforeDamageId) || DamageCursorEffectiveTop(includeNestedObservers: true)?.Id == frame.Id);
 
+    [ProgramAiChoice(SkillProgramEffectOp.KanggeChooseTarget)]
     private PromptChoice SelectAiKanggeChooseChoice(PendingDecision decision) =>
         decision.Choices
             .OrderByDescending(choice => choice.Targets.Select(seat => _players[seat].Hp).FirstOrDefault())
@@ -482,9 +486,8 @@ public sealed partial class GameEngine
             .ThenBy(choice => choice.Id.Value, StringComparer.Ordinal)
             .First();
 
-    private PromptChoice SelectAiKanggeHealChoice(PendingDecision decision) =>
-        decision.Choices.First(choice => choice.Parameters.GetValueOrDefault("decline") != "true");
 
+    [ProgramAiChoice(SkillProgramEffectOp.JieliePreventAndGift)]
     private PromptChoice SelectAiJielieSuitChoice(PendingDecision decision, ProgramSkillFrame frame)
     {
         var declines = decision.Choices

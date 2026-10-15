@@ -182,8 +182,9 @@ public sealed partial class GameEngine
     {
         if (window.Continuation is not (ProgramCardContinuation.Slash or ProgramCardContinuation.FinalizedTrick or
                 ProgramCardContinuation.FinalizedSimpleCard or ProgramCardContinuation.DelayedCard) ||
-            LifecycleCardUse(window.ParentFrameId) is not { TargetSeats.Count: 0 } use || !(HasOverflowTargetCancellation(use) ||
-                    window.Continuation == ProgramCardContinuation.FinalizedTrick && HasRoundGainedTrickTargetCancellation(use))) return false;
+            LifecycleCardUse(window.ParentFrameId) is not { TargetSeats.Count: 0 } use || !(HasHuaManSouyingCancellation(use) || HasOverflowTargetCancellation(use) || use.BeiMiHuTargetMutation is { Kind: "cancel" } && ValidBeiMiHuTargetMutation(use) ||
+                    window.Continuation == ProgramCardContinuation.FinalizedTrick &&
+                    (HasRoundGainedTrickTargetCancellation(use) || HasNeifaTrickTargetCancellation(use)))) return false;
         if (_resolutionStack.LastOrDefault()?.Id != use.Id || window.Action.ActionId != use.Action!.ActionId)
             throw new InvalidOperationException("Overflow cancellation lost its whole-use native return.");
         if (window.Continuation == ProgramCardContinuation.Slash)

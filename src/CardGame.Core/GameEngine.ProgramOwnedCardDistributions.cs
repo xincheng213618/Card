@@ -200,6 +200,7 @@ public sealed partial class GameEngine
         PublishProgramOwnedCardDistribution(frame, expectedReason);
     }
 
+    [ProgramAiChoice(SkillProgramEffectOp.DistributeOwnedCards)]
     private PromptChoice SelectAiProgramOwnedCardDistribution(PendingDecision decision, ProgramSkillFrame frame)
     {
         var distribution = frame.OwnedCardDistribution ??

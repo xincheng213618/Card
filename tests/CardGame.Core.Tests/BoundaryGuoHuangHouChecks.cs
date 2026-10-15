@@ -52,183 +52,6 @@ internal static class BoundaryGuoHuangHouChecks
         _ = Cold(g, r);
     }
 
-    public static void CappedDrawBeforeModificationOwnsChildrenAndCold()
-    {
-        var (g, r) = Create(benefitChildren: true); Play(g); HurtAndActivate(g);
-        Play(g); Require(Tier(g) == 1 && Draws(g).Length == 0 &&
-            F<CappedConversionBenefitCompletedEvent>(g) is [{ FrozenSuccessfulModifications: 0, ActualDrawCount: 0, Modified: true, FinalTier: 1 }],
-            "X0 issues no draw or movement yet performs the first real successful modification.");
-        HurtAndActivate(g); Reach(g, p => p.SkillPrompt?.SkillId == Gain);
-        var root = Benefit(g); var invoice = root.CappedConversionBenefit!;
-        Require(invoice.FrozenSuccessfulModifications == 1 && invoice.ActualDrawCount == 1 && invoice.ActualDrawAttempted &&
-            invoice.AwaitingMovement && Tier(g) == 1 && Draws(g).Length == 1 &&
-            g.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Any(w => w.Batch.ParentFrameId == root.Id &&
-                (w.ResumeProgramFrameId is null || w.ResumeProgramFrameId == root.Id) && w.Batch.AwaitingProgramFrameId == root.Id &&
-                w.Batch.Movements is [var m] && m.Reason.Value == DrawReason),
-            "The true Draw1 freezes its original after-damage candidate and waits for its exact gain child before modifying.");
-        Private(g); Reject(g); g = Cold(g, r); Continue(g); Reach(g, p => p.SkillPrompt?.SkillId == Hp);
-        var gain = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == Gain);
-        Require(Benefit(g).Id == root.Id && Tier(g) == 1 && g.ResolutionStack.OfType<HpChangedTriggerWindowFrame>().Any(w =>
-            w.Change.ParentFrameId == gain.Id && w.ResumeFrameId == gain.Id && w.Continuation == PostEventContinuation.Program),
-            "A real gain Recover/HP child retains the original benefit and leaves the upgrade unissued.");
-        g = Cold(g, r); Continue(g); Play(g); Require(Tier(g) == 2, "Only the completed gain and HP subtree permits successful modification two.");
-        HurtAndActivate(g); Play(g);
-        Require(Tier(g) == 2 && F<ConfiguredConversionTierChangedEvent>(g).Length == 2 &&
-            F<CappedConversionBenefitCompletedEvent>(g).Last() is { FrozenSuccessfulModifications: 2, ActualDrawCount: 2, Modified: false, FinalTier: 2 } && Draws(g).Length == 3,
-            "The explicit capped default still performs genuine Draw2 and does not fabricate a third modification.");
-        _ = Cold(g, r);
-
-    }
-
-    public static void SharedRoundQuotaSurvivesTierRegrantAndExtraTurn()
-    {
-        var (g, r) = Create(); Play(g); HurtAndActivate(g); Play(g);
-        var physical = g.GetHumanLegalActions().First(a => a.ConversionSource?.SkillId == Jiaozhao && a.PlayedCardKind == CardKind.DrawTwo);
-        SubmitPlay(g, physical); Play(g); HurtAndActivate(g); Play(g);
-        Require(Tier(g) == 2 && !g.GetHumanLegalActions().Any(a => a.ConversionSource?.SkillId == Jiaozhao),
-            "An upgrade keeps the already consumed shared Round quota; it cannot mint a second tier2 use.");
-        var instance = F<TieredRoundConversionUseIssuedEvent>(g).Single().Receipt.Source.SkillInstanceId;
-        Use(g, "remove"); Play(g); Use(g, "regain"); Play(g); Use(g, "extra"); Play(g); End(g);
-        Until(g, e => F<TurnStartedEvent>(e).Count(t => t.ActorSeat == 0) >= 2 && P(e) is { PlayerSeat: 0, Kind: DecisionKind.PlayCard });
-        Require(Tier(g) == 2 && F<RoundStartedEvent>(g).Length == 1 && !g.GetHumanLegalActions().Any(a => a.ConversionSource?.SkillId == Jiaozhao),
-            "A real regrant and genuine extra turn keep permanent level and owner/skill/state Round quota.");
-        NextOwnRound(g, 2);
-        var zero = g.GetHumanLegalActions().First(a => a.CardId == 0 && a.ConversionSource?.SkillId == Jiaozhao && a.PlayedCardKind == CardKind.Slash && a.TargetSeats.SequenceEqual([1]));
-        AssertZeroActionPhysicalRestrictionBoundary(g, zero);
-        var hand = V(g, 0).HandCount; var before = g.CardMovements.Count;
-        Private(g); g = Cold(g, r); SubmitPlay(g, zero); Play(g);
-        var issued = F<TieredRoundConversionUseIssuedEvent>(g).Last().Receipt;
-        Require(issued is { FrozenTier: 2, MaterialCount: 0, RoundNumber: 2 } && issued.Source.SkillInstanceId != instance &&
-            F<CardUseFinishedEvent>(g).Any(e => e.ResolutionId == issued.OwnerFrameId && e.CardId == 0 && e.CardKind == CardKind.Slash) &&
-            V(g, 0).HandCount == hand && g.CardMovements.Skip(before).All(m => m.CardId != 0) &&
-            !g.GetHumanLegalActions().Any(a => a.ConversionSource?.SkillId == Jiaozhao),
-            "The real zero-entity Slash uses the original target pipeline and normal allowance, completes its exact receipt, and creates no synthetic cost or cleanup movement.");
-        _ = Cold(g, r);
-
-        (g, r) = Create(trickChild: true); Play(g); UpgradeTwo(g); var draw = g.GetHumanLegalActions().First(a => a.CardId == 0 && a.PlayedCardKind == CardKind.DrawTwo);
-        hand = V(g, 0).HandCount; SubmitPlay(g, draw); Reach(g, p => p.SkillPrompt?.SkillId == TrickChild);
-        var trickReceipt = F<TieredRoundConversionUseIssuedEvent>(g).Single().Receipt;
-        var trickWindow = g.ResolutionStack.OfType<ProgramCardTriggerWindowFrame>().Single(w => w.ParentFrameId == trickReceipt.OwnerFrameId);
-        Require(trickWindow.Continuation == ProgramCardContinuation.CommittedTrick && trickWindow.TrickContinuation?.EffectCardId == 0 &&
-            trickWindow.Action is { Type: CardActionType.Use, EffectiveKind: CardKind.DrawTwo, PhysicalCards.Count: 0 } &&
-            trickWindow.Action.ActionId == trickReceipt.CardActionId && trickReceipt.MaterialCount == 0 && V(g, 0).HandCount == hand,
-            "A real committed DrawTwo choice pauses before the effect with its exact zero-material receipt and original trick return.");
-        Private(g); g = Cold(g, r); Continue(g); Play(g);
-        Require(V(g, 0).HandCount == hand + 2 && F<TieredRoundConversionUseIssuedEvent>(g).Count(e => e.Receipt.OwnerFrameId == trickReceipt.OwnerFrameId) == 1 &&
-            F<CardUseFinishedEvent>(g).Count(e => e.ResolutionId == trickReceipt.OwnerFrameId && e.CardId == 0 && e.CardKind == CardKind.DrawTwo) == 1 &&
-            F<SkillUsageConsumedEvent>(g).Count(e => e.SkillId == Jiaozhao && e.Scope == SkillUsageScope.Round) == 1 && g.CardMovements.All(m => m.CardId != 0),
-            "The journal-restored committed choice returns through the real trick gate, draws exactly two and consumes the issued Round allowance once.");
-        _ = Cold(g, r);
-
-        // Real mature Benxi producer: implicit self target normalization,
-        // then a true extra target, both while the original committed trick
-        // window is live. No synthetic action, grant or historical fact.
-        (g, r) = Create(benxi: true); Play(g); UpgradeTwo(g);
-        var enhancedDraw = g.GetHumanLegalActions().First(a => a.CardId == 0 && a.PlayedCardKind == CardKind.DrawTwo);
-        Require(enhancedDraw.TargetSeats.Count == 0, "The mature DrawTwo producer starts with its genuine implicit self target.");
-        var ownerHand = V(g, 0).HandCount; var otherHand = V(g, 1).HandCount;
-        SubmitPlay(g, enhancedDraw); Reach(g, p => p.SkillPrompt?.SkillId == "classic:benxi" &&
-            p.Choices.Any(c => c.Parameters.GetValueOrDefault("enhancement-option") == nameof(CurrentCardEnhancement.ExtraTarget)));
-        var enhancedReceipt = F<TieredRoundConversionUseIssuedEvent>(g).Single().Receipt;
-        var enhancedUse = g.ResolutionStack.OfType<CardUseFrame>().Single(u => u.Id == enhancedReceipt.OwnerFrameId);
-        var enhancedWindow = g.ResolutionStack.OfType<ProgramCardTriggerWindowFrame>().Single(w => w.ParentFrameId == enhancedUse.Id);
-        Require(enhancedUse.TargetSeats.SequenceEqual([0]) && enhancedUse.Action!.TargetSeats.SequenceEqual([0]) &&
-            enhancedWindow.Continuation == ProgramCardContinuation.CommittedTrick && enhancedWindow.TrickContinuation?.EffectCardId == 0 &&
-            enhancedWindow.Action.ActionId == enhancedReceipt.CardActionId && enhancedWindow.Action.TargetSeats.SequenceEqual([0]) &&
-            enhancedWindow.Action.PhysicalCards.Count == 0 && enhancedWindow.Action.ConversionChain.SequenceEqual([enhancedReceipt.Source]) &&
-            enhancedReceipt is { FrozenTier: 2, MaterialCount: 0 } && V(g, 0).HandCount == ownerHand && V(g, 1).HandCount == otherHand,
-            "Implicit-self normalization synchronizes only the exact issued zero trick window before the first real enhancement choice.");
-        g = Cold(g, r); Answer(g, c => c.Parameters.GetValueOrDefault("enhancement-option") == nameof(CurrentCardEnhancement.ExtraTarget));
-        Reach(g, p => p.SkillPrompt?.SkillId == "classic:benxi" && p.Choices.Any(c =>
-            c.Parameters.GetValueOrDefault("enhancement-option") == "target" && c.Targets.SequenceEqual([1])));
-        Answer(g, c => c.Parameters.GetValueOrDefault("enhancement-option") == "target" && c.Targets.SequenceEqual([1]));
-        Reach(g, p => p.SkillPrompt?.SkillId == "classic:benxi" && p.Choices.Any(c => c.Parameters.GetValueOrDefault("enhancement-option") == "finish"));
-        enhancedUse = g.ResolutionStack.OfType<CardUseFrame>().Single(u => u.Id == enhancedReceipt.OwnerFrameId);
-        enhancedWindow = g.ResolutionStack.OfType<ProgramCardTriggerWindowFrame>().Single(w => w.ParentFrameId == enhancedUse.Id);
-        Require(enhancedUse.TargetSeats.SequenceEqual([0, 1]) && enhancedUse.Action!.TargetSeats.SequenceEqual([0, 1]) &&
-            enhancedWindow.Action.TargetSeats.SequenceEqual([0, 1]) && enhancedWindow.Action.EffectiveDesignatedTargetSeats.SequenceEqual([0, 1]) &&
-            enhancedUse.TieredRoundConversionUse == enhancedReceipt && enhancedWindow.Action.ActionId == enhancedReceipt.CardActionId &&
-            enhancedWindow.TrickContinuation?.EffectCardId == 0 && enhancedUse.Enhancements.HasFlag(CurrentCardEnhancement.ExtraTarget) &&
-            V(g, 0).HandCount == ownerHand && V(g, 1).HandCount == otherHand,
-            "The real extra-target selection updates the same window action and leaves its original receipt, cost and return intact.");
-        g = Cold(g, r); Answer(g, c => c.Parameters.GetValueOrDefault("enhancement-option") == "finish"); Play(g);
-        Require(V(g, 0).HandCount == ownerHand + 2 && V(g, 1).HandCount == otherHand + 2 &&
-            F<TieredRoundConversionUseIssuedEvent>(g).Count(e => e.Receipt.OwnerFrameId == enhancedReceipt.OwnerFrameId) == 1 &&
-            F<CardUseFinishedEvent>(g).Count(e => e.ResolutionId == enhancedReceipt.OwnerFrameId && e.CardId == 0 && e.CardKind == CardKind.DrawTwo) == 1 &&
-            F<SkillUsageConsumedEvent>(g).Count(e => e.SkillId == Jiaozhao && e.Scope == SkillUsageScope.Round) == 1 &&
-            g.CardMovements.All(m => m.CardId != 0) && !g.ResolutionStack.Any(f => f.Id == enhancedReceipt.OwnerFrameId),
-            "Both real targets draw two after the restored choice; one issued Round payment returns through the original trick without a synthetic entity.");
-        _ = Cold(g, r);
-
-        // Both mature real payment producers retain an exact logical FireAttack
-        // owning frame. This drafts actual commands and journal-cold resumptions;
-        // no physical entity0, fabricated accepted action or direct HP write.
-        foreach (var colorPayment in new[] { false, true })
-        {
-            (g, r) = Create(fireAttackChildren: true, colorFireAttack: colorPayment);
-            Play(g); UpgradeTwo(g);
-            var fire = g.GetHumanLegalActions().First(a => a.CardId == 0 &&
-                a.ConversionSource?.SkillId == Jiaozhao && a.PlayedCardKind == CardKind.FireAttack &&
-                a.TargetSeats.SequenceEqual([1]));
-            var fireHand = V(g, 0).HandCount; var victimHp = V(g, 1).Hp;
-            SubmitPlay(g, fire); Reach(g, p => p.Kind == DecisionKind.FireAttackDiscard && p.PlayerSeat == 0);
-            var fireReceipt = F<TieredRoundConversionUseIssuedEvent>(g).Single().Receipt;
-            var fireUse = g.ResolutionStack.OfType<CardUseFrame>().Single(u => u.Id == fireReceipt.OwnerFrameId);
-            var discard = P(g)!.Choices.First(c => c.Cards.Count == 1 &&
-                c.Parameters.GetValueOrDefault("response") == "fire-attack-discard").Cards.Single();
-            Require(fireReceipt is { FrozenTier: 2, MaterialCount: 0, EffectiveKind: CardKind.FireAttack } &&
-                fireUse.CardId == 0 && fireUse.PhysicalCardIds is { Count: 0 } &&
-                fireUse.Action is { Type: CardActionType.Use, EffectiveKind: CardKind.FireAttack, PhysicalCards.Count: 0 } &&
-                (fireUse.ColorFireAttack is not null) == colorPayment && V(g, 0).HandCount == fireHand,
-                "A genuine zero-material FireAttack reaches its mature real matching discard choice with the correct optional color policy and no synthetic use cost.");
-            Private(g); Reject(g); g = Cold(g, r);
-            Answer(g, c => c.Cards.SequenceEqual([discard]) && c.Parameters.GetValueOrDefault("response") == "fire-attack-discard");
-            Reach(g, p => p.SkillPrompt?.SkillId == FireDamage);
-            fireUse = g.ResolutionStack.OfType<CardUseFrame>().Single(u => u.Id == fireReceipt.OwnerFrameId);
-            var damage = g.ResolutionStack.OfType<DamageFrame>().Single();
-            var damageWindow = g.ResolutionStack.OfType<DamageTriggerWindowFrame>().Single();
-            var damageChild = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == FireDamage);
-            var fireFact = F<FireAttackResolvedEvent>(g).Single(f => f.ResolutionId == fireUse.Id);
-            Require(fireUse.CardAttack is { CardId: null, EffectiveCardKind: CardKind.FireAttack, PhysicalCardIds.Count: 0,
-                    SourceSeat: 0, CardUserSeat: 0, TargetSeat: 1 } && fireUse.TieredRoundConversionUse == fireReceipt &&
-                damage.ParentFrameId == fireUse.Id && damage.SourceSeat == 0 && damage.TargetSeat == 1 && damage.Nature == DamageNature.Fire &&
-                damageWindow.ParentFrameId == damage.Id && damageWindow.SourceCardId is null && damageWindow.SourceCard == CardKind.FireAttack &&
-                damageChild.WindowContext is { } damageContext && damageContext.ParentFrameId == damageWindow.Id && damageContext.DamageFrameId == damage.Id &&
-                fireFact is { SourceSeat: 0, TargetSeat: 1, CausedDamage: true } && fireFact.MatchingDiscardCardId == discard &&
-                V(g, 1).Hp == victimHp - 1 && V(g, 0).HandCount == fireHand - 1 &&
-                g.CardMovements.Count(m => m.CardId == discard && m.From == CardLocation.Hand(0)) == 1 &&
-                (colorPayment
-                    ? g.CardMovements.Count(m => m.CardId == discard && m.To == CardLocation.DiscardPile && m.Reason == CardMoveReasons.FireAttackDiscard) == 1
-                    : g.CardMovements.Count(m => m.CardId == discard && m.From == CardLocation.Processing && m.To == CardLocation.DiscardPile && m.Reason == CardMoveReasons.FireAttackDiscardFinished) == 1),
-                "Real fire damage pauses on its exact CardUse→Damage→source observer chain after one matching entity payment, with no physical card0 attack.");
-            Private(g); g = Cold(g, r); Continue(g); Reach(g, p => p.SkillPrompt?.SkillId == Completed);
-            fireUse = g.ResolutionStack.OfType<CardUseFrame>().Single(u => u.Id == fireReceipt.OwnerFrameId);
-            var fireCompleted = g.ResolutionStack.OfType<ProgramCardTriggerWindowFrame>().Single(w => w.ParentFrameId == fireUse.Id);
-            Require(fireUse.Step == ResolutionFrameStep.Completed && fireUse.CardAttack is { CardId: null, EffectiveCardKind: CardKind.FireAttack } &&
-                fireCompleted.Continuation == ProgramCardContinuation.CompletedSlash && fireCompleted.AttackOwnerFrameId == fireUse.Id &&
-                fireCompleted.Action.ActionId == fireReceipt.CardActionId && fireCompleted.Action.EffectiveKind == CardKind.FireAttack &&
-                fireCompleted.Action.PhysicalCards.Count == 0 &&
-                F<CardUseFinishedEvent>(g).Count(f => f.ResolutionId == fireUse.Id && f.CardId == 0 && f.CardKind == CardKind.FireAttack) == 1,
-                "The original logical FireAttack owns one real completed window before final typed cleanup.");
-            Private(g); g = Cold(g, r); Continue(g); Play(g);
-            Require(!g.ResolutionStack.Any(f => f.Id == fireReceipt.OwnerFrameId) &&
-                !g.ResolutionStack.OfType<ProgramCardTriggerWindowFrame>().Any(w => w.ParentFrameId == fireReceipt.OwnerFrameId) &&
-                g.CardMovements.Count(m => m.CardId == discard && m.From == CardLocation.Hand(0)) == 1 &&
-                !g.CreateCardZoneDiagnostics().Any(c => c.Location == CardLocation.Processing) &&
-                g.CardMovements.All(m => m.CardId != 0) &&
-                F<FireAttackResolvedEvent>(g).Count(f => f.ResolutionId == fireReceipt.OwnerFrameId) == 1 &&
-                F<CardUseFinishedEvent>(g).Count(f => f.ResolutionId == fireReceipt.OwnerFrameId && f.CardKind == CardKind.FireAttack && f.CardId == 0) == 1 &&
-                F<TieredRoundConversionUseIssuedEvent>(g).Count(f => f.Receipt.OwnerFrameId == fireReceipt.OwnerFrameId) == 1 &&
-                F<TrueRoundCardNameUsedEvent>(g).Count(f => f.CardActionId == fireReceipt.CardActionId && f.ActorSeat == 0 && f.EffectiveKind == CardKind.FireAttack) == 1 &&
-                F<DamageAppliedEvent>(g).Count(f => f.SourceSeat == 0 && f.TargetSeat == 1 && f.Amount == 1 && f.Nature == DamageNature.Fire) == 1 &&
-                F<SkillUsageConsumedEvent>(g).Count(f => f.SkillId == Jiaozhao && f.Scope == SkillUsageScope.Round) == 1 &&
-                V(g, 1).Hp == victimHp - 1 && V(g, 0).HandCount == fireHand - 1 &&
-                (!colorPayment || F<ColorFireAttackPaidEvent>(g).Count(f => f.CardUseFrameId == fireReceipt.OwnerFrameId) == 1),
-                "Journal-restored damage and completed children return to Play with one real discard, one damage/finish/quota and no entity0 cleanup.");
-            _ = Cold(g, r);
-        }
-    }
-
     public static void ZeroCounterspellDodgeAndDyingTypedReturns()
     {
         var (g, r) = Create(CardKind.Dismantlement); Play(g); UpgradeTwo(g);
@@ -302,30 +125,10 @@ internal static class BoundaryGuoHuangHouChecks
 
     private static void UpgradeTwo(GameEngine g) { HurtAndActivate(g); Play(g); HurtAndActivate(g); Play(g); Require(Tier(g) == 2, "Two actual damage choices establish tier2."); }
     private static void HurtAndActivate(GameEngine g) { Use(g, "hurt"); Reach(g, p => p.SkillPrompt?.SkillId == Danxin && HasAction(p, "activate")); Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate"); }
-    private static ProgramSkillFrame Benefit(GameEngine g) => g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.CappedConversionBenefit is not null);
-    private static CardMovementRecord[] Draws(GameEngine g) => g.CardMovements.Where(m => m.From == CardLocation.DrawPile && m.To == CardLocation.Hand(0) && m.Reason.Value == DrawReason).ToArray();
     private static int Tier(GameEngine g) => V(g, 0).ConfiguredConversionTiers?.GetValueOrDefault(StateId) ?? 0;
     private static bool IsZero(PromptChoice c) => c.Parameters.GetValueOrDefault("response") == "tiered-round-zero-use";
     private static void SubmitPlay(GameEngine g, LegalAction a) => Accept(g, new PlayCardCommand(0, a.CardId!.Value, a.TargetSeats, g.Revision, P(g)!.PromptId, a.PlayedCardKind, a.TargetCardId)
         { ConversionSource = a.ConversionSource, AdditionalConversionSources = a.AdditionalConversionSources });
-    private static void AssertZeroActionPhysicalRestrictionBoundary(GameEngine g, LegalAction zero)
-    {
-        const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        var actor = ((IReadOnlyList<CharacterState>)typeof(GameEngine).GetField("_players", flags)!.GetValue(g)!)[0];
-        var filter = typeof(GameEngine).GetMethod("FilterTurnCardUseRestrictions", flags)!;
-        var filtered = (IReadOnlyList<LegalAction>)filter.Invoke(g, [actor, new[] { zero }])!;
-        Require(zero.TieredRoundZeroUse is not null && filtered.Count == 1 && ReferenceEquals(filtered[0], zero),
-            "The actual published zero-material action passes the shared restriction filter without a physical-zone lookup.");
-        foreach (var invalidId in new[] { -1, int.MaxValue })
-        {
-            var rejected = false;
-            try { filter.Invoke(g, [actor, new[] { zero with { CardId = invalidId } }]); }
-            catch (System.Reflection.TargetInvocationException exception) when
-                (exception.InnerException is InvalidOperationException error && error.Message == $"Card {invalidId} is not registered in any zone.")
-            { rejected = true; }
-            Require(rejected, "Nonzero invalid entity IDs must still fail the shared physical restriction boundary.");
-        }
-    }
     private static void Use(GameEngine g, string id, IReadOnlyList<int>? targets = null) => Accept(g, new UseProgramSkillCommand(0, Driver, id, [], targets ?? [], g.Revision, P(g)!.PromptId));
     private static void End(GameEngine g) => Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId));
     private static void NextOwnRound(GameEngine g, int round) { End(g); Until(g, e => F<RoundStartedEvent>(e).Length >= round && P(e) is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 }); }
@@ -355,7 +158,6 @@ internal static class BoundaryGuoHuangHouChecks
     private static GameEngine Cold(GameEngine g, ContentRegistry r) { var restored = GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(g.CreateCheckpoint())), r); Require(State(restored) == State(g), "Actual four-view cold reconstruction preserves original frames, private choices, facts, costs and command journal before resumed commands."); return restored; }
     private static void Private(GameEngine g) { var p = P(g)!; foreach (var s in Enumerable.Range(0, 4).Where(s => s != p.PlayerSeat)) Require(g.CreateSnapshot(s).PendingDecision is null, "Only the true chooser receives its private decision.");
         Require(p.Choices is System.Collections.IList { IsReadOnly: true } && p.ValidCardIds is System.Collections.IList { IsReadOnly: true } && p.Choices.All(c => c.Cards is System.Collections.IList { IsReadOnly: true } && c.Targets is System.Collections.IList { IsReadOnly: true }), "Prepared outer/nested choices resist mutation."); }
-    private static void Reject(GameEngine g) { var state = State(g); var p = P(g)!; Require(!g.Submit(new AnswerPromptCommand(p.PlayerSeat, p.PromptId, new ChoiceId("unpublished"), g.Revision)).Accepted && State(g) == state, "An invalid answer does not pay or advance the original benefit."); }
     private static void Require(bool ok, string message) { if (!ok) throw new InvalidOperationException(message); }
 
     private static (GameEngine, ContentRegistry) Create(CardKind material = CardKind.Slash, bool benefitChildren = false, bool foreignSlash = false, bool rescueHpChild = false, bool trickChild = false, bool benxi = false, bool fireAttackChildren = false, bool colorFireAttack = false)

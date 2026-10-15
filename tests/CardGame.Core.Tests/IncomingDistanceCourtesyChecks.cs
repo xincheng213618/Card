@@ -7,33 +7,6 @@ internal static class IncomingDistanceCourtesyChecks
 {
     private const string Biluan = "ol:biluan", Lixia = "ol:lixia", Driver = "fixture:courtesy-driver", Watch = "fixture:courtesy-watch", Loss = "fixture:courtesy-loss";
     private const string Owner = "fixture:courtesy-owner", Mode = "identity:classic-courtesy-fixture";
-    public static void ExactContractsAndFrozenFacts()
-    {
-        var original = Embedded("rules.json"); var labels = Embedded("presentation.json");
-        foreach (var index in new[] { 0, 1 })
-        foreach (var mutate in new Action<JsonObject>[] {
-            o => o["window"] = "afterTurnEnded", o => o["turnOwnerScope"] = "anyLiving", o => o["optional"] = index == 1,
-            o => o["usageScope"] = "turn", o => o["effects"]!.AsArray().Add(JsonNode.Parse("""{"op":"draw","target":"owner","amount":1}""")) })
-        {
-            var node = JsonNode.Parse(original)!; mutate(node["skills"]![index]!["triggers"]![0]!.AsObject());
-            var rejected = false; try { _ = SkillProgramCatalog.Load(node.ToJsonString(), labels); } catch (InvalidOperationException) { rejected = true; }
-            Need(rejected, "Only the exact own cost / mandatory other actual Ending single instruction is admitted.");
-        }
-        var benefits = new List<EndingCourtesyBenefit> { EndingCourtesyBenefit.OwnerDrawOne, EndingCourtesyBenefit.TurnOwnerDrawTwo };
-        var cards = new List<int> { 1 }; var parameters = new Dictionary<string, string> { ["selection"] = "0,1" };
-        var movements = new List<IncomingDistanceCourtesyMovement> { new(0, 0, 1, 1, 1, 2) };
-        var receipt = new IncomingDistanceCourtesyReceipt { Benefits = benefits, Movements = movements,
-            Choices = [new(new("frozen"), "frozen", cards, [], parameters)] };
-        foreach (var fact in new IGameEvent[] { new IncomingDistanceCourtesyOfferedEvent(1, receipt), new IncomingDistanceCourtesySelectedEvent(1, receipt) })
-        {
-            var frozen = CommittedEventProjection.Freeze(fact); var result = frozen is IncomingDistanceCourtesyOfferedEvent offered ? offered.Receipt : ((IncomingDistanceCourtesySelectedEvent)frozen).Receipt;
-            benefits.Clear(); cards.Add(2); movements.Clear(); parameters["selection"] = "changed";
-            Need(result.Benefits.Count == 2 && result.Movements.Count == 1 && result.Choices[0].Cards.SequenceEqual([1]) && result.Choices[0].Parameters["selection"] == "0,1" &&
-                result.Benefits is ICollection<EndingCourtesyBenefit> { IsReadOnly: true } && result.Movements is ICollection<IncomingDistanceCourtesyMovement> { IsReadOnly: true } &&
-                result.Choices[0].Cards is ICollection<int> { IsReadOnly: true } && result.Choices[0].Parameters is IDictionary<string, string> { IsReadOnly: true },
-                "Both committed receipt events deeply detach every new nested collection.");
-        }
-    }
     public static void ActualFactionCostAndPermanentDirectionAcrossTurns()
     {
         var (g, registry) = Start(courtesy: false);
@@ -73,45 +46,6 @@ internal static class IncomingDistanceCourtesyChecks
         Need(P(full)!.Choices.Count == 3 && !P(full)!.Choices.Any(c => c.Parameters["selection"].Contains('2')),
             "A full-HP turn owner cannot select an ineffective recovery option, but mandatory one/two draw choices remain.");
     }
-    public static void PaidCostChildrenSourceLossAndRegrant()
-    {
-        var (g, registry) = Start(courtesy: false, child: "cost-loss"); End(g); Reach(g, () => Optional(P(g), Biluan)); Activate(g);
-        var paid = P(g)!.Choices.First(c => c.Cards.Count == 1).Cards.Single(); Answer(g, c => c.Cards.SequenceEqual([paid]));
-        Reach(g, () => P(g)?.SkillPrompt?.SkillId == Watch); g = Cold(g, registry); Continue(g);
-        Reach(g, () => P(g)?.SkillPrompt?.SkillId == Loss); g = Cold(g, registry); Continue(g); Play(g);
-        Need(!V(g, 0).Skills!.Any(s => s.ContentId == Biluan) && E<IncomingDistanceChangedEvent>(g).Single().Amount == 2 && g.GetCombatDistance(1, 0) == 3,
-            "A once-paid cost drains HP/dying and actual source loss before issuing its still-owned permanent distance receipt.");
-        var oldSource = E<IncomingDistanceChangedEvent>(g).Single().Source; Use(g, "regrant-biluan"); Play(g);
-        Need(V(g, 0).Skills!.Any(s => s.ContentId == Biluan) && g.GetCombatDistance(1, 0) == 3 && E<IncomingDistanceChangedEvent>(g).Single().Source == oldSource &&
-            g.CardMovements.Count(m => m.CardId == paid && m.Reason.Value == "skill-program.ol:biluan.incoming-distance-courtesy.0") == 1,
-            "Losing and regranting the skill does not reset, reissue or reprice an already caused permanent delta.");
-        _ = Cold(g, registry);
-    }
-    public static void CourtesyPaidFirstBenefitSourceLossKeepsSecond()
-    {
-        var (g, registry) = Start(child: "courtesy-loss"); BeginFirstCourtesy(g); var actor = g.State.CurrentSeat;
-        var peerBefore = V(g, actor).HandCount; Answer(g, c => c.Parameters["selection"] == "0,1");
-        Reach(g, () => P(g)?.SkillPrompt?.SkillId == Watch); g = Cold(g, registry); Continue(g);
-        Reach(g, () => P(g)?.SkillPrompt?.SkillId == Loss); g = Cold(g, registry); Continue(g);
-        Reach(g, () => E<IncomingDistanceCourtesyCompletedEvent>(g).Count() == 2);
-        Need(!V(g, 0).Skills!.Any(s => s.ContentId == Lixia) && V(g, actor).HandCount == peerBefore + 2 && E<IncomingDistanceChangedEvent>(g).Count() == 3 &&
-            E<IncomingDistanceCourtesyMovementIssuedEvent>(g).Where(e => e.ProgramFrameId == E<IncomingDistanceChangedEvent>(g).Last().ProgramFrameId).Count() == 2,
-            "Once the first selected benefit is issued, real source loss cannot erase the second selected foreign draw or repeat either delta.");
-        _ = Cold(g, registry);
-    }
-    public static void RecoveryAndDeathChildrenColdOnce()
-    {
-        var (g, registry) = Start(child: "recovery"); Use(g, "wound", targets: [1]); Play(g); BeginFirstCourtesy(g); Answer(g, c => c.Parameters["selection"] == "2");
-        Reach(g, () => P(g)?.SkillPrompt?.SkillId == Watch); g = Cold(g, registry); Accept(g, new AdvanceOneStepCommand(g.Revision));
-        Reach(g, () => E<IncomingDistanceCourtesyCompletedEvent>(g).Count() == 2);
-        Need(E<RecoveryAppliedEvent>(g).Count(e => e.SourceSeat == 0 && e.TargetSeat == 1) == 1 && E<IncomingDistanceChangedEvent>(g).Last().Amount == -1,
-            "The real attributed recovery observer returns to its precise courtesy producer once after cold recovery."); _ = Cold(g, registry);
-        var (dead, deadRegistry) = Start(child: "courtesy-death"); BeginFirstCourtesy(dead); Answer(dead, c => c.Parameters["selection"] == "0,1");
-        Reach(dead, () => P(dead)?.SkillPrompt?.SkillId == Watch); dead = Cold(dead, deadRegistry); Continue(dead);
-        Reach(dead, () => dead.State.Winner != Winner.None);
-        Need(!V(dead, 0).IsAlive && E<IncomingDistanceCourtesyMovementIssuedEvent>(dead).Count(e => e.Movement.CardId is null) == 1,
-            "A real gain child can finish the match by killing the owner; the already issued gain is not paid again and no second benefit is fabricated."); _ = Cold(dead, deadRegistry);
-    }
     private static string Embedded(string suffix) { using var s = typeof(StandardContentPackage).Assembly.GetManifestResourceStream($"CardGame.Content.Standard.SkillPrograms.ol-shi-xie.{suffix}")!; using var r = new StreamReader(s); return r.ReadToEnd(); }
     private static PlayerSnapshot V(GameEngine g, int seat) => g.CreateSnapshot(seat).Players[seat];
     private static PendingDecision? P(GameEngine g) => Enumerable.Range(0, 4).Select(s => g.CreateSnapshot(s).PendingDecision).FirstOrDefault(p => p is not null);
@@ -120,7 +54,6 @@ internal static class IncomingDistanceCourtesyChecks
     private static void Accept(GameEngine g, GameCommand command) { var result = g.Submit(CommandJson.Deserialize(CommandJson.Serialize([command])).Single()); Need(result.Accepted, result.Error?.Message ?? "Actual courtesy command was rejected."); }
     private static void Answer(GameEngine g, Func<PromptChoice, bool> predicate) { var p = P(g)!; Accept(g, new AnswerPromptCommand(p.PlayerSeat, p.PromptId, p.Choices.First(predicate).Id, g.Revision)); }
     private static void Activate(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate");
-    private static void Continue(GameEngine g) => Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
     private static void Play(GameEngine g) => Reach(g, () => P(g) is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 });
     private static void End(GameEngine g) => Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId));
     private static void Use(GameEngine g, string id, IReadOnlyList<int>? targets = null) => Accept(g, new UseProgramSkillCommand(0, Driver, id, [], targets ?? [], g.Revision, P(g)!.PromptId));

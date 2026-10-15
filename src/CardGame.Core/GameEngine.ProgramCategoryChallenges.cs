@@ -252,6 +252,7 @@ public sealed partial class GameEngine
         return Array.AsReadOnly(result.OrderBy(choice => choice.Cards.Single()).ToArray());
     }
 
+    [ProgramAnswer("different-category-discard", "different-category-decline")]
     private void ResolveProgramDifferentCategoryDiscardChoice(PromptChoice selected)
     {
         var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ??
@@ -330,6 +331,7 @@ public sealed partial class GameEngine
             chooserSeat, sourceBind, resultBind, discardedCardId));
     }
 
+    [ProgramAiChoice(SkillProgramEffectOp.ChooseDifferentCategoryDiscard)]
     private PromptChoice SelectAiProgramCategoryDiscard(PendingDecision decision, ProgramSkillFrame frame)
     {
         var decline = decision.Choices.Single(choice =>
