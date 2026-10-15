@@ -243,6 +243,18 @@ public static class GeneralGalleryCatalog
         groups.Add("ol:ma-yun-lu", "other");
         groups.Add("ol:ta-dun", "other");
         groups.Add("ol:yan-bai-hu", "other");
+        groups.Add("ol:guan-suo", "other");
+        groups.Add("ol:wang-lang", "other");
+        groups.Add("ol:bao-san-niang", "other");
+        groups.Add("ol:deng-zhi", "other");
+        groups.Add("ol:cao-ying", "other");
+        groups.Add("ol:dong-zhao", "other");
+        groups.Add("ol:huang-yueying-sp", "other");
+        groups.Add("ol:bu-zhi", "other");
+        groups.Add("ol:dong-bai", "other");
+        groups.Add("ol:zhao-xiang", "other");
+        groups.Add("ol:he-qi", "other");
+        groups.Add("ol:kan-ze", "other");
         return groups;
 
         void Add(string group, string ids)

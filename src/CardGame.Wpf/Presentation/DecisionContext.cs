@@ -56,7 +56,7 @@ public sealed record DecisionContext(string Title, string Description, int? Sour
                 target ??= source;
                 source = null;
                 var victim = snapshot.Players.FirstOrDefault(player => player.Seat == target);
-                title = $"救援 {Name(target)}" + (victim is null ? string.Empty : $" · 体力 {victim.Hp}/{victim.MaxHp}");
+                title = $"救援 {Name(target)}" + (victim is null ? string.Empty : victim.HpUndefined ? " · 体力未定义" : $" · 体力 {victim.Hp}/{victim.MaxHp}");
                 targetLabel = "等待救援";
                 break;
             case DecisionKind.Nullification:

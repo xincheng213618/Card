@@ -142,6 +142,41 @@ public sealed partial class MainViewModel
         : IsTeamSnapshot
             ? "群雄逐鹿 · 2v2公开阵营"
             : $"群雄逐鹿 · {(_snapshot?.Players.Count == 5 ? "五人" : "八人")}身份牌局";
+    private PlayerSnapshot? GeneralSelectionViewer => _snapshot is
+        { PendingDecision: { Kind: DecisionKind.SelectGeneral } pending } snapshot && pending.PlayerSeat == snapshot.HumanSeat
+            ? snapshot.Players.FirstOrDefault(player => player.Seat == snapshot.HumanSeat)
+            : null;
+    public string GeneralSelectionContextTitle
+    {
+        get
+        {
+            if (GeneralSelectionViewer is not { } viewer) return string.Empty;
+            if (IsNationalSnapshot) return $"你的势力 · {FactionName(viewer.FactionId)}";
+            var role = viewer.Role is { } visibleRole ? GetRoleName(visibleRole) : "未揭示";
+            return $"{(IsTeamSnapshot ? "你的阵营" : "你的身份")} · {role}";
+        }
+    }
+    public string GeneralSelectionContextDetail
+    {
+        get
+        {
+            if (GeneralSelectionViewer is not { } viewer) return string.Empty;
+            if (IsNationalSnapshot)
+                return viewer.GeneralId.Length == 0
+                    ? "选择主将 · 双将同势力，暗置入场"
+                    : $"主将 · {viewer.GeneralName} · 选择同势力副将";
+            if (IsTeamSnapshot) return "公开阵营 · 与 1 位队友协作";
+            // These public flags remain authoritative even in the diagnostic
+            // reveal-all view. Never infer a public general from its visible name.
+            var lord = _snapshot.Players.FirstOrDefault(player => player.Role == Role.Lord &&
+                player.IsRoleRevealed && player.IsGeneralPublic && !player.IdentityConcealed);
+            return lord is not null
+                ? $"主公 · {lord.GeneralName} · 1 号位"
+                : viewer.Role == Role.Lord
+                    ? "你先选将 · 武将将向全场公开"
+                    : "主公尚未亮将 · 选择一名武将";
+        }
+    }
     public string GeneralSelectionSubtitle
     {
         get
@@ -242,7 +277,7 @@ public sealed partial class MainViewModel
     private void RefreshGameSetupPresentation()
     {
         RefreshNationalPresentation();
-        foreach (var name in new[] { nameof(TableModeText), nameof(WindowTitle), nameof(GeneralSelectionSubtitle), nameof(GeneralSelectionFooter), nameof(IdentityObjective), nameof(IdentityRevealTitle), nameof(IdentityRevealRole), nameof(IdentityRevealRoster), nameof(SetupIdentityLabel), nameof(TeamModeSetupText), nameof(TableArenaTitle) })
+        foreach (var name in new[] { nameof(TableModeText), nameof(WindowTitle), nameof(GeneralSelectionContextTitle), nameof(GeneralSelectionContextDetail), nameof(GeneralSelectionSubtitle), nameof(GeneralSelectionFooter), nameof(IdentityObjective), nameof(IdentityRevealTitle), nameof(IdentityRevealRole), nameof(IdentityRevealRoster), nameof(SetupIdentityLabel), nameof(TeamModeSetupText), nameof(TableArenaTitle) })
             RaisePropertyChanged(name);
     }
 }

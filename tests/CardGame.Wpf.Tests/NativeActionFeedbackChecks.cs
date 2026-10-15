@@ -9,6 +9,7 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using CardGame.Content.Standard;
 using CardGame.Core;
@@ -236,27 +237,65 @@ internal static class NativeActionFeedbackChecks
         var focused = button.Focus();
         Pump();
         var loadedEvidence = PressBoundary("loaded-and-focused");
-        Assert(focused && window.IsLoaded && window.IsVisible && IsMessageOnlyWindow(handle) &&
-            !IsWindowVisible(handle) && GetForegroundWindow() != handle && GetFocus() == handle &&
-            ReferenceEquals(Keyboard.FocusedElement, button) &&
-            ReferenceEquals(PresentationSource.FromVisual(button), PresentationSource.FromVisual(window)) &&
-            Keyboard.Modifiers == ModifierKeys.None && Mouse.LeftButton == MouseButtonState.Released &&
-            (GetAsyncKeyState(0x01) & 0x8000) == 0 && button.IsEnabled,
-            "Synthetic Space must begin on the focused, enabled actual button with idle devices and no foreground ownership.");
+        var pressGuard = new
+        {
+            FocusSucceeded = focused, window.IsLoaded, window.IsVisible,
+            MessageOnly = IsMessageOnlyWindow(handle), NativeVisible = IsWindowVisible(handle),
+            Handle = handle.ToInt64(), Foreground = GetForegroundWindow().ToInt64(), NativeFocus = GetFocus().ToInt64(),
+            FocusedButton = ReferenceEquals(Keyboard.FocusedElement, button),
+            FocusElement = (Keyboard.FocusedElement as FrameworkElement)?.Name,
+            SamePresentationSource = ReferenceEquals(PresentationSource.FromVisual(button), PresentationSource.FromVisual(window)),
+            ButtonSource = PresentationSource.FromVisual(button)?.GetType().FullName,
+            WindowSource = PresentationSource.FromVisual(window)?.GetType().FullName,
+            Modifiers = Keyboard.Modifiers, LeftButton = Mouse.LeftButton,
+            AsyncLeftDown = (GetAsyncKeyState(0x01) & 0x8000) != 0,
+            button.IsEnabled, ButtonName = button.Name,
+            DispatcherThread = window.Dispatcher.Thread.ManagedThreadId,
+            CurrentThread = Environment.CurrentManagedThreadId
+        };
+        Console.WriteLine("Native action Space prerequisites: " + JsonSerializer.Serialize(new { loadedEvidence, pressGuard }));
+        Assert(pressGuard.FocusSucceeded && pressGuard.IsLoaded && pressGuard.IsVisible && pressGuard.MessageOnly &&
+            !pressGuard.NativeVisible && pressGuard.Foreground != pressGuard.Handle && pressGuard.NativeFocus == pressGuard.Handle &&
+            pressGuard.FocusedButton && pressGuard.SamePresentationSource &&
+            pressGuard.Modifiers == ModifierKeys.None && pressGuard.LeftButton == MouseButtonState.Released &&
+            !pressGuard.AsyncLeftDown && pressGuard.IsEnabled,
+            "Synthetic Space must begin on the focused, enabled actual button with idle devices and no foreground ownership; a pressed mouse button or modifier is external input interference. " +
+            JsonSerializer.Serialize(pressGuard));
         var surface = Surface(button);
         var outline = (Border)button.Template.FindName("ButtonFocusOutline", button);
         Assert(outline.Visibility == Visibility.Visible && Math.Abs(surface.RenderTransform.Value.OffsetY) < .01,
             "The focused action must show its focus outline before pressing.");
         var before = Boundary(game);
-        Route(Keyboard.PreviewKeyDownEvent, Keyboard.KeyDownEvent);
-        Pump();
-        var heldEvidence = PressBoundary("held");
-        Assert(button.IsPressed && Math.Abs(surface.RenderTransform.Value.OffsetY - 2) < .01 &&
-            Math.Abs(surface.Opacity - .7) < .01 && Boundary(game) == before,
-            "Holding Space must visibly depress the native button by two DIP without prematurely committing the response.");
-        Render((FrameworkElement)window.Content, 1120, 740, Path.Combine(output, "native-action-response-space-held.png"));
-        var beforeReleaseEvidence = PressBoundary("rendered-before-release");
-        Route(Keyboard.PreviewKeyUpEvent, Keyboard.KeyUpEvent);
+        object heldEvidence;
+        object beforeReleaseEvidence;
+        RenderTargetBitmap heldBitmap;
+        bool releaseDevicesIdle;
+        // Keep the synthetic gesture on this dispatcher stack. The general Render
+        // helper pumps queued input; encoding the held image also need not occur
+        // while the button is held. Capture the real visual and freeze it first.
+        using (window.Dispatcher.DisableProcessing())
+        {
+            Route(Keyboard.PreviewKeyDownEvent, Keyboard.KeyDownEvent);
+            window.UpdateLayout();
+            heldEvidence = PressBoundary("held");
+            Assert(button.IsPressed && Math.Abs(surface.RenderTransform.Value.OffsetY - 2) < .01 &&
+                Math.Abs(surface.Opacity - .7) < .01 && Boundary(game) == before,
+                "Holding Space must visibly depress the native button by two DIP without prematurely committing the response.");
+            heldBitmap = new RenderTargetBitmap(1120, 740, 96, 96, PixelFormats.Pbgra32);
+            heldBitmap.Render((FrameworkElement)window.Content);
+            heldBitmap.Freeze();
+            beforeReleaseEvidence = PressBoundary("rendered-before-release");
+            releaseDevicesIdle = Mouse.LeftButton == MouseButtonState.Released &&
+                (GetAsyncKeyState(0x01) & 0x8000) == 0 && Keyboard.Modifiers == ModifierKeys.None;
+            Route(Keyboard.PreviewKeyUpEvent, Keyboard.KeyUpEvent);
+        }
+        Assert(releaseDevicesIdle,
+            "External input interference: synthetic Space release requires the real mouse left button released and no keyboard modifiers. " +
+            JsonSerializer.Serialize(beforeReleaseEvidence));
+        var heldEncoder = new PngBitmapEncoder();
+        heldEncoder.Frames.Add(BitmapFrame.Create(heldBitmap));
+        using (var heldFile = File.Create(Path.Combine(output, "native-action-response-space-held.png")))
+            heldEncoder.Save(heldFile);
         Pump();
         var releasedEvidence = PressBoundary("released");
         Assert(!button.IsPressed && Math.Abs(surface.RenderTransform.Value.OffsetY) < .01,
@@ -278,16 +317,36 @@ internal static class NativeActionFeedbackChecks
             FocusName = (Keyboard.FocusedElement as FrameworkElement)?.Name,
             NativeFocus = GetFocus().ToInt64(), Modifiers = Keyboard.Modifiers.ToString(),
             button.IsEnabled, button.IsPressed,
+            LeftButton = Mouse.LeftButton.ToString(),
+            AsyncLeftDown = (GetAsyncKeyState(0x01) & 0x8000) != 0,
+            button.IsMouseCaptured, CapturedElement = (Mouse.Captured as FrameworkElement)?.Name,
+            ClickMode = button.ClickMode.ToString(),
+            IsSpaceKeyDown = typeof(ButtonBase).GetProperty("IsSpaceKeyDown", BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(button),
             AutoAdvance = (window.DataContext as MainViewModel)?.IsAutoAdvance
         };
         void Route(RoutedEvent preview, RoutedEvent bubble)
         {
             var key = new KeyEventArgs(Keyboard.PrimaryDevice, PresentationSource.FromVisual(button)!, 0, Key.Space)
                 { RoutedEvent = preview };
+            var release = bubble == Keyboard.KeyUpEvent;
+            if (release) TraceRelease("before-preview", key);
             button.RaiseEvent(key);
+            if (release) TraceRelease("after-preview", key);
             if (key.Handled) return;
             key.RoutedEvent = bubble;
+            if (release) TraceRelease("before-bubble", key);
             button.RaiseEvent(key);
+            if (release) TraceRelease("after-bubble", key);
+
+            void TraceRelease(string edge, KeyEventArgs routed) => Console.WriteLine(
+                "Native action Space release route: " + JsonSerializer.Serialize(new
+                {
+                    edge, Event = routed.RoutedEvent.Name, routed.Handled,
+                    Key = routed.Key.ToString(), routed.IsRepeat,
+                    Source = (routed.Source as FrameworkElement)?.Name,
+                    OriginalSource = (routed.OriginalSource as FrameworkElement)?.Name,
+                    State = PressBoundary(edge)
+                }));
         }
     }
 

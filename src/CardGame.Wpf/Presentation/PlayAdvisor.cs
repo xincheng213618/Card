@@ -53,7 +53,7 @@ public static class PlayAdvisor
         if (reason.StartsWith("卡牌策略值", StringComparison.Ordinal) && action.TargetSeat is { } targetSeat)
         {
             var target = view.Players.Single(player => player.Seat == targetSeat);
-            reason = $"该目标当前可合法选择，体力 {target.Hp}/{target.MaxHp}、手牌 {target.HandCount} 张；建议结合公开阵营判断是否施压。";
+            reason = $"该目标当前可合法选择，{(target.HpUndefined ? "隐匿中，体力未定义" : $"体力 {target.Hp}/{target.MaxHp}")}、手牌 {target.HandCount} 张；建议结合公开阵营判断是否施压。";
         }
         reason = Regex.Replace(reason, @"；(?:[^；，。]*策略值|(?:综合)?支持收益) [-\d.]+，[^。]*", string.Empty);
         reason = Regex.Replace(reason, @"(净收益|回复收益) [-\d.]+", "$1");

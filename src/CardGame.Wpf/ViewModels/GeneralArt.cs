@@ -1,4 +1,4 @@
-﻿using System.Windows.Media;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace CardGame.Wpf.ViewModels;
@@ -9,6 +9,7 @@ public static class GeneralArt
     private static readonly IReadOnlyDictionary<string, string> PortraitAliases =
         new Dictionary<string, string>(StringComparer.Ordinal)
         {
+            ["ol-sp-huang-yueying"] = "ol-huang-yueying-sp",
             ["demo-yuanhu"] = "huang-gai",
             ["demo-ganglie"] = "xiahou-dun",
             ["demo-guicai"] = "sima-yi",
@@ -49,6 +50,39 @@ public static class GeneralArt
             ["ol-ma-yun-lu"] = "official-ol-ma-yun-lu.png",
             ["ol-ta-dun"] = "official-ol-ta-dun.png",
             ["ol-yan-bai-hu"] = "official-ol-yan-bai-hu.png",
+            ["ol-guan-suo"] = "official-ol-guan-suo.png",
+            ["ol-wang-lang"] = "official-ol-wang-lang.png",
+            ["ol-bao-san-niang"] = "official-ol-bao-san-niang.png",
+            ["ol-deng-zhi"] = "official-ol-deng-zhi.png",
+            ["ol-cao-ying"] = "official-ol-cao-ying.png",
+            ["ol-dong-zhao"] = "official-ol-dong-zhao.png",
+            ["ol-wu-yan"] = "official-ol-wu-yan.png",
+            ["ol-sp-zhang-he"] = "official-ol-sp-zhang-he.png",
+            ["ol-xuan-gong-zhu"] = "official-ol-xuan-gong-zhu.png",
+            ["ol-huang-yueying-sp"] = "official-ol-sp-huang-yueying.png",
+            ["ol-bu-zhi"] = "official-ol-bu-zhi.png",
+            ["ol-dong-bai"] = "official-ol-dong-bai.png",
+            ["ol-zhao-xiang"] = "official-ol-zhao-xiang.png",
+            ["ol-he-qi"] = "official-ol-he-qi.png",
+            ["ol-kan-ze"] = "official-ol-kan-ze.png",
+            ["ol-wang-yun"] = "official-ol-wang-yun.png",
+            ["ol-zhuge-guo"] = "official-ol-zhuge-guo.png",
+            ["ol-xi-zhi-cai"] = "official-ol-xi-zhi-cai.png",
+            ["ol-bei-mi-hu"] = "official-ol-bei-mi-hu.png",
+            ["ol-liu-qi"] = "official-ol-liu-qi.png",
+            ["ol-lu-zhi-wei"] = "official-ol-lu-zhi-wei.png",
+            ["ol-sima-hui"] = "official-ol-sima-hui.png",
+            ["ol-xu-rong"] = "official-ol-xu-rong.png",
+            ["ol-li-jue"] = "official-ol-li-jue.png",
+            ["ol-zhang-ji"] = "official-ol-zhang-ji.png",
+            ["ol-su-fei"] = "official-ol-su-fei.png",
+            ["ol-huang-quan"] = "official-ol-huang-quan.png",
+            ["ol-tang-zi"] = "official-ol-tang-zi.png",
+            ["ol-fan-chou"] = "official-ol-fan-chou.png",
+            ["ol-guo-si"] = "official-ol-guo-si.png",
+            ["ol-zhang-qi-ying"] = "official-ol-zhang-qi-ying.png",
+            ["ol-cao-chun"] = "official-ol-cao-chun.png",
+            ["ol-wang-can"] = "official-ol-wang-can.png",
             // Published editions, source photographs and hashes: docs/content/sources/guan-yu-variants-2026-10-13.json.
             ["magic-guan-yu"] = "magic-guan-yu-card.jpg",
             ["mou-guan-yu-mobile"] = "official-mou-guan-yu-mobile.png",

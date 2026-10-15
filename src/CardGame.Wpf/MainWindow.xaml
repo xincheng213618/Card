@@ -1,4 +1,4 @@
-<Window x:Class="CardGame.Wpf.MainWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:controls="clr-namespace:CardGame.Wpf.Controls" Title="{Binding WindowTitle}" Width="1440" Height="920" MinWidth="1120" MinHeight="780" WindowStartupLocation="CenterScreen" Background="{StaticResource TableDeepBrush}" PreviewKeyDown="Window_PreviewKeyDown" Closed="Window_Closed" Loaded="Window_Loaded" Closing="Window_Closing">
+<Window x:Class="CardGame.Wpf.MainWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:controls="clr-namespace:CardGame.Wpf.Controls" controls:InteractionMotion.MotionEnabled="{Binding IsMotionEnabled}" Title="{Binding WindowTitle}" Width="1440" Height="920" MinWidth="1120" MinHeight="780" WindowStartupLocation="CenterScreen" Background="{StaticResource TableDeepBrush}" PreviewKeyDown="Window_PreviewKeyDown" Closed="Window_Closed" Loaded="Window_Loaded" Closing="Window_Closing">
     <Window.Resources>
         <controls:PromptCardChoiceConverter x:Key="PromptCardChoiceConverter" />
         <DataTemplate x:Key="PromptCardChoiceContentTemplate">
@@ -30,7 +30,7 @@
             </DataTemplate.Triggers>
         </DataTemplate>
         <DataTemplate x:Key="RingSeatTemplate">
-            <Viewbox Stretch="Uniform" StretchDirection="DownOnly" Margin="5,3">
+            <Viewbox Stretch="Uniform" StretchDirection="Both" MaxWidth="{DynamicResource RingSeatMaxWidth}" Margin="5,3">
                 <StackPanel>
                     <ContentControl Content="{Binding}" ContentTemplate="{StaticResource SeatTemplate}" />
                     <TextBlock Text="{Binding SeatLabel}" Foreground="#F0DEC0" FontFamily="KaiTi" FontSize="12" HorizontalAlignment="Center" Margin="0,3,0,0" />
@@ -217,13 +217,13 @@
                     </StackPanel>
                 </Grid>
             </Border>
-            <Grid Grid.Row="1" x:Name="GameArea">
+            <Grid Grid.Row="1" x:Name="GameArea" SizeChanged="GameArea_SizeChanged">
                 <Grid.Background><ImageBrush ImageSource="pack://application:,,,/CardGame.Wpf;component/Assets/Table/Board.jpg" Stretch="UniformToFill" /></Grid.Background>
                 <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="220" /></Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" />
                     <RowDefinition Height="Auto" />
-                    <RowDefinition Height="210" />
+                    <RowDefinition x:Name="HandDockRow" Height="210" />
                     <RowDefinition Height="24" />
                 </Grid.RowDefinitions>
                 <Grid x:Name="Battlefield" SizeChanged="Battlefield_SizeChanged">
@@ -232,7 +232,7 @@
                             <RowDefinition x:Name="TopSeatRow" MaxHeight="210">
                                 <RowDefinition.Style>
                                     <Style TargetType="RowDefinition">
-                                        <Setter Property="Height" Value="210" />
+                                        <Setter Property="Height" Value="{DynamicResource TableTopSeatHeight}" />
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding HasCenterChoices}" Value="True">
                                                 <Setter Property="Height" Value="*" />
@@ -260,9 +260,9 @@
                             </RowDefinition>
                         </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="164" />
+                            <ColumnDefinition x:Name="LeftSeatColumn" Width="164" />
                             <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="164" />
+                            <ColumnDefinition x:Name="RightSeatColumn" Width="164" />
                         </Grid.ColumnDefinitions>
                         <StackPanel VerticalAlignment="Top" Margin="2,14,0,0">
                             <TextBlock Text="{Binding TableArenaTitle}" Foreground="#F0D59F" FontSize="12" />
@@ -649,15 +649,21 @@
                     <Grid>
                         <Grid.Background><ImageBrush ImageSource="pack://application:,,,/CardGame.Wpf;component/Assets/Table/seatbottom__grade_cover_4.png" Stretch="Fill" /></Grid.Background>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="154" />
+                            <ColumnDefinition x:Name="EquipmentRailColumn" Width="154" />
                             <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="228" />
-                            <ColumnDefinition Width="142" />
+                            <ColumnDefinition x:Name="HumanSkillColumn" Width="228" />
+                            <ColumnDefinition x:Name="HumanPortraitColumn" Width="142" />
                         </Grid.ColumnDefinitions>
 
-                        <StackPanel x:Name="EquipmentRail" Margin="0,0,8,0">
-                            <ItemsControl x:Name="HumanEquipmentSlots" ItemsSource="{Binding HumanEquipmentSlots}" ItemTemplate="{StaticResource EquipmentSlotTemplate}" />
-                        </StackPanel>
+                        <Grid x:Name="EquipmentRail" Margin="0,0,8,0">
+                            <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+                            <TextBlock Text="装 备" Foreground="#C8B48D" FontFamily="KaiTi" FontSize="12" Margin="3,0,0,5" />
+                            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Focusable="False" AutomationProperties.Name="本方装备区">
+                                <ItemsControl x:Name="HumanEquipmentSlots" ItemsSource="{Binding HumanEquipmentSlots}" ItemTemplate="{StaticResource EquipmentSlotTemplate}">
+                                    <ItemsControl.LayoutTransform><ScaleTransform ScaleX="{DynamicResource EquipmentControlScale}" ScaleY="{DynamicResource EquipmentControlScale}" /></ItemsControl.LayoutTransform>
+                                </ItemsControl>
+                            </ScrollViewer>
+                        </Grid>
                         <Grid Grid.Column="1" Margin="8,0">
                             <controls:HandScrollViewer x:Name="HandViewport" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" Focusable="False" ToolTip="按住手牌拖向亮起的武将，松开出牌；多目标牌松开选定目标后继续确认。滚轮浏览手牌，双击确认，右键取消选择。" AutomationProperties.Name="手牌浏览区">
                                 <ItemsControl x:Name="HandCards" ItemsSource="{Binding Hand}" ItemTemplate="{StaticResource CardTemplate}" VerticalAlignment="Top">
@@ -706,10 +712,11 @@
 
                         <Border x:Name="HumanSkillPanel" Grid.Column="2" Margin="3,0,5,0" AutomationProperties.Name="本方技能区">
                             <Grid>
-                                <TextBlock Text="{Binding HandCountText}" Foreground="#CDBF9D" FontSize="10" HorizontalAlignment="Right" ToolTip="{Binding IdentityObjective}" />
+                                <TextBlock Text="{Binding HandCountText}" Foreground="#D9C9A8" FontSize="12" HorizontalAlignment="Right" ToolTip="{Binding IdentityObjective}" />
                                 <StackPanel VerticalAlignment="Bottom">
                                     <Button x:Name="SortHandButton" Content="整理手牌" Command="{Binding SortHandCommand}" Style="{StaticResource TableSortButton}" Width="96" HorizontalAlignment="Left" Margin="0,0,0,6" />
                                     <ScrollViewer MaxHeight="152" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" HorizontalAlignment="Right" Width="{Binding HumanSkillRailWidth}">
+                                        <ScrollViewer.LayoutTransform><ScaleTransform ScaleX="{DynamicResource SkillControlScale}" ScaleY="{DynamicResource SkillControlScale}" /></ScrollViewer.LayoutTransform>
                                         <ItemsControl x:Name="HumanSkillCards" ItemsSource="{Binding HumanSkillCards}" ItemTemplate="{StaticResource CompactSkillTemplate}">
                                             <ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Columns="{Binding HumanSkillColumns}" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
                                         </ItemsControl>
@@ -717,7 +724,7 @@
                                 </StackPanel>
                             </Grid>
                         </Border>
-                        <Viewbox Grid.Column="3" Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Right"><ContentControl x:Name="HumanPortrait" Content="{Binding HumanPlayer}" ContentTemplate="{StaticResource SeatTemplate}" /></Viewbox>
+                        <Viewbox Grid.Column="3" Stretch="Uniform" StretchDirection="Both" HorizontalAlignment="Right"><ContentControl x:Name="HumanPortrait" Content="{Binding HumanPlayer}" ContentTemplate="{StaticResource SeatTemplate}" /></Viewbox>
                     </Grid>
                 </Border>
                 <Border Grid.Row="3" Grid.ColumnSpan="2" Background="#1B1814" BorderBrush="#34423F" BorderThickness="0,1,0,0" Padding="25,0">
@@ -759,7 +766,12 @@
                             <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
                             <StackPanel Margin="0,0,0,14">
                                 <TextBlock Text="点 将 出 征" FontFamily="KaiTi" FontSize="27" Foreground="#F1D298" HorizontalAlignment="Center" />
-                                <TextBlock Text="{Binding GeneralSelectionSubtitle}" Foreground="#C6B895" FontSize="12" HorizontalAlignment="Center" Margin="0,5,0,0" />
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,6,0,0">
+                                    <StackPanel.Style><Style TargetType="StackPanel"><Style.Triggers><DataTrigger Binding="{Binding GeneralSelectionContextTitle}" Value=""><Setter Property="Visibility" Value="Collapsed" /></DataTrigger></Style.Triggers></Style></StackPanel.Style>
+                                    <TextBlock x:Name="GeneralSelectionContextTitleText" Text="{Binding GeneralSelectionContextTitle}" Foreground="#8ED3BE" FontSize="13" FontWeight="SemiBold" />
+                                    <TextBlock Text="  ·  " Foreground="#736348" FontSize="13" />
+                                    <TextBlock x:Name="GeneralSelectionContextDetailText" Text="{Binding GeneralSelectionContextDetail}" ToolTip="{Binding GeneralSelectionContextDetail}" Foreground="#D8C8A4" FontSize="13" MaxWidth="520" TextTrimming="CharacterEllipsis" />
+                                </StackPanel>
                                 <DockPanel Margin="0,10,0,0">
                                     <Button x:Name="ToggleGeneralRosterButton" DockPanel.Dock="Right" Content="{Binding GeneralSelectionSourceText}" Command="{Binding ToggleGeneralRosterCommand}" Style="{StaticResource ToolbarButton}" Padding="14,6" />
                                     <StackPanel Orientation="Horizontal" Visibility="{Binding CanCustomizeStartingIdentity, Converter={StaticResource BoolToVisibility}}">
@@ -1021,7 +1033,7 @@
                     </controls:HomeLobby.Style>
                 </controls:HomeLobby>
                 <Border x:Name="LobbyConfigurationOverlay" Background="#D9191818" Visibility="{Binding IsLobbyConfigurationOpen, Converter={StaticResource BoolToVisibility}}" IsVisibleChanged="NewGameSetupPanel_IsVisibleChanged" KeyboardNavigation.TabNavigation="Cycle" FocusManager.IsFocusScope="True">
-            <Border Width="790" Background="#1A282D" BorderBrush="#A28750" BorderThickness="1" Padding="30" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,20">
+            <Border Width="790" Background="#1A282D" BorderBrush="#A28750" BorderThickness="1" Padding="30" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,20" controls:PanelEntrance.IsEnabled="True" controls:PanelEntrance.MotionEnabled="{Binding IsMotionEnabled}">
                 <DockPanel>
                     <StackPanel DockPanel.Dock="Bottom" Margin="0,16,0,0">
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
@@ -1158,16 +1170,16 @@
         </Border>
         <Border x:Name="PlayerGuideOverlay" Background="#ED0B151A" Visibility="{Binding IsHelpOpen, Converter={StaticResource BoolToVisibility}}" IsVisibleChanged="PlayerGuideOverlay_IsVisibleChanged">
             <Border.Style><Style TargetType="Border"><Style.Triggers><DataTrigger Binding="{Binding IsHistoryOpen}" Value="True"><Setter Property="IsEnabled" Value="False" /></DataTrigger><DataTrigger Binding="{Binding IsGeneralGalleryOpen}" Value="True"><Setter Property="IsEnabled" Value="False" /></DataTrigger></Style.Triggers></Style></Border.Style>
-            <controls:PlayerGuidePanel x:Name="PlayerGuide" />
+            <controls:PlayerGuidePanel x:Name="PlayerGuide" controls:PanelEntrance.IsEnabled="True" controls:PanelEntrance.MotionEnabled="{Binding IsMotionEnabled}" />
         </Border>
         <Border x:Name="GeneralGalleryOverlay" Background="#D10B1114" Visibility="{Binding IsGeneralGalleryOpen, Converter={StaticResource BoolToVisibility}}" IsVisibleChanged="GeneralGalleryOverlay_IsVisibleChanged" KeyboardNavigation.TabNavigation="Cycle" FocusManager.IsFocusScope="True">
-            <controls:GeneralGalleryPanel x:Name="GeneralGallery" />
+            <controls:GeneralGalleryPanel x:Name="GeneralGallery" controls:PanelEntrance.IsEnabled="True" controls:PanelEntrance.MotionEnabled="{Binding IsMotionEnabled}" />
         </Border>
         <Border x:Name="HistoryOverlay" Background="#ED0B151A" Visibility="{Binding IsHistoryOpen, Converter={StaticResource BoolToVisibility}}" IsVisibleChanged="HistoryOverlay_IsVisibleChanged">
-            <controls:MatchHistoryPanel x:Name="HistoryPanel" />
+            <controls:MatchHistoryPanel x:Name="HistoryPanel" controls:PanelEntrance.IsEnabled="True" controls:PanelEntrance.MotionEnabled="{Binding IsMotionEnabled}" />
         </Border>
         <Border x:Name="SettingsOverlay" Background="#ED0B151A" Visibility="{Binding IsSettingsOpen, Converter={StaticResource BoolToVisibility}}" IsVisibleChanged="SettingsOverlay_IsVisibleChanged" KeyboardNavigation.TabNavigation="Cycle" FocusManager.IsFocusScope="True">
-            <Border x:Name="SettingsPanel" Width="680" MaxHeight="650" HorizontalAlignment="Center" VerticalAlignment="Center" Background="#F414242A" BorderBrush="#9A8158" BorderThickness="1" CornerRadius="5" Padding="28">
+            <Border x:Name="SettingsPanel" Width="680" MaxHeight="650" HorizontalAlignment="Center" VerticalAlignment="Center" Background="#F414242A" BorderBrush="#9A8158" BorderThickness="1" CornerRadius="5" Padding="28" controls:PanelEntrance.IsEnabled="True" controls:PanelEntrance.MotionEnabled="{Binding IsMotionEnabled}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />

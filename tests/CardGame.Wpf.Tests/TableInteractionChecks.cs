@@ -9,6 +9,7 @@ using System.Windows.Data;
 using Rectangle = System.Windows.Shapes.Rectangle;
 using CardGame.Core;
 using CardGame.Wpf;
+using CardGame.Wpf.Controls;
 using CardGame.Wpf.Persistence;
 using CardGame.Wpf.ViewModels;
 
@@ -58,18 +59,74 @@ internal static class TableInteractionChecks
             "Eight-player seats must follow turn order around the table with no duplicated seats.");
         var window = new MainWindow(vm);
         var root = (FrameworkElement)window.Content;
-        foreach (var (width, height) in new[] { (1120, 740), (1440, 860), (1920, 1080) })
+        Dictionary<int, Rect>? compactPortraits = null;
+        Rect compactHand = default;
+        var inspectedCardId = vm.Hand[0].Id;
+        foreach (var (width, height, suffix) in new[]
         {
-            Program.Render(root, width, height, Path.Combine(output, $"table-reference-play-{width}.png"));
+            (1120, 740, "1120"), (1440, 860, "1440"), (1920, 1080, "1920"),
+            (1920, 740, "1920x740"), (1120, 1080, "1120x1080"), (1120, 740, "1120-return")
+        })
+        {
+            Program.Render(root, width, height, Path.Combine(output, $"table-reference-play-{suffix}.png"));
+            Rect Bounds(FrameworkElement element) => element.TransformToAncestor(root).TransformBounds(new Rect(element.RenderSize));
+            Rect NamedBounds(string name) => Bounds((FrameworkElement)window.FindName(name));
             var rings = new[] { "TopSeatRing", "LeftSeatRing", "RightSeatRing" }
                 .Select(name => (ItemsControl)window.FindName(name)).ToArray();
-            var bounds = rings.SelectMany(ring => Program.Find<Button>(ring))
+            var portraits = rings.SelectMany(ring => Program.Find<Button>(ring))
                 .Where(button => button.DataContext is SeatViewModel)
-                .Select(button => button.TransformToAncestor(root).TransformBounds(new Rect(button.RenderSize))).ToArray();
+                .ToArray();
+            var bounds = portraits.Select(Bounds).ToArray();
             Program.Assert(bounds.Length == 7 && bounds.All(rect => rect.Width >= 80 && rect.Height >= 105) &&
                            bounds.All(a => bounds.Count(b => a.IntersectsWith(b)) == 1),
                 "Ring portraits overlap or become unreadable at a supported viewport.");
+            var layoutHandViewport = (FrameworkElement)window.FindName("HandViewport");
+            var surface = Program.Find<CardLiftSurface>(layoutHandViewport).Single(element =>
+                element.DataContext is CardViewModel item && item.Id == inspectedCardId);
+            var handArtwork = Bounds(surface);
+            var humanPortrait = Program.Find<Button>((FrameworkElement)window.FindName("HumanPortrait"))
+                .Single(button => button.DataContext is SeatViewModel);
+            var allPortraits = portraits.Append(humanPortrait).ToDictionary(button => ((SeatViewModel)button.DataContext).Seat, Bounds);
+            var equipmentBounds = NamedBounds("EquipmentRail");
+            var hand = Bounds(layoutHandViewport);
+            var skillPanelBounds = NamedBounds("HumanSkillPanel");
+            var human = Bounds(humanPortrait);
+            Program.Assert(equipmentBounds.Right <= hand.Left + 1 && hand.Right <= skillPanelBounds.Left + 1 && skillPanelBounds.Right <= human.Left + 1 &&
+                           human.Right <= width + 1 && hand.Bottom <= height + 1 &&
+                           NamedBounds("TableSidebar").Bottom <= NamedBounds("HandDock").Top + 1,
+                $"Responsive table rails overlap or clip persistent controls at {width}x{height}.");
+
+            if (compactPortraits is null)
+            {
+                compactPortraits = allPortraits;
+                compactHand = handArtwork;
+                Program.Assert(Math.Abs(compactHand.Width - 110) < .1 && Math.Abs(compactHand.Height - 156) < .1,
+                    "The minimum layout changed the existing physical hand artwork size.");
+            }
+            if (width == 1920 && height == 1080)
+            {
+                Program.Assert(handArtwork.Width >= 136 && handArtwork.Height >= 193 &&
+                               allPortraits.Values.All(rect => rect.Width >= 170 && rect.Height >= 224),
+                    "The spacious table did not enlarge the actual transformed hand artwork and all eight portraits.");
+            }
+            else
+            {
+                Program.Assert(Math.Abs(handArtwork.Width - compactHand.Width) < .1 &&
+                               Math.Abs(handArtwork.Height - compactHand.Height) < .1,
+                    $"The {width}x{height} table enlarged cards without enough width and height together.");
+            }
+            if (suffix == "1120-return")
+                Program.Assert(allPortraits.All(pair => NearlyEqual(pair.Value, compactPortraits[pair.Key])) &&
+                               NearlyEqual(handArtwork, compactHand),
+                    "Returning from a wide or tall table retained stale portrait/card scale or positions.");
+            Program.Assert(engine.Revision == beforeRevision,
+                "Responsive layout or measuring transformed artwork submitted a game command.");
+            Console.WriteLine($"Responsive table {width}x{height}: hand={handArtwork.Width:F1}x{handArtwork.Height:F1}, " +
+                $"opponents={bounds.Min(rect => rect.Width):F1}–{bounds.Max(rect => rect.Width):F1}px, human={human.Width:F1}x{human.Height:F1}.");
         }
+
+        static bool NearlyEqual(Rect left, Rect right) => Math.Abs(left.X - right.X) < .1 && Math.Abs(left.Y - right.Y) < .1 &&
+            Math.Abs(left.Width - right.Width) < .1 && Math.Abs(left.Height - right.Height) < .1;
 
         var query = typeof(MainViewModel).GetMethod("GetViewLegalActions", BindingFlags.Instance | BindingFlags.NonPublic)!;
         void UpdateView()

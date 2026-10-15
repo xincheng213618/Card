@@ -11,6 +11,8 @@ public sealed class HealthMeter : FrameworkElement
         typeof(HealthMeter), new FrameworkPropertyMetadata(0, FrameworkPropertyMetadataOptions.AffectsRender));
     public static readonly DependencyProperty MaximumProperty = DependencyProperty.Register(nameof(Maximum), typeof(int),
         typeof(HealthMeter), new FrameworkPropertyMetadata(0, FrameworkPropertyMetadataOptions.AffectsRender));
+    public static readonly DependencyProperty IsUndefinedProperty = DependencyProperty.Register(nameof(IsUndefined), typeof(bool),
+        typeof(HealthMeter), new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.AffectsRender));
     private static readonly Brush Empty = Solid(Color.FromRgb(25, 35, 29));
     private static readonly Brush Border = Solid(Color.FromRgb(145, 128, 86));
     private static readonly Brush Healthy = Gradient(Color.FromRgb(151, 224, 159), Color.FromRgb(53, 119, 72));
@@ -26,6 +28,7 @@ public sealed class HealthMeter : FrameworkElement
 
     public int Value { get => (int)GetValue(ValueProperty); set => SetValue(ValueProperty, value); }
     public int Maximum { get => (int)GetValue(MaximumProperty); set => SetValue(MaximumProperty, value); }
+    public bool IsUndefined { get => (bool)GetValue(IsUndefinedProperty); set => SetValue(IsUndefinedProperty, value); }
 
     internal double Fraction(double hp) => Maximum <= 0 ? 0 : Math.Clamp(hp / Maximum, 0, 1);
     internal Rect TrackBounds => new(.5, .5, Math.Max(0, ActualWidth - 1), Math.Max(0, ActualHeight - 1));
@@ -36,6 +39,7 @@ public sealed class HealthMeter : FrameworkElement
     protected override void OnRender(DrawingContext dc)
     {
         base.OnRender(dc);
+        if (IsUndefined) return;
         var track = TrackBounds;
         if (track.Width <= 0 || track.Height <= 0) return;
         dc.DrawRoundedRectangle(Empty, new Pen(Border, 1), track, 2, 2);
@@ -59,7 +63,7 @@ public sealed class HealthMeter : FrameworkElement
     {
         protected override string GetClassNameCore() => nameof(HealthMeter);
         protected override AutomationControlType GetAutomationControlTypeCore() => AutomationControlType.ProgressBar;
-        protected override string GetNameCore() => $"体力 {owner.Value}/{owner.Maximum}";
+        protected override string GetNameCore() => owner.IsUndefined ? "体力未定义" : $"体力 {owner.Value}/{owner.Maximum}";
     }
 
     private static Brush Solid(Color color) { var brush = new SolidColorBrush(color); brush.Freeze(); return brush; }

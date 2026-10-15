@@ -33,6 +33,8 @@ public sealed class PromptCardChoiceConverter : IMultiValueConverter
         var visible = snapshot.PublicRevealedCards.Concat(snapshot.PrivateRevealedCards ?? [])
             .Concat(snapshot.Players.SelectMany(player => player.Hand.Concat(player.Equipment)
                 .Concat(player.Judgment).Concat(player.WoodenOxGrain ?? []).Concat(player.PrivateReserveCards ?? [])))
+            .Concat(snapshot.Players.Where(player => player.Seat == snapshot.HumanSeat)
+                .SelectMany(player => (player.PrivateWhirlPiles ?? []).SelectMany(pile => pile.Cards ?? [])))
             .FirstOrDefault(card => card.Id == choice.Cards[0]);
         if (visible is null)
             return new(choice.Description, true, true, "暗牌", null);

@@ -22,6 +22,8 @@ public partial class MainWindow : Window
     private IInputElement? _focusBeforeIdentityReveal;
     private IInputElement? _focusBeforeLobby;
     private int _overlayFocusRequest;
+    private double _tableExpansion = double.NaN;
+    private double _topSeatHeight = 210;
     private TargetCardFocus? _targetCardFocus;
     private sealed record TargetCardFocus(PendingDecision Prompt, ChoiceId ChoiceId);
     public MainWindow() : this(new MainViewModel(useExpandedContent: true, historyStore: new FileMatchHistoryStore(),
@@ -31,6 +33,7 @@ public partial class MainWindow : Window
     public MainWindow(MainViewModel viewModel)
     {
         InitializeComponent();
+        UpdateTableScale(new Size(1120, 812));
         DataContext = viewModel;
         _audio = new GameAudioController(viewModel, () => new MediaPlayerAudioOutput(), feedbackLayer: BattleFeedback);
         Activated += (_, _) => _audio.SetActive(true);
@@ -39,13 +42,42 @@ public partial class MainWindow : Window
         InitializeCardAim();
     }
 
+    private void GameArea_SizeChanged(object sender, SizeChangedEventArgs e) => UpdateTableScale(e.NewSize);
+
+    private void UpdateTableScale(Size available)
+    {
+        // Grow artwork only when both axes have room. The compact 1440 x 860
+        // layout has no spare height: enlarging its hand would shrink the seats.
+        var expansion = Math.Clamp(Math.Min((available.Width - 1120) / 800,
+            (available.Height - 812) / 220), 0, 1);
+        if (Math.Abs(expansion - _tableExpansion) < .0001) return;
+        _tableExpansion = expansion;
+        _topSeatHeight = 210 + 66 * expansion;
+        Resources["RingSeatMaxWidth"] = 164 + 26 * expansion;
+        Resources["TableTopSeatHeight"] = new GridLength(_topSeatHeight);
+        LeftSeatColumn.Width = RightSeatColumn.Width = new GridLength(164 + 26 * expansion);
+        HandDockRow.Height = new GridLength(210 + 46 * expansion);
+        EquipmentRailColumn.Width = new GridLength(154 + 36 * expansion);
+        HumanSkillColumn.Width = new GridLength(228 + 44 * expansion);
+        Resources["EquipmentControlScale"] = 1 + .25 * expansion;
+        Resources["SkillControlScale"] = 1 + .2 * expansion;
+        HumanPortraitColumn.Width = new GridLength(142 + 36 * expansion);
+        HandPanel.SetCardScale(GameArea, 1 + .25 * expansion);
+        UpdateTopSeatLimit(Battlefield.ActualHeight);
+    }
+
     private void Battlefield_SizeChanged(object sender, SizeChangedEventArgs e)
     {
         if (_cardAim is { Started: true }) CancelCardAim();
+        UpdateTopSeatLimit(e.NewSize.Height);
+    }
+
+    private void UpdateTopSeatLimit(double battlefieldHeight)
+    {
         if (DataContext is not MainViewModel vm) return;
         // Match all three sides to the space available for the side portraits.
         var rows = Math.Max(1, Math.Max(vm.LeftSeats.Count, vm.RightSeats.Count));
-        TopSeatRow.MaxHeight = Math.Clamp((e.NewSize.Height - 68) / rows, 90, 210);
+        TopSeatRow.MaxHeight = Math.Clamp((battlefieldHeight - 68) / rows, 90, _topSeatHeight);
     }
 
     private void OpenEffectsPreview(object sender, RoutedEventArgs e)

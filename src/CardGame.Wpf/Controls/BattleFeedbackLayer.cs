@@ -1234,7 +1234,12 @@ public sealed class BattleFeedbackLayer : FrameworkElement
         var caption = Text(item.Cue.ActorName + " · 技能发动", 11, Gold, TextTypeface);
         caption.MaxTextWidth = title.MaxTextWidth; caption.MaxLineCount = 1; caption.Trimming = TextTrimming.CharacterEllipsis;
         var size = new Size(Math.Max(130, Math.Max(title.Width, caption.Width) + 32), title.Height + caption.Height + 25);
-        if (!PlaceText(item, Center(owner), size, occupied, out var bounds)) return;
+        // Keep the opaque name plate outside its owner's activation ink. If
+        // there is no room above, the usual protected-area search finds a side.
+        var portrait = owner;
+        portrait.Inflate(4, 4);
+        var preferred = new Point(owner.Left + owner.Width / 2, owner.Top - size.Height / 2 - 8);
+        if (!PlaceText(item, preferred, size, occupied.Append(portrait).ToArray(), out var bounds)) return;
         occupied.Add(bounds);
         dc.PushOpacity(Math.Min(1, progress / .08) * Math.Min(1, (1 - progress) / .2));
         dc.DrawRoundedRectangle(Shadow, null, new Rect(bounds.X + 2, bounds.Y + 3, bounds.Width, bounds.Height), 4, 4);

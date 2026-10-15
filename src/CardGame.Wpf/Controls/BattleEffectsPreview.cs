@@ -34,7 +34,7 @@ public sealed class BattleEffectsPreview : Grid, IDisposable
         (BattleEffectPreviewKind.FireDamage, "火焰伤害", "火焰升腾，红色伤害数字浮起。"),
         (BattleEffectPreviewKind.ThunderDamage, "雷电伤害", "落雷与电弧，紫色伤害数字浮起。"),
         (BattleEffectPreviewKind.Recovery, "回复", "绿色光圈展开，回复符号向上飘散。"),
-        (BattleEffectPreviewKind.Skill, "技能发动", "金色光环与技能名在发动者身上展开。"),
+        (BattleEffectPreviewKind.Skill, "技能发动", "墨线与朱色印记在发动者头像内展开，技能名在头像外侧显示。"),
         (BattleEffectPreviewKind.Trick, "锦囊", "目标亮起蓝色光圈，公开使用牌飞向桌面。"),
         (BattleEffectPreviewKind.HitSequence, "出杀 → 命中", "出牌、刀光到达、伤害冲击与飘字依次衔接。"),
         (BattleEffectPreviewKind.DodgeSequence, "出杀 → 打出闪", "出牌与攻击到达后打出【闪】，侧移残影标记本次响应。"),

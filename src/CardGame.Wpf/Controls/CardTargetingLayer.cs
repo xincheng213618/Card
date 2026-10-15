@@ -45,6 +45,7 @@ public sealed class CardTargetingLayer : FrameworkElement
     private static readonly Pen ReadyArrowPen = CreatePen(false, Color.FromArgb(230, 151, 240, 192));
     private static readonly Pen PendingGuidePen = CreatePen(true, Color.FromArgb(230, 242, 185, 100));
     private static readonly Pen PendingArrowPen = CreatePen(false, Color.FromArgb(230, 242, 185, 100));
+    private static readonly Pen GuideUnderlayPen = CreatePen(false, Color.FromArgb(88, 37, 26, 18), 3.5);
     private static readonly Brush LabelBackground = CreateBrush(Color.FromArgb(238, 20, 34, 30));
     private static readonly Typeface LabelTypeface = new("Microsoft YaHei");
     private FrameworkElement? _observedRoot;
@@ -96,10 +97,10 @@ public sealed class CardTargetingLayer : FrameworkElement
         DependencyProperty.Register(name, typeof(FrameworkElement), typeof(CardTargetingLayer),
             new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender, changed));
 
-    private static Pen CreatePen(bool dashed, Color? color = null)
+    private static Pen CreatePen(bool dashed, Color? color = null, double thickness = 1.5)
     {
         var ink = CreateBrush(color ?? Color.FromArgb(210, 255, 219, 147));
-        var pen = new Pen(ink, 1.5) { StartLineCap = PenLineCap.Round, EndLineCap = PenLineCap.Round };
+        var pen = new Pen(ink, thickness) { StartLineCap = PenLineCap.Round, EndLineCap = PenLineCap.Round };
         if (dashed) pen.DashStyle = new DashStyle([4, 4], 0);
         pen.Freeze();
         return pen;
@@ -190,12 +191,19 @@ public sealed class CardTargetingLayer : FrameworkElement
                 context.BezierTo(path.Control1, path.Control2, path.End, true, false);
             }
             curve.Freeze();
-            drawingContext.DrawGeometry(null, guidePen, curve);
             var direction = path.End - path.Control2;
             direction.Normalize();
             var normal = new Vector(-direction.Y, direction.X);
-            drawingContext.DrawLine(arrowPen, path.End - direction * 8 + normal * 4, path.End);
-            drawingContext.DrawLine(arrowPen, path.End - direction * 8 - normal * 4, path.End);
+            var arrowLeft = path.End - direction * 8 + normal * 4;
+            var arrowRight = path.End - direction * 8 - normal * 4;
+            // A quiet under-stroke keeps the state colors readable on pale table artwork.
+            // It shares the exact path and protection clip with the existing dashed guide.
+            drawingContext.DrawGeometry(null, GuideUnderlayPen, curve);
+            drawingContext.DrawLine(GuideUnderlayPen, arrowLeft, path.End);
+            drawingContext.DrawLine(GuideUnderlayPen, arrowRight, path.End);
+            drawingContext.DrawGeometry(null, guidePen, curve);
+            drawingContext.DrawLine(arrowPen, arrowLeft, path.End);
+            drawingContext.DrawLine(arrowPen, arrowRight, path.End);
         }
         if (geometry.Label is { } label)
         {

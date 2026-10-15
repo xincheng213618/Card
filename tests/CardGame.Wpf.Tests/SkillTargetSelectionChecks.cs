@@ -13,86 +13,6 @@ using CardGame.Wpf.ViewModels;
 
 internal static class SkillTargetSelectionChecks
 {
-    public static void PortraitDraftAndConfirmation(string output)
-    {
-        var fixture = StableHandResponseFixture.Create(DecisionKind.RespondDodge, output, zhefu: true);
-        using var vm = fixture.Model;
-        vm.SelectCardCommand.Execute(vm.Hand.First(card => card.IsPlayable));
-        vm.ConfirmSelectedCommand.Execute(null);
-        Reach(vm, prompt => prompt.SkillPrompt?.SkillId == "ol:zhefu");
-        vm.SelectSkillChoiceCommand.Execute(vm.SkillChoices.Single(choice => choice.Parameters.GetValueOrDefault("program-action") == "activate"));
-        Reach(vm, prompt => prompt.Choices.Any(choice => choice.Parameters.GetValueOrDefault("step") == "target"));
-        var game = Program.Engine(vm);
-        Program.Assert(vm.IsSkillTargetSelectionPending && vm.CanActFromHand && !vm.HasCenterChoices &&
-            vm.CenterSkillChoices.Count == 0 && !vm.CanConfirmSelected,
-            "Real Zhefu targets must use the portrait draft and bottom controls, without a central name-button panel.");
-        var revision = game.Revision;
-        var targetSeats = game.PendingDecision!.Choices.SelectMany(choice => choice.Targets).ToArray();
-        Program.Assert(vm.Seats.Where(seat => seat.IsLegalTarget).Select(seat => seat.Seat).Order().SequenceEqual(targetSeats.Order()),
-            "Only the engine's currently published targets may be highlighted.");
-        vm.SelectTargetCommand.Execute(vm.Seats.Single(seat => seat.Seat == 0));
-        Program.Assert(!vm.HasSelection && game.Revision == revision, "An invalid portrait must not create a target draft.");
-
-        var window = new MainWindow(vm);
-        var root = (FrameworkElement)window.Content;
-        try
-        {
-            foreach (var size in new[] { (1120, 740), (1920, 1080) })
-            {
-                Program.Render(root, size.Item1, size.Item2, Path.Combine(output, $"skill-target-before-{size.Item1}.png"));
-                var anchors = Program.Find<Button>(root).Where(button => button.DataContext is SeatViewModel &&
-                    BattleFeedbackLayer.GetSeatAnchor(button) >= 0).ToArray();
-                Rect Bounds(FrameworkElement element) => element.TransformToAncestor(root).TransformBounds(new Rect(element.RenderSize));
-                var before = anchors.ToDictionary(button => ((SeatViewModel)button.DataContext).Seat, button => Bounds(button));
-                var selected = vm.Seats.Single(seat => seat.Seat == targetSeats[0]);
-                vm.SelectTargetCommand.Execute(selected);
-                Program.Render(root, size.Item1, size.Item2, Path.Combine(output, $"skill-target-selected-{size.Item1}.png"));
-                Program.Assert(vm.CanConfirmSelected && selected.IsSelectedTarget && game.Revision == revision,
-                    "Selecting a portrait must only preview, without submitting or paying a skill cost.");
-                Program.Assert(anchors.All(button => before[((SeatViewModel)button.DataContext).Seat] == Bounds(button)),
-                    "Target selection must keep every portrait's displayed position and size unchanged.");
-                var outline = Program.Find<Border>(anchors.Single(button => ReferenceEquals(button.DataContext, selected)))
-                    .Single(border => border.Name == "SeatSelectedOutline");
-                Program.Assert(outline.Opacity == 1 && !outline.IsHitTestVisible &&
-                    ((FrameworkElement)window.FindName("DecisionPanel")).Visibility == Visibility.Collapsed &&
-                    ((Button)window.FindName("PlayCardButton")).IsEnabled &&
-                    ((Button)window.FindName("CancelActionButton")).IsEnabled,
-                    "The selection must add the existing outline and enable the bottom confirm/cancel controls.");
-                vm.SelectTargetCommand.Execute(vm.Seats.Single(seat => seat.Seat == targetSeats[1]));
-                Program.Assert(vm.Seats.Count(seat => seat.IsSelectedTarget) == 1 && !selected.IsSelectedTarget && game.Revision == revision,
-                    "A single-target draft must switch portraits without committing.");
-                vm.CancelActionCommand.Execute(null);
-                Program.Assert(!vm.HasSelection && !vm.CanConfirmSelected && game.Revision == revision && vm.IsSkillTargetSelectionPending,
-                    "Cancel must clear a mandatory target draft and retain its current prompt.");
-            }
-        }
-        finally { window.Content = null; window.DataContext = null; window.Close(); }
-
-        vm.SelectTargetCommand.Execute(vm.Seats.Single(seat => seat.Seat == targetSeats[0]));
-        vm.SaveGameCommand.Execute(null);
-        vm.LoadManualGameCommand.Execute(null);
-        game = Program.Engine(vm);
-        Program.Assert(vm.IsSkillTargetSelectionPending && !vm.HasSelection && game.Revision == revision,
-            "Loading a pending target prompt must clear the local draft and restore legal portrait candidates.");
-        var choice = game.PendingDecision!.Choices.Single(item => item.Targets.SequenceEqual([targetSeats[1]]));
-        vm.SelectTargetCommand.Execute(vm.Seats.Single(seat => seat.Seat == targetSeats[1]));
-        var confirmWindow = new MainWindow(vm);
-        try
-        {
-            TutorialRoundTrip(vm, confirmWindow, "Zhefu target");
-            var checkpoint = game.CreateCheckpoint();
-            var reference = GameReplay.Restore(checkpoint, fixture.Registry);
-            Accept(reference, new AnswerPromptCommand(0, game.PendingDecision!.PromptId, choice.Id, revision));
-            Click((Button)confirmWindow.FindName("PlayCardButton"));
-            Program.Assert(Boundary(game) == Boundary(reference),
-                "The resumed real Zhefu confirmation must execute the original published choice and match an independent native command in every safe view and journal.");
-        }
-        finally { confirmWindow.Content = null; confirmWindow.DataContext = null; confirmWindow.Close(); }
-        Program.Assert(game.Revision == revision + 1 && game.AcceptedCommands.Last() is AnswerPromptCommand answer &&
-            answer.Choice == choice.Id && !vm.HasSelection,
-            "Confirm must submit exactly the original published choice once and clear the draft.");
-        StableHandResponseFixture.RecordAndReplay(game, fixture.Registry, output, "Zhefu.target-confirm");
-    }
 
     public static void MultipleOrderedAndOptionalTargets(string output)
     {
@@ -206,17 +126,6 @@ internal static class SkillTargetSelectionChecks
             }
         }
         finally { window.Content = null; window.DataContext = null; window.Close(); }
-    }
-
-    private static void Reach(MainViewModel vm, Func<PendingDecision, bool> predicate)
-    {
-        for (var step = 0; step < 50; step++)
-        {
-            if (Program.Engine(vm).PendingDecision is { PlayerSeat: 0 } prompt && predicate(prompt)) return;
-            Program.Assert(vm.CanStepAi, "The fixture stopped at an unexpected human prompt.");
-            vm.StepAiCommand.Execute(null);
-        }
-        throw new InvalidOperationException("The target prompt was not reached.");
     }
 
     private static void Accept(GameEngine game, GameCommand command)

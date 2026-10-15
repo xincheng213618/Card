@@ -27,6 +27,8 @@ internal static class BattleEffectPainter
     private static readonly Brush Violet = Solid(175, 151, 255);
     private static readonly Brush Green = Solid(134, 255, 179);
     private static readonly Brush AshGold = Solid(204, 187, 158);
+    private static readonly Brush SkillInk = Solid(36, 42, 34);
+    private static readonly Brush SkillSeal = Solid(174, 69, 48);
     private static readonly Brush GoldGlow = Glow(Color.FromArgb(190, 255, 178, 55));
     private static readonly Brush BlueGlow = Glow(Color.FromArgb(160, 53, 195, 255));
     private static readonly Brush FireGlow = Glow(Color.FromArgb(200, 255, 73, 25));
@@ -408,30 +410,44 @@ internal static class BattleEffectPainter
         var start = from + direction * Edge(source);
         var finish = to - direction * Edge(target);
         if (Vector.Multiply(finish - start, direction) <= 0) return;
-        var head = start + (finish - start) * (1 - Math.Pow(1 - travel, 2));
-        var tail = head - direction * Math.Min(145, (finish - start).Length * travel);
+        // Build speed toward the existing arrival boundary, then draw the tail
+        // back into that fixed endpoint instead of leaving a full blade parked there.
+        var distance = (finish - start).Length * travel * travel;
+        var head = start + direction * distance;
+        var remaining = 1 - Math.Clamp((p - .41) / .24, 0, 1);
+        var strokeScale = (.55 + .45 * travel) * remaining;
+        var tailLength = Math.Min(145, distance) * remaining * remaining;
+        var tail = head - direction * tailLength;
         dc.PushOpacity(Pulse(p, .02, .65));
-        dc.DrawEllipse(glow, null, head, 52, 52);
-        Ribbon(dc, tail, head, normal, 10, ink);
-        Ribbon(dc, tail + direction * 16, head, normal, 2, White);
+        var glowLength = (12 + Math.Min(56, tailLength * .38)) * strokeScale;
+        var glowWidth = (8 + 10 * travel) * strokeScale;
+        var glowCenter = head - direction * (glowLength - 6 * strokeScale);
+        dc.PushTransform(new MatrixTransform(direction.X, direction.Y, normal.X, normal.Y, glowCenter.X, glowCenter.Y));
+        dc.DrawEllipse(glow, null, new Point(), glowLength, glowWidth);
+        dc.Pop();
+        Ribbon(dc, tail, head, normal, 10 * strokeScale, ink);
+        // A short route or its first frame must not put the inner tail ahead of the tip.
+        Ribbon(dc, tail + direction * Math.Min(16 * strokeScale, tailLength * .35), head, normal, 2 * strokeScale, White);
         // The blade approaches the portrait edge. Only a committed Damage cue
         // may strike the portrait; an attack declaration can still be dodged.
+        var bladeNormal = normal * strokeScale;
+        var bladeDirection = direction * strokeScale;
         var sweep = new StreamGeometry();
         using (var path = sweep.Open())
         {
-            path.BeginFigure(head - normal * 43 - direction * 10, true, true);
-            path.BezierTo(head - normal * 18 + direction * 26, head + normal * 25 + direction * 24,
-                head + normal * 48 - direction * 20, true, false);
-            path.BezierTo(head + normal * 16 + direction * 7, head - normal * 20 + direction * 10,
-                head - normal * 43 - direction * 10, true, false);
+            path.BeginFigure(head - bladeNormal * 43 - bladeDirection * 10, true, true);
+            path.BezierTo(head - bladeNormal * 18 + bladeDirection * 26, head + bladeNormal * 25 + bladeDirection * 24,
+                head + bladeNormal * 48 - bladeDirection * 20, true, false);
+            path.BezierTo(head + bladeNormal * 16 + bladeDirection * 7, head - bladeNormal * 20 + bladeDirection * 10,
+                head - bladeNormal * 43 - bladeDirection * 10, true, false);
         }
         sweep.Freeze();
         dc.DrawGeometry(ink, null, sweep);
-        dc.DrawLine(new Pen(White, 2), head - normal * 29, head + normal * 30 + direction * 7);
+        dc.DrawLine(new Pen(White, 2 * strokeScale), head - bladeNormal * 29, head + bladeNormal * 30 + bladeDirection * 7);
         if (kind == CardKind.FireSlash)
         {
             dc.PushOpacity(.45);
-            Flames(dc, tail, 35, travel);
+            Flames(dc, tail, 35 * strokeScale, travel);
             dc.Pop();
         }
         if (kind == CardKind.ThunderSlash)
@@ -441,10 +457,10 @@ internal static class BattleEffectPainter
             {
                 path.BeginFigure(tail, false, false);
                 for (var i = 1; i <= 5; i++)
-                    path.LineTo(tail + (head - tail) * (i / 5d) + normal * (i == 5 ? 0 : Math.Sin(i * 2 + Math.Floor(p * 10)) * 16), true, false);
+                    path.LineTo(tail + (head - tail) * (i / 5d) + bladeNormal * (i == 5 ? 0 : Math.Sin(i * 2 + Math.Floor(p * 10)) * 16), true, false);
             }
             bolt.Freeze();
-            dc.DrawGeometry(null, new Pen(White, 2), bolt);
+            dc.DrawGeometry(null, new Pen(White, 2 * strokeScale), bolt);
         }
         dc.Pop();
     }
@@ -602,19 +618,63 @@ internal static class BattleEffectPainter
 
     private static void Skill(DrawingContext dc, Rect bounds, double p)
     {
-        var center = Center(bounds);
-        var radius = Math.Clamp(Math.Max(bounds.Width, bounds.Height) * .7, 70, 120);
-        dc.PushOpacity(Pulse(p, .02, .98));
-        dc.DrawEllipse(GoldGlow, null, center, radius * 1.45, radius * 1.45);
-        dc.DrawEllipse(null, new Pen(Gold, 2.5), center, radius * .84, radius * .84);
-        for (var i = 0; i < 12; i++)
+        // The owner's short ink seal identifies activation. Its readable name
+        // has a separate lifetime; only committed results may paint a hit.
+        var artwork = PortraitArtwork(bounds);
+        if (artwork.Width <= 8 || artwork.Height <= 8 || p >= .52) return;
+        var center = Center(artwork);
+        var unfold = 1 - Math.Pow(1 - Math.Clamp(p / .18, 0, 1), 3);
+        var half = Math.Min(34, Math.Min(artwork.Width, artwork.Height) * (.2 + .12 * unfold));
+        var opacity = Math.Min(1, p / .035) * Math.Clamp((.52 - p) / .28, 0, 1);
+        dc.PushClip(new RectangleGeometry(artwork));
+        dc.PushOpacity(opacity);
+        Point At(double x, double y) => center + new Vector(x * half, y * half);
+        for (var side = -1; side <= 1; side += 2)
         {
-            var angle = i * Math.PI / 6 + p * .7;
-            var direction = new Vector(Math.Cos(angle), Math.Sin(angle));
-            dc.DrawLine(new Pen(Gold, i % 3 == 0 ? 3 : 1), center + direction * radius * .9,
-                center + direction * radius * (i % 3 == 0 ? 1.14 : .98));
+            var brushstroke = new StreamGeometry();
+            using (var path = brushstroke.Open())
+            {
+                path.BeginFigure(At(side * -1.25, side * .55), false, false);
+                path.BezierTo(At(side * -1.4, side * -.8), At(side * -.3, side * -1.38),
+                    At(side * (.1 + .7 * unfold), side * -1.18), true, false);
+            }
+            brushstroke.Freeze();
+            dc.DrawGeometry(null, new Pen(SkillInk, 4), brushstroke);
+            dc.DrawGeometry(null, new Pen(AshGold, .7), brushstroke);
         }
-        Sparks(dc, center, radius, p, Gold, 18);
+
+        var seal = new StreamGeometry();
+        using (var path = seal.Open())
+        {
+            // Broken corners keep the stamp open over the portrait artwork.
+            for (var x = -1; x <= 1; x += 2)
+            for (var y = -1; y <= 1; y += 2)
+            {
+                path.BeginFigure(At(x * .38, y), false, false);
+                path.LineTo(At(x, y), true, false);
+                path.LineTo(At(x, y * .38), true, false);
+            }
+        }
+        seal.Freeze();
+        dc.DrawGeometry(null, new Pen(SkillInk, 5), seal);
+        dc.DrawGeometry(null, new Pen(SkillSeal, 2.5), seal);
+        var carving = new StreamGeometry();
+        using (var path = carving.Open())
+        {
+            for (var side = -1; side <= 1; side += 2)
+            {
+                path.BeginFigure(At(side * .62, -.55), false, false);
+                path.LineTo(At(side * .22, -.55), true, false);
+                path.LineTo(At(side * .22, .52), true, false);
+                path.LineTo(At(side * .65, .52), true, false);
+                path.LineTo(At(side * .65, .08), true, false);
+                path.LineTo(At(side * .42, .08), true, false);
+            }
+        }
+        carving.Freeze();
+        dc.DrawGeometry(null, new Pen(SkillInk, 4), carving);
+        dc.DrawGeometry(null, new Pen(AshGold, 1.4), carving);
+        dc.Pop();
         dc.Pop();
     }
 

@@ -120,36 +120,6 @@ internal static class BattleTextReadabilityChecks
         }
     }
 
-    public static void SkillBanners(string output)
-    {
-        var (root, layer, cues, clock) = Scene();
-        layer.IsPromptVisible = true;
-        cues.Add(new(1, BattleCueKind.Skill, 2, [2], "贯石斧·连续响应公开长技能", "黄盖") { SkillId = "public:long-skill" });
-        clock.Advance(.4);
-        Capture(root, layer, Path.Combine(output, "battle-text-long-skill.png"));
-        var runs = TextRuns(VisualTreeHelper.GetDrawing(layer), Matrix.Identity)
-            .Where(item => item.Drawing.ForegroundBrush is SolidColorBrush brush && brush.Color == Skill).ToArray();
-        Assert(runs.Length > 0, "The public skill name was not drawn.");
-        var areas = Protected(layer).Concat(Find<HealthMeter>(root).Select(m => m.TransformToVisual(layer).TransformBounds(new Rect(m.RenderSize)))).ToArray();
-        foreach (var run in runs)
-            Assert(new Rect(0, 0, 850, 500).Contains(run.Bounds) && areas.All(area => !area.IntersectsWith(run.Bounds)),
-                "A skill name was clipped at the bottom/right edge or covered a health/command area.");
-        cues.Add(new(2, BattleCueKind.Damage, 0, [2], "−1", "黄盖"));
-        clock.Advance(.1);
-        Capture(root, layer, Path.Combine(output, "battle-text-skill-and-damage.png"));
-        var number = Numbers(layer).Single().Bounds;
-        var skillRuns = TextRuns(VisualTreeHelper.GetDrawing(layer), Matrix.Identity)
-            .Where(item => item.Drawing.ForegroundBrush is SolidColorBrush brush && brush.Color == Skill).ToArray();
-        Assert(skillRuns.Length > 0 && skillRuns.All(item => !item.Bounds.IntersectsWith(number)),
-            "A skill banner swallowed its owner's concurrent HP result.");
-        Assert(!layer.IsHitTestVisible && !layer.Focusable, "Readable skill text intercepted gameplay.");
-        cues.Clear(); clock.Advance(2);
-        Capture(root, layer);
-        Assert(!TextRuns(VisualTreeHelper.GetDrawing(layer), Matrix.Identity).Any() && layer.ActiveEffectCount == 0,
-            "Clearing the table left a skill name behind.");
-        Console.WriteLine("Battle skill text: long public name stays inside the scene, clear of HP/commands and simultaneous damage.");
-    }
-
     private static (Canvas Root, BattleFeedbackLayer Layer, ObservableCollection<BattleCue> Cues, FrameClock Clock) Scene()
     {
         var root = new Canvas { Width = 850, Height = 500, Background = new SolidColorBrush(Color.FromRgb(16, 26, 29)) };

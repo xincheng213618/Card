@@ -92,11 +92,29 @@ internal static class OpeningCustomizationUiChecks
             vm.ContinueFromIdentityRevealCommand.Execute(null);
             vm.ToggleGeneralRosterCommand.Execute(null);
             Program.Render(root, 1120, 820, System.IO.Path.Combine(output, "opening-customization-public-lord.png"));
+            var selectionView = Program.Engine(vm).CreateSnapshot(0);
+            var selectionHuman = selectionView.Players.Single(player => player.Seat == selectionView.HumanSeat);
+            var publicLord = selectionView.Players.Single(player => player.Role == Role.Lord);
+            var contextTitle = (TextBlock)window.FindName("GeneralSelectionContextTitleText");
+            var contextDetail = (TextBlock)window.FindName("GeneralSelectionContextDetailText");
+            var selectionPanel = (Border)window.FindName("GeneralSelectionPanel");
+            var panelBounds = selectionPanel.TransformToAncestor(root).TransformBounds(new Rect(selectionPanel.RenderSize));
+            var titleBounds = contextTitle.TransformToAncestor(root).TransformBounds(new Rect(contextTitle.RenderSize));
+            var detailBounds = contextDetail.TransformToAncestor(root).TransformBounds(new Rect(contextDetail.RenderSize));
             Program.Assert(!vm.IsIdentityRevealOpen && vm.IsCustomGeneralSelectionOpen &&
-                Program.Find<TextBlock>(root).Any(text => text.IsVisible && text.Text == vm.GeneralSelectionSubtitle &&
-                    text.Text.Contains(Program.Engine(vm).CreateSnapshot(0).Players.Single(player => player.Role == Role.Lord).GeneralName,
-                        StringComparison.Ordinal)),
-                "The actual non-lord roster surface must visibly identify the publicly selected lord while choosing a general.");
+                selectionHuman.Role == Role.Loyalist &&
+                selectionView.PendingDecision is { Kind: DecisionKind.SelectGeneral } selectionPrompt &&
+                selectionPrompt.PlayerSeat == selectionHuman.Seat &&
+                publicLord.IsRoleRevealed && publicLord.IsGeneralPublic && !publicLord.IdentityConcealed && publicLord.GeneralId.Length > 0 &&
+                contextTitle.IsVisible && contextDetail.IsVisible &&
+                contextTitle.IsDescendantOf(selectionPanel) && contextDetail.IsDescendantOf(selectionPanel) &&
+                titleBounds.Width > 0 && titleBounds.Height > 0 && detailBounds.Width > 0 && detailBounds.Height > 0 &&
+                panelBounds.Contains(titleBounds) && panelBounds.Contains(detailBounds) && titleBounds.Right <= detailBounds.Left &&
+                contextTitle.Text == "你的身份 · 忠臣" && contextTitle.Text == vm.GeneralSelectionContextTitle &&
+                contextDetail.Text == $"主公 · {publicLord.GeneralName} · 1 号位" && contextDetail.Text == vm.GeneralSelectionContextDetail &&
+                selectionView.Players.Where(player => player.Seat != selectionHuman.Seat && player.Seat != publicLord.Seat)
+                    .All(player => player.Role is null && !player.IsGeneralPublic && player.GeneralId.Length == 0),
+                "The actual roster context must visibly show this viewer's Loyalist identity and the snapshot's public Lord without clipping, overlap or exposing other hidden identities or generals.");
             Press(Program.Find<Button>(root).Single(button => button.IsVisible &&
                 ReferenceEquals(button.Command, vm.ChangeStartingIdentityCommand) &&
                 button.CommandParameter is StartingRoleOption { Role: Role.Lord }), Key.Enter);

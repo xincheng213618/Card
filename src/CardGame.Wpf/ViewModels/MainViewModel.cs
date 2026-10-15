@@ -743,6 +743,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 SecondaryGeneralText = IsNationalSnapshot ? $"副将：{player.SecondaryGeneralName ?? (player.IsHuman ? "待选" : "暗将")}" +
                     (player.IsHuman && player.SecondaryGeneralName is not null && !player.IsSecondaryGeneralPublic ? "·暗" : "") : string.Empty,
                 Hp = player.Hp,
+                IdentityConcealed = player.IdentityConcealed,
+                HpUndefined = player.HpUndefined,
                 MaxHp = player.MaxHp,
                 HandCount = player.HandCount,
                 IsChained = player.IsChained,
@@ -768,11 +770,11 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 DeferredPileText = PublicStateBadge(player),
                 DeferredPileTooltip = PublicStateTooltip(player),
                 HasAlcoholEffect = player.HasAlcoholEffect,
-                SkillName = IsNationalSnapshot
+                SkillName = player.IdentityConcealed && !player.IsHuman ? string.Empty : IsNationalSnapshot
                     ? $"{VisibleSkillNames(player.Skills)} / {VisibleSkillNames(player.SecondarySkills)}"
                     : VisibleSkillNames(player.Skills),
                 Name = $"{player.GeneralName} · {(player.IsHuman ? "你" : $"AI {player.Seat + 1}")}",
-                Kingdom = IsNationalSnapshot
+                Kingdom = player.IdentityConcealed && !player.IsHuman ? "隐匿" : IsNationalSnapshot
                     ? FactionName(player.FactionId)
                     : player.FactionId is not null
                         ? $"神→{FactionName(player.FactionId)}"
@@ -781,7 +783,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 TeamId = player.TeamId,
                 IsTeammate = IsNationalSnapshot ? NationalRelationship(player) == "同伴" : !player.IsHuman && player.TeamId is not null &&
                     player.TeamId == _snapshot.Players.SingleOrDefault(seat => seat.IsHuman)?.TeamId,
-                HpText = $"体力 {player.Hp}/{player.MaxHp}",
+                HpText = player.HpUndefined ? "隐匿中 · 体力未定义" : $"体力 {player.Hp}/{player.MaxHp}",
                 HandText = BuildHandText(player),
                 EquipmentText = player.Equipment.Count == 0
                     ? "装备 —"
@@ -888,7 +890,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 });
             }
 
-            HumanSummary = $"{(IsNationalSnapshot ? FactionName(human.FactionId) : GetRoleName(human.Role ?? Role.Lord))} · {human.GeneralName} · {human.Hp}/{human.MaxHp} 体力" +
+            HumanSummary = $"{(IsNationalSnapshot ? FactionName(human.FactionId) : GetRoleName(human.Role ?? Role.Lord))} · {human.GeneralName} · " +
+                (human.HpUndefined ? "隐匿中 · 体力未定义" : $"{human.Hp}/{human.MaxHp} 体力") +
                 (!IsNationalSnapshot && human.FactionId is not null ? $" · 本局{FactionName(human.FactionId)}势力" : string.Empty) +
                 (human.WoodenOxGrainCount > 0 ? $" · 木牛粮 {human.WoodenOxGrainCount}" : string.Empty) +
                 (human.AuthorityCount > 0 ? $" · {human.AuthorityName ?? "权"} {human.AuthorityCount}" : string.Empty) +
@@ -897,7 +900,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 (human.PrivateReserveCount > 0 ? $" · 星 {human.PrivateReserveCount}" : string.Empty) +
                 (human.PublicDeferredPileCount > 0 ? $" · {human.PublicDeferredPileName ?? "牌堆"} {human.PublicDeferredPileCount}" : string.Empty) +
                 (human.PublicPersistentPileCount > 0 ? $" · {human.PublicPersistentPileName ?? "牌堆"} {human.PublicPersistentPileCount}" : string.Empty) +
-                (human.NamedAmbushPiles is { Count: > 0 } ? " · " + NamedPrivatePileBadge(human) : string.Empty) +
+                (human.NamedAmbushPiles is { Count: > 0 } || human.PrivateWhirlPiles is { Count: > 0 } ? " · " + NamedPrivatePileBadge(human) : string.Empty) +
                 (human.Markers is { Count: > 0 } ? " · " + PublicMarkerBadge(human) : string.Empty) +
                 (human.DeferredHandAlignments is { Count: > 0 } ? " · " + DeferredHandAlignmentBadge(human) : string.Empty) +
                 (HasIssuedUseProhibition(human) ? " · " + IssuedUseProhibitionBadge(human) : string.Empty) +

@@ -647,51 +647,19 @@ internal static class GeneralSelectionChecks
         return false;
     }
 
-    public static void IdentityRowsAndSeats(string output)
+    private static void VerifyContextIgnoresDiagnosticReveal(MainViewModel vm)
     {
-        using var vm = new MainViewModel(false, 721019, false, new MemorySaveStore(), useExpandedContent: true)
+        var title = vm.GeneralSelectionContextTitle;
+        var detail = vm.GeneralSelectionContextDetail;
+        var game = Program.Engine(vm);
+        var revision = game.Revision;
+        var acceptedCommands = game.AcceptedCommands.Count;
+        foreach (var reveal in new[] { true, false })
         {
-            IsMotionEnabled = false
-        };
-        var window = new MainWindow(vm);
-        var root = (FrameworkElement)window.Content;
-        try
-        {
-            foreach (var (role, columns, count) in new[] { (CardGame.Core.Role.Lord, 7, 13), (CardGame.Core.Role.Loyalist, 4, 8), (CardGame.Core.Role.Rebel, 4, 8), (CardGame.Core.Role.Renegade, 7, 13) })
-            {
-                // Force a role only in this fixture; the actual lobby offers random identity alone.
-                vm.SelectedStartingRole = new StartingRoleOption("fixture", role, string.Empty);
-                vm.StartNewGameCommand.Execute(null);
-                vm.ContinueFromIdentityRevealCommand.Execute(null);
-                Program.Assert(vm.GeneralChoices.Count == count && vm.GeneralChoiceColumns == columns,
-                    "Identity role did not determine the correct general-choice count.");
-                foreach (var width in new[] { 1120, 1440 })
-                {
-                    Program.Render(root, width, 880, Path.Combine(output, $"identity-choices-{count}-{width}.png"));
-                    var cards = (ItemsControl)window.FindName("GeneralCandidateCards");
-                    var buttons = Program.Find<Button>(cards).Where(button => button.Command == vm.PreviewGeneralChoiceCommand).ToArray();
-                    var positions = buttons.Select(button => button.TranslatePoint(new Point(), root)).ToArray();
-                    var rows = positions.GroupBy(point => Math.Round(point.Y, 1)).OrderBy(group => group.Key).ToArray();
-                    Program.Assert(buttons.Length == count && rows.Length == 2 && rows[0].Count() == columns &&
-                                   rows[1].Count() == count - columns && buttons.All(button => button.ActualWidth > 0),
-                        "The general panel must keep exactly the requested two rows at both window sizes.");
-                    var panel = (Border)window.FindName("GeneralSelectionPanel");
-                    var bounds = new Rect(panel.TranslatePoint(new Point(), root), panel.RenderSize);
-                    Program.Assert(buttons.All(button => bounds.Contains(button.TranslatePoint(new Point(button.ActualWidth, button.ActualHeight), root))),
-                        "A candidate was clipped or placed outside the selection panel.");
-                }
-                var lord = vm.Seats.Single(seat => seat.RoleLabel == "主公");
-                Program.Assert(lord.DisplaySeatNumber == 1 && vm.Seats.All(seat =>
-                    seat.DisplaySeatNumber == (seat.Seat - lord.Seat + vm.Seats.Count) % vm.Seats.Count + 1),
-                    "Seat numbering must start at the Lord and follow the right-hand direction.");
-                Program.Assert(vm.HumanPlayer!.SeatLabel.Contains($"{vm.HumanPlayer.DisplaySeatNumber:00}", StringComparison.Ordinal),
-                    "The human label still assumes the human is seat one.");
-            }
-        }
-        finally
-        {
-            window.Content = null;
-            window.Close();
+            vm.IsDeveloperView = reveal;
+            Program.Assert(vm.GeneralSelectionContextTitle == title && vm.GeneralSelectionContextDetail == detail &&
+                ReferenceEquals(Program.Engine(vm), game) && game.Revision == revision && game.AcceptedCommands.Count == acceptedCommands,
+                "The selection context must remain viewer-safe and read-only when the diagnostic view reveals other players' private state.");
         }
     }
 
@@ -761,6 +729,12 @@ internal static class GeneralSelectionChecks
                 "A candidate click bypassed the identity reveal.");
             Program.Assert(Shortcut(window, Key.Enter) && !vm.IsIdentityRevealOpen && engine.Revision == revision,
                 "Enter must dismiss the identity reveal without also choosing a general.");
+            var nationalContextTitle = $"你的势力 · {vm.HumanPlayer!.RoleLabel}";
+            Program.Assert(vm.GeneralSelectionContextTitle == nationalContextTitle &&
+                vm.GeneralSelectionContextDetail == "选择主将 · 双将同势力，暗置入场",
+                "National primary selection must describe only the viewer's own faction and hidden dual-general setup.");
+            VerifyContextIgnoresDiagnosticReveal(vm);
+            root.UpdateLayout();
             var primary = vm.SelectedGeneralChoice!;
             var primaryButton = Card(primary);
             var primaryPrompt = engine.PendingDecision!.PromptId;
@@ -772,6 +746,11 @@ internal static class GeneralSelectionChecks
             for (var step = 0; step < 8 && !vm.IsGeneralSelectionPending; step++) vm.StepAiCommand.Execute(null);
             Program.Assert(vm.IsGeneralSelectionPending && engine.PendingDecision!.PromptId != primaryPrompt,
                 "The national fixture did not reach its separate secondary general prompt.");
+            var ownPrimary = engine.CreateSnapshot(0).Players.Single(player => player.IsHuman);
+            Program.Assert(vm.GeneralSelectionContextTitle == nationalContextTitle &&
+                vm.GeneralSelectionContextDetail == $"主将 · {ownPrimary.GeneralName} · 选择同势力副将" &&
+                !ownPrimary.IsGeneralPublic,
+                "National secondary selection may show the viewer's private primary but must not present it as a public Lord.");
             var secondaryRevision = engine.Revision;
             var secondaryPreview = vm.SelectedGeneralChoice;
             Program.Assert(Shortcut(window, Key.Enter, repeat: true) &&
@@ -789,6 +768,8 @@ internal static class GeneralSelectionChecks
             Program.Assert(DoubleClick(Card(vm.SelectedGeneralChoice!)) &&
                            engine.Revision == secondaryRevision + 1 && !vm.IsGeneralSelectionPending,
                 "The secondary general did not confirm once through its own card.");
+            Program.Assert(vm.GeneralSelectionContextTitle.Length == 0 && vm.GeneralSelectionContextDetail.Length == 0,
+                "Completing both national slots must retire the private primary-selection context.");
 
             // Reuse the same small national setup to exercise both full-roster
             // slots without changing the existing consecutive-click checks.

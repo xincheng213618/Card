@@ -56,13 +56,16 @@ public sealed class SeatViewModel : ObservableObject
         : TeamId is not null ? $"{DisplaySeatNumber:00} 号位 · {(IsTeammate ? "队友" : "对手")}"
         : $"{DisplaySeatNumber:00} 号位";
     public string VerticalName => string.Join("\n", GeneralName.ToCharArray());
-    public string HealthPips => new('●', Math.Max(0, Hp));
-    public string EmptyHealthPips => new('○', Math.Max(0, MaxHp - Math.Max(0, Hp)));
-    public string HealthValue => $"{Math.Max(0, Hp)}/{MaxHp}";
+    public bool IdentityConcealed { get; set; }
+    public bool HpUndefined { get; set; }
+    public string HealthPips => HpUndefined ? string.Empty : new('●', Math.Max(0, Hp));
+    public string EmptyHealthPips => HpUndefined ? string.Empty : new('○', Math.Max(0, MaxHp - Math.Max(0, Hp)));
+    public string HealthValue => HpUndefined ? "体力未定义" : $"{Math.Max(0, Hp)}/{MaxHp}";
     public IEnumerable<string> HealthImages
     {
         get
         {
+            if (HpUndefined) return Array.Empty<string>();
             var count = Math.Clamp(MaxHp, 0, 8);
             var filled = Math.Clamp(Hp, 0, count);
             if (_healthImages is null || count != _healthIconCount || filled != _filledHealthIcons)
@@ -131,6 +134,8 @@ public sealed class SeatViewModel : ObservableObject
         if (!EqualityComparer<GeneralSlotViewModel?>.Default.Equals(SecondaryGeneral, source.SecondaryGeneral)) { SecondaryGeneral = source.SecondaryGeneral; changed = true; }
         if (!EqualityComparer<string>.Default.Equals(RelationshipLabel, source.RelationshipLabel)) { RelationshipLabel = source.RelationshipLabel; changed = true; }
         if (!EqualityComparer<string>.Default.Equals(SkillName, source.SkillName)) { SkillName = source.SkillName; changed = true; }
+        if (!EqualityComparer<bool>.Default.Equals(IdentityConcealed, source.IdentityConcealed)) { IdentityConcealed = source.IdentityConcealed; changed = true; }
+        if (!EqualityComparer<bool>.Default.Equals(HpUndefined, source.HpUndefined)) { HpUndefined = source.HpUndefined; changed = true; }
         if (!EqualityComparer<int>.Default.Equals(Hp, source.Hp)) { Hp = source.Hp; changed = true; }
         if (!EqualityComparer<int>.Default.Equals(MaxHp, source.MaxHp)) { MaxHp = source.MaxHp; changed = true; }
         if (!EqualityComparer<int>.Default.Equals(HandCount, source.HandCount)) { HandCount = source.HandCount; changed = true; }

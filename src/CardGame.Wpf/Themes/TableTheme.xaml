@@ -45,25 +45,36 @@
         <Setter Property="FontSize" Value="12" />
         <Setter Property="Cursor" Value="Hand" />
         <Setter Property="Margin" Value="4,0" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
-                    <Border x:Name="Chrome" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="3" Padding="{TemplateBinding Padding}">
-                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" RecognizesAccessKey="True" />
-                    </Border>
+                    <Grid Background="Transparent">
+                    <Grid x:Name="InteractionSurface" IsHitTestVisible="False" controls:InteractionMotion.IsEnabled="True"
+                          controls:InteractionMotion.HoverOffset="-1">
+                        <Border x:Name="Chrome" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" RecognizesAccessKey="True" />
+                        </Border>
+                        <Border x:Name="HoverWash" Background="#12FFE0A0" CornerRadius="4" Opacity="0" IsHitTestVisible="False" />
+                        <Border x:Name="FocusRing" BorderBrush="#FFE8AC" BorderThickness="1" CornerRadius="3" Margin="3" Visibility="Collapsed" IsHitTestVisible="False" />
+                    </Grid>
+                    </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="Chrome" Property="BorderBrush" Value="#E2C48B" />
-                            <Setter TargetName="Chrome" Property="Opacity" Value="0.86" />
+                            <Setter TargetName="HoverWash" Property="Opacity" Value="1" />
                         </Trigger>
                         <Trigger Property="IsKeyboardFocused" Value="True">
                             <Setter TargetName="Chrome" Property="BorderBrush" Value="#F9DEA2" />
+                            <Setter TargetName="FocusRing" Property="Visibility" Value="Visible" />
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
-                            <Setter TargetName="Chrome" Property="Opacity" Value="0.65" />
+                            <Setter TargetName="Chrome" Property="Opacity" Value="0.82" />
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter TargetName="Chrome" Property="Opacity" Value="0.35" />
+                            <Setter TargetName="HoverWash" Property="Opacity" Value="0" />
+                            <Setter TargetName="FocusRing" Property="Visibility" Value="Collapsed" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -195,17 +206,23 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
-                    <Grid>
+                    <Grid Background="Transparent">
+                    <Grid x:Name="TableInteractionSurface" IsHitTestVisible="False" controls:InteractionMotion.IsEnabled="True"
+                          controls:InteractionMotion.HoverOffset="-1">
                         <Border x:Name="ButtonSurface" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
+                            <Border.RenderTransform><TranslateTransform /></Border.RenderTransform>
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                         <Border x:Name="ButtonFocusOutline" BorderBrush="#FFF0BC" BorderThickness="2" CornerRadius="2" Margin="3" Visibility="Collapsed" IsHitTestVisible="False" />
+                    </Grid>
                     </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="ButtonSurface" Property="Opacity" Value="0.85" /></Trigger>
                         <Trigger Property="IsPressed" Value="True">
                             <Setter TargetName="ButtonSurface" Property="Opacity" Value="0.7" />
-                            <Setter TargetName="ButtonSurface" Property="RenderTransform"><Setter.Value><TranslateTransform Y="2" /></Setter.Value></Setter>
+                            <Setter TargetName="ButtonSurface" Property="RenderTransform">
+                                <Setter.Value><TranslateTransform Y="2" /></Setter.Value>
+                            </Setter>
                         </Trigger>
                         <Trigger Property="IsKeyboardFocused" Value="True">
                             <Setter Property="Foreground" Value="#FFFFFF" />
@@ -214,6 +231,7 @@
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter Property="Foreground" Value="#D5D0C5" />
                             <Setter TargetName="ButtonSurface" Property="Opacity" Value="0.8" />
+                            <Setter TargetName="ButtonFocusOutline" Property="Visibility" Value="Collapsed" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -274,12 +292,14 @@
                     </Button.Style>
                     <Button.Template>
                         <ControlTemplate TargetType="Button">
-                            <Grid x:Name="SkillButtonSurface">
+                            <Grid Background="Transparent">
+                            <Grid x:Name="SkillButtonSurface" IsHitTestVisible="False" controls:InteractionMotion.IsEnabled="True" controls:InteractionMotion.HoverOffset="-1.5" controls:InteractionMotion.PressedScale="0.975">
                                 <Image x:Name="SkillButtonArtwork" Source="{Binding ButtonArtwork}" Stretch="Fill" />
                                 <TextBlock Text="{Binding Name}" Foreground="#FAF0DF" FontFamily="KaiTi" FontSize="16" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="20,0,0,0">
                                     <TextBlock.Effect><DropShadowEffect Color="#000000" BlurRadius="2" ShadowDepth="1" /></TextBlock.Effect>
                                 </TextBlock>
                                 <Border x:Name="SkillFocusRing" BorderBrush="#FFE3A4" BorderThickness="1" CornerRadius="3" Visibility="Collapsed" IsHitTestVisible="False" />
+                            </Grid>
                             </Grid>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsEnabled" Value="False"><Setter TargetName="SkillButtonArtwork" Property="Source" Value="{Binding DisabledButtonArtwork}" /></Trigger>
@@ -290,7 +310,7 @@
                         </ControlTemplate>
                     </Button.Template>
                 </Button>
-                <TextBlock x:Name="SkillStateText" Text="{Binding StateText}" Foreground="#B9AC93" FontSize="9" TextWrapping="Wrap" TextAlignment="Center" Margin="2,1" />
+                <TextBlock x:Name="SkillStateText" Text="{Binding StateText}" Foreground="#C9BA9C" FontSize="10" TextWrapping="Wrap" TextAlignment="Center" Margin="2,1" />
             </StackPanel>
         </Border>
         <DataTemplate.Triggers>
@@ -337,20 +357,20 @@
                         </Grid>
                         <StackPanel VerticalAlignment="Bottom" Margin="7,0,20,5">
                             <Grid x:Name="SingleGeneralTitle">
-                                <TextBlock Text="{Binding HealthValue}" Foreground="#DFE2C6" FontSize="11" />
+                                <TextBlock x:Name="SeatHealthValueText" Text="{Binding HealthValue}" Foreground="#F1EACD" FontSize="14" FontWeight="SemiBold" />
                                 <Border Background="#AC0E171B" HorizontalAlignment="Right" VerticalAlignment="Center" Padding="4,2">
-                                    <TextBlock Text="{Binding HandCount, StringFormat=牌 {0}}" Foreground="#EBDCC2" FontSize="10" />
+                                    <TextBlock x:Name="SeatHandCountText" Text="{Binding HandCount, StringFormat=牌 {0}}" Foreground="#F1EACD" FontSize="13" FontWeight="SemiBold" />
                                 </Border>
                             </Grid>
-                            <TextBlock x:Name="NationalHandCount" Text="{Binding HandCount, StringFormat=手牌 {0}}" Visibility="Collapsed" HorizontalAlignment="Right" Foreground="#EBDCC2" FontSize="9" />
+                            <TextBlock x:Name="NationalHandCount" Text="{Binding HandCount, StringFormat=手牌 {0}}" Visibility="Collapsed" HorizontalAlignment="Right" Foreground="#F1EACD" FontSize="13" FontWeight="SemiBold" />
                             <Grid>
-                                <TextBlock Text="{Binding SkillName}" Foreground="#D4B979" FontSize="10" MaxWidth="78" HorizontalAlignment="Left" TextTrimming="CharacterEllipsis" />
-                                <TextBlock Text="{Binding DistanceText}" Foreground="#B4B6A9" FontSize="9" HorizontalAlignment="Right" />
+                                <TextBlock Text="{Binding SkillName}" Foreground="#D4B979" FontSize="11" MaxWidth="78" HorizontalAlignment="Left" TextTrimming="CharacterEllipsis" />
+                                <TextBlock Text="{Binding DistanceText}" Foreground="#C3C5B6" FontSize="10" HorizontalAlignment="Right" />
                             </Grid>
                         </StackPanel>
                         <TextBlock x:Name="SeatVerticalName" Text="{Binding VerticalName}" FontFamily="KaiTi" FontSize="19" FontWeight="Bold" LineHeight="21" Foreground="#FFF1CE" Background="#7217110B" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="5,30,0,0" Padding="3,4" IsHitTestVisible="False" />
-                        <controls:HealthMeter x:Name="SeatHealthMeter" Value="{Binding Hp}" Maximum="{Binding MaxHp}" controls:BattleFeedbackLayer.HealthAnchor="{Binding Seat}" Height="7" VerticalAlignment="Bottom" Margin="7,0,20,0" />
-                        <ItemsControl ItemsSource="{Binding HealthImages}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,2,5" IsHitTestVisible="False">
+                        <controls:HealthMeter x:Name="SeatHealthMeter" Value="{Binding Hp}" Maximum="{Binding MaxHp}" IsUndefined="{Binding HpUndefined}" controls:BattleFeedbackLayer.HealthAnchor="{Binding Seat}" Height="7" VerticalAlignment="Bottom" Margin="7,0,20,0" />
+                        <ItemsControl x:Name="SeatHealthIcons" ItemsSource="{Binding HealthImages}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,2,5" IsHitTestVisible="False">
                             <ItemsControl.ItemTemplate><DataTemplate><Image Source="{Binding}" Width="13" Height="16" Stretch="Uniform" /></DataTemplate></ItemsControl.ItemTemplate>
                         </ItemsControl>
                         <Border x:Name="DecisionRoleBadge" Visibility="{Binding HasDecisionRole, Converter={StaticResource BoolToVisibility}}" Background="#DD60482C" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,31,0,0" Padding="5,3" IsHitTestVisible="False">
@@ -383,14 +403,17 @@
                     </Grid>
                     <Border Grid.Row="1" Background="#26211B" Padding="4,0" ToolTip="{Binding EquipmentText}">
                         <Grid>
-                            <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                            <TextBlock Text="{Binding ShortEquipment}" VerticalAlignment="Center" Foreground="#A4A897" FontSize="9" TextTrimming="CharacterEllipsis" />
-                            <Border x:Name="ResponseStatusBadge" Grid.Column="1" Background="#E12B454B" BorderBrush="#819FA4" BorderThickness="1" CornerRadius="2" Padding="4,1" Margin="4,0,0,3" VerticalAlignment="Center" IsHitTestVisible="False" Visibility="{Binding HasResponseStatus, Converter={StaticResource BoolToVisibility}}">
-                                <TextBlock x:Name="SeatResponseStatusText" Text="{Binding ResponseStatusText}" Foreground="#DDEFE9" FontSize="11" FontWeight="SemiBold" />
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition /></Grid.ColumnDefinitions>
+                            <Border x:Name="CurrentTurnBadge" Visibility="Collapsed" Background="#264C40" Padding="4,1" Margin="0,0,4,0" VerticalAlignment="Center" IsHitTestVisible="False">
+                                <TextBlock Text="回合中" Foreground="#C8F0DC" FontSize="11" />
+                            </Border>
+                            <TextBlock x:Name="SeatEquipmentText" Grid.Column="1" Text="{Binding ShortEquipment}" VerticalAlignment="Center" Foreground="#BFC3B3" FontSize="10" TextTrimming="CharacterEllipsis" />
+                            <Border x:Name="ResponseStatusBadge" Grid.ColumnSpan="2" Background="#243E43" BorderBrush="#819FA4" BorderThickness="1" CornerRadius="2" Padding="4,1" Margin="0,0,0,4" VerticalAlignment="Center" IsHitTestVisible="False" Visibility="{Binding HasResponseStatus, Converter={StaticResource BoolToVisibility}}">
+                                <TextBlock x:Name="SeatResponseStatusText" Text="{Binding ResponseStatusText}" Foreground="#E8F5F0" FontSize="12" FontWeight="SemiBold" TextAlignment="Center" />
                             </Border>
                         </Grid>
                     </Border>
-                    <Border x:Name="TurnLine" Visibility="Collapsed" Grid.RowSpan="2" BorderBrush="#E6C386" BorderThickness="0,0,0,3" IsHitTestVisible="False" />
+                    <Border x:Name="TurnLine" Visibility="Collapsed" Grid.RowSpan="2" BorderBrush="#78CCB4" BorderThickness="0,0,0,3" IsHitTestVisible="False" />
                 </Grid>
             </Border>
             <Border x:Name="SeatResponseOutline" BorderBrush="#9FBDC1" BorderThickness="1,0,1,0" Margin="7,25,7,29" Visibility="{Binding HasResponseStatus, Converter={StaticResource BoolToVisibility}}" IsHitTestVisible="False" />
@@ -417,8 +440,13 @@
                 <Setter TargetName="SeatVerticalName" Property="Visibility" Value="Collapsed" />
             </DataTrigger>
             <DataTrigger Binding="{Binding IsCurrent}" Value="True">
-                <Setter TargetName="SeatFrame" Property="BorderBrush" Value="#F2D297" />
+                <Setter TargetName="SeatFrame" Property="BorderBrush" Value="#78CCB4" />
                 <Setter TargetName="TurnLine" Property="Visibility" Value="Visible" />
+                <Setter TargetName="CurrentTurnBadge" Property="Visibility" Value="Visible" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding HasResponseStatus}" Value="True">
+                <Setter TargetName="SeatEquipmentText" Property="Visibility" Value="Collapsed" />
+                <Setter TargetName="CurrentTurnBadge" Property="Visibility" Value="Collapsed" />
             </DataTrigger>
             <DataTrigger Binding="{Binding IsLegalTarget}" Value="True">
                 <Setter TargetName="SeatButton" Property="Cursor" Value="Hand" />
@@ -462,6 +490,10 @@
             <Trigger SourceName="SeatButton" Property="IsKeyboardFocused" Value="True">
                 <Setter TargetName="SeatFocusOutline" Property="Visibility" Value="Visible" />
             </Trigger>
+            <DataTrigger Binding="{Binding HpUndefined}" Value="True">
+                <Setter TargetName="SeatHealthMeter" Property="Visibility" Value="Collapsed" />
+                <Setter TargetName="SeatHealthIcons" Property="Visibility" Value="Collapsed" />
+            </DataTrigger>
             <DataTrigger Binding="{Binding IsAlive}" Value="False">
                 <Setter TargetName="DeathShade" Property="Visibility" Value="Visible" />
                 <Setter TargetName="SeatFrame" Property="Opacity" Value="0.55" />
@@ -513,6 +545,10 @@
         </DataTemplate.Triggers>
     </DataTemplate>
     <DataTemplate x:Key="CardTemplate">
+        <Grid x:Name="HandCardScaleRoot">
+            <Grid.LayoutTransform>
+                <ScaleTransform ScaleX="{Binding ElementName=HandCardScaleRoot, Path=(controls:HandPanel.CardScale)}" ScaleY="{Binding ElementName=HandCardScaleRoot, Path=(controls:HandPanel.CardScale)}" />
+            </Grid.LayoutTransform>
         <Button x:Name="CardButton" Style="{StaticResource BareButton}" Command="{Binding DataContext.SelectCardCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" IsEnabled="{Binding IsPlayable}" VerticalAlignment="Bottom" Margin="0,18,0,0" ToolTip="{Binding CardHint}" ToolTipService.ShowOnDisabled="True" ToolTipService.InitialShowDelay="250" AutomationProperties.Name="{Binding CardHint}">
             <controls:CardLiftSurface x:Name="CardSurface" Width="110" Height="156" controls:BattleFeedbackLayer.HandAnchor="{Binding Id}" controls:CardTargetingLayer.IsDraftCard="{Binding IsSelected}" IsSelected="{Binding IsSelected}" IsPointerOver="{Binding RelativeSource={RelativeSource Self}, Path=(controls:HandPanel.IsPointerCard)}" MotionEnabled="{Binding DataContext.IsMotionEnabled, RelativeSource={RelativeSource AncestorType=Window}, FallbackValue=True}">
             <Border x:Name="CardBorder" Background="{StaticResource CardPaper}" CornerRadius="3" BorderBrush="#7C7364" BorderThickness="1">
@@ -528,6 +564,7 @@
             <Border x:Name="CardSelectedOutline" BorderBrush="#FFE0A0" BorderThickness="3" CornerRadius="3" Opacity="0" IsHitTestVisible="False" />
             </controls:CardLiftSurface>
         </Button>
+        </Grid>
         <DataTemplate.Triggers>
             <Trigger SourceName="CardButton" Property="controls:HandPanel.IsPointerCard" Value="True">
                 <Setter TargetName="CardBorder" Property="BorderBrush" Value="#F4D390" />

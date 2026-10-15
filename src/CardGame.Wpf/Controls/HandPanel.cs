@@ -20,6 +20,7 @@ public sealed class HandPanel : Panel
     private Dictionary<UIElement, HandSlot> _slots = new();
     private List<UIElement> _order = new();
     private double _layoutWidth;
+    private double _layoutScale = 1;
     private bool _arranging;
     private bool _updatingPointer;
     private bool _panelLoaded;
@@ -59,6 +60,15 @@ public sealed class HandPanel : Panel
 
     public static bool GetIsPointerCard(DependencyObject element) => (bool)element.GetValue(IsPointerCardProperty);
     public static void SetIsPointerCard(DependencyObject element, bool value) => element.SetValue(IsPointerCardProperty, value);
+
+    public static readonly DependencyProperty CardScaleProperty = DependencyProperty.RegisterAttached(
+        "CardScale", typeof(double), typeof(HandPanel),
+        new FrameworkPropertyMetadata(1d, FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsMeasure),
+        value => value is double scale && double.IsFinite(scale) && scale > 0);
+
+    public static double GetCardScale(DependencyObject element) => (double)element.GetValue(CardScaleProperty);
+    public static void SetCardScale(DependencyObject element, double value) => element.SetValue(CardScaleProperty, value);
+    public double CardScale { get => GetCardScale(this); set => SetCardScale(this, value); }
 
     public static readonly DependencyProperty ViewportWidthProperty = DependencyProperty.Register(
         nameof(ViewportWidth), typeof(double), typeof(HandPanel),
@@ -182,43 +192,50 @@ public sealed class HandPanel : Panel
     protected override Size MeasureOverride(Size availableSize)
     {
         ObserveItems();
-        foreach (UIElement child in InternalChildren) child.Measure(new Size(CardWidth, CardHeight));
-        var minimum = InternalChildren.Count == 0 ? 0 : CardWidth + (InternalChildren.Count - 1) * MinimumStep;
+        var scale = CardScale;
+        var cardSize = new Size(CardWidth * scale, CardHeight * scale);
+        foreach (UIElement child in InternalChildren) child.Measure(cardSize);
+        var minimum = InternalChildren.Count == 0 ? 0 : (CardWidth + (InternalChildren.Count - 1) * MinimumStep) * scale;
         var width = ViewportWidth > 0 ? ViewportWidth : double.IsInfinity(availableSize.Width) ? minimum : availableSize.Width;
-        return new Size(Math.Max(minimum, width), CardHeight);
+        return new Size(Math.Max(minimum, width), cardSize.Height);
     }
 
     protected override Size ArrangeOverride(Size finalSize)
     {
         var count = InternalChildren.Count;
         var layoutWidth = ViewportWidth > 0 ? ViewportWidth : finalSize.Width;
+        var scale = CardScale;
+        var cardWidth = CardWidth * scale;
+        var cardHeight = CardHeight * scale;
         if (count == 0)
         {
             _step = 0;
             _slots.Clear();
             _order.Clear();
             _layoutWidth = layoutWidth;
+            _layoutScale = scale;
             _hasHandBaseline = !_awaitingSnapshotAfterReset;
             ClearPointer();
             return finalSize;
         }
-        _step = count == 1 ? CardWidth : Math.Clamp((finalSize.Width - CardWidth) / (count - 1), MinimumStep, CardWidth);
+        _step = count == 1 ? cardWidth : Math.Clamp((finalSize.Width - cardWidth) / (count - 1), MinimumStep * scale, cardWidth);
         var order = InternalChildren.Cast<UIElement>().ToList();
         var present = order.ToHashSet();
         var identitiesMatch = order.All(child => !_slots.TryGetValue(child, out var old) ||
             ReferenceEquals(old.Identity, (child as FrameworkElement)?.DataContext));
         // Overflow content shrinks when a card leaves; the viewport remains
         // the resize boundary even when the panel's minimum width changes.
-        var sameWidth = Math.Abs(_layoutWidth - layoutWidth) < .01;
+        // A new card scale also invalidates offsets from the previous layout.
+        var sameLayout = Math.Abs(_layoutWidth - layoutWidth) < .01 && Math.Abs(_layoutScale - scale) < .0001;
         var sameOrder = _order.SequenceEqual(order);
         var survivors = order.Where(_slots.ContainsKey).ToArray();
         var survivingOrderMatches = _order.Where(present.Contains).SequenceEqual(survivors);
-        var reflow = _order.Count != count && survivors.Length > 0 && sameWidth && identitiesMatch && survivingOrderMatches;
-        var preserveReflow = sameWidth && sameOrder && identitiesMatch;
+        var reflow = _order.Count != count && survivors.Length > 0 && sameLayout && identitiesMatch && survivingOrderMatches;
+        var preserveReflow = sameLayout && sameOrder && identitiesMatch;
         var allowArrival = _panelLoaded && _hasHandBaseline && !_awaitingSnapshotAfterReset && ArrivalEnabled &&
-            sameWidth && survivingOrderMatches;
-        var preserveArrival = sameWidth && survivingOrderMatches && identitiesMatch;
-        if (_hasHandBaseline && (!sameWidth || !survivingOrderMatches)) _pendingArrivalIds.Clear();
+            sameLayout && survivingOrderMatches;
+        var preserveArrival = sameLayout && survivingOrderMatches && identitiesMatch;
+        if (_hasHandBaseline && (!sameLayout || !survivingOrderMatches)) _pendingArrivalIds.Clear();
         var arrivalOrdinal = 0;
         var slots = new Dictionary<UIElement, HandSlot>(count);
         _arranging = true;
@@ -228,9 +245,9 @@ public sealed class HandPanel : Panel
             {
                 var child = order[index];
                 _slots.TryGetValue(child, out var old);
-                var previousX = old is null ? 0 : old.X + (old.Surface?.HorizontalOffset ?? 0);
+                var previousX = old is null ? 0 : old.X + (old.Surface?.HorizontalOffset ?? 0) * _layoutScale;
                 var x = index * _step;
-                child.Arrange(new Rect(x, 0, CardWidth, CardHeight));
+                child.Arrange(new Rect(x, 0, cardWidth, cardHeight));
                 var surface = FindSurface(child);
                 if (surface is not null)
                 {
@@ -238,7 +255,11 @@ public sealed class HandPanel : Panel
                     // card starts moving, including surfaces created by Arrange.
                     if (!ReferenceEquals(Clock, TimeProvider.System)) surface.Clock = Clock;
                     if (reflow && old is not null && ReferenceEquals(old.Surface, surface))
-                        surface.ReflowFrom(previousX - x);
+                    {
+                        // Surface transforms are local to the scaled card template;
+                        // slots and pointer coordinates are in panel DIP.
+                        surface.ReflowFrom((previousX - x) / scale);
+                    }
                     else if (!preserveReflow || old is null || !ReferenceEquals(old.Surface, surface))
                         surface.FinishReflow();
                     if (!preserveArrival) surface.FinishArrival();
@@ -253,6 +274,7 @@ public sealed class HandPanel : Panel
             _slots = slots;
             _order = order;
             _layoutWidth = layoutWidth;
+            _layoutScale = scale;
             _hasHandBaseline = !_awaitingSnapshotAfterReset;
         }
         finally { _arranging = false; }
@@ -268,13 +290,13 @@ public sealed class HandPanel : Panel
     private UIElement? CardContainerAt(Point point)
     {
         var count = InternalChildren.Count;
-        if (count == 0 || _step <= 0 || point.X < 0 || point.Y < 0 || point.Y > CardHeight) return null;
+        if (count == 0 || _step <= 0 || point.X < 0 || point.Y < 0 || point.Y > CardHeight * _layoutScale) return null;
         for (var index = count - 1; index >= 0; index--)
         {
             var child = InternalChildren[index];
             var x = _slots.TryGetValue(child, out var slot)
-                ? slot.X + (slot.Surface?.HorizontalOffset ?? 0) : index * _step;
-            if (point.X >= x && point.X < x + CardWidth) return child;
+                ? slot.X + (slot.Surface?.HorizontalOffset ?? 0) * _layoutScale : index * _step;
+            if (point.X >= x && point.X < x + CardWidth * _layoutScale) return child;
         }
         return null;
     }
