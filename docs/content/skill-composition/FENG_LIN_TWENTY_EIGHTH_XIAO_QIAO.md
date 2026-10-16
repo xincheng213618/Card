@@ -1,28 +1,29 @@
-# 457 current ordinary OL implementation contract
+# 界小乔：当前规则与执行入口
 
-Authoritative source: ../source-preflight/457-official-source.json, SHA256 2304874b07f5090197b0e270099c2f6dd76d778294c506e59331f178b585f17f. Official page and hero/info API captured separately with original bytes, UTC and HTTP200. All three skill texts are present; there are no granted skills or fontRefs. API supplies Wu3 but no gender. Female metadata is the existing classic identity supplement, not an API field.
+当前人物 ID 为 `boundary:xiao-qiao`，势力 `wu`，基础体力 3。人物、技能绑定和将池注册取[人物资料](../../../src/Characters/xiao-qiao/boundary/Content/boundary-xiao-qiao.character.json)；主公加成和模式资格由实际模式处理。
 
-This is staged source and static reasoning only. No compilation, skill loader, test or benchmark has run.
+## 技能定义
 
-5900 DiscardSuitPreventDamageAndBenefit is a standalone BeforeDamageApplied/damageTarget operation. The actual owning ProgramSkillFrame freezes the exact candidate, original window/attack/source/amount, selected held HE entity/from/effective suit, recipient, branch and movement bounds. Choosing cost and branch does not publish foreign hand identifiers. Real discard is committed once before the original prevention fact. Actual SilverLion recovery, HP, movement and gained-card children return before fresh damage/loss or reward. A paid receipt remains until all obligations return; removal of the original skill cannot repay the cost. The new damage is a distinct ProgramAttackHandle, permitted only for this exact paid before-damage receipt; its original parent attack and candidate remain frozen. The draw is computed from the recipient's live lostHP after its actual damage and dying/death children, capped by maximumCards. The gift moves only the original paid entity from its still-current DiscardPile location.
+| 技能 ID | 名称 | 当前说明 |
+| --- | --- | --- |
+| `boundary:hongyan` | 红颜 | 锁定技，你的黑桃牌和黑桃判定牌视为红桃牌。若你的装备区里有红桃牌，你的手牌上限等于体力上限。 |
+| `boundary:tianxiang` | 天香 | 当你受到伤害时，你可以弃置一张红桃牌防止之并选择一项，令一名其他角色：1.受到伤害来源的1点伤害并摸X张牌（X为其已损失体力值且至多为5）；2.失去1点体力并获得你弃置的牌。 |
+| `boundary:piaoling` | 飘零 | 结束阶段，你可以判定，若结果为红桃，你将判定牌置于牌堆顶或交给一名角色，若该角色是你，你弃置一张牌。 |
 
-5901 PlaceMatchedJudgmentCard consumes the immediately preceding StartJudgment public one-entity result in own TurnEnding. Its receipt proves the actual JudgmentResolvedEvent, original judgment parent/reason/entity/effective suit and the original judgment-result Processing movement. No top-card reveal substitute or guessed deck entity is used. Nonmatching results retain ordinary cleanup. Matching results may go to decktop or a living recipient. After self-gain and all actual gain/movement children, one actual discard follows. The selected result and each subsequent self-cost move once; each child returns through the program's typed continuation.
+## 程序与原生流程
 
-CardPolicy 5900 EquipmentSuitHandLimitAtMaxHp applies an explicit final query stage setting exactly MaxHP after ordinary additive hand-limit arithmetic, only while enabled and an equipment entity has the policy's effective suit. It uses the mature effective-suit policy query, so Spade equipment becomes Heart while Hongyan is enabled. No numeric add approximation is used. Existing RewriteSuit already owns the player's judgment suit.
+| 技能 | 绑定入口 | 当前效果操作 |
+| --- | --- | --- |
+| `boundary:hongyan` | `cardPolicies` | 规则文件中的显式过滤、状态与策略 |
+| `boundary:tianxiang` | `beforeDamageApplied / prevent-and-benefit` | `discardSuitPreventDamageAndBenefit` |
+| `boundary:piaoling` | `turnEnding / ending-heart-placement` | `startJudgment`、`placeMatchedJudgmentCard` |
 
-All new events contain scalar public data only; cost IDs are published after actual public discard, judgment IDs are public results. Collection-bearing pending choices are frozen with Array.AsReadOnly; retained card-set collections use the existing frozen frame projection. Player views use CreateSnapshot(viewerSeat). No parallel pending object, use-ID table or shadow card state is introduced. OLD wiring is additive and opt-in; no new receipt/policy means old command ordering and semantics remain unchanged.
+正式规则文件：
 
+- [boundary-xiao-qiao.rules.json](../../../src/Characters/xiao-qiao/boundary/Skills/boundary-xiao-qiao.rules.json)
 
-Exact OLD integration points (10 files): enum/parser/composition; nullable scalar frame fields; final hand-limit query stage; early owning-program resume and typed movement return before source-loss cancellation; narrow nested damage admission; capture the real completed ProgramAttack before clearing its typed return; exact original BeforeDamage/CardUse observer proof and outer after-damage/Dying proof; custom prompt/AI dispatch; classify only the two real discard operation reasons. Existing StartJudgment issuance/finalization and ordinary result cleanup are retained.
+原生用牌、材料支付、伤害/回复/濒死、牌区移动及其子窗口在所属帧中保存真实来源和收据，完成后沿类型化父返回继续。动作接受前复验技能、材料和目标；已支付的子树不重新付款，尚未发行的效果按当前资格处理。
 
-The two opcodes are explicit 5900/5901 and the separate card-policy enum is explicit 5900. Existing implicit enum values are preserved by their existing explicit anchors. New source/candidate proofs use the same frame ID, binding, gameplay hash and skill instance, plus actual cost/result ledger sequence and public issued/completed facts. No last-Damage-event matching is used. The fresh attempt is completed by the real damage pipeline before its reward is issued. Prepared views omit private unpaid selections from all other viewers.
+玩家和 AI 只消费其有权获得的快照与选择；私有手牌和拥有牌区不进入无权观察者的提示。玩家快照与提交事件的嵌套集合在投影/提交准备时冻结，帧内集合按对应机制合同管理。具体字段与允许组合见[运行时](RUNTIME.md)。
 
-Four unrun actual-command methods are staged in BoundaryXiaoQiaoChecks.cs. They use one fixed seed31 and four small pool entries, data-only initial HP, real card use/damage/HP/judgment/movement commands and the existing runner. They assign the restored engine and continue after payment/recovery, fresh damage reward, real Dying/self-rescue and judgment placement/self-cost pauses. The native subcase uses an actual material Slash with a real unlimited-distance fixture grant, not an injected attack/frame. Rejected choices preserve views, frames, events, movement and commands.
-
-## 主工作区静态整合记录
-
-主代理从 `4ad52f99` 对照来源和冻结交付；manifest SHA 为 `c66c2b94b0bc3f4398ccdf2b5ae22eb93af53fcbbcdeb819a4fce93c3b36367e`，patch SHA 为 `396b56a7346041707ec6913b4a9acabb400589e58614972c1911b29c23bbb56c`。9 个 NEW 按原始字节匹配，10 个 OLD 按规范化 LF 文本匹配；6 个支持文件和原始来源散列也逐个核对。旧 enum 的第一原始成员保持显式赋值，新成员位于其前面，不重编号原有成员。女性身份由保留的 classic:xiao-qiao 身份补足，未假称 API 有独立性别字段。
-
-完整红颜、天香、飘零已主登记，四方法加入现有 runner；routine 前缀 `boundary xiao qiao suit prevention equipment cost` 静态恰好匹配其中一项。官方原始 PNG 的 SHA 为 `f00ce70a04c6a254bb2582f00936d42f5d4de42b1751221134858c81d54191d1`，750×950，按原字节登记 WPF 素材和 catalog。
-
-上述只证明文本、JSON 语法、静态接线、有限散列与 data-only psd1 读取；未执行 C# 编译、生产 rules loader、四方法、完整离线素材扫描、Test-Changed、Full 或计时基准。实际运行与 cold restore、银狮、濒死、原判定牌分支仍等待用户醒后统一验证。有限原图登记不替代离线 catalog 或编译接受。
+复杂时序与资料未裁定的口径见[工程默认](FENG_LIN_TWENTY_EIGHTH_XIAO_QIAO_DEFAULTS.md)；这些解释与官方原文分别标明。

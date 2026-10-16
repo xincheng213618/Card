@@ -13,5 +13,3 @@ The captured current page is authoritative skill text; none of the following is 
 - The view confirmation is mandatory after payment; the skill may be declined by not activating. Source loss before actual payment retains ordinary activation validation.
 - Lizhan may choose self and any nonempty subset of currently wounded living characters; declining covers zero recipients. Selection is frozen once; death before actual Draw skips that recipient through the mature path. Separate actual/inserted Ending boundaries retain the existing per-boundary trigger semantics, with no new global turn promise.
 - AI activation estimates use only public HP/hand counts and relationship scoring. The private discard choice may evaluate the hand only after the same authorized view has actually issued. These are engineering estimates, not measured win rates.
-
-The four focused methods are uncompiled/unexecuted drafts. GeneralWeapon equipment removal, special generated-hand cards, arbitrary imported content and every existing rescue family are not separately claimed as runtime coverage.

@@ -1,16 +1,7 @@
-# 统一整合登记清单
+# 杨修的内容注册与类别策略
 
-NEW module `OrdinaryYangXiuContent.Register`（StandardClassicGeneralPackage已有窄patch，唯一登记）；`ol:yang-xiu` / portrait key `ol-yang-xiu`，ordinary / sanguosha-ol，图库显式 other（窄patch）。Embedded JSON 通配自动收 bundle，无 csproj 增项。
+人物资料按稳定注册顺序和包归属装配，嵌入规则与展示由程序目录发现。啖酪绑定同一次真实用牌与实际目标，鸡肋按实际回合记录本人手牌类别限制；合法性和私有选择器共同消费该限制。
 
-现 Core runner 新增以下四个现有方法注册；第一个 display-prefix 同时作一条 routine，不能添加武将专属 runner。
+当前人物、程序绑定和规则来源见[规则合同](ORDINARY_OTHER_THIRTY_FIFTH_YANG_XIU_CONTRACT.md)；资料未明确的复杂口径见[工程默认](ORDINARY_OTHER_THIRTY_FIFTH_YANG_XIU_ENGINEERING-DEFAULTS.md)。
 
-| Method | Suggested display name |
-| --- | --- |
-| OrdinaryYangXiuChecks.ActualMultiTargetTrickWaitsForDrawAndUniqueBorrowedHolderDoesNotOffer | Yang Xiu multi-target trick owns draw children and unique Borrowed Sword is excluded |
-| OrdinaryYangXiuChecks.DeclaredCategoryBlocksOwnHandMaterialsButForeignDiscardAndEquipmentRemainLegal | Yang Xiu categories block own hand uses responses and costs without protecting foreign discards |
-| OrdinaryYangXiuChecks.HandLimitCountsProtectedCardsAndDiscardsOnlyAvailableOverflow | Yang Xiu protected hand still counts toward limit and only legal overflow is discarded |
-| OrdinaryYangXiuChecks.DrawGainDamageDyingAndPaidSourceLossReturnToSameUseOnce | Yang Xiu paid draw returns through real damage dying wine and source loss |
-
-Routine prefix: `Yang Xiu multi-target trick`。WPF 无新交互，复用 ProgramTrigger/SkillChoices 与真实弃牌提示，不新增 WPF 检查。
-
-将 artAdoption 原始 cover 字节复制到 `src/CardGame.Wpf/Assets/official-ol-yang-xiu.png`，按 manifest 提供的 catalogEntry 新增唯一 `ol-yang-xiu`；GeneralArt 已优先读嵌入 catalog，因此不新增 portrait dictionary branch。原图一次 GET，PNG signature/IHDR 静态核750x950，未解码/渲染图片。Source 与 HTTP raw/headers/request 的建议 destination 在 supportFiles 中，不能把 metadata 性别工程判断伪装为 API 字段。
+通用字段、提交、隐私及命令恢复边界见[技能程序运行时](RUNTIME.md)。

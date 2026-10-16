@@ -1,435 +1,81 @@
 # 架构说明
 
-人物源码按 `src/Characters/<character>/<variant>/` 组织：`Content/` 放基础资料和注册清单，`Skills/` 放规则与展示配置，`Runtime/` 放注册规则模块，可选 `Wpf/` 放人物界面适配。它们仍分别编译或嵌入现有 Content、Core、WPF 程序集；通用流程与结算边界留在原项目。技能嵌入资源保留原逻辑名称，目录调整不改变内容 ID、注册次序和内容指纹。具体入口见 [人物模块与注册](CHARACTER_MODULES.md)。
-
-## 1. 边界
-
-```text
-┌──────────────────────── CardGame.Wpf ────────────────────────┐
-│ MainWindow.xaml                                               │
-│      ↓ Binding / ICommand                                     │
-│ MainViewModel ───── 提交 GameCommand（旧 Human* 为适配器） ─┐   │
-└───────────────────────────────────────────────────────────│───┘
-                                                            ↓
-┌──────────────────────── CardGame.Core ─────────────────────────┐
-│ GameEngine                                                     │
-│   ├─ CharacterState（体力、身份、武将与技能授予）             │
-│   ├─ CardZoneStore（所有实体牌位置的唯一真相）                 │
-│   ├─ ContentRegistry（每局独立、冻结的内容输入）              │
-│   ├─ CardCatalog / StandardDeckCatalog（兼容投影）             │
-│   ├─ IPassiveSkill（规则查询）                                 │
-│   ├─ IActiveSkill（主动技能效果数据）                          │
-│   ├─ SimpleAiBrain（读取过滤后的 GameSnapshot）                │
-│   └─ Log / AiThought / GameSnapshot（提交后的只读输出）        │
-└────────────────────────────────────────────────────────────────┘
-                ▲
-                │ 注册
-┌──────────── CardGame.Content.Standard ────────────┐
-│ StandardContentPackage → StandardContentRegistry  │
-└───────────────────────────────────────────────────┘
-```
-
-`CardGame.Core` 不引用 WPF、线程、计时器或网络库。窗口不能直接改体力、手牌或身份；它只能调用引擎公开命令。这个边界以后可以把 WPF 换成网页、Unity 或真正的服务器，而不用重写规则。
-
-`GetHumanHandGuidance()` 从当前玩家手牌、私有询问和既有合法动作产生只读的使用条件说明，不提交规则动作或泄漏其他玩家的信息。`MainViewModel.PlayerGuide` 结合玩家快照、选牌状态和 `CardCatalog` 呈现当前指南与图鉴；打开指南暂停 AI 计时推进并隔离后方控件，关闭保留选择。详见 [`PLAYER_GUIDE.md`](PLAYER_GUIDE.md)。
-
-`TutorialScenario` 只用固定种子和正式 `GameCommand` 准备杀、闪、桃、弃牌四个练习位置。`MainViewModel.Tutorial` 暂存并脱离正式引擎，按类型化规则事件判断完成，教学期间屏蔽替换牌局和存档的命令；退出后重新挂接原引擎及界面选择。详见 [`NEW_PLAYER_TUTORIAL.md`](NEW_PLAYER_TUTORIAL.md)。
-
-声音由 `MainViewModel.Audio` 在已接受命令返回后发布，复用公开战斗提示并单独比较当前玩家 PromptId，因此没有新战斗事件的出牌阶段也能提示。`GameAudioController` 处理前台、音量、静音、节流和故障隔离，`MediaPlayerAudioOutput` 只播放应用自带 WAV。声音失败不会中断已提交的规则动作，读取或新开对局停止旧声音。详细生命周期与本机原生播放证据见 [`BATTLE_AUDIO.md`](BATTLE_AUDIO.md)。
-
-`BattleCueProjector` 从每次提交完成后的事件增量中提取公开出牌、响应、伤害、回复和回合提示。私有手牌移动与选将候选不进入动画。`BattleFeedbackLayer` 根据实际武将与公开牌控件的位置绘制，不提交命令、不接收输入，闲置或卸载后停止计时。中央最近出牌也来自有效牌型事件，存档恢复只重建静态列表，不重播历史动画。详见 [`BATTLE_FEEDBACK.md`](BATTLE_FEEDBACK.md)。
-
-## 2. 状态与命令
-
-引擎内部的 `CharacterState` 保存角色属性、完整身份和技能授予，`CardZoneStore` 统一记录手牌等实体牌的位置。外部玩家视图使用 `GameSnapshot`。各区域的归属、初始来源、可见性和失效条件见[牌桌区域与状态归属审查](REGION_STATE_AUDIT.md)。
-
-玩家快照的基本可见性如下：
-
-- 自己：可见身份和完整手牌；
-- 主公：身份公开；
-- 其他存活角色：只有武将、体力和手牌数量；
-- 选将阶段：自己的候选和已选武将可见，其他座位的候选和未公开武将均隐藏。身份局由主公先选并公开武将，本地玩家接着选，其余 AI 随后暗选，全部完成后公开其余武将；队伍局由本地玩家先选，全部完成后统一公开；国战由本地玩家先选完双将，其余 AI 随后暗选，武将继续按明置规则公开；
-- 阵亡角色：身份公开；
-- 普通快照不携带随机种子，也不会携带其他玩家正在处理的私有决定；
-- `ProcessingCardCount` 只公开处理区数量，不公开牌堆顺序或他人暗牌 ID；已装备的牌面通过 `PlayerSnapshot.Equipment` 公开，延时牌通过 `PlayerSnapshot.Judgment` 公开，但装备前的手牌仍只对持有者可见；酒效是公开的 `HasAlcoholEffect` 状态，不扩大任何手牌可见性；五谷丰登的 `PublicRevealedCards` 是规则明确公开的牌面例外，当前 `SelectHarvestCard` prompt 仍只给当前 picker；过河拆桥和顺手牵羊对隐藏手牌继续使用不带牌面/牌 ID 的脱敏事件，对公开装备或判定区目标则在 `TargetCardDiscardedEvent`/`TargetCardTakenEvent` 中携带已公开的实体身份，顺手牵羊取得公开区域牌后只在使用者私有手牌快照中出现；
-- 反馈、遗计与节命的 `DamageTriggerWindowFrame`、`DamageSkillFrame`、窗口生命周期事件和 `DamageSkillRequestedEvent`/`DamageSkillResolvedEvent` 只属于可信宿主结算/事件投影；其中保留稳定的 `CandidateId`/`Priority`，`Feedback`/`Yiji`/`Jieming` Prompt 只投影给对应拥有者，遗计的摸牌与跨手牌转移通过 `DamageSkillCardsDrawnEvent`/`DamageSkillCardGivenEvent` 记录，节命的目标和补牌通过 `DamageSkillCardsDrawnEvent.TargetSeat` 与 `skill.jieming.draw` 移动记录，普通快照不泄漏其他玩家的候选牌 ID；
-- 援护的 `Yuanhu` Prompt 只投影给非受伤的技能拥有者；弃牌 ID 只属于可信宿主的 `DamageSkillCardDiscardedEvent`/移动账本，固定受伤目标和 1 点恢复属于公开结算结果，普通快照不泄漏被弃牌的实体 ID。
-- 刚烈的 `Ganglie` Prompt 只投影给受伤者；判定牌和红/黑结果公开，红色后的精确两牌组合或承受伤害 Choice 只投影给伤害来源，`GangliePunishmentResolvedEvent` 与技能结果事件属于可信宿主记录。
- - 主动技能的 `UseSkillCommand`、`ActiveSkillFrame` 和 `ActiveSkillRequestedEvent`/`ActiveSkillResolvedEvent` 只在当前拥有者的合法出牌动作中产生；`苦肉` 的体力扣除和摸牌结果公开，具体摸入牌 ID 只属于可信宿主事件/移动账本；`制衡` 的精确弃牌集合只属于当前拥有者与可信宿主，普通快照不泄漏暗牌；青囊的精确弃牌 ID 和目标选择同样只在拥有者 Prompt/可信事件中出现；回春的两张弃牌 ID、2–3 个目标和逐目标恢复证据也只属于拥有者 Prompt/可信宿主。苦肉在 1 点体力发动时保留主动技能帧，复用私有 `RescueDying` Prompt；获救后才继续摸牌，未获救则先完成死亡清理再闭合主动技能帧。
-- 鬼才的 `Guicai` Prompt 只投影给当前判定前候选拥有者；判定牌和最终红/黑结果公开，替换牌只从拥有者自己的私有手牌 Choice 进入 `Processing`/`Judgment`，`JudgmentReplacementRequestedEvent`/`JudgmentReplacementResolvedEvent` 属于可信宿主记录。
-- 乐不思蜀和兵粮寸断的使用牌进入目标公开 `Judgment` 区；目标在下回合摸牌前进入同一 `JudgmentFrame`。规则 v11 起，乐不思蜀非红桃跳过出牌阶段，兵粮寸断非梅花跳过摸牌阶段；规则 v18 起兵粮寸断通过 `GetCombatDistance` 限定距离 1，`IgnoresTrickDistance` 允许奇才豁免，目标即使在无懈链中打空手牌仍正常置入；v1–v17 保留“目标有手牌”和空手时跳过效果的历史语义，v1–v10 另保留历史红黑判定。延时牌和判定牌的移动、无懈窗口、鬼才改判、多个延时效果累计及死亡清理均由 Core 统一提交，普通视图不携带其他玩家的私有手牌候选。
-- 规则 v20 将出牌阶段饮酒记录为当前行动者的回合内标记；直接杀声明仍消费公开酒效，但不会清除该限次标记，直到该角色下一回合 `BeginTurn` 才重置。濒死自救不写入该出牌阶段标记。v1–v19 只检查当前是否仍有酒效，因此酒效被杀消费后可在同回合再次饮酒，供旧命令前缀确定性回放。
-- 规则 v21 曾在经典身份局为英姿引入专属私有发动/跳过 Prompt，并让非经典模式沿用自动摸牌 modifier；当前 v121 已以 schema 16 `DrawPhaseStarting` 通用程序取代这两条执行路线。历史枚举和事件 DTO 只保留为数据契约，当前 Core、AI 与 WPF 不再生产或消费专属英姿分支。
-- 规则 v22 在经典身份局的公开判定结果与判定牌收尾之间加入天妒 Prompt；发动时同一实体牌从 `Judgment(owner)` 进入手牌，跳过时按原路径进入弃牌堆，随后恢复八卦、延时牌或刚烈的父结算。`JudgmentCardClaimedEvent`、移动账本和命令前缀共同重建暂停点；v1–v21 不创建该窗口。
-- 规则 v23 在经典身份局为反间增加目标侧四花色 Prompt；选花色前不投影周瑜手牌，答复后才从稳定排序的源手牌中确定性随机选择一张，经 `Processing` 转入目标手牌并公开。不同花色以普通伤害复用既有受伤触发、濒死和胜负链；v1–v22 不发布该主动技动作。
-- 规则 v24 在经典身份局为观星增加准备阶段的私有多步 Prompt；先冻结牌堆顶至多五张实体牌，再分别记录“顶端先取”和“底端最深优先”的有序选择。完成时用 `CardZoneStore.ReorderDrawPileTop` 原子验证并重排同一区域，不生成跨区移动记录；`GuanxingResolvedEvent` 只公开数量。v1–v23 不发布该选择。
-- 规则 v25 在经典身份局把护驾嵌入既有 `RespondDodge`/`ResponseWindowFrame`：曹操先发布发动 Choice，其他魏势力角色按行动顺序获得各自私有的闪、八卦阵或拒绝 Choice。实体响应牌从提供者手牌进入处理区再弃置，但 `CardRespondedEvent` 的有效 responder 为曹操；盟友八卦失败只推进护驾游标，不提前伤害曹操。全部失败后恢复同一个响应窗里的曹操自有闪、八卦阵与放弃选项。
-- 规则 v26 在经典身份局把激将接入主动技能与既有 `RespondSlash`/`ResponseWindowFrame`：刘备出牌阶段选择目标后，或在决斗/南蛮入侵要求杀时，按行动顺序向其他蜀势力角色发布私有杀 Choice。提供者支付实体牌，`CardUsedEvent`/`CardRespondedEvent` 的有效 source/responder 仍为刘备；主动使用按刘备的距离、目标禁止与出杀次数校验，成功保留实体杀的属性牌型，全部失败不消耗次数并恢复原出牌/响应边界。
-- 规则 v27 在经典身份局把救援作为濒死桃恢复量修正接入统一 `CardUseFrame → RecoveryFrame`：目标必须是拥有救援的主公孙权，来源必须是另一名吴势力角色，且调用来自濒死桃入口。命中时同一实体桃仍由提供者从手牌进入处理区和弃牌堆，恢复帧及 `RecoveryAppliedEvent` 的数量为 2，并额外发布 `JiuyuanAppliedEvent`；自救、非吴、酒和非濒死桃保持 1 点。
-- 规则 v28 在经典身份局通过 `IPassiveSkill.CanUseAsDismantlement` 接入奇袭。合法动作可从拥有者手牌或装备区取得黑色实体牌，`CardUseFrame`、`NullificationWindowFrame`、`TargetCardSelectionFrame` 与用牌事件携带有效牌型 Dismantlement；`CardZoneStore` 仍按实际 Hand/Equipment 来源移动物理牌，避免把装备成本伪装成手牌或改写实体牌种。
-- 规则 v29 在经典身份局通过 `IPassiveSkill.CanSkipDiscardPhase` 接入克己。引擎在回合开始清空杀标记，并只在拥有者自己的 Play 阶段记录直接使用、决斗/南蛮入侵响应及激将代出的有效杀；进入 Discard 后若标记仍为空，则发布私有 `DecisionKind.Keji` Choice。发动会发布 `PhaseSkillResolvedEvent` 并结束回合，跳过则继续普通手牌上限弃置。
-- 规则 v30 曾在经典身份局通过 `IPassiveSkill.CanReplaceDrawPhase` 和专属 `DecisionKind.Tuxi` 接入突袭；当前 v122 已以 schema 17 通用替代摸牌程序取代该执行路线。历史枚举、事件和移动 reason 只保留兼容数据，不由当前 Core、AI 或 WPF 生产或消费。
-- 规则 v31 曾在经典身份局通过 `IPassiveSkill.CanReduceDrawPhase` 接入裸衣。当前 rules v127 继续由 schema 19 的 `AdjustNormalDraw` 修改摸牌父计划，并由 `GrantTurnCardDamageModifier` 授予带技能来源、有效牌型与回合边界的通用伤害修正。`AttackResolution` 仍分离原始 `CardUserSeat` 与本次实际 `SourceSeat`，所以只有拥有者自己使用的杀／决斗直接伤害会发布 `ProgramCardDamageModifiedEvent`；决斗反向伤害和连环传导不加成。当前 Core、AI 与 WPF 只消费通用 `ProgramTrigger` 路径；1.104.0 及更早内容定义、指纹和旧枚举／事件 DTO 只作历史数据契约，不复活 `DecisionKind.Luoyi`、专属标记或旧执行器。
-- 规则 v32 在经典身份局通过 `IActiveSkill` 接入强袭。主动技草稿冻结 0–1 张手牌/装备区武器牌和一名攻击范围内的其他存活角色；空牌分支先失去 1 点体力，武器分支按 `来源区 → Processing → DiscardPile` 移动。`AttackResolution` 的来源牌/有效牌型允许为空，但 `SourceSkill=Qiangxi`，因此无实体牌来源的 1 点伤害仍统一进入 `DamageFrame`、伤害后技能和濒死链；若体力成本先令典韦濒死，主动技帧保留在濒死帧下方，获救后继续原目标伤害。rules v31 保留未开放强袭的旧回放。
-- 规则 v33 在经典身份局通过 `IPassiveSkill.CanUseAsSupplyShortage` 和 `ModifySupplyShortageDistanceLimit` 接入断粮。徐晃自己的黑色基本牌或黑色装备牌可从手牌/装备区进入既有延时锦囊与无懈链，原生及转化兵粮寸断的距离上限为 2。`_judgmentEffectiveCardKinds` 只为判定区内的转化实体牌持久记录有效牌型：公开快照、同名延时牌去重、观星目的和判定结算读取兵粮寸断，牌区诊断、移动账本与最终弃置仍读取原实体牌；离开判定区即清理映射。rules v32 保留未开放断粮的旧回放。
-- 规则 v34 在经典身份局接入甄姬的洛神与倾国。准备阶段先发布仅本人可见的 `DecisionKind.Luoshen`；每次选择发动都进入既有 `JudgmentFrame`，可由鬼才替换，黑色生效牌通过 `skill.luoshen.claim-judgment` 进入甄姬手牌并再次询问，红色牌进入弃牌堆并结束链。倾国复用 `IPassiveSkill.CanUseAsResponse`，只把甄姬自己的黑色手牌作为有效闪，移动账本继续记录原实体牌；rules v33 保留无甄姬、无洛神 Choice、无倾国转化的旧回放。
-- 规则 v35 在经典身份局接入黄月英的集智。普通锦囊完成声明后，引擎先保存原 `CardUseFrame` 或正在进行的 `NullificationWindowFrame` 游标，再向拥有者发布私有 `DecisionKind.Jizhi`；发动时以 `skill.jizhi.draw` 从牌堆摸一张并发布 `DrawSkillResolvedEvent`，随后从原处进入无懈询问或继续反制链。无懈可击本身属于普通锦囊，延时锦囊不触发；rules v34 保留无黄月英、无集智 Choice 的旧回放。
-- 规则 v36 在经典身份局接入马超的铁骑。杀完成目标声明后、仁王盾与闪响应前，引擎保留当前 `CardUseFrame` 并向攻击者发布私有 `DecisionKind.Tieqi`；发动时以攻击者为判定目标压入共享 `JudgmentFrame`，因此鬼才可在结果生效前替换。红色结果在当前 `AttackResolution` 上记录禁止闪响应，实体闪、倾国、八卦阵和护驾均不再发布；黑色结果或跳过从同一杀帧继续普通响应。rules v35 保留无马超、无铁骑 Choice 的旧回放。
-- 规则 v37 在经典身份局接入黄忠的烈弓。仅在出牌阶段用杀指定目标后，引擎读取公开目标手牌数、黄忠当前体力与统一攻击范围；目标手牌数不小于黄忠体力值或不大于攻击范围时，保留当前 `CardUseFrame` 并向黄忠发布私有 `DecisionKind.Liegong`。发动在同一 `AttackResolution` 上记录禁止闪响应，实体闪、倾国、八卦阵和护驾均不再发布；跳过或双条件均不满足时继续普通响应。rules v36 保留无黄忠、无烈弓 Choice 的旧回放。
-- 规则 v38 在经典身份局接入魏延的旧版狂骨。统一伤害后候选以 `DamageTriggerScope.DamageSource` 找到实际伤害来源，再读取来源到受伤目标的公开战斗距离；距离不大于 1 且魏延已受伤时，以高优先级锁定候选在同一伤害窗内按实际伤害点数压入 `RecoveryFrame`，并以体力上限截断。`KuangguRecoveredEvent` 记录伤害帧、来源、目标、伤害量与实际回复量；rules v37 保留无魏延、无狂骨恢复的旧回放。
-- 规则 v39 在经典身份局接入吕布的无双。`IPassiveSkill.ModifyRequiredResponseCount` 只修改公开的连续响应数量；杀来源拥有无双时，目标的每张闪分别进入独立 `ResponseWindowFrame`，决斗则按当前对手是否拥有无双决定本轮 responder 需依次打出一张或两张杀。实体响应、倾国/龙胆、八卦阵、护驾与激将仍各自复用原移动和续接链，`RequiredResponseProgressEvent` 只公开已完成/所需次数；rules v38 保留单次闪/杀响应。
-- 规则 v40 在经典身份局补齐关羽武圣的“红色牌”区域语义。合法动作和杀响应在原手牌候选之外，仅为武圣追加自己的红色装备牌；主动杀、决斗/南蛮响应与激将提供牌都通过 `FindOwnedCardLocation` 从实际 `Hand` 或 `Equipment` 进入 `Processing`，事件继续发布有效 `Slash` 而移动账本保留实体牌型。rules v39 保留仅手牌候选。
-- 规则 v41 在经典身份局补齐华佗急救的“红色牌”区域语义。濒死桃候选在原手牌之外，仅为回合外的急救拥有者追加自己的红色装备；统一恢复牌结算通过 `FindOwnedCardLocation` 从实际 `Hand` 或 `Equipment` 进入 `Processing`，`DyingResponseEvent` 继续记录有效桃与原物理牌型。rules v40 与非经典演示模式保留仅手牌候选。
-- 规则 v42 在经典身份局接入借刀杀人。父 `CardUseFrame` 冻结“持武器者、其攻击范围内被杀目标”的有序座位对，并在集智/无懈完成后向持武器者发布私有 `DecisionKind.BorrowedSword`；选择实体杀、武圣转化牌或激将时，`BorrowedSwordResolution` 保留父帧上下文并压入一条真实的子杀结算链，闪、防具、伤害、濒死及伤害后技能全部完成后才恢复父锦囊。拒绝或无法出杀时，当前武器按 `Equipment(owner) → Processing → Hand(source)` 交给使用者。装备武器自身被武圣当杀支付时不再贡献该杀的攻击范围；强制杀不消耗当前回合角色的通常出杀次数，烈弓也只在技能拥有者自己的出牌阶段开放。rules v41 保留不发布借刀杀人动作的旧回放。
-- 规则 v43 在经典身份局接入贯石斧。仅当当前 `AttackResolution` 已收到最后一张有效闪、即将把杀判为抵消时，引擎冻结同一攻击帧并向来源发布私有 `DecisionKind.StoneAxe`；每个 Choice 都是来源手牌与装备区中两张不同实体牌的精确组合，贯石斧自身也可成为费用。发动后两张牌各自按实际来源进入 `Processing → DiscardPile`，`StoneAxeResolvedEvent` 记录精确 ID，再由原攻击帧调用统一伤害链；跳过则按已成功的闪完成抵消。rules v42 与经典包 1.23.0 不创建该窗口。
-- 规则 v44 在经典身份局接入丈八蛇矛。主动装备动作冻结两张手牌与一个合法目标，杀响应 Prompt 则枚举自己手牌的全部精确两牌组合；两个实体牌共同进入 `Processing`、共同结束，`ZhangbaSerpentSpearConvertedEvent` 保留原 ID 和主动/响应语义。无固定花色的转换杀不会伪造黑色以触发仁王盾；rules v43 与经典包 1.24.0 不发布动作。
-- 规则 v45 在经典身份局接入雌雄双股剑。`GeneralGender` 由内容包版本化投影；杀指定异性目标后，引擎冻结同一已声明 `CardUseFrame`，先向来源发布私有 `DecisionKind.CixiongDoubleSwords` 发动/跳过 Choice，发动后再仅向目标发布自己每张手牌的精确弃置 Choice 与令来源摸一张牌的替代项。`CixiongDoubleSwordsResolvedEvent`、专用移动原因与攻击内已结算标记保证只触发一次，随后恢复原杀响应；rules v44 与经典包 1.25.0 保留默认性别且不创建窗口。
-- 规则 v46 在经典身份局接入青龙偃月刀。最后一张有效闪会冻结原杀的 `CardUseFrame` 并向来源发布私有 `DecisionKind.QinglongCrescentBlade`；每个发动 Choice 固定一张当前可用的实体杀或武将转换牌以及原目标，刘备还可进入有序私有激将提供者链，另有跳过项。当前追击会把被闪抵消的原杀及多目标游标保留在所属 `CardUseFrame`，挂起其攻击、武器及请求续接，再用来源实体牌、激将提供者的实体杀或丈八双牌开启不计普通杀次数且无距离限制的子 `CardUseFrame`。每名出闪的目标均可触发；子杀重新执行指定目标、武将技、防具、闪、伤害及青龙触发，允许连续追杀和技能嵌套。只有精确子杀及其全部子结算完成后，原杀才由后续引擎步进恢复；原杀的弃牌、结束事件和结束后技能不会提前发生。`QinglongCrescentBladeResolvedEvent` 记录父结算、同一目标和精确实体牌；rules v45 与经典包 1.26.0 不创建窗口。
-- 规则 v47 在经典身份局接入寒冰剑。直接杀类伤害完成酒/裸衣等数值修正后、进入 `DamageRequestedEvent` 前冻结原 `AttackResolution`，只向来源发布私有 `DecisionKind.IceSword`；目标手牌按不含 ID 的顺序牌位投影，装备区按公开实体投影，首个窗口另含保留伤害项。选择弃牌后防止全部伤害并在仍有目标牌时强制第二次选择，随后直接完成原杀，不产生该次 `DamageAppliedEvent`、`AfterDamageEvent` 或属性连环传导。`IceSwordResolvedEvent` 记录防止量与依次弃置的实体牌；rules v46 与经典包 1.27.0 不创建窗口。
-- `revealAll: true` 只用于本地开发者视图和测试，宿主可通过独立的 `GameEngine.Seed` 记录回放种子。
-
-完整牌区位置只能通过明确标为可信宿主诊断的 `CreateCardZoneDiagnostics()` 取得。它不能进入玩家网络 DTO。
-
-Core 保留三个基础响应兼容入口；当前 WPF 已全部迁移到命令边界：
-
-```csharp
-game.HumanPlay(cardId, targetSeat);
-game.HumanEndPlay();
-game.HumanRespond(useDodge: true);
-```
-
-K2 的统一入口使用单一 Revision 和完整的 Prompt Choice：
-
-```csharp
-game.Submit(new PlayCardCommand(
-    ActorSeat: 0,
-    CardId: cardId,
-    TargetSeats: [targetSeat],
-    ExpectedRevision: game.Revision,
-    PromptId: game.PendingDecision!.PromptId));
-
-game.Submit(new SelectGeneralCommand(
-    ActorSeat: 0,
-    GeneralId: game.PendingDecision!.Choices[0].ContentIds[0],
-    ExpectedRevision: game.Revision,
-    PromptId: game.PendingDecision!.PromptId));
-```
-
-主动技能也通过同一命令边界提交；当前内置主动技能中，`苦肉` 使用无牌、无目标动作，`制衡` 在规则 v17 的经典身份局使用当前拥有者私有手牌与公开装备 ID 的多选动作（v1–v16 和演示模式仍只选手牌），`仁德` 使用私有手牌多选和其他存活角色目标选择，`青囊` 使用私有一张手牌和受伤存活角色目标选择，`回春` 使用私有两张手牌和 2–3 名受伤存活角色目标选择。牌/目标集合、数量边界和 Prompt 由 Core 发布并在提交前统一校验；苦肉的单体濒死续接已复用既有救援窗口，更复杂多目标和多效果主动技能仍沿同一契约预留：
-
-```csharp
-game.Submit(new UseSkillCommand(
-    ActorSeat: 0,
-    Skill: SkillKind.Kujin,
-    CardIds: [],
-    TargetSeats: [],
-    ExpectedRevision: game.Revision,
-    PromptId: game.PendingDecision!.PromptId));
-```
-
-`CommandResult` 对玩家输入错误返回稳定 `CommandErrorCode`。出牌询问中的每个 Choice 已经把牌和目标绑定，回答询问还必须匹配 Responder、PromptId、ChoiceId 和 Revision；被拒绝的命令不改变快照、日志、牌区或随机数。
-
-回合末 `DiscardCards` 是准确子集选择：私有 Prompt 发布当前手牌 ID 和 `RequiredCardCount`，不枚举 `Choices` 组合。`DiscardCardsCommand` 携带准确张数的不同实体牌 ID、ActorSeat、PromptId 和 Revision；Core 在任何修改前验证所有权、候选集合及当前手牌上限，再以卡牌 ID 顺序统一移入弃牌堆。默认 `UseInteractiveDiscard = true`，只有活着的人类超限时暂停；AI 和显式关闭该选项的演示局保留自动弃牌。成功的手动弃牌停在下一回合，等待宿主继续推进。
-
-`HandLimitDiscardedEvent` 的准确牌 ID 仅属于可信宿主，普通玩家日志只显示数量。命令日志复制并冻结传入的选牌集合和目标集合。为拒绝旧回合末自动推进语义，Checkpoint SchemaVersion 为 3。
-
-WPF 使用 `AdvanceOneStepCommand` 记录每个 AI/结算步骤，并以 `AdvanceAfterHumanCommands = false` 保持逐步行动。响应 `ChoiceId` 显式通过 JSON 构造函数恢复，避免只读结构体使用默认值丢失候选 ID。全部界面动作都经过命令边界后，由独立 `FileGameSaveStore` 保存自动/手动两个槽位；关闭窗口前刷新待保存操作。恢复在独立引擎上完成全部验证后再替换当前引擎，详见 [`SAVE_AND_RESUME.md`](SAVE_AND_RESUME.md)。
-
-`GetHumanLegalActions()` 是服务端式合法性检查。界面高亮仅提供提示；`HumanPlay` 会重新从当前状态生成合法动作并再次验证，因此不能靠伪造按钮参数越过规则。
-
-## 3. 推进和暂停
-
-`GameEngine` 是同步、显式状态机：
-
-```text
-NotStarted
-    ↓ Start
-Setup → Pending General Selection → Reveal Generals → Round-robin Deal
-    ↓
-Draw → Play ──────────────┐
-        │                 │ HumanPlay 后仍可继续出牌
-        ├─ Pending Play ──┘
-        ├─ Slash / FireSlash / ThunderSlash → Pending Dodge → Damage / Dodged
-        ├─ Duel → 交替 Pending Slash → Damage
-       ├─ DrawTwo → 无目标 CardUse → Draw
-       ├─ Alcohol → 无目标 CardUse → 公开酒效（下一张直接杀 +1）
-       ├─ Equip → Hand → Processing → Equipment（同槽旧装备进入弃牌堆）
-        ├─ DamageSkill → Feedback Prompt → 发动：DamageCardClaimedEvent / Processing → Hand；跳过：Processing → DiscardPile
-       ├─ DamageSkill → Yiji Prompt → 摸两张：DrawPile → Hand(owner)；交牌：Hand(owner) → Hand(other target)；跳过：两张牌留在 owner Hand
-       ├─ DamageSkill → Yuanhu Prompt → 发动：Hand(owner) → Processing → DiscardPile；RecoveryFrame → 固定受伤目标回复 1 点；跳过：不移动牌
-       ├─ ActiveSkill → ActiveSkillFrame → 类型化体力变化/技能摸牌 → close
-       ├─ BarbarianAssault / ArrowBarrage → TargetIndex → 逐目标 Pending Slash / Dodge → Damage / Dying
-        ├─ PeachGarden → TargetIndex → 逐目标 RecoveryFrame → RecoveryApplied
-        ├─ FiveGrains → TargetIndex → PublicRevealedCards → 私有 SelectHarvestCard → Hand
-        ├─ Indulgence/SupplyShortage → 目标 Judgment → 下回合摸牌前 JudgmentFrame → 乐不思蜀非红桃跳过出牌 / 兵粮寸断非梅花跳过摸牌
-        └─ EndPlay
-             ↓
-          Discard → Finished → 下一存活玩家的 Draw
-```
-
-`Advance()` 连续运行 AI，直到遇到真人输入或游戏结束。`AdvanceOneStep()` 只处理一个阶段变化或一次 AI 决策，供调试界面观察。两者和旧人类 API 都通过公共提交边界产生 Revision。
-
-这与旧式引擎“阻塞一个房间线程等待客户端”不同：暂停由 `PendingDecision` 表达，进程中没有锁住的等待线程。若未来联网，服务器可以序列化当前快照，稍后收到回复再恢复。
-
-可信宿主的持久化边界由 `GameCheckpoint` 单独承担：它保存选项、已接受命令前缀、Revision、模式 ID、内容包版本签名、规范化 SHA-256 内容指纹和规则诊断标记，`GameReplay.Restore` 仍逐条经过普通命令校验。它可以恢复处于私有 Prompt 的命令驱动暂停点，并拒绝相同包版本下的内容定义漂移；规则标记不同或缺失均按当前实现尝试回放。桌面读取或回放失败时初始化新牌局，并避免立即覆盖原存档。它不是玩家快照；若状态曾由旧兼容 API 直接推进，捕获会显式失败。
-
-## 4. 卡牌结算
-
-一次杀/决斗的主要调用链：
-
-```text
-HumanPlay / AI ChoosePlay
-      → BuildLegalActions（当前状态下重新验证）
-      → ExecuteAction（普通牌或主动技能）
-      → ResolveSlash
-      → 杀从使用者 Hand 移入 Processing
-      → 记录 CardUsed，通知所有 AI 观察公开行为
-      → 有闪：真人生成 PendingDecision；AI 进入下一步 ChooseDodge
-          → 闪从 Hand 移入 Processing，再进入 DiscardPile
-      → 无闪或放弃：ApplySlashDamage
-           → 直接杀：若有酒效则体力 -2，并在伤害声明时消费酒效；其他攻击仍按自身伤害规则
-          → 普通杀/火杀/雷杀分别标记 DamageNature.Normal/Fire/Thunder
-           → DamageSkillContext 与 DamageRequested/Applied/AfterDamage 保持同一伤害类型和实际金额
-          → DamageSkillContext 询问被动技能
-              → 存在候选：压入 DamageTriggerWindowFrame，CandidateIndex 可在候选间推进；规则版本 5 即使目标降至 0 点体力也先完成该窗口，v1–v4 回放保留历史顺序
-           → 可选技能：压入 DamageSkillFrame，拥有者私有选择发动/跳过
-              → Feedback 发动：取得同一实体牌并发布 DamageSkillResolvedEvent / DamageCardClaimedEvent
-              → Yiji 发动：先摸两张牌，再将一张合法牌移给其他存活目标并发布 DamageSkillCardGivenEvent
-              → Guicai 判定前发动：旧判定牌结束；新手牌经 Hand → Processing → Judgment(target)，再按同一 JudgmentFrame 继续
-              → 跳过：Feedback 的伤害牌进入 DiscardPile；Yiji 的两张牌留在拥有者手牌；父攻击/群体帧继续
-         → 体力为 0：DyingFrame
-              → 按固定座次逐一发布私有桃候选
-              → AI 或真人提交救援/放弃
-              → 救援成功：恢复至 1 点体力，继续父结算
-              → 全部放弃：DeathFrame、公开身份、奖惩、EvaluateWinner
-     → FinishAttack：杀从 Processing 进入 DiscardPile，或被奸雄移入手牌
-                     反馈取得时，父攻击/群体帧继续引用已转入目标手牌的同一实体牌；遗计赠牌完成后，父攻击/群体帧沿触发游标继续
-```
-
-桃园结义沿用同一父级 `CardUseFrame`，在使用时锁定所有仍存活的座位（含使用者），然后由 `TargetIndex` 逐步推进。每次 `AdvanceOneStep()` 最多处理一个目标：受伤目标短暂压入 `RecoveryFrame` 并发布 `RecoveryAppliedEvent`，满血目标只推进游标；父牌在所有目标完成前停留于 `Processing`，普通玩家快照只看到处理区数量和已经公开的体力结果。
-
-五谷丰登复用同一父级和目标游标，但把牌面可见性显式建模为 `GameSnapshot.PublicRevealedCards`。使用时每个锁定的存活角色对应一张 `DrawPile → Processing` 的公开牌；当前 picker 收到私有 `SelectHarvestCard` prompt，选中牌从 `Processing` 进入自己的手牌，完成全部 picker 后父牌才进入弃牌堆。AI 只调用 `ChooseHarvestCard(view, options, ...)`，其中 `view` 是本座玩家视角、`options` 是公共展示牌，不读取引擎牌区或其他玩家手牌。
-
-火攻使用独立的两段私有选择而不是复用五谷丰登的公共 draft：目标先在自己的快照中选择一张手牌。规则 v19 起实体牌继续位于 `Hand(target)`，但通过 `FireAttackCardRevealedEvent` 和 `PublicRevealedCards` 临时公开牌面；攻击者再从自己的同花色手牌中选择弃牌或跳过，自选目标时展示牌本身也可支付该弃牌成本。成功弃牌时同一 `CardUseFrame` 转为 `AttackResolution`，由 `DamageNature.Fire` 进入既有伤害/技能/濒死链；跳过或无同花色牌只清除公开展示状态并结束父牌。v1–v18 保留只能选择其他角色、展示牌 `Hand(target) → Processing → DiscardPile` 的历史路径。两个 AI 选择器只接收本座快照与宿主已经发布的候选 ID，普通观察者既看不到未展示牌面，也看不到私有候选 Prompt。
-
-过河拆桥和顺手牵羊复用单目标 `CardUseFrame` 与分层目标牌选择：规则版本 4 的隐藏手牌分支先压入 `TargetCardSelectionFrame`，只向来源玩家发布带不透明 ordinal 牌位的私有 `DecisionKind.SelectTargetCard` Prompt；目标和普通观察者看不到牌面或实体 ID。来源玩家确认后，前者把目标牌从 `Hand(target)`、`Equipment(target)` 或 `Judgment(target)` 经过 `Processing` 后送入弃牌堆，后者把目标牌从这三个来源之一经过 `Processing` 后送入 `Hand(source)`；规则版本 1–3 回放保留历史确定性盲选语义。顺手牵羊的合法性由 `GetCombatDistance(sourceSeat, targetSeat) == 1`、存活、非自身和目标有手牌、装备或判定区牌共同决定；战斗距离按存活座位环计算，并叠加进攻/防御坐骑 modifier。隐藏手牌效果只投影脱敏的类型化结果事件，公开装备/判定区事件可携带其已公开实体 ID/牌种，可信移动账本始终保留物理牌 ID。
-
-`CardZoneStore` 维护 DrawPile、Hand、Processing、DiscardPile、Equipment、Judgment 和 OutsideGame。单张和批量移动都先验证真实来源、目标区和重复 ID，再统一生效；引擎在每次公共操作返回前校验所选牌堆的全部实体牌唯一且守恒。移动账本使用类型化 `CardMoveReason`，可供测试和后续录像使用。武圣与龙胆的牌转化不创建副本：`LegalAction.PlayedCardKind`/`PlayCardCommand.PlayedCardKind` 描述出牌时的有效牌型，响应 Prompt 的 `response-card-kind` 与 `CardRespondedEvent.EffectiveCardKind` 描述响应有效牌型，`CardMovementRecord.CardKind` 仍描述同一实体牌的物理牌面。
-
-引擎保持所有规则状态修改集中在受控入口。技能只回答“小型规则问题”，例如摸牌数是否增加、能否成为杀的目标、伤害牌是否被取得。这样不会让某个技能脚本悄悄绕过死亡和胜负检查。当前 `DamageNature` 只表达普通、火焰和雷电三种伤害来源；铁索连环已通过公开状态标记和类型化传导事件接入，属性抗性、属性转化和更复杂的多伤害嵌套仍未开放。
-
-## 5. 内容注册与阶段边界
-
-当前内容同时提供兼容投影和正式 Registry：
-
-- `CardCatalog` 为杀、火杀、雷杀、闪、桃、酒、决斗、无中生有、南蛮入侵、万箭齐发、桃园结义、五谷丰登、过河拆桥、顺手牵羊、火攻、乐不思蜀、兵粮寸断、闪电、无懈可击、铁索连环、借刀杀人和十二种装备牌（含贯石斧、丈八蛇矛、雌雄双股剑、青龙偃月刀、寒冰剑、仁王盾）提供显示文案、类别、AI 使用价值和自动弃牌保留价值；`Card.DisplayName` 与 WPF 卡面都从这里读取，避免 UI 再维护一份牌面语义。
-- `StandardDeckCatalog.BasicDemo` 描述 18 张杀、2 张火杀、2 张雷杀、18 张闪、10 张桃、2 张酒、4 张决斗、2 张无中生有、2 张南蛮入侵、2 张万箭齐发、2 张桃园结义、2 张五谷丰登、2 张过河拆桥、2 张顺手牵羊、2 张火攻、2 张乐不思蜀、2 张兵粮寸断、2 张闪电、2 张无懈可击、2 张铁索连环、2 张诸葛连弩、1 张八卦阵、1 张青釭剑、1 张赤兔、1 张绝影和 1 张玉玺、1 张仁王盾组成的 90 张演示牌堆、初始手牌数 4 和每回合摸牌数 2；玉玺可使持有者额外摸一张，青釭剑使直接杀无视目标防具，规则 v14 的仁王盾在黑色杀指定目标后令其无效，`GameEngine` 只消费这些配置并负责洗牌、移动和结算。
-- `classic:standard-deck` 从经典包 1.23.0 起在 `BasicDemo` 配方上增加两张 `classic:borrowed-sword`，共 92 张；1.24.0–1.28.0 再依次加入贯石斧、丈八蛇矛、两张雌雄双股剑、青龙偃月刀和寒冰剑，形成 93/94/96/97/98 张配方。经典模式定义显式引用该版本化牌堆；恢复旧包时仍得到各自历史配方，因此旧内容指纹、发牌和同种子回放不被新牌静默改变。
-- 牌的顺序生成仍然使用稳定的 id、花色和点数规则，再交给现有确定性随机数洗牌，因此相同种子仍可复现。
-- `CardGame.Content.Standard/StandardContentPackage.cs` 注册 `standard:*` 卡牌、技能、武将、牌堆和 `identity:standard-8` 模式定义；`ContentRegistry.Build()` 会按依赖拓扑顺序注册，并拒绝重复 ID、缺失引用、版本不足和依赖环。
-- `GameEngine.CreateStandard(options, registry)` 消费 Registry 中的 `standard:basic-demo` 牌堆配方，运行时仍通过 `CardKind`/`SkillKind` 兼容映射，避免一次性破坏旧 WPF API；不传 Registry 时保留 Core 内置兼容路径。
-- `ContentModeDefinition` 还提供角色分布、牌堆 ID、候选数量和武将池；开启 `UseInteractiveSetup` 后，模式开局通过私有 `SelectGeneralCommand` 暂停，所有候选均由 Core 校验，完成后才洗牌并逐轮发牌。
-- `standard-active-skills@1.1.0` 是依赖 `standard@1.11.0` 以上版本的可选扩展包，增加 `standard:kujin`、`standard:zhiheng`、`standard:rende`、`standard:qingnang`、`standard:huichun`、`standard:mashu`、`standard:qicai`、七个技能演示武将及 `identity:active-skills-8/5`；rules v117 中 `standard@1.12.0` 的咆哮和该包的马术已进入 schema 12 规则查询程序。其上另有 `standard-rescue-skills@1.0.0`，增加 `standard:jijiu`/急救者并扩展同一模式武将池；WPF 默认窗口显式选择包含救援层的 Registry，显式历史构造仍可选择 1.11.0／1.0.0 旧定义和原内容指纹。
-- `standard-classic-generals@1.99.0` 配合 rules v118 把精策、据守和闭月迁入 schema 13 生命周期程序。`PlayEnding` 与 `TurnEnding` 候选均冻结公开触发事实并按优先级、技能 ID、绑定 ID、实例 ID 稳定排序；结束阶段另由可序列化 `TurnEndingBoundaryFrame` 串行协调据守 Program、受限旧举荐桥和闭月 Program。举荐到达桥项时才计算成本与目标，因此据守新摸的牌可立即支付；Program 所有权、定义哈希和次数在执行前实时复验。`setFaceState(true)` 是精确置背面而非翻转，已背面的角色不会被据守翻回正面；终局不会额外伪造 `TurnEndedEvent`。1.98.0 及更早版本保留历史内容定义和指纹，但不复活已移除的专用运行路径。
-- `standard-classic-generals@1.100.0` 配合 rules v119 把枭姬、连营迁入 schema 14 `CardsMoved` 程序。每次 `MoveCard`／`MoveCards`／`MoveAllCards` 在物理移动和同步装备钩子提交后形成一个不可变 `CardMovementBatchContext`，保存父规则帧、直接父移动批次、来源牌区移动前后数量和有序移动记录；嵌套木牛流马粮草移动保留独立子批次。安全空栈边界按批次 ID 串行打开可序列化 `CardsMovedTriggerWindowFrame`，候选可明确选择 `perCard` 或 `perBatch`，提示与执行都复验技能实例、定义哈希和条件。该窗口首片只开放拥有者来源牌区和拥有者摸牌效果，不从提交后的 UI／审计事件反向驱动规则。1.99.0 保留历史内容定义和指纹，但不复活已删除的枭姬／连营专属队列、决策与恢复路径。
-- `standard@1.13.0` 与 `standard-classic-generals@1.101.0` 配合 rules v120 把标准／经典奸雄、反馈、遗计、节命迁入 schema 15 `AfterDamageApplied` 程序。`DamageTriggerWindowFrame` 冻结每次伤害或每点伤害的有序候选，通用程序帧保存伤害来源、全部实体伤害牌、已应用点数、出现序号、绑定牌及其来源位置；选择与恢复只使用这些可信上下文，并在执行前复验技能实例。暗手牌以不透明槽位发布，伤害牌取得、来源牌移动、遗计交牌和节命补牌均复用通用节点及技能 ID 派生的移动原因。旧专属 Human API 仅为抛错兼容壳，当前引擎、AI 与 WPF 不再沿旧决策路线执行；1.12.0／1.100.0 保留历史定义和指纹，但不复活旧执行器。
-- `standard@1.14.0` 与 `standard-classic-generals@1.102.0` 配合 rules v121 把标准／经典英姿迁入 schema 16 `DrawPhaseStarting` 程序。窗口冻结普通摸牌前的有序技能候选，强制程序直接执行，可选程序复用 `ProgramTrigger`；父帧以 `CompleteDrawPhase` 继续点保存候选游标和延后生效的跳过出牌阶段标记。多个加量程序完成后才执行且只执行一次正常摸牌。1.13.0／1.101.0 保留历史定义和指纹，但不复活已删除的专属英姿决策、AI/WPF 路由或被动摸牌 modifier。
-- `standard-classic-generals@1.103.0` 配合 rules v122／schema 17 将经典突袭迁入同一 `DrawPhaseStarting` 窗口。触发器显式声明 `replacement` 且优先级高于加量候选；程序先以通用 `selectTargets` 选择一至两名有手牌的其他存活角色，再由 `takeRandomHandCardFromSelectedTargets` 将每名目标的一张确定性随机暗手牌经 Processing 转移给拥有者。成功完成会在父帧设置 `NormalDrawReplaced` 并终止剩余候选；跳过则继续英姿等加量候选及一次正常摸牌。目标 Choice、父帧和程序帧均可序列化并在提交时复验；公开事件只含技能身份、目标座位和数量。1.102.0 保留历史定义与指纹，但不复活已删除的突袭专属状态、提交、AI/WPF 路由或被动替代钩子。
-- `standard-classic-generals@1.104.0` 配合 rules v123／schema 18 将经典再起迁入同一替代窗口：按已损失体力冻结亮牌集合，按花色绑定子集分流，并按红桃牌数回复。1.103.0 保留历史定义与指纹，不复活再起专属路线。
-- `standard-classic-generals@1.105.0` 配合 rules v124／schema 19 将经典裸衣迁入加量计划。发动后父帧累计普通摸牌调整 -1，并向同一回合授予只匹配拥有者本人使用的杀、火杀、雷杀和决斗直接伤害的 +1 修正；通用事件记录计划调整、状态授予和逐项伤害变化，回合结束按统一卡牌使用效果存储清理。1.104.0 保留历史定义、包签名与内容指纹，但不会使专属 v31 执行器重新可达。
-- `standard-classic-generals@1.106.0` 配合 rules v125／schema 20 将经典将驰与自守迁入同一摸牌计划。将驰的两个 `choiceGroup` 分支只执行选中的一项，并分别授予杀的使用／打出禁止，或杀次数 +1／距离无限；自守按公开现存势力数摸牌，并以通用 `SelfOnly` 目标策略过滤单体和群体牌目标。三类策略共用带技能、帧和指令身份的回合存储与到期清理，规则查询、合法动作、响应和群体逐目标结算均消费同一来源。1.105.0 保留历史定义、包签名与内容指纹，不复活专属将驰／自守执行器。
-- 当前 `standard-classic-generals@1.108.0` 继续承载 rules v126／schema 21 的经典双雄摸牌计划。`StartJudgment` 复用共享公开判定及改判窗口，把最终实体牌冻结为命名绑定；`GrantTurnCardConversion` 从绑定牌的有效花色派生红黑，在当前回合向相反颜色手牌提供【决斗】转换；`MoveBoundCards` 再把最终判定牌交给拥有者。同一牌若已由天妒取得，移动节点安全视为完成。转换按技能、帧和指令身份幂等存储并随回合清理；1.106.0 保留历史定义、包签名与旧专属双雄执行边界。
-- rules v127／schema 22 在既有 `SelfDyingResponse` 父流程内开放受控的拥有者状态变换：`DiscardOwnedZoneCards` 按声明顺序清理手牌、装备区和判定区，`SetChainedState` 设置连环状态，`RecoverTo(IntegerConstant)` 在最大体力范围内恢复至固定值。`standard-classic-generals@1.108.0` 的经典涅槃由这些节点与通用 `Draw` 组合，限次按 `SkillId + SkillInstanceId + BindingId` 记录；Core、AI 和 WPF 不再按涅槃技能名进入当前执行分支。1.107.0 及更早内容仍使用专属历史实现，保证旧包签名和玩法指纹不漂移。
-- rules v130／schema 25 扩展同一冻结事实模型：`CurrentHandCount` 与 `LordGeneralNotIn` 在准备阶段候选收集时固定，`ChangeMaximumHp` 负责下限归一化和当前体力钳制，`GrantSkills` 通过 `CharacterSkillSet` 建立稳定授予来源并复用统一转换注册。`standard-classic-generals@1.109.0` 的单骑是不可跳过、整局一次的 `TurnStartBeforeNormalFlow` 程序；觉醒标签统一投影 `SkillAwakenedEvent`，不在执行器中识别单骑。1.108.0 及更早内容仍使用历史函数。
-- rules v131／schema 26 将 `CurrentOwnedZoneCount` 限定到拥有者的持久命名牌区，并把互斥组扩展到准备阶段的强制选择。组内分支共享一次整局额度；多个合法分支发布无跳过项的通用提示，只有一个合法分支时直接执行。`standard-classic-generals@1.110.0` 的自立以“权”数量和当前体力冻结事实决定回复／摸牌分支，再复用上限变化与带来源授予排异；1.109.0 保留专属历史提示。
-- `ProgramInstructionResolver` 按不可变 `SkillProgram` 引用缓存主动与共享触发的只读 `ProgramExecutionPlan`。计划身份包含来源种类、绑定 ID 与指令序号；它只消除重复定义转换，不保存候选、玩家选择或其他比赛状态。执行与暂停恢复都从计划取得指令，已提交游标仍是“不重复支付前序效果”的唯一进度依据。
-- `standard-classic-generals@1.1.0` 在 1.0.0 的正式多技能武将层上增加 `classic:guo-jia` 与 `classic:tiandu`，并保留遗计作为第二技能；恢复 1.0.0 存档时仍构造旧武将池和旧包指纹，不把新版郭嘉静默写入历史命令前缀。
-- `standard-classic-generals@1.26.0` 在 1.25.0 的丈八蛇矛与 94 张牌堆上注册 `classic:cixiong-double-swords`、甄姬/黄月英的女性性别并生成 96 张当前经典牌堆；1.25.0 保留丈八蛇矛、94 张配方与默认男性投影，1.24.0 保留贯石斧和 93 张配方，1.23.0 保留借刀杀人与 92 张历史配方，1.22.0 仍用 `classic:guan-yu` / `classic:wusheng` 替换经典池的 Standard 占位关羽但保留 90 张牌堆，1.21.0 保留 `standard:guan-yu`，1.20.0 保留 `standard:zhao-yun`，1.19.0 保留 `standard:zhang-fei` 且不注册对应新经典 ID，1.18.0 保留不含吕布的武将池，1.17.0 保留不含魏延的武将池，1.16.0 保留不含黄忠的武将池，1.15.0 保留不含马超的武将池，1.14.0 保留不含黄月英的武将池，1.13.0 保留不含甄姬的武将池，1.12.0 保留不含徐晃的武将池，1.11.0 保留不含典韦的武将池，1.10.0 保留不含许褚的武将池，1.9.0 保留不含张辽的武将池，1.8.0 保留不含吕蒙的武将池，1.7.0 保留不含甘宁的武将池，1.6.0 保留不含黄盖的武将池，1.5.0 保留不含救援的孙权，1.4.0 再保留不含激将的刘备，1.3.0 继续使用旧 `standard:cao-cao`，更早版本按历史边界恢复诸葛亮、周瑜与郭嘉；二十七个版本分别保留原武将池、性别、卡牌/牌堆定义和内容指纹。
-- `standard-classic-generals@1.27.0` 在 96 张历史牌堆上注册 `classic:qinglong-crescent-blade` 并生成 97 张历史牌堆；1.28.0 再注册 `classic:ice-sword` 并生成当前 98 张经典牌堆。1.27.0 及更早版本继续保留各自的武将池、性别、卡牌/牌堆定义和内容指纹。
-- K5 切片把决斗的交替 `RespondSlash` 响应、无中生有的无目标摸牌、酒的一次性直接杀 +1 伤害、濒死窗口所有 responder 的桃救援与 victim 的酒自救、急救红牌当桃、南蛮入侵/万箭齐发的群体逐目标 `RespondSlash`/`RespondDodge`、桃园结义的群体逐目标恢复、普通/火/雷杀的 `DamageNature`、反馈/遗计/节命伤害后技能和单次杀/决斗/群体牌伤害后的基础濒死窗口接入同一帧栈：`CardUseFrame.TargetIndex` 保存当前群体目标，`GroupResponseEvent` 记录必需响应牌种类，`DamageFrame` 保存伤害类型和实际金额，`AlcoholAppliedEvent`/`AlcoholExpiredEvent` 表示酒效生效/回合结束失效，`RecoveryFrame` 记录桃园结义当前恢复子帧，`DyingFrame` 逐个询问可用桃/酒/红牌的 responder；桃、酒和转化牌通常从 responder 自己的手牌移动到 `Processing`，rules v41 的经典急救转化牌也可从自己的装备区支付。规则 v12 起酒仅允许 victim 自救，v3–v11 保留跨座位救援，v1/v2 仍按原仅自救语义，急救事件同时记录有效 Peach 与物理牌型，节命通过私有目标 Choice 和 `DamageSkillCardsDrawnEvent.TargetSeat` 补牌至目标体力上限，其他视角只看到公开结算结果。
-
-当前已开放十五张最小锦囊 `standard:duel`、`standard:draw_two`、`standard:barbarian_assault`、`standard:arrow_barrage`、`standard:peach_garden`、`standard:five_grains`、`standard:dismantlement`、`standard:snatch`、`standard:fire_attack`、`standard:indulgence`、`standard:supply_shortage`、`standard:lightning`、`standard:nullification`、`standard:iron_chain` 与 `classic:borrowed-sword`，酒作为第六种基本牌复用无目标 `CardUseFrame` 并提供一次性直接杀加伤，四张群体/多目标牌共用目标游标，其中两张响应牌共用通用响应事件，五谷丰登复用公开翻牌和私有选牌事件，过河拆桥和顺手牵羊复用单目标 `CardUseFrame` 与“隐藏手牌不透明牌位选择/公开装备或判定区牌精确选择”的目标牌移动入口；规则版本 4 使用 `TargetCardSelectionFrame` 固化私有暂停点，`TargetCardSelectionRequestedEvent` 只公开候选数量，规则版本 1–3 回放保留历史盲选语义，火攻复用单目标父帧并增加私有展示/同花色弃牌两段 Prompt，乐不思蜀、兵粮寸断和闪电把延时牌置入目标公开判定区并在其下回合摸牌前复用 `JudgmentFrame`，规则 v11 起前者非红桃跳过出牌阶段、兵粮寸断非梅花跳过摸牌阶段，v1–v10 保留历史红黑语义，闪电黑桃 2 至 9 命中 3 点雷电伤害否则转移；无懈可击在锦囊效果前复用固定座次私有响应和有限多层 `NullificationWindowFrame`，铁索连环通过精确一/二目标和公开 `IsChained` 标记接入火/雷伤害同额传导；借刀杀人通过有序双目标与 `BorrowedSwordResolution` 将持武器者的私有出杀/交武器选择接入真实子杀链；普通/火/雷杀共用杀路径，属性类型和实际伤害金额写入伤害帧与事件；K6 已开放五个装备槽位、十种装备牌（含贯石斧、丈八蛇矛、雌雄双股剑、仁王盾）的生命周期、同槽替换、死亡清理、基础战斗距离/攻击范围查询以及诸葛连弩、青釭剑、贯石斧、丈八蛇矛、雌雄双股剑、赤兔、绝影、玉玺、仁王盾和马术的 modifier/触发；规则 v13 起诸葛连弩/青釭剑分别使用牌面攻击范围 1/2，v1–v12 保留旧 +1/默认 1 的回放数值；规则 v14 起八卦阵覆盖直接杀及万箭齐发的闪响应，仁王盾在黑色杀指定目标后通过 `ArmorEffectAppliedEvent` 令其无效，v1–v13 保留旧时机；规则 v43 起贯石斧在最后一张闪成功后发布精确两牌费用并恢复同一杀伤害，v44 起丈八蛇矛发布双手牌转杀，v45 起雌雄双股剑发布异性杀后的两阶段资源选择；奇才通过 `GetLegalActions` 统一放宽距离型锦囊目标，K7 已为八卦阵、乐不思蜀、兵粮寸断和闪电接入 `JudgmentFrame`、判定区移动和对应结果，鬼才复用同一判定帧。其余锦囊和复杂装备效果仍需各自的目标、响应窗口和处理区语义。明确扩展需求记录在 [`CONTENT_BACKLOG.md`](CONTENT_BACKLOG.md)，在对应类型化入口开放前不通过 UI 或 `GameEngine` 特判接入。
-
-K6 当前共十二种装备牌；rules v47 新增寒冰剑的伤害前私有顺序弃牌 Choice，以不透明手牌位/精确装备保护目标隐私，并在发动时防止全部伤害及伤害后续接。rules v46 的青龙偃月刀与十一种装备是 1.27.0 的历史边界。
-
-## 6. 技能扩展
-
-当前最小接口：
-
-```csharp
-public interface IPassiveSkill
-{
-    int ModifyDrawCount(PlayerSkillContext owner, int currentCount) => currentCount;
-    int ModifySlashLimit(PlayerSkillContext owner, int currentLimit) => currentLimit;
-    int ModifyOutgoingDistance(PlayerSkillContext owner, int currentDistance) => currentDistance;
-    bool ProhibitsSlashTarget(PlayerSkillContext owner) => false;
-    bool CanUseAsSlash(PlayerSkillContext owner, Card card) => false;
-    bool CanUseAsResponse(PlayerSkillContext owner, Card card, CardKind requiredCardKind) => false;
-    bool CanUseAsDyingRescue(PlayerSkillContext owner, Card card) => false;
-    bool CanClaimResolvedJudgment(JudgmentSkillContext context) => false;
-    bool OffersDamageCardChoice(DamageSkillContext context) => false;
-    bool ClaimsDamageCard(DamageSkillContext context) => false;
-    DamageSkillEffectKind GetDamageSkillEffect(DamageSkillContext context) => DamageSkillEffectKind.None;
-}
-```
-
-主动技能使用独立的数据型接口，不让内容实现直接触碰引擎私有状态：
-
-```csharp
-public interface IActiveSkill
-{
-    SkillKind Kind { get; }
-    string Name { get; }
-    bool CanUse(ActiveSkillContext context) => false;
-    ActiveSkillEffect GetEffect(ActiveSkillContext context) => new(ActiveSkillEffectKind.None);
-}
-```
-
-三十二个被动技能通过查询、修正或触发扩展点接入；主动技能另有独立入口：
-
-- 英姿：旧规则直接修改摸牌数；规则 v21 的经典身份局在摸牌阶段发布可暂停选择，并在确认后继续同一回合；
-- 天妒：规则 v22 的经典身份局在拥有者自己的判定牌生效后发布可暂停选择，决定该牌进入手牌还是按通常流程弃置；
-- 反间：规则 v23 的经典身份局通过目标型主动技能选择一名其他角色，再由目标先选花色；随机牌转移并公开后，花色不同时进入 1 点普通伤害链；
-- 观星：规则 v24 的经典身份局在延时牌判定和摸牌之前发布发动/跳过 Choice；发动后牌面、花色、点数和排序步骤仅对技能拥有者可见，完成后只公开观看/置顶/置底数量；
-- 护驾：规则 v25 的经典主公曹操在闪响应窗中可发起有序魏势力询问；候选只看到自己的实体闪/转化牌与公开八卦阵，成功牌的物理拥有者和有效响应者分开记录；
-- 激将：规则 v26 的经典主公刘备可在出牌阶段或杀响应窗发起有序蜀势力询问；每个候选只看到自己的实体杀/转化牌，提供者与有效使用者/响应者分开记录，主动失败保留人类重试能力；
-- 救援：规则 v27 的经典主公孙权在濒死时，由另一名吴势力角色使用的桃回复量为 2；技能无新 Prompt，复用既有私有救援选择、实体牌移动和恢复事件，并用专用事件公开加成已生效；
-- 奇袭：规则 v28 的经典甘宁可把手牌或装备区的黑色实体牌按过河拆桥使用；合法目标、无懈与目标牌选择复用有效牌型，移动账本保留原牌型和来源区；
-- 克己：规则 v29 的经典吕蒙在 Play 阶段未使用或打出杀时，于 Discard 阶段得到私有发动/跳过 Choice；发动后跳过弃牌并结束回合；
-- 突袭：规则 v30 的经典张辽可在 Draw 阶段选择一至两名有手牌的其他角色，以随机暗手牌转移替代整段普通摸牌；
-- 裸衣：规则 v31 的经典许褚可在 Draw 阶段少摸一张，使本回合由自己使用的杀或决斗伤害 +1；决斗反向伤害按实际来源结算且不受裸衣加成；
-- 强袭：规则 v32 的经典典韦每个出牌阶段限一次，可失去 1 点体力或弃置一张手牌/装备区武器牌，对攻击范围内一名其他角色造成 1 点无实体牌来源的技能伤害；体力成本与目标伤害之间可暂停于共享濒死续接；
-- 断粮：规则 v33 的经典徐晃可将手牌或装备区的黑色基本牌/装备牌当兵粮寸断使用，并把兵粮寸断距离上限修正为 2；判定区有效牌型与实体牌身份分别持久化；
-- 洛神：规则 v34 的经典甄姬在准备阶段可反复选择进行判定，获得生效后的黑色判定牌，红色结果自动停止并弃置；
-- 倾国：规则 v34 的经典甄姬可将一张黑色手牌作为闪使用或打出，实体牌型和有效响应牌型分别记录；
-- 集智：规则 v35 的经典黄月英使用普通锦囊牌后可私有选择摸一张牌；选择完成后恢复同一锦囊的无懈询问或反制游标，无懈可击自身也触发，延时锦囊不触发；
-- 铁骑：规则 v36 的经典马超使用杀指定目标后可私有选择进行判定；共享判定帧允许鬼才替换，红色结果在当前杀结算上禁止目标使用闪，黑色结果或跳过恢复普通闪响应；
-- 烈弓：规则 v37 的经典黄忠于出牌阶段使用杀指定目标后，若目标公开手牌数不小于黄忠当前体力值或不大于黄忠攻击范围，可私有选择令目标不能使用闪；跳过或双条件均不满足时恢复普通闪响应；
-- 狂骨：规则 v38 的经典魏延作为实际伤害来源对距离 1 以内角色造成伤害后，锁定按伤害点数回复体力；满体力不创建空恢复，rules v37 不触发；
-- 无双：规则 v39 的经典吕布使用杀时目标需依次完成两次闪响应；吕布使用或成为目标的决斗中，另一方每轮需依次完成两次杀响应。第一张不能单独抵消或交替回合，rules v38 保留单次响应；
-- 咆哮：修改一回合使用杀的上限；
-- 空城：添加目标禁止条件；
-- 奸雄：在伤害完成后改变造成伤害的卡牌去向。
-- 武圣：规则 v40 的经典关羽允许手牌或装备区红色非杀实体牌生成有效牌型为杀的主动动作与响应 Choice，并从实际来源区支付；rules v39 保留仅手牌候选；
-- 急救：规则 v41 的经典华佗在回合外允许手牌或装备区红色非桃实体牌生成有效桃救援 Choice，并从实际来源区支付；rules v40 与演示模式保留仅手牌候选；
-- 龙胆：允许闪生成有效杀，杀/火杀/雷杀生成有效闪，并复用精确响应询问；
-- 马术：将拥有者计算与其他角色的公开出攻距离减少 1，并由 Core 统一钳制最小距离；
-- 奇才：让拥有者使用的锦囊牌忽略距离限制，由 `GetLegalActions` 统一发布扩大后的公开合法目标；
-- 急救：仅在濒死响应窗口把红色非桃实体牌映射为有效桃，物理牌仍由引擎按原牌区生命周期移动并在事件中保留牌型；
-- 反馈：目标存活且伤害牌仍在处理区时进入私有可选触发；发动后取得同一实体牌，并以类型化事件记录。
-- 遗计：受伤后私有摸两张牌，从合法牌/目标组合中将一张牌交给其他存活角色，并以类型化事件和受限跨手牌移动记录。
-- 节命：受伤后按公开手牌数量选择一名合法角色补牌至体力上限，并以私有 Prompt、类型化事件和牌堆到目标手牌的移动记录。
-- 援护：其他角色受到正伤害后，援护者从自己的私有手牌中选择一张弃置，并以 `RecoveryFrame` 令固定受伤目标回复 1 点体力；弃牌、恢复和效果目标通过类型化事件记录。
-- 刚烈：受伤后私有选择是否发动并公开判定；判定为红色时，向伤害来源发布仅其可见的精确两牌弃置/承受 1 点伤害 Choice，若反制伤害进入濒死则在救援完成后回到原触发游标。
-- 鬼才：判定牌生效前由当前候选拥有者私有选择一张手牌替换或跳过；替换牌进入同一 `JudgmentFrame`，最终结果公开，AI 只使用自己的过滤快照。
-- 苦肉：出牌阶段且体力大于 0 时发动，沿 `ActiveSkillFrame` 失去 1 点体力并摸两张牌；若降至 0 点，先在同一帧下压入私有 `DyingFrame`，救援成功后继续摸牌，失败后完成死亡清理再闭合主动技能。
-- 制衡：规则 v17 的经典身份局每个出牌阶段限一次，从自己的手牌或公开装备区选择至少一张并逐张移入 `Processing`，弃置后摸等量牌；v1–v16 与演示模式保留手牌限定和可重复发动。暗手牌集合只在当前拥有者的私有 Prompt 与可信宿主事件中出现，装备候选保持公开。
-- 乐不思蜀/兵粮寸断：将使用牌置入其他存活角色的公开判定区，在其下回合摸牌前按顺序进入 `JudgmentFrame`；规则 v11 起，乐不思蜀非红桃跳过出牌阶段，兵粮寸断非梅花跳过摸牌阶段，v1–v10 保留历史红黑语义；多个延时牌通过位标记累计效果，延时牌和判定牌均沿统一移动账本收尾。
-- 武魂死亡链：rules v92 在普通死亡提交、身份公开、区域清理、奖惩和模式胜负判定后，只对仍未终局的武魂拥有者压入 `DeathSkillFrame`。该帧保存已死拥有者、来源归属的最大正数候选、可空目标与父 `DeathFrame`；目标选择后复用 `JudgmentFrame` 和既有鬼才／鬼道游标。非桃／桃园结义结果压入无 `DyingFrame`、无 killer 的嵌套 `DeathFrame`，内层死亡技能完成后再返回外层；每层最终只清理该拥有者归属的梦魇。rules v91 仍只重建来源账本。
-- 通用直接死亡：rules v93／skill-program schema 9 允许 `judgmentFinalized` 绑定对判定主体或同序列先选定的目标执行 `causeDeath`。执行器记录独立 cause 审计事件，临时挂起父判定 continuation 并压入统一 `DeathFrame`；该路径没有 Damage、`DyingFrame`、killer 或身份击杀奖惩，但目标自己的合法 `DeathSkillFrame` 仍可内层执行。内层完成后恢复父判定触发游标；若死亡已使模式终局，只做判定牌与父帧必要收尾，不再开放天妒、刚烈惩罚或后续配置候选。rules v92 明确拒绝 schema 9 内容。
-- 持续牌身份：rules v94／skill-program schema 10 以 `cardIdentities` 把拥有者手牌的强制有效牌名与可选 `viewAs` 分开；匹配牌不再发布物理牌名的普通使用／响应入口，动作接受时以 `CardConversionSource` 冻结实体牌、有效牌名和绑定来源。`slashDistanceLimit` 只对引用该身份绑定的杀动作放宽距离，出杀次数、目标数、响应、防具与属性仍走各自规则。rules v93 明确拒绝 schema 10 内容。
-- 本局有效势力：rules v95 将内容层不可变的印刷 `FactionId` 与玩家运行时的 `ChosenFactionId` 分离。身份模式的神将在所有座位选将结束、公开其余武将之前通过通用 `SelectFaction`／`AnswerPromptCommand` 选择魏蜀吴群；选择询问仅本人可见，已公开的神主公在选择提交后公开本局势力，其他神将在武将亮相前继续隐藏本局势力。主公技和配置化势力条件只调用 `GetEffectiveFactionId`，不回写 Registry，也不新增 Checkpoint 字段。
-- 结构化技能状态：rules v96 将 `SkillTag` 与 `SkillExecutionForm` 分成内容层两条独立轴并写入 hash schema 9 扩展；运行时 `SkillRuntimeStateStore` 按拥有者、稳定技能 ID、用途 ID 和作用域记录限次，阶段／回合边界统一刷新所有拥有者，整局记录只由技能重置清除。标签不从展示文本推断，也不生成优先级或执行效果；正式涅槃先迁移为整局消费者，rules v95 继续历史集合路径。
-- 印刷主公技资格：rules v97 只对武将牌印刷技能应用结构化 `Lord` 资格过滤，并让旧式被动、配置程序、转化来源、快照和 WPF 消费同一拥有结果；Registry／图鉴保持印刷全集，rules v96 保留历史拥有语义。
-- 动态获得技能：rules v98 以玩家运行时的稳定内容 ID 列表表达对局中获得技能，并将它并入被动、配置程序、转化来源和公开快照；获得项不经过印刷主公技过滤。`standard-classic-generals@1.69.0` 的 OL 版 SP 关羽是首个消费者：单骑使用整局觉醒账本并获得马术／怒斩，怒斩只按冻结在 `CardActionContext.ConversionChain` 中的精确 SP 武圣来源修改次数或伤害。Checkpoint 仍由命令前缀重建，rules v97 不执行动态获得路径。
-
-下一步若要加入更复杂技能，建议在现有 `AfterDamage`、`PlayerDying` 和 `DyingResponse` 类型化事件及 `DamageTriggerWindowFrame` 游标上扩展完整状态 Checkpoint；当前 `DamageTriggerScope` 已把受伤者、其他存活角色和任意存活角色的座位关系变成可复用契约，`DamageTriggerOrdering` 仍固定优先级、相对行动者座次、技能序号和候选 ID 的排序键，而不是把顺序交给任意字符串或可变字典。遗计已经完成一条真实的跨座位牌效果，援护已复用通用的其他存活角色范围，刚烈已经完成一条受伤者触发后定向伤害来源询问的效果，苦肉也已完成单体主动技能濒死续接；多目标主动技能、多伤害嵌套和复杂技能濒死响应尚未宣称完成。
-
-## 7. 提交边界与宿主通知
-
-规则执行过程中不再直接调用 WPF 或其他外部订阅者。一次公共操作的顺序是：
-
-```text
-执行状态转换
-→ 累计 Log / AiThought / CardMoved
-→ 校验牌区与 pending resolution 不变量
-→ 固化返回结果
-→ 仍在重入保护内逐订阅者派发
-→ 返回宿主
-```
-
-日志、AI 思考和卡牌移动按产生顺序派发；同一公共操作内多次 `PublishState` 合并为最终 `StateChanged` 快照。某个订阅者抛异常时，异常被写入最多保留 128 条的 `ObserverFailures` 可信诊断列表，后续订阅者仍会收到通知，对局状态、随机数、日志和 AI 选择均不受影响。通知派发期间尝试再次调用改变状态的 API 会被统一拒绝。
-
-这一步解决的是“外部观察者打断半次规则操作”。K2 已把 Revision、PromptId 和精确 Choice 纳入统一命令边界；K3 又把内容注册与依赖校验隔离出来；K4 增加了可暂停选将和开局事件；K5 已把现有杀/火杀/雷杀/闪/伤害/桃链路接入可序列化的 `ResolutionStack` 与类型化结算事件，伤害类型在帧和事件之间保持一致；K7 又把可抵消锦囊的有限多层响应接入独立的 `NullificationWindowFrame` 和私有 Prompt。当前事件仍主要用于可信宿主观察/录像投影，完整 EventBatch、通用触发时机、多伤害嵌套和更复杂的响应链仍待后续 K5/K6/K7 切片。
-
-## 8. AI
-
-新 WPF 牌局显式使用 `GameOptions.AiPolicyVersion = 3`，存档记录该版本；旧 JSON 缺少字段时为 1，读取和再次保存均不自动升级。v3 保留 v2 的评分和随机调用顺序，并把身份局火攻接入公开攻击观察入口；v1/v2 的历史命令日志和 Checkpoint 继续按原行为重放。升级前的三场完整牌局与一个 WPF 私有询问样本逐事件校验兼容性。未知版本在创建引擎时拒绝。
-
-v2/v3 的战术覆盖位于 `SimpleAi.Tactical.cs`：群伤/回复净收益、合法酒杀接续、保命牌转化成本、基于公开行为的有限阵营置信度、已公开阵亡身份推断、救援与辅助技能目标；`PublicAttackEvidence` 为公开攻击观察提供类型化且不含暗信息的输入，v3 另覆盖身份局火攻。无懈同时区分有益和有害效果。AI 仍只消费本座快照，具体行为、实战比较及边界见 [`TACTICAL_AI.md`](TACTICAL_AI.md)。
-
-`SimpleAiBrain` 有意采用容易读懂的启发式评分，而不是搜索整棵博弈树：
-
-```text
-候选动作 = 与真人相同的 LegalAction 列表
-
-桃分数 = 已损失体力 × 38 + 濒危奖励
-杀分数 = 目标敌对值 + 低体力击杀奖励 + 受伤压力奖励
-结束出牌 = 0
-```
-
-身份策略：
-
-- 反贼优先攻击公开主公；
-- 主公/忠臣优先攻击已公开反贼或反贼嫌疑高的人；
-- 内奸在多人阶段保护主公并平衡阵营，最终单挑时才攻击主公；
-- 攻击主公会提高行为者的“反贼嫌疑”，攻击已有反贼嫌疑的人会小幅降低嫌疑；角色阵亡并公开身份后，击杀反贼会降低击杀者嫌疑，击杀忠臣则会提高嫌疑。
-
-关键约束是：AI 收到的是 `CreateSnapshot(aiSeat)`，不是内部 `CharacterState` 或 `CardZoneStore`。它能看自己的身份和手牌，但看不到其他暗身份或暗牌。
-
-每次选择都会生成 `AiThoughtRecord`，保存所有候选动作、得分、理由和最终选择。WPF 右侧的“AI 思考”面板在开发者视图中展示这些记录，因此算法不是黑盒，同时普通游玩模式不会被评分反向剧透身份或暗牌。
-
-选将阶段使用独立的 `AiGeneralThought` 记录。AI 只获得当前座位的 `GameSnapshot` 和私有候选数组；候选 ID、评分和其他座位的选择只保留在可信宿主诊断中。
-
-使用固定种子的小幅抖动只用于打破完全同分，既避免每次总选同一个座位，又能保证录像和测试可以复现。
-
-## 9. 测试覆盖
-
-Console 自测覆盖：
-
-- 1/2/4/1 身份数量；
-- 玩家视角不会泄露暗身份和手牌；
-- 三个阵营的胜负条件；
-- 三十二种被动技能钩子及八个主动技能（含反馈伤害后取牌、遗计跨手牌分配、节命目标补牌、援护跨座位弃牌恢复、刚烈判定与来源反制、鬼才判定替换、天妒取得判定牌、观星私有牌堆排序、护驾跨座位闪响应、激将跨座位杀使用/响应、救援恢复量修正、奇袭黑牌转化、克己跳过弃牌、突袭摸牌替换、裸衣少摸牌/伤害归因修正、断粮黑色基本牌/装备转化与兵粮距离修正、洛神连续判定/取得、倾国黑手牌响应转化、集智普通锦囊后摸牌/父结算续接、铁骑杀目标后判定/闪响应禁止、烈弓手牌条件/闪响应禁止、狂骨伤害后回复、无双连续响应、武圣牌转化、龙胆响应转化、马术距离修正、奇才锦囊距离豁免、急救红牌濒死转化、苦肉主动命令、制衡多选弃牌、仁德目标交牌、青囊弃牌恢复、回春多目标弃牌恢复、反间目标选花色/随机交牌与强袭可选武器成本/无牌伤害）；
-- 相同种子得到相同初始状态；
-- 真人出牌和打闪暂停点；
-- 初始发牌、处理区生命周期、单张/批量移动原子性和每个公共边界的卡牌守恒；
-- 提交后通知、订阅者异常隔离、重入拒绝和观察者不影响确定性结果；
-- AI 单步只执行一个决策；
-- 全 AI 对局可以结束并产生解释记录；
-- 快照可以序列化为 JSON。
-- 当前 Core 自测共 186 项、WPF 自测共 58 项；除既有牌、技能、Checkpoint、装备、判定和视图回归外，还覆盖寒冰剑的保留伤害、顺序一/二张弃牌、暗手牌位/公开装备隐私、完整伤害防止、AI、在途/完成回放及 rules v46 兼容，也保留青龙偃月刀、雌雄双股剑、丈八蛇矛、贯石斧、借刀杀人、国战和完整 UI 命令对局等既有场景；完整 Release 构建保持零警告、零错误。
-- Revision、PromptId、精确 Choice 和过期/伪造命令的零状态变化；
-- Standard 内容包 Registry 的隔离、不可变投影、重复 ID、未知引用和依赖环校验。
-- K4 私有选将、共享池无重复、5 人 AI 开局终止以及同 seed + 同选择命令的快照/事件确定性。
-- K5 杀链路的结算帧栈、响应窗口父子关系、JSON 序列化和伤害/濒死/胜负事件。
-
-测试项目不用 MSTest/xUnit，是为了让这个教学 Demo 在离线环境中也能一条命令运行。
-
-规则 v61 首次在经典身份局接入颜良文丑的双雄：摸牌阶段私有选择发动后复用共享判定与鬼才改判，取得最终判定牌，并只在本回合把相反颜色手牌投影为有效【决斗】。原实体牌移动、集智、无懈和决斗杀响应链保持统一；rules v60 与经典包 1.45.0 不创建该窗口。当前 rules v127／经典包 1.108.0 继续使用 schema 21 的通用判定绑定和回合转换重建同一玩法，v61 段落仅记录历史边界。
-
-规则 v62 接入卧龙诸葛亮：八阵在装备区没有任何防具时复用八卦阵判定入口；火计只把红色手牌投影为有效【火攻】；看破只把黑色手牌投影为私有【无懈可击】响应。三者均保留实体牌身份和可信移动记录，复用既有 CardUse、Nullification 与 Judgment 帧；rules v61 与经典包 1.46.0 不开放这些能力。
-
-规则 v63 接入庞统：连环把梅花手牌投影为有效【铁索连环】，同时开放一至二目标使用和独立重铸，实体牌仍沿统一手牌、处理区与弃牌堆边界移动；涅槃只在技能拥有者自己的濒死响应位开放一次，弃置手牌、装备区和判定区全部牌，解除连环状态，摸三张牌并将体力回复至 3 点。限定技使用状态由已接受的私有 Prompt 命令确定性重建，不扩展旧 Checkpoint schema；rules v62 与经典包 1.47.0 保持原行为。
-
-当前 rules v127／经典包 1.108.0 已用 schema 22 的通用拥有者牌区清理、连环状态设置、固定值回复和摸牌节点重建涅槃；暂停在私有濒死 Choice 或完成后恢复均由同一程序帧和命令前缀重放。1.107.0 及更早版本继续沿上段专属历史路线。
-
-规则 v64 接入太史慈：天义作为每阶段限一次的主动拼点，发起者先在私有主动技能草稿选择自己的手牌与一名有手牌的其他角色，再只向对方发布精确私有拼点牌 Choice；两张牌同时公开后经统一处理区进入弃牌堆。严格大点视为获胜，本回合出杀上限 +1、杀忽略距离并开放双目标；平点或小点视为未赢并过滤后续杀。结果标记由命令回放重建，rules v63 与经典包 1.48.0 不开放天义。
-
-规则 v65 接入经典曹仁：结束阶段可选据守，摸三张实体牌后把公开武将状态置为背面；该状态进入玩家快照、Checkpoint 命令回放和 WPF 座位标记。其下个回合开始时翻回正面并完整跳过判定、摸牌、出牌、弃牌及结束阶段触发，再轮转到下一名存活角色。rules v118／经典包 1.99.0 已将这段效果改由 schema 13 `TurnEnding` Program 和精确 `setFaceState(true)` 原语执行；rules v64 与经典包 1.49.0 保持原池和无翻面行为。
-
-## 原生整次弃置与有效势力
-
-`GameEngine.NativeLogicalDiscards.cs` 在语义操作边界冻结一次弃置的主材料、原区域、发起者、执行者和移动区间，实际付款后才发布标量 `NativeLogicalDiscardInvocationRecordedEvent`。移动批次、逐张 `MoveCard`、装备移除附带的木牛粮清理均不能代替整次规则调用。跨多个选牌提示的费用由所属 `ProgramSkillFrame.LogicalDiscardInvocation` 保存冻结凭据，并在完整支付或实际提前终止时完成一次；普通用牌、响应、重铸和清理不签发弃牌凭据。既有 reason 的分类保持不变；苟得新增的真实付款 reason 单独登记，语义调用记录不替代或反向扩展旧分类器。
-
-`GameEngine.NativeFactionChanges.cs` 保存实际势力选择并发布标量 `NativeEffectiveFactionChangedEvent`，供真实回合历史查询。开局神将选势力不属于回合内变更；国战仍使用其独立势力规则。化身的实际声明边界和有效来源变化会重新计算势力；取得尚未使用的化身只改变私库库存，不清除当前选择。非有效私库的声明不覆盖有效私库对应的选择。势力依赖进入技能资格缓存戳，普通玩家投影仍遵守武将明置信息边界。
-
-贯石斧的两张原始费用作为一次操作记账。若其中的原装备将军武器已经真实移至游戏外，后续处理区清理跳过该实体，避免再次从不存在的处理区来源移动；其他材料仍按原生费用和结算顺序完成。
-
-## 实际阶段结束与本轮用牌查询
-
-`ActualPhaseEndFrame` 保存实际阶段标识、冻结候选、当前子窗以及原生返回位置。准备、判定、摸牌、出牌、弃牌和结束阶段经过各自真实结束入口；插入摸牌仍属于原有 `DrawPhaseObligationFrame`，恢复旧阶段不创建新阶段。跳过的阶段不发布实际结束；已经完成的阶段标识不能再次结算。候选使用独立 `ActualPhaseEnded` 生命周期窗口，完成后返回母帧，再恢复原有阶段流程。
-
-`ActualTurnCursorReturnedEvent` 位于回合结束后所有延后子结算返回、实际回合游标即将推进的边界。它与原有 `TurnEndedEvent` 分开，使结束后插入的同回合阶段仍可完成已经签发的义务，并在真正离开本回合时到期。
-
-本轮用牌查询复用 `CurrentTurnCardUseKindsRecordedEvent` 的原生声明事实；新能力按内容依赖选择性捕获动作类型和提供者，旧目录保持原有空值与事件形状。轮内查询按 `RoundStartedEvent` 截断，真实使用沿不可变的使用者变更事件重建归属；闪响应拥有自己的响应身份，不随被响应的杀变更归属。该查询不改变旧回合序号的完成回合边界，数值贡献仍经统一的出距离阶段和最终距离截断处理。
+## 程序边界
+
+| 层 | 职责 | 入口 |
+| --- | --- | --- |
+| Core | 命令校验、规则状态、牌区移动、结算、玩家投影、AI 与回放 | [GameEngine.cs](../src/CardGame.Core/GameEngine.cs) |
+| Content.Standard | 装载卡牌、人物、技能、牌堆和模式，生成不可变 Registry | [ContentRegistry.cs](../src/CardGame.Core/ContentRegistry.cs)、[人物注册](CHARACTER_MODULES.md) |
+| Characters | 按人物与版本保存资料、技能 JSON、专属运行能力和可选界面适配 | [人物目录](../src/Characters/README.md) |
+| WPF | 展示玩家快照、提交操作、调度自动推进、保存本机数据及播放反馈 | [MainViewModel.cs](../src/CardGame.Wpf/ViewModels/MainViewModel.cs) |
+
+Core 不依赖 WPF。人物运行模块链接编译到 Core，内容 JSON 嵌入内容程序集，可选 WPF 模块编译到界面程序集。目录、注册顺序、内容 ID 和逻辑资源名共同遵守 [人物模块约定](CHARACTER_MODULES.md)。
+
+## 命令与提交
+
+WPF 的开局、选将、出牌、技能、响应、弃牌和推进通过 `Submit(GameCommand)` 进入同一会话。命令是可序列化数据，携带行动者和预期 Revision；回答询问时还需匹配 PromptId 与当前公布的精确候选。无效输入返回 `CommandError`，不推进牌局。
+
+一次已接受操作的边界由 [GameEngine.CommandSession.cs](../src/CardGame.Core/GameEngine.CommandSession.cs) 管理：
+
+1. 执行规则，累计待提交的事实与通知。
+2. 同步技能投影，检查状态和牌区不变量。
+3. 为新 Revision 准备玩家快照、返回结果和冻结后的事件载荷，并预留追加容量。
+4. 提交命令记录与事件历史。
+5. 派发提交后的通知，返回同一份已准备结果。
+
+快照与事件中的嵌套集合在提交准备阶段冻结。[CommittedEventProjection](../src/CardGame.Core/Projection/CommittedEventProjection.cs) 负责带集合的内置事件；新增事件载荷也需在此覆盖。观察者无法通过返回对象修改已提交结果，派发期间的重入操作被拒绝。
+
+普通订阅者异常进入 `ObserverFailures`，后续订阅者继续接收通知。提交后的基础设施派发异常保留已经可见的命令、Revision 和事件；规则执行或提交准备失败则将会话标为故障，并在可用时提供失败前的 `LastTrustedCheckpoint`。故障会话须从可信命令前缀重建，详见 [异常材料](EXCEPTION_REPORTS.md)。
+
+## 推进与暂停
+
+`AdvanceCommand` 推进到玩家输入或终局边界；`AdvanceOneStepCommand` 提交一个状态机步骤，供 WPF 计时器控制节奏。桌面将 `AdvanceAfterHumanCommands` 设为 false，玩家命令后由计时器继续推进。
+
+`PendingDecision` 表达当前询问，合法动作和 Choice 由 Core 生成。界面提交已公布的牌、目标或候选，不自行拼接私有信息或推算规则结果。暂停不占用一个阻塞等待输入的线程。
+
+进行中的结算保存在所属 `ResolutionFrame` 中，包括父子身份、冻结上下文、候选游标、指令位置、支付状态和类型化返回点。子帧通过运行时 push、replace、complete 操作推进；完成后返回相应父帧，已完成的代价不会再次支付。协议见 [结算协议](RESOLUTION_PROTOCOLS.md)。
+
+## 规则事件与技能执行
+
+规则事实通过 `AdvanceEventRulesAndQueueFact` 进入注册观察链：先执行 `BeforeEvent`，再入输出队列，最后执行 `AfterEvent`。状态推进通过 `AdvanceRulesAndPublishState` 先处理状态规则，再打开人物状态、体力和牌区移动窗口。`QueueGameEvent` 与 `PublishState` 负责输出。
+
+技能规则与中文展示分别存储。加载器校验格式、节点参数和引用；Registry 校验内容依赖并编译执行计划。人物优先复用现有配置能力，需要共享机制时才增加运行模块。主要扩展点为：
+
+- capability 适配器提供类型化效果接口，实例按对局创建。
+- selection、legality 和 action 模块负责只读候选生成及提交重验。
+- rule observer、runtime hook 与 trigger window 模块保留明确的执行阶段和顺序。
+- continuation、window return 与 native return 协议把子结算结果交回正确的父帧。
+
+共享注册元数据与不可变计划可以缓存，对局中的候选、支付和游标由当前会话与帧拥有。具体接口见 [人物注册](CHARACTER_MODULES.md) 和 [技能配置](content/skill-composition/RUNTIME.md)。
+
+## 卡牌、伤害与阶段
+
+[CardZoneStore](../src/CardGame.Core/CardZones.cs) 维护实体牌唯一位置与原子移动，覆盖牌堆、手牌、处理区、装备、判定、弃牌及专属区域。实体牌身份、有效牌型与技能转化来源分别记录；公开展示不必改变牌所在区域。用牌声明、成本、目标、效果及收尾见 [卡牌生命周期](CARD_LIFECYCLE_CONTRACT.md)。
+
+用牌、响应、无懈、判定、伤害、回复、濒死和死亡通过嵌套结算帧衔接。伤害实际应用后，先处理受限的 `DamageAppliedBeforeDying` 窗口；体力不足时进入濒死，随后处理 `AfterDamageApplied` 窗口。触发候选、距离、实体材料及继续位置按所属帧冻结，多目标与连环结算使用各自游标。
+
+`ActualPhaseEndFrame` 记录实际阶段结束的候选、子窗及返回位置；跳过的阶段不会生成实际结束窗口。插入摸牌属于原有摸牌义务，恢复原阶段不创建新阶段。`ActualTurnCursorReturnedEvent` 表示回合结束后的延后子结算已返回，实际回合游标即将推进。
+
+`WholeActualTurnUseSequence` 在真实用牌声明时冻结顺序，防御杀所使用的闪和无懈可击也各占一次；打出、提供与重铸沿各自原生语义处理。屏忠读取本次声明及之前的记录，并沿原生使用者变更链核对实际使用者与提供者。防御闪与攻击用牌共享来源帧时，仍保持自己的响应身份。此计数延续到实际回合游标返回，覆盖回合末插入的出牌阶段；已有按 `TurnEnded` 截止的计数器保留原边界。
+
+整次弃置在语义操作边界记录材料、原区域、发起者、执行者和实际移动范围；跨多个选牌提示的费用由所属程序帧保存付款凭据。普通用牌、响应、重铸和区域清理各自保持明确的移动原因，不能仅以逐张移动推断一次弃置。
+
+有效势力由运行时状态和当前有效技能来源计算，印刷势力保留在内容定义中。开局神将选势力、回合内实际势力变更及国战明置分别遵守相应模式和公开信息边界。
+
+清流的开局选择通过同一有效势力状态及查询缓存生效，开局声明不产生实际回合中的势力变更事实。首次濒死被救回后的变更复用真实濒死退出的类型化返回点；参与者、当前候选与已完成的濒死凭据必须一致。拥族的临时技能按精确授予来源在受益者下个真实 `TurnStarted` 到期，永久手牌上限加成由已经执行的选择事实累计。
+
+## 玩家投影与可信数据
+
+玩家视图使用 `CreateSnapshot(viewerSeat)`。隐藏手牌、身份、未公开武将及私有询问只按该座位权限投影；其他座位只能得到相应公开信息或不透明牌位。
+
+`Events`、`CardMovements`、`ResolutionStack`、命令记录、完整牌区诊断和 Checkpoint 都属于可信宿主材料，可能包含隐藏信息。向界面或玩家发布反馈时使用玩家投影和已公开事件，不把可信诊断直接当作玩家数据。
+
+## 持久化与 AI
+
+`GameCheckpoint` 保存规则选项、已接受命令前缀、Revision、模式、内容包签名和内容指纹。`GameReplay.Restore` 检查结构、签名及指纹，再按当前实现逐条 `Submit`，最后核对模式与 Revision。私有询问和中途结算由相同命令前缀重建。桌面存档失败保护与本机偏好见 [存档恢复](SAVE_AND_RESUME.md)。
+
+AI 使用自己的玩家快照和公布的合法候选，在确定性随机序列上决策。策略版本由 `GameOptions.AiPolicyVersion` 记录，当前支持范围与新局选择以 [AiDecisionPolicy](../src/CardGame.Core/Replay.cs) 为准。详细评分和信息边界见 [AI 说明](TACTICAL_AI.md)。
+
+## 验证入口
+
+Core/WPF 检查按名称登记，常规范围由 [VerificationScopes.psd1](../tools/VerificationScopes.psd1) 选择。开发时验证相关规则与共享边界；完整验证仅在明确要求时执行。命令、版本来源和临时输出管理统一见 [开发门禁](DEVELOPMENT_GATES.md)。

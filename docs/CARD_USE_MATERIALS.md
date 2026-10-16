@@ -14,4 +14,6 @@
 
 响应实体交换需要原锦囊的已接受使用事实。即使内容包没有其他最终目标订阅者，交换能力也必须启用这条事实路径，避免完整内容包中的无关技能掩盖缺失依赖。
 
-回归覆盖真实领取、父子结算暂停、多个目标、暗牌隐私、单次效果和移牌、命令前缀冷恢复，以及错误动作 ID 的领取凭据被拒绝。故障后的可变帧只用于诊断，恢复始终从可信命令前缀重建。
+行为检查关注真实领取、父子结算暂停、多个目标、暗牌隐私、单次效果和移牌、命令前缀冷恢复，以及错误动作 ID 的领取凭据被拒绝。故障后的可变帧只用于诊断，恢复始终从可信命令前缀重建。
+
+源码入口：[领取凭据](../src/CardGame.Core/GameEngine.CurrentUsePhysicalClaims.cs)、[锦囊材料解析](../src/CardGame.Core/GameEngine.DamageColorDuelPrograms.cs)、[用牌生命周期](../src/CardGame.Core/GameEngine.CardUseLifecycle.cs)。

@@ -8,4 +8,3 @@
 4. 结束付款选择当时可合法弃的HE，受保护装备与正在提供该source实例的装备不计入可支付集合。若少于X，则弃尽可合法部分并记录短缺；不逆向撤销交换，也不免费增加第二次债务。付款前源实例失效/owner死亡/winner取消该份未付后续；已付银狮回复、HP/Movement/死亡孩子必须完整排空。此为未核不足FAQ的明确默认。
 5. 原pair中的一人交换后死亡不改变冻结X。交换前任一人已死则拒绝接受/取消未付交换。不同实际PlayPhaseInstance分别形成债务，跳过Play不伪造Ending；援助资格到本人下一次实际TurnStarted立即过期（包括extra turn与翻面自然跳过），不以别人的轮数代替。
 6. 本人真实无中生有的自身作用目标可触发援助。成熟producer保留空显式目标列表；仅6004及当前未过期真实资格据精确Use/actor/material/Declared/TargetsConfirmed证据推导目标，不改原Action/TargetSeats。真正RequestSlashByTarget物理杀沿BeginCardUse冻结Use身份，可以成为另一项援助；普通闪/杀响应不视为Use。
-7. 尚未运行全部草稿；额外/插入Play、国战隐藏身份、多装备槽、所有救援族、源装备动态授技组合须精确静态证明或后续实际验证，不能写成已通过。

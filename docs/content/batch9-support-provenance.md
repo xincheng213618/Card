@@ -1,11 +1,21 @@
-# 界刘备、界华佗、界黄月英版本记录
+# 界刘备、界华佗与界黄月英的版本来源
 
-本批新增人物均为正式身份模式的独立 `boundary:` 身份；不把已有 `classic:` 技能改名当作新人物。当前内容准备使用 rules schema 62 / min rules 172。
+以下为当前人物资料中的独立技能定义。每个人物的规则可组合多个嵌入程序，不能只按某一个共享 bundle 判断整个人物的实现范围。
 
-| 人物 | 锁定来源与版本 | 技能边界 | 当前实现状态 |
-| --- | --- | --- | --- |
-| 界刘备 `boundary:liu-bei` | [三国杀 OL 2.69 公告，2015-09-22](https://www.sanguosha.com/news/20150918_2160_1915) | 仁德：出牌阶段任意张手牌赠他人，该阶段同一受赠者限一次；本阶段累计首次给出至少两张后，可视为使用一张基本牌。激将：主公技，请其他蜀势力角色代出【杀】。 | 激将已编排通用 Program。仁德待每目标阶段用量及无实体基本牌使用能力，不可用经典仁德回复替代。 |
-| 界华佗 `boundary:hua-tuo` | [界华佗官方攻略，2016-11-01](https://www.sanguosha.com/news/20161101_7414_5418)、[官方 2017 技能表](https://www.sanguosha.com/news/20170113_7862_2614) | 急救：回合外红色手牌或装备牌当【桃】。除疠：出牌阶段限一次，选择任意名势力各异且有牌的其他角色，先弃自己一张，再逆时针逐一弃目标各一张，最后被弃黑桃牌的角色各摸一张。 | 急救已编排通用 viewAs。除疠待势力互异目标集与依序支付、末尾统一结算能力。 |
-| 界黄月英 `boundary:huang-yueying` | [三国杀 OL 经典服 2019-09-27 规划](https://www.sanguosha.com/news/20190927_2957_2315) | 集智：用锦囊时可摸一张，若所摸为基本牌可弃之使本回合手牌上限 +1。奇才：锦囊无距离；其他角色不能弃置其装备区防具与宝物。 | 集智已编排“摸牌绑定→仅基本牌可选弃→回合手限+1”的通用 Program，但延时锦囊进入通用触发窗口待核；奇才无距离已编排，防他人弃防具/宝物由整合方补公共保护政策。 |
+| 人物 | 当前技能 | 资料 |
+| --- | --- | --- |
+| `boundary:liu-bei` | `boundary:rende` 仁德；`boundary:jijiang` 激将 | [人物与注册](../../src/Characters/liu-bei/boundary/Content/boundary-liu-bei.character.json) |
+| `boundary:hua-tuo` | `boundary:jijiu` 急救；`boundary:chuli` 除疠 | [人物与注册](../../src/Characters/hua-tuo/boundary/Content/boundary-hua-tuo.character.json) |
+| `boundary:huang-yueying` | `boundary:jizhi-current` 集智；`boundary:qicai-current` 奇才 | [人物与注册](../../src/Characters/huang-yueying/boundary/Content/boundary-huang-yueying.character.json) |
 
-2019 经典服公告用于界黄月英；当前 [官网人物页](https://www.sanguosha.com/hero/441) 的“非转化锦囊牌”及装备防弃措辞已有差异，本批不混用。以上待完成项必须在正式可玩登记前解决，或显式标记未完成。
+技能详情、主动/触发/状态形态及程序绑定取当前人物资料和 Skills 文件；玩法边界按原生实际付款、伤害/失去体力、目标、次数与期限分别实现。界版与经典版规则保持独立。
+
+当前可用的通用能力见[运行时](skill-composition/RUNTIME.md)。来源优先级、页面与公告差异以及明确工程解释见[版本核对](BWIKI_CONTENT_BACKLOG.md)。
+
+## 规则来源
+
+- [三国杀 OL 2.69 公告，2015-09-22](https://www.sanguosha.com/news/20150918_2160_1915)
+- [界华佗官方攻略，2016-11-01](https://www.sanguosha.com/news/20161101_7414_5418)
+- [官方 2017 技能表](https://www.sanguosha.com/news/20170113_7862_2614)
+- [三国杀 OL 经典服 2019-09-27 规划](https://www.sanguosha.com/news/20190927_2957_2315)
+- [官网人物页](https://www.sanguosha.com/hero/441)

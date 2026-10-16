@@ -10,5 +10,3 @@
 - The generic named-card op supports actual Silver Lion removal recovery/replacement as a tightly proven equipment-loss child. That combination, nested gain Damage/Dying/rescues, and beneficiary death were statically reviewed and not executed here.
 - The current API has no gender field. Female derives only from current official biography calling her Guan Yu's daughter. Current page classification is ordinaryOther; neither historical SP branding nor an old classic skill definition substitutes for this current text.
 - These are engineering defaults and deferred practical acceptance points, not quotations of an official FAQ. All compilation/loader/game/check/native/UI/benchmark states remain false.
-
-Draft source-loss variants use the existing legal ReplaceSkillsOnAwakening observer producer, actual owned-skill selection and finish commands. Its real MaxHP reduction is retained: post-Silver-Lion Snow still freezes X=max(1,lostHP); no fake state is written. LoseOwnerSkillsAndGrant is activation-only and is not used in observer fixtures. These variants remain unexecuted.

@@ -1,17 +1,28 @@
-# Owned death-benefit return (6800)
+# 界步练师：当前规则与执行入口
 
-This opt-in operation replaces only the current OL death-benefit recipe's first node. The original issued recipient, Draw3, Recover1, source instance, limited issuance and cancellation policy remain unchanged. Legacy 6303 and every recipe without 6800 keep their existing guards and command semantics.
+当前人物 ID 为 `boundary:bu-lian-shi`，势力 `wu`，基础体力 3。人物、技能绑定和将池注册取[人物资料](../../../src/Characters/bu-lian-shi/boundary/Content/boundary-bu-lian-shi.character.json)；主公加成和模式资格由实际模式处理。
 
-`selectIssuedFixedRecipientWithDeathReturn` accepts only an optional OwnerDied/owner trigger with exactly this three-node recipe: select the original issued recipient, Draw3 to selectedTarget, Recover1 to selectedTarget. It creates a typed `ProgramOwnedDeathBenefitReturn` on that exact ProgramSkillFrame after the existing original-recipient selection succeeds.
+## 技能定义
 
-The return freezes the original ProgramDeathTriggerWindowFrame candidate and cursor, DeathFrame, optional direct original DyingFrame, actual turn and original damage owner. The original frames and damage attempt stay on the resolution stack unchanged. All exposed nested lists use constructor/init cloning, including with-expression and JSON initialization. Facts contain only public scalar frame/source/recipient identities.
+| 技能 ID | 名称 | 当前说明 |
+| --- | --- | --- |
+| `boundary:anxu-current` | 安恤 | 出牌阶段限一次，你可以获得两名角色各一张牌。然后你展示一张牌并交给其中手牌较少的角色，若不为黑桃，你摸一张牌。 |
+| `boundary:zhuiyi-current` | 追忆 | 限定技，结束阶段，你可令一名其他角色摸三张牌并回复1点体力。然后你死亡时，可以对其再次发动本技能。 |
 
-ActiveDying excludes only an already-dead original victim's direct DyingFrame whose exact 6800 Program -> OwnerDied window -> Death -> Dying ancestry still matches the frozen return. This structural predicate never calls ActiveDying. A new living victim's Dying remains visible. Layered death benefits can exclude their own proven dead original Dying independently; an arbitrary frame or receipt is insufficient.
+## 程序与原生流程
 
-Nested Damage admission additionally requires the original typed return plus the exact Draw/recovery first child and the complete paid observer subtree, using existing strict movement, HP, Damage, DyingEntering, SelfDyingResponse, physical/view-as Peach and bound/virtual Alcohol edges. It does not extend an unrelated generic observer allowance. Damage and HP loss use their actual producers and retain typed attack returns.
+| 技能 | 绑定入口 | 当前效果操作 |
+| --- | --- | --- |
+| `boundary:anxu-current` | `active / pair-obtain-show-give` | `obtainOneFromEachSelectedTarget`、`selectOwnedCards`、`revealBoundCards`、`giveShownCardToLeastOriginalTarget` |
+| `boundary:zhuiyi-current` | `turnEnding / ending-original-beneficiary` | `selectTarget`、`issueFixedRecipientBenefit`、`draw`、`recover` |
+| `boundary:zhuiyi-current` | `ownerDied / death-original-beneficiary` | `selectIssuedFixedRecipientWithDeathReturn`、`draw`、`recover` |
 
-Completion or cancellation validates the unchanged original cursor and no outstanding descendant, emits a scalar return fact and pops only the owning benefit program. Its qualification then ceases; the normal OwnerDied, Death and original Dying return paths finish their own cursors. Paid Draw/recovery is not repeated. Global restoration checks run before the existing Death early return so nested descendants cannot evade validation.
+正式规则文件：
 
-Required additive hooks: enum 6800; descriptor/composition discovery; ProgramSkillFrame nullable receipt; original-recipient eligibility/AI/receipt union only for 6800; dead-owner operation admission; ActiveDying structural filtering; BeginProgramSkillDamage exact paid-root admission; runtime completion; AssertCore before Death's early return. Existing BeginProgramSkillDying, actual Damage BeginDying, AttackHpLoss Dying, rescue dispatch and CompleteProgramAttack/CompleteAttack then operate on the filtered active Dying without broad exemptions.
+- [boundary-bu-lian-shi.rules.json](../../../src/Characters/bu-lian-shi/boundary/Skills/boundary-bu-lian-shi.rules.json)
 
-Current scope supports nested damage/HP loss while the original Dying victim is already dead. It deliberately does not hide a live rescue target or permit two simultaneous living victims' Dying resolutions. No rule epoch/schema/package version change is proposed. This is an implementation draft: no compiler, production loader, test, native-AI or benchmark has been executed. Final OLD baselines await the parent integration window.
+原生用牌、材料支付、伤害/回复/濒死、牌区移动及其子窗口在所属帧中保存真实来源和收据，完成后沿类型化父返回继续。动作接受前复验技能、材料和目标；已支付的子树不重新付款，尚未发行的效果按当前资格处理。
+
+玩家和 AI 只消费其有权获得的快照与选择；私有手牌和拥有牌区不进入无权观察者的提示。玩家快照与提交事件的嵌套集合在投影/提交准备时冻结，帧内集合按对应机制合同管理。具体字段与允许组合见[运行时](RUNTIME.md)。
+
+复杂时序与资料未裁定的口径见[工程默认](FENG_LIN_THIRTIETH_BU_LIAN_SHI_DEATH_RETURN_DEFAULTS.md)；这些解释与官方原文分别标明。

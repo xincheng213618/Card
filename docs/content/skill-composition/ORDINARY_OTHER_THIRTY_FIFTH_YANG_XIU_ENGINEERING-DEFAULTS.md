@@ -8,6 +8,3 @@
 - 鸡肋牌超限，先按全部计入上限的牌求 overflow，再弃 min(overflow,可弃数量)；保护牌可留在超限手牌中，无可弃牌时不发布无解提示。
 - 给出、获得、转移、放顶、普通 equipment 替换引发的已装备移除不等同本人弃置受保护手牌；别人弃该人的手牌不受该 self policy 影响。真实废弃费用必须 full legal payment，否则未付款取消/不获收益；cleanup 到弃牌堆不借用 self-discard 禁制。
 - 私有 owned-selection 实际选择者沿成熟 cardOwner chooser / SelectionActorSeat；foreign chooser 必须沿真实参数。未来未选弃置分支不得误拦给出分支。公开政策不表示受限手牌实际包含任何类别，未暴露私有 IDs。
-- 不修改中央版本常量。当前 schema 值来自权威源；新测试使用 RulesSchemaVersion/PresentationSchemaVersion，未复制数值。
-
-未执行：compiler/build/production loader/Core checks/WPF checks/UI/native game/benchmark。固定小夹具中每个行为仍需 root 后续统一实际验证；没有种子扫描、长局、直接写状态、假事件或帧注入。

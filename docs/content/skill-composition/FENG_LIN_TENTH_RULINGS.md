@@ -1,4 +1,6 @@
-# 第十批规则口径
+# 界夏侯惇、界李典规则口径
+
+规则正文和工程默认见[来源档案](../sources/fenglin-tenth-2026-10-02.json)。
 
 本记录对应当前普通 OL [界夏侯惇](https://www.sanguosha.com/hero/313)和[界李典](https://www.sanguosha.com/hero/317)正文。实现与验收状态见来源档案及批次记录。
 

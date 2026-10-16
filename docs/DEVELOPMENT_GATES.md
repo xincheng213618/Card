@@ -1,51 +1,58 @@
 # 开发门禁边界
 
-规则能力和诊断标记以 [GameCheckpoint](../src/CardGame.Core/Replay.cs) 的 `CurrentRulesVersion` 为准，存档中的 `RulesVersion` 不作为加载门禁；技能 JSON 格式以 [SkillProgramCatalog](../src/CardGame.Core/SkillPrograms.cs) 的 `RulesSchemaVersion` 为准；内容包发布版本以对应包的 `CurrentVersion` 为准。不要在开发指南或逐人物测试里复制“当前”数值。
+## 格式与内容边界
 
-Checkpoint 检查 schema、内容包签名、内容哈希和逐条命令合法性；规则标记较早、较新或缺失均按当前实现尝试回放，不因标记不同直接拒绝。桌面读取、校验或回放失败时初始化新牌局并停止自动推进，不立即覆盖原存档。普通规则修复不再提升规则标记。只有规则 JSON 出现不兼容格式变化，才提升 rules schema；已有节点的新组合和向后兼容的可选能力不提升 schema。内容包版本用于明确的发布批次。Checkpoint 自身结构变化才提升 Checkpoint schema。
+| 数据 | 版本来源 | 调整条件 |
+| --- | --- | --- |
+| Checkpoint | [GameCheckpoint.CurrentSchemaVersion](../src/CardGame.Core/Replay.cs) | 持久化结构发生需要区别处理的变化 |
+| 技能规则 JSON | [SkillProgramCatalog.RulesSchemaVersion](../src/CardGame.Core/SkillPrograms.cs) | 不兼容的规则格式变化 |
+| 桌面存档 | [GameSaveFile.CurrentFormatVersion](../src/CardGame.Wpf/Persistence/GameSaveStore.cs) | 存档外层格式变化 |
+| 内容包 | 对应包的 `CurrentVersion` | 明确的内容发布批次 |
+| AI 决策 | [AiDecisionPolicy](../src/CardGame.Core/Replay.cs) | 需要保留回放决策语义的策略变化 |
+
+开发指南和逐人物测试引用这些来源，避免另写一份容易失效的“当前数值”。Checkpoint 检查结构、内容包签名、内容哈希和逐条命令合法性，再按当前实现回放。技能定义中的 `minimumRulesVersion` 参与既有内容指纹，不作为运行门禁；内容哈希区分开发中的定义变化。
+
+复用已有节点的组合和兼容的可选能力可以沿用技能 schema；普通人物内容改动沿用内容包版本。桌面读取、校验或回放失败时初始化新牌局、停止自动推进，并保护失败的原存档，流程见 [本地存档与恢复](SAVE_AND_RESUME.md)。
 
 ## 内容开发
 
-人物文件统一放在 `src/Characters/<character>/<variant>/`：`Content/*.character.json` 声明基础资料与注册信息，`Skills/` 保存技能规则和展示 JSON，`Runtime/` 保存需要独立规则能力的 C# 模块。共享技能配置放在 `src/Characters/_shared/Skills/`。Core 通过 linked Compile 编译人物运行模块；可选的 `Wpf/` 只编译进 WPF。物理目录不改变程序集、命名空间、内容 ID 或技能资源名。
+人物文件放在 `src/Characters/<character>/<variant>/`：`Content/*.character.json` 声明基础资料与注册，`Skills/` 保存规则及展示，`Runtime/` 保存独立规则能力；共享配置放在 `_shared/Skills/`。运行模块链接编译进 Core，可选 `Wpf/` 只编译进 WPF。注册细节见 [人物模块与注册](CHARACTER_MODULES.md)。
 
-普通人物默认只改所属目录的内容资料和技能定义。复用现有机制的纯配置由通用加载、注册及已有机制行为检查覆盖；只有引入未覆盖的行为或修复缺陷时，才新增针对性的 Core 场景。UI 行为变化才新增 WPF 检查。共享能力变化应验证节点参数、非法上下文、资源消费和真实行为；需要时补充隐私、牌区守恒、暂停恢复与回放边界。不要逐人复制整份 JSON 到测试，也不要增加人物专用测试入口或维护多份架构“当前版本”流水账。
+普通人物优先修改所属目录的内容和技能定义。纯配置由共享加载、注册及已有机制检查覆盖；引入尚未覆盖的行为或修复缺陷时，增加针对性的 Core 检查。UI 行为变化增加 WPF 检查。共享能力需验证节点参数、非法上下文、资源消费和真实规则行为，并按影响补充隐私、牌区守恒、暂停恢复与回放边界。
 
-测试统一使用名称过滤，零匹配会失败：
+## 验证方式
 
-```powershell
-.\tools\Test-Changed.ps1
-.\tools\Test-Changed.ps1 -CoreFilter 'program interaction '
-.\tools\Test-Changed.ps1 -WpfFilter 'selection, target toggle'
-.\tools\Test-Changed.ps1 -Full
-```
-
-[Test-Changed.ps1](../tools/Test-Changed.ps1) 在一次调用内构建一次并复用产物。开发中运行相关现有检查；批次结束运行常规验证，完整验证只在用户明确要求时执行。内容 JSON 可先用 [Inspect-SkillProgram.ps1](../tools/Inspect-SkillProgram.ps1) 加载检查，但加载成功不能代替真实行为检查。提交前运行 `git diff --check`，仅修复本次引入的问题。
-
-无参调用运行 [VerificationScopes.psd1](../tools/VerificationScopes.psd1) 定义的常规范围：命令与故障边界、快照隐私和冻结、内容指纹、牌区移动与守恒、技能执行与生命周期，以及代表性的用牌、响应和 UI 保存恢复。受影响的机制仍需名称过滤检查。`-Full` 和直接无参运行 Core/WPF 程序集会执行全部登记检查，均只在用户明确要求完整验证时运行。
-
-常规范围使用明确的检查名称，新增人物时通过名称过滤验证受影响的行为，不把每个人物的全部场景持续追加到默认范围。只有新增共享边界或替换已有代表场景时才调整常规清单，并重新测量包含增量构建的耗时。
-
-人物内容、运行能力、事件观察和资格检查的注册方式见 [人物模块与注册](CHARACTER_MODULES.md)。新人物在所属模块声明入口，保留确定性的注册和规则执行顺序。
-
-每组名称过滤在一个测试进程中取并集，同一检查只执行一次；单个空过滤器或零匹配仍失败。脚本只有真正未提供过滤器时才进入常规范围，显式提供的过滤器若全部为空则拒绝。所有检查的失败计数、进程退出码和构建结果保留在 `summary.json` 与日志中；WPF 单项失败会被记录并继续其余检查，最终仍返回失败。
-
-默认输出目录按仓库路径固定为 `%TEMP%\CardGame-TestChanged-<仓库哈希>`，同一仓库的运行通过锁互斥。不要每个功能新建一份数 GB 的验证目录。成功、构建失败或检查失败后，将该目录内的 `bin`、`obj`、`renders` 登记到 [cleanup_queue.json](../tools/cleanup_queue.json) 文本清单；保留产物供查看和增量构建。登记失败会给出具体路径和原因，并返回非零退出码。
-
-代理只登记目录，不执行删除。用户完成查看后，双击仓库根目录的 `clean.cmd` 即可清理，窗口会保留执行结果；也可以手动运行以下命令。`clean.cmd --list` 查看清单，`clean.cmd --dry-run` 只预览。脚本仅处理清单中的精确目录，删除成功或目录已不存在才移除记录；占用、路径校验或删除失败时保留记录及错误原因。清单使用 UTF-8 JSON，可直接查看；优先使用 `--add` 自动去重并安全更新。`-KeepArtifacts` 保持兼容，已不再需要。
+[Test-Changed.ps1](../tools/Test-Changed.ps1) 需要 PowerShell 7，在一次调用内构建并复用产物。开发时运行相关名称过滤；批次结束运行 [VerificationScopes.psd1](../tools/VerificationScopes.psd1) 定义的常规范围：
 
 ```powershell
-python tools/cleanup_temp.py --list       # 查看待清理目录
-python tools/cleanup_temp.py --dry-run    # 只预览，不删除或修改清单
-python tools/cleanup_temp.py              # 用户手动执行清理
-python tools/cleanup_temp.py --add 'C:\Temp\Card-task\outputs' --root 'C:\Temp\Card-task' --reason '本任务验证结束'
+pwsh -File .\tools\Test-Changed.ps1
+pwsh -File .\tools\Test-Changed.ps1 -CoreFilter 'program interaction '
+pwsh -File .\tools\Test-Changed.ps1 -WpfFilter 'selection, target toggle'
 ```
 
-显式指定 `-ArtifactsPath` 也遵循登记流程。原始目录、截图和日志如需长期保留，应在登记前保存必要证据。登记不代表磁盘空间已经释放。
+常规范围覆盖命令与故障、快照和事件冻结、内容指纹、牌区移动、技能与生命周期，以及代表性的用牌、响应和界面保存恢复。具体名称以清单和测试入口为准。新增人物按名称验证受影响行为；默认清单只在共享边界或代表场景需要调整时更新，并测量包含增量构建的实际耗时，目标约一分钟。
 
-合并旧分支或工作树时保留主线已完成的测试裁剪，只带入未覆盖行为或缺陷回归所需的新检查。不能为了恢复历史测试数量或沿用旧分支约定而整套回取已删除测试。测试冲突按当前保留的覆盖范围逐项处理；删除过时用例时同步删除注册、方法和无人使用的辅助代码，不改动历史兼容实现或存储数据来凑数量。
+同组过滤在一个进程中取并集，每项只执行一次。显式空过滤或零匹配会失败；全部登记检查由 `-Full` 或直接无过滤运行测试程序集触发，仅在用户明确要求手动完整验证时执行。失败后仍保留实际失败计数、进程退出码和构建结果。
 
-清理辅助代码时保留特性发现、反射调用、扩展方法和 partial 类型跨文件使用的入口；不能仅凭单个文件中的名称引用次数判定这些成员无用。
+[Inspect-SkillProgram.ps1](../tools/Inspect-SkillProgram.ps1) 可先检查内容装载，加载成功只说明配置通过相应检查。提交前运行 `git diff --check`，并按本次范围检查暂存内容。
 
-默认验证以增量构建加测试约一分钟为目标。优先复用小型场景或已验证能触发目标行为的固定种子，避免每个用例重新遍历大量种子或重复跑完整对局。保留代表性的集成场景及其关键断言；一批改动结束后实测耗时，不能只凭测试数量估算速度。
+## 临时输出与清理
 
-历史版本决策和已完成批次保存在 [技能迁移计划](SKILL_MIGRATION_PLAN.md) 与专门的历史记录中。本页只维护当前开发规则。
+默认验证目录按仓库路径固定为 `%TEMP%\CardGame-TestChanged-<仓库哈希>`，同仓库运行通过锁互斥。优先复用兼容产物；脚本将 `bin`、`obj` 和 `renders` 登记到 [cleanup_queue.json](../tools/cleanup_queue.json)，运行结果保存在该目录的 `summary.json` 与日志中。显式 `-ArtifactsPath` 遵循相同登记流程，登记失败会报告路径并返回失败。
+
+登记只记录待清理路径。任务完成查看后，代理按 [AGENTS.md](../AGENTS.md) 清理本任务可丢弃产物，保留必要日志和交付物；清理前验证绝对路径、归属、链接和消费者状态，并遵守验证锁。遇到策略阻止或仍占用的目录，保留精确记录与原因，不能绕过拒绝或清理其他任务的历史目录。
+
+用户可双击 [clean.cmd](../clean.cmd) 重试队列，也可先查看或预览：
+
+```powershell
+python -B tools/cleanup_temp.py --list
+python -B tools/cleanup_temp.py --dry-run
+```
+
+任务内保留目录使用 `--add <绝对目录> --root <已验证的临时根目录> --reason <原因>` 登记；验证产物同时指定 `--lock-root <验证目录>`。清理成功或确认已不存在时只移除相应记录。长久说明保留规则依据与源码入口，截图、基准日志和恢复档案等临时材料需要仓库内位置时放在忽略的 `.artifacts/benchmarks/`，不纳入文档引用或 Git。
+
+## 测试维护
+
+合并旧分支时按当前保留覆盖范围处理测试，只引入未覆盖行为或回归所需的新检查。删除过时检查时同步处理注册、方法和无人使用的辅助代码；保留 checkpoint、回放、指纹、输入、隐私和牌区边界。清理辅助代码需检查特性发现、反射、扩展方法和 partial 跨文件引用。
+
+优先使用小型场景和已验证种子，保留代表性集成场景及关键断言，避免重复搜索种子或完整对局模拟。普通开发与验证使用构建及检查流程；发布、安装器和分发包按明确的打包请求执行。

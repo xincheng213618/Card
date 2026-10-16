@@ -13,5 +13,3 @@ The complete current page text is authoritative; the following decisions fill un
 - Treasure equipment can be placed through existing slot legality; the current text names only weapon/armor/mount benefits, so Treasure has no additional benefit. This is an explicit inference where no current FAQ was established.
 - AI decisions use owner-visible material and public relationship/HP/distance/equipment/card-count information. Foreign hidden IDs/kinds are not consulted; opaque hand slots use deterministic public ordering. The optional trigger uses a conservative GainCards prior and recipient/weapon choices use the existing public relationship scorer. This is an engineering heuristic, not a measured win rate.
 - Cold means JSON accepted-journal checkpoint restoration and actual continued commands on the restored instance. No claim is made that checkpoint fields serialize a live frame graph or that a replay alias bug was reproduced.
-
-All compilation, production loading, focused/routine/full tests, native/game/UI runs, benchmark and publication remain explicitly unexecuted per the user’s current quiet-work instruction. Global rule/schema/package versions are unchanged.

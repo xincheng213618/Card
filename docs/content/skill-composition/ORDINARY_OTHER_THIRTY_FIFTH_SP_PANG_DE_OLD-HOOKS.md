@@ -1,20 +1,9 @@
-# Named old-file wiring
+# SP 庞德的原生付款与决斗返回
 
-Exactly twelve old files are captured as raw baselines and full previews. Each has one Update section, and its hunks follow physical line order.
+技能先支付实际实体弃牌并结清移牌/HP/回复子链，再根据原受益者的真实弃牌结果决定后续。零实体决斗保留实际使用者、原目标、父程序和专门返回，不能重付原成本；私有选牌与类别禁弃读取同一合法性策略。
 
-- SkillPrograms.cs: safe explicit effect value 7320; standalone activation shape validation; reject the capability in trigger definitions.
-- Resolution.cs: nullable scalar program draft and CardUse origin, omitted when absent.
-- GameEngine.Runtime.cs: exact private paid continuation before the ordinary source gate; exact awaited-movement return; new paid-root Dying qualification OR only.
-- GameEngine.ProgramLifecycle.cs: private payment choice dispatch and same-operation AI dispatch.
-- GameEngine.SkillPrograms.cs: suppress unavailable own Slash activation and accept only the exact new paid movement receipt.
-- GameEngine.DamageTargetObtainPrograms.cs: new exact origin in the existing issued zero-entity Duel union.
-- GameEngine.CardAttackState.cs: append the typed completion origin without changing old defaults.
-- GameEngine.cs: new optional origin in canonical BeginCardUse, actual Duel AttackStarted/parent capture, no-attack and completed-attack returns, exact Processing gates and invariants.
-- StandardClassicGeneralPackage.cs: new full SP module once; EmbeddedSkillProgramCatalog automatically supplies ProgramPresentation and discovers its resources.
-- GeneralGalleryCatalog.cs: explicit current ordinary-other group.
-- tests/CardGame.Core.Tests/Program.cs: four existing runner registrations.
-- tools/VerificationScopes.psd1: only the first representative behavior prefix.
+当前人物、程序绑定和规则来源见[规则合同](ORDINARY_OTHER_THIRTY_FIFTH_SP_PANG_DE_CONTRACT.md)；资料未明确的复杂口径见[工程默认](ORDINARY_OTHER_THIRTY_FIFTH_SP_PANG_DE_ENGINEERING_DEFAULTS.md)。
 
-There is no extra SkillPresentationCatalog file or manual operation registry. The core descriptor assembly discovery supplies the new operation, and the existing content csproj wildcard supplies the two skill JSON resources. Root appends the supplied exact art entry and copies the exact original PNG; this delivery does not replace the shared complete art catalog or execute an asset installer.
+实现入口：[GameEngine.TieredRoundZeroUses.cs](../../../src/CardGame.Core/GameEngine.TieredRoundZeroUses.cs)。
 
-Yang Xiu concurrent dependency: its new self-hand category restriction is unioned into the mature IsForeignEquipmentDiscardPrevented predicate. This delivery calls that existing predicate in CanStart, published own/target choices and submission. It does not depend on an unmerged new symbol. Root must preserve both concurrent edits when merging shared files.
+通用字段、提交、隐私及命令恢复边界见[技能程序运行时](RUNTIME.md)。

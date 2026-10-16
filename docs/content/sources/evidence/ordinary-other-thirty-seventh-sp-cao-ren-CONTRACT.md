@@ -1,15 +1,20 @@
-# Current ordinary OL SP Cao Ren (gid111)
+# SP曹仁：当前规则与来源边界
 
-Only the captured current page defines this character. It contains complete Weikui and Lizhan bodies, with no linked font/skill grant. The API identifies SP曹仁, Wei, four HP; initial_hp=0 is a placeholder and gender is absent. Male is supplemental evidence from the existing same-character classic definition and the current biography's 从弟. New identity is ol:sp-cao-ren, variant sp, module OrdinarySpCaoRenContent, portrait ol-sp-cao-ren. No historical Kuiwei/Yanzheng text is substituted.
+人物 ID `ol:sp-cao-ren`，势力 `wei`，基础体力 4。当前人物属性、包与将池绑定见[人物资料](../../../../src/Characters/cao-ren/ol-sp/Content/ol-sp-cao-ren.character.json)。
 
-7800 is the generic `PayHpInspectHandThenDiscardOrSlash`. Its strict activation has zero cards, exactly one other living character with hand cards, one use per actual Play phase, and one unconditional instruction. The original program/instance/hash/actual turn/target and HP-before/after are frozen on the owning ProgramSkillFrame. The actual LoseHp host emits the normal HP fact and creates normal HP/Dying children. Every queued child returns before inspection. An already paid source loss cannot pay again or cancel the earned view while owner/target remain alive and winner is absent.
+| 技能 ID | 名称 | 当前规则 |
+| --- | --- | --- |
+| `ol:weikui` | 伪溃 | 出牌阶段限一次，你可以失去1点体力并观看一名有手牌的其他角色的手牌，若其中没有【闪】，你弃置其中一张牌，否则你视为对其使用一张【杀】，且你本回合计算与其的距离视为1。 |
+| `ol:lizhan` | 励战 | 结束阶段，你可以令任意名已受伤角色摸一张牌。 |
 
-The complete then-current hand is frozen only after HP children return. Printed Dodge identity decides the branch. Only the skill owner gets the actual cards through CreateSnapshot(owner). Private choices show named cards only to that authorized viewer; other views and public facts carry no hidden IDs, kinds or cards. No-Dodge forces an actual current-hand discard chosen by the owner; mature discard eligibility is checked at both offer and submission. Dodge forces one confirmation of the view and then an actual zero-material Slash Use with Actor/Provider=owner, a true action, declaration, targets and attack; there is no second optional decline.
+## 执行入口
 
-The issued Slash retains mature card/target prohibitions, armor, responses, alcohol consumption, all card-action windows and real Use/history recording; the forced skill-issued Slash ignores and does not debit finite Play Slash quota. Its exact typed return drains every target and Completed child before finishing the paid activation, even if the source is later lost. The original primary target stays on the frozen return while redirects or legitimate additional targets remain on the actual Use. Its directed distance grant belongs to the original paid source and target, sets final combat distance to 1 for the current actual turn, expires through the existing turn store and remains valid after source loss. Other directions and actors are unchanged.
+- [ordinary-sp-cao-ren.rules.json](../../../../src/Characters/cao-ren/ol-sp/Skills/ordinary-sp-cao-ren.rules.json)
 
-Lizhan uses mature actual TurnEnding optional selection over AnyWounded (including owner) then SelectedTargets Draw1. Each selected living recipient receives a real Draw; normal draw movement/HP/recovery/Dying observers retain their existing typed return behavior. It does not add a new draw mechanism or synthetic draw fact.
+规则执行保留真实材料、费用和动作/窗口身份；暂停状态属于其拥有帧，原生移牌、回复、伤害、濒死等子链完成后沿类型化返回继续。已发行成本不重复支付，尚未发行的后续按其来源与死亡/终局合同判断。
 
-All new public facts are scalar-only, including the scalar source/return/grant records. The new owning hand-ID collection copies into Array.AsReadOnly both at construction and init, thereby covering with/JSON. It is never projected as public ResolutionStack data; the stack remains trusted diagnostics. Checkpoints rebuild accepted command journals; focused cold drafts assign the restored engine before continuing. No new sidecar pending state or use-ID map is added. The distance store is a turn-effect family, using the existing global grant sequence and expiry, not a resolution sidecar.
+私有候选通过对应玩家快照投影；玩家快照与提交事件的嵌套集合在准备阶段冻结，帧内集合按对应机制合同管理。人物性别、派生技能版本等未由 API 字段直接提供的资料，按保留来源与明确工程解释区分。
 
-All compilation, production loading, checks, game/native AI execution and UI are deferred. Static inspection is not runtime acceptance.
+具体解释见[工程默认](ordinary-other-thirty-seventh-sp-cao-ren-ENGINEERING_DEFAULTS.md)。
+
+源码格式、提交与恢复边界见[技能程序运行时](../../skill-composition/RUNTIME.md)，来源规范见[版本核对](../../BWIKI_CONTENT_BACKLOG.md)。

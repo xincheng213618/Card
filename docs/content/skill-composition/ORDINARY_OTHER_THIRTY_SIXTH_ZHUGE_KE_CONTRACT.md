@@ -1,23 +1,27 @@
-# Current ordinary OL 118 诸葛恪 — implementation contract
+# 诸葛恪：当前规则与执行入口
 
-Source: `source/118-official-source.json`, SHA256 `26c623b2d1eb48935e822fde0992f1ceb550ef7b1decaf38f7c0076d996afeb9`. Official page and its advertised info API were each captured once. Both returned HTTP 200. The page supplies complete 傲才/黩武 texts without font references; API supplies 吴/3. `initial_hp:0` is a placeholder. Male is a biography inference, not an API gender field. Main baseline is `22ea8a809b36af0249953743612678a9fe2b2a99`.
+当前人物 ID 为 `ol:zhuge-ke`，势力 `wu`，基础体力 3。人物、技能绑定和将池注册取[人物资料](../../../src/Characters/zhuge-ke/ol/Content/ol-zhuge-ke.character.json)；主公加成和模式资格由实际模式处理。
 
-## 7600 privateTopBasicRequest card policy
+## 技能定义
 
-The declaration permits an optional private offer only on an existing genuine basic-card request, outside the actual owner's turn. It never publishes top-card identities before activation. The owning request records its original exact prompt/revision/producer/responder cursor. A typed child frame freezes actual top two cards, or four when the owner has no hand cards. This uses the engine's actual draw order; no artificial Hand gain occurs. Unselected cards stay in DrawPile in their original relative order. Activation calls the mature EnsureDrawPile once: an empty draw pile may reshuffle the real discard pile by the existing RNG rule. A nonempty short pile is not filled or reordered; only available cards are shown. If both piles are empty the private view has only decline.
+| 技能 ID | 名称 | 当前说明 |
+| --- | --- | --- |
+| `ol:aocai` | 傲才 | 当你于回合外需要使用或打出基本牌时，若你有/没有手牌，你可以观看牌堆顶两/四张牌，然后可以使用或打出其中的基本牌。 |
+| `ol:duwu` | 黩武 | 出牌阶段，你可以弃置X张牌对你攻击范围内一名其他角色造成1点伤害（X为其体力值）。若其因此进入濒死状态且于濒死结算后存活，你失去1点体力且本回合本技能失效。 |
 
-Selected native basic material remains the same physical entity and must still be in DrawPile. A nullable receipt on the original producer authorizes only this exact card for the frozen need. Native Slash defense, Duel/group response, Peach/self Alcohol rescue, BorrowedSword/Qinglong real Slash, faction Slash/Dodge provision, and existing program-requested actual Slash retain their original user/provider/requester/opponent semantics. The selected card is paid DrawPile→Processing by those producers; accepted/declared histories are never fabricated or rewritten. Response-only and Use intents remain distinct. Ordinary arbitrary ViewAs conversion of a viewed nonmatching card is not granted. Existing source/target prohibitions remain in force.
+## 程序与原生流程
 
-The private viewing frame and its nested prompt/ID collections clone into readonly backing through construction, init/with and JSON. Only the viewer's CreateSnapshot includes these cards. History exposes only scalar count/selected public material after payment. The new policy is opt-in; old requests without it keep their original publication, dispatch, events and RNG. Decline cannot re-open the same policy on the same exact request; later genuine response opportunities use their own cursor/prompt. Native rescue refusal/no matching card invokes the mature rescue fallback with only this entry skipped, consuming the original responder cursor. Native private-response invariant reconstruction uses the validated original decision only locally; the actual private frame and prompt remain intact.
+| 技能 | 绑定入口 | 当前效果操作 |
+| --- | --- | --- |
+| `ol:aocai` | `cardPolicies` | 规则文件中的显式过滤、状态与策略 |
+| `ol:duwu` | `active / target-hp-cost` | `discardTargetHpCardsAndDamage` |
 
-## 7601 discardTargetHpCardsAndDamage
+正式规则文件：
 
-The activation has one other living target and no numerical usage quota (`usesPerTurn:null`). Before payment it freezes the selected target, original combat distance/range and positive current HP X, validates the source instance and exactly X legal own HE discard materials. Generated weapons and the active source equipment are excluded; ordinary costs respect the mature self-discard policy. Payment is one actual atomic movement batch. All SilverLion recovery, movement, HP, nested Damage/Dying/rescue children drain before the already-paid Damage1 begins. The exact PendingMovement return drains queued recovery, HP and the original remaining CardsMoved batches before clearing the paid continuation. Removing the owner's weapon/mount, recovery, or post-payment source loss cannot reprice or cancel the accepted attack. Before payment source loss cancels normally.
+- [ordinary-zhuge-ke.rules.json](../../../src/Characters/zhuge-ke/ol/Skills/ordinary-zhuge-ke.rules.json)
 
-The ordinary damage pipeline owns the attack. A scalar receipt captures the exact DamageFrame that directly belongs to this operation and the exact DyingFrame produced by that damage. Only that Dying completion with survived=true triggers LoseHp1 and skill prohibition for the current actual turn. A different child's Dying is not evidence; a victim dying and remaining dead does not penalize. Existing damage prevention/redirect/recipient modifiers remain active. Redirect engineering default follows the actual recipient of the paid damage, and its exact damage/Dying token, rather than the initially selected target. Damage replaced with HP loss uses the mature attack-return/HP children but is not an actual DamageFrame survival and does not incur this penalty. A zero/negative HP living target is excluded from a new Play activation; genuine Dying also blocks such actions. This is an explicit engineering boundary rather than a newly invented official FAQ.
+原生用牌、材料支付、伤害/回复/濒死、牌区移动及其子窗口在所属帧中保存真实来源和收据，完成后沿类型化父返回继续。动作接受前复验技能、材料和目标；已支付的子树不重新付款，尚未发行的效果按当前资格处理。
 
-Paid continuation completes exactly once before returning to the generic executor. Penalty and turn-bound disabled usage are issued once, even after skill-source loss; an already dead owner cannot lose HP again. A dead target or already determined winner before issuance ends the paid operation. After native damage completes, existing HP children drain; if a child has determined the winner, the root completes without issuing a new penalty/usage. No pending sidecar, last-event inference, new player runner or global version bump is introduced.
+玩家和 AI 只消费其有权获得的快照与选择；私有手牌和拥有牌区不进入无权观察者的提示。玩家快照与提交事件的嵌套集合在投影/提交准备时冻结，帧内集合按对应机制合同管理。具体字段与允许组合见[运行时](RUNTIME.md)。
 
-## Deferred checks
-
-Four existing-runner drafts are saved: empty-hand Dodge/private refusal/readonly freeze; empty-hand requested Slash and real Peach recovery; SilverLion cost before damage plus exact survived-Dying penalty/virtual Alcohol; native failed rescue and paid source suppression. Every key private/paid/HP/Dying pause uses the returned cold-restored engine for subsequent actual commands and four-view comparisons. Group/Duel/faction/BorrowedSword/Qinglong and nearest/assisted intent paths are statically wired, not represented as executed checks. Winner/redirect/damage-as-HP and short-pile branches are static evidence only. All compiler, production loader, test, UI, native game and benchmark execution is prohibited and remains false. Static completeness is separate from runtime acceptance.
+复杂时序与资料未裁定的口径见[工程默认](ORDINARY_OTHER_THIRTY_SIXTH_ZHUGE_KE_ENGINEERING_DEFAULTS.md)；这些解释与官方原文分别标明。

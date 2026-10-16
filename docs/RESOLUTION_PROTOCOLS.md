@@ -12,4 +12,8 @@
 
 原生用牌在弹帧前按 `[NativeUseValidation]` 验证，再执行全部 `[NativeUsePreparation]` 并捕获返回事实；弹帧后按 `[NativeUseReturn]` 推进。布尔回调表示已独占处理，普通回调按顺序继续。准备结果只在本次调用的返回上下文中存活，不能写成另一套引擎 pending 状态，也不能重复消费该上下文。
 
+准备处理器可声明成对的返回方法及返回顺序；只有本次准备成功，配对返回才参与弹帧后的独占分派。`NativeUseReturnContext` 保存本次用牌、已经捕获的返回事实及各准备结果，并拒绝第二次返回。回调仍需核对其原生拥有者、来源及已完成费用。
+
 攻击返回通过 `[NativeAttackReturn]` 保留清理前、清理后、借刀处理后和恢复父程序前四个边界。人物专属回调在所属人物或机制文件注册，主引擎保留通用清理、借刀处理和父程序恢复。共享元数据按阶段与顺序排序，实际委托绑定到各自对局，校验异常直接传播。
+
+源码入口：[候选驱动](../src/CardGame.Core/ProgramTriggerWindowDriver.cs)、[窗口返回目录](../src/CardGame.Core/ProgramWindowReturns.cs)、[窗口返回处理器](../src/CardGame.Core/GameEngine.ProgramWindowReturns.cs)、[程序续接](../src/CardGame.Core/GameEngine.ProgramContinuations.cs)、[原生返回](../src/CardGame.Core/ProgramNativeReturns.cs)。

@@ -1,6 +1,6 @@
 # 未获官方 FAQ 的工程默认
 
-以下与官网正文分开，尚未通过用户统一实测。
+以下为当前实现的工程默认，与官网正文分别标明。
 
 - 距离是有向最终值：仅 other，目标当前 HP≤自己 HP 时为 1，抵消马与其它加减距离；本人仍 0。在实际公告目标时冻结该目标资格，前面目标的付款/HP 孩子不回头重判已公告目标；真正后来追加目标另行冻结一次。
 - 追击的“一张牌”采用本人合法手牌/装备 HE。没有合法牌且没有可重铸装备时，此机会无付款结束；不伪造弃牌、重铸或摸牌。
@@ -13,5 +13,3 @@
 - 620/5403 的真实 fire 转换用原 OriginalAction 为已发行材料资格基准，当前 fire/action/追加 source 的准入仍由成熟 assertion 与 changed fact 精确核实。没有任意转换链例外。
 - legacy 神速等成熟固定选取不重塑为 Action Use；现有追加目标能力的真实事实仍接受一次追击。尚未新增任意 legacy 固定 producer 的选择 UI 或虚构实体。
 - 公共付款 ID 仅在真正公共弃置/销毁之后出现；未付 foreign hand 的选择只供实际目标本人。原牌名及 ID 不进入 Offered 事件。AI 只读自己的公开 choices 及公共装备，不读别人的暗手。
-
-检查均为未运行草稿。仅源码静态复核的组合包括 600+7341 的 token 消费上限、5403+丈八、generated 单弃、winner/目标死亡取消、嵌套 Damage/AttackHpLoss/Dying 的完整救援返回与后来追加目标交替 7000/7200。四草稿包含普通实体、两材料、丈八、白银狮子 HP+cost movement+recast gain、paid 失源、legacy/coexisting 窗口及 native commands；这些也没有声称已经通过。

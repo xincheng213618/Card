@@ -1,6 +1,6 @@
 # 界孙权、界庞统、界徐庶共享能力
 
-本批采用当前普通 OL 界孙权 442、界庞统 455、界徐庶 304。完整原文、HTTP 时间与三张官方原立绘 SHA 见[来源](../sources/fenglin-sixteenth-2026-10-03.json)，荐言补充依据见[徐庶来源](../sources/xu-shu-derived-2026-10-03.json)。内容注册、图鉴和同步映射一起接入，沿用现有 rules epoch、JSON schema 与内容包版本。
+界孙权、界庞统与界徐庶采用项目选定的普通 OL 正文，完整文本、身份和原画依据见[来源](../sources/fenglin-sixteenth-2026-10-03.json)，荐言补充依据见[徐庶来源](../sources/xu-shu-derived-2026-10-03.json)。
 
 制衡复用已有 HE 选牌、冻结选牌凭据、弃牌、等量摸牌和全手牌额外摸牌；每个实际出牌阶段限一次。涅槃复用限定濒死触发、HEJ 弃牌、解除横置/翻面、摸牌、回复至指定值、选项与获得既有经典技能。潜心复用本人实际伤害后的受伤条件、游戏限一次、减体力上限与获得技能。
 
@@ -17,3 +17,5 @@
 2801 `DeclareDeckCriterionAndGiveMatchingCard` 先声明红/黑颜色或基本/锦囊/装备的打印类别（锦囊包含延时锦囊），再按当前牌堆顶逐张公开并检索首张符合牌，由发动者选择当前存活男性角色获得，可以选择自己。检索和给牌凭据由 owning program frame 持有，每次移动及给牌后的 children 可暂停和冷恢复。工程默认只在初始空堆时按既有方式补充，随后冻结初始堆牌数为检索预算；中途不再补充，无匹配则有限结束。失败牌进入弃牌堆但不是弃置动作；命中牌公开暂存 Processing，给牌前来源失效或没有男性接收者时沿绑定牌清理进入弃牌堆。
 
 新规则事实通过 `AdvanceEventRulesAndQueueFact`，新状态通过 `AdvanceRulesAndPublishState`；集合与嵌套凭据在暴露前冻结，玩家视角使用 `CreateSnapshot`。正式命令/冷恢复与 HOST 来源失效审计分别标注。
+
+配置字段、操作和入口能力见[当前技能配置](RUNTIME.md)；程序续接和帧权限见[结算协议](../../RESOLUTION_PROTOCOLS.md)。

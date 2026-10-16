@@ -5,7 +5,7 @@
 ## 操作流程
 
 1. **使用杀**：选择实体杀、点击亮起的合法目标并确认。亮起只表示规则允许，正式牌局仍需判断身份和敌友。
-2. **用闪保护自己**：在真实的杀响应窗口中，从中央候选打出实体闪；选择不响应会被教学边界拦截。
+2. **用闪保护自己**：在真实的杀响应窗口中，选择亮起的实体闪并确认；选择不响应会被教学边界拦截。
 3. **用桃回复体力**：从真实受伤状态主动使用桃，规则核心完成自身目标和回复事件。
 4. **决定留下哪些牌**：在真实的回合末超限状态选择准确数量的牌，确认后完成演练。
 
@@ -23,20 +23,4 @@
 - 完成后停止继续推进，玩家可以重来、进入下一节或返回正式牌局；
 - 关闭程序时不会把练习位置覆盖到正式存档。
 
-退出后重新挂接原规则引擎，并恢复进入时的界面状态。教学本身不改变 Checkpoint、存档格式或 AI 策略版本，也不保存课程完成进度。
-
-## 验证
-
-最终验证使用隔离 Release 输出：
-
-```powershell
-dotnet build .\CardGame.sln -c Release --artifacts-path .artifacts/tutorial-final
-& '.\.artifacts\tutorial-final\bin\CardGame.Core.Tests\release\CardGame.Core.Tests.exe'
-& '.\.artifacts\tutorial-final\bin\CardGame.Wpf.Tests\release\CardGame.Wpf.Tests.exe' "$PWD\artifacts\tutorial-review\ui-final"
-```
-
-- 四个练习位置分别重复创建并比对可信快照，且都能从命令 Checkpoint 重建。
-- WPF 测试通过实际命令走完四节，检查错操作无副作用、完成事件、完成后暂停、教学零存档写入，以及原状态和选牌目标的精确恢复。
-- 牌桌按 1120×740 离屏渲染，未调用 `Window.Show()`；尚不代表真实鼠标、键盘、焦点和多 DPI 桌面验收。
-
-界面证据：[开局面板入口](../artifacts/tutorial-review/ui-final/30-tutorial-entry.png)、[开始练习](../artifacts/tutorial-review/ui-final/27-tutorial-attack.png)、[单节完成](../artifacts/tutorial-review/ui-final/28-tutorial-step-complete.png)、[全部完成](../artifacts/tutorial-review/ui-final/29-tutorial-complete.png)。
+退出后重新挂接原规则引擎，并恢复进入时的界面状态。课程完成进度不持久化。

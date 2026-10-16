@@ -1,37 +1,21 @@
-# Current ordinary OL 115 — staged contract
+# 关银屏：当前规则与来源边界
 
-Source is the retained current `/hero/115` body and its actually advertised `api/v1/hero/info?gid=115`. It supplies all three skills without linked grants. Identity is Shu, base HP3; female is an explicit current-biography daughter inference, not an API gender field. Registration is `ol:guan-yin-ping`, `OrdinaryGuanYinPingContent`, bundle `ordinary-guan-yin-ping`, ordinary variant, other gallery, `ol-guan-yin-ping` portrait. Classic content is unchanged.
+人物 ID `ol:guan-yin-ping`，势力 `shu`，基础体力 3。当前人物属性、包与将池绑定见[人物资料](../../../src/Characters/guan-yin-ping/ol/Content/ol-guan-yin-ping.character.json)。
 
-## Snow and actual payments
+| 技能 ID | 名称 | 当前规则 |
+| --- | --- | --- |
+| `ol:xuehen` | 雪恨 | 出牌阶段限一次，你可以弃置一张红色牌并令至多X名角色（X为你已损失体力值且至少为1）进入连环状态，然后对其中一名角色造成1点火焰伤害。 |
+| `ol:huxiao` | 虎啸 | 锁定技，当你对一名角色造成火焰伤害后，其摸一张牌，你本回合对其使用牌无次数限制。 |
+| `ol:wuji` | 武继 | 觉醒技，结束阶段，若你本回合造成了至少3点伤害，你增加1点体力上限并回复1点体力，失去“虎啸”，然后从场上、牌堆或弃牌堆中获得【青龙偃月刀】。 |
 
-An own Play activation is once per actual phase. The initial selection is one effective-red legal HE entity; the real discard and its queued recovery/movement children finish before selecting targets. Number-expression 7400, **a distinct enum namespace from EffectOp**, freezes `max(1, current MaxHp-current Hp)` at actual target selection. Targets include self, and the upper bound is clamped to living seats. Existing `SetChainedState(selectedTargets,true)` issues real state changes, queues each existing character-state child, and the executor drains those children before the following single-target/fire instruction. It does not toggle a chained character.
+## 执行入口
 
-The single fire recipient must come from the original selected living set. Only this new maximum-expression opts into the narrow pre-selection live-set filter; if all original targets die inside character-state children, cancel the unissued fire effect. Old strategic selection is unchanged. The original red cost is not repaid. This exact seven-node 7400 composition freezes a scalar original HE material/effective-suit/source receipt immediately before movement and commits it only against the real discard ledger and a single public paid fact. Its exact original activation/hash/start fact authorizes the original paid chain/fire continuation after source loss. Runtime's generic movement qualification and the executor's original OwnsSkillInstance guard are unchanged for absent receipts and every other composition. The specialized return explicitly drains pending Recovery/HP/movement children before clearing its token. Dead owner or winner cancels unissued chain/fire after drain. This composition reuses mature selection/card-set/character-state/ProgramAttack returns and does not add a parallel pending object.
+- [ordinary-guan-yin-ping.rules.json](../../../src/Characters/guan-yin-ping/ol/Skills/ordinary-guan-yin-ping.rules.json)
 
-## Fire recipient and actual-turn right
+规则执行保留真实材料、费用和动作/窗口身份；暂停状态属于其拥有帧，原生移牌、回复、伤害、濒死等子链完成后沿类型化返回继续。已发行成本不重复支付，尚未发行的后续按其来源与死亡/终局合同判断。
 
-EffectOp7401 is strictly a standalone mandatory, per-damage `AfterDamageApplied` source trigger. Runtime verifies the exact current damage candidate, frozen definition/hash/instance, actual positive fire damage, real source and victim. It freezes original turn/source and a **promise** on the owning Program frame, then draws one for that actual living victim. No allowance or Grant event exists while draw/gain/HP children are running. Every draw atomic movement and original parent edge is checked. Zero actual draw is represented by a genuine attempted Draw0, without fake card movement.
+私有候选通过对应玩家快照投影；玩家快照与提交事件的嵌套集合在准备阶段冻结，帧内集合按对应机制合同管理。人物性别、派生技能版本等未由 API 字段直接提供的资料，按保留来源与明确工程解释区分。
 
-Once all issued draw children return and pending movement is clear, fulfil the promise once under the original source identity. Loss/suppression of Huxiao inside those children does not revoke the promise or the issued right. A game winner or dead original owner cancels the still-unissued right; paid draw children still drain. Rights live in the existing actual-turn store and expire at that actual turn end. Source instance qualification is deliberately absent from later right queries.
+具体解释见[工程默认](ordinary-other-thirty-sixth-guan-yin-ping-ENGINEERING-DEFAULTS.md)。
 
-The target right changes finite **legality** only. Every actual Slash use still reaches the existing real-use debit. Single/multiple targets each pass the existing target prohibition/distance/armor/suit legality, and uncovered targets still require ordinary quota. Physical, converted, normal multiple-target and mature requested/forced Slash producers share the target gate, with their old count-exempt semantics retained. Self-directed Alcohol finite-use gates are also covered, including current material/zero/virtual producers, while the ordinary existing `HasAlcoholEffect` restriction remains. No new quota is invented for kinds without an existing finite use limit. This is an explicit engineering interpretation of “no use limit,” not an official “does not count as use” FAQ.
-
-## Awakening and actual printed weapon
-
-Wuji uses the mature owner Ending window, actual dealt-damage-this-turn facts, and exact game usage1. It changes MaxHP+1, recovers1 through the mature real recovery producer, then EffectOp7402 removes configured Huxiao grants, including temporarily disabled ones, and obtains an original printed Qinglong entity. Public alive-player E/J and discard candidates expose only already-public IDs. A deck option advertises only the named kind, with no hidden ID/rank/order; the first matching real deck entity is resolved on selection. There is no foreign-hand search or synthetic entity.
-
-The named acquisition owns its selection and once-issued ledger on the original Program frame. Real move/queued recovery/HP/gain children drain before completion. Source loss cancels unissued acquisition; after movement issuance, it only cancels later execution after draining. Exact Ending candidate identity survives source loss. No-match completes with a scalar Obtained=false fact. Native choice prefers the opaque deck-kind option, then stable public choices, without consulting private hand IDs.
-
-## Owned returns and public exposure
-
-Fire draw and named acquisition validate receipt/instruction/parent/ledger before permitting their observer subtrees. The first child is exact movement or, for the generic named-card equipment producer, exact Silver Lion recovery/replacement with matching ledger/reason/Return token. Subsequent edges locally reuse mature paid-damage/HP/movement/Dying/SelfDying and full native/material/pile/virtual rescue proofs. Incoming Dying is proved before delegating its whole suffix. Nested Damage admission is only an exact current gain/HP instruction under one such proven root. Old generic observer gates are not widened.
-
-New pending receipts and public events contain only immutable scalar/value records. The new store returns a cloned read-only outer list; Source records are scalar. No new exposed collection-bearing event needs a projection arm. Existing selections, views, choices and card sets continue through the mature freeze/projection contracts. Null optional frame fields preserve old serialized shape. Accepted-journal cold reconstruction is the only meaning of Cold in the drafted checks.
-
-## Draft checks and boundaries
-
-Four existing-runner methods are planned, first a routine representative: red equipment recovery with real Snow source-loss variant→post-payment X→chain child→fire draw; exact-target quota with actual converted use debit and actual turn expiry; game-limited awakening/original public weapon gain with source-loss return; paid fire draw source loss and a bounded native actual-command prefix. All four return the actual restored game at their four-view cold anchors. No definition snapshot, seed search, new runner/framework or whole-match simulation is added.
-
-**Compilation, loader, all checks, native game, UI and benchmarks were not executed.** Prepared collection mutation is only a draft assertion on an existing exposed list. The generic named-card Silver Lion/Replacement and nested Damage/Dying/rescue combinations are statically bridged but not newly exercised by these four drafts. Extra phase/turn, recipient death, same-zone equipment-to-hand, and all-target death are static boundaries, not claims of runtime acceptance. No versions are raised; root owns final registration/scopes/art adoption.
-
-Draft source-loss variants use the existing legal ReplaceSkillsOnAwakening observer producer, actual owned-skill selection and finish commands. Its real MaxHP reduction is retained: post-Silver-Lion Snow still freezes X=max(1,lostHP); no fake state is written. LoseOwnerSkillsAndGrant is activation-only and is not used in observer fixtures. These variants remain unexecuted.
+源码格式、提交与恢复边界见[技能程序运行时](../skill-composition/RUNTIME.md)，来源规范见[版本核对](../BWIKI_CONTENT_BACKLOG.md)。

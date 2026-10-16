@@ -1,10 +1,10 @@
-# Ninth batch engineering rulings
+# 界关羽、界张飞、界马超规则口径
 
-This addendum preserves the frozen `FENG_LIN_NINTH_CAPABILITIES.md` dispatch contract. It records implementation choices for current ordinary OL hero pages [界关羽](https://www.sanguosha.com/hero/300), [界张飞](https://www.sanguosha.com/hero/301), and [界马超](https://www.sanguosha.com/hero/303). These choices are engineering interpretations where the published skill text does not specify an interaction; they are not an official FAQ.
+项目选定的普通 OL 文本及来源见[来源档案](../sources/fenglin-ninth-2026-10-02.json)。下列复杂交互属于明确工程默认，区别于官方正文中的基本效果。
 
-- 咆哮 reserves +1 for each actual target cancellation. Several targets of the same Slash can accumulate for the next actual Slash Use. This is the stated default while optional user clarification remains unanswered. Deduplicate the same cancellation notification for the same skill instance. Freeze all accumulated reserve only when the next actual Slash actor and final targets are fixed; Played or supply alone does not consume it. Every target of that next Slash uses the same frozen bonus. A later cancellation of that Slash creates a new reserve.
-- A fully dodged Slash records the actual cancellation before the 贯石斧 continuation. Both accepting and refusing the axe cost retain a reserve for the next actual Slash; the current Slash cannot consume it. 青龙偃月刀's follow-up is a new actual Use and can consume it. An effect that prevents Dodge cancellation must skip the new reserve handler. Do not move or reinterpret legacy `SlashFullyDodged` dispatch for registries without the new handler.
-- Temporary current-turn suppression qualifies each final skill grant by that skill's Locked tag. It disables new 化身 activation but preserves an already acquired Locked skill and the selected faction/gender. Genuine local disable, source loss, and established 缠怨 source qualification still retain their existing behavior. A suppression fact lasts until the actual turn ends independently of its issuing source; expiry cannot re-enable a locally disabled grant.
-- If extra play stages let the same owner apply 义绝 to the same target twice in one actual turn, the owner's Heart Slash bonus remains +1 for that named skill and target. Different targets retain independent qualification. This is an explicit engineering interpretation of the named current-turn effect; suppression and hand restriction remain idempotent qualifications.
+- 咆哮按每个实际目标抵消累计 +1；同一取消通知对同技能实例去重。下一次真实使用杀在实际使用者和最终目标固定时冻结并消费全部储备，各目标读取同一加值。打出或单纯供牌不消费；该杀的新抵消生成下一份储备。
+- 完整闪避在贯石斧续接前记录抵消。接受或拒绝贯石斧费用都为下一张杀保留储备；本张杀不消费新储备。青龙追加杀属于新的实际使用，可以消费。抵消被规则防止时不记录该储备。
+- 本回合非锁定技抑制依据每份授予最终技能的 Locked 标签判断。化身的新发动被抑制时，已经获得的锁定技能及所选属性按当前来源资格保存；局部禁用、来源失去和缠怨资格仍独立处理。抑制到期不能重新启用本就局部禁用的授予。
+- 同一实际回合因额外出牌阶段再次向同一目标施加义绝时，对该目标的红桃杀加值仍为 +1；不同目标分别保留资格。手牌限制和抑制各自按本回合政策处理。
 
-Evidence is kept separately: accepted commands and four-viewer checkpoint replay prove public/private prompt behavior; labelled host audits exercise exact grant lifecycle mutations. Host mutation audits are not described as accepted-command replay. Official portrait bytes remain unmodified. New content does not change the global rules epoch, JSON schema, or package release version.
+实际动作、已支付成本、判定及逐目标返回的边界见[能力合同](FENG_LIN_NINTH_CAPABILITIES.md)。

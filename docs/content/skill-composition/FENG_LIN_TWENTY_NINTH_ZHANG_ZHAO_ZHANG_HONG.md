@@ -1,21 +1,31 @@
-# Current ordinary OL 563 staged contract
+# 界张昭张纮：当前规则与执行入口
 
-Source: docs/content/sources/fenglin-twenty-ninth-563-source-2026-10-04.json, raw SHA256 40e306cedc0c0dfec0fabacb8bffc9a0da88a3b744b850e729d4ce5d0728ad69. API is Wu / base HP3; initial_hp0 is a placeholder, gender is absent. Male metadata is retained classic identity supplementary evidence. Exact current descriptions live in the presentation JSON. No classic skill configuration is changed.
+当前人物 ID 为 `boundary:zhang-zhao-zhang-hong`，势力 `wu`，基础体力 3。人物、技能绑定和将池注册取[人物资料](../../../src/Characters/zhang-zhao-zhang-hong/boundary/Content/boundary-zhang-zhao-zhang-hong.character.json)；主公加成和模式资格由实际模式处理。
 
-6200 placeCapturedEquipmentAndDraw: a captured one-card own HE physical equipment activation with one other living recipient. Real replacement, generated weapon normalization, equipment skill grants, SilverLion removal and WoodenOx transfer/discard use the mature helpers. A receipt freezes original source, slot and first replaced identity. Payment/entry is committed once; queued recovery, HP and movement children drain before Draw1, and reward-gain children drain before the parent returns. Receipt proof uses exact recorded movements and events, not live re-placement.
+## 技能定义
 
-6201 restoreActualDiscardBatch: a standalone optional owner DiscardPileReceived trigger, unfiltered other-player true-discard origin. One actual atomic batch is grouped by original HEJ owner; only groups of at least two distinct real discarded entities are eligible. Group qualification is frozen before observers; currently absent original entities cannot be restored. One returned entity is paid first, its gain/HP/death children drain, then the holder chooses whether to obtain all remaining still-discarded original entities in one real batch. A paid return consumes owner+skill+stateId+actual phase token, deliberately excluding instance. Declined offers do not consume; losing/regaining the skill does not restore a paid phase opportunity.
+| 技能 ID | 名称 | 当前说明 |
+| --- | --- | --- |
+| `boundary:zhijian` | 直谏 | 出牌阶段，你可以将一张装备牌置于其他角色的装备区（替换原装备），然后摸一张牌。 |
+| `boundary:guzheng` | 固政 | 每阶段限一次，当其他角色的至少两张牌因弃置置入弃牌堆后，你可以令其获得其中一张牌，然后你可以获得剩余牌。 |
 
-A new opt-in actual-phase history issues distinct Preparation/Judgment/Draw/Play/Discard/Ending tokens at real boundaries, including extra Play and extra Draw. Only registered 6201 capability enables these scalar facts. Frozen movement batches retain the phase key they began in. No historical generic reset or phase flag is repurposed, and no pending sidecar is added. Cost/benefit receipts stay on ProgramSkillFrame with typed awaited movement returns.
+## 程序与原生流程
 
-Actual-phase issuance precedes the supported real phase-start windows. A scheduled own TurnStart extra Play/Draw freezes its interrupted Preparation key on ProgramPhaseSchedule and restores that recorded key after the extra phase; cancellation/death/winner clears it. DrawPhaseObligationFrame similarly freezes the original normal Draw key. An extra Draw starts a new key and returns only to the exact finished normal Draw producer, which restores its prior key before continuing AfterNormalDraw. Null optional scalars and no added phase facts preserve registries without 6201. This is separate from the existing card-use debit phase number.
+| 技能 | 绑定入口 | 当前效果操作 |
+| --- | --- | --- |
+| `boundary:zhijian` | `active / place-equipment` | `captureSelectedCards`、`placeCapturedEquipmentAndDraw` |
+| `boundary:guzheng` | `discardPileReceived / restore-actual-discard-batch` | `restoreActualDiscardBatch` |
 
-Each paid root first proves its exact selected equipment or returned/claimed public entity ledger, frozen source/binding/instance/hash and movement bounds. Its first HP/recovery/movement child must match that root and payment; the first movement batch accepts AwaitingProgramFrameId null or the exact root, retaining ParentFrameId, origin and ledger checks. Subsequent edges use HalfHandPaidDamageObserverEdge. Exact Dying rescue suffixes use the existing physical/multi-material Peach, bound Alcohol and zero-entity Alcohol proofs. New nested ProgramDamage / BeforeDamage / AfterDamage / Runtime-Dying allowances remain receipt-local and do not widen the older generic observer gate. The original active Damage or HP-loss obligations must finish before the return/claim or equipment-draw tail resumes.
+正式规则文件：
 
-Receipt originalEntities and claimedCardIds and ActualDiscardRecoveryClaimedEvent.CardIds have detached read-only backing and explicit init cloning. The new collection-bearing claimed fact is also frozen by CommittedEventProjection. Scalar events retain immutable phase/source records. All public discarded IDs are emitted only after the real discard movement; the qualified batch fact exposes only owner/count/phase.
+- [boundary-zhang-zhao-zhang-hong.rules.json](../../../src/Characters/zhang-zhao-zhang-hong/boundary/Skills/boundary-zhang-zhao-zhang-hong.rules.json)
 
-Final OLD baseline is main cecc456e0a5ec662f9e9967b89e49252f87da9fc, whose Core bytes equal 64f10e3c (550 integrated). Eleven single-Update OLD patches preserve 457/485/550 and all earlier capabilities. Nine NEW mappings comprise eight production files and one four-method check draft. Module, existing runner, one routine prefix and media registration are delegated to root and deliberately absent from this production patch.
+原生用牌、材料支付、伤害/回复/濒死、牌区移动及其子窗口在所属帧中保存真实来源和收据，完成后沿类型化父返回继续。动作接受前复验技能、材料和目标；已支付的子树不重新付款，尚未发行的效果按当前资格处理。
 
-Static checks are source/API member review, JSON syntax, required fixture node fields, exact source SHA, complete NEW mapping and exact raw-before/preview/LF-after verification. Four fixed-seed real-command drafts cover occupied-slot/source SilverLion HP and reward Gain, returned Gain -> HP-loss and actual Damage -> Dying -> self-response, optional atomic claim and same-phase quota, scheduled extra Play/normal Discard phase, native public discard selection, four prepared viewer snapshots and real continued cold restoration. None is accepted behavior evidence: no compiler, rules loader, build, test, benchmark, HTTP, media operation or main write has run.
+玩家和 AI 只消费其有权获得的快照与选择；私有手牌和拥有牌区不进入无权观察者的提示。玩家快照与提交事件的嵌套集合在投影/提交准备时冻结，帧内集合按对应机制合同管理。具体字段与允许组合见[运行时](RUNTIME.md)。
 
-Unrun scope includes every drafted check, generated-weapon/WoodenOx replacement variants, inserted extra Draw restoration, nested Peach/Alcohol rescues beyond the self-response draft, paid source-loss/winner cancellation and arbitrary source/equipment compositions. These are implemented/static boundaries awaiting the user's unified execution lane, not omitted skill branches or verified official FAQ.
+复杂时序与资料未裁定的口径见[工程默认](FENG_LIN_TWENTY_NINTH_ZHANG_ZHAO_ZHANG_HONG_DEFAULTS.md)；这些解释与官方原文分别标明。
+
+## 规则来源
+
+- [fenglin-twenty-ninth-563-source-2026-10-04.json](../sources/fenglin-twenty-ninth-563-source-2026-10-04.json)

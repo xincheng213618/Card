@@ -1,47 +1,40 @@
-# 原始牌面接入
+# 卡牌与牌桌素材
 
-50 个已实现牌种使用 `Assets/Cards/<CardKind>.png`，清单区分 46 张固定官方图集牌面、2 张适配后的真实官方公告素材和 2 张项目既有生成素材。固定图集来源是已观察到的官方 CDN `cards.webp` 与配套 `cards.atlas`；具体网址、输入 SHA256、原始精灵名称、裁切矩形及输出 SHA256 记录在 `card-art-catalog.json`。鬼龙斩月刀使用同一固定哈希图集中的 `GuiLongZhanYueDao_png.png` 原牌面及 `Equip_GuiLongZhanYueDao_S.png` 装备条，不借用青龙偃月刀图像。
+[card-art-catalog.json](card-art-catalog.json) 维护卡牌和组件的来源、文件、裁切、适配与 SHA-256。牌面位于 `src/CardGame.Wpf/Assets/Cards/`，按 `CardKind` 绑定，当前覆盖范围由清单和 `CardCatalog.ImplementedCards` 核对。
 
-另有两种神武专属武器使用已核实身份的官方公告素材，清单按 `sourceKind` 单独记录出处，不宣称来自上述固定图集。`ScarletBloodSword` 使用[官方规则页](https://www.sanguosha.com/news/20170814_6789_3217)关联的 500×500 赤血青锋原插画（`officialIllustration`）：以 Lanczos 等比例缩至 186×186，居中放入 186×260 透明画布，上下各补 37 像素。完整保留剑尖和插画，未合成边框、标题或规则；透明区域显示现有卡牌底色，牌名、点数和花色仍使用运行时界面。该素材是原插画，外观与原生完整牌面不同。
+## 素材来源
 
-`XingtianAxe` 使用[官方活动页](https://www.sanguosha.com/news/20221206_3507_5113)的完整刑天破军斧界面牌图（`officialCardFace`），原尺寸只有 93×130；以 nearest-neighbor 整比例放大两倍至 186×260，保留原有印刷内容，细节受原图分辨率限制。两种输入均没有烘焙花色或点数；原网址、输入 SHA256、尺寸、缩放和补边参数以及输出 SHA256 均记录在清单的新增条目中。现有 46 张图及 57 个组件字节保持不变。
+| 类型 | 处理方式 |
+| --- | --- |
+| 官方固定图集 | 校验 `cards.webp` 与 `cards.atlas` 输入哈希，按精灵帧裁切牌面、点数、花色与装备条 |
+| 官方完整牌图 | 使用清单的 `officialCardFace` 来源及缩放参数，保留原印刷内容 |
+| 官方插画 | 使用 `officialIllustration` 来源，保持宽高比缩放并在透明画布补边 |
+| 项目生成素材 | `projectGenerated` 记录现有生成脚本、尺寸与哈希，导入器验证并保留文件 |
 
-`GeneralWeapon`、`RedBloodBlade` 及其装备条是主库既有 `tools/Build-GeneratedWeaponArtwork.ps1` 生成的项目素材（`projectGenerated`），本次只补登记已有 PNG 的尺寸和 SHA256，不重画、不替换，也不称为官方图集牌面。导入器验证它们的现有文件后保持字节；若缺图，会明确提示检查既有生成脚本，不借用其他卡面。
+鬼龙斩月刀对应固定图集中的独立牌面与装备条。赤血青锋使用来源已记录的 500×500 官方插画，等比例缩为 186×186，置于 186×260 透明画布；刑天破军斧使用 93×130 官方完整牌图，以最近邻放大两倍。`GeneralWeapon` 和 `RedBloodBlade` 使用项目生成素材，原始脚本为 `tools/Build-GeneratedWeaponArtwork.ps1`。
 
-牌面按 `CardKind` 绑定并缓存为冻结图片，不按中文牌名推断。花色、点数、技能转化和当前规则仍由游戏状态提供，图片不写入存档或 Core 内容注册表。手牌、开局发牌及公开亮牌共用 `CardFaceTemplate`，指南按当前选中牌种显示同一图片。未指定牌种或文件缺失时显示文字卡牌，不能推断其他玩家的暗牌。
+牌面不烘焙运行时花色、点数或转化效果。手牌、起手牌、公开牌与指南共用相应模板；花色点数来自当前可见状态，未知或缺失素材显示文字卡牌。图片不进入规则存档或 Core 内容定义。
 
-## 重建素材
+## 重建与校验
 
-在仓库根目录使用 PowerShell 和 PATH 中的 ffmpeg：
-
-```powershell
-& tools/Import-CardArtwork.ps1
-```
-
-脚本校验清单的固定输入 SHA256，解码 WebP 后按 atlas 坐标导出 46 张 186×260 牌面及 57 个组件，再按各自来源适配两张公告素材，并验证保留两张项目既有牌面和两条装备条，合计覆盖 50 个已实现牌种。组件包括 26 个红黑点数、4 个花色、27 条图集装备条和 2 条项目装备条。也可以用 `-SourceDirectory` 指定已有输入的目录，或用 `-Ffmpeg` 指定可执行文件。输入版本、尺寸、裁切方式或宽高比不匹配时停止，避免静默导入错牌。所有选中条目先通过来源和尺寸验证，再写交付图片；`-ValidateOnly` 只验证输入和适配结果，不写交付图片或清单。
-
-只重建指定牌种时使用通用 `-Kinds` 参数；此时不改其他图或组件：
+在仓库根目录运行 PowerShell，ffmpeg 需在 PATH 中：
 
 ```powershell
-& tools/Import-CardArtwork.ps1 -Kinds ScarletBloodSword,XingtianAxe
+pwsh -File .\tools\Import-CardArtwork.ps1
+pwsh -File .\tools\Import-CardArtwork.ps1 -ValidateOnly
+pwsh -File .\tools\Import-CardArtwork.ps1 -Kinds ScarletBloodSword,XingtianAxe
 ```
 
-两张公告图片由 ffmpeg 执行清单记载的缩放和补边；没有 AI 重画、借用其他牌种或把普通素材伪装成图集精灵。首次导入使用 ffmpeg `N-104863-g6cf55b9da2-20211213`：刑天输入的索引颜色先转为 RGBA，放大后的每个 2×2 像素块 RGB 与原像素一致，半透明边缘的 Alpha 转换舍入最多相差 1/255。重建后的输出 SHA256 由脚本回写清单。
+`-SourceDirectory` 指定已有输入目录，`-Ffmpeg` 指定解码程序。导入器校验来源域名、输入哈希、尺寸、atlas 帧、缩放比例与输出尺寸，所有选中条目验证后才写交付图片与清单。`-ValidateOnly` 不改交付图片或清单；`-Kinds` 仅处理指定牌面，不改其他图和组件。
 
-## 牌桌、装备与技能
+项目生成条目要求现有文件和记录哈希一致，缺图或冲突会明确报错。官方插画使用 Lanczos 等比例缩放与透明补边，完整牌图按记录的最近邻方式放大；输出哈希写回清单。
 
-牌桌采用 `Assets/Table/Board.jpg` 的原始「天下牌局」背景和 `gameBase`、`seatbottom`、`selfseat`、`seat` 中的边框、装备空槽、操作按钮及技能按钮。21 个资源的来源网址、atlas 帧名、裁切坐标和 SHA256 在 `table-art-catalog.json` 中。装备空槽只使用 `self_seat_bg` 的空白首行，不使用含「废除」字样的 `self_equip_*` 图片。
+## 牌桌与技能
 
-布局适配现有八人牌局：左下五类装备槽，手牌从左侧连续排列，右下技能按钮与本方武将，右侧常驻牌局记录。中央最近出牌也绑定公开事件中的牌种。这里不从底层牌堆补充事件未公开的花色、点数。
+[table-art-catalog.json](table-art-catalog.json) 保存「天下牌局」背景、边框、装备空槽、操作与技能按钮的来源、atlas 帧和哈希。装备区从玩家快照显示真实牌面、花色和点数，中央公开牌使用已公开事件资料。
 
-出牌操作区固定为「确定 / 取消 / 结束」，无选择时前两者保留位置但禁用；响应和弃牌仍使用原有提示与确认命令。`grade_cover_4` 叠加在手牌底色上，`SeatRoundState_4` 仅在玩家出牌阶段显示。参考截图的计时条没有接入：当前本地牌局没有操作时限，不显示虚构的倒计时。
+出牌操作区提供确定、取消、结束；没有对应操作时按钮禁用。本地对局没有操作时限。技能按钮按内容技能 ID 和当前技能拥有者重新查找合法动作，只有可执行动作才能进入选择；费用和目标选齐后由主按钮或 Enter 提交。当前不能主动使用的技能保留状态与说明。
 
-`HumanEquipmentSlots` 从当前快照投影装备及其真实花色、点数；原始牌面不会写死这些值。技能按钮通过内容技能 ID（旧技能使用 `SkillKind`）重新查找当前合法动作，然后调用原有技能选择命令。主动技能可以点击，自动/锁定技能保持只读，完整说明在悬停提示中。超过两个技能时使用两列；技能较多可滚动。整理手牌位于右侧技能区上方。
+装备效果、共享入口与额外激活按合法动作进入技能区或补充操作区；技能选择期间避免重复提交草稿。具体操作见 [主动技能](../SKILL_INTERACTION.md)、[响应](../HAND_RESPONSES.md) 与 [战斗反馈](../BATTLE_FEEDBACK.md)。
 
-普通武将技能不再在中央重复显示入口；装备效果、额外激活和无法由武将技能按钮表达的合法动作仍在补充操作区显示。技能选牌期间，技能按钮禁用；只能通过主确认按钮或 Enter 支付代价，重复点击技能按钮不提交草稿。
-
-## 验证
-
-WPF 检查 `--filter=original card artwork` 覆盖所有牌面的加载、真实手牌的花色点数/选择、禁用状态及指南；`--filter=reference table layout` 覆盖真实装备动作、装备条映射、三个窗口尺寸和技能按钮发动。`--filter=skill rail` 检查主动/锁定技能状态及说明。渲染图保存在测试输出目录。
-
-发布包验证牌面 SHA256、尺寸和已实现牌种覆盖率，以及组件、嵌入牌桌资源的 SHA256，分别记录 `CardAssets`、`CardComponents`、`TableAssets`。牌面内印刷文字保留原素材，工具提示和指南规则正文以当前游戏规则为准。
+构建／包检查依据清单核对牌面、组件与牌桌资源的哈希和尺寸。原素材中的印刷文字属于图像，工具提示与指南正文使用当前内容规则。

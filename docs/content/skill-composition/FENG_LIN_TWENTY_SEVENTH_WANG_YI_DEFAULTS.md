@@ -4,7 +4,7 @@
 
 正文要求：贞烈可在成为其他角色杀或普通锦囊目标后实失 1 HP，令同一牌对本人无效；随后可获得使用者一张牌或在本回合结束阶段发动一次秘计。秘计在结束阶段可摸已损失 HP 数 X 的牌，然后可向其他角色交出至多 X 张牌。
 
-以下是未由本轮官方 FAQ 证实的工程默认，不冒充正文细则：
+以下是未由采用的官方 FAQ 证实的工程默认，不冒充正文细则：
 
 - 贞烈以实际 Use 的 actor 为“使用者”，provider 保留在真实用牌身份中，但不代替 actor 被取得牌。普通 Slash/Dodge 打出不触发；旧神速 Action=null 的真实虚拟杀按成熟原拥有程序及 TargetsConfirmed 事实证明，不添加旧 Action。无懈没有角色指定目标，因此不创造角色目标机会。
 - 可取得使用者当前 HE；判断区不包含在此“牌”默认中。暗手仍使用原不透明槽位选择。选择收益前可停止；选“获得”后无牌则跳过，不重新选择收益。
@@ -18,6 +18,4 @@
 
 新公开事件仅含标量和全标量 immutable receipt/source，不内嵌可变实体集合。新拥有帧的 Candidates、Contexts（包括 Facts 集合）与 PaidCardIds 在构造、init/with 和 JSON 参数反序列化时复制为只读集合；PlayerSnapshot 继续使用既有统一视图冻结，不另加人物快照。集合型 Facts 不参与 record 引用相等判断，拥有证明只比合同所需标量、原 candidate、instance/hash 与实际事件/移动 ledger。
 
-移动后从当前 owning frame 合并赠牌 receipt，保留原生白银狮子追加的 recovery queue；局部新 await 使用准确 AwaitedProgramMovement 先排该 root 的 replacement/HP，再 movement，不改经典通用路径。此为静态闭环，尚无实际交叉运行证据。
-
-四项草稿使用固定 Seed=31 的小正式资源夹具，在真实 HP、Dying、桃、暗手选择和赠牌子窗分别 `engine = Restore(engine, registry)` 后继续命令；拒绝非法选择核四视角与实体账本不变。原生检查只用 Start/Advance。当前全部未编译、未加载、未运行，原生达到边界、死亡/跳过 Ending/额外回合与九诗及白银狮子交叉仍不能宣称实际验收。
+移动后从当前 owning frame 合并赠牌 receipt，保留原生白银狮子追加的 recovery queue；局部新 await 使用准确 AwaitedProgramMovement 先排该 root 的 replacement/HP，再 movement，不改经典通用路径。

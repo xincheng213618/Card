@@ -7,4 +7,4 @@
 - 只有公开已阵亡 Identity Loyalist/Rebel/Renegade 命中三类声明集；活人公开身份和国战占位角色都不命中。多名同身份亡者不叠加放宽次数或增伤金额。
 - 每个真正 BeforeDamage recipient 一次独立机会，chain/redirect 仍锁该原 attack 当前 recipient；首个实际传播伤害决定基数，后续本地 ±1 不累加到第三人。原 nature 保持。
 - Female 来自当前官方 biography 的“女子”推断，API gender 字段缺失原样记录；BaseHp3 来自 API，初始满血沿现有规则，initial_hp=0 不用作角色 HP。
-- 原官网未提供复杂交互 FAQ。多材料/provider/virtual Alcohol/实体醇/round-priced Wine 的完整 child proof 复用现成熟 helpers；这属于静态实施依据，未运行不等于已实测可用。
+- 原官网未提供复杂交互 FAQ；实际材料、提供者及各类救援的子链许可由精确原生父返回验证，不能用任意帧存在代替已付证明。

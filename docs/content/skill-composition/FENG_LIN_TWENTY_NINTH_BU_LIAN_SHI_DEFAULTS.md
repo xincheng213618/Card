@@ -1,6 +1,6 @@
 # 工程默认与一手事实的分界
 
-这些选择不是官网 FAQ 或其他产品口径。当前普通 OL 775 正文来源由 root 已冻结，未新增 HTTP。
+这些选择不是官网 FAQ 或其他产品口径。对应规则来源保存在人物来源档案中。
 
 ## 安恤
 
@@ -21,7 +21,3 @@
 - 恢复是实际 Recover1，上限截断；满血没有假 Recovery。死亡触发在赢家已确定之后沿成熟 OwnerDied 不发行默认取消。原 death 再发生不能重复同一发行。
 
 ## 静态覆盖限制
-
-四项草稿仅表达真实命令预期，未加载、编译或运行。安恤或初次 Ending 收益下的深层 gain/HP→Damage、AttackHpLoss、SelfDyingResponse、queued zero Wine/实体酒/醇醪救援使用局部锁 root/ledger/逐边证明，只做静态审查。本人的同区 Hand 语义与首 gain 真实失技后的成本保留/未付后继取消已有命令草稿，仍待统一验证；没有人物 state 反射或强塞命令。所有官方事实与这些默认保持分开。
-
-死亡收益下再发 Damage/新 Dying 是现有共享机制尚未支持的已知组合限制：原 ActiveDying 尚在，成熟伤害入口、濒死入口和攻击回返都拒绝该残留。需要专门的原 Death/Dying suspension/return 协议才能闭合，不能只宽入口。本稿保留真实死亡收益 Draw3/Recover1 与普通 gain/HP 子选择，不悄悄略过观察者触发，不把此组合列为已验收或仅未运行。

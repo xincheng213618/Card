@@ -7,7 +7,7 @@
 - “每个结束阶段”覆盖本人及他人真实正常/额外回合的 Ending。以两个互斥 own/otherLiving trigger 组合完整表达；没有经典的发动前相等限制、没有 Other 限制。
 - 同一 owner/current seat 仍顺序发两次 Draw1，所有第一份孩子回返后才发行第二份，所有第二份孩子回返后才查最终手牌。比较不是激活时、首份摸牌后或摸牌前冻结数。
 - 真正 Round 失效按 owner+skill+state 保存，来源失效/重新获得不同实例仍保持到真实下一轮；extraTurn 不推进轮。额外 Play 不重置 Round，后续真正 Ending 仍受同一块额度限制。跳过阶段没有假 Ending。
-- 已接受 6700 后，source-loss 本身不撤回已签发的两份收益和最终比较；返回靠原定义/hash/实例发行事实，不重查当前 shard。owner/current actor 真死亡或胜负确定时排空已发生孩子、取消未发行份额和最终比较，账单不回滚。空牌堆实际 Draw0 仍保留该真实请求/数量，两份完成后正常比较。以上死亡/零 draw 只静态未运行。
+- 已接受 6700 后，source-loss 本身不撤回已签发的两份收益和最终比较；返回靠原定义/hash/实例发行事实，不重查当前 shard。owner/current actor 真死亡或胜负确定时排空已发生孩子、取消未发行份额和最终比较，账单不回滚。空牌堆实际 Draw0 仍保留该真实请求/数量，两份完成后正常比较。
 
 ## 燕语
 
@@ -19,5 +19,3 @@
 - 重铸成本完成后 source-loss 不撤回 discard、次数和成本孩子；未发奖励按成熟重铸来源资格取消，实际 Draw0/CardRecastEvent保留。最后一节点没有额外授技/状态后继。
 
 ## 静态限制
-
-未编译、未运行 loader、任何测试或基准。所有深层 cost/gain→Damage、AttackHpLoss、SelfDying/酒/醇醪/RecoveryReplacement 等只有精确 producer/连续 typed 边静态证明。没有把草稿当运行验收。最终 OLD 基于 da931c4c97600741ac521bd4c1be4d83d9ed9cce 的逐文件原始字节；含 BOM 的 LF 与 BOM-free LF 两种散列分列。

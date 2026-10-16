@@ -14,5 +14,3 @@ The complete official text is reproduced unchanged in the presentation and CONTR
 10. Only this capability's two unconditional standalone windows are supported; it does not compose an outer marker cost, once-per-turn usage, choice group or arbitrary trigger condition around an already issued per-target obligation.
 11. Native AI uses public relation scores and displayed equipment/self-hand values; an opaque foreign hand slot has a fixed prior 5. Initial enemy discard versus free draw uses a public hostility threshold 1.5. These are engineering heuristics, not measured win-rate claims. No hidden foreign identity or RNG is consulted.
 12. The 7000 / 7200 bridge is a joint integration requirement. Each capability maintains its own frozen visited/announced keys on the real owning CardUse frame. Mutual additions only refill missing new-capability targets; old actual-target bindings are not replayed.
-
-No global RulesVersion, schema or package release version is changed here. No runtime acceptance, cold-execution success, native result, test timing or media-suite acceptance is asserted; all drafts await the user's resumed verification window.

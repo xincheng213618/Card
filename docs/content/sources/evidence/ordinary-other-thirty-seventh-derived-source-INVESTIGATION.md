@@ -1,16 +1,7 @@
-# Exact derived skill source investigation
+# 派生技能数字引用的来源边界
 
-The current primary pages for candidate 116 and candidate 117 expose numerical references in `font href` attributes. These numbers do not identify corresponding hero pages: the retained named hero index assigns, for example, 382 to Sun Deng and 363 to Bu Zhi. They are therefore preserved as linked references without inventing a hero route or a version binding.
+官方人物页的 `font href` 数字表示关联技能引用，不能把它当成同号武将的详情页。页面脚本的有限读取没有解析器证据，也不能据此推断网站全局没有对应来源。
 
-Two current script resources explicitly advertised by the captured 117 page were fetched once each and read as source data, without execution: `heroDetail.js?1` (page line 523) and `commen.js` (line 521). The first handles hero detail display; the primary page separately advertises the hero-info request. The second defines a general Ajax wrapper and site reporting. Neither inspected resource contains a resolver for the linked numerical skill references.
+当前[夏侯霸资料](../../../../src/Characters/xiahou-ba/ol/Content/ol-xiahou-ba.character.json)与技能规则已经明确豹变的体力阈值和派生技能绑定。大乔小乔的天香、流离引用仍须与其具体产品线及版本分别核实，经典大乔、小乔和界小乔的同名技能不自动证明这种绑定。
 
-The previously retained named `batch29/source-preflight/451-linked-skill-followup/header.js.raw` was read narrowly as historical context. It likewise supplies no such resolver, but it was not refreshed in this investigation. These bounded observations do not establish that no route or authoritative rule source exists anywhere on the site.
-
-The unresolved references remain:
-
-- 116 Xiahou Ba: Tiaoxin 985, Paoxiao 34, Shensu 363.
-- 117 Da Qiao Xiao Qiao: Tianxiang 382, Liuli 61.
-
-Complete implementation of either character still needs authoritative full definitions with an explicit version-compatible binding to these references. No guessed endpoint probes, guessed derived definitions, or incomplete character registrations were performed. The original primary captures remain unchanged for subsequent work. Other source-ready content continues under the same long-running goal.
-
-No Card compiler, build, production loader, test, UI, game, native AI, benchmark, package publication or push was executed.
+来源页、实际关联文本、版本差异与实现采用的工程解释分别保存；源码行为以人物当前规则和注册为准。见[来源规范](../../BWIKI_CONTENT_BACKLOG.md)。
